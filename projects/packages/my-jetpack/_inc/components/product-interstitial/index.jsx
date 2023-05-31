@@ -1,6 +1,7 @@
 import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
@@ -11,6 +12,7 @@ import ProductDetailTable from '../product-detail-table';
 import boostImage from './boost.png';
 import crmImage from './crm.png';
 import extrasImage from './extras.png';
+import jetpackAiImage from './jetpack-ai.png';
 import searchImage from './search.png';
 import styles from './style.module.scss';
 import videoPressImage from './videopress.png';
@@ -26,6 +28,7 @@ import videoPressImage from './videopress.png';
  * @param {boolean} props.installsPlugin         - Whether the interstitial button installs a plugin*
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
  * @param {boolean} props.preferProductName      - Use product name instead of title
+ * @param {string} props.imageContainerClassName - Append a class to the image container
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -36,6 +39,7 @@ export default function ProductInterstitial( {
 	supportingInfo,
 	preferProductName = false,
 	children = null,
+	imageContainerClassName = '',
 } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle, tiers } = detail;
@@ -164,7 +168,12 @@ export default function ProductInterstitial( {
 									preferProductName={ preferProductName }
 								/>
 							</Col>
-							<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
+							<Col
+								sm={ 4 }
+								md={ 4 }
+								lg={ 5 }
+								className={ classNames( styles.imageContainer, imageContainerClassName ) }
+							>
 								{ bundle ? (
 									<ProductDetailCard
 										slug={ bundle }
@@ -249,6 +258,23 @@ export function ExtrasInterstitial() {
 	return (
 		<ProductInterstitial slug="extras" installsPlugin={ true }>
 			<img src={ extrasImage } alt="Extras" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * JetpackAIInterstitial component
+ *
+ * @returns {object} JetpackAIInterstitial react component.
+ */
+export function JetpackAIInterstitial() {
+	return (
+		<ProductInterstitial
+			slug="jetpack-ai"
+			installsPlugin={ true }
+			imageContainerClassName={ styles.aiImageContainer }
+		>
+			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>
 	);
 }

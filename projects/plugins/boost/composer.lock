@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "599593cf3fbf60a3516c01f89b39bba6",
+    "content-hash": "9adc5931320b0a6ed8728b652b650103",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -171,10 +171,9 @@
                 "reference": "6067cbfb8d42d57a1fcf7bd11c7f20f80fe75db7"
             },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/6067cbfb8d42d57a1fcf7bd11c7f20f80fe75db7",
-                "reference": "6067cbfb8d42d57a1fcf7bd11c7f20f80fe75db7",
-                "shasum": ""
+                "type": "path",
+                "url": "../../packages/autoloader",
+                "reference": "745ab65622365b8ea2ce1d1906d5eeac6fa1fc5c"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -208,10 +207,86 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
-            "support": {
-                "source": "https://github.com/Automattic/jetpack-autoloader/tree/v2.11.20"
+            "keywords": [
+                "autoload",
+                "autoloader",
+                "composer",
+                "jetpack",
+                "plugin",
+                "wordpress"
+            ],
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-boost-speed-score",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/boost-speed-score",
+                "reference": "a8fb6391ea66536025236a2d84a3eb775c5367b7"
             },
-            "time": "2023-05-11T05:50:38+00:00"
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "brain/monkey": "^2.6",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-boost-speed-score",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-boost-speed-score/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-boost-speed-score",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-speed-score.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Boost_Speed_Score\\Tests\\": "./tests/php"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A package that handles the API to generate the speed score.",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-composer-plugin",
@@ -222,10 +297,9 @@
                 "reference": "c6298f3efd8a1ca76182f685d0075080e2681aa3"
             },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-composer-plugin/zipball/c6298f3efd8a1ca76182f685d0075080e2681aa3",
-                "reference": "c6298f3efd8a1ca76182f685d0075080e2681aa3",
-                "shasum": ""
+                "type": "path",
+                "url": "../../packages/composer-plugin",
+                "reference": "3774f7f0a289b29d5d6c88212aed5c634fbc56ac"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0"
@@ -258,10 +332,15 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
-            "support": {
-                "source": "https://github.com/Automattic/jetpack-composer-plugin/tree/v1.1.10"
-            },
-            "time": "2023-02-20T19:47:32+00:00"
+            "keywords": [
+                "composer",
+                "i18n",
+                "jetpack",
+                "plugin"
+            ],
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/jetpack-config",
@@ -319,10 +398,9 @@
                 "reference": "5c828136d93086ee86acb4f850e0d5150e3a2a67"
             },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/5c828136d93086ee86acb4f850e0d5150e3a2a67",
-                "reference": "5c828136d93086ee86acb4f850e0d5150e3a2a67",
-                "shasum": ""
+                "type": "path",
+                "url": "../../packages/connection",
+                "reference": "6157e784394700ac8663b629c55cba5632a2b1a5"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4.20",
@@ -353,7 +431,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.51.x-dev"
+                    "dev-trunk": "1.52.x-dev"
                 }
             },
             "autoload": {
@@ -747,10 +825,9 @@
                 "reference": "286b6511a9da4ca5ab1c30c5ad4bb2b1aca49204"
             },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/286b6511a9da4ca5ab1c30c5ad4bb2b1aca49204",
-                "reference": "286b6511a9da4ca5ab1c30c5ad4bb2b1aca49204",
-                "shasum": ""
+                "type": "path",
+                "url": "../../packages/my-jetpack",
+                "reference": "ebcda0c43475dece868ad5b79f88af134bf0e699"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2.20",
@@ -780,7 +857,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.12.x-dev"
+                    "dev-trunk": "2.14.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1335,10 +1412,9 @@
                 "reference": "7cf54b678e9a0e284a772abf01317ccc1b811715"
             },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-changelogger/zipball/7cf54b678e9a0e284a772abf01317ccc1b811715",
-                "reference": "7cf54b678e9a0e284a772abf01317ccc1b811715",
-                "shasum": ""
+                "type": "path",
+                "url": "../../packages/changelogger",
+                "reference": "6e45a8dd0df385b87369efa5d74afe338e505dc9"
             },
             "require": {
                 "php": ">=5.6",
@@ -1378,10 +1454,15 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
-            "support": {
-                "source": "https://github.com/Automattic/jetpack-changelogger/tree/v3.3.2"
-            },
-            "time": "2023-02-20T19:46:43+00:00"
+            "keywords": [
+                "changelog",
+                "cli",
+                "dev",
+                "keepachangelog"
+            ],
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "automattic/wordbless",
@@ -4361,7 +4442,23 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "automattic/jetpack-admin-ui": 20,
+        "automattic/jetpack-assets": 20,
+        "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-boost-speed-score": 20,
+        "automattic/jetpack-composer-plugin": 20,
+        "automattic/jetpack-config": 20,
+        "automattic/jetpack-connection": 20,
+        "automattic/jetpack-device-detection": 20,
+        "automattic/jetpack-image-cdn": 20,
+        "automattic/jetpack-lazy-images": 20,
+        "automattic/jetpack-my-jetpack": 20,
+        "automattic/jetpack-plugin-deactivation": 20,
+        "automattic/jetpack-plugins-installer": 20,
+        "automattic/jetpack-wp-js-data-sync": 20,
+        "automattic/jetpack-changelogger": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

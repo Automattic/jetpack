@@ -583,6 +583,7 @@ class Main extends React.Component {
 			case '/recommendations/welcome-backup':
 			case '/recommendations/welcome-complete':
 			case '/recommendations/welcome-security':
+			case '/recommendations/welcome-starter':
 			case '/recommendations/welcome-antispam':
 			case '/recommendations/welcome-videopress':
 			case '/recommendations/welcome-search':
@@ -837,7 +838,7 @@ class Main extends React.Component {
 
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowAgenciesCard() && (
-						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 25 } />
+						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 60 } />
 					) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }

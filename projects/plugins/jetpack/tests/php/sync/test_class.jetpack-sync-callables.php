@@ -96,7 +96,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_callable_whitelist() {
 		add_filter( 'jetpack_set_available_extensions', array( $this, 'add_test_block' ) );
-		Jetpack_Gutenberg::init();
 		Blocks::jetpack_register_block( 'jetpack/test' );
 
 		$callables = array(
@@ -1085,7 +1084,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'80',
 			'/xmlrpc.php',
 		);
-		$normalize                 = join( "\n", $normalized_request_pieces ) . "\n";
+		$normalize                 = implode( "\n", $normalized_request_pieces ) . "\n";
 
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', $normalize, 'secret', true ) );
 

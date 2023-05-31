@@ -1,11 +1,22 @@
+/**
+ * External dependencies
+ */
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
+/**
+ * Internal dependencies
+ */
 import attributes from './attributes';
 import edit from './edit';
-
+import Icon from './icons/ai-assistant';
+/**
+ * Extend:
+ * - blocks (Multiple-blocks edition)
+ */
+// import './extensions/multiple-blocks-edition'; @todo: cosider to enable it in the future
 /**
  * Style dependencies
  */
@@ -31,7 +42,7 @@ export const settings = {
 		</Fragment>
 	),
 	icon: {
-		src: 'superhero',
+		src: Icon,
 		foreground: getIconColor(),
 	},
 	category: 'text',

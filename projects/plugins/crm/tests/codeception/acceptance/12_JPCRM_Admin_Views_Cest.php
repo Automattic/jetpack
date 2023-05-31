@@ -25,7 +25,7 @@ class JPCRM_Admin_Views_Cest {
 		);
 
 		foreach ( $expectedAdminMenus as $menu ) {
-			$I->see( $menu, '.zbs-admin-main-menu .item' );
+			$I->see( $menu, 'jpcrm-top-menu .item' );
 		}
 	}
 	public function see_jpcrm_dashboard( AcceptanceTester $I ) {
@@ -44,7 +44,7 @@ class JPCRM_Admin_Views_Cest {
 		);
 
 		foreach ( $expectedBlocks as $block_title ) {
-			$I->see( $block_title, 'h4.panel-title' );
+			$I->see( $block_title, '.jpcrm-dashcard-header h4' );
 		}
 	}
 

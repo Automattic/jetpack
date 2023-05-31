@@ -1,7 +1,7 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
-import { isaData, isaIgnoredImages } from './isa-data';
+import { isaIgnoredImages, isaData } from './isa-data';
 
 const Group = z.object( {
 	name: z.string(),
@@ -18,27 +18,31 @@ const image_size_analysis_groups = jetpack_boost_ds.createAsyncStore(
 			pages: Group,
 			posts: Group,
 			other: Group,
+			ignored: Group,
 		} )
 		// Data unavailable when the the flag is disabled.
 		.optional()
 );
 
+export const isaGroups = image_size_analysis_groups.store;
+
 export const imageDataGroupTabs = derived(
-	[ image_size_analysis_groups.store, isaIgnoredImages ],
-	( [ $groups, $ignored ] ) => {
+	[ isaGroups, isaIgnoredImages ],
+	( [ $isaGroups, $isaIgnoredImages ] ) => {
+		const all = {
+			name: 'All',
+			issues:
+				Object.values( $isaGroups )
+					.map( group => group.issues )
+					.reduce( ( a, b ) => a + b, 0 ) - $isaIgnoredImages.length,
+		};
+
 		const groups = {
-			...{
-				all: {
-					name: 'All',
-					issues: Object.values( $groups ).reduce( ( total, group ) => total + group.issues, 0 ),
-				},
-			},
-			...$groups,
-			...{
-				ignored: {
-					name: 'Ignored',
-					issues: $ignored.length,
-				},
+			all,
+			...$isaGroups,
+			ignored: {
+				...$isaGroups.ignored,
+				issues: $isaGroups.ignored.issues + $isaIgnoredImages.length,
 			},
 		};
 
@@ -48,10 +52,9 @@ export const imageDataGroupTabs = derived(
 
 export const imageDataActiveGroup = derived(
 	[ imageDataGroupTabs, isaData ],
-	( [ $groups, $imageData ] ) => {
+	( [ $groups, $imageData ] ): z.infer< typeof Group > => {
 		return $groups[ $imageData.query.group ];
 	}
 );
 
 export type ISA_Group = z.infer< typeof Group >;
-export const isaGroups = image_size_analysis_groups.store;

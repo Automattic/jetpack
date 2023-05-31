@@ -2962,15 +2962,11 @@ function zeroBS___________DAL30Helpers(){return;}
 							$retArray[ $outputPrefix . $fK ] = sanitize_textarea_field( $arraySource[ $fieldPrefix . $fK ] );
 							break;
 
-		                    case 'date':
+						case 'date':
+							$safe_text = sanitize_text_field( $arraySource[ $fieldPrefix . $fK ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-		                        $retArray[$outputPrefix.$fK] = sanitize_text_field($arraySource[$fieldPrefix.$fK]);
-
-	                    		// translate "01/12/2018" to UTS (without time)
-	                    		// ... by default from DAL3.0
-	                    		$retArray[$outputPrefix.$fK] = zeroBSCRM_locale_dateToUTS($retArray[$outputPrefix.$fK],false);
-
-		                        break;
+							$retArray[ $outputPrefix . $fK ] = jpcrm_date_str_to_uts( $safe_text, '!Y-m-d', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							break;
 
 		                    case 'datetime':
 
@@ -3297,7 +3293,6 @@ function zeroBS___________DAL30Helpers(){return;}
 		    		} // / foreach
 
 		    	} // / if has model
-
 
 	        // $removeEmpties
 	        if ($removeEmpties){

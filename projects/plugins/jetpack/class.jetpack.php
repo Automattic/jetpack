@@ -9,6 +9,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -682,7 +683,6 @@ class Jetpack {
 		 * Prepare Gutenberg Editor functionality
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
-		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'init' ) );
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_block_editor_extensions' ), 9 );
 		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
@@ -948,6 +948,10 @@ class Jetpack {
 
 		Partner::init();
 		My_Jetpack_Initializer::init();
+
+		// Initialize Boost Speed Score
+		$modules = Jetpack_Boost_Modules::init();
+		new Speed_Score( $modules, 'jetpack-dashboard' );
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
@@ -2555,7 +2559,7 @@ class Jetpack {
 
 		if ( $deactivated ) {
 			if ( $send_state_messages ) {
-				self::state( 'deactivated_plugins', join( ',', $deactivated ) );
+				self::state( 'deactivated_plugins', implode( ',', $deactivated ) );
 			}
 
 			if ( $redirect ) {
@@ -4250,7 +4254,7 @@ p {
 				$module_names[] = "<strong>{$module['name']}</strong>";
 			}
 
-			$module_slugs = join( ',', $module_slugs );
+			$module_slugs = implode( ',', $module_slugs );
 			?>
 <div id="message" class="jetpack-message jetpack-err">
 	<div class="squeezer">

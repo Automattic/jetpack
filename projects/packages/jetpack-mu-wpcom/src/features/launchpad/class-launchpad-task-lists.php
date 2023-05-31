@@ -129,6 +129,18 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Check if a task list is enabled by checking its is_enabled_callback callback.
+	 *
+	 * @param string $id Task List id.
+	 * @return bool|null True if enabled, false if not, null if not found.
+	 */
+	public function is_task_list_enabled( $id ) {
+		$task_list = $this->get_task_list( $id );
+
+		return $this->load_value_from_callback( $task_list, 'is_enabled_callback', null );
+	}
+
+	/**
 	 * Get all registered Launchpad Task Lists.
 	 *
 	 * @return array All registered Launchpad Task Lists.
@@ -172,6 +184,10 @@ class Launchpad_Task_Lists {
 		$task_list           = $this->get_task_list( $id );
 		$tasks_for_task_list = array();
 
+		if ( empty( $task_list['task_ids'] ) ) {
+			return $tasks_for_task_list;
+		}
+
 		// Takes a registered task list, looks at its associated task ids,
 		// and returns a collection of associated tasks.
 		foreach ( $task_list['task_ids'] as $task_id ) {
@@ -208,10 +224,11 @@ class Launchpad_Task_Lists {
 	 * @return Task Task with current state.
 	 */
 	private function build_task( $task ) {
-		$built_task                 = array(
-			'id'    => $task['id'],
-			'title' => $task['title'],
+		$built_task = array(
+			'id' => $task['id'],
 		);
+
+		$built_task['title']        = $this->load_title( $task );
 		$built_task['completed']    = $this->is_task_complete( $task );
 		$built_task['disabled']     = $this->is_task_disabled( $task );
 		$built_task['subtitle']     = $this->load_subtitle( $task );
@@ -234,6 +251,28 @@ class Launchpad_Task_Lists {
 			return call_user_func_array( $task[ $callback ], array( $task, $default ) );
 		}
 		return $default;
+	}
+
+	/**
+	 * Loads a title for a task, calling the 'get_title' callback if it exists,
+	 * or falling back on the value for the 'title' key if it is set.
+	 * We prefer the callback so we can defer the translation until after the
+	 * user's locale has been set up.
+	 *
+	 * @param Task $task A task definition.
+	 * @return string The title for the task.
+	 */
+	private function load_title( $task ) {
+		$title = $this->load_value_from_callback( $task, 'get_title' );
+		if ( ! empty( $title ) ) {
+			return $title;
+		}
+
+		if ( isset( $task['title'] ) ) {
+			return $task['title'];
+		}
+
+		return '';
 	}
 
 	/**
@@ -465,8 +504,11 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
-		if ( ! isset( $task['title'] ) ) {
-			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires a "title" attribute', '6.1' );
+		// For now, allow the 'title' attribute.
+		$has_valid_title = isset( $task['title'] ) || ( isset( $task['get_title'] ) && is_callable( $task['get_title'] ) );
+
+		if ( ! $has_valid_title ) {
+			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires a "title" attribute or a "get_title" callback', '6.2' );
 			return false;
 		}
 

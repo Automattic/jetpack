@@ -423,6 +423,7 @@ abstract class SAL_Post {
 		if ( $publicize ) {
 			foreach ( $publicize as $service => $data ) {
 				switch ( $service ) {
+					// @todo explore removing once Twitter is removed from Publicize.
 					case 'twitter':
 						foreach ( $data as $datum ) {
 							$publicize_urls[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
@@ -750,7 +751,7 @@ abstract class SAL_Post {
 		$old_pages = $pages;
 		$old_page  = $page;
 
-		$content = join( "\n\n", $pages );
+		$content = implode( "\n\n", $pages );
 		$content = preg_replace( '/<!--more(.*?)?-->/', '', $content );
 		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited -- Assignment to globals is intentional
 		$pages = array( $content );
@@ -935,7 +936,7 @@ abstract class SAL_Post {
 
 		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif', 'webp' ), true ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
-			if ( isset( $metadata['height'], $metadata['width'] ) ) {
+			if ( isset( $metadata['height'] ) && isset( $metadata['width'] ) ) {
 				$response['height'] = $metadata['height'];
 				$response['width']  = $metadata['width'];
 			}
@@ -975,7 +976,7 @@ abstract class SAL_Post {
 
 		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ), true ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
-			if ( isset( $metadata['height'], $metadata['width'] ) ) {
+			if ( isset( $metadata['height'] ) && isset( $metadata['width'] ) ) {
 				$response['height'] = $metadata['height'];
 				$response['width']  = $metadata['width'];
 			}

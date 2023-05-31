@@ -18,6 +18,8 @@ const BackupStorageSpace = () => {
 	);
 	const storageLimit = useSelect( select => select( STORE_ID ).getBackupStorageLimit() );
 	const storageSize = useSelect( select => select( STORE_ID ).getBackupSize() );
+	const lastBackupSize = useSelect( select => select( STORE_ID ).getLastBackupSize() );
+
 	const planRetentionDays = useSelect( select => select( STORE_ID ).getActivityLogLimitDays() );
 	const minDaysOfBackupsAllowed = useSelect( select =>
 		select( STORE_ID ).getMinDaysOfBackupsAllowed()
@@ -101,7 +103,13 @@ const BackupStorageSpace = () => {
 					storageLimit={ storageLimit }
 					usageLevel={ usageLevel }
 				/>
-				<StorageUsageDetails storageUsed={ storageSize } storageLimit={ storageLimit } />
+				<StorageUsageDetails
+					storageUsed={ storageSize }
+					storageLimit={ storageLimit }
+					lastBackupSize={ lastBackupSize }
+					usageLevel={ usageLevel }
+					planRetentionDays={ planRetentionDays }
+				/>
 
 				{ usageLevel !== StorageUsageLevels.Normal && (
 					<StorageAddonUpsellPrompt usageLevel={ usageLevel } />

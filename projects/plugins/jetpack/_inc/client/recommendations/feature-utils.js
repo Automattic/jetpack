@@ -20,6 +20,7 @@ import { isFeatureActive } from '../state/recommendations';
 import {
 	getSiteProduct,
 	getSiteProductMonthlyCost,
+	getSiteProductYearlyDiscount,
 	isFetchingSiteProducts,
 } from '../state/site-products';
 
@@ -424,7 +425,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Congratulations, you’ve just unlocked the full power of the Jetpack suite; all of our Security, Performance, Growth, and Design tools.',
 					'jetpack'
 				),
-				ctaText: __( 'Setup your new tools', 'jetpack' ),
+				ctaText: __( 'Set up your new tools', 'jetpack' ),
 				hasNoAction: true,
 				illustration: 'assistant-complete-welcome',
 			};
@@ -435,7 +436,17 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Congratulations, you’ve just unlocked comprehensive WordPress site security, including backups, malware scanning, and spam protection.',
 					'jetpack'
 				),
-				ctaText: __( 'Setup your new tools', 'jetpack' ),
+				ctaText: __( 'Set up your new tools', 'jetpack' ),
+				hasNoAction: true,
+			};
+		case 'welcome__starter':
+			return {
+				question: __( 'Welcome to Jetpack Starter!', 'jetpack' ),
+				description: __(
+					'Congratulations! You’ve unlocked essential security tools for your site, including real-time backups and spam protection for comments and forms. Let’s get everything set up. It will only take a minute.',
+					'jetpack'
+				),
+				ctaText: __( 'Set up Jetpack Starter', 'jetpack' ),
 				hasNoAction: true,
 			};
 		case 'welcome__antispam':
@@ -498,7 +509,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					__( 'Jetpack VaultPress Backup', 'jetpack' ),
 					__( 'Jetpack Scan', 'jetpack' ),
 				],
-				ctaText: __( 'Setup your new powers', 'jetpack' ),
+				ctaText: __( 'Set up your new powers', 'jetpack' ),
 				hasNoAction: true,
 				illustration: 'assistant-golden-token-welcome',
 			};
@@ -575,16 +586,21 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'vaultpress-backup': {
 			const siteRawUrl = getSiteRawUrl( state );
-			const monthlyPrice = getSiteProductMonthlyCost( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
-			const product = getSiteProduct( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
-			const price = formatCurrency( monthlyPrice, product?.currency_code );
-			const ctaText = isFetchingSiteProducts( state )
-				? __( 'Try for 30 days', 'jetpack' )
-				: sprintf(
-						/* translators: %s: is a formatted currency. e.g. $1 */
-						__( 'Try for %s for 30 days', 'jetpack' ),
-						price
-				  );
+			const discount = getSiteProductYearlyDiscount( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
+
+			const getCtaText = () => {
+				if ( isFetchingSiteProducts( state ) ) {
+					return __( 'Get a discount for your first year', 'jetpack' );
+				}
+
+				return discount > 0
+					? sprintf(
+							/* translators: %(discount)s: is a discount percentage. e.g. 50 */
+							__( 'Get %(discount)s%% off your first year', 'jetpack' ),
+							{ discount }
+					  )
+					: __( 'Get VaultPress Backup', 'jetpack' );
+			};
 
 			return {
 				progressValue: 100,
@@ -608,7 +624,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					),
 					__( 'VaultPress Backup is so easy to use; no developer required.', 'jetpack' ),
 				],
-				ctaText: ctaText,
+				ctaText: getCtaText(),
 				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
 					site: siteRawUrl,
 					path: PLAN_JETPACK_BACKUP_T1_YEARLY,

@@ -31,6 +31,10 @@ export const getUsageLevel = (
 		return null;
 	}
 
+	if ( available === null || used === null ) {
+		return null;
+	}
+
 	if (
 		!! minDaysOfBackupsAllowed &&
 		!! daysOfBackupsAllowed &&

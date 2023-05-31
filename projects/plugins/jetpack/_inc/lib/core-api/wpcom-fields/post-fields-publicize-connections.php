@@ -120,6 +120,12 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 					'readonly'    => true,
 				),
 				'display_name'    => array(
+					'description' => __( 'Display name of the connected account', 'jetpack' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'username'        => array(
 					'description' => __( 'Username of the connected account', 'jetpack' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
@@ -236,8 +242,8 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 					$output_connection[ $property ] = $connection[ $property ];
 				}
 			}
-
-			$output_connection['id'] = (string) $connection['unique_id'];
+			$output_connection['id']            = (string) $connection['unique_id'];
+			$output_connection['connection_id'] = (string) $connection['id'];
 
 			$output_connections[] = $output_connection;
 		}
@@ -349,22 +355,25 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			}
 
 			foreach ( $available_connections_by_service_name[ $requested_connection['service_name'] ] as $available_connection ) {
-				$changed_connections[ $available_connection['id'] ] = $requested_connection['enabled'];
+				if ( $requested_connection['connection_id'] === $available_connection['id'] ) {
+					$changed_connections[ $available_connection['id'] ] = $requested_connection['enabled'];
+					break;
+				}
 			}
 		}
 
 		// Handle { id: $id, enabled: (bool) }
 		// These override the service_name settings.
 		foreach ( $requested_connections as $requested_connection ) {
-			if ( ! isset( $requested_connection['id'] ) ) {
+			if ( ! isset( $requested_connection['connection_id'] ) ) {
 				continue;
 			}
 
-			if ( ! isset( $available_connections_by_connection_id[ $requested_connection['id'] ] ) ) {
+			if ( ! isset( $available_connections_by_connection_id[ $requested_connection['connection_id'] ] ) ) {
 				continue;
 			}
 
-			$changed_connections[ $requested_connection['id'] ] = $requested_connection['enabled'];
+			$changed_connections[ $requested_connection['connection_id'] ] = $requested_connection['enabled'];
 		}
 
 		// Set all changed connections to their new value.

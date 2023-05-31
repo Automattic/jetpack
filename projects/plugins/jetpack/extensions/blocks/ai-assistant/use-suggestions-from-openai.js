@@ -1,17 +1,22 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { useSelect, select as selectData } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { useSelect, select as selectData, useDispatch } from '@wordpress/data';
+import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import MarkdownIt from 'markdown-it';
+import debugFactory from 'debug';
+import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
-import { createPrompt } from './create-prompt';
-import { askJetpack } from './get-suggestion-with-stream';
-import tellWhatToDoNext from './prompt/tell-what-to-do-next';
+import { buildPrompt } from './create-prompt';
+import { askJetpack, askQuestion } from './get-suggestion-with-stream';
+import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
+
+const debug = debugFactory( 'jetpack-ai-assistant' );
+
+const turndownService = new TurndownService();
 
 /**
  * Returns partial content from the beginning of the post
@@ -32,14 +37,16 @@ export function getPartialContentToBlock( clientId ) {
 		return '';
 	}
 
-	return blocks
-		.filter( function ( block ) {
-			return block && block.attributes && block.attributes.content;
-		} )
-		.map( function ( block ) {
-			return block.attributes.content.replaceAll( '<br/>', '\n' );
-		} )
-		.join( '\n' );
+	return turndownService.turndown(
+		blocks
+			.filter( function ( block ) {
+				return block && block.attributes && block.attributes.content;
+			} )
+			.map( function ( block ) {
+				return block.attributes.content.replaceAll( '<br/>', '\n' );
+			} )
+			.join( '\n' )
+	);
 }
 
 /**
@@ -56,31 +63,35 @@ export function getContentFromBlocks() {
 		return '';
 	}
 
-	return blocks
-		.filter( function ( block ) {
-			return block && block.attributes && block.attributes.content;
-		} )
-		.map( function ( block ) {
-			return block.attributes.content.replaceAll( '<br/>', '\n' );
-		} )
-		.join( '\n' );
+	return turndownService.turndown(
+		blocks
+			.filter( function ( block ) {
+				return block && block.attributes && block.attributes.content;
+			} )
+			.map( function ( block ) {
+				return block.attributes.content.replaceAll( '<br/>', '\n' );
+			} )
+			.join( '\n' )
+	);
 }
 
 const useSuggestionsFromOpenAI = ( {
+	attributes,
 	clientId,
 	content,
-	setAttributes,
-	setErrorMessage,
+	setError,
 	tracks,
 	userPrompt,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
+	const [ wasCompletionJustRequested, setWasCompletionJustRequested ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
+	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+	const source = useRef();
 
 	// Let's grab post data so that we can do something smart.
-
 	const currentPostTitle = useSelect( select =>
 		select( 'core/editor' ).getEditedPostAttribute( 'title' )
 	);
@@ -136,86 +147,156 @@ const useSuggestionsFromOpenAI = ( {
 	}, [ loading ] );
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+	// eslint-disable-next-line no-unused-vars
 	const categoryNames = categoryObjects
 		.filter( cat => cat.id !== 1 )
 		.map( ( { name } ) => name )
 		.join( ', ' );
+	// eslint-disable-next-line no-unused-vars
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
-	const getSuggestionFromOpenAI = ( type, retryRequest = false ) => {
+	const getStreamedSuggestionFromOpenAI = async ( type, options = {} ) => {
+		options = {
+			retryRequest: false,
+			tone: DEFAULT_PROMPT_TONE,
+			...options,
+		};
+
 		if ( isLoadingCompletion ) {
 			return;
 		}
 
 		setShowRetry( false );
-		setErrorMessage( false );
-		setIsLoadingCompletion( true );
+		setError( {} );
 
 		let prompt = lastPrompt;
 
-		if ( ! retryRequest ) {
+		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
-			if ( content?.length && userPrompt?.length ) {
-				prompt = tellWhatToDoNext( userPrompt, content );
-			} else {
-				prompt = createPrompt(
-					currentPostTitle,
-					getPartialContentToBlock( clientId ),
-					content?.length ? content : getContentFromBlocks(),
-					userPrompt,
-					type,
-					categoryNames,
-					tagNames
-				);
-			}
+			prompt = buildPrompt( {
+				generatedContent: content,
+				allPostContent: getContentFromBlocks(),
+				postContentAbove: getPartialContentToBlock( clientId ),
+				currentPostTitle,
+				options,
+				prompt,
+				userPrompt,
+				type,
+			} );
 		}
 
-		const data = { content: prompt };
-		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
+		tracks.recordEvent( 'jetpack_ai_chat_completion', {
 			post_id: postId,
 		} );
 
-		if ( ! retryRequest ) {
+		if ( ! options.retryRequest ) {
 			setLastPrompt( prompt );
+
+			// If it is a title generation, keep the prompt type in subsequent changes.
+			if ( attributes.promptType !== 'generateTitle' ) {
+				updateBlockAttributes( clientId, { promptType: type } );
+			}
 		}
 
-		apiFetch( {
-			path: '/wpcom/v2/jetpack-ai/completions',
-			method: 'POST',
-			data: data,
-		} )
-			.then( res => {
-				const result = res.trim();
+		try {
+			setIsLoadingCompletion( true );
+			setWasCompletionJustRequested( true );
+			source.current = await askQuestion( prompt, postId );
+		} catch ( err ) {
+			if ( err.message ) {
+				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
+			} else {
+				setError( {
+					message: __(
+						'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
+						'jetpack'
+					),
+					code: 'unknown',
+					status: 'error',
+				} );
+			}
+			setShowRetry( true );
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+		}
 
-				/*
-				 * Hack to udpate the content.
-				 * @todo: maybe we should not pass the setAttributes function
-				 */
-				setAttributes( { content: '' } );
-				setTimeout( () => {
-					const markdownConverter = new MarkdownIt();
-					setAttributes( { content: result.length ? markdownConverter.render( result ) : '' } );
-				}, 10 );
-				setIsLoadingCompletion( false );
-			} )
-			.catch( e => {
-				if ( e.message ) {
-					setErrorMessage( e.message ); // Message was already translated by the backend
-				} else {
-					setErrorMessage(
-						__(
-							'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
-							'jetpack'
-						)
-					);
-				}
-				setShowRetry( true );
-				setIsLoadingCompletion( false );
+		source?.current.addEventListener( 'done', e => {
+			stopSuggestion();
+			updateBlockAttributes( clientId, { content: e.detail } );
+		} );
+
+		source?.current.addEventListener( 'error_unclear_prompt', () => {
+			source?.current.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setError( {
+				code: 'error_unclear_prompt',
+				message: __( 'Your request was unclear. Mind trying again?', 'jetpack' ),
+				status: 'info',
 			} );
+		} );
+
+		source?.current.addEventListener( 'error_network', () => {
+			source?.current.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( true );
+			setError( {
+				code: 'error_network',
+				message: __( 'It was not possible to process your request. Mind trying again?', 'jetpack' ),
+				status: 'info',
+			} );
+		} );
+
+		source?.current.addEventListener( 'error_service_unavailable', () => {
+			source?.current.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( true );
+			setError( {
+				code: 'error_service_unavailable',
+				message: __(
+					'Jetpack AI services are currently unavailable. Sorry for the inconvenience.',
+					'jetpack'
+				),
+				status: 'info',
+			} );
+		} );
+
+		source?.current.addEventListener( 'error_quota_exceeded', () => {
+			source?.current.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( false );
+			setError( {
+				code: 'error_quota_exceeded',
+				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
+				status: 'info',
+			} );
+		} );
+
+		source?.current.addEventListener( 'suggestion', e => {
+			setWasCompletionJustRequested( false );
+			debug( 'fullMessage', e.detail );
+			updateBlockAttributes( clientId, { content: e.detail } );
+		} );
+		return source?.current;
 	};
+
+	function stopSuggestion() {
+		if ( ! source?.current ) {
+			return;
+		}
+
+		source?.current.close();
+		setIsLoadingCompletion( false );
+		setWasCompletionJustRequested( false );
+	}
+
 	return {
 		isLoadingCategories,
 		isLoadingCompletion,
+		wasCompletionJustRequested,
 		setIsLoadingCategories,
 		setShowRetry,
 		showRetry,
@@ -223,11 +304,15 @@ const useSuggestionsFromOpenAI = ( {
 		contentBefore: getPartialContentToBlock( clientId ),
 		wholeContent: getContentFromBlocks( clientId ),
 
-		getSuggestionFromOpenAI,
-		retryRequest: () => getSuggestionFromOpenAI( '', true ),
+		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
+		stopSuggestion,
+		retryRequest: () => getStreamedSuggestionFromOpenAI( '', { retryRequest: true } ),
 	};
 };
 
 export default useSuggestionsFromOpenAI;
 
+/**
+ * askJetpack is exposed just for debugging purposes
+ */
 window.askJetpack = askJetpack;

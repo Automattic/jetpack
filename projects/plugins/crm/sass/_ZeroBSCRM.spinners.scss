@@ -42,6 +42,10 @@
 		margin-left:0;
 
 	}
+}
 
-
- }
+.empty-container-with-spinner {
+	display: flex;
+	align-items: center;
+	height: 400px;
+}

@@ -1,4 +1,8 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
+
+settings:
+  autoInstallPeers: false
+  excludeLinksFromLockfile: false
 
 importers:
 
@@ -141,6 +145,40 @@ importers:
       '@wordpress/base-styles':
         specifier: 4.23.0
         version: 4.23.0
+
+  projects/js-packages/boost-score-api:
+    dependencies:
+      '@wordpress/i18n':
+        specifier: 4.32.0
+        version: 4.32.0
+      zod:
+        specifier: 3.20.2
+        version: 3.20.2
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../webpack-config
+      '@typescript-eslint/parser':
+        specifier: 5.59.0
+        version: 5.59.0(eslint@8.39.0)(typescript@5.0.4)
+      eslint:
+        specifier: 8.39.0
+        version: 8.39.0
+      jest:
+        specifier: 29.5.0
+        version: 29.5.0
+      ts-loader:
+        specifier: 9.4.2
+        version: 9.4.2(typescript@5.0.4)(webpack@5.76.0)
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
+      webpack:
+        specifier: 5.76.0
+        version: 5.76.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.76.0)
 
   projects/js-packages/components:
     dependencies:
@@ -652,8 +690,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-extension-utils
       '@automattic/social-previews':
-        specifier: 1.1.5
-        version: 1.1.5(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.1-beta.3
+        version: 2.0.1-beta.3(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/annotations':
         specifier: 2.32.0
         version: 2.32.0(react@18.2.0)
@@ -682,6 +720,9 @@ importers:
         specifier: 5.9.0
         version: 5.9.0
       '@wordpress/hooks':
+        specifier: 3.32.0
+        version: 3.32.0
+      '@wordpress/html-entities':
         specifier: 3.32.0
         version: 3.32.0
       '@wordpress/i18n':
@@ -1051,6 +1092,12 @@ importers:
       zod:
         specifier: 3.20.2
         version: 3.20.2
+
+  projects/js-packages/videopress-core:
+    devDependencies:
+      jest:
+        specifier: '*'
+        version: 29.5.0
 
   projects/js-packages/webpack-config:
     dependencies:
@@ -2421,6 +2468,9 @@ importers:
         specifier: 3.20.2
         version: 3.20.2
     devDependencies:
+      '@automattic/jetpack-boost-score-api':
+        specifier: workspace:*
+        version: link:../../js-packages/boost-score-api
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
@@ -2659,6 +2709,9 @@ importers:
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../../js-packages/api
+      '@automattic/jetpack-boost-score-api':
+        specifier: workspace:*
+        version: link:../../js-packages/boost-score-api
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
@@ -2684,11 +2737,14 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       '@automattic/social-previews':
-        specifier: 1.1.5
-        version: 1.1.5(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.1-beta.3
+        version: 2.0.1-beta.3(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
+      '@microsoft/fetch-event-source':
+        specifier: 2.0.1
+        version: 2.0.1
       '@wordpress/base-styles':
         specifier: 4.23.0
         version: 4.23.0
@@ -2827,6 +2883,9 @@ importers:
       tinycolor2:
         specifier: 1.4.2
         version: 1.4.2
+      turndown:
+        specifier: 7.1.2
+        version: 7.1.2
       tus-js-client:
         specifier: 2.3.0
         version: 2.3.0
@@ -3450,13 +3509,13 @@ importers:
         version: 16.0.2
       jest:
         specifier: ^29.0.0
-        version: 29.4.3
+        version: 29.5.0
       shell-escape:
         specifier: 0.2.0
         version: 0.2.0
       ts-jest:
         specifier: 29.0.3
-        version: 29.0.3(jest@29.4.3)(typescript@5.0.4)
+        version: 29.0.3(jest@29.5.0)(typescript@5.0.4)
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -3902,8 +3961,8 @@ packages:
       '@automattic/popup-monitor': 1.0.2
     dev: false
 
-  /@automattic/social-previews@1.1.5(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-w0fNAeW3UC0rQ8PzOCrf+coO3ym5EAeAUh2q/ruakYK8cZCANDFjFs1dvAwB/rKL/T0WbOMI91pyouLkE5LNmw==}
+  /@automattic/social-previews@2.0.1-beta.3(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-sPwREfWShd4gbiGLd5CK9ZGw4kGFnW595LnniXH9shTapy1VnATJZdXS9XfXYY6B9zR3lzpa09N7huEyVMUS6Q==}
     peerDependencies:
       '@babel/runtime': ^7
       react: ^17.0.2 || ^18
@@ -3915,13 +3974,13 @@ packages:
       '@babel/runtime': 7.21.5
       '@emotion/react': 11.4.1(@babel/core@7.21.5)(@types/react@18.0.27)(react@18.2.0)
       '@wordpress/components': 23.9.0(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/element': 5.11.0
       '@wordpress/i18n': 4.32.0
       classnames: 2.3.2
-      lodash: 4.17.21
-      moment: 2.29.4
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+      tslib: 2.5.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@babel/helper-module-imports'
@@ -6125,6 +6184,10 @@ packages:
       '@types/react': 18.0.27
       react: 18.2.0
     dev: true
+
+  /@microsoft/fetch-event-source@2.0.1:
+    resolution: {integrity: sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==}
+    dev: false
 
   /@ndelangen/get-tarball@3.0.7:
     resolution: {integrity: sha512-NqGfTZIZpRFef1GoVaShSSRwDC3vde3ThtTeqFdcYd6ipKqnfEVhjK2hUeHjCQUcptyZr2TONqcloFXM+5QBrQ==}
@@ -9560,6 +9623,20 @@ packages:
       - vite
     dev: false
 
+  /@wordpress/element@5.11.0:
+    resolution: {integrity: sha512-PRmh2LLNsBKVwYGlff3Mq4P87icBin0AgP52wU0BpJw/Eiy4VnCm+PDw9LCEOMCTVIpLeJXN1VUt+yGZ+VzW6w==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.21.5
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      '@wordpress/escape-html': 2.34.0
+      change-case: 4.1.2
+      is-plain-object: 5.0.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
   /@wordpress/element@5.9.0:
     resolution: {integrity: sha512-ZZB82h08Il9d45o4HrcbF3G6Q8yJU6NNyLnO/CMdfpCxD45bbwFT5drzmGx4jZniCrm+s/LoxArXLS+O8/Lx1Q==}
     engines: {node: '>=12'}
@@ -9578,6 +9655,13 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.21.5
+
+  /@wordpress/escape-html@2.34.0:
+    resolution: {integrity: sha512-xVBtkAfQmOeXb76CQESJeChDq1EA73PCUCJNRxRyDhCIyHBYWp+DmtvhXfwwuHnf0haJhQY2iQNqt5eKZPjBdQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.21.5
+    dev: false
 
   /@wordpress/eslint-plugin@14.5.0(@babel/core@7.21.5)(@typescript-eslint/eslint-plugin@5.59.0)(eslint-plugin-import@2.27.5)(eslint-plugin-jest@27.2.1)(eslint-plugin-jsdoc@39.9.1)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-prettier@4.2.1)(eslint-plugin-react-hooks@4.5.0)(eslint-plugin-react@7.32.2)(eslint@8.39.0)(typescript@5.0.4)(wp-prettier@2.8.5):
     resolution: {integrity: sha512-V7ltIx7jpYGeKkeOn6HimY9pAAJco5pCz1s/dH3sNnK3sL5Yx7CuBhM9ARg+4Q+4Py131AvN3gCxR5xTTASnrw==}
@@ -12345,6 +12429,10 @@ packages:
     engines: {node: '>= 4'}
     dependencies:
       domelementtype: 2.3.0
+
+  /domino@2.1.6:
+    resolution: {integrity: sha512-3VdM/SXBZX2omc9JF9nOPCtDaYQ67BGp5CoLpIQlO2KCAPETs8TcDHacF26jXadGbvUteZzRTeos2fhID5+ucQ==}
+    dev: false
 
   /domutils@2.8.0:
     resolution: {integrity: sha512-w96Cjofp72M5IIhpjgobBimYEfoPjx1Vx0BSX9P30WBdZW2WIKU0T1Bd0kz2eNZ9ikjKgHbEyKx8BB6H1L3h3A==}
@@ -15474,6 +15562,26 @@ packages:
 
   /jest@29.4.3:
     resolution: {integrity: sha512-XvK65feuEFGZT8OO0fB/QAQS+LGHvQpaadkH5p47/j3Ocqq3xf2pK9R+G0GzgfuhXVxEv76qCOOcMb5efLk6PA==}
+    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+    hasBin: true
+    peerDependencies:
+      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
+    peerDependenciesMeta:
+      node-notifier:
+        optional: true
+    dependencies:
+      '@jest/core': 29.5.0
+      '@jest/types': 29.5.0
+      import-local: 3.1.0
+      jest-cli: 29.5.0
+    transitivePeerDependencies:
+      - '@types/node'
+      - supports-color
+      - ts-node
+    dev: true
+
+  /jest@29.5.0:
+    resolution: {integrity: sha512-juMg3he2uru1QoXX078zTa7pO85QyB9xajZc6bU+d9yEGwrKX6+vGmJQ3UdVZsvTEUARIdObzH68QItim6OSSQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     hasBin: true
     peerDependencies:
@@ -20465,7 +20573,7 @@ packages:
     resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
     engines: {node: '>=6.10'}
 
-  /ts-jest@29.0.3(jest@29.4.3)(typescript@5.0.4):
+  /ts-jest@29.0.3(jest@29.5.0)(typescript@5.0.4):
     resolution: {integrity: sha512-Ibygvmuyq1qp/z3yTh9QTwVVAbFdDy/+4BtIQR2sp6baF2SJU/8CKK/hhnGIDY2L90Az2jIqTwZPnN2p+BweiQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     hasBin: true
@@ -20488,7 +20596,7 @@ packages:
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 29.4.3
+      jest: 29.5.0
       jest-util: 29.5.0
       json5: 2.2.3
       lodash.memoize: 4.1.2
@@ -20552,6 +20660,12 @@ packages:
 
   /turbo-combine-reducers@1.0.2:
     resolution: {integrity: sha512-gHbdMZlA6Ym6Ur5pSH/UWrNQMIM9IqTH6SoL1DbHpqEdQ8i+cFunSmSlFykPt0eGQwZ4d/XTHOl74H0/kFBVWw==}
+
+  /turndown@7.1.2:
+    resolution: {integrity: sha512-ntI9R7fcUKjqBP6QU8rBK2Ehyt8LAzt3UBT9JR9tgo6GtuKvyUzpayWmeMKJw1DPdXzktvtIT8m2mVXz+bL/Qg==}
+    dependencies:
+      domino: 2.1.6
+    dev: false
 
   /tus-js-client@2.3.0:
     resolution: {integrity: sha512-I4cSwm6N5qxqCmBqenvutwSHe9ntf81lLrtf6BmLpG2v4wTl89atCQKqGgqvkodE6Lx+iKIjMbaXmfvStTg01g==}
@@ -20898,6 +21012,7 @@ packages:
 
   /uuid-browser@3.1.0:
     resolution: {integrity: sha512-dsNgbLaTrd6l3MMxTtouOCFw4CBFc/3a+GgYA2YyrJvyQ1u6q4pcu3ktLoUZ/VN/Aw9WsauazbgsgdfVWgAKQg==}
+    deprecated: Package no longer supported and required. Use the uuid package or crypto.randomUUID instead
 
   /uuid@3.4.0:
     resolution: {integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==}

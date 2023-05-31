@@ -41,6 +41,11 @@ class Dummy_Class {
 		// MediaWiki.Usage.DoubleNotOperator.
 		$u->bool = (bool) $u->bool;
 
+		// MediaWiki.Usage.ForbiddenFunctions
+		$u->builtin_forbidding = rtrim( $u->builtin_forbidding );
+		$u->added_forbidding   = mb_strlen( $u->added_forbidding );
+		$u->removed_forbidding = compact( 'x', 'u' );
+
 		// MediaWiki.Usage.InArrayUsage.
 		if (
 			in_array( 'x', array_keys( $u->assoc ), true ) ||

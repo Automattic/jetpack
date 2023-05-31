@@ -8,7 +8,7 @@ class JPCRM_Quotes_Cest {
 	protected $quote_data = array(
 		'zbscq_title'       => 'Testing quote',
 		'zbscq_value'       => '1000.50',
-		'zbscq_date'        => '01/01/2021',
+		'zbscq_date'        => '2021-01-01',
 		'zbscq_notes'       => 'This is the quote note',
 		'zbs_quote_content' => 'This is the quote content',
 	);
@@ -16,7 +16,7 @@ class JPCRM_Quotes_Cest {
 	protected $quote_data2 = array(
 		'zbscq_title'       => 'Testing quote2',
 		'zbscq_value'       => '1010.50',
-		'zbscq_date'        => '01/02/2021',
+		'zbscq_date'        => '2021-01-02',
 		'zbscq_notes'       => 'This is the quote note2',
 		'zbs_quote_content' => 'This is the quote content2',
 	);
@@ -38,12 +38,12 @@ class JPCRM_Quotes_Cest {
 
 	public function see_quotes_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'quotes' );
-		$I->see( 'Manage Quotes', '#zbs-admin-top-bar' );
+		$I->see( 'Quotes', '.jpcrm-learn-page-title' );
 	}
 
 	public function see_new_quote_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'add-edit', '&action=edit&zbstype=quote' );
-		$I->see( 'New Quote', '#zbs-admin-top-bar' );
+		$I->see( 'New Quote', '.jpcrm-learn-page-title' );
 	}
 
 	public function create_new_quote( AcceptanceTester $I ) {

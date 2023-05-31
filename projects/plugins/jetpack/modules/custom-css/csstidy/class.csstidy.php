@@ -1174,7 +1174,7 @@ class csstidy { // phpcs:ignore
 	 */
 	public function merge_css_blocks( $media, $selector, $css_add ) {
 		foreach ( $css_add as $property => $value ) {
-			$this->css_add_property( $media, $selector, $property, $value, false );
+			$this->css_add_property( $media, $selector, $property, $value );
 		}
 	}
 

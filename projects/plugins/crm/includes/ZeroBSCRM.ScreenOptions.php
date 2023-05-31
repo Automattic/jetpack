@@ -207,17 +207,14 @@ function zeroBSCRM_screenOptionsPanel(){
 
 
 	if (!empty($screenOptionsHTML)){
-			
-			?><!-- screenoptions -->
-            <div id="zbs-screen-options" class="ui segment secondary zbs-closed">
-	            <?php if ($rights){ ?>
-	            	<?php echo $screenOptionsHTML; ?>
-	            <?php } // / can ?>
-	            <div id="zbs-screen-options-handle"><?php esc_html_e('Page Layout','zero-bs-crm'); ?> <i class="caret up icon"></i><i class="caret down icon"></i></div>
-            </div>
-            <!-- / screenoptions --><?php
 
-    }
+		?>
+		<div id="zbs-screen-options" class="ui segment hidden">
+			<?php echo ( $rights ? $screenOptionsHTML : '' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>
+		</div>
+		<?php
+
+	}
 }
 
 function zeroBS_outputScreenOptions(){

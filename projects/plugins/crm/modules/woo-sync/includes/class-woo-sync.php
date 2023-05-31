@@ -260,7 +260,7 @@ class Woo_Sync {
 			// reasonable default paid mapping based on Woo status descriptions:
 			// https://woocommerce.com/document/managing-orders/#order-statuses
 			$paid_statuses = array(
-				'pending',
+				'completed',
 				'processing',
 			);
 

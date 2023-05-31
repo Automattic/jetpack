@@ -51,7 +51,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'format'           => array(), // see constructor
 		'geo'              => '(object>geo|false)',
 		'menu_order'       => '(int) (Pages Only) The order pages should appear in.',
-		'publicize_URLs'   => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
+		'publicize_URLs'   => '(array:URL) Array of Facebook URLs published by this post.',
 		'tags'             => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
 		'categories'       => '(object:category) Hash of categories (keyed by category name) applied to the post.',
 		'attachments'      => '(object:attachment) Hash of post attachments (keyed by attachment ID).',
@@ -391,6 +391,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( $publicize ) {
 						foreach ( $publicize as $service => $data ) {
 							switch ( $service ) {
+								// @todo Explore removing once Twitter has been removed from Publicize.
 								case 'twitter':
 									foreach ( $data as $datum ) {
 										$publicize_urls[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
@@ -518,7 +519,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$old_pages = $pages;
 		$old_page  = $page;
 
-		$content = join( "\n\n", $pages );
+		$content = implode( "\n\n", $pages );
 		$content = preg_replace( '/<!--more(.*?)?-->/', '', $content );
 		$pages   = array( $content ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$page    = 1; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited

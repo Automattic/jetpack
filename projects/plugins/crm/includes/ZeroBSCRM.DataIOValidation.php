@@ -69,42 +69,6 @@
 
     }
 
-    // takes WP Editor content + applies WP conversion (adds <p> and deals with <b> as if was wp post)
-    // KSES = Strips evil scripts
-    // NOTE: html strings saved in this way should be output via
-    function zeroBSCRM_io_sanitizeInt($input=''){
-
-        if (isset($input)){
-
-            // overkill/unnecessary check
-            $i = sanitize_text_field( $input );
-
-            // https://wordpress.stackexchange.com/questions/168315/sanitizing-integer-input-for-update-post-meta
-            $i = intval( $i );
-            if ( ! $i ) return -1;
-            return $i;
-
-        } 
-
-        return -1;
-
-    }
-
-/* MS quick fix, superceded by above
-
-    //new one for WP editor input
-    function zeroBSCRM_textProcessWP($string=''){
-        //this is the only way I could get it to reliably store the content. Output without /' 
-        //keep paragraphs and also not lose Command + b type formatting.
-        return wp_kses_post($string);
-    }
-
-    function zeroBSCRM_textExposeWP($string=''){
-        //decodes the HTML entities
-        return html_entity_decode(nl2br(stripslashes($string)));
-    }
-*/
-    
     // lol https://stackoverflow.com/questions/6063184/how-to-strip-all-characters-except-for-alphanumeric-and-underscore-and-dash
     function zeroBSCRM_strings_stripNonAlphaNumeric_dash($str=''){
         return preg_replace("/[^a-z0-9_\-\s]+/i", "", $str);

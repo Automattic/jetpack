@@ -201,7 +201,7 @@ class Jetpack_RelatedPosts {
 			$excludes = $this->parse_numeric_get_arg( 'relatedposts_exclude' );
 			$this->action_frontend_init_ajax( $excludes );
 		} else {
-			if ( isset( $_GET['relatedposts_hit'], $_GET['relatedposts_origin'], $_GET['relatedposts_position'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- checking if fields are set to setup tracking, nothing is changing on the site.
+			if ( isset( $_GET['relatedposts_hit'] ) && isset( $_GET['relatedposts_origin'] ) && isset( $_GET['relatedposts_position'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- checking if fields are set to setup tracking, nothing is changing on the site.
 				$this->previous_post_id = (int) $_GET['relatedposts_origin']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- fetching a previous post ID for tracking, nothing is changing on the site.
 				$this->log_click( $this->previous_post_id, get_the_ID(), sanitize_text_field( wp_unslash( $_GET['relatedposts_position'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- logging the click for tracking, nothing is changing on the site.
 			}
@@ -244,6 +244,14 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
+		// Do not output related posts for ActivityPub requests.
+		if (
+			function_exists( '\Activitypub\is_activitypub_request' )
+			&& \Activitypub\is_activitypub_request()
+		) {
+			return $content;
+		}
+
 		if ( has_block( 'jetpack/related-posts' ) || Blocks::is_fse_theme() ) {
 			return $content;
 		}
@@ -395,11 +403,33 @@ EOT;
 			$item_markup .= $date_tag;
 		}
 
-		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['context'] ) ) {
-			$context_tag = sprintf(
-				'<li class="jp-related-posts-i2__post-context">%1$s</li>',
-				esc_html( $related_post['context'] )
+		if ( $block_attributes['show_author'] ) {
+			$author_tag = sprintf(
+				'<li class="jp-related-posts-i2__post-author">%1$s</li>',
+				esc_html( $related_post['author'] )
 			);
+
+			$item_markup .= $author_tag;
+		}
+
+		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['block_context'] ) ) {
+			// Note: The original 'context' value is not used when rendering the block.
+			// It is still generated and available for the legacy rendering code path though.
+			// See './related-posts.js' for that usage.
+			$context_tag   = '';
+			$block_context = $related_post['block_context'];
+			if ( ! empty( $block_context['link'] ) ) {
+				$context_tag = sprintf(
+					'<li class="jp-related-posts-i2__post-context"><a href="%1$s">%2$s</a></li>',
+					esc_url( $block_context['link'] ),
+					esc_html( $block_context['text'] )
+				);
+			} else {
+				$context_tag = sprintf(
+					'<li class="jp-related-posts-i2__post-context">%1$s</li>',
+					esc_html( $block_context['text'] )
+				);
+			}
 
 			$item_markup .= $context_tag;
 		}
@@ -434,10 +464,13 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
-		$post_id          = get_the_ID();
-		$block_attributes = array(
+		$wrapper_attributes = array();
+		$post_id            = get_the_ID();
+		$block_attributes   = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
+			'show_author'     => isset( $attributes['displayAuthor'] ) ? (bool) $attributes['displayAuthor'] : false,
+			'show_headline'   => isset( $attributes['displayHeadline'] ) ? (bool) $attributes['displayHeadline'] : false,
 			'show_date'       => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
 			'show_context'    => isset( $attributes['displayContext'] ) && $attributes['displayContext'],
 			'layout'          => isset( $attributes['postLayout'] ) && 'list' === $attributes['postLayout'] ? $attributes['postLayout'] : 'grid',
@@ -486,12 +519,22 @@ EOT;
 			$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 		}
 
+		$headline_markup = '';
+		if ( $block_attributes['show_headline'] === true ) {
+			$headline = $block_attributes['headline'];
+			if ( strlen( trim( $headline ) ) !== 0 ) {
+				$headline_markup = sprintf(
+					'<h3 class="jp-relatedposts-headline">%1$s</h3>',
+					esc_html( $headline )
+				);
+			}
+		}
 		$display_markup = sprintf(
 			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s">%4$s%5$s</nav>',
 			! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
 			! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 			esc_attr( $block_attributes['layout'] ),
-			$block_attributes['headline'],
+			$headline_markup,
 			$rows_markup
 		);
 
@@ -1233,7 +1276,8 @@ EOT;
 			);
 
 			// If we don't have enough, fetch posts without featured image.
-			$more = $options['size'] - count( $with_post_thumbnails );
+			$count_post_with_thumbnails = is_countable( $with_post_thumbnails ) ? count( $with_post_thumbnails ) : 0;
+			$more                       = $options['size'] - $count_post_with_thumbnails;
 			if ( 0 < $more ) {
 				$no_post_thumbnails = get_posts(
 					array(
@@ -1302,16 +1346,17 @@ EOT;
 	public function get_related_post_data_for_post( $post_id, $position, $origin ) {
 		$post = get_post( $post_id );
 		return array(
-			'id'       => $post->ID,
-			'url'      => get_permalink( $post->ID ),
-			'url_meta' => array(
+			'id'            => $post->ID,
+			'url'           => get_permalink( $post->ID ),
+			'url_meta'      => array(
 				'origin'   => $origin,
 				'position' => $position,
 			),
-			'title'    => $this->to_utf8( $this->get_title( $post->post_title, $post->post_content, $post->ID ) ),
-			'date'     => get_the_date( '', $post->ID ),
-			'format'   => get_post_format( $post->ID ),
-			'excerpt'  => html_entity_decode( $this->to_utf8( $this->get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
+			'title'         => $this->to_utf8( $this->get_title( $post->post_title, $post->post_content, $post->ID ) ),
+			'author'        => $this->generate_related_post_display_author( $post->ID ),
+			'date'          => get_the_date( '', $post->ID ),
+			'format'        => get_post_format( $post->ID ),
+			'excerpt'       => html_entity_decode( $this->to_utf8( $this->get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
 			/**
 			 * Filters the rel attribute for the Related Posts' links.
 			 *
@@ -1323,9 +1368,12 @@ EOT;
 			 * @param string $link_rel Link rel attribute for Related Posts' link. Default is empty.
 			 * @param int    $post->ID Post ID.
 			 */
-			'rel'      => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', '', $post->ID ),
+			'rel'           => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', '', $post->ID ),
 			/**
 			 * Filter the context displayed below each Related Post.
+			 *
+			 * This context is used when rendering the legacy 'widget' version of Related Posts.
+			 * It is not used when rendering the block-based version. See 'block_context' below for that.
 			 *
 			 * @module related-posts
 			 *
@@ -1334,12 +1382,14 @@ EOT;
 			 * @param string $this->to_utf8( $this->generate_related_post_context( $post->ID ) ) Context displayed below each related post.
 			 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
 			 */
-			'context'  => apply_filters(
+			'context'       => apply_filters(
 				'jetpack_relatedposts_filter_post_context',
 				$this->to_utf8( $this->generate_related_post_context( $post->ID ) ),
 				$post->ID
 			),
-			'img'      => $this->generate_related_post_image_params( $post->ID ),
+			// The context used when rendering as a Block. No filtering applied.
+			'block_context' => $this->generate_related_post_context_block( $post->ID ),
+			'img'           => $this->generate_related_post_image_params( $post->ID ),
 			/**
 			 * Filter the post css classes added on HTML markup.
 			 *
@@ -1350,7 +1400,7 @@ EOT;
 			 * @param array array() CSS classes added on post HTML markup.
 			 * @param string $post_id Post ID.
 			 */
-			'classes'  => apply_filters(
+			'classes'       => apply_filters(
 				'jetpack_relatedposts_filter_post_css_classes',
 				array(),
 				$post->ID
@@ -1546,6 +1596,7 @@ EOT;
 	 * @return array
 	 */
 	protected function get_related_post_ids( $post_id, $size, array $filters ) {
+		$transient_name = null;
 		$now_ts         = time();
 		$cache_meta_key = '_jetpack_related_posts_cache';
 
@@ -1664,6 +1715,78 @@ EOT;
 			}
 		}
 		return $filtered;
+	}
+
+	/**
+	 * Generates the author byline for the related post.
+	 *
+	 * @param int $post_id - the post ID.
+	 * @uses get_post_field, get_the_author_meta
+	 * @return string
+	 */
+	protected function generate_related_post_display_author( $post_id ) {
+		$post_author         = get_post_field( 'post_author', $post_id );
+		$author_display_name = get_the_author_meta( 'display_name', $post_author );
+		if ( ! empty( $author_display_name ) ) {
+			return $author_display_name;
+		}
+		return '';
+	}
+
+	/**
+	 * Generates a context for the related content (second line in related post output).
+	 * Order of importance:
+	 *   - First category (Not 'Uncategorized')
+	 *   - First post tag
+	 *   - Number of comments
+	 *
+	 * @param int $post_id - the post ID.
+	 * @uses get_the_category, get_the_terms, get_comments_number, number_format_i18n, __, _n
+	 * @return string
+	 */
+	protected function generate_related_post_context_block( $post_id ) {
+		$categories = get_the_category( $post_id );
+		if ( is_array( $categories ) ) {
+			foreach ( $categories as $category ) {
+				$cat_link = get_category_link( $category );
+				if ( 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
+					return array(
+						'text' => trim( $category->name ),
+						'link' => $cat_link,
+					);
+				}
+			}
+		}
+		$tags = get_the_terms( $post_id, 'post_tag' );
+		if ( is_array( $tags ) ) {
+			foreach ( $tags as $tag ) {
+				$tag_link = get_tag_link( $tag );
+				if ( '' !== trim( $tag->name ) ) {
+					return array(
+						'text' => trim( $tag->name ),
+						'link' => $tag_link,
+					);
+				}
+			}
+		}
+		$comment_count = get_comments_number( $post_id );
+		if ( $comment_count > 0 ) {
+			$comments_string = sprintf(
+				// Translators: amount of comments.
+				_n( 'With %s comment', 'With %s comments', $comment_count, 'jetpack' ),
+				number_format_i18n( $comment_count )
+			);
+			$comments_link = get_comments_link( $post_id );
+			return array(
+				'text' => $comments_string,
+				'link' => $comments_link,
+			);
+		}
+		$fallback_string = __( 'Similar post', 'jetpack' );
+		return array(
+			'text' => $fallback_string,
+			'link' => '',
+		);
 	}
 
 	/**

@@ -127,6 +127,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__SECURITY:
 			redirectPath = '/welcome-security';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__STARTER:
+			redirectPath = '/welcome-starter';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__ANTISPAM:
 			redirectPath = '/welcome-antispam';
 			break;
@@ -249,6 +252,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/welcome-complete">
 						<ResourcePrompt stepSlug="welcome__complete" />
+					</Route>
+					<Route path="/recommendations/welcome-starter">
+						<ResourcePrompt stepSlug="welcome__starter" />
 					</Route>
 					<Route path="/recommendations/welcome-security">
 						<ResourcePrompt stepSlug="welcome__security" />

@@ -341,6 +341,11 @@ jQuery( function($) {
 	font-size: 12px;
 	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
+.publicize__notice-media-warning {
+	border-right: 1px solid #c3c4c7;
+	border-bottom: 1px solid #c3c4c7;
+	border-top: 1px solid #c3c4c7;
+}
 .publicize-external-link {
 	display: block;
 	text-decoration: none;
@@ -488,7 +493,7 @@ jQuery( function($) {
 
 				?>
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- labels are already escaped above ?>
-					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
+					<span id="publicize-defaults"><?php echo implode( ', ', $labels ); ?></span>
 					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
 					<?php
 			else :
@@ -623,6 +628,8 @@ jQuery( function($) {
 			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
 			<input type="hidden" name="wpas[0]" value="1" />
 		</div>
+
+		<div id="pub-connection-needs-media"></div>
 
 		<?php if ( ! $all_done ) : ?>
 			<?php if ( $broken_connections ) : ?>

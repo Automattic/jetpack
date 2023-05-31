@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2023-05-29
+### Added
+- Add connection screen for secondary admins [#30862]
+- Add loading placeholder in backup dashboard while fetching capabilities and backup state. [#30972]
+
+### Changed
+- Add a loading placeholder while fetching backup plan when a secondary admin (not connected) is accessing the backup page. [#30963]
+
+### Fixed
+- Fix "Over storage space" message for sites with plans that have no storage limit [#30885]
+
+## [1.12.17] - 2023-05-22
+### Added
+- Added backup storage help popover with forecast info [#30731]
+
 ## [1.12.16] - 2023-05-02
 ### Changed
 - Updated package dependencies.
@@ -404,6 +419,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.13.0]: https://github.com/Automattic/jetpack-backup/compare/v1.12.17...v1.13.0
+[1.12.17]: https://github.com/Automattic/jetpack-backup/compare/v1.12.16...v1.12.17
 [1.12.16]: https://github.com/Automattic/jetpack-backup/compare/v1.12.15...v1.12.16
 [1.12.15]: https://github.com/Automattic/jetpack-backup/compare/v1.12.14...v1.12.15
 [1.12.14]: https://github.com/Automattic/jetpack-backup/compare/v1.12.13...v1.12.14

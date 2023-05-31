@@ -156,7 +156,7 @@ class zeroBS__Metabox_Invoice extends zeroBS__Metabox {
 				// 1) copy the fields into the UI
 				foreach ( $customFields as $cfK => $cF ) {
 
-					zeroBSCRM_html_editField( $invoice, $cfK, $cF, 'zbsi_' );
+					zeroBSCRM_html_editField_for_invoices( $invoice, $cfK, $cF, 'zbsi_' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				}
 				?>
@@ -263,7 +263,8 @@ class zeroBS__Metabox_Invoice extends zeroBS__Metabox {
 			$invoice['discount'] = empty( $_POST['invoice_discount_total'] ) ? 0 : (float)sanitize_text_field( $_POST['invoice_discount_total'] );
 			$invoice['discount_type'] = empty( $_POST['invoice_discount_type'] ) ? 0 : sanitize_text_field( $_POST['invoice_discount_type'] );
 			$invoice['shipping'] = empty( $_POST['invoice_postage_total'] ) ? 0 : (float)sanitize_text_field( $_POST['invoice_postage_total'] );
-			$invoice['shipping_tax'] = empty( $_POST['zbsli_tax_ship'] ) ? 0 : (float)sanitize_text_field( $_POST['zbsli_tax_ship'] );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$invoice['shipping_taxes'] = empty( $_POST['zbsli_tax_ship'] ) ? 0 : (float) sanitize_text_field( wp_unslash( $_POST['zbsli_tax_ship'] ) );
 			// or shipping_taxes (not set by MS script)
 
 			// ... js pass through :o Will be overwritten on php calc on addUpdate, actually, v3.0+
@@ -527,7 +528,8 @@ class zeroBS__Metabox_Invoice extends zeroBS__Metabox {
                 var zbsMetaboxFilesLang = {
                     'err': '<?php echo esc_html( zeroBSCRM_slashOut(__('Error',"zero-bs-crm")) ); ?>',
                     'unabletodel' : '<?php echo esc_html( zeroBSCRM_slashOut(__('Unable to delete this file',"zero-bs-crm")) ); ?>',
-
+							'viewcontact' : '<?php echo esc_html__( 'View contact', 'zero-bs-crm' ); ?>',
+							'viewcompany' : '<?php echo esc_html( __( 'View', 'zero-bs-crm' ) . ' ' . jpcrm_label_company() ); ?>',
                 }
 
                 jQuery(function(){
@@ -800,7 +802,7 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
 
 
                     <div class="zbs-invoice-actions-bottom zbs-objedit-actions-bottom">
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php esc_html_e("Invoice","zero-bs-crm"); ?></button>
+								<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Invoice', 'zero-bs-crm' ); ?></button>
                         <?php
 
                             #} Quick ver of this: http://themeflection.com/replace-wordpress-submit-meta-box/
@@ -838,7 +840,7 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
 
                     <?php do_action('zbs_invpro_itemlink'); ?>
 
-                    <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Save","zero-bs-crm"); ?> <?php esc_html_e("Invoice","zero-bs-crm"); ?></button>
+							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Invoice', 'zero-bs-crm' ); ?></button>
 
                  <?php
 
@@ -856,48 +858,3 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
         // saved via main metabox
 
     }
-
-
-/* ======================================================
-  / Invoice Actions Metabox
-   ====================================================== */
-
-
-
-/*#} Currently not used. Started to get confusing. To chat through as part of v3.1+ (and Recurring Invoices work?)
- function zerBSCRM_invoice_admin_submenu(){
-     ?>
-    <div class="ui menu" id="invoice_menu_ui">
-    <div class="ui simple dropdown link item">
-        <span class="text"><?php _e("Manage Invoices","zero-bs-crm");?></span>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-            <div class="item"><?php _e("Manage Invoices","zero-bs-crm");?></div>
-            <div class="item"><?php _e("Manage Recurring Invoices","zero-bs-crm");?></div>
-        </div>
-    </div>
-    <a class="item">
-        <?php _e("Create Invoice", "zero-bs-crm"); ?>
-    </a>
-    <a class="item">
-        <?php _e("Invoice Items", "zero-bs-crm"); ?>
-    </a>
-
-    <div class="ui simple dropdown item">
-        <span class="text"><?php _e("Settings","zero-bs-crm");?></span>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-            <div class="item"><?php _e("Invoice Settings","zero-bs-crm");?></div>
-            <div class="item"><?php _e("Business Information","zero-bs-crm");?></div>
-            <div class="item"><?php _e("Tax Information","zero-bs-crm");?></div>
-            <div class="item"><?php _e("Templates","zero-bs-crm");?></div>
-        </div>
-    </div>
-
-    <a class="item right">
-        <i class='ui icon info circle'></i><?php _e("Help", "zero-bs-crm"); ?>
-    </a>
-
-    </div>
-     <?php
- }  */

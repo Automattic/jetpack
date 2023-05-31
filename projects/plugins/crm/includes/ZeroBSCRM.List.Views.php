@@ -402,7 +402,7 @@ function zeroBSCRM_render_segmentslist_page() { // phpcs:ignore WordPress.Naming
 
 		// first build upsell box html
 		$upsell_box_html  = '<div class="">';
-		$upsell_box_html .= '<h4>' . esc_html__( 'Using Segments?', 'zero-bs-crm' ) . ':</h4>';
+		$upsell_box_html .= '<h4>' . esc_html__( 'Using Segments?', 'zero-bs-crm' ) . '</h4>';
 
 		$up_title  = esc_html__( 'Segment like a PRO', 'zero-bs-crm' );
 		$up_desc   = esc_html__( 'Did you know that we\'ve made segments more advanced?', 'zero-bs-crm' );

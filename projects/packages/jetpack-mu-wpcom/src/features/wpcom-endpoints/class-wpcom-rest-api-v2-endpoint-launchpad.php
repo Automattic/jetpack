@@ -17,7 +17,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 * Class constructor
 	 */
 	public function __construct() {
-		require_once __DIR__ . '/../launchpad/launchpad.php';
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'launchpad';
 
@@ -123,7 +122,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
 			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug ),
-			'is_enabled'         => wpcom_launchpad_checklists()->is_launchpad_enabled(),
+			'is_enabled'         => wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ),
 		);
 	}
 
