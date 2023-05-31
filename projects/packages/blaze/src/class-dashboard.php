@@ -109,8 +109,14 @@ class Dashboard {
 
 	/**
 	 * Load the admin scripts.
+	 *
+	 * @param string $hook The current admin page.
 	 */
-	public function load_admin_scripts() {
+	public function load_admin_scripts( $hook ) {
+		if ( 'tools_page_advertising' !== $hook ) {
+			return;
+		}
+
 		$asset_handle = self::SCRIPT_HANDLE;
 		$asset_name   = 'build.min';
 
