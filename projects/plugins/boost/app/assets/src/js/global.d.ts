@@ -74,13 +74,6 @@ declare global {
 		): JQueryXHR;
 	};
 
-	const analytics: {
-		initialize( userId: number, username: string, superProps: object );
-		tracks: {
-			recordEvent( eventName: string, eventProperties: object );
-		};
-	};
-
 	const jetpackBoostAnalytics: {
 		tracksData: {
 			userData: {
