@@ -50,7 +50,7 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_Jetpack_
 	/**
 	 * Tests that the default value is used for settings returned by the Jetpack_Core_API_Data::get_all_options() method.
 	 */
-	public function test_options_use_defaults_for_options_when_not_set() {
+	public function test_options_use_defaults_when_not_set() {
 		// wpcom_reader_views_enabled should default to true when not set.
 		// @see Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list
 		$option_name = 'wpcom_reader_views_enabled';
