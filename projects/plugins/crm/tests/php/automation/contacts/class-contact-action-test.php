@@ -23,7 +23,6 @@ class Contact_Action_Test extends BaseTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		$this->automation_faker = Automation_Faker::instance();
-		DAL_addUpdateContact_mock( $this );
 	}
 
 	/**
@@ -32,34 +31,22 @@ class Contact_Action_Test extends BaseTestCase {
 	public function test_update_contact_action() {
 
 		$action_data = array(
-			'name'        => 'update_contact',
-			'title'       => 'Update Contact Action',
-			'description' => 'Test: Testing the update contact action',
-			'type'        => 'dummy',
-			'category'    => 'testing',
-			'attributes'  => array(
-				'name'        => 'update_contact',
-				'title'       => 'Update Contact Action',
-				'description' => 'Test: Testing the update contact action',
-				'type'        => 'dummy',
-				'category'    => 'testing',
-				'new_status'  => 'Customer',
+			'name'       => 'update_contact',
+			'attributes' => array(
+				'new_status' => 'Customer',
 			),
 		);
 
 		// Fake event data.
 		$contact_data = $this->automation_faker->contact_data();
 
-		$contact_data_expected = array(
-			'id'   => 1,
-			'data' => array(
-				'status' => 'Customer',
-				'name'   => 'John Doe',
-				'email'  => 'johndoe@example.com',
-			),
-		);
+		$contact_data_expected = $contact_data;
+
+		$contact_data_expected['data']['status'] = 'Customer';
 
 		$action_update_contact = new Update_Contact( $action_data );
+
+		DAL_contact_method_mock( $this, 'addUpdateContact' );
 
 		global $zbs;
 		$zbs->DAL->contacts->expects( $this->once() )
@@ -77,18 +64,9 @@ class Contact_Action_Test extends BaseTestCase {
 	public function test_update_contact_action_with_workflow() {
 
 		$action_data = array(
-			'name'        => 'update_contact',
-			'title'       => 'Update Contact Action',
-			'description' => 'Test: Testing the update contact action',
-			'type'        => 'dummy',
-			'category'    => 'testing',
-			'attributes'  => array(
-				'name'        => 'update_contact',
-				'title'       => 'Update Contact Action',
-				'description' => 'Test: Testing the update contact action',
-				'type'        => 'dummy',
-				'category'    => 'testing',
-				'new_status'  => 'Customer',
+			'name'       => 'update_contact',
+			'attributes' => array(
+				'new_status' => 'Customer',
 			),
 		);
 
@@ -106,14 +84,11 @@ class Contact_Action_Test extends BaseTestCase {
 		// Fake event data.
 		$contact_data = $this->automation_faker->contact_data();
 
-		$contact_data_expected = array(
-			'id'   => 1,
-			'data' => array(
-				'status' => 'Customer',
-				'name'   => 'John Doe',
-				'email'  => 'johndoe@example.com',
-			),
-		);
+		$contact_data_expected = $this->automation_faker->contact_data();
+
+		$contact_data_expected['data']['status'] = 'Customer';
+
+		DAL_contact_method_mock( $this, 'addUpdateContact' );
 
 		global $zbs;
 		$zbs->DAL->contacts->expects( $this->once() )

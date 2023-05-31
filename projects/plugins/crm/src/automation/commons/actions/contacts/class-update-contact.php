@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Contact_Updated action.
+ * Jetpack CRM Automation Update_Contact action.
  *
  * @package automattic/jetpack-crm
  */
