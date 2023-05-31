@@ -450,11 +450,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "ffb913ceb23b69ef1c9a647e46795c032058ed8a"
+                "reference": "3817825ff10bcb7abd5481f613a4645e08a20b64"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev"
             },
             "require-dev": {
