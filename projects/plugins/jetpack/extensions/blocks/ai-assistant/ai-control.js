@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { image, pencil, update, closeSmall } from '@wordpress/icons';
+import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
@@ -300,7 +300,11 @@ const ToolbarControls = ( {
 							/>
 						</BlockControls>
 					) }
-
+					{ showRetry && contentIsLoaded && (
+						<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
+							{ __( 'Accept', 'jetpack' ) }
+						</ToolbarButton>
+					) }
 					{ showRetry && (
 						<ToolbarButton icon={ update } onClick={ retryRequest }>
 							{ __( 'Retry', 'jetpack' ) }
