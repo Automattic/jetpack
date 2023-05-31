@@ -174,7 +174,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 					$this->isInstanceOf( Trigger::class ),
 					$this->callback(
 						function ( $trigger ) {
-							return $trigger->get_name() === 'contact_created';
+							return $trigger->get_slug() === 'contact_created';
 						}
 					)
 				),

@@ -19,7 +19,7 @@ interface Trigger {
 	 *
 	 * @return string
 	 */
-	public function get_name(): string;
+	public function get_slug(): string;
 
 	/**
 	 * Get the title of the trigger

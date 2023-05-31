@@ -17,7 +17,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * @var string Slug name of the step.
 	 */
-	protected $name;
+	protected $slug;
 	/**
 	 * @var string Class name
 	 */
@@ -67,7 +67,7 @@ abstract class Base_Step implements Step {
 	 *
 	 * @return string
 	 */
-	public function get_name(): string {
+	public function get_slug(): string {
 		return $this->name;
 	}
 
