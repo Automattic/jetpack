@@ -32,16 +32,16 @@ export const StripeNudge = ( { blockName } ) => {
 	switch ( blockName ) {
 		case 'payment-buttons':
 			readMoreUrl = isWpcom
-				? getRedirectUrl( 'jetpack-support-jetpack-blocks-simple-payments-block' ) // @TODO correct link
-				: getRedirectUrl( 'jetpack-support-jetpack-blocks-simple-payments-block' );
+				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-payments-block' )
+				: getRedirectUrl( 'jetpack-support-jetpack-blocks-payments-block' );
 		case 'donations':
 			readMoreUrl = isWpcom
 				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-donations-block' )
 				: getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' );
 		case 'premium-content':
 			readMoreUrl = isWpcom
-				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-donations-block' ) // @TODO correct link
-				: getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' ); // @TODO correct link
+				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-premium-content-block' )
+				: getRedirectUrl( 'jetpack-support-jetpack-blocks-premium-content-block' );
 	}
 
 	return (
