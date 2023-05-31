@@ -96,6 +96,7 @@
 
 		&:focus {
 			box-shadow: none;
+			color: var( --jp-gray-80 );
 		}
 
 		@media (min-width: 600px) {
