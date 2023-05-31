@@ -117,6 +117,15 @@ abstract class Base_Step implements Step {
 	}
 
 	/**
+	 * Set attributes of the step
+	 * 
+	 * @param array $attributes The attributes to set.
+	 */
+	public function set_attributes( array $attributes ) {
+		$this->attributes = $attributes;
+	}
+
+	/**
 	 * Set the next step
 	 *
 	 * @param array $step_data The next linked step.
