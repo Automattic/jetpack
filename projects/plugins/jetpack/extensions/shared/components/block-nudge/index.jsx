@@ -49,7 +49,8 @@ export default function BlockNudge( {
 					<span className="jetpack-block-nudge__title">{ title }</span>
 					{ ( subtitle || readMoreUrl ) && (
 						<span className="jetpack-block-nudge__message">
-							{ subtitle && subtitle + ' ' }
+							{ subtitle }
+							{ subtitle && readMoreUrl && <br /> }
 							{ readMoreUrl && (
 								<ExternalLink href={ readMoreUrl }>{ __( 'Read more', 'jetpack' ) }</ExternalLink>
 							) }
