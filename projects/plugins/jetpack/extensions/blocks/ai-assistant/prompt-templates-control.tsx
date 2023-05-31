@@ -10,8 +10,8 @@ type PromptTemplatesControlProps = {
 	hasContentBefore: boolean;
 	hasContent: boolean;
 	hasPostTitle: boolean;
-	onPromptSelected: ( prompt: string ) => void;
-	getSuggestionFromOpenAI: ( type: string, options?: object ) => void;
+	onPromptSelect: ( prompt: string ) => void;
+	onSuggestionSelect: ( suggestion: string ) => void;
 };
 
 type PromptTemplateProps = {
@@ -66,11 +66,11 @@ const promptTemplates = [
 ];
 
 export default function PromptTemplatesControl( {
-	onPromptSelected,
 	hasContentBefore,
 	hasContent,
 	hasPostTitle,
-	getSuggestionFromOpenAI,
+	onPromptSelect,
+	onSuggestionSelect,
 }: PromptTemplatesControlProps ) {
 	const label = __( 'Write with AI…', 'jetpack' );
 
@@ -89,21 +89,21 @@ export default function PromptTemplatesControl( {
 								<MenuItem
 									icon={ postContent }
 									iconPosition="left"
-									onClick={ () => getSuggestionFromOpenAI( 'continue' ) }
+									onClick={ () => onSuggestionSelect( 'continue' ) }
 								>
 									{ __( 'Expand on preceding content', 'jetpack' ) }
 								</MenuItem>
 								<MenuItem
 									icon={ termDescription }
 									iconPosition="left"
-									onClick={ () => getSuggestionFromOpenAI( 'correctSpelling' ) }
+									onClick={ () => onSuggestionSelect( 'correctSpelling' ) }
 								>
 									{ __( 'Correct spelling and grammar of preceding content', 'jetpack' ) }
 								</MenuItem>
 								<MenuItem
 									icon={ post }
 									iconPosition="left"
-									onClick={ () => getSuggestionFromOpenAI( 'simplify' ) }
+									onClick={ () => onSuggestionSelect( 'simplify' ) }
 								>
 									{ __( 'Simplify preceding content', 'jetpack' ) }
 								</MenuItem>
@@ -115,7 +115,7 @@ export default function PromptTemplatesControl( {
 									<MenuItem
 										icon={ postExcerpt }
 										iconPosition="left"
-										onClick={ () => getSuggestionFromOpenAI( 'summarize' ) }
+										onClick={ () => onSuggestionSelect( 'summarize' ) }
 									>
 										{ __( 'Summarize', 'jetpack' ) }
 									</MenuItem>
@@ -124,7 +124,7 @@ export default function PromptTemplatesControl( {
 									<MenuItem
 										icon={ title }
 										iconPosition="left"
-										onClick={ () => getSuggestionFromOpenAI( 'generateTitle' ) }
+										onClick={ () => onSuggestionSelect( 'generateTitle' ) }
 									>
 										{ __( 'Generate a post title', 'jetpack' ) }
 									</MenuItem>
@@ -136,7 +136,7 @@ export default function PromptTemplatesControl( {
 								<MenuItem
 									icon={ pencil }
 									iconPosition="left"
-									onClick={ () => getSuggestionFromOpenAI( 'titleSummary' ) }
+									onClick={ () => onSuggestionSelect( 'titleSummary' ) }
 								>
 									{ __( 'Summary based on title', 'jetpack' ) }
 								</MenuItem>
@@ -148,7 +148,7 @@ export default function PromptTemplatesControl( {
 									key={ `key-${ i }` }
 									onClick={ () => {
 										onClose();
-										onPromptSelected( prompt.description );
+										onPromptSelect( prompt.description );
 									} }
 								>
 									{ prompt.label }
