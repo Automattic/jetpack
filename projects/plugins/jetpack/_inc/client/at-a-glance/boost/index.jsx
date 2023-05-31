@@ -97,7 +97,7 @@ const DashBoost = ( {
 			setIsLoading( false );
 		} catch ( err ) {
 			analytics.tracks.recordEvent( 'jetpack_boost_speed_score_error', {
-				feature: 'boost',
+				feature: BOOST_PLUGIN_SLUG,
 				position: 'at-a-glance',
 				error: err,
 			} );
