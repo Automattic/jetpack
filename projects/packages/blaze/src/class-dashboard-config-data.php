@@ -99,7 +99,7 @@ class Dashboard_Config_Data {
 	protected function get_admin_path() {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( ! isset( $_SERVER['PHP_SELF'] ) || ! isset( $_SERVER['QUERY_STRING'] ) ) {
-			$parsed = wp_parse_url( admin_url( 'admin.php?page=jetpack-blaze' ) );
+			$parsed = wp_parse_url( admin_url( 'tools.php?page=advertising' ) );
 			return $parsed['path'] . '?' . $parsed['query'];
 		}
 		// We do this because page.js requires the exactly page base to be set otherwise it will not work properly.
