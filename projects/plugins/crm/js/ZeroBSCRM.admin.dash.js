@@ -70,8 +70,8 @@ jQuery( function ( $ ) {
 		} );
 	}
 
-	jQuery( '.dashboard-customiser' ).on( 'click', function ( e ) {
-		jQuery( '.dashboard-custom-choices' ).toggle();
+	jQuery( '#jpcrm_dash_page_options' ).on( 'click', function ( e ) {
+		document.querySelector('.dashboard-custom-choices').classList.toggle('hidden');
 	} );
 
 	jQuery( '.dashboard-custom-choices input' ).on( 'click', function ( e ) {

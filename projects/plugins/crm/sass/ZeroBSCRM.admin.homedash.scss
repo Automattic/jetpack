@@ -36,72 +36,9 @@ a:focus{
   width: 25px;
 }
 
-#reportrange{
-  cursor: pointer;
-  padding: 5px 10px;
-  border: 1px solid #ccc;
-  margin-top: -3px;
-  width: 220px;
-  position: absolute;
-  right: 70px;
-  background: white;
-  top: -40px;
-  z-index: 2;
-  right: 60px !important;
-}
-
-.dashboard-customiser {
-  width: 30px;
-  height: 30px;
-  position: absolute;
-  top: -43px !important;
-  right: 20px;
-  background: white;
-  border-radius: 0px;
-  text-align: center;
-  padding: 4px 2px 3px 2px;
-  font-size: 20px;
-  cursor: pointer;
-  z-index: 2;
-  border: 1px solid #ccc;
-}
-
-.dashboard-custom-choices{
-	background-color: #fff;
-	border-radius: 6px;
-	position: relative;
-	-webkit-box-shadow: 0 2px 5px 0 rgba(51,51,79,.07);
-	box-shadow: 0 2px 5px 0 rgba(51,51,79,.07);
-	color: black;
-	position: absolute;
-	top: 18px;
-	right: 20px;
-	border: 1px solid #e6e6ff;
-	z-index: 10;
-	max-height:600px;
-	overflow-x: scroll;
-	min-width:250px;
-	display:none;
-	ul{
-		padding-top:10px;
-		li{
-			padding: 10px;
-			&:hover{
-				background-color: #f1f1f1;
-			}
-		}
-	}
-	label{
-		display: inline-block;
-		margin-bottom: 5px;
-		font-weight: 700;
-		color: #3f4347;
-	}
-	input {
-		margin-right:15px;
-		:focus {
-			outline:none;
-		}
+.dashboard-custom-choices {
+	ul {
+		margin-left: 30px;
 	}
 }
 

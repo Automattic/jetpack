@@ -1,3 +1,4 @@
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 import apiFetch from '@wordpress/api-fetch';
 import debugFactory from 'debug';
 
@@ -121,14 +122,11 @@ export async function requestToken() {
 }
 
 /**
- * SuggestionsEventSource is a wrapper around EventSource that emits
+ * SuggestionsEventSource is a wrapper around EvenTarget that emits
  * a 'chunk' event for each chunk of data received, and a 'done' event
  * when the stream is closed.
  * It also emits a 'suggestion' event with the full suggestion received so far
  *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/EventSource
- * @param {string} url - The URL to connect to
- * @param {object} options - Options to pass to EventSource
  * @returns {EventSource} The event source
  * @fires suggestion - The full suggestion has been received so far
  * @fires message - A message has been received
@@ -137,19 +135,74 @@ export async function requestToken() {
  * @fires error - An error has occurred
  * @fires error_network - The EventSource connection to the server returned some error
  */
-export class SuggestionsEventSource extends EventSource {
-	constructor( url, options ) {
-		super( url, options );
+export class SuggestionsEventSource extends EventTarget {
+	constructor( url ) {
+		super();
 		this.fullMessage = '';
 		this.isPromptClear = false;
-		this.addEventListener( 'message', this.processEvent );
-		this.addEventListener( 'error', this.processErrorEvent );
+		// The AbortController is used to close the fetchEventSource connection
+		this.controller = new AbortController();
+		this.initEventSource( url );
+	}
+
+	async initEventSource( url ) {
+		const self = this;
+
+		this.source = await fetchEventSource( url.toString(), {
+			onclose() {
+				debug( 'Stream closed unexpectedly' );
+			},
+			onerror( err ) {
+				self.processErrorEvent( err );
+				throw err; // rethrow to stop the operation otherwise it will retry forever
+			},
+			onmessage( ev ) {
+				self.processEvent( ev );
+			},
+			async onopen( response ) {
+				if ( response.ok ) {
+					return;
+				}
+				if (
+					response.status >= 400 &&
+					response.status <= 500 &&
+					response.status !== 503 &&
+					response.status !== 429
+				) {
+					self.processConnectionError( response );
+				}
+
+				/*
+				 * error code 503
+				 * service unavailable
+				 */
+				if ( response.status === 503 ) {
+					self.dispatchEvent( new CustomEvent( 'error_service_unavailable' ) );
+				}
+
+				/*
+				 * error code 429
+				 * you exceeded your current quota please check your plan and billing details
+				 */
+				if ( response.status === 429 ) {
+					self.dispatchEvent( new CustomEvent( 'error_quota_exceeded' ) );
+				}
+
+				throw new Error();
+			},
+			signal: this.controller.signal,
+		} );
 	}
 
 	checkForUnclearPrompt() {
 		if ( ! this.isPromptClear ) {
-			// Sometimes the first token of the message is not received, so we check only for JETPACK_AI_ERROR, ignoring the first underscores
-			if ( this.fullMessage.replace( '__', '' ).startsWith( 'JETPACK_AI_ERROR' ) ) {
+			/*
+			 * Sometimes the first token of the message is not received,
+			 * so we check only for JETPACK_AI_ERROR, ignoring:
+			 * - the double underscores (italic markdown)
+			 * - the doouble asterisks (bold markdown)
+			 */
+			if ( this.fullMessage.replace( /__|(\*\*)/g, '' ) === 'JETPACK_AI_ERROR' ) {
 				// The unclear prompt marker was found, so we dispatch an error event
 				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
 			} else if ( 'JETPACK_AI_ERROR'.startsWith( this.fullMessage.replace( '__', '' ) ) ) {
@@ -160,6 +213,10 @@ export class SuggestionsEventSource extends EventSource {
 				this.isPromptClear = true;
 			}
 		}
+	}
+
+	close() {
+		this.controller.abort();
 	}
 
 	processEvent( e ) {
@@ -183,6 +240,12 @@ export class SuggestionsEventSource extends EventSource {
 				this.dispatchEvent( new CustomEvent( 'suggestion', { detail: this.fullMessage } ) );
 			}
 		}
+	}
+
+	processConnectionError( response ) {
+		debug( 'Connection error' );
+		debug( response );
+		this.dispatchEvent( new CustomEvent( 'error_network', { detail: response } ) );
 	}
 
 	processErrorEvent( e ) {

@@ -197,7 +197,7 @@ if ( isset( $sbupdated ) ) {
 								<p style="margin-top:4px">
 								<?php
 								echo esc_html(
-									printf(
+									sprintf(
 										/* Translators: %s: is the company label */
 										__( 'Choose whether to show or hide Contact/%s ID on contact record and manage pages', 'zero-bs-crm' ),
 										jpcrm_label_company()
