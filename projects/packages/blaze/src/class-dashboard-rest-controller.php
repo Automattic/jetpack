@@ -87,7 +87,7 @@ class Dashboard_REST_Controller {
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
-	public function get_blaze_posts( $req ) {
+	public function get_blaze_posts( $req ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return $this->request_as_user(
 			sprintf( '/sites/%d/blaze/posts', Jetpack_Options::get_option( 'id' ) ),
 			'v2',
