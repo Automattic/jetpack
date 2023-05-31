@@ -136,33 +136,26 @@ function wpcom_launchpad_get_task_list_definitions() {
 }
 
 /**
- * Get a task list, falling back to site_intent option if no checklist slug is provided.
+ * Get a registered task list.
  *
- * @param string $checklist_slug
+ * @param string $checklist_slug The checklist slug to get the task list for.
  *
  * @return array
  */
 function wpcom_launchpad_get_task_list( $checklist_slug = null ) {
-	$task_list_definitions = wpcom_launchpad_get_task_list_definitions();
-
-	// If we don't have a checklist slug, fall back to the site intent.
+	// If we don't have a checklist slug, fall back to the site intent option.
 	$checklist_slug = $checklist_slug ? $checklist_slug : get_option( 'site_intent' );
 	if ( ! $checklist_slug ) {
 		return array();
 	}
 
-	// If the checklist slug isn't defined, return an empty array.
-	if ( ! isset( $task_list_definitions[ $checklist_slug ] ) ) {
-		return array();
-	}
-
-	return $task_list_definitions[ $checklist_slug ];
+	return wpcom_launchpad_checklists()->get_task_list( $checklist_slug);
 }
 
 /**
  * Register all tasks and task lists from definitions
  *
- * @param bool $rebuild Whether to rebuild the task lists or not
+ * @param bool $rebuild Whether to rebuild the task lists or not.
  *
  * @return array
  */
@@ -192,6 +185,11 @@ function wpcom_launchpad_get_task_lists( $rebuild = false ) {
 	return wpcom_launchpad_checklists()->get_all_task_lists();
 }
 
+/**
+ * Load all registered task lists on init.
+ *
+ * @return null
+ */
 function wpcom_register_default_launchpad_checklists() {
 	wpcom_launchpad_get_task_lists();
 	wpcom_add_active_task_listener_hooks_to_correct_action();
