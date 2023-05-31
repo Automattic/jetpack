@@ -40,7 +40,13 @@ class Environment_Change_Detector {
 			return;
 		}
 
-		$this->do_action( false, 'post_saved' );
+		if ( 'page' === $post->post_type ) {
+			$change_type = 'page_saved';
+		} else {
+			$change_type = 'post_saved';
+		}
+
+		$this->do_action( false, $change_type );
 	}
 
 	public function handle_theme_change() {

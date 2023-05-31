@@ -128,7 +128,7 @@ $critical_css_state_schema = Schema::as_assoc_array(
  * Register Data Sync Stores
  */
 jetpack_boost_register_option( 'critical_css_state', $critical_css_state_schema );
-jetpack_boost_register_option( 'critical_css_suggest_regenerate', Schema::as_boolean()->fallback( false ) );
+jetpack_boost_register_option( 'critical_css_suggest_regenerate', Schema::as_string()->fallback( '' ) );
 
 $modules_state_schema = Schema::as_array(
 	Schema::as_assoc_array(

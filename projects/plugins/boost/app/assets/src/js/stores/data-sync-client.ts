@@ -22,5 +22,5 @@ export const JSONSchema: z.ZodType< JSONValue > = z.lazy( () =>
  */
 export const suggestRegenerateDS = jetpack_boost_ds.createAsyncStore(
 	'critical_css_suggest_regenerate',
-	z.coerce.boolean().catch( false )
+	z.coerce.string().catch( '' )
 );
