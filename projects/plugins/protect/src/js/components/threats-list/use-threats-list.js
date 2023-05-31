@@ -5,7 +5,7 @@ import {
 	code as filesIcon,
 	grid as databaseIcon,
 } from '@wordpress/icons';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 
 const flatData = ( data, icon ) => {
@@ -20,7 +20,7 @@ const flatData = ( data, icon ) => {
 	} ) );
 };
 
-const mergeAllThreats = ( { core, plugins, themes, files, database } ) => [
+const mergeThreats = ( { core, plugins, themes, files, database } ) => [
 	...flatData( core, coreIcon ),
 	...flatData( plugins, pluginsIcon ),
 	...flatData( themes, themesIcon ),
@@ -28,47 +28,57 @@ const mergeAllThreats = ( { core, plugins, themes, files, database } ) => [
 	...flatData( database, databaseIcon ),
 ];
 
+const sortThreats = threats => {
+	return threats.sort( ( a, b ) => b.severity - a.severity );
+};
+
 const useThreatsList = () => {
 	const { plugins, themes, core, files, database } = useProtectData();
 
-	let list = mergeAllThreats( { core, plugins, themes, files, database } );
-	let item = {};
+	const [ selected, setSelected ] = useState( 'all' );
 
-	const [ selected, setSelected ] = useState( list.length ? 'all' : null );
+	const { list, item } = useMemo( () => {
+		switch ( selected ) {
+			case 'wordpress':
+				return {
+					list: sortThreats( flatData( core, coreIcon ) ),
+					item: core,
+				};
+			case 'files':
+				return {
+					list: sortThreats( flatData( files, filesIcon ) ),
+					item: files,
+				};
+			case 'database':
+				return {
+					list: sortThreats( flatData( database, databaseIcon ) ),
+					item: database,
+				};
+			default:
+				break;
+		}
 
-	switch ( selected ) {
-		case 'all':
-			list = mergeAllThreats( { core, plugins, themes, files, database } );
-			break;
-		case 'wordpress':
-			list = flatData( core, coreIcon );
-			item = core;
-			break;
-		case 'files':
-			list = flatData( files, filesIcon );
-			item = files;
-			break;
-		case 'database':
-			list = flatData( database, databaseIcon );
-			item = database;
-			break;
-		default:
-			break;
-	}
+		const pluginsItem = plugins.find( threat => threat?.name === selected );
+		if ( pluginsItem ) {
+			return {
+				list: sortThreats( flatData( pluginsItem, pluginsIcon ) ),
+				item: pluginsItem,
+			};
+		}
 
-	const pluginsItem = plugins.find( threat => threat?.name === selected );
+		const themesItem = themes.find( threat => threat?.name === selected );
+		if ( themesItem ) {
+			return {
+				list: sortThreats( flatData( themesItem, themesIcon ) ),
+				item: themesItem,
+			};
+		}
 
-	if ( pluginsItem ) {
-		list = flatData( pluginsItem, pluginsIcon );
-		item = pluginsItem;
-	}
-
-	const themesItem = themes.find( threat => threat?.name === selected );
-
-	if ( themesItem ) {
-		list = flatData( themesItem, themesIcon );
-		item = themesItem;
-	}
+		return {
+			list: sortThreats( mergeThreats( { core, plugins, themes, files, database } ) ),
+			item: null,
+		};
+	}, [ core, database, files, plugins, selected, themes ] );
 
 	return {
 		item,
