@@ -88,7 +88,7 @@ const AIControl = forwardRef(
 				const userPromptInput = promptUserInputRef?.current;
 				userPromptInput?.focus?.();
 			},
-		} ) );
+		} ), [] );
 
 		return (
 			<>
