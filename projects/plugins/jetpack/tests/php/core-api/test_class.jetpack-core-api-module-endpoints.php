@@ -48,6 +48,23 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_Jetpack_
 	}
 
 	/**
+	 * Tests default value returned for settings in the Jetpack_Core_API_Data::get_all_options() method.
+	 */
+	public function test_options_use_defaults_for_options_when_not_set() {
+		// wpcom_reader_views_enabled should default to true, when not set.
+		$option_name = 'wpcom_reader_views_enabled';
+
+		// make sure option is not present
+		delete_option( $option_name );
+
+		$endpoint = new Jetpack_Core_API_Data();
+		$settings = $endpoint->get_all_options();
+
+		$this->assertTrue( isset( $settings->data[ $option_name ] ) );
+		$this->assertTrue( $settings->data[ $option_name ] );
+	}
+
+	/**
 	 * Tests the update of a comment subscription setting in the Jetpack_Core_API_Data::update_data() method.
 	 *
 	 * @param int         $new_value The new value of the comment subscription setting.
