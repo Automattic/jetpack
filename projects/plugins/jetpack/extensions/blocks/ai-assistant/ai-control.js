@@ -182,20 +182,20 @@ const AIControl = ( {
 								className="jetpack-ai-assistant__prompt_button"
 								onClick={ handleAcceptTitle }
 								isSmall={ true }
-								label={ __( 'Accept title', 'jetpack' ) }
+								label={ __( 'Apply title', 'jetpack' ) }
 							>
 								<Icon icon={ check } />
-								{ __( 'Accept title', 'jetpack' ) }
+								{ __( 'Apply title', 'jetpack' ) }
 							</Button>
 						) : (
 							<Button
 								className="jetpack-ai-assistant__prompt_button"
 								onClick={ handleAcceptContent }
 								isSmall={ true }
-								label={ __( 'Done', 'jetpack' ) }
+								label={ __( 'Apply', 'jetpack' ) }
 							>
 								<Icon icon={ check } />
-								{ __( 'Done', 'jetpack' ) }
+								{ __( 'Apply', 'jetpack' ) }
 							</Button>
 						) ) }
 				</div>
