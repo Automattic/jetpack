@@ -174,6 +174,18 @@ const AIControl = ( {
 							{ __( 'Stop', 'jetpack' ) }
 						</Button>
 					) }
+
+					{ contentIsLoaded && ! isWaitingState && (
+						<Button
+							className="jetpack-ai-assistant__prompt_button"
+							onClick={ handleAcceptContent }
+							isSmall={ true }
+							label={ __( 'Done', 'jetpack' ) }
+						>
+							<Icon icon={ check } />
+							{ __( 'Done', 'jetpack' ) }
+						</Button>
+					) }
 				</div>
 			</div>
 		</>
