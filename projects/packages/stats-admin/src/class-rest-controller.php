@@ -19,7 +19,7 @@ use WP_REST_Server;
  * Registers the REST routes for Stats.
  * It bascially forwards the requests to the WordPress.com REST API.
  */
-class REST_Controller {
+class REST_Controller extends Stats_Base_REST_Controller {
 	/**
 	 * Namespace for the REST API.
 	 *
@@ -223,31 +223,6 @@ class REST_Controller {
 				),
 			)
 		);
-	}
-
-	/**
-	 * Only administrators or users with capability `view_stats` can access the API.
-	 *
-	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
-	 */
-	public function can_user_view_general_stats_callback() {
-		if ( current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ) ) {
-			return true;
-		}
-
-		return $this->get_forbidden_error();
-	}
-
-	/**
-	 * Only administrators or users with capability `activate_wordads` can access the API.
-	 */
-	public function can_user_view_wordads_stats_callback() {
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown
-		if ( current_user_can( 'manage_options' ) || current_user_can( 'activate_wordads' ) ) {
-			return true;
-		}
-
-		return $this->get_forbidden_error();
 	}
 
 	/**
@@ -614,18 +589,6 @@ class REST_Controller {
 			set_transient( $cache_key, $response_body_content, 5 * MINUTE_IN_SECONDS );
 		}
 		return $response_body;
-	}
-
-	/**
-	 * Return a WP_Error object with a forbidden error.
-	 */
-	protected function get_forbidden_error() {
-		$error_msg = esc_html__(
-			'You are not allowed to perform this action.',
-			'jetpack-stats-admin'
-		);
-
-		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**

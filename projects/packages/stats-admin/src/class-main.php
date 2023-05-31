@@ -22,7 +22,7 @@ class Main {
 	/**
 	 * Stats version.
 	 */
-	const VERSION = '0.8.0';
+	const VERSION = '0.9.0-alpha';
 
 	/**
 	 * Singleton Main instance.
@@ -52,6 +52,7 @@ class Main {
 	 */
 	private function __construct() {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( new WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings(), 'register_rest_routes' ) );
 	}
 
 	/**
