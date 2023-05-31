@@ -194,6 +194,7 @@ function wpcom_launchpad_get_task_lists( $rebuild = false ) {
 }
 
 function wpcom_register_default_launchpad_checklists() {
+	wpcom_launchpad_get_task_lists();
 	wpcom_add_active_task_listener_hooks_to_correct_action();
 }
 add_action( 'init', 'wpcom_register_default_launchpad_checklists', 11 );
