@@ -55,7 +55,7 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_Jetpack_
 		// @see Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list
 		$option_name = 'wpcom_reader_views_enabled';
 
-		// make sure option is not present
+		// Make sure the option is not present.
 		delete_option( $option_name );
 
 		$endpoint = new Jetpack_Core_API_Data();
@@ -63,6 +63,33 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_Jetpack_
 
 		$this->assertTrue( isset( $settings->data[ $option_name ] ) );
 		$this->assertTrue( $settings->data[ $option_name ] );
+	}
+
+	/**
+	 * Tests updating an option that doesn't currently exist with a value of false.
+	 *
+	 * The Core function update_option will not work with the boolean false value, so it needs to be coerced
+	 * into null or 0.
+	 */
+	public function test_update_boolean_option_when_first_value_is_false() {
+		// wpcom_reader_views_enabled defaults to true, so it's first saved value will normally be false.
+		$option_name = 'wpcom_reader_views_enabled';
+
+		// Make sure the option is not present.
+		delete_option( $option_name );
+
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				$option_name => false,
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 'success', $result->get_data()['code'] );
+		$this->assertSame( 0, get_option( $option_name ) );
 	}
 
 	/**
