@@ -7,7 +7,7 @@
 
 /**
  * Get the task definitions for the Launchpad.
- * 
+ *
  * @return array
  */
 function wpcom_launchpad_get_task_definitions() {
@@ -210,36 +210,36 @@ function wpcom_launchpad_get_task_definitions() {
 
 /**
  * Mark a task as complete.
- * 
+ *
  * @param string $task_id The task ID.
  * @return bool True if the task was marked as complete, false otherwise.
  */
 function wpcom_mark_launchpad_task_complete( $task_id ) {
 	$task_definitions = wpcom_launchpad_get_task_definitions();
-	
+
 	// If the task ID isn't defined, return false.
 	if ( ! isset( $task_definitions[ $task_id ] ) ) {
 		return false;
 	}
- 
+
 	// If the task has an id_map, use that instead.
 	$key = $task_id;
 	if ( isset( $task_definitions[ $task_id ]['id_map'] ) ) {
 		$key = $task_definitions[ $task_id ]['id_map'];
 	}
- 
+
 	$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
 	$statuses[ $key ] = true;
 	$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
- 
+
 	// Record the completion event in Tracks if we're running on WP.com.
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		require_lib( 'tracks/client' );
-		
-		tracks_record_event( 
-			wp_get_current_user(), 
-			'launchpad_mark_task_completed', 
-			array( 'task_id' => $key ) 
+
+		tracks_record_event(
+			wp_get_current_user(),
+			'launchpad_mark_task_completed',
+			array( 'task_id' => $key )
 		);
 	}
 
@@ -248,7 +248,7 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
 
 /**
  * Initialize the Launchpad task listener callbacks.
- * 
+ *
  * @param array $task_definitions
  */
 function wpcom_launchpad_init_listeners( $task_definitions ) {
@@ -257,7 +257,7 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
 	foreach ( $task_definitions as $task_id => $task_definition ) {
 		if ( isset( $task_definition['add_listener_callback'] ) && is_callable( $task_definition['add_listener_callback'] ) ) {
 			$task_data = array_merge( $task_definition, array( 'id' => $task_id ) );
-			
+
 			try {
 				call_user_func( $task_definition['add_listener_callback'], $task_data ); // Current callbacks expect the built, registered task for the second parameter, which won't work in this case.
 			} catch ( Exception $e ) {
@@ -286,7 +286,7 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
  */
 function wpcom_launchpad_init_task_definitions() {
 	$task_definitions = wpcom_launchpad_get_task_definitions();
- 
+
 	wpcom_launchpad_init_listeners( $task_definitions );
 }
 add_action( 'init', 'wpcom_launchpad_init_task_definitions', 11 );

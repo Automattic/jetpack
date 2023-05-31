@@ -24,7 +24,7 @@ require_once __DIR__ . '/launchpad-task-definitions.php';
  */
 function wpcom_launchpad_get_task_list_definitions() {
 	$core_task_list_definitions = array(
-		'build' => array(
+		'build'          => array(
 			'title'    => 'Build',
 			'task_ids' => array(
 				'setup_general',
@@ -35,7 +35,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'site_launched',
 			),
 		),
-		'free' => array(
+		'free'           => array(
 			'title'    => 'Free',
 			'task_ids' => array(
 				'plan_selected',
@@ -47,7 +47,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'site_launched',
 			),
 		),
-		'link-in-bio' => array(
+		'link-in-bio'    => array(
 			'title'    => 'Link In Bio',
 			'task_ids' => array(
 				'design_selected',
@@ -67,7 +67,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'link_in_bio_launched',
 			),
 		),
-		'newsletter' => array(
+		'newsletter'     => array(
 			'title'    => 'Newsletter',
 			'task_ids' => array(
 				'setup_newsletter',
@@ -79,7 +79,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'first_post_published_newsletter',
 			),
 		),
-		'videopress' => array(
+		'videopress'     => array(
 			'title'    => 'Videopress',
 			'task_ids' => array(
 				'videopress_setup',
@@ -88,7 +88,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'videopress_launched',
 			),
 		),
-		'write' => array(
+		'write'          => array(
 			'title'    => 'Write',
 			'task_ids' => array(
 				'setup_write',
@@ -98,7 +98,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'site_launched',
 			),
 		),
-		'start-writing' => array(
+		'start-writing'  => array(
 			'title'    => 'Start Writing',
 			'task_ids' => array(
 				'first_post_published',
@@ -108,7 +108,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'blog_launched',
 			),
 		),
-		'design-first' => array(
+		'design-first'   => array(
 			'title'    => 'Pick a Design',
 			'task_ids' => array(
 				'design_selected',
