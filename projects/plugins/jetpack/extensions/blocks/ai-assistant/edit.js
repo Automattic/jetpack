@@ -130,7 +130,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleTryAgain = () => {
-		setAttributes( { content: undefined } );
+		setAttributes( { content: undefined, promptType: undefined } );
 	};
 
 	const handleGetSuggestion = type => {
@@ -204,6 +204,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				promptType={ attributes.promptType }
 				onChange={ () => setErrorDismissed( true ) }
 				requireUpgrade={ errorData?.code === 'error_quota_exceeded' }
+				recordEvent={ tracks.recordEvent }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>

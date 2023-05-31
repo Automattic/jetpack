@@ -74,11 +74,11 @@ function zeroBS_dashboard_crm_list_growth(){
 				<?php
 			} else {
 				?>
-				<div class="div-message-box">
-					<div class="div-message">
+				<div class="jpcrm-div-message-box">
+					<div class="jpcrm-div-message">
 						<?php esc_html_e( 'No contacts were added during the last 12 months. You need contacts for your growth chart to show.', 'zero-bs-crm' ); ?>
 					</div>
-					<div class="div-message">
+					<div class="jpcrm-div-message">
 						<a href="<?php echo esc_url( $zbs->urls['kbfirstcontact'] ); ?>" target="_blank" class="jpcrm-button white-bg"><?php echo esc_html__( 'Read guide', 'zero-bs-crm' ); ?></a>
 						<a href="<?php echo jpcrm_esc_link( 'create', -1, 'zerobs_customer', false, false ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" class="jpcrm-button"><?php esc_html_e( 'Add a contact', 'zero-bs-crm' ); ?></a>
 					</div>

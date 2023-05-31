@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.2-beta - 2023-05-29
+## 12.2-beta - 2023-05-30
 ### Major Enhancements
 - Add an AI Assistant block, replacing the previous experimental AI Paragraph and AI Image blocks.
 - Donations, Paid Content and Payment Buttons blocks are now available with all Jetpack plans. A commission is charged for free plans.
@@ -66,6 +66,7 @@
 - Maps: Fix zoom being reset when changing map marker color. [#30482]
 - Newsletters: Return early when possible to prevent spamming the database. [#30355]
 - Related Posts: Fix context for use in block editor. [#30682]
+- Security: WordPress.com REST API: Ensure that files uploaded via the API are properly validated. [#31072]
 - SEO Tools: Suggest a specific SEO description maximum length. [#30890]
 - Settings: Add loading indicator when fetching rewind state. [#30702]
 - Settings: Fixed the site preview in SEO settings. [#30973]

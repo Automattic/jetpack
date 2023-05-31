@@ -22,6 +22,8 @@
 		line-height: 24px;
 	}
 
+	&:active,
+	&:focus,
 	&:hover {
 		background: var(--jp-gray-80);
 		color: var(--jp-white);
@@ -43,6 +45,7 @@
 		border: 0px;
 		background: transparent;
 		color: var(--jp-black);
+		padding: 8px 0px;
 
 		&:hover {
 			background: transparent;

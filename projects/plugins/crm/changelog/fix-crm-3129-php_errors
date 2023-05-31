@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Extensions: catch PHP notice if offline
