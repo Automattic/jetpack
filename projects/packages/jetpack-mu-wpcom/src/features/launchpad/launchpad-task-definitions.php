@@ -232,8 +232,15 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
 	$statuses[ $key ] = true;
 	$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
  
-	// @todo: Add Tracks event for task completion.
- 
+	// Record the completion event in Tracks.
+	require_lib( 'tracks/client' );
+	
+	tracks_record_event( 
+		wp_get_current_user(), 
+		'launchpad_mark_task_completed', 
+		array( 'task_id' => $key ) 
+	);
+
 	return $result;
 }
 
@@ -243,14 +250,28 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
  * @param array $task_definitions
  */
 function wpcom_launchpad_init_listeners( $task_definitions ) {
+	require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+
 	foreach ( $task_definitions as $task_id => $task_definition ) {
 		if ( isset( $task_definition['add_listener_callback'] ) && is_callable( $task_definition['add_listener_callback'] ) ) {
 			$task_data = array_merge( $task_definition, array( 'id' => $task_id ) );
 			
 			try {
-				call_user_func( $task_definition['add_listener_callback'], $task_data ); // Current callbacks expect the built, registered task for the second parameter, which won't work in this case
-			} catch ( Throwable $throwable ) {
-				// @todo: Log error and continue
+				call_user_func( $task_definition['add_listener_callback'], $task_data ); // Current callbacks expect the built, registered task for the second parameter, which won't work in this case.
+			} catch ( Exception $e ) {
+				$data = array(
+					'blog_id'     => get_current_blog_id(),
+					'task_id'     => $task_id,
+					'site_intent' => get_option( 'site_intent' ),
+				);
+
+				log2logstash(
+					array(
+						'feature' => 'launchpad',
+						'message' => 'Launchpad failed to add listener callback.',
+						'extra'   => wp_json_encode( $data ),
+					)
+				);
 			}
 		}
 	}
