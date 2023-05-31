@@ -1,5 +1,6 @@
 import { Warning } from '@wordpress/block-editor';
-import { Button } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
 
@@ -8,12 +9,13 @@ import './style.scss';
 export default function BlockNudge( {
 	blockName,
 	buttonLabel,
+	className,
 	href,
 	icon,
 	onClick,
+	readMoreUrl,
 	subtitle,
 	title,
-	className,
 } ) {
 	const { autosaveAndRedirect } = useAutosaveAndRedirect( href );
 
@@ -45,7 +47,14 @@ export default function BlockNudge( {
 				{ icon }
 				<span className="jetpack-block-nudge__text-container">
 					<span className="jetpack-block-nudge__title">{ title }</span>
-					{ subtitle && <span className="jetpack-block-nudge__message">{ subtitle }</span> }
+					{ ( subtitle || readMoreUrl ) && (
+						<span className="jetpack-block-nudge__message">
+							{ subtitle && subtitle + ' ' }
+							{ readMoreUrl && (
+								<ExternalLink href={ readMoreUrl }>{ __( 'Read more', 'jetpack' ) }</ExternalLink>
+							) }
+						</span>
+					) }
 				</span>
 			</span>
 		</Warning>
