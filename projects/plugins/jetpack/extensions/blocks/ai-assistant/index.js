@@ -16,7 +16,7 @@ import Icon from './icons/ai-assistant';
  * Extend:
  * - blocks (Multiple-blocks edition)
  */
-import './extensions/multiple-blocks-edition';
+// import './extensions/multiple-blocks-edition'; @todo: cosider to enable it in the future
 /**
  * Style dependencies
  */
