@@ -4,3 +4,4 @@ import './shared/block-category';
 import './blocks/contact-info/editor';
 import './blocks/story/editor';
 import './blocks/tiled-gallery/editor';
+import './blocks/ai-assistant/editor';
