@@ -214,14 +214,12 @@ const ToolbarControls = ( {
 	getSuggestionFromOpenAI,
 	retryRequest,
 	handleAcceptContent,
-	handleAcceptTitle,
 	handleImageRequest,
 	handleTryAgain,
 	showRetry,
 	contentBefore,
 	hasPostTitle,
 	wholeContent,
-	promptType,
 	setUserPrompt,
 	recordEvent,
 } ) => {
@@ -295,20 +293,9 @@ const ToolbarControls = ( {
 
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && (
-						<>
-							{ promptType === 'generateTitle' ? (
-								<ToolbarButton onClick={ handleAcceptTitle }>
-									{ __( 'Accept title', 'jetpack' ) }
-								</ToolbarButton>
-							) : (
-								<ToolbarButton onClick={ handleAcceptContent }>
-									{ __( 'Done', 'jetpack' ) }
-								</ToolbarButton>
-							) }
-							<ToolbarButton onClick={ handleTryAgain }>
-								{ __( 'Try Again', 'jetpack' ) }
-							</ToolbarButton>
-						</>
+						<ToolbarButton onClick={ handleTryAgain }>
+							{ __( 'Try Again', 'jetpack' ) }
+						</ToolbarButton>
 					) }
 
 					{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
