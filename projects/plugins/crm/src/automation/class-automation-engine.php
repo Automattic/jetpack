@@ -49,18 +49,35 @@ class Automation_Engine {
 	/**
 	 * Register a trigger
 	 *
-	 * @param string Trigger $trigger_name
-	 * @param string         $class_name
+	 * @param string $trigger_classname Trigger classname to add to the mapping
 	 * @throws Automation_Exception
 	 */
-	public function register_trigger( string $trigger_name, string $class_name ) {
-		if ( ! class_exists( $class_name ) ) {
+	public function register_trigger(  string $trigger_classname ) {
+		
+		if ( ! class_exists( $trigger_classname ) ) {
 			throw new Automation_Exception(
-				sprintf( __( 'Trigger class %s does not exist', 'zero-bs-crm' ), $class_name ),
+				sprintf( __( 'Trigger class %s does not exist', 'zero-bs-crm' ), $trigger_classname ),
 				Automation_Exception::TRIGGER_CLASS_NOT_FOUND
 			);
 		}
-		$this->triggers_map[ $trigger_name ] = $class_name;
+		// Check if the trigger has proper slug
+		$trigger_slug = $trigger_classname::get_slug();
+		
+		if ( empty( $trigger_slug ) ) {
+			throw new Automation_Exception(
+				__( 'The trigger must have a non-empty slug' ),
+				Automation_Exception::TRIGGER_SLUG_EMPTY
+			);
+		}
+		
+		if ( array_key_exists( $trigger_slug, $this->triggers_map) ) {
+			throw new Automation_Exception(
+				sprintf( __( 'Trigger slug already exists: %s', 'zero-bs-crm' ), $trigger_slug ),
+				Automation_Exception::TRIGGER_SLUG_EXISTS
+			);
+		}
+		
+		$this->triggers_map[ $trigger_slug ] = $trigger_classname;
 	}
 
 	/**
@@ -167,7 +184,7 @@ class Automation_Engine {
 	/**
 	 * Get trigger instance
 	 *
-	 * @param string $trigger_name
+	 * @param string $trigger_slug
 	 * @return string
 	 * @throws Automation_Exception
 	 */
