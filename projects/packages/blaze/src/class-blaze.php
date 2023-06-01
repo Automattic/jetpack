@@ -12,6 +12,7 @@ use Automattic\Jetpack\Blaze\Dashboard_REST_Controller as Blaze_Dashboard_REST_C
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
@@ -290,5 +291,16 @@ class Blaze {
 
 		// Adds Connection package initial state.
 		wp_add_inline_script( self::SCRIPT_HANDLE, Connection_Initial_State::render(), 'before' );
+
+		// Pass additional data to our script.
+		wp_localize_script(
+			self::SCRIPT_HANDLE,
+			'blazeInitialState',
+			array(
+				'adminUrl'           => esc_url( admin_url() ),
+				'isDashboardEnabled' => self::is_dashboard_enabled(),
+				'siteFragment'       => ( new Jetpack_Status() )->get_site_suffix(),
+			)
+		);
 	}
 }
