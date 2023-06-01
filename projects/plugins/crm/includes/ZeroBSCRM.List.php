@@ -335,7 +335,7 @@ class zeroBSCRM_list{
 
                     <?php 
                         # here we add stuff which is saved by screenOptions, even tho it's in its own dom elements, not sceen options area 
-                        $screenOpts = $zbs->userScreenOptions();
+											$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                         // debug echo '<pre>'; print_r($screenOpts); echo '</pre>'; 
 
@@ -460,7 +460,7 @@ class zeroBSCRM_list{
 
             #} Check for screen options (perpage)
             $per_page = 20;
-            $screenOpts = $zbs->userScreenOptions();
+					$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
             if ( is_array( $screenOpts ) ) {
 
 	            if ( isset( $screenOpts['perpage'] ) ) $per_page = (int)$screenOpts['perpage'];

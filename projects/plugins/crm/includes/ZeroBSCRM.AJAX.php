@@ -2687,7 +2687,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 		if ( isset( $listViewParams['pagekey'] ) && ! empty( $listViewParams['pagekey'] ) ) {
 
 			// has a key, get screen opts
-			$screenOpts = $zbs->userScreenOptions( $listViewParams['pagekey'] );
+			$screenOpts = $zbs->global_screen_options( $listViewParams['pagekey'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			if ( is_array( $screenOpts ) ) {
 
 				if ( isset( $screenOpts['perpage'] ) ) {
