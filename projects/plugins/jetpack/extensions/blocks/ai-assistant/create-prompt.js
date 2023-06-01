@@ -23,8 +23,6 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
  * @param {string} options.content          - The content to be modified.
  * @param {string} options.language         - The language of the content.
  * @param {string} options.locale           - The locale of the content.
- * @param {boolean} options.addBlogPostData - Whether to add blog post data to the prompt.
- * @param {boolean} options.returnArray     - Whether to return an array of messages or a string.
  *
  * @return {string|array} The prompt.
  */
@@ -35,102 +33,69 @@ export const buildPromptTemplate = ( {
 	content = null,
 	language = null,
 	locale = null,
-	addBlogPostData = true,
-	returnArray = true,
 } ) => {
 	if ( ! request && ! content ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
-	const messages = [ { role: 'system' } ];
+	const messages = [];
 
 	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' );
-	const blogPostData =
-		addBlogPostData && postTitle?.length
-			? `
-Blog post relevant data:
-- Current title: ${ postTitle }
-----------
-`
-			: '';
+
+	const blogPostData = `Blog post relevant data:
+${ postTitle.length ? `- Current title: ${ postTitle }\n` : '' }${
+		content ? `- Content: ${ content }` : ''
+	}`;
 
 	// Language and Locale
-	let langLocatePromptPart = language
-		? `- Write in the language: ${ language }${
+	let languageRule = language
+		? `Write in the language: ${ language }${
 				LANGUAGE_MAP[ language ]?.label ? ` (${ LANGUAGE_MAP[ language ].label })` : ''
-		  }.`
-		: '';
-	langLocatePromptPart += langLocatePromptPart.length && locale ? ` locale: ${ locale }.` : '';
-	langLocatePromptPart += langLocatePromptPart.length ? '\n' : '';
+		  }`
+		: 'Write in the same language as the content, if provided';
+	languageRule += languageRule.length && locale ? ` locale: ${ locale }.` : '';
+	languageRule += languageRule.length ? '\n' : '';
 
 	// Rules
-	let extraRulePromptPart = '';
+	let extraRules = '';
 	if ( rules?.length ) {
-		extraRulePromptPart = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
+		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
 	}
 
-	let job = 'Your job is to ';
+	const job = 'Your job is to respond to the request from the user messages';
 
-	if ( returnArray ) {
-		job +=
-			'respond to the request from the user messages. The content of the current post is under "Content"';
-	} else if ( !! request && ! content ) {
-		job += 'respond to the request below, under "Request"';
-	} else if ( ! request && !! content ) {
-		job += 'modify the content below, under "Content"';
-	} else {
-		job +=
-			'respond to the request below, under "Request". The content of the current post is under "Content"';
-	}
+	const prompt = `${ context }.
+${ job }. Do this by strictly following those rules:
 
-	const requestPromptBlock = ! request
-		? ''
-		: `\nRequest:
-${ request }`;
+${ extraRules }- If you do not understand this request, regardless of language or any other rule, always answer exactly and without any preceding content with the following term and nothing else: __JETPACK_AI_ERROR__
+- Do not use the term __JETPACK_AI_ERROR__ in any other context than the one described above
+- Output the generated content in markdown format
+- Do not include a top level heading by default
+- Only output generated content ready for publishing
+- Segment the content into paragraphs as deemed suitable
+- Do not output any content that is not generated
+`;
 
-	const contentText = ! content
-		? ''
-		: `\nContent:
-${ content }`;
+	messages.push( { role: 'system', content: prompt } );
 
-	// Context content
-	const contextPromptPart = requestPromptBlock && contentText ? `\n${ contentText }` : contentText;
-
-	const prompt =
-		`${ context }.
-${ job }. Do this by following rules set in "Rules".
-
--------------
-Rules:
-- If you do not understand this request, regardless of language or any other rule, always answer exactly and without any preceding content with the following term and nothing else: __JETPACK_AI_ERROR__.
-- Do not use the term __JETPACK_AI_ERROR__ in any other context.
-${ extraRulePromptPart }- Output the generated content in markdown format.
-- Do not include a top level heading by default.
-- Only output generated content ready for publishing.
-- Segment the content into paragraphs as deemed suitable.
-` +
-		langLocatePromptPart +
-		`-----------` +
-		blogPostData +
-		`${ returnArray ? '' : requestPromptBlock }` +
-		contextPromptPart +
-		`
------------`;
-
-	if ( returnArray ) {
-		messages[ 0 ].content = prompt;
-
+	if ( postTitle.length || !! content ) {
 		messages.push( {
-			role: 'user',
-			content: request,
+			role: 'system',
+			content: blogPostData,
 		} );
-
-		debug( messages );
-		return messages;
 	}
 
-	debug( prompt );
-	return prompt;
+	messages.push( {
+		role: 'user',
+		content: request,
+	} );
+
+	messages.push( { role: 'user', content: languageRule } );
+
+	messages.forEach( message => {
+		debug( `Role: ${ message.role }.\nMessage: ${ message.content }\n---` );
+	} );
+	return messages;
 };
 
 export function buildPrompt( {
