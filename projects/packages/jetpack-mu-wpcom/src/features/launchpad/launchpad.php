@@ -429,7 +429,7 @@ function wpcom_register_default_launchpad_checklists() {
 				'design_edited',
 				// @todo Add more tasks here!
 			),
-			'is_enabled_callback' => '__return_false',
+			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		)
 	);
 
@@ -910,6 +910,18 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug = false ) {
 	// @todo: Remove this fallback once all task lists have been migrated to the new system.
 	// https://github.com/Automattic/wp-calypso/issues/77407
 	return wpcom_launchpad_checklists()->is_launchpad_enabled();
+}
+
+/**
+ * Checks if the Keep building task list is enabled.
+ *
+ * This function uses the `is_launchpad_keep_building_enabled` filter to allow for overriding the
+ * default value.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_keep_building_enabled() {
+	return apply_filters( 'is_launchpad_keep_building_enabled', false );
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
