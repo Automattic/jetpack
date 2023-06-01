@@ -29,23 +29,14 @@ function Link( { href, children } ) {
 	);
 }
 
-function getReachForAccessLevelKey(
-	accessLevelKey,
-	emailSubscribers,
-	paidSubscribers,
-	socialFollowers
-) {
-	if ( emailSubscribers === null || paidSubscribers === null || socialFollowers === null ) {
-		return 0;
-	}
-
+function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, paidSubscribers ) {
 	switch ( accessOptions[ accessLevelKey ].key ) {
 		case accessOptions.everybody.key:
-			return emailSubscribers;
+			return emailSubscribers || 0;
 		case accessOptions.subscribers.key:
-			return emailSubscribers;
+			return emailSubscribers || 0;
 		case accessOptions.paid_subscribers.key:
-			return paidSubscribers;
+			return paidSubscribers || 0;
 		default:
 			return 0;
 	}
@@ -75,7 +66,6 @@ function NewsletterLearnMore() {
 
 export function NewsletterNotice( {
 	accessLevel,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
@@ -86,12 +76,7 @@ export function NewsletterNotice( {
 	);
 
 	// Get the reach count for the access level
-	let reachCount = getReachForAccessLevelKey(
-		accessLevel,
-		emailSubscribers,
-		paidSubscribers,
-		socialFollowers
-	);
+	let reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
 
 	// If there is a misconfiguration, we do not show the NewsletterNotice
 	if ( showMisconfigurationWarning ) {
@@ -204,7 +189,6 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 function NewsletterAccessRadioButtons( {
 	onChange,
 	accessLevel,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	hasNewsletterPlans,
@@ -247,12 +231,7 @@ function NewsletterAccessRadioButtons( {
 						{ /* Do not show subscriber numbers in the PrePublish panel */ }
 						{ ! isPrePublishPanel &&
 							' (' +
-								getReachForAccessLevelKey(
-									key,
-									emailSubscribers,
-									paidSubscribers,
-									socialFollowers
-								) +
+								getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers ) +
 								( key === accessOptions.everybody.key ? '+' : '' ) +
 								')' }
 					</label>
@@ -268,7 +247,6 @@ function NewsletterAccessRadioButtons( {
 						<p className="pre-public-panel-notice-reach">
 							<NewsletterNotice
 								accessLevel={ accessLevel }
-								socialFollowers={ socialFollowers }
 								emailSubscribers={ emailSubscribers }
 								paidSubscribers={ paidSubscribers }
 								showMisconfigurationWarning={ showMisconfigurationWarning }
@@ -289,7 +267,6 @@ function NewsletterAccessRadioButtons( {
 export function NewsletterAccessDocumentSettings( {
 	accessLevel,
 	setPostMeta,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
@@ -363,7 +340,6 @@ export function NewsletterAccessDocumentSettings( {
 											<NewsletterAccessRadioButtons
 												onChange={ setPostMetaAndClose( onClose ) }
 												accessLevel={ _accessLevel }
-												socialFollowers={ socialFollowers }
 												emailSubscribers={ emailSubscribers }
 												paidSubscribers={ paidSubscribers }
 												stripeConnectUrl={ stripeConnectUrl }
@@ -381,7 +357,6 @@ export function NewsletterAccessDocumentSettings( {
 
 						<NewsletterNotice
 							accessLevel={ _accessLevel }
-							socialFollowers={ socialFollowers }
 							emailSubscribers={ emailSubscribers }
 							paidSubscribers={ paidSubscribers }
 							showMisconfigurationWarning={ showMisconfigurationWarning }
@@ -400,7 +375,6 @@ export function NewsletterAccessDocumentSettings( {
 export function NewsletterAccessPrePublishSettings( {
 	accessLevel,
 	setPostMeta,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
@@ -441,7 +415,6 @@ export function NewsletterAccessPrePublishSettings( {
 									<NewsletterAccessRadioButtons
 										onChange={ setPostMeta }
 										accessLevel={ _accessLevel }
-										socialFollowers={ socialFollowers }
 										emailSubscribers={ emailSubscribers }
 										paidSubscribers={ paidSubscribers }
 										stripeConnectUrl={ stripeConnectUrl }
