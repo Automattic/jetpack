@@ -65,6 +65,7 @@
 	],
 	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm" ],
 	"no-post-editor": [
+		"ai-assistant",
 		"business-hours",
 		"button",
 		"calendly",
