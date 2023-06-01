@@ -171,13 +171,14 @@ class Automation_Engine {
 	 * @return string
 	 * @throws Automation_Exception
 	 */
-	public function get_trigger_class( string $trigger_name ): string {
+	public function get_trigger_class( string $trigger_slug ): string {
 		
-		if ( ! isset( $this->triggers_map[ $trigger_name ] ) ) {
-			throw new Automation_Exception( sprintf( __( 'Trigger %s does not exist', 'zero-bs-crm' ), $trigger_name ), Automation_Exception::TRIGGER_CLASS_NOT_FOUND );
+		if ( ! isset( $this->triggers_map[ $trigger_slug ] ) ) {
+			throw new Automation_Exception( sprintf( __( 'Trigger %s does not exist', 'zero-bs-crm' ), $trigger_slug ), 
+				Automation_Exception::TRIGGER_CLASS_NOT_FOUND );
 		}
 		
-		return $this->triggers_map[ $trigger_name ];
+		return $this->triggers_map[ $trigger_slug ];
 	}
 
 	/**
@@ -187,5 +188,12 @@ class Automation_Engine {
 	 */
 	public function get_logger(): ?Automation_Logger {
 		return $this->automation_logger;
+	}
+
+	/** 
+	 * Get the registered triggers 
+	 */
+	public function get_registered_triggers(): array {
+		return $this->triggers_map;
 	}
 }
