@@ -40,7 +40,16 @@ class Test_Dashboard extends BaseTestCase {
 	 * @covers Automattic\Jetpack\Blaze\Dashboard::load_admin_scripts
 	 */
 	public function test_load_admin_scripts() {
-		( new Dashboard() )->load_admin_scripts();
+
+		// Scripts and style should not be enqueued on the main dashboard.
+		( new Dashboard() )->load_admin_scripts( 'index.php' );
+		$this->assertFalse( wp_script_is( Dashboard::SCRIPT_HANDLE, 'enqueued' ) );
+
+		$style_handle = Dashboard::SCRIPT_HANDLE . '-style';
+		$this->assertFalse( wp_style_is( $style_handle, 'enqueued' ) );
+
+		// They should, however, be enqueued on the Advertising page.
+		( new Dashboard() )->load_admin_scripts( 'tools_page_advertising' );
 		$this->assertTrue( wp_script_is( Dashboard::SCRIPT_HANDLE, 'enqueued' ) );
 
 		$style_handle = Dashboard::SCRIPT_HANDLE . '-style';
