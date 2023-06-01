@@ -40,6 +40,8 @@ class SiteStatsComponent extends React.Component {
 			roles_author: includes( roles, 'author', false ),
 			roles_contributor: includes( roles, 'contributor', false ),
 			roles_subscriber: includes( roles, 'subscriber', false ),
+
+			wpcom_reader_views_enabled: props.getOptionValue( 'wpcom_reader_views_enabled' ),
 		};
 
 		if ( roles ) {
@@ -142,6 +144,27 @@ class SiteStatsComponent extends React.Component {
 	handleStatsOptionToggle( option_slug ) {
 		return () => this.props.updateFormStateModuleOption( 'stats', option_slug );
 	}
+
+	handleOptionToggle = option_slug => () => {
+		const value = ! this.props.getOptionValue( option_slug );
+
+		this.setState(
+			{
+				[ option_slug ]: ! this.state[ option_slug ],
+			},
+			() => {
+				this.props.updateOptions( {
+					[ option_slug ]: value,
+				} );
+			}
+		);
+
+		analytics.tracks.recordEvent( 'jetpack_wpa_settings_toggle', {
+			module: 'stats',
+			setting: option_slug,
+			toggled: value ? 'on' : 'off',
+		} );
+	};
 
 	render() {
 		const stats = this.props.getModule( 'stats' );
@@ -333,6 +356,16 @@ class SiteStatsComponent extends React.Component {
 									/>
 								) : null
 							) }
+						</FormFieldset>
+						<FormFieldset>
+							<FormLegend>{ __( 'WordPress.com Reader', 'jetpack' ) }</FormLegend>
+							<ToggleControl
+								checked={ this.state.wpcom_reader_views_enabled }
+								disabled={ ! isStatsActive || unavailableInOfflineMode }
+								toggling={ this.props.isSavingAnyOption( [ 'wpcom_reader_views_enabled' ] ) }
+								onChange={ this.handleOptionToggle( 'wpcom_reader_views_enabled' ) }
+								label={ __( 'Show post views for this site.', 'jetpack' ) }
+							/>
 						</FormFieldset>
 					</SettingsGroup>
 				</FoldableCard>

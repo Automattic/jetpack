@@ -140,33 +140,31 @@
                         )
                 );
 
-                ?><table class="form-table wh-metatab wptbp" id="wptbpMetaBoxMainItem"><?php
+				?>
+					<div>
+						<div class="jpcrm-form-grid" id="wptbpMetaBoxMainItem">
+					<?php
 
                     // output fields
                     $skipFields = array('content'); // dealt with below
                     zeroBSCRM_html_editFields($quoteTemplate,$fields,'zbsqt_',$skipFields);
-                    
-                    // Content Box
-                    ?><tr class="wh-large">
-                    <td colspan="2"><?php
-
                         ##WLREMOVE
                         // template placeholder helper
-								echo '<p style="text-align:right"><span class="ui basic black label">' . esc_html__( 'Did you know: You can now use Quote Placeholders?', 'zero-bs-crm' ) . ' <a href="' . esc_url( $zbs->urls['kbquoteplaceholders'] ) . '" target="_blank">' . esc_html__( 'Read More', 'zero-bs-crm' ) . '</a></span></p>';
+								echo '<div class="jpcrm-form-group jpcrm-form-group-span-2" style="text-align:end;"><span class="ui basic black label">' . esc_html__( 'Did you know: You can now use Quote Placeholders?', 'zero-bs-crm' ) . ' <a href="' . esc_url( $zbs->urls['kbquoteplaceholders'] ) . '" target="_blank">' . esc_html__( 'Read More', 'zero-bs-crm' ) . '</a></span></div>';
                         ##/WLREMOVE
 
 						$content = wp_kses( $quoteTemplateContent, $zbs->acceptable_html ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
+								echo '<div class="jpcrm-form-group jpcrm-form-group-span-2">';
                         // remove "Add contact form" button from Jetpack
                         remove_action( 'media_buttons', 'grunion_media_button', 999 );
                         wp_editor( $content, 'zbs_quotetemplate_content', array(
                             'editor_height' => 580
                         ));
-
-                    ?></td></tr><?php
-
-
-                ?></table><?php 
+								echo '</div>';
+					?>
+					</div></div>
+					<?php
               
         }
 

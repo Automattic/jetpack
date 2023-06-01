@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, image, pencil, update, title, closeSmall } from '@wordpress/icons';
+import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
@@ -49,6 +49,7 @@ const AIControl = ( {
 	promptType,
 	onChange,
 	requireUpgrade,
+	recordEvent,
 } ) => {
 	const promptUserInputRef = useRef( null );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -61,8 +62,7 @@ const AIControl = ( {
 	};
 
 	const connected = isUserConnected();
-
-	const { requireUpgrade: showUpgradeBanner } = useAIFeature();
+	const { requireUpgrade: siteRequireUpgrade } = useAIFeature();
 
 	const textPlaceholder = __( 'Ask Jetpack AI', 'jetpack' );
 
@@ -80,7 +80,7 @@ const AIControl = ( {
 
 	return (
 		<>
-			{ ( showUpgradeBanner || requireUpgrade ) && <UpgradePrompt /> }
+			{ ( siteRequireUpgrade || requireUpgrade ) && <UpgradePrompt /> }
 			{ ! connected && <ConnectPrompt /> }
 			{ ! isWaitingState && connected && (
 				<ToolbarControls
@@ -115,6 +115,7 @@ const AIControl = ( {
 							}, 25 * i );
 						}
 					} }
+					recordEvent={ recordEvent }
 				/>
 			) }
 			<div
@@ -142,7 +143,9 @@ const AIControl = ( {
 					onKeyPress={ handleInputEnter }
 					placeholder={ placeholder }
 					className="jetpack-ai-assistant__input"
-					disabled={ isWaitingState || loadingImages || ! connected }
+					disabled={
+						isWaitingState || loadingImages || ! connected || siteRequireUpgrade || requireUpgrade
+					}
 					ref={ promptUserInputRef }
 				/>
 
@@ -152,7 +155,9 @@ const AIControl = ( {
 							className="jetpack-ai-assistant__prompt_button"
 							onClick={ () => handleGetSuggestion( 'userPrompt' ) }
 							isSmall={ true }
-							disabled={ ! userPrompt?.length || ! connected }
+							disabled={
+								! userPrompt?.length || ! connected || siteRequireUpgrade || requireUpgrade
+							}
 							label={ __( 'Send request', 'jetpack' ) }
 						>
 							<Icon icon={ origamiPlane } />
@@ -169,6 +174,30 @@ const AIControl = ( {
 							{ __( 'Stop', 'jetpack' ) }
 						</Button>
 					) }
+
+					{ contentIsLoaded &&
+						! isWaitingState &&
+						( promptType === 'generateTitle' ? (
+							<Button
+								className="jetpack-ai-assistant__prompt_button"
+								onClick={ handleAcceptTitle }
+								isSmall={ true }
+								label={ __( 'Accept title', 'jetpack' ) }
+							>
+								<Icon icon={ check } />
+								{ __( 'Accept title', 'jetpack' ) }
+							</Button>
+						) : (
+							<Button
+								className="jetpack-ai-assistant__prompt_button"
+								onClick={ handleAcceptContent }
+								isSmall={ true }
+								label={ __( 'Accept', 'jetpack' ) }
+							>
+								<Icon icon={ check } />
+								{ __( 'Accept', 'jetpack' ) }
+							</Button>
+						) ) }
 				</div>
 			</div>
 		</>
@@ -180,46 +209,19 @@ export default AIControl;
 // Consider to enable when we have image support
 const isImageGenerationEnabled = false;
 
-function GenerateContentButton( {
-	showRetry,
-	contentIsLoaded,
-	contentBefore,
-	hasPostTitle,
-	onAction,
-} ) {
-	if ( ! showRetry && ! contentIsLoaded && contentBefore?.length ) {
-		return (
-			<ToolbarButton icon={ pencil } onClick={ () => onAction( 'continue' ) }>
-				{ __( 'Continue writing', 'jetpack' ) }
-			</ToolbarButton>
-		);
-	}
-
-	if ( ! showRetry && ! contentIsLoaded && ! contentBefore?.length && hasPostTitle ) {
-		return (
-			<ToolbarButton icon={ title } onClick={ () => onAction( 'titleSummary' ) }>
-				{ __( 'Write a summary based on title', 'jetpack' ) }
-			</ToolbarButton>
-		);
-	}
-
-	return null;
-}
-
 const ToolbarControls = ( {
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
 	handleAcceptContent,
-	handleAcceptTitle,
 	handleImageRequest,
 	handleTryAgain,
 	showRetry,
 	contentBefore,
 	hasPostTitle,
 	wholeContent,
-	promptType,
 	setUserPrompt,
+	recordEvent,
 } ) => {
 	return (
 		<>
@@ -265,37 +267,36 @@ const ToolbarControls = ( {
 				</BlockControls>
 			) }
 
-			<BlockControls group="block">
-				<PromptTemplatesControl onPromptSelected={ setUserPrompt } />
-			</BlockControls>
-
 			<BlockControls>
-				{ /* Text controls */ }
+				{ ! showRetry && ! contentIsLoaded && (
+					<PromptTemplatesControl
+						hasContentBefore={ !! contentBefore?.length }
+						hasContent={ !! wholeContent?.length }
+						hasPostTitle={ hasPostTitle }
+						onPromptSelect={ prompt => {
+							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+								type: 'prompt-template',
+								prompt,
+							} );
+
+							setUserPrompt( prompt );
+						} }
+						onSuggestionSelect={ suggestion => {
+							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+								type: 'suggestion',
+								suggestion,
+							} );
+							getSuggestionFromOpenAI( suggestion );
+						} }
+					/>
+				) }
+
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && (
-						<>
-							{ promptType === 'generateTitle' ? (
-								<ToolbarButton onClick={ handleAcceptTitle }>
-									{ __( 'Accept title', 'jetpack' ) }
-								</ToolbarButton>
-							) : (
-								<ToolbarButton onClick={ handleAcceptContent }>
-									{ __( 'Done', 'jetpack' ) }
-								</ToolbarButton>
-							) }
-							<ToolbarButton onClick={ handleTryAgain }>
-								{ __( 'Try Again', 'jetpack' ) }
-							</ToolbarButton>
-						</>
+						<ToolbarButton onClick={ handleTryAgain }>
+							{ __( 'Try Again', 'jetpack' ) }
+						</ToolbarButton>
 					) }
-
-					<GenerateContentButton
-						showRetry={ showRetry }
-						contentIsLoaded={ contentIsLoaded }
-						contentBefore={ contentBefore }
-						hasPostTitle={ hasPostTitle }
-						onAction={ getSuggestionFromOpenAI }
-					/>
 
 					{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
 						<BlockControls group="block">
@@ -310,44 +311,10 @@ const ToolbarControls = ( {
 							/>
 						</BlockControls>
 					) }
-
-					{ ! showRetry && ! contentIsLoaded && (
-						<ToolbarDropdownMenu
-							icon={ chevronDown }
-							label={ __( 'Generate and improve', 'jetpack' ) }
-							controls={ [
-								{
-									title: __( 'Summarize', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'summarize' ),
-									isDisabled: ! wholeContent?.length,
-								},
-								{
-									title: __( 'Write a summary based on title', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
-									isDisabled: ! hasPostTitle,
-								},
-								{
-									title: __( 'Expand on preceding content', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'continue' ),
-									isDisabled: ! contentBefore?.length,
-								},
-								{
-									title: __( 'Correct spelling and grammar of preceding content', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'correctSpelling' ),
-									isDisabled: ! contentBefore?.length,
-								},
-								{
-									title: __( 'Simplify preceding content', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'simplify' ),
-									isDisabled: ! contentBefore?.length,
-								},
-								{
-									title: __( 'Generate a post title', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'generateTitle' ),
-									isDisabled: ! wholeContent?.length,
-								},
-							] }
-						/>
+					{ showRetry && contentIsLoaded && (
+						<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
+							{ __( 'Accept', 'jetpack' ) }
+						</ToolbarButton>
 					) }
 					{ showRetry && (
 						<ToolbarButton icon={ update } onClick={ retryRequest }>

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.0] - 2023-05-29
+### Added
+- Added account_name field to the publicize connections object. [#30937]
+- Added the Instagram service [#30803]
+- Check for featured image in the classic editor [#30769]
+- Jetpack Social: Add a notice to let users know Instagram is available [#30777]
+- Mastodon post preview [#30919]
+
+### Changed
+- Changed the enhanced publishing feature check to use Current_Plan [#29881]
+
 ## [0.29.0] - 2023-05-22
 ### Added
 - Added validation of featured image for Instagram connections [#30724]
@@ -316,6 +327,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.30.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.28.0...v0.29.0
 [0.28.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.26.0...v0.27.0

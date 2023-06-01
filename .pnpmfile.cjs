@@ -89,7 +89,7 @@ function fixDeps( pkg ) {
 	// No upstream bug link yet.
 	if (
 		pkg.name === '@automattic/social-previews' &&
-		pkg.dependencies[ '@wordpress/components' ] === '^19.15.0'
+		pkg.dependencies[ '@wordpress/components' ] === '^22.1.0'
 	) {
 		pkg.dependencies[ '@wordpress/components' ] = '*';
 	}

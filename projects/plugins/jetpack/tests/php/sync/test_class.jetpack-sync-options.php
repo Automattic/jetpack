@@ -231,6 +231,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_subscription_emails_use_excerpt'        => false,
 			'launchpad_checklist_tasks_statuses'           => array(),
 			'launchpad_screen'                             => 'full',
+			'wpcom_reader_views_enabled'                   => true,
 
 		);
 
