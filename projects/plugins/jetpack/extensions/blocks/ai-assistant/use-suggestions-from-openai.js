@@ -184,6 +184,7 @@ const useSuggestionsFromOpenAI = ( {
 				prompt,
 				userPrompt,
 				type,
+				isGeneratingTitle: attributes.promptType === 'generateTitle',
 			} );
 		}
 

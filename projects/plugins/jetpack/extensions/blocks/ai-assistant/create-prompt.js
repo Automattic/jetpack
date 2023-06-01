@@ -33,6 +33,7 @@ export const buildPromptTemplate = ( {
 	language = null,
 	locale = null,
 	includeLanguageRule = true,
+	isGeneratingTitle = false,
 } ) => {
 	if ( ! request && ! relevantContent ) {
 		throw new Error( 'You must provide either a request or content' );
@@ -110,6 +111,13 @@ ${ extraRules }- If you do not understand this request, regardless of language o
 		messages.push( { role: 'user', content: languageRule } );
 	}
 
+	if ( isGeneratingTitle ) {
+		messages.push( {
+			role: 'user',
+			content: 'Only output a title, do not generate body content.',
+		} );
+	}
+
 	messages.forEach( message => {
 		debug( `Role: ${ message.role }.\nMessage: ${ message.content }\n---` );
 	} );
@@ -125,7 +133,14 @@ export function buildPrompt( {
 	prompt,
 	type,
 	userPrompt,
+	isGeneratingTitle,
 } ) {
+	const isGenerated = options.contentType === 'generated';
+	const reference = {
+		content: isGeneratingTitle ? 'the title' : 'the content',
+		generated: isGeneratingTitle ? 'the title' : 'your last answer',
+	};
+
 	switch ( type ) {
 		/*
 		 * Non-interactive types
@@ -171,6 +186,30 @@ export function buildPrompt( {
 			} );
 			break;
 
+		/**
+		 * Correct grammar and spelling
+		 */
+		case 'correctSpelling':
+			prompt = buildPromptTemplate( {
+				request:
+					'Repeat the content, correcting any spelling and grammar mistakes, and do not add new content.',
+				fullContent: allPostContent,
+				relevantContent: postContentAbove,
+			} );
+			break;
+
+		/*
+		 * Generate a title for this blog post, based on the content.
+		 */
+		case 'generateTitle':
+			prompt = buildPromptTemplate( {
+				request: 'Generate a new title for this blog post and only output the title.',
+				rules: [ 'Only output the raw title, without any prefix or quotes' ],
+				fullContent: allPostContent,
+				relevantContent: allPostContent,
+			} );
+			break;
+
 		/*
 		 * Interactive only types
 		 */
@@ -180,10 +219,11 @@ export function buildPrompt( {
 		 */
 		case 'makeLonger':
 			prompt = buildPromptTemplate( {
-				request: 'Make the content longer.',
+				request: `Make ${ reference.generated } longer.`,
 				fullContent: allPostContent,
 				relevantContent: generatedContent,
 				isContentGenerated: true,
+				isGeneratingTitle,
 			} );
 			break;
 
@@ -192,10 +232,11 @@ export function buildPrompt( {
 		 */
 		case 'makeShorter':
 			prompt = buildPromptTemplate( {
-				request: 'Make the content shorter.',
+				request: `Make ${ reference.generated } shorter.`,
 				fullContent: allPostContent,
 				relevantContent: generatedContent,
 				isContentGenerated: true,
+				isGeneratingTitle,
 			} );
 			break;
 
@@ -208,10 +249,13 @@ export function buildPrompt( {
 		 */
 		case 'changeTone':
 			prompt = buildPromptTemplate( {
-				request: `Rewrite the content with a ${ options.tone } tone.`,
+				request: `Rewrite ${ isGenerated ? reference.generated : reference.content } with a ${
+					options.tone
+				} tone.`,
 				fullContent: allPostContent,
-				relevantContent: options.contentType === 'generated' ? generatedContent : allPostContent,
-				isContentGenerated: options.contentType === 'generated',
+				relevantContent: isGenerated ? generatedContent : allPostContent,
+				isContentGenerated: isGenerated,
+				isGeneratingTitle,
 			} );
 			break;
 
@@ -220,36 +264,10 @@ export function buildPrompt( {
 		 */
 		case 'summarize':
 			prompt = buildPromptTemplate( {
-				request: 'Summarize the content.',
+				request: `Summarize ${ isGenerated ? reference.generated : reference.content }.`,
 				fullContent: allPostContent,
-				relevantContent: options.contentType === 'generated' ? generatedContent : allPostContent,
-				isContentGenerated: options.contentType === 'generated',
-			} );
-			break;
-
-		/**
-		 * Correct grammar and spelling
-		 */
-		case 'correctSpelling':
-			prompt = buildPromptTemplate( {
-				request:
-					'Repeat the content, correcting any spelling and grammar mistakes, and do not add new content.',
-				fullContent: allPostContent,
-				relevantContent: options.contentType === 'generated' ? generatedContent : postContentAbove,
-				isContentGenerated: options.contentType === 'generated',
-			} );
-			break;
-
-		/*
-		 * Generate a title for this blog post, based on the content.
-		 */
-		case 'generateTitle':
-			prompt = buildPromptTemplate( {
-				request: 'Generate a new title for this blog post and only output the title.',
-				rules: [ 'Only output the raw title, without any prefix or quotes' ],
-				fullContent: allPostContent,
-				relevantContent: options.contentType === 'generated' ? generatedContent : allPostContent,
-				isContentGenerated: options.contentType === 'generated',
+				relevantContent: isGenerated ? generatedContent : allPostContent,
+				isContentGenerated: isGenerated,
 			} );
 			break;
 
@@ -258,11 +276,14 @@ export function buildPrompt( {
 		 */
 		case 'changeLanguage':
 			prompt = buildPromptTemplate( {
-				request: `Translate the content to the following language: ${ options.language }.`,
+				request: `Translate ${
+					isGenerated ? reference.generated : reference.content
+				} to the following language: ${ options.language }.`,
 				fullContent: allPostContent,
-				relevantContent: options.contentType === 'generated' ? generatedContent : allPostContent,
-				isContentGenerated: options.contentType === 'generated',
+				relevantContent: isGenerated ? generatedContent : allPostContent,
+				isContentGenerated: isGenerated,
 				includeLanguageRule: false,
+				isGeneratingTitle,
 			} );
 			break;
 
@@ -275,6 +296,7 @@ export function buildPrompt( {
 				fullContent: allPostContent,
 				relevantContent: generatedContent || allPostContent,
 				isContentGenerated: !! generatedContent?.length,
+				isGeneratingTitle,
 			} );
 			break;
 
@@ -284,6 +306,7 @@ export function buildPrompt( {
 				fullContent: allPostContent,
 				relevantContent: generatedContent,
 				isContentGenerated: true,
+				isGeneratingTitle,
 			} );
 			break;
 	}
