@@ -29,7 +29,6 @@ registerJetpackBlock(
 	],
 	prefix
 );
-``;
 
 registerPlugin( 'block-settings-remove-block-keep-content', {
 	render: RemoveBlockKeepContent,
