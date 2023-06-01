@@ -22,7 +22,6 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->post_type                       = 'post';
 		$this->base_api_path                   = 'wpcom';
 		$this->version                         = 'v2';
 		$this->namespace                       = $this->base_api_path . '/' . $this->version;
