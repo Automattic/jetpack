@@ -15,99 +15,6 @@ namespace Automattic\Jetpack\CRM\Automation;
 abstract class Base_Step implements Step {
 
 	/**
-	 * @var string Slug name of the step.
-	 */
-	protected $slug;
-	/**
-	 * @var string Class name
-	 */
-	protected $class_name;
-	/**
-	 * @var string Step type.
-	 */
-	protected $type;
-	/**
-	 * @var string Step category.
-	 */
-	protected $category;
-	/**
-	 * @var string Step title.
-	 */
-	protected $title;
-	/**
-	 * @var string|null Step description.
-	 */
-	protected $description;
-	/**
-	 * @var array Step data.
-	 */
-	protected $attributes;
-	/**
-	 * @var array|null Next linked step.
-	 */
-	protected $next_step;
-
-	/**
-	 * Base_Step constructor.
-	 *
-	 * @param array $step_data The step data.
-	 */
-	public function __construct( array $step_data ) {
-		$this->name        = $step_data['name'];
-		$this->class_name  = $step_data['class_name'] ?? '';
-		$this->title       = $step_data['title'] ?? '';
-		$this->type        = $step_data['type'] ?? '';
-		$this->category    = $step_data['category'] ?? '';
-		$this->description = $step_data['description'] ?? '';
-		$this->attributes  = $step_data['attributes'] ?? array();
-	}
-
-	/**
-	 * Get the slug name of the step
-	 *
-	 * @return string
-	 */
-	public function get_slug(): string {
-		return $this->name;
-	}
-
-	/**
-	 * Get the title of the step
-	 *
-	 * @return string
-	 */
-	public function get_title(): string {
-		return $this->title;
-	}
-
-	/**
-	 * Get the description of the step
-	 *
-	 * @return string
-	 */
-	public function get_description(): ?string {
-		return $this->description;
-	}
-
-	/**
-	 * Get the type of the step
-	 *
-	 * @return string
-	 */
-	public function get_type(): string {
-		return $this->type;
-	}
-
-	/**
-	 * Get the category of the step
-	 *
-	 * @return string
-	 */
-	public function get_category(): string {
-		return $this->category;
-	}
-
-	/**
 	 * Get the data of the step
 	 *
 	 * @return array
@@ -149,4 +56,55 @@ abstract class Base_Step implements Step {
 	 * @param array $data Data passed from the trigger.
 	 */
 	abstract public function execute( array $data );
+
+	/**
+	 * @var array Step data.
+	 */
+	protected $attributes;
+	/**
+	 * @var array|null Next linked step.
+	 */
+	protected $next_step;
+
+	/**
+	 * Get the slug name of the step
+	 *
+	 * @return string
+	 */
+	abstract public static function get_slug(): string;
+
+	/**
+	 * Get the title of the step
+	 *
+	 * @return string
+	 */
+	abstract public static function get_title(): ?string;
+
+	/**
+	 * Get the description of the step
+	 *
+	 * @return string
+	 */
+	abstract public static function get_description(): ?string;
+
+	/**
+	 * Get the type of the step
+	 *
+	 * @return string
+	 */
+	abstract public static function get_type(): string;
+
+	/**
+	 * Get the category of the step
+	 *
+	 * @return string
+	 */
+	abstract public static function get_category(): ?string;
+
+	/**
+	 * Get the allowed triggers
+	 *
+	 * @return array
+	 */
+	abstract public static function get_allowed_triggers(): ?array;
 }
