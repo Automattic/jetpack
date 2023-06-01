@@ -51,7 +51,7 @@ class Critical_CSS_Invalidator {
 
 	public static function update_boost_problem_count( $count ) {
 		$suggest_regenerate = jetpack_boost_ds_get( 'critical_css_suggest_regenerate' );
-		if ( in_array( $suggest_regenerate, Environment_Change_Detector::get_available_env_change_statuses() ) ) {
+		if ( in_array( $suggest_regenerate, Environment_Change_Detector::get_available_env_change_statuses(), true ) ) {
 			++$count;
 		}
 
