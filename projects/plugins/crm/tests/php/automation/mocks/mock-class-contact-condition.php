@@ -35,25 +35,23 @@ class Contact_Condition extends Base_Condition {
 
 	/**
 	 * Contact_Condition constructor.
-	 *
-	 * @param array $step_data
+	 */
+	public function __construct() {
+		$this->logger = Automation_Logger::instance();
+	}
+
+	/**
+	 * Override set_attributes method to add some checks.
+	 * 
 	 * @throws Automation_Exception
 	 */
-	public function __construct( array $step_data ) {
-		parent::__construct( $step_data );
+	public function set_attributes( array $attributes )
+	{
+		parent::set_attributes( $attributes );
 
-		$this->name        = 'contact_status';
-		$this->title       = 'Contact Status';
-		$this->description = 'Check if a contact has a specific status';
-		$this->type        = 'condition';
-		$this->category    = 'testing';
-
-		// Check if condition data has the expected attributes
 		if ( ! $this->has_valid_attributes() && ! $this->has_valid_operator() ) {
 			throw new Automation_Exception( 'Invalid attributes for contact condition' );
 		}
-
-		$this->logger = Automation_Logger::instance();
 	}
 
 	/**
@@ -136,5 +134,29 @@ class Contact_Condition extends Base_Condition {
 		$this->logger->log( 'Invalid operator: ' . $operator );
 
 		throw new Automation_Exception( 'Invalid operator: ' . $operator );
+	}
+
+	public static function get_slug(): string {
+		return 'contact_status';
+	}
+
+	public static function get_title(): ?string {
+		return 'Contact Status';
+	}
+
+	public static function get_description(): ?string {
+		return 'Check if a contact has a specific status';
+	}
+
+	public static function get_type(): string {
+		return 'condition';
+	}
+
+	public static function get_category(): ?string {
+		return 'testing';
+	}
+
+	public static function get_allowed_triggers(): ?array {
+		return array( 'jpcrm/contact_created' );
 	}
 }
