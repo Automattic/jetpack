@@ -30,7 +30,7 @@ class Automation_Faker {
 			'category'     => 'Test',
 			'is_active'    => true,
 			'triggers'     => array(
-				'contact_created',
+				'jpcrm/contact_created',
 			),
 			'initial_step' => array(
 				'type'        => 'action',
@@ -57,7 +57,7 @@ class Automation_Faker {
 			'category'    => 'Test',
 			'is_active'   => true,
 			'triggers'    => array(
-				'contact_created',
+				'jpcrm/contact_created',
 			),
 		);
 	}
@@ -87,9 +87,9 @@ class Automation_Faker {
 	 */
 	public function contact_triggers(): array {
 		return array(
-			'contact_created',
-			'contact_updated',
-			'contact_deleted',
+			'jpcrm/contact_created',
+			'jpcrm/contact_updated',
+			'jpcrm/contact_deleted',
 		);
 	}
 
@@ -116,7 +116,7 @@ class Automation_Faker {
 			'category'     => 'Test',
 			'is_active'    => true,
 			'triggers'     => array(
-				'contact_created',
+				'jpcrm/contact_created',
 			),
 			'initial_step' => array(
 				'name'            => 'contact_status_condition',
