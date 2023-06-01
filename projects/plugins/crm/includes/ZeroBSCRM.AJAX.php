@@ -5662,7 +5662,7 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 	if ( ! empty( $pageKey ) ) {
 
 		// } Brutally update
-		$zbs->DAL->updateUserSetting( $zbs->user(), 'screenopts_' . $pageKey, $screenOpts );
+		$zbs->DAL->updateSetting( 'screenopts_' . $pageKey, $screenOpts ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		zeroBSCRM_sendJSONSuccess( array( 'fini' => 1 ) );
 		exit();
