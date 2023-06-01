@@ -57,6 +57,7 @@ jpcrm-top-menu#jpcrm-top-menu {
 				color: var(--jp-black);
 				padding: 1em;
 				line-height: 1;
+				white-space: nowrap;
 
 				&.current_menu_item {
 					border-bottom: 2px solid var(--jp-black);

@@ -23,3 +23,11 @@ body.jpcrm-admin {
 		background-color: var(--jp-gray-0);
 	}
 }
+
+@media screen and (max-width: 600px) {
+	body.jpcrm-admin {
+		#wpbody {
+			padding-top: 0;
+		}
+	}
+}

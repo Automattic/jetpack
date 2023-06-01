@@ -1329,7 +1329,7 @@ function zeroBSCRM_html_wlHome() {
 	global $zbs;
 
 	?>
-	<div class="wrap">
+	<div>
 	<h1 style="font-size: 34px;margin-left: 50px;color: #e06d17;margin-top: 1em;"><?php esc_html_e( 'Welcome to Jetpack CRM', 'zero-bs-crm' ); ?></h1>
 	<p style="font-size: 16px;margin-left: 50px;padding: 12px 20px 10px 20px;"><?php esc_html_e( 'This CRM Plugin is managed by Jetpack CRM', 'zero-bs-crm' ); ?>. <?php esc_html_e( 'If you have any questions, please', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( $zbs->urls['support'] ); ?>"><?php esc_html_e( 'email us', 'zero-bs-crm' ); ?></a>.</p>
 	<?php
