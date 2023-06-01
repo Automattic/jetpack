@@ -3,8 +3,10 @@
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
+use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Empty_Slug_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
+use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
@@ -43,7 +45,30 @@ class Automation_Engine_Test extends BaseTestCase {
 	public function test_automation_register_trigger() {
 		$automation = new Automation_Engine();
 
-		$automation->register_step( 'contact_created', Contact_Created_Trigger::class );
+		$automation->register_trigger( Contact_Created_Trigger::class );
+
+		// Get the map of registered trigger_slug => trigger_classname
+		$triggers = $automation->get_registered_triggers();
+
+		$this->assertCount( 1, $triggers );
+		$this->assertEquals( Contact_Created_Trigger::class, $triggers['jpcrm/contact_created'] );
+		
+		$expected_class = $automation->get_trigger_class( 'jpcrm/contact_created' );
+		
+		$this->assertEquals( Contact_Created_Trigger::class, $expected_class );
+	}
+
+	/**
+	 * @testdox Register an empty trigger slug to the automation engine
+	 */
+	public function test_automation_register_empty_trigger_slug() {
+		$automation = new Automation_Engine();
+
+		$this->expectException( Automation_Exception::class );
+		$this->expectExceptionCode( Automation_Exception::TRIGGER_SLUG_EMPTY );
+		
+		$automation->register_trigger( Empty_Slug_Trigger::class );
+	}
 
 	/**
 	 * @testdox Register a duplicated trigger class to the automation engine
