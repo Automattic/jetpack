@@ -655,6 +655,15 @@ class Jetpack_Gutenberg {
 			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
+		// AI Assistant
+		$ai_assistant_state = Jetpack_AI_Helper::get_ai_assistance_feature();
+		if ( is_wp_error( $ai_assistant_state ) ) {
+			$ai_assistant_state = array(
+				'error-message' => $ai_assistant_state->get_error_message(),
+				'error-code'    => $ai_assistant_state->get_error_code(),
+			);
+		}
+
 		$initial_state = array(
 			'available_blocks' => self::get_availability(),
 			'jetpack'          => array(
@@ -700,6 +709,7 @@ class Jetpack_Gutenberg {
 			'wpcomBlogId'      => $blog_id,
 			'allowedMimeTypes' => wp_get_mime_types(),
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'     => $ai_assistant_state,
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {

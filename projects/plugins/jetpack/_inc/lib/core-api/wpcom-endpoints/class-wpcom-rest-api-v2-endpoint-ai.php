@@ -35,10 +35,14 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
 		}
 
+		// Register routes that don't require Jetpack AI to be enabled.
+		add_action( 'rest_api_init', array( $this, 'register_basic_routes' ) );
+
 		if ( ! \Jetpack_AI_Helper::is_enabled() ) {
 			return;
 		}
 
+		// Register routes that require Jetpack AI to be enabled.
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -96,7 +100,12 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				),
 			)
 		);
+	}
 
+	/**
+	 * Register routes that don't require Jetpack AI to be enabled.
+	 */
+	public function register_basic_routes() {
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base . '/ai-assistant-feature',
