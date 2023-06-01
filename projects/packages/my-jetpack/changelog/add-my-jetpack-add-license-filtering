@@ -1,4 +1,4 @@
 Significance: patch
-Type: added
+Type: changed
 
-Add filtering for unattached and unrevoked licenses within the #/add-license page input field
+Filter out revoked licenses from the license activation options.
