@@ -262,7 +262,7 @@ describe( 'Membership Products Actions', () => {
 			paymentPlanProductType,
 			selectedProductCallback,
 			() => {},
-			true
+			false
 		)( { dispatch, registry } );
 
 		// Then
