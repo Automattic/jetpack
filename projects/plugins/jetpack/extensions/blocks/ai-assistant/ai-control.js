@@ -82,13 +82,17 @@ const AIControl = forwardRef(
 			placeholder = textPlaceholder;
 		}
 
-		useImperativeHandle( ref, () => ( {
-			// Focus the text area
-			focus: () => {
-				const userPromptInput = promptUserInputRef?.current;
-				userPromptInput?.focus?.();
-			},
-		} ), [] );
+		useImperativeHandle(
+			ref,
+			() => ( {
+				// Focus the text area
+				focus: () => {
+					const userPromptInput = promptUserInputRef?.current;
+					userPromptInput?.focus?.();
+				},
+			} ),
+			[]
+		);
 
 		return (
 			<>
