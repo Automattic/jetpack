@@ -105,7 +105,7 @@ const BlazePostPublishPanel = () => {
 				onClick={ trackClick }
 				onKeyDown={ trackClick }
 			>
-				<Button variant="secondary" href={ blazeUrl( postId ) } target="_top">
+				<Button variant="secondary" href={ blazeUrl() } target="_top">
 					{ sprintf(
 						/* translators: %s is the post type (e.g. Post, Page, Product). */
 						__( 'Blaze this %s', 'jetpack-blaze' ),
