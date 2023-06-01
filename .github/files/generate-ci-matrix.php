@@ -72,7 +72,7 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 		$phpver = '8.0';
 	}
 	$matrix[] = array(
-		'name'    => "PHP tests: PHP {$versions['PHP_VERSION']} WP $wp",
+		'name'    => "PHP tests: PHP {$phpver} WP $wp",
 		'script'  => 'test-php',
 		'php'     => $phpver,
 		'wp'      => $wp,
