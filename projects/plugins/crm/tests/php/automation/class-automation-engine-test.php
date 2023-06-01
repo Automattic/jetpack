@@ -55,12 +55,12 @@ class Automation_Engine_Test extends BaseTestCase {
 	/**
 	 * @testdox Register an invalid step class to the automation engine
 	 */
-	public function test_automation_register_invalid_step() {
+	public function test_automation_register_invalid_trigger() {
 		$automation = new Automation_Engine();
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionCode( Automation_Exception::STEP_CLASS_NOT_FOUND );
+		$this->expectExceptionCode( Automation_Exception::TRIGGER_CLASS_NOT_FOUND );
 
-		$automation->register_step( 'contact_created', 'Invalid_Trigger_Class' );
+		$automation->register_trigger( 'jpcrm/contact_created', 'Invalid_Trigger_Class' );
 	}
 }
