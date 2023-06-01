@@ -134,7 +134,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'design_edited',
 				// @todo Add more tasks here!
 			),
-			'is_enabled_callback' => '__return_false',
+			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
 	);
 
