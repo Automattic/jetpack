@@ -272,7 +272,7 @@ export function buildPrompt( {
 				request: userPrompt,
 				fullContent: allPostContent,
 				relevantContent: generatedContent || allPostContent,
-				isContentGenerated: !! generatedContent.length,
+				isContentGenerated: !! generatedContent?.length,
 			} );
 			break;
 
