@@ -80,6 +80,18 @@ class Test_Blaze extends BaseTestCase {
 	}
 
 	/**
+	 * Test that the jetpack_blaze_dashboard_enable filter overwrites eligibility for the dashboard page.
+	 *
+	 * @covers Automattic\Jetpack\Blaze::is_dashboard_enabled
+	 */
+	public function test_dashboard_filter_enable() {
+		$this->assertFalse( Blaze::is_dashboard_enabled() );
+		add_filter( 'jetpack_blaze_dashboard_enable', '__return_true' );
+		$this->assertTrue( Blaze::is_dashboard_enabled() );
+		add_filter( 'jetpack_blaze_dashboard_enable', '__return_false' );
+	}
+
+	/**
 	 * Test that the jetpack_blaze_enabled filter overwrites eligibility, for admins.
 	 *
 	 * @covers Automattic\Jetpack\Blaze::should_initialize

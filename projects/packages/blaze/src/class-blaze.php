@@ -62,6 +62,22 @@ class Blaze {
 	}
 
 	/**
+	 * Is the wp-admin Dashboard enabled?
+	 *
+	 * @return bool
+	 */
+	public static function is_dashboard_enabled() {
+		/**
+		 * Enable a wp-admin dashboard for Blaze campaign management.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $should_enable Should the dashboard be enabled? False by default for now.
+		 */
+		return apply_filters( 'jetpack_blaze_dashboard_enable', false );
+	}
+
+	/**
 	 * Enable the Blaze menu.
 	 *
 	 * @return void
@@ -69,14 +85,7 @@ class Blaze {
 	public static function enable_blaze_menu() {
 		if (
 			self::should_initialize()
-			/**
-			 * Enable a wp-admin dashboard for Blaze campaign management.
-			 *
-			 * @since $$next-version$$
-			 *
-			 * @param bool $should_enable Should the dashboard be enabled? False by default for now.
-			 */
-			&& apply_filters( 'jetpack_blaze_dashboard_enable', false )
+			&& self::is_dashboard_enabled()
 		) {
 			$blaze_dashboard = new Blaze_Dashboard();
 			$page_suffix     = add_submenu_page(
