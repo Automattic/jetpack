@@ -89,7 +89,7 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 
 		if ( $post && ! current_user_can( 'edit_post', $post->ID ) ) {
 			return new WP_Error(
-				'rest_cannot_send_email_preview',
+				'rest_forbidden_context',
 				__( 'Please connect your user account to WordPress.com', 'jetpack' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
