@@ -140,10 +140,19 @@ class Dashboard {
 			$css_url    = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
 			$css_handle = $asset_handle . '-style';
 
-			wp_register_script( $asset_handle, sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, "{$asset_name}.js" ), self::JS_DEPENDENCIES, $this->get_cdn_asset_cache_buster(), true );
-			wp_register_style( $css_handle, sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, $css_url ), array(), $this->get_cdn_asset_cache_buster() );
-			wp_enqueue_script( $asset_handle );
-			wp_enqueue_style( $css_handle );
+			wp_enqueue_script(
+				$asset_handle,
+				sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, "{$asset_name}.js" ),
+				self::JS_DEPENDENCIES,
+				$this->get_cdn_asset_cache_buster(),
+				true
+			);
+			wp_enqueue_style(
+				$css_handle,
+				sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, $css_url ),
+				array(),
+				$this->get_cdn_asset_cache_buster()
+			);
 		}
 
 		wp_add_inline_script(
