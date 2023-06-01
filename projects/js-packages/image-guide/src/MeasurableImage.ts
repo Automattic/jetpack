@@ -11,15 +11,19 @@ export class MeasurableImage {
 	readonly node: HTMLElement | HTMLImageElement;
 	private getURLCallback: SourceCallbackFn;
 
+	public fetch = fetch;
+
 	/**
 	 * Constructor.
 	 *
 	 * @param {HTMLElement | HTMLImageElement} node -  The DOM Element that contains the image.
 	 * @param {SourceCallbackFn} getURL             -  A function that takes in the node and returns the URL of the image.
+	 * @param {(input: string, init?: Array) => Promise<Response>} fetchFn                               -  A function that fetches a URL and returns a Promise.
 	 */
-	constructor( node: HTMLElement | HTMLImageElement, getURL: SourceCallbackFn ) {
+	constructor( node: HTMLElement | HTMLImageElement, getURL: SourceCallbackFn, fetchFn = fetch ) {
 		this.node = node;
 		this.getURLCallback = getURL;
+		this.fetch = fetchFn;
 	}
 
 	public getURL() {
@@ -83,14 +87,19 @@ export class MeasurableImage {
 	 * @param {string} url -  string The URL of the image.
 	 */
 	private async fetchFileWeight( url: string ) {
-		const response = await fetch( url, { method: 'HEAD', mode: 'no-cors' } );
+		const response = await this.fetch( url );
 		if ( ! response.url ) {
 			// eslint-disable-next-line no-console
 			console.log( `Can't get image size for ${ url } likely due to a CORS error.` );
 			return -1;
 		}
+		let size = '';
+		if ( response.headers.get( 'content-type' ).indexOf( 'text/html' ) !== -1 ) {
+			size = await response.text();
+		} else {
+			size = response.headers.get( 'content-length' );
+		}
 
-		const size = response.headers.get( 'content-length' );
 		if ( size ) {
 			return parseInt( size, 10 ) / 1024;
 		}

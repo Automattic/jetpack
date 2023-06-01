@@ -1,5 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getMeasurableImages } from '@automattic/jetpack-image-guide';
+import { isSameOrigin } from '../../../assets/src/js/utils/is-same-origin';
+import { prepareAdminAjaxRequest } from '../../../assets/src/js/utils/make-admin-ajax-request';
 import ImageGuideAnalytics from './analytics';
 import { attachGuides } from './initialize';
 import { guideState } from './stores/GuideState';
@@ -25,6 +27,21 @@ function discardSmallImages( images: MeasurableImage[] ) {
 	} );
 
 	return elements;
+}
+
+async function fetchWeightUsingProxy( url: string ): Promise< Response > {
+	if ( ! isSameOrigin( url ) ) {
+		return prepareAdminAjaxRequest(
+			{
+				action: 'boost_proxy_ig',
+				proxy_url: url,
+				nonce: jbImageGuide.proxyNonce,
+			},
+			jbImageGuide.ajax_url
+		);
+	}
+
+	return await fetch( url, { method: 'HEAD', mode: 'no-cors' } );
 }
 
 /**
@@ -99,7 +116,8 @@ function initialize() {
 				document.querySelectorAll(
 					'body *:not(.jetpack-boost-guide > *):not(.jetpack-boost-guide)'
 				)
-			)
+			),
+			fetchWeightUsingProxy
 		);
 		const filteredImages = discardSmallImages( measurableImages );
 		stores.push( ...attachGuides( filteredImages ) );
