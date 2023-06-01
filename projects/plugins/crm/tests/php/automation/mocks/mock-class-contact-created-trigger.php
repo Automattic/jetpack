@@ -8,25 +8,43 @@ use Automattic\Jetpack\CRM\Automation\Tests\Event_Emitter;
 
 class Contact_Created_Trigger extends Base_Trigger {
 
-	public function __construct() {
-		$trigger_data = array(
-			'name'        => 'contact_created',
-			'title'       => 'Contact Created',
-			'description' => 'Triggered when a contact is created',
-			'category'    => 'contact',
-		);
-		parent::__construct( $trigger_data );
+	/** Get the slug name of the trigger
+	 * @return string
+	 */
+	public static function get_slug(): string {
+		return 'jpcrm/contact_created';
 	}
 
-	public function init( Automation_Workflow $workflow ) {
+	/** Get the title of the trigger
+	 * @return string 
+	 */
+	public static function get_title(): ?string {
+		return __( 'Contact Created', 'zero-bs-crm' );
+	}
 
+	/** Get the description of the trigger
+	 * @return string 
+	 */
+	public static function get_description(): ?string {
+		return __( 'Triggered when a CRM contact is created'. 'zero-bs-crm' );
+	}
+
+	/** Get the category of the trigger
+	 * @return string 
+	 */
+	public static function get_category(): ?string {
+		return __( 'contact', 'zero-bs-crm' );
+	}
+
+	/**
+	 * Listen to the desired event
+	 */
+	protected function listen_to_event() {
 		$event_emitter = Event_Emitter::instance();
 
 		$event_emitter->on(
 			'contact_created',
-			function ( $event_data ) use ( $workflow ) {
-				$workflow->execute( $this, $event_data );
-			}
+			array( $this, 'execute_workflow' )
 		);
 	}
 }
