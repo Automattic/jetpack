@@ -10,7 +10,7 @@ import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import MarkdownIt from 'markdown-it';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -33,6 +33,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const [ errorDismissed, setErrorDismissed ] = useState( null );
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+	const aiControlRef = useRef( null );
 
 	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( blockEditorStore );
 	const { editPost } = useDispatch( 'core/editor' );
@@ -43,6 +44,22 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			mediaUpload: settings.mediaUpload,
 		};
 	}, [] );
+
+	const focusOnPrompt = () => {
+		// Small delay to avoid focus crash
+		// with other actions from the block
+		setTimeout( () => {
+			aiControlRef.current?.focus?.();
+		}, 100 );
+	};
+
+	const handleSuggestionDone = () => {
+		focusOnPrompt();
+	};
+
+	const handleUnclearPrompt = () => {
+		focusOnPrompt();
+	};
 
 	const {
 		isLoadingCategories,
@@ -56,6 +73,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		retryRequest,
 		wholeContent,
 	} = useSuggestionsFromOpenAI( {
+		onSuggestionDone: handleSuggestionDone,
+		onUnclearPrompt: handleUnclearPrompt,
 		attributes,
 		clientId,
 		content: attributes.content,
@@ -183,6 +202,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				</>
 			) }
 			<AIControl
+				ref={ aiControlRef }
 				content={ attributes.content }
 				contentIsLoaded={ contentIsLoaded }
 				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
@@ -204,6 +224,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				promptType={ attributes.promptType }
 				onChange={ () => setErrorDismissed( true ) }
 				requireUpgrade={ errorData?.code === 'error_quota_exceeded' }
+				recordEvent={ tracks.recordEvent }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>

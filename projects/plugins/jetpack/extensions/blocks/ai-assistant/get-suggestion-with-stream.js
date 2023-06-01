@@ -202,10 +202,11 @@ export class SuggestionsEventSource extends EventTarget {
 			 * - the double underscores (italic markdown)
 			 * - the doouble asterisks (bold markdown)
 			 */
-			if ( this.fullMessage.replace( /__|(\*\*)/g, '' ) === 'JETPACK_AI_ERROR' ) {
+			const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
+			if ( replacedMessage === 'JETPACK_AI_ERROR' ) {
 				// The unclear prompt marker was found, so we dispatch an error event
 				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
-			} else if ( 'JETPACK_AI_ERROR'.startsWith( this.fullMessage.replace( '__', '' ) ) ) {
+			} else if ( 'JETPACK_AI_ERROR'.startsWith( replacedMessage ) ) {
 				// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
 				debug( this.fullMessage );
 			} else {
