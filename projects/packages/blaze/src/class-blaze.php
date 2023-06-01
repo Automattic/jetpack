@@ -67,7 +67,17 @@ class Blaze {
 	 * @return void
 	 */
 	public static function enable_blaze_menu() {
-		if ( self::should_initialize() ) {
+		if (
+			self::should_initialize()
+			/**
+			 * Enable a wp-admin dashboard for Blaze campaign management.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $should_enable Should the dashboard be enabled? False by default for now.
+			 */
+			&& apply_filters( 'jetpack_blaze_dashboard_enable', false )
+		) {
 			$blaze_dashboard = new Blaze_Dashboard();
 			$page_suffix     = add_submenu_page(
 				'tools.php',
