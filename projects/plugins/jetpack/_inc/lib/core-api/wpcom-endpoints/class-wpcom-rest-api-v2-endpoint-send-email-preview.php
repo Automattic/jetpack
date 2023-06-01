@@ -40,10 +40,13 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 	 */
 	public function register_routes() {
 		$options = array(
-			'show_in_index' => true,
-			'methods'       => 'POST',
+			'show_in_index'       => true,
+			'methods'             => 'POST',
 			// if this is not a wpcom site, we need to proxy the request to wpcom
-			'callback'            => ( ( new Host() )->is_wpcom_simple() ) ? array( $this, 'send_email_preview' ) : array( $this, 'proxy_request_to_wpcom_as_user' ),
+			'callback'            => ( ( new Host() )->is_wpcom_simple() ) ? array(
+				$this,
+				'send_email_preview',
+			) : array( $this, 'proxy_request_to_wpcom_as_user' ),
 			'permission_callback' => array( $this, 'permissions_check' ),
 			'args'                => array(
 				'id' => array(
