@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
-	FacebookPreviews,
-	TwitterPreviews,
+	FacebookLinkPreview,
+	TwitterLinkPreview,
 	GoogleSearchPreview,
 } from '@automattic/social-previews';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
@@ -70,6 +70,7 @@ export const SEO = withModuleSettingsFormHelpers(
 
 		SocialPreviewGoogle = siteData => (
 			<GoogleSearchPreview
+				siteTitle={ siteData.title }
 				title={ siteData.title }
 				url={ siteData.url }
 				description={ siteData.frontPageMetaDescription }
@@ -77,20 +78,20 @@ export const SEO = withModuleSettingsFormHelpers(
 		);
 
 		SocialPreviewFacebook = siteData => (
-			<FacebookPreviews
+			<FacebookLinkPreview
 				title={ siteData.title }
 				url={ siteData.url }
 				type="website"
+				imageMode="landscape"
 				description={ siteData.frontPageMetaDescription }
 				image={ siteData.image }
 			/>
 		);
 
 		SocialPreviewTwitter = siteData => (
-			<TwitterPreviews
+			<TwitterLinkPreview
 				title={ siteData.title }
 				url={ siteData.url }
-				type="summary"
 				description={ siteData.frontPageMetaDescription }
 				image={ siteData.image }
 			/>

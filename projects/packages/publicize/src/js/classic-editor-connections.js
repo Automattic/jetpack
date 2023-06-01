@@ -2,8 +2,70 @@ import { _n, __ } from '@wordpress/i18n';
 import jQuery from 'jquery';
 
 const { ajaxUrl, connectionsUrl } = window.jetpackSocialClassicEditorConnections;
+const CONNECTIONS_NEED_MEDIA = [ 'instagram-business' ];
+
+const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
+	const featuredImage = window.wp.media.featuredImage.get();
+	// TODO: Find a way to get size for validation.
+	const isFeaturedImageValid = featuredImage && featuredImage !== -1;
+	const warningDiv = $( '#pub-connection-needs-media' );
+	const warningDivHasContent = !! warningDiv.html();
+
+	// If the state is already correct, don't do anything.
+	if ( isFeaturedImageValid !== warningDivHasContent ) {
+		return;
+	}
+
+	connectionsNeedValidation.forEach( connectionName => {
+		$( '.wpas-submit-' + connectionName ).each( ( _, element ) => {
+			const el = $( element );
+			const disabled = el.prop( 'disabled' );
+
+			if ( ! disabled && ! isFeaturedImageValid ) {
+				el.data( 'checkedVal', el.prop( 'checked' ) );
+			}
+			el.prop( 'checked', isFeaturedImageValid && el.data( 'checkedVal' ) );
+			el.prop( 'disabled', ! isFeaturedImageValid );
+		} );
+	} );
+
+	if ( isFeaturedImageValid ) {
+		warningDiv.removeClass().html( '' );
+		return;
+	}
+
+	/* translators: %s is the link to the media upload best practices. */
+	const connectionNeedsMediaString = __(
+		'You need a valid image in your post to share to Instagram. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more</a>.',
+		'jetpack-publicize-pkg'
+	);
+
+	warningDiv
+		.addClass( 'notice-warning publicize__notice-media-warning publicize__notice-warning' )
+		.append(
+			connectionNeedsMediaString.replace(
+				'%s',
+				'https://jetpack.com/redirect/?source=jetpack-social-media-support-information'
+			)
+		);
+};
 
 jQuery( function ( $ ) {
+	const connectionsNeedValidation = CONNECTIONS_NEED_MEDIA.filter(
+		connectionName => $( '.wpas-submit-' + connectionName ).length
+	);
+
+	if ( connectionsNeedValidation.length > 0 ) {
+		validateFeaturedMedia( $, connectionsNeedValidation );
+
+		const oldSet = window.wp.media.featuredImage.set;
+		// We need to override the set method to validate the featured image when it changes.
+		window.wp.media.featuredImage.set = function ( id ) {
+			oldSet( id );
+			validateFeaturedMedia( $, connectionsNeedValidation );
+		};
+	}
+
 	let fetchingConnTest = false;
 	const publicizeConnTestStart = function () {
 		if ( ! fetchingConnTest ) {
@@ -69,7 +131,7 @@ jQuery( function ( $ ) {
 		if ( unsupportedConnections ) {
 			/* translators: %s is the link to the connections page in Calypso */
 			const msg = __(
-				'Twitter is not supported anymore. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more here</a>.',
+				'Twitter is not supported anymore. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more</a>.',
 				'jetpack-publicize-pkg'
 			);
 

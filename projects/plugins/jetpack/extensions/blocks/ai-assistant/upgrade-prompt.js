@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /*
@@ -19,9 +20,14 @@ const UpgradePrompt = () => {
 			buttonText={ 'Upgrade' }
 			checkoutUrl={ `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/add-jetpack-ai` }
 			className={ 'jetpack-ai-upgrade-banner' }
-			description={ __(
-				'You have reached the limit of 20 free requests. Upgrade now to keep using Jetpack AI.',
-				'jetpack'
+			description={ createInterpolateElement(
+				__(
+					'You have reached the limit of free requests.<br /> Upgrade now to keep using Jetpack AI.',
+					'jetpack'
+				),
+				{
+					br: <br />,
+				}
 			) }
 			goToCheckoutPage={ () => {} }
 			isRedirecting={ false }

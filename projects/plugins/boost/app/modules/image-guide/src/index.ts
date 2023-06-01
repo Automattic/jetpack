@@ -1,3 +1,4 @@
+import analytics from '@automattic/jetpack-analytics';
 import { getMeasurableImages } from '@automattic/jetpack-image-guide';
 import ImageGuideAnalytics from './analytics';
 import { attachGuides } from './initialize';
@@ -30,6 +31,14 @@ function discardSmallImages( images: MeasurableImage[] ) {
  * Initialize the AdminBarToggle component when the DOM is ready.
  */
 document.addEventListener( 'DOMContentLoaded', () => {
+	analytics.initialize(
+		jetpackBoostAnalytics.tracksData.userData.userid,
+		jetpackBoostAnalytics.tracksData.userData.username,
+		{
+			blog_id: jetpackBoostAnalytics.tracksData.blogId,
+		}
+	);
+
 	const adminBarToggle = document.getElementById( 'wp-admin-bar-jetpack-boost-guide' );
 	const link = adminBarToggle?.querySelector( 'a' );
 	if ( adminBarToggle && link ) {

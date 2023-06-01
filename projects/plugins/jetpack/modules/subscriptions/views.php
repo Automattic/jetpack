@@ -1,5 +1,4 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
@@ -325,24 +324,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Generates the source parameter to pass to the iframe
-	 *
-	 * @return string the actaul post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
-	 */
-	protected static function get_post_access_level() {
-		$post_id = get_the_ID();
-		if ( ! $post_id ) {
-			return 'everybody';
-		}
-		require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
-		$meta = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
-		if ( empty( $meta ) ) {
-			$meta = 'everybody';
-		}
-		return $meta;
-	}
-
-	/**
 	 * Renders a form allowing folks to subscribe to the blog.
 	 *
 	 * @param array  $args Display arguments including 'before_title', 'after_title', 'before_widget', and 'after_widget'.
@@ -366,7 +347,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$submit_button_wrapper_styles = isset( $instance['submit_button_wrapper_styles'] ) ? $instance['submit_button_wrapper_styles'] : '';
 		$email_field_classes          = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
 		$email_field_styles           = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
-		$post_access_level            = self::get_post_access_level();
+		$post_access_level            = \Jetpack_Memberships::get_post_access_level();
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;

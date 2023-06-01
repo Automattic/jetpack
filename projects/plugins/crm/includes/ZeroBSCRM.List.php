@@ -210,7 +210,7 @@ class zeroBSCRM_list{
             <!-- title + edit ico -->
 
             <!-- col editor -->
-            <div id="zbs-list-col-editor" class="ui segment secondary hidden">
+						<div id="zbs-list-col-editor" class="hidden">
 
                 <h4 class="ui horizontal divider header">
                   <i class="list layout icon"></i>
@@ -347,7 +347,7 @@ class zeroBSCRM_list{
 
                         <div class="column" style="max-width:364px;">
                             <div class="ui labeled input">
-                                <div class="ui teal label"><i class="table icon"></i>  <?php esc_html_e('Records per page:','zero-bs-crm'); ?></div>
+										<div class="ui label"><i class="table icon"></i>  <?php esc_html_e( 'Records per page:', 'zero-bs-crm' ); ?></div>
                                 <input type="text" style="width:70px;" class="intOnly" id="zbs-screenoptions-records-per-page" value="<?php echo esc_attr( $perPage ); ?>" />
                             </div>
                         </div>
@@ -355,39 +355,12 @@ class zeroBSCRM_list{
                     </div>
 
 
-                    <?php /* don't show for now
-                    if ($usingOwnership){ ?>
-                    <div class="two column clearing centered row">
-
-                        <div class="column" style="max-width:364px;">
-                                <div class="ui form zbs-list-toolbar-radio">
-                                  <div class="inline fields">
-                                    <label><?php _e('Show (Assigned to)',"zero-bs-crm");?>:</label>
-                                    <div class="field">
-                                      <div class="ui radio checkbox">
-                                        <input type="radio" checked="checked" name="zbs-show-customers-via-ownership" value="all" id="zbs-list-toolbar-show-all" tabindex="0" class="hidden">
-                                        <label><?php _e('All',"zero-bs-crm");?></label>
-                                      </div>
-                                    </div>
-                                    <div class="field">
-                                      <div class="ui radio checkbox">
-                                        <input type="radio" name="zbs-show-customers-via-ownership" value="mine" id="zbs-list-toolbar-show-mine" tabindex="0" class="hidden">
-                                        <label><?php _e('Mine',"zero-bs-crm");?></label>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                        </div>                    
-
-                    </div> */ ?>
-
-
                 <div class="ui divider" style="margin-bottom:0;margin-top:0;"></div>
 
                     <div class="two column clearing centered row">
 
                         <div class="column" style="max-width:364px;">
-                            <button id="zbs-columnmanager-bottomsave" type="button" class="ui button positive"><i class="check square icon"></i> <?php esc_html_e('Save Options and Close','zero-bs-crm'); ?></button>
+									<button id="zbs-columnmanager-bottomsave" type="button" class="ui button black positive"><i class="check square icon"></i> <?php esc_html_e( 'Save Options and Close', 'zero-bs-crm' ); ?></button>
                         </div>
 
                     </div>
@@ -428,10 +401,10 @@ class zeroBSCRM_list{
 			</div>
 			<?php
 
-			// if totals, show the wrapper
-			if ( $zbs->settings->get( 'show_totals_table' ) === 1 ) {
+			// If totals, show the wrapper. Currently only implemented in contacts
+			if ( $zbs->settings->get( 'show_totals_table' ) === 1 && $this->objType === 'customer' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				?>
-				<div id="jpcrm-listview-totals-box"></div>
+				<jpcrm-dashcount></jpcrm-dashcount>
 				<?php
 			}
 			##WLREMOVE
@@ -496,7 +469,6 @@ class zeroBSCRM_list{
 
             }
 
-
             // build options objects
             $list_view_settings = array(
 
@@ -508,7 +480,6 @@ class zeroBSCRM_list{
                 'editinline' => $allowinlineedits
 
             );
-
 
             $list_view_parameters = array(
 
@@ -529,8 +500,6 @@ class zeroBSCRM_list{
                 'pagekey' => ( isset( $zbs->pageKey ) ? esc_html( $zbs->pageKey ) : '' ),
 
             );
-
-
 
             ?>
 
@@ -600,7 +569,6 @@ class zeroBSCRM_list{
             var zbsDrawListViewAJAXBlocker = false;
             var zbsDrawListViewColUpdateBlocker = false;
             var zbsDrawListViewColUpdateAJAXBlocker = false;
-            var zbsDrawListLoadingBoxHTML = '<?php echo zeroBSCRM_UI2_loadingSegmentIncTextHTML(); ?>';
 
             var zbsObjectEmailLinkPrefix = '<?php 
 
@@ -718,28 +686,7 @@ class zeroBSCRM_list{
             var zbsClick2CallType = parseInt('<?php echo esc_url( zeroBSCRM_getSetting('clicktocalltype') ); ?>');
 
 			<?php
-			$jpcrm_listview_lang_labels = array(
-
-				'go_button'          => esc_html__( 'Go', 'zero-bs-crm' ),
-				/* translators: Placeholder is the number of selected rows. */
-				'rows_selected_x'    => esc_html__( 'Bulk actions (%s rows)', 'zero-bs-crm' ),
-				'rows_selected_1'    => esc_html__( 'Bulk actions (1 row)', 'zero-bs-crm' ),
-				'rows_selected_0'    => esc_html__( 'Bulk actions (no rows)', 'zero-bs-crm' ),
-				'zbs_edit'           => esc_html__( 'Edit', 'zero-bs-crm' ),
-				'today'              => esc_html__( 'Today', 'zero-bs-crm' ),
-				'days'               => esc_html__( 'days', 'zero-bs-crm' ),
-				'daysago'            => esc_html__( 'days ago', 'zero-bs-crm' ),
-				'notcontacted'       => esc_html__( 'Not Contacted', 'zero-bs-crm' ),
-				'yesterday'          => esc_html__( 'Yesterday', 'zero-bs-crm' ),
-				'filteredby'         => esc_html__( 'Filtered By', 'zero-bs-crm' ),
-				'notcontactedin'     => esc_html__( 'Not Contacted in', 'zero-bs-crm' ),
-				'containing'         => esc_html__( 'Containing', 'zero-bs-crm' ),
-				'couldntupdate'      => esc_html__( 'Could not update', 'zero-bs-crm' ),
-				'couldntupdatedeets' => esc_html__( 'This record could not be updated. Please try again, if this persists please let admin know.', 'zero-bs-crm' ),
-				/* translators: Placeholders are the range of the current record result and the total object count. */
-				'listview_counts'    => esc_html__( 'Showing %s of %s items', 'zero-bs-crm' ), // phpcs:ignore WordPress.WP.I18n.UnorderedPlaceholdersText
-
-			);
+			$jpcrm_listview_lang_labels = array();
 
 			// add any object-specific language labels
 			if ( count( $this->langLabels ) > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -776,74 +723,54 @@ class zeroBSCRM_list{
 				$zbs_tags_for_bulk_actions = wp_json_encode( $simple_tags );
 				echo ( $zbs_tags_for_bulk_actions ? $zbs_tags_for_bulk_actions : '[]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-				// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect
-										?>;
-            var zbsListViewIcos = {
+				?>;
+				var zbsListViewIcos = {};
+				// gives data used by inline editor
+				var zbsListViewInlineEdit = {
 
-                    // bulk action label icos
-                    /* has to be unicode
-                    deletetransactions: '<i class="fa fa-trash" aria-hidden="true"></i>',
-                    addtags: '<i class="fa fa-tags" aria-hidden="true"></i>',
-                    removetags: '<i class="fa fa-chain-broken" aria-hidden="true"></i>',
-                    merge: '<i class="fa fa-compress" aria-hidden="true"></i>',
-                    */
+					// for now just put contacts in here
+					customer: {
+						statuses: <?php
+							// MUST be a better way than this to get customer statuses...
+							// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							global $zbsCustomerFields;
+							if ( is_array( $zbsCustomerFields['status'][3] ) ) {
+								echo wp_json_encode( $zbsCustomerFields['status'][3] );
+							} else {
+								echo '[]';
+							}
+							// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						?>
+					},
 
-                    // ICONS playing up on semantic Select, so cut out for init.
-                    /* 
-                    deletetransactions: '&#xf1f8;',
-                    addtags: '&#xf1f8;',
-                    removetags: '&#xf1f8;',
-                    merge: '&#xf1f8;',
-                    */
-                    
-                    
+					owners: <?php
 
-            };
-            // gives data used by inline editor
-            var zbsListViewInlineEdit = {
+						// hardcoded customer perms atm
+						$possible_owners = zeroBS_getPossibleOwners( array( 'zerobs_admin', 'zerobs_customermgr' ), true );
+						if ( ! is_array( $possible_owners ) ) {
+								echo wp_json_encode( array() );
+						} else {
+							echo wp_json_encode( $possible_owners );
+						}
 
-                    // for now just put contacts in here
-                    customer: {
-                        statuses: <?php
+					?>
 
-                            // MUST be a better way than this to get customer statuses...
-                            global $zbsCustomerFields;
-                            if (is_array($zbsCustomerFields['status'][3])){
+					};
+					<?php
+					// Nonce for AJAX
+					echo 'var zbscrmjs_secToken = "' . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . '";';
 
-                                echo json_encode($zbsCustomerFields['status'][3]);
-
-                            } else echo '[]';
-                        ?>
-                    },
-
-
-                    owners: <?php
-
-                        // hardcoded customer perms atm
-                        $zbsPossibleOwners = zeroBS_getPossibleOwners(array('zerobs_admin','zerobs_customermgr'),true);
-                        if (!is_array($zbsPossibleOwners))
-                            echo json_encode(array());
-                        else
-                            echo json_encode($zbsPossibleOwners);
-
-                    ?>
-                    
-
-            };
-            <?php #} Nonce for AJAX
-                echo "var zbscrmjs_secToken = '" . esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ) . "';";
-
-                // any last JS?
-                if (isset($this->extraJS) && !empty($this->extraJS)) echo $this->extraJS;
-            
-            ?></script>
+					// any last JS?
+					if ( isset( $this->extraJS ) && ! empty( $this->extraJS ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						echo $this->extraJS; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.Security.EscapeOutput.OutputNotEscaped
+					}
+					// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect
+					?>
+					</script>
 
 					<?php
 					// phpcs:enable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
 					// phpcs:enable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
-					?>
-
-        <?php
 
     } // /draw func
 
@@ -855,8 +782,8 @@ class zeroBSCRM_list{
 	public function draw_listview_header( $listview_filters ) {
 		global $zbs;
 
-		$filter_var       = 'zeroBSCRM_filterbuttons_' . $this->objType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$all_quickfilters = $GLOBALS[ $filter_var ]['all'];
+		$filter_var       = 'zeroBSCRM_filterbuttons_a' . $this->objType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$all_quickfilters = ( empty( $GLOBALS[ $filter_var ]['all'] ) ? array() : $GLOBALS[ $filter_var ]['all'] );
 		$all_tags         = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
 				'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -865,7 +792,7 @@ class zeroBSCRM_list{
 		);
 
 		$current_quickfilter       = ( ! empty( $listview_filters['quickfilters'][0] ) ? $listview_filters['quickfilters'][0] : '' );
-		$current_quickfilter_label = ( ! empty( $current_quickfilter ) ? $all_quickfilters[ $current_quickfilter ][0] : '' );
+		$current_quickfilter_label = ( ! empty( $all_quickfilters[ $current_quickfilter ][0] ) ? $all_quickfilters[ $current_quickfilter ][0] : '' );
 		$current_tag               = ( ! empty( $listview_filters['tags'][0] ) ? $listview_filters['tags'][0]['name'] : '' );
 		$current_search            = ( ! empty( $listview_filters['s'] ) ? $listview_filters['s'] : '' );
 		?>
@@ -881,13 +808,13 @@ class zeroBSCRM_list{
 				<?php
 				// add quickfilters filter if current object has quickfilters
 				if ( count( $all_quickfilters ) > 0 ) {
-					echo '<select class="filter-dropdown' . ( ! empty( $current_quickfilter ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
+					echo '<select class="filter-dropdown' . ( ! empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
 					echo '<option disabled selected>' . esc_html__( 'Select filter', 'zero-bs-crm' ) . '</option>';
 					foreach ( $all_quickfilters as $filter_slug => $filter_data ) {
 						echo '<option value="' . esc_attr( $filter_slug ) . '">' . esc_html( $filter_data[0] ) . '</option>';
 					}
 					echo '</select>';
-					echo '<div class="jpcrm-current-filter' . ( empty( $current_quickfilter ) ? ' hidden' : '' ) . '">';
+					echo '<div class="jpcrm-current-filter' . ( empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '">';
 					echo '<button class="dashicons dashicons-remove" title="' . esc_attr__( 'Remove filter', 'zero-bs-crm' ) . '"></button>';
 					echo esc_html__( 'Filter', 'zero-bs-crm' ) . ': ';
 					echo '<span>' . esc_html( $current_quickfilter_label ) . '</span>';
@@ -895,7 +822,7 @@ class zeroBSCRM_list{
 				}
 
 				// add tags filter if current object has tags
-				if ( count( $all_tags ) > 0 ) {
+				if ( is_array( $all_tags ) && count( $all_tags ) > 0 ) {
 					echo '<select class="filter-dropdown' . ( ! empty( $current_tag ) ? ' hidden' : '' ) . '" data-filtertype="tags">';
 					echo '<option disabled selected>' . esc_html__( 'Select tag', 'zero-bs-crm' ) . '</option>';
 					foreach ( $all_tags as $tag ) {
@@ -908,8 +835,6 @@ class zeroBSCRM_list{
 					echo '<span>' . esc_html( $current_tag ) . '</span>';
 					echo '</div>';
 				}
-
-				echo '<button class="table-options" id="open-table-options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '</button>';
 				?>
 			</header-item>
 		</jpcrm-listview-header>
@@ -936,3 +861,30 @@ class zeroBSCRM_list{
 		<?php
 	}
 } // class
+
+/**
+ * Language labels for JS
+ *
+ * @param array $language_array Array of language labels.
+ */
+function jpcrm_listview_language_labels( $language_array ) { // phpcs:ignore Universal.Files.SeparateFunctionsFromOO.Mixed
+	$jpcrm_listview_lang_labels = array(
+		'click_to_sort'      => esc_html__( 'Click to sort', 'zero-bs-crm' ),
+		/* translators: Placeholder is the number of selected rows. */
+		'rows_selected_x'    => esc_html__( 'Bulk actions (%s rows)', 'zero-bs-crm' ),
+		'rows_selected_1'    => esc_html__( 'Bulk actions (1 row)', 'zero-bs-crm' ),
+		'rows_selected_0'    => esc_html__( 'Bulk actions (no rows)', 'zero-bs-crm' ),
+		'zbs_edit'           => esc_html__( 'Edit', 'zero-bs-crm' ),
+		'today'              => esc_html__( 'Today', 'zero-bs-crm' ),
+		'daysago'            => esc_html__( 'days ago', 'zero-bs-crm' ),
+		'notcontacted'       => esc_html__( 'Not Contacted', 'zero-bs-crm' ),
+		'yesterday'          => esc_html__( 'Yesterday', 'zero-bs-crm' ),
+		'couldntupdate'      => esc_html__( 'Could not update', 'zero-bs-crm' ),
+		'couldntupdatedeets' => esc_html__( 'This record could not be updated. Please try again, if this persists please let admin know.', 'zero-bs-crm' ),
+		/* translators: Placeholders are the range of the current record result and the total object count. */
+		'listview_counts'    => esc_html__( 'Showing %s of %s items', 'zero-bs-crm' ), // phpcs:ignore WordPress.WP.I18n.UnorderedPlaceholdersText
+	);
+
+	return array_merge( $language_array, $jpcrm_listview_lang_labels );
+}
+add_filter( 'zbs_globaljs_lang', 'jpcrm_listview_language_labels' );

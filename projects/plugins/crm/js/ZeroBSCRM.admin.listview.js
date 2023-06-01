@@ -61,31 +61,14 @@ function zeroBSCRMJS_initListView() {
 		} );
 
 	// save + close button at bottom of colmanager/screenopts
-	jQuery( '#zbs-columnmanager-bottomsave' )
-		.off( 'click' )
-		.on( 'click', function () {
-			// just clcking basically means opts saVED (AS SAVED ON CHANGE)
-
-			// close this
-			// (lazy sim click ;) )
-			jQuery( 'jpcrm-listview-header #open-table-options' ).trigger( 'click' );
-		} );
+	jQuery('#zbs-columnmanager-bottomsave').on('click', function() {
+		document.getElementById('zbs-list-col-editor').classList.add('hidden');
+	});
 
 	// open/shut column manager
-	jQuery( 'jpcrm-listview-header #open-table-options' )
-		.off( 'click' )
-		.on( 'click', function () {
-			//jQuery('#zbs-list-col-editor').toggle();
-			if ( jQuery( '#zbs-list-col-editor' ).is( ':visible' ) ) {
-				// hide
-				jQuery( this ).addClass( 'blue' ).removeClass( 'teal' );
-				jQuery( '#zbs-list-col-editor' ).hide();
-			} else {
-				// show
-				jQuery( this ).removeClass( 'blue' ).addClass( 'teal' );
-				jQuery( '#zbs-list-col-editor' ).show();
-			}
-		} );
+	jQuery('#jpcrm_table_options').on('click', function() {
+		document.getElementById('zbs-list-col-editor').classList.toggle('hidden');
+	});
 
 	// drag drop columns
 	jQuery(
@@ -137,7 +120,7 @@ function zeroBSCRMJS_initListView() {
 								jQuery( '#zbs-col-manager-loading' ).hide();
 
 								// could not save cols
-								jQuery( '#zbsCantSaveCols' ).show();
+								jQuery( '#zbsCantSaveCols' ).css('display', 'flex');
 							}
 						);
 					},
@@ -417,116 +400,130 @@ function zeroBSCRMJS_listViewIco( key, fallback ) {
 /**
  *
  */
-function zeroBSCRMJS_drawListView() {
-	// if no blocker
-	if ( ! window.zbsDrawListViewBlocker ) {
-		// move this, if it's present (if was 0 results it'll be in the table, otherwise, wont be anyhow :)
-		jQuery( '#zbsNoResults' ).addClass( 'hidden' ).appendTo( '#zbs-list-warnings-wrap' );
+function zeroBSCRMJS_drawListView(reset_pagination, update_url) {
+	// if blocker, stop
+	if ( window.zbsDrawListViewBlocker ) {
+		return;
+	}
 
-		// put blocker up
-		window.zbsDrawListViewBlocker = true;
+	// reset pagination
+	if (reset_pagination) {
+		zbsListViewParams.paged = 1;
+	}
+	// update URL
+	if (update_url) {
+		history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
+	}
 
-		// empty table, show loading
-		jQuery( '.jpcrm-listview-table-container' ).html( window.zbsDrawListLoadingBoxHTML );
+	// move this, if it's present (if was 0 results it'll be in the table, otherwise, wont be anyhow :)
+	jQuery( '#zbsNoResults' ).addClass( 'hidden' ).appendTo( '#zbs-list-warnings-wrap' );
 
-		// check data + retrieve if empty
-		if ( ! window.zbsListViewParams.retrieved ) {
+	// put blocker up
+	window.zbsDrawListViewBlocker = true;
 
-			// hide extras until listview is loaded
-			document.querySelector('.bulk-actions-dropdown').classList.add('hidden');
-			jQuery( 'jpcrm-listview-footer' ).hide();
-			jQuery( '#jpcrm-listview-totals-box' ).hide();
+	// empty table, show loading
+	jQuery( '.jpcrm-listview-table-container' ).html( '<div class="empty-container-with-spinner"><div class="ui active centered inline loader"></div></div>' );
 
-			// retrieve data
-			zeroBSCRMJS_retrieveListViewData(
-				function ( d ) {
+	// check data + retrieve if empty
+	if ( ! window.zbsListViewParams.retrieved ) {
 
-					// holds event flags to fire post-draw
-					var postHTML = {};
+		// hide extras until listview is loaded
+		document.querySelector('.bulk-actions-dropdown').classList.add('hidden');
+		jQuery( 'jpcrm-listview-footer' ).hide();
+		jQuery( 'jpcrm-dashcount' ).hide();
 
-					// success callback
-					var listViewHTML = '';
+		// retrieve data
+		zeroBSCRMJS_retrieveListViewData(
+			function ( d ) {
 
-					listViewHTML += jpcrm_listview_header();
+				// holds event flags to fire post-draw
+				var postHTML = {};
 
-					// build table
-					listViewHTML += '<table class="jpcrm-listview-table">';
+				// success callback
+				var listViewHTML = '';
 
-					// header
-					listViewHTML += jpcrm_listview_table_header();
-					listViewHTML += '<tbody>';
+				listViewHTML += jpcrm_listview_header();
 
-					// per line
-					if ( window.zbsListViewData.length > 0 ) {
-						jQuery.each( window.zbsListViewData, function ( ind, ele ) {
-							// add to html
-							listViewHTML += zeroBSCRMJS_listViewLine( ele );
-						} );
-					} else {
-						// no lines, move this ui msg into a blank row col
-						if ( jQuery( '#zbsNoResults' ).length ) {
-							listViewHTML +=
-								'<tr><td colspan="' +
-								window.zbsListViewParams.columns.length +
-								'" id="zbs-no-results-wrap">';
-
-							// to be fired after setTimeout jQuery('#zbsNoResults').appendTo('#zbs-no-results-wrap');
-							postHTML.nores = true;
-
-							listViewHTML += '</td></tr>';
-						}
-					}
-
-					listViewHTML += '</tbody>';
-
-					listViewHTML += '</table>';
-
-					// draw
-					jQuery( '.jpcrm-listview-table-container' ).html( listViewHTML );
-
-					//update counts in footer
-					jpcrm_update_listview_counts();
-
-					// update pagination
-					jpcrm_update_listview_pagination();
-
-					// catch any post-html events
-					var lPostHTML = postHTML;
-
-					// empty result set.
-					if ( typeof lPostHTML.nores ) {
-						jQuery( '#zbsNoResults' ).appendTo( '#zbs-no-results-wrap' ).removeClass( 'hidden' );
-					}
-
-					// bind any post-render (e.g. bulk action)
-					zeroBSCRMJS_listViewBinds();
-
-					// draw totals tables, if data
-					zeroBSCRMJS_listView_draw_totals_tables();
-					// fini, remove blocker
-					window.zbsDrawListViewBlocker = false;
-
-					jQuery( '#zbsCantLoadData' ).hide();
-					jQuery( '.jpcrm-listview-table-container' ).show();
-					jQuery( 'jpcrm-listview-footer' ).show();
-					jQuery( '#jpcrm-listview-totals-box' ).show();
-				},
-				function ( errd ) {
-					// err callback? show msg (prefilled by php)
-					jQuery( '#zbsCantLoadData' ).show();
-					jQuery( '.jpcrm-listview-table-container' ).hide();
-
-					//update counts in footer
-					jpcrm_update_listview_counts();
-
-					// update pagination
-					jpcrm_update_listview_pagination();
-
-					// fini, remove blocker
-					window.zbsDrawListViewBlocker = false;
+				// show pagination at top if per page is high
+				if (zbsListViewParams.count >= 50) {
+					listViewHTML += '<div class="jpcrm-pagination-container"></div>';
 				}
-			);
-		}
+
+				// build table
+				listViewHTML += '<table class="jpcrm-listview-table">';
+
+				// header
+				listViewHTML += jpcrm_listview_table_header();
+				listViewHTML += '<tbody>';
+
+				// per line
+				if ( window.zbsListViewData.length > 0 ) {
+					jQuery.each( window.zbsListViewData, function ( ind, ele ) {
+						// add to html
+						listViewHTML += zeroBSCRMJS_listViewLine( ele );
+					} );
+				} else {
+					// no lines, move this ui msg into a blank row col
+					if ( jQuery( '#zbsNoResults' ).length ) {
+						// extra column due to checkbox
+						listViewHTML +='<tr><td colspan="' + (window.zbsListViewParams.columns.length + 1) + '" id="zbs-no-results-wrap">';
+
+						// to be fired after setTimeout jQuery('#zbsNoResults').appendTo('#zbs-no-results-wrap');
+						postHTML.nores = true;
+
+						listViewHTML += '</td></tr>';
+					}
+				}
+
+				listViewHTML += '</tbody>';
+
+				listViewHTML += '</table>';
+
+				// draw
+				jQuery( '.jpcrm-listview-table-container' ).html( listViewHTML );
+
+				//update counts in footer
+				jpcrm_update_listview_counts();
+
+				// update pagination
+				jpcrm_update_listview_pagination();
+
+				// catch any post-html events
+				var lPostHTML = postHTML;
+
+				// empty result set.
+				if ( typeof lPostHTML.nores ) {
+					jQuery( '#zbsNoResults' ).appendTo( '#zbs-no-results-wrap' ).removeClass( 'hidden' );
+				}
+
+				// bind any post-render (e.g. bulk action)
+				zeroBSCRMJS_listViewBinds();
+
+				// draw totals tables, if data
+				zeroBSCRMJS_listView_draw_totals_tables();
+				// fini, remove blocker
+				window.zbsDrawListViewBlocker = false;
+
+				jQuery( '#zbsCantLoadData' ).hide();
+				jQuery( '.jpcrm-listview-table-container' ).show();
+				jQuery( 'jpcrm-listview-footer' ).show();
+				jQuery( 'jpcrm-dashcount' ).show();
+			},
+			function ( errd ) {
+				// err callback? show msg (prefilled by php)
+				jQuery( '#zbsCantLoadData' ).css('display', 'flex');
+				jQuery( '.jpcrm-listview-table-container' ).hide();
+
+				//update counts in footer
+				jpcrm_update_listview_counts();
+
+				// update pagination
+				jpcrm_update_listview_pagination();
+
+				// fini, remove blocker
+				window.zbsDrawListViewBlocker = false;
+			}
+		);
 	}
 }
 
@@ -653,56 +650,24 @@ function jpcrm_listview_table_header() {
 		}
 
 		jQuery.each( window.zbsListViewParams.columns, function ( lvhInd, lvhEle ) {
-			var tdStr = lvhEle.namestr;
-
-			// sortable?
-			// This says "are not in unsortable"
-			//if (typeof window.zbsListViewParams.sort != "undefined" && window.zbsUnsortables.indexOf(lvhEle.fieldstr) < 0){
-			// but for v2.2 we'll do "in zbsSortables"(because need new db  format to properly do sort)
-			if (
-				typeof window.zbsSortables !== 'undefined' &&
-				window.zbsSortables.indexOf( lvhEle.fieldstr ) > -1
-			) {
-				if (
-					typeof window.zbsListViewParams.sort !== 'undefined' &&
-					window.zbsListViewParams.sort == lvhEle.fieldstr
-				) {
-					var sortDirection = 'down';
-					var sortDirectionUrlParam = 'asc';
-					if (
-						typeof window.zbsListViewParams.sortorder !== 'undefined' &&
-						window.zbsListViewParams.sortorder == 'asc'
-					) {
-						sortDirection = 'up';
-						sortDirectionUrlParam = 'desc';
-					}
-
-					tdStr +=
-						' <a href="' +
-						jpcrm_listview_generate_current_filter_url( true ) +
-						'&sort=' +
-						lvhEle.fieldstr +
-						'&sortdirection=' +
-						sortDirectionUrlParam +
-						'" title="Click to Sort"><i class="angle ' +
-						sortDirection +
-						' icon"></i></a>';
-				} else {
-					// use name as sort link, always defaults to desc
-					tdStr =
-						' <a href="' +
-						jpcrm_listview_generate_current_filter_url( true ) +
-						'&sort=' +
-						lvhEle.fieldstr +
-						'" title="Click to Sort">' +
-						tdStr +
-						'</a>';
+			if (zbsSortables && zbsSortables.indexOf( lvhEle.fieldstr ) > -1) {
+				sortDirectionUrlParam = 'asc';
+				var sortDirection = 'down';
+				if (zbsListViewParams.sortorder && window.zbsListViewParams.sortorder === 'asc' && zbsListViewParams.sort && zbsListViewParams.sort === lvhEle.fieldstr) {
+					sortDirection = 'up';
+					sortDirectionUrlParam = 'desc';
 				}
-			} // / is sortable
-
-			listViewHeaderHTML += '        <th>' + tdStr + '</th>';
+				listViewHeaderHTML += `<th class="jpcrm_sort_column" data-sort="${lvhEle.fieldstr}" data-sortdir="${sortDirectionUrlParam}" title="${zeroBSCRMJS_listViewLang('click_to_sort')}">`;
+				listViewHeaderHTML += `${lvhEle.namestr}`;
+				if ( zbsListViewParams.sort && zbsListViewParams.sort === lvhEle.fieldstr) {
+					listViewHeaderHTML += `<i class="angle ${sortDirection} icon"></i>`;
+				}
+				listViewHeaderHTML += `</th>`;
+			} else {
+				listViewHeaderHTML += `<th>${lvhEle.namestr}</th>`;
+			}
 		} );
-		listViewHeaderHTML += '      </tr></thead>';
+		listViewHeaderHTML += '</tr></thead>';
 	}
 
 	return listViewHeaderHTML;
@@ -792,6 +757,10 @@ function zeroBSCRMJS_listViewLine( data ) {
  *
  */
 function zeroBSCRMJS_listViewBinds() {
+
+	// bind sort column clicks
+	let sort_columns = document.querySelectorAll('.jpcrm_sort_column');
+	sort_columns.forEach( el => el.addEventListener('click',jpcrm_change_sort));
 
 	let row_checkboxes = document.querySelectorAll('.jpcrm-listview-table td input[type="checkbox"]');
 
@@ -1175,72 +1144,49 @@ function zeroBSCRMJS_listView_url_export_segment( id ) {
  *
  */
 function zeroBSCRMJS_listView_draw_totals_tables() {
-	// clear any previous
-	jQuery( '#jpcrm-listview-totals-box' ).html( '' );
 
-	if ( typeof window.jpcrm_totals_table !== 'undefined' && window.jpcrm_totals_table !== null ) {
-		var table_body_html = '';
-		var table_footer_html = '';
-
-		if (
-			typeof window.jpcrm_totals_table.quotes_total_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.quotes_total_formatted !== null
-		) {
-			table_body_html +=
-				'<tr><td>' +
-				zeroBSCRMJS_listViewLang( 'quotes' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.quotes_total_formatted +
-				'</td></tr>';
-		}
-
-		if (
-			typeof window.jpcrm_totals_table.invoices_total_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.invoices_total_formatted !== null
-		) {
-			table_body_html +=
-				'<tr><td>' +
-				zeroBSCRMJS_listViewLang( 'invoices' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.invoices_total_formatted +
-				'</td></tr>';
-		}
-
-		if (
-			typeof window.jpcrm_totals_table.transactions_total_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.transactions_total_formatted !== null
-		) {
-			table_body_html +=
-				'<tr><td>' +
-				zeroBSCRMJS_listViewLang( 'transactions' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.transactions_total_formatted +
-				'</td></tr>';
-		}
-		if (
-			typeof window.jpcrm_totals_table.total_sum_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.total_sum_formatted !== null
-		) {
-			table_footer_html =
-				'<tfoot><tr><td>' +
-				zeroBSCRMJS_listViewLang( 'total' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.total_sum_formatted +
-				'</td></tr></tfoot>';
-		}
-
-		if ( table_body_html !== '' ) {
-			jQuery( '#jpcrm-listview-totals-box' ).html(
-				'<h4>' +
-					zeroBSCRMJS_listViewLang( 'totals' ) +
-					'</h4><table class="ui compact definition table"><tbody>' +
-					table_body_html +
-					'</tbody>' +
-					table_footer_html +
-					'</table>'
-			);
-		}
+	if (!jpcrm_totals_table) {
+		return;
 	}
+
+	let html = '';
+
+	if (jpcrm_totals_table.quotes_total_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'quotes' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.quotes_total_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+
+	if (jpcrm_totals_table.invoices_total_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'invoices' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.invoices_total_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+
+	if (jpcrm_totals_table.transactions_total_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'transactions' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.transactions_total_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+	if (jpcrm_totals_table.total_sum_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'total' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.total_sum_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+
+	jQuery( 'jpcrm-dashcount' ).html( html );
 }
 
 /* ====================================================================================
@@ -1287,8 +1233,9 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_addtag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -1394,9 +1341,10 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_removetag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -1577,8 +1525,9 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_changestatus() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesupdate' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -1628,9 +1577,10 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: 'Yes, delete!',
+		cancelButtonText: '<span style="color: #000">Cancel</span>'
 		//allowOutsideClick: false
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+
@@ -1645,11 +1595,12 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 				extraParams,
 				function ( r ) {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'contactsdeleted' ),
-						'success'
-					);
+					swal({
+						title: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'contactsdeleted' ),
+						confirmButtonColor: '#000',
+						type: 'success'
+					});
 				},
 				function ( r ) {
 					// fail ? SWAL?
@@ -1694,8 +1645,9 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_merge() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesmerge' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -1865,17 +1817,14 @@ function zeroBSCRMJS_listView_generic_nameavatar( dataLine ) {
 		nameStr = dataLine.email;
 	}
 
-	var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-	td += imgStr;
-	td +=
-		'<div class="content"><a href="' +
-		editURL +
-		'">' +
-		nameStr +
-		'</a><div class="sub header">' +
-		emailStr +
-		'</div>';
-	td += '</div></h4></td>';
+	var td = `
+		<td class="jpcrm_name_and_avatar">
+			${imgStr}
+			<div class="content">
+				<a href="${editURL}">${nameStr}</a>
+				${emailStr}
+			</div>
+		</td>`;
 
 	return td;
 }
@@ -1917,10 +1866,10 @@ function zeroBSCRMJS_listView_generic_customer( dataLine ) {
 		var editURL = zeroBSCRMJS_listView_viewURL_customer( dataLine.customer.id );
 		var emailURL = zeroBSCRMJS_listView_emailURL_contact( dataLine.customer.id );
 
-		var emailStr = ''; //if (typeof custLine['email'] != "undefined" && custLine['email'] != '') emailStr = '<a href="mailto:' + custLine['email'] + '" target="_blank">' + custLine['email'] + '</a>';
+		var emailStr = '';
 		var imgStr = '';
 		if ( typeof custLine.avatar !== 'undefined' && custLine.avatar != '' ) {
-			imgStr = '<img src="' + custLine.avatar + '" class="ui mini rounded image">';
+			imgStr = '<img src="' + custLine.avatar + '">';
 		} //imgStr = '<a href="' + editURL + '"><img src="' + dataLine['avatar'] + '" class="ui mini rounded image"></a>';
 		var nameStr = '';
 		if ( typeof custLine.fullname !== 'undefined' && custLine.fullname != '' ) {
@@ -1930,17 +1879,14 @@ function zeroBSCRMJS_listView_generic_customer( dataLine ) {
 			nameStr = custLine.email;
 		}
 
-		var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-		td += imgStr;
-		td +=
-			'<div class="content"><a href="' +
-			editURL +
-			'">' +
-			nameStr +
-			'</a><div class="sub header">' +
-			emailStr +
-			'</div>';
-		td += '</div></h4></td>';
+		var td = `
+			<td class="jpcrm_name_and_avatar">
+				${imgStr}
+				<div class="content">
+					<a href="${editURL}">${nameStr}</a>
+					${emailStr}
+				</div>
+			</td>`;
 	} else if (
 		typeof dataLine.company !== 'undefined' &&
 		dataLine.company != null &&
@@ -1955,9 +1901,13 @@ function zeroBSCRMJS_listView_generic_customer( dataLine ) {
 			nameStr = coLine.fullname;
 		}
 
-		var td = '<td class="name-and-avatar-list"><h4 class="ui header">';
-		td += '<i class="building icon"></i>';
-		td += '<div class="content"><a href="' + editURL + '">' + nameStr + '</a></div></h4></td>';
+		var td = `
+			<td class="jpcrm_name_and_avatar">
+			<i class="building icon"></i>
+				<div class="content">
+					<a href="${editURL}">${nameStr}</a>
+				</div>
+			</td>`;
 	} else {
 		td = '<td>' + zeroBSCRMJS_listViewLang( 'nocustomer' ) + '</td>';
 	}
@@ -2574,17 +2524,14 @@ function zeroBSCRMJS_listView_customer_nameavatar( dataLine ) {
 		nameStr = dataLine.email;
 	}
 
-	var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-	td += imgStr;
-	td +=
-		'<div class="content"><a href="' +
-		editURL +
-		'">' +
-		nameStr +
-		'</a><div class="sub header">' +
-		emailStr +
-		'</div>';
-	td += '</div></h4></td>';
+	var td = `
+		<td class="jpcrm_name_and_avatar">
+			${imgStr}
+			<div class="content">
+				<a href="${editURL}">${nameStr}</a>
+				${emailStr}
+			</div>
+		</td>`;
 
 	return td;
 }
@@ -2772,9 +2719,10 @@ function zeroBSCRMJS_listView_segment_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: 'Yes, delete!',
+		cancelButtonText: '<span style="color: #000">Cancel</span>'
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3050,17 +2998,14 @@ function zeroBSCRMJS_listView_company_nameavatar( dataLine ) {
 		nameStr = dataLine.email;
 	}
 
-	var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-	td += imgStr;
-	td +=
-		'<div class="content"><a href="' +
-		editURL +
-		'">' +
-		nameStr +
-		'</a><div class="sub header">' +
-		emailStr +
-		'</div>';
-	td += '</div></h4></td>';
+	var td = `
+		<td class="jpcrm_name_and_avatar">
+			${imgStr}
+			<div class="content">
+				<a href="${editURL}">${nameStr}</a>
+				${emailStr}
+			</div>
+		</td>`;
 
 	return td;
 }
@@ -3288,9 +3233,10 @@ function zeroBSCRMJS_listView_company_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3371,8 +3317,9 @@ function zeroBSCRMJS_listView_company_bulkActionFire_addtag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -3486,9 +3433,10 @@ function zeroBSCRMJS_listView_company_bulkActionFire_removetag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -3561,38 +3509,6 @@ function zeroBSCRMJS_listView_company_bulkActionFire_removetag() {
 =============== Field Drawing JS - Quote List View ==================================
 ==================================================================================== */
 
-/* Now covered by generic_customer
-
-        function zeroBSCRMJS_listView_quote_customer(dataLine){
-
-            console.log('line',dataLine);
-
-            if (typeof dataLine['customer'] != "undefined" && typeof dataLine['customer']['meta'] != "undefined"){
-
-                var custLine = dataLine['customer']['meta'];
-
-                var editURL = zeroBSCRMJS_listView_viewURL_customer(dataLine['customer']['id']);
-
-                var emailStr = ''; //if (typeof custLine['email'] != "undefined" && custLine['email'] != '') emailStr = '<a href="mailto:' + custLine['email'] + '" target="_blank">' + custLine['email'] + '</a>';
-                var imgStr = ''; if (typeof custLine['avatar'] != "undefined" && custLine['avatar'] != '') imgStr = '<img src="' + custLine['avatar'] + '" class="ui mini rounded image">';//imgStr = '<a href="' + editURL + '"><img src="' + dataLine['avatar'] + '" class="ui mini rounded image"></a>';
-                var nameStr = ''; if (typeof custLine['fullname'] != "undefined" && custLine['fullname'] != '') nameStr = custLine['fullname'];
-                if (nameStr == '' && typeof custLine['email'] != "undefined" && custLine['email'] != '') nameStr = custLine['email'];
-
-                var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-                td += imgStr;
-                td += '<div class="content"><a href="' + editURL + '">' + nameStr + '</a><div class="sub header">' + emailStr + '</div>';
-                td += '</div></h4></td>';
-
-            } else {
-
-                td = '';
-            }
-
-            return td;
-        }
-
-    */
-// Draw <td> for quote title
 /**
  * @param dataLine
  */
@@ -3720,8 +3636,9 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markaccepted() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -3769,8 +3686,9 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markunaccepted() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesproceed' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -3818,9 +3736,10 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3881,9 +3800,10 @@ function zeroBSCRMJS_listView_quotetemplate_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -4130,8 +4050,9 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_changestatus() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesupdate' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -4179,9 +4100,10 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -4445,9 +4367,10 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -4525,8 +4448,9 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_addtag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -4640,9 +4564,10 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_removetag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -4817,9 +4742,10 @@ function zeroBSCRMJS_listView_form_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -5076,9 +5002,10 @@ function zeroBSCRMJS_listView_event_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -5122,8 +5049,9 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markcomplete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -5171,8 +5099,9 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markincomplete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -5562,14 +5491,8 @@ function jpcrm_add_listview_filter() {
 		zbsListViewParams.filters.tags = [{id:this.value}];
 	}
 
-	// reset pagination
-	zbsListViewParams.paged = 1;
-
-	// update address bar
-	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
-
 	// draw new listview
-	zeroBSCRMJS_drawListView();
+	zeroBSCRMJS_drawListView(true, true);
 }
 
 function jpcrm_remove_listview_filter() {
@@ -5589,14 +5512,8 @@ function jpcrm_remove_listview_filter() {
 		zbsListViewParams.filters.tags = [];
 	}
 
-	// reset pagination
-	zbsListViewParams.paged = 1;
-
-	// update address bar
-	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
-
 	// draw new listview
-	zeroBSCRMJS_drawListView();
+	zeroBSCRMJS_drawListView(true, true);
 }
 
 function jpcrm_do_search_filter( event ) {
@@ -5608,14 +5525,16 @@ function jpcrm_do_search_filter( event ) {
 	// update listview filter settings
 	zbsListViewParams.filters.s = this.value;
 
-	// reset pagination
-	zbsListViewParams.paged = 1;
-
-	// update address bar
-	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
-
 	// draw new listview
-	zeroBSCRMJS_drawListView();
+	zeroBSCRMJS_drawListView(true, true);
+}
+
+function jpcrm_change_sort() {
+	// update sort params
+	zbsListViewParams.sort = this.dataset.sort;
+	zbsListViewParams.sortorder = this.dataset.sortdir;
+	// draw new listview
+	zeroBSCRMJS_drawListView(true, true);
 }
 
 if ( typeof module !== 'undefined' ) {
@@ -5758,6 +5677,6 @@ if ( typeof module !== 'undefined' ) {
 		zeroBSCRMJS_listView_saveInlineEdit,
 		zeroBSCRMJS_listView_customer_edit_status,
 		zeroBSCRMJS_listView_generic_edit_assigned, jpcrm_get_contact_meta,
-		jpcrm_add_listview_filter, jpcrm_remove_listview_filter, jpcrm_do_search_filter
+		jpcrm_add_listview_filter, jpcrm_remove_listview_filter, jpcrm_do_search_filter, jpcrm_change_sort
 	};
 }
