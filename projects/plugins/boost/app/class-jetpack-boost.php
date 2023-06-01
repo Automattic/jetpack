@@ -194,9 +194,9 @@ class Jetpack_Boost {
 	public function handle_environment_change( $is_major_change, $change_type ) {
 		if ( $is_major_change ) {
 			Regenerate_Admin_Notice::enable();
-		} else {
-			jetpack_boost_ds_set( 'critical_css_suggest_regenerate', $change_type );
 		}
+
+		jetpack_boost_ds_set( 'critical_css_suggest_regenerate', $change_type );
 	}
 
 	/**
