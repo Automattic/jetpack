@@ -9,15 +9,15 @@ const apiEndpointsRegex = {
 export default class JetpackBoostPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack-boost';
-		super( page, { expectedSelectors: [ '#jb-dashboard' ], url } );
+		super( page, { url } );
 	}
 
 	/**
 	 * Select the free plan from getting started page.
 	 */
 	async chooseFreePlan() {
-		const button = await this.page.locator( 'text=Start for free' );
-		await button.click();
+		await this.page.click( 'button >> text="Start for Free"' );
+		await this.page.waitForNavigation( { url: '**/wp-admin/admin.php?page=jetpack-boost' } );
 		await this.waitForElementToBeVisible( '.jb-section--scores' );
 	}
 

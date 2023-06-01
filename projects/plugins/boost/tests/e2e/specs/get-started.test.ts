@@ -8,7 +8,7 @@ let jetpackBoostPage;
 test.describe( 'Getting started page', () => {
 	test.beforeEach( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( false ).build();
+		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( true ).build();
 
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
@@ -21,7 +21,7 @@ test.describe( 'Getting started page', () => {
 
 	test( 'User should see the getting started pricing table', async () => {
 		expect(
-			await jetpackBoostPage.isElementVisible( 'text="Get Boost"' ),
+			await jetpackBoostPage.isElementVisible( 'text="Get Jetpack Boost"' ),
 			'Premium CTA should be visible'
 		).toBe( true );
 		expect(
@@ -37,7 +37,7 @@ test.describe( 'Getting started page', () => {
 			url: expectedUrlPattern,
 			timeout: 180000,
 		} );
-		await jetpackBoostPage.click( 'text="Get Boost"' );
+		await jetpackBoostPage.click( 'text="Get Jetpack Boost"' );
 		await navigation;
 
 		expect(
@@ -48,7 +48,7 @@ test.describe( 'Getting started page', () => {
 
 	test( 'User should be able to get started with the free plan', async () => {
 		const navigation = jetpackBoostPage.page.waitForNavigation( { timeout: 180000 } );
-		await jetpackBoostPage.click( 'text="Start for free"' );
+		await jetpackBoostPage.click( 'text="Start for Free"' );
 		await navigation;
 
 		expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();
