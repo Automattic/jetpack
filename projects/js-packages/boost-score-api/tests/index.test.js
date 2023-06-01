@@ -57,16 +57,18 @@ describe( 'didScoresChange', () => {
 	} );
 
 	it( 'should return true if scores changed', () => {
-		mockData.scores.noBoost.desktop = 60;
-		mockData.scores.noBoost.mobile = 50;
+		const changedMockData = Object.assign( {}, mockData );
+		changedMockData.scores.noBoost.desktop = 60;
+		changedMockData.scores.noBoost.mobile = 50;
 
-		expect( didScoresChange( mockData.scores ) ).toBe( true );
+		expect( didScoresChange( changedMockData.scores ) ).toBe( true );
 	} );
 } );
 
 describe( 'getScoreMovementPercentage', () => {
 	it( 'returns the correct percentage of scores moved', () => {
-		const mockScores = {
+		const changedMockData = Object.assign( {}, mockData );
+		const newScores = {
 			current: {
 				desktop: 90,
 				mobile: 80,
@@ -76,11 +78,12 @@ describe( 'getScoreMovementPercentage', () => {
 				mobile: 80,
 			},
 		};
+		changedMockData.scores = newScores;
 
-		expect( getScoreMovementPercentage( mockScores ) ).toBe( 0 );
+		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 0 );
 
-		( mockScores.noBoost.desktop = 80 ), ( mockScores.noBoost.mobile = 70 );
+		( changedMockData.scores.noBoost.desktop = 80 ), ( changedMockData.scores.noBoost.mobile = 70 );
 
-		expect( getScoreMovementPercentage( mockScores ) ).toBe( 13 );
+		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 13 );
 	} );
 } );
