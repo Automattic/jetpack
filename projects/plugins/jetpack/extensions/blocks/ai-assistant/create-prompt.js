@@ -8,9 +8,6 @@ import debugFactory from 'debug';
  */
 import { LANGUAGE_MAP } from './i18n-dropdown-control';
 
-// Maximum number of characters we send from the content
-export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
-
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 /*
