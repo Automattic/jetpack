@@ -6,8 +6,8 @@ use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
+use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
-use Automattic\Jetpack\CRM\Automation\Trigger;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
@@ -77,16 +77,16 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
 
-		$workflow->add_trigger( 'contact_updated' );
-		$workflow->add_trigger( 'contact_deleted' );
+		$workflow->add_trigger( 'jpcrm/contact_updated' );
+		$workflow->add_trigger( 'jpcrm/contact_deleted' );
 
 		$this->assertCount( 3, $workflow->get_triggers() );
 
 		// Check if the triggers are added
 		$triggers = $workflow->get_triggers();
-		$this->assertEquals( 'contact_created', $triggers[0] );
-		$this->assertEquals( 'contact_updated', $triggers[1] );
-		$this->assertEquals( 'contact_deleted', $triggers[2] );
+		$this->assertEquals( 'jpcrm/contact_created', $triggers[0] );
+		$this->assertEquals( 'jpcrm/contact_updated', $triggers[1] );
+		$this->assertEquals( 'jpcrm/contact_deleted', $triggers[2] );
 	}
 
 	/**
@@ -111,7 +111,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( Automation_Logger::instance() );
-		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
+		$automation->register_trigger( Contact_Created_Trigger::class );
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
@@ -149,7 +149,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
-		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
+		$automation->register_trigger( Contact_Created_Trigger::class );
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
@@ -171,10 +171,10 @@ class Automation_Workflow_Test extends BaseTestCase {
 			->method( 'execute' )
 			->with(
 				$this->logicalAnd(
-					$this->isInstanceOf( Trigger::class ),
+					$this->isInstanceOf( Base_Trigger::class ),
 					$this->callback(
 						function ( $trigger ) {
-							return $trigger->get_slug() === 'contact_created';
+							return $trigger::get_slug() === 'jpcrm/contact_created';
 						}
 					)
 				),
@@ -196,7 +196,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
-		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
+		$automation->register_trigger( Contact_Created_Trigger::class );
 		$automation->register_step( 'dummy_action', Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step();
@@ -241,7 +241,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
-		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
+		$automation->register_trigger( Contact_Created_Trigger::class );
 		$automation->register_step( 'dummy_action', Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
@@ -280,7 +280,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
-		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
+		$automation->register_trigger( Contact_Created_Trigger::class );
 		$automation->register_step( 'dummy_action', Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
