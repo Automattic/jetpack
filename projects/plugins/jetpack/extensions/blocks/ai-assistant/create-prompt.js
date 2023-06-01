@@ -43,7 +43,7 @@ export const buildPromptTemplate = ( {
 
 	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' );
 
-	const blogPostData = `Blog post data, for general context and reference:
+	const blogPostData = `Here's the blog post data that serves as context to my next requests, for reference:
 ${ postTitle.length ? `- Current title: ${ postTitle }\n` : '' }${
 		fullContent ? `- Current content: ${ fullContent }` : ''
 	}`;
@@ -83,7 +83,7 @@ ${ extraRules }- If you do not understand this request, regardless of language o
 
 	if ( postTitle.length || !! fullContent ) {
 		messages.push( {
-			role: 'system',
+			role: 'user',
 			content: blogPostData,
 		} );
 	}
