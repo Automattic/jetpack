@@ -45,15 +45,21 @@ class Automation_Engine_Test extends BaseTestCase {
 
 		$automation->register_step( 'contact_created', Contact_Created_Trigger::class );
 
-		// Get the map of registered step_name => step_class
-		$steps = $automation->get_registered_steps();
-
-		$this->assertCount( 1, $steps );
-		$this->assertEquals( Contact_Created_Trigger::class, $steps['contact_created'] );
-	}
-
 	/**
-	 * @testdox Register an invalid step class to the automation engine
+	 * @testdox Register a duplicated trigger class to the automation engine
+	 */
+	public function test_automation_register_duplicated_trigger() {
+		$automation = new Automation_Engine();
+
+		$this->expectException( Automation_Exception::class );
+		$this->expectExceptionCode( Automation_Exception::TRIGGER_SLUG_EXISTS );
+
+		$automation->register_trigger( Contact_Created_Trigger::class );
+		$automation->register_trigger( Contact_Created_Trigger::class );
+	}
+	
+	/**
+	 * @testdox Register an invalid trigger class to the automation engine
 	 */
 	public function test_automation_register_invalid_trigger() {
 		$automation = new Automation_Engine();
