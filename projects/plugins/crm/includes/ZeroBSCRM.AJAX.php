@@ -5640,7 +5640,7 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 		// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
 		// @todo Replace this with something more correct.
 		foreach ( $screenOpts as $k => $v ) {
-			if ( isset( $screenOptionsFilters[$k]['filter'] ) && $screenOptionsFilters[$k]['filter'] === FILTER_UNSAFE_RAW ) {
+			if ( isset( $screenOptionsFilters[ $k ]['filter'] ) && $screenOptionsFilters[ $k ]['filter'] === FILTER_UNSAFE_RAW && $v !== null ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				foreach ( $v as $k2 => $v2 ) {
 					$screenOpts[$k][$k2] = strtr(
 						strip_tags( $v2 ),
