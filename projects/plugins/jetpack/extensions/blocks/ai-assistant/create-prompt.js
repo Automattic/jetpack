@@ -16,15 +16,15 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 /*
  * Builds a prompt template based on context, rules and content
  *
- * @param {object} options                  - The prompt options.
- * @param {string} options.context          - The expected context to the prompt, e.g. "You are...".
- * @param {array} options.rules             - An array of rules to be followed.
- * @param {string} options.request          - The prompt request.
- * @param {string} options.content          - The content to be modified.
- * @param {string} options.language         - The language of the content.
- * @param {string} options.locale           - The locale of the content.
+ * @param {object} options          - The prompt options.
+ * @param {string} options.context  - The expected context to the prompt, e.g. "You are...".
+ * @param {array} options.rules     - An array of rules to be followed.
+ * @param {string} options.request  - The prompt request.
+ * @param {string} options.content  - The content to be modified.
+ * @param {string} options.language - The language of the content.
+ * @param {string} options.locale   - The locale of the content.
  *
- * @return {string|array} The prompt.
+ * @return {array} The prompt.
  */
 export const buildPromptTemplate = ( {
 	context = 'You are an AI assistant block, a part of a product called Jetpack made by the company called Automattic',
