@@ -25,8 +25,8 @@ require_once __DIR__ . '/launchpad-task-definitions.php';
 function wpcom_launchpad_get_task_list_definitions() {
 	$core_task_list_definitions = array(
 		'build'           => array(
-			'title'    => 'Build',
-			'task_ids' => array(
+			'title'               => 'Build',
+			'task_ids'            => array(
 				'setup_general',
 				'design_selected',
 				'plan_selected',
@@ -34,10 +34,11 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'design_edited',
 				'site_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'free'            => array(
-			'title'    => 'Free',
-			'task_ids' => array(
+			'title'               => 'Free',
+			'task_ids'            => array(
 				'plan_selected',
 				'setup_free',
 				'design_selected',
@@ -46,30 +47,33 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'design_edited',
 				'site_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'link-in-bio'     => array(
-			'title'    => 'Link In Bio',
-			'task_ids' => array(
+			'title'               => 'Link In Bio',
+			'task_ids'            => array(
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'link-in-bio-tld' => array(
-			'title'    => 'Link In Bio',
-			'task_ids' => array(
+			'title'               => 'Link In Bio',
+			'task_ids'            => array(
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'newsletter'      => array(
-			'title'    => 'Newsletter',
-			'task_ids' => array(
+			'title'               => 'Newsletter',
+			'task_ids'            => array(
 				'setup_newsletter',
 				'plan_selected',
 				'subscribers_added',
@@ -78,39 +82,43 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'newsletter_plan_created',
 				'first_post_published_newsletter',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'videopress'      => array(
-			'title'    => 'Videopress',
-			'task_ids' => array(
+			'title'               => 'Videopress',
+			'task_ids'            => array(
 				'videopress_setup',
 				'plan_selected',
 				'videopress_upload',
 				'videopress_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'write'           => array(
-			'title'    => 'Write',
-			'task_ids' => array(
+			'title'               => 'Write',
+			'task_ids'            => array(
 				'setup_write',
 				'design_selected',
 				'plan_selected',
 				'first_post_published',
 				'site_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'start-writing'   => array(
-			'title'    => 'Start Writing',
-			'task_ids' => array(
+			'title'               => 'Start Writing',
+			'task_ids'            => array(
 				'first_post_published',
 				'setup_blog',
 				'domain_upsell',
 				'plan_completed',
 				'blog_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'design-first'    => array(
-			'title'    => 'Pick a Design',
-			'task_ids' => array(
+			'title'               => 'Pick a Design',
+			'task_ids'            => array(
 				'design_selected',
 				'setup_blog',
 				'domain_upsell',
@@ -118,6 +126,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'first_post_published',
 				'blog_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'keep-building'   => array(
 			'title'               => 'Keep Building',
