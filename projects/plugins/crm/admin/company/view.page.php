@@ -961,7 +961,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 			</div>
 
-			<div class="six wide column" id="zbs-custom-quicklinks" style="padding-right: 30px;">
+			<div class="six wide column" id="zbs-custom-quicklinks">
 
 				<?php
 					// } Metaboxes

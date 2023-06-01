@@ -196,11 +196,17 @@ export class SuggestionsEventSource extends EventTarget {
 
 	checkForUnclearPrompt() {
 		if ( ! this.isPromptClear ) {
-			// Sometimes the first token of the message is not received, so we check only for JETPACK_AI_ERROR, ignoring the first underscores
-			if ( this.fullMessage.replace( '__', '' ).startsWith( 'JETPACK_AI_ERROR' ) ) {
+			/*
+			 * Sometimes the first token of the message is not received,
+			 * so we check only for JETPACK_AI_ERROR, ignoring:
+			 * - the double underscores (italic markdown)
+			 * - the doouble asterisks (bold markdown)
+			 */
+			const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
+			if ( replacedMessage === 'JETPACK_AI_ERROR' ) {
 				// The unclear prompt marker was found, so we dispatch an error event
 				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
-			} else if ( 'JETPACK_AI_ERROR'.startsWith( this.fullMessage.replace( '__', '' ) ) ) {
+			} else if ( 'JETPACK_AI_ERROR'.startsWith( replacedMessage ) ) {
 				// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
 				debug( this.fullMessage );
 			} else {
