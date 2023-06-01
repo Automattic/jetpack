@@ -32,7 +32,7 @@
 		"tubalmartin/cssmin": "^4.1"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.3.2",
+		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "0.4.2",
 		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.4"
@@ -72,14 +72,22 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "b1e77e6231d50e7663f84529b6a3dfda_jetpack_boostⓥ1_9_2_alpha",
+		"autoloader-suffix": "b1e77e6231d50e7663f84529b6a3dfda_jetpack_boostⓥ2_0_0_alpha",
 		"allow-plugins": {
 			"roots/wordpress-core-installer": true,
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		}
 	},
-	"repositories": [],
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-boost-production",
 		"autorelease": true,
