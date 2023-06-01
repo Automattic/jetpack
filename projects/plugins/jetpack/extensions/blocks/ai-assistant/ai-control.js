@@ -11,7 +11,7 @@ import {
 	ToolbarGroup,
 	Spinner,
 } from '@wordpress/components';
-import { useRef } from '@wordpress/element';
+import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
 /*
@@ -28,181 +28,198 @@ import PromptTemplatesControl from './prompt-templates-control';
 import ToneDropdownControl from './tone-dropdown-control';
 import UpgradePrompt from './upgrade-prompt';
 
-const AIControl = ( {
-	contentIsLoaded,
-	getSuggestionFromOpenAI,
-	retryRequest,
-	handleAcceptContent,
-	handleAcceptTitle,
-	handleTryAgain,
-	handleGetSuggestion,
-	handleStopSuggestion,
-	handleImageRequest,
-	isWaitingState,
-	loadingImages,
-	userPrompt,
-	setUserPrompt,
-	showRetry,
-	contentBefore,
-	postTitle,
-	wholeContent,
-	promptType,
-	onChange,
-	requireUpgrade,
-	recordEvent,
-} ) => {
-	const promptUserInputRef = useRef( null );
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+const AIControl = forwardRef(
+	(
+		{
+			contentIsLoaded,
+			getSuggestionFromOpenAI,
+			retryRequest,
+			handleAcceptContent,
+			handleAcceptTitle,
+			handleTryAgain,
+			handleGetSuggestion,
+			handleStopSuggestion,
+			handleImageRequest,
+			isWaitingState,
+			loadingImages,
+			userPrompt,
+			setUserPrompt,
+			showRetry,
+			contentBefore,
+			postTitle,
+			wholeContent,
+			promptType,
+			onChange,
+			requireUpgrade,
+			recordEvent,
+		},
+		ref
+	) => {
+		const promptUserInputRef = useRef( null );
+		const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const handleInputEnter = event => {
-		if ( event.key === 'Enter' && ! event.shiftKey ) {
-			event.preventDefault();
-			handleGetSuggestion( 'userPrompt' );
-		}
-	};
+		const handleInputEnter = event => {
+			if ( event.key === 'Enter' && ! event.shiftKey ) {
+				event.preventDefault();
+				handleGetSuggestion( 'userPrompt' );
+			}
+		};
 
-	const connected = isUserConnected();
-	const { requireUpgrade: siteRequireUpgrade } = useAIFeature();
+		const connected = isUserConnected();
+		const { requireUpgrade: siteRequireUpgrade } = useAIFeature();
 
-	const textPlaceholder = __( 'Ask Jetpack AI', 'jetpack' );
+		const textPlaceholder = __( 'Ask Jetpack AI', 'jetpack' );
 
-	let placeholder = '';
+		let placeholder = '';
 
-	if ( isWaitingState ) {
-		if ( userPrompt?.length ) {
-			placeholder = userPrompt;
+		if ( isWaitingState ) {
+			if ( userPrompt?.length ) {
+				placeholder = userPrompt;
+			} else {
+				placeholder = __( 'AI writing', 'jetpack' );
+			}
 		} else {
-			placeholder = __( 'AI writing', 'jetpack' );
+			placeholder = textPlaceholder;
 		}
-	} else {
-		placeholder = textPlaceholder;
-	}
 
-	return (
-		<>
-			{ ( siteRequireUpgrade || requireUpgrade ) && <UpgradePrompt /> }
-			{ ! connected && <ConnectPrompt /> }
-			{ ! isWaitingState && connected && (
-				<ToolbarControls
-					isWaitingState={ isWaitingState }
-					contentIsLoaded={ contentIsLoaded }
-					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
-					retryRequest={ retryRequest }
-					handleAcceptContent={ handleAcceptContent }
-					handleAcceptTitle={ handleAcceptTitle }
-					handleGetSuggestion={ handleGetSuggestion }
-					handleImageRequest={ handleImageRequest }
-					handleTryAgain={ handleTryAgain }
-					showRetry={ showRetry }
-					contentBefore={ contentBefore }
-					hasPostTitle={ !! postTitle?.length }
-					wholeContent={ wholeContent }
-					promptType={ promptType }
-					setUserPrompt={ prompt => {
-						if ( ! promptUserInputRef?.current ) {
-							return;
-						}
+		useImperativeHandle(
+			ref,
+			() => ( {
+				// Focus the text area
+				focus: () => {
+					const userPromptInput = promptUserInputRef?.current;
+					userPromptInput?.focus?.();
+				},
+			} ),
+			[]
+		);
 
-						const userPromptInput = promptUserInputRef.current;
-
-						// Focus the text area
-						userPromptInput.focus();
-
-						// Add a typing effect in the text area
-						for ( let i = 0; i < prompt.length; i++ ) {
-							setTimeout( () => {
-								setUserPrompt( prompt.slice( 0, i + 1 ) );
-							}, 25 * i );
-						}
-					} }
-					recordEvent={ recordEvent }
-				/>
-			) }
-			<div
-				className={ classNames( 'jetpack-ai-assistant__input-wrapper', {
-					'is-disconnected': ! connected,
-				} ) }
-			>
-				<div className="jetpack-ai-assistant__input-icon-wrapper">
-					{ isWaitingState || loadingImages ? (
-						<Spinner className="jetpack-ai-assistant__input-spinner" />
-					) : (
-						<Icon
-							icon={ AIAssistantIcon }
-							size={ 24 }
-							className="jetpack-ai-assistant__input-icon"
-						/>
-					) }
-				</div>
-				<PlainText
-					value={ isWaitingState ? '' : userPrompt }
-					onChange={ value => {
-						setUserPrompt( value );
-						onChange?.();
-					} }
-					onKeyPress={ handleInputEnter }
-					placeholder={ placeholder }
-					className="jetpack-ai-assistant__input"
-					disabled={
-						isWaitingState || loadingImages || ! connected || siteRequireUpgrade || requireUpgrade
-					}
-					ref={ promptUserInputRef }
-				/>
-
-				<div className="jetpack-ai-assistant__controls">
-					{ ! isWaitingState ? (
-						<Button
-							className="jetpack-ai-assistant__prompt_button"
-							onClick={ () => handleGetSuggestion( 'userPrompt' ) }
-							isSmall={ true }
-							disabled={
-								! userPrompt?.length || ! connected || siteRequireUpgrade || requireUpgrade
+		return (
+			<>
+				{ ( siteRequireUpgrade || requireUpgrade ) && <UpgradePrompt /> }
+				{ ! connected && <ConnectPrompt /> }
+				{ ! isWaitingState && connected && (
+					<ToolbarControls
+						isWaitingState={ isWaitingState }
+						contentIsLoaded={ contentIsLoaded }
+						getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+						retryRequest={ retryRequest }
+						handleAcceptContent={ handleAcceptContent }
+						handleAcceptTitle={ handleAcceptTitle }
+						handleGetSuggestion={ handleGetSuggestion }
+						handleImageRequest={ handleImageRequest }
+						handleTryAgain={ handleTryAgain }
+						showRetry={ showRetry }
+						contentBefore={ contentBefore }
+						hasPostTitle={ !! postTitle?.length }
+						wholeContent={ wholeContent }
+						promptType={ promptType }
+						setUserPrompt={ prompt => {
+							if ( ! promptUserInputRef?.current ) {
+								return;
 							}
-							label={ __( 'Send request', 'jetpack' ) }
-						>
-							<Icon icon={ origamiPlane } />
-							{ ! isSm && __( 'Send', 'jetpack' ) }
-						</Button>
-					) : (
-						<Button
-							className="jetpack-ai-assistant__prompt_button"
-							onClick={ handleStopSuggestion }
-							isSmall={ true }
-							label={ __( 'Stop request', 'jetpack' ) }
-						>
-							<Icon icon={ closeSmall } />
-							{ __( 'Stop', 'jetpack' ) }
-						</Button>
-					) }
 
-					{ contentIsLoaded &&
-						! isWaitingState &&
-						( promptType === 'generateTitle' ? (
+							const userPromptInput = promptUserInputRef.current;
+
+							// Focus the text area
+							userPromptInput.focus();
+
+							// Add a typing effect in the text area
+							for ( let i = 0; i < prompt.length; i++ ) {
+								setTimeout( () => {
+									setUserPrompt( prompt.slice( 0, i + 1 ) );
+								}, 25 * i );
+							}
+						} }
+						recordEvent={ recordEvent }
+					/>
+				) }
+				<div
+					className={ classNames( 'jetpack-ai-assistant__input-wrapper', {
+						'is-disconnected': ! connected,
+					} ) }
+				>
+					<div className="jetpack-ai-assistant__input-icon-wrapper">
+						{ isWaitingState || loadingImages ? (
+							<Spinner className="jetpack-ai-assistant__input-spinner" />
+						) : (
+							<Icon
+								icon={ AIAssistantIcon }
+								size={ 24 }
+								className="jetpack-ai-assistant__input-icon"
+							/>
+						) }
+					</div>
+					<PlainText
+						value={ isWaitingState ? '' : userPrompt }
+						onChange={ value => {
+							setUserPrompt( value );
+							onChange?.();
+						} }
+						onKeyPress={ handleInputEnter }
+						placeholder={ placeholder }
+						className="jetpack-ai-assistant__input"
+						disabled={
+							isWaitingState || loadingImages || ! connected || siteRequireUpgrade || requireUpgrade
+						}
+						ref={ promptUserInputRef }
+					/>
+
+					<div className="jetpack-ai-assistant__controls">
+						{ ! isWaitingState ? (
 							<Button
 								className="jetpack-ai-assistant__prompt_button"
-								onClick={ handleAcceptTitle }
+								onClick={ () => handleGetSuggestion( 'userPrompt' ) }
 								isSmall={ true }
-								label={ __( 'Accept title', 'jetpack' ) }
+								disabled={
+									! userPrompt?.length || ! connected || siteRequireUpgrade || requireUpgrade
+								}
+								label={ __( 'Send request', 'jetpack' ) }
 							>
-								<Icon icon={ check } />
-								{ __( 'Accept title', 'jetpack' ) }
+								<Icon icon={ origamiPlane } />
+								{ ! isSm && __( 'Send', 'jetpack' ) }
 							</Button>
 						) : (
 							<Button
 								className="jetpack-ai-assistant__prompt_button"
-								onClick={ handleAcceptContent }
+								onClick={ handleStopSuggestion }
 								isSmall={ true }
-								label={ __( 'Accept', 'jetpack' ) }
+								label={ __( 'Stop request', 'jetpack' ) }
 							>
-								<Icon icon={ check } />
-								{ __( 'Accept', 'jetpack' ) }
+								<Icon icon={ closeSmall } />
+								{ __( 'Stop', 'jetpack' ) }
 							</Button>
-						) ) }
+						) }
+
+						{ contentIsLoaded &&
+							! isWaitingState &&
+							( promptType === 'generateTitle' ? (
+								<Button
+									className="jetpack-ai-assistant__prompt_button"
+									onClick={ handleAcceptTitle }
+									isSmall={ true }
+									label={ __( 'Accept title', 'jetpack' ) }
+								>
+									<Icon icon={ check } />
+									{ __( 'Accept title', 'jetpack' ) }
+								</Button>
+							) : (
+								<Button
+									className="jetpack-ai-assistant__prompt_button"
+									onClick={ handleAcceptContent }
+									isSmall={ true }
+									label={ __( 'Accept', 'jetpack' ) }
+								>
+									<Icon icon={ check } />
+									{ __( 'Accept', 'jetpack' ) }
+								</Button>
+							) ) }
+					</div>
 				</div>
-			</div>
-		</>
-	);
-};
+			</>
+		);
+	}
+);
 
 export default AIControl;
 

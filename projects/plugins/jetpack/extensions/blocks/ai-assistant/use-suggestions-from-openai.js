@@ -82,6 +82,8 @@ const useSuggestionsFromOpenAI = ( {
 	setError,
 	tracks,
 	userPrompt,
+	onSuggestionDone,
+	onUnclearPrompt,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -234,6 +236,7 @@ const useSuggestionsFromOpenAI = ( {
 				message: __( 'Your request was unclear. Mind trying again?', 'jetpack' ),
 				status: 'info',
 			} );
+			onUnclearPrompt?.();
 		} );
 
 		source?.current.addEventListener( 'error_network', () => {
@@ -291,6 +294,7 @@ const useSuggestionsFromOpenAI = ( {
 		source?.current.close();
 		setIsLoadingCompletion( false );
 		setWasCompletionJustRequested( false );
+		onSuggestionDone?.();
 	}
 
 	return {
