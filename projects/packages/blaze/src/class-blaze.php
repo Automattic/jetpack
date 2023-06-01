@@ -273,21 +273,21 @@ class Blaze {
 			return $post_actions;
 		}
 
-		// Might be useful to wrap in a method call for general use without post_id.
-		$admin_url = admin_url( 'tools.php?page=advertising' );
-		$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
-		$blaze_url = sprintf( '%s#!/advertising/%s/posts/promote/post-%s', $admin_url, $hostname, esc_attr( $post_id ) );
+		$blaze_url = self::get_campaign_management_url( $post_id );
+		$text      = _x( 'Blaze', 'Verb', 'jetpack-blaze' );
+		$title     = _draft_or_post_title( $post );
+		$label     = sprintf(
+			/* translators: post title */
+			__( 'Blaze &#8220;%s&#8221; to Tumblr and WordPress.com audiences.', 'jetpack-blaze' ),
+			$title
+		);
 
-		// Add the link, make sure to tooltip hover.
-		$text  = _x( 'Blaze', 'Verb', 'jetpack-blaze' );
-		$title = _draft_or_post_title( $post );
-		/* translators: post title */
-		$label                 = sprintf( __( 'Blaze &#8220;%s&#8221; to Tumblr and WordPress.com audiences.', 'jetpack-blaze' ), $title );
 		$post_actions['blaze'] = sprintf(
-			'<a href="%1$s" title="%2$s" aria-label="%2$s">%3$s</a>',
-			esc_url( $blaze_url ),
+			'<a href="%1$s" title="%2$s" aria-label="%2$s" %4$s>%3$s</a>',
+			esc_url( $blaze_url['link'] ),
 			esc_attr( $label ),
-			esc_html( $text )
+			esc_html( $text ),
+			( true === $blaze_url['external'] ? 'target="_blank" rel="noopener noreferrer"' : '' )
 		);
 
 		return $post_actions;
