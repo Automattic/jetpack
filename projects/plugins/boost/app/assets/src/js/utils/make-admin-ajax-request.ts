@@ -14,7 +14,7 @@ class AdminAjaxError extends Error {
  * Prepare a wp-ajax request, returning a raw Response object.
  *
  * @param {Record< string, string >} payload   Key/value pairs to send with the request.
- * @param                            wpajaxurl
+ * @param {string}                   wpajaxurl
  */
 export async function prepareAdminAjaxRequest(
 	payload: Record< string, string >,
