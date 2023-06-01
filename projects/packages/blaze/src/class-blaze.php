@@ -207,6 +207,47 @@ class Blaze {
 	}
 
 	/**
+	 * Get URL to create a Blaze campaign for a specific post.
+	 *
+	 * This can return 2 different types of URL:
+	 * - Calypso Links
+	 * - wp-admin Links if access to the wp-admin Blaze Dashboard is enabled.
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return array An array with the link, and whether this is a Calypso or a wp-admin link.
+	 */
+	public static function get_campaign_management_url( $post_id ) {
+		if ( self::is_dashboard_enabled() ) {
+			$admin_url = admin_url( 'tools.php?page=advertising' );
+			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
+			$blaze_url = sprintf(
+				'%1$s#!/advertising/%2$s/posts/promote/post-%3$s',
+				$admin_url,
+				$hostname,
+				esc_attr( $post_id )
+			);
+
+			return array(
+				'link'     => $blaze_url,
+				'external' => false,
+			);
+		}
+
+		// Default Calypso link.
+		$blaze_url = Redirect::get_url(
+			'jetpack-blaze',
+			array(
+				'query' => 'blazepress-widget=post-' . esc_attr( $post_id ),
+			)
+		);
+		return array(
+			'link'     => $blaze_url,
+			'external' => true,
+		);
+	}
+
+	/**
 	 * Adds the Promote link to the posts list row action.
 	 *
 	 * @param array   $post_actions The current array of post actions.
