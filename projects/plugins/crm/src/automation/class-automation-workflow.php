@@ -8,7 +8,7 @@ class Automation_Workflow {
 	private $id;
 	
 	/** @var string */
-	public $name;
+	public $slug;
 	
 	/** @var string */
 	public $description;
@@ -35,7 +35,7 @@ class Automation_Workflow {
 		$this->id           = $workflow_data['id'] ?? null;
 		$this->triggers     = $workflow_data['triggers'] ?? array();
 		$this->initial_step = $workflow_data['initial_step'] ?? array();
-		$this->name         = $workflow_data['name'];
+		$this->slug         = $workflow_data['slug'];
 		$this->description  = $workflow_data['description'] ?? '';
 		$this->category     = $workflow_data['category'] ?? '';
 		$this->active       = $workflow_data['is_active'] ?? true;
@@ -108,7 +108,7 @@ class Automation_Workflow {
 	public function get_workflow_array() {
 		
 		$workflow = array(
-			'name'          => $this->name,
+			'slug'          => $this->slug,
 			'description'   => $this->description,
 			'category'      => $this->category,
 			'is_active'     => $this->active,
@@ -138,15 +138,15 @@ class Automation_Workflow {
 	 */
 	public function execute( Trigger $trigger, array $data ): bool {
 		$this->logger->log( 'Trigger activated: ' . $trigger->get_slug() );
-		$this->logger->log( 'Executing workflow: ' . $this->name );
+		$this->logger->log( 'Executing workflow: ' . $this->slug );
 		
 		$step_data = $this->initial_step;
 		
 		while ( $step_data ) {
 			try {
-					$step_name = $step_data['name'];
+					$step_slug = $step_data['slug'];
 					
-					$step_class = $step_data['class_name'] ?? $this->automation_engine->get_step_class( $step_name );
+					$step_class = $step_data['class_name'] ?? $this->automation_engine->get_step_class( $step_slug );
 					
 					if ( ! class_exists( $step_class ) ) {
 						throw new Automation_Exception( sprintf( __( 'The step class %s does not exist.', 'zero-bs-crm' ), $step_class ), Automation_Exception::STEP_CLASS_NOT_FOUND );
@@ -168,7 +168,7 @@ class Automation_Workflow {
 				}
 			} catch ( Automation_Exception $automation_exception ) {
 
-				$this->logger->log( 'Error executing the workflow on step: ' . $step_name . ' - ' . $automation_exception->getMessage() );
+				$this->logger->log( 'Error executing the workflow on step: ' . $step_slug . ' - ' . $automation_exception->getMessage() );
 				
 				throw $automation_exception;
 			}
