@@ -76,9 +76,9 @@ class Automation_Workflow {
 			return;
 		}
 		
-		foreach ( $this->get_triggers() as $trigger_name ) {
+		foreach ( $this->get_triggers() as $trigger_slug ) {
 			try {
-				$trigger_class = $this->automation_engine->get_trigger_class( $trigger_name );
+				$trigger_class = $this->automation_engine->get_trigger_class( $trigger_slug );
 				
 				/** @var Base_Trigger $trigger */
 				$trigger = new $trigger_class();
