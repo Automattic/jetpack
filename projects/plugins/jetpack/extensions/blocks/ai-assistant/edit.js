@@ -225,6 +225,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				onChange={ () => setErrorDismissed( true ) }
 				requireUpgrade={ errorData?.code === 'error_quota_exceeded' }
 				recordEvent={ tracks.recordEvent }
+				isGeneratingTitle={ attributes.promptType === 'generateTitle' }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>

@@ -43,7 +43,11 @@ export async function askQuestion( question, postId = null, fromCache = false ) 
 	const { token } = await requestToken();
 
 	const url = new URL( 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query' );
-	url.searchParams.append( 'question', question );
+	if ( Array.isArray( question ) ) {
+		url.searchParams.append( 'messages', JSON.stringify( question ) );
+	} else {
+		url.searchParams.append( 'question', question );
+	}
 	url.searchParams.append( 'token', token );
 
 	if ( fromCache ) {
