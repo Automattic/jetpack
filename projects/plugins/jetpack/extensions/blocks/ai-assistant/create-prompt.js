@@ -28,6 +28,7 @@ export const buildPromptTemplate = ( {
 	rules = [],
 	request = null,
 	relevantContent = null,
+	isContentGenerated = false,
 	fullContent = null,
 	language = null,
 	locale = null,
@@ -86,10 +87,17 @@ ${ extraRules }- If you do not understand this request, regardless of language o
 		} );
 	}
 
-	messages.push( {
-		role: 'system',
-		content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
-	} );
+	if ( isContentGenerated ) {
+		messages.push( {
+			role: 'assistant',
+			content: relevantContent,
+		} );
+	} else {
+		messages.push( {
+			role: 'system',
+			content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
+		} );
+	}
 
 	messages.push( {
 		role: 'user',
@@ -173,6 +181,7 @@ export function buildPrompt( {
 				request: 'Make the content longer.',
 				fullContent: allPostContent,
 				relevantContent: generatedContent,
+				isContentGenerated: true,
 			} );
 			break;
 
@@ -184,6 +193,7 @@ export function buildPrompt( {
 				request: 'Make the content shorter.',
 				fullContent: allPostContent,
 				relevantContent: generatedContent,
+				isContentGenerated: true,
 			} );
 			break;
 
@@ -199,6 +209,7 @@ export function buildPrompt( {
 				request: `Rewrite the content with a ${ options.tone } tone.`,
 				fullContent: allPostContent,
 				relevantContent: options.contentType === 'generated' ? generatedContent : allPostContent,
+				isContentGenerated: options.contentType === 'generated',
 			} );
 			break;
 
@@ -210,6 +221,7 @@ export function buildPrompt( {
 				request: 'Summarize the content.',
 				fullContent: allPostContent,
 				relevantContent: options.contentType === 'generated' ? generatedContent : allPostContent,
+				isContentGenerated: options.contentType === 'generated',
 			} );
 			break;
 
@@ -222,6 +234,7 @@ export function buildPrompt( {
 					'Repeat the content, correcting any spelling and grammar mistakes, and do not add new content.',
 				fullContent: allPostContent,
 				relevantContent: options.contentType === 'generated' ? generatedContent : postContentAbove,
+				isContentGenerated: options.contentType === 'generated',
 			} );
 			break;
 
@@ -234,6 +247,7 @@ export function buildPrompt( {
 				rules: [ 'Only output the raw title, without any prefix or quotes' ],
 				fullContent: allPostContent,
 				relevantContent: options.contentType === 'generated' ? generatedContent : allPostContent,
+				isContentGenerated: options.contentType === 'generated',
 			} );
 			break;
 
@@ -245,6 +259,7 @@ export function buildPrompt( {
 				request: `Translate the content to the following language: ${ options.language }.`,
 				fullContent: allPostContent,
 				relevantContent: options.contentType === 'generated' ? generatedContent : allPostContent,
+				isContentGenerated: options.contentType === 'generated',
 				includeLanguageRule: false,
 			} );
 			break;
@@ -257,6 +272,7 @@ export function buildPrompt( {
 				request: userPrompt,
 				fullContent: allPostContent,
 				relevantContent: generatedContent || allPostContent,
+				isContentGenerated: !! generatedContent.length,
 			} );
 			break;
 
@@ -265,6 +281,7 @@ export function buildPrompt( {
 				request: userPrompt,
 				fullContent: allPostContent,
 				relevantContent: generatedContent,
+				isContentGenerated: true,
 			} );
 			break;
 	}
