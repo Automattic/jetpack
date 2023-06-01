@@ -100,7 +100,9 @@ const myJetpackResolvers = {
 
 				if ( result && result.items ) {
 					dispatch.setAvailableLicenses(
-						result.items.filter( ( { attached_at } ) => attached_at === null )
+						result.items.filter(
+							( { attached_at, revoked_at } ) => attached_at === null && revoked_at === null
+						)
 					);
 				} else {
 					dispatch.setAvailableLicenses( [] );
