@@ -275,7 +275,7 @@ class Blaze {
 
 		$blaze_url = self::get_campaign_management_url( $post_id );
 		$text      = _x( 'Blaze', 'Verb', 'jetpack-blaze' );
-		$title     = _draft_or_post_title( $post );
+		$title     = get_the_title( $post );
 		$label     = sprintf(
 			/* translators: post title */
 			__( 'Blaze &#8220;%s&#8221; to Tumblr and WordPress.com audiences.', 'jetpack-blaze' ),
