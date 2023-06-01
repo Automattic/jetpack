@@ -87,16 +87,18 @@ ${ extraRules }- If you do not understand this request, regardless of language o
 		} );
 	}
 
-	if ( isContentGenerated ) {
-		messages.push( {
-			role: 'assistant',
-			content: relevantContent,
-		} );
-	} else {
-		messages.push( {
-			role: 'system',
-			content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
-		} );
+	if ( relevantContent != null && relevantContent.length ) {
+		if ( isContentGenerated ) {
+			messages.push( {
+				role: 'assistant',
+				content: relevantContent,
+			} );
+		} else {
+			messages.push( {
+				role: 'system',
+				content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
+			} );
+		}
 	}
 
 	messages.push( {
