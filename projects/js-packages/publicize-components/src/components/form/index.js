@@ -10,7 +10,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
+import { Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useDismissNotice from '../../hooks/use-dismiss-notice';
@@ -67,13 +67,15 @@ export default function PublicizeForm( {
 	const hasInstagramConnection = connections.some(
 		connection => connection.service_name === 'instagram-business'
 	);
-	const [ shouldShowInstagramNotice, setShouldShowInstagramNotice ] = useState(
-		! hasInstagramConnection && isInstagramConnectionSupported
-	);
+
+	const shouldShowInstagramNotice =
+		! hasInstagramConnection &&
+		isInstagramConnectionSupported &&
+		! dismissedNotices.includes( 'instagram' );
+
 	const onDismissInstagramNotice = useCallback( () => {
 		dismissNotice( 'instagram' );
-		setShouldShowInstagramNotice( false );
-	}, [ dismissNotice, setShouldShowInstagramNotice ] );
+	}, [ dismissNotice ] );
 	const shouldDisableMediaPicker =
 		isSocialImageGeneratorAvailable && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
@@ -255,7 +257,7 @@ export default function PublicizeForm( {
 			) }
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
-					{ ! dismissedNotices.includes( 'instagram' ) && shouldShowInstagramNotice && (
+					{ shouldShowInstagramNotice && (
 						<Notice
 							onDismiss={ onDismissInstagramNotice }
 							type={ 'highlight' }
