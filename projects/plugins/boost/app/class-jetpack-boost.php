@@ -25,6 +25,7 @@ use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
+use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
@@ -116,6 +117,9 @@ class Jetpack_Boost {
 
 		// Register the core Image CDN hooks.
 		Image_CDN_Core::setup();
+
+		// Setup Site Health panel functionality.
+		Site_Health::init();
 	}
 
 	/**

@@ -6,7 +6,7 @@
  */
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
+use Automattic\Jetpack_Boost\Lib\Boost_Health;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS_Followup;
 
 /**
@@ -50,8 +50,8 @@ class Critical_CSS_Invalidator {
 	}
 
 	public static function update_boost_problem_count( $count ) {
-		$suggest_regenerate = jetpack_boost_ds_get( 'critical_css_suggest_regenerate' );
-		if ( in_array( $suggest_regenerate, Environment_Change_Detector::get_available_env_change_statuses(), true ) ) {
+		$css_needs_regeneration = Boost_Health::critical_css_needs_regeneration();
+		if ( $css_needs_regeneration ) {
 			++$count;
 		}
 
