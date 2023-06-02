@@ -120,7 +120,7 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 			if ( neededTeams.length !== 0 ) { // If there are needed teams, zero out requirements met
 				return printSet( `${ indent }=>`, [], [ ...new Set( neededTeams.flat( 1 ) ) ] );
 			};
-			return printSet( `${ indent }=>`, [ ...new Set( requirementsMet.flat( 1 ) ) ], [ ...new Set( neededTeams.flat( 1 ) ) ] );
+			return printSet( `${ indent }=>`, [ ...new Set( requirementsMet.flat( 1 ) ) ], [] );
 		};
 	}
 
