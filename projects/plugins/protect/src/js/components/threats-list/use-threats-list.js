@@ -95,11 +95,11 @@ const useThreatsList = () => {
 		// Otherwise, return all threats.
 		return {
 			unsortedList: [
-				...flattenThreats( core, coreIcon ),
-				...flattenThreats( plugins, pluginsIcon ),
-				...flattenThreats( themes, themesIcon ),
-				...flattenThreats( files, filesIcon ),
-				...flattenThreats( database, databaseIcon ),
+				...flattenThreats( core, { icon: coreIcon } ),
+				...flattenThreats( plugins, { icon: pluginsIcon } ),
+				...flattenThreats( themes, { icon: themesIcon } ),
+				...flattenThreats( files, { icon: filesIcon } ),
+				...flattenThreats( database, { icon: databaseIcon } ),
 			],
 			item: null,
 		};
