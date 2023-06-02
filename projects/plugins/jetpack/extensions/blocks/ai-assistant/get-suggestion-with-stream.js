@@ -170,8 +170,7 @@ export class SuggestionsEventSource extends EventTarget {
 				if (
 					response.status >= 400 &&
 					response.status <= 500 &&
-					response.status !== 503 &&
-					response.status !== 429
+					! [ 422, 429 ].includes( response.status )
 				) {
 					self.processConnectionError( response );
 				}
@@ -190,6 +189,14 @@ export class SuggestionsEventSource extends EventTarget {
 				 */
 				if ( response.status === 429 ) {
 					self.dispatchEvent( new CustomEvent( 'error_quota_exceeded' ) );
+				}
+
+				/*
+				 * error code 422
+				 * request flagged by moderation system
+				 */
+				if ( response.status === 422 ) {
+					self.dispatchEvent( new CustomEvent( 'error_moderation' ) );
 				}
 
 				throw new Error();
