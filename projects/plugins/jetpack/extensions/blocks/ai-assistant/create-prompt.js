@@ -3,10 +3,6 @@
  */
 import { select } from '@wordpress/data';
 import debugFactory from 'debug';
-/**
- * Internal dependencies
- */
-import { LANGUAGE_MAP } from './i18n-dropdown-control';
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
@@ -24,15 +20,12 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
  * @return {array} The prompt.
  */
 export const buildPromptTemplate = ( {
-	context = 'You are an AI assistant block, a part of a product called Jetpack made by the company called Automattic',
+	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
 	rules = [],
 	request = null,
 	relevantContent = null,
 	isContentGenerated = false,
 	fullContent = null,
-	language = null,
-	locale = null,
-	includeLanguageRule = true,
 	isGeneratingTitle = false,
 } ) => {
 	if ( ! request && ! relevantContent ) {
@@ -43,40 +36,23 @@ export const buildPromptTemplate = ( {
 
 	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' );
 
-	const blogPostData = `Here's the blog post data that serves as context to my next requests, for reference:
+	const blogPostData = `Here's the content in the editor that serves as context to the user request:
 ${ postTitle.length ? `- Current title: ${ postTitle }\n` : '' }${
 		fullContent ? `- Current content: ${ fullContent }` : ''
 	}`;
-
-	// Language and Locale
-	let languageRule = language
-		? `Write in the language: ${ language }${
-				LANGUAGE_MAP[ language ]?.label ? ` (${ LANGUAGE_MAP[ language ].label })` : ''
-		  }`
-		: '';
-	if ( ! languageRule.length && includeLanguageRule ) {
-		languageRule = 'Write in the same language as the context, if provided and necessary';
-	}
-	languageRule += languageRule.length && locale ? ` locale: ${ locale }.` : '';
-	languageRule += languageRule.length ? '\n' : '';
 
 	// Rules
 	let extraRules = '';
 	if ( rules?.length ) {
 		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
 	}
-
 	const prompt = `${ context }.
-Your job is to respond to the request from the user messages. Do this by strictly following those rules:
+Strictly follow these rules:
 
-${ extraRules }- If you do not understand this request, regardless of language or any other rule, always answer exactly and without any preceding content with the following term and nothing else: __JETPACK_AI_ERROR__
-- Do not use the term __JETPACK_AI_ERROR__ in any other context than the one described above
-- Output the generated content in markdown format
-- Do not include a top level heading by default
-- Only output generated content ready for publishing
-- Segment the content into paragraphs as deemed suitable
-- Do not output any content that is not generated
-- Do not mention what you are going to do, only do it
+${ extraRules }- Format your responses in Markdown syntax, ready to be published.
+- Execute the request without any acknowledgement to the user.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `;
 
 	messages.push( { role: 'system', content: prompt } );
@@ -106,10 +82,6 @@ ${ extraRules }- If you do not understand this request, regardless of language o
 		role: 'user',
 		content: request,
 	} );
-
-	if ( languageRule.length ) {
-		messages.push( { role: 'user', content: languageRule } );
-	}
 
 	if ( isGeneratingTitle ) {
 		messages.push( {
@@ -182,7 +154,6 @@ export function buildPrompt( {
 				],
 				fullContent: allPostContent,
 				relevantContent: postContentAbove,
-				includeLanguageRule: false,
 			} );
 			break;
 
@@ -282,7 +253,6 @@ export function buildPrompt( {
 				fullContent: allPostContent,
 				relevantContent: isGenerated ? generatedContent : allPostContent,
 				isContentGenerated: isGenerated,
-				includeLanguageRule: false,
 				isGeneratingTitle,
 			} );
 			break;
