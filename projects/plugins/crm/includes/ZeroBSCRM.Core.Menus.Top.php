@@ -175,7 +175,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			$toolsMenu = array();
 
 			// calendar
-			if ( zeroBSCRM_getSetting( 'feat_calendar' ) > 0 ) {
+			if ( zeroBSCRM_permsEvents() && zeroBSCRM_getSetting( 'feat_calendar' ) > 0 ) {
 				$toolsMenu[] = '<a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['manage-events'] ) . '" class="item"><i class="icon calendar outline"></i> ' . __( 'Task Scheduler', 'zero-bs-crm' ) . '</a>';
 			}
 			// forms
