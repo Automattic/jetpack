@@ -292,9 +292,9 @@ function wpcom_register_default_launchpad_checklists() {
 	// Tasks registered, now onto the checklists.
 	wpcom_register_launchpad_task_list(
 		array(
-			'id'       => 'build',
-			'title'    => 'Build',
-			'task_ids' => array(
+			'id'                  => 'build',
+			'title'               => 'Build',
+			'task_ids'            => array(
 				'setup_general',
 				'design_selected',
 				'plan_selected',
@@ -302,14 +302,15 @@ function wpcom_register_default_launchpad_checklists() {
 				'design_edited',
 				'site_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		)
 	);
 
 	wpcom_register_launchpad_task_list(
 		array(
-			'id'       => 'free',
-			'title'    => 'Free',
-			'task_ids' => array(
+			'id'                  => 'free',
+			'title'               => 'Free',
+			'task_ids'            => array(
 				'plan_selected',
 				'setup_free',
 				'design_selected',
@@ -318,42 +319,45 @@ function wpcom_register_default_launchpad_checklists() {
 				'design_edited',
 				'site_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		)
 	);
 
 	wpcom_register_launchpad_task_list(
 		array(
-			'id'       => 'link-in-bio',
-			'title'    => 'Link In Bio',
-			'task_ids' => array(
+			'id'                  => 'link-in-bio',
+			'title'               => 'Link In Bio',
+			'task_ids'            => array(
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		)
 	);
 
 	wpcom_register_launchpad_task_list(
 		array(
-			'id'       => 'link-in-bio-tld',
-			'title'    => 'Link In Bio',
-			'task_ids' => array(
+			'id'                  => 'link-in-bio-tld',
+			'title'               => 'Link In Bio',
+			'task_ids'            => array(
 				'design_selected',
 				'setup_link_in_bio',
 				'plan_selected',
 				'links_added',
 				'link_in_bio_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		)
 	);
 
 	wpcom_register_launchpad_task_list(
 		array(
-			'id'       => 'newsletter',
-			'title'    => 'Newsletter',
-			'task_ids' => array(
+			'id'                  => 'newsletter',
+			'title'               => 'Newsletter',
+			'task_ids'            => array(
 				'setup_newsletter',
 				'plan_selected',
 				'subscribers_added',
@@ -362,33 +366,36 @@ function wpcom_register_default_launchpad_checklists() {
 				'newsletter_plan_created',
 				'first_post_published_newsletter',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		)
 	);
 
 	wpcom_register_launchpad_task_list(
 		array(
-			'id'       => 'videopress',
-			'title'    => 'Videopress',
-			'task_ids' => array(
+			'id'                  => 'videopress',
+			'title'               => 'Videopress',
+			'task_ids'            => array(
 				'videopress_setup',
 				'plan_selected',
 				'videopress_upload',
 				'videopress_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		)
 	);
 
 	wpcom_register_launchpad_task_list(
 		array(
-			'id'       => 'write',
-			'title'    => 'Write',
-			'task_ids' => array(
+			'id'                  => 'write',
+			'title'               => 'Write',
+			'task_ids'            => array(
 				'setup_write',
 				'design_selected',
 				'plan_selected',
 				'first_post_published',
 				'site_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		)
 	);
 
@@ -408,9 +415,9 @@ function wpcom_register_default_launchpad_checklists() {
 
 	wpcom_register_launchpad_task_list(
 		array(
-			'id'       => 'design-first',
-			'title'    => 'Pick a Design',
-			'task_ids' => array(
+			'id'                  => 'design-first',
+			'title'               => 'Pick a Design',
+			'task_ids'            => array(
 				'design_selected',
 				'setup_blog',
 				'domain_upsell',
@@ -418,6 +425,7 @@ function wpcom_register_default_launchpad_checklists() {
 				'first_post_published',
 				'blog_launched',
 			),
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		)
 	);
 
@@ -890,26 +898,28 @@ function wpcom_log_launchpad_being_enabled_for_test_sites( $option, $value ) {
 }
 
 /**
- * Checks if a specific launchpad task list is enabled or if the overall launchpad is enabled.
+ * Checks if the overall launchpad is enabled. Used with `is_enabled_callback`
+ * for backwards compatibility with established task lists
+ * that relied on the old `launchpad_screen` option.
  *
- * @param string|false $checklist_slug The slug of the launchpad task list to check.
+ * @return bool True if the launchpad is enabled, false otherwise.
+ */
+function wpcom_get_launchpad_is_enabled() {
+	return wpcom_launchpad_checklists()->is_launchpad_enabled();
+}
+
+/**
+ * Checks if a specific launchpad task list is enabled.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to check.
  * @return bool True if the task list is enabled, false otherwise.
  */
-function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug = false ) {
-	// If the checklist slug is provided, check the status of the task list.
+function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
 	if ( false !== $checklist_slug ) {
-		$is_enabled = wpcom_launchpad_checklists()->is_task_list_enabled( $checklist_slug );
-
-		// If the status of the task list is known, return its value.
-		if ( null !== $is_enabled ) {
-			return $is_enabled;
-		}
+		return wpcom_launchpad_checklists()->is_task_list_enabled( $checklist_slug );
 	}
 
-	// If the status of the task list is not known, check the status of the overall launchpad.
-	// @todo: Remove this fallback once all task lists have been migrated to the new system.
-	// https://github.com/Automattic/wp-calypso/issues/77407
-	return wpcom_launchpad_checklists()->is_launchpad_enabled();
+	return false;
 }
 
 /**

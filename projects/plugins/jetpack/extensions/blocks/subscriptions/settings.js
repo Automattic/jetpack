@@ -60,13 +60,7 @@ function NewsletterLearnMore() {
 					'jetpack'
 				),
 				{
-					learnMoreLink: (
-						<Link
-							href={ getRedirectUrl( 'paid-newsletter-info', {
-								anchor: 'memberships-and-subscriptions',
-							} ) }
-						/>
-					),
+					learnMoreLink: <Link href={ getRedirectUrl( 'paid-newsletter-info' ) } />,
 				}
 			) }
 		</small>

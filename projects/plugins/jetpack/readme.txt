@@ -43,7 +43,7 @@ Get blazing fast site speed with Jetpack. Jetpack’s free CDN (content delivery
 = POWERFUL TOOLS FOR GROWTH =
 Create and customize your WordPress site, optimize it for visitors and revenue, and enjoy watching your stats tick up. Build it, share it, and watch it grow.
 
-* Auto publish blog posts and products to social media by simply using our tools to connect to Facebook, Tumblr, and LinkedIn.
+* Auto publish blog posts and products to social media by simply using our tools to connect to Facebook, Tumblr, Instagram, Mastodon, and LinkedIn.
 * Easily share Instagram posts on your pages and blog posts.
 * Collect a payment or donation, sell a product, service, or membership with simple integrations with PayPal and Stripe.
 * Grow traffic with SEO tools for Google, Bing, Facebook, and WordPress.com. XML sitemap created automatically.
@@ -284,8 +284,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 12.2-beta - 2023-05-30
 #### Major Enhancements
-- Add an AI Assistant block, replacing the previous experimental AI Paragraph and AI Image blocks.
+- New AI Assistant block: harness AI power directly from your editor.
 - Donations, Paid Content and Payment Buttons blocks are now available with all Jetpack plans. A commission is charged for free plans.
+- Social: automatically share your new posts to Mastodon and Instagram.
 
 #### Enhancements
 - Author Recommendations: Connected block with backend and added `remove_user_blogs` option.
