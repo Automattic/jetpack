@@ -53,14 +53,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}, 100 );
 	};
 
-	const handleSuggestionDone = () => {
-		focusOnPrompt();
-	};
-
-	const handleUnclearPrompt = () => {
-		focusOnPrompt();
-	};
-
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -73,8 +65,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		retryRequest,
 		wholeContent,
 	} = useSuggestionsFromOpenAI( {
-		onSuggestionDone: handleSuggestionDone,
-		onUnclearPrompt: handleUnclearPrompt,
+		onSuggestionDone: focusOnPrompt,
+		onUnclearPrompt: focusOnPrompt,
+		onModeration: focusOnPrompt,
 		attributes,
 		clientId,
 		content: attributes.content,
