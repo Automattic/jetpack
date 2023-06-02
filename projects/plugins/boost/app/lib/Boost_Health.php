@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 
 class Boost_Health {
@@ -11,6 +12,10 @@ class Boost_Health {
 	public function __construct() {
 		if ( self::critical_css_needs_regeneration() ) {
 			$this->issues[] = 'Outdated Critical CSS';
+		}
+
+		if ( self::critical_css_has_errors() ) {
+			$this->issues[] = 'Failed to generate Critical CSS';
 		}
 	}
 
@@ -30,5 +35,9 @@ class Boost_Health {
 		$suggest_regenerate = jetpack_boost_ds_get( 'critical_css_suggest_regenerate' );
 
 		return in_array( $suggest_regenerate, Environment_Change_Detector::get_available_env_change_statuses(), true );
+	}
+
+	public static function critical_css_has_errors() {
+		return ( new Critical_CSS_State() )->has_errors();
 	}
 }
