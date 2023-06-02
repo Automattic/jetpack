@@ -74,7 +74,7 @@ class Site_Health {
 			$result['status'] = 'critical';
 			/* translators: $d is the number of performance issues found. */
 			$result['label']       = sprintf( _n( 'Your site is affected by %d performance issue', 'Your site is affected by %d performance issues', $total_issues, 'jetpack-boost' ), $total_issues );
-			$result['description'] = __( 'Jetpack Boost detected the following performance issues in your site:', 'jetpack-boost' );
+			$result['description'] = __( 'Jetpack Boost detected the following performance issues with your site:', 'jetpack-boost' );
 
 			foreach ( $issues as $issue ) {
 				$result['description'] .= '<p>';
