@@ -32,13 +32,13 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 		const team = teamConfig;
 		return async function ( reviewers ) {
 			const members = await fetchTeamMembers( team );
-			teamReviewers = reviewers.filter( reviewer => members.includes( reviewer ) );
+			const teamReviewers = reviewers.filter( reviewer => members.includes( reviewer ) );
 			const neededTeams = teamReviewers.length ? [] : [team];
-			printSet(
+			return printSet(
 				`${ indent }Members of ${ team }:`,
-				teamReviewers
+				teamReviewers,
+				neededTeams
 			);
-			return {teamReviewers, neededTeams};
 		};
 	}
 
@@ -96,7 +96,7 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 					neededTeams.push( requirementResult.neededTeams );
 				};
 			};
-			if( requirementsMet.some( a => a.length > 0 ) ){ // If there are requirements met, zero out the needed teams
+			if( requirementsMet.length > 0 ){ // If there are requirements met, zero out the needed teams
 				neededTeams.length = 0;
 			};
 			return printSet( `${ indent }=>`, [ ...new Set( requirementsMet.flat( 1 ) )],  [ ...new Set( neededTeams.flat( 1 ) ) ]);
