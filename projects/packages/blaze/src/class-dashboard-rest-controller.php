@@ -58,8 +58,8 @@ class Dashboard_REST_Controller {
 			sprintf( '/sites/%d/wordads/dsp/api/(?P<sub_path>.+)', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_wordads_dsp_generic' ),
-				'permission_callback' => array( $this, 'can_user_view_wordads_dsp_callback' ),
+				'callback'            => array( $this, 'get_dsp_generic' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 
@@ -68,8 +68,8 @@ class Dashboard_REST_Controller {
 			sprintf( '/sites/%d/wordads/dsp/api/(?P<sub_path>.+)', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => array( $this, 'edit_wordads_dsp_generic' ),
-				'permission_callback' => array( $this, 'can_user_view_wordads_dsp_callback' ),
+				'callback'            => array( $this, 'edit_dsp_generic' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 	}
@@ -96,29 +96,49 @@ class Dashboard_REST_Controller {
 	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
 	 */
-	public function get_blaze_posts( $req ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get_blaze_posts( $req ) {
 		$site_id = $this->get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
 		}
 
 		return $this->request_as_user(
-			sprintf( '/sites/%d/blaze/posts', $site_id ),
+			sprintf( '/sites/%d/blaze/posts%s', $site_id, $this->build_subpath_with_query_strings( $req->get_params() ) ),
 			'v2',
 			array( 'method' => 'GET' )
 		);
 	}
 
 	/**
-	 * Only administrators or users with capability `activate_wordads` can access the API.
+	 * Only administrators can access the API.
 	 */
-	public function can_user_view_wordads_dsp_callback() {
+	public function can_user_view_dsp_callback() {
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown
-		if ( current_user_can( 'manage_options' ) || current_user_can( 'activate_wordads' ) ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			return true;
 		}
 
 		return $this->get_forbidden_error();
+	}
+
+	/**
+	 * Builds the subpath including the query string to be used in the DSP call
+	 *
+	 * @param array $params The request object parameters.
+	 * @return string
+	 */
+	private function build_subpath_with_query_strings( $params ) {
+		$sub_path = '';
+		if ( isset( $params['sub_path'] ) ) {
+			$sub_path = $params['sub_path'];
+			unset( $params['sub_path'] );
+		}
+
+		if ( ! empty( $params ) ) {
+			$sub_path = $sub_path . '?' . http_build_query( $params );
+		}
+
+		return $sub_path;
 	}
 
 	/**
@@ -127,14 +147,14 @@ class Dashboard_REST_Controller {
 	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
 	 */
-	public function get_wordads_dsp_generic( $req ) {
+	public function get_dsp_generic( $req ) {
 		$site_id = $this->get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
 		}
 
 		return $this->request_as_user(
-			sprintf( '/sites/%d/wordads/dsp/api/%s', $site_id, $req->get_param( 'sub_path' ) ),
+			sprintf( '/sites/%d/wordads/dsp/api/%s', $site_id, $this->build_subpath_with_query_strings( $req->get_params() ) ),
 			'v2',
 			array( 'method' => 'GET' )
 		);
@@ -146,14 +166,14 @@ class Dashboard_REST_Controller {
 	 * @param WP_REST_Request $req The request object.
 	 * @return array|WP_Error
 	 */
-	public function edit_wordads_dsp_generic( $req ) {
+	public function edit_dsp_generic( $req ) {
 		$site_id = $this->get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
 		}
 
 		return $this->request_as_user(
-			sprintf( '/sites/%d/wordads/dsp/api/%s', $site_id, $req->get_param( 'sub_path' ) ),
+			sprintf( '/sites/%d/wordads/dsp/api/%s', $site_id, $this->build_subpath_with_query_strings( $req->get_params() ) ),
 			'v2',
 			array( 'method' => $req->get_method() ),
 			$req->get_body()
