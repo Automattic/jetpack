@@ -16,8 +16,7 @@ async function requestReviewer( teams ) {
 	let userReviews = []
 	let teamReviews = []
 
-	for (var i = 0; i < teams.length; i++) {
-		const t = teams[ i ]
+	for ( const t of teams ) {
 		if ( t.startsWith( '@' ) ) {
 			userReviews.push( t.slice( 1 ) )
 		} else {
