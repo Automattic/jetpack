@@ -2508,8 +2508,8 @@ importers:
         specifier: 5.0.2
         version: 5.0.2(rollup@2.79.1)
       '@rollup/plugin-terser':
-        specifier: 0.4.1
-        version: 0.4.1(rollup@2.79.1)
+        specifier: 0.4.3
+        version: 0.4.3(rollup@2.79.1)
       '@rollup/plugin-typescript':
         specifier: 8.3.3
         version: 8.3.3(rollup@2.79.1)(tslib@2.5.0)(typescript@5.0.4)
@@ -8049,8 +8049,8 @@ packages:
       rollup: 2.79.1
     dev: true
 
-  /@rollup/plugin-terser@0.4.1(rollup@2.79.1):
-    resolution: {integrity: sha512-aKS32sw5a7hy+fEXVy+5T95aDIwjpGHCTv833HXVtyKMDoVS7pBr5K3L9hEQoNqbJFjfANPrNpIXlTQ7is00eA==}
+  /@rollup/plugin-terser@0.4.3(rollup@2.79.1):
+    resolution: {integrity: sha512-EF0oejTMtkyhrkwCdg0HJ0IpkcaVg1MMSf2olHb2Jp+1mnLM04OhjpJWGma4HobiDTF0WCyViWuvadyE9ch2XA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       rollup: ^2.x || ^3.x
@@ -8060,8 +8060,8 @@ packages:
     dependencies:
       rollup: 2.79.1
       serialize-javascript: 6.0.1
-      smob: 0.0.6
-      terser: 5.17.1
+      smob: 1.4.0
+      terser: 5.17.7
     dev: true
 
   /@rollup/plugin-typescript@8.3.3(rollup@2.79.1)(tslib@2.5.0)(typescript@5.0.4):
@@ -16195,7 +16195,7 @@ packages:
       he: 1.2.0
       param-case: 3.0.4
       relateurl: 0.2.7
-      terser: 5.17.1
+      terser: 5.17.7
     dev: true
 
   /html-tags@3.3.1:
@@ -21733,8 +21733,8 @@ packages:
     engines: {node: '>= 6.0.0', npm: '>= 3.0.0'}
     dev: true
 
-  /smob@0.0.6:
-    resolution: {integrity: sha512-V21+XeNni+tTyiST1MHsa84AQhT1aFZipzPpOFAVB8DkHzwJyjjAmt9bgwnuZiZWnIbMo2duE29wybxv/7HWUw==}
+  /smob@1.4.0:
+    resolution: {integrity: sha512-MqR3fVulhjWuRNSMydnTlweu38UhQ0HXM4buStD/S3mc/BzX3CuM9OmhyQpmtYCvoYdl5ris6TI0ZqH355Ymqg==}
     dev: true
 
   /snake-case@3.0.4:
@@ -22397,11 +22397,11 @@ packages:
       jest-worker: 27.5.1
       schema-utils: 3.1.2
       serialize-javascript: 6.0.1
-      terser: 5.17.1
+      terser: 5.17.7
       webpack: 5.76.0(webpack-cli@4.9.1)
 
-  /terser@5.17.1:
-    resolution: {integrity: sha512-hVl35zClmpisy6oaoKALOpS0rDYLxRFLHhRuDlEGTKey9qHjS1w9GMORjuwIMt70Wan4lwsLYyWDVnWgF+KUEw==}
+  /terser@5.17.7:
+    resolution: {integrity: sha512-/bi0Zm2C6VAexlGgLlVxA0P2lru/sdLyfCVaRMfKVo9nWxbmz7f/sD8VPybPeSUJaJcwmCJis9pBIhcVcG1QcQ==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
