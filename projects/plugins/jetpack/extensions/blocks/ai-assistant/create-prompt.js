@@ -64,7 +64,7 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 		} );
 	}
 
-	if ( relevantContent != null && relevantContent.length ) {
+	if ( relevantContent != null && relevantContent?.length ) {
 		if ( isContentGenerated ) {
 			messages.push( {
 				role: 'assistant',
@@ -91,7 +91,7 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 	}
 
 	messages.forEach( message => {
-		debug( `Role: ${ message.role }.\nMessage: ${ message.content }\n---` );
+		debug( `Role: ${ message?.role }.\nMessage: ${ message?.content }\n---` );
 	} );
 	return messages;
 };
@@ -107,7 +107,7 @@ export function buildPrompt( {
 	userPrompt,
 	isGeneratingTitle,
 } ) {
-	const isGenerated = options.contentType === 'generated';
+	const isGenerated = options?.contentType === 'generated';
 	const reference = {
 		content: isGeneratingTitle ? 'the title' : 'the content',
 		generated: isGeneratingTitle ? 'the title' : 'your last answer',
