@@ -494,6 +494,7 @@ class Listener {
 	 * @return bool                True if the data size is under the allowed limit, false otherwise.
 	 */
 	protected function check_data_size_by_action( $args, $action_name ) {
+		var_dump( $args );
 		if ( false === array_key_exists( $action_name, Defaults::$default_max_args_size_per_action ) ) {
 			return true;
 		}
@@ -521,9 +522,14 @@ class Listener {
 			}
 		}
 
-		$max_args_size   = isset( $max_args_size ) ? $max_args_size : $max_args_size_per_action['default'];
-		$serialized_args = serialize( $args ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-		$args_size       = strlen( $serialized_args );
+		$max_args_size = isset( $max_args_size ) ? $max_args_size : $max_args_size_per_action['default'];
+		try {
+			$serialized_args = serialize( $args ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+		} catch ( Exception $e ) {
+			// Possible case would be a callable returning an anonymous function.
+			return true;
+		}
+		$args_size = strlen( $serialized_args );
 
 		if ( $args_size > $max_args_size ) {
 			return false;

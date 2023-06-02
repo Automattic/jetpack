@@ -7,6 +7,32 @@ use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
+	/**
+	 * Holds the actual value of Defaults::$default_max_args_size_per_action in order to
+	 * reset it after every test.
+	 *
+	 * @var array
+	 */
+	protected $default_max_args_size_per_action;
+
+	/**
+	 * Set up.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->default_max_args_size_per_action = Defaults::$default_max_args_size_per_action;
+	}
+
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		Defaults::$default_max_args_size_per_action = $this->default_max_args_size_per_action;
+
+		parent::tear_down();
+	}
+
 	public function test_never_queues_if_development() {
 		$this->markTestIncomplete( "We now check this during 'init', so testing is pretty hard" );
 
