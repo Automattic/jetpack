@@ -233,6 +233,54 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
 	}
 
+	public function test_never_queues_if_action_arguments_exceed_limits() {
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset();
+
+		update_option( 'blogname', 'dummy' );
+
+		$this->assertSame( 1, $queue->size() );
+
+		$queue->reset();
+
+		Defaults::$default_max_args_size_per_action['updated_option']['default'] = 1;
+		update_option( 'blogname', 'dummy2' );
+
+		$this->assertSame( 0, $queue->size() );
+	}
+
+	public function test_never_queues_if_action_arguments_exceed_limits_with_exception() {
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset();
+
+		update_option( 'sticky_posts', 'dummy' );
+
+		$this->assertSame( 1, $queue->size() );
+
+		$queue->reset();
+
+		Defaults::$default_max_args_size_per_action['updated_option']['exceptions']['sticky_posts'] = 1;
+		update_option( 'sticky_posts', 'dummy2' );
+
+		$this->assertSame( 0, $queue->size() );
+	}
+
+	public function test_never_queues_if_action_arguments_exceed_limits_with_option_prefix_and_exception() {
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset();
+
+		add_option( 'theme_mods_lala', 'dummy' );
+
+		$this->assertSame( 1, $queue->size() );
+
+		$queue->reset();
+
+		Defaults::$default_max_args_size_per_action['updated_option']['exceptions']['theme_mods_*'] = 1;
+		update_option( 'theme_mods_lala', 'dummy2' );
+
+		$this->assertSame( 0, $queue->size() );
+	}
+
 	public function test_data_loss_action_ignored_if_already_out_of_sync() {
 		Health::update_status( Health::STATUS_OUT_OF_SYNC );
 

@@ -304,6 +304,10 @@ class Listener {
 			return;
 		}
 
+		if ( false === $this->check_data_size_by_action( $args, $current_filter ) ) {
+			return;
+		}
+
 		/*
 		 * Periodically check the size of the queue, and disable adding to it if
 		 * it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped).
@@ -479,5 +483,52 @@ class Listener {
 			return esc_url_raw( 'http' . ( isset( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . wp_unslash( "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}" ) );
 		}
 		return is_admin() ? get_admin_url( get_current_blog_id() ) : home_url();
+	}
+
+	/**
+	 * Check the size of the data for a given Sync action, to avoid adding them
+	 * to the Sync queue if they exceed a certain limit.
+	 *
+	 * @param  array  $args        The data associated with a given Sync action.
+	 * @param  string $action_name The Sync action name.
+	 * @return bool                True if the data size is under the allowed limit, false otherwise.
+	 */
+	protected function check_data_size_by_action( $args, $action_name ) {
+		if ( false === array_key_exists( $action_name, Defaults::$default_max_args_size_per_action ) ) {
+			return true;
+		}
+
+		$max_args_size = null;
+
+		$max_args_size_per_action = Defaults::$default_max_args_size_per_action[ $action_name ];
+
+		if ( ! empty( $max_args_size_per_action['exceptions'] ) ) {
+			$exceptions = $max_args_size_per_action['exceptions'];
+			$name       = $args[0];
+			foreach ( $exceptions as $name_or_prefix => $max_size ) {
+				if ( $name === $name_or_prefix ) {
+					$max_args_size = $max_size;
+					break;
+				}
+				$is_prefix = '*' === substr( $name_or_prefix, -1 );
+				if ( $is_prefix ) {
+					$name_starts_with = substr( $name_or_prefix, 0, -1 );
+					if ( strpos( $name, $name_starts_with ) === 0 ) {
+						$max_args_size = $max_size;
+						break;
+					}
+				}
+			}
+		}
+
+		$max_args_size   = isset( $max_args_size ) ? $max_args_size : $max_args_size_per_action['default'];
+		$serialized_args = serialize( $args );
+		$args_size       = strlen( $serialized_args );
+
+		if ( $args_size > $max_args_size ) {
+			return false;
+		}
+
+		return true;
 	}
 }

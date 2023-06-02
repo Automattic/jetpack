@@ -1297,4 +1297,58 @@ class Defaults {
 	 */
 	public static $default_dedicated_sync_enabled = 0;
 
+	/**
+	 * Default max serialized data size per Sync action.
+	 *
+	 * @see Listener::check_data_size_by_action
+	 * @var array
+	 */
+	public static $default_max_args_size_per_action = array(
+		'jetpack_full_sync_callables'               => array(
+			'default'    => MB_IN_BYTES,
+			'exceptions' => array(),
+		),
+		'jetpack_full_sync_options'                 => array(
+			'default'    => MB_IN_BYTES,
+			'exceptions' => array(),
+		),
+		'jetpack_full_sync_constants'               => array(
+			'default'    => MB_IN_BYTES,
+			'exceptions' => array(),
+		),
+		'jetpack_full_sync_woocommerce_order_items' => array(
+			'default'    => MB_IN_BYTES,
+			'exceptions' => array(),
+		),
+		'jetpack_sync_callable'                     => array(
+			'default'    => 150 * KB_IN_BYTES,
+			'exceptions' => array(
+				'post_types'  => 500 * KB_IN_BYTES,
+				'get_plugins' => 500 * KB_IN_BYTES,
+				'taxonomies'  => 500 * KB_IN_BYTES,
+			),
+		),
+		'added_option'                              => array(
+			'default'    => 150 * KB_IN_BYTES,
+			'exceptions' => array(
+				'jetpack_options' => 500 * KB_IN_BYTES,
+				'sticky_posts'    => 500 * KB_IN_BYTES,
+				'active_plugins'  => 500 * KB_IN_BYTES,
+				'theme_mods_*'    => 500 * KB_IN_BYTES,
+			),
+		),
+		'updated_option'                            => array(
+			'default'    => 150 * KB_IN_BYTES,
+			'exceptions' => array(
+				'jetpack_options' => 500 * KB_IN_BYTES,
+				'sticky_posts'    => 500 * KB_IN_BYTES,
+				'active_plugins'  => 500 * KB_IN_BYTES,
+				'theme_mods_*'    => 500 * KB_IN_BYTES,
+			),
+		),
+		'jetpack_sync_constant'                     => array(
+			'default'    => 150 * KB_IN_BYTES,
+			'exceptions' => array(),
+		),
+	);
 }
