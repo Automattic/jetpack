@@ -103,6 +103,10 @@ class Jetpack_AI_Helper {
 		return 'jetpack_openai_completion_' . get_current_user_id(); // Cache for each user, so that other users dont get weird cached version from somebody else.
 	}
 
+	public static function transient_name_for_timeout() {
+		return 'jetpack_openai_timeout'; // Cache for each user, so that other users dont get weird cached version from somebody else.
+	}
+
 	/**
 	 * Mark the edited post as "touched" by AI stuff.
 	 *
@@ -137,6 +141,10 @@ class Jetpack_AI_Helper {
 		$cache   = get_transient( self::transient_name_for_completion() );
 		if ( $cache && ! $skip_cache ) {
 			return $cache;
+		}
+
+		if ( get_transient( self::transient_name_for_timeout() ) ) {
+			return new WP_Error(); // Same error cached? 
 		}
 
 		if ( ( new Status() )->is_offline_mode() ) {
@@ -200,6 +208,8 @@ class Jetpack_AI_Helper {
 		$data = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( wp_remote_retrieve_response_code( $response ) >= 400 ) {
+			$timeout = isset( $data->data->error_timeout ) ? $data->data->error_timeout : MINUTE_IN_SECONDS;
+			set_transient( self::transient_name_for_timeout(), true, $timeout );
 			return new WP_Error( $data->code, $data->message, $data->data );
 		}
 
