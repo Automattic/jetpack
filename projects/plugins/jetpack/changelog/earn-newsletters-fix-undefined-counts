@@ -1,0 +1,6 @@
+Significance: patch
+Type: bugfix
+
+Fixes the check for falsy values in the `getReachForAccessLevelKey` function,
+removing the `socialFollowers` and updating the subscription count API endpoints
+to return paid-subscribers.
