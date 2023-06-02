@@ -173,7 +173,7 @@ function fetch_subscriber_counts() {
 	$subs_count = 0;
 	if ( is_wpcom() ) {
 		$subs_count = array(
-			'value' => \wpcom_fetch_subs_counts( false ),
+			'value' => \wpcom_fetch_subs_counts( true ),
 		);
 	} else {
 		$cache_key  = 'wpcom_subscribers_totals';
@@ -190,6 +190,7 @@ function fetch_subscriber_counts() {
 					'value'   => ( isset( $subs_count['value'] ) ) ? $subs_count['value'] : array(
 						'email_subscribers' => 0,
 						'social_followers'  => 0,
+						'paid_subscribers'  => 0,
 					),
 				);
 			} else {
