@@ -1,0 +1,26 @@
+name: k6 Tests for Jetpack Staging Test Sites
+# Runs k6 tests for the same sites updated by `update-jetpack-staging-sites.yml`.
+
+on:
+  workflow_dispatch:
+  # Todo: put this on an interval.
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    env:
+      JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
+      JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Run k6 frontend tests
+        uses: grafana/k6-action@v0.3.0
+        with:
+          filename: .github/files/jetpack-staging-sites/k6-frontend.js
+
+      - name: Run k6 backend tests
+        uses: grafana/k6-action@v0.3.0
+        with:
+          filename: .github/files/jetpack-staging-sites/k6-backend.js
