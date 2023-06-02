@@ -74,6 +74,7 @@ Simply provide a prompt, and watch as Jetpack AI Assistant crafts compelling blo
 * Harness AI power directly from your editor.
 * Unlock high-quality, tailored content at your command.
 * Maintain professional standards with ease.
+* AI-powered translations across numerous languages at your fingertips, breaking down language barriers.
 
 = PROMOTE YOUR CONTENT EASILY WITH JETPACK BLAZE =
 Find new fans by promoting your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.
