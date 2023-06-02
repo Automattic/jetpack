@@ -42,6 +42,11 @@ export const settings = {
 					'jetpack'
 				) }
 			</p>
+			<p>
+				<ExternalLink href="https://automattic.com/ai-guidelines">
+					{ __( 'AI guidelines.', 'jetpack' ) }
+				</ExternalLink>
+			</p>
 			<ExternalLink href={ getRedirectUrl( 'jetpack_ai_feedback' ) }>
 				{ __( 'Share your feedback.', 'jetpack' ) }
 			</ExternalLink>
