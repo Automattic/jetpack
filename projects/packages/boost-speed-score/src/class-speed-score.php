@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Boost_Speed_Score;
 
-use Automattic\Jetpack\Boost_Speed_Score\Lib\Utils;
+use Automattic\Jetpack\Boost_Core\Lib\Utils;
 
 if ( ! defined( 'JETPACK_BOOST_REST_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_REST_NAMESPACE', 'jetpack-boost/v1' );

@@ -2,10 +2,10 @@
 /**
  * Utility class.
  *
- * @package automattic/jetpack-boost-speed-score
+ * @package automattic/jetpack-boost-core
  */
 
-namespace Automattic\Jetpack\Boost_Speed_Score\Lib;
+namespace Automattic\Jetpack\Boost_Core\Lib;
 
 use Automattic\Jetpack\Connection\Client;
 
@@ -129,7 +129,7 @@ class Utils {
 		if ( 200 !== $code ) {
 			$default_message = sprintf(
 				/* translators: %d is a numeric HTTP error code */
-				__( 'HTTP %d while communicating with WordPress.com', 'jetpack-boost-speed-score' ),
+				__( 'HTTP %d while communicating with WordPress.com', 'jetpack-boost-core' ),
 				$code
 			);
 

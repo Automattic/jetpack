@@ -5,7 +5,7 @@
  * @package automattic/jetpack-boost-speed-score
  */
 
-namespace Automattic\Jetpack\Boost_Speed_Score\Contracts;
+namespace Automattic\Jetpack\Boost_Core\Contracts;
 
 /**
  * An interface to build Boost API client.

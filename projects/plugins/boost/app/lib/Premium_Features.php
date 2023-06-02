@@ -2,8 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
-use Automattic\Jetpack\Boost_Speed_Score\Lib\Boost_API;
-use Automattic\Jetpack\Boost_Speed_Score\Lib\Transient;
+use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
+use Automattic\Jetpack\Boost_Core\Lib\Transient;
 
 class Premium_Features {
 

@@ -2,12 +2,12 @@
 /**
  * A helper class to help with Boost API interactions.
  *
- * @package automattic/jetpack-boost-speed-score
+ * @package automattic/jetpack-boost-core
  */
 
-namespace Automattic\Jetpack\Boost_Speed_Score\Lib;
+namespace Automattic\Jetpack\Boost_Core\Lib;
 
-use Automattic\Jetpack\Boost_Speed_Score\Contracts\Boost_API_Client;
+use Automattic\Jetpack\Boost_Core\Contracts\Boost_API_Client;
 
 /**
  * A class that handles the Boost API client.
