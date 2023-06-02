@@ -376,6 +376,7 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 	// CRM object edit capabilities
 	$role->add_cap( 'admin_zerobs_customers' );
 	$role->add_cap( 'admin_zerobs_customers_tags' );
+	$role->add_cap( 'admin_zerobs_events' );
 
 	// needed for notifications
 	$role->add_cap( 'admin_zerobs_notifications' );
