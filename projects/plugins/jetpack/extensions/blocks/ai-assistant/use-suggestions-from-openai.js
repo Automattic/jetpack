@@ -224,13 +224,13 @@ const useSuggestionsFromOpenAI = ( {
 			setWasCompletionJustRequested( false );
 		}
 
-		source?.current.addEventListener( 'done', e => {
+		source?.current?.addEventListener( 'done', e => {
 			stopSuggestion();
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
 
-		source?.current.addEventListener( 'error_unclear_prompt', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_unclear_prompt', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setError( {
@@ -241,8 +241,8 @@ const useSuggestionsFromOpenAI = ( {
 			onUnclearPrompt?.();
 		} );
 
-		source?.current.addEventListener( 'error_network', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_network', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( true );
@@ -253,8 +253,8 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		} );
 
-		source?.current.addEventListener( 'error_service_unavailable', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_service_unavailable', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( true );
@@ -268,8 +268,8 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		} );
 
-		source?.current.addEventListener( 'error_quota_exceeded', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_quota_exceeded', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
@@ -280,8 +280,8 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		} );
 
-		source?.current.addEventListener( 'error_moderation', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_moderation', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
@@ -296,7 +296,7 @@ const useSuggestionsFromOpenAI = ( {
 			onModeration?.();
 		} );
 
-		source?.current.addEventListener( 'suggestion', e => {
+		source?.current?.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
 			debug( 'fullMessage', e.detail );
 			updateBlockAttributes( clientId, { content: e.detail } );
@@ -309,7 +309,7 @@ const useSuggestionsFromOpenAI = ( {
 			return;
 		}
 
-		source?.current.close();
+		source?.current?.close();
 		setIsLoadingCompletion( false );
 		setWasCompletionJustRequested( false );
 		onSuggestionDone?.();
