@@ -57,17 +57,17 @@ const useThreatsList = () => {
 			switch ( selected ) {
 				case 'wordpress':
 					return {
-						list: flattenThreats( core, { icon: coreIcon } ),
+						unsortedList: flattenThreats( core, { icon: coreIcon } ),
 						item: core,
 					};
 				case 'files':
 					return {
-						list: flattenThreats( files, { icon: filesIcon } ),
+						unsortedList: flattenThreats( files, { icon: filesIcon } ),
 						item: files,
 					};
 				case 'database':
 					return {
-						list: flattenThreats( database, { icon: databaseIcon } ),
+						unsortedList: flattenThreats( database, { icon: databaseIcon } ),
 						item: database,
 					};
 				default:
@@ -79,14 +79,14 @@ const useThreatsList = () => {
 			const pluginsItem = plugins.find( threat => threat?.name === selected );
 			if ( pluginsItem ) {
 				return {
-					list: flattenThreats( pluginsItem, pluginsIcon ),
+					unsortedList: flattenThreats( pluginsItem, pluginsIcon ),
 					item: pluginsItem,
 				};
 			}
 			const themesItem = themes.find( threat => threat?.name === selected );
 			if ( themesItem ) {
 				return {
-					list: flattenThreats( themesItem, themesIcon ),
+					unsortedList: flattenThreats( themesItem, themesIcon ),
 					item: themesItem,
 				};
 			}
@@ -94,7 +94,7 @@ const useThreatsList = () => {
 
 		// Otherwise, return all threats.
 		return {
-			list: [
+			unsortedList: [
 				...flattenThreats( core, coreIcon ),
 				...flattenThreats( plugins, pluginsIcon ),
 				...flattenThreats( themes, themesIcon ),
