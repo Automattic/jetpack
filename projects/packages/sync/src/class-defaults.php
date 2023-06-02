@@ -1299,6 +1299,7 @@ class Defaults {
 
 	/**
 	 * Default max serialized data size per Sync action.
+	 * The exceptions also accept prefixes, like eg the theme_mods_* options.
 	 *
 	 * @see Listener::check_data_size_by_action
 	 * @var array
