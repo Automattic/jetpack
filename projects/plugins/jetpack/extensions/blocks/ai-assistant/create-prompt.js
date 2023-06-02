@@ -37,7 +37,7 @@ export const buildPromptTemplate = ( {
 	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' ) || '';
 
 	const blogPostData = `Here's the content in the editor that serves as context to the user request:
-${ postTitle.length ? `- Current title: ${ postTitle }\n` : '' }${
+${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
 		fullContent ? `- Current content: ${ fullContent }` : ''
 	}`;
 
@@ -57,7 +57,7 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 
 	messages.push( { role: 'system', content: prompt } );
 
-	if ( postTitle.length || !! fullContent ) {
+	if ( postTitle?.length || !! fullContent ) {
 		messages.push( {
 			role: 'user',
 			content: blogPostData,
