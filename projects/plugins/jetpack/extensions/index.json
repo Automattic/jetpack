@@ -63,7 +63,7 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters"
 	],
-	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm" ],
+	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
 		"ai-assistant",
 		"business-hours",
