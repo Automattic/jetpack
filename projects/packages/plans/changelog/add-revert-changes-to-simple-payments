@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Revert gating removal for simple payments
