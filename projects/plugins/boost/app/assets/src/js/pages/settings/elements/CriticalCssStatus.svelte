@@ -77,7 +77,7 @@
 		<button
 			type="button"
 			class="components-button"
-			class:is-link={! $suggestRegenerate}
+			class:is-link={! $suggestRegenerate || $modulesState.cloud_css?.available}
 			on:click={regenerateCriticalCss}
 		>
 			<RefreshIcon />
