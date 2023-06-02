@@ -494,7 +494,6 @@ class Listener {
 	 * @return bool                True if the data size is under the allowed limit, false otherwise.
 	 */
 	protected function check_data_size_by_action( $args, $action_name ) {
-		var_dump( $args );
 		if ( false === array_key_exists( $action_name, Defaults::$default_max_args_size_per_action ) ) {
 			return true;
 		}
