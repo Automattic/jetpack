@@ -87,9 +87,6 @@
 </div>
 
 <style lang="scss">
-	@use '../../../../css/main/mixins.scss' as *;
-	@use '../../../../css/main/variables.scss' as *;
-
 	:global( .components-button:not( .is-link ) .gridicon ) {
 		display: none;
 	}
