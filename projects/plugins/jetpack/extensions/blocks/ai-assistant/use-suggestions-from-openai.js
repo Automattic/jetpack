@@ -279,6 +279,21 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		} );
 
+		source?.current.addEventListener( 'error_moderation', () => {
+			source?.current.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( false );
+			setError( {
+				code: 'error_moderation',
+				message: __(
+					'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
+					'jetpack'
+				),
+				status: 'info',
+			} );
+		} );
+
 		source?.current.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
 			debug( 'fullMessage', e.detail );
