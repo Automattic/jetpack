@@ -42,7 +42,6 @@ export const settings = {
 					'jetpack'
 				) }
 			</p>
-
 			<ExternalLink href={ getRedirectUrl( 'jetpack_ai_feedback' ) }>
 				{ __( 'Share your feedback.', 'jetpack' ) }
 			</ExternalLink>
