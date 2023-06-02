@@ -34,7 +34,7 @@ export const buildPromptTemplate = ( {
 
 	const messages = [];
 
-	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' );
+	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' ) || '';
 
 	const blogPostData = `Here's the content in the editor that serves as context to the user request:
 ${ postTitle.length ? `- Current title: ${ postTitle }\n` : '' }${
