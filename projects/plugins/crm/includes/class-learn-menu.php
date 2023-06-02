@@ -1130,7 +1130,6 @@ class Learn_Menu {
 				'img'   => 'learn-extensions-list.png',
 			),
 			'home'               => array(
-				'title'      => __( 'Home', 'zero-bs-crm' ),
 				'show_learn' => false,
 			),
 			'welcome'            => array(
