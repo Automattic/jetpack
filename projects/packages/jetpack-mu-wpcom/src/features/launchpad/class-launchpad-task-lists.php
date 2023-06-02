@@ -37,6 +37,13 @@ class Launchpad_Task_Lists {
 	private static $instance = null;
 
 	/**
+	 * Singleton array of task statuses
+	 *
+	 * @var array
+	 */
+	private static $task_statuses = null;
+
+	/**
 	 * Get the singleton instance
 	 *
 	 * @return Launchpad_Task_Lists
@@ -313,9 +320,8 @@ class Launchpad_Task_Lists {
 		// First we calculate the value from our statuses option. This will get passed to the callback, if it exists.
 		// Othewise there is the temptation for the callback to fall back to the option, which would cause infinite recursion
 		// as it continues to calculate the callback which falls back to the option: ∞.
-		$statuses    = get_option( 'launchpad_checklist_tasks_statuses', array() );
 		$key         = $this->get_task_key( $task );
-		$is_complete = isset( $statuses[ $key ] ) ? $statuses[ $key ] : false;
+		$is_complete = $this->get_task_status( $key );
 
 		return (bool) $this->load_value_from_callback( $task, 'is_complete_callback', $is_complete );
 	}
@@ -448,14 +454,55 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
-		$key              = $this->get_task_key( $task );
-		$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$statuses[ $key ] = true;
-		$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
+		$key    = $this->get_task_key( $task );
+		$result = $this->update_task_statuses( $key, true );
 
 		$this->maybe_disable_launchpad();
 
 		return $result;
+	}
+
+	/**
+	 * Get an array with all the task completion statuses.
+	 *
+	 * @return array Array of task statuses.
+	 */
+	public function get_task_statuses() {
+		if ( ! is_array( self::$task_statuses ) ) {
+			self::$task_statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
+		}
+		return self::$task_statuses;
+	}
+
+	/**
+	 * Get the completion status of the specified task.
+	 *
+	 * @param string $task_id The task ID.
+	 * @return bool The status of the task.
+	 */
+	public function get_task_status( $task_id ) {
+		$task_statuses = $this->get_task_statuses();
+		if ( ! isset( $task_statuses[ $task_id ] ) ) {
+			return false;
+		}
+		return $task_statuses[ $task_id ];
+	}
+
+	/**
+	 * Updates the completion status of the specified task.
+	 *
+	 * @param string $task_id The task ID.
+	 * @param bool   $status  The status of the task.
+	 * @return bool True if successful, false if not.
+	 */
+	public function update_task_statuses( $task_id, $status ) {
+		$task_statuses             = $this->get_task_statuses();
+		$task_statuses[ $task_id ] = $status;
+
+		// Allow plugins to filter the completion task statuses
+		$task_statuses       = apply_filters( 'update_task_statuses', $task_statuses );
+		self::$task_statuses = $task_statuses;
+		return update_option( 'launchpad_checklist_tasks_statuses', $task_statuses );
 	}
 
 	/**
