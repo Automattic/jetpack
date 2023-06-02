@@ -118,6 +118,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'posts_per_rss'                           => '(int) Number of posts to show in the RSS feed',
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
+			'wpcom_subscribe_modal'                   => '(bool) Whether the newsletter subscribe modal is enabled',
 		),
 
 		'response_format'     => array(
