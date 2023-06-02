@@ -69,6 +69,7 @@ const createDefaultProduct = async (
 			},
 			productType,
 			setSelectedProductId,
+			() => {},
 			shouldDisplayProductCreationNotice
 		)
 	);
