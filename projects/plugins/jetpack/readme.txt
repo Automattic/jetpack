@@ -65,6 +65,17 @@ With Jetpack Stats, you don’t need to be a data scientist to see how your site
 * Discover what countries your visitors are coming from.
 * Measure link clicks, video plays, and file downloads within your site.
 
+= WRITE SMARTER, NOT HARDER. = 
+Experience the ease of crafting professional content with intuitive and powerful AI. Jetpack AI Assistant effortlessly integrates with your WordPress editor, offering an intuitive interface to interact with AI. 
+This powerful block lets you generate diverse content at your command, significantly reducing the time and effort required in content creation.
+
+Simply provide a prompt, and watch as Jetpack AI Assistant crafts compelling blog posts, detailed pages, structured lists, and comprehensive tables - all tailored to your needs.
+
+* Harness AI power directly from your editor.
+* Unlock high-quality, tailored content at your command.
+* Maintain professional standards with ease.
+* AI-powered translations across numerous languages at your fingertips, breaking down language barriers.
+
 = PROMOTE YOUR CONTENT EASILY WITH JETPACK BLAZE =
 Find new fans by promoting your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.
 
