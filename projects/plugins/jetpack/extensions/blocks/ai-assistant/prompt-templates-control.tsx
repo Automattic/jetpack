@@ -91,21 +91,21 @@ export default function PromptTemplatesControl( {
 									iconPosition="left"
 									onClick={ () => onSuggestionSelect( 'continue' ) }
 								>
-									{ __( 'Expand on preceding content', 'jetpack' ) }
+									{ __( 'Continue writing', 'jetpack' ) }
 								</MenuItem>
 								<MenuItem
 									icon={ termDescription }
 									iconPosition="left"
 									onClick={ () => onSuggestionSelect( 'correctSpelling' ) }
 								>
-									{ __( 'Correct spelling and grammar of preceding content', 'jetpack' ) }
+									{ __( 'Correct spelling and grammar', 'jetpack' ) }
 								</MenuItem>
 								<MenuItem
 									icon={ post }
 									iconPosition="left"
 									onClick={ () => onSuggestionSelect( 'simplify' ) }
 								>
-									{ __( 'Simplify preceding content', 'jetpack' ) }
+									{ __( 'Simplify', 'jetpack' ) }
 								</MenuItem>
 							</MenuGroup>
 						) }
