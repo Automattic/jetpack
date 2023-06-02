@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `is_enabled_callback` to all existing task lists with a callback function that checks launchpad_screen.
