@@ -52,6 +52,7 @@ const AIControl = forwardRef(
 			onChange,
 			requireUpgrade,
 			recordEvent,
+			isGeneratingTitle,
 		},
 		ref
 	) => {
@@ -132,6 +133,7 @@ const AIControl = forwardRef(
 							}
 						} }
 						recordEvent={ recordEvent }
+						isGeneratingTitle={ isGeneratingTitle }
 					/>
 				) }
 				<div
@@ -239,7 +241,27 @@ const ToolbarControls = ( {
 	wholeContent,
 	setUserPrompt,
 	recordEvent,
+	isGeneratingTitle,
 } ) => {
+	const dropdownControls = [
+		// Interactive controls
+		{
+			title: __( 'Make longer', 'jetpack' ),
+			onClick: () => getSuggestionFromOpenAI( 'makeLonger', { contentType: 'generated' } ),
+		},
+		{
+			title: __( 'Make shorter', 'jetpack' ),
+			onClick: () => getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
+		},
+	];
+
+	if ( ! isGeneratingTitle ) {
+		dropdownControls.unshift( {
+			title: __( 'Summarize', 'jetpack' ),
+			onClick: () => getSuggestionFromOpenAI( 'summarize', { contentType: 'generated' } ),
+		} );
+	}
+
 	return (
 		<>
 			{ contentIsLoaded && (
@@ -263,23 +285,7 @@ const ToolbarControls = ( {
 					<ToolbarDropdownMenu
 						icon={ pencil }
 						label={ __( 'Improve', 'jetpack' ) }
-						controls={ [
-							// Interactive controls
-							{
-								title: __( 'Summarize', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'summarize', { contentType: 'generated' } ),
-							},
-							{
-								title: __( 'Make longer', 'jetpack' ),
-								onClick: () =>
-									getSuggestionFromOpenAI( 'makeLonger', { contentType: 'generated' } ),
-							},
-							{
-								title: __( 'Make shorter', 'jetpack' ),
-								onClick: () =>
-									getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
-							},
-						] }
+						controls={ dropdownControls }
 					/>
 				</BlockControls>
 			) }

@@ -172,13 +172,12 @@ class AJAX {
 	 * @param string $guid The video id being checked.
 	 */
 	private function request_jwt_from_wpcom( $guid ) {
-		$options = Options::get_options();
-
-		$args = array(
+		$video_blog_id = $this->get_videopress_blog_id();
+		$args          = array(
 			'method' => 'POST',
 		);
 
-		$endpoint = "sites/{$options['shadow_blog_id']}/media/videopress-playback-jwt/{$guid}";
+		$endpoint = "sites/{$video_blog_id}/media/videopress-playback-jwt/{$guid}";
 		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -199,14 +198,12 @@ class AJAX {
 	 * @return void
 	 */
 	public function wp_ajax_videopress_get_upload_jwt() {
-
-		$options = Options::get_options();
-
-		$args = array(
+		$video_blog_id = $this->get_videopress_blog_id();
+		$args          = array(
 			'method' => 'POST',
 		);
 
-		$endpoint = "sites/{$options['shadow_blog_id']}/media/videopress-upload-jwt";
+		$endpoint = "sites/{$video_blog_id}/media/videopress-upload-jwt";
 		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack-videopress-pkg' ) ) );
@@ -220,7 +217,7 @@ class AJAX {
 			return;
 		}
 
-		$response['upload_action_url'] = videopress_make_resumable_upload_path( $options['shadow_blog_id'] );
+		$response['upload_action_url'] = videopress_make_resumable_upload_path( $video_blog_id );
 
 		wp_send_json_success( $response );
 	}
@@ -231,14 +228,13 @@ class AJAX {
 	 * @return void
 	 */
 	public function wp_ajax_videopress_get_upload_token() {
-
-		$options = Options::get_options();
+		$video_blog_id = $this->get_videopress_blog_id();
 
 		$args = array(
 			'method' => 'POST',
 		);
 
-		$endpoint = "sites/{$options['shadow_blog_id']}/media/token";
+		$endpoint = "sites/{$video_blog_id}/media/token";
 		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, Client::WPCOM_JSON_API_VERSION, $args );
 
 		if ( is_wp_error( $result ) ) {
@@ -253,7 +249,7 @@ class AJAX {
 			return;
 		}
 
-		$response['upload_action_url'] = videopress_make_media_upload_path( $options['shadow_blog_id'] );
+		$response['upload_action_url'] = videopress_make_media_upload_path( $video_blog_id );
 
 		wp_send_json_success( $response );
 	}
@@ -282,5 +278,19 @@ class AJAX {
 				'status'  => videopress_get_transcoding_status( $post_id ),
 			)
 		);
+	}
+
+	/**
+	 * Returns the proper blog id depending on Jetpack or WP.com
+	 *
+	 * @return int the blog id
+	 */
+	public function get_videopress_blog_id() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return get_current_blog_id();
+		}
+
+		$options = Options::get_options();
+		return $options['shadow_blog_id'];
 	}
 }
