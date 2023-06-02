@@ -606,14 +606,8 @@ class Learn_Menu {
 		// check if available
 		if ( isset( $learn_menu_content[ $slug ] ) ) {
 
-			if ( empty( $learn_menu_content[ $slug ]['url'] ) ) {
-				$learn_menu_content[ $slug ]['url'] = $zbs->urls['docs'];
-			}
-			if ( empty( $learn_menu_content[ $slug ]['img'] ) ) {
-				$learn_menu_content[ $slug ]['img'] = 'learn-extensions-list.png';
-			}
-			if ( empty( $learn_menu_content[ $slug ]['learn_title'] ) ) {
-				$learn_menu_content[ $slug ]['learn_title'] = $learn_menu_content[ $slug ]['title'];
+			if ( empty( $learn_menu_content[ $slug ]['title'] ) ) {
+				$learn_menu_content[ $slug ]['title'] = '';
 			}
 			if ( empty( $learn_menu_content[ $slug ]['left_buttons'] ) ) {
 				$learn_menu_content[ $slug ]['left_buttons'] = '';
@@ -621,8 +615,32 @@ class Learn_Menu {
 			if ( empty( $learn_menu_content[ $slug ]['right_buttons'] ) ) {
 				$learn_menu_content[ $slug ]['right_buttons'] = '';
 			}
+			if ( ! isset( $learn_menu_content[ $slug ]['show_learn'] ) || $learn_menu_content[ $slug ]['show_learn'] !== false ) {
+				$learn_menu_content[ $slug ]['show_learn'] = true;
+			}
+			if ( empty( $learn_menu_content[ $slug ]['learn_title'] ) ) {
+				$learn_menu_content[ $slug ]['learn_title'] = $learn_menu_content[ $slug ]['title'];
+			}
+			if ( empty( $learn_menu_content[ $slug ]['content'] ) ) {
+				$learn_menu_content[ $slug ]['content'] = '<p></p>';
+			}
+			if ( empty( $learn_menu_content[ $slug ]['url'] ) ) {
+				$learn_menu_content[ $slug ]['url'] = $zbs->urls['docs'];
+			}
+			if ( empty( $learn_menu_content[ $slug ]['img'] ) ) {
+				$learn_menu_content[ $slug ]['img'] = 'learn-extensions-list.png';
+			}
+			if ( empty( $learn_menu_content[ $slug ]['video'] ) ) {
+				$learn_menu_content[ $slug ]['video'] = false;
+			}
 			if ( empty( $learn_menu_content[ $slug ]['extra_js'] ) ) {
 				$learn_menu_content[ $slug ]['extra_js'] = '';
+			}
+			if ( empty( $learn_menu_content[ $slug ]['extra_css'] ) ) {
+				$learn_menu_content[ $slug ]['extra_css'] = '';
+			}
+			if ( empty( $learn_menu_content[ $slug ]['video_title'] ) ) {
+				$learn_menu_content[ $slug ]['video_title'] = '';
 			}
 			if ( empty( $learn_menu_content[ $slug ]['icon_class'] ) ) {
 				$learn_menu_content[ $slug ]['icon_class'] = '';
