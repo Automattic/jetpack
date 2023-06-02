@@ -84,6 +84,7 @@ const useSuggestionsFromOpenAI = ( {
 	userPrompt,
 	onSuggestionDone,
 	onUnclearPrompt,
+	onModeration,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -292,6 +293,7 @@ const useSuggestionsFromOpenAI = ( {
 				),
 				status: 'info',
 			} );
+			onModeration?.();
 		} );
 
 		source?.current.addEventListener( 'suggestion', e => {
