@@ -524,7 +524,7 @@ class Listener {
 		$max_args_size = isset( $max_args_size ) ? $max_args_size : $max_args_size_per_action['default'];
 		try {
 			$serialized_args = serialize( $args ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-		} catch ( Exception $e ) {
+		} catch ( \Exception $e ) {
 			// Possible case would be a callable returning an anonymous function.
 			return true;
 		}
