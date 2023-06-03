@@ -2,7 +2,7 @@
 /**
  * Boost API Client interface.
  *
- * @package automattic/jetpack-boost-speed-score
+ * @package automattic/jetpack-boost-core
  */
 
 namespace Automattic\Jetpack\Boost_Core\Contracts;
