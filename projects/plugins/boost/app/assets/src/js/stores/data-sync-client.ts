@@ -21,16 +21,16 @@ export const JSONSchema: z.ZodType< JSONValue > = z.lazy( () =>
  * Data Sync Stores
  */
 
-const allowedSuggestions = [ '1', 'page_saved', 'post_saved', 'switched_theme', 'plugin_change' ];
+const allowedSuggestions = [
+	'1',
+	'page_saved',
+	'post_saved',
+	'switched_theme',
+	'plugin_change',
+] as const;
+export type RegenReason = ( typeof allowedSuggestions )[ number ];
 
 export const suggestRegenerateDS = jetpack_boost_ds.createAsyncStore(
 	'critical_css_suggest_regenerate',
-	z
-		.custom( value => {
-			if ( typeof value === 'string' && allowedSuggestions.includes( value ) ) {
-				return value;
-			}
-			return null;
-		} )
-		.catch( null )
+	z.enum( allowedSuggestions ).nullable()
 );
