@@ -148,6 +148,11 @@ export default function PublicizeForm( {
 		</>
 	);
 
+	const showNoMediaMessage =
+		! postHasValidImage &&
+		numberOfSharesRemaining !== 0 &&
+		connections.some( ( { service_name } ) => isConnectionNeedMedia( service_name ) );
+
 	return (
 		<Wrapper>
 			{ hasConnections && (
@@ -243,16 +248,15 @@ export default function PublicizeForm( {
 							) }
 						</ul>
 					</PanelRow>
-					{ connections.some( ( { service_name } ) => isConnectionNeedMedia( service_name ) ) &&
-						! postHasValidImage && (
-							<Notice type={ 'warning' }>
-								{ __( 'You need a valid image in your post to share to Instagram.', 'jetpack' ) }
-								<br />
-								<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
-									{ __( 'Learn more', 'jetpack' ) }
-								</ExternalLink>
-							</Notice>
-						) }
+					{ showNoMediaMessage && (
+						<Notice type={ 'warning' }>
+							{ __( 'You need a valid image in your post to share to Instagram.', 'jetpack' ) }
+							<br />
+							<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+								{ __( 'Learn more', 'jetpack' ) }
+							</ExternalLink>
+						</Notice>
+					) }
 				</>
 			) }
 			{ ! isPublicizeDisabledBySitePlan && (
@@ -262,12 +266,20 @@ export default function PublicizeForm( {
 							onDismiss={ onDismissInstagramNotice }
 							type={ 'highlight' }
 							actions={ [
-								<Button key="connect" href={ connectionsAdminUrl } variant="primary">
+								<Button
+									key="connect"
+									href={ connectionsAdminUrl }
+									target="_blank"
+									rel="noreferrer noopener"
+									variant="primary"
+								>
 									{ __( 'Connect now', 'jetpack' ) }
 								</Button>,
 								<Button
 									key="learn-more"
 									href={ getRedirectUrl( 'jetpack-social-connecting-to-social-networks' ) }
+									target="_blank"
+									rel="noreferrer noopener"
 								>
 									{ __( 'Learn more', 'jetpack' ) }
 								</Button>,
