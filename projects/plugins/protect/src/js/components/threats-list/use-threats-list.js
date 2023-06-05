@@ -76,18 +76,18 @@ const useThreatsList = () => {
 
 			// Extensions (i.e. plugins and themes) have entries for each individual extension,
 			// so we need to check for a matching threat in each extension.
-			const pluginsItem = plugins.find( threat => threat?.name === selected );
-			if ( pluginsItem ) {
+			const selectedPlugin = plugins.find( plugin => plugin?.name === selected );
+			if ( selectedPlugin ) {
 				return {
-					unsortedList: flattenThreats( pluginsItem, pluginsIcon ),
-					item: pluginsItem,
+					unsortedList: flattenThreats( selectedPlugin, { icon: pluginsIcon } ),
+					item: selectedPlugin,
 				};
 			}
-			const themesItem = themes.find( threat => threat?.name === selected );
-			if ( themesItem ) {
+			const selectedTheme = themes.find( theme => theme?.name === selected );
+			if ( selectedTheme ) {
 				return {
-					unsortedList: flattenThreats( themesItem, themesIcon ),
-					item: themesItem,
+					unsortedList: flattenThreats( selectedTheme, { icon: themesIcon } ),
+					item: selectedTheme,
 				};
 			}
 		}
