@@ -12,7 +12,7 @@ import './style.scss';
  * @returns {React.Component} The `ConnectScreenLayout` component.
  */
 const ConnectScreenLayout = props => {
-	const { title, children, className, assetBaseUrl, images, logo } = props;
+	const { title, children, className, assetBaseUrl, images, logo, rna = false } = props;
 
 	const showImageSlider = images?.length;
 
@@ -24,6 +24,14 @@ const ConnectScreenLayout = props => {
 				className ? ' ' + className : ''
 			) }
 		>
+			{ rna && (
+				<div className="jp-connection__connect-screen-layout__color-blobs">
+					<div className="jp-connection__connect-screen-layout__color-blobs__green"></div>
+					<div className="jp-connection__connect-screen-layout__color-blobs__yellow"></div>
+					<div className="jp-connection__connect-screen-layout__color-blobs__blue"></div>
+				</div>
+			) }
+
 			<div className="jp-connection__connect-screen-layout__left">
 				{ logo || <JetpackLogo /> }
 

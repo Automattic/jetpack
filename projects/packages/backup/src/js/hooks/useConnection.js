@@ -6,7 +6,7 @@ import {
 } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
-import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import BackupPromotionBlock from '../components/backup-promotion';
@@ -53,10 +53,7 @@ export default function useConnection() {
 				priceBefore={ price }
 				pricingIcon={ <JetpackVaultPressBackupLogo showText={ false } /> }
 				pricingTitle={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
-				title={ createInterpolateElement(
-					__( 'The best real-time WordPress<nbsp/>backups', 'jetpack-backup-pkg' ),
-					{ nbsp: <span>&nbsp;</span> }
-				) }
+				title={ __( 'The best real-time WordPress backups ', 'jetpack-backup-pkg' ) }
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				registrationNonce={ registrationNonce }
