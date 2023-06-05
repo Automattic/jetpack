@@ -1671,23 +1671,23 @@
         },
         {
             "name": "automattic/jetpack-plans",
-            "version": "v0.3.0",
+            "version": "v0.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-plans.git",
-                "reference": "3c0c6550af968f995e7695d8168d9afb3fc71c29"
+                "reference": "924a669ae090f8ff9d2f9e81d231ac4fee9775cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-plans/zipball/3c0c6550af968f995e7695d8168d9afb3fc71c29",
-                "reference": "3c0c6550af968f995e7695d8168d9afb3fc71c29",
+                "url": "https://api.github.com/repos/Automattic/jetpack-plans/zipball/924a669ae090f8ff9d2f9e81d231ac4fee9775cd",
+                "reference": "924a669ae090f8ff9d2f9e81d231ac4fee9775cd",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "^1.51.8"
+                "automattic/jetpack-connection": "^1.52.1"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.3.2",
+                "automattic/jetpack-changelogger": "^3.3.4",
                 "automattic/jetpack-status": "^1.17.1",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
@@ -1717,9 +1717,9 @@
             ],
             "description": "Fetch information about Jetpack Plans from wpcom",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-plans/tree/v0.3.0"
+                "source": "https://github.com/Automattic/jetpack-plans/tree/v0.3.1"
             },
-            "time": "2023-05-11T05:51:03+00:00"
+            "time": "2023-06-05T19:30:08+00:00"
         },
         {
             "name": "automattic/jetpack-plugins-installer",
