@@ -1,48 +1,92 @@
-// Set the maximum number of entries to show
-const MAX_PRELOAD_ENTRIES = 5;
-// Get a reference to the log element and the previous log entry
-const preloadLog = jQuery( "#preload_status" );
-let previousPreloadEntry = null;
-let numRepeatedPreloadEntries = 0;
-let preloadIntervalId = 0;
-
 jQuery( document ).ready( function () {
-	preloadIntervalId = setInterval( function () {
-		load_preload_status();
-	}, 3000 );
-} );
+	const { __, sprintf } = wp.i18n;
 
-/**
- *
- */
-function load_preload_status() {
-	jQuery.get( wpsc_preload_ajax.preload_permalink_url + '?' + Math.random(), function ( data ) {
-		// Trim the data and compare it to the previous entry
-		const newEntry = data.trim();
-		if ( newEntry !== previousPreloadEntry ) {
-			// Create a new list item for the new entry and append it to the list
-			const entry = jQuery("<li>").text(newEntry);
-			preloadLog.append(entry);
+	// Set the maximum number of entries to show
+	const MAX_PRELOAD_ENTRIES = 5;
 
-			// Remove any excess entries from the list
-			const entries = preloadLog.children();
-			if ( entries.length > MAX_PRELOAD_ENTRIES ) {
-				entries.slice( 0, entries.length - MAX_PRELOAD_ENTRIES ).remove();
+	// Set how often to check.
+	const CHECK_INTERVAL = 3000;
+
+	// Get a reference to the log element and the previous log entry
+	const preloadInfoPanel = jQuery( "#wpsc-preload-status" );
+
+	// Abort early if no info panel exists.
+	if ( ! preloadInfoPanel.length ) {
+		return;
+	}
+
+	update_preload_status( wpsc_preload_ajax.preload_status );
+
+	setInterval( () => {
+		jQuery.post(
+			wpsc_preload_ajax.ajax_url,
+			{
+				action: 'wpsc_get_preload_status',
+			},
+			( json ) => {
+				if ( ! json || ! json.success ) {
+					return;
+				}
+
+				update_preload_status( json.data );
+			}
+		);
+	}, CHECK_INTERVAL );
+
+	function update_preload_status( data ) {
+		// Bail early if no data is available.
+		if ( ! data || ( ! data.running && ! data.next && ! data.previous ) ) {
+			return;
+		}
+
+		preloadInfoPanel.empty();
+
+		if ( data.running ) {
+			const panel = jQuery( '<div class="notice notice-warning">' );
+
+			panel.append( jQuery( '<b>' ).text( __( 'Preloading', 'wp-super-cache' ) ) );
+			panel.append( jQuery( '<p>' ).text( __( 'Preloading is currently running.', 'wp-super-cache' ) ) );
+
+			const ul = panel.append( jQuery( '<ul>' ) );
+			for ( const entry of data.history ) {
+				ul.append( jQuery( '<li>' ).text( entry.group + ' ' + entry.progress + ': ' + entry.url ) );
 			}
 
-			// Reset the counter for repeated entries
-			numRepeatedPreloadEntries = 0;
+			preloadInfoPanel.append( panel );
+		} else if ( data.next || data.previous ) {
+			const panel = jQuery( '<div class="notice notice-info">' );
 
-			// Update the previous entry to the new entry
-			previousPreloadEntry = newEntry;
-		} else {
-			// If the new entry is the same as the previous entry, increment the counter
-			numRepeatedPreloadEntries++;
-		}
+			if ( data.next ) {
+				const diff = data.next - Math.floor( Date.now() / 1000 );
+				const seconds = diff % 60;
+				const minutes = Math.floor( diff / 60 ) % 60;
+				const hours = Math.floor( diff / 3600 ) % 24;
 
-		// Stop fetching new entries if the same entry has been repeated 30 times
-		if ( numRepeatedPreloadEntries >= 30 ) {
-			clearInterval( preloadIntervalId );
+				const p = jQuery( '<p>' );
+				p.append(
+					jQuery( '<b>' ).html(
+						sprintf(
+							/* Translators: 1: Number of hours, 2: Number of minutes, 3: Number of seconds */
+							__( '<b>Next preload scheduled</b> in %1$s hours, %2$s minutes and %3$s seconds.', 'wp-super-cache' ),
+							hours,
+							minutes,
+							seconds
+						) 
+					)
+				);
+
+				panel.append( p );
+			}
+
+			if ( data.previous ) {
+				const p = jQuery( '<p>' );
+				p.append( jQuery( '<b>' ).text( __( 'Last preload finished:', 'wp-super-cache' ) ) );
+				p.append( jQuery( '<span>' ).text( new Date( data.previous * 1000 ).toLocaleString() ) );
+				panel.append( p );
+			}
+
+			preloadInfoPanel.append( panel );
 		}
-	});
-}
+	}
+
+} );
