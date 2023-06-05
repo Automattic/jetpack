@@ -35,7 +35,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
 
-		$this->assertEquals( 'Workflow Test', $workflow->name );
+		$this->assertEquals( 'Workflow Test', $workflow->slug );
 	}
 
 	/**
@@ -59,7 +59,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$workflow->set_initial_step(
 			array(
-				'name'       => 'dummy_step_123',
+				'slug'       => 'dummy_step_123',
 				'class_name' => Dummy_Step::class,
 			)
 		);
@@ -205,7 +205,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$workflow->set_automation_logger( $logger );
 		$workflow->set_initial_step(
 			array(
-				'name' => 'dummy_action',
+				'slug' => 'dummy_action',
 			)
 		);
 
