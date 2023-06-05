@@ -292,30 +292,29 @@
 					$usePaidDates = zeroBSCRM_getSetting('paiddatestransaction');
 					if ( $usePaidDates === 1 ) {
 						?>
-
-						<tr class="wh-large">
-							<th>
-								<label><?php echo esc_html( __( 'Date Paid', 'zero-bs-crm' ) );?>:</label>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+							<label class="jpcrm-form-label">
+								<?php echo esc_html( __( 'Date Paid', 'zero-bs-crm' ) ); ?>:
 								<span class="zbs-infobox zbs-infobox-transaction"><?php echo esc_html( __( 'This will default to the transaction date if left blank.', 'zero-bs-crm' ) ); ?></span>
-							</th>
-							<td>
+							</label>
+							<div class="jpcrm-form-input-group">
 								<input type="date" name="zbst_date_paid_datepart" value="<?php echo isset( $transaction['date_paid'] ) ? esc_attr( jpcrm_uts_to_date_str( $transaction['date_paid'], 'Y-m-d' ) ) : ''; ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" >
 								@
 								<input type="time" name="zbst_date_paid_timepart" value="<?php echo isset( $transaction['date_paid'] ) ? esc_attr( jpcrm_uts_to_time_str( $transaction['date_paid'], 'H:i' ) ) : ''; ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" >
-							</td>
-						</tr>
+							</div>
+						</div>
 
-						<tr class="wh-large">
-							<th>
-								<label><?php echo esc_html( __( 'Date Completed', 'zero-bs-crm' ) );?>:</label>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+							<label class="jpcrm-form-label">
+								<?php echo esc_html( __( 'Date Completed', 'zero-bs-crm' ) ); ?>:
 								<span class="zbs-infobox zbs-infobox-transaction"><?php echo esc_html( __( 'This will default to the transaction date if left blank.', 'zero-bs-crm' ) ); ?></span>
-							</th>
-							<td>
+							</label>
+							<div class="jpcrm-form-input-group">
 								<input type="date" name="zbst_date_completed_datepart" value="<?php echo isset( $transaction['date_completed'] ) ? esc_attr( jpcrm_uts_to_date_str( $transaction['date_completed'], 'Y-m-d' ) ) : ''; ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" >
 								@
 								<input type="time" name="zbst_date_completed_timepart" value="<?php echo isset( $transaction['date_completed'] ) ? esc_attr( jpcrm_uts_to_time_str( $transaction['date_completed'], 'H:i' ) ) : ''; ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" >
-							</td>
-						</tr>
+							</div>
+						</div>
 						<?php
 					}
 
