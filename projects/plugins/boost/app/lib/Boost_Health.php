@@ -11,11 +11,11 @@ class Boost_Health {
 
 	public function __construct() {
 		if ( self::critical_css_needs_regeneration() ) {
-			$this->issues[] = 'Outdated Critical CSS';
+			$this->issues[] = __( 'Outdated Critical CSS', 'jetpack-boost' );
 		}
 
 		if ( self::critical_css_has_errors() ) {
-			$this->issues[] = 'Failed to generate Critical CSS';
+			$this->issues[] = __( 'Failed to generate Critical CSS', 'jetpack-boost' );
 		}
 	}
 
