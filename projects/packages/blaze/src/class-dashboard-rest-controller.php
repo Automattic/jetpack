@@ -135,7 +135,7 @@ class Dashboard_REST_Controller {
 		}
 
 		if ( ! empty( $params ) ) {
-			$sub_path = $sub_path . '?' . http_build_query( $params );
+			$sub_path = $sub_path . '?' . http_build_query( stripslashes_deep( $params ) );
 		}
 
 		return $sub_path;
