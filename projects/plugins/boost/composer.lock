@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e3300c8b4a77881652a50221685ae6f1",
+    "content-hash": "4d54f715c53217d021ec891386be6255",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -242,7 +242,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-core",
-                "reference": "33de175ba7110e39b9402e141b61f3add54ce9e3"
+                "reference": "e9cf3b3305c1da7269891a78182416a851be10e7"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -262,10 +262,7 @@
                 "branch-alias": {
                     "dev-trunk": "0.1.x-dev"
                 },
-                "textdomain": "jetpack-boost-core",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-boost-core.php"
-                }
+                "textdomain": "jetpack-boost-core"
             },
             "autoload": {
                 "classmap": [
@@ -306,7 +303,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-speed-score",
-                "reference": "a8fb6391ea66536025236a2d84a3eb775c5367b7"
+                "reference": "c79df5cb20ee4ccadbc002db7483b3c6a4b41057"
+            },
+            "require": {
+                "automattic/jetpack-boost-core": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -324,7 +324,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "textdomain": "jetpack-boost-speed-score",
                 "version-constants": {

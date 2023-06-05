@@ -51,10 +51,7 @@
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
 		},
-		"textdomain": "jetpack-boost-core",
-		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-boost-core.php"
-		}
+		"textdomain": "jetpack-boost-core"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
