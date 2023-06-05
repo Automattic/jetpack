@@ -113,7 +113,7 @@ class Share_Limits {
 			)
 		);
 		$more_link = sprintf(
-			'<a href="%1$s" target="_blank">%2$s</a>',
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
 			Redirect::get_url(
 				'jetpack-social-basic-plan-block-editor',
 				array(

@@ -195,7 +195,7 @@ export default function PublicizeForm( {
 												: {} ),
 										} ) }
 										target="_blank"
-										rel="noreferrer"
+										rel="noopener noreferrer"
 										onClick={ autosaveAndRedirect }
 									>
 										{ __( 'More about Jetpack Social.', 'jetpack' ) }
