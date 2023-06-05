@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Switch ai assistant block to send an array of messages and not a question
