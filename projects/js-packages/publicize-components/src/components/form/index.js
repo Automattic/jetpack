@@ -186,26 +186,20 @@ export default function PublicizeForm( {
 										}
 									) }
 									<br />
-									{ createInterpolateElement(
-										/* translators: %d is the number of shares remaining, moreLink is the link to find out more information about the plan */
-										__( '<moreLink>More about Jetpack Social</moreLink>.', 'jetpack' ),
-										{
-											moreLink: (
-												<a
-													className={ styles[ 'more-link' ] }
-													href={ getRedirectUrl( 'jetpack-social-block-editor-more-info', {
-														site: getSiteFragment(),
-														...( adminUrl
-															? { query: 'redirect_to=' + encodeURIComponent( adminUrl ) }
-															: {} ),
-													} ) }
-													target="_blank"
-													rel="noreferrer"
-													onClick={ autosaveAndRedirect }
-												/>
-											),
-										}
-									) }
+									<a
+										className={ styles[ 'more-link' ] }
+										href={ getRedirectUrl( 'jetpack-social-block-editor-more-info', {
+											site: getSiteFragment(),
+											...( adminUrl
+												? { query: 'redirect_to=' + encodeURIComponent( adminUrl ) }
+												: {} ),
+										} ) }
+										target="_blank"
+										rel="noopener noreferrer"
+										onClick={ autosaveAndRedirect }
+									>
+										{ __( 'More about Jetpack Social.', 'jetpack' ) }
+									</a>
 								</Fragment>
 							</Notice>
 						</PanelRow>
