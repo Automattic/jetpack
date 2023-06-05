@@ -60,6 +60,15 @@ class Automation_Engine {
 				Automation_Exception::TRIGGER_CLASS_NOT_FOUND
 			);
 		}
+		
+		// Check if the trigger implements the interface
+		if ( ! in_array( Trigger::class, class_implements( $trigger_classname ), true ) ) {
+			throw new Automation_Exception(
+				sprintf( __( 'Trigger class %s does not implement the Trigger interface', 'zero-bs-crm' ), $trigger_classname ),
+				Automation_Exception::TRIGGER_CLASS_NOT_FOUND
+			);
+		}
+		
 		// Check if the trigger has proper slug
 		$trigger_slug = $trigger_classname::get_slug();
 		
