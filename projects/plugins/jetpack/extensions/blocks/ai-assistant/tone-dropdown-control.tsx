@@ -3,8 +3,11 @@
  */
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { megaphone } from '@wordpress/icons';
 import React from 'react';
+/**
+ * Internal dependencies
+ */
+import speakToneIcon from './icons/speak-tone';
 
 const PROMPT_TONES_LIST = [
 	'formal',
@@ -127,7 +130,7 @@ export default function ToneDropdownControl( {
 }: ToneDropdownControlProps ) {
 	return (
 		<ToolbarDropdownMenu
-			icon={ megaphone }
+			icon={ speakToneIcon }
 			label={ __( 'Change tone', 'jetpack' ) }
 			popoverProps={ {
 				variant: 'toolbar',
