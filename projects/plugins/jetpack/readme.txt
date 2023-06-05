@@ -293,7 +293,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.2-beta - 2023-05-30
+### 12.2-beta - 2023-06-05
 #### Major Enhancements
 - New AI Assistant block: harness AI power directly from your editor.
 - Donations, Paid Content and Payment Buttons blocks are now available with all Jetpack plans. A commission is charged for free plans.
@@ -330,12 +330,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Social Previews: Add Instagram preview.
 - Social Previews: Add Mastodon post preview.
 - Starter: Add post-purchase flow to recommendations.
+- Subscriptions: Make free subscribers confirm email before viewing content.
 - Theme Tools: Remove jQuery dependency from responsive-videos script.
 - WordPress.com: Adds a 'Staging' badge to the wp-admin nav menu when the site is a WordPress.com staging site.
 
 #### Improved compatibility
 - ActivityPub: Allow disabling Jetpack's Image CDN in requests made for the ActivityPub plugin.
 - Bit.ly: Avoid errors when using non-official Bit.ly plugins alongside Jetpack.
+- Earn: Add "Read me" links to Stripe connection banners in blocks.
 - Filters: `jetpack_set_available_blocks` and `jetpack_set_available_plugins`, deprecated since Jetpack 7.0, have been removed.
 - Full-Site Editing: Use modern `wp_is_block_theme` instead of `gutenberg_is_fse_theme`.
 - General: PHP 8 compatibility updates.
@@ -348,13 +350,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Bug fixes
 - API: Add a `WP_User` check in `get_author` method.
 - API: Fix race condition bug in the Plugin update endpoint.
+- API: Use default values in settings API, when set.
 - At-a-Glance: Fix styling for Stats banner.
 - Carousel: Stop auto-scrolling to top when advancing slides.
 - Dashboard: Use the correct file path for all images in the "My Plan" screen.
 - Donations Block: Ensure the tab colors are correct in all themes.
 - Donations Block: Fix crash on currency change.
-- Donations Block: Make the "Connect" link the primary color
+- Donations Block: Make the "Connect" link the primary color.
 - Forms: Fix Forms hash generation.
+- Identity Crisis: Fix Jetpack Dashboard for broken connection.
 - Maps: Fix zoom being reset when changing map marker color.
 - Newsletters: Return early when possible to prevent spamming the database.
 - Related Posts: Fix context for use in block editor.
@@ -364,6 +368,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Settings: Fixed the site preview in SEO settings.
 - Social: Add username to publicize connection test results.
 - Subscriptions: Change the "Add payments" text to "Set up a paid plan".
+- Subscriptions: Fix display of number of paid subscribers.
 - Subscriptions: Do not remove bulk-editing checkboxes from the posts list.
 - Users: Display "Super Admin" badge in edit user form.
 - VideoPress: Add tracks to attributes definition.
