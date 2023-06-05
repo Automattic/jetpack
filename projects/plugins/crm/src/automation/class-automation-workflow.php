@@ -153,7 +153,11 @@ class Automation_Workflow {
 					}
 				
 					/** @var Step $step */
-					$step = new $step_class( $step_data );
+					$step = new $step_class();
+					
+					if( isset( $step_data['attributes'] ) && is_array( $step_data['attributes'] ) ) {
+						$step->set_attributes( $step_data['attributes'] );
+					}
 	
 					$this->logger->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step->get_type() );
 					
