@@ -1,4 +1,5 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ImageSlider from './image-slider';
@@ -17,11 +18,11 @@ const ConnectScreenLayout = props => {
 
 	return (
 		<div
-			className={
-				'jp-connection__connect-screen-layout' +
-				( showImageSlider ? ' jp-connection__connect-screen-layout__two-columns' : '' ) +
-				( className ? ' ' + className : '' )
-			}
+			className={ classNames(
+				'jp-connection__connect-screen-layout',
+				showImageSlider ? 'jp-connection__connect-screen-layout__two-columns' : '',
+				className ? ' ' + className : ''
+			) }
 		>
 			<div className="jp-connection__connect-screen-layout__left">
 				{ logo || <JetpackLogo /> }
@@ -42,7 +43,7 @@ const ConnectScreenLayout = props => {
 
 ConnectScreenLayout.propTypes = {
 	/** The Title. */
-	title: PropTypes.string,
+	title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	/** Class to be added to component. */
 	className: PropTypes.string,
 	/** Images to display on the right side. */

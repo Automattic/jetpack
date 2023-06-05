@@ -1,8 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 
-import './style.scss';
-
 /**
  * BackupPromotion component definition.
  *

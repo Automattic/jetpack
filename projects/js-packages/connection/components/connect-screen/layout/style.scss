@@ -124,3 +124,52 @@
 		}
 	}
 }
+
+.rna {
+	.jp-connection__connect-screen-layout__left {
+		h2 {
+			margin-top: 0;
+			font-weight: 700;
+		}
+
+		h3 {
+			margin-top: 24px;
+		}
+
+		@include break-small {
+			padding: 4rem 6rem 4rem 4rem;
+		}
+	}
+	
+	.jp-connection__connect-screen-required-plan__pricing-card {
+		/** Line up with the top of the product logo,
+		* and mirror 96px horizontal padding seen in
+		* .jp-connection__connect-screen-layout__left
+		*/
+		@include break-xlarge {
+			position: absolute;
+			top: calc(var(--spacing-base) * 9.25);
+			right: calc(var(--spacing-base) * 8);
+		}
+		
+		.jp-components__pricing-card {
+			border-radius: var(--jp-border-radius-rna);
+			padding: 3rem;
+			max-width: 425px;
+
+			&__title {
+				margin-top: 0.625rem;
+			}
+		}
+
+		.components-button {
+			margin-bottom: 0;
+		}
+	}
+
+	.jp-backup-dashboard-promotion {
+		ul.jp-product-promote li {
+			margin-bottom: 0.75rem;
+		}
+	}
+}

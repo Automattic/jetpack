@@ -30,6 +30,7 @@ const ConnectScreenRequiredPlan = props => {
 		wpcomProductSlug,
 		siteProductAvailabilityHandler,
 		logo,
+		rna = false,
 	} = props;
 
 	const {
@@ -78,6 +79,7 @@ const ConnectScreenRequiredPlan = props => {
 			buttonIsLoading={ buttonIsLoading }
 			logo={ logo }
 			isOfflineMode={ isOfflineMode }
+			rna={ rna }
 		>
 			{ children }
 		</ConnectScreenRequiredPlanVisual>
@@ -86,7 +88,7 @@ const ConnectScreenRequiredPlan = props => {
 
 ConnectScreenRequiredPlan.propTypes = {
 	/** The Title. */
-	title: PropTypes.string,
+	title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	/** The Connect Button label. */
 	buttonLabel: PropTypes.string,
 	/** API root. */
