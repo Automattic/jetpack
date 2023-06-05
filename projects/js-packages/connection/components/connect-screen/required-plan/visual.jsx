@@ -32,7 +32,6 @@ const ConnectScreenRequiredPlanVisual = props => {
 		pricingCurrencyCode,
 		isLoading,
 		handleButtonClick,
-		showConnectButton,
 		displayButtonError,
 		buttonIsLoading,
 		logo,
@@ -86,23 +85,19 @@ const ConnectScreenRequiredPlanVisual = props => {
 						currencyCode={ pricingCurrencyCode }
 						priceAfter={ priceAfter }
 					>
-						{ showConnectButton && (
-							<>
-								<TermsOfService agreeButtonLabel={ buttonLabel } />
-								<ActionButton
-									label={ buttonLabel }
-									onClick={ handleButtonClick }
-									displayError={ displayButtonError || isOfflineMode }
-									errorMessage={ errorMessage }
-									isLoading={ buttonIsLoading }
-									isDisabled={ isOfflineMode }
-								/>
-							</>
-						) }
+						<TermsOfService agreeButtonLabel={ buttonLabel } />
+						<ActionButton
+							label={ buttonLabel }
+							onClick={ handleButtonClick }
+							displayError={ displayButtonError || isOfflineMode }
+							errorMessage={ errorMessage }
+							isLoading={ buttonIsLoading }
+							isDisabled={ isOfflineMode }
+						/>
 					</PricingCard>
 				</div>
 
-				{ showConnectButton && ! isOfflineMode && (
+				{ ! isOfflineMode && (
 					<div className="jp-connection__connect-screen-required-plan__with-subscription">
 						{ withSubscription }
 					</div>
@@ -131,8 +126,6 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	isLoading: PropTypes.bool,
 	/** Callback that is applied into click for all buttons. */
 	handleButtonClick: PropTypes.func,
-	/** Whether the connection button is enable or not. */
-	showConnectButton: PropTypes.bool,
 	/** Whether the button error is active or not. */
 	displayButtonError: PropTypes.bool,
 	/** Whether the button loading state is active or not. */
@@ -145,7 +138,6 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 
 ConnectScreenRequiredPlanVisual.defaultProps = {
 	pricingCurrencyCode: 'USD',
-	showConnectButton: true,
 	isLoading: false,
 	buttonIsLoading: false,
 	displayButtonError: false,
