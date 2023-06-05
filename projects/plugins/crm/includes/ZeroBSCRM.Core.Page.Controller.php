@@ -94,7 +94,9 @@ function zeroBSCRM_pages_admin_addedit_page( $type = 'contact', $action = 'new',
 			if ( zeroBSCRM_permsObjType( $obj_type_id ) ) {
 				zeroBSCRM_pages_admin_addedit_page_generic( $id, $action );
 			} else {
+				echo '<div style="margin-left: 20px">';
 				echo esc_html( sprintf( __( 'You do not have permission to edit this %s.', 'zero-bs-crm' ), $zbs->DAL->typeStr( $obj_type_id ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.WP.I18n.MissingTranslatorsComment
+				echo '</div>';
 			}
 			break;
 
