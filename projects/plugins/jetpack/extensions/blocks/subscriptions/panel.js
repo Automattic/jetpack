@@ -61,7 +61,7 @@ function NewsletterEditorSettingsPanel( {
 
 	return (
 		<PluginDocumentSettingPanel
-			title={ __( 'Newsletter access', 'jetpack' ) }
+			title={ __( 'Newsletter visibility', 'jetpack' ) }
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
 			<NewsletterAccessDocumentSettings
