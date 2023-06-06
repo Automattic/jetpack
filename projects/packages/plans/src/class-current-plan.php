@@ -49,6 +49,8 @@ class Current_Plan {
 				'whatsapp-button',
 				'social-previews',
 				'videopress',
+				'videopress/video',
+				'v6-video-frame-poster',
 
 				'core/video',
 				'core/cover',
