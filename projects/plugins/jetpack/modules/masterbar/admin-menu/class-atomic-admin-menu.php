@@ -9,8 +9,8 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
-use Jetpack_Plan;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
