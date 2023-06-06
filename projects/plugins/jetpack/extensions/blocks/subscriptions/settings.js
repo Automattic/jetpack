@@ -144,7 +144,10 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 		return (
 			<div className="editor-post-visibility__info">
 				{ createInterpolateElement(
-					__( '<paidPlanLink>Set up a paid plan</paidPlanLink> to enable this option', 'jetpack' ),
+					__(
+						'<paidPlanLink>Set up a paid subscription plan</paidPlanLink> to enable this option.',
+						'jetpack'
+					),
 					{
 						paidPlanLink: <Link href={ paidLink } />,
 					}
@@ -158,7 +161,7 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 			<div className="editor-post-visibility__info">
 				{ createInterpolateElement(
 					__(
-						'<stripeAccountLink>Connect to Stripe</stripeAccountLink> to enable payments',
+						'<stripeAccountLink>Connect to Stripe</stripeAccountLink> to enable paid subscriptions.',
 						'jetpack'
 					),
 					{
