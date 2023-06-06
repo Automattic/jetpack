@@ -22,7 +22,6 @@
    ====================================================== */
 
 global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
-	'240', // Refresh user roles
 	'288', // build client portal page (moved to shortcodes) if using
 	'2963', // 2.96.3 - installs page templates
 	'29999', // Flush permalinks 
@@ -37,6 +36,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'551', // 5.5.1 Deletes orphaned aka rows linked to contacts since deleted
 	'560', // 5.6.0 Moves old folder structure (zbscrm-store) to new (jpcrm-storage)
 	'task_offset_fix', // removes task timezone offsets from database
+	'refresh_user_roles', // Refresh user roles
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
@@ -283,31 +283,6 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 /* ======================================================
 	MIGRATIONS
    ====================================================== */
-
-	/*
-	* Migration 2.4 - Refresh user roles
-	*/
-	function zeroBSCRM_migration_240(){
-
-		#} Glob
-		global $zbs, $zeroBSCRM_Conf_Setup; #req
-
-		#} This function migrates users from before ver 2.4
-
-		  #} re-add/remove any roles :)
-
-			    // roles
-				zeroBSCRM_clearUserRoles();
-
-				// roles + 
-				zeroBSCRM_addUserRoles();
-
-	    	zeroBSCRM_migrations_markComplete('240',array('updated'=>1));
-			
-
-
-	}
-
 
 	/*
 	* Migration 2.88 - build client portal page (moved to shortcodes) if using
@@ -1148,6 +1123,19 @@ function zeroBSCRM_migration_task_offset_fix() { // phpcs:ignore WordPress.Namin
 	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 	zeroBSCRM_migrations_markComplete( 'task_offset_fix', array( 'updated' => 1 ) );
+}
+
+/**
+ * Refresh user roles after tightening restrictions
+ */
+function zeroBSCRM_migration_refresh_user_roles() {
+	// remove roles
+	zeroBSCRM_clearUserRoles();
+
+	// add roles anew
+	zeroBSCRM_addUserRoles();
+
+	zeroBSCRM_migrations_markComplete( 'refresh_user_roles', array( 'updated' => 1 ) );
 }
 
 /* ======================================================

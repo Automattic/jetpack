@@ -15,7 +15,7 @@ var zbsTour = {
 		{
 			title: window.zbs_tour.lang.step1.title,
 			content: window.zbs_tour.lang.step1.content,
-			target: 'zbs-main-logo',
+			target: '.logo-cube',
 			placement: 'right',
 			yOffset: -15,
 		},
@@ -25,7 +25,7 @@ var zbsTour = {
 			target: 'learn',
 			placement: 'right',
 			showPrevButton: true,
-			yOffset: -15,
+			yOffset: -23,
 			onShow: function () {
 				// highlight
 				jQuery( '#learn' ).addClass( 'green' ).removeClass( 'grey' );
@@ -41,7 +41,7 @@ var zbsTour = {
 			target: 'notifymebell',
 			placement: 'left',
 			showPrevButton: true,
-			yOffset: -15,
+			yOffset: -20,
 			onNext: function () {
 				jQuery( '#notifymebell' ).html( 1 ).addClass( 'notfications' );
 			},
@@ -54,7 +54,7 @@ var zbsTour = {
 			placement: 'left',
 			multipage: true,
 			showPrevButton: true,
-			yOffset: -15,
+			yOffset: -20,
 			onNext: function () {
 				window.location = zbs_tour.admin_url + 'admin.php?page=zerobscrm-notifications';
 			},
@@ -85,6 +85,7 @@ var zbsTour = {
 			content: window.zbs_tour.lang.step7.content,
 			target: 'top-bar-tools-menu',
 			placement: 'left',
+			yOffset: -12,
 			showPrevButton: true,
 			onShow: function () {
 				// force menu open
@@ -124,17 +125,11 @@ var zbsTour = {
 			},
 		},
 
-		// {
-		// 	title: window.zbs_tour.lang.step8.title,
-		// 	content: window.zbs_tour.lang.step8.content,
-		// 	target: "free-extensions-tour",
-		// 	placement: "top"
-		// },
-
+		/* things break from here on down */
 		{
 			title: window.zbs_tour.lang.step9.title,
 			content: window.zbs_tour.lang.step9.content,
-			target: 'zbs-admin-top-bar',
+			target: 'learn',
 			placement: 'right',
 			showPrevButton: true,
 			onNext: function () {

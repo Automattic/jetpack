@@ -2,8 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS;
 
+use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
-use Automattic\Jetpack_Boost\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;

@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import { PostVisibilityCheck } from '@wordpress/editor';
+import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
@@ -29,23 +29,14 @@ function Link( { href, children } ) {
 	);
 }
 
-function getReachForAccessLevelKey(
-	accessLevelKey,
-	emailSubscribers,
-	paidSubscribers,
-	socialFollowers
-) {
-	if ( emailSubscribers === null || paidSubscribers === null || socialFollowers === null ) {
-		return 0;
-	}
-
+function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, paidSubscribers ) {
 	switch ( accessOptions[ accessLevelKey ].key ) {
 		case accessOptions.everybody.key:
-			return emailSubscribers;
+			return emailSubscribers || 0;
 		case accessOptions.subscribers.key:
-			return emailSubscribers;
+			return emailSubscribers || 0;
 		case accessOptions.paid_subscribers.key:
-			return paidSubscribers;
+			return paidSubscribers || 0;
 		default:
 			return 0;
 	}
@@ -60,33 +51,26 @@ function NewsletterLearnMore() {
 					'jetpack'
 				),
 				{
-					learnMoreLink: (
-						<Link
-							href={ getRedirectUrl( 'paid-newsletter-info', {
-								anchor: 'memberships-and-subscriptions',
-							} ) }
-						/>
-					),
+					learnMoreLink: <Link href={ getRedirectUrl( 'paid-newsletter-info' ) } />,
 				}
 			) }
 		</small>
 	);
 }
 
-function NewsletterNotice( {
+export function NewsletterNotice( {
 	accessLevel,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
+	isPostPublishPanel = false,
 } ) {
-	// Get the reach count for the access level
-	let reachCount = getReachForAccessLevelKey(
-		accessLevel,
-		emailSubscribers,
-		paidSubscribers,
-		socialFollowers
+	const hasPostBeenPublished = useSelect( select =>
+		select( editorStore ).isCurrentPostPublished()
 	);
+
+	// Get the reach count for the access level
+	let reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
 
 	// If there is a misconfiguration, we do not show the NewsletterNotice
 	if ( showMisconfigurationWarning ) {
@@ -120,24 +104,34 @@ function NewsletterNotice( {
 		reachCount = reachCount + '+'; // Concat "+"
 	}
 
+	let numberOfSubscribersText = sprintf(
+		/* translators: %s is the number of subscribers in numerical format */
+		__( 'This will be sent to <br/><strong>%s subscribers</strong>.', 'jetpack' ),
+		reachCount
+	);
+
+	if ( isPostPublishPanel || hasPostBeenPublished ) {
+		numberOfSubscribersText = sprintf(
+			/* translators: %s is the number of subscribers in numerical format */
+			__( 'This was sent to <strong>%s subscribers</strong>.', 'jetpack' ),
+			reachCount
+		);
+	}
+
 	return (
 		<FlexBlock>
 			<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-				{ createInterpolateElement(
-					sprintf(
-						/* translators: %s is the number of subscribers in numerical format */
-						__( 'This will be sent to <strong>%s subscribers</strong>.', 'jetpack' ),
-						reachCount
-					),
-					{ strong: <strong /> }
-				) }
+				{ createInterpolateElement( numberOfSubscribersText, {
+					br: <br />,
+					strong: <strong />,
+				} ) }
 			</Notice>
 		</FlexBlock>
 	);
 }
 
 function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasNewsletterPlans } ) {
-	const paidLink = getPaidPlanLink( true );
+	const paidLink = getPaidPlanLink( hasNewsletterPlans );
 
 	if ( ! hasNewsletterPlans && ! isStripeConnected ) {
 		return (
@@ -189,7 +183,6 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 function NewsletterAccessRadioButtons( {
 	onChange,
 	accessLevel,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	hasNewsletterPlans,
@@ -232,12 +225,7 @@ function NewsletterAccessRadioButtons( {
 						{ /* Do not show subscriber numbers in the PrePublish panel */ }
 						{ ! isPrePublishPanel &&
 							' (' +
-								getReachForAccessLevelKey(
-									key,
-									emailSubscribers,
-									paidSubscribers,
-									socialFollowers
-								) +
+								getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers ) +
 								( key === accessOptions.everybody.key ? '+' : '' ) +
 								')' }
 					</label>
@@ -253,7 +241,6 @@ function NewsletterAccessRadioButtons( {
 						<p className="pre-public-panel-notice-reach">
 							<NewsletterNotice
 								accessLevel={ accessLevel }
-								socialFollowers={ socialFollowers }
 								emailSubscribers={ emailSubscribers }
 								paidSubscribers={ paidSubscribers }
 								showMisconfigurationWarning={ showMisconfigurationWarning }
@@ -274,7 +261,6 @@ function NewsletterAccessRadioButtons( {
 export function NewsletterAccessDocumentSettings( {
 	accessLevel,
 	setPostMeta,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
@@ -348,7 +334,6 @@ export function NewsletterAccessDocumentSettings( {
 											<NewsletterAccessRadioButtons
 												onChange={ setPostMetaAndClose( onClose ) }
 												accessLevel={ _accessLevel }
-												socialFollowers={ socialFollowers }
 												emailSubscribers={ emailSubscribers }
 												paidSubscribers={ paidSubscribers }
 												stripeConnectUrl={ stripeConnectUrl }
@@ -366,7 +351,6 @@ export function NewsletterAccessDocumentSettings( {
 
 						<NewsletterNotice
 							accessLevel={ _accessLevel }
-							socialFollowers={ socialFollowers }
 							emailSubscribers={ emailSubscribers }
 							paidSubscribers={ paidSubscribers }
 							showMisconfigurationWarning={ showMisconfigurationWarning }
@@ -385,7 +369,6 @@ export function NewsletterAccessDocumentSettings( {
 export function NewsletterAccessPrePublishSettings( {
 	accessLevel,
 	setPostMeta,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
@@ -426,7 +409,6 @@ export function NewsletterAccessPrePublishSettings( {
 									<NewsletterAccessRadioButtons
 										onChange={ setPostMeta }
 										accessLevel={ _accessLevel }
-										socialFollowers={ socialFollowers }
 										emailSubscribers={ emailSubscribers }
 										paidSubscribers={ paidSubscribers }
 										stripeConnectUrl={ stripeConnectUrl }

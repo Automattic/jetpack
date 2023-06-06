@@ -58,7 +58,7 @@ export default class RecommendationsPage extends WpPage {
 	}
 
 	get tryVaultPressBackup() {
-		return 'a[href*="jetpack-recommendations-product-checkout"] >> text=Try for';
+		return 'a[href*="jetpack-recommendations-product-checkout"] >> text=Get';
 	}
 
 	get skipVaultPressBackup() {

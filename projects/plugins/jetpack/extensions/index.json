@@ -1,5 +1,6 @@
 {
 	"production": [
+		"ai-assistant",
 		"blogging-prompt",
 		"business-hours",
 		"button",
@@ -23,6 +24,7 @@
 		"payments",
 		"pinterest",
 		"podcast-player",
+		"premium-content",
 		"publicize",
 		"rating-star",
 		"recurring-payments",
@@ -61,8 +63,9 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters"
 	],
-	"experimental": [ "ai-assistant", "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
+	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
+		"ai-assistant",
 		"business-hours",
 		"button",
 		"calendly",

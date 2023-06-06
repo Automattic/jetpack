@@ -76,44 +76,46 @@ function zeroBSCRM_getSocialIcon($key = ''){
 		 return false;
 	}
 
-#} Outputs html message, remake of zeroBSCRM_html_msg
-/*
-	$iconClass = message
-	$msgClass = warning etc.
+/**
+ * Generates HTML markup for a message box.
+ *
+ * @param string $msg_class CSS class for the message box.
+ * @param string $msg_header Optional. Header text for the message box.
+ * @param string $msg Main content of the message box.
+ * @param string $icon_class Optional. CSS class for an icon to be displayed in the message box.
+ * @param string $id Optional. ID attribute for the message box element.
+ *
+ * @return string HTML markup for the message box.
+ * @link https://semantic-ui.com/collections/message.html Semantic UI Message Documentation.
+ */
+function zeroBSCRM_UI2_messageHTML( $msg_class = '', $msg_header = '', $msg = '', $icon_class = '', $id = '' ) {
+	if ( ! empty( $icon_class ) ) {
+		$msg_class .= ' icon';
+	}
 
-	https://semantic-ui.com/collections/message.html
-*/
-function zeroBSCRM_UI2_messageHTML($msgClass='',$msgHeader='',$msg='',$iconClass='',$id=''){
-
-	if (!empty($iconClass)) $msgClass .= ' icon';
-
-	$ret = '<div class="ui '.$msgClass.' message"';
-	if (!empty($id)) $ret .= ' id="'.$id.'"';
+	$ret = '<div style="box-shadow:unset; color:black;" class="ui ' . $msg_class . ' icon message jpcrm-div-message-box"';
+	if ( ! empty( $id ) ) {
+		$ret .= ' id="' . $id . '"';
+	}
 	$ret .= '>';
-	if (!empty($iconClass)) $ret .= '<i class="'.$iconClass.' icon"></i>';
+	if ( ! empty( $icon_class ) ) {
+		$ret .= '<i class="' . $icon_class . ' icon"></i>';
+	}
 	$ret .= '<div class="content">';
-  	if (!empty($msgHeader)) $ret .= '<div class="header">'.$msgHeader.'</div>';
-  	$ret .= '<p>'.$msg.'</p></div></div>';
+	if ( ! empty( $msg_header ) ) {
+		$ret .= '<div style="color:black;" class="header">' . $msg_header . '</div>';
+	}
+	$ret .= '<p>' . $msg . '</p></div></div>';
 
-  	return $ret;
-
+	return $ret;
 }
 
-function zeroBSCRM_UI2_loadingSegmentHTML($height='300px',$extraClasses=''){
-
-	return '<div class="ui loading segment '.$extraClasses.'" style="min-height:'.$height.'"><p>&nbsp;</p></div>';
-
+/**
+ * Return HTML for a spinner centered in a container
+ */
+function jpcrm_loading_container() {
+	return '<div class="empty-container-with-spinner"><div class="ui active centered inline loader"></div></div>';
 }
-function zeroBSCRM_UI2_loadingSegmentIncTextHTML($height='300px',$extraClasses='',$hidden=true,$id=''){
-
-	// hidden?
-	$hiddenExtraHTML = false; if ($hidden) $hiddenExtraHTML = ' style="display:none"';
-	$idStr = ''; if (!empty($id)) $idStr = ' id="'.$id.'"';
-
-	return '<div class="ui active inverted dimmer '.$extraClasses.'" style="min-height:'.$height.'"'.$hiddenExtraHTML.$idStr.'><div class="ui text loader">'.__('Loading',"zero-bs-crm").'</div></div>';
-
-}
-
 
 function zeroBSCRM_UI2_squareFeedbackUpsell($title='',$desc='',$linkStr='',$linkTarget='',$extraClasses=''){
 
@@ -127,48 +129,4 @@ function zeroBSCRM_UI2_squareFeedbackUpsell($title='',$desc='',$linkStr='',$link
 
 
 	return $html;
-}
-
-// https://stackoverflow.com/a/30299572 converts a number to a class name 
-function jetpackcrm_convertNumberToWord($num = false){
-    $num = str_replace(array(',', ' '), '' , trim($num));
-    if(! $num) {
-        return false;
-    }
-    $num = (int) $num;
-    $words = array();
-    $list1 = array('', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven',
-        'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'
-    );
-    $list2 = array('', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety', 'hundred');
-    $list3 = array('', 'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion',
-        'octillion', 'nonillion', 'decillion', 'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion',
-        'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion', 'novemdecillion', 'vigintillion'
-    );
-    $num_length = strlen($num);
-    $levels = (int) (($num_length + 2) / 3);
-    $max_length = $levels * 3;
-    $num = substr('00' . $num, -$max_length);
-    $num_levels = str_split($num, 3);
-    for ($i = 0; $i < count($num_levels); $i++) {
-        $levels--;
-        $hundreds = (int) ($num_levels[$i] / 100);
-        $hundreds = ($hundreds ? ' ' . $list1[$hundreds] . ' hundred' . ' ' : '');
-        $tens = (int) ($num_levels[$i] % 100);
-        $singles = '';
-        if ( $tens < 20 ) {
-            $tens = ($tens ? ' ' . $list1[$tens] . ' ' : '' );
-        } else {
-            $tens = (int)($tens / 10);
-            $tens = ' ' . $list2[$tens] . ' ';
-            $singles = (int) ($num_levels[$i] % 10);
-            $singles = ' ' . $list1[$singles] . ' ';
-        }
-        $words[] = $hundreds . $tens . $singles . ( ( $levels && ( int ) ( $num_levels[$i] ) ) ? ' ' . $list3[$levels] . ' ' : '' );
-    } //end for loop
-    $commas = count($words);
-    if ($commas > 1) {
-        $commas = $commas - 1;
-    }
-    return implode(' ', $words);
 }

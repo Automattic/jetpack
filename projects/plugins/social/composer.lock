@@ -1127,7 +1127,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "5771f3a51313e9420241b8f88a83dd8480f901ef"
+                "reference": "1ae0c5ef9dbf511c3f1575f49d476a43d76c98c2"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1154,7 +1154,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.29.x-dev"
+                    "dev-trunk": "0.30.x-dev"
                 }
             },
             "autoload": {
@@ -1180,6 +1180,10 @@
                 ],
                 "build-development": [
                     "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ],
                 "build-production": [
                     "pnpm run build-production-concurrently"
@@ -1350,7 +1354,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "a42c6a95760781a8f0d6c25a360ce745f618b834"
+                "reference": "82fae1ac3076aa675fa884a03b8cb593dcfd9a28"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1381,7 +1385,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.48.x-dev"
+                    "dev-trunk": "1.49.x-dev"
                 }
             },
             "autoload": {

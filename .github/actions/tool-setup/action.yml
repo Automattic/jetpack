@@ -100,6 +100,31 @@ runs:
         node-version: ^${{ steps.versions.outputs.node-version }}
         cache: pnpm
 
+    - name: Configure composer 304-short-circuiting proxy
+      if: steps.versions.outputs.php-version != 'false' && steps.versions.outputs.node-version != 'false'
+      shell: bash
+      run: |
+        # Generate a self-signeed cert for the proxy
+        openssl req -new -newkey rsa:2048 -sha256 -days 1 -nodes -x509 -subj "/CN=localhost" -keyout "$HOME/cert.key" -out "$HOME/cert.crt"
+
+        # Start the proxy
+        nohup "$GITHUB_ACTION_PATH"/packagist-proxy.mjs "$HOME/cert.key" "$HOME/cert.crt" &> "$HOME/proxy.log" &
+        disown $!
+
+        # Configure the plugin via env
+        export JP_304_PLUGIN_CERT=$HOME/cert.crt
+        echo "JP_304_PLUGIN_CERT=$JP_304_PLUGIN_CERT" >> "$GITHUB_ENV"
+
+        # Install the plugin globally
+        composer global config repositories.304-proxy-package path "$GITHUB_ACTION_PATH/composer-plugin"
+        composer global config --no-interaction allow-plugins.automattic/composer-304-plugin true
+        composer global require automattic/composer-304-plugin=@dev
+
+    - name: Dump proxy log post-run
+      if: steps.versions.outputs.php-version != 'false' && steps.versions.outputs.node-version != 'false'
+      # Alas we have to use a JS sub-action to have a "post" step. Composite actions can't do it.
+      uses: ./.github/actions/tool-setup/post-run-action
+
     - name: Tool versions
       shell: bash
       run: |

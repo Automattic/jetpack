@@ -39,7 +39,7 @@ type LanguageDropdownControlProps = {
 const defaultLanguageLocale =
 	window?.Jetpack_Editor_Initial_State?.siteLocale || navigator?.language;
 
-const defaultLabel = __( 'Language', 'jetpack' );
+const defaultLabel = __( 'Translate', 'jetpack' );
 
 export const defaultLanguage = ( defaultLanguageLocale?.split( '-' )[ 0 ] || 'en' ) as LanguageProp;
 
