@@ -68,5 +68,8 @@ export default function useAIFeature() {
 		getAIFeatures().then( setData );
 	}, [] );
 
-	return data;
+	return {
+		...data,
+		refresh: () => getAIFeatures().then( setData ),
+	};
 }
