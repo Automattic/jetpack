@@ -176,7 +176,6 @@ function NewsletterAccessRadioButtons( {
 	paidSubscribers,
 	hasNewsletterPlans,
 	stripeConnectUrl,
-	isPrePublishPanel = false,
 	showMisconfigurationWarning,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
@@ -211,8 +210,7 @@ function NewsletterAccessRadioButtons( {
 					>
 						{ accessOptions[ key ].label }
 					</label>
-					{ /* Only show the notice below each access radio buttons in the PrePublish panel  */ }
-					{ isPrePublishPanel && key === accessLevel && (
+					{ key === accessLevel && (
 						<p className="pre-public-panel-notice-reach">
 							<NewsletterNotice
 								accessLevel={ accessLevel }
@@ -295,14 +293,6 @@ export function NewsletterAccessDocumentSettings( {
 							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
 							{ ! canEdit && <span>{ accessLabel }</span> }
 						</Flex>
-
-						<NewsletterNotice
-							accessLevel={ _accessLevel }
-							emailSubscribers={ emailSubscribers }
-							paidSubscribers={ paidSubscribers }
-							showMisconfigurationWarning={ showMisconfigurationWarning }
-						/>
-
 						<FlexBlock>
 							<NewsletterLearnMore />
 						</FlexBlock>
@@ -360,7 +350,6 @@ export function NewsletterAccessPrePublishSettings( {
 										paidSubscribers={ paidSubscribers }
 										stripeConnectUrl={ stripeConnectUrl }
 										hasNewsletterPlans={ hasNewsletterPlans }
-										isPrePublishPanel={ true }
 										showMisconfigurationWarning={ showMisconfigurationWarning }
 									/>
 								</FlexBlock>
