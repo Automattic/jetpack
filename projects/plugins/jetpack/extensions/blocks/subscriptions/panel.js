@@ -136,7 +136,7 @@ function NewsletterPrePublishSettingsPanel( {
 					{ __( 'Newsletter', 'jetpack' ) }
 					{ accessLevel && (
 						<span className={ 'editor-post-publish-panel__link' }>
-							{ accessOptions[ accessLevel ].label }
+							{ accessOptions[ accessLevel ].panelHeading }
 						</span>
 					) }
 				</>
