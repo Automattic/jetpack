@@ -15,284 +15,16 @@
  */
 
 require_once __DIR__ . '/class-launchpad-task-lists.php';
+require_once __DIR__ . '/launchpad-task-definitions.php';
 
 /**
  * Registers all default launchpad checklists
+ *
+ * @return array
  */
-function wpcom_register_default_launchpad_checklists() {
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'setup_newsletter',
-			'get_title'            => function () {
-				return __( 'Personalize newsletter', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'plan_selected',
-			'get_title'            => function () {
-				return __( 'Choose a plan', 'jetpack-mu-wpcom' );
-			},
-			'subtitle'             => 'wpcom_get_plan_selected_subtitle',
-			'is_complete_callback' => '__return_true',
-			'badge_text_callback'  => 'wpcom_get_plan_selected_badge_text',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'plan_completed',
-			'get_title'            => function () {
-				return __( 'Choose a plan', 'jetpack-mu-wpcom' );
-			},
-			'subtitle'             => 'wpcom_get_plan_completed_subtitle',
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'subscribers_added',
-			'get_title'            => function () {
-				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                    => 'first_post_published',
-			'get_title'             => function () {
-				return __( 'Write your first post', 'jetpack-mu-wpcom' );
-			},
-			'add_listener_callback' => function () {
-				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
-			},
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                    => 'first_post_published_newsletter',
-			'id_map'                => 'first_post_published',
-			'get_title'             => function () {
-				return __( 'Start writing', 'jetpack-mu-wpcom' );
-			},
-			'add_listener_callback' => function () {
-				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
-			},
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'design_selected',
-			'get_title'            => function () {
-				return __( 'Select a design', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => 'wpcom_is_design_step_enabled',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'setup_link_in_bio',
-			'get_title'            => function () {
-				return __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                    => 'links_added',
-			'id_map'                => 'links_edited',
-			'get_title'             => function () {
-				return __( 'Add links', 'jetpack-mu-wpcom' );
-			},
-			'add_listener_callback' => function () {
-				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
-			},
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                    => 'link_in_bio_launched',
-			'id_map'                => 'site_launched',
-			'get_title'             => function () {
-				return __( 'Launch your site', 'jetpack-mu-wpcom' );
-			},
-			'is_disabled_callback'  => 'wpcom_is_link_in_bio_launch_disabled',
-			'add_listener_callback' => 'wpcom_add_site_launch_listener',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'videopress_setup',
-			'get_title'            => function () {
-				return __( 'Set up your video site', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                    => 'videopress_upload',
-			'id_map'                => 'video_uploaded',
-			'get_title'             => function () {
-				return __( 'Upload your first video', 'jetpack-mu-wpcom' );
-			},
-			'is_disabled_callback'  => 'wpcom_is_videopress_upload_disabled',
-			'add_listener_callback' => function () {
-				add_action( 'add_attachment', 'wpcom_track_video_uploaded_task' );
-			},
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                    => 'videopress_launched',
-			'id_map'                => 'site_launched',
-			'get_title'             => function () {
-				return __( 'Launch site', 'jetpack-mu-wpcom' );
-			},
-			'is_disabled_callback'  => 'wpcom_is_videopress_launch_disabled',
-			'add_listener_callback' => 'wpcom_add_site_launch_listener',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'setup_free',
-			'get_title'            => function () {
-				return __( 'Personalize your site', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'setup_blog',
-			'get_title'            => function () {
-				return __( 'Name your blog', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'setup_general',
-			'get_title'            => function () {
-				return __( 'Set up your site', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => '__return_true',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                    => 'design_edited',
-			'get_title'             => function () {
-				return __( 'Edit site design', 'jetpack-mu-wpcom' );
-			},
-			'id_map'                => 'site_edited',
-			'add_listener_callback' => function () {
-				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
-			},
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                    => 'site_launched',
-			'get_title'             => function () {
-				return __( 'Launch your site', 'jetpack-mu-wpcom' );
-			},
-			'isLaunchTask'          => true,
-			'add_listener_callback' => 'wpcom_add_site_launch_listener',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                    => 'blog_launched',
-			'get_title'             => function () {
-				return __( 'Launch your blog', 'jetpack-mu-wpcom' );
-			},
-			'isLaunchTask'          => true,
-			'add_listener_callback' => 'wpcom_add_site_launch_listener',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'setup_write',
-			'get_title'            => function () {
-				return __( 'Set up your site', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => '__return_true',
-			'is_disabled_callback' => '__return_true',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                   => 'domain_upsell',
-			'id_map'               => 'domain_upsell_deferred',
-			'get_title'            => function () {
-				return __( 'Choose a domain', 'jetpack-mu-wpcom' );
-			},
-			'is_complete_callback' => 'wpcom_is_domain_upsell_completed',
-			'badge_text_callback'  => 'wpcom_get_domain_upsell_badge_text',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                  => 'verify_email',
-			'get_title'           => function () {
-				return __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' );
-			},
-			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                  => 'set_up_payments',
-			'get_title'           => function () {
-				return __( 'Set up payment method', 'jetpack-mu-wpcom' );
-			},
-			'is_visible_callback' => 'wpcom_has_goal_paid_subscribers',
-		)
-	);
-
-	wpcom_register_launchpad_task(
-		array(
-			'id'                  => 'newsletter_plan_created',
-			'get_title'           => function () {
-				return __( 'Create paid Newsletter', 'jetpack-mu-wpcom' );
-			},
-			'is_visible_callback' => 'wpcom_has_goal_paid_subscribers',
-		)
-	);
-
-	// Tasks registered, now onto the checklists.
-	wpcom_register_launchpad_task_list(
-		array(
-			'id'                  => 'build',
+function wpcom_launchpad_get_task_list_definitions() {
+	$core_task_list_definitions = array(
+		'build'           => array(
 			'title'               => 'Build',
 			'task_ids'            => array(
 				'setup_general',
@@ -303,12 +35,8 @@ function wpcom_register_default_launchpad_checklists() {
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
-		)
-	);
-
-	wpcom_register_launchpad_task_list(
-		array(
-			'id'                  => 'free',
+		),
+		'free'            => array(
 			'title'               => 'Free',
 			'task_ids'            => array(
 				'plan_selected',
@@ -320,12 +48,8 @@ function wpcom_register_default_launchpad_checklists() {
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
-		)
-	);
-
-	wpcom_register_launchpad_task_list(
-		array(
-			'id'                  => 'link-in-bio',
+		),
+		'link-in-bio'     => array(
 			'title'               => 'Link In Bio',
 			'task_ids'            => array(
 				'design_selected',
@@ -335,12 +59,8 @@ function wpcom_register_default_launchpad_checklists() {
 				'link_in_bio_launched',
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
-		)
-	);
-
-	wpcom_register_launchpad_task_list(
-		array(
-			'id'                  => 'link-in-bio-tld',
+		),
+		'link-in-bio-tld' => array(
 			'title'               => 'Link In Bio',
 			'task_ids'            => array(
 				'design_selected',
@@ -350,12 +70,8 @@ function wpcom_register_default_launchpad_checklists() {
 				'link_in_bio_launched',
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
-		)
-	);
-
-	wpcom_register_launchpad_task_list(
-		array(
-			'id'                  => 'newsletter',
+		),
+		'newsletter'      => array(
 			'title'               => 'Newsletter',
 			'task_ids'            => array(
 				'setup_newsletter',
@@ -367,12 +83,8 @@ function wpcom_register_default_launchpad_checklists() {
 				'first_post_published_newsletter',
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
-		)
-	);
-
-	wpcom_register_launchpad_task_list(
-		array(
-			'id'                  => 'videopress',
+		),
+		'videopress'      => array(
 			'title'               => 'Videopress',
 			'task_ids'            => array(
 				'videopress_setup',
@@ -381,12 +93,8 @@ function wpcom_register_default_launchpad_checklists() {
 				'videopress_launched',
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
-		)
-	);
-
-	wpcom_register_launchpad_task_list(
-		array(
-			'id'                  => 'write',
+		),
+		'write'           => array(
 			'title'               => 'Write',
 			'task_ids'            => array(
 				'setup_write',
@@ -396,26 +104,19 @@ function wpcom_register_default_launchpad_checklists() {
 				'site_launched',
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
-		)
-	);
-
-	wpcom_register_launchpad_task_list(
-		array(
-			'id'       => 'start-writing',
-			'title'    => 'Start Writing',
-			'task_ids' => array(
+		),
+		'start-writing'   => array(
+			'title'               => 'Start Writing',
+			'task_ids'            => array(
 				'first_post_published',
 				'setup_blog',
 				'domain_upsell',
 				'plan_completed',
 				'blog_launched',
 			),
-		)
-	);
-
-	wpcom_register_launchpad_task_list(
-		array(
-			'id'                  => 'design-first',
+			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+		),
+		'design-first'    => array(
 			'title'               => 'Pick a Design',
 			'task_ids'            => array(
 				'design_selected',
@@ -426,28 +127,80 @@ function wpcom_register_default_launchpad_checklists() {
 				'blog_launched',
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
-		)
-	);
-
-	wpcom_register_launchpad_task_list(
-		array(
-			'id'                  => 'keep-building',
+		),
+		'keep-building'   => array(
 			'title'               => 'Keep Building',
 			'task_ids'            => array(
 				'design_edited',
 				// @todo Add more tasks here!
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
-		)
+		),
 	);
 
-	// This is the hook that allows other plugins to register their own checklists.
-	do_action( 'wpcom_register_launchpad_tasks' );
+	$extended_task_list_definitions = apply_filters( 'wpcom_launchpad_extended_task_list_definitions', array() );
 
-	wpcom_add_active_task_listener_hooks_to_correct_action();
+	// As for tasks, we can decide what overrides we allow later.
+	return array_merge( $extended_task_list_definitions, $core_task_list_definitions );
 }
 
-// Running on priority 11 will allow anything that adds hooks on init with default priority 10 to add their hooks to the `wpcom_register_launchpad_tasks` action.
+/**
+ * Get a registered task list.
+ *
+ * @param string $checklist_slug The checklist slug to get the task list for.
+ *
+ * @return array
+ */
+function wpcom_launchpad_get_task_list( $checklist_slug = null ) {
+	// If we don't have a checklist slug, fall back to the site intent option.
+	$checklist_slug = $checklist_slug ? $checklist_slug : get_option( 'site_intent' );
+	if ( ! $checklist_slug ) {
+		return array();
+	}
+
+	return wpcom_launchpad_checklists()->get_task_list( $checklist_slug );
+}
+
+/**
+ * Register all tasks and task lists from definitions
+ *
+ * @param bool $rebuild Whether to rebuild the task lists or not.
+ *
+ * @return array
+ */
+function wpcom_launchpad_get_task_lists( $rebuild = false ) {
+	// If we already have task lists registered and we don't want to rebuild, return all task lists.
+	if ( ! $rebuild && wpcom_launchpad_checklists()->has_task_lists() ) {
+		return wpcom_launchpad_checklists()->get_all_task_lists();
+	}
+
+	$task_definitions = wpcom_launchpad_get_task_definitions();
+
+	// Register all tasks.
+	foreach ( $task_definitions as $task_id => $task_definition ) {
+		$task_data = array_merge( $task_definition, array( 'id' => $task_id ) );
+		wpcom_register_launchpad_task( $task_data );
+	}
+
+	$task_list_definitions = wpcom_launchpad_get_task_list_definitions();
+
+	// Register all task lists.
+	foreach ( $task_list_definitions as $task_list_id => $task_list_definition ) {
+		$task_list_data = array_merge( $task_list_definition, array( 'id' => $task_list_id ) );
+		wpcom_register_launchpad_task_list( $task_list_data );
+	}
+
+	// Assuming the reference is good, just return all checklists.
+	return wpcom_launchpad_checklists()->get_all_task_lists();
+}
+
+/**
+ * Register all tasks and task lists on init.
+ */
+function wpcom_register_default_launchpad_checklists() {
+	wpcom_launchpad_get_task_lists();
+	wpcom_add_active_task_listener_hooks_to_correct_action();
+}
 add_action( 'init', 'wpcom_register_default_launchpad_checklists', 11 );
 
 /**
@@ -476,33 +229,6 @@ function wpcom_launchpad_add_active_task_listeners() {
 }
 
 /**
- * Determines whether or not the videopress upload task is enabled
- *
- * @return boolean True if videopress upload task is enabled
- */
-function wpcom_is_videopress_upload_disabled() {
-	return wpcom_is_checklist_task_complete( 'videopress_upload' );
-}
-
-/**
- * Determines whether or not the videopress launch task is enabled
- *
- * @return boolean True if videopress launch task is enabled
- */
-function wpcom_is_videopress_launch_disabled() {
-	return ! wpcom_is_checklist_task_complete( 'videopress_upload' );
-}
-
-/**
- * Determines whether or not the link-in-bio launch task is enabled
- *
- * @return boolean True if link-in-bio launch task is enabled
- */
-function wpcom_is_link_in_bio_launch_disabled() {
-	return ! wpcom_is_checklist_task_complete( 'links_added' );
-}
-
-/**
  * Determines whether or not design selected task is enabled
  *
  * @return boolean True if design selected task is enabled
@@ -510,83 +236,6 @@ function wpcom_is_link_in_bio_launch_disabled() {
 function wpcom_can_update_design_selected_task() {
 	$site_intent = get_option( 'site_intent' );
 	return $site_intent === 'free' || $site_intent === 'build' || $site_intent === 'write' || $site_intent === 'design-first';
-}
-
-/**
- * Callback for design task enabled state
- *
- * @return boolean
- */
-function wpcom_is_design_step_enabled() {
-	return ! wpcom_can_update_design_selected_task();
-}
-
-/**
- * Determines whether or not domain upsell task is completed.
- *
- * @param array $task    The Task object.
- * @param mixed $default The default value.
- * @return bool True if domain upsell task is completed.
- */
-function wpcom_is_domain_upsell_completed( $task, $default ) {
-	if ( wpcom_site_has_feature( 'custom-domain' ) ) {
-		return true;
-	}
-	return $default;
-}
-
-/**
- * Returns the option value for a task and false if no option exists.
- *
- * @param array $task The Task object.
- * @return bool True if the blog was named.
- */
-function wpcom_is_task_option_completed( $task ) {
-	$checklist = get_option( 'launchpad_checklist_tasks_statuses', array() );
-	if ( ! empty( $checklist[ $task['id'] ] ) ) {
-		return true;
-	}
-	return false;
-}
-
-/**
- * Returns the subtitle for the plan selected task
- *
- * @return string Subtitle text
- */
-function wpcom_get_plan_selected_subtitle() {
-	if ( ! function_exists( 'wpcom_global_styles_in_use' ) || ! function_exists( 'wpcom_should_limit_global_styles' ) ) {
-		return '';
-	}
-
-	return wpcom_global_styles_in_use() && wpcom_should_limit_global_styles()
-		? __(
-			'Your site contains custom styles. Upgrade now to publish them and unlock tons of other features.',
-			'jetpack-mu-wpcom'
-		) : '';
-}
-
-/**
- * Returns the badge text for the plan selected task
- *
- * @return string Badge text
- */
-function wpcom_get_plan_selected_badge_text() {
-	if ( ! function_exists( 'wpcom_global_styles_in_use' ) || ! function_exists( 'wpcom_should_limit_global_styles' ) ) {
-		return '';
-	}
-
-	return wpcom_global_styles_in_use() && wpcom_should_limit_global_styles() ? __( 'Upgrade plan', 'jetpack-mu-wpcom' ) : '';
-}
-
-/**
- * Returns the badge text for the domain upsell task
- *
- * @return string Badge text
- */
-function wpcom_get_domain_upsell_badge_text() {
-	// Never run `wpcom_is_checklist_task_complete` within a is_complete_callback unless you are fond of infinite loops.
-	return wpcom_is_checklist_task_complete( 'domain_upsell' ) ? '' : __( 'Upgrade plan', 'jetpack-mu-wpcom' );
 }
 
 /**
@@ -651,119 +300,12 @@ function wpcom_register_launchpad_task( $task ) {
 }
 
 /**
- * Marks a task as complete.
- *
- * @param string $task_id The task ID.
- * @return bool True if successful, false if not.
- */
-function wpcom_mark_launchpad_task_complete( $task_id ) {
-	return wpcom_launchpad_checklists()->mark_task_complete( $task_id );
-}
-
-/**
- * Marks a task as complete if it is active for this site. This is a bit of a hacky way to be able to share a callback
- * among several tasks, calling several completion IDs from the same callback.
- *
- * @param string $task_id The task ID.
- * @return bool True if successful, false if not.
- */
-function wpcom_mark_launchpad_task_complete_if_active( $task_id ) {
-	return wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id );
-}
-
-/**
  * Helper function to return a `Launchpad_Task_Lists` instance.
  *
  * @return object Launchpad_Task_Lists instance.
  */
 function wpcom_launchpad_checklists() {
 	return Launchpad_Task_Lists::get_instance();
-}
-
-/*** Update logic callbacks  ***/
-
-/**
- * Callback for completing first post published task.
- *
- * @return void
- */
-function wpcom_track_publish_first_post_task() {
-	// Ensure that Headstart posts don't mark this as complete
-	if ( defined( 'HEADSTART' ) && HEADSTART ) {
-		return;
-	}
-	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
-	wpcom_mark_launchpad_task_complete_if_active( 'first_post_published' );
-	wpcom_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
-}
-
-/**
- * Callback for completing edit site task.
- *
- * @return void
- */
-function wpcom_track_edit_site_task() {
-	wpcom_mark_launchpad_task_complete_if_active( 'links_added' );
-	wpcom_mark_launchpad_task_complete_if_active( 'design_edited' );
-}
-
-/**
- * Callback that conditionally adds the site launch listener based on platform.
- *
- * @return void
- */
-function wpcom_add_site_launch_listener() {
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		add_action( 'wpcom_site_launched', 'wpcom_track_site_launch_task' );
-	} else {
-		add_action( 'update_option_blog_public', 'wpcom_launch_task_listener_atomic', 10, 2 );
-	}
-}
-
-/**
- * Callback that fires when `blog_public` is updated.
- *
- * @param string $old_value The updated option value.
- * @param string $new_value The previous option value.
- * @return void
- */
-function wpcom_launch_task_listener_atomic( $old_value, $new_value ) {
-	$blog_public = (int) $new_value;
-	// 'blog_public' is set to '1' when a site is launched.
-	if ( $blog_public === 1 ) {
-		wpcom_track_site_launch_task();
-	}
-}
-
-/**
- * Callback for completing site launched task.
- *
- * @return void
- */
-function wpcom_track_site_launch_task() {
-	// it would be ideal if the registry was smart enough to map based on id_map but it isn't.
-	// So we mark them all. We'd avoid this if we had dedicated callbacks for each task.
-	wpcom_mark_launchpad_task_complete_if_active( 'site_launched' );
-	wpcom_mark_launchpad_task_complete_if_active( 'link_in_bio_launched' );
-	wpcom_mark_launchpad_task_complete_if_active( 'videopress_launched' );
-	wpcom_mark_launchpad_task_complete_if_active( 'blog_launched' );
-}
-
-/**
- * Update Launchpad's video_uploaded task.
- *
- * Only updated for videopress flows currently.
- *
- * @param string $post_id The id of the post being udpated.
- * @return void
- */
-function wpcom_track_video_uploaded_task( $post_id ) {
-	// Not using `wp_attachment_is` because it requires the actual file
-	// which is not the case for Atomic VideoPress.
-	if ( 0 !== strpos( get_post_mime_type( $post_id ), 'video/' ) ) {
-		return;
-	}
-	wpcom_mark_launchpad_task_complete( 'videopress_upload' );
 }
 
 /**
@@ -788,29 +330,6 @@ function wpcom_hacky_track_video_uploaded_task( $post_id ) {
 	wpcom_track_video_uploaded_task( $post_id );
 }
 add_action( 'add_attachment', 'wpcom_hacky_track_video_uploaded_task' );
-
-/**
- * Callback for email verification visibility.
- *
- * @return bool True if email is unverified, false otherwise.
- */
-function wpcom_launchpad_is_email_unverified() {
-	// TODO: handle the edge case where an Atomic user can be unverified.
-	if ( ! class_exists( 'Email_Verification' ) ) {
-		return false;
-	}
-
-	return Email_Verification::is_email_unverified();
-}
-
-/**
- * If the site has a paid-subscriber goal.
- *
- * @return bool True if the site has a paid-subscriber goal, false otherwise.
- */
-function wpcom_has_goal_paid_subscribers() {
-	return in_array( 'paid-subscribers', get_option( 'site_goals', array() ), true );
-}
 
 //
 // Misc other Launchpad-related functionality below.

@@ -675,7 +675,7 @@ function zeroBSCRM_menu_buildMenu() {
 				'ico'        => 'dashicons-calendar-alt',
 				'title'      => __( 'Task Scheduler', 'zero-bs-crm' ),
 				'url'        => $zbs->slugs['manage-events'],
-				'perms'      => 'admin_zerobs_events',
+				'perms'      => 'admin_zerobs_view_events',
 				'order'      => 50,
 				'wpposition' => 50,
 				'subitems'   => array(),
@@ -690,7 +690,7 @@ function zeroBSCRM_menu_buildMenu() {
 			$menu['calendar']['subitems']['list'] = array(
 				'title'      => __( 'Task List', 'zero-bs-crm' ),
 				'url'        => $zbs->slugs['manage-events-list'],
-				'perms'      => 'admin_zerobs_customers',
+				'perms'      => 'admin_zerobs_view_events',
 				'order'      => 1,
 				'wpposition' => 1,
 				'callback'   => 'zeroBSCRM_render_eventslist_page',
@@ -701,7 +701,7 @@ function zeroBSCRM_menu_buildMenu() {
 			$menu['calendar']['subitems']['tags'] = array(
 				'title'      => __( 'Task Tags', 'zero-bs-crm' ),
 				'url'        => 'admin.php?page=' . $zbs->slugs['tagmanager'] . '&tagtype=event',
-				'perms'      => 'admin_zerobs_customers',
+				'perms'      => 'admin_zerobs_view_events',
 				'order'      => 2,
 				'wpposition' => 2,
 				'callback'   => '',
@@ -950,7 +950,7 @@ function zeroBSCRM_menu_buildMenu() {
 	$menu['hidden']['subitems']['eventlist'] = array(
 		'title'      => __( 'Task List', 'zero-bs-crm' ),
 		'url'        => $zbs->slugs['manage-events-list'],
-		'perms'      => 'admin_zerobs_customers',
+		'perms'      => 'admin_zerobs_view_events',
 		'order'      => 1,
 		'wpposition' => 3,
 		'callback'   => 'zeroBSCRM_render_eventslist_page',
@@ -961,7 +961,7 @@ function zeroBSCRM_menu_buildMenu() {
 	$menu['hidden']['subitems']['eventtags'] = array(
 		'title'      => __( 'Task Tags', 'zero-bs-crm' ),
 		'url'        => 'admin.php?page=' . $zbs->slugs['tagmanager'] . '&tagtype=event',
-		'perms'      => 'admin_zerobs_customers',
+		'perms'      => 'admin_zerobs_view_events',
 		'order'      => 3,
 		'wpposition' => 3,
 		'callback'   => '',

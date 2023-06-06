@@ -61,7 +61,8 @@ export default function useConnection() {
 				redirectUri="admin.php?page=jetpack-backup"
 				wpcomProductSlug="jetpack_backup_t1_yearly"
 				siteProductAvailabilityHandler={ checkSiteHasBackupProduct }
-				logo={ <JetpackVaultPressBackupLogo /> }
+				logo={ <></> }
+				rna
 			>
 				<BackupPromotionBlock />
 			</ConnectScreenRequiredPlan>
