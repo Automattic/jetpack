@@ -19,16 +19,34 @@ class Company_New extends Base_Trigger {
 	/**
 	 * @var Automation_Workflow The Automation workflow object.
 	 */
-	private $workflow;
+	protected $workflow;
 
-	/**
-	 * Contructs the Company_New instance.
+	/** Get the slug name of the trigger
+	 * @return string
 	 */
-	public function __construct() {
-		self::$name        = 'company_new';
-		self::$title       = __( 'New Company', 'zero-bs-crm' );
-		self::$description = __( 'Triggered when a CRM company is added', 'zero-bs-crm' );
-		self::$category    = 'company';
+	public static function get_slug(): string {
+		return 'jpcrm/company_new';
+	}
+
+	/** Get the title of the trigger
+	 * @return string
+	 */
+	public static function get_title(): ?string {
+		return __( 'New Company', 'zero-bs-crm' );
+	}
+
+	/** Get the description of the trigger
+	 * @return string
+	 */
+	public static function get_description(): ?string {
+		return __( 'Triggered when a CRM company is added', 'zero-bs-crm' );
+	}
+
+	/** Get the category of the trigger
+	 * @return string
+	 */
+	public static function get_category(): ?string {
+		return __( 'company', 'zero-bs-crm' );
 	}
 
 	/**
@@ -39,10 +57,7 @@ class Company_New extends Base_Trigger {
 	 */
 	public function init( Automation_Workflow $workflow ) {
 		$this->workflow = $workflow;
-		add_action(
-			'jpcrm_automation_company_new',
-			array( $this, 'execute_workflow' )
-		);
+		$this->listen_to_event();
 	}
 
 	/**
@@ -51,9 +66,19 @@ class Company_New extends Base_Trigger {
 	 * @param array $company_data The company data to be included in the workflow.
 	 * @throws Automation_Exception Throws a 'class not found' or general error.
 	 */
-	public function execute_workflow( $company_data ) {
+	public function execute_workflow( $company_data = null ) {
 		if ( $this->workflow ) {
 			$this->workflow->execute( $this, $company_data );
 		}
+	}
+
+	/**
+	 * Listen to the desired event
+	 */
+	protected function listen_to_event() {
+		add_action(
+			'jpcrm_automation_company_new',
+			array( $this, 'execute_workflow' )
+		);
 	}
 }
