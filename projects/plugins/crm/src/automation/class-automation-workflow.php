@@ -8,7 +8,7 @@ class Automation_Workflow {
 	private $id;
 	
 	/** @var string */
-	public $slug;
+	public $name;
 	
 	/** @var string */
 	public $description;
@@ -35,7 +35,7 @@ class Automation_Workflow {
 		$this->id           = $workflow_data['id'] ?? null;
 		$this->triggers     = $workflow_data['triggers'] ?? array();
 		$this->initial_step = $workflow_data['initial_step'] ?? array();
-		$this->slug         = $workflow_data['slug'];
+		$this->name         = $workflow_data['name'];
 		$this->description  = $workflow_data['description'] ?? '';
 		$this->category     = $workflow_data['category'] ?? '';
 		$this->active       = $workflow_data['is_active'] ?? true;
@@ -108,7 +108,7 @@ class Automation_Workflow {
 	public function get_workflow_array() {
 		
 		$workflow = array(
-			'slug'          => $this->slug,
+			'name'          => $this->name,
 			'description'   => $this->description,
 			'category'      => $this->category,
 			'is_active'     => $this->active,
@@ -138,7 +138,7 @@ class Automation_Workflow {
 	 */
 	public function execute( Trigger $trigger, array $data ): bool {
 		$this->logger->log( 'Trigger activated: ' . $trigger->get_slug() );
-		$this->logger->log( 'Executing workflow: ' . $this->slug );
+		$this->logger->log( 'Executing workflow: ' . $this->name );
 		
 		$step_data = $this->initial_step;
 		
