@@ -20,12 +20,12 @@ import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
 import classNames from 'classnames';
 import ConnectPrompt from './components/connect-prompt';
 import I18nDropdownControl from './components/i18n-dropdown-control';
+import PromptTemplatesControl from './components/prompt-templates-control';
+import ToneDropdownControl from './components/tone-dropdown-control';
 import useAIFeature from './hooks/use-ai-feature';
 import AIAssistantIcon from './icons/ai-assistant';
 import origamiPlane from './icons/origami-plane';
 import { isUserConnected } from './lib/connection';
-import PromptTemplatesControl from './prompt-templates-control';
-import ToneDropdownControl from './tone-dropdown-control';
 import UpgradePrompt from './upgrade-prompt';
 
 const AIControl = forwardRef(
