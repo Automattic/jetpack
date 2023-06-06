@@ -504,7 +504,6 @@ class Main extends React.Component {
 			case '/connect-user':
 			case '/connect-user-setup':
 			case '/woo-setup':
-			case '/setup':
 				pageComponent = (
 					<AtAGlance
 						siteRawUrl={ this.props.siteRawUrl }
@@ -512,6 +511,12 @@ class Main extends React.Component {
 						rewindStatus={ this.props.rewindStatus }
 					/>
 				);
+				break;
+			case '/setup':
+				if ( this.props.isSiteConnected ) {
+					this.props.history.replace( '/dashboard' );
+					pageComponent = this.getAtAGlance();
+				}
 				break;
 			case '/my-plan':
 				pageComponent = (
