@@ -18,9 +18,9 @@ import React from 'react';
 /**
  * Internal dependencies
  */
+import { LANGUAGE_MAP } from '../../components/i18n-dropdown-control';
 import { buildPromptTemplate } from '../../create-prompt';
 import { askQuestion } from '../../get-suggestion-with-stream';
-import { LANGUAGE_MAP } from '../../i18n-dropdown-control';
 import Icon from '../../icons/ai-assistant';
 import { PROMPT_TONES_MAP } from '../../tone-dropdown-control';
 

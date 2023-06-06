@@ -19,8 +19,8 @@ import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
  */
 import classNames from 'classnames';
 import ConnectPrompt from './components/connect-prompt';
+import I18nDropdownControl from './components/i18n-dropdown-control';
 import useAIFeature from './hooks/use-ai-feature';
-import I18nDropdownControl from './i18n-dropdown-control';
 import AIAssistantIcon from './icons/ai-assistant';
 import origamiPlane from './icons/origami-plane';
 import { isUserConnected } from './lib/connection';
