@@ -31,7 +31,7 @@ class Company_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_company_updated_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'company_updated' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/company_updated' );
 
 		$trigger = new Company_Updated();
 
@@ -64,7 +64,7 @@ class Company_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_company_status_updated_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'company_status_updated' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/company_status_updated' );
 
 		$trigger = new Company_Status_Updated();
 
@@ -97,7 +97,7 @@ class Company_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_company_new_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'company_new' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/company_new' );
 
 		$trigger = new Company_New();
 
@@ -130,7 +130,7 @@ class Company_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_company_deleted_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'company_deleted' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/company_deleted' );
 
 		$trigger = new Company_Deleted();
 
