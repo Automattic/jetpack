@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.14.1] - 2023-05-29
+### Added
+- My Jetpack: Add new Jetpack AI card [#30904]
+
+### Changed
+- My Jetpack: Enable Jetpack AI card [#30988]
+- My Jetpack: Update AI class to be product and not module [#30905]
+- My Jetpack: Update AI interstitial background [#30992]
+
+## [2.14.0] - 2023-05-22
+### Added
+- Added ability to purchase Jetpack AI monthly product [#30793]
+- Added tier data to the Boost product to support a pricing table interstitial page. [#29931]
+
 ## [2.13.0] - 2023-05-15
 ### Added
 - Added My Jetpack interstitial for Jetpack AI [#30543]
@@ -878,6 +892,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.14.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.0...2.14.1
+[2.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.13.0...2.14.0
 [2.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.12.2...2.13.0
 [2.12.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.12.1...2.12.2
 [2.12.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.12.0...2.12.1

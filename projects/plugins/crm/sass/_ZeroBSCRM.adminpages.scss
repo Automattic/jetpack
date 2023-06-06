@@ -522,50 +522,16 @@
     background: #1a6ecc;
 }
 
+.jpcrm-learn-menu-container {
+	padding: 10px 20px;
+	margin: 0 auto;
+	max-width: 1551px;
 
-// our top admin bar UI
-#zbs-admin-top-bar{
-    position: relative;
-    padding-left: 25px;
-    padding-right:25px;
-    margin-top:0px;
-    margin-right:-25px;
-    padding-top: 8px;
-    background: #3f4347;
-    z-index:2 !important; // WH - essential to stop bleedover from screenoptions!
-    .content-left{
-    	width: 48%;
-    	padding: 1%;
-    	float:left;
-    }
-    .video{
-    	width: 50%;
-    	float:right;
-    	margin-left:-10px;
-    }
-    .ui.popup{
-    	max-width:800px !important;
-    }
-
-    .zbs-add-new{
-        margin-left: 10px;
-    	margin-right: -5px;
-    }
-
-	#zbs-toggle-sidebar{
-		background:white !important;
+	.jpcrm-learn-menu {
+		.ui.popup {
+			max-width: 800px !important;
+		}
 	}
-
-
-
-
- }
-
- .zbs-white{
-    font-size: 18px;
-    line-height: 35px;
-    color:white;
-	margin-right:0.4em;
 }
 
 div.ui.learn.button {
@@ -593,19 +559,6 @@ div.ui.learn.button {
 	outline: none;
     box-shadow: none !important;
 }
-
-#zbs-list-top-bar {
-    color: white;
-    background: #3f4348;
-    padding-left: 25px;
-    padding-bottom: 11px;
-    margin-left: -25px;
-    padding-right: 25px;
-    margin-right: -25px;
-    margin-top: 0px;
-    margin-bottom: 20px;
-}
-
 
 .popover.right .arrow{
     top: 50%;
@@ -702,8 +655,7 @@ div.ui.learn.button {
 #zbs-invoice-learn-nav,
 #zbs-transaction-learn-nav,
 #zbs-event-learn-nav {
-    display: inline-block;
-    float: right;
+    display: flex;
 }
 
 //UI tweak for contact fiew
@@ -723,9 +675,6 @@ div.ui.learn.button {
 // generic loading.loaded classes
 // these are toggled by js once x has loaded :)
 // see func "zeroBSCRMJS_genericLoaded()"
-.zbs-generic-loading {
-	display:block;
-}
 .zbs-generic-loaded {
 	display:none;
 }
@@ -844,10 +793,4 @@ table#zbsFilesTable td {
 	vertical-align: middle;
 	margin: 0px;
 	margin-left: 4px;
-}
-
-@media only screen and (min-width: 768px) and (max-width: 960px) {
-  #zbs-admin-top-bar {
-    margin-left: 0px !important;
-  }
 }

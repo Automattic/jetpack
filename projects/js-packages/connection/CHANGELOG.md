@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.27.1 - 2023-05-29
+### Added
+- Add logo prop to `ConnectScreen` and `ConnectScreenVisual` so we could use produucts logos similar to `ConnectScreenRequiredPlan` component. [#30886]
+
+## 0.27.0 - 2023-05-22
+### Added
+- Offline Mode handling. [#30570]
+
 ## 0.26.6 - 2023-05-02
 ### Changed
 - Updated package dependencies.

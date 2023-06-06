@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
@@ -8,13 +11,12 @@ import { getIconColor } from '../../shared/block-icons';
  */
 import attributes from './attributes';
 import edit from './edit';
-import Icon from './icon';
+import Icon from './icons/ai-assistant';
 /**
  * Extend:
  * - blocks (Multiple-blocks edition)
  */
-import './extensions/multiple-blocks-edition';
-
+// import './extensions/multiple-blocks-edition'; @todo: cosider to enable it in the future
 /**
  * Style dependencies
  */

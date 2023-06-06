@@ -423,6 +423,7 @@ abstract class SAL_Post {
 		if ( $publicize ) {
 			foreach ( $publicize as $service => $data ) {
 				switch ( $service ) {
+					// @todo explore removing once Twitter is removed from Publicize.
 					case 'twitter':
 						foreach ( $data as $datum ) {
 							$publicize_urls[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );

@@ -3236,7 +3236,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since $$next-version$$
+		 * @since 12.2
 		 *
 		 * @param array $compiled_form the form response to be filtered
 		 * @param int $feedback_id the ID of the feedback form
@@ -3966,7 +3966,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since $$next-version$$
+		 * @since 12.2
 		 *
 		 * @param string the title of the email
 		 */
@@ -4006,7 +4006,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 *
 			 * @module contact-form
 			 *
-			 * @since $$next-version$$
+			 * @since 12.2
 			 *
 			 * @param array the lines of the footer, one line per array element.
 			 */
@@ -4251,11 +4251,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since $$next-version$$
+		 * @since 12.2
 		 *
 		 * @param string the filename of the HTML template used for response emails to the form owner.
 		 */
-		require apply_filters( 'jetpack_forms_respone_email_template', __DIR__ . '/grunion-response-email-template.php' );
+		require apply_filters( 'jetpack_forms_response_email_template', __DIR__ . '/grunion-response-email-template.php' );
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
 			// They're removed so that they don't affect the final message sent to users

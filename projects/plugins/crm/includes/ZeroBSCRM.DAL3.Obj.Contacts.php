@@ -5090,10 +5090,11 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             }
 
 			// Object view. Escaping JS for Phone link attr to avoid XSS
-	        $resArr['hometel'] = esc_js( $resArr['hometel'] );
-	        $resArr['worktel'] = esc_js( $resArr['worktel'] );
-			$resArr['mobtel']  = esc_js( $resArr['mobtel'] );
-
+			// phpcs:disable
+			$resArr['hometel'] = isset( $resArr['hometel'] ) ? esc_js( $resArr['hometel'] ) : '';
+			$resArr['worktel'] = isset( $resArr['worktel'] ) ? esc_js( $resArr['worktel'] ) : '';
+			$resArr['mobtel']  = isset( $resArr['mobtel'] ) ? esc_js( $resArr['mobtel'] ) : '';
+			// phpcs:enable
 
             return $resArr;
         }

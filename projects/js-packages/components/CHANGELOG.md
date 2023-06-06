@@ -2,6 +2,20 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.36.0 - 2023-05-29
+### Added
+- Added the Instagram social icon [#30803]
+- Updated icons from social-link block from @wordpress/block-library [#29803]
+
+### Fixed
+- Fixed the SIG feature check to disable the media picker [#30888]
+- Fixed version [#29803]
+- Fix ternary issue with translations that were failing builds [#30877]
+
+## 0.35.0 - 2023-05-22
+### Added
+- Action Button: Add "Disabled" prop. [#30570]
+
 ## 0.34.0 - 2023-05-18
 ### Added
 - Add a new component for the Boost Score Bar used in the Boost plugin and later, in the Jetpack plugin [#30037]

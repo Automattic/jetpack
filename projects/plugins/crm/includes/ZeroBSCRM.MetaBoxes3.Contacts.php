@@ -166,327 +166,159 @@
 
         }
 
-        public function html( $contact, $metabox ) {
-
-                //echo '<pre>'; print_r(array($contact,$metabox)); echo '</pre>';
-
-               // PerfTest: zeroBSCRM_performanceTest_startTimer('custmetabox-dataget');
-
-                global $zbs;
-
-                #} Rather than reload all the time :)
-                global $zbsContactEditing; 
-
-                #} retrieve
-                //$zbsCustomer = get_post_meta($contact['id'], 'zbs_customer_meta', true);
-                if (!isset($zbsContactEditing) && isset($contact['id'])){
-                    $zbsCustomer = zeroBS_getCustomer($contact['id'],false,false,false);
-                    $zbsContactEditing = $zbsCustomer;
-                } else {
-                    $zbsCustomer = $zbsContactEditing;
-                }
-
-                // Get field Hides...
-                $fieldHideOverrides = $zbs->settings->get('fieldhides');
-                $zbsShowID = $zbs->settings->get('showid');
-
-                // Click 2 call?
-                $click2call = $zbs->settings->get('clicktocall');
-
-       
-                global $zbsCustomerFields;
-                $fields = $zbsCustomerFields;
-
-                /* debug 
-                echo 'zbsCustomer<pre>'.print_r($zbsCustomer,1).'</pre>'; 
-                echo 'zbsCustomerFields<pre>'.print_r($zbsCustomerFields,1).'</pre>'; exit();
-                */
-
-
-                #} Address settings
-                $showAddresses = zeroBSCRM_getSetting('showaddress');
-                $showSecondAddress = zeroBSCRM_getSetting('secondaddress');
-                $showCountryFields = zeroBSCRM_getSetting('countries');
-                $second_address_label = zeroBSCRM_getSetting( 'secondaddresslabel' );
-                if ( empty( $second_address_label ) ) {
-                  $second_address_label = __( 'Second Address', 'zero-bs-crm' );
-                }
-
-
-               // PerfTest: zeroBSCRM_performanceTest_finishTimer('custmetabox-dataget');
-               // PerfTest: zeroBSCRM_performanceTest_startTimer('custmetabox-draw');
-            
-                //sticky tape some CSS until new UI!!
-            ?>
-                <style>
-                    #post-body-content{
-                        display:none;
-                    }
-                        @media all and (max-width:699px){
-                        table.wh-metatab{
-                            min-width:100% !important;
-                        }
-                    }  
-                </style>
-                <script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
-
-                <?php #} Pass this if it's a new customer (for internal automator) - note added this above with DEFINE for simpler.
-
-                    if (gettype($zbsCustomer) != "array") echo '<input type="hidden" name="zbscrm_newcustomer" value="1" />';
-
-                ?>
-
-
-
-                <table class="form-table wh-metatab wptbp" id="wptbpMetaBoxMainItem">
-                    <?php
-                       $avatar_mode = zeroBSCRM_getSetting( 'avatarmode' );
-							  // The only mode allowed to change images is Custom Images
-                       // (avatar_mode == "2") => Custom Images mode
-                       if ( $avatar_mode == "2" ) :
-                    ?>
-                    <tr class="wh-large"><th style="vertical-align: middle;"><label><?php esc_html_e('Profile Picture',"zero-bs-crm");?>:</label></th>
-                    <td class="zbs-field-id">
-                    <?php
-                        $avatar_url       = isset( $contact['id'] ) ? $zbs->DAL->contacts->getContactAvatar( $contact['id'] ) : zeroBSCRM_getDefaultContactAvatar();
-                        $empty_avatar_url = zeroBSCRM_getDefaultContactAvatar();
-                    ?>
-                    <div class="jpcrm-customer-profile-picture-container" style="margin-right:10px;">
-                        <img src="<?php echo esc_attr( $avatar_url ); ?>" id="profile-picture-img" class="jpcrm-customer-profile-picture" />
-                        <img src="<?php echo esc_attr( $empty_avatar_url ); ?>" id="empty-profile-picture" class="jpcrm-customer-profile-picture" style="display:none;" />
-                    <br />
-                    <label for="zbsc_profile-picture-file" class="jpcrm-customer-file-upload">
-                        <?php esc_html_e( 'Change Picture', 'zero-bs-crm' ); ?>
-                        <input id="zbsc_profile-picture-file" type="file" name="zbsc_profile-picture-file" class="jpcrm-customer-input-file"/>
-                    </label>
-                    <label id="zbsc_remove-profile-picture-button" class="jpcrm-customer-file-upload-remove">
-                        <?php esc_html_e( 'Remove', 'zero-bs-crm' ); ?>
-                        <input type="hidden" id="zbsc_remove-profile-picture" name="zbsc_remove-profile-picture" value="0" />
-                    </label>
-                    <?php 
-                        endif; 
-                    ?>
-
-                    <?php #} WH Hacky quick addition for MVP 
-                    # ... further hacked
-
-                    if ($zbsShowID == "1" && isset($contact['id']) && !empty($contact['id'])) { ?>
-							<tr class="wh-large"><th><label><?php esc_html_e( 'Contact ID', 'zero-bs-crm' ); ?>:</label></th>
-                    <td class="zbs-field-id">
-                        #<?php if (isset($contact['id'])) echo esc_html( $contact['id'] ); ?>
-                    </td></tr>
-                    <?php }
-
-            
-                    #} This global holds "enabled/disabled" for specific fields... ignore unless you're WH or ask
-                    global $zbsFieldsEnabled; if ($showSecondAddress == "1") $zbsFieldsEnabled['secondaddress'] = true;                    
-
-                    // WH: some people reporting second address still showing so applied a SECONDARY fix as couldn't replicate
-                    // see #2NDADDR below 
-                    
-                    #} This is the grouping :)
-                    $zbsFieldGroup = ''; $zbsOpenGroup = false;
-
-                    foreach ($fields as $fieldK => $fieldV){
-                        
-                        $showField = true;
-
-                        #} Check if not hard-hidden by opt override (on off for second address, mostly)
-                        if (isset($fieldV['opt']) && (!isset($zbsFieldsEnabled[$fieldV['opt']]) || !$zbsFieldsEnabled[$fieldV['opt']])) $showField = false;
-
-
-                        // or is hidden by checkbox? 
-                        if (isset($fieldHideOverrides['customer']) && is_array($fieldHideOverrides['customer'])){
-                            if (in_array($fieldK, $fieldHideOverrides['customer'])){
-                              $showField = false;
-                            }
-                        }
-
-                        // 'show/hide Countries' setting:
-                        if (isset($fieldV[0]) && $fieldV[0] == 'selectcountry' && $showCountryFields == 0 ) $showField = false;
-
-
-                        // ==================================================================================
-                        // Following grouping code needed moving out of ifShown loop:
-
-                            #} Whatever prev field group was, if this is diff, close (post group)
-                            if (
-                                $zbsOpenGroup &&
-                                    #} diff group
-                                    ( 
-                                        (isset($fieldV['area']) && $fieldV['area'] != $zbsFieldGroup) ||
-                                        #} No group
-                                         !isset($fieldV['area']) && $zbsFieldGroup != ''
-                                    )
-                                ){
-
-                                    #} Special cases... gross
-                                    $zbsCloseTable = true; if ($zbsFieldGroup == 'Main Address') $zbsCloseTable = false;
-
-                                    #} Close it
-                                    echo '</table></div>';
-                                    if ($zbsCloseTable) echo '</td></tr>';
-
-                            }
-
-                            #} Any groupings?
-                            if (isset($fieldV['area'])){
-
-                                #} First in a grouping? (assumes in sequential grouped order)
-                                if ($zbsFieldGroup != $fieldV['area']){
-
-                                    #} set it
-                                    $zbsFieldGroup = $fieldV['area'];
-                                    $fieldGroupLabel = str_replace(' ','_',$zbsFieldGroup); $fieldGroupLabel = strtolower($fieldGroupLabel);
-
-                                    #} Special cases... gross
-                                    $zbsOpenTable = true; if ($zbsFieldGroup == 'Second Address') $zbsOpenTable = false;
-
-                                    #} Make class for hiding address (this form output is weird) <-- classic mike saying my code is weird when it works fully. Ask if you don't know!
-                                    $zbsLineClass = ''; $zbsGroupClass = '';
-
-                                    // if addresses turned off, hide the lot
-                                    if ($showAddresses != "1") {
-
-                                        // addresses turned off
-                                        $zbsLineClass = 'zbs-hide';
-                                        $zbsGroupClass = 'zbs-hide';
-
-                                    } else { 
-
-                                        // addresses turned on
-                                        if ($zbsFieldGroup == 'Second Address'){
-
-                                            // if we're in second address grouping:
-
-                                                // if second address turned off
-                                                if ($showSecondAddress != "1"){
-
-                                                    $zbsLineClass = 'zbs-hide';
-                                                    $zbsGroupClass = 'zbs-hide';
-
-                                                }
-
-                                        }
-
-                                    }
-
-                                    // / address  modifiers
-
-                                    #} add group div + label
-                                    if ($zbsOpenTable) echo '<tr class="wh-large zbs-field-group-tr ' . esc_attr( $zbsLineClass ) . '"><td colspan="2">';
-
-                                    if( $fieldV['area'] == 'Second Address' ) {
-                                        echo '<div class="zbs-field-group zbs-fieldgroup-'. esc_attr( $fieldGroupLabel ) .' '. esc_attr( $zbsGroupClass ) .'"><label class="zbs-field-group-label">'. esc_html( $second_address_label ) .'</label>';
-                                    } else {
-                                        echo '<div class="zbs-field-group zbs-fieldgroup-'.esc_attr($fieldGroupLabel).' '. esc_attr($zbsGroupClass) .'"><label class="zbs-field-group-label">'. esc_html__( $fieldV['area'], 'zero-bs-crm' ).'</label>';
-                                    }
-
-                                    echo '<table class="form-table wh-metatab wptbp" id="wptbpMetaBoxGroup-'.esc_attr($fieldGroupLabel).'">';
-                                    
-                                    #} Set this (need to close)
-                                    $zbsOpenGroup = true;
-
-                                }
-
-
-                            } else {
-
-                                #} No groupings!
-                                $zbsFieldGroup = '';
-                                $zbsOpenGroup = false;
-
-                            }
-
-                        // / grouping
-                        // ==================================================================================
-                        
-
-
-                        #} If show...
-                        if ($showField) {
-
-                            if (isset($fieldV[0])){
-                                if ($zbsFieldGroup == 'Second Address') {
-                                    $fieldV[1] = str_replace( ' (' . $second_address_label . ')', '', $fieldV[1] );
-                                }
-                                // we now put these out via the centralised func (2.95.3+)
-                                //... rather than distinct switch below 
-                                zeroBSCRM_html_editField($zbsCustomer, $fieldK, $fieldV, $postPrefix = 'zbsc_');
-
-                            }
-
-                        } #} / if show
-
-                        // ==================================================================================
-                        // Following grouping code needed moving out of ifShown loop:
-
-
-                        // / grouping
-                        // ==================================================================================
-                        
-
-
-                        // new home for Company Add
-
-
-
-
-                    }
-
-
-                    #} Close group if still open after loop
-                    if ( $zbsOpenGroup ){
-
-                            #} Special cases... gross
-                            $zbsCloseTable = true; if ($zbsFieldGroup == 'Main Address') $zbsCloseTable = false;
-
-                            #} Close it
-                            echo '</table></div>';
-                            if ($zbsCloseTable) echo '</td></tr>';
-
-                    }
-
-                    /* Debug <tr><td colspan="2"><pre><?php print_r($zbsCustomer) ?></pre></td></tr> */
-
-                    ?>
-
-                    
-            </table>
-
-
-            <style type="text/css">
-            <?php   #2NDADDR - hard override of this if setting says off, hide it, whatever!
-                    if ($showSecondAddress != "1"){
-
-                        ?>.zbs-fieldgroup-second_address {display:none;}<?php 
-                    }
-            ?>
-                #submitdiv {
-                    display:none;
-                }
-            </style>
-            <script type="text/javascript">
-
-                jQuery(function(){
-
-                    // bastard override of wp terminology:
-                    jQuery('#submitdiv h2 span').html('<?php esc_html_e('Save',"zero-bs-crm");?>');
-                    if (jQuery('#submitdiv #publish').val() == 'Publish')
-                        jQuery('#submitdiv #publish').val('<?php esc_html_e('Save',"zero-bs-crm");?>');
-                    jQuery('#submitdiv').show();
-
-                    // turn off auto-complete on customer records via form attr... should be global for all ZBS record pages
-                    jQuery('#post').attr('autocomplete','off');
-
-                });
-
-
-            </script>
-               
-            <?php
-            // PerfTest: zeroBSCRM_performanceTest_finishTimer('custmetabox-draw');
-        }
+	/**
+	 * This method generates HTML content for contact and metadata.
+	 *
+	 * It contains a series of operations to format and display contact data
+	 * and metadata according to the parameters. This includes information retrieval,
+	 * settings configuration, field hiding, address display and others.
+	 *
+	 * @param array $contact An associative array containing contact details.
+	 * @param array $metabox Metabox information.
+	 *
+	 * @return  void
+	 */
+	public function html( $contact, $metabox ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		global $zbs; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		global $zbsContactEditing;  // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		global $zbsCustomerFields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		if ( ! isset( $zbsContactEditing ) && isset( $contact['id'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$customer          = zeroBS_getCustomer( $contact['id'], false, false, false );
+			$zbsContactEditing = $customer; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		} else {
+			$customer = $zbsContactEditing; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		}
+
+		$fields_to_hide       = $zbs->settings->get( 'fieldhides' );
+		$show_id              = (int) $zbs->settings->get( 'showid' );
+		$fields               = $zbsCustomerFields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$show_addresses       = zeroBSCRM_getSetting( 'showaddress' );
+		$show_second_address  = (int) zeroBSCRM_getSetting( 'secondaddress' );
+		$show_country_fields  = zeroBSCRM_getSetting( 'countries' );
+		$second_address_label = zeroBSCRM_getSetting( 'secondaddresslabel' );
+		if ( empty( $second_address_label ) ) {
+			$second_address_label = __( 'Second Address', 'zero-bs-crm' );
+		}
+		?>
+
+<script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
+
+		<?php
+		if ( gettype( $customer ) !== 'array' ) {
+			echo '<input type="hidden" name="zbscrm_newcustomer" value="1" />';
+		}
+		?>
+			<div>
+				<div class="jpcrm-form-grid" id="wptbpMetaBoxMainItem">
+		<?php
+		$avatar_mode = (int) zeroBSCRM_getSetting( 'avatarmode' );
+		if ( $avatar_mode === 2 ) :
+			?>
+					<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label"><?php esc_html_e( 'Profile Picture', 'zero-bs-crm' ); ?>:</label>
+			<?php
+							$avatar_url       = isset( $contact['id'] ) ? $zbs->DAL->contacts->getContactAvatar( $contact['id'] ) : zeroBSCRM_getDefaultContactAvatar(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+							$empty_avatar_url = zeroBSCRM_getDefaultContactAvatar();
+			?>
+								<div class="zbs-text-input">
+									<div class="jpcrm-customer-profile-picture-container" style="margin-right:10px;">
+											<img src="<?php echo esc_attr( $avatar_url ); ?>" id="profile-picture-img" class="jpcrm-customer-profile-picture" />
+											<img src="<?php echo esc_attr( $empty_avatar_url ); ?>" id="empty-profile-picture" class="jpcrm-customer-profile-picture" style="display:none;" />
+									<br />
+									<label for="zbsc_profile-picture-file" class="jpcrm-customer-file-upload">
+											<?php esc_html_e( 'Change Picture', 'zero-bs-crm' ); ?>
+											<input id="zbsc_profile-picture-file" type="file" name="zbsc_profile-picture-file" class="jpcrm-customer-input-file"/>
+									</label>
+									<label id="zbsc_remove-profile-picture-button" class="jpcrm-customer-file-upload-remove">
+											<?php esc_html_e( 'Remove', 'zero-bs-crm' ); ?>
+											<input type="hidden" id="zbsc_remove-profile-picture" name="zbsc_remove-profile-picture" value="0" />
+									</label>
+									</div>
+								</div>
+							</div>
+
+			<?php
+		endif;
+
+		if ( $show_id === 1 && isset( $contact['id'] ) && ! empty( $contact['id'] ) ) :
+			?>
+							<div class="jpcrm-form-group">
+								<label class="jpcrm-form-label"><?php esc_html_e( 'Contact ID', 'zero-bs-crm' ); ?>:</label>
+								<b>#<?php echo isset( $contact['id'] ) ? esc_html( $contact['id'] ) : ''; ?></b>
+							</div>
+							<div class="jpcrm-form-group">
+							</div>
+			<?php
+		endif;
+
+		global $zbsFieldsEnabled; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( $show_second_address === 1 ) {
+			$zbsFieldsEnabled['secondaddress'] = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		}
+		$field_group = '';
+
+		/*
+			* We need to know if we are in the first column or not because
+			* when we have a group (e.g. addresses), they should start in
+			* the first column. We are using only two columns.
+			*/
+		$is_first_column = false;
+		foreach ( $fields as $field_key => $field_value ) {
+			$is_first_column = ! $is_first_column;
+			$show_field      = ! isset( $field_value['opt'] ) || isset( $zbsFieldsEnabled[ $field_value['opt'] ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$show_field      = isset( $fields_to_hide['customer'] )
+				&& is_array( $fields_to_hide['customer'] )
+				&& in_array( $field_key, $fields_to_hide['customer'] ) // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+				? false
+				: $show_field;
+			$show_field      = isset( $field_value[0] )
+				&& 'selectcountry' === $field_value[0]
+				&& 0 === $show_country_fields
+				? false
+				: $show_field;
+
+			if ( isset( $field_value['area'] ) && $field_value['area'] !== '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				if ( $show_addresses !== 1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					continue;
+				} elseif ( $field_group === '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					if ( ! $is_first_column ) {
+						echo '<div class="jpcrm-empty-form-group">&nbsp;</div>';
+					}
+					echo '<div class="jpcrm-form-grid" style="padding:0px;grid-template-columns: 1fr;">';
+					echo '<div class="jpcrm-form-group"><label>';
+					echo esc_html__( $field_value['area'], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText
+					echo '</label></div>';
+				} elseif ( $field_group !== $field_value['area'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					echo '</div>';
+					echo '<div class="jpcrm-form-grid" style="padding:0px;grid-template-columns: 1fr;">';
+					echo '<div class="jpcrm-form-group"><label>';
+					echo $show_field ? esc_html( $second_address_label ) : '';
+					echo '</label></div>';
+				}
+				$field_group = $field_value['area']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText
+			}
+
+			if ( $field_group !== '' && ( ! isset( $field_value['area'] ) || $field_value['area'] === '' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$field_group = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				echo '</div>';
+				echo '<div class="jpcrm-form-group jpcrm-form-group-span-2">&nbsp;</div>';
+			}
+
+			if ( $show_field ) {
+				if ( isset( $field_value[0] ) ) {
+					if ( $field_group === 'Second Address' ) {
+						$field_value[1] = str_replace( ' (' . $second_address_label . ')', '', $field_value[1] );
+					}
+					zeroBSCRM_html_editField( $customer, $field_key, $field_value, 'zbsc_' );
+				}
+			}
+		}
+		?>
+					</div>
+				</div>
+		<?php
+	}
 
         public function save_data( $contact_id, $contact ) {
 
@@ -868,28 +700,14 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
         # https://codepen.io/kyleshockey/pen/bdeLrE 
 		if ( ! $is_new_contact ) {
 			?>
-
-        <?php #} Show avatar if avail
-        if (!empty($avatarStr)){
-
-            // if gravatar mode, don't circle
-            $segmentClass = 'ui circular segment';
-            $avatarMode = zeroBSCRM_getSetting('avatarmode');
-            if ( $avatarMode == 1 ) {
-                $segmentClass = 'ui segment';
-            }
-
-            echo '<div id="zbs-contact-edit-avatar"><div class="'. esc_attr( $segmentClass ) .'"><h2 class="ui header">'. $avatarStr .'</h2>';            
-            echo '</div></div>'; 
-        } ?>
         <script type="text/javascript">
             var zbsContactAvatarLang = {
                 'upload': '<?php esc_html_e("Upload Image","zero-bs-crm");?>',
             };
         </script>
         <div class="action-wrap">
-          <div class="ui green basic dropdown action-button"><?php esc_html_e('Contact Actions',"zero-bs-crm"); ?><i class="dropdown icon"></i>
-             <div class="menu">
+			<div class="ui dropdown jpcrm-button white-bg jpcrm-dropdown"><?php esc_html_e( 'Contact Actions', 'zero-bs-crm' ); ?><i class="fa fa-angle-down"></i>
+				<div class="menu" style="margin: 4px;">
               <?php foreach ($this->actions as $actKey => $action){ 
 
                 // filter out 'edit' as on that page :)
@@ -956,7 +774,7 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
        <?php }
 		?>
 			<div class="zbs-contact-actions-bottom zbs-objedit-actions-bottom">
-				<button class="ui button green" type="button" id="zbs-edit-save"><?php $is_new_contact ? esc_html_e( 'Save', 'zero-bs-crm' ) : esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Contact', 'zero-bs-crm' ); ?></button>
+				<button class="jpcrm-button" type="button" id="zbs-edit-save"><?php $is_new_contact ? esc_html_e( 'Save', 'zero-bs-crm' ) : esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Contact', 'zero-bs-crm' ); ?></button>
 				<div class='clear'></div>
 			</div>
 			<?php
@@ -1691,7 +1509,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
                 if ( zeroBSCRM_isWPAdmin() ){
                     
                     $url = admin_url('user-edit.php?user_id='.$wp_user_id);
-                    echo '<br /><a style="font-size: 12px;" href="'. esc_url( $url ) .'" target="_blank"><i class="wordpress simple icon"></i> '. esc_html__('View WordPress Profile','zero-bs-crm') .'</a>';
+							echo '<br /><a style="font-size: 12px;color:black;font-weight:600;" href="' . esc_url( $url ) . '" target="_blank"><i class="wordpress simple icon"></i> ' . esc_html__( 'View WordPress Profile', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 
                 }
 
@@ -1716,9 +1534,9 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
 
                         echo '<div id="zbs-customerportal-access-actions" class="zbs-customerportal-activeuser">';
 
-                        echo '<button type="button" id="zbs-customerportal-resetpw" class="ui mini button orange">' . esc_html( __( 'Reset Password', 'zero-bs-crm' ) ) . '</button>';
+								echo '<button type="button" id="zbs-customerportal-resetpw" class="ui mini button white">' . esc_html( __( 'Reset Password', 'zero-bs-crm' ) ) . '</button>';
 
-                        echo '<button type="button" id="zbs-customerportal-toggle" data-zbsportalaction="disable" class="ui mini button negative">' . esc_html( __( 'Disable Access', 'zero-bs-crm' ) ) . '</button>';
+								echo '<button type="button" id="zbs-customerportal-toggle" data-zbsportalaction="disable" class="ui mini button white negative">' . esc_html( __( 'Disable Access', 'zero-bs-crm' ) ) . '</button>';
 
                         echo '</div>';
 
@@ -1730,7 +1548,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
                     }
 
                     echo '<hr /><div class="zbs-customerportal-activeuser-actions">';
-                    echo sprintf( '<a target="_blank" href="%s" class="ui mini button green">%s</a>', esc_url( zeroBS_portal_link() ), esc_html( __( 'Preview Portal', 'zero-bs-crm' ) ) );
+							echo sprintf( '<a target="_blank" href="%s" class="ui mini button white">%s</a>', esc_url( zeroBS_portal_link() ), esc_html( __( 'Preview Portal', 'zero-bs-crm' ) ) );
                     echo '</div>';
                 } else {
 
@@ -1757,7 +1575,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
             echo '<div class="no-gen" style="text-align:center">';
             echo esc_html( __( 'No WordPress User exists with this email', 'zero-bs-crm' ) );
             echo '<br/><br/>';
-            echo '<div class="ui primary button button-primary wp-user-generate">';
+				echo '<div class="ui primary black button button-primary wp-user-generate">';
             echo esc_html( __( 'Generate WordPress User', 'zero-bs-crm' ) );
             echo '</div>';
             echo '<input type="hidden" name="newwp-ajax-nonce" id="newwp-ajax-nonce" value="' . esc_attr( wp_create_nonce( 'newwp-ajax-nonce' ) ) . '" />';
@@ -2097,7 +1915,7 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox{
             ?><div id="zbs-aka-alias-input-wrap">
                 <input type="text" class="zbs-aka-alias-input" placeholder="<?php esc_attr_e('Add Alias.. e.g.', 'zero-bs-crm'); ?> mike2@domain.com" />
                 <div class="ui pointing label" style="display:none;margin-bottom: 1em;margin-top: 0;" id="zbs-aka-alias-input-msg"><?php esc_html_e('Must be a valid email','zero-bs-crm'); ?></div>
-                <button type="button" class="ui small button primary" id="zbs-aka-alias-add"><?php esc_html_e('Add Alias',"zero-bs-crm"); ?></button>
+						<button type="button" class="ui small black button primary" id="zbs-aka-alias-add"><?php esc_html_e( 'Add Alias', 'zero-bs-crm' ); ?></button>
             </div>
 
             <script type="text/javascript">

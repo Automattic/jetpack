@@ -19,7 +19,11 @@ import { __ } from '@wordpress/i18n';
 import './panel.scss';
 import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
-import { NewsletterAccessDocumentSettings, NewsletterAccessPrePublishSettings } from './settings';
+import {
+	NewsletterNotice,
+	NewsletterAccessDocumentSettings,
+	NewsletterAccessPrePublishSettings,
+} from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
 
@@ -48,8 +52,13 @@ function NewsletterEditorSettingsPanel( {
 	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
+	isModuleActive,
 	showMisconfigurationWarning,
 } ) {
+	if ( ! isModuleActive ) {
+		return;
+	}
+
 	return (
 		<PluginDocumentSettingPanel
 			title={ __( 'Newsletter access', 'jetpack' ) }
@@ -135,14 +144,16 @@ function NewsletterPrePublishSettingsPanel( {
 			className="jetpack-subscribe-pre-publish-panel"
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
-			<NewsletterAccessPrePublishSettings
-				accessLevel={ accessLevel }
-				setPostMeta={ setPostMeta }
-				socialFollowers={ socialFollowers }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
-			/>
+			{ isModuleActive && (
+				<NewsletterAccessPrePublishSettings
+					accessLevel={ accessLevel }
+					setPostMeta={ setPostMeta }
+					socialFollowers={ socialFollowers }
+					emailSubscribers={ emailSubscribers }
+					paidSubscribers={ paidSubscribers }
+					showMisconfigurationWarning={ showMisconfigurationWarning }
+				/>
+			) }
 
 			{ shouldLoadSubscriptionPlaceholder && (
 				<SubscriptionsPanelPlaceholder>
@@ -166,6 +177,45 @@ function NewsletterPrePublishSettingsPanel( {
 	);
 }
 
+function NewsletterPostPublishSettingsPanel( {
+	accessLevel,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
+	isModuleActive,
+	showMisconfigurationWarning,
+} ) {
+	if ( ! isModuleActive ) {
+		return;
+	}
+
+	return (
+		<PluginPostPublishPanel
+			initialOpen
+			title={
+				<>
+					{ __( 'Newsletter:', 'jetpack' ) }
+					{ accessLevel && (
+						<span className={ 'editor-post-publish-panel__link' }>
+							{ accessOptions[ accessLevel ].label }
+						</span>
+					) }
+				</>
+			}
+			className="jetpack-subscribe-post-publish-panel"
+			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+		>
+			<NewsletterNotice
+				isPostPublishPanel={ true }
+				accessLevel={ accessLevel }
+				socialFollowers={ socialFollowers }
+				emailSubscribers={ emailSubscribers }
+				paidSubscribers={ paidSubscribers }
+				showMisconfigurationWarning={ showMisconfigurationWarning }
+			/>
+		</PluginPostPublishPanel>
+	);
+}
 export default function SubscribePanels() {
 	const { isModuleActive } = useModuleStatus( name );
 	const [ paidSubscribers, setPaidSubscribers ] = useState( null );
@@ -195,7 +245,7 @@ export default function SubscribePanels() {
 	}, [ isModuleActive ] );
 
 	// Can be “private”, “password”, or “public”.
-	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
+	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.
 	// TODO: Make it available for pages later.
@@ -226,8 +276,18 @@ export default function SubscribePanels() {
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
+				isModuleActive={ isModuleActive }
 			/>
 			<NewsletterPrePublishSettingsPanel
+				accessLevel={ accessLevel }
+				setPostMeta={ setPostMeta }
+				socialFollowers={ socialFollowers }
+				emailSubscribers={ emailSubscribers }
+				paidSubscribers={ paidSubscribers }
+				isModuleActive={ isModuleActive }
+				showMisconfigurationWarning={ showMisconfigurationWarning }
+			/>
+			<NewsletterPostPublishSettingsPanel
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
 				socialFollowers={ socialFollowers }

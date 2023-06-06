@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Changelogger checks: do not error out when require or require-dev are not set.
