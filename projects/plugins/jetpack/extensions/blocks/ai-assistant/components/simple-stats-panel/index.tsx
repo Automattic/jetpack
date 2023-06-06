@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { PanelBody, PanelRow } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
+import { PanelBody, PanelRow, Button } from '@wordpress/components';
+import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Types
@@ -14,10 +14,12 @@ import { AIFeatureProps } from '../../hooks/use-ai-feature';
 import './style.scss';
 
 export default function BasicStatsPanel( { requestsCount, requireUpgrade }: AIFeatureProps ) {
+	const [ isRedirecting, setIsRedirecting ] = useState( false );
+
 	let statsMessage = createInterpolateElement(
 		__( 'You have <stats /> free requests left.', 'jetpack' ),
 		{
-			stats: <strong>{ requestsCount }</strong>,
+			stats: <strong className="jetpack-ai-assistant__stats">{ requestsCount }</strong>,
 		}
 	);
 
@@ -34,11 +36,26 @@ export default function BasicStatsPanel( { requestsCount, requireUpgrade }: AIFe
 		);
 	}
 
+	const checkoutUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/add-jetpack-ai`;
+
 	return (
 		<PanelBody title={ __( 'Basic Stats', 'jetpack' ) } initialOpen={ true }>
 			<PanelRow>
 				<div className="jetpack-ai-assistant__simple-stats">{ statsMessage }</div>
 			</PanelRow>
+			{ requireUpgrade && (
+				<PanelRow>
+					<Button
+						href={ checkoutUrl }
+						onClick={ () => setIsRedirecting( true ) }
+						target="_top"
+						className="jetpack-ai-assistant__upgrade-button"
+						isBusy={ isRedirecting }
+					>
+						{ __( 'Upgrade', 'jetpack' ) }
+					</Button>
+				</PanelRow>
+			) }
 		</PanelBody>
 	);
 }

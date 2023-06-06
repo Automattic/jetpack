@@ -1,7 +1,25 @@
 @import '@automattic/jetpack-base-styles/style';
 
 .jetpack-ai-assistant__stats {
+	color: var( --jp-orange-20 );
 	&.has-unlimited-requests {
 		color: var( --jp-green-40 );
+	}
+}
+
+// Tweak the button style to match the other buttons in the UI
+.jetpack-ai-assistant__upgrade-button {
+	background-color: var( --jp-black );
+	color: var( --jp-white );
+
+	&.components-button:not(:disabled,[aria-disabled=true]):active,
+	&:focus,
+	&:active,
+	&:hover {
+		color: var( --jp-gray );
+	}
+
+	&.is-busy {
+		color: var( --jp-gray-80 );
 	}
 }
