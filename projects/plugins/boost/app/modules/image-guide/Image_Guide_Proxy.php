@@ -19,12 +19,12 @@ class Image_Guide_Proxy {
 	public function handle_ig_proxy() {
 		// Verify valid nonce.
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::NONCE_ACTION ) ) {
-			wp_die( 'bad nonce', 400 );
+			die( 'bad nonce' );
 		}
 
 		// Make sure currently logged in as admin.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( 'not admin', 400 );
+			die( 'not admin' );
 		}
 
 		// Validate URL and fetch.
@@ -35,7 +35,6 @@ class Image_Guide_Proxy {
 
 		$response = wp_remote_get( $proxy_url );
 		if ( is_wp_error( $response ) ) {
-			// TODO: Nicer error handling.
 			die( 'error' );
 		}
 
