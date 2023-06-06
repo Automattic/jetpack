@@ -2,6 +2,8 @@ export type SourceCallbackFn = ( node: HTMLElement ) => string | null;
 export type Dimensions = { width: number; height: number };
 export type Weight = { weight: number };
 
+type FetchFn = ( input: URL | RequestInfo, init?: RequestInit ) => Promise< Response >;
+
 /**
  * A class that represents a DOM Element that
  * has an image that should be measured and
@@ -16,11 +18,15 @@ export class MeasurableImage {
 	/**
 	 * Constructor.
 	 *
-	 * @param {HTMLElement | HTMLImageElement} node                        -  The DOM Element that contains the image.
-	 * @param {SourceCallbackFn} getURL                                    -  A function that takes in the node and returns the URL of the image.
-	 * @param {(input: string, init?: Array) => Promise<Response>} fetchFn -  A function that fetches a URL and returns a Promise.
+	 * @param {HTMLElement | HTMLImageElement} node -  The DOM Element that contains the image.
+	 * @param {SourceCallbackFn} getURL             -  A function that takes in the node and returns the URL of the image.
+	 * @param {FetchFn} fetchFn                     -  A function that fetches a URL and returns a Promise.
 	 */
-	constructor( node: HTMLElement | HTMLImageElement, getURL: SourceCallbackFn, fetchFn = fetch ) {
+	constructor(
+		node: HTMLElement | HTMLImageElement,
+		getURL: SourceCallbackFn,
+		fetchFn: FetchFn = fetch
+	) {
 		this.node = node;
 		this.getURLCallback = getURL;
 		this.fetch = fetchFn;
