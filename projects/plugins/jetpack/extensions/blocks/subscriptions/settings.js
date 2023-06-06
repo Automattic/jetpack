@@ -95,7 +95,7 @@ export function NewsletterNotice( {
 
 	let numberOfSubscribersText = sprintf(
 		/* translators: %s is the number of subscribers in numerical format */
-		__( 'This will be sent to <br/><strong>%s subscribers</strong>.', 'jetpack' ),
+		__( 'This will also be sent to <br/><strong>%s subscribers</strong>.', 'jetpack' ),
 		reachCount
 	);
 
