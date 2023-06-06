@@ -20,7 +20,6 @@ export function prerequisitesBuilder( page ) {
 		connected: undefined,
 		plan: undefined,
 		modules: { active: undefined, inactive: undefined },
-		sharingModalDismissed: undefined,
 	};
 
 	return {
@@ -60,10 +59,6 @@ export function prerequisitesBuilder( page ) {
 			state.clean = true;
 			return this;
 		},
-		withSharingModalDismissed() {
-			state.sharingModalDismissed = true;
-			return this;
-		},
 		async build() {
 			await buildPrerequisites( state, page );
 		},
@@ -79,7 +74,6 @@ async function buildPrerequisites( state, page ) {
 		plan: () => ensurePlan( state.plan, page ),
 		modules: () => ensureModulesState( state.modules ),
 		clean: () => ensureCleanState( state.clean ),
-		sharingModalDismissed: () => ensureSharingModalDismissed(),
 	};
 
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
@@ -158,11 +152,6 @@ async function ensureCleanState( shouldReset ) {
 		await execWpCommand( 'jetpack disconnect blog' );
 		await resetWordpressInstall();
 	}
-}
-
-async function ensureSharingModalDismissed() {
-	logger.prerequisites( 'Ensuring sharing modal added by the ETK plugin is dismissed' );
-	await execWpCommand( 'option update sharing_modal_dismissed 1' );
 }
 
 export async function ensurePlan( plan = undefined, page ) {
