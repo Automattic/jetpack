@@ -38,6 +38,60 @@ class Update_Contact extends Base_Action {
 	}
 
 	/**
+	 * Get the slug name of the step
+	 *
+	 * @return string
+	 */
+	public static function get_slug(): string {
+		return 'jpcrm/update_contact';
+	}
+
+	/**
+	 * Get the title of the step
+	 *
+	 * @return string
+	 */
+	public static function get_title(): ?string {
+		return 'Update Contact Action';
+	}
+
+	/**
+	 * Get the description of the step
+	 *
+	 * @return string
+	 */
+	public static function get_description(): ?string {
+		return 'Action to update the contact';
+	}
+
+	/**
+	 * Get the type of the step
+	 *
+	 * @return string
+	 */
+	public static function get_type(): string {
+		return 'contacts';
+	}
+
+	/**
+	 * Get the category of the step
+	 *
+	 * @return string
+	 */
+	public static function get_category(): ?string {
+		return 'actions';
+	}
+
+	/**
+	 * Get the allowed triggers
+	 *
+	 * @return array
+	 */
+	public static function get_allowed_triggers(): ?array {
+		return array();
+	}
+
+	/**
 	 * Update the DAL with the new contact status.
 	 *
 	 * @param array $contact_data The contact data to be updated.

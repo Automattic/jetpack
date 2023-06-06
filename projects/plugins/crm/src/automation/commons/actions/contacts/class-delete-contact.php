@@ -24,11 +24,6 @@ class Delete_Contact extends Base_Action {
 	 */
 	protected $attributes;
 
-		/**
-		 * @var array Step data.
-		 */
-	protected $name;
-
 	/**
 	 * Delete_Contact constructor.
 	 *
@@ -40,6 +35,60 @@ class Delete_Contact extends Base_Action {
 
 		$this->action_data = $action_data;
 		$this->attributes  = $action_data['attributes'];
+	}
+
+	/**
+	 * Get the slug name of the step
+	 *
+	 * @return string
+	 */
+	public static function get_slug(): string {
+		return 'jpcrm/delete_contact';
+	}
+
+	/**
+	 * Get the title of the step
+	 *
+	 * @return string
+	 */
+	public static function get_title(): ?string {
+		return 'Delete Contact Action';
+	}
+
+	/**
+	 * Get the description of the step
+	 *
+	 * @return string
+	 */
+	public static function get_description(): ?string {
+		return 'Action to delete the contact';
+	}
+
+	/**
+	 * Get the type of the step
+	 *
+	 * @return string
+	 */
+	public static function get_type(): string {
+		return 'contacts';
+	}
+
+	/**
+	 * Get the category of the step
+	 *
+	 * @return string
+	 */
+	public static function get_category(): ?string {
+		return 'actions';
+	}
+
+	/**
+	 * Get the allowed triggers
+	 *
+	 * @return array
+	 */
+	public static function get_allowed_triggers(): ?array {
+		return array();
 	}
 
 	/**

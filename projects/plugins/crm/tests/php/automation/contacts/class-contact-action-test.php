@@ -32,7 +32,7 @@ class Contact_Action_Test extends BaseTestCase {
 	public function test_update_contact_action() {
 
 		$action_data = array(
-			'name'       => 'update_contact',
+			'slug'       => 'jpcrm/update_contact',
 			'attributes' => array(
 				'new_status' => 'Customer',
 			),
@@ -68,17 +68,17 @@ class Contact_Action_Test extends BaseTestCase {
 	public function test_update_contact_action_with_workflow() {
 
 		$action_data = array(
-			'name'       => 'update_contact',
+			'slug'       => 'jpcrm/update_contact',
 			'attributes' => array(
 				'new_status' => 'Customer',
 			),
 		);
 
 		$automation = new Automation_Engine();
-		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
-		$automation->register_step( 'update_contact', Update_Contact::class );
+		$automation->register_trigger( Contact_Created_Trigger::class );
+		$automation->register_step( 'jpcrm/update_contact', Update_Contact::class );
 
-		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action( 'contact_created', $action_data );
+		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action( 'jpcrm/contact_created', $action_data );
 
 		$workflow = new Automation_Workflow( $workflow_data, $automation );
 
@@ -114,7 +114,7 @@ class Contact_Action_Test extends BaseTestCase {
 	public function test_delete_contact_action() {
 
 		$action_data = array(
-			'name'        => 'delete_contact',
+			'slug'        => 'jpcrm/delete_contact',
 			'title'       => 'Delete Contact Action',
 			'description' => 'Test: Testing the delete contact action',
 			'type'        => 'dummy',
@@ -156,7 +156,7 @@ class Contact_Action_Test extends BaseTestCase {
 	public function test_delete_contact_action_with_workflow() {
 
 		$action_data = array(
-			'name'        => 'delete_contact',
+			'slug'        => 'jpcrm/delete_contact',
 			'title'       => 'Delete Contact Action',
 			'description' => 'Test: Testing the delete contact action',
 			'type'        => 'dummy',
@@ -168,10 +168,10 @@ class Contact_Action_Test extends BaseTestCase {
 		);
 
 		$automation = new Automation_Engine();
-		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
-		$automation->register_step( 'delete_contact', Delete_Contact::class );
+		$automation->register_trigger( Contact_Created_Trigger::class );
+		$automation->register_step( 'jpcrm/delete_contact', Delete_Contact::class );
 
-		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action( 'contact_created', $action_data );
+		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action( 'jpcrm/contact_created', $action_data );
 
 		$workflow = new Automation_Workflow( $workflow_data, $automation );
 
