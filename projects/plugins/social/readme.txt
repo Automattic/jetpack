@@ -90,17 +90,16 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.10.0 - 2023-05-02
+### 1.11.0 - 2023-06-06
 #### Added
-- Social: Updating plugin version.
+- Added feature flag for Mastodon preview
+- Jetpack Social: Add a notice to let users know Instagram is available
 
 #### Changed
-- Added dynamic pricing to Social admin page.
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now
 - Updated package dependencies.
-- Update WordPress version requirements. Now requires version 6.1.
+- Updates the enhanced publishing feature check
 
-#### Fixed
-- Dashboard: ensure the link to the post editor works, even when WordPress is installed in a subdirectory.
-- Jetpack Social: Render Social Image Generator panel even when SIG's default is disabled.
-- Temporarily removed review prompts to fix the plugin's UI state.
+#### Deprecated
+- Minor changes around upcoming functionality change in Twitter.
 

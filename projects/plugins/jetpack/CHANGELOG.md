@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.2-beta - 2023-06-05
+## 12.2 - 2023-06-06
 ### Major Enhancements
 - New AI Assistant block: harness AI power directly from your editor.
 - Donations, Paid Content and Payment Buttons blocks are now available with all Jetpack plans. A commission is charged for free plans.
