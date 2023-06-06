@@ -57,42 +57,18 @@ describe( 'didScoresChange', () => {
 	} );
 
 	it( 'should return true if scores changed', () => {
-<<<<<<< HEAD
-<<<<<<< HEAD
 		const changedMockData = Object.assign( {}, mockData );
 		changedMockData.scores.noBoost.desktop = 60;
 		changedMockData.scores.noBoost.mobile = 50;
 
 		expect( didScoresChange( changedMockData.scores ) ).toBe( true );
-=======
-		mockData.scores.noBoost.desktop = 60;
-		mockData.scores.noBoost.mobile = 50;
-
-		expect( didScoresChange( mockData.scores ) ).toBe( true );
->>>>>>> 2a8a96442d (Add tests to boost-score-api package)
-=======
-		const changedMockData = Object.assign( {}, mockData );
-		changedMockData.scores.noBoost.desktop = 60;
-		changedMockData.scores.noBoost.mobile = 50;
-
-		expect( didScoresChange( changedMockData.scores ) ).toBe( true );
->>>>>>> fd0d209603 (Update tests to not reassign values to global mockData)
 	} );
 } );
 
 describe( 'getScoreMovementPercentage', () => {
 	it( 'returns the correct percentage of scores moved', () => {
-<<<<<<< HEAD
-<<<<<<< HEAD
 		const changedMockData = Object.assign( {}, mockData );
 		const newScores = {
-=======
-		const mockScores = {
->>>>>>> 2a8a96442d (Add tests to boost-score-api package)
-=======
-		const changedMockData = Object.assign( {}, mockData );
-		const newScores = {
->>>>>>> fd0d209603 (Update tests to not reassign values to global mockData)
 			current: {
 				desktop: 90,
 				mobile: 80,
@@ -102,8 +78,6 @@ describe( 'getScoreMovementPercentage', () => {
 				mobile: 80,
 			},
 		};
-<<<<<<< HEAD
-<<<<<<< HEAD
 		changedMockData.scores = newScores;
 
 		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 0 );
@@ -111,20 +85,5 @@ describe( 'getScoreMovementPercentage', () => {
 		( changedMockData.scores.noBoost.desktop = 80 ), ( changedMockData.scores.noBoost.mobile = 70 );
 
 		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 13 );
-=======
-=======
-		changedMockData.scores = newScores;
->>>>>>> fd0d209603 (Update tests to not reassign values to global mockData)
-
-		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 0 );
-
-		( changedMockData.scores.noBoost.desktop = 80 ), ( changedMockData.scores.noBoost.mobile = 70 );
-
-<<<<<<< HEAD
-		expect( getScoreMovementPercentage( mockScores ) ).toBe( 13 );
->>>>>>> 2a8a96442d (Add tests to boost-score-api package)
-=======
-		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 13 );
->>>>>>> fd0d209603 (Update tests to not reassign values to global mockData)
 	} );
 } );
