@@ -25,6 +25,7 @@ use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
+use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
@@ -105,7 +106,7 @@ class Jetpack_Boost {
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
-		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ) );
+		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ), 10, 2 );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -116,6 +117,9 @@ class Jetpack_Boost {
 
 		// Register the core Image CDN hooks.
 		Image_CDN_Core::setup();
+
+		// Setup Site Health panel functionality.
+		Site_Health::init();
 	}
 
 	/**
@@ -191,12 +195,12 @@ class Jetpack_Boost {
 	 * This is done here so even if the Critical CSS module is switched off we can
 	 * still capture the change of environment event and flag Critical CSS for a rebuild.
 	 */
-	public function handle_environment_change( $is_major_change ) {
+	public function handle_environment_change( $is_major_change, $change_type ) {
 		if ( $is_major_change ) {
 			Regenerate_Admin_Notice::enable();
-		} else {
-			jetpack_boost_ds_set( 'critical_css_suggest_regenerate', true );
 		}
+
+		jetpack_boost_ds_set( 'critical_css_suggest_regenerate', $change_type );
 	}
 
 	/**
