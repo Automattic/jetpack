@@ -264,8 +264,8 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$this->assertGreaterThan( 7, $total_log );
 
-		$this->assertEquals( 'Condition met?: true', $log[ $total_log - 3 ][1] );
-		$this->assertEquals( '[contact_status] Step executed!', $log[ $total_log - 2 ][1] );
+		$this->assertEquals( 'Condition met?: true', $log[ $total_log - 6 ][1] );
+		$this->assertEquals( '[contact_status] Step executed!', $log[ $total_log - 5 ][1] );
 		$this->assertEquals( 'Workflow execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
 	}
 
