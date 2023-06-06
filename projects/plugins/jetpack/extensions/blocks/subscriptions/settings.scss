@@ -39,7 +39,7 @@
 
 }
 
-.editor-post-visibility {
+.editor-post-visibility__fieldset .editor-post-visibility {
 	&__choice {
 		margin-bottom: 15px;
 		.editor-post-visibility__label {
@@ -62,6 +62,6 @@
 	}
 
 	&__info {
-		margin-top: -7px;
+		margin-top: -10px;
 	}
 }
