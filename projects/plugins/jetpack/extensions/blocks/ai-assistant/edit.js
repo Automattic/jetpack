@@ -59,6 +59,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}, 100 );
 	};
 
+	const { requireUpgrade, requestsCount, refresh: refreshFeatureData } = useAIFeature();
+
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -80,6 +82,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setError,
 		tracks,
 		userPrompt,
+		refreshFeatureData,
 	} );
 
 	useEffect( () => {
@@ -87,8 +90,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			setErrorDismissed( false );
 		}
 	}, [ errorData ] );
-
-	const { requireUpgrade, requestsCount } = useAIFeature();
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
