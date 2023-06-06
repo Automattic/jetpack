@@ -210,13 +210,6 @@ function NewsletterAccessRadioButtons( {
 						className="editor-post-visibility__label"
 					>
 						{ accessOptions[ key ].label }
-
-						{ /* Do not show subscriber numbers in the PrePublish panel */ }
-						{ ! isPrePublishPanel &&
-							' (' +
-								getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers ) +
-								( key === accessOptions.everybody.key ? '+' : '' ) +
-								')' }
 					</label>
 					<p
 						id={ `editor-post-${ key }-${ instanceId }-description` }
