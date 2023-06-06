@@ -63,6 +63,11 @@ export function NewsletterNotice( {
 		return;
 	}
 
+	// For the "Everybody" option, only display the subscriber numbers in the PostPublishPnael
+	if ( ! isPostPublishPanel && accessOptions.everybody.key === accessLevel ) {
+		return;
+	}
+
 	// Get the reach count for the access level
 	const reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
 
@@ -87,10 +92,6 @@ export function NewsletterNotice( {
 				</Notice>
 			</FlexBlock>
 		);
-	}
-
-	if ( accessOptions.everybody.key === accessLevel ) {
-		return; // Do not display reach numbers for this key
 	}
 
 	let numberOfSubscribersText = sprintf(
