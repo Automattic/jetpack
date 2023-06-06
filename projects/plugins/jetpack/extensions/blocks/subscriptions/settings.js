@@ -211,7 +211,7 @@ function NewsletterAccessRadioButtons( {
 						{ accessOptions[ key ].label }
 					</label>
 					{ key === accessLevel && (
-						<p className="pre-public-panel-notice-reach">
+						<p className="editor-post-visibility__notice">
 							<NewsletterNotice
 								accessLevel={ accessLevel }
 								emailSubscribers={ emailSubscribers }

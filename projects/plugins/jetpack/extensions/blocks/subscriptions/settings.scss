@@ -8,6 +8,10 @@
 	}
 }
 
+.jetpack-newsletter-link {
+	text-decoration: none;
+}
+
 .edit-post-post-misconfiguration {
 	&__warning {
 		margin: 0;
@@ -18,15 +22,13 @@
 		}
 	}
 }
+
 .edit-post-post-visibility {
 	&__notice {
 		margin: 0;
-
-		// General notice background color.
-		// Colors are forced as per instructions: https://github.com/Automattic/jetpack/pull/30446#issuecomment-1543510120
 		&.is-info {
 			background: #e9f0f5;
-			border-left-color: #007cba;
+			border-left-color: #e9f0f5;
 		}
 	}
 
@@ -36,28 +38,25 @@
 
 }
 
-.jetpack-newsletter-link {
-	text-decoration: none;
-}
+.editor-post-visibility {
+	&__choice {
+		margin-bottom: 15px;
+		.editor-post-visibility__label {
+			font-size: 14px;
+		}
 
-.editor-post-visibility__choice input[disabled] {
-	background-color: $gray-400;
-	cursor:no-drop;
+		&input[disabled] {
+			background-color: $gray-400;
+			cursor:no-drop;
 
-	&+label{
-		cursor:no-drop;
+			&+label {
+				cursor:no-drop;
+			}
+		}
 	}
-}
 
-
-.editor-post-visibility__choice {
-	margin-bottom: 15px;
-
-	.editor-post-visibility__label {
-		font-size: 14px;
+	&__notice {
+		margin-top: 5px !important; // !important is used here to override .interface-complementary-area p:not(.components-base-control__help)
+		margin-left: 33px;
 	}
-}
-
-.pre-public-panel-notice-reach{
-		margin-bottom:20px;
 }
