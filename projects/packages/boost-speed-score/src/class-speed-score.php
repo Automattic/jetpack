@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Boost_Speed_Score;
 
-use Automattic\Jetpack\Boost_Speed_Score\Lib\Utils;
+use Automattic\Jetpack\Boost_Core\Lib\Utils;
 
 if ( ! defined( 'JETPACK_BOOST_REST_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_REST_NAMESPACE', 'jetpack-boost/v1' );
@@ -23,7 +23,7 @@ if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
  */
 class Speed_Score {
 
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.2.0-alpha';
 
 	/**
 	 * An instance of Automatic\Jetpack_Boost\Modules\Modules_Setup passed to the constructor

@@ -53,14 +53,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}, 100 );
 	};
 
-	const handleSuggestionDone = () => {
-		focusOnPrompt();
-	};
-
-	const handleUnclearPrompt = () => {
-		focusOnPrompt();
-	};
-
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -73,8 +65,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		retryRequest,
 		wholeContent,
 	} = useSuggestionsFromOpenAI( {
-		onSuggestionDone: handleSuggestionDone,
-		onUnclearPrompt: handleUnclearPrompt,
+		onSuggestionDone: focusOnPrompt,
+		onUnclearPrompt: focusOnPrompt,
+		onModeration: focusOnPrompt,
 		attributes,
 		clientId,
 		content: attributes.content,
@@ -225,6 +218,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				onChange={ () => setErrorDismissed( true ) }
 				requireUpgrade={ errorData?.code === 'error_quota_exceeded' }
 				recordEvent={ tracks.recordEvent }
+				isGeneratingTitle={ attributes.promptType === 'generateTitle' }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
