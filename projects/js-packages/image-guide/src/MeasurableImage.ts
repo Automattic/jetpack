@@ -18,7 +18,7 @@ export class MeasurableImage {
 	 *
 	 * @param {HTMLElement | HTMLImageElement} node -  The DOM Element that contains the image.
 	 * @param {SourceCallbackFn} getURL             -  A function that takes in the node and returns the URL of the image.
-	 * @param {(input: string, init?: Array) => Promise<Response>} fetchFn                               -  A function that fetches a URL and returns a Promise.
+	 * @param {(input: string, init?: Array) => Promise<Response>} fetchFn -  A function that fetches a URL and returns a Promise.
 	 */
 	constructor( node: HTMLElement | HTMLImageElement, getURL: SourceCallbackFn, fetchFn = fetch ) {
 		this.node = node;
