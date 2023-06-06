@@ -33,7 +33,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_contact_updated_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_updated' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_updated' );
 
 		$trigger = new Contact_Updated();
 
@@ -66,7 +66,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_contact_status_updated_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_status_updated' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_status_updated' );
 
 		$trigger = new Contact_Status_Updated();
 
@@ -99,7 +99,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_contact_new_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_new' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_new' );
 
 		$trigger = new Contact_New();
 
@@ -132,7 +132,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_contact_email_updated_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_email_updated' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_email_updated' );
 
 		$trigger = new Contact_Email_Updated();
 
@@ -165,7 +165,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_contact_deleted_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_deleted' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_deleted' );
 
 		$trigger = new Contact_Deleted();
 
@@ -198,7 +198,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_contact_before_deleted_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_before_deleted' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_before_deleted' );
 
 		$trigger = new Contact_Before_Deleted();
 
