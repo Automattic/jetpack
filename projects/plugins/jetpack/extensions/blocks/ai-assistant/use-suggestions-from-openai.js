@@ -11,9 +11,9 @@ import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
+import { DEFAULT_PROMPT_TONE } from './components/tone-dropdown-control';
 import { buildPrompt } from './create-prompt';
 import { askJetpack, askQuestion } from './get-suggestion-with-stream';
-import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 const debug = debugFactory( 'jetpack-ai-assistant' );
 
