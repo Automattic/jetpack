@@ -23,17 +23,14 @@ export const META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS = '_jetpack_newsletter_acc
 export const accessOptions = {
 	everybody: {
 		key: 'everybody',
-		label: __( 'Everybody', 'jetpack' ),
-		info: __( 'Visible to everyone.', 'jetpack' ),
+		label: __( 'Everyone', 'jetpack' ),
 	},
 	subscribers: {
 		key: 'subscribers',
-		label: __( 'All subscribers', 'jetpack' ),
-		info: __( 'Anyone subscribed to your newsletter.', 'jetpack' ),
+		label: __( 'Anyone subscribed', 'jetpack' ),
 	},
 	paid_subscribers: {
 		key: 'paid_subscribers',
-		label: __( 'Paid subscribers', 'jetpack' ),
-		info: __( 'Only for paid subscribers.', 'jetpack' ),
+		label: __( 'Paid subscribers only', 'jetpack' ),
 	},
 };
