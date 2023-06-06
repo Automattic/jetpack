@@ -809,6 +809,14 @@ async function buildProject( t ) {
 							if ( ctxPkg.name === pkg ) {
 								let massagedVer = ctxPkg.version;
 								massagedVer = `^${ massagedVer }`;
+								if ( process.env.GITHUB_RUN_NUMBER && massagedVer.endsWith( 'alpha' ) ) {
+									massagedVer =
+										massagedVer +
+										'.' +
+										process.env.GITHUB_RUN_NUMBER +
+										'.' +
+										process.env.GITHUB_RUN_ATTEMPT;
+								}
 								composerJson[ key ][ pkg ] = massagedVer;
 								break;
 							}
@@ -849,6 +857,14 @@ async function buildProject( t ) {
 							if ( ctxPkg.jsName === pkg ) {
 								let massagedVer = ctxPkg.version;
 								massagedVer = `^${ massagedVer }`;
+								if ( process.env.GITHUB_RUN_NUMBER && massagedVer.endsWith( 'alpha' ) ) {
+									massagedVer =
+										massagedVer +
+										'.' +
+										process.env.GITHUB_RUN_NUMBER +
+										'.' +
+										process.env.GITHUB_RUN_ATTEMPT;
+								}
 								packageJson[ key ][ pkg ] = massagedVer;
 								break;
 							}
@@ -923,6 +939,14 @@ async function buildProject( t ) {
 		const match = line.match( /^## +(\[?[^\] ]+\]?)/ );
 		if ( match && match[ 1 ] ) {
 			projectVersionNumber = match[ 1 ].replace( /[[\]]/g, '' );
+			if ( process.env.GITHUB_RUN_NUMBER && projectVersionNumber.endsWith( 'alpha' ) ) {
+				projectVersionNumber =
+					projectVersionNumber +
+					'.' +
+					process.env.GITHUB_RUN_NUMBER +
+					'.' +
+					process.env.GITHUB_RUN_ATTEMPT;
+			}
 			rl.close();
 			rl.removeAllListeners();
 		}
