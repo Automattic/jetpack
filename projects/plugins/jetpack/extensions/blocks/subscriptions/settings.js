@@ -275,7 +275,7 @@ export function NewsletterAccessDocumentSettings( {
 				<PanelRow className="edit-post-post-visibility">
 					<Flex direction="column">
 						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-						<Flex direction="row" justify="flex-start">
+						<FlexBlock direction="row" justify="flex-start">
 							{ canEdit && (
 								<div className="editor-post-visibility">
 									<NewsletterAccessRadioButtons
@@ -292,7 +292,7 @@ export function NewsletterAccessDocumentSettings( {
 
 							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
 							{ ! canEdit && <span>{ accessLabel }</span> }
-						</Flex>
+						</FlexBlock>
 						<FlexBlock>
 							<NewsletterLearnMore />
 						</FlexBlock>
