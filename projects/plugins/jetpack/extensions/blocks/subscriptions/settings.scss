@@ -39,7 +39,7 @@
 
 }
 
-.editor-post-visibility__fieldset .editor-post-visibility {
+fieldset.editor-post-visibility__fieldset .editor-post-visibility {
 	&__choice {
 		margin-bottom: 15px;
 		.editor-post-visibility__label {
@@ -57,7 +57,7 @@
 	}
 
 	&__notice {
-		margin-top: 5px !important; // !important is used here to override .interface-complementary-area p:not(.components-base-control__help)
+		margin-top: 5px;
 		margin-left: 33px;
 	}
 
