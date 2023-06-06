@@ -30,7 +30,7 @@ class Delete_Contact extends Base_Action {
 	 * @param array $action_data An array of the action data.
 	 *
 	 */
-	public function __construct( $action_data ) {
+	public function __construct( array $action_data ) {
 		Base_Action::__construct( $action_data );
 
 		$this->action_data = $action_data;
@@ -52,7 +52,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_title(): ?string {
-		return 'Delete Contact Action';
+		return __( 'Delete Contact Action', 'zero-bs-crm' );
 	}
 
 	/**
@@ -61,7 +61,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_description(): ?string {
-		return 'Action to delete the contact';
+		return __( 'Action to delete the contact', 'zero-bs-crm' );
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_category(): ?string {
-		return 'actions';
+		return __( 'Contacts', 'zero-bs-crm' );
 	}
 
 	/**
