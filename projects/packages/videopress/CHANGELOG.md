@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.5] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+### Fixed
+- Fixes VideoPress ajax calls on wp.com [#30947]
+
 ## [0.14.4] - 2023-05-22
 ### Added
 - RNMobile: Disable VideoPress settings if video does not belong to the site [#30759]
@@ -1025,6 +1032,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.14.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.4...v0.14.5
 [0.14.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.3...v0.14.4
 [0.14.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.2...v0.14.3
 [0.14.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.1...v0.14.2
