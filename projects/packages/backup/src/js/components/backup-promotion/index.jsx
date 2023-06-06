@@ -23,6 +23,7 @@ export default function BackupPromotion() {
 						'10 GB'
 					) }
 				</li>
+				<li>{ __( 'Easy one-click restores from desktop or mobile', 'jetpack-backup-pkg' ) }</li>
 				<li>{ __( 'Complete list of all site changes', 'jetpack-backup-pkg' ) }</li>
 				<li>{ __( 'Global server infrastructure', 'jetpack-backup-pkg' ) }</li>
 				<li>{ __( 'Best-in-class support', 'jetpack-backup-pkg' ) }</li>
