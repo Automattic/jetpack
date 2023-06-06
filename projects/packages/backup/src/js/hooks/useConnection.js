@@ -53,7 +53,7 @@ export default function useConnection() {
 				priceBefore={ price }
 				pricingIcon={ <JetpackVaultPressBackupLogo showText={ false } /> }
 				pricingTitle={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
-				title={ __( 'The best real-time WordPress backups ', 'jetpack-backup-pkg' ) }
+				title={ __( 'The best real-time WordPress backups', 'jetpack-backup-pkg' ) }
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				registrationNonce={ registrationNonce }
