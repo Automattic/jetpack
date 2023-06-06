@@ -6,6 +6,7 @@ use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
@@ -48,6 +49,7 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 	 */
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
+		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
 
 		if ( Generator::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
@@ -131,5 +133,9 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 			Critical_CSS_Insert::class,
 			Critical_CSS_Start::class,
 		);
+	}
+
+	public function update_total_problem_count( $count ) {
+		return ( new Critical_CSS_State() )->has_errors() ? ++$count : $count;
 	}
 }
