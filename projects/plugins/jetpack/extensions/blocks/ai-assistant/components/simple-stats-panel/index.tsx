@@ -39,7 +39,7 @@ export default function BasicStatsPanel( { requestsCount, requireUpgrade }: AIFe
 	const checkoutUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/add-jetpack-ai`;
 
 	return (
-		<PanelBody title={ __( 'Basic Stats', 'jetpack' ) } initialOpen={ true }>
+		<PanelBody title={ __( 'Stats', 'jetpack' ) } initialOpen={ true }>
 			<PanelRow>
 				<div className="jetpack-ai-assistant__simple-stats">{ statsMessage }</div>
 			</PanelRow>
