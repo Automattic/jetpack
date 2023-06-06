@@ -2432,12 +2432,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "cc191277c2f3d7980556703070eb3e5e7d6c0ad3"
+                "reference": "0ce39843c1ab7ad74ccf3b6d27564f97cfd394d7"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-stats": "@dev",
                 "automattic/jetpack-status": "@dev"
             },
@@ -2454,7 +2455,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
