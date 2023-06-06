@@ -88,7 +88,7 @@ const ConnectScreenRequiredPlan = props => {
 
 ConnectScreenRequiredPlan.propTypes = {
 	/** The Title. */
-	title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
+	title: PropTypes.string,
 	/** The Connect Button label. */
 	buttonLabel: PropTypes.string,
 	/** API root. */

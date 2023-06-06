@@ -51,7 +51,7 @@ const ConnectScreenLayout = props => {
 
 ConnectScreenLayout.propTypes = {
 	/** The Title. */
-	title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
+	title: PropTypes.string,
 	/** Class to be added to component. */
 	className: PropTypes.string,
 	/** Images to display on the right side. */

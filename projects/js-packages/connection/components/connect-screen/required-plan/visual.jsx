@@ -126,7 +126,7 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	/** The Currency code, eg 'USD'. */
 	pricingCurrencyCode: PropTypes.string,
 	/** The Title. */
-	title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
+	title: PropTypes.string,
 	/** The Connect Button label. */
 	buttonLabel: PropTypes.string,
 	/** The Pricing Card Icon. */
