@@ -58,13 +58,13 @@ export function NewsletterNotice( {
 		select( editorStore ).isCurrentPostPublished()
 	);
 
-	// Get the reach count for the access level
-	let reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
-
 	// If there is a misconfiguration, we do not show the NewsletterNotice
 	if ( showMisconfigurationWarning ) {
 		return;
 	}
+
+	// Get the reach count for the access level
+	const reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
 
 	if ( 0 === reachCount ) {
 		return (
@@ -90,7 +90,7 @@ export function NewsletterNotice( {
 	}
 
 	if ( accessOptions.everybody.key === accessLevel ) {
-		reachCount = reachCount + '+'; // Concat "+"
+		return; // Do not display reach numbers for this key
 	}
 
 	let numberOfSubscribersText = sprintf(
