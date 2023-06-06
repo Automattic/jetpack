@@ -17,29 +17,11 @@ const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plug
  */
 const editorSetup = path.join( __dirname, '../extensions', 'editor' );
 const viewSetup = path.join( __dirname, '../extensions', 'view' );
-const blockEditorDirectories = [ 'plugins', 'blocks' ];
 const noop = function () {};
-
-/**
- * Filters block editor scripts
- *
- * @param {string} type - script type
- * @param {string} inputDir - input directory
- * @param {Array} presetBlocks - preset blocks
- * @returns {Array} list of block scripts
- */
-function presetProductionExtensions( type, inputDir, presetBlocks ) {
-	return presetBlocks
-		.flatMap( block =>
-			blockEditorDirectories.map( dir => path.join( inputDir, dir, block, `${ type }.js` ) )
-		)
-		.filter( fs.existsSync );
-}
 
 const presetPath = path.join( __dirname, '../extensions', 'index.json' );
 const presetIndex = require( presetPath );
 const presetProductionBlocks = presetIndex.production || [];
-const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
 
 const presetExperimentalBlocks = [
 	...presetProductionBlocks,
@@ -47,6 +29,14 @@ const presetExperimentalBlocks = [
 ];
 // Beta Blocks include all blocks: beta, experimental, and production blocks.
 const presetBetaBlocks = [ ...presetExperimentalBlocks, ...( presetIndex.beta || [] ) ];
+
+const editorBlocksScripts = presetBetaBlocks.reduce( ( editorBlocks, block ) => {
+	const editorScriptPath = path.join( __dirname, '../extensions/blocks', block, 'editor.js' );
+	if ( fs.existsSync( editorScriptPath ) ) {
+		editorBlocks[ block + '/editor' ] = [ editorScriptPath ];
+	}
+	return editorBlocks;
+}, {} );
 
 // Helps split up each block into its own folder view script
 const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
@@ -56,45 +46,6 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 	}
 	return viewBlocks;
 }, {} );
-
-// Combines all the different production blocks into one editor.js script
-const editorScript = [
-	editorSetup,
-	...presetProductionExtensions(
-		'editor',
-		path.join( __dirname, '../extensions' ),
-		presetProductionBlocks
-	),
-];
-
-// Combines all the different Experimental blocks into one editor.js script
-const editorExperimentalScript = [
-	editorSetup,
-	...presetProductionExtensions(
-		'editor',
-		path.join( __dirname, '../extensions' ),
-		presetExperimentalBlocks
-	),
-];
-
-// Combines all the different blocks into one editor-beta.js script
-const editorBetaScript = [
-	editorSetup,
-	...presetProductionExtensions(
-		'editor',
-		path.join( __dirname, '../extensions' ),
-		presetBetaBlocks
-	),
-];
-
-const editorNoPostEditorScript = [
-	editorSetup,
-	...presetProductionExtensions(
-		'editor',
-		path.join( __dirname, '../extensions' ),
-		presetNoPostEditorBlocks
-	),
-];
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -176,10 +127,8 @@ module.exports = [
 	{
 		...sharedWebpackConfig,
 		entry: {
-			editor: editorScript,
-			'editor-experimental': editorExperimentalScript,
-			'editor-beta': editorBetaScript,
-			'editor-no-post-editor': editorNoPostEditorScript,
+			editor: editorSetup,
+			...editorBlocksScripts,
 			...viewBlocksScripts,
 		},
 		plugins: [

@@ -620,7 +620,7 @@ class Jetpack_Gutenberg {
 
 		Assets::register_script(
 			'jetpack-blocks-editor',
-			"{$blocks_dir}editor{$blocks_env}.js",
+			"{$blocks_dir}editor.js",
 			JETPACK__PLUGIN_FILE,
 			array( 'textdomain' => 'jetpack' )
 		);
@@ -640,6 +640,35 @@ class Jetpack_Gutenberg {
 				'url' => plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE ),
 			)
 		);
+
+		$dir         = dirname( JETPACK__PLUGIN_FILE );
+		$blocks_json = file_get_contents( $dir . '/' . $blocks_dir . 'index.json' );
+		$index       = $blocks_env ? $blocks_env : 'production';
+		$block_map   = json_decode( $blocks_json, false );
+		$blocks      = $block_map->$index;
+
+		foreach ( $blocks as $block ) {
+			$handle = "jetpack-$block-editor";
+
+			if ( file_exists( $dir . '/' . "{$blocks_dir}${block}/editor.js" ) ) {
+				Assets::register_script(
+					$handle,
+					"{$blocks_dir}${block}/editor.js",
+					JETPACK__PLUGIN_FILE,
+					array( 'textdomain' => 'jetpack' )
+				);
+
+				Assets::enqueue_script( $handle );
+
+				wp_localize_script(
+					$handle,
+					'Jetpack_Block_Assets_Base_Url',
+					array(
+						'url' => plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE ),
+					)
+				);
+			}
+		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$user                      = wp_get_current_user();
@@ -739,6 +768,16 @@ class Jetpack_Gutenberg {
 			'Jetpack_Editor_Initial_State',
 			$initial_state
 		);
+
+		foreach ( $blocks as $block ) {
+			$handle = "jetpack-$block-editor";
+
+			wp_localize_script(
+				$handle,
+				'Jetpack_Editor_Initial_State',
+				$initial_state
+			);
+		}
 
 		// Adds Connection package initial state.
 		wp_add_inline_script( 'jetpack-blocks-editor', Connection_Initial_State::render(), 'before' );
