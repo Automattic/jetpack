@@ -15,6 +15,15 @@ namespace Automattic\Jetpack\CRM\Automation;
 abstract class Base_Step implements Step {
 
 	/**
+	 * @var array Step attributes
+	 */
+	protected $attributes;
+	/**
+	 * @var array|null Next linked step.
+	 */
+	protected $next_step;
+
+	/**
 	 * Get the data of the step
 	 *
 	 * @return array
@@ -56,15 +65,6 @@ abstract class Base_Step implements Step {
 	 * @param array $data Data passed from the trigger.
 	 */
 	abstract public function execute( array $data );
-
-	/**
-	 * @var array Step data.
-	 */
-	protected $attributes;
-	/**
-	 * @var array|null Next linked step.
-	 */
-	protected $next_step;
 
 	/**
 	 * Get the slug name of the step
