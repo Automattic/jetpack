@@ -64,6 +64,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}, 100 );
 	};
 
+	const { requireUpgrade, refresh: refreshFeatureData } = useAIFeature();
+
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -85,6 +87,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setError,
 		tracks,
 		userPrompt,
+		refreshFeatureData,
 	} );
 
 	useEffect( () => {
@@ -92,8 +95,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			setErrorDismissed( false );
 		}
 	}, [ errorData ] );
-
-	const { requireUpgrade } = useAIFeature();
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -274,6 +275,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					</Flex>
 				</Flex>
 			) }
+
 			{ ! loadingImages && imageModal && (
 				<Modal onRequestClose={ () => setImageModal( null ) }>
 					<ImageWithSelect
