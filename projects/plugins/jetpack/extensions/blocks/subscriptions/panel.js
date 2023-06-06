@@ -85,19 +85,19 @@ const NewsletterDisabledNotice = () => (
 const NewsletterDisabledPanels = () => (
 	<>
 		<PluginDocumentSettingPanel
-			title={ __( 'Newsletter access', 'jetpack' ) }
+			title={ __( 'Newsletter visibility', 'jetpack' ) }
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginDocumentSettingPanel>
 		<PluginPrePublishPanel
-			title={ __( 'Newsletter access', 'jetpack' ) }
+			title={ __( 'Newsletter visibility', 'jetpack' ) }
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginPrePublishPanel>
 		<PluginPostPublishPanel
-			title={ __( 'Newsletter access', 'jetpack' ) }
+			title={ __( 'Newsletter visibility', 'jetpack' ) }
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
 			<NewsletterDisabledNotice />
