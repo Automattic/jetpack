@@ -36,7 +36,9 @@ class Contact_Condition extends Base_Condition {
 	/**
 	 * Contact_Condition constructor.
 	 */
-	public function __construct() {
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
+		
 		$this->logger = Automation_Logger::instance();
 	}
 

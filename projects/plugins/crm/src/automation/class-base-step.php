@@ -22,6 +22,10 @@ abstract class Base_Step implements Step {
 	 * @var array|null Next linked step.
 	 */
 	protected $next_step;
+	
+	public function __construct( array $step_data ) {
+		$this->attributes = $step_data['attributes'] ?? null;
+	}
 
 	/**
 	 * Get the data of the step
