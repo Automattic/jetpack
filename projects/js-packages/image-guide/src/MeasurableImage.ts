@@ -11,7 +11,7 @@ export class MeasurableImage {
 	readonly node: HTMLElement | HTMLImageElement;
 	private getURLCallback: SourceCallbackFn;
 
-	public fetch = fetch;
+	public fetch = window.fetch;
 
 	/**
 	 * Constructor.
