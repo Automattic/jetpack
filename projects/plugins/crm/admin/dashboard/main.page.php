@@ -18,7 +18,8 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	====================================================== */
 
 // permissions check
-if ( ! zeroBSCRM_permsCustomers() ) {
+global $current_user;
+if ( ! $current_user || ! $current_user->has_cap( 'zbs_dash' ) ) {
 	wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) );
 }
 

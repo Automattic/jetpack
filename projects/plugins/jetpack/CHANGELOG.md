@@ -2,11 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.2-beta - 2023-05-30
+## [12.2] - 2023-06-06
 ### Major Enhancements
 - New AI Assistant block: harness AI power directly from your editor.
 - Donations, Paid Content and Payment Buttons blocks are now available with all Jetpack plans. A commission is charged for free plans.
-- Social: automatically share your new posts to Mastodon and Instagram.
+- Social: automatically share your new posts to Mastodon.
 
 ### Enhancements
 - Author Recommendations: Connected block with backend and added `remove_user_blogs` option. [#30639]
@@ -39,12 +39,14 @@
 - Social Previews: Add Instagram preview. [#30929]
 - Social Previews: Add Mastodon post preview. [#30919]
 - Starter: Add post-purchase flow to recommendations. [#30680]
+- Subscriptions: Make free subscribers confirm email before viewing content. [#31054]
 - Theme Tools: Remove jQuery dependency from responsive-videos script. [#30420]
 - WordPress.com: Adds a 'Staging' badge to the wp-admin nav menu when the site is a WordPress.com staging site. [#30296]
 
 ### Improved compatibility
 - ActivityPub: Allow disabling Jetpack's Image CDN in requests made for the ActivityPub plugin. [#30298]
 - Bit.ly: Avoid errors when using non-official Bit.ly plugins alongside Jetpack. [#30415]
+- Earn: Add "Read me" links to Stripe connection banners in blocks. [#31099]
 - Filters: `jetpack_set_available_blocks` and `jetpack_set_available_plugins`, deprecated since Jetpack 7.0, have been removed. [#30875]
 - Full-Site Editing: Use modern `wp_is_block_theme` instead of `gutenberg_is_fse_theme`. [#30806]
 - General: PHP 8 compatibility updates.
@@ -57,13 +59,15 @@
 ### Bug fixes
 - API: Add a `WP_User` check in `get_author` method. [#30902]
 - API: Fix race condition bug in the Plugin update endpoint. [#30770]
+- API: Use default values in settings API, when set. [#31123]
 - At-a-Glance: Fix styling for Stats banner. [#30403]
 - Carousel: Stop auto-scrolling to top when advancing slides. [#30964]
 - Dashboard: Use the correct file path for all images in the "My Plan" screen. [#30685]
 - Donations Block: Ensure the tab colors are correct in all themes. [#30864]
 - Donations Block: Fix crash on currency change. [#30530]
-- Donations Block: Make the "Connect" link the primary color [#30320]
+- Donations Block: Make the "Connect" link the primary color. [#30320]
 - Forms: Fix Forms hash generation. [#30764]
+- Identity Crisis: Fix Jetpack Dashboard for broken connection. [#31183]
 - Maps: Fix zoom being reset when changing map marker color. [#30482]
 - Newsletters: Return early when possible to prevent spamming the database. [#30355]
 - Related Posts: Fix context for use in block editor. [#30682]
@@ -73,6 +77,7 @@
 - Settings: Fixed the site preview in SEO settings. [#30973]
 - Social: Add username to publicize connection test results. [#30987]
 - Subscriptions: Change the "Add payments" text to "Set up a paid plan". [#30671]
+- Subscriptions: Fix display of number of paid subscribers. [#31141]
 - Subscriptions: Do not remove bulk-editing checkboxes from the posts list. [#30747]
 - Users: Display "Super Admin" badge in edit user form. [#30496]
 - VideoPress: Add tracks to attributes definition. [#30743]
@@ -102,7 +107,7 @@
 - wpcom/v3/blogging-prompts endpoint: Add param to force prompt dates to be a specific year [#30255]
 - Zendesk chat widget: Remove conditional rendering from component due to it being handled by an api endpoint now. [#29942]
 
-## 12.1 - 2023-05-02
+## [12.1] - 2023-05-02
 ### Enhancements
 - Dashboard: added Jetpack Starter bundle post-activation screen and plan header. [#30368]
 - Dashboard: add link to renew expired subscription. [#30357]
@@ -8169,11 +8174,13 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
-[11.6]: https://wp.me/p1moTy-PLI
+[12.2]: https://wp.me/p1moTy-Tzw
+[12.1]: https://wp.me/p1moTy-TA2
 [12.0]: https://wp.me/p1moTy-RGw
 [11.9]: https://wp.me/p1moTy-RdX
 [11.8]: https://wp.me/p1moTy-QEM
 [11.7]: https://wp.me/p1moTy-Q9t
+[11.6]: https://wp.me/p1moTy-PLI
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I
 [11.3]: https://wp.me/p1moTy-M5i

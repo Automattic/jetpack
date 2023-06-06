@@ -2,7 +2,7 @@
 //phpcs:ignoreFile
 namespace Automattic\Jetpack\Boost_Speed_Score\Tests\Lib;
 
-use Automattic\Jetpack\Boost_Speed_Score\Lib\Url;
+use Automattic\Jetpack\Boost_Core\Lib\Url;
 use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_Test_Case;
 use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;

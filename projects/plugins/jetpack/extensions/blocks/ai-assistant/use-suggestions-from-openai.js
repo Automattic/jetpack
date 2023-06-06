@@ -84,6 +84,7 @@ const useSuggestionsFromOpenAI = ( {
 	userPrompt,
 	onSuggestionDone,
 	onUnclearPrompt,
+	onModeration,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -223,13 +224,13 @@ const useSuggestionsFromOpenAI = ( {
 			setWasCompletionJustRequested( false );
 		}
 
-		source?.current.addEventListener( 'done', e => {
+		source?.current?.addEventListener( 'done', e => {
 			stopSuggestion();
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
 
-		source?.current.addEventListener( 'error_unclear_prompt', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_unclear_prompt', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setError( {
@@ -240,8 +241,8 @@ const useSuggestionsFromOpenAI = ( {
 			onUnclearPrompt?.();
 		} );
 
-		source?.current.addEventListener( 'error_network', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_network', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( true );
@@ -252,8 +253,8 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		} );
 
-		source?.current.addEventListener( 'error_service_unavailable', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_service_unavailable', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( true );
@@ -267,8 +268,8 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		} );
 
-		source?.current.addEventListener( 'error_quota_exceeded', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_quota_exceeded', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
@@ -279,7 +280,23 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		} );
 
-		source?.current.addEventListener( 'suggestion', e => {
+		source?.current?.addEventListener( 'error_moderation', () => {
+			source?.current?.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( false );
+			setError( {
+				code: 'error_moderation',
+				message: __(
+					'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
+					'jetpack'
+				),
+				status: 'info',
+			} );
+			onModeration?.();
+		} );
+
+		source?.current?.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
 			debug( 'fullMessage', e.detail );
 			updateBlockAttributes( clientId, { content: e.detail } );
@@ -292,7 +309,7 @@ const useSuggestionsFromOpenAI = ( {
 			return;
 		}
 
-		source?.current.close();
+		source?.current?.close();
 		setIsLoadingCompletion( false );
 		setWasCompletionJustRequested( false );
 		onSuggestionDone?.();
