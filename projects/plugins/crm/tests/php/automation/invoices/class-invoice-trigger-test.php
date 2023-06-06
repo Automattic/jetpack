@@ -31,7 +31,7 @@ class Invoice_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_invoice_updated_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'invoice_updated' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/invoice_updated' );
 
 		$trigger = new Invoice_Updated();
 
@@ -64,7 +64,7 @@ class Invoice_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_invoice_status_updated_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'invoice_status_updated' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/invoice_status_updated' );
 
 		$trigger = new Invoice_Status_Updated();
 
@@ -97,7 +97,7 @@ class Invoice_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_invoice_new_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'invoice_new' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/invoice_new' );
 
 		$trigger = new Invoice_New();
 
@@ -130,7 +130,7 @@ class Invoice_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_invoice_deleted_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'invoice_deleted' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/invoice_deleted' );
 
 		$trigger = new Invoice_Deleted();
 
