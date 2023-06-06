@@ -1,16 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '@wordpress/block-editor';
-import {
-	Flex,
-	Notice,
-	FlexBlock,
-	Button,
-	PanelRow,
-	Dropdown,
-	VisuallyHidden,
-	Spinner,
-} from '@wordpress/components';
+import { Flex, Notice, FlexBlock, PanelRow, VisuallyHidden, Spinner } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
@@ -290,10 +279,9 @@ export function NewsletterAccessDocumentSettings( {
 	const accessLabel = accessOptions[ _accessLevel ]?.label;
 
 	// Immediately close the dropdown dialog after setting the post meta.
-	const setPostMetaAndClose = onClose => {
+	const setPostMetaAndClose = () => {
 		return meta => {
 			setPostMeta( meta );
-			onClose();
 		};
 	};
 
@@ -304,45 +292,18 @@ export function NewsletterAccessDocumentSettings( {
 					<Flex direction="column">
 						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
 						<Flex direction="row" justify="flex-start">
-							<span>{ __( 'Access', 'jetpack' ) }</span>
 							{ canEdit && (
-								<Dropdown
-									focusOnMount
-									placement="bottom-end"
-									contentClassName="edit-post-post-visibility__dialog"
-									renderToggle={ ( { isOpen, onToggle } ) => (
-										<Button
-											variant="tertiary"
-											onClick={ onToggle }
-											aria-expanded={ isOpen }
-											aria-label={ sprintf(
-												// translators: %s: Current newsletter post access.
-												__( 'Select audience: %s', 'jetpack' ),
-												accessLabel
-											) }
-										>
-											{ accessLabel }
-										</Button>
-									) }
-									renderContent={ ( { onClose } ) => (
-										<div className="editor-post-visibility">
-											<InspectorPopoverHeader
-												onClose={ onClose }
-												title={ __( 'Access settings', 'jetpack' ) }
-												help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
-											/>
-											<NewsletterAccessRadioButtons
-												onChange={ setPostMetaAndClose( onClose ) }
-												accessLevel={ _accessLevel }
-												emailSubscribers={ emailSubscribers }
-												paidSubscribers={ paidSubscribers }
-												stripeConnectUrl={ stripeConnectUrl }
-												hasNewsletterPlans={ hasNewsletterPlans }
-												showMisconfigurationWarning={ showMisconfigurationWarning }
-											/>
-										</div>
-									) }
-								/>
+								<div className="editor-post-visibility">
+									<NewsletterAccessRadioButtons
+										onChange={ setPostMetaAndClose() }
+										accessLevel={ _accessLevel }
+										emailSubscribers={ emailSubscribers }
+										paidSubscribers={ paidSubscribers }
+										stripeConnectUrl={ stripeConnectUrl }
+										hasNewsletterPlans={ hasNewsletterPlans }
+										showMisconfigurationWarning={ showMisconfigurationWarning }
+									/>
+								</div>
 							) }
 
 							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
