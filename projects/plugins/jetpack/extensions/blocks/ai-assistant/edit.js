@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
+import {
+	useBlockProps,
+	store as blockEditorStore,
+	InspectorControls,
+} from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
 import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -15,6 +19,8 @@ import { useEffect, useRef } from 'react';
  * Internal dependencies
  */
 import AIControl from './ai-control';
+import BasicStatsPanel from './components/simple-stats-panel';
+import useAIFeature from './hooks/use-ai-feature';
 import ImageWithSelect from './image-with-select';
 import { getImagesFromOpenAI } from './lib';
 import useSuggestionsFromOpenAI from './use-suggestions-from-openai';
@@ -81,6 +87,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			setErrorDismissed( false );
 		}
 	}, [ errorData ] );
+
+	const { requireUpgrade, requestsCount } = useAIFeature();
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -216,10 +224,15 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				wholeContent={ wholeContent }
 				promptType={ attributes.promptType }
 				onChange={ () => setErrorDismissed( true ) }
-				requireUpgrade={ errorData?.code === 'error_quota_exceeded' }
+				requireUpgrade={ errorData?.code === 'error_quota_exceeded' || requireUpgrade }
 				recordEvent={ tracks.recordEvent }
 				isGeneratingTitle={ attributes.promptType === 'generateTitle' }
 			/>
+
+			<InspectorControls>
+				<BasicStatsPanel requestsCount={ requestsCount } requireUpgrade={ requireUpgrade } />
+			</InspectorControls>
+
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
 					<FlexBlock

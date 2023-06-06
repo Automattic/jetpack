@@ -22,7 +22,6 @@ import ConnectPrompt from './components/connect-prompt';
 import I18nDropdownControl from './components/i18n-dropdown-control';
 import PromptTemplatesControl from './components/prompt-templates-control';
 import ToneDropdownControl from './components/tone-dropdown-control';
-import useAIFeature from './hooks/use-ai-feature';
 import AIAssistantIcon from './icons/ai-assistant';
 import origamiPlane from './icons/origami-plane';
 import { isUserConnected } from './lib/connection';
@@ -67,7 +66,6 @@ const AIControl = forwardRef(
 		};
 
 		const connected = isUserConnected();
-		const { requireUpgrade: siteRequireUpgrade } = useAIFeature();
 
 		const textPlaceholder = __( 'Ask Jetpack AI', 'jetpack' );
 
@@ -97,7 +95,7 @@ const AIControl = forwardRef(
 
 		return (
 			<>
-				{ ( siteRequireUpgrade || requireUpgrade ) && <UpgradePrompt /> }
+				{ requireUpgrade && <UpgradePrompt /> }
 				{ ! connected && <ConnectPrompt /> }
 				{ ! isWaitingState && connected && (
 					<ToolbarControls
@@ -161,9 +159,7 @@ const AIControl = forwardRef(
 						onKeyPress={ handleInputEnter }
 						placeholder={ placeholder }
 						className="jetpack-ai-assistant__input"
-						disabled={
-							isWaitingState || loadingImages || ! connected || siteRequireUpgrade || requireUpgrade
-						}
+						disabled={ isWaitingState || loadingImages || ! connected || requireUpgrade }
 						ref={ promptUserInputRef }
 					/>
 
@@ -173,9 +169,7 @@ const AIControl = forwardRef(
 								className="jetpack-ai-assistant__prompt_button"
 								onClick={ () => handleGetSuggestion( 'userPrompt' ) }
 								isSmall={ true }
-								disabled={
-									! userPrompt?.length || ! connected || siteRequireUpgrade || requireUpgrade
-								}
+								disabled={ ! userPrompt?.length || ! connected || requireUpgrade }
 								label={ __( 'Send request', 'jetpack' ) }
 							>
 								<Icon icon={ origamiPlane } />
