@@ -134,6 +134,7 @@ class WPCOM_Features {
 	private const AKISMET_ENTERPRISE_GT2M_MONTHLY             = 'ak_epgt2m_monthly_1'; // 2326
 	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
+	private const JETPACK_AI_MONTHLY                          = 'jetpack_ai_monthly'; // 2450
 	private const JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY         = 'jetpack_social_monthly'; // 2500
 	private const JETPACK_SOCIAL_BASIC                        = 'jetpack_social_basic_yearly'; // 2503
 	private const JETPACK_SOCIAL_BASIC_MONTHLY                = 'jetpack_social_basic_monthly'; // 2504
@@ -239,6 +240,7 @@ class WPCOM_Features {
 	/*
 	 * Public const for every mapped feature, sorted alphabetically.
 	 */
+	public const AI_ASSISTANT                     = 'ai-assistant';
 	public const AD_CREDIT_VOUCHERS               = 'ad-credit';
 	public const ADVANCED_SEO                     = 'advanced-seo';
 	public const AKISMET                          = 'akismet';
@@ -358,6 +360,9 @@ class WPCOM_Features {
 	 * Private const array of features with sub-array of purchases that include that feature. Sorted alphabetically.
 	 */
 	private const FEATURES_MAP = array(
+		self::AI_ASSISTANT                     => array(
+			self::JETPACK_AI_MONTHLY,
+		),
 		self::AD_CREDIT_VOUCHERS               => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
