@@ -6,7 +6,7 @@
 ### Major Enhancements
 - New AI Assistant block: harness AI power directly from your editor.
 - Donations, Paid Content and Payment Buttons blocks are now available with all Jetpack plans. A commission is charged for free plans.
-- Social: automatically share your new posts to Mastodon and Instagram.
+- Social: automatically share your new posts to Mastodon.
 
 ### Enhancements
 - Author Recommendations: Connected block with backend and added `remove_user_blogs` option. [#30639]
