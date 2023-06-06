@@ -2,8 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync;
 
+use Automattic\Jetpack\Boost_Speed_Score\Lib\Boost_API;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
-use Automattic\Jetpack_Boost\Lib\Boost_API;
 
 class Image_Size_Analysis_Summary implements Entry_Can_Get {
 
