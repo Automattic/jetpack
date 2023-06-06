@@ -50,7 +50,7 @@ class Company_Deleted extends Base_Trigger {
 	}
 
 	/**
-	 * Init the trigger.
+	 * Initialize the trigger to listen to the desired event.
 	 *
 	 * @param Automation_Workflow $workflow The workflow to which the trigger belongs.
 	 * @throws Automation_Exception Throws a 'class not found' or general error.
@@ -61,7 +61,7 @@ class Company_Deleted extends Base_Trigger {
 	}
 
 	/**
-	 * Execute the workflow. Listen to the desired event
+	 * Execute the workflow.
 	 *
 	 * @param array $company_data The company data to be included in the workflow.
 	 * @throws Automation_Exception Throws a 'class not found' or general error.
