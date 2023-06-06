@@ -251,16 +251,14 @@ class Current_Plan {
 
 		list( $plan['class'], $supports ) = self::get_class_and_features( $plan['product_slug'] );
 
-		// get available features if Jetpack is active.
-		if ( class_exists( 'Jetpack' ) ) {
-			foreach ( \Jetpack::get_available_modules() as $module_slug ) {
-				$module = \Jetpack::get_module( $module_slug );
-				if ( ! isset( $module ) || ! is_array( $module ) ) {
-					continue;
-				}
-				if ( in_array( 'free', $module['plan_classes'], true ) || in_array( $plan['class'], $module['plan_classes'], true ) ) {
-					$supports[] = $module_slug;
-				}
+		$modules = new Modules();
+		foreach ( $modules->get_available() as $module_slug ) {
+			$module = $modules->get( $module_slug );
+			if ( ! isset( $module ) || ! is_array( $module ) ) {
+				continue;
+			}
+			if ( in_array( 'free', $module['plan_classes'], true ) || in_array( $plan['class'], $module['plan_classes'], true ) ) {
+				$supports[] = $module_slug;
 			}
 		}
 
