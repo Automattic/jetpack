@@ -1,0 +1,7 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-assistant__stats {
+	&.has-unlimited-requests {
+		color: var( --jp-green-40 );
+	}
+}

@@ -14,7 +14,7 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'error-code': string;
 };
 
-type AIFeatureProps = {
+export type AIFeatureProps = {
 	hasFeature: boolean;
 	isOverLimit: boolean;
 	requestsCount: number;
