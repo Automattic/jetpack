@@ -35,7 +35,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
 
-		$this->assertEquals( 'Workflow Test', $workflow->slug );
+		$this->assertEquals( 'Workflow Test', $workflow->name );
 	}
 
 	/**

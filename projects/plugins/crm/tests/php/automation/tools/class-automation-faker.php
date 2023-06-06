@@ -25,7 +25,7 @@ class Automation_Faker {
 	 */
 	public function basic_workflow(): array {
 		return array(
-			'slug'         => 'Workflow Test',
+			'name'         => 'Workflow Test',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
 			'is_active'    => true,
@@ -49,7 +49,7 @@ class Automation_Faker {
 	 */
 	public function workflow_without_initial_step(): array {
 		return array(
-			'slug'        => 'Workflow Test',
+			'name'        => 'Workflow Test',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
 			'is_active'   => true,
@@ -68,7 +68,7 @@ class Automation_Faker {
 	 */
 	public function workflow_without_initial_step_customize_trigger( $trigger_name ): array {
 		return array(
-			'slug'        => 'Workflow Test',
+			'name'        => 'Workflow Test',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
 			'is_active'   => true,
@@ -108,7 +108,7 @@ class Automation_Faker {
 	 */
 	public function workflow_with_condition_action(): array {
 		return array(
-			'slug'         => 'Workflow Test',
+			'name'         => 'Workflow Test',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
 			'is_active'    => true,
@@ -124,7 +124,7 @@ class Automation_Faker {
 					'value'    => 'lead',
 				),
 				'next_step_true'  => array(
-					'name' => 'dummy_action',
+					'slug' => 'dummy_action',
 				),
 				'next_step_false' => null,
 			),
@@ -137,7 +137,7 @@ class Automation_Faker {
 	 */
 	public function workflow_with_condition_customizable_trigger_action( $trigger_name, $action_data ): array {
 		return array(
-			'slug'         => 'Workflow Test',
+			'name'         => 'Workflow Test',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
 			'is_active'    => true,
@@ -192,7 +192,7 @@ class Automation_Faker {
 	 */
 	public function empty_workflow(): array {
 		return array(
-			'slug' => 'Empty workflow Test',
+			'name' => 'Empty workflow Test',
 		);
 	}
 }
