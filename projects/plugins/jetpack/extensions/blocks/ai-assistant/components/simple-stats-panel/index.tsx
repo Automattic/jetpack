@@ -17,7 +17,7 @@ export default function BasicStatsPanel( { requestsCount, requireUpgrade }: AIFe
 	const [ isRedirecting, setIsRedirecting ] = useState( false );
 
 	let statsMessage = createInterpolateElement(
-		__( 'You have <stats /> free requests left.', 'jetpack' ),
+		__( 'You have <stats /> free requests left. Upgrade to get unlimited requests.', 'jetpack' ),
 		{
 			stats: <strong className="jetpack-ai-assistant__stats">{ requestsCount }</strong>,
 		}
