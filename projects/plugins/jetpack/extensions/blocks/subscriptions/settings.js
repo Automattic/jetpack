@@ -211,13 +211,6 @@ function NewsletterAccessRadioButtons( {
 					>
 						{ accessOptions[ key ].label }
 					</label>
-					<p
-						id={ `editor-post-${ key }-${ instanceId }-description` }
-						className="editor-post-visibility__info"
-					>
-						{ accessOptions[ key ].info }
-					</p>
-
 					{ /* Only show the notice below each access radio buttons in the PrePublish panel  */ }
 					{ isPrePublishPanel && key === accessLevel && (
 						<p className="pre-public-panel-notice-reach">
