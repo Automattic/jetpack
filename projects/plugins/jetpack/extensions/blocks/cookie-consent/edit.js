@@ -1,21 +1,71 @@
 import { InspectorControls, useBlockProps, InnerBlocks, RichText } from '@wordpress/block-editor';
+import { createBlock, serialize } from '@wordpress/blocks';
 import { PanelBody, TextControl, SelectControl, Button } from '@wordpress/components';
 import { useEntityRecord } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { addFilter } from '@wordpress/hooks';
 import { __, isRTL } from '@wordpress/i18n';
 import './editor.scss';
 import { useEffect, useState } from 'react';
+import { name as blockName } from '.';
 
+const PART_SLUG = 'cookie-consent-block-template-part';
+
+function createTemplatePart( attributes ) {
+	/**
+	 * This replicates the shape of the block. It should be updated if the block changes.
+	 */
+	return {
+		slug: PART_SLUG,
+		inserter: false,
+		description: __( 'Contains the cookie consent block.', 'jetpack' ),
+		scope: [],
+		title: {
+			raw: __( 'Cookie Consent Block Template Part', 'jetpack' ),
+		},
+		content: serialize( createBlock( `jetpack/${ blockName }`, attributes ) ),
+		area: 'footer',
+	};
+}
+
+/**
+ * Hide the cookie consent block pattern from the inserter. It should not be inserted by the user, only edited or deleted.
+ */
+addFilter( 'blocks.registerBlockType', 'core/template-part', function ( settings, name ) {
+	if ( name === 'core/template-part' ) {
+		return {
+			...settings,
+			variations: settings.variations.map( variation => {
+				if ( variation.name === PART_SLUG ) {
+					return {
+						...variation,
+						// the original scope is ['inserter']
+						scope: [],
+					};
+				}
+				return variation;
+			} ),
+		};
+	}
+	return settings;
+} );
+
+/**
+ * Fetches the template part for the cookie consent block
+ *
+ * @returns {object} { part, isLoading }
+ */
 function useCookieConsentTemplatePart() {
 	const theme = useSelect( select => select( 'core' ).getCurrentTheme() );
 	const { record, isResolving } = useEntityRecord(
 		'postType',
 		'wp_template_part',
-		`${ theme?.stylesheet }//cookie-consent-block`,
+		`${ theme?.stylesheet }//${ PART_SLUG }`,
 		{
 			enabled: !! theme,
 		}
 	);
+
 	return { part: record, isLoading: ! theme || isResolving };
 }
 /**
@@ -39,34 +89,12 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 	const [ isSaving, setIsSaving ] = useState( false );
 
 	const { part, isLoading } = useCookieConsentTemplatePart();
-
-	const [ mode, setMode ] = useState( 'LOADING' );
+	const templatePart = createTemplatePart( attributes );
 
 	/**
-	 * This replicates the shape of the block. It should be updated if the block changes.
+	 * mode: LOADING | PART_EXISTS | PART_DOES_NOT_EXIST
 	 */
-	const defaultPart = {
-		slug: 'cookie-consent-block',
-		inserter: false,
-		description: 'hello',
-		scope: [],
-		title: {
-			raw: __( 'Cookie Consent Block', 'jetpack' ),
-		},
-		content: `<!-- wp:jetpack/cookie-consent -->
-		<div class="wp-block-jetpack-cookie-consent align${
-			attributes.align
-		} has-text-color has-background has-text-color has-background" style="color:var(--wp--preset--color--contrast);background-color:var(--wp--preset--color--tertiary);padding-top:1em;padding-right:1em;padding-bottom:1em;padding-left:1em" role="dialog" aria-modal="true"><p>${
-			attributes.text
-		}</p><!-- wp:button -->
-		<div class="wp-block-button"><a class="wp-block-button__link wp-element-button">${ __(
-			'Accept',
-			'jetpack'
-		) }</a></div>
-		<!-- /wp:button --><span>${ attributes.consentExpiryDays }</span></div>
-		<!-- /wp:jetpack/cookie-consent -->`,
-		area: 'footer',
-	};
+	const [ mode, setMode ] = useState( 'LOADING' );
 
 	useEffect( () => {
 		if ( part && ! isLoading ) {
@@ -105,9 +133,10 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 		className: `wp-block-jetpack-cookie-consent align${ align }`,
 	} );
 
-	if ( parentPostSlug?.slug !== 'cookie-consent-block' ) {
+	/* If the block is added in the wrong place (not in its own part), render UI that helps the user create a template part. */
+	if ( parentPostSlug?.slug !== PART_SLUG ) {
 		if ( mode === 'LOADING' ) {
-			return 'Loading...';
+			return __( 'Loading…', 'jetpack' );
 		} else if ( mode === 'PART_EXISTS' ) {
 			return (
 				<div>
@@ -125,7 +154,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 							goToTemplatePart( part );
 						} }
 					>
-						{ __( 'Go to part', 'jetpack' ) }
+						{ __( 'Go to template part', 'jetpack' ) }
 					</Button>
 				</div>
 			);
@@ -142,7 +171,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 						variant="primary"
 						disabled={ isSaving }
 						onClick={ () => {
-							saveEntityRecord( 'postType', 'wp_template_part', defaultPart )
+							saveEntityRecord( 'postType', 'wp_template_part', templatePart )
 								.then( goToTemplatePart )
 								.catch( () => {
 									setIsSaving( false );
