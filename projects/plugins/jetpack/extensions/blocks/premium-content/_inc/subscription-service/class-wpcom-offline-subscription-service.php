@@ -53,6 +53,7 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Online_Subscription_Servi
 			return true;
 		}
 
+		require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 		$valid_plan_ids     = \Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
 		$is_blog_subscriber = true; // it is a subscriber as this is used in async when lopping through subscribers...
 		$allowed            = $this->user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, $post_id );
