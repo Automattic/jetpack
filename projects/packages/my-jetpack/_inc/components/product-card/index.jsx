@@ -283,17 +283,13 @@ const ProductCard = props => {
 					/>
 				) }
 			</div>
-			{
-				// If is not active, no reason to use children
-				// Since we want user to take action if isn't active
-				isActive && children ? (
-					children
-				) : (
-					<Text variant="body-small" className={ styles.description }>
-						{ description }
-					</Text>
-				)
-			}
+			{ children ? (
+				children
+			) : (
+				<Text variant="body-small" className={ styles.description }>
+					{ description }
+				</Text>
+			) }
 			<div className={ styles.actions }>
 				<ActionButton
 					{ ...props }
