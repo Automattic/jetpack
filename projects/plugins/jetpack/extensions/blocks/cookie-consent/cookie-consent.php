@@ -96,7 +96,7 @@ function render_cookie_consent_template() {
 		return;
 	}
 
-	$template_part_name = 'cookie-consent';
+	$template_part_name = 'cookie-consent-block-template-part';
 
 	// Check whether block theme functions exist.
 	if ( ! function_exists( 'get_block_template' ) ) {
