@@ -2714,6 +2714,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 						// Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
 						$originalStatus = $this->getContactStatus( $id );
 
+						$previous_contact_obj = $this->getContact( $id );
+
 						// get any segments (whom counts may be affected by changes)
 						// $contactsPreUpdateSegments = $this->DAL()->segments->getSegmentsContainingContact($id,true);
 
@@ -3008,10 +3010,9 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                     'id'=>$id,
                                     'againstid' => $id,
                                     'userMeta'=> $dataArr,
-                                    'prevSegments' => $contactsPreUpdateSegments
+									'prevSegments' => $contactsPreUpdateSegments,
+									'prev_contact' => $previous_contact_obj,
                                     ));
-
-                                
 
                             }
 
