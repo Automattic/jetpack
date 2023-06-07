@@ -804,6 +804,8 @@ function get_locked_content_placeholder_text( $newsletter_access_level ) {
 	$access_level = __( 'subscribers', 'jetpack' );
 
 	// Only display this text when Stripe is connected and the post is marked for paid subscribers
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+
 	if (
 		$newsletter_access_level === 'paid_subscribers'
 		&& ! empty( Jetpack_Memberships::get_connected_account_id() )
