@@ -228,7 +228,7 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
 		$key = $task_definitions[ $task_id ]['id_map'];
 	}
 
-	$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
+	$statuses         = wpcom_launchpad_get_task_statuses();
 	$statuses[ $key ] = true;
 	$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
 
@@ -277,6 +277,15 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
 			}
 		}
 	}
+}
+
+/**
+ * Get task definitions from site options.
+ *
+ * @return array
+ */
+function wpcom_launchpad_get_task_statuses() {
+	return get_option( 'launchpad_checklist_tasks_statuses', array() );
 }
 
 /**
@@ -371,7 +380,7 @@ function wpcom_track_publish_first_post_task() {
  * @return bool True if the blog was named.
  */
 function wpcom_is_task_option_completed( $task ) {
-	$checklist = get_option( 'launchpad_checklist_tasks_statuses', array() );
+	$checklist = wpcom_launchpad_get_task_statuses();
 	if ( ! empty( $checklist[ $task['id'] ] ) ) {
 		return true;
 	}
