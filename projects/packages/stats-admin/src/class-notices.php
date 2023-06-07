@@ -32,7 +32,7 @@ class Notices {
 	 * @param int   $postponed_for Postponed for how many seconds.
 	 * @return bool
 	 */
-	public function update_notice_status( $id, $status, $postponed_for = 0 ) {
+	public function update_notice( $id, $status, $postponed_for = 0 ) {
 		delete_transient( self::STATS_DASHBOARD_NOTICES_CACHE_KEY );
 		return WPCOM_Client::request_as_blog(
 			sprintf(
