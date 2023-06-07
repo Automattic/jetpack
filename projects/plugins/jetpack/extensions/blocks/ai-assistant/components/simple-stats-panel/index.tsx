@@ -13,13 +13,18 @@ import { AIFeatureProps } from '../../hooks/use-ai-feature';
  */
 import './style.scss';
 
-export default function BasicStatsPanel( { requestsCount, requireUpgrade }: AIFeatureProps ) {
+export default function BasicStatsPanel( {
+	requestsCount,
+	requireUpgrade,
+	requestsLimit = 20,
+}: AIFeatureProps ) {
 	const [ isRedirecting, setIsRedirecting ] = useState( false );
+	const requestsLeft = Math.max( 0, requestsLimit - requestsCount );
 
 	let statsMessage = createInterpolateElement(
 		__( 'You have <stats /> free requests left. Upgrade to get unlimited requests.', 'jetpack' ),
 		{
-			stats: <strong className="jetpack-ai-assistant__stats">{ requestsCount }</strong>,
+			stats: <strong className="jetpack-ai-assistant__stats">{ requestsLeft }</strong>,
 		}
 	);
 
