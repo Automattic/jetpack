@@ -47,10 +47,12 @@ class Notices {
 					'Content-Type' => 'application/json',
 				),
 			),
-			array(
-				'id'            => $id,
-				'status'        => $status,
-				'postponed_for' => $postponed_for,
+			wp_json_encode(
+				array(
+					'id'            => $id,
+					'status'        => $status,
+					'postponed_for' => $postponed_for,
+				)
 			),
 			'wpcom'
 		);
