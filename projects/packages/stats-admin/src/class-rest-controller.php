@@ -149,7 +149,8 @@ class REST_Controller {
 			)
 		);
 
-		// Update Stats notices.
+		// Legacy: Update Stats notices.
+		// TODO: remove this in the next release.
 		register_rest_route(
 			static::$namespace,
 			'/stats/notices',
@@ -178,10 +179,39 @@ class REST_Controller {
 			)
 		);
 
+		// Update Stats notices.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/jetpack-stats-dashboard/notices', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'update_notice_status' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+				'args'                => array(
+					'id'            => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => 'ID of the notice',
+					),
+					'status'        => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => 'Status of the notice',
+					),
+					'postponed_for' => array(
+						'type'        => 'number',
+						'default'     => null,
+						'description' => 'Postponed for (in seconds)',
+						'minimum'     => 0,
+					),
+				),
+			)
+		);
+
 		// Get Stats notices.
 		register_rest_route(
 			static::$namespace,
-			'/stats/notices',
+			sprintf( '/sites/%d/jetpack-stats-dashboard/notices', Jetpack_Options::get_option( 'id' ) ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_notice_status' ),

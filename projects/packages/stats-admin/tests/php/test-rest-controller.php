@@ -180,7 +180,7 @@ class Test_REST_Controller extends Stats_Test_Case {
 	 */
 	public function test_stats_notices_succeed() {
 		wp_set_current_user( $this->admin_id );
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/stats/notices' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/sites/999/jetpack-stats-dashboard/notices' );
 		$request->set_body_params(
 			array(
 				'id'     => 'new_stats_feedback',
@@ -197,7 +197,7 @@ class Test_REST_Controller extends Stats_Test_Case {
 	 * Test '/jetpack/v4/stats-app/stats/notices' failed
 	 */
 	public function test_stats_notices_illegal_params() {
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/stats/notices' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/sites/999/jetpack-stats-dashboard/notices' );
 		$request->set_body_params(
 			array(
 				'id' => 'new_stats_feedback',
