@@ -7,7 +7,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import speakToneIcon from './icons/speak-tone';
+import speakToneIcon from '../../icons/speak-tone';
 
 const PROMPT_TONES_LIST = [
 	'formal',

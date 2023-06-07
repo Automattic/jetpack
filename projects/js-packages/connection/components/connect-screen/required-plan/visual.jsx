@@ -6,6 +6,7 @@ import {
 } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import debugFactory from 'debug';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -37,6 +38,7 @@ const ConnectScreenRequiredPlanVisual = props => {
 		buttonIsLoading,
 		logo,
 		isOfflineMode,
+		rna = false,
 	} = props;
 
 	debug( 'props are %o', props );
@@ -69,11 +71,13 @@ const ConnectScreenRequiredPlanVisual = props => {
 	return (
 		<ConnectScreenLayout
 			title={ title }
-			className={
-				'jp-connection__connect-screen-required-plan' +
-				( isLoading ? ' jp-connection__connect-screen-required-plan__loading' : '' )
-			}
+			className={ classNames(
+				'jp-connection__connect-screen-required-plan',
+				isLoading ? 'jp-connection__connect-screen-required-plan__loading' : '',
+				rna ? 'rna' : ''
+			) }
 			logo={ logo }
+			rna={ rna }
 		>
 			<div className="jp-connection__connect-screen-required-plan__content">
 				{ children }
