@@ -33,7 +33,7 @@ class Jetpack_Ai extends Product {
 		$info = parent::get_info();
 
 		// Populate the product with the feature data.
-		$info['ai-assistat-feature'] = self::get_ai_assistant_feature();
+		$info['ai-assistant-feature'] = self::get_ai_assistant_feature();
 
 		return $info;
 	}
