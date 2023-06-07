@@ -201,7 +201,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 
 		// Keep Building tasks.
-		'site_title'					  => array(
+		'site_title'                      => array(
 			'get_title'            => function () {
 				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
 			},
