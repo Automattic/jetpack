@@ -59,7 +59,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}, 100 );
 	};
 
-	const { requireUpgrade, requestsCount, refresh: refreshFeatureData } = useAIFeature();
+	const { requireUpgrade, requestsCount, increaseRequestsCount } = useAIFeature();
 
 	const {
 		isLoadingCategories,
@@ -82,7 +82,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setError,
 		tracks,
 		userPrompt,
-		refreshFeatureData,
+		increaseRequestsCount,
 	} );
 
 	useEffect( () => {

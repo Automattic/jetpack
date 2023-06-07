@@ -71,5 +71,12 @@ export default function useAIFeature() {
 	return {
 		...data,
 		refresh: () => getAIFeatures().then( setData ),
+		increaseRequestsCount: () => {
+			setData( prevData => ( {
+				...prevData,
+				requestsCount: prevData.requestsCount + 1,
+			} ) );
+			getAIFeatures().then( setData );
+		},
 	};
 }
