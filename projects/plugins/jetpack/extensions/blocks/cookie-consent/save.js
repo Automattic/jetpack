@@ -13,11 +13,17 @@ import { InnerBlocks, useBlockProps, RichText } from '@wordpress/block-editor';
  *
  * @param {object} props - Save props.
  * @param {object} props.attributes - Block attributes.
+ * @param props.innerBlocks
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#save
  * @returns {object} Element to render.
  */
 export default function save( { attributes } ) {
 	const blockProps = useBlockProps.save();
+
+	/* don't save anything if the block is in the warning state */
+	if ( attributes.isInWarningState ) {
+		return null;
+	}
 
 	return (
 		<div { ...blockProps } style={ blockProps.style } role="dialog" aria-modal="true">

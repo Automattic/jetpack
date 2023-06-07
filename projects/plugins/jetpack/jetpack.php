@@ -191,7 +191,7 @@ register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
 
 // Load image cdn core. This should load regardless of whether the photon module is active.
-// Image_CDN_Core::setup();
+Image_CDN_Core::setup();
 
 // Require everything else, that is not loaded via the autoloader.
 require_once JETPACK__PLUGIN_DIR . 'load-jetpack.php';

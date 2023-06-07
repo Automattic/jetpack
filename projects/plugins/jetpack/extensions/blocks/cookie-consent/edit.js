@@ -23,7 +23,9 @@ function createTemplatePart( attributes ) {
 		title: {
 			raw: __( 'Cookie Consent Block Template Part', 'jetpack' ),
 		},
-		content: serialize( createBlock( `jetpack/${ blockName }`, attributes ) ),
+		content: serialize(
+			createBlock( `jetpack/${ blockName }`, { ...attributes, isInWarningState: false } )
+		),
 		area: 'footer',
 	};
 }
@@ -78,7 +80,7 @@ function useCookieConsentTemplatePart() {
  * @returns {object} Element to render.
  */
 function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
-	const parentPostSlug = useSelect( select => {
+	const parentPost = useSelect( select => {
 		const id = select( 'core/edit-site' ).getEditedPostId();
 		const type = select( 'core/edit-site' ).getEditedPostType();
 		return select( 'core' ).getEntityRecord( 'postType', type, id );
@@ -133,8 +135,17 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 		className: `wp-block-jetpack-cookie-consent align${ align }`,
 	} );
 
+	const isInWarningState = parentPost?.slug !== PART_SLUG;
+
+	/* If the block is added in the right place (in its own part), mark it as such, this is needed in the save function */
+	useEffect( () => {
+		if ( parentPost ) {
+			setAttributes( { isInWarningState } );
+		}
+	}, [ setAttributes, parentPost, isInWarningState ] );
+
 	/* If the block is added in the wrong place (not in its own part), render UI that helps the user create a template part. */
-	if ( parentPostSlug?.slug !== PART_SLUG ) {
+	if ( isInWarningState ) {
 		if ( mode === 'LOADING' ) {
 			return __( 'Loading…', 'jetpack' );
 		} else if ( mode === 'PART_EXISTS' ) {
@@ -142,7 +153,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 				<div>
 					<p>
 						{ __(
-							'Cookie Consent Block is best added as a template part. Luckily, you already have created a template part before!',
+							'Cookie Consent Block is best added as a template part. Luckily, you already have created a template part before.',
 							'jetpack'
 						) }
 					</p>
@@ -163,7 +174,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 				<div>
 					<p>
 						{ __(
-							'Cookie Consent Block is best added as a template part. We can do that for you!',
+							'Cookie Consent Block is best added as a template part. We can do that for you.',
 							'jetpack'
 						) }
 					</p>
