@@ -595,8 +595,11 @@ class REST_Controller {
 		delete_transient( static::JETPACK_STATS_DASHBOARD_MODULE_SETTINGS_CACHE_KEY );
 		return $this->request_as_blog_cached(
 			sprintf(
-				'/sites/%d/jetpack-stats-dashboard/module-settings',
-				Jetpack_Options::get_option( 'id' )
+				'/sites/%d/jetpack-stats-dashboard/module-settings?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_query_params()
+				)
 			),
 			'v2',
 			array(
@@ -621,7 +624,7 @@ class REST_Controller {
 				'/sites/%d/jetpack-stats-dashboard/module-settings?%s',
 				Jetpack_Options::get_option( 'id' ),
 				$this->filter_and_build_query_string(
-					$req->get_params()
+					$req->get_query_params()
 				)
 			),
 			'v2',
