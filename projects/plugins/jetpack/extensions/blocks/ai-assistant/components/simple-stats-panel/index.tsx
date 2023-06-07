@@ -14,8 +14,8 @@ import { AIFeatureProps } from '../../hooks/use-ai-feature';
 import './style.scss';
 
 export default function BasicStatsPanel( {
+	hasFeature,
 	requestsCount,
-	requireUpgrade,
 	requestsLimit = 20,
 }: AIFeatureProps ) {
 	const [ isRedirecting, setIsRedirecting ] = useState( false );
@@ -35,7 +35,7 @@ export default function BasicStatsPanel( {
 		}
 	);
 
-	if ( ! requireUpgrade ) {
+	if ( hasFeature ) {
 		statsMessage = createInterpolateElement(
 			__( 'You did <stats /> requests so far!', 'jetpack' ),
 			{
@@ -56,7 +56,7 @@ export default function BasicStatsPanel( {
 				<div className="jetpack-ai-assistant__simple-stats">{ statsMessage }</div>
 			</PanelRow>
 
-			{ requireUpgrade && (
+			{ ! hasFeature && (
 				<PanelRow>
 					<Button
 						href={ checkoutUrl }
