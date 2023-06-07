@@ -19,6 +19,9 @@ import VideoNotOwnedWarning from '../video-not-owned-warning';
  */
 export default function DetailsPanel( { attributes, setAttributes, videoBelongToSite } ) {
 	const { title, description } = attributes;
+	const titlePlaceholder = videoBelongToSite
+		? __( 'Add title', 'jetpack-videopress-pkg' )
+		: __( 'No title', 'jetpack-videopress-pkg' );
 	const descriptionPlaceholder = videoBelongToSite
 		? __( 'Add description', 'jetpack-videopress-pkg' )
 		: __( 'No description', 'jetpack-videopress-pkg' );
@@ -28,7 +31,7 @@ export default function DetailsPanel( { attributes, setAttributes, videoBelongTo
 			<TextControl
 				value={ title || '' }
 				onChange={ value => setAttributes( { title: value } ) }
-				placeholder={ __( 'Add title', 'jetpack-videopress-pkg' ) }
+				placeholder={ titlePlaceholder }
 				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 				disabled={ ! videoBelongToSite }
 			/>
