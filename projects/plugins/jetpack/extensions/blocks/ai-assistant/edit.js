@@ -59,7 +59,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}, 100 );
 	};
 
-	const { requireUpgrade, requestsCount, increaseRequestsCount } = useAIFeature();
+	const { requireUpgrade, requestsCount, requestsLimit, increaseRequestsCount } = useAIFeature();
 
 	const {
 		isLoadingCategories,
@@ -231,7 +231,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			/>
 
 			<InspectorControls>
-				<BasicStatsPanel requestsCount={ requestsCount } requireUpgrade={ requireUpgrade } />
+				<BasicStatsPanel
+					requestsCount={ requestsCount }
+					requireUpgrade={ requireUpgrade }
+					requestsLimit={ requestsLimit }
+				/>
 			</InspectorControls>
 
 			{ ! loadingImages && resultImages.length > 0 && (
