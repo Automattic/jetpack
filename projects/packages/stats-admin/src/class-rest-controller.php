@@ -633,7 +633,7 @@ class REST_Controller {
 			),
 			null,
 			'wpcom',
-			false,
+			true,
 			static::JETPACK_STATS_DASHBOARD_MODULE_SETTINGS_CACHE_KEY
 		);
 	}
