@@ -27,9 +27,8 @@ type AIFeatureProps = {
 const NUM_FREE_REQUESTS_LIMIT = 20;
 
 export const AI_Assistant_Initial_State = {
-	hasFeature: window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'has-feature' ] || true,
-	isOverLimit:
-		window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-over-limit' ] || false,
+	hasFeature: !! window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'has-feature' ],
+	isOverLimit: !! window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-over-limit' ],
 	requestsCount:
 		window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'requests-count' ] || 0,
 	requestsLimit:
