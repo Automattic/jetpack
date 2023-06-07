@@ -2576,11 +2576,11 @@ class scss_parser {
 		$this->rootParser = $rootParser;
 
 		if (empty(self::$operatorStr)) {
-			self::$operatorStr = $this->makeOperatorStr(self::$operators);
+			self::$operatorStr = static::makeOperatorStr(self::$operators);
 
-			$commentSingle = $this->preg_quote(self::$commentSingle);
-			$commentMultiLeft = $this->preg_quote(self::$commentMultiLeft);
-			$commentMultiRight = $this->preg_quote(self::$commentMultiRight);
+			$commentSingle = static::preg_quote(self::$commentSingle);
+			$commentMultiLeft = static::preg_quote(self::$commentMultiLeft);
+			$commentMultiRight = static::preg_quote(self::$commentMultiRight);
 			self::$commentMulti = $commentMultiLeft.'.*?'.$commentMultiRight;
 			self::$whitePattern = '/'.$commentSingle.'[^\n]*\s*|('.self::$commentMulti.')\s*|\s+/Ais';
 		}
@@ -2982,7 +2982,7 @@ class scss_parser {
 			}
 		}
 
-		return $this->match($this->preg_quote($what), $m, $eatWhitespace);
+		return $this->match(static::preg_quote($what), $m, $eatWhitespace);
 	}
 
 	// tree builders
@@ -3889,7 +3889,7 @@ class scss_parser {
 		} else {
 			$validChars = $allowNewline ? "." : "[^\n]";
 		}
-		if (!$this->match('('.$validChars.'*?)'.$this->preg_quote($what), $m, !$until)) return false;
+		if (!$this->match('('.$validChars.'*?)'.static::preg_quote($what), $m, !$until)) return false;
 		if ($until) $this->count -= strlen($what); // give back $what
 		$out = $m[1];
 		return true;
