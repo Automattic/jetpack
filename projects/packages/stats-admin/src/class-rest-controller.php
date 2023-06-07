@@ -607,7 +607,7 @@ class REST_Controller {
 				'method'  => 'POST',
 				'headers' => array( 'Content-Type' => 'application/json' ),
 			),
-			null,
+			$req->get_body(),
 			'wpcom'
 		);
 	}
