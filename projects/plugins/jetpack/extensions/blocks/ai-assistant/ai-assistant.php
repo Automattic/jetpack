@@ -33,7 +33,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  *
  * @return array|null
  */
-function initial_state() {
+function get_initial_state() {
 	$base = null;
 
 	if ( function_exists( 'get_current_screen' ) ) {
@@ -52,9 +52,9 @@ function initial_state() {
  * @return string
  */
 function render_initial_state() {
-	$initial_state = initial_state();
+	$initial_state = get_initial_state();
 
-	if ( ! $initial_state['currentScreen'] ) {
+	if ( empty( $initial_state['currentScreen'] ) ) {
 		return null;
 	}
 
