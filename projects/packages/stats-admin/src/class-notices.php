@@ -16,7 +16,7 @@ use Jetpack_Options;
  * @package Automattic\Jetpack\Stats_Admin
  */
 class Notices {
-	const STATS_DASHBOARD_NOTICES_CACHE_KEY = 'stats_dashboard_notices_cache_key';
+	const STATS_DASHBOARD_NOTICES_CACHE_KEY = 'jetpack_stats_dashboard_notices_cache_key';
 	const OPT_OUT_NEW_STATS_NOTICE_ID       = 'opt_out_new_stats';
 	const NEW_STATS_FEEDBACK_NOTICE_ID      = 'new_stats_feedback';
 	const OPT_IN_NEW_STATS_NOTICE_ID        = 'opt_in_new_stats';
