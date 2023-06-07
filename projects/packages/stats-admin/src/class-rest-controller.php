@@ -149,7 +149,7 @@ class REST_Controller {
 			)
 		);
 
-		// Stats notices.
+		// Update Stats notices.
 		register_rest_route(
 			static::$namespace,
 			'/stats/notices',
@@ -175,6 +175,17 @@ class REST_Controller {
 						'minimum'     => 0,
 					),
 				),
+			)
+		);
+
+		// Get Stats notices.
+		register_rest_route(
+			static::$namespace,
+			'/stats/notices',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_notice_status' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -504,26 +515,16 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function update_notice_status( $req ) {
-		delete_transient( Notices::STATS_DASHBOARD_NOTICES_CACHE_KEY );
-		return WPCOM_Client::request_as_blog(
-			sprintf(
-				'/sites/%d/jetpack-stats-dashboard/notices?%s',
-				Jetpack_Options::get_option( 'id' ),
-				$this->filter_and_build_query_string(
-					$req->get_query_params()
-				)
-			),
-			'v2',
-			array(
-				'timeout' => 5,
-				'method'  => 'POST',
-				'headers' => array(
-					'Content-Type' => 'application/json',
-				),
-			),
-			$req->get_body(),
-			'wpcom'
-		);
+		return ( new Notices() )->update_notice_status( $req->get_param( 'id' ), $req->get_param( 'status' ), $req->get_param( 'postponed_for' ) );
+	}
+
+	/**
+	 * Get stats notices.
+	 *
+	 * @return array
+	 */
+	public function get_notice_status() {
+		return ( new Notices() )->get_notices_to_show();
 	}
 
 	/**

@@ -25,6 +25,34 @@ class Notices {
 	const POSTPONE_OPT_IN_NOTICE_DAYS = 30;
 
 	/**
+	 * Update notice status.
+	 *
+	 * @param mixed $id ID of the notice.
+	 * @param mixed $status Status of the notice.
+	 * @param int   $postponed_for Postponed for how many seconds.
+	 * @return bool
+	 */
+	public function update_notice_status( $id, $status, $postponed_for = 0 ) {
+		delete_transient( self::STATS_DASHBOARD_NOTICES_CACHE_KEY );
+		return WPCOM_Client::request_as_blog(
+			sprintf(
+				'/sites/%d/jetpack-stats-dashboard/notices',
+				Jetpack_Options::get_option( 'id' )
+			),
+			'v2',
+			array(
+				'timeout' => 5,
+				'method'  => 'POST',
+				'headers' => array(
+					'Content-Type' => 'application/json',
+				),
+			),
+			compact( $id, $status, $postponed_for ),
+			'wpcom'
+		);
+	}
+
+	/**
 	 * Return an array of notices IDs as keys and their value to flag whther to show them.
 	 *
 	 * @return array
