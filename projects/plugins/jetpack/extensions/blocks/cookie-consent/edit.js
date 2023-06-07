@@ -20,9 +20,6 @@ import { name as blockName } from '.';
 const PART_SLUG = 'cookie-consent-block-template-part';
 
 function createTemplatePart( attributes ) {
-	/**
-	 * This replicates the shape of the block. It should be updated if the block changes.
-	 */
 	return {
 		slug: PART_SLUG,
 		description: __( 'Contains the cookie consent block.', 'jetpack' ),
