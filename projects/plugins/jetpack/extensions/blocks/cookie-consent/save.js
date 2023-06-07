@@ -13,7 +13,6 @@ import { InnerBlocks, useBlockProps, RichText } from '@wordpress/block-editor';
  *
  * @param {object} props - Save props.
  * @param {object} props.attributes - Block attributes.
- * @param props.innerBlocks
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#save
  * @returns {object} Element to render.
  */
