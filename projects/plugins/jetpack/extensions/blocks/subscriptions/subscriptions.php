@@ -12,7 +12,6 @@ use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Sub
 use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
-use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
 
 require_once __DIR__ . '/constants.php';
@@ -489,7 +488,8 @@ function get_post_access_level_for_current_post() {
 		return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 	}
 
-	return Jetpack_Memberships::get_post_access_level();
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+	return \Jetpack_Memberships::get_post_access_level();
 }
 
 /**
@@ -749,11 +749,11 @@ function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
 function maybe_get_locked_content( $the_content ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
-	if ( Jetpack_Memberships::user_can_view_post() ) {
+	if ( \Jetpack_Memberships::user_can_view_post() ) {
 		return $the_content;
 	}
 
-	$post_access_level = Jetpack_Memberships::get_post_access_level();
+	$post_access_level = \Jetpack_Memberships::get_post_access_level();
 	return get_locked_content_placeholder_text( $post_access_level );
 }
 
@@ -771,7 +771,7 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-	return Jetpack_Memberships::user_can_view_post();
+	return \Jetpack_Memberships::user_can_view_post();
 }
 
 /**
@@ -787,7 +787,7 @@ function maybe_gate_existing_comments( $comment ) {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-	if ( Jetpack_Memberships::user_can_view_post() ) {
+	if ( \Jetpack_Memberships::user_can_view_post() ) {
 		return $comment;
 	}
 	return '';
@@ -808,7 +808,7 @@ function get_locked_content_placeholder_text( $newsletter_access_level ) {
 
 	if (
 		$newsletter_access_level === 'paid_subscribers'
-		&& ! empty( Jetpack_Memberships::get_connected_account_id() )
+		&& ! empty( \Jetpack_Memberships::get_connected_account_id() )
 	) {
 		$access_level = __( 'paid subscribers', 'jetpack' );
 	}
