@@ -781,7 +781,7 @@ class scssc {
 		switch ($value[0]) {
 		case "exp":
 			if ($value[1] == "/") {
-				return $this->shouldEval($value[2], $value[3]);
+				return $this->shouldEval($value[2]);
 			}
 		case "var":
 		case "fncall":

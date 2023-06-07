@@ -2927,7 +2927,7 @@ class lessc_parser {
 			$content[] = $m[1];
 			if ($m[2] == "@{") {
 				$this->count -= strlen($m[2]);
-				if ($this->interpolation($inter, false)) {
+				if ($this->interpolation($inter)) {
 					$content[] = $inter;
 				} else {
 					$this->count += strlen($m[2]);
@@ -3173,7 +3173,7 @@ class lessc_parser {
 					continue;
 				}
 
-				if ($this->interpolation($inter, false)) {
+				if ($this->interpolation($inter)) {
 					$attrParts[] = $inter;
 					$hasInterpolation = true;
 					continue;
