@@ -9,14 +9,13 @@ class Image_Guide_Proxy {
 	const NONCE_ACTION = 'jb-ig-proxy-nonce';
 
 	public static function init() {
-		$instance = new self();
-		add_action( 'wp_ajax_boost_proxy_ig', array( $instance, 'handle_ig_proxy' ) );
+		add_action( 'wp_ajax_boost_proxy_ig', 'Automattic\Jetpack_Boost\Modules\Image_Guide\Image_Guide_Proxy::handle_proxy' );
 	}
 
 	/**
 	 * AJAX handler to handle proxying of external image resources.
 	 */
-	public function handle_ig_proxy() {
+	public static function handle_proxy() {
 		// Verify valid nonce.
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::NONCE_ACTION ) ) {
 			die( 'bad nonce' );
