@@ -51,9 +51,7 @@ declare global {
 			adminUrl: string;
 			siteLocale: string;
 			'ai-assistant': SiteAIAssistantFeatureEndpointResponseProps;
-		};
-		jetpackAIAssistantInitialState?: {
-			currentScreen?: string;
+			screenBase?: string;
 		};
 	}
 }
