@@ -132,6 +132,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'title'               => 'Keep Building',
 			'task_ids'            => array(
 				'design_edited',
+				'verify_email',
 				// @todo Add more tasks here!
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
