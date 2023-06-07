@@ -16,7 +16,7 @@ class RequirementError extends SError {}
  */
 function printSet( label, teamReviewers, neededTeams ) {
 	core.info( label + ' ' + ( teamReviewers.length ? teamReviewers.join( ', ' ) : '<empty set>' ) );
-	return {teamReviewers, neededTeams};
+	return { teamReviewers, neededTeams };
 }
 
 /**
@@ -33,12 +33,8 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 		return async function ( reviewers ) {
 			const members = await fetchTeamMembers( team );
 			const teamReviewers = reviewers.filter( reviewer => members.includes( reviewer ) );
-			const neededTeams = teamReviewers.length ? [] : [team];
-			return printSet(
-				`${ indent }Members of ${ team }:`,
-				teamReviewers,
-				neededTeams
-			);
+			const neededTeams = teamReviewers.length ? [] : [ team ];
+			return printSet( `${ indent }Members of ${ team }:`, teamReviewers, neededTeams );
 		};
 	}
 
@@ -91,15 +87,20 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 			for ( const requirementResult of reviewersAny ) {
 				if ( requirementResult.teamReviewers.length != 0 ) {
 					requirementsMet.push( requirementResult.teamReviewers );
-				};
+				}
 				if ( requirementResult.neededTeams.length != 0 ) {
 					neededTeams.push( requirementResult.neededTeams );
-				};
-			};
-			if( requirementsMet.length > 0 ){ // If there are requirements met, zero out the needed teams
+				}
+			}
+			if ( requirementsMet.length > 0 ) {
+				// If there are requirements met, zero out the needed teams
 				neededTeams.length = 0;
-			};
-			return printSet( `${ indent }=>`, [ ...new Set( requirementsMet.flat( 1 ) )],  [ ...new Set( neededTeams.flat( 1 ) ) ]);
+			}
+			return printSet(
+				`${ indent }=>`,
+				[ ...new Set( requirementsMet.flat( 1 ) ) ],
+				[ ...new Set( neededTeams.flat( 1 ) ) ]
+			);
 		};
 	}
 
@@ -110,16 +111,17 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 			const requirementsMet = [];
 			const neededTeams = [];
 			for ( const requirementResult of reviewersAll ) {
-				if ( requirementResult.teamReviewers.length != 0 ) {
+				if ( requirementResult.teamReviewers.length !== 0 ) {
 					requirementsMet.push( requirementResult.teamReviewers );
-				};
-				if ( requirementResult.neededTeams.length != 0 ) {
+				}
+				if ( requirementResult.neededTeams.length !== 0 ) {
 					neededTeams.push( requirementResult.neededTeams );
-				};
-			};
-			if ( neededTeams.length !== 0 ) { // If there are needed teams, zero out requirements met
+				}
+			}
+			if ( neededTeams.length !== 0 ) {
+				// If there are needed teams, zero out requirements met
 				return printSet( `${ indent }=>`, [], [ ...new Set( neededTeams.flat( 1 ) ) ] );
-			};
+			}
 			return printSet( `${ indent }=>`, [ ...new Set( requirementsMet.flat( 1 ) ) ], [] );
 		};
 	}
@@ -241,10 +243,9 @@ class Requirement {
 	 */
 	async needsReviewsFrom( reviewers ) {
 		core.info( 'Checking reviewers...' );
-		const checkNeededTeams = await this.reviewerFilter( reviewers )
+		const checkNeededTeams = await this.reviewerFilter( reviewers );
 		return checkNeededTeams.neededTeams;
 	}
 }
 
 module.exports = Requirement;
-

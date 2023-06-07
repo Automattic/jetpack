@@ -1,11 +1,10 @@
 const core = require( '@actions/core' );
 const github = require( '@actions/github' );
-const getUsername = require( './get-username.js' );
 
 /**
  * Request review from the given team
  *
- * @param {string} team - GitHub team slug, or @ followed by a GitHub user name.
+ * @param {object} teams - GitHub team slug, or @ followed by a GitHub user name.
  */
 async function requestReviewer( teams ) {
 	const octokit = github.getOctokit( core.getInput( 'token', { required: true } ) );
@@ -13,14 +12,14 @@ async function requestReviewer( teams ) {
 	const repo = github.context.payload.repository.name;
 	const pr = github.context.payload.pull_request.number;
 
-	let userReviews = []
-	let teamReviews = []
+	const userReviews = [];
+	const teamReviews = [];
 
 	for ( const t of teams ) {
 		if ( t.startsWith( '@' ) ) {
-			userReviews.push( t.slice( 1 ) )
+			userReviews.push( t.slice( 1 ) );
 		} else {
-			teamReviews.push( t )
+			teamReviews.push( t );
 		}
 	}
 
@@ -30,11 +29,11 @@ async function requestReviewer( teams ) {
 			repo: repo,
 			pull_number: pr,
 			reviewers: userReviews,
-			team_reviewers: teamReviews
-		} )
+			team_reviewers: teamReviews,
+		} );
 		core.info( `Requested review(s) from ${ teams }` );
 	} catch ( err ) {
-		throw new Error( `Unable to request review.\n  Error: ${err}` );
+		throw new Error( `Unable to request review.\n  Error: ${ err }` );
 	}
 }
 

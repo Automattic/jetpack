@@ -70,7 +70,7 @@ async function main() {
 		core.endGroup();
 
 		let matchedPaths = [];
-		const teamsNeededForReview = new Set()
+		const teamsNeededForReview = new Set();
 		for ( let i = 0; i < requirements.length; i++ ) {
 			const r = requirements[ i ];
 			core.startGroup( `Checking requirement "${ r.name }"...` );
