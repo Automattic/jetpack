@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Admin;
 
-use Automattic\Jetpack_Boost\Lib\Transient;
+use Automattic\Jetpack\Boost_Core\Lib\Transient;
 
 /**
  * Admin notice for letting users know they need to regenerate their Critical CSS.

@@ -4,7 +4,7 @@ Tags: social-media, publicize, social-media-manager, social-networking, social m
 Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.2
-Stable tag: 1.9.0
+Stable tag: 1.11.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,7 +17,7 @@ Write once, publish everywhere. Reach your target audience by sharing your conte
 
 **Grow your following by sharing your content with Jetpack Social!**
 
-It’s important to publish on both your website & social media in order to reach your whole audience. If you only publish on social media, you’re missing up to 60% of adults on a daily basis. Jetpack Social makes it easy to automatically share your site’s posts on popular social media channels such as Facebook and Twitter. Increase your audience by engaging your site's viewers & your social followers.
+It’s important to publish on both your website & social media in order to reach your whole audience. If you only publish on social media, you’re missing up to 60% of adults on a daily basis. Jetpack Social makes it easy to automatically share your site’s posts on popular social media channels such as Facebook and Tumblr. Increase your audience by engaging your site's viewers & your social followers.
 
 **Manage all channels from a single hub to save time**
 
@@ -61,7 +61,6 @@ From your site’s WP Admin:
 You can connect to any of the following networks:
 
 * Facebook Pages
-* Twitter
 * Tumblr
 * LinkedIn
 
@@ -71,7 +70,7 @@ To make the connection available to all users, check the box labeled "Connection
 
 = To which social media platforms can I post using Jetpack Social? =
 
-You can post to Facebook, Twitter, Tumblr, and Linkedin. We are working hard to increase our social share integrations.
+You can post to Facebook, Tumblr, and Linkedin. We are working hard to increase our social share integrations.
 
 = How do I share a post on social media using Jetpack Social? =
 
@@ -91,17 +90,16 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.10.0 - 2023-05-02
+### 1.11.0 - 2023-06-06
 #### Added
-- Social: Updating plugin version.
+- Added feature flag for Mastodon preview
+- Jetpack Social: Add a notice to let users know Instagram is available
 
 #### Changed
-- Added dynamic pricing to Social admin page.
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now
 - Updated package dependencies.
-- Update WordPress version requirements. Now requires version 6.1.
+- Updates the enhanced publishing feature check
 
-#### Fixed
-- Dashboard: ensure the link to the post editor works, even when WordPress is installed in a subdirectory.
-- Jetpack Social: Render Social Image Generator panel even when SIG's default is disabled.
-- Temporarily removed review prompts to fix the plugin's UI state.
+#### Deprecated
+- Minor changes around upcoming functionality change in Twitter.
 

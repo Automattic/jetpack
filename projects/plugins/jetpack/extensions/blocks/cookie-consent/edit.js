@@ -1,17 +1,112 @@
 import { InspectorControls, useBlockProps, InnerBlocks, RichText } from '@wordpress/block-editor';
-import { PanelBody, TextControl, SelectControl } from '@wordpress/components';
+import { createBlock, serialize } from '@wordpress/blocks';
+import {
+	PanelBody,
+	TextControl,
+	SelectControl,
+	Button,
+	Card,
+	CardBody,
+	CardFooter,
+} from '@wordpress/components';
+import { useEntityRecord } from '@wordpress/core-data';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { addFilter } from '@wordpress/hooks';
 import { __, isRTL } from '@wordpress/i18n';
 import './editor.scss';
+import { useEffect, useState } from 'react';
+import { name as blockName } from '.';
 
+const PART_SLUG = 'cookie-consent-block-template-part';
+
+function createTemplatePart( attributes ) {
+	return {
+		slug: PART_SLUG,
+		description: __( 'Contains the cookie consent block.', 'jetpack' ),
+		title: __( 'Cookie Consent Block Template Part', 'jetpack' ),
+		content: serialize(
+			createBlock( `jetpack/${ blockName }`, { ...attributes, isInWarningState: false } )
+		),
+		area: 'footer',
+	};
+}
+
+/**
+ * Hide the cookie consent block pattern from the inserter. It should not be inserted by the user, only edited or deleted.
+ */
+addFilter( 'blocks.registerBlockType', 'core/template-part', function ( settings, name ) {
+	if ( name === 'core/template-part' ) {
+		return {
+			...settings,
+			variations: settings.variations.map( variation => {
+				if ( variation.name === PART_SLUG ) {
+					return {
+						...variation,
+						// the original scope is ['inserter']
+						scope: [],
+					};
+				}
+				return variation;
+			} ),
+		};
+	}
+	return settings;
+} );
+
+/**
+ * Fetches the template part for the cookie consent block
+ *
+ * @returns {object} { part, isLoading }
+ */
+function useCookieConsentTemplatePart() {
+	const theme = useSelect( select => select( 'core' ).getCurrentTheme() );
+	const { record, isResolving } = useEntityRecord(
+		'postType',
+		'wp_template_part',
+		`${ theme?.stylesheet }//${ PART_SLUG }`,
+		{
+			enabled: !! theme,
+		}
+	);
+
+	return { part: record, isLoading: ! theme || isResolving };
+}
 /**
  * Cookie Consent Edit Component.
  *
  * @param {object} props - Component props.
  * @param {object} props.attributes	- {object} Block attributes.
  * @param {Function} props.setAttributes - Set block attributes.
+ * @param {string} props.clientId - the client id of the block.
  * @returns {object} Element to render.
  */
-function CookieConsentBlockEdit( { attributes, setAttributes } ) {
+function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
+	const parentPost = useSelect( select => {
+		const id = select( 'core/edit-site' ).getEditedPostId();
+		const type = select( 'core/edit-site' ).getEditedPostType();
+		return select( 'core' ).getEntityRecord( 'postType', type, id );
+	}, [] );
+
+	const { removeBlock } = useDispatch( 'core/block-editor' );
+	const { saveEntityRecord } = useDispatch( 'core' );
+	const [ isSaving, setIsSaving ] = useState( false );
+
+	const { part, isLoading } = useCookieConsentTemplatePart();
+	const templatePart = createTemplatePart( attributes );
+
+	/**
+	 * mode: LOADING | PART_EXISTS | PART_DOES_NOT_EXIST
+	 */
+	const [ mode, setMode ] = useState( 'LOADING' );
+
+	useEffect( () => {
+		if ( part && ! isLoading ) {
+			setMode( 'PART_EXISTS' );
+		} else if ( ! part && ! isLoading ) {
+			setMode( 'PART_DOES_NOT_EXIST' );
+		}
+	}, [ part, isLoading ] );
+
 	const { consentExpiryDays, align, text } = attributes;
 
 	/**
@@ -29,10 +124,86 @@ function CookieConsentBlockEdit( { attributes, setAttributes } ) {
 		} );
 	}
 
+	async function goToTemplatePart( savedTemplate ) {
+		setIsSaving( false );
+		removeBlock( clientId );
+		window.open(
+			`/wp-admin/site-editor.php?postType=${ savedTemplate.type }&postId=${ savedTemplate.id }`
+		);
+	}
+
 	const blockProps = useBlockProps( {
 		className: `wp-block-jetpack-cookie-consent align${ align }`,
 	} );
 
+	const isInWarningState = parentPost?.slug !== PART_SLUG;
+
+	/* If the block is added in the right place (in its own part), mark it as such, this is needed in the save function */
+	useEffect( () => {
+		if ( parentPost ) {
+			setAttributes( { isInWarningState } );
+		}
+	}, [ setAttributes, parentPost, isInWarningState ] );
+
+	/* If the block is added in the wrong place (not in its own part), render UI that helps the user create a template part. */
+	if ( isInWarningState ) {
+		if ( mode === 'LOADING' ) {
+			return __( 'Loading…', 'jetpack' );
+		} else if ( mode === 'PART_EXISTS' ) {
+			return (
+				<Card>
+					<CardBody>
+						<p>
+							{ __(
+								'In order to be rendered on every page of your site, the Cookie Consent Block is best added as a template part. You already have created a template part before.',
+								'jetpack'
+							) }
+						</p>
+					</CardBody>
+					<CardFooter>
+						<Button
+							variant="primary"
+							disabled={ isSaving }
+							onClick={ () => {
+								setIsSaving( true );
+								goToTemplatePart( part );
+							} }
+						>
+							{ __( 'Go to template part', 'jetpack' ) }
+						</Button>
+					</CardFooter>
+				</Card>
+			);
+		} else if ( mode === 'PART_DOES_NOT_EXIST' ) {
+			return (
+				<Card>
+					<CardBody>
+						<p>
+							{ __(
+								'In order to be rendered on every page of your site, the Cookie Consent Block is best added as a template part.',
+								'jetpack'
+							) }
+						</p>
+					</CardBody>
+					<CardFooter>
+						<Button
+							variant="primary"
+							disabled={ isSaving }
+							onClick={ () => {
+								saveEntityRecord( 'postType', 'wp_template_part', templatePart )
+									.then( goToTemplatePart )
+									.catch( () => {
+										setIsSaving( false );
+									} );
+							} }
+						>
+							{ __( 'Create the template part', 'jetpack' ) }
+						</Button>
+					</CardFooter>
+				</Card>
+			);
+		}
+	}
 	return (
 		<>
 			<InspectorControls>

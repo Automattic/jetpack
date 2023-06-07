@@ -310,7 +310,7 @@ function zeroBSCRM_pages_admin_team() {
 	</form>
 
 
-		<a style="margin-left:10px;" class="ui button right" href="<?php echo esc_url( admin_url( 'user-new.php?zbsslug=zbs-add-user' ) ); ?>">
+		<a style="margin-left:10px;" class="ui button black right" href="<?php echo esc_url( admin_url( 'user-new.php?zbsslug=zbs-add-user' ) ); ?>">
 		<i class="add icon"></i> 
 			<?php esc_html_e( 'Add New Team Member', 'zero-bs-crm' ); ?>
 		</a>
@@ -345,7 +345,7 @@ function zeroBSCRM_pages_admin_team() {
 
 			echo '<td>' . esc_html( zeroBSCRM_wpb_lastlogin( $ID ) . ' ' . __( 'ago', 'zero-bs-crm' ) ) . '</td>';
 
-			echo "<td><a href='" . esc_url( $edit_url ) . "'' data-uid='" . esc_attr( $ID ) . "' class='zbs-perm-edit ui button mini blue'>";
+			echo "<td><a href='" . esc_url( $edit_url ) . "'' data-uid='" . esc_attr( $ID ) . "' class='zbs-perm-edit ui button mini black'>"; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			esc_html_e( 'Manage permissions', 'zero-bs-crm' );
 
@@ -1712,7 +1712,7 @@ function zeroBSCRM_html_datatools() {
 			<p class="sbhomep">
 			<strong><?php esc_html_e( 'Free Data Tools', 'zero-bs-crm' ); ?>:</strong><br />
 			<?php if ( ! zeroBSCRM_isExtensionInstalled( 'csvpro' ) ) { ?>
-			<a class="ui button green primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'Import from CSV', 'zero-bs-crm' ); ?></a>
+			<a class="ui button black primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'Import from CSV', 'zero-bs-crm' ); ?></a>
 		<?php } ?>
 		</p>
 			<p class="sbhomep">
@@ -1750,12 +1750,12 @@ function zeroBSCRM_html_datatools() {
 			</p><p class="sbhomep">
 				<!-- #datatoolsales -->
 			<strong><?php esc_html_e( 'Import Tools', 'zero-bs-crm' ); ?>:</strong><br /><br />
-				<a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank" class="ui button primary"><?php esc_html_e( 'View Available Import Tools', 'zero-bs-crm' ); ?></a>              
+				<a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank" class="ui button black primary"><?php esc_html_e( 'View Available Import Tools', 'zero-bs-crm' ); ?></a>              
 			</p>
 			<div class="sbhomep">
 				<strong><?php esc_html_e( 'Export Tools', 'zero-bs-crm' ); ?>:</strong><br/>
 				<p><?php esc_html_e( 'Want to use the refined object exporter? ', 'zero-bs-crm' ); ?></p>
-				<p><a class="ui button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] . '&zbswhat=contacts' ) ); ?>">Export Tools</a></p>
+				<p><a class="ui black button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] ) ); ?>">Export Tools</a></p>
 			</div>
 	</div>
 	<div class="ui grid">
@@ -1988,7 +1988,7 @@ function zeroBSCRM_html_extensions() {
 		$bundle = true;
 	}
 
-	echo "<div class='zbs-extensions-manager' style='margin-top:1em'>";
+	echo '<div class="zbs-extensions-manager">';
 
 	// get the products, from our sites JSON custom REST endpoint - that way only need to manage there and not remember to update all the time
 	// each product has our extkey so can do the same as the built in array here ;) #progress #woop-da-woop
@@ -2150,7 +2150,7 @@ function zeroBSCRM_html_extensions() {
 			echo '</div>';
 			echo '<div class="clear"></div>';
 		}
-			echo '<div class="ui top attached header premium-box"><h3 class="box-title">' . esc_html__( 'Premium Extensions', 'zero-bs-crm' ) . '</h3>   <a class="guides ui button blue mini" href="' . esc_url( $zbs->urls['docs'] ) . '" target="_blank"><i class="book icon"></i> ' . esc_html__( 'Knowledge-base', 'zero-bs-crm' ) . '</a> <a class="guides ui button blue basic mini" href="' . esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) ) . '"><i class="puzzle piece icon"></i> ' . esc_html__( 'Core Modules', 'zero-bs-crm' ) . '</a>   </div>';
+			echo '<div class="ui top attached header premium-box"><h3 class="box-title">' . esc_html__( 'Premium Extensions', 'zero-bs-crm' ) . '</h3>   <a class="guides ui button black mini" href="' . esc_url( $zbs->urls['docs'] ) . '" target="_blank"><i class="book icon"></i> ' . esc_html__( 'Knowledge-base', 'zero-bs-crm' ) . '</a> <a style="color: black !important;box-shadow: 0px 0px 0px 1px black inset !important;" class="guides ui button blue basic mini" href="' . esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) ) . '"><i class="puzzle piece icon"></i> ' . esc_html__( 'Core Modules', 'zero-bs-crm' ) . '</a>   </div>';
 			echo '<div class="clear"></div>';
 			echo '<div class="ui segment attached">';
 				echo '<div class="ui internally celled grid">';
@@ -2167,8 +2167,7 @@ function zeroBSCRM_html_extensions() {
 
 			// We want to prioritize the top 5 Woo modules in the list if 'woosync' is active, but otherwise alphabetize everything.
 			foreach ( $extensions->paid as $extension ) {
-
-				if ( $has_woosync && in_array( $extension->slug, $top_woo_extension_slugs, true ) ) {
+				if ( $has_woosync && ! empty( $extension->slug ) && in_array( $extension->slug, $top_woo_extension_slugs, true ) ) {
 					$top_woo_extensions[] = $extension;
 					continue;
 				}
@@ -2401,7 +2400,7 @@ function jpcrm_html_modules() {
 
 	}
 
-	echo "<div class='zbs-extensions-manager' style='margin-top:1em'>";
+	echo '<div class="zbs-extensions-manager">';
 
 			// this block should be in here for rebranded people who want to turn on or off features.
 			echo '<div class="zbs-page-wrap free-block-wrap">';

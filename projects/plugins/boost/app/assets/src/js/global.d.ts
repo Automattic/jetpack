@@ -73,6 +73,16 @@ declare global {
 			eventProp: TracksEventProperites
 		): JQueryXHR;
 	};
+
+	const jetpackBoostAnalytics: {
+		tracksData: {
+			userData: {
+				userid: number;
+				username: string;
+			};
+			blogId: number;
+		};
+	};
 }
 
 export {};

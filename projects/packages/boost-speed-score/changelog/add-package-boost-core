@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Moved boost core classes to boost-core package

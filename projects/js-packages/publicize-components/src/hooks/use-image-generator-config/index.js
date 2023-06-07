@@ -10,6 +10,7 @@ const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
 	imageType: sigSettings?.image_type ?? null,
 	imageId: sigSettings?.image_id ?? null,
 	template: sigSettings?.template ?? null,
+	token: sigSettings?.token ?? null,
 } );
 
 /**
@@ -25,6 +26,7 @@ const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
  * @property {Function} setImageType - Callback to change the image type.
  * @property {Function} setImageId - Callback to change the image ID.
  * @property {Function} setTemplate - Callback to change the template.
+ * @property {Function} setToken - Callback to change the token.
  */
 
 /**
@@ -63,5 +65,6 @@ export default function useImageGeneratorConfig() {
 		setImageType: value => updateSettings( 'image_type', value ),
 		setImageId: value => updateSettings( 'image_id', value ),
 		setTemplate: value => updateSettings( 'template', value ),
+		setToken: value => updateSettings( 'token', value ),
 	};
 }

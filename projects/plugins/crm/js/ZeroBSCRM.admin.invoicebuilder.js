@@ -200,6 +200,9 @@ function zbscrm_JS_draw_invoice_html() {
 		// hide this to show msg properly, also
 		jQuery( '#zbs_loader, #zbs_invoice' ).hide();
 	}
+
+	zeroBSCRMJS_showContactLinkIf(jQuery( '#zbs_invoice_contact' ).val());
+	zeroBSCRMJS_showCompanyLinkIf(jQuery( '#zbs_invoice_company' ).val());
 }
 
 //draws the status line (and links that are present (download PDF, preview, send))
@@ -225,7 +228,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 			html +=
 				'<a href="' +
 				res.invoiceObj.preview_link +
-				'" target="_blank" class="ui button blue" id="zbs_invoice_preview">' +
+				'" target="_blank" class="ui button black" id="zbs_invoice_preview">' +
 				zbscrm_JS_invoice_lang( 'preview' ) +
 				'</a>';
 		}
@@ -233,7 +236,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 		//pdf download only displayed in PDF set.
 		if ( res.invoiceObj.pdf_installed ) {
 			html +=
-				'<button id="zbs_invoicing_download_pdf" type="button" class="ui button olive">' +
+				'<button id="zbs_invoicing_download_pdf" type="button" class="ui button black">' +
 				zbscrm_JS_invoice_lang( 'dl_pdf' ) +
 				'</button>';
 			Formhtml =
@@ -254,7 +257,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 				zbscrm_JS_validateEmail( potentialEmail )
 			) {
 				html +=
-					'<button type="button" id="zbs_invoicing_send_email" class="ui button yellow">' +
+					'<button type="button" id="zbs_invoicing_send_email" class="ui button black">' +
 					zbscrm_JS_invoice_lang( 'send_email' ) +
 					'</button>';
 			}
@@ -685,7 +688,7 @@ function zbscrm_JS_draw_invoice_biz_info( res ) {
 	html += '<div id="zbs-business-info-wrapper">';
 	html += '<div class="business-info-toggle">';
 	html +=
-		'<i class="fa fa-chevron-circle-right" aria-hidden="true"></i> <span class="your-info-biz">' +
+		'<i class="fa fa-chevron-circle-right" aria-hidden="true" style="color:black;"></i> <span class="your-info-biz">' +
 		zbscrm_JS_invoice_lang( 'biz_info' ) +
 		'</span>';
 	html += '</div>';
@@ -1872,85 +1875,22 @@ function zbscrm_JS_bindInitialLearnLinks() {
  * @param contactID
  */
 function zeroBSCRMJS_showContactLinkIf( contactID ) {
-	// remove old
-	// NOT USING this bit jQuery('#zbs-customer-title .zbs-view-contact').remove();
 	jQuery( '#zbs-invoice-learn-nav .zbs-invoice-quicknav-contact' ).remove();
 
 	if ( typeof contactID !== 'undefined' && contactID !== null && contactID !== '' ) {
 		contactID = parseInt( contactID );
 		if ( contactID > 0 ) {
-			// seems legit, add
-
-			/* not using (from trans originally) var html = '<div class="ui right floated mini animated button zbs-view-contact">';
-						html += '<div class="visible content">' + zbscrm_JS_invoice_lang('viewcontact') + '</div>';
-							html += '<div class="hidden content">';
-						    	html += '<i class="user icon"></i>';
-						  	html += '</div>';
-						html += '</div>';
-
-				jQuery('#zbs-customer-title').prepend(html);
-
-				// bind
-				zeroBSCRMJS_bindContactLinkIf();
-				*/
-
-			// ALSO show in header bar, if so
 			var navButton =
-				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-contact ui icon button blue mini labeled" href="' +
+				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-contact jpcrm-button" href="' +
 				window.zbs_invoice.invoiceObj.settings.contacturlprefix +
 				contactID +
-				'"><i class="user icon"></i> ' +
-				zbscrm_JS_invoice_lang( 'contact' ) +
+				'">' +
+				window.zbsMetaboxFilesLang.viewcontact +
 				'</a>';
 			jQuery( '#zbs-invoice-learn-nav' ).prepend( navButton );
 		}
 	}
 }
-
-/* Not using, (from trans editor originally)
-// click for quicknav :)
-function zeroBSCRMJS_bindContactLinkIf(){
-
-	jQuery('#zbs-customer-title .zbs-view-contact').off('click').on( 'click', function(){
-
-		// get from hidden input
-		var contactID = parseInt(jQuery("#customer").val());//jQuery(this).attr('data-invid');
-
-		if (typeof contactID != "undefined" && contactID !== null && contactID !== ''){
-			contactID = parseInt(contactID);
-			if (contactID > 0){
-
-				var url = '<?php echo jpcrm_esc_link('edit',-1,'zerobs_customer',true); ?>' + contactID;
-
-				// bla bla https://stackoverflow.com/questions/1574008/how-to-simulate-target-blank-in-javascript
-				window.open(url,'_parent');
-			}
-		}
-
-	});
-}
-
-// click for quicknav :)
-function zeroBSCRMJS_bindCompanyLinkIf(){
-
-	jQuery('#zbs-company-title .zbs-view-company').off('click').on( 'click', function(){
-
-		// get from hidden input
-		var companyID = parseInt(jQuery("#zbsct_company").val());//jQuery(this).attr('data-invid');
-
-		if (typeof companyID != "undefined" && companyID !== null && companyID !== ''){
-			companyID = parseInt(companyID);
-			if (companyID > 0){
-
-				var url = '<?php echo jpcrm_esc_link('edit',-1,'zerobs_company',true); ?>' + companyID;
-
-				// bla bla https://stackoverflow.com/questions/1574008/how-to-simulate-target-blank-in-javascript
-				window.open(url,'_parent');
-			}
-		}
-
-	});
-}*/
 
 // if an Company is selected (against a trans) can 'quick nav' to Company
 /**
@@ -1964,29 +1904,12 @@ function zeroBSCRMJS_showCompanyLinkIf( companyID ) {
 	if ( typeof companyID !== 'undefined' && companyID !== null && companyID !== '' ) {
 		companyID = parseInt( companyID );
 		if ( companyID > 0 ) {
-			// seems like a legit inv, add
-
-			/* not using here, (orig from trans)
-				var html = '<div class="ui right floated mini animated button zbs-view-company">';
-						html += '<div class="visible content"><?php  zeroBSCRM_slashOut(__('View','zero-bs-crm')); ?></div>';
-							html += '<div class="hidden content">';
-						    	html += '<i class="building icon"></i>';
-						  	html += '</div>';
-						html += '</div>';
-
-				jQuery('#zbs-company-title').prepend(html);
-
-				// bind
-				zeroBSCRMJS_bindCompanyLinkIf();
-				*/
-
-			// ALSO show in header bar, if so
 			var navButton =
-				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-company ui icon button blue mini labeled" href="' +
+				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-company jpcrm-button" href="' +
 				window.zbs_invoice.invoiceObj.settings.companyurlprefix +
 				companyID +
-				'"><i class="building icon"></i> ' +
-				zbscrm_JS_invoice_lang( 'company' ) +
+				'">' +
+				window.zbsMetaboxFilesLang.viewcompany +
 				'</a>';
 			jQuery( '#zbs-invoice-learn-nav' ).prepend( navButton );
 		}
@@ -2209,8 +2132,9 @@ function zbscrmJS_sendInvoiceModal() {
 				'</div>',
 			type: 'question',
 			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
+			confirmButtonColor: '#000',
+			cancelButtonColor: '#fff',
+			cancelButtonText: '<span style="color: #000">Cancel</span>',
 			confirmButtonText: zbscrm_JS_invoice_lang( 'sendthemail' ),
 			//allowOutsideClick: false
 		} ).then( function ( result ) {

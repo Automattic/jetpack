@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-WooCommerce: avoid Fatal errors when other plugins make changes to WooCommerce Products or Orders.

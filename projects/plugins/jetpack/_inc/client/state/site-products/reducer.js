@@ -77,3 +77,20 @@ export function getSiteProductMonthlyCost( state, slug ) {
 
 	return Math.ceil( ( price / 12 ) * 100 ) / 100;
 }
+
+/**
+ * Returns the discount of a product price. It bases the discount on intro offers with a yearly interval
+ *
+ * @param   {object} state - Global state tree
+ * @param   {string} slug  - Product slug
+ * @returns {number} Discount of a product price or 0 if there is no discount
+ */
+export function getSiteProductYearlyDiscount( state, slug ) {
+	const product = getSiteProduct( state, slug );
+	const price = product?.introductory_offer?.cost_per_interval;
+	const isYearDiscount =
+		product?.introductory_offer?.interval_unit === 'year' &&
+		product?.introductory_offer?.interval_count === 1;
+
+	return isYearDiscount && price ? Math.ceil( ( price / product?.cost ) * 100 ) : 0;
+}

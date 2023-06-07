@@ -17,7 +17,7 @@ const AdminPageHeader = () => {
 
 	return (
 		<div className={ styles.header }>
-			<span class={ styles.logo }>
+			<span className={ styles.logo }>
 				<Logo />
 			</span>
 

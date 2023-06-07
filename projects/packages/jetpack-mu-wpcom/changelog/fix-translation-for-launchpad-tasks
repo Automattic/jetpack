@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Launchpad: use callbacks for task titles to pick up the user locale

@@ -56,15 +56,6 @@ function zeroBSCRM_admin_menu_settings() {
 	$hiding_wp = get_user_meta( $cid, 'zbs-hide-wp-menus', true );
 	if ( zeroBSCRM_isAdminPage() ) {
 
-		// detect any compat (e.g. material admin)
-		$zbs_custom_admin = zeroBSCM_custom_admin_detect();
-
-		// globalise js (global js adds a class to body depending on this)
-		// Not needed, now dealt with by zeroBSCRM_bodyClassMods below
-		// ... gonna leave here because Material Admin doesn't allow admin_body_class
-		?><script>var zbscrmjs_custom_admin = '<?php echo esc_html( $zbs_custom_admin ); ?>';</script>
-		<?php
-
 		// if hiding, append class to body :)- this should be a single js call really, fudged for now :)
 		// jQuery('body').addClass('zbs-fullscreen'); - NOW NOT NEEDED (see zeroBSCRM_bodyClassMods - added via php for less visual lag)
 		// left in for cases like material admin not using proper admin_body_class
@@ -90,11 +81,6 @@ function zeroBSCRM_bodyClassMods( $classes = '' ) {
 		if ( $hiding_wp ) {
 			$classes .= ' zbs-fullscreen ';
 		}
-	}
-
-	// compat - MAterial admin
-	if ( zeroBSCM_custom_admin_detect() == 'material' ) {
-		$classes .= ' zbs-compat-material-admin ';
 	}
 
 	return $classes;
@@ -189,7 +175,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			$toolsMenu = array();
 
 			// calendar
-			if ( zeroBSCRM_getSetting( 'feat_calendar' ) > 0 ) {
+			if ( zeroBSCRM_permsEvents() && zeroBSCRM_getSetting( 'feat_calendar' ) > 0 ) {
 				$toolsMenu[] = '<a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['manage-events'] ) . '" class="item"><i class="icon calendar outline"></i> ' . __( 'Task Scheduler', 'zero-bs-crm' ) . '</a>';
 			}
 			// forms
@@ -476,7 +462,10 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			</div>
 			<?php } ?>
 
-			<?php if ( zeroBSCRM_permsViewTransactions() && zeroBSCRM_getSetting( 'feat_transactions' ) > 0 ) { ?>
+			<?php
+			if ( zeroBSCRM_permsViewTransactions() && zeroBSCRM_getSetting( 'feat_transactions' ) > 0 ) {
+				$transactions_menu = array();
+				?>
 			<div class="ui simple dropdown item select<?php zeroBS_menu_active_type( 'transaction' ); ?>" id="zbs-transactions-topmenu" style="z-index:5">
 				<span class="text"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?></span>
 				<i class="dropdown icon"></i>
@@ -487,12 +476,12 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 					}
 					?>
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['managetransactions'] ) ); ?>"><i class="icon list"></i> <?php esc_html_e( 'View all', 'zero-bs-crm' ); ?></a>
-					<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, 'zerobs_transaction', false, 'zerobscrm_transactiontag' ); ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
-
 					<?php
 					if ( zeroBSCRM_permsTransactions() ) {
+						?>
+						<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, 'zerobs_transaction', false, 'zerobscrm_transactiontag' ); ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
+						<?php
 						// If CSV Pro is installed and active it will add an Import menu item to the zbs-transactions-menu filter - we'll then add that here
-						$transactions_menu = array();
 						$transactions_menu = apply_filters( 'zbs-transactions-menu', $transactions_menu ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 						$import_menu_item  = preg_grep( '/\bpage\=zerobscrm\-csvimporter\-app\b/i', $transactions_menu );
 						if ( count( $import_menu_item ) > 0 ) {

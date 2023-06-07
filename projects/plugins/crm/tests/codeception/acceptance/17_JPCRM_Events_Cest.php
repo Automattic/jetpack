@@ -36,12 +36,12 @@ class JPCRM_Events_Cest {
 
 	public function see_tasks_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'events' );
-		$I->see( 'Task Calendar', '#zbs-admin-top-bar' );
+		$I->see( 'Task Calendar', '.jpcrm-learn-page-title' );
 	}
 
 	public function see_new_task_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'add-edit', '&action=edit&zbstype=event' );
-		$I->see( 'New Task', '#zbs-list-top-bar' );
+		$I->see( 'New Task', '.jpcrm-learn-page-title' );
 	}
 
 	public function create_new_task( AcceptanceTester $I ) {
@@ -71,7 +71,7 @@ class JPCRM_Events_Cest {
 			'zbs_remind_task_24'   => $this->event_data['zbs_remind_task_24'],
 		);
 
-		$I->see( 'Edit Task', '#zbs-list-top-bar' );
+		$I->see( 'Edit Task', '.jpcrm-learn-page-title' );
 
 		foreach ( $event_view_data as $field => $value ) {
 			$I->seeInField( $field, $value );
@@ -82,7 +82,7 @@ class JPCRM_Events_Cest {
 		$I->gotoAdminPage( 'events' );
 
 		$I->seeInTitle( 'Task Scheduler' );
-		$I->see( 'Task Calendar', '#zbs-list-top-bar' );
+		$I->see( 'Task Calendar', '.jpcrm-learn-page-title' );
 
 		$event_view_data = array(
 			'zbse_title'           => $this->event_data['zbse_title'],

@@ -322,6 +322,14 @@ class Jetpack_Plugin_Search {
 	 * @param object $args Search args.
 	 */
 	public function inject_jetpack_module_suggestion( $result, $action, $args ) {
+		/*
+		 * Bail if something else hooks into the Plugins' API response
+		 * and does not return results.
+		 */
+		if ( empty( $result->plugins ) || is_wp_error( $result ) ) {
+			return $result;
+		}
+
 		// Looks like a search query; it's matching time.
 		if ( ! empty( $args->search ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';

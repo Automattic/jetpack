@@ -403,6 +403,15 @@ EOT;
 			$item_markup .= $date_tag;
 		}
 
+		if ( $block_attributes['show_author'] ) {
+			$author_tag = sprintf(
+				'<li class="jp-related-posts-i2__post-author">%1$s</li>',
+				esc_html( $related_post['author'] )
+			);
+
+			$item_markup .= $author_tag;
+		}
+
 		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['block_context'] ) ) {
 			// Note: The original 'context' value is not used when rendering the block.
 			// It is still generated and available for the legacy rendering code path though.
@@ -421,6 +430,7 @@ EOT;
 					esc_html( $block_context['text'] )
 				);
 			}
+
 			$item_markup .= $context_tag;
 		}
 
@@ -459,6 +469,8 @@ EOT;
 		$block_attributes   = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
+			'show_author'     => isset( $attributes['displayAuthor'] ) ? (bool) $attributes['displayAuthor'] : false,
+			'show_headline'   => isset( $attributes['displayHeadline'] ) ? (bool) $attributes['displayHeadline'] : false,
 			'show_date'       => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
 			'show_context'    => isset( $attributes['displayContext'] ) && $attributes['displayContext'],
 			'layout'          => isset( $attributes['postLayout'] ) && 'list' === $attributes['postLayout'] ? $attributes['postLayout'] : 'grid',
@@ -507,12 +519,22 @@ EOT;
 			$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 		}
 
+		$headline_markup = '';
+		if ( $block_attributes['show_headline'] === true ) {
+			$headline = $block_attributes['headline'];
+			if ( strlen( trim( $headline ) ) !== 0 ) {
+				$headline_markup = sprintf(
+					'<h3 class="jp-relatedposts-headline">%1$s</h3>',
+					esc_html( $headline )
+				);
+			}
+		}
 		$display_markup = sprintf(
 			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s">%4$s%5$s</nav>',
 			! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
 			! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 			esc_attr( $block_attributes['layout'] ),
-			$block_attributes['headline'],
+			$headline_markup,
 			$rows_markup
 		);
 
@@ -1331,6 +1353,7 @@ EOT;
 				'position' => $position,
 			),
 			'title'         => $this->to_utf8( $this->get_title( $post->post_title, $post->post_content, $post->ID ) ),
+			'author'        => $this->generate_related_post_display_author( $post->ID ),
 			'date'          => get_the_date( '', $post->ID ),
 			'format'        => get_post_format( $post->ID ),
 			'excerpt'       => html_entity_decode( $this->to_utf8( $this->get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
@@ -1692,6 +1715,22 @@ EOT;
 			}
 		}
 		return $filtered;
+	}
+
+	/**
+	 * Generates the author byline for the related post.
+	 *
+	 * @param int $post_id - the post ID.
+	 * @uses get_post_field, get_the_author_meta
+	 * @return string
+	 */
+	protected function generate_related_post_display_author( $post_id ) {
+		$post_author         = get_post_field( 'post_author', $post_id );
+		$author_display_name = get_the_author_meta( 'display_name', $post_author );
+		if ( ! empty( $author_display_name ) ) {
+			return $author_display_name;
+		}
+		return '';
 	}
 
 	/**

@@ -1,11 +1,8 @@
 /**
  * External dependencies
  */
+import { select } from '@wordpress/data';
 import debugFactory from 'debug';
-import { LANGUAGE_MAP } from './i18n-dropdown-control';
-
-// Maximum number of characters we send from the content
-export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
@@ -20,81 +17,83 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
  * @param {string} options.language - The language of the content.
  * @param {string} options.locale   - The locale of the content.
  *
- * @return {string} The prompt.
+ * @return {array} The prompt.
  */
 export const buildPromptTemplate = ( {
-	context = 'You are an AI assistant block, a part of a product called Jetpack made by the company called Automattic',
+	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
 	rules = [],
 	request = null,
-	content = null,
-	language = null,
-	locale = null,
+	relevantContent = null,
+	isContentGenerated = false,
+	fullContent = null,
+	isGeneratingTitle = false,
 } ) => {
-	if ( ! request && ! content ) {
+	if ( ! request && ! relevantContent ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
-	// Language and Locale
-	let langLocatePromptPart = language
-		? `- Write in the language: ${ language }${
-				LANGUAGE_MAP[ language ]?.label ? ` (${ LANGUAGE_MAP[ language ].label })` : ''
-		  }.`
-		: '';
-	langLocatePromptPart += langLocatePromptPart.length && locale ? ` locale: ${ locale }.` : '';
-	langLocatePromptPart += langLocatePromptPart.length ? '\n' : '';
+	const messages = [];
+
+	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' ) || '';
+
+	const blogPostData = `Here's the content in the editor that serves as context to the user request:
+${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
+		fullContent ? `- Current content: ${ fullContent }` : ''
+	}`;
 
 	// Rules
-	let extraRulePromptPart = '';
+	let extraRules = '';
 	if ( rules?.length ) {
-		extraRulePromptPart = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
+		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
+	}
+	const prompt = `${ context }.
+Strictly follow these rules:
+
+${ extraRules }- Format your responses in Markdown syntax, ready to be published.
+- Execute the request without any acknowledgement to the user.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+`;
+
+	messages.push( { role: 'system', content: prompt } );
+
+	if ( postTitle?.length || !! fullContent ) {
+		messages.push( {
+			role: 'user',
+			content: blogPostData,
+		} );
 	}
 
-	let job = 'Your job is to ';
-
-	if ( !! request && ! content ) {
-		job += 'respond to the request below, under "Request"';
-	} else if ( ! request && !! content ) {
-		job += 'modify the content below, under "Content"';
-	} else {
-		job +=
-			'modify the content shared below, under "Content", based on the request below, under "Request"';
+	if ( relevantContent != null && relevantContent?.length ) {
+		if ( isContentGenerated ) {
+			messages.push( {
+				role: 'assistant',
+				content: relevantContent,
+			} );
+		} else {
+			messages.push( {
+				role: 'system',
+				content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
+			} );
+		}
 	}
 
-	const requestPromptBlock = ! request
-		? ''
-		: `\nRequest:
-${ request }`;
+	messages.push( {
+		role: 'user',
+		content: request,
+	} );
 
-	const contentText = ! content
-		? ''
-		: `\nContent:
-${ content }`;
+	if ( isGeneratingTitle ) {
+		messages.push( {
+			role: 'user',
+			content: 'Only output a title, do not generate body content.',
+		} );
+	}
 
-	// Context content
-	const contextPromptPart = requestPromptBlock && contentText ? `\n${ contentText }` : contentText;
-
-	const prompt =
-		`${ context }.
-${ job }. Do this by following rules set in "Rules".
-
--------------
-Rules:
-- If you do not understand this request, regardless of language or any other rule, always answer exactly and without any preceding content with the following term and nothing else: __JETPACK_AI_ERROR__.
-- Do not use the term __JETPACK_AI_ERROR__ in any other context.
-${ extraRulePromptPart }- Do not include a top level heading by default.
-- Only output generated content ready for publishing.
-- Segment the content into paragraphs as deemed suitable.
-` +
-		langLocatePromptPart +
-		`-----------
-		` +
-		requestPromptBlock +
-		contextPromptPart +
-		`
------------`;
-
-	debug( prompt );
-	return prompt;
+	messages.forEach( message => {
+		debug( `Role: ${ message?.role }.\nMessage: ${ message?.content }\n---` );
+	} );
+	return messages;
 };
 
 export function buildPrompt( {
@@ -106,7 +105,14 @@ export function buildPrompt( {
 	prompt,
 	type,
 	userPrompt,
+	isGeneratingTitle,
 } ) {
+	const isGenerated = options?.contentType === 'generated';
+	const reference = {
+		content: isGeneratingTitle ? 'the title' : 'the content',
+		generated: isGeneratingTitle ? 'the title' : 'your last answer',
+	};
+
 	switch ( type ) {
 		/*
 		 * Non-interactive types
@@ -117,19 +123,21 @@ export function buildPrompt( {
 		 */
 		case 'titleSummary':
 			prompt = buildPromptTemplate( {
-				request: 'Please help me write a short piece for a blog post based on the content below',
-				content: currentPostTitle,
+				request: 'Write a short piece for a blog post based on the content.',
+				fullContent: allPostContent,
+				relevantContent: currentPostTitle,
 			} );
 			break;
 
 		/*
-		 * Continue generating from the content below.
+		 * Continue generating from the content.
 		 */
 		case 'continue':
 			prompt = buildPromptTemplate( {
-				request: 'Please continue writing from the content below.',
+				request: 'Continue writing from the content.',
 				rules: [ 'Only output the continuation of the content, without repeating it' ],
-				content: postContentAbove,
+				fullContent: allPostContent,
+				relevantContent: postContentAbove,
 			} );
 			break;
 
@@ -138,61 +146,14 @@ export function buildPrompt( {
 		 */
 		case 'simplify':
 			prompt = buildPromptTemplate( {
-				request: 'Simplify the content below.',
+				request: 'Simplify the content.',
 				rules: [
 					'Use words and phrases that are easier to understand for non-technical people',
 					'Output in the same language of the content',
 					'Use as much of the original language as possible',
 				],
-				content: postContentAbove,
-			} );
-			break;
-
-		/*
-		 * Interactive only types
-		 */
-
-		/*
-		 * Change the tone of the content.
-		 */
-		case 'changeTone':
-			prompt = buildPromptTemplate( {
-				request: `Please, rewrite with a ${ options.tone } tone.`,
-				content: generatedContent,
-			} );
-			break;
-
-		/*
-		 * Make the content longer.
-		 */
-		case 'makeLonger':
-			prompt = buildPromptTemplate( {
-				request: 'Make the content below longer.',
-				content: generatedContent,
-			} );
-			break;
-
-		/*
-		 * Make the content shorter.
-		 */
-		case 'makeShorter':
-			prompt = buildPromptTemplate( {
-				request: 'Make the content below shorter.',
-				content: generatedContent,
-			} );
-			break;
-
-		/*
-		 * Types that can be interactive or non-interactive
-		 */
-
-		/*
-		 * Summarize the content.
-		 */
-		case 'summarize':
-			prompt = buildPromptTemplate( {
-				request: 'Summarize the content below.',
-				content: options.contentType === 'generated' ? generatedContent : allPostContent,
+				fullContent: allPostContent,
+				relevantContent: postContentAbove,
 			} );
 			break;
 
@@ -201,8 +162,10 @@ export function buildPrompt( {
 		 */
 		case 'correctSpelling':
 			prompt = buildPromptTemplate( {
-				request: 'Correct any spelling and grammar mistakes from the content below.',
-				content: options.contentType === 'generated' ? generatedContent : postContentAbove,
+				request:
+					'Repeat the content, correcting any spelling and grammar mistakes, and do not add new content.',
+				fullContent: allPostContent,
+				relevantContent: postContentAbove,
 			} );
 			break;
 
@@ -211,9 +174,71 @@ export function buildPrompt( {
 		 */
 		case 'generateTitle':
 			prompt = buildPromptTemplate( {
-				request: 'Generate a title for this blog post',
+				request: 'Generate a new title for this blog post and only output the title.',
 				rules: [ 'Only output the raw title, without any prefix or quotes' ],
-				content: options.contentType === 'generated' ? generatedContent : allPostContent,
+				fullContent: allPostContent,
+				relevantContent: allPostContent,
+			} );
+			break;
+
+		/*
+		 * Interactive only types
+		 */
+
+		/*
+		 * Make the content longer.
+		 */
+		case 'makeLonger':
+			prompt = buildPromptTemplate( {
+				request: `Make ${ reference.generated } longer.`,
+				fullContent: allPostContent,
+				relevantContent: generatedContent,
+				isContentGenerated: true,
+				isGeneratingTitle,
+			} );
+			break;
+
+		/*
+		 * Make the content shorter.
+		 */
+		case 'makeShorter':
+			prompt = buildPromptTemplate( {
+				request: `Make ${ reference.generated } shorter.`,
+				fullContent: allPostContent,
+				relevantContent: generatedContent,
+				isContentGenerated: true,
+				isGeneratingTitle,
+			} );
+			break;
+
+		/*
+		 * Types that can be interactive or non-interactive
+		 */
+
+		/*
+		 * Change the tone of the content.
+		 */
+		case 'changeTone':
+			prompt = buildPromptTemplate( {
+				request: `Rewrite ${ isGenerated ? reference.generated : reference.content } with a ${
+					options.tone
+				} tone.`,
+				fullContent: allPostContent,
+				relevantContent: isGenerated ? generatedContent : allPostContent,
+				isContentGenerated: isGenerated,
+				isGeneratingTitle,
+			} );
+			break;
+
+		/*
+		 * Summarize the content.
+		 */
+		case 'summarize':
+			prompt = buildPromptTemplate( {
+				request: `Summarize ${ isGenerated ? reference.generated : reference.content }.`,
+				fullContent: allPostContent,
+				relevantContent: isGenerated ? generatedContent : allPostContent,
+				isContentGenerated: isGenerated,
 			} );
 			break;
 
@@ -222,15 +247,36 @@ export function buildPrompt( {
 		 */
 		case 'changeLanguage':
 			prompt = buildPromptTemplate( {
-				request: `Please, rewrite the content below in the following language: ${ options.language }.`,
-				content: options.contentType === 'generated' ? generatedContent : allPostContent,
+				request: `Translate ${
+					isGenerated ? reference.generated : reference.content
+				} to the following language: ${ options.language }.`,
+				fullContent: allPostContent,
+				relevantContent: isGenerated ? generatedContent : allPostContent,
+				isContentGenerated: isGenerated,
+				isGeneratingTitle,
+			} );
+			break;
+
+		/**
+		 * Open ended prompt from user
+		 */
+		case 'userPrompt':
+			prompt = buildPromptTemplate( {
+				request: userPrompt,
+				fullContent: allPostContent,
+				relevantContent: generatedContent || allPostContent,
+				isContentGenerated: !! generatedContent?.length,
+				isGeneratingTitle,
 			} );
 			break;
 
 		default:
 			prompt = buildPromptTemplate( {
 				request: userPrompt,
-				content: generatedContent,
+				fullContent: allPostContent,
+				relevantContent: generatedContent,
+				isContentGenerated: true,
+				isGeneratingTitle,
 			} );
 			break;
 	}

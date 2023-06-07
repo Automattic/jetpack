@@ -10,7 +10,7 @@ import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import MarkdownIt from 'markdown-it';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -26,13 +26,14 @@ const markdownConverter = new MarkdownIt( {
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
-	const [ errorMessage, setErrorMessage ] = useState( false );
+	const [ errorData, setError ] = useState( {} );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
 	const [ imageModal, setImageModal ] = useState( null );
 	const [ errorDismissed, setErrorDismissed ] = useState( null );
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+	const aiControlRef = useRef( null );
 
 	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( blockEditorStore );
 	const { editPost } = useDispatch( 'core/editor' );
@@ -44,36 +45,49 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		};
 	}, [] );
 
+	const focusOnPrompt = () => {
+		// Small delay to avoid focus crash
+		// with other actions from the block
+		setTimeout( () => {
+			aiControlRef.current?.focus?.();
+		}, 100 );
+	};
+
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
 		wasCompletionJustRequested,
 		getSuggestionFromOpenAI,
+		stopSuggestion,
 		showRetry,
 		contentBefore,
 		postTitle,
 		retryRequest,
 		wholeContent,
 	} = useSuggestionsFromOpenAI( {
+		onSuggestionDone: focusOnPrompt,
+		onUnclearPrompt: focusOnPrompt,
+		onModeration: focusOnPrompt,
+		attributes,
 		clientId,
 		content: attributes.content,
-		setErrorMessage,
+		setError,
 		tracks,
 		userPrompt,
 	} );
 
 	useEffect( () => {
-		if ( errorMessage ) {
+		if ( errorData ) {
 			setErrorDismissed( false );
 		}
-	}, [ errorMessage ] );
+	}, [ errorData ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
 			return;
 		}
 		setLoadingImages( true );
-		setErrorMessage( null );
+		setError( {} );
 
 		// First convert image to a proper blob file
 		const resp = await fetch( image );
@@ -128,7 +142,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleTryAgain = () => {
-		setAttributes( { content: undefined } );
+		setAttributes( { content: undefined, promptType: undefined } );
 	};
 
 	const handleGetSuggestion = type => {
@@ -136,16 +150,20 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		return;
 	};
 
+	const handleStopSuggestion = () => {
+		stopSuggestion();
+	};
+
 	const handleImageRequest = () => {
 		setResultImages( [] );
-		setErrorMessage( null );
+		setError( {} );
 
 		getImagesFromOpenAI(
 			userPrompt.trim() === '' ? __( 'What would you like to see?', 'jetpack' ) : userPrompt,
 			setAttributes,
 			setLoadingImages,
 			setResultImages,
-			setErrorMessage,
+			setError,
 			postId
 		);
 
@@ -160,9 +178,13 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
 			} ) }
 		>
-			{ errorMessage && ! errorDismissed && (
-				<Notice status="info" isDismissible={ false } className="jetpack-ai-assistant__error">
-					{ errorMessage }
+			{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
+				<Notice
+					status={ errorData.status }
+					isDismissible={ false }
+					className="jetpack-ai-assistant__error"
+				>
+					{ errorData.message }
 				</Notice>
 			) }
 			{ contentIsLoaded && (
@@ -173,6 +195,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				</>
 			) }
 			<AIControl
+				ref={ aiControlRef }
 				content={ attributes.content }
 				contentIsLoaded={ contentIsLoaded }
 				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
@@ -180,6 +203,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				handleAcceptContent={ handleAcceptContent }
 				handleAcceptTitle={ handleAcceptTitle }
 				handleGetSuggestion={ handleGetSuggestion }
+				handleStopSuggestion={ handleStopSuggestion }
 				handleImageRequest={ handleImageRequest }
 				handleTryAgain={ handleTryAgain }
 				isWaitingState={ isWaitingState }
@@ -192,6 +216,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				wholeContent={ wholeContent }
 				promptType={ attributes.promptType }
 				onChange={ () => setErrorDismissed( true ) }
+				requireUpgrade={ errorData?.code === 'error_quota_exceeded' }
+				recordEvent={ tracks.recordEvent }
+				isGeneratingTitle={ attributes.promptType === 'generateTitle' }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>

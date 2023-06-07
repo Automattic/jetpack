@@ -40,4 +40,8 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
+	isInWarningState: {
+		type: 'boolean',
+		default: true,
+	},
 };

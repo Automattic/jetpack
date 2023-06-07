@@ -1,39 +1,41 @@
-import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
+import { BlockIcon, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
+	Button,
 	CheckboxControl,
 	Flex,
 	FlexBlock,
 	FlexItem,
-	Placeholder,
 	Icon,
+	Notice,
+	PanelBody,
+	Placeholder,
+	Spinner,
+	SearchControl,
+	ToggleControl,
 } from '@wordpress/components';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
 import icon from './icon';
+import useSubscriptions from './use-subscriptions';
 
-export function AuthorRecommendationEdit( {
-	className,
-	noticeUI,
-	attributes,
-	setAttributes,
-	isSelected,
-} ) {
-	const [ subscriptions ] = useState( [] );
+export function AuthorRecommendationEdit( { className, attributes, setAttributes, isSelected } ) {
 	const [ selectedSubscriptions, setSelectedSubscriptions ] = useState( [] );
-	const { recommendations } = attributes;
+	const [ showSubscriptions, setShowSubscriptions ] = useState( false );
+	const { recommendations, ignore_user_blogs } = attributes;
+	const { isLoading, errorMessage, subscriptions } = useSubscriptions( { ignore_user_blogs } );
+	const showPlaceholder = ! selectedSubscriptions.length && ( ! showSubscriptions || ! isSelected );
 
 	useEffect( () => {
-		setSelectedSubscriptions( recommendations.map( ( { ID } ) => ID ) );
-		// TODO fetch the sites the user is subscribed to
-
+		setSelectedSubscriptions( recommendations.map( ( { blog_id } ) => blog_id ) );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	useEffect( () => {
+		// Update recommendations when selectedSubscriptions changes
 		setAttributes( {
 			recommendations: subscriptions.filter( subscription =>
-				selectedSubscriptions.includes( subscription.ID )
+				selectedSubscriptions.includes( subscription.blog_id )
 			),
 		} );
 	}, [ selectedSubscriptions, setAttributes, subscriptions ] );
@@ -57,65 +59,129 @@ export function AuthorRecommendationEdit( {
 
 	return (
 		<div { ...useBlockProps() } className={ className }>
-			{ ( ! selectedSubscriptions.length || ! subscriptions.length ) && (
+			{ showPlaceholder && (
 				<Placeholder
 					label={ __( 'Author Recommendation', 'jetpack' ) }
 					icon={ <BlockIcon icon={ icon } /> }
-					instructions={
-						! subscriptions.length
-							? __(
-									'No subscriptions to display. You need to follow some sites in order to see results here.',
-									'jetpack'
-							  )
-							: __(
-									'Recommend sites to your users. Select the sites you want to recommend from the list below.',
-									'jetpack'
-							  )
-					}
-					notices={ noticeUI }
+					instructions={ __(
+						'Recommend sites that you like and follow. Select the sites you want to recommend to your visitors.',
+						'jetpack'
+					) }
+				>
+					<Button variant="primary" onClick={ () => setShowSubscriptions( true ) }>
+						{ __( 'Select Recommendations', 'jetpack' ) }
+					</Button>
+				</Placeholder>
+			) }
+
+			{ errorMessage && (
+				<Notice status="error" isDismissible={ false }>
+					<p>{ errorMessage }</p>
+				</Notice>
+			) }
+
+			{ isLoading && (
+				<FlexBlock style={ { padding: '10px', textAlign: 'center' } }>
+					<Spinner />
+				</FlexBlock>
+			) }
+
+			{ ! isLoading && ! showPlaceholder && (
+				<AuthorRecommendationContent
+					{ ...{ isLoading, subscriptions, selectedSubscriptions, handleChecked, isSelected } }
 				/>
 			) }
 
-			<Flex gap={ 2 } justify="space-between" direction="column">
-				{ subscriptions.map( subscription => {
-					const isSubscriptionSelected = selectedSubscriptions.includes( subscription.ID );
-
-					return (
-						<FlexItem
-							key={ subscription.ID }
-							style={ {
-								padding: '10px',
-								display: ! isSubscriptionSelected && ! isSelected ? 'none' : '',
-							} }
-						>
-							<Flex gap={ 4 } justify="space-between">
-								<FlexItem>
-									{ ! subscription.site_icon && (
-										<Icon icon="admin-site" className="icon" size={ 36 } />
-									) }
-									{ subscription.site_icon && (
-										<img
-											className="icon"
-											src={ subscription.site_icon }
-											alt={ subscription.name }
-										/>
-									) }
-								</FlexItem>
-								<FlexBlock>{ subscription.name }</FlexBlock>
-								<FlexItem>
-									{ isSelected && (
-										<CheckboxControl
-											checked={ isSubscriptionSelected }
-											onChange={ () => handleChecked( subscription.ID ) }
-										/>
-									) }
-								</FlexItem>
-							</Flex>
-						</FlexItem>
-					);
-				} ) }
-			</Flex>
+			<InspectorControls>
+				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+					<ToggleControl
+						label={ __( 'Hide user blogs', 'jetpack' ) }
+						checked={ !! ignore_user_blogs }
+						onChange={ () => setAttributes( { ignore_user_blogs: ! ignore_user_blogs } ) }
+					/>
+				</PanelBody>
+			</InspectorControls>
 		</div>
+	);
+}
+
+function AuthorRecommendationContent( {
+	subscriptions,
+	selectedSubscriptions,
+	handleChecked,
+	isSelected,
+} ) {
+	const [ searchQuery, setSearchQuery ] = useState( '' );
+	const [ filteredSubscriptions, setFilteredSubscriptions ] = useState( subscriptions );
+
+	useEffect( () => {
+		if ( ! isSelected ) {
+			setSearchQuery( '' );
+			setFilteredSubscriptions( subscriptions );
+		}
+	}, [ subscriptions, setFilteredSubscriptions, setSearchQuery, isSelected ] );
+
+	const handleSearchInputChange = value => {
+		const query = value.toLowerCase();
+		const filtered = subscriptions.filter( subscription =>
+			subscription.name.toLowerCase().includes( query )
+		);
+		setFilteredSubscriptions( filtered );
+		setSearchQuery( query );
+	};
+
+	return (
+		<Flex gap={ 2 } justify="space-between" direction="column">
+			{ isSelected && (
+				<SearchControl
+					value={ searchQuery }
+					onChange={ handleSearchInputChange }
+					placeholder={ __( 'Search subscriptions…', 'jetpack' ) }
+				/>
+			) }
+
+			{ ! filteredSubscriptions.length && <p>{ __( 'No results found', 'jetpack' ) }</p> }
+
+			{ filteredSubscriptions.map( subscription => {
+				const isSubscriptionSelected = selectedSubscriptions.includes( subscription.blog_id );
+
+				return (
+					<FlexItem
+						key={ subscription.blog_id }
+						style={ {
+							padding: '10px',
+							display: ! isSubscriptionSelected && ! isSelected ? 'none' : '',
+						} }
+					>
+						<Flex gap={ 4 } justify="space-between">
+							<FlexItem>
+								{ ! subscription.site_icon && (
+									<Icon icon="admin-site" className="icon" size={ 36 } />
+								) }
+								{ subscription.site_icon && (
+									<img
+										className="icon"
+										src={ subscription.site_icon }
+										alt={ subscription.name }
+										height={ 36 }
+										width={ 36 }
+									/>
+								) }
+							</FlexItem>
+							<FlexBlock>{ subscription.name }</FlexBlock>
+							<FlexItem>
+								{ isSelected && (
+									<CheckboxControl
+										checked={ isSubscriptionSelected }
+										onChange={ () => handleChecked( subscription.blog_id ) }
+									/>
+								) }
+							</FlexItem>
+						</Flex>
+					</FlexItem>
+				);
+			} ) }
+		</Flex>
 	);
 }
 

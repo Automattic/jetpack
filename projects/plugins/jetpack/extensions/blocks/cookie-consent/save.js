@@ -19,6 +19,11 @@ import { InnerBlocks, useBlockProps, RichText } from '@wordpress/block-editor';
 export default function save( { attributes } ) {
 	const blockProps = useBlockProps.save();
 
+	/* don't save anything if the block is in the warning state */
+	if ( attributes.isInWarningState ) {
+		return null;
+	}
+
 	return (
 		<div { ...blockProps } style={ blockProps.style } role="dialog" aria-modal="true">
 			<RichText.Content tagName="p" value={ attributes.text } />

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Status\Visitor;
+use Jetpack_Options;
 use WP_Error;
 /**
  * Stores the list of products available for purchase in WPCOM
@@ -226,5 +227,37 @@ class Wpcom_Products {
 		$pricing['discount_price'] = $price * ( 100 - $coupon_discount ) / 100;
 
 		return $pricing;
+	}
+
+	/**
+	 * Gets the site purchases from WPCOM.
+	 *
+	 * @todo Maybe add caching.
+	 *
+	 * @return Object|WP_Error
+	 */
+	public static function get_site_current_purchases() {
+		static $purchases = null;
+
+		if ( $purchases !== null ) {
+			return $purchases;
+		}
+
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/purchases', $site_id ),
+			'1.1',
+			array(
+				'method' => 'GET',
+			)
+		);
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'purchases_state_fetch_failed' );
+		}
+
+		$body      = wp_remote_retrieve_body( $response );
+		$purchases = json_decode( $body );
+		return $purchases;
 	}
 }
