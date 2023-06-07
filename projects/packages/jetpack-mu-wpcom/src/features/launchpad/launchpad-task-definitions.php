@@ -531,9 +531,9 @@ function wpcom_track_video_uploaded_task( $post_id ) {
  *
  * @return void
  */
-function wpcom_launchpad_mark_site_title_complete( $old_value, $value ) {
+function wpcom_mark_site_title_complete( $old_value, $value ) {
 	if ( $value !== $old_value ) {
 		wpcom_mark_launchpad_task_complete( 'site_title' );
 	}
 }
-add_action( 'update_option_blogname', 'wpcom_launchpad_mark_site_title_complete', 10, 3 );
+add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
