@@ -349,7 +349,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$email_field_styles           = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-		$post_access_level = Jetpack_Memberships::get_post_access_level();
+		$post_access_level = \Jetpack_Memberships::get_post_access_level();
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;
