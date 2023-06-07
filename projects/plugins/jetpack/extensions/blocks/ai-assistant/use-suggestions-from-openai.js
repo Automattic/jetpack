@@ -69,7 +69,7 @@ const useSuggestionsFromOpenAI = ( {
 	onSuggestionDone,
 	onUnclearPrompt,
 	onModeration,
-	refreshFeatureData,
+	increaseRequestsCount,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -212,7 +212,7 @@ const useSuggestionsFromOpenAI = ( {
 		source?.current?.addEventListener( 'done', e => {
 			stopSuggestion();
 			updateBlockAttributes( clientId, { content: e.detail } );
-			refreshFeatureData();
+			increaseRequestsCount();
 		} );
 
 		source?.current?.addEventListener( 'error_unclear_prompt', () => {
