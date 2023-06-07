@@ -190,7 +190,7 @@ const useSuggestionsFromOpenAI = ( {
 		try {
 			setIsLoadingCompletion( true );
 			setWasCompletionJustRequested( true );
-			source.current = await askQuestion( prompt, postId );
+			source.current = await askQuestion( prompt, { postId } );
 		} catch ( err ) {
 			if ( err.message ) {
 				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
