@@ -88,7 +88,7 @@ function load_assets( $attr, $content ) {
 /**
  * Render the cookie consent template-part.
  *
- * @since 12.0
+ * @since $$next-version$$
  */
 function render_cookie_consent_template() {
 
