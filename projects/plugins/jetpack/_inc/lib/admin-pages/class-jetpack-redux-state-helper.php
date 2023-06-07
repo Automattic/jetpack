@@ -161,7 +161,7 @@ class Jetpack_Redux_State_Helper {
 			),
 			'aff'                         => Partner::init()->get_partner_code( Partner::AFFILIATE_CODE ),
 			'partnerSubsidiaryId'         => Partner::init()->get_partner_code( Partner::SUBSIDIARY_CODE ),
-			'settings'                    => self::get_flattened_settings( $modules ),
+			'settings'                    => self::get_flattened_settings(),
 			'userData'                    => array(
 				'currentUser' => $current_user_data,
 			),
