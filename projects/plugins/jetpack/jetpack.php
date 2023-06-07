@@ -14,6 +14,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /*
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
