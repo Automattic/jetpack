@@ -78,7 +78,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 		$blocks = array_map(
 			function ( $block ) {
 				$parsed_block = parse_blocks( $block['block'] );
-				if ( count( $parsed_block ) > 0 ) {
+				if ( is_countable( $parsed_block ) && count( $parsed_block ) > 0 ) {
 					$block['block'] = $parsed_block[0];
 					return $block;
 				}
