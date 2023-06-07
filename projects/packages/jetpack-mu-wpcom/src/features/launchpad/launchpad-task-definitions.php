@@ -200,7 +200,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_disabled_callback' => '__return_true',
 		),
 
-		// @todo Add Keep Building tasks.
+		// Keep Building tasks.
+		'site_title'					  => array(
+			'get_title'            => function () {
+				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_launchpad_site_title_is_complete_callback',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -515,4 +521,27 @@ function wpcom_track_video_uploaded_task( $post_id ) {
 		return;
 	}
 	wpcom_mark_launchpad_task_complete( 'videopress_upload' );
+}
+
+/**
+ * Mark the site_title task as complete if the site title is not empty and not "Site Title".
+ * 
+ * @return void
+ */
+function wpcom_launchpad_mark_site_title_complete() {
+	$site_title = get_option( 'blogname' );
+
+	if ( ! empty( $site_title ) && __( 'Site Title', 'jetpack-mu-wpcom' ) !== $site_title ) {
+		wpcom_mark_launchpad_task_complete( 'site_title' );
+	}
+}
+add_action( 'init', 'wpcom_launchpad_site_title_complete_callback', 11 );
+
+/**
+ * Update Launchpad's site_title task.
+ * 
+ * @return bool True if the site title was updated, false otherwise.
+ */
+function wpcom_launchpad_site_title_is_complete_callback() {
+	return wpcom_launchpad_mark_site_title_complete();
 }
