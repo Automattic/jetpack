@@ -69,10 +69,18 @@ export default function useAIFeature() {
 		...data,
 		refresh: () => getAIFeatures().then( setData ),
 		increaseRequestsCount: () => {
-			setData( prevData => ( {
-				...prevData,
-				requestsCount: prevData.requestsCount + 1,
-			} ) );
+			setData( prevData => {
+				const requestsCount = prevData.requestsCount + 1;
+				const isOverLimit = requestsCount > prevData.requestsLimit;
+				const requireUpgrade = ! prevData.hasFeature && isOverLimit;
+
+				return {
+					...prevData,
+					requestsCount,
+					isOverLimit,
+					requireUpgrade,
+				};
+			} );
 			getAIFeatures().then( setData );
 		},
 	};
