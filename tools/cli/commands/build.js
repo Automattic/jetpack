@@ -809,14 +809,6 @@ async function buildProject( t ) {
 							if ( ctxPkg.name === pkg ) {
 								let massagedVer = ctxPkg.version;
 								massagedVer = `^${ massagedVer }`;
-								if ( process.env.GITHUB_RUN_NUMBER && massagedVer.endsWith( 'alpha' ) ) {
-									massagedVer =
-										massagedVer +
-										'.' +
-										process.env.GITHUB_RUN_NUMBER +
-										'.' +
-										process.env.GITHUB_RUN_ATTEMPT;
-								}
 								composerJson[ key ][ pkg ] = massagedVer;
 								break;
 							}
