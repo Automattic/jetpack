@@ -33,7 +33,8 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Claim your free one-year domain', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_domain_claim_is_complete_callback',
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_domain_claim_is_visible_callback',
 		),
 		'domain_upsell'                   => array(
 			'id_map'               => 'domain_upsell_deferred',
@@ -553,12 +554,42 @@ add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
 /**
  * Check to see if a site has a bundle credit for a free domain.
  *
+ * See if a site has a bundle credit active; if so they have not claimed their free domain.
+ * Used with the `domain_claim` task to determine visibility.
+ *
  * @return bool True if the site has a bundle credit for a free domain, false otherwise.
  */
-function wpcom_domain_claim_is_complete_callback() {
+function wpcom_domain_claim_is_visible_callback() {
+	// If we're not on WP.com, don't show this task.
 	if ( ! class_exists( 'WPCOM_Store' ) ) {
 		return false;
 	};
 
+	// If we've already completed the task, continue to show it.
+	if ( wpcom_is_task_option_completed( 'domain_claim' ) ) {
+		return true;
+	}
+
+	// If we haven't completed the task, check to see if we have a bundle credit before showing it.
 	return bool /WPCOM_Store::has_bundle_credit();
 }
+
+/**
+ * When the user maps a custom domain, mark `domain_credit` as done.
+ *
+ * @return void
+ */
+function wpcom_domain_claim_task_listener() {
+	if ( ! class_exists( 'WPCOM_Domain' ) ) {
+		return;
+	};
+
+	$mapping_record = get_primary_domain_mapping_record();
+	$wpcom_domain = new \WPCOM_Domain( $mapping_record->domain );
+
+	// If the primary domain is not a WP.com TLD, mark the domain claim as complete.
+	if ( ! $wpcom_domain->is_wpcom_tld() ) {
+		wpcom_mark_launchpad_task_complete( 'domain_claim' );
+	}
+}
+add_action( 'init', 'wpcom_domain_claim_task_listener', 11 );
