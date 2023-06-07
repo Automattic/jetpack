@@ -30,12 +30,7 @@ class Analytics {
 	 * Get the tracking and manager objects for Boost.
 	 */
 	public static function get_tracking() {
-		$product_name = 'jetpack_boost';
-		if ( defined( 'JETPACK_BOOST_DEBUG' ) && JETPACK_BOOST_DEBUG ) {
-			$product_name = 'jetpack_boost_debug';
-		}
-
-		return new Tracking( $product_name, new Manager( 'jetpack-boost' ) );
+		return new Tracking( 'jetpack_boost', new Manager( 'jetpack-boost' ) );
 	}
 
 	/**
