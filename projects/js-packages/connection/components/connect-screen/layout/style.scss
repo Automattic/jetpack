@@ -124,3 +124,115 @@
 		}
 	}
 }
+
+.rna {
+	overflow: hidden;
+
+	.jp-connection__connect-screen-layout__left {
+		position: relative;
+		z-index: 2;
+
+		h2 {
+			margin-top: 0;
+			font-weight: 700;
+		}
+
+		h3 {
+			margin-top: 24px;
+		}
+
+		@include break-small {
+			padding: 4rem 6rem 4rem 4rem;
+		}
+	}
+	
+	.jp-connection__connect-screen-required-plan__pricing-card {
+		/** Line up with the top of the product logo,
+		* and mirror 96px horizontal padding seen in
+		* .jp-connection__connect-screen-layout__left
+		*/
+		@include break-xlarge {
+			position: absolute;
+			top: calc(var(--spacing-base) * 9.25);
+			right: calc(var(--spacing-base) * -45);
+		}
+		
+		.jp-components__pricing-card {
+			border-radius: var(--jp-border-radius-rna);
+			width: 425px;
+			max-width: 100%;
+
+			&__title {
+				margin-top: 0.625rem;
+			}
+
+			@include break-large {
+				padding: 3rem;
+			}
+		}
+
+		.components-button {
+			margin-bottom: 0;
+		}
+	}
+
+	.jp-backup-dashboard-promotion {
+		ul.jp-product-promote li {
+			margin-bottom: 0.75rem;
+		}
+	}
+
+	.jp-connection__connect-screen-layout__color-blobs {
+		display: none;
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 363px;
+		height: 677px;
+		z-index: 1;
+
+		clip-path: polygon( 100% 0, 100% 100%, 0 0, 0 0 );
+
+		&__blue,
+		&__yellow,
+		&__green {
+			position: absolute;
+			filter: blur(50px);
+			border-radius: 50%;
+		}
+
+		&__blue {
+			width: 400px;
+			height: 400px;
+			right: -100px;
+			top: -275px;
+			z-index: 3;
+			
+			background-color: var(--jp-blue-5);
+		}
+
+		&__yellow {
+			width: 250px;
+			height: 250px;
+			right: -25px;
+			top: 10px;
+			z-index: 2;
+
+			background-color: var(--jp-yellow-5);
+		}
+
+		&__green {
+			width: 300px;
+			height: 300px;
+			right: 0;
+			top: 175px;
+			z-index: 1;
+
+			background-color: var(--jp-green-5);
+		}
+
+		@media ( min-width: 1080px ) {
+			display: initial;
+		}
+	}
+}
