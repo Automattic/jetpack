@@ -576,7 +576,8 @@ async function buildProject( t ) {
 			const versions = {};
 			for ( const dep of [ ...deps ].sort() ) {
 				if ( t.ctx.versions[ dep ] ) {
-					versions[ t.ctx.versions[ dep ].name ] = t.ctx.versions[ dep ].version;
+					versions[ t.ctx.versions[ dep ].name ] =
+						t.ctx.versions[ dep ].runversion ?? t.ctx.versions[ dep ].version;
 				}
 			}
 
@@ -910,7 +911,8 @@ async function buildProject( t ) {
 	}
 
 	// Get the project version number from the changelog.md file.
-	let projectVersionNumber = '';
+	let projectVersionNumber = '',
+		projectRunVersionNumber = '';
 	const changelogFileName = composerJson.extra?.changelogger?.changelog || 'CHANGELOG.md';
 	const rl = rlcreateInterface( {
 		input: createReadStream( `${ t.cwd }/${ changelogFileName }`, {
@@ -924,7 +926,7 @@ async function buildProject( t ) {
 		if ( match && match[ 1 ] ) {
 			projectVersionNumber = match[ 1 ].replace( /[[\]]/g, '' );
 			if ( process.env.GITHUB_RUN_NUMBER && projectVersionNumber.endsWith( 'alpha' ) ) {
-				projectVersionNumber =
+				projectRunVersionNumber =
 					projectVersionNumber +
 					'.' +
 					process.env.GITHUB_RUN_NUMBER +
@@ -947,6 +949,9 @@ async function buildProject( t ) {
 		jsName: packageJson?.name,
 		version: projectVersionNumber,
 	};
+	if ( projectRunVersionNumber ) {
+		t.ctx.versions[ t.project ].runversion = projectRunVersionNumber;
+	}
 	await t.ctx.mirrorMutex( async () => {
 		// prettier-ignore
 		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );
