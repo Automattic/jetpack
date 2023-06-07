@@ -17,12 +17,8 @@ function createTemplatePart( attributes ) {
 	 */
 	return {
 		slug: PART_SLUG,
-		inserter: false,
 		description: __( 'Contains the cookie consent block.', 'jetpack' ),
-		scope: [],
-		title: {
-			raw: __( 'Cookie Consent Block Template Part', 'jetpack' ),
-		},
+		title: __( 'Cookie Consent Block Template Part', 'jetpack' ),
 		content: serialize(
 			createBlock( `jetpack/${ blockName }`, { ...attributes, isInWarningState: false } )
 		),
@@ -153,7 +149,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 				<div>
 					<p>
 						{ __(
-							'Cookie Consent Block is best added as a template part. Luckily, you already have created a template part before.',
+							'In order to be rendered on every page of your site, the Cookie Consent Block is best added as a template part. You already have created a template part before.',
 							'jetpack'
 						) }
 					</p>
@@ -174,7 +170,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 				<div>
 					<p>
 						{ __(
-							'Cookie Consent Block is best added as a template part. We can do that for you.',
+							'In order to be rendered on every page of your site, the Cookie Consent Block is best added as a template part. We can do that for you.',
 							'jetpack'
 						) }
 					</p>
