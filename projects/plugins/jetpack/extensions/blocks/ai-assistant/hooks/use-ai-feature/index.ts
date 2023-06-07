@@ -26,18 +26,16 @@ export type AIFeatureProps = {
 
 const NUM_FREE_REQUESTS_LIMIT = 20;
 
+const aiAssistantFeature = window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ];
+
 export const AI_Assistant_Initial_State = {
-	hasFeature: !! window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'has-feature' ],
-	isOverLimit: !! window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-over-limit' ],
-	requestsCount:
-		window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'requests-count' ] || 0,
-	requestsLimit:
-		window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'requests-limit' ] ||
-		NUM_FREE_REQUESTS_LIMIT,
-	requireUpgrade:
-		window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'site-require-upgrade' ] || false,
-	errorMessage: window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'error-message' ] || '',
-	errorCode: window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'error-code' ],
+	hasFeature: !! aiAssistantFeature?.[ 'has-feature' ],
+	isOverLimit: !! aiAssistantFeature?.[ 'is-over-limit' ],
+	requestsCount: aiAssistantFeature?.[ 'requests-count' ] || 0,
+	requestsLimit: aiAssistantFeature?.[ 'requests-limit' ] || NUM_FREE_REQUESTS_LIMIT,
+	requireUpgrade: !! aiAssistantFeature?.[ 'site-require-upgrade' ],
+	errorMessage: aiAssistantFeature?.[ 'error-message' ] || '',
+	errorCode: aiAssistantFeature?.[ 'error-code' ],
 };
 
 export async function getAIFeatures(): Promise< AIFeatureProps > {
