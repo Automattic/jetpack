@@ -43,6 +43,7 @@ export default function BasicStatsPanel( { requestsCount, requireUpgrade }: AIFe
 			<PanelRow>
 				<div className="jetpack-ai-assistant__simple-stats">{ statsMessage }</div>
 			</PanelRow>
+
 			{ requireUpgrade && (
 				<PanelRow>
 					<Button
