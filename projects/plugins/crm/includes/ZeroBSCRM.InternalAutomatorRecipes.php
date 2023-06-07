@@ -55,6 +55,7 @@
 	#} WP Hook tie-ins (for Mike [and 3rd party developers!], mostly)
 	zeroBSCRM_AddInternalAutomatorRecipe('contact.new','zeroBSCRM_IA_NewCustomerWPHook',array());
 	zeroBSCRM_AddInternalAutomatorRecipe('contact.update','zeroBSCRM_IA_EditCustomerWPHook',array());
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.status.update', 'zeroBSCRM_IA_EditCustomerWPHook', array() );
 	zeroBSCRM_AddInternalAutomatorRecipe('contact.vitals.update','zeroBSCRM_IA_EditCustomerVitalsWPHook',array());
 	zeroBSCRM_AddInternalAutomatorRecipe('contact.email.update','zeroBSCRM_IA_EditCustomerEmailWPHook',array());
 	zeroBSCRM_AddInternalAutomatorRecipe('contact.delete','zeroBSCRM_IA_DeleteCustomerWPHook',array());
@@ -1288,6 +1289,8 @@
 	function zeroBSCRM_IA_NewCustomerWPHook($obj=array()){
 
 		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) {
+
+			do_action( 'jpcrm_automation_contact_new', $obj );
 		
 			do_action( 'jpcrm_after_contact_insert', $obj['id'] );
 
@@ -1297,42 +1300,80 @@
 		}
 
 	}
-   	#} Fires on 'customer.edit' IA 
-	function zeroBSCRM_IA_EditCustomerWPHook($obj=array()){
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) {
-		
-			do_action( 'jpcrm_after_contact_update', $obj['id'] );
+/**
+ * Fires on 'contact.update', 'contact.email.update', and 'contact.status.update IA.
+ *
+ * @param array $obj An array holding contact object data.
+ */
+function zeroBSCRM_IA_EditCustomerWPHook( $obj = array() ) {
 
-			// legacy, use `jpcrm_after_contact_update` from 5.3+
-			do_action( 'zbs_edit_customer', $obj['id'] );
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
 
+		do_action( 'jpcrm_automation_contact_update', $obj );
+		do_action( 'jpcrm_after_contact_update', $obj['id'] );
+
+		// legacy, use `jpcrm_after_contact_update` from 5.3+
+		do_action( 'zbs_edit_customer', $obj['id'] );
+
+		// If the contact status has changed.
+		if ( isset( $obj['from'] ) && ! empty( $obj['from'] ) ) {
+			do_action( 'jpcrm_automation_contact_status_update', $obj );
 		}
-
+		// If the contact email has changed.
+		if ( isset( $obj['userMeta']['zbsc_email'] ) && isset( $obj['prev_contact'] ) ) {
+			if ( $obj['prev_contact']['email'] !== $obj['userMeta']['zbsc_email'] ) {
+				do_action( 'jpcrm_automation_contact_email_update', $obj );
+			}
+		}
 	}
-   	#} Fires on 'customer.vitals.edit' IA 
+}
+
+	#} Fires on 'customer.vitals.edit' IA.
 	function zeroBSCRM_IA_EditCustomerVitalsWPHook($obj=array()){
 
 		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_edit_customer_vitals', $obj['id']);
 
 	}
-   	#} Fires on 'customer.email.edit' IA 
+
+	/**
+	 * Fires on 'contact.email.update' IA. Now legacy, redirecting to zeroBSCRM_IA_EditCustomerWPHook
+	 *
+	 * @param array $obj An array holding contact object data.
+	 */
 	function zeroBSCRM_IA_EditCustomerEmailWPHook($obj=array()){
+
+		zeroBSCRM_IA_EditCustomerWPHook( $obj );
 
 		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_edit_customer_email', $obj['id']);
 
 	}
-   	#} Fires on 'customer.delete' IA 
-	function zeroBSCRM_IA_DeleteCustomerWPHook($obj=array()){
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_delete_customer', $obj['id']);
+/**
+ * Fires on 'contact.delete' IA.
+ *
+ * @param array $obj An array holding contact object data.
+ */
+function zeroBSCRM_IA_DeleteCustomerWPHook( $obj = array() ) {
 
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+		do_action( 'jpcrm_automation_contact_delete', $obj );
+		// Legacy:
+		do_action( 'zbs_delete_customer', $obj['id'] );
 	}
+}
 
-	#} Fires on 'contact.before.delete' IA
+	/**
+	 * Fires on 'contact.before.delete' IA.
+	 *
+	 * @param array $obj An array holding contact object data.
+	 */
 	function zeroBSCRM_IA_BeforeDeleteCustomerWPHook($obj=array()){
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('jpcrm_before_delete_contact', $obj);
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+		do_action( 'jpcrm_automation_contact_before_delete', $obj );
+		do_action( 'jpcrm_before_delete_contact', $obj );
+	}
 
 	}
 

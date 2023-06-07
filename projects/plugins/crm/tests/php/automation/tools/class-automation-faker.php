@@ -33,12 +33,12 @@ class Automation_Faker {
 				'jpcrm/contact_created',
 			),
 			'initial_step' => array(
-				'slug'        => 'send_email_action',
-				'attributes'  => array(
+				'slug'       => 'send_email_action',
+				'attributes' => array(
 					'to'       => 'admin@example.com',
 					'template' => 'send_welcome_email',
 				),
-				'next_step'   => null,
+				'next_step'  => null,
 			),
 		);
 	}
@@ -116,9 +116,9 @@ class Automation_Faker {
 				'jpcrm/contact_created',
 			),
 			'initial_step' => array(
-				'slug'         => 'contact_status_condition',
-				'class_name'   => Contact_Condition::class,
-				'attributes'   => array(
+				'slug'            => 'contact_status_condition',
+				'class_name'      => Contact_Condition::class,
+				'attributes'      => array(
 					'field'    => 'status',
 					'operator' => 'is',
 					'value'    => 'lead',
