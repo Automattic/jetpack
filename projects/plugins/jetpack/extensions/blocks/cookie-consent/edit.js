@@ -1,6 +1,14 @@
 import { InspectorControls, useBlockProps, InnerBlocks, RichText } from '@wordpress/block-editor';
 import { createBlock, serialize } from '@wordpress/blocks';
-import { PanelBody, TextControl, SelectControl, Button } from '@wordpress/components';
+import {
+	PanelBody,
+	TextControl,
+	SelectControl,
+	Button,
+	Card,
+	CardBody,
+	CardFooter,
+} from '@wordpress/components';
 import { useEntityRecord } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
@@ -146,48 +154,56 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 			return __( 'Loading…', 'jetpack' );
 		} else if ( mode === 'PART_EXISTS' ) {
 			return (
-				<div>
-					<p>
-						{ __(
-							'In order to be rendered on every page of your site, the Cookie Consent Block is best added as a template part. You already have created a template part before.',
-							'jetpack'
-						) }
-					</p>
-					<Button
-						variant="primary"
-						disabled={ isSaving }
-						onClick={ () => {
-							setIsSaving( true );
-							goToTemplatePart( part );
-						} }
-					>
-						{ __( 'Go to template part', 'jetpack' ) }
-					</Button>
-				</div>
+				<Card>
+					<CardBody>
+						<p>
+							{ __(
+								'In order to be rendered on every page of your site, the Cookie Consent Block is best added as a template part. You already have created a template part before.',
+								'jetpack'
+							) }
+						</p>
+					</CardBody>
+					<CardFooter>
+						<Button
+							variant="primary"
+							disabled={ isSaving }
+							onClick={ () => {
+								setIsSaving( true );
+								goToTemplatePart( part );
+							} }
+						>
+							{ __( 'Go to template part', 'jetpack' ) }
+						</Button>
+					</CardFooter>
+				</Card>
 			);
 		} else if ( mode === 'PART_DOES_NOT_EXIST' ) {
 			return (
-				<div>
-					<p>
-						{ __(
-							'In order to be rendered on every page of your site, the Cookie Consent Block is best added as a template part. We can do that for you.',
-							'jetpack'
-						) }
-					</p>
-					<Button
-						variant="primary"
-						disabled={ isSaving }
-						onClick={ () => {
-							saveEntityRecord( 'postType', 'wp_template_part', templatePart )
-								.then( goToTemplatePart )
-								.catch( () => {
-									setIsSaving( false );
-								} );
-						} }
-					>
-						{ __( 'Create the template part', 'jetpack' ) }
-					</Button>
-				</div>
+				<Card>
+					<CardBody>
+						<p>
+							{ __(
+								'In order to be rendered on every page of your site, the Cookie Consent Block is best added as a template part.',
+								'jetpack'
+							) }
+						</p>
+					</CardBody>
+					<CardFooter>
+						<Button
+							variant="primary"
+							disabled={ isSaving }
+							onClick={ () => {
+								saveEntityRecord( 'postType', 'wp_template_part', templatePart )
+									.then( goToTemplatePart )
+									.catch( () => {
+										setIsSaving( false );
+									} );
+							} }
+						>
+							{ __( 'Create the template part', 'jetpack' ) }
+						</Button>
+					</CardFooter>
+				</Card>
 			);
 		}
 	}
