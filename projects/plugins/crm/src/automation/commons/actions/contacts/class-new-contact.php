@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Update_Contact action.
+ * Jetpack CRM Automation New_Contact action.
  *
  * @package automattic/jetpack-crm
  */
@@ -10,9 +10,9 @@ namespace Automattic\Jetpack\CRM\Automation\Actions;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
 
 /**
- * Adds the Update_Contact class.
+ * Adds the New_Contact class.
  */
-class Update_Contact extends Base_Action {
+class New_Contact extends Base_Action {
 
 	/**
 	 * @var object The action data.
@@ -25,9 +25,10 @@ class Update_Contact extends Base_Action {
 	protected $attributes;
 
 	/**
-	 * Update_Contact constructor.
+	 * New_Contact constructor.
 	 *
 	 * @param array $action_data An array of the action data.
+	 *
 	 */
 	public function __construct( $action_data ) {
 		Base_Action::__construct( $action_data );
@@ -42,7 +43,7 @@ class Update_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/update_contact';
+		return 'jpcrm/new_contact';
 	}
 
 	/**
@@ -51,7 +52,7 @@ class Update_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_title(): ?string {
-		return 'Update Contact Action';
+		return 'New Contact Action';
 	}
 
 	/**
@@ -60,7 +61,7 @@ class Update_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_description(): ?string {
-		return 'Action to update the contact';
+		return 'Action to add the new contact';
 	}
 
 	/**
@@ -91,14 +92,14 @@ class Update_Contact extends Base_Action {
 	}
 
 	/**
-	 * Update the DAL with the new contact data.
+	 * Add the new contact to the DAL.
 	 *
-	 * @param array $contact_data The contact data to be updated.
+	 * @param array $contact_data The contact data to be added.
 	 */
-	public function execute( array $contact_data ) {
+	public function execute( array $contact_data = array() ) {
 		global $zbs;
 
-		$contact_data['data'] = array_replace( $contact_data['data'], $this->attributes['data'] );
+		$contact_data = $this->attributes;
 		$zbs->DAL->contacts->addUpdateContact( $contact_data ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
