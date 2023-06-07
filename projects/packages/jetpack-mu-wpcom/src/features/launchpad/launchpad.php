@@ -138,7 +138,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_upsell',
 				'drive_traffic',
 			),
-			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
+			'is_enabled_callback'    => 'wpcom_launchpad_is_keep_building_enabled',
+			'visible_tasks_callback' => 'wpcom_launchpad_keep_building_visible_tasks',
 		),
 	);
 
@@ -565,6 +566,27 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
  */
 function wpcom_launchpad_is_keep_building_enabled() {
 	return apply_filters( 'is_launchpad_keep_building_enabled', false );
+}
+
+/**
+ * Filter task visibility for the Keep building task list.
+ *
+ * @return array The filtered array of task IDs.
+ */
+function wpcom_launchpad_keep_building_visible_tasks( $task_ids ) {
+	$task_statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
+	return array_filter(
+		$task_ids,
+		function ( $task_id ) {
+			// Only show design_edited/site_edited if it hasn't been marked as completed.
+			if ( 'design_edited' === $task_id || 'site_edited' === $task_id ) {
+				return ! isset( $task_statuses[$task_id] ) || ! $task_statuses[$task_id] ? $task_id : null;
+			}
+
+			// All other tasks.
+			return $task_id;
+		}
+	);
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
