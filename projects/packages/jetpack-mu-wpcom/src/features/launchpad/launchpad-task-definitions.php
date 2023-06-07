@@ -525,13 +525,15 @@ function wpcom_track_video_uploaded_task( $post_id ) {
 
 /**
  * Mark the site_title task as complete if the site title is not empty and not the default.
+ *
+ * @param string $old_value The old value of the site title.
+ * @param string $value The new value of the site title.
+ *
+ * @return void
  */
-function wpcom_launchpad_mark_site_title_complete() {
-	$site_title = get_option( 'blogname' );
-
-	// "Site Title" is the default title we give to sites during signup; check both EN and translated variations.
-	if ( ! empty( $site_title ) && 'Site Title' !== $site_title && __( 'Site Title', 'jetpack-mu-wpcom' ) !== $site_title ) {
+function wpcom_launchpad_mark_site_title_complete( $old_value, $value ) {
+	if ( $value !== $old_value ) {
 		wpcom_mark_launchpad_task_complete( 'site_title' );
 	}
 }
-add_action( 'init', 'wpcom_launchpad_mark_site_title_complete', 11 );
+add_action( 'update_option_blogname', 'wpcom_launchpad_mark_site_title_complete', 10, 3 );
