@@ -598,13 +598,14 @@ class REST_Controller {
 				'/sites/%d/jetpack-stats-dashboard/modules?%s',
 				Jetpack_Options::get_option( 'id' ),
 				$this->filter_and_build_query_string(
-					$req->get_params()
+					$req->get_query_params()
 				)
 			),
 			'v2',
 			array(
 				'timeout' => 5,
 				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json' ),
 			),
 			null,
 			'wpcom'
