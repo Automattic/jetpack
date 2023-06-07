@@ -158,7 +158,7 @@ function render( $attributes ) {
 				gmdate( $time_format, $opening ),
 				gmdate( $time_format, $closing )
 			);
-			if ( $key + 1 < count( $day['hours'] ) ) {
+			if ( is_countable( $day['hours'] ) && $key + 1 < count( $day['hours'] ) ) {
 				$days_hours .= ', ';
 			}
 		}
