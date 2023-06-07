@@ -72,9 +72,6 @@ configure_wp_env() {
 	$BASE_CMD wp option set permalink_structure ""
 	$BASE_CMD wp jetpack module deactivate sso
 
-	# Sharing modal added by the ETK plugin should be dismissed.
-	$BASE_CMD wp option update sharing_modal_dismissed 1
-
 	echo
 	$BASE_CMD wp plugin status
 	echo
