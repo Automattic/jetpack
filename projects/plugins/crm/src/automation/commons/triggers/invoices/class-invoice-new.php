@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
-use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 
@@ -47,29 +46,6 @@ class Invoice_New extends Base_Trigger {
 	 */
 	public static function get_category(): ?string {
 		return __( 'invoice', 'zero-bs-crm' );
-	}
-
-	/**
-	 * Initialize the trigger to listen to the desired event.
-	 *
-	 * @param Automation_Workflow $workflow The workflow to which the trigger belongs.
-	 * @throws Automation_Exception Throws a 'class not found' or general error.
-	 */
-	public function init( Automation_Workflow $workflow ) {
-		$this->workflow = $workflow;
-		$this->listen_to_event();
-	}
-
-	/**
-	 * Execute the workflow.
-	 *
-	 * @param array $invoice_data The invoice data to be included in the workflow.
-	 * @throws Automation_Exception Throws a 'class not found' or general error.
-	 */
-	public function execute_workflow( $invoice_data = null ) {
-		if ( $this->workflow ) {
-			$this->workflow->execute( $this, $invoice_data );
-		}
 	}
 
 	/**
