@@ -16,15 +16,12 @@ use Jetpack_Options;
  * @package Automattic\Jetpack\Stats_Admin
  */
 class Notices {
-	const OPT_OUT_NEW_STATS_NOTICE_ID  = 'opt_out_new_stats';
-	const NEW_STATS_FEEDBACK_NOTICE_ID = 'new_stats_feedback';
-	const OPT_IN_NEW_STATS_NOTICE_ID   = 'opt_in_new_stats';
-
-	const NOTICE_STATUS_DISMISSED = 'dismissed';
-	const NOTICE_STATUS_POSTPONED = 'postponed';
+	const STATS_DASHBOARD_NOTICES_CACHE_KEY = 'stats_dashboard_notices_cache_key';
+	const OPT_OUT_NEW_STATS_NOTICE_ID       = 'opt_out_new_stats';
+	const NEW_STATS_FEEDBACK_NOTICE_ID      = 'new_stats_feedback';
+	const OPT_IN_NEW_STATS_NOTICE_ID        = 'opt_in_new_stats';
 
 	const VIEWS_TO_SHOW_FEEDBACK      = 3;
-	const POSTPONE_FEEDBACK_DAYS      = 30;
 	const POSTPONE_OPT_IN_NOTICE_DAYS = 30;
 
 	/**
@@ -74,8 +71,11 @@ class Notices {
 				'timeout' => 5,
 			),
 			null,
-			'wpcom'
+			'wpcom',
+			true,
+			static::STATS_DASHBOARD_NOTICES_CACHE_KEY
 		);
+
 		if ( is_wp_error( $notices_wpcom ) ) {
 			return array();
 		}
@@ -89,6 +89,7 @@ class Notices {
 	 * @return bool
 	 */
 	public function is_notice_hidden( $id ) {
-		return array_key_exists( $id, $this->get_notices_from_wpcom() );
+		$notices_wpcom = $this->get_notices_from_wpcom();
+		return array_key_exists( $id, $notices_wpcom ) && $notices_wpcom[ $id ] === false;
 	}
 }

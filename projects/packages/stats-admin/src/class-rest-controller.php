@@ -504,6 +504,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function update_notice_status( $req ) {
+		delete_transient( Notices::STATS_DASHBOARD_NOTICES_CACHE_KEY );
 		return WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/jetpack-stats-dashboard/notices?%s',

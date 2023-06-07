@@ -254,7 +254,7 @@ class Test_REST_Controller extends Stats_Test_Case {
 	 * Test filter_and_build_query_string.
 	 */
 	public function test_get_wp_error() {
-		$get_wp_error = new \ReflectionMethod( $this->rest_controller, 'get_wp_error' );
+		$get_wp_error = new \ReflectionMethod( WPCOM_Client::class, 'get_wp_error' );
 		$get_wp_error->setAccessible( true );
 
 		$error = $get_wp_error->invoke(
