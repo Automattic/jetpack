@@ -28,6 +28,8 @@ import origamiPlane from './icons/origami-plane';
 import { isUserConnected } from './lib/connection';
 import UpgradePrompt from './upgrade-prompt';
 
+const isInBlockEditor = window?.jetpackAIAssistantInitialState?.currentScreen === 'post';
+
 const AIControl = forwardRef(
 	(
 		{
@@ -195,7 +197,7 @@ const AIControl = forwardRef(
 
 						{ contentIsLoaded &&
 							! isWaitingState &&
-							( promptType === 'generateTitle' ? (
+							( isInBlockEditor && promptType === 'generateTitle' ? (
 								<Button
 									className="jetpack-ai-assistant__prompt_button"
 									onClick={ handleAcceptTitle }

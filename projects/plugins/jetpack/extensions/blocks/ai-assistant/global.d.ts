@@ -52,5 +52,8 @@ declare global {
 			siteLocale: string;
 			'ai-assistant': SiteAIAssistantFeatureEndpointResponseProps;
 		};
+		jetpackAIAssistantInitialState?: {
+			currentScreen?: string;
+		};
 	}
 }
