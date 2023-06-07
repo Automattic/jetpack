@@ -571,16 +571,18 @@ function wpcom_launchpad_is_keep_building_enabled() {
 /**
  * Filter task visibility for the Keep building task list.
  *
+ * @param array $task_ids The array of task IDs from the `task_ids` key.
+ *
  * @return array The filtered array of task IDs.
  */
 function wpcom_launchpad_keep_building_visible_tasks( $task_ids ) {
-	$task_statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
 	return array_filter(
 		$task_ids,
 		function ( $task_id ) {
-			// Only show design_edited/site_edited if it hasn't been marked as completed.
+			$task_statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
+			// Only show design_edited/site_edited if it hasn't been marked as complete.
 			if ( 'design_edited' === $task_id || 'site_edited' === $task_id ) {
-				return ! isset( $task_statuses[$task_id] ) || ! $task_statuses[$task_id] ? $task_id : null;
+				return ! isset( $task_statuses[ $task_id ] ) || ! $task_statuses[ $task_id ] ? $task_id : null;
 			}
 
 			// All other tasks.
