@@ -70,6 +70,7 @@ const useSuggestionsFromOpenAI = ( {
 	onUnclearPrompt,
 	onModeration,
 	increaseRequestsCount,
+	requireUpgrade,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -190,7 +191,7 @@ const useSuggestionsFromOpenAI = ( {
 		try {
 			setIsLoadingCompletion( true );
 			setWasCompletionJustRequested( true );
-			source.current = await askQuestion( prompt, { postId } );
+			source.current = await askQuestion( prompt, { postId, requireUpgrade } );
 		} catch ( err ) {
 			if ( err.message ) {
 				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );

@@ -84,6 +84,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		tracks,
 		userPrompt,
 		increaseRequestsCount,
+		requireUpgrade,
 	} );
 
 	useEffect( () => {
