@@ -502,6 +502,7 @@ class Jetpack_Gutenberg {
 				echo '<link rel="stylesheet" id="jetpack-block-' . esc_attr( $type ) . '" href="' . esc_attr( $view_style ) . '&amp;ver=' . esc_attr( $style_version ) . '" media="all">';
 			} else {
 				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
+				wp_style_add_data( 'jetpack-block-' . $type, 'path', JETPACK__PLUGIN_DIR . $style_relative_path );
 			}
 		}
 	}
