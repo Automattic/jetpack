@@ -280,9 +280,9 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
 }
 
 /**
- * Get task definitions from site options.
+ * Get task statuses from site options.
  *
- * @return array
+ * @return array The task statuses site option contents.
  */
 function wpcom_launchpad_get_task_statuses() {
 	return get_option( 'launchpad_checklist_tasks_statuses', array() );
