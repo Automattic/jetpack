@@ -20,11 +20,18 @@ export default function BasicStatsPanel( {
 }: AIFeatureProps ) {
 	const [ isRedirecting, setIsRedirecting ] = useState( false );
 	const requestsLeft = Math.max( 0, requestsLimit - requestsCount );
+	const limitReached = requestsLeft === 0;
 
 	let statsMessage = createInterpolateElement(
 		__( 'You have <stats /> free requests left. Upgrade to get unlimited requests.', 'jetpack' ),
 		{
-			stats: <strong className="jetpack-ai-assistant__stats">{ requestsLeft }</strong>,
+			stats: (
+				<strong
+					className={ `jetpack-ai-assistant__stats${ limitReached ? ' was-limit-achieved' : '' }` }
+				>
+					{ requestsLeft }
+				</strong>
+			),
 		}
 	);
 

@@ -5,6 +5,10 @@
 	&.has-unlimited-requests {
 		color: var( --jp-green-40 );
 	}
+
+	&.was-limit-achieved {
+		color: var( --jp-red );
+	}
 }
 
 // Tweak the button style to match the other buttons in the UI
