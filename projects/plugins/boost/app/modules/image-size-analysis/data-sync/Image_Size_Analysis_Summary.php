@@ -25,41 +25,7 @@ class Image_Size_Analysis_Summary implements Entry_Can_Get {
 			);
 		}
 
-		/**
-		 * @TODO: this needs to be replaced with actual report data :)
-		 */
-		return array(
-			'home'    => array(
-				'name'     => 'Homepage',
-				'progress' => 100,
-				'issues'   => 28,
-				'done'     => true,
-			),
-			'pages'   => array(
-				'name'     => 'Pages',
-				'progress' => 100,
-				'issues'   => 7,
-				'done'     => true,
-			),
-			'posts'   => array(
-				'name'     => 'Posts',
-				'progress' => 37,
-				'issues'   => 0,
-				'done'     => false,
-			),
-			'other'   => array(
-				'name'     => 'Other Content',
-				'progress' => 0,
-				'issues'   => 13,
-				'done'     => false,
-			),
-			'ignored' => array(
-				'name'     => 'Ignored',
-				'progress' => 0,
-				'issues'   => 789,
-				'done'     => false,
-			),
-		);
+		return $report;
 	}
 }
 
