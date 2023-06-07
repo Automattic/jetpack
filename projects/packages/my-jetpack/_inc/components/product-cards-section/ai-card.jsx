@@ -20,7 +20,7 @@ const AiCard = ( { admin } ) => {
 	const { status, isPluginActive } = detail;
 
 	const requestsLimit = aiAssistantFeature?.[ 'requests-limit' ] || 20;
-	const requestsCount = 3;
+	const requestsCount = aiAssistantFeature?.[ 'requests-count' ] || 0;
 	const requestsLeft = Math.max( 0, requestsLimit - requestsCount );
 	const limitReached = aiAssistantFeature?.limit_reached;
 
