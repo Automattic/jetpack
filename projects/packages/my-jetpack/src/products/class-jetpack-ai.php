@@ -167,7 +167,7 @@ class Jetpack_Ai extends Product {
 	 * @return array
 	 */
 	public static function get_ai_assistant_feature() {
-		// Bail eraly if the plugin is not active.
+		// Bail early if the plugin is not active.
 		if ( ! self::is_jetpack_plugin_installed() ) {
 			return array();
 		}
