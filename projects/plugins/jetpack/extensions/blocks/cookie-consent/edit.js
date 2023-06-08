@@ -25,14 +25,22 @@ function createTemplatePart( attributes ) {
 		description: __( 'Contains the cookie consent block.', 'jetpack' ),
 		title: __( 'Cookie Consent Block Template Part', 'jetpack' ),
 		content: serialize(
-			createBlock( `jetpack/${ blockName }`, {
-				...attributes,
-				isInWarningState: false,
-				lock: {
-					move: true,
-					remove: true,
+			createBlock(
+				`jetpack/${ blockName }`,
+				{
+					...attributes,
+					isInWarningState: false,
+					lock: {
+						move: true,
+						remove: true,
+					},
 				},
-			} )
+				[
+					createBlock( 'core/button', {
+						text: __( 'Accept', 'jetpack' ),
+					} ),
+				]
+			)
 		),
 		area: 'footer',
 	};
