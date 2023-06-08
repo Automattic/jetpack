@@ -230,6 +230,10 @@ class User_Agent_Info {
 				return $this->platform;
 		}
 
+		if ( empty( $this->useragent ) ) {
+			return false;
+		}
+
 		if ( strpos( $this->useragent, 'windows phone' ) !== false ) {
 				$this->platform = self::PLATFORM_WINDOWS;
 		} elseif ( strpos( $this->useragent, 'windows ce' ) !== false ) {
