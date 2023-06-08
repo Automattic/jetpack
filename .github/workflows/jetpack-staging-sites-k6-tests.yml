@@ -3,7 +3,8 @@ name: k6 Tests for Jetpack Staging Test Sites
 
 on:
   workflow_dispatch:
-  # Todo: put this on an interval.
+  schedule:
+    - cron: '0 1,6,12,18 * * *' # “At minute 0 past hour 1, 6, 12, and 18.”
 
 jobs:
   run_tests:
