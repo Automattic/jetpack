@@ -584,10 +584,11 @@ function wpcom_domain_claim_task_listener() {
 		return;
 	};
 
+	// The the primary domain mapping record.
 	$mapping_record = get_primary_domain_mapping_record();
 	$wpcom_domain = new \WPCOM_Domain( $mapping_record->domain );
 
-	// If the primary domain is not a WP.com TLD, mark the domain claim as complete.
+	// If the primary domain is not a WP.com TLD, they've mapped a domain; mark the task complete.
 	if ( ! $wpcom_domain->is_wpcom_tld() ) {
 		wpcom_mark_launchpad_task_complete( 'domain_claim' );
 	}
