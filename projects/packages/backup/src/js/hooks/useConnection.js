@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import BackupPromotionBlock from '../components/backup-promotion';
 import { BackupVideoSection } from '../components/backup-video-section';
+import { WhyINeedVPBackup } from '../components/why-i-need-vp-backup';
 import { STORE_ID } from '../store';
 import connectImage from './assets/connect-backup.png';
 
@@ -75,6 +76,8 @@ export default function useConnection() {
 					apiNonce={ APINonce }
 					siteProductAvailabilityHandler={ checkSiteHasBackupProduct }
 				/>
+
+				<WhyINeedVPBackup />
 			</>
 		);
 	};
