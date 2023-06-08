@@ -27,10 +27,11 @@ class Automation_Engine {
 	/**
 	 *  Instance singleton object
 	 *
+	 * @param bool $force
 	 * @return Automation_Engine
 	 */
-	public static function instance(): Automation_Engine {
-		if ( ! self::$instance ) {
+	public static function instance( bool $force = false ): Automation_Engine {
+		if ( ! self::$instance || $force ) {
 			self::$instance = new self();
 		}
 

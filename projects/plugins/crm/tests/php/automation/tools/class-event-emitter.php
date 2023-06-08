@@ -40,4 +40,11 @@ class Event_Emitter {
 			}
 		}
 	}
+	
+	/**
+	 * Reset the event emitter
+	 */
+	public function reset() {
+		$this->listeners = array();
+	}
 }
