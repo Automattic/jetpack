@@ -24,6 +24,7 @@ class Contact_Action_Test extends BaseTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		$this->automation_faker = Automation_Faker::instance();
+		$this->automation_faker->reset_all();
 	}
 
 	/**
@@ -85,7 +86,7 @@ class Contact_Action_Test extends BaseTestCase {
 		$automation->add_workflow( $workflow );
 		$automation->init_workflows();
 
-		// Fake event data.
+		//Fake event data.
 		$contact_data = $this->automation_faker->contact_data();
 
 		$contact_data_expected = $this->automation_faker->contact_data();

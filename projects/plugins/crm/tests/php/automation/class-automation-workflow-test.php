@@ -24,6 +24,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 	public function setUp(): void {
 		parent::setUp();
 		$this->automation_faker = Automation_Faker::instance();
+		$this->automation_faker->reset_all();
 	}
 
 	/**
@@ -35,7 +36,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
 
-		$this->assertEquals( 'Workflow Test', $workflow->name );
+		$this->assertEquals( 'Workflow Test: basic_workflow', $workflow->name );
 	}
 
 	/**
@@ -302,7 +303,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$log       = $logger->get_log();
 		$total_log = count( $log );
 
-		$this->assertGreaterThan( 8, $total_log );
+		$this->assertGreaterThan( 6, $total_log );
 
 		$this->assertEquals( 'Workflow execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
 		$this->assertEquals( 'Condition met?: false', $log[ $total_log - 3 ][1] );

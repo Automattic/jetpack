@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
+use Automattic\Jetpack\CRM\Automation\Automation_Engine;
+use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
 
 require_once __DIR__ . '/class-event-emitter.php';
@@ -19,13 +21,31 @@ class Automation_Faker {
 		return self::$instance;
 	}
 
+	public function reset_all() {
+
+		// Reset the event emitter
+		Event_Emitter::instance()->reset();
+		// Reset the Automation_Logger
+		Automation_Logger::instance( true );
+		// Reset the Automation_Engine
+		Automation_Engine::instance( true );
+		
+		// Remove all WP actions, starting by jpcrm_.
+		global $wp_filter;
+		foreach ( $wp_filter as $tag => $actions ) {
+			if ( 0 === strpos( $tag, 'jpcrm_' ) ) {
+				remove_all_actions( $tag );
+			}
+		}
+	}
+
 	/**
 	 * Return a basic workflow
 	 * @return array
 	 */
 	public function basic_workflow(): array {
 		return array(
-			'name'         => 'Workflow Test',
+			'name'         => 'Workflow Test: basic_workflow',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
 			'is_active'    => true,
@@ -49,7 +69,7 @@ class Automation_Faker {
 	 */
 	public function workflow_without_initial_step(): array {
 		return array(
-			'name'        => 'Workflow Test',
+			'name'        => 'Workflow Test: without_initial_step',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
 			'is_active'   => true,
@@ -68,7 +88,7 @@ class Automation_Faker {
 	 */
 	public function workflow_without_initial_step_customize_trigger( $trigger_name ): array {
 		return array(
-			'name'        => 'Workflow Test',
+			'name'        => 'Workflow Test: without_initial_step_customize_trigger',
 			'description' => 'Test: the description of the workflow',
 			'category'    => 'Test',
 			'is_active'   => true,
@@ -108,7 +128,7 @@ class Automation_Faker {
 	 */
 	public function workflow_with_condition_action(): array {
 		return array(
-			'name'         => 'Workflow Test',
+			'name'         => 'Workflow Test: with_condition_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
 			'is_active'    => true,
@@ -137,7 +157,7 @@ class Automation_Faker {
 	 */
 	public function workflow_with_condition_customizable_trigger_action( $trigger_name, $action_data ): array {
 		return array(
-			'name'         => 'Workflow Test',
+			'name'         => 'Workflow Test: with_condition_customizable_trigger_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
 			'is_active'    => true,

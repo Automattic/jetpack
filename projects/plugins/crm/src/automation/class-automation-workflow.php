@@ -227,7 +227,7 @@ class Automation_Workflow {
 	 * Set Automation Logger
 	 * @param Automation_Logger $logger
 	 */
-	public function set_automation_logger(Automation_Logger $logger ) {
+	public function set_automation_logger( Automation_Logger $logger ) {
 		$this->logger = $logger;
 	}
 	
