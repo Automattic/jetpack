@@ -195,7 +195,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 					<CardBody>
 						<p>
 							{ __(
-								'To make the block visible across every page of your site, it should be in its own template part.',
+								'In order to be visible on every page of your site, the Cookie Consent Block should be added in its own template part.',
 								'jetpack'
 							) }
 						</p>
