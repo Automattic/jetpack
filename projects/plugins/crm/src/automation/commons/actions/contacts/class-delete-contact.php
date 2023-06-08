@@ -28,7 +28,6 @@ class Delete_Contact extends Base_Action {
 	 * Delete_Contact constructor.
 	 *
 	 * @param array $action_data An array of the action data.
-	 *
 	 */
 	public function __construct( array $action_data ) {
 		Base_Action::__construct( $action_data );

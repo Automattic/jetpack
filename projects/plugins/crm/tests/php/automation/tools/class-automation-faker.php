@@ -29,7 +29,7 @@ class Automation_Faker {
 		Automation_Logger::instance( true );
 		// Reset the Automation_Engine
 		Automation_Engine::instance( true );
-		
+
 		// Remove all WP actions, starting by jpcrm_.
 		global $wp_filter;
 		foreach ( $wp_filter as $tag => $actions ) {

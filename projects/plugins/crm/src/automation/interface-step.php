@@ -40,7 +40,7 @@ interface Step {
 	/**
 	 * Get the attributes of the step
 	 *
-	 * @param array $attributes Set attributes to this step. 
+	 * @param array $attributes Set attributes to this step.
 	 */
 	public function set_attributes( array $attributes );
 
