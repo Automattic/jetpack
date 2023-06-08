@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Move the completion check logic out of the task list availability status

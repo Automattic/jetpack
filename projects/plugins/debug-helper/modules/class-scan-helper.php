@@ -316,7 +316,7 @@ class Scan_Helper {
 	/**
 	 * Checks whether the Post DB threat currently exists on the site.
 	 *
-	 * @since $$next-version$$ -- Return a WP_Post object when the post exists.
+	 * @since 1.6.0 -- Return a WP_Post object when the post exists.
 	 *
 	 * @return WP_Post|bool
 	 */
