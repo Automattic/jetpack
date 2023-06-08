@@ -12,9 +12,10 @@ namespace Automattic\Jetpack\Extensions\CookieConsent;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'cookie-consent';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-const COOKIE_NAME  = 'eucookielaw';
+const FEATURE_NAME       = 'cookie-consent';
+const BLOCK_NAME         = 'jetpack/' . FEATURE_NAME;
+const COOKIE_NAME        = 'eucookielaw';
+const TEMPLATE_PART_NAME = 'cookie-consent-block-template-part';
 
 /**
  * Should the block be registered?
@@ -96,15 +97,13 @@ function render_cookie_consent_template() {
 		return;
 	}
 
-	$template_part_name = 'cookie-consent-block-template-part';
-
 	// Check whether block theme functions exist.
 	if ( ! function_exists( 'get_block_template' ) ) {
 		return;
 	}
 
 	$active_theme     = wp_get_theme()->get_stylesheet();
-	$template_part_id = "{ $active_theme }//{ $template_part_name }";
+	$template_part_id = $active_theme . '//' . TEMPLATE_PART_NAME;
 	$template_part    = get_block_template( $template_part_id, 'wp_template_part' );
 
 	if ( is_wp_error( $template_part ) || empty( $template_part ) || empty( $template_part->content ) ) {
