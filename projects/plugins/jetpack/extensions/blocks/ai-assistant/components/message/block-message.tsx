@@ -75,7 +75,7 @@ export default function BlockMessage( props: BlockMessageProps ): React.ReactEle
 
 		case ASSISTANT_STATE_CONTENT_GENERATED:
 			messageText = createInterpolateElement(
-				__( "Done! Don't forget <button>Accept</button> the content", 'jetpack' ),
+				__( "Done! Don't forget to <button>Accept</button> the content", 'jetpack' ),
 				{
 					button: <Button variant="link" onClick={ onAccept } />,
 				}
