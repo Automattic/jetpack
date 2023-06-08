@@ -5,6 +5,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
 import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
+import { useKeyboardShortcut } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -24,6 +25,8 @@ const markdownConverter = new MarkdownIt( {
 	breaks: true,
 } );
 
+const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
+
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ errorData, setError ] = useState( {} );
@@ -34,6 +37,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	const aiControlRef = useRef( null );
+	const blockRef = useRef( null );
 
 	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( blockEditorStore );
 	const { editPost } = useDispatch( 'core/editor' );
@@ -47,9 +51,15 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const focusOnPrompt = () => {
 		// Small delay to avoid focus crash
-		// with other actions from the block
 		setTimeout( () => {
 			aiControlRef.current?.focus?.();
+		}, 100 );
+	};
+
+	const focusOnBlock = () => {
+		// Small delay to avoid focus crash
+		setTimeout( () => {
+			blockRef.current?.focus?.();
 		}, 100 );
 	};
 
@@ -137,8 +147,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleAcceptTitle = () => {
-		editPost( { title: attributes.content.trim() } );
-		removeBlock( clientId );
+		if ( isInBlockEditor ) {
+			editPost( { title: attributes.content.trim() } );
+			removeBlock( clientId );
+		} else {
+			handleAcceptContent();
+		}
 	};
 
 	const handleTryAgain = () => {
@@ -147,6 +161,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const handleGetSuggestion = type => {
 		getSuggestionFromOpenAI( type );
+		focusOnBlock();
 		return;
 	};
 
@@ -172,9 +187,22 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		} );
 	};
 
+	useKeyboardShortcut(
+		'esc',
+		e => {
+			e.stopImmediatePropagation();
+			handleStopSuggestion();
+			focusOnPrompt();
+		},
+		{
+			target: blockRef,
+		}
+	);
+
 	return (
 		<div
 			{ ...useBlockProps( {
+				ref: blockRef,
 				className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
 			} ) }
 		>
@@ -198,7 +226,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				ref={ aiControlRef }
 				content={ attributes.content }
 				contentIsLoaded={ contentIsLoaded }
-				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+				getSuggestionFromOpenAI={ handleGetSuggestion }
 				retryRequest={ retryRequest }
 				handleAcceptContent={ handleAcceptContent }
 				handleAcceptTitle={ handleAcceptTitle }

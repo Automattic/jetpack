@@ -242,9 +242,12 @@ class Launchpad_Task_Lists {
 			return $tasks_for_task_list;
 		}
 
+		// Filter the task list's task ids to only include visible tasks if a callback is provided.
+		$task_ids = $this->load_value_from_callback( $task_list, 'visible_tasks_callback', $task_list['task_ids'] );
+
 		// Takes a registered task list, looks at its associated task ids,
 		// and returns a collection of associated tasks.
-		foreach ( $task_list['task_ids'] as $task_id ) {
+		foreach ( $task_ids as $task_id ) {
 			$task_definition = $this->get_task( $task_id );
 
 			// if task can't be found don't add anything
@@ -418,6 +421,11 @@ class Launchpad_Task_Lists {
 
 		if ( ! isset( $task_list['task_ids'] ) ) {
 			_doing_it_wrong( 'validate_task_list', 'The Launchpad task list being registered requires a "task_ids" attribute', '6.1' );
+			return false;
+		}
+
+		if ( isset( $task_list['visible_tasks_callback'] ) && ! is_callable( $task_list['visible_tasks_callback'] ) ) {
+			_doing_it_wrong( 'validate_task_list', 'The visible_tasks_callback attribute must be callable', '6.1' );
 			return false;
 		}
 
