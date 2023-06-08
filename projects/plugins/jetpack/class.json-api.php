@@ -175,8 +175,7 @@ class WPCOM_JSON_API {
 	 */
 	public static function init( $method = null, $url = null, $post_body = null ) {
 		if ( ! self::$self ) {
-			$class      = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility.PHP.NewFunctions.get_called_classFound
-			self::$self = new $class( $method, $url, $post_body );
+			self::$self = new static( $method, $url, $post_body );
 		}
 		return self::$self;
 	}
@@ -747,7 +746,7 @@ class WPCOM_JSON_API {
 	 * @return string Content type (assuming it didn't exit).
 	 */
 	public function output_error( $error ) {
-		$error_response = $this->serializable_error( $error );
+		$error_response = static::serializable_error( $error );
 
 		return $this->output( $error_response['status_code'], $error_response['errors'] );
 	}
