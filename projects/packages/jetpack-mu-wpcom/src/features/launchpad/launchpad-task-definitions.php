@@ -200,7 +200,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_disabled_callback' => '__return_true',
 		),
 
-		// @todo Add Keep Building tasks.
+		// Keep Building tasks.
+		'site_title'                      => array(
+			'get_title'            => function () {
+				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -516,3 +522,18 @@ function wpcom_track_video_uploaded_task( $post_id ) {
 	}
 	wpcom_mark_launchpad_task_complete( 'videopress_upload' );
 }
+
+/**
+ * Mark the site_title task as complete if the site title is not empty and not the default.
+ *
+ * @param string $old_value The old value of the site title.
+ * @param string $value The new value of the site title.
+ *
+ * @return void
+ */
+function wpcom_mark_site_title_complete( $old_value, $value ) {
+	if ( $value !== $old_value ) {
+		wpcom_mark_launchpad_task_complete( 'site_title' );
+	}
+}
+add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
