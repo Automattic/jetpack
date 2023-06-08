@@ -192,7 +192,6 @@ class Contact_Action_Test extends BaseTestCase {
 		->onlyMethods( array( 'deleteContact' ) )
 		->getMock();
 
-		global $zbs;
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'deleteContact' )
 			->with(
