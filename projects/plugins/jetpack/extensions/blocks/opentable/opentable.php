@@ -140,7 +140,7 @@ function get_attribute( $attributes, $attribute_name ) {
  * @return string The filtered attribute
  */
 function get_type_attribute( $attributes ) {
-	if ( ! empty( $attributes['rid'] ) && count( $attributes['rid'] ) > 1 ) {
+	if ( ! empty( $attributes['rid'] ) && is_countable( $attributes['rid'] ) && count( $attributes['rid'] ) > 1 ) {
 		return 'multi';
 	}
 
