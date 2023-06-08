@@ -223,7 +223,7 @@ class User_Agent_Info {
 	 * Note that this function returns the platform name, not the UA name/type. You should use a different function
 	 * if you need to test the UA capabilites.
 	 *
-	 * @return string Name of the platform, false otherwise.
+	 * @return string|bool Name of the platform, false otherwise.
 	 */
 	public function get_platform() {
 		if ( isset( $this->platform ) ) {
