@@ -1,10 +1,12 @@
 import encoding from 'k6/encoding';
 
-// eslint-disable-next-line no-undef
-export const encodedCredentials = encoding.b64encode( `${ __ENV.USERNAME }:${ __ENV.PASSWORD }` );
+export const encodedCredentials = encoding.b64encode(
+	// eslint-disable-next-line no-undef
+	`${ __ENV.JETPACKSTAGING_K6_USERNAME }:${ __ENV.JETPACKSTAGING_K6_PASSWORD }`
+);
 
 /**
- * WoA tests sites updated with latest monorepo trunk builds.
+ * WoA test sites updated with latest monorepo trunk builds.
  */
 export const sites = [
 	{
