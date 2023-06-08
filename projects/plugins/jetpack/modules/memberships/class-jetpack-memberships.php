@@ -472,7 +472,7 @@ class Jetpack_Memberships {
 		$cache_key = sprintf( '%d_%d', $user_id, $post_id );
 
 		if ( false === $post_id ) {
-			return true;
+			$post_id = 0;
 		}
 
 		$post_access_level = self::get_post_access_level();
