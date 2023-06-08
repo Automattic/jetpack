@@ -140,7 +140,7 @@ jobs:
               `;
             }, '' );
             const commentBody = `${ TEST_COMMENT_INDICATOR }
-            Are you an Automattician? Please test your changes on WordPress.com.
+            Are you an Automattician? Please test your changes on all WordPress.com environments to help mitigate accidental explosions.
 
             - To test on WoA, install [the Beta plugin](https://jetpack.com/download-jetpack-beta/), go to Jetpack > Jetpack Beta > Jetpack and enable the \`${ BRANCH_NAME }\` branch.
             - To test on Simple, run the following command on your sandbox:
