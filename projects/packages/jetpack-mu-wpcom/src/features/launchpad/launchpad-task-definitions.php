@@ -552,20 +552,17 @@ function wpcom_mark_site_title_complete( $old_value, $value ) {
 add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
 
 /**
- * Check to see if a site has a bundle credit for a free domain.
+ * Determine `domain_claim` task visibility.
  *
- * See if a site has a bundle credit active; if so they have not claimed their free domain.
- * Used with the `domain_claim` task to determine visibility.
- * 
  * @param array $task The task to check.
  *
- * @return bool True if the site has a bundle credit for a free domain, false otherwise.
+ * @return bool True if we should show the task, false otherwise.
  */
 function wpcom_domain_claim_is_visible_callback( $task ) {
 	// If we're not on WP.com, don't show this task.
 	if ( ! class_exists( 'WPCOM_Store' ) ) {
 		return false;
-	};
+	}
 
 	// If we've already completed the task, continue to show it.
 	if ( wpcom_is_domain_upsell_completed( $task, false ) ) {
