@@ -88,7 +88,7 @@ $group_schema = Schema::as_assoc_array(
 
 $summary_schema = Schema::as_assoc_array(
 	array(
-		'status'  => Schema::enum(
+		'status' => Schema::enum(
 			array(
 				'not-found',
 				'new',
@@ -97,7 +97,7 @@ $summary_schema = Schema::as_assoc_array(
 				'error',
 			)
 		),
-		'summary' => Schema::as_assoc_array(
+		'groups' => Schema::as_assoc_array(
 			array(
 				'front_page' => $group_schema,
 				'page'       => $group_schema,

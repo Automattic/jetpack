@@ -3,11 +3,10 @@ import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
 import { isaIgnoredImages, isaData } from './isa-data';
 
-const Group = z.object( {
-	name: z.string(),
-	progress: z.number(),
-	issues: z.number(),
-	done: z.boolean(),
+const zGroup = z.object( {
+	issue_count: z.number(),
+	scanned_pages: z.number(),
+	total_pages: z.number(),
 } );
 
 const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
@@ -15,6 +14,14 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 	z
 		.object( {
 			status: z.string(),
+			groups: z
+				.object( {
+					front_page: zGroup,
+					page: zGroup.optional(),
+					post: zGroup.optional(),
+					other: zGroup.optional(),
+				} )
+				.optional(),
 		} )
 		// Data unavailable when the the flag is disabled.
 		.optional()
@@ -47,9 +54,9 @@ export const imageDataGroupTabs = derived(
 
 export const imageDataActiveGroup = derived(
 	[ imageDataGroupTabs, isaData ],
-	( [ $groups, $imageData ] ): z.infer< typeof Group > => {
+	( [ $groups, $imageData ] ): z.infer< typeof zGroup > => {
 		return $groups[ $imageData.query.group ];
 	}
 );
 
-export type ISA_Group = z.infer< typeof Group >;
+export type ISA_Group = z.infer< typeof zGroup >;
