@@ -20,6 +20,7 @@ use WP_REST_Server;
  * It bascially forwards the requests to the WordPress.com REST API.
  */
 class REST_Controller {
+	const JETPACK_STATS_DASHBOARD_MODULES_CACHE_KEY = 'jetpack_stats_dashboard_modules_cache_key';
 	/**
 	 * Namespace for the REST API.
 	 *
@@ -221,6 +222,26 @@ class REST_Controller {
 						'description' => 'Domain of the referrer',
 					),
 				),
+			)
+		);
+
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/jetpack-stats-dashboard/modules', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'update_dashboard_modules' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/jetpack-stats-dashboard/modules', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dashboard_modules' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 	}
@@ -564,6 +585,60 @@ class REST_Controller {
 	}
 
 	/**
+	 * Toggle modules on dashboard.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function update_dashboard_modules( $req ) {
+		// Clear dashboard modules cache.
+		delete_transient( static::JETPACK_STATS_DASHBOARD_MODULES_CACHE_KEY );
+		return $this->request_as_blog_cached(
+			sprintf(
+				'/sites/%d/jetpack-stats-dashboard/modules?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_query_params()
+				)
+			),
+			'v2',
+			array(
+				'timeout' => 5,
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json' ),
+			),
+			$req->get_body(),
+			'wpcom'
+		);
+	}
+
+	/**
+	 * Get modules on dashboard.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_dashboard_modules( $req ) {
+		return $this->request_as_blog_cached(
+			sprintf(
+				'/sites/%d/jetpack-stats-dashboard/modules?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_query_params()
+				)
+			),
+			'v2',
+			array(
+				'timeout' => 5,
+			),
+			null,
+			'wpcom',
+			true,
+			static::JETPACK_STATS_DASHBOARD_MODULES_CACHE_KEY
+		);
+	}
+
+	/**
 	 * Query the WordPress.com REST API using the blog token
 	 *
 	 * @param String $path The API endpoint relative path.
@@ -572,14 +647,15 @@ class REST_Controller {
 	 * @param String $body Request body.
 	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
 	 * @param bool   $use_cache (optional) default to true.
+	 * @param string $cache_key (optional) default to null meaning the function auto generates cache key.
 	 * @return array|WP_Error $response Data.
 	 */
-	protected function request_as_blog_cached( $path, $version = '1.1', $args = array(), $body = null, $base_api_path = 'rest', $use_cache = true ) {
+	protected function request_as_blog_cached( $path, $version = '1.1', $args = array(), $body = null, $base_api_path = 'rest', $use_cache = true, $cache_key = null ) {
 		// Only allow caching GET requests.
 		$use_cache = $use_cache && ! ( isset( $args['method'] ) && strtoupper( $args['method'] ) !== 'GET' );
 
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
-		$cache_key = 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
+		$cache_key = $cache_key !== null ? $cache_key : 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
 
 		if ( $use_cache ) {
 			$response_body_content = get_transient( $cache_key );
