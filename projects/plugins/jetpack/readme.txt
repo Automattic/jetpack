@@ -293,15 +293,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.3-a.1 - 2023-06-06
-#### Enhancements
-- AI Assistant: improve the process of getting post content.
-- AI Assistant: replace tone button icon for clarity.
-- Stats: display the links to a post's stats in the Posts list as soon as the user has access to stats.
-
+### 12.3-a.3 - 2023-06-08
 #### Bug fixes
-- Newsletters: verify the access level should be gated before checking subscriptions.
-- Newsletters: show paid subscriber reach numbers in the past tense when the post has been already been published.
+- Memberships: fix potential class not found error.
 
 --------
 
