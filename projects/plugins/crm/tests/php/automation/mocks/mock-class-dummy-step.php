@@ -6,17 +6,17 @@ use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Step;
 
 class Dummy_Step extends Base_Step {
-	
+
 	/**
 	 * Execute the step
-	 * 
+	 *
 	 * @param array $data
 	 * @return void
 	 */
-	public function execute( array $data ) {
+	public function execute( array $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		Automation_Logger::instance()->log( 'Dummy step executed' );
 	}
-	
+
 	public static function get_slug(): string {
 		return 'dummy_step';
 	}

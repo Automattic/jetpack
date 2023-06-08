@@ -38,17 +38,16 @@ class Contact_Condition extends Base_Condition {
 	 */
 	public function __construct( array $step_data ) {
 		parent::__construct( $step_data );
-		
+
 		$this->logger = Automation_Logger::instance();
 	}
 
 	/**
 	 * Override set_attributes method to add some checks.
-	 * 
+	 *
 	 * @throws Automation_Exception
 	 */
-	public function set_attributes( array $attributes )
-	{
+	public function set_attributes( array $attributes ) {
 		parent::set_attributes( $attributes );
 
 		if ( ! $this->has_valid_attributes() && ! $this->has_valid_operator() ) {
@@ -93,7 +92,7 @@ class Contact_Condition extends Base_Condition {
 
 		$operator = $this->get_attributes()['operator'];
 
-		if ( ! in_array( $operator, $this->valid_operators ) ) {
+		if ( ! in_array( $operator, $this->valid_operators, true ) ) {
 			return false;
 		}
 

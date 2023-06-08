@@ -28,7 +28,6 @@ class Update_Contact extends Base_Action {
 	 * Update_Contact constructor.
 	 *
 	 * @param array $action_data An array of the action data.
-	 *
 	 */
 	public function __construct( $action_data ) {
 		Base_Action::__construct( $action_data );

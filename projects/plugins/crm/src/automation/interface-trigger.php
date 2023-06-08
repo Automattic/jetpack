@@ -44,21 +44,21 @@ interface Trigger {
 
 	/**
 	 * Execute the workflow
-	 * 
+	 *
 	 * @param array $data The data to pass to the workflow.
 	 */
 	public function execute_workflow( array $data = null );
-	
+
 	/**
 	 * Set the workflow to execute by this trigger
 	 *
-	 * @param Automation_Workflow $workflow The workflow to execute by this trigger
+	 * @param Automation_Workflow $workflow The workflow to execute by this trigger.
 	 */
 	public function set_workflow( Automation_Workflow $workflow );
 
 	/**
-	 * Init the trigger. 
-	 * 
+	 * Init the trigger.
+	 *
 	 * @param Automation_Workflow $workflow The workflow to which the trigger belongs.
 	 */
 	public function init( Automation_Workflow $workflow );

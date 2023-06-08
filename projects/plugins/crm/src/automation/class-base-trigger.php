@@ -14,14 +14,13 @@ namespace Automattic\Jetpack\CRM\Automation;
  */
 abstract class Base_Trigger implements Trigger {
 
-
 	/** @var Automation_Workflow The workflow to execute by this trigger */
 	protected $workflow = null;
-	
+
 	/**
 	 * Set the workflow to execute by this trigger
 	 *
-	 * @param Automation_Workflow $workflow The workflow to execute by this trigger
+	 * @param Automation_Workflow $workflow The workflow to execute by this trigger.
 	 */
 	public function set_workflow( Automation_Workflow $workflow ) {
 		$this->workflow = $workflow;
@@ -31,7 +30,7 @@ abstract class Base_Trigger implements Trigger {
 	 * Execute the workflow
 	 *
 	 * @param array $data The data to pass to the workflow.
-	 * @throws Automation_Exception
+	 * @throws Automation_Exception Throws an exception if no workflow is defined.
 	 */
 	public function execute_workflow( array $data = null ) {
 		if ( $this->workflow ) {
@@ -41,6 +40,8 @@ abstract class Base_Trigger implements Trigger {
 
 	/**
 	 * Initialize the trigger to listen to the desired event
+	 *
+	 * @param Automation_Workflow $workflow The workflow to execute by this trigger.
 	 */
 	public function init( Automation_Workflow $workflow ) {
 		$this->workflow = $workflow;

@@ -40,7 +40,7 @@ class Event_Emitter {
 			}
 		}
 	}
-	
+
 	/**
 	 * Reset the event emitter
 	 */
