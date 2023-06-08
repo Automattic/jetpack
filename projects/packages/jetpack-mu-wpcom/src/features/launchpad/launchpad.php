@@ -134,6 +134,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'site_title',
 				'design_edited',
 				'verify_email',
+				'domain_upsell',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
