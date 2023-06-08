@@ -1,6 +1,6 @@
 <?php
 /**
- * Contact_Form_Admin class.
+ * Admin class.
  *
  * @package automattic/jetpack-forms
  */
@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 
 /**
- * Class Grunion_Admin
+ * Class Admin
  *
  * Singleton for Grunion admin area support.
  */

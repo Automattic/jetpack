@@ -19,14 +19,16 @@ import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
  */
 import classNames from 'classnames';
 import ConnectPrompt from './components/connect-prompt';
+import I18nDropdownControl from './components/i18n-dropdown-control';
+import PromptTemplatesControl from './components/prompt-templates-control';
+import ToneDropdownControl from './components/tone-dropdown-control';
 import useAIFeature from './hooks/use-ai-feature';
-import I18nDropdownControl from './i18n-dropdown-control';
 import AIAssistantIcon from './icons/ai-assistant';
 import origamiPlane from './icons/origami-plane';
 import { isUserConnected } from './lib/connection';
-import PromptTemplatesControl from './prompt-templates-control';
-import ToneDropdownControl from './tone-dropdown-control';
 import UpgradePrompt from './upgrade-prompt';
+
+const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 
 const AIControl = forwardRef(
 	(
@@ -52,6 +54,7 @@ const AIControl = forwardRef(
 			onChange,
 			requireUpgrade,
 			recordEvent,
+			isGeneratingTitle,
 		},
 		ref
 	) => {
@@ -132,6 +135,7 @@ const AIControl = forwardRef(
 							}
 						} }
 						recordEvent={ recordEvent }
+						isGeneratingTitle={ isGeneratingTitle }
 					/>
 				) }
 				<div
@@ -193,7 +197,7 @@ const AIControl = forwardRef(
 
 						{ contentIsLoaded &&
 							! isWaitingState &&
-							( promptType === 'generateTitle' ? (
+							( isInBlockEditor && promptType === 'generateTitle' ? (
 								<Button
 									className="jetpack-ai-assistant__prompt_button"
 									onClick={ handleAcceptTitle }
@@ -239,7 +243,27 @@ const ToolbarControls = ( {
 	wholeContent,
 	setUserPrompt,
 	recordEvent,
+	isGeneratingTitle,
 } ) => {
+	const dropdownControls = [
+		// Interactive controls
+		{
+			title: __( 'Make longer', 'jetpack' ),
+			onClick: () => getSuggestionFromOpenAI( 'makeLonger', { contentType: 'generated' } ),
+		},
+		{
+			title: __( 'Make shorter', 'jetpack' ),
+			onClick: () => getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
+		},
+	];
+
+	if ( ! isGeneratingTitle ) {
+		dropdownControls.unshift( {
+			title: __( 'Summarize', 'jetpack' ),
+			onClick: () => getSuggestionFromOpenAI( 'summarize', { contentType: 'generated' } ),
+		} );
+	}
+
 	return (
 		<>
 			{ contentIsLoaded && (
@@ -263,23 +287,7 @@ const ToolbarControls = ( {
 					<ToolbarDropdownMenu
 						icon={ pencil }
 						label={ __( 'Improve', 'jetpack' ) }
-						controls={ [
-							// Interactive controls
-							{
-								title: __( 'Summarize', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'summarize', { contentType: 'generated' } ),
-							},
-							{
-								title: __( 'Make longer', 'jetpack' ),
-								onClick: () =>
-									getSuggestionFromOpenAI( 'makeLonger', { contentType: 'generated' } ),
-							},
-							{
-								title: __( 'Make shorter', 'jetpack' ),
-								onClick: () =>
-									getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
-							},
-						] }
+						controls={ dropdownControls }
 					/>
 				</BlockControls>
 			) }

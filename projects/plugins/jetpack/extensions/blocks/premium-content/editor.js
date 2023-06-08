@@ -1,4 +1,3 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { registerPlugin } from '@wordpress/plugins';
 import registerJetpackBlock from '../../shared/register-jetpack-block';
 import RemoveBlockKeepContent from './_inc/remove-block-keep-content';
@@ -18,19 +17,18 @@ import {
 import { name, settings } from '.';
 
 const prefix = false;
-if ( isSimpleSite() || isAtomicSite() ) {
-	registerJetpackBlock(
-		name,
-		settings,
-		[
-			{ name: loggedOutViewBlockName, settings: loggedOutViewBlockSettings },
-			{ name: subscriberViewBlockName, settings: subscriberViewBlockSettings },
-			{ name: buttonsBlockName, settings: buttonsBlockSettings },
-			{ name: loginButtonBlockName, settings: loginButtonBlockSettings },
-		],
-		prefix
-	);
-}
+
+registerJetpackBlock(
+	name,
+	settings,
+	[
+		{ name: loggedOutViewBlockName, settings: loggedOutViewBlockSettings },
+		{ name: subscriberViewBlockName, settings: subscriberViewBlockSettings },
+		{ name: buttonsBlockName, settings: buttonsBlockSettings },
+		{ name: loginButtonBlockName, settings: loginButtonBlockSettings },
+	],
+	prefix
+);
 
 registerPlugin( 'block-settings-remove-block-keep-content', {
 	render: RemoveBlockKeepContent,

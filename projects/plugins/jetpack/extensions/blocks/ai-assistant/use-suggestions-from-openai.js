@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { store as blockEditorStore } from '@wordpress/block-editor';
+import { serialize } from '@wordpress/blocks';
 import { useSelect, select as selectData, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -10,9 +11,9 @@ import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
+import { DEFAULT_PROMPT_TONE } from './components/tone-dropdown-control';
 import { buildPrompt } from './create-prompt';
 import { askJetpack, askQuestion } from './get-suggestion-with-stream';
-import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 const debug = debugFactory( 'jetpack-ai-assistant' );
 
@@ -33,20 +34,12 @@ export function getPartialContentToBlock( clientId ) {
 	const editor = selectData( 'core/block-editor' );
 	const index = editor.getBlockIndex( clientId );
 	const blocks = editor.getBlocks().slice( 0, index ) ?? [];
+
 	if ( ! blocks?.length ) {
 		return '';
 	}
 
-	return turndownService.turndown(
-		blocks
-			.filter( function ( block ) {
-				return block && block.attributes && block.attributes.content;
-			} )
-			.map( function ( block ) {
-				return block.attributes.content.replaceAll( '<br/>', '\n' );
-			} )
-			.join( '\n' )
-	);
+	return turndownService.turndown( serialize( blocks ) );
 }
 
 /**
@@ -63,16 +56,7 @@ export function getContentFromBlocks() {
 		return '';
 	}
 
-	return turndownService.turndown(
-		blocks
-			.filter( function ( block ) {
-				return block && block.attributes && block.attributes.content;
-			} )
-			.map( function ( block ) {
-				return block.attributes.content.replaceAll( '<br/>', '\n' );
-			} )
-			.join( '\n' )
-	);
+	return turndownService.turndown( serialize( blocks ) );
 }
 
 const useSuggestionsFromOpenAI = ( {
@@ -84,6 +68,7 @@ const useSuggestionsFromOpenAI = ( {
 	userPrompt,
 	onSuggestionDone,
 	onUnclearPrompt,
+	onModeration,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -184,6 +169,7 @@ const useSuggestionsFromOpenAI = ( {
 				prompt,
 				userPrompt,
 				type,
+				isGeneratingTitle: attributes.promptType === 'generateTitle',
 			} );
 		}
 
@@ -222,13 +208,13 @@ const useSuggestionsFromOpenAI = ( {
 			setWasCompletionJustRequested( false );
 		}
 
-		source?.current.addEventListener( 'done', e => {
+		source?.current?.addEventListener( 'done', e => {
 			stopSuggestion();
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
 
-		source?.current.addEventListener( 'error_unclear_prompt', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_unclear_prompt', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setError( {
@@ -239,8 +225,8 @@ const useSuggestionsFromOpenAI = ( {
 			onUnclearPrompt?.();
 		} );
 
-		source?.current.addEventListener( 'error_network', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_network', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( true );
@@ -251,8 +237,8 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		} );
 
-		source?.current.addEventListener( 'error_service_unavailable', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_service_unavailable', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( true );
@@ -266,8 +252,8 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		} );
 
-		source?.current.addEventListener( 'error_quota_exceeded', () => {
-			source?.current.close();
+		source?.current?.addEventListener( 'error_quota_exceeded', () => {
+			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
@@ -278,7 +264,23 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		} );
 
-		source?.current.addEventListener( 'suggestion', e => {
+		source?.current?.addEventListener( 'error_moderation', () => {
+			source?.current?.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( false );
+			setError( {
+				code: 'error_moderation',
+				message: __(
+					'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
+					'jetpack'
+				),
+				status: 'info',
+			} );
+			onModeration?.();
+		} );
+
+		source?.current?.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
 			debug( 'fullMessage', e.detail );
 			updateBlockAttributes( clientId, { content: e.detail } );
@@ -291,7 +293,7 @@ const useSuggestionsFromOpenAI = ( {
 			return;
 		}
 
-		source?.current.close();
+		source?.current?.close();
 		setIsLoadingCompletion( false );
 		setWasCompletionJustRequested( false );
 		onSuggestionDone?.();

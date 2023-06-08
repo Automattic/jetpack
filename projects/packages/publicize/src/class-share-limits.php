@@ -113,14 +113,14 @@ class Share_Limits {
 			)
 		);
 		$more_link = sprintf(
-			/* translators: %s: link to find out more about the plan, and potentially upgrade. */
-			__( '<a href="%s" target="_blank">More about Jetpack Social</a>', 'jetpack-publicize-pkg' ),
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
 			Redirect::get_url(
 				'jetpack-social-basic-plan-block-editor',
 				array(
 					'query' => 'redirect_to=' . rawurlencode( $current_url ),
 				)
-			)
+			),
+			__( 'More about Jetpack Social', 'jetpack-publicize-pkg' )
 		);
 
 		$kses_allowed_tags = array(

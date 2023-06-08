@@ -43,7 +43,11 @@ export async function askQuestion( question, postId = null, fromCache = false ) 
 	const { token } = await requestToken();
 
 	const url = new URL( 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query' );
-	url.searchParams.append( 'question', question );
+	if ( Array.isArray( question ) ) {
+		url.searchParams.append( 'messages', JSON.stringify( question ) );
+	} else {
+		url.searchParams.append( 'question', question );
+	}
 	url.searchParams.append( 'token', token );
 
 	if ( fromCache ) {
@@ -166,8 +170,7 @@ export class SuggestionsEventSource extends EventTarget {
 				if (
 					response.status >= 400 &&
 					response.status <= 500 &&
-					response.status !== 503 &&
-					response.status !== 429
+					! [ 422, 429 ].includes( response.status )
 				) {
 					self.processConnectionError( response );
 				}
@@ -186,6 +189,14 @@ export class SuggestionsEventSource extends EventTarget {
 				 */
 				if ( response.status === 429 ) {
 					self.dispatchEvent( new CustomEvent( 'error_quota_exceeded' ) );
+				}
+
+				/*
+				 * error code 422
+				 * request flagged by moderation system
+				 */
+				if ( response.status === 422 ) {
+					self.dispatchEvent( new CustomEvent( 'error_moderation' ) );
 				}
 
 				throw new Error();
