@@ -25,6 +25,8 @@ const markdownConverter = new MarkdownIt( {
 	breaks: true,
 } );
 
+const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
+
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ errorData, setError ] = useState( {} );
@@ -145,8 +147,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleAcceptTitle = () => {
-		editPost( { title: attributes.content.trim() } );
-		removeBlock( clientId );
+		if ( isInBlockEditor ) {
+			editPost( { title: attributes.content.trim() } );
+			removeBlock( clientId );
+		} else {
+			handleAcceptContent();
+		}
 	};
 
 	const handleTryAgain = () => {
