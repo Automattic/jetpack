@@ -99,18 +99,8 @@ export class MeasurableImage {
 			console.log( `Can't get image size for ${ url } likely due to a CORS error.` );
 			return -1;
 		}
-		let size = '';
-		if ( response.headers.get( 'content-type' ).indexOf( 'text/html' ) !== -1 ) {
-			size = await response.text();
-		} else {
-			size = response.headers.get( 'content-length' );
-		}
 
-		if ( size ) {
-			return parseInt( size, 10 ) / 1024;
-		}
-
-		return -1;
+		return parseInt( response.headers.get( 'content-length' ), 10 ) / 1024;
 	}
 
 	/**
