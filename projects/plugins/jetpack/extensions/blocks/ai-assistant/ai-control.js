@@ -15,7 +15,6 @@ import { useKeyboardShortcut } from '@wordpress/compose';
 import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
-import { isAppleOS } from '@wordpress/keycodes';
 /*
  * Internal dependencies
  */
@@ -118,13 +117,6 @@ const AIControl = forwardRef(
 			}
 		);
 
-		const promptButtonKeyboardTextEnter = __( 'Enter', 'jetpack' );
-		const promptButtonKeyboardTextEsc = __( 'Esc', 'jetpack' );
-
-		const promptButtonKeyboardText = ! isWaitingState
-			? promptButtonKeyboardTextEnter
-			: promptButtonKeyboardTextEsc;
-
 		return (
 			<>
 				{ ( siteRequireUpgrade || requireUpgrade ) && <UpgradePrompt /> }
@@ -222,11 +214,6 @@ const AIControl = forwardRef(
 									{ __( 'Stop', 'jetpack' ) }
 								</Button>
 							) }
-							{ ! isSm && (
-								<div className="jetpack-ai-assistant__prompt_button_keyboard">
-									{ promptButtonKeyboardText }
-								</div>
-							) }
 						</div>
 
 						<div className="jetpack-ai-assistant__prompt_button_wrapper">
@@ -253,11 +240,6 @@ const AIControl = forwardRef(
 										{ __( 'Accept', 'jetpack' ) }
 									</Button>
 								) ) }
-							{ ! isSm && contentIsLoaded && ! isWaitingState && (
-								<div className="jetpack-ai-assistant__prompt_button_keyboard">
-									{ isAppleOS() ? __( 'CMD+Enter', 'jetpack' ) : __( 'Ctrl+Enter', 'jetpack' ) }
-								</div>
-							) }
 						</div>
 					</div>
 				</div>
