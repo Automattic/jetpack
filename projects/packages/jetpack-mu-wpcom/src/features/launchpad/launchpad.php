@@ -571,11 +571,17 @@ function wpcom_launchpad_is_keep_building_enabled() {
 /**
  * Filter task visibility for the Keep building task list.
  *
- * @param array $task_ids The array of task IDs from the `task_ids` key.
+ * @param array $task The task array.
  *
  * @return array The filtered array of task IDs.
  */
-function wpcom_launchpad_keep_building_visible_tasks( $task_ids ) {
+function wpcom_launchpad_keep_building_visible_tasks( $task ) {
+	$task_ids = $task['task_ids'];
+
+	if ( ! $task_ids ) {
+		return array();
+	}
+
 	return array_filter(
 		$task_ids,
 		function ( $task_id ) {
@@ -585,7 +591,6 @@ function wpcom_launchpad_keep_building_visible_tasks( $task_ids ) {
 				return ! isset( $task_statuses[ $task_id ] ) || ! $task_statuses[ $task_id ] ? $task_id : null;
 			}
 
-			// All other tasks.
 			return $task_id;
 		}
 	);
