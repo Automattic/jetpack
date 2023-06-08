@@ -279,6 +279,116 @@ function wpcom_register_launchpad_task_list( $task_list ) {
 }
 
 /**
+ * Retrieves the required tasks from a given set of tasks.
+ *
+ * This function filters the provided tasks array and returns only the tasks that are marked as required,
+ * based on the specified array of required task IDs. It's worth noting that some tasks may not be
+ * visible to the user, so we are going to return all tasks that are marked as required, regardless
+ *
+ * @param array $required_task_ids An array of task IDs that are considered required.
+ * @param array $tasks An array of tasks to filter.
+ * @return array An array containing only the required tasks from the provided task list.
+ */
+function wpcom_launchpad_get_required_tasks( $required_task_ids, $tasks ) {
+	return array_filter(
+		$tasks,
+		function ( $task ) use ( $required_task_ids ) {
+			return in_array( $task['id'], $required_task_ids, true );
+		}
+	);
+}
+
+/**
+ * Get all tasks that are marked as launch tasks.
+ *
+ * @param array $tasks Array of tasks.
+ * @return array Array of launch tasks.
+ */
+function wpcom_launchpad_get_launch_tasks( $tasks ) {
+	return array_filter(
+		$tasks,
+		function ( $task ) {
+			if ( isset( $task['isLaunchTask'] ) ) {
+				return $task['isLaunchTask'];
+			}
+			return false;
+		}
+	);
+}
+
+/**
+ * Check if all the given tasks are completed.
+ *
+ * @param array $tasks Array of tasks to check if they are completed.
+ * @return bool True if all tasks are completed, false otherwise.
+ */
+function wpcom_launchpad_are_all_tasks_completed( $tasks ) {
+	return array_reduce(
+		$tasks,
+		function ( $carry, $launch_task ) {
+			return $carry && $launch_task['completed'];
+		},
+		true
+	);
+}
+
+/**
+ * Determine the completion status of a task list based on its tasks.
+ *
+ * This function identifies any required tasks within the task list. If there are required tasks, the task list is considered complete
+ * only if all required tasks are completed. In the absence of required tasks, a secondary check is performed on tasks flagged with
+ * "isLaunchTask" to determine completion based on whether all of those tasks are complete. If there are no required tasks and no
+ * launch tasks, the task list's completion is determined by checking whether all tasks are complete. However, if there are incomplete
+ * tasks in this scenario, the completion status is based on whether the last task was completed. It is possible to control this behavior
+ * using a flag, as the default approach might be confusing for task lists where the steps may not be sequential. By default, the task
+ * list is marked as incomplete to align with most use cases that focus on user guidance and next steps rather than a specific end goal.
+ *
+ * @param array $task_list An array of tasks within the task list.
+ * @return bool True if the task list is considered complete, false otherwise.
+ */
+function wpcom_default_launchpad_task_list_completed( $task_list ) {
+	$task_list_id      = $task_list['id'];
+	$required_task_ids = wpcom_launchpad_checklists()->get_required_task_ids( $task_list_id );
+	$all_visible_tasks = wpcom_launchpad_checklists()->build( $task_list_id );
+
+	// If there are required tasks, check if they are all completed.
+	if ( ! empty( $required_task_ids ) ) {
+		$required_tasks = wpcom_launchpad_get_required_tasks( $required_task_ids, $all_visible_tasks );
+		return wpcom_launchpad_are_all_tasks_completed( $required_tasks );
+	}
+
+	// If there are no required tasks, check if there are any launch tasks.
+	$launch_tasks = wpcom_launchpad_get_launch_tasks( $all_visible_tasks );
+	if ( ! empty( $launch_tasks ) ) {
+		return wpcom_launchpad_are_all_tasks_completed( $launch_tasks );
+	}
+
+	// If there are no required tasks and no launch tasks, check if all tasks are completed.
+	if ( wpcom_launchpad_are_all_tasks_completed( $all_visible_tasks ) ) {
+		return true;
+	}
+
+	// If there are incomplete tasks, check if the last task was completed.
+	$require_last_task_completion = wpcom_launchpad_checklists()->get_require_last_task_completion( $task_list_id );
+	$last_task                    = end( $all_visible_tasks );
+	if ( $require_last_task_completion && $last_task['completed'] ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Callback to determine the completion status of a task list.
+ *
+ * @param string $task_list_id The task list ID.
+ * @return bool True if the task list is considered complete, false otherwise.
+ */
+function wpcom_launchpad_is_task_list_completed( $task_list_id ) {
+	return wpcom_launchpad_checklists()->is_task_list_completed( $task_list_id );
+}
+
+/**
  * Wrapper that registers a launchpad checklist.
  *
  * @param Task $tasks Collection of Task definitions.
