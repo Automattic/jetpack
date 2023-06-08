@@ -115,14 +115,20 @@
 	display: flex;
 	align-items: center;
 
-	.jetpack-ai-assistant__prompt_button {
-		white-space: nowrap;
-		color: var( --jp-gray-80 );
+	.jetpack-ai-assistant__prompt_button_wrapper {
 		text-transform: uppercase;
 		font-size: 11px;
 		font-weight: 600;
 		line-height: 16px;
 		user-select: none;
+		white-space: nowrap;
+		display: flex;
+		align-items: center;
+	}
+
+	.jetpack-ai-assistant__prompt_button {
+		color: var( --jp-gray-80 );
+		text-transform: uppercase;
 
 		> SVG {
 			margin-right: 4px;
@@ -137,6 +143,16 @@
 			opacity: 0.6;
 			cursor: not-allowed;
 		}
+	}
+
+	.jetpack-ai-assistant__prompt_button_keyboard {
+		opacity: 0.6;
+		font-size: 8px;
+		background: var(--wp--preset--color--cyan-bluish-gray);
+		color: var(--wp--preset--color--base);
+		padding: 2px 4px;
+		border-radius: 2px;
+		margin-right: 8px;
 	}
 }
 
