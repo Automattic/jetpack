@@ -141,6 +141,15 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * See if the task list registry has any task lists.
+	 *
+	 * @return bool True if there are task lists, false if not.
+	 */
+	public function has_task_lists() {
+		return is_countable( $this->task_list_registry ) && count( $this->task_list_registry ) > 0;
+	}
+
+	/**
 	 * Get all registered Launchpad Task Lists.
 	 *
 	 * @return array All registered Launchpad Task Lists.

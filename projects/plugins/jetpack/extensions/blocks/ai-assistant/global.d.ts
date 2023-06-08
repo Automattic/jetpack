@@ -49,7 +49,9 @@ declare global {
 		};
 		Jetpack_Editor_Initial_State: {
 			adminUrl: string;
+			siteLocale: string;
 			'ai-assistant': SiteAIAssistantFeatureEndpointResponseProps;
+			screenBase?: string;
 		};
 	}
 }
