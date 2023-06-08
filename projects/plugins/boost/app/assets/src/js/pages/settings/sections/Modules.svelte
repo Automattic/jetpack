@@ -94,6 +94,7 @@
 			<ReactComponent
 				this={RegenerateCriticalCssSuggestion}
 				show={$suggestRegenerate && $criticalCssState.status !== 'pending'}
+				type={$suggestRegenerate}
 			/>
 		</div>
 

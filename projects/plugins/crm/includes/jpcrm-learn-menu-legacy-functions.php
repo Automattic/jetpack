@@ -170,7 +170,10 @@ function jpcrm_tasklistview_learn_menu( $learn_menu ) {
 	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
 	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'View Calendar', 'zero-bs-crm' ) . '</a>';
-	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new task', 'zero-bs-crm' ) . '</a>';
+
+	if ( zeroBSCRM_permsEvents() ) {
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new task', 'zero-bs-crm' ) . '</a>';
+	}
 
 	return $learn_menu;
 }
@@ -392,7 +395,10 @@ EOF;
 
 	$learn_menu['right_buttons']  = $task_users_html;
 	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events-list'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'List view', 'zero-bs-crm' ) . '</a>';
-	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new event', 'zero-bs-crm' ) . '</a>';
+
+	if ( zeroBSCRM_permsEvents() ) {
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new task', 'zero-bs-crm' ) . '</a>';
+	}
 
 	return $learn_menu;
 }

@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Fix plugins/new and themes/new endpoints broken by the security fix in #31072. No need for a separate changelog entry for it.
-
-

@@ -54,7 +54,7 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	/**
 	 * @author donncha
 	 * @covers ::Image_CDN_Core::cdn_url
-	 * @since $$next-version$$
+	 * @since 0.2.3
 	 */
 	public function test_photon_url_with_query_parameters() {
 		$args = array(

@@ -34,10 +34,10 @@ export const buildPromptTemplate = ( {
 
 	const messages = [];
 
-	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' );
+	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' ) || '';
 
 	const blogPostData = `Here's the content in the editor that serves as context to the user request:
-${ postTitle.length ? `- Current title: ${ postTitle }\n` : '' }${
+${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
 		fullContent ? `- Current content: ${ fullContent }` : ''
 	}`;
 
@@ -57,14 +57,14 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 
 	messages.push( { role: 'system', content: prompt } );
 
-	if ( postTitle.length || !! fullContent ) {
+	if ( postTitle?.length || !! fullContent ) {
 		messages.push( {
 			role: 'user',
 			content: blogPostData,
 		} );
 	}
 
-	if ( relevantContent != null && relevantContent.length ) {
+	if ( relevantContent != null && relevantContent?.length ) {
 		if ( isContentGenerated ) {
 			messages.push( {
 				role: 'assistant',
@@ -91,7 +91,7 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 	}
 
 	messages.forEach( message => {
-		debug( `Role: ${ message.role }.\nMessage: ${ message.content }\n---` );
+		debug( `Role: ${ message?.role }.\nMessage: ${ message?.content }\n---` );
 	} );
 	return messages;
 };
@@ -107,7 +107,7 @@ export function buildPrompt( {
 	userPrompt,
 	isGeneratingTitle,
 } ) {
-	const isGenerated = options.contentType === 'generated';
+	const isGenerated = options?.contentType === 'generated';
 	const reference = {
 		content: isGeneratingTitle ? 'the title' : 'the content',
 		generated: isGeneratingTitle ? 'the title' : 'your last answer',
