@@ -61,6 +61,11 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
+		// If no is_completed_callback is set, use the default.
+		if ( ! isset( $task_list['is_completed_callback'] ) ) {
+			$task_list['is_completed_callback'] = 'wpcom_default_launchpad_task_list_completed';
+		}
+
 		$this->task_list_registry[ $task_list['id'] ] = $task_list;
 		return true;
 	}
@@ -174,6 +179,46 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Get the required task ids for a given task list.
+	 *
+	 * @param array $task_list_id Task list.
+	 * @return array Required task ids.
+	 */
+	public function get_required_task_ids( $task_list_id ) {
+		$task_list = $this->get_task_list( $task_list_id );
+		if ( ! isset( $task_list['required_task_ids'] ) ) {
+			return array();
+		}
+		return $task_list['required_task_ids'];
+	}
+
+	/**
+	 * Check if the task list requires the last task to be completed in order to consider
+	 * the task list complete.
+	 *
+	 * @param array $task_list_id Task list id.
+	 * @return bool True if the last task must be completed, false if not.
+	 */
+	public function get_require_last_task_completion( $task_list_id ) {
+		$task_list = $this->get_task_list( $task_list_id );
+		if ( ! isset( $task_list['require_last_task_completion'] ) ) {
+			return false;
+		}
+		return $task_list['require_last_task_completion'];
+	}
+
+	/**
+	 * Check if a task list is completed.
+	 *
+	 * @param string $task_list_id Task list id.
+	 * @return bool True if the task list is completed, false if not.
+	 */
+	public function is_task_list_completed( $task_list_id ) {
+		$task_list = $this->get_task_list( $task_list_id );
+		return $this->load_value_from_callback( $task_list, 'is_completed_callback', false );
+	}
+
+	/**
 	 * Get all registered Launchpad Tasks.
 	 *
 	 * @return array All registered Launchpad Tasks.
@@ -248,16 +293,16 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Given a task definition and a possible callback, call it and return the value.
+	 * Given a task or task list definition and a possible callback, call it and return the value.
 	 *
-	 * @param Task   $task A task definition.
+	 * @param array  $item     The task or task list definition.
 	 * @param string $callback The callback to attempt to call.
-	 * @param mixed  $default The default value, passed to the callback if it exists.
+	 * @param mixed  $default  The default value, passed to the callback if it exists.
 	 * @return mixed The value returned by the callback, or the default value.
 	 */
-	private function load_value_from_callback( $task, $callback, $default = '' ) {
-		if ( isset( $task[ $callback ] ) && is_callable( $task[ $callback ] ) ) {
-			return call_user_func_array( $task[ $callback ], array( $task, $default ) );
+	private function load_value_from_callback( $item, $callback, $default = '' ) {
+		if ( isset( $item[ $callback ] ) && is_callable( $item[ $callback ] ) ) {
+			return call_user_func_array( $item[ $callback ], array( $item, $default ) );
 		}
 		return $default;
 	}
@@ -373,6 +418,16 @@ class Launchpad_Task_Lists {
 
 		if ( ! isset( $task_list['task_ids'] ) ) {
 			_doing_it_wrong( 'validate_task_list', 'The Launchpad task list being registered requires a "task_ids" attribute', '6.1' );
+			return false;
+		}
+
+		if ( isset( $task_list['required_task_ids'] ) && ! is_array( $task_list['required_task_ids'] ) ) {
+			_doing_it_wrong( 'validate_task_list', 'The required_task_ids attribute must be an array', '6.1' );
+			return false;
+		}
+
+		if ( isset( $task_list['require_last_task_completion'] ) && ! is_bool( $task_list['require_last_task_completion'] ) ) {
+			_doing_it_wrong( 'validate_task_list', 'The require_last_task_completion attribute must be a boolean', '6.1' );
 			return false;
 		}
 

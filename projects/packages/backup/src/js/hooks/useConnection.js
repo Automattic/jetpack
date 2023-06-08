@@ -10,6 +10,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import BackupPromotionBlock from '../components/backup-promotion';
+import { BackupVideoSection } from '../components/backup-video-section';
 import { STORE_ID } from '../store';
 import connectImage from './assets/connect-backup.png';
 
@@ -47,25 +48,34 @@ export default function useConnection() {
 
 	const BackupConnectionScreen = () => {
 		return (
-			<ConnectScreenRequiredPlan
-				buttonLabel={ __( 'Get VaultPress Backup', 'jetpack-backup-pkg' ) }
-				priceAfter={ priceAfter }
-				priceBefore={ price }
-				pricingIcon={ <JetpackVaultPressBackupLogo showText={ false } /> }
-				pricingTitle={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
-				title={ __( 'The best real-time WordPress backups', 'jetpack-backup-pkg' ) }
-				apiRoot={ APIRoot }
-				apiNonce={ APINonce }
-				registrationNonce={ registrationNonce }
-				from="jetpack-backup"
-				redirectUri="admin.php?page=jetpack-backup"
-				wpcomProductSlug="jetpack_backup_t1_yearly"
-				siteProductAvailabilityHandler={ checkSiteHasBackupProduct }
-				logo={ <></> }
-				rna
-			>
-				<BackupPromotionBlock />
-			</ConnectScreenRequiredPlan>
+			<>
+				<ConnectScreenRequiredPlan
+					buttonLabel={ __( 'Get VaultPress Backup', 'jetpack-backup-pkg' ) }
+					priceAfter={ priceAfter }
+					priceBefore={ price }
+					pricingIcon={ <JetpackVaultPressBackupLogo showText={ false } /> }
+					pricingTitle={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
+					title={ __( 'The best real-time WordPress backups', 'jetpack-backup-pkg' ) }
+					apiRoot={ APIRoot }
+					apiNonce={ APINonce }
+					registrationNonce={ registrationNonce }
+					from="jetpack-backup"
+					redirectUri="admin.php?page=jetpack-backup"
+					wpcomProductSlug="jetpack_backup_t1_yearly"
+					siteProductAvailabilityHandler={ checkSiteHasBackupProduct }
+					logo={ <></> }
+					rna
+				>
+					<BackupPromotionBlock />
+				</ConnectScreenRequiredPlan>
+
+				<BackupVideoSection
+					registrationNonce={ registrationNonce }
+					apiRoot={ APIRoot }
+					apiNonce={ APINonce }
+					siteProductAvailabilityHandler={ checkSiteHasBackupProduct }
+				/>
+			</>
 		);
 	};
 
