@@ -1,7 +1,7 @@
 /* eslint-disable eqeqeq */
 import { check, sleep } from 'k6';
 import http from 'k6/http';
-import { sites } from './shared.js';
+import { sites } from './k6-shared.js';
 
 export const options = {
 	vus: 1, // Todo: adjust values.

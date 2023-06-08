@@ -1,7 +1,7 @@
 /* eslint-disable eqeqeq */
 import { check, group } from 'k6';
 import http from 'k6/http';
-import { encodedCredentials, sites } from './shared.js';
+import { encodedCredentials, sites } from './k6-shared.js';
 
 export const options = {
 	vus: 1,
