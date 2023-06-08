@@ -20,8 +20,8 @@ use WP_REST_Server;
  * It bascially forwards the requests to the WordPress.com REST API.
  */
 class REST_Controller {
-	const JETPACK_STATS_DASHBOARD_MODULE_SETTINGS_CACHE_KEY = 'jetpack_stats_dashboard_module_settings_cache_key';
 	const JETPACK_STATS_DASHBOARD_MODULES_CACHE_KEY         = 'jetpack_stats_dashboard_modules_cache_key';
+	const JETPACK_STATS_DASHBOARD_MODULE_SETTINGS_CACHE_KEY = 'jetpack_stats_dashboard_module_settings_cache_key';
 
 	/**
 	 * Namespace for the REST API.
