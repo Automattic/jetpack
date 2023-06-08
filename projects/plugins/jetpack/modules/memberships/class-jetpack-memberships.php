@@ -467,8 +467,14 @@ class Jetpack_Memberships {
 	 * @return bool Whether the post can be viewed
 	 */
 	public static function user_can_view_post() {
-		$user_id   = get_current_user_id();
-		$post_id   = get_the_ID() || 0;
+		$user_id = get_current_user_id();
+		$post_id = get_the_ID();
+
+		if ( empty( $post_id ) ) {
+			// We are not viewing a post.
+			$post_id = 0;
+		}
+
 		$cache_key = sprintf( '%d_%d', $user_id, $post_id );
 
 		if ( isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {

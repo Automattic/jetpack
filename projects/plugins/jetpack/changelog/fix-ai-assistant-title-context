@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: Check if the block is in the block editor context before enabling Accept title action
