@@ -99,8 +99,7 @@ class Add_Remove_Contact_Tag extends Base_Action {
 	public function execute( array $contact_data = array() ) {
 		global $zbs;
 
-		$contact_data = $this->attributes;
-		$zbs->DAL->contacts->addUpdateContactTags( $contact_data ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->contacts->addUpdateContactTags( $this->attributes ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 }
