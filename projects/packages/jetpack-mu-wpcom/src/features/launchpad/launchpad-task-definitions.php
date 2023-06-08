@@ -29,7 +29,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => '__return_true',
 			'is_disabled_callback' => 'wpcom_is_design_step_enabled',
 		),
-		'domain_claim'                   => array( 
+		'domain_claim'                    => array(
 			'get_title'            => function () {
 				return __( 'Claim your free one-year domain', 'jetpack-mu-wpcom' );
 			},
@@ -582,11 +582,11 @@ function wpcom_domain_claim_is_visible_callback() {
 function wpcom_domain_claim_task_listener() {
 	if ( ! class_exists( 'WPCOM_Domain' ) ) {
 		return;
-	};
+	}
 
 	// The the primary domain mapping record.
 	$mapping_record = get_primary_domain_mapping_record();
-	$wpcom_domain = new \WPCOM_Domain( $mapping_record->domain );
+	$wpcom_domain   = new \WPCOM_Domain( $mapping_record->domain );
 
 	// If the primary domain is not a WP.com TLD, they've mapped a domain; mark the task complete.
 	if ( ! $wpcom_domain->is_wpcom_tld() ) {
