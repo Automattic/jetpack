@@ -14,6 +14,12 @@ namespace Automattic\Jetpack_Boost\Lib;
  */
 class Environment_Change_Detector {
 
+	const ENV_CHANGE_LEGACY         = '1';
+	const ENV_CHANGE_PAGE_SAVED     = 'page_saved';
+	const ENV_CHANGE_POST_SAVED     = 'post_saved';
+	const ENV_CHANGE_SWITCHED_THEME = 'switched_theme';
+	const ENV_CHANGE_PLUGIN_CHANGE  = 'plugin_change';
+
 	/**
 	 * Initialize the change detection hooks.
 	 */
@@ -40,15 +46,21 @@ class Environment_Change_Detector {
 			return;
 		}
 
-		$this->do_action( false, 'post_saved' );
+		if ( 'page' === $post->post_type ) {
+			$change_type = $this::ENV_CHANGE_PAGE_SAVED;
+		} else {
+			$change_type = $this::ENV_CHANGE_POST_SAVED;
+		}
+
+		$this->do_action( false, $change_type );
 	}
 
 	public function handle_theme_change() {
-		$this->do_action( true, 'switched_theme' );
+		$this->do_action( true, $this::ENV_CHANGE_SWITCHED_THEME );
 	}
 
 	public function handle_plugin_change() {
-		$this->do_action( false, 'plugin_change' );
+		$this->do_action( false, $this::ENV_CHANGE_PLUGIN_CHANGE );
 	}
 
 	/**
@@ -59,6 +71,15 @@ class Environment_Change_Detector {
 	 */
 	public function do_action( $is_major_change, $change_type ) {
 		do_action( 'handle_environment_change', $is_major_change, $change_type );
+	}
+
+	public static function get_available_env_change_statuses() {
+		return array(
+			self::ENV_CHANGE_PAGE_SAVED,
+			self::ENV_CHANGE_POST_SAVED,
+			self::ENV_CHANGE_SWITCHED_THEME,
+			self::ENV_CHANGE_PLUGIN_CHANGE,
+		);
 	}
 
 	/**
