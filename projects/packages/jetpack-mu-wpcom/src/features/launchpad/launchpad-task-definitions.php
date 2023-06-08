@@ -571,7 +571,7 @@ function wpcom_domain_claim_is_visible_callback() {
 	}
 
 	// If we haven't completed the task, check to see if we have a bundle credit before showing it.
-	return bool /WPCOM_Store::has_bundle_credit();
+	return WPCOM_Store::has_bundle_credit();
 }
 
 /**
