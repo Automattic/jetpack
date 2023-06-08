@@ -665,6 +665,11 @@ class Jetpack_Gutenberg {
 			);
 		}
 
+		$screen_base = null;
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen_base = get_current_screen()->base;
+		}
+
 		$initial_state = array(
 			'available_blocks' => self::get_availability(),
 			'jetpack'          => array(
@@ -711,6 +716,7 @@ class Jetpack_Gutenberg {
 			'allowedMimeTypes' => wp_get_mime_types(),
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
 			'ai-assistant'     => $ai_assistant_state,
+			'screenBase'       => $screen_base,
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
