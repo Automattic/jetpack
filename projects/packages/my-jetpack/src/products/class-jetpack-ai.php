@@ -23,6 +23,22 @@ class Jetpack_Ai extends Product {
 	public static $slug = 'jetpack-ai';
 
 	/**
+	 * Get the Product info for the API
+	 *
+	 * @throws \Exception If required attribute is not declared in the child class.
+	 * @return array
+	 */
+	public static function get_info() {
+		// Call parent method to get the default info.
+		$info = parent::get_info();
+
+		// Populate the product with the feature data.
+		$info['ai-assistant-feature'] = self::get_ai_assistant_feature();
+
+		return $info;
+	}
+
+	/**
 	 * Get the plugin slug - ovewrite it and return Jetpack's
 	 *
 	 * @return ?string
@@ -143,5 +159,36 @@ class Jetpack_Ai extends Product {
 	 */
 	public static function get_manage_url() {
 		return '';
+	}
+
+	/**
+	 * Get data about the AI Assistant feature
+	 *
+	 * @return array
+	 */
+	public static function get_ai_assistant_feature() {
+		// Bail early if the plugin is not active.
+		if ( ! self::is_jetpack_plugin_installed() ) {
+			return array();
+		}
+
+		// Check if the global constant is defined.
+		if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			return array();
+		}
+
+		// Check if class exists. If not, try to require it once.
+		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
+			$class_file_path = JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
+
+			// Check whether the file exists
+			if ( ! file_exists( $class_file_path ) ) {
+				return array();
+			}
+
+			require_once $class_file_path;
+		}
+
+		return \Jetpack_AI_Helper::get_ai_assistance_feature();
 	}
 }

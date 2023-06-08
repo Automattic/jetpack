@@ -2,11 +2,28 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.2-beta - 2023-06-05
+## 12.3-a.1 - 2023-06-06
+### Enhancements
+- AI Assistant: improve the process of getting post content. [#31211]
+- AI Assistant: replace tone button icon for clarity. [#31152]
+- Stats: display the links to a post's stats in the Posts list as soon as the user has access to stats. [#31025]
+
+### Bug fixes
+- Newsletters: verify the access level should be gated before checking subscriptions. [#30807]
+- Newsletters: show paid subscriber reach numbers in the past tense when the post has been already been published. [#30883]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added comments to the LaunchpadSaveModal code for future reference. [#31149]
+- Remove Anchor.fm extension. [#31117]
+- RNA: update connection module to have an RNA option that updates the design [#31201]
+- Updated package dependencies.
+- WPcom: add send email preview endpoint. [#31028]
+
+## [12.2] - 2023-06-06
 ### Major Enhancements
 - New AI Assistant block: harness AI power directly from your editor.
 - Donations, Paid Content and Payment Buttons blocks are now available with all Jetpack plans. A commission is charged for free plans.
-- Social: automatically share your new posts to Mastodon and Instagram.
+- Social: automatically share your new posts to Mastodon.
 
 ### Enhancements
 - Author Recommendations: Connected block with backend and added `remove_user_blogs` option. [#30639]
@@ -107,7 +124,7 @@
 - wpcom/v3/blogging-prompts endpoint: Add param to force prompt dates to be a specific year [#30255]
 - Zendesk chat widget: Remove conditional rendering from component due to it being handled by an api endpoint now. [#29942]
 
-## 12.1 - 2023-05-02
+## [12.1] - 2023-05-02
 ### Enhancements
 - Dashboard: added Jetpack Starter bundle post-activation screen and plan header. [#30368]
 - Dashboard: add link to renew expired subscription. [#30357]
@@ -8175,6 +8192,8 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 - Initial release
 
 [11.6]: https://wp.me/p1moTy-PLI
+[12.2]: https://wp.me/p1moTy-Tzw
+[12.1]: https://wp.me/p1moTy-TA2
 [12.0]: https://wp.me/p1moTy-RGw
 [11.9]: https://wp.me/p1moTy-RdX
 [11.8]: https://wp.me/p1moTy-QEM
