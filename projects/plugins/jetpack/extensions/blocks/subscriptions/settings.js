@@ -10,7 +10,7 @@ import { getPaidPlanLink, MisconfigurationWarning } from './utils';
 
 import './settings.scss';
 
-function Link( { href, children } ) {
+export function Link( { href, children } ) {
 	return (
 		<a target="_blank" rel="noopener noreferrer" href={ href } className="jetpack-newsletter-link">
 			{ children }
@@ -18,7 +18,7 @@ function Link( { href, children } ) {
 	);
 }
 
-function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, paidSubscribers ) {
+export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, paidSubscribers ) {
 	switch ( accessOptions[ accessLevelKey ].key ) {
 		case accessOptions.everybody.key:
 			return emailSubscribers || 0;
@@ -52,7 +52,6 @@ export function NewsletterNotice( {
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
-	isPostPublishPanel = false,
 } ) {
 	const hasPostBeenPublished = useSelect( select =>
 		select( editorStore ).isCurrentPostPublished()
@@ -60,11 +59,6 @@ export function NewsletterNotice( {
 
 	// If there is a misconfiguration, we do not show the NewsletterNotice
 	if ( showMisconfigurationWarning ) {
-		return;
-	}
-
-	// For the "Everybody" option, only display the subscriber numbers in the PostPublishPnael
-	if ( ! isPostPublishPanel && accessOptions.everybody.key === accessLevel ) {
 		return;
 	}
 
@@ -100,7 +94,7 @@ export function NewsletterNotice( {
 		reachCount
 	);
 
-	if ( isPostPublishPanel || hasPostBeenPublished ) {
+	if ( hasPostBeenPublished ) {
 		numberOfSubscribersText = sprintf(
 			/* translators: %s is the number of subscribers in numerical format */
 			__( 'This was sent to <strong>%s subscribers</strong>.', 'jetpack' ),

@@ -65,3 +65,24 @@ fieldset.editor-post-visibility__fieldset .editor-post-visibility {
 		margin-top: -10px;
 	}
 }
+
+.post-publish-panel__notice {
+	&.components-notice {
+		margin: 0px;
+		padding: 0px;
+		margin-top: -10px;
+
+		&.is-info {
+			border-left-color: #fff;
+
+			a {
+				text-decoration: underline;
+			}
+		}
+
+		.components-notice__content {
+			margin: 0px;
+		}
+
+	}
+}

@@ -14,18 +14,20 @@ import {
 	PluginPostPublishPanel,
 } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import './panel.scss';
+import { useEffect, useState, createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import {
-	NewsletterNotice,
+	Link,
+	getReachForAccessLevelKey,
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessPrePublishSettings,
 } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
+
+import './panel.scss';
 
 const SubscriptionsPanelPlaceholder = ( { children } ) => {
 	return (
@@ -184,9 +186,29 @@ function NewsletterPostPublishSettingsPanel( {
 	isModuleActive,
 	showMisconfigurationWarning,
 } ) {
+	const { postName, postPublishedLink } = useSelect( select => {
+		const currentPost = select( editorStore ).getCurrentPost();
+		return {
+			postName: currentPost.title,
+			postPublishedLink: currentPost.link,
+		};
+	} );
+
 	if ( ! isModuleActive ) {
 		return;
 	}
+
+	const reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
+
+	const numberOfSubscribersText = sprintf(
+		/* translators: %1s is the post name,  %2s is the number of subscribers in numerical format */
+		__(
+			'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s subscribers</strong>.',
+			'jetpack'
+		),
+		postName,
+		reachCount
+	);
 
 	return (
 		<PluginPostPublishPanel
@@ -204,13 +226,14 @@ function NewsletterPostPublishSettingsPanel( {
 			className="jetpack-subscribe-post-publish-panel"
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
-			<NewsletterNotice
-				isPostPublishPanel={ true }
-				accessLevel={ accessLevel }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
-			/>
+			{ ! showMisconfigurationWarning && (
+				<Notice className="post-publish-panel__notice" isDismissible={ false }>
+					{ createInterpolateElement( numberOfSubscribersText, {
+						strong: <strong />,
+						postPublishedLink: <Link href={ postPublishedLink } />,
+					} ) }
+				</Notice>
+			) }
 		</PluginPostPublishPanel>
 	);
 }
