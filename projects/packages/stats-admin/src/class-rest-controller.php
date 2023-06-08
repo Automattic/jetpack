@@ -21,6 +21,8 @@ use WP_REST_Server;
  */
 class REST_Controller {
 	const JETPACK_STATS_DASHBOARD_MODULE_SETTINGS_CACHE_KEY = 'jetpack_stats_dashboard_module_settings_cache_key';
+	const JETPACK_STATS_DASHBOARD_MODULES_CACHE_KEY         = 'jetpack_stats_dashboard_modules_cache_key';
+
 	/**
 	 * Namespace for the REST API.
 	 *
@@ -225,6 +227,29 @@ class REST_Controller {
 			)
 		);
 
+		// Update dashboard modules.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/jetpack-stats-dashboard/modules', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'update_dashboard_modules' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		// Get dashboard modules.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/jetpack-stats-dashboard/modules', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dashboard_modules' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		// Update dashboard module settings.
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/jetpack-stats-dashboard/module-settings', Jetpack_Options::get_option( 'id' ) ),
@@ -235,6 +260,7 @@ class REST_Controller {
 			)
 		);
 
+		// Get dashboard module settings.
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/jetpack-stats-dashboard/module-settings', Jetpack_Options::get_option( 'id' ) ),
@@ -581,6 +607,60 @@ class REST_Controller {
 				'timeout' => 5,
 				'method'  => 'POST',
 			)
+		);
+	}
+
+	/**
+	 * Toggle modules on dashboard.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function update_dashboard_modules( $req ) {
+		// Clear dashboard modules cache.
+		delete_transient( static::JETPACK_STATS_DASHBOARD_MODULES_CACHE_KEY );
+		return $this->request_as_blog_cached(
+			sprintf(
+				'/sites/%d/jetpack-stats-dashboard/modules?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_query_params()
+				)
+			),
+			'v2',
+			array(
+				'timeout' => 5,
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json' ),
+			),
+			$req->get_body(),
+			'wpcom'
+		);
+	}
+
+	/**
+	 * Get modules on dashboard.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_dashboard_modules( $req ) {
+		return $this->request_as_blog_cached(
+			sprintf(
+				'/sites/%d/jetpack-stats-dashboard/modules?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_query_params()
+				)
+			),
+			'v2',
+			array(
+				'timeout' => 5,
+			),
+			null,
+			'wpcom',
+			true,
+			static::JETPACK_STATS_DASHBOARD_MODULES_CACHE_KEY
 		);
 	}
 
