@@ -118,6 +118,13 @@ const AIControl = forwardRef(
 			}
 		);
 
+		const promptButtonKeyboardTextEnter = __( 'Enter', 'jetpack' );
+		const promptButtonKeyboardTextEsc = __( 'Esc', 'jetpack' );
+
+		const promptButtonKeyboardText = ! isWaitingState
+			? promptButtonKeyboardTextEnter
+			: promptButtonKeyboardTextEsc;
+
 		return (
 			<>
 				{ ( siteRequireUpgrade || requireUpgrade ) && <UpgradePrompt /> }
@@ -217,7 +224,7 @@ const AIControl = forwardRef(
 							) }
 							{ ! isSm && (
 								<div className="jetpack-ai-assistant__prompt_button_keyboard">
-									{ ! isWaitingState ? __( 'Enter', 'jetpack' ) : __( 'Esc', 'jetpack' ) }
+									{ promptButtonKeyboardText }
 								</div>
 							) }
 						</div>
