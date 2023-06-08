@@ -214,6 +214,7 @@ function NewsletterPostPublishSettingsPanel( {
 		</PluginPostPublishPanel>
 	);
 }
+
 export default function SubscribePanels() {
 	const { isModuleActive } = useModuleStatus( name );
 	const [ paidSubscribers, setPaidSubscribers ] = useState( null );
