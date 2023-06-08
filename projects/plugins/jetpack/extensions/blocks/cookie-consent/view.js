@@ -10,7 +10,7 @@ domReady( function () {
 	const expireTimeDate = new Date( Date.now() + expireDays * millisInDay );
 	const cookieName = 'eucookielaw';
 
-	const button = container.querySelector( '.wp-block-button a' );
+	const button = container.querySelector( '.wp-block-button' );
 	button.setAttribute( 'role', 'button' );
 	button.setAttribute( 'href', 'javascript:void(0)' );
 	/**
