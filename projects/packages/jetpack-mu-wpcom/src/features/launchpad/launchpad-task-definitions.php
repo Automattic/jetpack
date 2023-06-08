@@ -33,7 +33,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Claim your free one-year domain', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_is_domain_upsell_completed',
 			'is_visible_callback'  => 'wpcom_domain_claim_is_visible_callback',
 		),
 		'domain_upsell'                   => array(
@@ -573,24 +573,3 @@ function wpcom_domain_claim_is_visible_callback() {
 	// If we haven't completed the task, check to see if we have a bundle credit before showing it.
 	return WPCOM_Store::has_bundle_credit();
 }
-
-/**
- * When the user maps a custom domain, mark `domain_credit` as done.
- *
- * @return void
- */
-function wpcom_domain_claim_task_listener() {
-	if ( ! class_exists( 'WPCOM_Domain' ) ) {
-		return;
-	}
-
-	// The the primary domain mapping record.
-	$mapping_record = get_primary_domain_mapping_record();
-	$wpcom_domain   = new \WPCOM_Domain( $mapping_record->domain );
-
-	// If the primary domain is not a WP.com TLD, they've mapped a domain; mark the task complete.
-	if ( ! $wpcom_domain->is_wpcom_tld() ) {
-		wpcom_mark_launchpad_task_complete( 'domain_claim' );
-	}
-}
-add_action( 'init', 'wpcom_domain_claim_task_listener', 11 );
