@@ -99,8 +99,7 @@ class Add_Contact_Log extends Base_Action {
 	public function execute( array $contact_data = array() ) {
 		global $zbs;
 
-		$contact_data = $this->attributes;
-		$zbs->DAL->contacts->zeroBS_addUpdateObjLog( $contact_data ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->contacts->zeroBS_addUpdateObjLog(  $this->attributes ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 }
