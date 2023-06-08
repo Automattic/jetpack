@@ -170,7 +170,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 					<CardBody>
 						<p>
 							{ __(
-								'In order to be rendered on every page of your site, the Cookie Consent Block is best added as a template part. You already have created a template part before.',
+								'You can only have one cookie consent banner on your site. To edit the one you already have, click the button below.',
 								'jetpack'
 							) }
 						</p>
@@ -195,7 +195,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 					<CardBody>
 						<p>
 							{ __(
-								'In order to be rendered on every page of your site, the Cookie Consent Block is best added as a template part.',
+								'To make the block visible across every page of your site, it should be in its own template part.',
 								'jetpack'
 							) }
 						</p>
