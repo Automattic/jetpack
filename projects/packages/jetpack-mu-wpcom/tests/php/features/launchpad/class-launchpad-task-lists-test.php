@@ -73,9 +73,9 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertCount( 1, $result );
 		$this->assertEquals( 'task_1', $result[0]['id'] );
- 	}
+	}
 
-  /**
+	/**
 	 * Data provider for {@see test_task_list_is_completed()}.
 	 */
 	public function provider_test_task_list_is_completed() {
