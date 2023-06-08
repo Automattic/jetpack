@@ -3,7 +3,17 @@ cd $(dirname "$(dirname "$(dirname "$0")")")
 
 rm -f languages/wpcomsh.pot
 
-find . -name '*.php' -and ! -path './build/*' -and ! -path './vendor/*' -and ! -path './custom-colors/*' \
+find . -name '*.php' -and ! -path './build/*' -and ! -path './custom-colors/*' \
+ -and \( \
+    ! -path './vendor/*' \
+    -or -path './vendor/automattic/jetpack-mu-wpcom/*' \
+    -or -path './vendor/automattic/at-pressable-podcasting/*' \
+    -or -path './vendor/automattic/custom-fonts-typekit/*' \
+    -or -path './vendor/automattic/custom-fonts/*' \
+    -or -path './vendor/automattic/jetpack-assets/*' \
+    -or -path './vendor/automattic/jetpack-config/*' \
+    -or -path './vendor/automattic/jetpack-post-list/*' \
+ \) \
  -print \
 | sed -e 's,^\./,,' \
 | sort \

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2023-05-10 11:18+0300\n"
+"POT-Creation-Date: 2023-05-31 15:10+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -107,12 +107,12 @@ msgid ""
 msgstr ""
 
 #. translators: %s: plugin name
-#: feature-plugins/managed-plugins.php:276
+#: feature-plugins/managed-plugins.php:282
 #, php-format
 msgid "%s is automatically managed for you."
 msgstr ""
 
-#: feature-plugins/managed-plugins.php:279
+#: feature-plugins/managed-plugins.php:285
 msgid ""
 "This plugin was installed by WordPress.com and provides features offered in "
 "your plan subscription."
@@ -121,9 +121,9 @@ msgstr ""
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging purposes.
-#: feature-plugins/managed-plugins.php:499
-#: feature-plugins/managed-plugins.php:510
-#: feature-plugins/managed-plugins.php:521
+#: feature-plugins/managed-plugins.php:505
+#: feature-plugins/managed-plugins.php:516
+#: feature-plugins/managed-plugins.php:527
 msgid "Updates managed by WordPress.com"
 msgstr ""
 
@@ -438,19 +438,23 @@ msgid ""
 msgstr ""
 
 #: private-site/access-denied-coming-soon-template.php:46
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:273
 msgid "Coming Soon"
 msgstr ""
 
 #: private-site/access-denied-coming-soon-template.php:52
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:290
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr ""
 
 #: private-site/access-denied-coming-soon-template.php:55
 #: private-site/access-denied-private-site-template.php:47
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:293
 msgid "Log in"
 msgstr ""
 
 #: private-site/access-denied-coming-soon-template.php:56
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:294
 msgid "Start your website"
 msgstr ""
 
@@ -482,6 +486,7 @@ msgid "Update"
 msgstr ""
 
 #: private-site/logged-in-banner.php:85
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:139
 msgid "Launch site"
 msgstr ""
 
@@ -542,6 +547,500 @@ msgstr ""
 
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:16
+msgid "Podcasting"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:18
+msgid "Category to set as feed"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
+msgid "Podcast title"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast subtitle"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+msgid "Podcast talent name"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+msgid "Podcast summary"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+msgid "Podcast copyright"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+msgid "Mark as explicit"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
+msgid "Podcast image"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast keywords"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+msgid "Podcast category 1"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
+msgid "Podcast category 2"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
+msgid "Podcast category 3"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
+msgid "Blog category for podcasts"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
+msgid "Select podcast category:"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
+#: widgets/class-gravatar-widget.php:151
+#: widgets/class-widget-top-clicks.php:125
+msgid "None"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
+#, php-format
+msgid "Your podcast feed: %1$s"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
+msgid "This is the URL you submit to iTunes or podcasting service."
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
+msgid "Set podcast title"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
+msgid "Set podcast subtitle"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
+msgid "Set podcast author"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
+msgid "Set podcast summary"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
+msgid "Set podcast copyright"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
+msgid "Set podcast as explicit"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
+msgid "No"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
+msgid "Yes"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
+msgid "Clean"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
+msgid "Set podcast image"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
+msgid "Set podcast keywords"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
+msgid "Set podcast category"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
+msgid "Select iTunes category:"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:13
+msgid "Podcast"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
+msgid ""
+"Display information about your Podcast and allow visitors to follow via "
+"iTunes"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+msgid "Listen on Apple Podcasts"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
+msgid "Listen on Spotify"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
+msgid "Podcast RSS Feed"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
+msgid "Title"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
+msgid "Apple Podcasts Feed ID"
+msgstr ""
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
+msgid "Spotify Feed ID"
+msgstr ""
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
+msgid "Uncheck to disable"
+msgstr ""
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
+msgid ""
+"Lucky you! Your theme designers chose specific fonts for you that you can’t "
+"pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox "
+"below and click \"Save\" to choose other fonts."
+msgstr ""
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
+msgid ""
+"You added a Typekit kit ID through our legacy interface, which is no longer "
+"supported. Uncheck the checkbox below and click \"Save\" to remove your kit "
+"from this blog and use our easy new interface for choosing fonts."
+msgstr ""
+
+#: vendor/automattic/custom-fonts/css-generator.php:49
+msgid "Site Title"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/css-generator.php:56
+msgid "Base Font"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/css-generator.php:63
+msgid "Headings"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/custom-fonts.php:146
+#: vendor/automattic/custom-fonts/custom-fonts.php:162
+msgid "Fonts"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:35
+msgid "Default Theme Font"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:36
+msgid "Tiny"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:37
+msgid "Small"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:38
+msgid "Normal"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:39
+msgid "Normal Size"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:40
+msgid "Large"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:41
+msgid "Huge"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:276
+msgctxt "font-style"
+msgid "Thin"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:277
+msgctxt "font-style"
+msgid "Thin Italic"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:278
+msgctxt "font-style"
+msgid "Thin Oblique"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:279
+msgctxt "font-style"
+msgid "Extra Light"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:280
+msgctxt "font-style"
+msgid "Extra Light Italic"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:281
+msgctxt "font-style"
+msgid "Extra Light Oblique"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:282
+msgctxt "font-style"
+msgid "Light"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:283
+msgctxt "font-style"
+msgid "Light Italic"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:284
+msgctxt "font-style"
+msgid "Light Oblique"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:285
+msgctxt "font-style"
+msgid "Regular"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:286
+msgctxt "font-style"
+msgid "Italic"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:287
+msgctxt "font-style"
+msgid "Oblique"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:288
+msgctxt "font-style"
+msgid "Medium"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:289
+msgctxt "font-style"
+msgid "Medium Italic"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:290
+msgctxt "font-style"
+msgid "Medium Oblique"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:291
+msgctxt "font-style"
+msgid "Semibold"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:292
+msgctxt "font-style"
+msgid "Semibold Italic"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:293
+msgctxt "font-style"
+msgid "Semibold Oblique"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:294
+msgctxt "font-style"
+msgid "Bold"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:295
+msgctxt "font-style"
+msgid "Bold Italic"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:296
+msgctxt "font-style"
+msgid "Bold Oblique"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:297
+msgctxt "font-style"
+msgid "Extra Bold"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:298
+msgctxt "font-style"
+msgid "Extra Bold Italic"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:299
+msgctxt "font-style"
+msgid "Extra Bold Oblique"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:300
+msgctxt "font-style"
+msgid "Ultra Bold"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:301
+msgctxt "font-style"
+msgid "Ultra Bold Italic"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/base.php:302
+msgctxt "font-style"
+msgid "Ultra Bold Oblique"
+msgstr ""
+
+#: vendor/automattic/custom-fonts/providers/google.php:280
+msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
+msgid "no-subset"
+msgstr ""
+
+#. translators: %s is the script handle.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:388
+#, php-format
+msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
+msgstr ""
+
+#. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:553
+#, php-format
+msgid ""
+"Textdomain aliases should be registered before the %1$s hook. This notice "
+"was triggered by the %2$s domain."
+msgstr ""
+
+#: vendor/automattic/jetpack-config/src/class-config.php:135
+#, php-format
+msgid ""
+"Unable to load class %1$s. Please add the package that contains it using "
+"composer and make sure you are requiring the Jetpack autoloader"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:26
+msgid "Personalize newsletter"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:34
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:43
+msgid "Choose a plan"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:52
+msgid "Add subscribers"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:60
+msgid "Write your first post"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:70
+msgid "Start writing"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:81
+msgid "Select a design"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:90
+msgid "Personalize Link in Bio"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:98
+msgid "Add links"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:109
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:185
+msgid "Launch your site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
+msgid "Set up your video site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:127
+msgid "Upload your first video"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:149
+msgid "Personalize your site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:157
+msgid "Name your blog"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:165
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:203
+msgid "Set up your site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:174
+msgid "Edit site design"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:194
+msgid "Launch your blog"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:213
+msgid "Choose a domain"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:222
+msgid "Confirm email (check your inbox)"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:230
+msgid "Set up payment method"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:238
+msgid "Create paid Newsletter"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:477
+msgid ""
+"Your site contains custom colors that will only be visible once you upgrade "
+"to a Premium plan."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:489
+msgid "Upgrade plan"
+msgstr ""
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
+msgctxt "Share the post on social networks"
+msgid "Share"
+msgstr ""
+
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
+#, php-format
+msgid "Share &#8220;%s&#8221; via Publicize"
+msgstr ""
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
+msgid "Thumbnail"
 msgstr ""
 
 #: widgets/class-aboutme-widget.php:18
@@ -645,11 +1144,6 @@ msgstr ""
 
 #: widgets/class-gravatar-widget.php:148
 msgid "Extra Large (256 pixels)"
-msgstr ""
-
-#: widgets/class-gravatar-widget.php:151
-#: widgets/class-widget-top-clicks.php:125
-msgid "None"
 msgstr ""
 
 #: widgets/class-gravatar-widget.php:152
