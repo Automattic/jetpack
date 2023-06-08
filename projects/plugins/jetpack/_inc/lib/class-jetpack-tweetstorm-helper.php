@@ -393,11 +393,7 @@ class Jetpack_Tweetstorm_Helper {
 			$lines = array( $block['text'] );
 		}
 
-		if ( is_countable( $lines ) ) {
-			$line_total = count( $lines );
-		} else {
-			$line_total = 0;
-		}
+		$line_total = is_array( $lines ) ? count( $lines ) : 0;
 
 		// Keep track of how many characters from this block we've allocated to tweets.
 		$current_character_count = 0;
@@ -450,11 +446,7 @@ class Jetpack_Tweetstorm_Helper {
 			// The line is too long for a single tweet, so split it by sentences, or linebreaks.
 			$sentences = preg_split( '/(?|(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[\p{L}\'"\(])|(\n+))/u', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
 
-			if ( is_countable( $sentences ) ) {
-				$sentence_total = count( $sentences );
-			} else {
-				$sentence_total = 0;
-			}
+			$sentence_total = $sentences !== false ? count( $sentences ) : 0;
 
 			// preg_split() puts the blank space between sentences into a seperate entry in the result,
 			// so we need to step through the result array by two, and append the blank space when needed.
@@ -510,12 +502,8 @@ class Jetpack_Tweetstorm_Helper {
 				}
 
 				// Split the long sentence into words.
-				$words = preg_split( '/(\p{Z})/u', $current_sentence, -1, PREG_SPLIT_DELIM_CAPTURE );
-				if ( is_countable( $words ) ) {
-					$word_total = count( $words );
-				} else {
-					$word_total = 0;
-				}
+				$words      = preg_split( '/(\p{Z})/u', $current_sentence, -1, PREG_SPLIT_DELIM_CAPTURE );
+				$word_total = $words !== false ? count( $words ) : 0;
 				for ( $word_count = 0; $word_count < $word_total; $word_count += 2 ) {
 					// Make sure we have the most recent tweet.
 					$current_tweet = self::get_current_tweet();
@@ -916,7 +904,7 @@ class Jetpack_Tweetstorm_Helper {
 
 		$block_def = self::get_block_definition( $block['name'] );
 
-		if ( isset( $block_def['content'] ) && is_countable( $block_def['content'] ) && count( $block_def['content'] ) > 0 ) {
+		if ( ! empty( $block_def['content'] ) ) {
 			$tags = $block_def['content'];
 		} else {
 			$tags = array( 'content' );
@@ -1342,11 +1330,7 @@ class Jetpack_Tweetstorm_Helper {
 					$tweet['blocks'] = array();
 				} else {
 					// Remove the parts of the block data that the editor doesn't need.
-					if ( is_countable( $tweet['blocks'] ) ) {
-						$block_count = count( $tweet['blocks'] );
-					} else {
-						$block_count = 0;
-					}
+					$block_count = count( $tweet['blocks'] );
 					for ( $ii = 0; $ii < $block_count; $ii++ ) {
 						$keys = array_keys( $tweet['blocks'][ $ii ] );
 						foreach ( $keys as $key ) {
