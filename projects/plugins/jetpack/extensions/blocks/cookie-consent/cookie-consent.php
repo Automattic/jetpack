@@ -110,7 +110,19 @@ function render_cookie_consent_template() {
 		return;
 	}
 
-	echo do_blocks( $template_part->content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	$blocks = parse_blocks( $template_part->content );
+
+	// in case users add more than one block in the template part, we only want to render the cookie consent block.
+	$blocks = array_filter(
+		$blocks,
+		function ( $block ) {
+			return $block['blockName'] === BLOCK_NAME;
+		}
+	);
+
+	if ( isset( $blocks[0] ) && ! empty( $blocks[0] ) ) {
+		echo render_block( $blocks[0] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
 }
 
 add_action( 'wp_footer', __NAMESPACE__ . '\render_cookie_consent_template' );
