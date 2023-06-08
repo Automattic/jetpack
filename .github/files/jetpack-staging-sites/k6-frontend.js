@@ -4,9 +4,8 @@ import http from 'k6/http';
 import { sites } from './k6-shared.js';
 
 export const options = {
-	vus: 1, // Todo: adjust values.
-	// duration: '5s',
-	iterations: 1,
+	vus: 2,
+	duration: '10s',
 	thresholds: {
 		checks: [
 			{
