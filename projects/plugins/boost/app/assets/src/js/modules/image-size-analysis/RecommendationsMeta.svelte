@@ -1,31 +1,36 @@
 <script lang="ts">
 	import { __, sprintf } from '@wordpress/i18n';
-	import api from '../../api/api';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import MultiProgress from './MultiProgress.svelte';
-	import { isaSummary } from './store/isa-summary';
+	import { isaSummary, requestImageAnalysis } from './store/isa-summary';
 
 	let errorMessage: undefined | string;
 	let busy = false;
 
+	/**
+	 * Calculate total number of issues.
+	 */
+	$: totalIssues = Object.values( $isaSummary.groups ).reduce(
+		( total, group ) => total + group.issue_count,
+		0
+	);
+
+	/**
+	 * Start a new image analysis job.
+	 */
 	async function onStartAnalysis() {
 		try {
 			errorMessage = undefined;
 			busy = true;
-			await api.post( '/image-size-analysis/start' );
+			await requestImageAnalysis();
 		} catch ( err ) {
 			errorMessage = err.message;
 		} finally {
 			busy = false;
 		}
 	}
-
-	$: totalIssues = Object.values( $isaSummary.groups ).reduce(
-		( total, group ) => total + group.issue_count,
-		0
-	);
 </script>
 
 {#if $isaSummary.status === 'not-found'}

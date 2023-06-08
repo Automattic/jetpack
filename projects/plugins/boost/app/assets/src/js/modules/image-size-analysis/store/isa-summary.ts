@@ -1,5 +1,6 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
+import api from '../../../api/api';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
 import { isaIgnoredImages, isaData } from './isa-data';
 
@@ -60,3 +61,27 @@ export const imageDataActiveGroup = derived(
 );
 
 export type ISA_Group = z.infer< typeof zGroup >;
+
+/**
+ * Request a new image size analysis.
+ */
+export async function requestImageAnalysis() {
+	await api.post( '/image-size-analysis/start' );
+	image_size_analysis_summary.refresh();
+}
+
+/**
+ * Automatically poll if the state is an active one.
+ */
+let pollIntervalId: number | undefined;
+isaSummary.subscribe( summary => {
+	const shouldPoll = [ 'new', 'queued' ].includes( summary.status );
+
+	if ( shouldPoll && ! pollIntervalId ) {
+		pollIntervalId = setInterval( () => {
+			image_size_analysis_summary.refresh();
+		}, 3000 );
+	} else if ( ! shouldPoll && pollIntervalId ) {
+		clearInterval( pollIntervalId );
+	}
+} );

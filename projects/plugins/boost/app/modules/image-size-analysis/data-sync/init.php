@@ -97,6 +97,7 @@ $summary_schema = Schema::as_assoc_array(
 				'error',
 			)
 		),
+		'error'  => Schema::as_string()->nullable(),
 		'groups' => Schema::as_assoc_array(
 			array(
 				'front_page' => $group_schema,
