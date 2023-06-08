@@ -8,7 +8,6 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Jetpack_Options;
@@ -153,7 +152,8 @@ class REST_Controller {
 			)
 		);
 
-		// Stats notices.
+		// Legacy: Update Stats notices.
+		// TODO: remove this in the next release.
 		register_rest_route(
 			static::$namespace,
 			'/stats/notices',
@@ -166,20 +166,11 @@ class REST_Controller {
 						'required'    => true,
 						'type'        => 'string',
 						'description' => 'ID of the notice',
-						'enum'        => array(
-							Notices::OPT_IN_NEW_STATS_NOTICE_ID,
-							Notices::OPT_OUT_NEW_STATS_NOTICE_ID,
-							Notices::NEW_STATS_FEEDBACK_NOTICE_ID,
-						),
 					),
 					'status'        => array(
 						'required'    => true,
 						'type'        => 'string',
 						'description' => 'Status of the notice',
-						'enum'        => array(
-							Notices::NOTICE_STATUS_DISMISSED,
-							Notices::NOTICE_STATUS_POSTPONED,
-						),
 					),
 					'postponed_for' => array(
 						'type'        => 'number',
@@ -188,6 +179,46 @@ class REST_Controller {
 						'minimum'     => 0,
 					),
 				),
+			)
+		);
+
+		// Update Stats notices.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/jetpack-stats-dashboard/notices', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'update_notice_status' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+				'args'                => array(
+					'id'            => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => 'ID of the notice',
+					),
+					'status'        => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => 'Status of the notice',
+					),
+					'postponed_for' => array(
+						'type'        => 'number',
+						'default'     => null,
+						'description' => 'Postponed for (in seconds)',
+						'minimum'     => 0,
+					),
+				),
+			)
+		);
+
+		// Get Stats notices.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/jetpack-stats-dashboard/notices', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_notice_status' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -499,7 +530,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function site_has_never_published_post( $req ) {
-		return $this->request_as_blog_cached(
+		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/site-has-never-published-post?%s',
 				Jetpack_Options::get_option( 'id' ),
@@ -521,7 +552,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_wordads_earnings( $req ) {
-		return $this->request_as_blog_cached(
+		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/wordads/earnings?%s',
 				Jetpack_Options::get_option( 'id' ),
@@ -541,7 +572,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_wordads_stats( $req ) {
-		return $this->request_as_blog_cached(
+		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/wordads/stats?%s',
 				Jetpack_Options::get_option( 'id' ),
@@ -565,18 +596,27 @@ class REST_Controller {
 	}
 
 	/**
+	 * Get stats notices.
+	 *
+	 * @return array
+	 */
+	public function get_notice_status() {
+		return ( new Notices() )->get_notices_to_show();
+	}
+
+	/**
 	 * Mark a referrer as spam.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
 	public function mark_referrer_spam( $req ) {
-		return $this->request_as_blog_cached(
+		return WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/stats/referrers/spam/new?%s',
 				Jetpack_Options::get_option( 'id' ),
 				$this->filter_and_build_query_string(
-					$req->get_params()
+					$req->get_query_params()
 				)
 			),
 			'v1.1',
@@ -594,12 +634,12 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function unmark_referrer_spam( $req ) {
-		return $this->request_as_blog_cached(
+		return WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/stats/referrers/spam/delete?%s',
 				Jetpack_Options::get_option( 'id' ),
 				$this->filter_and_build_query_string(
-					$req->get_params()
+					$req->get_query_params()
 				)
 			),
 			'v1.1',
@@ -619,7 +659,7 @@ class REST_Controller {
 	public function update_dashboard_modules( $req ) {
 		// Clear dashboard modules cache.
 		delete_transient( static::JETPACK_STATS_DASHBOARD_MODULES_CACHE_KEY );
-		return $this->request_as_blog_cached(
+		return WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/jetpack-stats-dashboard/modules?%s',
 				Jetpack_Options::get_option( 'id' ),
@@ -645,7 +685,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_dashboard_modules( $req ) {
-		return $this->request_as_blog_cached(
+		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/jetpack-stats-dashboard/modules?%s',
 				Jetpack_Options::get_option( 'id' ),
@@ -673,7 +713,7 @@ class REST_Controller {
 	public function update_dashboard_module_settings( $req ) {
 		// Clear dashboard modules cache.
 		delete_transient( static::JETPACK_STATS_DASHBOARD_MODULE_SETTINGS_CACHE_KEY );
-		return $this->request_as_blog_cached(
+		return WPCOM_Client::request_as_blog(
 			sprintf(
 				'/sites/%d/jetpack-stats-dashboard/module-settings?%s',
 				Jetpack_Options::get_option( 'id' ),
@@ -699,7 +739,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_dashboard_module_settings( $req ) {
-		return $this->request_as_blog_cached(
+		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/jetpack-stats-dashboard/module-settings?%s',
 				Jetpack_Options::get_option( 'id' ),
@@ -716,60 +756,6 @@ class REST_Controller {
 			true,
 			static::JETPACK_STATS_DASHBOARD_MODULE_SETTINGS_CACHE_KEY
 		);
-	}
-
-	/**
-	 * Query the WordPress.com REST API using the blog token
-	 *
-	 * @param String $path The API endpoint relative path.
-	 * @param String $version The API version.
-	 * @param array  $args Request arguments.
-	 * @param String $body Request body.
-	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
-	 * @param bool   $use_cache (optional) default to true.
-	 * @param string $cache_key (optional) default to null meaning the function auto generates cache key.
-	 * @return array|WP_Error $response Data.
-	 */
-	protected function request_as_blog_cached( $path, $version = '1.1', $args = array(), $body = null, $base_api_path = 'rest', $use_cache = true, $cache_key = null ) {
-		// Only allow caching GET requests.
-		$use_cache = $use_cache && ! ( isset( $args['method'] ) && strtoupper( $args['method'] ) !== 'GET' );
-
-		// Arrays are serialized without considering the order of objects, but it's okay atm.
-		$cache_key = $cache_key !== null ? $cache_key : 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
-
-		if ( $use_cache ) {
-			$response_body_content = get_transient( $cache_key );
-			if ( false !== $response_body_content ) {
-				return json_decode( $response_body_content, true );
-			}
-		}
-
-		$response = Client::wpcom_json_api_request_as_blog(
-			$path,
-			$version,
-			$args,
-			$body,
-			$base_api_path
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		$response_code         = wp_remote_retrieve_response_code( $response );
-		$response_body_content = wp_remote_retrieve_body( $response );
-		$response_body         = json_decode( $response_body_content, true );
-
-		$error = $this->get_wp_error( $response_body, (int) $response_code );
-		if ( is_wp_error( $error ) ) {
-			return $error;
-		}
-
-		if ( $use_cache ) {
-			// Cache the successful JSON response for 5 minutes.
-			set_transient( $cache_key, $response_body_content, 5 * MINUTE_IN_SECONDS );
-		}
-		return $response_body;
 	}
 
 	/**
@@ -803,34 +789,5 @@ class REST_Controller {
 			}
 		}
 		return http_build_query( $params );
-	}
-
-	/**
-	 * Build error object from remote response body and status code.
-	 *
-	 * @param array $response_body Remote response body.
-	 * @param int   $response_code Http response code.
-	 * @return WP_Error
-	 */
-	protected function get_wp_error( $response_body, $response_code = 200 ) {
-		$error_code = null;
-		foreach ( array( 'code', 'error' ) as $error_code_key ) {
-			if ( isset( $response_body[ $error_code_key ] ) ) {
-				$error_code = $response_body[ $error_code_key ];
-				break;
-			}
-		}
-
-		// Sometimes the response code could be 200 but the response body still contains an error.
-		if ( $error_code !== null || $response_code !== 200 ) {
-			return new WP_Error(
-				$error_code,
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
-				array( 'status' => $response_code )
-			);
-		}
-
-		// No error.
-		return null;
 	}
 }
