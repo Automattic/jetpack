@@ -206,6 +206,29 @@ class Automation_Faker {
 		);
 	}
 
+	public function invoice_data() {
+		return array(
+			'id'   => 1,
+			'data' => array(
+				'id_override' => '1',
+				'parent'      => '',
+				'status'      => 'Unpaid',
+				'hash'        => 'ISSQndSUjlhJ8feWj2v',
+				'lineitems'   => array(
+					array(
+						'net'      => 3.75,
+						'desc'     => 'Dummy product',
+						'quantity' => '3',
+						'price'    => '1.25',
+						'total'    => 3.75,
+					),
+				),
+				'contacts'    => array( 1 ),
+				'created'     => -1,
+			),
+		);
+	}
+
 	/**
 	 * Return a empty workflow, without triggers and initial step
 	 * @return array
