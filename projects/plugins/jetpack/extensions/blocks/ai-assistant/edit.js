@@ -197,8 +197,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setAttributes( { content: undefined, promptType: undefined } );
 	};
 
-	const handleGetSuggestion = type => {
-		getSuggestionFromOpenAI( type );
+	const handleGetSuggestion = ( type, options = {} ) => {
+		getSuggestionFromOpenAI( type, options );
 		focusOnBlock();
 		return;
 	};
