@@ -54,7 +54,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		global $zbs;
 
-		DAL_contact_mock( $this, 'addUpdateContact' );
+		DAL_contact_mock( $this, array( 'addUpdateContact' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'addUpdateContact' )
@@ -97,7 +97,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		global $zbs;
 
-		DAL_contact_mock( $this, 'addUpdateContact' );
+		DAL_contact_mock( $this, array( 'addUpdateContact' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 				->method( 'addUpdateContact' )
@@ -134,7 +134,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		global $zbs;
 
-		DAL_contact_mock( $this, 'deleteContact' );
+		DAL_contact_mock( $this, array( 'deleteContact' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'deleteContact' )
@@ -178,7 +178,7 @@ class Contact_Action_Test extends BaseTestCase {
 		);
 		global $zbs;
 
-		DAL_contact_mock( $this, 'deleteContact' );
+		DAL_contact_mock( $this, array( 'deleteContact' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'deleteContact' )
@@ -222,7 +222,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		global $zbs;
 
-		DAL_contact_mock( $this, 'addUpdateContact' );
+		DAL_contact_mock( $this, array( 'addUpdateContact' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'addUpdateContact' )
@@ -273,7 +273,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		global $zbs;
 
-		DAL_contact_mock( $this, 'addUpdateContact' );
+		DAL_contact_mock( $this, array( 'addUpdateContact' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'addUpdateContact' )
@@ -315,7 +315,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		global $zbs;
 
-		DAL_contact_mock( $this, 'addUpdateContactTags' );
+		DAL_contact_mock( $this, array( 'addUpdateContactTags' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'addUpdateContactTags' )
@@ -368,7 +368,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		global $zbs;
 
-		DAL_contact_mock( $this, 'addUpdateContactTags' );
+		DAL_contact_mock( $this, array( 'addUpdateContactTags' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'addUpdateContactTags' )
@@ -422,7 +422,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		global $zbs;
 
-		DAL_contact_mock( $this, 'zeroBS_addUpdateObjLog' );
+		DAL_contact_mock( $this, array( 'zeroBS_addUpdateObjLog' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'zeroBS_addUpdateObjLog' )
@@ -487,7 +487,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		global $zbs;
 
-		DAL_contact_mock( $this, 'zeroBS_addUpdateObjLog' );
+		DAL_contact_mock( $this, array( 'zeroBS_addUpdateObjLog' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'zeroBS_addUpdateObjLog' )
@@ -533,7 +533,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		global $zbs;
 
-		DAL_contact_mock( $this, 'addUpdateContact' );
+		DAL_contact_mock( $this, array( 'addUpdateContact' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'addUpdateContact' )
@@ -588,7 +588,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		global $zbs;
 
-		DAL_contact_mock( $this, 'addUpdateContact' );
+		DAL_contact_mock( $this, array( 'addUpdateContact' ) );
 
 		$zbs->DAL->contacts->expects( $this->once() )
 			->method( 'addUpdateContact' )
