@@ -148,7 +148,7 @@ const AIControl = forwardRef(
 						handleTryAgain={ handleTryAgain }
 						showRetry={ showRetry }
 						contentBefore={ contentBefore }
-						hasPostTitle={ !! postTitle?.length }
+						postTitle={ postTitle }
 						wholeContent={ wholeContent }
 						promptType={ promptType }
 						onUserPromptUpdate={ typeUserPrompt }
@@ -262,7 +262,7 @@ const ToolbarControls = ( {
 	handleTryAgain,
 	showRetry,
 	contentBefore,
-	hasPostTitle,
+	postTitle,
 	wholeContent,
 	onUserPromptUpdate,
 	recordEvent,
@@ -320,7 +320,7 @@ const ToolbarControls = ( {
 					<PromptTemplatesControl
 						hasContentBefore={ !! contentBefore?.length }
 						hasContent={ !! wholeContent?.length }
-						hasPostTitle={ hasPostTitle }
+						hasPostTitle={ !! postTitle?.length }
 						onPromptSelect={ prompt => {
 							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
 								type: 'prompt-template',
