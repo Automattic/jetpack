@@ -4,8 +4,9 @@ namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync;
 
 use Automattic\Jetpack\Boost_Speed_Score\Lib\Boost_API;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 
-class Image_Size_Analysis_Summary implements Entry_Can_Get {
+class Image_Size_Analysis_Summary implements Lazy_Entry, Entry_Can_Get {
 
 	public function get() {
 		$report = Boost_API::get( 'image-guide/reports/latest' );

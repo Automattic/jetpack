@@ -24,8 +24,8 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 				} )
 				.optional(),
 		} )
-		// Data unavailable when the the flag is disabled.
-		.optional()
+		// Default data if deactivated or not loaded yet.
+		.nullable()
 );
 
 export const isaSummary = image_size_analysis_summary.store;
@@ -71,10 +71,26 @@ export async function requestImageAnalysis() {
 }
 
 /**
+ * Ask for the image size analysis store to be populated.
+ * Not automatically populated at load-time, as it is lazy. zzz.
+ */
+let initialized = false;
+export function initializeISASummary() {
+	if ( ! initialized ) {
+		initialized = true;
+		image_size_analysis_summary.refresh();
+	}
+}
+
+/**
  * Automatically poll if the state is an active one.
  */
 let pollIntervalId: number | undefined;
 isaSummary.subscribe( summary => {
+	if ( ! summary ) {
+		return;
+	}
+
 	const shouldPoll = [ 'new', 'queued' ].includes( summary.status );
 
 	if ( shouldPoll && ! pollIntervalId ) {

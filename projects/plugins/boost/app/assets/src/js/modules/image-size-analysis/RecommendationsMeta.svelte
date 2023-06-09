@@ -1,10 +1,15 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { __, sprintf } from '@wordpress/i18n';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import MultiProgress from './MultiProgress.svelte';
-	import { isaSummary, requestImageAnalysis } from './store/isa-summary';
+	import { requestImageAnalysis, initializeISASummary, isaSummary } from './store/isa-summary';
+
+	onMount( () => {
+		initializeISASummary();
+	} );
 
 	let errorMessage: undefined | string;
 	let busy = false;
@@ -12,7 +17,7 @@
 	/**
 	 * Calculate total number of issues.
 	 */
-	$: totalIssues = Object.values( $isaSummary.groups ).reduce(
+	$: totalIssues = Object.values( $isaSummary?.groups || {} ).reduce(
 		( total, group ) => total + group.issue_count,
 		0
 	);
@@ -33,7 +38,11 @@
 	}
 </script>
 
-{#if $isaSummary.status === 'not-found'}
+{#if ! $isaSummary}
+	<div class="summary">
+		{__( 'Loading…', 'jetpack-boost' )}
+	</div>
+{:else if $isaSummary.status === 'not-found'}
 	<div class="button-area">
 		<Button disabled={busy} on:click={onStartAnalysis}>Start image analysis</Button>
 	</div>
