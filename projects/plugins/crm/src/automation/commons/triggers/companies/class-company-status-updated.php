@@ -15,11 +15,6 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
  */
 class Company_Status_Updated extends Base_Trigger {
 
-	/**
-	 * @var Automation_Workflow The Automation workflow object.
-	 */
-	protected $workflow;
-
 	/** Get the slug name of the trigger
 	 * @return string
 	 */
