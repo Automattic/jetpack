@@ -10,10 +10,10 @@ export const options = {
 		checks: [
 			{
 				/**
-				 * Successful checks should exceed 98%.
+				 * Fail if the number of failed checks is greater than 0.
 				 * see: https://k6.io/docs/using-k6/thresholds/#fail-a-load-test-using-checks
 				 */
-				threshold: 'rate > 0.98',
+				threshold: 'rate == 1.0',
 			},
 		],
 	},
