@@ -117,6 +117,20 @@ const AIControl = forwardRef(
 			}
 		);
 
+		function typeUserPrompt( prompt ) {
+			if ( ! promptUserInputRef?.current ) {
+				return;
+			}
+
+			const userPromptInput = promptUserInputRef.current;
+
+			// Focus the text area
+			userPromptInput.focus();
+
+			// Add a typing effect in the text area
+			aiWriter( prompt, setUserPrompt );
+		}
+
 		return (
 			<>
 				{ requireUpgrade && <UpgradePrompt /> }
@@ -137,19 +151,7 @@ const AIControl = forwardRef(
 						hasPostTitle={ !! postTitle?.length }
 						wholeContent={ wholeContent }
 						promptType={ promptType }
-						onUserPromptUpdate={ prompt => {
-							if ( ! promptUserInputRef?.current ) {
-								return;
-							}
-
-							const userPromptInput = promptUserInputRef.current;
-
-							// Focus the text area
-							userPromptInput.focus();
-
-							// Add a typing effect in the text area
-							aiWriter( prompt, setUserPrompt );
-						} }
+						onUserPromptUpdate={ typeUserPrompt }
 						recordEvent={ recordEvent }
 						isGeneratingTitle={ isGeneratingTitle }
 						promptUserInputRef={ promptUserInputRef }
