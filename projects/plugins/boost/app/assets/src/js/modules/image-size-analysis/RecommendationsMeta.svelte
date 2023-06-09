@@ -5,10 +5,10 @@
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import MultiProgress from './MultiProgress.svelte';
-	import { requestImageAnalysis, initializeISASummary, isaSummary } from './store/isa-summary';
+	import { requestImageAnalysis, initializeIsaSummary, isaSummary } from './store/isa-summary';
 
 	onMount( () => {
-		initializeISASummary();
+		initializeIsaSummary();
 	} );
 
 	let errorMessage: undefined | string;

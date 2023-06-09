@@ -1,8 +1,9 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
+import { __ } from '@wordpress/i18n';
 import api from '../../../api/api';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
-import { isaIgnoredImages, isaData } from './isa-data';
+import { isaData } from './isa-data';
 
 const zGroup = z.object( {
 	issue_count: z.number(),
@@ -37,26 +38,43 @@ export const isaGroups = derived( isaSummary, () => ( {
 	front_page: { name: 'Front Page', progress: 10, issues: 0, done: false },
 } ) );
 
+export const isaGroupLabels = {
+	all: __( 'All', 'jetpack-boost' ),
+	front_page: __( 'Homepage', 'jetpack-boost' ),
+	page: __( 'Pages', 'jetpack-boost' ),
+	post: __( 'Posts', 'jetpack-boost' ),
+	other: __( 'Custom Post Types', 'jetpack-boost' ),
+};
+
+/**
+ * Derived store tracking the total number of issues.
+ */
+export const totalIssueCount = derived( isaSummary, $isaSummary => {
+	return Object.values( $isaSummary?.groups || {} )
+		.map( group => group.issue_count )
+		.reduce( ( a, b ) => a + b, 0 );
+} );
+
+/**
+ * Derived store which describes tabs to display in the UI.
+ */
 export const imageDataGroupTabs = derived(
-	[ isaGroups, isaIgnoredImages ],
-	( [ $isaGroups, $isaIgnoredImages ] ) => {
-		const all = {
-			name: 'All',
-			issues:
-				Object.values( $isaGroups )
-					.map( group => group.issues )
-					.reduce( ( a, b ) => a + b, 0 ) - $isaIgnoredImages.length,
-		};
-
-		const groups = {
-			all,
-			...$isaGroups,
-		};
-
-		return groups;
-	}
+	[ isaSummary, totalIssueCount ],
+	( [ $isaSummary, $totalIssueCount ] ) => [
+		{
+			group: 'all',
+			issues: $totalIssueCount,
+		},
+		...Object.entries( $isaSummary?.groups || {} ).map( ( [ group, details ] ) => ( {
+			group,
+			issues: details.issue_count,
+		} ) ),
+	]
 );
 
+/**
+ * Derived store which describes the currently active tab.
+ */
 export const imageDataActiveGroup = derived(
 	[ imageDataGroupTabs, isaData ],
 	( [ $groups, $imageData ] ): z.infer< typeof zGroup > => {
@@ -79,7 +97,7 @@ export async function requestImageAnalysis() {
  * Not automatically populated at load-time, as it is lazy. zzz.
  */
 let initialized = false;
-export function initializeISASummary() {
+export function initializeIsaSummary() {
 	if ( ! initialized ) {
 		initialized = true;
 		image_size_analysis_summary.refresh();

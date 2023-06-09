@@ -2,7 +2,7 @@
 	import { sprintf, __ } from '@wordpress/i18n';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
-	import { isaSummary } from './store/isa-summary';
+	import { isaGroupLabels, isaSummary } from './store/isa-summary';
 
 	function safePercent( value: number, outOf: number ): number {
 		if ( ! outOf ) {
@@ -11,13 +11,6 @@
 
 		return Math.min( 100, Math.max( 0, ( value * 100 ) / outOf ) );
 	}
-
-	const groupLabels = {
-		front_page: __( 'Homepage', 'jetpack-boost' ),
-		page: __( 'Pages', 'jetpack-boost' ),
-		post: __( 'Posts', 'jetpack-boost' ),
-		other: __( 'Custom Post Types', 'jetpack-boost' ),
-	};
 </script>
 
 <div class="jb-multi-progress">
@@ -40,7 +33,7 @@
 			{/if}
 
 			<div class="jb-category-name">
-				{groupLabels[ group ] || group}
+				{isaGroupLabels[ group ] || group}
 			</div>
 
 			{#if isDone || hasIssues}
