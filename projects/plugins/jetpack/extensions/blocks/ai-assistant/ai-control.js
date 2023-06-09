@@ -21,6 +21,8 @@ import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
 import classNames from 'classnames';
 import ConnectPrompt from './components/connect-prompt';
 import I18nDropdownControl from './components/i18n-dropdown-control';
+import Message from './components/message';
+import { ASSISTANT_STATE_CONTENT_GENERATED } from './components/message/block-message';
 import PromptTemplatesControl from './components/prompt-templates-control';
 import ToneDropdownControl from './components/tone-dropdown-control';
 import AIAssistantIcon from './icons/ai-assistant';
@@ -156,86 +158,91 @@ const AIControl = forwardRef(
 						isGeneratingTitle={ isGeneratingTitle }
 					/>
 				) }
-				<div
-					className={ classNames( 'jetpack-ai-assistant__input-wrapper', {
-						'is-disconnected': ! connected,
-					} ) }
-				>
-					<div className="jetpack-ai-assistant__input-icon-wrapper">
-						{ isWaitingState || loadingImages ? (
-							<Spinner className="jetpack-ai-assistant__input-spinner" />
-						) : (
-							<Icon
-								icon={ AIAssistantIcon }
-								size={ 24 }
-								className="jetpack-ai-assistant__input-icon"
-							/>
-						) }
-					</div>
-					<PlainText
-						value={ isWaitingState ? '' : userPrompt }
-						onChange={ value => {
-							setUserPrompt( value );
-							onChange?.();
-						} }
-						placeholder={ placeholder }
-						className="jetpack-ai-assistant__input"
-						disabled={ isWaitingState || loadingImages || ! connected || requireUpgrade }
-						ref={ promptUserInputRef }
-					/>
-
-					<div className="jetpack-ai-assistant__controls">
-						<div className="jetpack-ai-assistant__prompt_button_wrapper">
-							{ ! isWaitingState ? (
-								<Button
-									className="jetpack-ai-assistant__prompt_button"
-									onClick={ () => handleGetSuggestion( 'userPrompt' ) }
-									isSmall={ true }
-									disabled={ ! userPrompt?.length || ! connected || requireUpgrade }
-									label={ __( 'Send request', 'jetpack' ) }
-								>
-									<Icon icon={ origamiPlane } />
-									{ ! isSm && __( 'Send', 'jetpack' ) }
-								</Button>
+				<div className="jetpack-ai-assistant__input-container">
+					<div
+						className={ classNames( 'jetpack-ai-assistant__input-wrapper', {
+							'is-disconnected': ! connected,
+						} ) }
+					>
+						<div className="jetpack-ai-assistant__input-icon-wrapper">
+							{ isWaitingState || loadingImages ? (
+								<Spinner className="jetpack-ai-assistant__input-spinner" />
 							) : (
-								<Button
-									className="jetpack-ai-assistant__prompt_button"
-									onClick={ handleStopSuggestion }
-									isSmall={ true }
-									label={ __( 'Stop request', 'jetpack' ) }
-								>
-									<Icon icon={ closeSmall } />
-									{ __( 'Stop', 'jetpack' ) }
-								</Button>
+								<Icon
+									icon={ AIAssistantIcon }
+									size={ 24 }
+									className="jetpack-ai-assistant__input-icon"
+								/>
 							) }
 						</div>
+						<PlainText
+							value={ isWaitingState ? '' : userPrompt }
+							onChange={ value => {
+								setUserPrompt( value );
+								onChange?.();
+							} }
+							placeholder={ placeholder }
+							className="jetpack-ai-assistant__input"
+							disabled={ isWaitingState || loadingImages || ! connected || requireUpgrade }
+							ref={ promptUserInputRef }
+						/>
 
-						<div className="jetpack-ai-assistant__prompt_button_wrapper">
-							{ contentIsLoaded &&
-								! isWaitingState &&
-								( isInBlockEditor && promptType === 'generateTitle' ? (
+						<div className="jetpack-ai-assistant__controls">
+							<div className="jetpack-ai-assistant__prompt_button_wrapper">
+								{ ! isWaitingState ? (
 									<Button
 										className="jetpack-ai-assistant__prompt_button"
-										onClick={ handleAcceptTitle }
+										onClick={ () => handleGetSuggestion( 'userPrompt' ) }
 										isSmall={ true }
-										label={ __( 'Accept title', 'jetpack' ) }
+										disabled={ ! userPrompt?.length || ! connected || requireUpgrade }
+										label={ __( 'Send request', 'jetpack' ) }
 									>
-										<Icon icon={ check } />
-										{ __( 'Accept title', 'jetpack' ) }
+										<Icon icon={ origamiPlane } />
+										{ ! isSm && __( 'Send', 'jetpack' ) }
 									</Button>
 								) : (
 									<Button
 										className="jetpack-ai-assistant__prompt_button"
-										onClick={ handleAcceptContent }
+										onClick={ handleStopSuggestion }
 										isSmall={ true }
-										label={ __( 'Accept', 'jetpack' ) }
+										label={ __( 'Stop request', 'jetpack' ) }
 									>
-										<Icon icon={ check } />
-										{ __( 'Accept', 'jetpack' ) }
+										<Icon icon={ closeSmall } />
+										{ __( 'Stop', 'jetpack' ) }
 									</Button>
-								) ) }
+								) }
+							</div>
+
+							<div className="jetpack-ai-assistant__prompt_button_wrapper">
+								{ contentIsLoaded &&
+									! isWaitingState &&
+									( isInBlockEditor && promptType === 'generateTitle' ? (
+										<Button
+											className="jetpack-ai-assistant__prompt_button"
+											onClick={ handleAcceptTitle }
+											isSmall={ true }
+											label={ __( 'Accept title', 'jetpack' ) }
+										>
+											<Icon icon={ check } />
+											{ __( 'Accept title', 'jetpack' ) }
+										</Button>
+									) : (
+										<Button
+											className="jetpack-ai-assistant__prompt_button"
+											onClick={ handleAcceptContent }
+											isSmall={ true }
+											label={ __( 'Accept', 'jetpack' ) }
+										>
+											<Icon icon={ check } />
+											{ __( 'Accept', 'jetpack' ) }
+										</Button>
+									) ) }
+							</div>
 						</div>
 					</div>
+					{ contentIsLoaded && ! isWaitingState && (
+						<Message state={ ASSISTANT_STATE_CONTENT_GENERATED } onAccept={ handleAcceptContent } />
+					) }
 				</div>
 			</>
 		);
