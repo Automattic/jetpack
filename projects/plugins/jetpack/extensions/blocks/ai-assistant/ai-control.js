@@ -240,7 +240,7 @@ const AIControl = forwardRef(
 						</div>
 					</div>
 					{ contentIsLoaded && ! isWaitingState && (
-						<Message state={ ASSISTANT_STATE_CONTENT_GENERATED } onAccept={ handleAcceptContent } />
+						<Message state={ ASSISTANT_STATE_CONTENT_GENERATED } />
 					) }
 				</div>
 			</>
