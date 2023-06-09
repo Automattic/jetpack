@@ -28,6 +28,7 @@ import AIAssistantIcon from './icons/ai-assistant';
 import origamiPlane from './icons/origami-plane';
 import { isUserConnected } from './lib/connection';
 import UpgradePrompt from './upgrade-prompt';
+import aiWriter from './utils/ai-writter';
 
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 
@@ -147,11 +148,7 @@ const AIControl = forwardRef(
 							userPromptInput.focus();
 
 							// Add a typing effect in the text area
-							for ( let i = 0; i < prompt.length; i++ ) {
-								setTimeout( () => {
-									setUserPrompt( prompt.slice( 0, i + 1 ) );
-								}, 25 * i );
-							}
+							aiWriter( prompt, setUserPrompt );
 						} }
 						recordEvent={ recordEvent }
 						isGeneratingTitle={ isGeneratingTitle }
