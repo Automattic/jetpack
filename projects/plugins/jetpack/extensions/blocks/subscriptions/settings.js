@@ -53,9 +53,14 @@ export function NewsletterNotice( {
 	paidSubscribers,
 	showMisconfigurationWarning,
 } ) {
-	const hasPostBeenPublished = useSelect( select =>
-		select( editorStore ).isCurrentPostPublished()
-	);
+	const { hasPostBeenPublished, hasPostBeenScheduled } = useSelect( select => {
+		const { isCurrentPostPublished, isCurrentPostScheduled } = select( editorStore );
+
+		return {
+			hasPostBeenPublished: isCurrentPostPublished(),
+			hasPostBeenScheduled: isCurrentPostScheduled(),
+		};
+	} );
 
 	// If there is a misconfiguration, we do not show the NewsletterNotice
 	if ( showMisconfigurationWarning ) {
@@ -94,7 +99,7 @@ export function NewsletterNotice( {
 		reachCount
 	);
 
-	if ( hasPostBeenPublished ) {
+	if ( hasPostBeenPublished && ! hasPostBeenScheduled ) {
 		numberOfSubscribersText = sprintf(
 			/* translators: %s is the number of subscribers in numerical format */
 			__( 'This was sent to <strong>%s subscribers</strong>.', 'jetpack' ),
