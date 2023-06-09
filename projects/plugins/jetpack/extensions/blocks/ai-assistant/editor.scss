@@ -63,14 +63,17 @@
 	}
 }
 
-.jetpack-ai-assistant__input-wrapper {
-	display: flex;
-	padding: 6px;
-	gap: 8px;
+.jetpack-ai-assistant__input-container {
 	color: var( --jp-gray-80 );
 	background-color: var( --jp-white );
 	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
 	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.jetpack-ai-assistant__input-wrapper {
+	display: flex;
+	padding: 6px;
+	gap: 8px;
 
 	&.is-disconnected {
 		opacity: 0.4;
