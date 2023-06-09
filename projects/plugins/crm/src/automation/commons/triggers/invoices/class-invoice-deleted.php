@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
-use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 
 /**
