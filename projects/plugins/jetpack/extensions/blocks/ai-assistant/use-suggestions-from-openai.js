@@ -78,6 +78,8 @@ const useSuggestionsFromOpenAI = ( {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
 	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+	const { editPost } = useDispatch( 'core/editor' );
+
 	const source = useRef();
 
 	// Let's grab post data so that we can do something smart.
@@ -136,6 +138,14 @@ const useSuggestionsFromOpenAI = ( {
 	}, [ loading ] );
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+
+	/**
+	 * Getting the Jetpack AI calls counter so we can bump it later
+	 */
+	const jetpackAICallsCounter = useSelect(
+		select => select( 'core/editor' ).getEditedPostAttribute( 'meta' )?._jetpack_ai_calls || 0
+	);
+
 	// eslint-disable-next-line no-unused-vars
 	const categoryNames = categoryObjects
 		.filter( cat => cat.id !== 1 )
@@ -178,6 +188,21 @@ const useSuggestionsFromOpenAI = ( {
 		tracks.recordEvent( 'jetpack_ai_chat_completion', {
 			post_id: postId,
 		} );
+
+		/**
+		 * Update post meta to increment _jetpack_ai_calls counter. The new value
+		 * will be saved when the post as a whole gets saved.
+		 */
+		editPost( {
+			meta: {
+				_jetpack_ai_calls: jetpackAICallsCounter + 1,
+			},
+		} );
+		debug(
+			'Incrementing _jetpack_ai_calls counter from %d to %d',
+			jetpackAICallsCounter,
+			jetpackAICallsCounter + 1
+		);
 
 		if ( ! options.retryRequest ) {
 			setLastPrompt( prompt );
