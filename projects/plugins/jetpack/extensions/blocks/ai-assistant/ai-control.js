@@ -137,7 +137,7 @@ const AIControl = forwardRef(
 						hasPostTitle={ !! postTitle?.length }
 						wholeContent={ wholeContent }
 						promptType={ promptType }
-						setUserPrompt={ prompt => {
+						onUserPromptUpdate={ prompt => {
 							if ( ! promptUserInputRef?.current ) {
 								return;
 							}
@@ -261,7 +261,7 @@ const ToolbarControls = ( {
 	contentBefore,
 	hasPostTitle,
 	wholeContent,
-	setUserPrompt,
+	onUserPromptUpdate,
 	recordEvent,
 	isGeneratingTitle,
 } ) => {
@@ -324,7 +324,7 @@ const ToolbarControls = ( {
 								prompt,
 							} );
 
-							setUserPrompt( prompt );
+							onUserPromptUpdate( prompt );
 						} }
 						onSuggestionSelect={ suggestion => {
 							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
