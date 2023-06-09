@@ -53,11 +53,12 @@ function render_block( $attributes, $content ) {
 		return $content;
 	}
 
-	$element   = get_attribute( $attributes, 'element' );
-	$text      = get_attribute( $attributes, 'text' );
-	$unique_id = get_attribute( $attributes, 'uniqueId' );
-	$url       = get_attribute( $attributes, 'url' );
-	$classes   = Blocks::classes( FEATURE_NAME, $attributes, array( 'wp-block-button' ) );
+	$element                = get_attribute( $attributes, 'element' );
+	$text                   = get_attribute( $attributes, 'text' );
+	$unique_id              = get_attribute( $attributes, 'uniqueId' );
+	$url                    = get_attribute( $attributes, 'url' );
+	$passthrough_attributes = get_attribute( $attributes, 'passthroughAttributes' );
+	$classes                = Blocks::classes( FEATURE_NAME, $attributes, array( 'wp-block-button' ) );
 
 	$button_classes = get_button_classes( $attributes );
 	$button_styles  = get_button_styles( $attributes );
@@ -65,6 +66,10 @@ function render_block( $attributes, $content ) {
 
 	$wrapper_attributes = sprintf( ' class="%s" style="%s"', esc_attr( $classes ), esc_attr( $wrapper_styles ) );
 	$button_attributes  = sprintf( ' class="%s" style="%s"', esc_attr( $button_classes ), esc_attr( $button_styles ) );
+
+	foreach ( $passthrough_attributes as $key => $value ) {
+		$button_attributes .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
+	}
 
 	if ( empty( $unique_id ) ) {
 		$button_attributes .= ' data-id-attr="placeholder"';
@@ -234,7 +239,7 @@ function get_button_wrapper_styles( $attributes ) {
  * @param array  $attributes     Array containing the Button block attributes.
  * @param string $attribute_name String containing the attribute name to get.
  *
- * @return string
+ * @return string|array
  */
 function get_attribute( $attributes, $attribute_name ) {
 	if ( isset( $attributes[ $attribute_name ] ) ) {
