@@ -125,7 +125,7 @@ const AIControl = forwardRef(
 					<ToolbarControls
 						isWaitingState={ isWaitingState }
 						contentIsLoaded={ contentIsLoaded }
-						getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+						onSuggestionSelect={ getSuggestionFromOpenAI }
 						retryRequest={ retryRequest }
 						handleAcceptContent={ handleAcceptContent }
 						handleAcceptTitle={ handleAcceptTitle }
@@ -152,6 +152,7 @@ const AIControl = forwardRef(
 						} }
 						recordEvent={ recordEvent }
 						isGeneratingTitle={ isGeneratingTitle }
+						promptUserInputRef={ promptUserInputRef }
 					/>
 				) }
 				<div className="jetpack-ai-assistant__input-container">
@@ -252,7 +253,7 @@ const isImageGenerationEnabled = false;
 
 const ToolbarControls = ( {
 	contentIsLoaded,
-	getSuggestionFromOpenAI,
+	onSuggestionSelect,
 	retryRequest,
 	handleAcceptContent,
 	handleImageRequest,
@@ -269,18 +270,18 @@ const ToolbarControls = ( {
 		// Interactive controls
 		{
 			title: __( 'Make longer', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'makeLonger', { contentType: 'generated' } ),
+			onClick: () => onSuggestionSelect( 'makeLonger', { contentType: 'generated' } ),
 		},
 		{
 			title: __( 'Make shorter', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
+			onClick: () => onSuggestionSelect( 'makeShorter', { contentType: 'generated' } ),
 		},
 	];
 
 	if ( ! isGeneratingTitle ) {
 		dropdownControls.unshift( {
 			title: __( 'Summarize', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'summarize', { contentType: 'generated' } ),
+			onClick: () => onSuggestionSelect( 'summarize', { contentType: 'generated' } ),
 		} );
 	}
 
@@ -291,7 +292,7 @@ const ToolbarControls = ( {
 					<ToneDropdownControl
 						value="neutral"
 						onChange={ tone =>
-							getSuggestionFromOpenAI( 'changeTone', { tone, contentType: 'generated' } )
+							onSuggestionSelect( 'changeTone', { tone, contentType: 'generated' } )
 						}
 						disabled={ contentIsLoaded }
 					/>
@@ -299,7 +300,7 @@ const ToolbarControls = ( {
 					<I18nDropdownControl
 						value="en"
 						onChange={ language =>
-							getSuggestionFromOpenAI( 'changeLanguage', { language, contentType: 'generated' } )
+							onSuggestionSelect( 'changeLanguage', { language, contentType: 'generated' } )
 						}
 						disabled={ contentIsLoaded }
 					/>
@@ -331,7 +332,7 @@ const ToolbarControls = ( {
 								type: 'suggestion',
 								suggestion,
 							} );
-							getSuggestionFromOpenAI( suggestion );
+							onSuggestionSelect( suggestion );
 						} }
 					/>
 				) }
@@ -347,12 +348,12 @@ const ToolbarControls = ( {
 						<BlockControls group="block">
 							<ToneDropdownControl
 								value="neutral"
-								onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
+								onChange={ tone => onSuggestionSelect( 'changeTone', { tone } ) }
 							/>
 							<I18nDropdownControl
 								value="en"
 								label={ __( 'Translate', 'jetpack' ) }
-								onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
+								onChange={ language => onSuggestionSelect( 'changeLanguage', { language } ) }
 							/>
 						</BlockControls>
 					) }
