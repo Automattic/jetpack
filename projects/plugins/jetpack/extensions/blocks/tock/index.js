@@ -3,6 +3,7 @@ import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
+import save from './save';
 
 /**
  * Style dependencies
@@ -11,6 +12,20 @@ import './editor.scss';
 
 export const name = 'tock';
 export const title = __( 'Tock', 'jetpack' );
+export const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'div',
+		text: _x( 'Book now', 'verb: e.g. book a table.', 'jetpack' ),
+		uniqueId: 'Tock_widget_container',
+		passthroughAttributes: {
+			'data-tock-display-mode': 'Button',
+			'data-tock-color-mode': 'Blue',
+			'data-tock-locale': 'en-US',
+			'data-tock-timezone': 'America/Chicago',
+		},
+	},
+};
 export const settings = {
 	title,
 	description: __( 'Allow visitors to book a reservation with Tock', 'jetpack' ),
@@ -29,16 +44,17 @@ export const settings = {
 		customClassName: true,
 		className: true,
 		html: false,
-		multiple: true,
+		multiple: false,
 		reusable: true,
 	},
 	edit,
 	/* @TODO Write the block editor output */
-	save: () => null,
+	save,
 	attributes,
 	example: {
 		attributes: {
-			// @TODO: Add default values for block attributes, for generating the block preview.
+			tockName: 'roister',
 		},
+		innerBlocks: [ innerButtonBlock ],
 	},
 };
