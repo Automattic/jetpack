@@ -17,11 +17,30 @@ const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plug
  */
 const editorSetup = path.join( __dirname, '../extensions', 'editor' );
 const viewSetup = path.join( __dirname, '../extensions', 'view' );
+const blockEditorDirectories = [ 'plugins', 'blocks' ];
 const noop = function () {};
+
+/**
+ * Filters block editor scripts
+ *
+ * @param {string} type - script type
+ * @param {string} inputDir - input directory
+ * @param {Array} presetBlocks - preset blocks
+ * @returns {Array} list of block scripts
+ */
+function presetProductionExtensions( type, inputDir, presetBlocks ) {
+	return presetBlocks
+		.flatMap( block =>
+			blockEditorDirectories.map( dir => path.join( inputDir, dir, block, `${ type }.js` ) )
+		)
+		.filter( fs.existsSync );
+}
 
 const presetPath = path.join( __dirname, '../extensions', 'index.json' );
 const presetIndex = require( presetPath );
 const presetProductionBlocks = presetIndex.production || [];
+const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
+const presetSingleBlocks = presetIndex.single || [];
 
 const presetExperimentalBlocks = [
 	...presetProductionBlocks,
@@ -30,7 +49,55 @@ const presetExperimentalBlocks = [
 // Beta Blocks include all blocks: beta, experimental, and production blocks.
 const presetBetaBlocks = [ ...presetExperimentalBlocks, ...( presetIndex.beta || [] ) ];
 
-const editorBlocksScripts = presetBetaBlocks.reduce( ( editorBlocks, block ) => {
+// Helps split up each block into its own folder view script
+const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
+	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
+	if ( fs.existsSync( viewScriptPath ) ) {
+		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
+	}
+	return viewBlocks;
+}, {} );
+
+// Combines all the different production blocks into one editor.js script
+const editorScript = [
+	editorSetup,
+	...presetProductionExtensions(
+		'editor',
+		path.join( __dirname, '../extensions' ),
+		presetProductionBlocks
+	),
+];
+
+// Combines all the different Experimental blocks into one editor.js script
+const editorExperimentalScript = [
+	editorSetup,
+	...presetProductionExtensions(
+		'editor',
+		path.join( __dirname, '../extensions' ),
+		presetExperimentalBlocks
+	),
+];
+
+// Combines all the different blocks into one editor-beta.js script
+const editorBetaScript = [
+	editorSetup,
+	...presetProductionExtensions(
+		'editor',
+		path.join( __dirname, '../extensions' ),
+		presetBetaBlocks
+	),
+];
+
+const editorNoPostEditorScript = [
+	editorSetup,
+	...presetProductionExtensions(
+		'editor',
+		path.join( __dirname, '../extensions' ),
+		presetNoPostEditorBlocks
+	),
+];
+
+const editorSingleBlocksScripts = presetSingleBlocks.reduce( ( editorBlocks, block ) => {
 	const editorScriptPath = path.join( __dirname, '../extensions/blocks', block, 'editor.js' );
 	if ( fs.existsSync( editorScriptPath ) ) {
 		editorBlocks[ block + '/editor' ] = [ editorScriptPath ];
@@ -38,11 +105,26 @@ const editorBlocksScripts = presetBetaBlocks.reduce( ( editorBlocks, block ) => 
 	return editorBlocks;
 }, {} );
 
-// Helps split up each block into its own folder view script
-const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
+const viewSingleBlocksScripts = presetSingleBlocks.reduce( ( viewBlocks, block ) => {
 	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
 	if ( fs.existsSync( viewScriptPath ) ) {
 		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
+	}
+	return viewBlocks;
+}, {} );
+
+const editorSingleBlocksStyles = presetSingleBlocks.reduce( ( editorBlocks, block ) => {
+	const editorStylePath = path.join( __dirname, '../extensions/blocks', block, 'editor.scss' );
+	if ( fs.existsSync( editorStylePath ) ) {
+		editorBlocks[ block + '/editor' ] = [ editorStylePath ];
+	}
+	return editorBlocks;
+}, {} );
+
+const viewSingleBlocksStyles = presetSingleBlocks.reduce( ( viewBlocks, block ) => {
+	const viewStylePath = path.join( __dirname, '../extensions/blocks', block, 'style.scss' );
+	if ( fs.existsSync( viewStylePath ) ) {
+		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewStylePath ] ];
 	}
 	return viewBlocks;
 }, {} );
@@ -127,8 +209,10 @@ module.exports = [
 	{
 		...sharedWebpackConfig,
 		entry: {
-			editor: editorSetup,
-			...editorBlocksScripts,
+			editor: editorScript,
+			'editor-experimental': editorExperimentalScript,
+			'editor-beta': editorBetaScript,
+			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
 		},
 		plugins: [
@@ -216,5 +300,54 @@ module.exports = [
 				assets: [ 'components.js', 'components.js.map' ],
 			} ),
 		],
+	},
+	{
+		...sharedWebpackConfig,
+		entry: {
+			...editorSingleBlocksScripts,
+			...viewSingleBlocksScripts,
+		},
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: '**/block.json',
+						to: '[path][name][ext]',
+						context: path.join( __dirname, '../extensions/blocks' ),
+					},
+				],
+			} ),
+		],
+	},
+	{
+		...sharedWebpackConfig,
+		entry: {
+			...editorSingleBlocksStyles,
+			...viewSingleBlocksStyles,
+		},
+		module: {
+			rules: [
+				{
+					test: /\.scss$/,
+					use: [
+						{
+							loader: 'file-loader',
+							options: {
+								name: '[path]_[name].css',
+								context: path.join( __dirname, '../extensions/blocks' ),
+							},
+						},
+						{
+							loader: 'postcss-loader',
+							options: {
+								postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
+							},
+						},
+						'sass-loader',
+					],
+				},
+			],
+		},
 	},
 ];

@@ -90,5 +90,6 @@
 		"tiled-gallery",
 		"videopress",
 		"wordads"
-	]
+	],
+	"single": [ "business-hours-single" ]
 }
