@@ -85,10 +85,10 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 			const requirementsMet = [];
 			const neededTeams = [];
 			for ( const requirementResult of reviewersAny ) {
-				if ( requirementResult.teamReviewers.length != 0 ) {
+				if ( requirementResult.teamReviewers.length !== 0 ) {
 					requirementsMet.push( requirementResult.teamReviewers );
 				}
-				if ( requirementResult.neededTeams.length != 0 ) {
+				if ( requirementResult.neededTeams.length !== 0 ) {
 					neededTeams.push( requirementResult.neededTeams );
 				}
 			}
