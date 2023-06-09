@@ -21,6 +21,7 @@ import { external, Icon } from '@wordpress/icons';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
+import EmailPreview from './email-preview';
 import {
 	Link,
 	getReachForAccessLevelKey,
@@ -29,7 +30,6 @@ import {
 } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
-import EmailPreview from './email-preview';
 
 import './panel.scss';
 

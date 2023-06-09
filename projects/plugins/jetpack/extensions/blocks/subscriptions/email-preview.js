@@ -4,7 +4,7 @@ import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './email-preview.scss';
-import { check } from '@wordpress/icon';
+import { check } from '@wordpress/icons';
 import illustration from './email-preview-illustration.svg';
 
 export default function EmailPreview() {
