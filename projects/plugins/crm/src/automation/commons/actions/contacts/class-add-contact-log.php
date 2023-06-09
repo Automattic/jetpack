@@ -15,29 +15,6 @@ use Automattic\Jetpack\CRM\Automation\Base_Action;
 class Add_Contact_Log extends Base_Action {
 
 	/**
-	 * @var object The action data.
-	 */
-	protected $action_data;
-
-	/**
-	 * @var array Step data.
-	 */
-	protected $attributes;
-
-	/**
-	 * Add_Contact_Log constructor.
-	 *
-	 * @param array $action_data An array of the action data.
-	 *
-	 */
-	public function __construct( $action_data ) {
-		Base_Action::__construct( $action_data );
-
-		$this->action_data = $action_data;
-		$this->attributes  = $action_data['attributes'];
-	}
-
-	/**
 	 * Get the slug name of the step
 	 *
 	 * @return string
