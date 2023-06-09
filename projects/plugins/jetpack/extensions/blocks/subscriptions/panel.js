@@ -15,7 +15,7 @@ import {
 	PluginPostPublishPanel,
 } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState, createInterpolateElement } from '@wordpress/element';
+import { useCallback, useEffect, useState, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -189,6 +189,7 @@ function NewsletterPostPublishSettingsPanel( {
 	isModuleActive,
 	showMisconfigurationWarning,
 } ) {
+	const { tracks } = useAnalytics();
 	const { postName, postPublishedLink } = useSelect( select => {
 		const currentPost = select( editorStore ).getCurrentPost();
 		return {
@@ -203,6 +204,12 @@ function NewsletterPostPublishSettingsPanel( {
 			isStripeConnected: null === getConnectUrl(),
 		};
 	} );
+
+	// Tracks event when clicking on the "Turn on paid newsletter" link
+	const trackClick = useCallback(
+		() => tracks.recordEvent( 'jetpack_editor_turn_on_paid_newsletter_publish_click' ),
+		[ tracks ]
+	);
 
 	if ( ! isModuleActive ) {
 		return;
@@ -264,6 +271,7 @@ function NewsletterPostPublishSettingsPanel( {
 						<Button
 							target="_blank"
 							variant="secondary"
+							onClick={ trackClick }
 							href={ getRedirectUrl( 'wpcom-earn', {
 								site: getSiteFragment(),
 							} ) }
