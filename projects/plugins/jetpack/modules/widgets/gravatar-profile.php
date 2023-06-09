@@ -411,7 +411,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			$instance['email'] = $user->user_email;
 		}
 
-		$hashed_email = md5( strtolower( trim( $instance['email'] ) ) );
+		$hashed_email = hash( 'sha256', strtolower( trim( $instance['email'] ) ) );
 		$cache_key    = 'grofile-' . $hashed_email;
 		delete_transient( $cache_key );
 
@@ -424,7 +424,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	 * @param string $email Email address.
 	 */
 	private function get_profile( $email ) {
-		$hashed_email = md5( strtolower( trim( $email ) ) );
+		$hashed_email = hash( 'sha256', strtolower( trim( $email ) ) );
 		$cache_key    = 'grofile-' . $hashed_email;
 		$profile      = get_transient( $cache_key );
 

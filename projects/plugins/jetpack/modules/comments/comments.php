@@ -330,7 +330,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$params['hc_userid']    = $current_user->ID;
 			$params['hc_username']  = $current_user->display_name;
 			$params['hc_userurl']   = $current_user->user_url;
-			$params['hc_useremail'] = md5( strtolower( trim( $current_user->user_email ) ) );
+			$params['hc_useremail'] = hash( 'sha256', strtolower( trim( $current_user->user_email ) ) );
 			if ( current_user_can( 'unfiltered_html' ) ) {
 				$params['_wp_unfiltered_html_comment'] = wp_create_nonce( 'unfiltered-html-comment_' . get_the_ID() );
 			}
