@@ -411,8 +411,8 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			$instance['email'] = $user->user_email;
 		}
 
-		$clean_email = strtolower( trim( $instance['email'] ) );
-		$cache_key   = 'grofile-' . md5( $clean_email );
+		$hashed_email = md5( strtolower( trim( $instance['email'] ) ) );
+		$cache_key    = 'grofile-' . $hashed_email;
 		delete_transient( $cache_key );
 
 		return $instance;
@@ -424,14 +424,14 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	 * @param string $email Email address.
 	 */
 	private function get_profile( $email ) {
-		$clean_email = strtolower( trim( $email ) );
-		$cache_key   = 'grofile-' . md5( $clean_email );
-		$profile     = get_transient( $cache_key );
+		$hashed_email = md5( strtolower( trim( $email ) ) );
+		$cache_key    = 'grofile-' . $hashed_email;
+		$profile      = get_transient( $cache_key );
 
 		if ( ! $profile ) {
 			$profile_url = sprintf(
 				'https://secure.gravatar.com/%s.json',
-				hash( 'sha256', $clean_email )
+				$hashed_email
 			);
 
 			$expire        = 300;

@@ -792,7 +792,7 @@ abstract class SAL_Post {
 			$site_id     = $active_blog->blog_id;
 			$profile_URL = "https://en.gravatar.com/{$user->user_login}";
 		} else {
-			$profile_URL = 'https://en.gravatar.com/' . hash( 'sha256', strtolower( trim( $user->user_email ) ) );
+			$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $user->user_email ) ) );
 			$site_id     = -1;
 		}
 
