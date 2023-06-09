@@ -60,16 +60,10 @@ export const totalIssueCount = derived( isaSummary, $isaSummary => {
  */
 export const imageDataGroupTabs = derived(
 	[ isaSummary, totalIssueCount ],
-	( [ $isaSummary, $totalIssueCount ] ) => [
-		{
-			group: 'all',
-			issues: $totalIssueCount,
-		},
-		...Object.entries( $isaSummary?.groups || {} ).map( ( [ group, details ] ) => ( {
-			group,
-			issues: details.issue_count,
-		} ) ),
-	]
+	( [ $isaSummary, $totalIssueCount ] ) => ( {
+		all: { issue_count: $totalIssueCount },
+		...$isaSummary?.groups,
+	} )
 );
 
 /**

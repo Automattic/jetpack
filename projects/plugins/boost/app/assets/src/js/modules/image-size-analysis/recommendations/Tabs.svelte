@@ -5,8 +5,9 @@
 </script>
 
 <div class="jb-tabs">
-	{#each $imageDataGroupTabs as { group, issues }}
+	{#each Object.entries( $imageDataGroupTabs ) as [group, details]}
 		{@const  label = isaGroupLabels[ group ] }
+		{@const  issues = details.issue_count }
 
 		<div class="jb-tab jb-tab--{group}" class:active={$isaData.query.group === group}>
 			<div class="jb-tab__header">
