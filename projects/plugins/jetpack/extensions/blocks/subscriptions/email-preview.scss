@@ -1,9 +1,10 @@
+@import "@automattic/color-studio/dist/color-variables";
+
 .jetpack-email-preview {
-  height: 200px;
-  width: 645px;
-  left: 391px;
-  top: 392px;
-  border-radius: 0;
+  //height: 200px;
+  //width: 645px;
+  //left: 391px;
+  //top: 392px;
   .components-modal__header-heading {
     margin-top: 30px;
     font-size: 26px;
@@ -23,7 +24,7 @@
     border-radius: 3px;
     border-color: gray;
     padding: 12px 16px 12px 16px;
-    background-color: lightgray;
+    background-color: $studio-gray-30;
   }
 }
 
@@ -39,6 +40,6 @@
 }
 
 .jetpack-email-preview__email-sent {
-  color: green;
+  color: $studio-jetpack-green-30;
   margin-top: 30px;
 }

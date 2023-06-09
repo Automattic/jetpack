@@ -1,16 +1,17 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Flex, FlexItem, Modal, TextControl } from '@wordpress/components';
+import { Button, Flex, FlexItem, Modal, TextControl, Icon } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './email-preview.scss';
-import check from './check.svg';
-import illoShare from './illo-share.svg';
+import { check } from '@wordpress/icon';
+import illustration from './email-preview-illustration.svg';
 
 export default function EmailPreview() {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const [ emailSent, setEmailSent ] = useState( false );
 	const [ emailSending, setEmailSending ] = useState( false );
+	const [ errorMessage, setErrorMessage ] = useState( false );
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
 	const sendEmailPreview = () => {
@@ -23,21 +24,25 @@ export default function EmailPreview() {
 			},
 		} )
 			.then( () => {
-				// Handle response here
 				setEmailSending( false );
 				setEmailSent( true );
 			} )
-			.catch( () => {
+			.catch( e => {
 				setEmailSending( false );
-
-				// Handle error here
+				if ( e.message ) {
+					setErrorMessage( e.message );
+				} else {
+					setErrorMessage(
+						__( 'Whoops, we have encountered an error. Please try again later.', 'jetpack' )
+					);
+				}
 			} );
 	};
 
 	return (
 		<>
 			<FlexItem>
-				<Button isPrimary onClick={ () => setIsModalOpen( true ) }>
+				<Button variant="primary" onClick={ () => setIsModalOpen( true ) }>
 					{ __( 'Send test email', 'jetpack' ) }
 				</Button>
 			</FlexItem>
@@ -47,10 +52,15 @@ export default function EmailPreview() {
 					title={ __( 'Send a test email', 'jetpack' ) }
 					onRequestClose={ () => setIsModalOpen( false ) }
 				>
+					{ errorMessage && (
+						<Flex>
+							<FlexItem className="jetpack-email-preview__email-sent">{ errorMessage }</FlexItem>
+						</Flex>
+					) }
 					{ emailSent ? (
 						<Flex>
 							<FlexItem className="jetpack-email-preview__email-sent">
-								<img className="jetpack-email-preview__check" src={ check } alt="" />
+								<Icon className="jetpack-email-preview__check" icon={ check } />
 								{ __( 'Email sent successfully', 'jetpack' ) }
 							</FlexItem>
 						</Flex>
@@ -66,7 +76,7 @@ export default function EmailPreview() {
 							<FlexItem>
 								<Button
 									className="jetpack-email-preview__button"
-									isPrimary
+									variant="primary"
 									onClick={ sendEmailPreview }
 									isBusy={ emailSending }
 								>
@@ -74,7 +84,7 @@ export default function EmailPreview() {
 								</Button>
 							</FlexItem>
 							<FlexItem>
-								<img className="jetpack-email-preview__img" src={ illoShare } alt="" />
+								<img className="jetpack-email-preview__img" src={ illustration } alt="" />
 							</FlexItem>
 						</Flex>
 					) }
