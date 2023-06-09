@@ -230,6 +230,19 @@ class Automation_Faker {
 	}
 
 	/**
+	 * Return data for a dummy company
+	 * @return array
+	 */
+	public function company_data() {
+		return array(
+			'id'     => 1,
+			'name'   => 'Dummy Company',
+			'email'  => 'johndoe@dummycompany.com',
+			'status' => 'lead',
+		);
+	}
+
+	/**
 	 * Return a empty workflow, without triggers and initial step
 	 * @return array
 	 */
