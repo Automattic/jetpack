@@ -1,3 +1,6 @@
 export default {
-	// @TODO - Add block attributes here
+	tockName: {
+		type: 'string',
+		default: '',
+	},
 };

@@ -37,14 +37,41 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr, $content ) {
+	$tock_name = isset( $attr['tockName'] ) ? $attr['tockName'] : '';
+	if ( empty( $tock_name ) ) {
+		return;
+	}
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	return sprintf(
-		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
-		$content
-	);
+	if ( ! wp_script_is( 'jetpack-tock-external' ) ) {
+		enqueue_tock_js( $tock_name );
+	}
+
+	return $content;
+}
+
+/**
+ * Enqueue Tock JS.
+ *
+ * @param string $tock_name Business name on Tock.
+ *
+ * @return void
+ */
+function enqueue_tock_js( $tock_name ) {
+	$tock_domain = 'https://www.exploretock.com/' . $tock_name . '/';
+	?>
+	<script>
+		!function(t,o,c,k){if(!t.tock){var e=t.tock=function(){e.callMethod?
+		e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),
+		e.push=e,e.loaded=!0,e.version='1.0',e.queue=[];var f=o.createElement(c);f.async=!0,
+		f.src=k;var g=o.getElementsByTagName(c)[0];g.parentNode.insertBefore(f,g)}}(
+		window,document,'script','https://www.exploretock.com/tock.js');
+
+		tock( 'init', '<?php echo esc_js( $tock_domain ); ?>' );
+	</script>
+	<?php
 }
