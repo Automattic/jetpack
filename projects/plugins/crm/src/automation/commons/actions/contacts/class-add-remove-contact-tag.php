@@ -13,7 +13,7 @@ use Automattic\Jetpack\CRM\Automation\Base_Action;
  * Adds the Add_Remove_Contact_Tag class.
  */
 class Add_Remove_Contact_Tag extends Base_Action {
-	
+
 	/**
 	 * Get the slug name of the step
 	 *
