@@ -1,10 +1,11 @@
+import classNames from 'classnames';
 import type { TestimonialType } from './types';
 
 import './style.scss';
 
-const Testimonial: TestimonialType = ( { quote, author, profession, img } ) => {
+const Testimonial: TestimonialType = ( { quote, author, profession, img, hidden } ) => {
 	return (
-		<div className="testimonial">
+		<div className={ classNames( 'testimonial', hidden ? 'hidden' : '' ) } key={ author }>
 			<img className="testimonial__author-img" src={ img } alt={ author } />
 
 			<div className="testimonial__content">
@@ -30,7 +31,7 @@ const Testimonial: TestimonialType = ( { quote, author, profession, img } ) => {
 					/>
 				</svg>
 
-				<div>
+				<div className="testimonial__text-block">
 					<blockquote className="testimonial__quote">“{ quote }”</blockquote>
 
 					<figcaption>
@@ -43,4 +44,4 @@ const Testimonial: TestimonialType = ( { quote, author, profession, img } ) => {
 	);
 };
 
-export default Testimonial;
+export { Testimonial };
