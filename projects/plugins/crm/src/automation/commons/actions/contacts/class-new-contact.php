@@ -96,7 +96,7 @@ class New_Contact extends Base_Action {
 	 *
 	 * @param array $contact_data The contact data to be added.
 	 */
-	public function execute( array $contact_data = array() ) {
+	public function execute( array $contact_data = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
 		$zbs->DAL->contacts->addUpdateContact( $this->attributes ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
