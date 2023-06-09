@@ -3,7 +3,7 @@ import colorValidator from '../../shared/colorValidator';
 export default {
 	element: {
 		type: 'string',
-		enum: [ 'a', 'button', 'input' ],
+		enum: [ 'a', 'button', 'input', 'div' ],
 	},
 	saveInPostContent: {
 		type: 'boolean',
