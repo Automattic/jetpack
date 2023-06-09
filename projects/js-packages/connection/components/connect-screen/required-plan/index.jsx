@@ -30,6 +30,7 @@ const ConnectScreenRequiredPlan = props => {
 		wpcomProductSlug,
 		siteProductAvailabilityHandler,
 		logo,
+		rna = false,
 	} = props;
 
 	const {
@@ -74,6 +75,7 @@ const ConnectScreenRequiredPlan = props => {
 			buttonIsLoading={ buttonIsLoading }
 			logo={ logo }
 			isOfflineMode={ isOfflineMode }
+			rna={ rna }
 		>
 			{ children }
 		</ConnectScreenRequiredPlanVisual>

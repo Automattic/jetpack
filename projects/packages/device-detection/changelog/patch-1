@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Catch PHP notice if User Agent is not available

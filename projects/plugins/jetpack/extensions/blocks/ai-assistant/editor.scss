@@ -115,14 +115,20 @@
 	display: flex;
 	align-items: center;
 
-	.jetpack-ai-assistant__prompt_button {
-		white-space: nowrap;
-		color: var( --jp-gray-80 );
+	.jetpack-ai-assistant__prompt_button_wrapper {
 		text-transform: uppercase;
 		font-size: 11px;
 		font-weight: 600;
 		line-height: 16px;
 		user-select: none;
+		white-space: nowrap;
+		display: flex;
+		align-items: center;
+	}
+
+	.jetpack-ai-assistant__prompt_button {
+		color: var( --jp-gray-80 );
+		text-transform: uppercase;
 
 		> SVG {
 			margin-right: 4px;
