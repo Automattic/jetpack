@@ -5,7 +5,7 @@ import './style.scss';
 
 const Testimonial: TestimonialType = ( { quote, author, profession, img, hidden } ) => {
 	return (
-		<div className={ classNames( 'testimonial', hidden ? 'hidden' : '' ) } key={ author }>
+		<div className={ classNames( 'testimonial', hidden ? 'hidden' : 'show' ) } key={ author }>
 			<img className="testimonial__author-img" src={ img } alt={ author } />
 
 			<div className="testimonial__content">

@@ -108,6 +108,20 @@
     }
 }
 
+.show {
+    animation: showTestimonial 500ms ease-in-out forwards;
+}
+
 .hidden {
     display: none;
+}
+
+@keyframes showTestimonial {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
