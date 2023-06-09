@@ -5,7 +5,7 @@ export interface TestimonialProps {
 	quote: string;
 	author: string;
 	profession: string | ReactNode;
-	hidden: boolean;
+	hidden?: boolean;
 }
 
 export type TestimonialType = FC< TestimonialProps >;

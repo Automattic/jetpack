@@ -27,6 +27,7 @@
 		"@storybook/react": "7.0.5",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "13.4.0",
+		"@testing-library/user-event": "14.4.3",
 		"@types/jest": "29.2.5",
 		"@types/qrcode.react": "1.0.2",
 		"@types/react": "18.0.27",

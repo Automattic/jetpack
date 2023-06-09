@@ -20,11 +20,19 @@ const Testimonials: TestimonialsType = ( { testimonials } ) => {
 		setcurrentTestimonialIndex( newIndex );
 	}, [ currentTestimonialIndex, testimonials ] );
 
+	const shouldShowArrows = testimonials.length > 1;
+
 	return (
 		<div className="testimonials">
-			<button className="testimonials__left-arrow" onClick={ decrementTestimonial }>
-				<Gridicon icon="chevron-left" size={ 48 } />
-			</button>
+			{ shouldShowArrows && (
+				<button
+					data-testid="left-arrow"
+					className="testimonials__left-arrow"
+					onClick={ decrementTestimonial }
+				>
+					<Gridicon icon="chevron-left" size={ 48 } />
+				</button>
+			) }
 
 			{ testimonials.map( ( testimonial, index ) => (
 				<Testimonial
@@ -34,9 +42,15 @@ const Testimonials: TestimonialsType = ( { testimonials } ) => {
 				/>
 			) ) }
 
-			<button className="testimonials__right-arrow" onClick={ incrementTestimonial }>
-				<Gridicon icon="chevron-right" size={ 48 } />
-			</button>
+			{ shouldShowArrows && (
+				<button
+					data-testid="right-arrow"
+					className="testimonials__right-arrow"
+					onClick={ incrementTestimonial }
+				>
+					<Gridicon icon="chevron-right" size={ 48 } />
+				</button>
+			) }
 		</div>
 	);
 };
