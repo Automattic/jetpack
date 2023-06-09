@@ -260,13 +260,6 @@ export function NewsletterAccessDocumentSettings( {
 	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
 	const accessLabel = accessOptions[ _accessLevel ]?.label;
 
-	// Immediately close the dropdown dialog after setting the post meta.
-	const setPostMetaAndClose = () => {
-		return meta => {
-			setPostMeta( meta );
-		};
-	};
-
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => (
@@ -277,7 +270,7 @@ export function NewsletterAccessDocumentSettings( {
 							{ canEdit && (
 								<div className="editor-post-visibility">
 									<NewsletterAccessRadioButtons
-										onChange={ setPostMetaAndClose() }
+										onChange={ setPostMeta }
 										accessLevel={ _accessLevel }
 										emailSubscribers={ emailSubscribers }
 										paidSubscribers={ paidSubscribers }
