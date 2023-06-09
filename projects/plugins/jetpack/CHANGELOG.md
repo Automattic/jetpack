@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.3-a.3 - 2023-06-08
+### Bug fixes
+- Memberships: fix potential class not found error. [#31268]
+
 ## 12.3-a.1 - 2023-06-06
 ### Enhancements
 - AI Assistant: improve the process of getting post content. [#31211]

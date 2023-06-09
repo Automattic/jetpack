@@ -205,7 +205,6 @@ function NewsletterPostPublishSettingsPanel( {
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
 			<NewsletterNotice
-				isPostPublishPanel={ true }
 				accessLevel={ accessLevel }
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }

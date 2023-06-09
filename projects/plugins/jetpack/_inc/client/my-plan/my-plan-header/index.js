@@ -411,6 +411,17 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Boost', 'jetpack' ),
 				};
 
+			case 'is-jetpack-ai-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'Experience the ease of crafting content with intuitive and powerful AI.',
+						'jetpack'
+					),
+					title: __( 'Jetpack AI', 'jetpack' ),
+				};
+
 			case 'is-jetpack-golden-token-plan':
 				return {
 					...productProps,

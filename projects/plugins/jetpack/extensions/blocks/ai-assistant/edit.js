@@ -16,6 +16,7 @@ import { useEffect, useRef } from 'react';
  * Internal dependencies
  */
 import AIControl from './ai-control';
+import useAIFeature from './hooks/use-ai-feature';
 import ImageWithSelect from './image-with-select';
 import { getImagesFromOpenAI } from './lib';
 import useSuggestionsFromOpenAI from './use-suggestions-from-openai';
@@ -63,6 +64,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}, 100 );
 	};
 
+	const { requireUpgrade, refresh: refreshFeatureData } = useAIFeature();
+
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -84,6 +87,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setError,
 		tracks,
 		userPrompt,
+		refreshFeatureData,
+		requireUpgrade,
 	} );
 
 	useEffect( () => {
@@ -139,11 +144,44 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	// Content is loaded
 	const contentIsLoaded = !! attributes.content;
 
-	const handleAcceptContent = () => {
-		replaceBlocks(
-			clientId,
-			rawHandler( { HTML: markdownConverter.render( attributes.content ) } )
-		);
+	const getLastEditableElement = newContentBlocks => {
+		let lastEditableElement = null;
+
+		newContentBlocks.forEach( block => {
+			const element = document.querySelector( `.wp-block[data-block="${ block.clientId }"]` );
+			if ( ! element ) {
+				return;
+			}
+
+			if ( element.contentEditable === 'true' ) {
+				lastEditableElement = element;
+			}
+
+			const editableChildren = element.querySelectorAll( `[contenteditable=true]` );
+			lastEditableElement = editableChildren.length
+				? editableChildren[ editableChildren.length - 1 ]
+				: lastEditableElement;
+		} );
+
+		return lastEditableElement;
+	};
+
+	const moveCaretToEnd = element => {
+		const selection = window.getSelection();
+		selection.selectAllChildren( element );
+		selection.collapseToEnd();
+		element.focus();
+	};
+
+	const handleAcceptContent = async () => {
+		const newContentBlocks = rawHandler( { HTML: markdownConverter.render( attributes.content ) } );
+		await replaceBlocks( clientId, newContentBlocks );
+
+		const lastEditableElement = getLastEditableElement( newContentBlocks );
+
+		if ( lastEditableElement ) {
+			moveCaretToEnd( lastEditableElement );
+		}
 	};
 
 	const handleAcceptTitle = () => {
@@ -244,10 +282,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				wholeContent={ wholeContent }
 				promptType={ attributes.promptType }
 				onChange={ () => setErrorDismissed( true ) }
-				requireUpgrade={ errorData?.code === 'error_quota_exceeded' }
+				requireUpgrade={ errorData?.code === 'error_quota_exceeded' || requireUpgrade }
 				recordEvent={ tracks.recordEvent }
 				isGeneratingTitle={ attributes.promptType === 'generateTitle' }
 			/>
+
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
 					<FlexBlock
@@ -270,6 +309,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					</Flex>
 				</Flex>
 			) }
+
 			{ ! loadingImages && imageModal && (
 				<Modal onRequestClose={ () => setImageModal( null ) }>
 					<ImageWithSelect
