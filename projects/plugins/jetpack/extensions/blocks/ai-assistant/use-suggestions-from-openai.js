@@ -69,6 +69,8 @@ const useSuggestionsFromOpenAI = ( {
 	onSuggestionDone,
 	onUnclearPrompt,
 	onModeration,
+	refreshFeatureData,
+	requireUpgrade,
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -189,7 +191,7 @@ const useSuggestionsFromOpenAI = ( {
 		try {
 			setIsLoadingCompletion( true );
 			setWasCompletionJustRequested( true );
-			source.current = await askQuestion( prompt, postId );
+			source.current = await askQuestion( prompt, { postId, requireUpgrade } );
 		} catch ( err ) {
 			if ( err.message ) {
 				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
@@ -211,6 +213,7 @@ const useSuggestionsFromOpenAI = ( {
 		source?.current?.addEventListener( 'done', e => {
 			stopSuggestion();
 			updateBlockAttributes( clientId, { content: e.detail } );
+			refreshFeatureData();
 		} );
 
 		source?.current?.addEventListener( 'error_unclear_prompt', () => {
