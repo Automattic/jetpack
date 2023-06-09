@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: Mark posts as AI-assisted when a AI Assistant completion is requested, using a post meta field called _jetpack_ai_calls.
