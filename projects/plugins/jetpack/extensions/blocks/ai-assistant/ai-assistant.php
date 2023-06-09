@@ -29,6 +29,29 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
+ * Registers a _jetpack_ai_calls meta option
+ * for all post types that will be used to count
+ * how many times the post got assisted by AI
+ */
+function register_jetpack_ai_post_meta() {
+	register_post_meta(
+		'', // for all post types
+		'_jetpack_ai_calls',
+		array(
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'integer',
+			'default'       => 0,
+			'description'   => __( 'How many times the content got assisted by AI', 'jetpack' ),
+			'auth_callback' => function () {
+				return true;
+			},
+		)
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_jetpack_ai_post_meta' );
+
+/**
  * Jetpack AI Assistant block registration/dependency declaration.
  *
  * @param array  $attr    Array containing the Jetpack AI Assistant block attributes.
