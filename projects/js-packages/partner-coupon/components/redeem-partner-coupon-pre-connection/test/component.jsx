@@ -139,7 +139,7 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		).toBeInTheDocument();
 
 		expect(
-			screen.queryByRole( 'button', { name: 'Set up & redeem Awesome Product' } )
+			screen.getByRole( 'button', { name: 'Set up & redeem Awesome Product' } )
 		).toBeInTheDocument();
 	} );
 
