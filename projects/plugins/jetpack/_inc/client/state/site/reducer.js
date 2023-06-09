@@ -187,8 +187,8 @@ export const reducer = combineReducers( {
 /**
  * Returns an object of the siteData errors
  *
- * @param  {Object}  state Global state tree
- * @return {Object}        Error object
+ * @param  {object} state - Global state tree
+ * @returns {object}        Error object
  */
 export function getSiteDataErrors( state ) {
 	return [ get( state.jetpack.siteData, [ 'errors' ], [] ) ];
@@ -197,8 +197,8 @@ export function getSiteDataErrors( state ) {
 /**
  * Returns true if currently requesting site data. Otherwise false.
  *
- * @param  {Object}  state Global state tree
- * @return {Boolean}       Whether site data is being requested
+ * @param  {object} state - Global state tree
+ * @returns {boolean}       Whether site data is being requested
  */
 export function isFetchingSiteData( state ) {
 	return !! (
@@ -212,8 +212,8 @@ export function isFetchingSiteData( state ) {
 /**
  * Returns true if currently requesting site benefits. Otherwise false.
  *
- * @param  {Object}  state Global state tree
- * @return {Boolean}       Whether benefits are being requested
+ * @param  {object} state - Global state tree
+ * @returns {boolean}       Whether benefits are being requested
  */
 export function isFetchingSiteBenefits( state ) {
 	return !! state.jetpack.siteData.requests.isFetchingSiteBenefits;
@@ -232,8 +232,8 @@ export function isFetchingSiteDiscount( state ) {
 /**
  * Returns true if currently requesting connected plugins. Otherwise false.
  *
- * @param  {Object}  state Global state tree
- * @return {Boolean}       Whether connected plugins are being requested
+ * @param  {object} state - Global state tree
+ * @returns {boolean}       Whether connected plugins are being requested
  */
 export function isFetchingConnectedPlugins( state ) {
 	return !! state.jetpack.siteData.requests.isFetchingConnectedPlugins;
@@ -242,8 +242,8 @@ export function isFetchingConnectedPlugins( state ) {
 /**
  * Returns true if the connected plugins request has finished (even if it returned an error). Otherwise false.
  *
- * @param  {Object}  state Global state tree
- * @return {Boolean}       Whether connected plugins request is completed.
+ * @param  {object} state - Global state tree
+ * @returns {boolean}       Whether connected plugins request is completed.
  */
 export function isDoneFetchingConnectedPlugins( state ) {
 	return !! state.jetpack.siteData.requests.isDoneFetchingConnectedPlugins;
@@ -252,8 +252,8 @@ export function isDoneFetchingConnectedPlugins( state ) {
 /**
  * Returns true if currently requesting site purchases. Otherwise false.
  *
- * @param  {Object}  state Global state tree
- * @return {Boolean}       Whether site purchases are being requested
+ * @param  {object} state - Global state tree
+ * @returns {boolean}       Whether site purchases are being requested
  */
 export function isFetchingSitePurchases( state ) {
 	return !! state.jetpack.siteData.requests.isFetchingSitePurchases;
@@ -271,8 +271,9 @@ export function getSiteProducts( state ) {
 
 /**
  * Returns the plan of this site.
- * @param  {Object}  state Global state tree
- * @return {Object}  Site plan
+ *
+ * @param  {object} state - Global state tree
+ * @returns {object}  Site plan
  */
 export function getSitePlan( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'plan' ], {} );
@@ -290,8 +291,9 @@ export function getVideoPressStorageUsed( state ) {
 
 /**
  * Returns benefits provided to the site by Jetpack.
- * @param  {Object}  state Global state tree
- * @return {Object}  Benefits
+ *
+ * @param  {object} state - Global state tree
+ * @returns {object}  Benefits
  */
 export function getSiteBenefits( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'site', 'benefits' ], null );
@@ -309,8 +311,9 @@ export function getSiteDiscount( state ) {
 
 /**
  * Returns features that are available on any plan.
- * @param  {Object}  state Global state tree
- * @return {Object}  Features
+ *
+ * @param  {object} state - Global state tree
+ * @returns {object}  Features
  */
 export function getAvailableFeatures( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'site', 'features', 'available' ], {} );
@@ -318,8 +321,9 @@ export function getAvailableFeatures( state ) {
 
 /**
  * Returns features that are available for current plan.
- * @param  {Object}  state Global state tree
- * @return {Object}  Features
+ *
+ * @param  {object} state - Global state tree
+ * @returns {object}  Features
  */
 export function getActiveFeatures( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'site', 'features', 'active' ], [] );
@@ -338,19 +342,32 @@ export function siteHasFeature( state, featureId ) {
 	return siteFeatures && siteFeatures.indexOf( featureId ) >= 0;
 }
 
+/**
+ * Returns the purchase data for a site
+ *
+ * @param {*} state - Global state tree
+ * @returns {Array}  Purchases for the site
+ */
 export function getSitePurchases( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'sitePurchases' ], [] );
 }
 
 /**
  * Returns the active purchases for a site
- * @param {*} state Global state tree
- * @return {Array}  Active purchases for the site
+ *
+ * @param {*} state - Global state tree
+ * @returns {Array}  Active purchases for the site
  */
 export function getActiveSitePurchases( state ) {
 	return getSitePurchases( state ).filter( purchase => '1' === purchase.active );
 }
 
+/**
+ * Returns the active product purchases for a site
+ *
+ * @param {*} state - Global state tree
+ * @returns {Array}  Active product purchases for the site
+ */
 export function getActiveProductPurchases( state ) {
 	return getActiveSitePurchases( state ).filter( purchase =>
 		isJetpackProduct( purchase.product_slug )
@@ -392,12 +409,24 @@ export function hasActiveSecurityPurchase( state ) {
 	);
 }
 
+/**
+ * Searches active products for Search product
+ *
+ * @param {*} state - Global state tree
+ * @returns {object} An active Search product if one was found, undefined otherwise.
+ */
 export function getActiveSearchPurchase( state ) {
 	return find( getActiveProductPurchases( state ), product =>
 		isJetpackSearch( product.product_slug )
 	);
 }
 
+/**
+ * Determines if the site has an active Search product purchase
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active Search product purchase, false otherwise.
+ */
 export function hasActiveSearchPurchase( state ) {
 	return (
 		!! getActiveSearchPurchase( state ) ||
@@ -493,6 +522,12 @@ export function hasSecurityComparableLegacyPlan( state ) {
 	return !! getSecurityComparableLegacyPlan( state );
 }
 
+/**
+ * Returns the site ID
+ *
+ * @param  {object} state - Global state tree
+ * @returns {number}        Site ID
+ */
 export function getSiteID( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'ID' ] );
 }
@@ -500,8 +535,8 @@ export function getSiteID( state ) {
 /**
  * Returns plugins that use the Jetpack connection
  *
- * @param  {Object} state Global state tree
- * @return {Object}        Connected plugins
+ * @param  {object} state - Global state tree
+ * @returns {object}        Connected plugins
  */
 export function getConnectedPlugins( state ) {
 	if ( ! isDoneFetchingConnectedPlugins( state ) ) {
