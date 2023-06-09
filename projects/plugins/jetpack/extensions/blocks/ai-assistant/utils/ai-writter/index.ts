@@ -16,7 +16,7 @@ export default async function aiWriter(
 	text: string,
 	fn: AiWritterCallbackProp,
 	options: AiWritterOptionsProps = {
-		speed: 40,
+		speed: 20,
 		speedVariance: 20,
 	}
 ) {
