@@ -68,7 +68,10 @@ export default function BlockMessage( props: BlockMessageProps ): React.ReactEle
 
 		case ASSISTANT_STATE_CONTENT_GENERATED:
 			messageText = createInterpolateElement(
-				__( 'AI generated content is imprecise. <link>Learn more</link>', 'jetpack' ),
+				__(
+					'AI-generated content could be inaccurate or biased. <link>Learn more</link>',
+					'jetpack'
+				),
 				{
 					link: <ExternalLink href="https://automattic.com/ai-guidelines" />,
 				}
