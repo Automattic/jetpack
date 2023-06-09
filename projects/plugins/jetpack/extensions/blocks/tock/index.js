@@ -35,7 +35,6 @@ export const settings = {
 			data-tock-color-mode="Blue"
 			data-tock-locale="en-us"
 			data-tock-timezone="America/New_York"
-			style="display:inline-block;"
 		></div>
 	),
 	attributes,

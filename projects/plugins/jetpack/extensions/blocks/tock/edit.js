@@ -12,6 +12,8 @@ import {
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
+import './style.scss';
+
 const ToolbarControls = ( { setEditingUrl } ) => (
 	<ToolbarGroup>
 		<ToolbarButton
@@ -26,12 +28,6 @@ const ToolbarControls = ( { setEditingUrl } ) => (
 const renderPreview = url => {
 	const html = `
 		<script src="https://www.exploretock.com/tock.js" async></script>
-		<style>
-			/* Prevent scrollbar on the embed preview */
-			body {
-				overflow: hidden;
-			}
-		</style>
 		<script>
 			!function(t,o){if(!t.tock){var e=t.tock=function(){e.callMethod?
 			  e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),
@@ -51,15 +47,13 @@ const renderPreview = url => {
 };
 
 const UrlEdit = ( { tockUrl, setEditedUrl, setUrl } ) => (
-	<Placeholder label={ __( 'Tock', 'jetpack' ) }>
+	<Placeholder
+		label={ __( 'Tock', 'jetpack' ) }
+		instructions={ __( 'Enter your Tock URL', 'jetpack' ) }
+	>
 		<Flex expanded={ true }>
 			<FlexBlock>
-				<TextControl
-					label={ __( 'Enter your Tock URL', 'jetpack' ) }
-					placeholder="roister"
-					onChange={ setEditedUrl }
-					value={ tockUrl }
-				/>
+				<TextControl placeholder="roister" onChange={ setEditedUrl } value={ tockUrl } />
 				<Button variant="primary" onClick={ setUrl }>
 					{ __( 'Set URL', 'jetpack' ) }
 				</Button>
