@@ -144,6 +144,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 		newContentBlocks.forEach( block => {
 			const element = document.querySelector( `.wp-block[data-block="${ block.clientId }"]` );
+			if ( ! element ) {
+				return;
+			}
+
 			if ( element.contentEditable === 'true' ) {
 				lastEditableElement = element;
 			}
