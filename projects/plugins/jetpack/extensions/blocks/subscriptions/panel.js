@@ -1,11 +1,12 @@
-import { JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	isComingSoon,
 	isPrivateSite,
 	useModuleStatus,
 	useAnalytics,
+	getSiteFragment,
 } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ExternalLink, Flex, FlexItem, Notice } from '@wordpress/components';
+import { Button, ExternalLink, Flex, FlexItem, Notice, PanelRow } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import {
@@ -16,6 +17,8 @@ import {
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { external, Icon } from '@wordpress/icons';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import {
@@ -194,6 +197,13 @@ function NewsletterPostPublishSettingsPanel( {
 		};
 	} );
 
+	const { isStripeConnected } = useSelect( select => {
+		const { getConnectUrl } = select( membershipProductsStore );
+		return {
+			isStripeConnected: null === getConnectUrl(),
+		};
+	} );
+
 	if ( ! isModuleActive ) {
 		return;
 	}
@@ -211,30 +221,60 @@ function NewsletterPostPublishSettingsPanel( {
 	);
 
 	return (
-		<PluginPostPublishPanel
-			initialOpen
-			title={
-				<>
-					{ __( 'Newsletter:', 'jetpack' ) }
-					{ accessLevel && (
-						<span className={ 'editor-post-publish-panel__link' }>
-							{ accessOptions[ accessLevel ].panelHeading }
-						</span>
-					) }
-				</>
-			}
-			className="jetpack-subscribe-post-publish-panel"
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
-		>
-			{ ! showMisconfigurationWarning && (
-				<Notice className="post-publish-panel__notice" isDismissible={ false }>
-					{ createInterpolateElement( numberOfSubscribersText, {
-						strong: <strong />,
-						postPublishedLink: <Link href={ postPublishedLink } />,
-					} ) }
-				</Notice>
+		<>
+			<PluginPostPublishPanel
+				initialOpen
+				title={
+					<>
+						{ __( 'Newsletter:', 'jetpack' ) }
+						{ accessLevel && (
+							<span className={ 'editor-post-publish-panel__link' }>
+								{ accessOptions[ accessLevel ].panelHeading }
+							</span>
+						) }
+					</>
+				}
+				className="jetpack-subscribe-post-publish-panel"
+				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			>
+				{ ! showMisconfigurationWarning && (
+					<Notice className="post-publish-panel__notice" isDismissible={ false }>
+						{ createInterpolateElement( numberOfSubscribersText, {
+							strong: <strong />,
+							postPublishedLink: <Link href={ postPublishedLink } />,
+						} ) }
+					</Notice>
+				) }
+			</PluginPostPublishPanel>
+			{ ! isStripeConnected && (
+				<PluginPostPublishPanel
+					initialOpen
+					title={ __( 'Setup paid newsletter', 'jetpack' ) }
+					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				>
+					<PanelRow>
+						<p>
+							{ __(
+								'Allow your subscribers to support your work. Connect a Stripe account to get started.',
+								'jetpack'
+							) }
+						</p>
+					</PanelRow>
+					<div role="link" className="post-publish-panel__postpublish-buttons">
+						<Button
+							target="_blank"
+							variant="secondary"
+							href={ getRedirectUrl( 'wpcom-earn', {
+								site: getSiteFragment(),
+							} ) }
+						>
+							{ __( 'Turn on paid newsletters', 'jetpack' ) }
+							<Icon icon={ external } />
+						</Button>
+					</div>
+				</PluginPostPublishPanel>
 			) }
-		</PluginPostPublishPanel>
+		</>
 	);
 }
 
