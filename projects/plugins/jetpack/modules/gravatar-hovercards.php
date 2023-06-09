@@ -267,9 +267,9 @@ function grofiles_attach_cards() {
 		wp_enqueue_script( 'wpgroho', plugins_url( 'wpgroho.js', __FILE__ ), array( 'grofiles-cards' ), JETPACK__VERSION, true );
 		if ( is_user_logged_in() ) {
 			$cu      = wp_get_current_user();
-			$my_hash = md5( $cu->user_email );
+			$my_hash = hash( 'sha256', $cu->user_email );
 		} elseif ( ! empty( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] ) ) {
-			$my_hash = md5( filter_var( wp_unslash( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] ) ) );
+			$my_hash = hash( 'sha256', filter_var( wp_unslash( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] ) ) );
 		} else {
 			$my_hash = '';
 		}
@@ -336,12 +336,12 @@ function grofiles_hovercards_data_html( $author ) {
 	if ( is_numeric( $author ) ) {
 		$user = get_userdata( $author );
 		if ( $user ) {
-			$hash = md5( $user->user_email );
+			$hash = hash( 'sha256', $user->user_email );
 		}
 	} elseif ( is_email( $author ) ) {
-		$hash = md5( $author );
+		$hash = hash( 'sha256', $author );
 	} elseif ( is_a( $author, 'WP_User' ) ) {
-		$hash = md5( $author->user_email );
+		$hash = hash( 'sha256', $author->user_email );
 	}
 
 	if ( ! $hash ) {
