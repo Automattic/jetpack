@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Delete_Contact action.
+ * Jetpack CRM Automation Add_Remove_Contact_Tag action.
  *
  * @package automattic/jetpack-crm
  */
@@ -10,9 +10,9 @@ namespace Automattic\Jetpack\CRM\Automation\Actions;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
 
 /**
- * Adds the Delete_Contact class.
+ * Adds the Add_Remove_Contact_Tag class.
  */
-class Delete_Contact extends Base_Action {
+class Add_Remove_Contact_Tag extends Base_Action {
 
 	/**
 	 * Get the slug name of the step
@@ -20,7 +20,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/delete_contact';
+		return 'jpcrm/add_remove_contact_tag';
 	}
 
 	/**
@@ -29,7 +29,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_title(): ?string {
-		return __( 'Delete Contact Action', 'zero-bs-crm' );
+		return 'Add / Remove Contact Tag Action';
 	}
 
 	/**
@@ -38,7 +38,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_description(): ?string {
-		return __( 'Action to delete the contact', 'zero-bs-crm' );
+		return 'Action to add or remove the contact tag';
 	}
 
 	/**
@@ -56,7 +56,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_category(): ?string {
-		return __( 'Contacts', 'zero-bs-crm' );
+		return 'actions';
 	}
 
 	/**
@@ -69,19 +69,14 @@ class Delete_Contact extends Base_Action {
 	}
 
 	/**
-	 * Update the DAL - deleting the given contact.
+	 * Add / remove the tag to / from the contact via the DAL.
 	 *
-	 * @param array $contact_data The contact data to be passed into the DAL's delete function.
+	 * @param array $contact_data The contact data on which the tag is to be added / removed.
 	 */
-	public function execute( array $contact_data ) {
+	public function execute( array $contact_data = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
-		$contact_data_for_deletion = array(
-			'id'          => (int) $contact_data['id'],
-			'saveOrphans' => (bool) $this->attributes['keep_orphans'],
-
-		);
-		$zbs->DAL->contacts->deleteContact( $contact_data_for_deletion ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->contacts->addUpdateContactTags( $this->attributes ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 }

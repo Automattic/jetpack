@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Delete_Contact action.
+ * Jetpack CRM Automation Update_Contact_Status action.
  *
  * @package automattic/jetpack-crm
  */
@@ -10,9 +10,9 @@ namespace Automattic\Jetpack\CRM\Automation\Actions;
 use Automattic\Jetpack\CRM\Automation\Base_Action;
 
 /**
- * Adds the Delete_Contact class.
+ * Adds the Update_Contact_Status class.
  */
-class Delete_Contact extends Base_Action {
+class Update_Contact_Status extends Base_Action {
 
 	/**
 	 * Get the slug name of the step
@@ -20,7 +20,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/delete_contact';
+		return 'jpcrm/update_contact_status';
 	}
 
 	/**
@@ -29,7 +29,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_title(): ?string {
-		return __( 'Delete Contact Action', 'zero-bs-crm' );
+		return 'Update Contact Status Action';
 	}
 
 	/**
@@ -38,7 +38,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_description(): ?string {
-		return __( 'Action to delete the contact', 'zero-bs-crm' );
+		return 'Action to update the contact status';
 	}
 
 	/**
@@ -56,7 +56,7 @@ class Delete_Contact extends Base_Action {
 	 * @return string
 	 */
 	public static function get_category(): ?string {
-		return __( 'Contacts', 'zero-bs-crm' );
+		return 'actions';
 	}
 
 	/**
@@ -69,19 +69,15 @@ class Delete_Contact extends Base_Action {
 	}
 
 	/**
-	 * Update the DAL - deleting the given contact.
+	 * Update the DAL with the new contact status.
 	 *
-	 * @param array $contact_data The contact data to be passed into the DAL's delete function.
+	 * @param array $contact_data The contact data to be updated.
 	 */
 	public function execute( array $contact_data ) {
 		global $zbs;
 
-		$contact_data_for_deletion = array(
-			'id'          => (int) $contact_data['id'],
-			'saveOrphans' => (bool) $this->attributes['keep_orphans'],
-
-		);
-		$zbs->DAL->contacts->deleteContact( $contact_data_for_deletion ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$contact_data['data']['status'] = $this->attributes['new_status'];
+		$zbs->DAL->contacts->addUpdateContact( $contact_data ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 }
