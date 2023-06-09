@@ -11,6 +11,7 @@ import {
 	ToolbarGroup,
 	Spinner,
 } from '@wordpress/components';
+import { useKeyboardShortcut } from '@wordpress/compose';
 import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
@@ -19,14 +20,16 @@ import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
  */
 import classNames from 'classnames';
 import ConnectPrompt from './components/connect-prompt';
+import I18nDropdownControl from './components/i18n-dropdown-control';
+import PromptTemplatesControl from './components/prompt-templates-control';
+import ToneDropdownControl from './components/tone-dropdown-control';
 import useAIFeature from './hooks/use-ai-feature';
-import I18nDropdownControl from './i18n-dropdown-control';
 import AIAssistantIcon from './icons/ai-assistant';
 import origamiPlane from './icons/origami-plane';
 import { isUserConnected } from './lib/connection';
-import PromptTemplatesControl from './prompt-templates-control';
-import ToneDropdownControl from './tone-dropdown-control';
 import UpgradePrompt from './upgrade-prompt';
+
+const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 
 const AIControl = forwardRef(
 	(
@@ -59,13 +62,6 @@ const AIControl = forwardRef(
 		const promptUserInputRef = useRef( null );
 		const [ isSm ] = useBreakpointMatch( 'sm' );
 
-		const handleInputEnter = event => {
-			if ( event.key === 'Enter' && ! event.shiftKey ) {
-				event.preventDefault();
-				handleGetSuggestion( 'userPrompt' );
-			}
-		};
-
 		const connected = isUserConnected();
 		const { requireUpgrade: siteRequireUpgrade } = useAIFeature();
 
@@ -93,6 +89,32 @@ const AIControl = forwardRef(
 				},
 			} ),
 			[]
+		);
+
+		useKeyboardShortcut(
+			[ 'command+enter', 'ctrl+enter' ],
+			() => {
+				if ( contentIsLoaded ) {
+					if ( promptType === 'generateTitle' ) {
+						handleAcceptTitle();
+					} else {
+						handleAcceptContent();
+					}
+				}
+			},
+			{
+				target: promptUserInputRef,
+			}
+		);
+
+		useKeyboardShortcut(
+			'enter',
+			() => {
+				handleGetSuggestion( 'userPrompt' );
+			},
+			{
+				target: promptUserInputRef,
+			}
 		);
 
 		return (
@@ -158,7 +180,6 @@ const AIControl = forwardRef(
 							setUserPrompt( value );
 							onChange?.();
 						} }
-						onKeyPress={ handleInputEnter }
 						placeholder={ placeholder }
 						className="jetpack-ai-assistant__input"
 						disabled={
@@ -168,54 +189,58 @@ const AIControl = forwardRef(
 					/>
 
 					<div className="jetpack-ai-assistant__controls">
-						{ ! isWaitingState ? (
-							<Button
-								className="jetpack-ai-assistant__prompt_button"
-								onClick={ () => handleGetSuggestion( 'userPrompt' ) }
-								isSmall={ true }
-								disabled={
-									! userPrompt?.length || ! connected || siteRequireUpgrade || requireUpgrade
-								}
-								label={ __( 'Send request', 'jetpack' ) }
-							>
-								<Icon icon={ origamiPlane } />
-								{ ! isSm && __( 'Send', 'jetpack' ) }
-							</Button>
-						) : (
-							<Button
-								className="jetpack-ai-assistant__prompt_button"
-								onClick={ handleStopSuggestion }
-								isSmall={ true }
-								label={ __( 'Stop request', 'jetpack' ) }
-							>
-								<Icon icon={ closeSmall } />
-								{ __( 'Stop', 'jetpack' ) }
-							</Button>
-						) }
-
-						{ contentIsLoaded &&
-							! isWaitingState &&
-							( promptType === 'generateTitle' ? (
+						<div className="jetpack-ai-assistant__prompt_button_wrapper">
+							{ ! isWaitingState ? (
 								<Button
 									className="jetpack-ai-assistant__prompt_button"
-									onClick={ handleAcceptTitle }
+									onClick={ () => handleGetSuggestion( 'userPrompt' ) }
 									isSmall={ true }
-									label={ __( 'Accept title', 'jetpack' ) }
+									disabled={
+										! userPrompt?.length || ! connected || siteRequireUpgrade || requireUpgrade
+									}
+									label={ __( 'Send request', 'jetpack' ) }
 								>
-									<Icon icon={ check } />
-									{ __( 'Accept title', 'jetpack' ) }
+									<Icon icon={ origamiPlane } />
+									{ ! isSm && __( 'Send', 'jetpack' ) }
 								</Button>
 							) : (
 								<Button
 									className="jetpack-ai-assistant__prompt_button"
-									onClick={ handleAcceptContent }
+									onClick={ handleStopSuggestion }
 									isSmall={ true }
-									label={ __( 'Accept', 'jetpack' ) }
+									label={ __( 'Stop request', 'jetpack' ) }
 								>
-									<Icon icon={ check } />
-									{ __( 'Accept', 'jetpack' ) }
+									<Icon icon={ closeSmall } />
+									{ __( 'Stop', 'jetpack' ) }
 								</Button>
-							) ) }
+							) }
+						</div>
+
+						<div className="jetpack-ai-assistant__prompt_button_wrapper">
+							{ contentIsLoaded &&
+								! isWaitingState &&
+								( isInBlockEditor && promptType === 'generateTitle' ? (
+									<Button
+										className="jetpack-ai-assistant__prompt_button"
+										onClick={ handleAcceptTitle }
+										isSmall={ true }
+										label={ __( 'Accept title', 'jetpack' ) }
+									>
+										<Icon icon={ check } />
+										{ __( 'Accept title', 'jetpack' ) }
+									</Button>
+								) : (
+									<Button
+										className="jetpack-ai-assistant__prompt_button"
+										onClick={ handleAcceptContent }
+										isSmall={ true }
+										label={ __( 'Accept', 'jetpack' ) }
+									>
+										<Icon icon={ check } />
+										{ __( 'Accept', 'jetpack' ) }
+									</Button>
+								) ) }
+						</div>
 					</div>
 				</div>
 			</>

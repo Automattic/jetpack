@@ -467,10 +467,14 @@ class Jetpack_Memberships {
 	 * @return bool Whether the post can be viewed
 	 */
 	public static function user_can_view_post() {
-		$user_id   = get_current_user_id();
-		$post_id   = get_the_ID() || 0;
-		$cache_key = sprintf( '%d_%d', $user_id, $post_id );
+		$user_id = get_current_user_id();
+		$post_id = get_the_ID();
 
+		if ( false === $post_id ) {
+			$post_id = 0;
+		}
+
+		$cache_key = sprintf( '%d_%d', $user_id, $post_id );
 		if ( isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
 			return self::$user_can_view_post_cache[ $cache_key ];
 		}
@@ -482,11 +486,11 @@ class Jetpack_Memberships {
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$paywall           = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$post_access_level = $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $post_access_level );
+		$paywall       = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		$can_view_post = $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $post_access_level );
 
-		self::$user_can_view_post_cache[ $cache_key ] = $post_access_level;
-		return $post_access_level;
+		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
+		return $can_view_post;
 	}
 
 	/**
