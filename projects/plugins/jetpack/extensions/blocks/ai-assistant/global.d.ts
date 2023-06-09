@@ -51,6 +51,7 @@ declare global {
 			adminUrl: string;
 			siteLocale: string;
 			'ai-assistant': SiteAIAssistantFeatureEndpointResponseProps;
+			screenBase?: string;
 		};
 	}
 }
