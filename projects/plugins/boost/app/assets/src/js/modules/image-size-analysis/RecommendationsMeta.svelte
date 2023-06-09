@@ -12,7 +12,7 @@
 	} );
 
 	let errorMessage: undefined | string;
-	let busy = false;
+	let requestingReport = false;
 
 	/**
 	 * Calculate total number of issues.
@@ -28,12 +28,12 @@
 	async function onStartAnalysis() {
 		try {
 			errorMessage = undefined;
-			busy = true;
+			requestingReport = true;
 			await requestImageAnalysis();
 		} catch ( err ) {
 			errorMessage = err.message;
 		} finally {
-			busy = false;
+			requestingReport = false;
 		}
 	}
 </script>
@@ -44,7 +44,7 @@
 	</div>
 {:else if $isaSummary.status === 'not-found'}
 	<div class="button-area">
-		<Button disabled={busy} on:click={onStartAnalysis}>Start image analysis</Button>
+		<Button disabled={requestingReport} on:click={onStartAnalysis}>Start image analysis</Button>
 	</div>
 {:else if $isaSummary.status === 'new'}
 	<!-- Boost fetches a list of the site's content between creating the report and enqueuing the job. Status = new. -->
@@ -80,22 +80,29 @@
 				</div>
 			{/if}
 
-			<button type="button" class="components-button is-link" on:click={onStartAnalysis}>
+			<button
+				type="button"
+				class="components-button is-link"
+				on:click={onStartAnalysis}
+				disabled={requestingReport}
+			>
 				<RefreshIcon />
 				{__( 'Analyze again', 'jetpack-boost' )}
 			</button>
 		</div>
 	{/if}
 
-	<MultiProgress />
+	{#if ! requestingReport && ! errorMessage}
+		<MultiProgress />
 
-	<div class="button-area">
-		<Button href="#image-size-analysis/all/1">
-			{inProgress
-				? __( 'See report in progress', 'jetpack-boost' )
-				: __( 'See full report', 'jetpack-boost' )}
-		</Button>
-	</div>
+		<div class="button-area">
+			<Button href="#image-size-analysis/all/1" disabled={requestingReport}>
+				{inProgress
+					? __( 'See report in progress', 'jetpack-boost' )
+					: __( 'See full report', 'jetpack-boost' )}
+			</Button>
+		</div>
+	{/if}
 {/if}
 
 {#if errorMessage}

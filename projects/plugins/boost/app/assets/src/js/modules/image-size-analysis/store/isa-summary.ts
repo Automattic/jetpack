@@ -15,6 +15,7 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 	z
 		.object( {
 			status: z.string(),
+			report_id: z.number().optional(),
 			groups: z
 				.object( {
 					front_page: zGroup,
@@ -27,6 +28,9 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 		// Default data if deactivated or not loaded yet.
 		.nullable()
 );
+
+// Prevent updates to image_size_analysis_summary from being pushed back to the server.
+image_size_analysis_summary.setSyncAction( async ( _, value ) => value );
 
 export const isaSummary = image_size_analysis_summary.store;
 export const isaGroups = derived( isaSummary, () => ( {
