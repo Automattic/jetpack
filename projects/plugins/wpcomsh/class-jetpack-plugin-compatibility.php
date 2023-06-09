@@ -162,6 +162,7 @@ class Jetpack_Plugin_Compatibility {
 		'wp-monero-miner-pro/monero-miner-pro.php'         => '"wp-monero-miner-pro" is not supported on WordPress.com.',
 		'wp-monero-miner-using-coin-hive/wp-coin-hive.php' => '"wp-monero-miner-using-coin-hive" is not supported on WordPress.com.',
 		'wp-optimize-by-xtraffic/wp-optimize-by-xtraffic.php' => '"wp-optimize-by-xtraffic" is not supported on WordPress.com.',
+		'wpcom-migration/wpcom-migration.php'              => '"wpcom-migration" is not supported on WordPress.com.',
 		'wpematico/wpematico.php'                          => '"wpematico" is not supported on WordPress.com.',
 		'zapp-proxy-server/zapp-proxy-server.php'          => '"zapp-proxy-server" is not supported on WordPress.com.',
 		'propellerads-official/propeller-ads.php'          => '"propellerads-official" is not supported on WordPress.com.',
