@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
 /*
  * Internal dependencies
@@ -139,7 +139,12 @@ const AIControl = forwardRef(
 					<ToolbarControls
 						isWaitingState={ isWaitingState }
 						contentIsLoaded={ contentIsLoaded }
-						onSuggestionSelect={ getSuggestionFromOpenAI }
+						onSuggestionSelect={ function ( type, options ) {
+							if ( options?.prompInputMessage ) {
+								typeUserPrompt( options.prompInputMessage );
+							}
+							getSuggestionFromOpenAI( type, options );
+						} }
 						retryRequest={ retryRequest }
 						handleAcceptContent={ handleAcceptContent }
 						handleAcceptTitle={ handleAcceptTitle }
@@ -334,7 +339,13 @@ const ToolbarControls = ( {
 								type: 'suggestion',
 								suggestion,
 							} );
-							onSuggestionSelect( suggestion );
+							onSuggestionSelect( suggestion, {
+								prompInputMessage: sprintf(
+									// translators: %s is the post title.
+									__( 'Summary based on the `%s` title', 'jetpack' ),
+									postTitle
+								),
+							} );
 						} }
 					/>
 				) }
