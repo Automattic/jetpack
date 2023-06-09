@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -29,8 +29,6 @@ const blockStateTypes = [
 
 export type BlockMessageProps = MessageProps & {
 	state: ( typeof blockStateTypes )[ number ];
-	onAccept: () => void;
-	onStop: () => void;
 };
 
 /**
@@ -40,7 +38,7 @@ export type BlockMessageProps = MessageProps & {
  * @returns {React.ReactElement }    Banner component.
  */
 export default function BlockMessage( props: BlockMessageProps ): React.ReactElement {
-	const { state, onAccept, onStop } = props;
+	const { state } = props;
 	if ( ! state ) {
 		return null;
 	}
@@ -65,19 +63,17 @@ export default function BlockMessage( props: BlockMessageProps ): React.ReactEle
 			break;
 
 		case ASSISTANT_STATE_GENERATING:
-			messageText = createInterpolateElement(
-				__( 'Generating content… Click on the <button>Stop</button> button to cancel', 'jetpack' ),
-				{
-					button: <Button variant="link" onClick={ onStop } />,
-				}
-			);
+			messageText = __( 'Generating content…', 'jetpack' );
 			break;
 
 		case ASSISTANT_STATE_CONTENT_GENERATED:
 			messageText = createInterpolateElement(
-				__( "Done! Don't forget to <button>Accept</button> the content", 'jetpack' ),
+				__(
+					'AI-generated content could be inaccurate or biased. <link>Learn more</link>',
+					'jetpack'
+				),
 				{
-					button: <Button variant="link" onClick={ onAccept } />,
+					link: <ExternalLink href="https://automattic.com/ai-guidelines" />,
 				}
 			);
 
