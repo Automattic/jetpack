@@ -32,11 +32,39 @@ export default function () {
 	sites.forEach( site => {
 		group( `Backend tests for site: ${ site.url } ( ${ site.blog_id } )`, () => {
 			// Jetpack connection test.
-			const res = http.get( `${ site.url }/wp-json/jetpack/v4/connection/test`, params );
-
+			let res = http.get( `${ site.url }/wp-json/jetpack/v4/connection/test`, params );
 			check( res, {
 				'status was 200': r => r.status == 200,
 				'verify connection message': r => r.body.includes( 'All connection tests passed' ),
+			} );
+
+			// Jetpack sync status.
+			res = http.get( `${ site.url }/wp-json/jetpack/v4/sync/status`, params );
+			check( res, {
+				'status was 200': r => r.status == 200,
+			} );
+
+			// /wp-json/wp/v2/posts
+			res = http.get( `${ site.url }/wp-json/wp/v2/posts`, params );
+			check( res, {
+				'status was 200': r => r.status == 200,
+			} );
+
+			// /wp-json/wp/v2/categories
+			res = http.get( `${ site.url }/wp-json/wp/v2/categories`, params );
+			check( res, {
+				'status was 200': r => r.status == 200,
+			} );
+
+			// /wp-json/wp-site-health/v1/tests/dotorg-communication
+			res = http.get(
+				`${ site.url }/wp-json/wp-site-health/v1/tests/dotorg-communication`,
+				params
+			);
+			check( res, {
+				'status was 200': r => r.status == 200,
+				'verify communication message': r =>
+					r.body.includes( 'Can communicate with WordPress.org' ),
 			} );
 		} );
 	} );
