@@ -16,14 +16,12 @@ export default async function aiWriter(
 	text: string,
 	fn: AiWritterCallbackProp,
 	options: AiWritterOptionsProps = {
-		speed: 50,
-		speedVariance: 50,
+		speed: 40,
+		speedVariance: 20,
 	}
 ) {
-	for ( let i = 0; i < text.length; i++ ) {
-		const delay = options.speed * i + Math.random() * options.speedVariance;
-		setTimeout( () => {
-			fn( text.substring( 0, i + 1 ) );
-		}, delay );
+	for ( let i = 0, delay = 0; i < text.length; i++ ) {
+		delay += Math.random() * options.speedVariance + options.speed;
+		setTimeout( () => fn( text.substring( 0, i + 1 ) ), delay );
 	}
 }
