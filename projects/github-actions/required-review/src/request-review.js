@@ -4,7 +4,7 @@ const github = require( '@actions/github' );
 /**
  * Request review from the given team
  *
- * @param {object} teams - GitHub team slug, or @ followed by a GitHub user name.
+ * @param {string[]} teams - GitHub team slug, or @ followed by a GitHub user name.
  */
 async function requestReviewer( teams ) {
 	const octokit = github.getOctokit( core.getInput( 'token', { required: true } ) );
