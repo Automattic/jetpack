@@ -129,31 +129,14 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'keep-building'   => array(
-			'title'                  => 'Keep Building',
-			'task_ids'               => array(
+			'title'               => 'Keep Building',
+			'task_ids'            => array(
 				'site_title',
 				'design_edited',
 				'verify_email',
 				'domain_upsell',
 			),
-			'is_enabled_callback'    => 'wpcom_launchpad_is_keep_building_enabled',
-			'visible_tasks_callback' => function ( $task_list, $task_ids ) {
-				return array_filter(
-					$task_ids,
-					function ( $task_id ) {
-						if ( 'domain_upsell' === $task_id ) {
-							if ( ! class_exists( '\A8C\Billingdaddy\Container' ) ) {
-								return false;
-							}
-
-							$is_free_plan = null === \A8C\Billingdaddy\Container::get_purchases_api()->get_current_plan_for_site();
-							return $is_free_plan && ! wpcom_is_domain_upsell_completed( $task_id, false );
-						}
-
-						return true;
-					}
-				);
-			},
+			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
 	);
 

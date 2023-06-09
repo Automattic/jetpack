@@ -36,6 +36,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_domain_upsell_completed',
 			'badge_text_callback'  => 'wpcom_get_domain_upsell_badge_text',
+			'is_visible_callback'  => 'wpcom_is_domain_upsell_visible',
 		),
 		'first_post_published'            => array(
 			'get_title'             => function () {
@@ -359,6 +360,29 @@ function wpcom_is_domain_upsell_completed( $task, $default ) {
 function wpcom_get_domain_upsell_badge_text() {
 	// Never run `wpcom_is_checklist_task_complete` within a is_complete_callback unless you are fond of infinite loops.
 	return wpcom_is_checklist_task_complete( 'domain_upsell' ) ? '' : __( 'Upgrade plan', 'jetpack-mu-wpcom' );
+}
+
+/**
+ * Determines whether or not domain upsell task should be visible.
+ *
+ * @return bool True if user is on a free plan with no custom domain name.
+ */
+function wpcom_is_domain_upsell_visible() {
+	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+		return false;
+	}
+
+	// Check if the site has any domain purchases.
+	$site_purchases = wpcom_get_site_purchases();
+
+	$domain_purchases = array_filter(
+		$site_purchases,
+		function ( $site_purchase ) {
+			return in_array( $site_purchase->product_type, array( 'domain_map', 'domain_reg' ), true );
+		}
+	);
+
+	return ! empty( $domain_purchases );
 }
 
 /**
