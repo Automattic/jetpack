@@ -146,10 +146,11 @@ jobs:
             - To test on Simple, run the following command on your sandbox:
             ${ commands }
 
-            *Interested in more testing tips?*
+            *Interested in more tips and information?*
 
             - In your local development environment, use the \`jetpack rsync\` command to sync your changes to a WoA dev blog.
-            - Find out more about testing on WordPress.com Simple here: p9dueE-5Nn-p2`;
+            - Read more about our development workflow here: PCYsg-eg0-p2
+            - Figure out **when your changes will be shipped to customers** here: PCYsg-eg5-p2`;
             await github.rest.issues.updateComment( {
               owner: context.repo.owner,
               repo: context.repo.repo,
