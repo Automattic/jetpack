@@ -1,5 +1,15 @@
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Flex, FlexItem, Modal, TextControl, Icon } from '@wordpress/components';
+import {
+	Button,
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalHStack as HStack,
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalVStack as VStack,
+	Modal,
+	TextControl,
+	Icon,
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -13,6 +23,7 @@ export default function EmailPreview() {
 	const [ emailSending, setEmailSending ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const sendEmailPreview = () => {
 		setEmailSending( true );
@@ -41,52 +52,45 @@ export default function EmailPreview() {
 
 	return (
 		<>
-			<FlexItem>
-				<Button variant="primary" onClick={ () => setIsModalOpen( true ) }>
-					{ __( 'Send test email', 'jetpack' ) }
-				</Button>
-			</FlexItem>
+			<Button variant="primary" onClick={ () => setIsModalOpen( true ) }>
+				{ __( 'Send test email', 'jetpack' ) }
+			</Button>
 			{ isModalOpen && (
-				<Modal
-					className="jetpack-email-preview"
-					title={ __( 'Send a test email', 'jetpack' ) }
-					onRequestClose={ () => setIsModalOpen( false ) }
-				>
+				<Modal className="jetpack-email-preview" onRequestClose={ () => setIsModalOpen( false ) }>
 					{ errorMessage && (
-						<Flex>
-							<FlexItem className="jetpack-email-preview__email-sent">{ errorMessage }</FlexItem>
-						</Flex>
+						<HStack className="jetpack-email-preview__email-sent">{ errorMessage }</HStack>
 					) }
 					{ emailSent ? (
-						<Flex>
-							<FlexItem className="jetpack-email-preview__email-sent">
-								<Icon className="jetpack-email-preview__check" icon={ check } />
-								{ __( 'Email sent successfully', 'jetpack' ) }
-							</FlexItem>
-						</Flex>
+						<HStack>
+							<Icon className="jetpack-email-preview__check" icon={ check } />
+							{ __( 'Email sent successfull', 'jetpack' ) }
+						</HStack>
 					) : (
-						<Flex>
-							<FlexItem>
-								<TextControl
-									className="jetpack-email-preview__email"
-									value={ window?.Jetpack_Editor_Initial_State?.tracksUserData?.email }
-									disabled
-								/>
-							</FlexItem>
-							<FlexItem>
-								<Button
-									className="jetpack-email-preview__button"
-									variant="primary"
-									onClick={ sendEmailPreview }
-									isBusy={ emailSending }
-								>
-									{ __( 'Send', 'jetpack' ) }
-								</Button>
-							</FlexItem>
-							<FlexItem>
+						<HStack alignment="topLeft">
+							<VStack className="jetpack-email-preview__main" alignment="topLeft">
+								<h1 className="jetpack-email-preview__title">
+									{ __( 'Send test email', 'jetpack' ) }
+								</h1>
+								<HStack>
+									<TextControl
+										className="jetpack-email-preview__email"
+										value={ window?.Jetpack_Editor_Initial_State?.tracksUserData?.email }
+										disabled
+									/>
+									<Button
+										className="jetpack-email-preview__button"
+										variant="primary"
+										onClick={ sendEmailPreview }
+										isBusy={ emailSending }
+									>
+										{ __( 'Send', 'jetpack' ) }
+									</Button>
+								</HStack>
+							</VStack>
+							{ ! isSmall && (
 								<img className="jetpack-email-preview__img" src={ illustration } alt="" />
-							</FlexItem>
-						</Flex>
+							) }
+						</HStack>
 					) }
 				</Modal>
 			) }
