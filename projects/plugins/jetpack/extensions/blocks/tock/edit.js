@@ -6,9 +6,11 @@ import {
 	ToolbarButton,
 	Notice,
 	Popover,
+	Button,
 } from '@wordpress/components';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { keyboardReturn } from '@wordpress/icons';
 import { ENTER, ESCAPE } from '@wordpress/keycodes';
 
 import './editor.scss';
@@ -44,14 +46,24 @@ const UrlPopover = ( { tockUrl, setEditedUrl, popoverAnchor, setUrl, cancel } ) 
 
 	return (
 		<Popover anchor={ popoverAnchor }>
-			<TextControl
-				label={ __( 'Your Tock URL', 'jetpack' ) }
-				placeholder="Add Tock business name"
-				onChange={ setEditedUrl }
-				value={ tockUrl }
-				onKeyUp={ handleSubmitOrCancel }
-				className="jetpack-tock-url-input"
-			/>
+			<div className="jetpack-tock-url-input-wrapper">
+				<TextControl
+					placeholder="Add Tock business name"
+					onChange={ setEditedUrl }
+					value={ tockUrl }
+					onKeyUp={ handleSubmitOrCancel }
+					className="jetpack-tock-url-input"
+				/>
+				<div className="jetpack-tock-url-input-action">
+					<Button
+						type="submit"
+						label={ __( 'Submit', 'jetpack' ) }
+						icon={ keyboardReturn }
+						className="jetpack-tock-url-input-submit"
+						onClick={ setUrl }
+					/>
+				</div>
+			</div>
 			<p className="jetpack-tock-url-instructions">
 				{ createInterpolateElement(
 					__(
