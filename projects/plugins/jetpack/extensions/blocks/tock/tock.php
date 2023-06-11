@@ -36,7 +36,15 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_block( $attr, $content ) {
 	if ( empty( $attr['url'] ) ) {
-		return;
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return;
+		}
+
+		$content .= Jetpack_Gutenberg::notice(
+			__( 'The block will not be shown to your site visitors until a URL is set', 'jetpack' ),
+			'warning',
+			Blocks::classes( FEATURE_NAME, $attr )
+		);
 	}
 
 	wp_enqueue_script( 'tock-widget', 'https://www.exploretock.com/tock.js', array(), JETPACK__VERSION, true );

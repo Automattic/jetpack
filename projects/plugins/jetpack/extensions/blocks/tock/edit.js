@@ -1,90 +1,141 @@
 import { useBlockProps, BlockControls } from '@wordpress/block-editor';
 import {
 	SandBox,
-	Placeholder,
-	Button,
 	TextControl,
-	Flex,
-	FlexBlock,
 	ToolbarGroup,
 	ToolbarButton,
+	Notice,
+	Popover,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { ENTER, ESCAPE } from '@wordpress/keycodes';
 
-import './style.scss';
+import './editor.scss';
 
-const ToolbarControls = ( { setEditingUrl } ) => (
+const ToolbarControls = ( { isOpen, open, close } ) => (
 	<ToolbarGroup>
 		<ToolbarButton
 			className="components-toolbar__control"
 			label={ __( 'Edit URL', 'jetpack' ) }
 			icon="edit"
-			onClick={ () => setEditingUrl( true ) }
+			onClick={ () => ( isOpen ? close() : open() ) }
 		/>
 	</ToolbarGroup>
 );
 
-const renderPreview = url => {
+const UrlPopover = ( { tockUrl, setEditedUrl, popoverAnchor, setUrl, cancel } ) => {
+	const handleSubmitOrCancel = event => {
+		const { keyCode } = event;
+
+		if (
+			keyCode === ENTER &&
+			'' !== tockUrl // Disallow submitting empty values.
+		) {
+			event.preventDefault();
+			setUrl();
+		}
+
+		if ( keyCode === ESCAPE ) {
+			event.preventDefault();
+			cancel();
+		}
+	};
+
+	return (
+		<Popover anchor={ popoverAnchor }>
+			<TextControl
+				label={ __( 'Your Tock URL', 'jetpack' ) }
+				placeholder="Add Tock business name"
+				onChange={ setEditedUrl }
+				value={ tockUrl }
+				onKeyUp={ handleSubmitOrCancel }
+				className="jetpack-tock-url-input"
+			/>
+			<p className="jetpack-tock-url-instructions">
+				{ createInterpolateElement(
+					__(
+						'The Tock business can be found in the URL of your public Tock page. For example www.exploretock.com/<b>myname</b>',
+						'jetpack'
+					),
+					{
+						b: <strong />,
+					}
+				) }
+			</p>
+		</Popover>
+	);
+};
+
+const TockPreview = ( { url, popoverAnchor } ) => {
 	const html = `
-		<script src="https://www.exploretock.com/tock.js" async></script>
+		<div id="Tock_widget_container" data-tock-display-mode="Button" data-tock-color-mode="Blue" data-tock-locale="en-us" data-tock-timezone="America/New_York" style="display:inline-block;"></div>
 		<script>
 			!function(t,o){if(!t.tock){var e=t.tock=function(){e.callMethod?
 			  e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),
 			  e.push=e,e.loaded=!0,e.version='1.0',e.queue=[];}}(window,document);
 			tock('init', '${ url }');
 		</script>
-		<div id="Tock_widget_container" data-tock-display-mode="Button" data-tock-color-mode="Blue" data-tock-locale="en-us" data-tock-timezone="America/New_York" style="display:inline-block;"></div>
 	`;
+	const scripts = [ 'https://www.exploretock.com/tock.js' ];
 
 	return (
-		<>
-			<SandBox html={ html } />
+		<div ref={ popoverAnchor }>
+			{
+				// Related to this bug (https://github.com/WordPress/gutenberg/issues/16831), the
+				// `SandBox` component won't rerun the scripts correctly when the injected `html` prop changes.
+				// To work around that, we change the key of the component to force a new one render
+			 }
+			<SandBox html={ html } scripts={ scripts } key={ `tock-${ url }` } />
 			{ /* Use an overlay to prevent interactivity with the preview, since the preview does not always resize correctly. */ }
 			<div className="block-library-embed__interactive-overlay" />
-		</>
+		</div>
 	);
 };
 
-const UrlEdit = ( { tockUrl, setEditedUrl, setUrl } ) => (
-	<Placeholder
-		label={ __( 'Tock', 'jetpack' ) }
-		instructions={ __( 'Enter your Tock URL', 'jetpack' ) }
-	>
-		<Flex expanded={ true }>
-			<FlexBlock>
-				<TextControl placeholder="roister" onChange={ setEditedUrl } value={ tockUrl } />
-				<Button variant="primary" onClick={ setUrl }>
-					{ __( 'Set URL', 'jetpack' ) }
-				</Button>
-			</FlexBlock>
-		</Flex>
-	</Placeholder>
-);
-
-export default function TockBlockEdit( { attributes, setAttributes } ) {
+export default function TockBlockEdit( { attributes, setAttributes, isSelected } ) {
 	const tockUrl = attributes.url ?? '';
-	const [ editingUrl, setEditingUrl ] = useState( false );
+	const [ editingUrl, setEditingUrl ] = useState( ! tockUrl );
 	const [ editedUrl, setEditedUrl ] = useState( tockUrl );
+	const [ popoverAnchor, setPopoverAnchor ] = useState();
+
+	const setUrl = () => {
+		const newUrl = editedUrl.replace( /.*exploretock.com\//, '' );
+		setEditedUrl( newUrl );
+		setAttributes( { url: newUrl } );
+		setEditingUrl( false );
+	};
+	const cancel = () => {
+		setEditedUrl( tockUrl );
+		setEditingUrl( false );
+	};
 
 	return (
 		<div { ...useBlockProps() }>
-			{ editingUrl || ! tockUrl ? (
-				<UrlEdit
-					tockUrl={ editedUrl }
-					setEditedUrl={ setEditedUrl }
-					setUrl={ () => {
-						setEditingUrl( false );
-						setAttributes( { url: editedUrl } );
-					} }
+			<BlockControls>
+				<ToolbarControls
+					isOpen={ editingUrl }
+					open={ () => setEditingUrl( true ) }
+					close={ cancel }
 				/>
-			) : (
-				<>
-					<BlockControls>
-						<ToolbarControls setEditingUrl={ setEditingUrl } />
-					</BlockControls>
-					{ renderPreview( tockUrl ) }
-				</>
+			</BlockControls>
+			<TockPreview url={ tockUrl } popoverAnchor={ setPopoverAnchor } />
+			{ editingUrl && isSelected && (
+				<UrlPopover
+					tockUrl={ editedUrl }
+					popoverAnchor={ popoverAnchor }
+					setEditedUrl={ setEditedUrl }
+					setUrl={ setUrl }
+					cancel={ cancel }
+				/>
+			) }
+			{ ( ! editingUrl || ! isSelected ) && ! tockUrl && (
+				<Notice status="warning" isDismissible={ false }>
+					{ __(
+						'The block will not be shown to your site visitors until a URL is set',
+						'jetpack'
+					) }
+				</Notice>
 			) }
 		</div>
 	);
