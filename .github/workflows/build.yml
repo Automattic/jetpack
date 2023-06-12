@@ -140,9 +140,17 @@ jobs:
               `;
             }, '' );
             const commentBody = `${ TEST_COMMENT_INDICATOR }
-            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run
+            Are you an Automattician? Please test your changes on all WordPress.com environments to help mitigate accidental explosions.
+
+            - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta > Jetpack and enable the \`${ BRANCH_NAME }\` branch.
+            - To test on Simple, run the following command on your sandbox:
             ${ commands }
-            to get started. More details: p9dueE-5Nn-p2`;
+
+            *Interested in more tips and information?*
+
+            - In your local development environment, use the \`jetpack rsync\` command to sync your changes to a WoA dev blog.
+            - Read more about our development workflow here: PCYsg-eg0-p2
+            - Figure out **when your changes will be shipped to customers** here: PCYsg-eg5-p2`;
             await github.rest.issues.updateComment( {
               owner: context.repo.owner,
               repo: context.repo.repo,

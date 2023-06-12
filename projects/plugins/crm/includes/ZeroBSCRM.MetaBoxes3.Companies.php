@@ -216,7 +216,7 @@
 								if ( $field_group === 'Second Address' ) {
 									$field_value[1] = str_replace( ' (' . $second_address_label . ')', '', $field_value[1] );
 								}
-								zeroBSCRM_html_editField( $zbsCompany, $field_key, $field_value, 'zbsc_' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+								zeroBSCRM_html_editField( $zbsCompany, $field_key, $field_value, 'zbsco_' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							}
 						}
 					}

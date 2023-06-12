@@ -331,11 +331,11 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * Check for user licenses.
+	 * Check if the user has an available license that includes Jetpack Scan.
 	 *
-	 * @param  boolean $has_license Check if user has a license.
-	 * @param  object  $licenses List of licenses.
-	 * @param string  $plugin_slug The plugin that initiated the flow.
+	 * @param boolean  $has_license  Whether a license was already found.
+	 * @param object[] $licenses     Unattached licenses belonging to the user.
+	 * @param string   $plugin_slug  Slug of the plugin that initiated the flow.
 	 *
 	 * @return boolean
 	 */
@@ -347,6 +347,10 @@ class Jetpack_Protect {
 		$license_found = false;
 
 		foreach ( $licenses as $license ) {
+			if ( $license->attached_at || $license->revoked_at ) {
+				continue;
+			}
+
 			if ( in_array( $license->product_id, self::JETPACK_SCAN_PRODUCT_IDS, true ) ) {
 				$license_found = true;
 				break;

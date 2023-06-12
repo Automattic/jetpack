@@ -81,6 +81,7 @@ class Jetpack_Plan {
 				'value_bundle-3y',
 			),
 			'supports' => array(
+				'simple-payments',
 				'vaultpress',
 				'videopress',
 				'republicize',
@@ -347,8 +348,8 @@ class Jetpack_Plan {
 			return true;
 		}
 
-		// As of 05 2023 - all plans support Earn features
-		if ( in_array( $feature, array( 'donations', 'recurring-payments', 'premium-content/container', 'simple-payments' ), true ) ) {
+		// As of 05 2023 - all plans support Earn features (minus 'simple-payments')
+		if ( in_array( $feature, array( 'donations', 'recurring-payments', 'premium-content/container' ), true ) ) {
 			return true;
 		}
 

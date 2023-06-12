@@ -45,7 +45,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 			}
 
 			// Get screen options for user
-			$screenOpts = $zbs->userScreenOptions();
+			$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// Retrieve company
 			$company = $zbs->DAL->companies->getCompany( $id, $args );
