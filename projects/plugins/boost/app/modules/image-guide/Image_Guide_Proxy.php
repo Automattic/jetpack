@@ -9,7 +9,7 @@ class Image_Guide_Proxy {
 	const NONCE_ACTION = 'jb-ig-proxy-nonce';
 
 	public static function init() {
-		add_action( 'wp_ajax_boost_proxy_ig', 'Automattic\Jetpack_Boost\Modules\Image_Guide\Image_Guide_Proxy::handle_proxy' );
+		add_action( 'wp_ajax_boost_proxy_ig', array( __CLASS__, 'handle_proxy' ) );
 	}
 
 	/**
