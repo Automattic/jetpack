@@ -438,7 +438,7 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 		html +=
 			'<input type="text" name="zbsi_ref" id="ref" class="form-control widetext" placeholder="" value="' +
 			jpcrm.esc_attr( res.invoiceObj.id_override ) +
-			'" autocomplete="zbsinv" />';
+			'" autocomplete="' + Math.random() + '" />';
 	}
 	html += '</td>';
 	html += '</tr>';
