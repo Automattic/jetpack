@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Added support for storing Sync Queue in a dedicated DB table.

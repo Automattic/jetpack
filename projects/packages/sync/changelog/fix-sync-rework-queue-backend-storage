@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added support for storing Sync Queue in a dedicated DB table.
