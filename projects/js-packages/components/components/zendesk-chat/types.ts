@@ -1,3 +1,7 @@
 import type { FC } from 'react';
 
-export type ZendeskChatType = FC;
+interface ZendeskChatProps {
+	jwt_token: string;
+}
+
+export type ZendeskChatType = FC< ZendeskChatProps >;
