@@ -191,6 +191,7 @@ const useSuggestionsFromOpenAI = ( {
 			setIsLoadingCompletion( true );
 			source = await askQuestion( prompt, postId );
 		} catch ( err ) {
+			console.log(`error asking question: ${err.message}`);
 			if ( err.message ) {
 				setErrorMessage( err.message ); // Message was already translated by the backend
 			} else {
