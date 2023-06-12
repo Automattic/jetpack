@@ -645,7 +645,7 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 	function zeroBSCRM_getGravatarURLfromEmail($email='',$size=80){
 
 		// https:
-		$url = '//www.gravatar.com/avatar/' . md5( $email );
+		$url = '//www.gravatar.com/avatar/' . hash( 'sha256', $email );
 		$url = add_query_arg( array(
 			's' => $size,
 			'd' => 'mm',
