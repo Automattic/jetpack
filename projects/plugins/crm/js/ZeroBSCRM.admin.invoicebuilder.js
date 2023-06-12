@@ -200,6 +200,9 @@ function zbscrm_JS_draw_invoice_html() {
 		// hide this to show msg properly, also
 		jQuery( '#zbs_loader, #zbs_invoice' ).hide();
 	}
+
+	zeroBSCRMJS_showContactLinkIf(jQuery( '#zbs_invoice_contact' ).val());
+	zeroBSCRMJS_showCompanyLinkIf(jQuery( '#zbs_invoice_company' ).val());
 }
 
 //draws the status line (and links that are present (download PDF, preview, send))

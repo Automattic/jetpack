@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 require_once __DIR__ . '/_inc/access-check.php';
@@ -88,7 +87,7 @@ function render_stripe_nudge() {
 			__( 'Connect to Stripe to use this block on your site.', 'jetpack' ),
 			__( 'Connect', 'jetpack' )
 		);
-	} elseif ( ( new Host() )->is_woa_site() ) {
+	} else {
 		// On WoA sites, the Stripe connection url is not easily available
 		// server-side, so we redirect them to the post in the editor in order
 		// to connect.
@@ -98,9 +97,6 @@ function render_stripe_nudge() {
 			__( 'Edit post', 'jetpack' )
 		);
 	}
-
-	// The Premium Content block is not supported on Jetpack sites.
-	return '';
 }
 
 /**

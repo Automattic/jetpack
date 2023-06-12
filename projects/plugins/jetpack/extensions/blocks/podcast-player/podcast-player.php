@@ -104,7 +104,7 @@ function render_block( $attributes, $content ) {
 		return render_error( __( 'Your podcast URL is invalid and couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
 	}
 
-	if ( isset( $attributes['selectedEpisodes'] ) && count( $attributes['selectedEpisodes'] ) ) {
+	if ( ! empty( $attributes['selectedEpisodes'] ) ) {
 		$guids       = array_map(
 			function ( $episode ) {
 				return $episode['guid'];

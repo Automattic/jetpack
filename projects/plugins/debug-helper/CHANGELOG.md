@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2023-06-06
+### Added
+- Add a helper for the WAF
+- Added a new WPCOM API Request Tracker module.
+- Set custom tokens and blog ID.
+
+### Changed
+- Remove deprecated core function in favor of direct query.
+
+### Fixed
+- Fixed stylesheet loading and content for the broken-token and idc-simulator modules.
+
 ## [1.5.0] - 2023-03-08
 ### Added
 - Add "Cookie State Faker" tool. [#28371]
@@ -77,6 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial version.
 
+[1.6.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v1.2.0...v1.3.0

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.27
+// @version      1.28
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      jurassic.ninja
@@ -77,7 +77,7 @@
 		if ( branchStatus === 'Merged' ) {
 			const contents = `
 				<p><strong>This branch is already merged.</strong></p>
-				<p><a target="_blank" rel="nofollow noopener" href="${ getLink() }">
+				<p><a target="_blank" rel="nofollow noopener" href="${ getLink()[ 0 ] }">
 					Test with <code>trunk</code> branch instead.
 				</a></p>
 			`;

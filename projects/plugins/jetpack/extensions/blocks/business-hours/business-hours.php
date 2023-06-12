@@ -147,20 +147,20 @@ function render( $attributes ) {
 		$content   .= '<dd class="' . esc_attr( $day['name'] ) . '">';
 		$days_hours = '';
 
-		foreach ( $day['hours'] as $key => $hour ) {
+		foreach ( $day['hours'] as $hour ) {
 			$opening = strtotime( $hour['opening'] );
 			$closing = strtotime( $hour['closing'] );
 			if ( ! $opening || ! $closing ) {
 				continue;
+			}
+			if ( $days_hours !== '' ) {
+				$days_hours .= ', ';
 			}
 			$days_hours .= sprintf(
 				'%1$s - %2$s',
 				gmdate( $time_format, $opening ),
 				gmdate( $time_format, $closing )
 			);
-			if ( $key + 1 < count( $day['hours'] ) ) {
-				$days_hours .= ', ';
-			}
 		}
 
 		if ( empty( $days_hours ) ) {

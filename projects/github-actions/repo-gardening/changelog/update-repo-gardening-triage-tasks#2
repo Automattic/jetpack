@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Create a new triageIssues task, to handle automated label triage and Slack notifications for important issues.
