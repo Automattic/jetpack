@@ -27,7 +27,7 @@ const messageSeverityTypes = [
 	MESSAGE_SEVERITY_INFO,
 ] as const;
 
-export type MessageSeverityProp = ( typeof messageSeverityTypes )[ number ];
+export type MessageSeverityProp = ( typeof messageSeverityTypes )[ number ] | null;
 
 export type MessageProps = {
 	icon?: React.ReactNode;
@@ -49,13 +49,13 @@ const messageIconsMap = {
  * @returns {React.ReactElement }    Banner component.
  */
 export default function Message( {
-	severity = MESSAGE_SEVERITY_INFO,
-	icon = warning,
+	severity = null,
+	icon = null,
 	children,
 }: MessageProps ): React.ReactElement {
 	return (
 		<div className="jetpack-ai-assistant__message">
-			<Icon icon={ messageIconsMap[ severity ] || icon } />
+			{ ( severity || icon ) && <Icon icon={ messageIconsMap[ severity ] || icon } /> }
 			<div className="jetpack-ai-assistant__message-content">{ children }</div>
 		</div>
 	);
