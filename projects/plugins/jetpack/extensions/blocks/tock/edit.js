@@ -51,7 +51,7 @@ const UrlPopover = ( { tockUrl, setEditedUrl, popoverAnchor, setUrl, cancel } ) 
 					placeholder={ __( 'Add Tock business name', 'jetpack' ) }
 					onChange={ setEditedUrl }
 					value={ tockUrl }
-					onKeyUp={ handleSubmitOrCancel }
+					onKeyDown={ handleSubmitOrCancel }
 					className="jetpack-tock-url-input"
 				/>
 				<div className="jetpack-tock-url-input-action">
