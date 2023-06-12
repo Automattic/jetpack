@@ -554,11 +554,9 @@ add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
 /**
  * Determine `domain_claim` task visibility.
  *
- * @param array $task The task to check.
- *
  * @return bool True if we should show the task, false otherwise.
  */
-function wpcom_domain_claim_is_visible_callback( $task ) {
+function wpcom_domain_claim_is_visible_callback() {
 	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 		return false;
 	}
@@ -569,10 +567,9 @@ function wpcom_domain_claim_is_visible_callback( $task ) {
 /**
  * Determines whether or not domain claim task is completed.
  *
- * @param array $task The Task object.
  * @return bool True if domain claim task is completed.
  */
-function wpcom_is_domain_claim_completed( $task ) {
+function wpcom_is_domain_claim_completed() {
 	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
 		return false;
 	}
