@@ -63,7 +63,7 @@
 		"tock",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"jetpack-ai-assistant-support"
+		"ai-assistant-support"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

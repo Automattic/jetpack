@@ -50,11 +50,11 @@ function load_assets( $attr, $content ) {
 }
 
 /**
- * Register the `jetpack-ai-assistant-support` extension.
+ * Register the `ai-assistant-support` extension.
  */
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_extension_available( 'jetpack-ai-assistant-support' );
+		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
 	}
 );
