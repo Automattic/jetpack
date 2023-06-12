@@ -7,6 +7,7 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
+import withMultipleBlocksEdition from './edit';
 
 const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading' ];
 
@@ -34,12 +35,7 @@ function multipleBlocksEdition( settings, name ) {
 
 	return {
 		...settings,
-		supports: {
-			...settings.supports,
-			'jetpack/ai': {
-				assistant: true,
-			},
-		},
+		edit: withMultipleBlocksEdition( settings.edit ),
 	};
 }
 
