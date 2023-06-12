@@ -12,7 +12,7 @@
 - AI Assistant: tweak content generated message. [#31298]
 - AI Assistant: remove shortcuts labels from block area. [#31278]
 - Backup: add video section to Backup connect page. [#31260]
-- Blocks: add new Tock block. [#31303]
+- Blocks: add new Tock block to beta blocks. [#31303]
 - Blocks: load block stylesheets inline when possible for improved performance. [#31214]
 
 ### Improved compatibility
