@@ -5,9 +5,8 @@ import {
 	CONNECTION_STORE_ID,
 } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
-import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import BackupPromotionBlock from '../components/backup-promotion';
@@ -25,12 +24,7 @@ const testimonials = [
 			'jetpack-backup-pkg'
 		),
 		author: 'Tim Ferriss',
-		profession: createInterpolateElement(
-			__( '<a>Author / Investor / Podcaster</a>', 'jetpack-backup-pkg' ),
-			{
-				a: <ExternalLink href="https://tim.blog/" target="_blank" rel="noreferrer noopener" />,
-			}
-		),
+		profession: __( 'Author / Investor / Podcaster', 'jetpack-backup-pkg' ),
 		img: timFerrissTestimonial,
 	},
 	{
@@ -39,18 +33,8 @@ const testimonials = [
 			'jetpack-backup-pkg'
 		),
 		author: 'Ben Giordano',
-		profession: createInterpolateElement(
-			__( 'Founder, <a>FreshySites.com</a>', 'jetpack-backup-pkg' ),
-			{
-				a: (
-					<ExternalLink
-						href="https://www.freshysites.com/"
-						target="_blank"
-						rel="noreferrer noopener"
-					/>
-				),
-			}
-		),
+		profession: __( 'Founder, FreshySites.com', 'jetpack-backup-pkg' ),
+
 		img: benGiordanoTestimonial,
 	},
 ];
