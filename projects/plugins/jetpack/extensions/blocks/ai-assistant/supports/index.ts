@@ -6,7 +6,7 @@ import { addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
-import withAIAssistant from '../extensions/multiple-blocks-edition/edit';
+import withAIAssistant from '../extensions/ai-assistant/with-ai-assistant';
 
 export const SUPPORT_NAME = 'jetpack/ai';
 
@@ -16,11 +16,14 @@ function handleJetpackAISupports( settings ) {
 		return settings;
 	}
 
-	const edit = jetpackAISupports?.assistant ? withAIAssistant( settings.edit ) : settings.edit;
+	// Check specific for the `assistant` support.
+	if ( ! jetpackAISupports?.assistant ) {
+		return settings;
+	}
 
 	return {
 		...settings,
-		edit,
+		edit: withAIAssistant( settings.edit ),
 	};
 }
 

@@ -1,6 +1,6 @@
 # `jetpack/ai` supports
 
-It allows a block to declare support for certain Jetpack AI features.
+It allows blocks to add Jetpack AI features supports
 
 ## assistant
 
