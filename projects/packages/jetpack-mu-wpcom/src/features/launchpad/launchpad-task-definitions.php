@@ -368,21 +368,22 @@ function wpcom_get_domain_upsell_badge_text() {
  * @return bool True if user is on a free plan with no custom domain name.
  */
 function wpcom_is_domain_upsell_visible() {
-	if ( ! class_exists( '\A8C\Billingdaddy\Container' ) ) {
-		return false;
-	}
-
-	if ( null !== \A8C\Billingdaddy\Container::get_purchases_api()->get_current_plan_for_site() ) {
-		return false; // Site is not on a free plan.
-	}
-
 	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
 		return false;
 	}
 
-	// Check if the site has any domain purchases.
 	$site_purchases = wpcom_get_site_purchases();
 
+	$bundle_purchases = array_filter(
+		$site_purchases,
+		function ( $site_purchase ) {
+			return $site_purchase->product_type === 'bundle';
+		}
+	);
+
+	$is_free_plan = empty( $bundle_purchases );
+
+	// Check if the site has any domain purchases.
 	$domain_purchases = array_filter(
 		$site_purchases,
 		function ( $site_purchase ) {
@@ -390,7 +391,7 @@ function wpcom_is_domain_upsell_visible() {
 		}
 	);
 
-	return empty( $domain_purchases );
+	return $is_free_plan && empty( $domain_purchases );
 }
 
 /**
