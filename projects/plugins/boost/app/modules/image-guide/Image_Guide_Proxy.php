@@ -37,7 +37,6 @@ class Image_Guide_Proxy {
 			wp_send_json_error( 'error', 400 );
 		}
 
-		header( 'Content-type: application/json' );
 		wp_send_json_success( iterator_to_array( wp_remote_retrieve_headers( $response ) ) );
 		die();
 	}
