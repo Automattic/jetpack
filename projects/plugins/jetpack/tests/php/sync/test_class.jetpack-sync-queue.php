@@ -3,8 +3,15 @@
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue_Buffer;
 
+/**
+ * @group jetpack-sync
+ * @group jetpack-sync-queue
+ */
 class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
+	/**
+	 * @var Queue
+	 */
 	private $queue;
 
 	/**

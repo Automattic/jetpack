@@ -7,7 +7,12 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Sync\Queue\Queue_Storage_Options;
 use WP_Error;
+
+ini_set('error_reporting', E_ALL); // or error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 
 /**
  * A persistent queue that can be flushed in increments of N items,
@@ -37,6 +42,8 @@ class Queue {
 	 */
 	public $random_int;
 
+	public $queue_storage = null;
+
 	/**
 	 * Queue constructor.
 	 *
@@ -46,6 +53,10 @@ class Queue {
 		$this->id           = str_replace( '-', '_', $id ); // Necessary to ensure we don't have ID collisions in the SQL.
 		$this->row_iterator = 0;
 		$this->random_int   = wp_rand( 1, 1000000 );
+
+		// TODO implement switching to other storage.
+		$this->queue_storage = new Queue_Storage_Options();
+
 	}
 
 	/**
@@ -54,34 +65,27 @@ class Queue {
 	 * @param object $item Event object to add to queue.
 	 */
 	public function add( $item ) {
-		global $wpdb;
 		$added = false;
 
 		// If empty, don't add.
 		if ( empty( $item ) ) {
-			return;
+			return false;
 		}
 
 		// Attempt to serialize data, if an exception (closures) return early.
 		try {
 			$item = serialize( $item ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		} catch ( \Exception $ex ) {
-			return;
+			return new WP_Error( 'queue_unable_to_serialize', 'Unable to serialize item' );
 		}
 
 		// This basically tries to add the option until enough time has elapsed that
 		// it has a unique (microtime-based) option key.
 		while ( ! $added ) {
-			$rows_added = $wpdb->query(
-				$wpdb->prepare(
-					"INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s,%s)",
-					$this->get_next_data_row_option_name(),
-					$item,
-					'no'
-				)
-			);
-			$added      = ( 0 !== $rows_added );
+			$added = $this->queue_storage->insert_item( $this->get_next_data_row_option_name(), $item );
 		}
+
+		return $added;
 	}
 
 	/**
@@ -92,6 +96,7 @@ class Queue {
 	 * @return bool|\WP_Error
 	 */
 	public function add_all( $items ) {
+		// TODO check and figure out if it's used at all and if we can optimize it.
 		global $wpdb;
 		$base_option_name = $this->get_next_data_row_option_name();
 
@@ -166,6 +171,7 @@ class Queue {
 	public function lag( $now = null ) {
 		global $wpdb;
 
+		// TODO replace with peek and a flag to fetch only the name.
 		$first_item_name = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT 1",
@@ -194,14 +200,8 @@ class Queue {
 	 * Resets the queue.
 	 */
 	public function reset() {
-		global $wpdb;
 		$this->delete_checkout_id();
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
-				"jpsq_{$this->id}-%"
-			)
-		);
+		$this->queue_storage->clear_queue( $this->id );
 	}
 
 	/**
@@ -210,14 +210,7 @@ class Queue {
 	 * @return int
 	 */
 	public function size() {
-		global $wpdb;
-
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT count(*) FROM $wpdb->options WHERE option_name LIKE %s",
-				"jpsq_{$this->id}-%"
-			)
-		);
+		return $this->queue_storage->get_item_count( $this->id );
 	}
 
 	/**
@@ -228,6 +221,7 @@ class Queue {
 	 * @return bool
 	 */
 	public function has_any_items() {
+		// TODO make better in some way? How to extract, Is `count()` fast enough?. peek might be a better option here.
 		global $wpdb;
 		$value = $wpdb->get_var(
 			$wpdb->prepare(
@@ -322,6 +316,7 @@ class Queue {
 	 * @return Automattic\Jetpack\Sync\Queue_Buffer|bool|int|\WP_Error
 	 */
 	public function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
+		// TODO work on this.
 		if ( $this->get_checkout_id() ) {
 			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
@@ -456,6 +451,7 @@ class Queue {
 	 * @return bool|int
 	 */
 	private function delete( $ids ) {
+		// TODO implement
 		if ( array() === $ids ) {
 			return 0;
 		}
@@ -667,26 +663,7 @@ class Queue {
 	 * @return array|object|null
 	 */
 	private function fetch_items( $limit = null ) {
-		global $wpdb;
-
-		if ( $limit ) {
-			$items = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d",
-					"jpsq_{$this->id}-%",
-					$limit
-				),
-				OBJECT
-			);
-		} else {
-			$items = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC",
-					"jpsq_{$this->id}-%"
-				),
-				OBJECT
-			);
-		}
+		$items = $this->queue_storage->fetch_items( $this->id, $limit );
 
 		return $this->unserialize_values( $items );
 	}
@@ -700,6 +677,7 @@ class Queue {
 	 */
 	private function fetch_items_by_id( $items_ids ) {
 		global $wpdb;
+		// TODO implement
 
 		// return early if $items_ids is empty or not an array.
 		if ( empty( $items_ids ) || ! is_array( $items_ids ) ) {
