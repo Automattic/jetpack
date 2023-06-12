@@ -19,7 +19,7 @@ import { name as blockName } from '.';
 
 const PART_SLUG = 'cookie-consent-block-template-part';
 
-function createTemplatePart( attributes ) {
+function createTemplatePart( attributes, innerBlocks ) {
 	return {
 		slug: PART_SLUG,
 		description: __( 'Contains the cookie consent block.', 'jetpack' ),
@@ -35,11 +35,7 @@ function createTemplatePart( attributes ) {
 						remove: true,
 					},
 				},
-				[
-					createBlock( 'core/button', {
-						text: __( 'Accept', 'jetpack' ),
-					} ),
-				]
+				innerBlocks
 			)
 		),
 		area: 'footer',
@@ -107,7 +103,12 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 	const [ isSaving, setIsSaving ] = useState( false );
 
 	const { part, isLoading } = useCookieConsentTemplatePart();
-	const templatePart = createTemplatePart( attributes );
+	const innerBlocks = useSelect(
+		select => select( 'core/editor' ).getBlocks( clientId ),
+		[ clientId ]
+	);
+
+	const templatePart = createTemplatePart( attributes, innerBlocks );
 
 	/**
 	 * mode: LOADING | PART_EXISTS | PART_DOES_NOT_EXIST
@@ -166,56 +167,66 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 			return __( 'Loading…', 'jetpack' );
 		} else if ( mode === 'PART_EXISTS' ) {
 			return (
-				<Card>
-					<CardBody>
-						<p>
-							{ __(
-								'You can only have one cookie consent banner on your site. To edit the one you already have, click the button below.',
-								'jetpack'
-							) }
-						</p>
-					</CardBody>
-					<CardFooter>
-						<Button
-							variant="primary"
-							disabled={ isSaving }
-							onClick={ () => {
-								setIsSaving( true );
-								goToTemplatePart( part );
-							} }
-						>
-							{ __( 'Go to template part', 'jetpack' ) }
-						</Button>
-					</CardFooter>
-				</Card>
+				<>
+					<div hidden>
+						<RichText tagName="p" value={ text } />
+					</div>
+					<Card>
+						<CardBody>
+							<p>
+								{ __(
+									'You can only have one cookie consent banner on your site. To edit the one you already have, click the button below.',
+									'jetpack'
+								) }
+							</p>
+						</CardBody>
+						<CardFooter>
+							<Button
+								variant="primary"
+								disabled={ isSaving }
+								onClick={ () => {
+									setIsSaving( true );
+									goToTemplatePart( part );
+								} }
+							>
+								{ __( 'Go to template part', 'jetpack' ) }
+							</Button>
+						</CardFooter>
+					</Card>
+				</>
 			);
 		} else if ( mode === 'PART_DOES_NOT_EXIST' ) {
 			return (
-				<Card>
-					<CardBody>
-						<p>
-							{ __(
-								'In order to be visible on every page of your site, the Cookie Consent Block should be added in its own template part.',
-								'jetpack'
-							) }
-						</p>
-					</CardBody>
-					<CardFooter>
-						<Button
-							variant="primary"
-							disabled={ isSaving }
-							onClick={ () => {
-								saveEntityRecord( 'postType', 'wp_template_part', templatePart )
-									.then( goToTemplatePart )
-									.catch( () => {
-										setIsSaving( false );
-									} );
-							} }
-						>
-							{ __( 'Create the template part', 'jetpack' ) }
-						</Button>
-					</CardFooter>
-				</Card>
+				<>
+					<div hidden>
+						<RichText tagName="p" value={ text } />
+					</div>
+					<Card>
+						<CardBody>
+							<p>
+								{ __(
+									'In order to be visible on every page of your site, the Cookie Consent Block should be added in its own template part.',
+									'jetpack'
+								) }
+							</p>
+						</CardBody>
+						<CardFooter>
+							<Button
+								variant="primary"
+								disabled={ isSaving }
+								onClick={ () => {
+									saveEntityRecord( 'postType', 'wp_template_part', templatePart )
+										.then( goToTemplatePart )
+										.catch( () => {
+											setIsSaving( false );
+										} );
+								} }
+							>
+								{ __( 'Create the template part', 'jetpack' ) }
+							</Button>
+						</CardFooter>
+					</Card>
+				</>
 			);
 		}
 	}
