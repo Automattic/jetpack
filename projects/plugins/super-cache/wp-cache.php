@@ -391,7 +391,7 @@ function wpsc_jetpack_boost_install_banner() {
 					<img
 						src="<?php echo esc_url( $plugin_url . '/assets/boost-install-card-main.png' ); ?>"
 						title="<?php esc_attr_e( 'Check how your web site performance scores for desktop and mobile.', 'wp-super-cache' ); ?>"
-						alt="<?php esc_attr_e( 'An image showing a web site with a photo of a time-lapsed watch face. In the foreground is a graph showing a speed score for mobile and desktop in yellow and green with an overall score of B', 'wp-super-cache' ); ?>"
+						alt="<?php esc_attr_e( 'An image showing a space shuttle. In the foreground are two graphs in yellow and green', 'wp-super-cache' ); ?>"
 						srcset="<?php echo esc_url( $plugin_url . '/assets/boost-install-card-main.png' ); ?> 352w <?php echo esc_url( $plugin_url . '/assets/boost-install-card-main-2x.png' ); ?> 730w"
 						sizes="(max-width: 782px) 352px, 730px"
 					>
