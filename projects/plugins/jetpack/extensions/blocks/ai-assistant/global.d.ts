@@ -56,5 +56,6 @@ declare global {
 			'ai-assistant': SiteAIAssistantFeatureEndpointResponseProps;
 			screenBase?: string;
 		};
+		wpcomFetch: function;
 	}
 }

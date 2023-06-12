@@ -8,7 +8,7 @@ import React from 'react';
 /*
  * Internal dependencies
  */
-import { Nudge } from '../../shared/components/upgrade-nudge';
+import { Nudge } from '../../../../shared/components/upgrade-nudge';
 
 const UpgradePrompt = () => {
 	if ( isAtomicSite() || isSimpleSite() ) {

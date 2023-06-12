@@ -9,7 +9,7 @@ import {
 	check as success,
 } from '@wordpress/icons';
 /**
- * SeverityTypes
+ * Types
  */
 import type React from 'react';
 

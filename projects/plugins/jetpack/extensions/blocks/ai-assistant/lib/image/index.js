@@ -1,3 +1,6 @@
+/*
+ * External dependencies
+ */
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
