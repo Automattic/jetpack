@@ -33,7 +33,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Claim your free one-year domain', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_domain_upsell_completed',
+			'is_complete_callback' => 'wpcom_is_domain_claim_completed',
 			'is_visible_callback'  => 'wpcom_domain_claim_is_visible_callback',
 		),
 		'domain_upsell'                   => array(
@@ -559,16 +559,33 @@ add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
  * @return bool True if we should show the task, false otherwise.
  */
 function wpcom_domain_claim_is_visible_callback( $task ) {
-	// If we're not on WP.com, don't show this task.
-	if ( ! class_exists( 'WPCOM_Store' ) ) {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 		return false;
 	}
 
-	// If we've already completed the task, continue to show it.
-	if ( wpcom_is_domain_upsell_completed( $task, false ) ) {
-		return true;
+	return wpcom_site_has_feature( 'custom-domain' );
+}
+
+/**
+ * Determines whether or not domain claim task is completed.
+ *
+ * @param array $task The Task object.
+ * @return bool True if domain claim task is completed.
+ */
+function wpcom_is_domain_claim_completed( $task ) {
+	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+		return false;
 	}
 
-	// If we haven't completed the task, check to see if we have a bundle credit before showing it.
-	return WPCOM_Store::has_bundle_credit();
+	$site_purchases = wpcom_get_site_purchases();
+
+	// Check if the site has any domain purchases.
+	$domain_purchases = array_filter(
+		$site_purchases,
+		function ( $site_purchase ) {
+			return in_array( $site_purchase->product_type, array( 'domain_map', 'domain_reg' ), true );
+		}
+	);
+
+	return ! empty( $domain_purchases );
 }
