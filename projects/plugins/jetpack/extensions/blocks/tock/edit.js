@@ -82,6 +82,7 @@ const UrlPopover = ( { tockUrl, setEditedUrl, popoverAnchor, setUrl, cancel } ) 
 const TockPreview = ( { url, popoverAnchor } ) => {
 	const html = `
 		<div id="Tock_widget_container" data-tock-display-mode="Button" data-tock-color-mode="Blue" data-tock-locale="en-us" data-tock-timezone="America/New_York" style="display:inline-block;"></div>
+		<script src="https://www.exploretock.com/tock.js" async></script>
 		<script>
 			!function(t,o){if(!t.tock){var e=t.tock=function(){e.callMethod?
 			  e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),
@@ -89,7 +90,6 @@ const TockPreview = ( { url, popoverAnchor } ) => {
 			tock('init', '${ url }');
 		</script>
 	`;
-	const scripts = [ 'https://www.exploretock.com/tock.js' ];
 
 	return (
 		<div ref={ popoverAnchor }>
@@ -98,7 +98,7 @@ const TockPreview = ( { url, popoverAnchor } ) => {
 				// `SandBox` component won't rerun the scripts correctly when the injected `html` prop changes.
 				// To work around that, we change the key of the component to force a new one render
 			 }
-			<SandBox html={ html } scripts={ scripts } key={ `tock-${ url }` } />
+			<SandBox html={ html } key={ `tock-${ url }` } />
 			{ /* Use an overlay to prevent interactivity with the preview, since the preview does not always resize correctly. */ }
 			<div className="block-library-embed__interactive-overlay" />
 		</div>
