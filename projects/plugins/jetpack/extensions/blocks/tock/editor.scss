@@ -1,7 +1,14 @@
 @import './style.scss';
 
-.jetpack-tock-url-input {
+.jetpack-tock-url-settings {
 	margin: 16px;
+}
+
+.jetpack-tock-url-popover {
+	margin-top: 10px;
+}
+
+.jetpack-tock-url-input {
 	width: 90vw;
 	max-width: 300px;
 	min-width: auto;
