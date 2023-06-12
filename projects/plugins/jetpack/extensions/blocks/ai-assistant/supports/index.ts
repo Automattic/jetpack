@@ -6,6 +6,7 @@ import { addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
+import { isPossibleToExtendBlock } from '../extensions/ai-assistant';
 import withAIAssistant from '../extensions/ai-assistant/with-ai-assistant';
 
 export const SUPPORT_NAME = 'jetpack/ai';
@@ -18,6 +19,10 @@ function handleJetpackAISupports( settings ) {
 
 	// Check specific for the `assistant` support.
 	if ( ! jetpackAISupports?.assistant ) {
+		return settings;
+	}
+
+	if ( ! isPossibleToExtendBlock() ) {
 		return settings;
 	}
 
