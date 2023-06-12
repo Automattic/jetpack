@@ -5,29 +5,20 @@ import {
 	ToolbarGroup,
 	ToolbarButton,
 	Notice,
-	Popover,
 	Button,
+	BaseControl,
+	Dropdown,
 } from '@wordpress/components';
-import { createInterpolateElement, useState } from '@wordpress/element';
+import { createInterpolateElement, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { keyboardReturn } from '@wordpress/icons';
 import { ENTER, ESCAPE } from '@wordpress/keycodes';
 
 import './editor.scss';
 
-const ToolbarControls = ( { isOpen, open, close } ) => (
-	<ToolbarGroup>
-		<ToolbarButton
-			className="components-toolbar__control"
-			label={ __( 'Edit URL', 'jetpack' ) }
-			icon="edit"
-			onClick={ () => ( isOpen ? close() : open() ) }
-		/>
-	</ToolbarGroup>
-);
-
-const UrlPopover = ( { tockUrl, setEditedUrl, popoverAnchor, setUrl, cancel } ) => {
-	const handleSubmitOrCancel = event => {
+const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, open, cancel } ) => {
+	const firstRender = useRef( true );
+	const handleSubmitOrCancel = ( event, onClose ) => {
 		const { keyCode } = event;
 
 		if (
@@ -36,46 +27,74 @@ const UrlPopover = ( { tockUrl, setEditedUrl, popoverAnchor, setUrl, cancel } ) 
 		) {
 			event.preventDefault();
 			setUrl();
+			onClose();
 		}
 
 		if ( keyCode === ESCAPE ) {
 			event.preventDefault();
 			cancel();
+			onClose();
 		}
 	};
 
 	return (
-		<Popover anchor={ popoverAnchor }>
-			<div className="jetpack-tock-url-input-wrapper">
-				<TextControl
-					placeholder={ __( 'Add Tock business name', 'jetpack' ) }
-					onChange={ setEditedUrl }
-					value={ tockUrl }
-					onKeyDown={ handleSubmitOrCancel }
-					className="jetpack-tock-url-input"
-				/>
-				<div className="jetpack-tock-url-input-action">
-					<Button
-						type="submit"
-						label={ __( 'Submit', 'jetpack' ) }
-						icon={ keyboardReturn }
-						className="jetpack-tock-url-input-submit"
-						onClick={ setUrl }
-					/>
-				</div>
-			</div>
-			<p className="jetpack-tock-url-instructions">
-				{ createInterpolateElement(
-					__(
-						'The Tock business can be found in the URL of your public Tock page. For example www.exploretock.com/<b>myname</b>',
-						'jetpack'
-					),
-					{
-						b: <strong />,
+		<ToolbarGroup>
+			<Dropdown
+				placement="bottom-start"
+				renderToggle={ ( { isOpen, onToggle } ) => {
+					if ( firstRender.current && ! isOpen && ! tockUrl ) {
+						firstRender.current = false;
+						onToggle();
 					}
+
+					return (
+						<ToolbarButton
+							className="components-toolbar__control"
+							label={ __( 'Edit Tock business name', 'jetpack' ) }
+							onClick={ () => {
+								onToggle();
+								isOpen ? cancel() : open();
+							} }
+						>
+							{ __( 'Edit', 'jetpack' ) }
+						</ToolbarButton>
+					);
+				} }
+				renderContent={ ( { onClose } ) => (
+					<BaseControl
+						className="jetpack-tock-url-settings"
+						help={ createInterpolateElement(
+							__(
+								'The Tock business can be found in the URL of your public Tock page. For example: www.exploretock.com/<b>myname</b>',
+								'jetpack'
+							),
+							{
+								b: <strong />,
+							}
+						) }
+					>
+						<div className="jetpack-tock-url-input-wrapper">
+							<TextControl
+								placeholder={ __( 'Add Tock business name', 'jetpack' ) }
+								onChange={ setEditedUrl }
+								value={ tockUrl }
+								onKeyDownCapture={ event => handleSubmitOrCancel( event, onClose ) }
+								className="jetpack-tock-url-input"
+							/>
+							<div className="jetpack-tock-url-input-action">
+								<Button
+									type="submit"
+									label={ __( 'Submit', 'jetpack' ) }
+									icon={ keyboardReturn }
+									className="jetpack-tock-url-input-submit"
+									onClick={ setUrl }
+								/>
+							</div>
+						</div>
+					</BaseControl>
 				) }
-			</p>
-		</Popover>
+			/>
+		</ToolbarGroup>
 	);
 };
 
@@ -109,7 +128,6 @@ export default function TockBlockEdit( { attributes, setAttributes, isSelected }
 	const tockUrl = attributes.url ?? '';
 	const [ editingUrl, setEditingUrl ] = useState( ! tockUrl );
 	const [ editedUrl, setEditedUrl ] = useState( tockUrl );
-	const [ popoverAnchor, setPopoverAnchor ] = useState();
 
 	const setUrl = () => {
 		const newUrl = editedUrl.replace( /.*exploretock.com\//, '' );
@@ -117,6 +135,7 @@ export default function TockBlockEdit( { attributes, setAttributes, isSelected }
 		setAttributes( { url: newUrl } );
 		setEditingUrl( false );
 	};
+
 	const cancel = () => {
 		setEditedUrl( tockUrl );
 		setEditingUrl( false );
@@ -125,26 +144,19 @@ export default function TockBlockEdit( { attributes, setAttributes, isSelected }
 	return (
 		<div { ...useBlockProps() }>
 			<BlockControls>
-				<ToolbarControls
-					isOpen={ editingUrl }
-					open={ () => setEditingUrl( true ) }
-					close={ cancel }
-				/>
-			</BlockControls>
-			<TockPreview url={ tockUrl } popoverAnchor={ setPopoverAnchor } />
-			{ editingUrl && isSelected && (
-				<UrlPopover
+				<UrlDropdown
 					tockUrl={ editedUrl }
-					popoverAnchor={ popoverAnchor }
 					setEditedUrl={ setEditedUrl }
 					setUrl={ setUrl }
 					cancel={ cancel }
+					open={ () => setEditingUrl( true ) }
 				/>
-			) }
+			</BlockControls>
+			<TockPreview url={ tockUrl } />
 			{ ( ! editingUrl || ! isSelected ) && ! tockUrl && (
 				<Notice status="warning" isDismissible={ false }>
 					{ __(
-						'The block will not be shown to your site visitors until a Tock business name is set',
+						'The block will not be shown to your site visitors until a Tock business name is set.',
 						'jetpack'
 					) }
 				</Notice>
