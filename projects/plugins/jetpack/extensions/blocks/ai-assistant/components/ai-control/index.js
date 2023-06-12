@@ -2,32 +2,23 @@
  * External dependencies
  */
 import { useBreakpointMatch } from '@automattic/jetpack-components';
-import { BlockControls, PlainText } from '@wordpress/block-editor';
-import {
-	Button,
-	Icon,
-	ToolbarButton,
-	ToolbarDropdownMenu,
-	ToolbarGroup,
-	Spinner,
-} from '@wordpress/components';
+import { PlainText } from '@wordpress/block-editor';
+import { Button, Icon, Spinner } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { image, pencil, update, closeSmall, check } from '@wordpress/icons';
+import { closeSmall, check } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
 import classNames from 'classnames';
-import ConnectPrompt from './components/connect-prompt';
-import I18nDropdownControl from './components/i18n-dropdown-control';
-import Message, { ASSISTANT_STATE_CONTENT_GENERATED } from './components/message/block-message';
-import PromptTemplatesControl from './components/prompt-templates-control';
-import ToneDropdownControl from './components/tone-dropdown-control';
-import AIAssistantIcon from './icons/ai-assistant';
-import origamiPlane from './icons/origami-plane';
-import { isUserConnected } from './lib/connection';
-import UpgradePrompt from './upgrade-prompt';
+import AIAssistantIcon from '../../icons/ai-assistant';
+import origamiPlane from '../../icons/origami-plane';
+import { isUserConnected } from '../../lib/connection';
+import ConnectPrompt from '../connect-prompt';
+import Message, { ASSISTANT_STATE_CONTENT_GENERATED } from '../message/block-message';
+import ToolbarControls from '../toolbar-controls';
+import UpgradePrompt from '../upgrade-prompt';
 
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 
@@ -249,136 +240,3 @@ const AIControl = forwardRef(
 );
 
 export default AIControl;
-
-// Consider to enable when we have image support
-const isImageGenerationEnabled = false;
-
-const ToolbarControls = ( {
-	contentIsLoaded,
-	getSuggestionFromOpenAI,
-	retryRequest,
-	handleAcceptContent,
-	handleImageRequest,
-	handleTryAgain,
-	showRetry,
-	contentBefore,
-	hasPostTitle,
-	wholeContent,
-	setUserPrompt,
-	recordEvent,
-	isGeneratingTitle,
-} ) => {
-	const dropdownControls = [
-		// Interactive controls
-		{
-			title: __( 'Make longer', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'makeLonger', { contentType: 'generated' } ),
-		},
-		{
-			title: __( 'Make shorter', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
-		},
-	];
-
-	if ( ! isGeneratingTitle ) {
-		dropdownControls.unshift( {
-			title: __( 'Summarize', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'summarize', { contentType: 'generated' } ),
-		} );
-	}
-
-	return (
-		<>
-			{ contentIsLoaded && (
-				<BlockControls group="block">
-					<ToneDropdownControl
-						value="neutral"
-						onChange={ tone =>
-							getSuggestionFromOpenAI( 'changeTone', { tone, contentType: 'generated' } )
-						}
-						disabled={ contentIsLoaded }
-					/>
-
-					<I18nDropdownControl
-						value="en"
-						onChange={ language =>
-							getSuggestionFromOpenAI( 'changeLanguage', { language, contentType: 'generated' } )
-						}
-						disabled={ contentIsLoaded }
-					/>
-
-					<ToolbarDropdownMenu
-						icon={ pencil }
-						label={ __( 'Improve', 'jetpack' ) }
-						controls={ dropdownControls }
-					/>
-				</BlockControls>
-			) }
-
-			<BlockControls>
-				{ ! showRetry && ! contentIsLoaded && (
-					<PromptTemplatesControl
-						hasContentBefore={ !! contentBefore?.length }
-						hasContent={ !! wholeContent?.length }
-						hasPostTitle={ hasPostTitle }
-						onPromptSelect={ prompt => {
-							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
-								type: 'prompt-template',
-								prompt,
-							} );
-
-							setUserPrompt( prompt );
-						} }
-						onSuggestionSelect={ suggestion => {
-							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
-								type: 'suggestion',
-								suggestion,
-							} );
-							getSuggestionFromOpenAI( suggestion );
-						} }
-					/>
-				) }
-
-				<ToolbarGroup>
-					{ ! showRetry && contentIsLoaded && (
-						<ToolbarButton onClick={ handleTryAgain }>
-							{ __( 'Try Again', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-
-					{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
-						<BlockControls group="block">
-							<ToneDropdownControl
-								value="neutral"
-								onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
-							/>
-							<I18nDropdownControl
-								value="en"
-								label={ __( 'Translate', 'jetpack' ) }
-								onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
-							/>
-						</BlockControls>
-					) }
-					{ showRetry && contentIsLoaded && (
-						<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
-							{ __( 'Accept', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-					{ showRetry && (
-						<ToolbarButton icon={ update } onClick={ retryRequest }>
-							{ __( 'Retry', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-				</ToolbarGroup>
-				{ isImageGenerationEnabled && ! showRetry && ! contentIsLoaded && (
-					// Image/text toggle
-					<ToolbarGroup>
-						<ToolbarButton icon={ image } onClick={ handleImageRequest }>
-							{ __( 'Ask AI for an image', 'jetpack' ) }
-						</ToolbarButton>
-					</ToolbarGroup>
-				) }
-			</BlockControls>
-		</>
-	);
-};
