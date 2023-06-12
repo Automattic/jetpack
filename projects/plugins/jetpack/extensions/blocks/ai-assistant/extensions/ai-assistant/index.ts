@@ -8,7 +8,7 @@ import { addFilter } from '@wordpress/hooks';
 import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
 
-export const AI_ASSITANT_SUPPORT_NAME = 'ai-assistant-support';
+export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
 
 /*
  * List of blocks that can be extended.
