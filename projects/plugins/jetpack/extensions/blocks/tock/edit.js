@@ -144,7 +144,7 @@ export default function TockBlockEdit( { attributes, setAttributes, isSelected }
 			{ ( ! editingUrl || ! isSelected ) && ! tockUrl && (
 				<Notice status="warning" isDismissible={ false }>
 					{ __(
-						'The block will not be shown to your site visitors until a URL is set',
+						'The block will not be shown to your site visitors until a Tock business name is set',
 						'jetpack'
 					) }
 				</Notice>
