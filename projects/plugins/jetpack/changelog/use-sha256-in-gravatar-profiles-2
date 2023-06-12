@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Use sha256 hashing algorithm for gravatar profile urls instead of md5
