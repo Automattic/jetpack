@@ -64,7 +64,7 @@ export function isPossibleToExtendBlock(): boolean {
  * @returns {BlockSettingsProps}          Block settings.
  */
 function addJetpackAISupport( settings: BlockSettingsProps, name: string ): BlockSettingsProps {
-	if ( ! isPossibleToExtendBlock ) {
+	if ( ! isPossibleToExtendBlock() ) {
 		return settings;
 	}
 
