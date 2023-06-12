@@ -48,3 +48,13 @@ function load_assets( $attr, $content ) {
 		$content
 	);
 }
+
+/**
+ * Register the `ai-assistant-support` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
+	}
+);
