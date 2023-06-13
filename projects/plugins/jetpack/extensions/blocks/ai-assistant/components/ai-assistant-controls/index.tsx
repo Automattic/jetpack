@@ -110,10 +110,15 @@ export default function AiAssistantDropdown( {
 				variant: 'toolbar',
 			} }
 		>
-			{ () => (
-				<>
-					<QuickEditsMenuGroup key={ key } exclude={ exclude } onChange={ onChange } />
-				</>
+			{ ( { onClose: closeDropdown } ) => (
+				<QuickEditsMenuGroup
+					key={ key }
+					exclude={ exclude }
+					onChange={ args => {
+						closeDropdown();
+						onChange( args );
+					} }
+				/>
 			) }
 		</ToolbarDropdownMenu>
 	);
