@@ -15,12 +15,20 @@ import React from 'react';
 import AIAssistantIcon from '../../icons/ai-assistant';
 import './style.scss';
 
-export const QUICK_EDIT_KEY_SUMMARIZE = 'correct-spelling' as const;
-const QUICK_EDIT_SUGGESTION_SUMMARIZE = 'correctSpelling' as const;
+// Quick edits option: "Correct spelling and grammar"
+const QUICK_EDIT_KEY_CORRECT_SPELLING = 'correct-spelling' as const;
+const QUICK_EDIT_SUGGESTION_CORRECT_SPELLING = 'correctSpelling' as const;
 
-const QUICK_EDIT_KEY_LIST = [ QUICK_EDIT_KEY_SUMMARIZE ] as const;
+// Quick edits option: "Simplify"
+const QUICK_EDIT_KEY_SIMPLIFY = 'simplify' as const;
+const QUICK_EDIT_SUGGESTION_SIMPLIFY = 'simplify' as const;
 
-const QUICK_EDIT_SUGGESTION_LIST = [ QUICK_EDIT_SUGGESTION_SUMMARIZE ] as const;
+const QUICK_EDIT_KEY_LIST = [ QUICK_EDIT_KEY_CORRECT_SPELLING, QUICK_EDIT_KEY_SIMPLIFY ] as const;
+
+const QUICK_EDIT_SUGGESTION_LIST = [
+	QUICK_EDIT_SUGGESTION_CORRECT_SPELLING,
+	QUICK_EDIT_SUGGESTION_SIMPLIFY,
+] as const;
 
 type QuickEditsKeyProp = ( typeof QUICK_EDIT_KEY_LIST )[ number ];
 type QuickEditsSuggestionProp = ( typeof QUICK_EDIT_SUGGESTION_LIST )[ number ];
@@ -28,8 +36,13 @@ type QuickEditsSuggestionProp = ( typeof QUICK_EDIT_SUGGESTION_LIST )[ number ];
 const quickActionsList = [
 	{
 		name: __( 'Correct spelling and grammar', 'jetpack' ),
-		key: QUICK_EDIT_KEY_SUMMARIZE,
-		aiSuggestion: QUICK_EDIT_SUGGESTION_SUMMARIZE,
+		key: QUICK_EDIT_KEY_CORRECT_SPELLING,
+		aiSuggestion: QUICK_EDIT_SUGGESTION_CORRECT_SPELLING,
+	},
+	{
+		name: __( 'Simplify', 'jetpack' ),
+		key: QUICK_EDIT_KEY_SIMPLIFY,
+		aiSuggestion: QUICK_EDIT_SUGGESTION_SIMPLIFY,
 	},
 ];
 
