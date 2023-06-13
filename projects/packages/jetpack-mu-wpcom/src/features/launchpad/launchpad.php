@@ -575,8 +575,8 @@ function wpcom_launchpad_is_keep_building_enabled() {
  *
  * @return array The filtered array of task IDs.
  */
-function wpcom_launchpad_keep_building_visible_tasks( $task ) {
-	$task_ids = $task['task_ids'];
+function wpcom_launchpad_keep_building_visible_tasks( $task_list ) {
+	$task_ids = $task_list['task_ids'];
 
 	if ( ! $task_ids ) {
 		return array();
@@ -587,7 +587,7 @@ function wpcom_launchpad_keep_building_visible_tasks( $task ) {
 		function ( $task_id ) {
 			// Only show design_edited/site_edited if it hasn't been marked as complete.
 			if ( in_array( $task_id, [ 'design_edited', 'site_edited' ], true ) ) {
-				return ! is_array( wpcom_is_checklist_task_complete($task_id) );
+				return ! is_array( wpcom_is_checklist_task_complete( $task_id ) );
 			}
 
 			return true;
