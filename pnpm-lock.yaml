@@ -10234,6 +10234,15 @@ packages:
       - react
     dev: false
 
+  /@wordpress/api-fetch@6.29.0:
+    resolution: {integrity: sha512-6qtKZbS6mQl0PQhTB6BX9f9n3ika+R2RH+AqIQHiQH2yMulWlcaW6s/aOMLhEdXKPgG7geDqTdcASDJluV1yhQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.21.5
+      '@wordpress/i18n': 4.34.0
+      '@wordpress/url': 3.35.0
+    dev: false
+
   /@wordpress/api-fetch@6.31.0:
     resolution: {integrity: sha512-3l2jT7eD6kOK+GM1qcXsk7BGmmrU+//uT1wWOSpx+x4vpPABKlm7yfPvjHG7SqbgHXQzLD6eFvo/nmwN3JbGNg==}
     engines: {node: '>=12'}
