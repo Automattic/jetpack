@@ -571,7 +571,7 @@ function wpcom_launchpad_is_keep_building_enabled() {
 /**
  * Filter task visibility for the Keep building task list.
  *
- * @param array $task The task array.
+ * @param array $task_list The task array.
  *
  * @return array The filtered array of task IDs.
  */
