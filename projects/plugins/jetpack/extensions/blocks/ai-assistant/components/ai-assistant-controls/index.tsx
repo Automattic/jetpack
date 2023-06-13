@@ -8,8 +8,12 @@ import {
 	CustomSelectControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { pencil } from '@wordpress/icons';
 import React from 'react';
+/**
+ * Internal dependencies
+ */
+import AIAssistantIcon from '../../icons/ai-assistant';
+import './style.scss';
 
 export const QUICK_EDIT_KEY_SUMMARIZE = 'correct-spelling' as const;
 const QUICK_EDIT_SUGGESTION_SUMMARIZE = 'correctSpelling' as const;
@@ -29,7 +33,7 @@ const quickActionsList = [
 	},
 ];
 
-type QuickEditsDropdownProps = {
+type AiAssistantControlComponentProps = {
 	/*
 	 * Can be used to externally control the value of the control. Optional.
 	 */
@@ -48,44 +52,51 @@ type QuickEditsDropdownProps = {
 	onChange: ( item: QuickEditsSuggestionProp, options?: { contentType: string } ) => void;
 };
 
-export default function QuickEditsDropdown( {
+const QuickEditsMenuGroup = ( {
+	key,
+	exclude,
+	label,
+	onChange,
+}: AiAssistantControlComponentProps ) => {
+	// Exclude quick edits from the list.
+	const quickActionsListFiltered = quickActionsList.filter(
+		quickAction => ! exclude.includes( quickAction.key )
+	);
+
+	return (
+		<MenuGroup label={ label }>
+			{ quickActionsListFiltered.map( quickAction => (
+				<MenuItem
+					key={ `key-${ quickAction.key }` }
+					onClick={ () => onChange( quickAction.aiSuggestion, { contentType: 'generated' } ) }
+					isSelected={ key === quickAction.key }
+				>
+					<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
+				</MenuItem>
+			) ) }
+		</MenuGroup>
+	);
+};
+
+export default function AiAssistantDropdown( {
 	key,
 	label,
 	exclude = [],
 	onChange,
-}: QuickEditsDropdownProps ) {
+}: AiAssistantControlComponentProps ) {
 	return (
 		<ToolbarDropdownMenu
-			icon={ pencil }
-			label={ label || __( 'Quick edits', 'jetpack' ) }
+			icon={ AIAssistantIcon }
+			label={ label || __( 'AI Assistant', 'jetpack' ) }
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
 		>
-			{ () => {
-				// Exclude quick edits from the list.
-				const quickActionsListFiltered = quickActionsList.filter(
-					quickAction => ! exclude.includes( quickAction.key )
-				);
-
-				return (
-					<MenuGroup>
-						{ quickActionsListFiltered.map( quickAction => {
-							return (
-								<MenuItem
-									key={ `key-${ quickAction.key }` }
-									onClick={ () =>
-										onChange( quickAction.aiSuggestion, { contentType: 'generated' } )
-									}
-									isSelected={ key === quickAction.key }
-								>
-									{ quickAction.name }
-								</MenuItem>
-							);
-						} ) }
-					</MenuGroup>
-				);
-			} }
+			{ () => (
+				<>
+					<QuickEditsMenuGroup key={ key } exclude={ exclude } onChange={ onChange } />
+				</>
+			) }
 		</ToolbarDropdownMenu>
 	);
 }
@@ -95,7 +106,7 @@ export function QuickEditsSelectControl( {
 	label,
 	exclude = [],
 	onChange,
-}: QuickEditsDropdownProps ) {
+}: AiAssistantControlComponentProps ) {
 	// Initial value. If not found, use empty.
 	const value = quickActionsList.find( quickAction => quickAction.key === key ) || '';
 
