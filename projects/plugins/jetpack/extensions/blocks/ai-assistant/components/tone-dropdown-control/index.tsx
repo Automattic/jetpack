@@ -9,12 +9,13 @@ import {
 	Icon,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { chevronDown } from '@wordpress/icons';
+import { chevronRight } from '@wordpress/icons';
 import React from 'react';
 /**
  * Internal dependencies
  */
 import speakToneIcon from '../../icons/speak-tone';
+import './style.scss';
 
 const PROMPT_TONES_LIST = [
 	'formal',
@@ -155,14 +156,17 @@ export function ToneDropdownControl( {
 		<DropdownMenu
 			icon={ speakToneIcon }
 			label={ __( 'Change tone', 'jetpack' ) }
+			className="ai-assistant__tone-dropdown"
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
 			toggleProps={ {
 				children: (
 					<>
-						<div>{ __( 'Change tone', 'jetpack' ) }</div>
-						<Icon icon={ chevronDown } />
+						<div className="ai-assistant__tone-dropdown__toggle-label">
+							{ __( 'Change tone', 'jetpack' ) }
+						</div>
+						<Icon icon={ chevronRight } />
 					</>
 				),
 			} }
