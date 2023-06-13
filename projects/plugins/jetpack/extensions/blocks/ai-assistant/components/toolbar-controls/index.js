@@ -9,7 +9,7 @@ import { image, update, check } from '@wordpress/icons';
  * Internal dependencies
  */
 import I18nDropdownControl from '../i18n-dropdown-control';
-import ImproveDropdown from '../improve-dropdown';
+import ImproveToolbarDropdownMenu from '../improve-dropdown-control';
 import PromptTemplatesControl from '../prompt-templates-control';
 import ToneToolbarDropdownMenu from '../tone-dropdown-control';
 
@@ -51,7 +51,7 @@ const ToolbarControls = ( {
 						disabled={ contentIsLoaded }
 					/>
 
-					<ImproveDropdown
+					<ImproveToolbarDropdownMenu
 						onChange={ getSuggestionFromOpenAI }
 						exclude={ isGeneratingTitle ? [ 'summarize' ] : [] }
 					/>

@@ -48,7 +48,7 @@ const quickActionsList = [
 	},
 ];
 
-type ImproveDropdownProps = {
+type ImproveToolbarDropdownMenuProps = {
 	/*
 	 * Can be used to externally control the value of the control. Optional.
 	 */
@@ -67,12 +67,12 @@ type ImproveDropdownProps = {
 	onChange: ( item: ImproveSuggestionProp, options: { contentType: string } ) => void;
 };
 
-export default function ImproveDropdown( {
+export default function ImproveToolbarDropdownMenu( {
 	key,
 	label,
 	exclude = [],
 	onChange,
-}: ImproveDropdownProps ) {
+}: ImproveToolbarDropdownMenuProps ) {
 	return (
 		<ToolbarDropdownMenu
 			icon={ pencil }
