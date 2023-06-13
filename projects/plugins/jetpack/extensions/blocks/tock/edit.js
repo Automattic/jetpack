@@ -18,6 +18,7 @@ import './editor.scss';
 
 const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, open, cancel } ) => {
 	const firstRender = useRef( true );
+	const committedChanges = useRef( false );
 	const handleSubmitOrCancel = ( event, onClose ) => {
 		const { keyCode } = event;
 
@@ -26,8 +27,7 @@ const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, open, cancel } ) => {
 			'' !== tockUrl // Disallow submitting empty values.
 		) {
 			event.preventDefault();
-			setUrl();
-			onClose();
+			commitChanges( onClose );
 		}
 
 		if ( keyCode === ESCAPE ) {
@@ -37,9 +37,18 @@ const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, open, cancel } ) => {
 		}
 	};
 
+	const commitChanges = close => {
+		setUrl();
+		committedChanges.current = true;
+		close();
+	};
+
 	return (
 		<ToolbarGroup>
 			<Dropdown
+				onClose={ () =>
+					committedChanges.current ? ( committedChanges.current = false ) : cancel()
+				}
 				placement="bottom-start"
 				renderToggle={ ( { isOpen, onToggle } ) => {
 					if ( firstRender.current && ! isOpen && ! tockUrl ) {
@@ -87,7 +96,7 @@ const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, open, cancel } ) => {
 									label={ __( 'Submit', 'jetpack' ) }
 									icon={ keyboardReturn }
 									className="jetpack-tock-url-input-submit"
-									onClick={ setUrl }
+									onClick={ () => commitChanges( onClose ) }
 								/>
 							</div>
 						</div>
