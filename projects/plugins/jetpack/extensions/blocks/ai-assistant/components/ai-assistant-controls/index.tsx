@@ -15,6 +15,7 @@ import React from 'react';
  */
 import AIAssistantIcon from '../../icons/ai-assistant';
 import './style.scss';
+import { ToneDropdownMenu, ToneProp } from '../tone-dropdown-control';
 
 // Quick edits option: "Correct spelling and grammar"
 const QUICK_EDIT_KEY_CORRECT_SPELLING = 'correct-spelling' as const;
@@ -32,7 +33,7 @@ const QUICK_EDIT_SUGGESTION_LIST = [
 ] as const;
 
 type QuickEditsKeyProp = ( typeof QUICK_EDIT_KEY_LIST )[ number ];
-type QuickEditsSuggestionProp = ( typeof QUICK_EDIT_SUGGESTION_LIST )[ number ];
+type QuickEditsSuggestionProp = ( typeof QUICK_EDIT_SUGGESTION_LIST )[ number ] | 'changeTone';
 
 const quickActionsList = [
 	{
@@ -49,11 +50,16 @@ const quickActionsList = [
 	},
 ];
 
+type AiAssistantDropdownOnChangeOptionsArgProps = {
+	contentType: 'generated' | string;
+	tone?: ToneProp;
+};
+
 type AiAssistantControlComponentProps = {
 	/*
 	 * Can be used to externally control the value of the control. Optional.
 	 */
-	key?: QuickEditsKeyProp;
+	key?: QuickEditsKeyProp | string;
 
 	/*
 	 * The label to use for the dropdown. Optional.
@@ -65,35 +71,10 @@ type AiAssistantControlComponentProps = {
 	 */
 	exclude?: QuickEditsKeyProp[];
 
-	onChange: ( item: QuickEditsSuggestionProp, options?: { contentType: string } ) => void;
-};
-
-const QuickEditsMenuGroup = ( {
-	key,
-	exclude,
-	label,
-	onChange,
-}: AiAssistantControlComponentProps ) => {
-	// Exclude quick edits from the list.
-	const quickActionsListFiltered = quickActionsList.filter(
-		quickAction => ! exclude.includes( quickAction.key )
-	);
-
-	return (
-		<MenuGroup label={ label }>
-			{ quickActionsListFiltered.map( quickAction => (
-				<MenuItem
-					icon={ quickAction?.icon }
-					iconPosition="left"
-					key={ `key-${ quickAction.key }` }
-					onClick={ () => onChange( quickAction.aiSuggestion, { contentType: 'generated' } ) }
-					isSelected={ key === quickAction.key }
-				>
-					<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
-				</MenuItem>
-			) ) }
-		</MenuGroup>
-	);
+	onChange: (
+		item: QuickEditsSuggestionProp,
+		options?: AiAssistantDropdownOnChangeOptionsArgProps
+	) => void;
 };
 
 export default function AiAssistantDropdown( {
@@ -102,6 +83,10 @@ export default function AiAssistantDropdown( {
 	exclude = [],
 	onChange,
 }: AiAssistantControlComponentProps ) {
+	const quickActionsListFiltered = quickActionsList.filter(
+		quickAction => ! exclude.includes( quickAction.key )
+	);
+
 	return (
 		<ToolbarDropdownMenu
 			icon={ AIAssistantIcon }
@@ -111,14 +96,29 @@ export default function AiAssistantDropdown( {
 			} }
 		>
 			{ ( { onClose: closeDropdown } ) => (
-				<QuickEditsMenuGroup
-					key={ key }
-					exclude={ exclude }
-					onChange={ args => {
-						closeDropdown();
-						onChange( args );
-					} }
-				/>
+				<MenuGroup label={ label }>
+					{ quickActionsListFiltered.map( quickAction => (
+						<MenuItem
+							icon={ quickAction?.icon }
+							iconPosition="left"
+							key={ `key-${ quickAction.key }` }
+							onClick={ () => {
+								onChange( quickAction.aiSuggestion, { contentType: 'generated' } );
+								closeDropdown();
+							} }
+							isSelected={ key === quickAction.key }
+						>
+							<div className="jetpack-ai-assistant__menu-item">{ quickAction.name }</div>
+						</MenuItem>
+					) ) }
+
+					<ToneDropdownMenu
+						onChange={ tone => {
+							onChange( 'changeTone', { tone, contentType: 'generated' } );
+							closeDropdown();
+						} }
+					/>
+				</MenuGroup>
 			) }
 		</ToolbarDropdownMenu>
 	);
