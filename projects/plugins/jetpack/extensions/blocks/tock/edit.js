@@ -4,19 +4,24 @@ import {
 	TextControl,
 	ToolbarGroup,
 	ToolbarButton,
-	Notice,
 	Button,
 	BaseControl,
 	Dropdown,
 } from '@wordpress/components';
-import { createInterpolateElement, useState, useRef } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useState,
+	useRef,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { keyboardReturn } from '@wordpress/icons';
 import { ENTER, ESCAPE } from '@wordpress/keycodes';
 
 import './editor.scss';
 
-const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, open, cancel } ) => {
+const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, cancel } ) => {
 	const firstRender = useRef( true );
 	const committedChanges = useRef( false );
 	const handleSubmitOrCancel = ( event, onClose ) => {
@@ -62,7 +67,7 @@ const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, open, cancel } ) => {
 							label={ __( 'Edit Tock business name', 'jetpack' ) }
 							onClick={ () => {
 								onToggle();
-								isOpen ? cancel() : open();
+								isOpen && cancel();
 							} }
 						>
 							{ __( 'Edit', 'jetpack' ) }
@@ -135,20 +140,23 @@ const TockPreview = ( { url, popoverAnchor } ) => {
 
 export default function TockBlockEdit( { attributes, setAttributes, isSelected } ) {
 	const tockUrl = attributes.url ?? '';
-	const [ editingUrl, setEditingUrl ] = useState( ! tockUrl );
 	const [ editedUrl, setEditedUrl ] = useState( tockUrl );
 
 	const setUrl = () => {
 		const newUrl = editedUrl.replace( /.*exploretock.com\//, '' );
 		setEditedUrl( newUrl );
 		setAttributes( { url: newUrl } );
-		setEditingUrl( false );
 	};
 
-	const cancel = () => {
+	const cancel = useCallback( () => {
 		setEditedUrl( tockUrl );
-		setEditingUrl( false );
-	};
+	}, [ tockUrl ] );
+
+	useEffect( () => {
+		if ( ! isSelected ) {
+			cancel();
+		}
+	}, [ isSelected, cancel ] );
 
 	return (
 		<div { ...useBlockProps() }>
@@ -158,18 +166,9 @@ export default function TockBlockEdit( { attributes, setAttributes, isSelected }
 					setEditedUrl={ setEditedUrl }
 					setUrl={ setUrl }
 					cancel={ cancel }
-					open={ () => setEditingUrl( true ) }
 				/>
 			</BlockControls>
 			<TockPreview url={ tockUrl } />
-			{ ( ! editingUrl || ! isSelected ) && ! tockUrl && (
-				<Notice status="warning" isDismissible={ false }>
-					{ __(
-						'The block will not be shown to your site visitors until a Tock business name is set.',
-						'jetpack'
-					) }
-				</Notice>
-			) }
 		</div>
 	);
 }
