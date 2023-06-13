@@ -86,7 +86,7 @@ const Header = () => {
 									'jetpack-social'
 								) }
 								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
-								href={ getRedirectUrl( 'jetpack-social-basic-plan-plugin-admin-page', {
+								href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
 									site: siteSuffix,
 									query: 'redirect_to=' + window.location.href,
 								} ) }
