@@ -52,8 +52,13 @@ function NewsletterEditorSettingsPanel( {
 	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
+	isModuleActive,
 	showMisconfigurationWarning,
 } ) {
+	if ( ! isModuleActive ) {
+		return;
+	}
+
 	return (
 		<PluginDocumentSettingPanel
 			title={ __( 'Newsletter access', 'jetpack' ) }
@@ -139,14 +144,16 @@ function NewsletterPrePublishSettingsPanel( {
 			className="jetpack-subscribe-pre-publish-panel"
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
-			<NewsletterAccessPrePublishSettings
-				accessLevel={ accessLevel }
-				setPostMeta={ setPostMeta }
-				socialFollowers={ socialFollowers }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
-			/>
+			{ isModuleActive && (
+				<NewsletterAccessPrePublishSettings
+					accessLevel={ accessLevel }
+					setPostMeta={ setPostMeta }
+					socialFollowers={ socialFollowers }
+					emailSubscribers={ emailSubscribers }
+					paidSubscribers={ paidSubscribers }
+					showMisconfigurationWarning={ showMisconfigurationWarning }
+				/>
+			) }
 
 			{ shouldLoadSubscriptionPlaceholder && (
 				<SubscriptionsPanelPlaceholder>
@@ -172,11 +179,15 @@ function NewsletterPrePublishSettingsPanel( {
 
 function NewsletterPostPublishSettingsPanel( {
 	accessLevel,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
+	isModuleActive,
 	showMisconfigurationWarning,
 } ) {
+	if ( ! isModuleActive ) {
+		return;
+	}
+
 	return (
 		<PluginPostPublishPanel
 			initialOpen
@@ -194,9 +205,7 @@ function NewsletterPostPublishSettingsPanel( {
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
 			<NewsletterNotice
-				isPostPublishPanel={ true }
 				accessLevel={ accessLevel }
-				socialFollowers={ socialFollowers }
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
@@ -233,7 +242,7 @@ export default function SubscribePanels() {
 	}, [ isModuleActive ] );
 
 	// Can be “private”, “password”, or “public”.
-	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
+	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.
 	// TODO: Make it available for pages later.
@@ -264,6 +273,7 @@ export default function SubscribePanels() {
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
+				isModuleActive={ isModuleActive }
 			/>
 			<NewsletterPrePublishSettingsPanel
 				accessLevel={ accessLevel }
@@ -277,9 +287,9 @@ export default function SubscribePanels() {
 			<NewsletterPostPublishSettingsPanel
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
-				socialFollowers={ socialFollowers }
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }
+				isModuleActive={ isModuleActive }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
 			/>
 		</>

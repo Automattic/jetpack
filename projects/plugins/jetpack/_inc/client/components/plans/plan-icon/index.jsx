@@ -24,6 +24,7 @@ import {
 	PLAN_WPCOM_SEARCH_MONTHLY,
 	PLAN_JETPACK_BACKUP_T0_YEARLY,
 	PLAN_JETPACK_BACKUP_T0_MONTHLY,
+	PLAN_JETPACK_BACKUP_T1_BI_YEARLY,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 	PLAN_JETPACK_BACKUP_T1_MONTHLY,
 	PLAN_JETPACK_BACKUP_T2_YEARLY,
@@ -44,6 +45,7 @@ import {
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_STARTER,
 	PLAN_JETPACK_STARTER_MONTHLY,
+	PLAN_JETPACK_SECURITY_T1_BI_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_YEARLY,
@@ -70,6 +72,7 @@ import {
 	PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY,
 	PLAN_JETPACK_BOOST,
 	PLAN_JETPACK_BOOST_MONTHLY,
+	PLAN_JETPACK_AI_MONTHLY,
 } from 'lib/plans/constants';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -101,6 +104,7 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_WPCOM_SEARCH_MONTHLY ]: 'products/product-jetpack-search.svg',
 	[ PLAN_JETPACK_BACKUP_T0_YEARLY ]: 'products/product-jetpack-backup.svg',
 	[ PLAN_JETPACK_BACKUP_T0_MONTHLY ]: 'products/product-jetpack-backup.svg',
+	[ PLAN_JETPACK_BACKUP_T1_BI_YEARLY ]: 'products/product-jetpack-backup.svg',
 	[ PLAN_JETPACK_BACKUP_T1_YEARLY ]: 'products/product-jetpack-backup.svg',
 	[ PLAN_JETPACK_BACKUP_T1_MONTHLY ]: 'products/product-jetpack-backup.svg',
 	[ PLAN_JETPACK_BACKUP_T2_YEARLY ]: 'products/product-jetpack-backup.svg',
@@ -121,6 +125,7 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_BUSINESS_MONTHLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_STARTER ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_STARTER_MONTHLY ]: 'plans/jetpack.svg',
+	[ PLAN_JETPACK_SECURITY_T1_BI_YEARLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_SECURITY_T1_YEARLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_SECURITY_T1_MONTHLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_SECURITY_T2_YEARLY ]: 'plans/jetpack.svg',
@@ -147,6 +152,7 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_SECURITY_REALTIME_MONTHLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_BOOST ]: 'products/product-jetpack-boost.svg',
 	[ PLAN_JETPACK_BOOST_MONTHLY ]: 'products/product-jetpack-boost.svg',
+	[ PLAN_JETPACK_AI_MONTHLY ]: 'products/product-jetpack-ai.svg',
 };
 const DEFAULT_SIZE = 32;
 

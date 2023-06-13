@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add logo prop to ConnectScreen and ConnectScreenVisual  so we could use produucts logos similar to ConnectScreenRequiredPlan component.

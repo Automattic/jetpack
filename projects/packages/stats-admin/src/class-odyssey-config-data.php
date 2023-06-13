@@ -93,6 +93,7 @@ class Odyssey_Config_Data {
 								'stats_admin_version'   => Main::VERSION,
 								'software_version'      => $wp_version,
 							),
+							// TODO remove this and use API so that we could reduce loading time.
 							'stats_notices' => ( new Notices() )->get_notices_to_show(),
 						),
 					),

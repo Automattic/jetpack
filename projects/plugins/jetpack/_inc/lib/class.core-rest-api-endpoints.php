@@ -775,7 +775,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_openai_jwt() {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
-		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 			"/sites/$blog_id/jetpack-openai-query/jwt",
 			'2',
 			array(
@@ -2843,6 +2843,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'stats',
+			),
+
+			// Whether to share stats views with WordPress.com Reader.
+			'wpcom_reader_views_enabled'           => array(
+				'description'       => esc_html__( 'Show post views in the WordPress.com Reader.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
 			),
 
 			// Akismet - Not a module, but a plugin. The options can be passed and handled differently.

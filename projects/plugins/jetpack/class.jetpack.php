@@ -951,7 +951,7 @@ class Jetpack {
 
 		// Initialize Boost Speed Score
 		$modules = Jetpack_Boost_Modules::init();
-		new Speed_Score( $modules );
+		new Speed_Score( $modules, 'jetpack-dashboard' );
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe

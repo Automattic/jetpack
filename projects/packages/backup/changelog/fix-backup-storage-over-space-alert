@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix "Over storage space" message for sites with plans that have no storage limit

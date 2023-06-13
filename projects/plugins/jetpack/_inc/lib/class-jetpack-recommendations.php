@@ -129,21 +129,21 @@ class Jetpack_Recommendations {
 		}
 
 		// Monitor for the publishing of a new post.
-		add_action( 'transition_post_status', array( get_called_class(), 'post_transition' ), 10, 3 );
-		add_action( 'jetpack_activate_module', array( get_called_class(), 'jetpack_module_activated' ), 10, 2 );
+		add_action( 'transition_post_status', array( static::class, 'post_transition' ), 10, 3 );
+		add_action( 'jetpack_activate_module', array( static::class, 'jetpack_module_activated' ), 10, 2 );
 
 		// Monitor for activating a new plugin.
-		add_action( 'activated_plugin', array( get_called_class(), 'plugin_activated' ), 10 );
+		add_action( 'activated_plugin', array( static::class, 'plugin_activated' ), 10 );
 
 		// Monitor for the addition of a new comment.
-		add_action( 'comment_post', array( get_called_class(), 'comment_added' ), 10, 3 );
+		add_action( 'comment_post', array( static::class, 'comment_added' ), 10, 3 );
 
 		// Monitor for Jetpack connection success.
-		add_action( 'jetpack_authorize_ending_authorized', array( get_called_class(), 'jetpack_connected' ) );
-		add_action( self::VIDEOPRESS_TIMED_ACTION, array( get_called_class(), 'recommend_videopress' ) );
+		add_action( 'jetpack_authorize_ending_authorized', array( static::class, 'jetpack_connected' ) );
+		add_action( self::VIDEOPRESS_TIMED_ACTION, array( static::class, 'recommend_videopress' ) );
 
 		// Monitor for changes in plugins that have auto-updates enabled
-		add_action( 'update_site_option_auto_update_plugins', array( get_called_class(), 'plugin_auto_update_settings_changed' ), 10, 3 );
+		add_action( 'update_site_option_auto_update_plugins', array( static::class, 'plugin_auto_update_settings_changed' ), 10, 3 );
 	}
 
 	/**

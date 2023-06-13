@@ -72,6 +72,8 @@ class SubscriptionsComponent extends React.Component {
 					href={ getRedirectUrl( 'calypso-people-email-followers', {
 						site: this.props.siteRawUrl,
 					} ) }
+					target="_blank"
+					rel="noopener noreferrer"
 				>
 					{ __( 'View your Email Subscribers', 'jetpack' ) }
 				</Card>

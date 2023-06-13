@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix ternary issue with translations that were failing builds

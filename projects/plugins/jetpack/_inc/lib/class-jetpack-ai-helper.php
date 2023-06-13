@@ -321,11 +321,24 @@ class Jetpack_AI_Helper {
 			$requests_limit = \OpenAI_Limit_Usage::NUM_FREE_REQUESTS_LIMIT;
 			$requests_count = \OpenAI_Request_Count::get_count( $blog_id );
 
+			/*
+			 * Check if the site requires an upgrade.
+			 * Ideally, the feature availability
+			 * should support site-type handling.
+			 * @todo: research how to do it.
+			 */
+			$blogs_details   = get_blog_details( $blog_id );
+			$is_jetpack_site = is_blog_jetpack( $blogs_details ) && ! is_blog_atomic( $blogs_details );
+			$require_upgrade = $is_jetpack_site ?
+				$is_over_limit && ! $has_ai_assistant_feature :
+				false;
+
 			return array(
-				'has-feature'    => $has_ai_assistant_feature,
-				'is-over-limit'  => $is_over_limit,
-				'requests-count' => $requests_count,
-				'requests-limit' => $requests_limit,
+				'has-feature'          => $has_ai_assistant_feature,
+				'is-over-limit'        => $is_over_limit,
+				'requests-count'       => $requests_count,
+				'requests-limit'       => $requests_limit,
+				'site-require-upgrade' => $require_upgrade,
 			);
 		}
 

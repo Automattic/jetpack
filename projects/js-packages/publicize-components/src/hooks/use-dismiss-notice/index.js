@@ -1,5 +1,6 @@
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
+import { useCallback, useMemo, useState } from 'react';
 
 /**
  * @typedef {object} DismissNoticeHook
@@ -13,21 +14,27 @@ import apiFetch from '@wordpress/api-fetch';
  * @returns {DismissNoticeHook} - An object with the dismissed notice hook properties set.
  */
 export default function useDismissNotice() {
-	const dismissedNotices =
-		getJetpackData()?.social?.dismissedNotices ??
-		window?.jetpackSocialInitialState?.jetpackSettings?.dismissedNotices ??
-		[];
+	const [ dismissedNotices, setDismissedNotices ] = useState( () => {
+		return (
+			getJetpackData()?.social?.dismissedNotices ??
+			window?.jetpackSocialInitialState?.jetpackSettings?.dismissedNotices ??
+			[]
+		);
+	} );
 
-	const handleDismiss = notice => {
+	const dismissNotice = useCallback( notice => {
+		// Optimistically update the dismissed notices.
+		setDismissedNotices( notices => [ ...notices, notice ] );
+
 		apiFetch( {
 			path: `jetpack/v4/social/dismiss-notice`,
 			method: 'POST',
 			data: { notice },
 		} );
-	};
+	}, [] );
 
-	return {
-		dismissedNotices,
-		dismissNotice: notice => handleDismiss( notice ),
-	};
+	return useMemo(
+		() => ( { dismissedNotices, dismissNotice } ),
+		[ dismissedNotices, dismissNotice ]
+	);
 }

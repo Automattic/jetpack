@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.11.0 - 2023-06-06
+### Added
+- Added feature flag for Mastodon preview [#30919]
+- Jetpack Social: Add a notice to let users know Instagram is available [#30777]
+
+### Changed
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now [#29942]
+- Updated package dependencies.
+- Updates the enhanced publishing feature check [#29881]
+
+### Deprecated
+- Minor changes around upcoming functionality change in Twitter. [#30272]
+
 ## 1.10.0 - 2023-05-02
 ### Added
 - Social: Updating plugin version. [#30158]
