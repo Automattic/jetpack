@@ -57,7 +57,7 @@ type ImproveToolbarDropdownMenuProps = {
 	/*
 	 * The label to use for the dropdown. Optional.
 	 */
-	label: string;
+	label?: string;
 
 	/*
 	 * A list of quick edits to exclude from the dropdown. Optional.
@@ -76,7 +76,7 @@ export default function ImproveToolbarDropdownMenu( {
 	return (
 		<ToolbarDropdownMenu
 			icon={ pencil }
-			label={ label || __( 'Quick edits', 'jetpack' ) }
+			label={ label || __( 'Improve', 'jetpack' ) }
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
@@ -88,7 +88,7 @@ export default function ImproveToolbarDropdownMenu( {
 				);
 
 				return (
-					<MenuGroup label={ __( 'Improve', 'jetpack' ) }>
+					<MenuGroup label={ label }>
 						{ quickActionsListFiltered.map( quickAction => {
 							return (
 								<MenuItem
