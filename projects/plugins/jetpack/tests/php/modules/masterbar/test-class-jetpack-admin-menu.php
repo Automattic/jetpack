@@ -107,13 +107,12 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 *
 	 * @covers ::add_users_menu
 	 */
-	public function test_add_users_menu_not_english() {
+	public function test_add_jetpack_menu_not_english() {
 		global $submenu;
 
 		add_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
 
-		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
-		static::$admin_menu->add_users_menu();
+		static::$admin_menu->add_jetpack_menu();
 		$this->assertNotSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['jetpack'][3][2] );
 
 		remove_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
