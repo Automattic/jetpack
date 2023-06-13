@@ -1590,7 +1590,7 @@ function jpcrm_generate_pdf( $html, $pdf_filename ) {
  * @return string A randomish string.
  */
 function jpcrm_disable_browser_autocomplete() {
-	return time() . '-' . wp_rand( 0, 100 );
+	return time() . wp_rand( 0, 1000000 );
 }
 
 /**

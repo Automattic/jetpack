@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Message, { MESSAGE_SEVERITY_INFO, MESSAGE_SEVERITY_SUCCESS } from '.';
+import Message, { MESSAGE_SEVERITY_INFO } from '.';
 import './style.scss';
 /**
  * Types
@@ -45,6 +45,7 @@ export default function BlockMessage( props: BlockMessageProps ): React.ReactEle
 
 	// Ready to generate message
 	let messageText = null;
+	// eslint-disable-next-line prefer-const
 	let severity: MessageSeverityProp = MESSAGE_SEVERITY_INFO;
 
 	switch ( state ) {
@@ -76,8 +77,6 @@ export default function BlockMessage( props: BlockMessageProps ): React.ReactEle
 					link: <ExternalLink href="https://automattic.com/ai-guidelines" />,
 				}
 			);
-
-			severity = MESSAGE_SEVERITY_SUCCESS;
 			break;
 	}
 

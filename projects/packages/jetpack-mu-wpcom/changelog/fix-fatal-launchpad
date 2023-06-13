@@ -1,4 +1,0 @@
-Significance: major
-Type: fixed
-
-Fix fatal error for WoA sites due to absence of Logstash on that infrastructure.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Replace dependency on deprecated `automattic/jetpack-options` package.
