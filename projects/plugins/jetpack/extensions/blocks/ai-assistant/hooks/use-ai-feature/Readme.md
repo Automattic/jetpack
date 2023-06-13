@@ -4,7 +4,7 @@ React custom hook that provides valuable data about AI requests for the site.
 
 ```es6
 function UpgradePlan() {
-	const { hasFeature, count } = useAIFeature();
+	const { hasFeature, count, refresh } = useAIFeature();
 	if ( ! hasFeature ) {
 		return null;
 	}
@@ -13,6 +13,7 @@ function UpgradePlan() {
 		<div>
 			{ `You have made ${ count } requests so far.` }
 			<Button>Upgrade</Button>
+			<Button onClick={ refresh}>Refresh Data!</Button>
 		</div>
 	);
 }

@@ -133,6 +133,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'task_ids'            => array(
 				'site_title',
 				'design_edited',
+				'domain_claim',
 				'verify_email',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',

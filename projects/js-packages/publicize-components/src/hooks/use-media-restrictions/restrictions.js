@@ -114,7 +114,7 @@ export const RESTRICTIONS = {
 			minLength: 3,
 		},
 	},
-	instagram: {
+	[ 'instagram-business' ]: {
 		allowedMediaTypes: [ 'image/jpg', 'image/jpeg' ],
 		image: {
 			maxSize: 4,

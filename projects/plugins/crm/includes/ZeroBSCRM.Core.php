@@ -2734,22 +2734,36 @@ final class ZeroBSCRM {
 
 		if ( $currentUserID > 0 && ! empty( $pageKeyCheck ) ) {
 
-			/*
-			Array
-			(
-				[tabs_1] => zerobs-customer-logs,zerobs-customer-edit
-				[zerobs-customer-files] => self
-			)
-			*/
-
 			// retrieve via dal
-			// print_r($this->DAL->userSetting($currentUserID,'screenopts_'.$currentPageKey,false));
 
 			return $this->DAL->userSetting( $currentUserID, 'screenopts_' . $pageKeyCheck, false );
 
 		}
 
 		return array();
+	}
+
+	/**
+	 * Get global screen option settings
+	 *
+	 * @param string $page_key Page key.
+	 */
+	public function global_screen_options( $page_key = false ) {
+
+		if ( empty( $page_key ) ) {
+			$page_key = apply_filters( 'zbs_pagekey', $this->pageKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
+
+		if ( empty( $page_key ) ) {
+			return array();
+		}
+
+		$screen_options = $this->DAL->getSetting( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'key' => 'screenopts_' . $page_key,
+			)
+		);
+		return $screen_options;
 	}
 
 	/**

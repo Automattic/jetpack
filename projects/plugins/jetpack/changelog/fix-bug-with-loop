@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix an issue where Jetpack_Memberships::user_can_view_post would cachethe wrong value

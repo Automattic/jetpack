@@ -60,8 +60,10 @@
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
 		"recipe",
+		"tock",
 		"v6-video-frame-poster",
-		"videopress/video-chapters"
+		"videopress/video-chapters",
+		"ai-assistant-support"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
