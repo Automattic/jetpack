@@ -26,8 +26,9 @@ export const withAIAssistant = createHigherOrderComponent(
 
 				<BlockControls group="block">
 					<AiAssistantDropdown
-						onChange={ item => {
-							console.log( { item } ); // eslint-disable-line no-console
+						onChange={ ( suggestion, options ) => {
+							console.log( { suggestion } ); // eslint-disable-line no-console
+							console.log( { options } ); // eslint-disable-line no-console
 						} }
 					/>
 				</BlockControls>
