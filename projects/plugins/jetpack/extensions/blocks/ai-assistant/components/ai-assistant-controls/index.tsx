@@ -15,7 +15,7 @@ import React from 'react';
  */
 import AIAssistantIcon from '../../icons/ai-assistant';
 import './style.scss';
-import { ToneDropdownControl, ToneProp } from '../tone-dropdown-control';
+import { ToneDropdownMenu, ToneProp } from '../tone-dropdown-control';
 
 // Quick edits option: "Correct spelling and grammar"
 const QUICK_EDIT_KEY_CORRECT_SPELLING = 'correct-spelling' as const;
@@ -112,7 +112,7 @@ export default function AiAssistantDropdown( {
 						</MenuItem>
 					) ) }
 
-					<ToneDropdownControl
+					<ToneDropdownMenu
 						onChange={ tone => {
 							onChange( 'changeTone', { tone, contentType: 'generated' } );
 							closeDropdown();

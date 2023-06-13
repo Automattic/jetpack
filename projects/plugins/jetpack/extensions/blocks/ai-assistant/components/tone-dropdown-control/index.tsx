@@ -127,12 +127,12 @@ export const PROMPT_TONES_MAP = {
 
 export type ToneProp = ( typeof PROMPT_TONES_LIST )[ number ];
 
-type ToneDropdownMenuControlProps = {
+type ToneToolbarDropdownMenuProps = {
 	value?: ToneProp;
 	onChange: ( value: ToneProp ) => void;
 };
 
-const ToneMenuGroup = ( { value, onChange }: ToneDropdownMenuControlProps ) => (
+const ToneMenuGroup = ( { value, onChange }: ToneToolbarDropdownMenuProps ) => (
 	<MenuGroup label={ __( 'Select tone', 'jetpack' ) }>
 		{ PROMPT_TONES_LIST.map( tone => {
 			return (
@@ -148,10 +148,10 @@ const ToneMenuGroup = ( { value, onChange }: ToneDropdownMenuControlProps ) => (
 	</MenuGroup>
 );
 
-export function ToneDropdownControl( {
+export function ToneDropdownMenu( {
 	value = DEFAULT_PROMPT_TONE,
 	onChange,
-}: ToneDropdownMenuControlProps ) {
+}: ToneToolbarDropdownMenuProps ) {
 	return (
 		<DropdownMenu
 			icon={ speakToneIcon }
@@ -176,10 +176,10 @@ export function ToneDropdownControl( {
 	);
 }
 
-export default function ToneDropdownMenuControl( {
+export default function ToneToolbarDropdownMenu( {
 	value = DEFAULT_PROMPT_TONE,
 	onChange,
-}: ToneDropdownMenuControlProps ) {
+}: ToneToolbarDropdownMenuProps ) {
 	return (
 		<ToolbarDropdownMenu
 			icon={ speakToneIcon }
