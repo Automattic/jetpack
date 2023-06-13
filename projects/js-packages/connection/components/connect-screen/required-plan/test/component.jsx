@@ -39,22 +39,6 @@ describe( 'ConnectScreenRequiredPlan', () => {
 		expect( screen.getByRole( 'button', { name: CONNECTION_BUTTON_LABEL } ) ).toBeEnabled();
 	} );
 
-	it( 'does not display terms of service text, a connection button, or an existing subscription prompt when `showConnectButton` is false', () => {
-		render( <ConnectScreenRequiredPlan { ...requiredProps } showConnectButton={ false } /> );
-		expect(
-			screen.queryByText(
-				( content, { textContent } ) =>
-					content !== '' && // filter out parent/wrapper elements
-					textContent.startsWith(
-						`By clicking the ${ CONNECTION_BUTTON_LABEL } button, you agree to our Terms of Service`
-					)
-			)
-		).not.toBeInTheDocument();
-
-		expect( screen.queryByText( 'Already have a subscription?' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Setup Jetpack' } ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'applies correct href to terms of service', () => {
 		render( <ConnectScreenRequiredPlan { ...requiredProps } /> );
 		const terms = screen.getByRole( 'link', { name: 'Terms of Service' } );

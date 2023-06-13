@@ -28,7 +28,6 @@ const DefaultArgs = {
 	buttonIsLoading: false,
 	buttonLabel: 'Set up Jetpack',
 	displayButtonError: false,
-	showConnectButton: true,
 	handleButtonClick: action( 'onButtonClick' ),
 	// connect screen props
 	title: 'Over 5 million WordPress sites are faster and more secure',

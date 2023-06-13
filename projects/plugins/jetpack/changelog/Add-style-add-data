@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Blocks: load block stylesheets inline when possible, for improved performance.
