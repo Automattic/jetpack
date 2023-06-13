@@ -42,6 +42,7 @@
 		"story",
 		"subscriptions",
 		"tiled-gallery",
+		"tock",
 		"videopress",
 		"wordads",
 		"payments-intro",
@@ -60,7 +61,6 @@
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
 		"recipe",
-		"tock",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-support"
@@ -90,6 +90,7 @@
 		"simple-payments",
 		"slideshow",
 		"tiled-gallery",
+		"tock",
 		"videopress",
 		"wordads"
 	]
