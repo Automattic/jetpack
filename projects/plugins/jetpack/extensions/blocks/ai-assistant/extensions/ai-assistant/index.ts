@@ -1,10 +1,12 @@
 /*
  * External dependencies
  */
+import { getBlockType } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
  */
+import { blockName } from '../..';
 import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
 
@@ -34,6 +36,11 @@ const siteRequiresUpgrade = AI_Assistant_Initial_State.requireUpgrade;
  * @returns {boolean} True if it is possible to extend the block.
  */
 export function isPossibleToExtendBlock(): boolean {
+	const isBlockRegistered = getBlockType( blockName );
+	if ( ! isBlockRegistered ) {
+		return false;
+	}
+
 	// Check Jetpack extension is enabled.
 	if ( ! isAiAssistantSupportExtensionEnabled ) {
 		return false;
