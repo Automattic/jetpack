@@ -124,6 +124,22 @@ type ToneDropdownMenuControlProps = {
 	onChange: ( value: string ) => void;
 };
 
+const ToneMenuGroup = ( { value, onChange }: ToneDropdownMenuControlProps ) => (
+	<MenuGroup label={ __( 'Select tone', 'jetpack' ) }>
+		{ PROMPT_TONES_LIST.map( tone => {
+			return (
+				<MenuItem
+					key={ `key-${ tone }` }
+					onClick={ () => onChange( tone ) }
+					isSelected={ value === tone }
+				>
+					{ `${ PROMPT_TONES_MAP[ tone ].emoji } ${ PROMPT_TONES_MAP[ tone ].label }` }
+				</MenuItem>
+			);
+		} ) }
+	</MenuGroup>
+);
+
 export default function ToneDropdownMenuControl( {
 	value = DEFAULT_PROMPT_TONE,
 	onChange,
@@ -136,23 +152,7 @@ export default function ToneDropdownMenuControl( {
 				variant: 'toolbar',
 			} }
 		>
-			{ () => {
-				return (
-					<MenuGroup label={ __( 'Select tone', 'jetpack' ) }>
-						{ PROMPT_TONES_LIST.map( tone => {
-							return (
-								<MenuItem
-									key={ `key-${ tone }` }
-									onClick={ () => onChange( tone ) }
-									isSelected={ value === tone }
-								>
-									{ `${ PROMPT_TONES_MAP[ tone ].emoji } ${ PROMPT_TONES_MAP[ tone ].label }` }
-								</MenuItem>
-							);
-						} ) }
-					</MenuGroup>
-				);
-			} }
+			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }
 		</ToolbarDropdownMenu>
 	);
 }
