@@ -60,14 +60,19 @@ type ImproveDropdownProps = {
 	label: string;
 
 	/*
-	 * A list of quick edits to exclude from the dropdown.
+	 * A list of quick edits to exclude from the dropdown. Optional.
 	 */
-	exclude: ImproveKeyProp[];
+	exclude?: ImproveKeyProp[];
 
 	onChange: ( item: ImproveSuggestionProp, options: { contentType: string } ) => void;
 };
 
-export default function ImproveDropdown( { key, label, exclude, onChange }: ImproveDropdownProps ) {
+export default function ImproveDropdown( {
+	key,
+	label,
+	exclude = [],
+	onChange,
+}: ImproveDropdownProps ) {
 	return (
 		<ToolbarDropdownMenu
 			icon={ pencil }
