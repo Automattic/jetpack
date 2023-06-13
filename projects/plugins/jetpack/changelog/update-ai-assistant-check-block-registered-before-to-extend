@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Feature: Do not extend if the AI Assistant block is not registered

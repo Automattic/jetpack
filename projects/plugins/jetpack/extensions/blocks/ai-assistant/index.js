@@ -23,6 +23,7 @@ import './extensions/ai-assistant';
 import './editor.scss';
 
 export const name = 'ai-assistant';
+export const blockName = `jetpack/${ name }`;
 export const title = __( 'AI Assistant (Experimental)', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
