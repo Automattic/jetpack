@@ -311,6 +311,13 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$user_can_customize = current_user_can( 'customize' );
 
+		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+			add_filter( 'safecss_is_freetrial', '__return_false', PHP_INT_MAX );
+			if ( class_exists( 'Jetpack_Custom_CSS' ) && empty( Jetpack_Custom_CSS::get_css() ) ) {
+				$user_can_customize = false;
+			}
+		}
+
 		if ( $user_can_customize ) {
 			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => 'jetpack_custom_css' ) ), $customize_url );
 			add_submenu_page( 'themes.php', esc_attr__( 'Additional CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
