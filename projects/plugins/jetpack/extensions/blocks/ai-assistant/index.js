@@ -13,10 +13,10 @@ import attributes from './attributes';
 import edit from './edit';
 import Icon from './icons/ai-assistant';
 /**
- * Extend:
- * - blocks (Multiple-blocks edition)
+ * Supports and extensions
  */
-// import './extensions/multiple-blocks-edition'; @todo: cosider to enable it in the future
+import './supports';
+import './extensions/ai-assistant';
 /**
  * Style dependencies
  */

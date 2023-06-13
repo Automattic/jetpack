@@ -17,15 +17,12 @@ export default function ProductManagementControls( {
 	selectedProductId = 0,
 	setSelectedProductId = () => {},
 } ) {
-	const products = useSelect(
-		select =>
-			select( membershipProductsStore ).getProducts(
-				productType,
-				selectedProductId,
-				setSelectedProductId
-			),
-		[]
+	const products = useSelect( select =>
+		select( membershipProductsStore )
+			?.getProducts()
+			.filter( product => ! product.subscribe_as_site_subscriber )
 	);
+
 	const { connectUrl, isApiConnected, isSelectedProductInvalid } = useSelect( select => {
 		const { getConnectUrl, isApiStateConnected, isInvalidProduct } =
 			select( membershipProductsStore );

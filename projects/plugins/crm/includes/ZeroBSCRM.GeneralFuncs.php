@@ -645,7 +645,7 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 	function zeroBSCRM_getGravatarURLfromEmail($email='',$size=80){
 
 		// https:
-		$url = '//www.gravatar.com/avatar/' . md5( $email );
+		$url = '//www.gravatar.com/avatar/' . hash( 'sha256', $email );
 		$url = add_query_arg( array(
 			's' => $size,
 			'd' => 'mm',
@@ -1590,7 +1590,7 @@ function jpcrm_generate_pdf( $html, $pdf_filename ) {
  * @return string A randomish string.
  */
 function jpcrm_disable_browser_autocomplete() {
-	return time() . '-' . wp_rand( 0, 100 );
+	return time() . wp_rand( 0, 1000000 );
 }
 
 /**

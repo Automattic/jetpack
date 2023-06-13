@@ -200,7 +200,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_disabled_callback' => '__return_true',
 		),
 
-		// @todo Add Keep Building tasks.
+		// Keep Building tasks.
+		'site_title'                      => array(
+			'get_title'            => function () {
+				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -250,10 +256,10 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
  * Initialize the Launchpad task listener callbacks.
  *
  * @param array $task_definitions The tasks to initialize.
+ *
+ * @return mixed void or WP_Error.
  */
 function wpcom_launchpad_init_listeners( $task_definitions ) {
-	require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
-
 	foreach ( $task_definitions as $task_id => $task_definition ) {
 		if ( isset( $task_definition['add_listener_callback'] ) && is_callable( $task_definition['add_listener_callback'] ) ) {
 			$task_data = array_merge( $task_definition, array( 'id' => $task_id ) );
@@ -261,19 +267,25 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
 			try {
 				call_user_func( $task_definition['add_listener_callback'], $task_data ); // Current callbacks expect the built, registered task for the second parameter, which won't work in this case.
 			} catch ( Exception $e ) {
-				$data = array(
-					'blog_id'     => get_current_blog_id(),
-					'task_id'     => $task_id,
-					'site_intent' => get_option( 'site_intent' ),
-				);
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
 
-				log2logstash(
-					array(
-						'feature' => 'launchpad',
-						'message' => 'Launchpad failed to add listener callback.',
-						'extra'   => wp_json_encode( $data ),
-					)
-				);
+					$data = array(
+						'blog_id'     => get_current_blog_id(),
+						'task_id'     => $task_id,
+						'site_intent' => get_option( 'site_intent' ),
+					);
+
+					log2logstash(
+						array(
+							'feature' => 'launchpad',
+							'message' => 'Launchpad failed to add listener callback.',
+							'extra'   => wp_json_encode( $data ),
+						)
+					);
+				}
+
+				return new WP_Error( 'launchpad_add_listener_callback_failed', $e->getMessage() );
 			}
 		}
 	}
@@ -516,3 +528,18 @@ function wpcom_track_video_uploaded_task( $post_id ) {
 	}
 	wpcom_mark_launchpad_task_complete( 'videopress_upload' );
 }
+
+/**
+ * Mark the site_title task as complete if the site title is not empty and not the default.
+ *
+ * @param string $old_value The old value of the site title.
+ * @param string $value The new value of the site title.
+ *
+ * @return void
+ */
+function wpcom_mark_site_title_complete( $old_value, $value ) {
+	if ( $value !== $old_value ) {
+		wpcom_mark_launchpad_task_complete( 'site_title' );
+	}
+}
+add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
