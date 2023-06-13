@@ -1,8 +1,15 @@
 /*
  * External dependencies
  */
-import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
+import {
+	MenuItem,
+	MenuGroup,
+	ToolbarDropdownMenu,
+	DropdownMenu,
+	Icon,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { chevronDown } from '@wordpress/icons';
 import React from 'react';
 /**
  * Internal dependencies
@@ -139,6 +146,31 @@ const ToneMenuGroup = ( { value, onChange }: ToneDropdownMenuControlProps ) => (
 		} ) }
 	</MenuGroup>
 );
+
+export function ToneDropdownControl( {
+	value = DEFAULT_PROMPT_TONE,
+	onChange,
+}: ToneDropdownMenuControlProps ) {
+	return (
+		<DropdownMenu
+			icon={ speakToneIcon }
+			label={ __( 'Change tone', 'jetpack' ) }
+			popoverProps={ {
+				variant: 'toolbar',
+			} }
+			toggleProps={ {
+				children: (
+					<>
+						<div>{ __( 'Change tone', 'jetpack' ) }</div>
+						<Icon icon={ chevronDown } />
+					</>
+				),
+			} }
+		>
+			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }
+		</DropdownMenu>
+	);
+}
 
 export default function ToneDropdownMenuControl( {
 	value = DEFAULT_PROMPT_TONE,
