@@ -31,22 +31,6 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 	}
 }
 
-function NewsletterLearnMore() {
-	return (
-		<small className="jetpack-newsletter-learn-more">
-			{ createInterpolateElement(
-				__(
-					'Restrict your post to subscribers. <learnMoreLink>Learn more.</learnMoreLink>',
-					'jetpack'
-				),
-				{
-					learnMoreLink: <Link href={ getRedirectUrl( 'paid-newsletter-info' ) } />,
-				}
-			) }
-		</small>
-	);
-}
-
 export function NewsletterNotice( {
 	accessLevel,
 	emailSubscribers,
@@ -288,9 +272,6 @@ export function NewsletterAccessDocumentSettings( {
 
 							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
 							{ ! canEdit && <span>{ accessLabel }</span> }
-						</FlexBlock>
-						<FlexBlock>
-							<NewsletterLearnMore />
 						</FlexBlock>
 					</Flex>
 				</PanelRow>
