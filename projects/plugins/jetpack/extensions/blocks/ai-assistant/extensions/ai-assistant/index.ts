@@ -94,4 +94,4 @@ function addJetpackAISupport( settings: BlockSettingsProps, name: string ): Bloc
 }
 
 // Extend BlockType.
-addFilter( 'blocks.registerBlockType', 'jetpack/ai-assistant-support', addJetpackAISupport );
+addFilter( 'blocks.registerBlockType', 'jetpack/ai-assistant-support', addJetpackAISupport, 100 );

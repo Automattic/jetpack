@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
-import { InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls, BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import React from 'react';
 /**
  * Internal dependencies
  */
+import AiAssistantDropdown from '../../components/ai-assistant-controls';
 import AiAssistantPanel from '../../components/ai-assistant-panel';
 
 /*
@@ -22,6 +23,14 @@ export const withAIAssistant = createHigherOrderComponent(
 				<InspectorControls>
 					<AiAssistantPanel />
 				</InspectorControls>
+
+				<BlockControls group="block">
+					<AiAssistantDropdown
+						onChange={ item => {
+							console.log( { item } ); // eslint-disable-line no-console
+						} }
+					/>
+				</BlockControls>
 			</>
 		);
 	},
