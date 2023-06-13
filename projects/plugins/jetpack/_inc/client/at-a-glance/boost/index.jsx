@@ -88,7 +88,7 @@ const DashBoost = ( {
 		setIsLoading( true );
 
 		try {
-			const scores = await requestSpeedScores( false, apiRoot, siteUrl, apiNonce );
+			const scores = await requestSpeedScores( true, apiRoot, siteUrl, apiNonce );
 			const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 			setSpeedLetterGrade( scoreLetter );
 			setMobileSpeedScore( scores.current.mobile );
@@ -96,6 +96,12 @@ const DashBoost = ( {
 			setDaysSinceTested( 0 );
 			setIsLoading( false );
 		} catch ( err ) {
+			analytics.tracks.recordEvent( 'jetpack_boost_speed_score_error', {
+				feature: BOOST_PLUGIN_SLUG,
+				position: 'at-a-glance',
+				error: err,
+			} );
+
 			// If error, use cached speed scores if they exist
 			if ( latestSpeedScores && latestSpeedScores.scores ) {
 				setScoresFromCache();

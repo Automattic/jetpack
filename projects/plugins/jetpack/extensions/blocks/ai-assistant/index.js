@@ -13,17 +13,17 @@ import attributes from './attributes';
 import edit from './edit';
 import Icon from './icons/ai-assistant';
 /**
- * Extend:
- * - blocks (Multiple-blocks edition)
+ * Supports and extensions
  */
-import './extensions/multiple-blocks-edition';
+import './supports';
+import './extensions/ai-assistant';
 /**
  * Style dependencies
  */
 import './editor.scss';
 
 export const name = 'ai-assistant';
-export const title = __( 'AI Assistant', 'jetpack' );
+export const title = __( 'AI Assistant (Experimental)', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
@@ -32,9 +32,20 @@ export const settings = {
 			<p>{ __( 'Automatically generate and modify content, powered by AI magic.', 'jetpack' ) }</p>
 			<p>
 				{ __(
+					'The AI Assistant can be imprecise with information about people, places, or facts.',
+					'jetpack'
+				) }
+			</p>
+			<p>
+				{ __(
 					'We are experimenting with this feature and can tweak or remove it at any point.',
 					'jetpack'
 				) }
+			</p>
+			<p>
+				<ExternalLink href="https://automattic.com/ai-guidelines">
+					{ __( 'AI guidelines.', 'jetpack' ) }
+				</ExternalLink>
 			</p>
 			<ExternalLink href={ getRedirectUrl( 'jetpack_ai_feedback' ) }>
 				{ __( 'Share your feedback.', 'jetpack' ) }

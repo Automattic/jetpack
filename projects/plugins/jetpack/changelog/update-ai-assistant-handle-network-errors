@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-AI Assistant: Handle network errors to show a message and the retry option.

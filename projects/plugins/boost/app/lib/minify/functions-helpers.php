@@ -70,6 +70,23 @@ function jetpack_boost_page_optimize_uninstall() {
 }
 
 /**
+ * Convert enqueued home-relative URLs to absolute ones.
+ *
+ * Enqueued script URLs which start with / are relative to WordPress' home URL.
+ * i.e.: "/wp-includes/x.js" should be "WP_HOME/wp-includes/x.js".
+ *
+ * Note: this method uses home_url, so should only be used plugin-side when
+ * generating concatenated URLs.
+ */
+function jetpack_boost_enqueued_to_absolute_url( $url ) {
+	if ( substr( $url, 0, 1 ) === '/' ) {
+		return home_url( $url );
+	}
+
+	return $url;
+}
+
+/**
  * Get the list of JS slugs to exclude from minification.
  */
 function jetpack_boost_page_optimize_js_exclude_list() {

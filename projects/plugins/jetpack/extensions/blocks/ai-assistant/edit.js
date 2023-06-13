@@ -5,24 +5,28 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
 import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
+import { useKeyboardShortcut } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import MarkdownIt from 'markdown-it';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
-import AIControl from './ai-control';
-import ImageWithSelect from './image-with-select';
-import { getImagesFromOpenAI } from './lib';
-import useSuggestionsFromOpenAI from './use-suggestions-from-openai';
+import AIControl from './components/ai-control';
+import ImageWithSelect from './components/image-with-select';
+import useAIFeature from './hooks/use-ai-feature';
+import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
+import { getImagesFromOpenAI } from './lib/image';
 import './editor.scss';
 
 const markdownConverter = new MarkdownIt( {
 	breaks: true,
 } );
+
+const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
@@ -33,6 +37,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const [ errorDismissed, setErrorDismissed ] = useState( null );
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+	const aiControlRef = useRef( null );
+	const blockRef = useRef( null );
 
 	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( blockEditorStore );
 	const { editPost } = useDispatch( 'core/editor' );
@@ -43,6 +49,22 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			mediaUpload: settings.mediaUpload,
 		};
 	}, [] );
+
+	const focusOnPrompt = () => {
+		// Small delay to avoid focus crash
+		setTimeout( () => {
+			aiControlRef.current?.focus?.();
+		}, 100 );
+	};
+
+	const focusOnBlock = () => {
+		// Small delay to avoid focus crash
+		setTimeout( () => {
+			blockRef.current?.focus?.();
+		}, 100 );
+	};
+
+	const { requireUpgrade, refresh: refreshFeatureData } = useAIFeature();
 
 	const {
 		isLoadingCategories,
@@ -56,12 +78,17 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		retryRequest,
 		wholeContent,
 	} = useSuggestionsFromOpenAI( {
+		onSuggestionDone: focusOnPrompt,
+		onUnclearPrompt: focusOnPrompt,
+		onModeration: focusOnPrompt,
 		attributes,
 		clientId,
 		content: attributes.content,
 		setError,
 		tracks,
 		userPrompt,
+		refreshFeatureData,
+		requireUpgrade,
 	} );
 
 	useEffect( () => {
@@ -117,24 +144,62 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	// Content is loaded
 	const contentIsLoaded = !! attributes.content;
 
-	const handleAcceptContent = () => {
-		replaceBlocks(
-			clientId,
-			rawHandler( { HTML: markdownConverter.render( attributes.content ) } )
-		);
+	const getLastEditableElement = newContentBlocks => {
+		let lastEditableElement = null;
+
+		newContentBlocks.forEach( block => {
+			const element = document.querySelector( `.wp-block[data-block="${ block.clientId }"]` );
+			if ( ! element ) {
+				return;
+			}
+
+			if ( element.contentEditable === 'true' ) {
+				lastEditableElement = element;
+			}
+
+			const editableChildren = element.querySelectorAll( `[contenteditable=true]` );
+			lastEditableElement = editableChildren.length
+				? editableChildren[ editableChildren.length - 1 ]
+				: lastEditableElement;
+		} );
+
+		return lastEditableElement;
+	};
+
+	const moveCaretToEnd = element => {
+		const selection = window.getSelection();
+		selection.selectAllChildren( element );
+		selection.collapseToEnd();
+		element.focus();
+	};
+
+	const handleAcceptContent = async () => {
+		const newContentBlocks = rawHandler( { HTML: markdownConverter.render( attributes.content ) } );
+		await replaceBlocks( clientId, newContentBlocks );
+
+		const lastEditableElement = getLastEditableElement( newContentBlocks );
+
+		if ( lastEditableElement ) {
+			moveCaretToEnd( lastEditableElement );
+		}
 	};
 
 	const handleAcceptTitle = () => {
-		editPost( { title: attributes.content.trim() } );
-		removeBlock( clientId );
+		if ( isInBlockEditor ) {
+			editPost( { title: attributes.content.trim() } );
+			removeBlock( clientId );
+		} else {
+			handleAcceptContent();
+		}
 	};
 
 	const handleTryAgain = () => {
-		setAttributes( { content: undefined } );
+		setAttributes( { content: undefined, promptType: undefined } );
 	};
 
-	const handleGetSuggestion = type => {
-		getSuggestionFromOpenAI( type );
+	const handleGetSuggestion = ( ...args ) => {
+		getSuggestionFromOpenAI( ...args );
+		focusOnBlock();
 		return;
 	};
 
@@ -160,9 +225,22 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		} );
 	};
 
+	useKeyboardShortcut(
+		'esc',
+		e => {
+			e.stopImmediatePropagation();
+			handleStopSuggestion();
+			focusOnPrompt();
+		},
+		{
+			target: blockRef,
+		}
+	);
+
 	return (
 		<div
 			{ ...useBlockProps( {
+				ref: blockRef,
 				className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
 			} ) }
 		>
@@ -183,9 +261,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				</>
 			) }
 			<AIControl
+				ref={ aiControlRef }
 				content={ attributes.content }
 				contentIsLoaded={ contentIsLoaded }
-				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+				getSuggestionFromOpenAI={ handleGetSuggestion }
 				retryRequest={ retryRequest }
 				handleAcceptContent={ handleAcceptContent }
 				handleAcceptTitle={ handleAcceptTitle }
@@ -203,8 +282,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				wholeContent={ wholeContent }
 				promptType={ attributes.promptType }
 				onChange={ () => setErrorDismissed( true ) }
-				requireUpgrade={ errorData?.code === 'error_quota_exceeded' }
+				requireUpgrade={ errorData?.code === 'error_quota_exceeded' || requireUpgrade }
+				recordEvent={ tracks.recordEvent }
+				isGeneratingTitle={ attributes.promptType === 'generateTitle' }
 			/>
+
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
 					<FlexBlock
@@ -227,6 +309,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					</Flex>
 				</Flex>
 			) }
+
 			{ ! loadingImages && imageModal && (
 				<Modal onRequestClose={ () => setImageModal( null ) }>
 					<ImageWithSelect

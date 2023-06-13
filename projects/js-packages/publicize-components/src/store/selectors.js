@@ -56,10 +56,7 @@ export function getLinkedInDetails( { forceDefaults = false } = {} ) {
 		}
 	}
 
-	return {
-		name: __( 'Account Name', 'jetpack' ),
-		profileImage: 'https://static.licdn.com/sc/h/1c5u578iilxfi4m4dvc4q810q',
-	};
+	return { name: '', profileImage: '' };
 }
 
 /**
@@ -105,12 +102,9 @@ export function getTweetTemplate( state ) {
 	const twitterAccount = connections?.find( connection => 'twitter' === connection.service_name );
 
 	return {
-		date: Date.now(),
-		name: twitterAccount?.profile_display_name || __( 'Account Name', 'jetpack' ),
-		profileImage:
-			twitterAccount?.profile_picture ||
-			'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
-		screenName: twitterAccount?.display_name || '@account',
+		name: twitterAccount?.profile_display_name,
+		profileImage: twitterAccount?.profile_picture,
+		screenName: twitterAccount?.display_name,
 	};
 }
 
@@ -643,4 +637,13 @@ export function getImageGeneratorPostSettings() {
  */
 export function isInstagramConnectionSupported() {
 	return !! getJetpackData()?.social?.isInstagramConnectionSupported;
+}
+
+/**
+ * Checks if the Mastodon connection is supported.
+ *
+ * @returns {boolean} Whether the Mastodon connection is supported
+ */
+export function isMastodonConnectionSupported() {
+	return !! getJetpackData()?.social?.isMastodonConnectionSupported;
 }
