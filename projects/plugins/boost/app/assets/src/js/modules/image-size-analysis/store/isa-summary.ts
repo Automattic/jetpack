@@ -29,6 +29,8 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 		// Default data if deactivated or not loaded yet.
 		.nullable()
 );
+// eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-explicit-any
+image_size_analysis_summary.setSyncAction( ( () => {} ) as any );
 
 // Prevent updates to image_size_analysis_summary from being pushed back to the server.
 image_size_analysis_summary.setSyncAction( async ( _, value ) => value );
