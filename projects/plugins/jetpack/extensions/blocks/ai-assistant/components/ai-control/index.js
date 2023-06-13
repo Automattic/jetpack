@@ -53,7 +53,8 @@ const AIControl = forwardRef(
 		const promptUserInputRef = useRef( null );
 		const [ isSm ] = useBreakpointMatch( 'sm' );
 
-		const connected = isUserConnected();
+		// const connected = isUserConnected();
+		const connected = window?.JP_CONNECTION_INITIAL_STATE?.connectionStatus?.isRegistered;
 
 		const textPlaceholder = __( 'Ask Jetpack AI', 'jetpack' );
 
