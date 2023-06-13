@@ -119,15 +119,15 @@ export const PROMPT_TONES_MAP = {
 
 export type ToneProp = ( typeof PROMPT_TONES_LIST )[ number ];
 
-type ToneDropdownControlProps = {
+type ToneDropdownMenuControlProps = {
 	value: ToneProp;
 	onChange: ( value: string ) => void;
 };
 
-export default function ToneDropdownControl( {
+export default function ToneDropdownMenuControl( {
 	value = DEFAULT_PROMPT_TONE,
 	onChange,
-}: ToneDropdownControlProps ) {
+}: ToneDropdownMenuControlProps ) {
 	return (
 		<ToolbarDropdownMenu
 			icon={ speakToneIcon }
