@@ -526,7 +526,8 @@ class Listener {
 			$serialized_args = serialize( $args ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		} catch ( \Exception $e ) {
 			// Possible case would be a callable returning an anonymous function.
-			return true;
+			// We don't allow this in general, so return false.
+			return false;
 		}
 		$args_size = strlen( $serialized_args );
 
