@@ -36,7 +36,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_domain_upsell_completed',
 			'badge_text_callback'  => 'wpcom_get_domain_upsell_badge_text',
-			'is_visible_callback'  => 'wpcom_is_domain_upsell_visible',
+			'is_visible_callback'  => 'wpcom_is_domain_upsell_task_visible',
 		),
 		'first_post_published'            => array(
 			'get_title'             => function () {
@@ -367,7 +367,7 @@ function wpcom_get_domain_upsell_badge_text() {
  *
  * @return bool True if user is on a free plan with no custom domain name.
  */
-function wpcom_is_domain_upsell_visible() {
+function wpcom_is_domain_upsell_task_visible() {
 	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
 		return false;
 	}
@@ -381,7 +381,9 @@ function wpcom_is_domain_upsell_visible() {
 		}
 	);
 
-	$is_free_plan = empty( $bundle_purchases );
+	if ( ! empty( $bundle_purchases ) ) {
+		return false;
+	}
 
 	// Check if the site has any domain purchases.
 	$domain_purchases = array_filter(
@@ -391,7 +393,7 @@ function wpcom_is_domain_upsell_visible() {
 		}
 	);
 
-	return $is_free_plan && empty( $domain_purchases );
+	return empty( $domain_purchases );
 }
 
 /**
