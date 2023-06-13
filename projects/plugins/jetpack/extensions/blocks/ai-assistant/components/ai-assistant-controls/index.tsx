@@ -82,6 +82,8 @@ type AiAssistantDropdownOnChangeOptionsArgProps = {
 	tone?: ToneProp;
 };
 
+export type AiAssistantSuggestionProp = QuickEditsSuggestionProp | 'changeTone';
+
 type AiAssistantControlComponentProps = {
 	/*
 	 * Can be used to externally control the value of the control. Optional.
@@ -99,7 +101,7 @@ type AiAssistantControlComponentProps = {
 	exclude?: QuickEditsKeyProp[];
 
 	onChange: (
-		item: QuickEditsSuggestionProp,
+		item: AiAssistantSuggestionProp,
 		options?: AiAssistantDropdownOnChangeOptionsArgProps
 	) => void;
 };
