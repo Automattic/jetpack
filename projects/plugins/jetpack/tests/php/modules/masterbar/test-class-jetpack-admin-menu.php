@@ -98,8 +98,8 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		global $submenu;
 
 		static::$admin_menu->add_jetpack_menu();
-
 		$this->assertSame( 'https://wordpress.com/scan/' . static::$domain, $submenu['jetpack'][2][2] );
+		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['jetpack'][3][2] );
 	}
 
 	/**

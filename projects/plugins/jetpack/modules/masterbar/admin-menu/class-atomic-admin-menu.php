@@ -83,7 +83,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		$this->add_woocommerce_installation_menu();
-
 		ksort( $GLOBALS['menu'] );
 	}
 
@@ -111,6 +110,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		return parent::get_preferred_view( $screen, $fallback_global_preference );
+	}
+
+	/**
+	 * Adds Users menu.
+	 */
+	public function add_users_menu() {
+		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
 	}
 
 	/**
