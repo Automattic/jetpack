@@ -3294,9 +3294,8 @@ function wp_cron_preload_cache() {
 					wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
 					sleep( 1 );
 
-					// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-					if ( @file_exists( $cache_path . 'stop_preload.txt' ) ) {
-						wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
+					if ( ! wpsc_is_preload_active() ) {
+						wp_cache_debug( 'wp_cron_preload_cache: cancelling preload process.' );
 						wpsc_reset_preload_settings();
 
 						if ( $wp_cache_preload_email_me ) {
@@ -3397,8 +3396,8 @@ function wp_cron_preload_cache() {
 				@fclose( $fp );
 			}
 
-			if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
-				wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
+			if ( ! wpsc_is_preload_active() ) {
+				wp_cache_debug( 'wp_cron_preload_cache: cancelling preload process.' );
 				wpsc_reset_preload_settings();
 
 				if ( $wp_cache_preload_email_me ) {
@@ -3457,6 +3456,15 @@ add_action( 'wp_cache_full_preload_hook', 'wp_cron_preload_cache' );
  */
 function wpsc_schedule_next_preload() {
 	global $cache_path;
+
+	/*
+	 * Edge case: If preload is not active, don't schedule the next preload.
+	 * This can happen if the preload is cancelled by the user right after a loop finishes.
+	 */
+	if ( ! wpsc_is_preload_active() ) {
+		wp_cache_debug( 'wpsc_schedule_next_preload: preload is not active. not scheduling next preload.' );
+		return;
+	}
 
 	if ( defined( 'DOING_CRON' ) ) {
 		wp_cache_debug( 'wp_cron_preload_cache: scheduling the next preload in 3 seconds.' );
@@ -3624,7 +3632,15 @@ function wpsc_is_preload_active() {
 	$mutex = $cache_path . 'preload_mutex.tmp';
 	if ( file_exists( $mutex ) ) {
 		return true;
+	} else {
+		return false;
 	}
+
+	// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	if ( @file_exists( $cache_path . 'stop_preload.txt' ) ) {
+		return false;
+	}
+
 	$taxonomies = apply_filters(
 		'wp_cache_preload_taxonomies',
 		array(
