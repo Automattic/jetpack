@@ -1,7 +1,12 @@
 /*
  * External dependencies
  */
-import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
+import {
+	MenuItem,
+	MenuGroup,
+	ToolbarDropdownMenu,
+	CustomSelectControl,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
 import React from 'react';
@@ -33,14 +38,14 @@ type QuickEditsDropdownProps = {
 	/*
 	 * The label to use for the dropdown. Optional.
 	 */
-	label: string;
+	label?: string;
 
 	/*
 	 * A list of quick edits to exclude from the dropdown.
 	 */
-	exclude: QuickEditsKeyProp[];
+	exclude?: QuickEditsKeyProp[];
 
-	onChange: ( item: QuickEditsSuggestionProp, options: { contentType: string } ) => void;
+	onChange: ( item: QuickEditsSuggestionProp, options?: { contentType: string } ) => void;
 };
 
 export default function QuickEditsDropdown( {
@@ -82,5 +87,29 @@ export default function QuickEditsDropdown( {
 				);
 			} }
 		</ToolbarDropdownMenu>
+	);
+}
+
+export function QuickEditsSelectControl( {
+	key,
+	label,
+	exclude = [],
+	onChange,
+}: QuickEditsDropdownProps ) {
+	// Initial value. If not found, use empty.
+	const value = quickActionsList.find( quickAction => quickAction.key === key ) || '';
+
+	// Exclude when required.
+	const quickActionsListFiltered = exclude.length
+		? quickActionsList.filter( quickAction => ! exclude.includes( quickAction.key ) )
+		: quickActionsList;
+
+	return (
+		<CustomSelectControl
+			label={ label }
+			value={ value }
+			options={ quickActionsListFiltered }
+			onChange={ ( { selectedItem } ) => onChange( selectedItem ) }
+		/>
 	);
 }
