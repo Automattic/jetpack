@@ -2,14 +2,15 @@
  * External dependencies
  */
 import { BlockControls } from '@wordpress/block-editor';
-import { ToolbarButton, ToolbarDropdownMenu, ToolbarGroup } from '@wordpress/components';
+import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { image, pencil, update, check } from '@wordpress/icons';
+import { image, update, check } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
 import I18nDropdownControl from '../i18n-dropdown-control';
 import PromptTemplatesControl from '../prompt-templates-control';
+import QuickEditsDropdown from '../quick-edits-dropdown';
 import ToneDropdownControl from '../tone-dropdown-control';
 
 // Consider to enable when we have image support
@@ -30,25 +31,6 @@ const ToolbarControls = ( {
 	recordEvent,
 	isGeneratingTitle,
 } ) => {
-	const dropdownControls = [
-		// Interactive controls
-		{
-			title: __( 'Make longer', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'makeLonger', { contentType: 'generated' } ),
-		},
-		{
-			title: __( 'Make shorter', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
-		},
-	];
-
-	if ( ! isGeneratingTitle ) {
-		dropdownControls.unshift( {
-			title: __( 'Summarize', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'summarize', { contentType: 'generated' } ),
-		} );
-	}
-
 	return (
 		<>
 			{ contentIsLoaded && (
@@ -69,10 +51,10 @@ const ToolbarControls = ( {
 						disabled={ contentIsLoaded }
 					/>
 
-					<ToolbarDropdownMenu
-						icon={ pencil }
-						label={ __( 'Improve', 'jetpack' ) }
-						controls={ dropdownControls }
+					<QuickEditsDropdown
+						onChange={ getSuggestionFromOpenAI }
+						label={ __( 'Improvements', 'jetpack' ) }
+						exclude={ isGeneratingTitle ? [ 'summarize' ] : [] }
 					/>
 				</BlockControls>
 			) }
