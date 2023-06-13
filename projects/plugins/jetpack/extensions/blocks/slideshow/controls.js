@@ -1,8 +1,6 @@
-/**
- * External dependencies
- */
 import { MediaUpload } from '@wordpress/block-editor';
 import {
+	Button,
 	PanelBody,
 	RangeControl,
 	SelectControl,
@@ -10,14 +8,9 @@ import {
 	ToolbarGroup,
 	ToolbarItem,
 } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
-import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import EditButton from '../../shared/edit-button';
 
 export function PanelControls( {
 	attributes: { autoplay, delay, effect, images, sizeSlug },
@@ -67,7 +60,7 @@ export function PanelControls( {
 			</PanelBody>
 			<PanelBody title={ __( 'Effects', 'jetpack' ) }>
 				<SelectControl
-					label={ __( 'Transition effect', 'jetpack' ) }
+					label={ __( 'Transition', 'jetpack' ) }
 					value={ effect }
 					onChange={ value => {
 						setAttributes( { effect: value } );
@@ -78,7 +71,7 @@ export function PanelControls( {
 			{ ! isEmpty( images ) && ! isEmpty( imageSizeOptions ) && (
 				<PanelBody title={ __( 'Image Settings', 'jetpack' ) }>
 					<SelectControl
-						label={ __( 'Image Size', 'jetpack' ) }
+						label={ __( 'Size', 'jetpack' ) }
 						value={ sizeSlug }
 						options={ imageSizeOptions }
 						onChange={ size => onChangeImageSize( size ) }
@@ -103,7 +96,9 @@ export function ToolbarControls( { allowedMediaTypes, attributes: { images }, on
 								gallery
 								value={ images.map( img => img.id ) }
 								render={ ( { open } ) => (
-									<EditButton label={ __( 'Edit Slideshow', 'jetpack' ) } onClick={ open } />
+									<Button label={ __( 'Edit Slideshow', 'jetpack' ) } onClick={ open }>
+										{ __( 'Edit', 'jetpack' ) }
+									</Button>
 								) }
 							/>
 						) }

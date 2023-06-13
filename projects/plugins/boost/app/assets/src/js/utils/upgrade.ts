@@ -1,7 +1,6 @@
-/**
- * Internal dependencies
- */
+import { get } from 'svelte/store';
 import config from '../stores/config';
+import { isUserConnected } from '../stores/connection';
 
 /**
  * Get the URL to upgrade boost.
@@ -11,8 +10,8 @@ import config from '../stores/config';
  * should be used instead. However, the redirect changes the redirect URL in a broken manner.
  */
 export function getUpgradeURL() {
-	const siteSuffix = config.site.domain;
-	const product = 'jetpack_boost_monthly';
+	const siteSuffix = get( config ).site.domain;
+	const product = 'jetpack_boost_yearly';
 
 	const redirectUrl = new URL( window.location.href );
 	redirectUrl.hash = '#/purchase-successful';
@@ -26,7 +25,11 @@ export function getUpgradeURL() {
 
 	// Add site to query string.
 	checkoutProductUrl.searchParams.set( 'site', siteSuffix );
-	checkoutProductUrl.searchParams.set( 'unlinked', '1' );
+
+	// If not connected, add unlinked=1 to query string to tell wpcom to connect the site.
+	if ( ! isUserConnected() ) {
+		checkoutProductUrl.searchParams.set( 'unlinked', '1' );
+	}
 
 	return checkoutProductUrl.toString();
 }

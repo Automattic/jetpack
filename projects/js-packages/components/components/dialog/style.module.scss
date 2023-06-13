@@ -11,13 +11,6 @@
 	display: flex;
 }
 
-// Add spacing between primary and secondary in "sm" viewport size
-.primary {
-	@media ( max-width: '599px' ) {
-		margin-bottom: calc( var( --spacing-base ) * 3 );
-	}
-}
-
 // Fit images in secondary section.
 .secondary {
 	align-items: center;
@@ -25,5 +18,13 @@
 		// let's fit images
 		object-fit: cover;
 		width: 100%;
+	}
+}
+
+// Viewport breakpoints.
+.is-viewport-small {
+	// Add spacing between primary and secondary in "sm" viewport size
+	.primary {
+		margin-bottom: calc( var( --spacing-base ) * 3 );
 	}
 }

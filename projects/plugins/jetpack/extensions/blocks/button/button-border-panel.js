@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
 import { PanelBody, RangeControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import {
 	INITIAL_BORDER_RADIUS_POSITION,
 	MAX_BORDER_RADIUS_VALUE,

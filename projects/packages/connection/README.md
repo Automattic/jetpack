@@ -8,19 +8,28 @@ Package is published in [Packagist](https://packagist.org/packages/automattic/je
 
 ```
 "require": {
-    "automattic/jetpack-autoloader": "dev-master",
-    "automattic/jetpack-config": "dev-master",
-    "automattic/jetpack-connection": "dev-master"
+    "automattic/jetpack-autoloader": "dev-trunk",
+    "automattic/jetpack-config": "dev-trunk",
+    "automattic/jetpack-connection": "dev-trunk"
 }
 ```
 
-## Examples
-1. [Register the site](docs/register-site.md)
-2. [Authorize the user](docs/authorize-user.md)
-3. In-place user auth @todo
-4. Disconnecting @todo
+## Guides
+* [Connection package guide](docs/register-site.md)
 
 ## Tools
 
 1. [Making Authenticated async XML-RPC calls](docs/xmlrpc-async-calls.md)
 1. [Customizing error messages](docs/error-handling.md)
+
+## Using this package in your WordPress plugin
+
+If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
+
+## Security
+
+Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
+
+## License
+
+jetpack-connection is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)

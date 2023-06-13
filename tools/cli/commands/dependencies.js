@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import chalk from 'chalk';
 import { spawn } from 'child_process';
+import chalk from 'chalk';
 import ignore from 'ignore';
-
-/**
- * Internal dependencies
- */
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 
 // Files that mean --git-changed should report all projects as changed.
@@ -16,6 +9,9 @@ infrastructureFileSets.base = new Set( [
 	'tools/cli/commands/dependencies.js',
 	'tools/cli/helpers/dependencyAnalysis.js',
 	'.github/actions/tool-setup/action.yml',
+	'.github/actions/tool-setup/composer-plugin/composer.json',
+	'.github/actions/tool-setup/composer-plugin/src/Plugin.php',
+	'.github/actions/tool-setup/packagist-proxy.mjs',
 	'.github/files/list-changed-projects.sh',
 	'.github/versions.sh',
 	// If pnpm stuff changed, we should build/test everything since we can't know what the change will affect.
@@ -24,7 +20,6 @@ infrastructureFileSets.base = new Set( [
 infrastructureFileSets.test = new Set( [
 	...infrastructureFileSets.base,
 	'.github/files/generate-ci-matrix.php',
-	'.github/files/process-coverage.sh',
 	'.github/files/setup-wordpress-env.sh',
 	'.github/workflows/tests.yml',
 ] );
@@ -81,6 +76,10 @@ export function builder( yargs ) {
 			describe: 'Ignore the monorepo root.',
 			type: 'boolean',
 		} )
+		.option( 'no-dev', {
+			describe: 'Do not consider dev dependencies.',
+			type: 'boolean',
+		} )
 		.option( 'pretty', {
 			describe: 'Pretty-print JSON or build-order output.',
 			type: 'boolean',
@@ -93,7 +92,7 @@ export function builder( yargs ) {
  * @param {object} argv - the arguments passed.
  */
 export async function handler( argv ) {
-	let deps = await getDependencies( process.cwd(), argv.extra );
+	let deps = await getDependencies( process.cwd(), argv.extra, argv.dev === false );
 
 	if ( argv.ignoreRoot ) {
 		deps.delete( 'monorepo' );

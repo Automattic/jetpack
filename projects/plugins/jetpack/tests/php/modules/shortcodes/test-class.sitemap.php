@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 	 * @since  4.5.0
 	 */
 	public function test_shortcodes_sitemap_exists() {
-		$this->assertEquals( shortcode_exists( 'sitemap' ), true );
+		$this->assertTrue( shortcode_exists( 'sitemap' ) );
 	}
 
 	/**
@@ -36,7 +36,7 @@ class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 	public function test_shortcodes_sitemap_image() {
 		$content = '[sitemap]';
 
-		$page_1_id = $this->factory->post->create(
+		$page_1_id = self::factory()->post->create(
 			array(
 				'post_type'    => 'page',
 				'post_title'   => 'Jetpack Parent',
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Shortcodes_Sitemap extends WP_UnitTestCase {
 			)
 		);
 
-		$page_1_1_id = $this->factory->post->create(
+		$page_1_1_id = self::factory()->post->create(
 			array(
 				'post_type'    => 'page',
 				'post_title'   => 'Jetpack Child',

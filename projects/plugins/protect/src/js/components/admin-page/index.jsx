@@ -1,149 +1,44 @@
-/**
- * External dependencies
- */
-import React, { useEffect } from 'react';
+import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import apiFetch from '@wordpress/api-fetch';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useSelect, useDispatch } from '@wordpress/data';
-
-import {
-	AdminPage,
-	AdminSectionHero,
-	Container,
-	Col,
-	H3,
-	Text,
-} from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
-
-/**
- * Internal dependencies
- */
-import Summary from '../summary';
-import VulnerabilitiesList from '../vulnerabilities-list';
-import Interstitial from '../interstitial';
+import { addQueryArgs, getQueryArg } from '@wordpress/url';
+import React, { useEffect } from 'react';
+import { JETPACK_SCAN_SLUG } from '../../constants';
+import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
-import Footer from '../footer';
-import useProtectData from '../../hooks/use-protect-data';
-import inProgressImage from './in-progress.png';
-import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import InterstitialPage from '../interstitial-page';
 import Logo from '../logo';
-import AlertSVGIcon from '../alert-icon';
+import Tabs, { Tab } from '../tabs';
 import styles from './styles.module.scss';
+import useRegistrationWatcher from './use-registration-watcher';
 
-export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
-
-const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
-	return (
-		<AdminPage
-			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
-			showHeader={ false }
-			showBackground={ false }
-		>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col sm={ 4 } md={ 8 } lg={ 12 }>
-					<Interstitial onSecurityAdd={ run } securityJustAdded={ hasCheckoutStarted } />
-				</Col>
-			</Container>
-		</AdminPage>
-	);
-};
-
-const ProtectAdminPage = () => {
-	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
-	// Track view for Protect admin page.
-	useAnalyticsTracks( { pageViewEventName: 'protect_admin' } );
-
-	// Error
-	if ( 'error' === currentStatus ) {
-		let displayErrorMessage = errorMessage
-			? `${ errorMessage } (${ errorCode }).`
-			: __( 'We are having problems scanning your site.', 'jetpack-protect' );
-		displayErrorMessage += ' ' + __( 'Try again in a few minutes.', 'jetpack-protect' );
-
-		return (
-			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
-						<Col sm={ 4 } md={ 4 } lg={ 6 }>
-							<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } />
-							<H3>{ __( 'We’re having problems scanning your site', 'jetpack-protect' ) }</H3>
-							<Text>{ displayErrorMessage }</Text>
-						</Col>
-						<Col sm={ 0 } md={ 0 } lg={ 1 }></Col>
-						<Col sm={ 4 } md={ 3 } lg={ 5 }>
-							<img src={ inProgressImage } alt="" />
-						</Col>
-					</Container>
-				</AdminSectionHero>
-				<Footer />
-			</AdminPage>
-		);
-	}
-
-	// When there's no information yet. Usually when the plugin was just activated
-	if ( ! lastChecked ) {
-		return (
-			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
-						<Col sm={ 4 } md={ 4 } lg={ 6 }>
-							<H3 mt={ 8 }>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
-							<Text>
-								{ __(
-									'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a few seconds.',
-									'jetpack-protect'
-								) }
-							</Text>
-						</Col>
-						<Col sm={ 0 } md={ 0 } lg={ 1 }></Col>
-						<Col sm={ 4 } md={ 3 } lg={ 5 }>
-							<img src={ inProgressImage } alt="" />
-						</Col>
-					</Container>
-				</AdminSectionHero>
-				<Footer />
-			</AdminPage>
-		);
-	}
-
-	return (
-		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
-			<AdminSectionHero>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
-					<Col>
-						<Summary />
-					</Col>
-					<Col>
-						<VulnerabilitiesList />
-					</Col>
-				</Container>
-			</AdminSectionHero>
-			<Footer />
-		</AdminPage>
-	);
-};
-
-const useRegistrationWatcher = () => {
-	const { isRegistered } = useConnection();
-	const { refreshStatus } = useDispatch( STORE_ID );
-	const status = useSelect( select => select( STORE_ID ).getStatus() );
-
-	useEffect( () => {
-		if ( isRegistered && ! status.status ) {
-			refreshStatus();
-		}
-		// We don't want to run the effect if status changes. Only on changes on isRegistered.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ isRegistered ] );
-};
-
-const Admin = () => {
+const AdminPage = ( { children } ) => {
 	useRegistrationWatcher();
+
+	const { isSupported: wafSupported, isSeen: wafSeen } = useWafData();
+	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: SECURITY_BUNDLE,
-		redirectUrl: adminUrl,
+		productSlug: JETPACK_SCAN_SLUG,
+		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
+		siteProductAvailabilityHandler: async () =>
+			apiFetch( {
+				path: 'jetpack-protect/v1/check-plan',
+				method: 'GET',
+			} ).then( hasRequiredPlan => hasRequiredPlan ),
 	} );
+
+	useEffect( () => {
+		if ( getQueryArg( window.location.search, 'checkPlan' ) ) {
+			startScanOptimistically();
+			setTimeout( () => {
+				refreshPlan();
+				refreshStatus( true );
+			}, 5000 );
+		}
+	}, [ refreshPlan, refreshStatus, startScanOptimistically ] );
 
 	/*
 	 * Show interstital page when
@@ -151,10 +46,32 @@ const Admin = () => {
 	 * - Checkout workflow has started
 	 */
 	if ( ! isRegistered || hasCheckoutStarted ) {
-		return <InterstitialPage run={ run } hasCheckoutStarted={ hasCheckoutStarted } />;
+		return <InterstitialPage onScanAdd={ run } />;
 	}
 
-	return <ProtectAdminPage />;
+	return (
+		<JetpackAdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+			<Container horizontalSpacing={ 0 }>
+				<Tabs className={ styles.navigation }>
+					<Tab link="/" label={ __( 'Scan', 'jetpack-protect' ) } />
+					{ wafSupported && (
+						<Tab
+							link="/firewall"
+							label={
+								<>
+									{ __( 'Firewall', 'jetpack-protect' ) }
+									{ wafSeen === false && (
+										<span className={ styles.badge }>{ __( 'New', 'jetpack-protect' ) }</span>
+									) }
+								</>
+							}
+						/>
+					) }
+				</Tabs>
+			</Container>
+			{ children }
+		</JetpackAdminPage>
+	);
 };
 
-export default Admin;
+export default AdminPage;

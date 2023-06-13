@@ -1,17 +1,12 @@
 import WpPage from '../wp-page.js';
 import logger from '../../logger.cjs';
 import { takeScreenshot } from '../../reporters/index.js';
-import PageActions from '../page-actions.js';
 import { getSiteCredentials, resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {
 		const url = `${ resolveSiteUrl() }/wp-login.php`;
-		super( page, { expectedSelectors: [ '.login' ], url } );
-	}
-
-	static async isLoggedIn( page ) {
-		return ! ( await new PageActions( page ).isElementVisible( '#user_login' ) );
+		super( page, { expectedSelectors: [ '#loginform' ], url } );
 	}
 
 	async login( credentials = getSiteCredentials(), { retry = true } = {} ) {
@@ -19,7 +14,6 @@ export default class WPLoginPage extends WpPage {
 
 		await this.fill( '#user_login', credentials.username );
 		await this.fill( '#user_pass', credentials.password );
-
 		await this.click( '#wp-submit' );
 		await this.waitForDomContentLoaded();
 

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
-
-/**
- * Internal dependencies
- */
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const { definePaletteColorsAsStaticVariables } = require( './webpack.helpers' );
 
 module.exports = {
@@ -44,6 +37,12 @@ module.exports = {
 		} ),
 		definePaletteColorsAsStaticVariables(),
 	],
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack',
+		} ),
+	},
 	module: {
 		strictExportPresence: true,
 		rules: [

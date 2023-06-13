@@ -1,0 +1,96 @@
+/*!
+ * Jetpack CRM Extension: WooSync My Account Styles
+ * https://jetpackcrm.com
+ */
+// Daterangepicker styles
+@import '../../../sass/daterangepicker';
+
+// Daterangepicker fix
+@import '../../../sass/daterangepicker.fix';
+
+// Daterangepicker dirty fix
+@import '../../../sass/daterangepicker.dirty.fix';
+
+ .zbs-invoice-list{
+    .paid {
+        background: green;
+    }
+    .draft {
+        background: #999;
+    }
+    .overdue {
+        background: red;
+    }
+    .unpaid {
+        background: #d0d012;
+    }
+    .status {
+        padding: 5px;
+        color: white;
+        font-weight: 700;
+    }
+    .tools .fa {
+        color: #a3210b;
+    }
+}
+
+
+ .zbs-invoice-box {
+    padding: 50px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    background: white;
+    position: relative;
+
+    .zbs-portal-label {
+        border-bottom: 3px solid #383838;
+        display:inline;
+    }
+    .zbs-portal-value {
+        font-size: 40px;
+        color: black;
+        font-weight: 900;
+    }
+
+    .zbs-invoice-paid {
+        position: absolute;
+        right: 0px;
+        top: 0px;
+        padding: 30px;
+        margin-right: 10px;
+        color: #038d24;
+        background: #92e9a7;
+        text-transform: uppercase;
+        font-weight: 900;
+        margin-top: 10px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .zbs-portal-inv-deets {
+        text-align: right;
+    }
+
+    .pay-to-name {
+        font-size: 22px;
+        font-weight: 800;
+        color: black;
+    }
+
+    #zbs-business-info-wrapper, .zbs-invoice-pull-left {
+        width: 50%;
+        float: left;
+    }
+
+    #zbs-customer-info-wrapper, .zbs-invoice-pull-right{
+        width: 50%;
+        float: right;
+        text-align: right;
+    }
+
+}
+
+.zbs-logo-portal{
+    padding-top: 15px;
+    min-height: 130px;
+}

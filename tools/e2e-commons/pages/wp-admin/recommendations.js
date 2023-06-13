@@ -17,16 +17,12 @@ export default class RecommendationsPage extends WpPage {
 		return '.jp-checkbox-answer__container input#site-type-personal';
 	}
 
-	get siteTypeBusinessCheckboxSel() {
-		return '.jp-checkbox-answer__container input#site-type-business';
+	get siteTypeAgencyCheckboxSel() {
+		return '.jp-checkbox-answer__container input#site-type-agency';
 	}
 
 	get siteTypeStoreCheckboxSel() {
 		return '.jp-checkbox-answer__container input#site-type-store';
-	}
-
-	get siteTypeOtherCheckboxSel() {
-		return '.jp-checkbox-answer__container input#site-type-other';
 	}
 
 	get saveSiteTypeButtonSel() {
@@ -54,10 +50,18 @@ export default class RecommendationsPage extends WpPage {
 	}
 
 	get enableSiteAcceleratorButtonSel() {
-		return 'a[href*="recommendations/summary"] >> text="Enable Site Accelerator"';
+		return 'a[href*="recommendations/vaultpress-backup"] >> text="Enable Site Accelerator"';
 	}
 
 	get skipSiteAcceleratorButtonSel() {
+		return 'a[href*="recommendations/vaultpress-backup"] >> text="Not now"';
+	}
+
+	get tryVaultPressBackup() {
+		return 'a[href*="jetpack-recommendations-product-checkout"] >> text=Get';
+	}
+
+	get skipVaultPressBackup() {
 		return 'a[href*="recommendations/summary"] >> text="Not now"';
 	}
 
@@ -100,20 +104,12 @@ export default class RecommendationsPage extends WpPage {
 		return await this.click( this.siteTypePersonalCheckboxSel );
 	}
 
-	async checkOtherSiteType() {
-		return await this.click( this.siteTypeOtherCheckboxSel );
-	}
-
 	async isPersonalSiteTypeChecked() {
 		return await this.isElementChecked( this.siteTypePersonalCheckboxSel );
 	}
 
-	async isOtherSiteTypeChecked() {
-		return await this.isElementChecked( this.siteTypeOtherCheckboxSel );
-	}
-
-	async isBusinessTypeUnchecked() {
-		return await this.isElementChecked( this.siteTypeBusinessCheckboxSel );
+	async isAgencyTypeUnchecked() {
+		return await this.isElementChecked( this.siteTypeAgencyCheckboxSel );
 	}
 
 	async isStoreTypeUnchecked() {
@@ -162,6 +158,14 @@ export default class RecommendationsPage extends WpPage {
 
 	async skipSiteAcceleratorAndContinue() {
 		return await this.click( this.skipSiteAcceleratorButtonSel );
+	}
+
+	async isTryVaultPressBackupButtonVisible() {
+		return await this.isElementVisible( this.tryVaultPressBackup );
+	}
+
+	async skipVaultPressBackupAndContinue() {
+		return await this.click( this.skipVaultPressBackup );
 	}
 
 	async isSummaryContentVisible() {

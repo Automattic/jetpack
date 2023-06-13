@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-./tools/js-tools/git-hooks/post-merge-checkout-hook.sh
+./tools/js-tools/git-hooks/post-merge-checkout-hook.sh "$1"

@@ -7,12 +7,15 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Blaze;
+
 require_once __DIR__ . '/class-admin-menu.php';
 
 /**
  * Class Jetpack_Admin_Menu.
  */
 class Jetpack_Admin_Menu extends Admin_Menu {
+
 	/**
 	 * Determines whether the current locale is right-to-left (RTL).
 	 *
@@ -36,6 +39,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_feedback_menu();
+		$this->add_cpt_menus();
 		$this->add_wp_admin_menu();
 
 		ksort( $GLOBALS['menu'] );
@@ -53,6 +57,24 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Force default views (Calypso) on Jetpack sites since Nav Unification is disabled on WP Admin.
 		return self::DEFAULT_VIEW;
+	}
+
+	/**
+	 * Get the Calypso or wp-admin link to CPT page.
+	 *
+	 * @param object $ptype_obj The post type object.
+	 * @return string The link to Calypso if SSO is enabled and the post_type
+	 * supports rest or to WP Admin if SSO is disabled.
+	 */
+	public function get_cpt_menu_link( $ptype_obj ) {
+
+		$post_type = $ptype_obj->name;
+
+		if ( \Jetpack::is_module_active( 'sso' ) && $ptype_obj->show_in_rest ) {
+			return 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
+		} else {
+			return 'edit.php?post_type=' . $post_type;
+		}
 	}
 
 	/**
@@ -81,15 +103,16 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	/**
 	 * Adds a custom post type menu.
 	 *
-	 * @param string $post_type Custom post type.
+	 * @param string   $post_type Custom post type.
+	 * @param int|null $position Optional. Position where to display the menu item. Default null.
 	 */
-	public function add_custom_post_type_menu( $post_type ) {
+	public function add_custom_post_type_menu( $post_type, $position = null ) {
 		$ptype_obj = get_post_type_object( $post_type );
 		if ( empty( $ptype_obj ) ) {
 			return;
 		}
 
-		$menu_slug = 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
+		$menu_slug = $this->get_cpt_menu_link( $ptype_obj );
 
 		// Menu icon.
 		$menu_icon = 'dashicons-admin-post';
@@ -102,7 +125,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 			}
 		}
 
-		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $menu_slug, null, $menu_icon );
+		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $menu_slug, null, $menu_icon, $position );
 	}
 
 	/**
@@ -133,16 +156,36 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds CPT menu items
+	 */
+	public function add_cpt_menus() {
+
+		$post_type_list = get_post_types(
+			array(
+				'show_in_menu' => true,
+				'_builtin'     => false,
+			)
+		);
+
+		foreach ( $post_type_list as $post_type ) {
+			$position = 46; // After Feedback.
+			$this->add_custom_post_type_menu( $post_type, $position );
+		}
+	}
+
+	/**
 	 * Adds Jetpack menu.
 	 */
 	public function add_jetpack_menu() {
 		parent::add_jetpack_menu();
+		/* translators: Jetpack sidebar menu item. */
+		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'manage_options', 'jetpack-search', admin_url( 'admin.php?page=jetpack-search' ), 4 );
 
 		// Place "Scan" submenu after Backup.
 		$position = 0;
 		global $submenu;
 		foreach ( $submenu['jetpack'] as $submenu_item ) {
-			$position ++;
+			++$position;
 			if ( __( 'Backup', 'jetpack' ) === $submenu_item[3] ) {
 				break;
 			}
@@ -190,7 +233,9 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_tools_menu() {
 		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'publish_posts', 'tools.php', null, 'dashicons-admin-tools', 75 );
-
+		if ( Blaze::should_initialize() ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
+		}
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain );
 		add_submenu_page( 'tools.php', esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain );
 
@@ -212,6 +257,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		add_submenu_page( $slug, esc_attr__( 'Security', 'jetpack' ), __( 'Security', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/security/' . $this->domain );
 		add_submenu_page( $slug, esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain );
 		add_submenu_page( $slug, esc_attr__( 'Writing', 'jetpack' ), __( 'Writing', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/writing/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Reading', 'jetpack' ), __( 'Reading', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/reading/' . $this->domain );
 		add_submenu_page( $slug, esc_attr__( 'Discussion', 'jetpack' ), __( 'Discussion', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/discussion/' . $this->domain );
 
 		$plan_supports_scan = \Jetpack_Plan::supports( 'scan' );
@@ -246,7 +292,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		end( $menu );
 		$position = key( $menu );
 
-		$this->add_admin_menu_separator( ++ $position );
+		$this->add_admin_menu_separator( ++$position );
 		add_menu_page( __( 'WP Admin', 'jetpack' ), __( 'WP Admin', 'jetpack' ), 'read', 'index.php', null, 'dashicons-wordpress-alt', $position );
 	}
 }

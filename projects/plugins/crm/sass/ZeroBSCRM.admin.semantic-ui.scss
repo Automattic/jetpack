@@ -1,0 +1,23 @@
+/*!
+ * Jetpack CRM
+ * https://jetpackcrm.com
+ *
+ * Copyright 2021 Automattic
+ *
+ * Date: 1 June 2021
+ */
+
+ // a compiled WP-safe version of semantic ui :)
+
+ 	// Req.
+	@charset "UTF-8";
+	  
+  	// WH fixes for clashes between wp + semantic when nested
+	@import 'wp-semantic-fixes'; 
+
+	// semantic
+	@import 'semantic-ui';
+	
+	// WH/MS semantic add ins/additions
+	@import 'semantic-ui-additions';
+

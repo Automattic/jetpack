@@ -1,6 +1,21 @@
+@import '../lib/styles/_helper.scss';
+
 .jetpack-instant-search__scroll-button {
 	outline: 0;
 	border: 0;
 	box-shadow: none;
-	font-size: 13px;
+	padding: 0 6px;
+
+	&:focus {
+		@include apply-overlay-focus-styling();
+	}
+}
+
+.jetpack-instant-search__search-results
+	.jetpack-instant-search__search-results-pagination
+	button.jetpack-instant-search__scroll-button {
+	// Extra specificity to override overly agressive theme styles.
+	// Without this, we need to use "!important" to get our default styling.
+	@include apply-default-overlay-colors();
+	@include apply-default-overlay-font-metrics();
 }

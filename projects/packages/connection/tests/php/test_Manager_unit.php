@@ -33,6 +33,20 @@ class ManagerTest extends TestCase {
 	 */
 	protected $user_id;
 
+	/**
+	 * Connection manager mock object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Manager
+	 */
+	protected $manager;
+
+	/**
+	 * Tokens mock object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Tokens
+	 */
+	protected $tokens;
+
 	const DEFAULT_TEST_CAPS = array( 'default_test_caps' );
 
 	/**
@@ -102,6 +116,41 @@ class ManagerTest extends TestCase {
 			->will( $this->returnValue( false ) );
 
 		$this->assertFalse( $this->manager->is_active() );
+	}
+
+	/**
+	 * Test the `has_connected_owner` functionality when connected.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
+	 */
+	public function test_has_connected_owner_when_connected() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $admin_id );
+
+		$this->assertTrue( $this->manager->has_connected_owner() );
+	}
+
+	/**
+	 * Test the `has_connected_owner` functionality when not connected.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
+	 */
+	public function test_has_connected_owner_when_not_connected() {
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( false );
+
+		$this->assertFalse( $this->manager->has_connected_owner() );
 	}
 
 	/**

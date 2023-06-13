@@ -2,19 +2,13 @@
  * The different payment blocks that can be chosen.
  */
 
-/**
- * Internal dependencies
- */
-import { name as premiumContentName, settings as premiumContentSettings } from '../premium-content';
 import { name as donationsName, settings as donationSettings } from '../donations';
-import {
-	name as recurringPaymentsName,
-	settings as recurringPaymentSettings,
-} from '../recurring-payments';
+import { name as paymentButtonsName, settings as paymentButtonsSettings } from '../payment-buttons';
+import { name as premiumContentName, settings as premiumContentSettings } from '../premium-content';
 
 const variations = [
 	[ donationsName, donationSettings ],
-	[ recurringPaymentsName, recurringPaymentSettings ],
+	[ paymentButtonsName, paymentButtonsSettings ],
 	[ premiumContentName, premiumContentSettings ],
 ];
 

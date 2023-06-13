@@ -61,7 +61,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		parent::set_up();
 
 		// create a post.
-		$this->post_id = $this->factory->post->create();
+		$this->post_id = self::factory()->post->create();
 		$this->sender->do_sync();
 	}
 

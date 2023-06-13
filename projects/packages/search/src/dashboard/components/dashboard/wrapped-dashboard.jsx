@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import React, { useMemo } from 'react';
-import { useSelect, select as syncSelect } from '@wordpress/data';
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-
-/**
- * Internal dependencies
- */
-import useConnection from 'hooks/use-connection';
-import { STORE_ID } from 'store';
+import { useSelect, select as syncSelect } from '@wordpress/data';
 import SearchConnectionPage from 'components/pages/connection-page';
-import UpsellPage from 'components/pages/upsell-page';
 import SearchDashboardPage from 'components/pages/dashboard-page';
+import UpsellPage from 'components/pages/upsell-page';
+import useConnection from 'hooks/use-connection';
+import React, { useMemo } from 'react';
+import { STORE_ID } from 'store';
 
 /**
  * Return appropriate components.
@@ -22,6 +15,8 @@ import SearchDashboardPage from 'components/pages/dashboard-page';
  */
 export default function WrappedDashboard() {
 	const { isFullyConnected } = useConnection();
+	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 
 	const initializeAnalytics = () => {
 		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
@@ -36,8 +31,10 @@ export default function WrappedDashboard() {
 
 	useMemo( () => {
 		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
+		const wpcomOriginApiUrl = syncSelect( STORE_ID ).getWpcomOriginApiUrl();
 		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
+		wpcomOriginApiUrl && restApi.setWpcomOriginApiUrl( wpcomOriginApiUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
 		initializeAnalytics();
 		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
@@ -47,23 +44,38 @@ export default function WrappedDashboard() {
 
 	return (
 		<>
-			{ ! isFullyConnected && <SearchConnectionPage /> }
-			{ isFullyConnected && <AfterConnectionPage /> }
+			{ ! isFullyConnected && ! isNewPricing && <SearchConnectionPage /> }
+			{ ( isFullyConnected || isNewPricing ) && <WrappedDashboard202208 /> }
 		</>
 	);
 }
 
 /**
- * Returns SearchDashboard component if supports search otherwise UpsellPage component
+ * Returns AfterConnectionPage component if site is fully connected otherwise UpsellPage component.
+ *
+ * @returns {React.Component} NewWrappedDashboard component.
+ */
+function WrappedDashboard202208() {
+	const { isFullyConnected } = useConnection();
+
+	return (
+		<>
+			{ isFullyConnected && <AfterConnectionPage /> }
+			{ ! isFullyConnected && <UpsellPage /> }
+		</>
+	);
+}
+
+/**
+ * Returns SearchDashboardPage component if supports search otherwise UpsellPage component
  *
  * @returns {React.Component} AfterConnectionPage component.
  */
 function AfterConnectionPage() {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
-
 	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
 
-	const isLoading = useSelect(
+	const isPageLoading = useSelect(
 		select =>
 			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' )
@@ -71,8 +83,8 @@ function AfterConnectionPage() {
 
 	return (
 		<>
-			{ supportsSearch && <SearchDashboardPage isLoading={ isLoading } /> }
-			{ ! supportsSearch && <UpsellPage isLoading={ isLoading } /> }
+			{ supportsSearch && <SearchDashboardPage isLoading={ isPageLoading } /> }
+			{ ! supportsSearch && <UpsellPage isLoading={ isPageLoading } /> }
 		</>
 	);
 }

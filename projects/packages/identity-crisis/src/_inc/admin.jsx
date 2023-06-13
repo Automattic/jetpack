@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
-import ReactDOM from 'react-dom';
-import React from 'react';
 import { IDCScreen } from '@automattic/jetpack-idc';
+import * as WPElement from '@wordpress/element';
+import React from 'react';
 
-/**
- * Internal dependencies
- */
 import './admin-bar.scss';
 import './style.scss';
 
@@ -36,7 +30,8 @@ function render() {
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
 	if ( ! isSafeModeConfirmed ) {
-		ReactDOM.render(
+		// @todo: Remove fallback when we drop support for WP 6.1
+		const component = (
 			<IDCScreen
 				wpcomHomeUrl={ wpcomHomeUrl }
 				currentUrl={ currentUrl }
@@ -51,9 +46,13 @@ function render() {
 				isAdmin={ isAdmin }
 				logo={ consumerData.hasOwnProperty( 'logo' ) ? consumerData.logo : undefined }
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
-			/>,
-			container
+			/>
 		);
+		if ( WPElement.createRoot ) {
+			WPElement.createRoot( container ).render( component );
+		} else {
+			WPElement.render( component, container );
+		}
 	}
 }
 

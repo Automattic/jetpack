@@ -78,6 +78,7 @@ class WP_Test_Jetpack_Sync_Import extends WP_Test_Jetpack_Sync_Base {
 }
 
 // We try to detect importers based in extending `WP_Importer`. Mock that class, if needed.
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 if ( ! class_exists( 'WP_Importer', false ) ) {
 	class WP_Importer {}
 }
@@ -95,3 +96,4 @@ class Unknown_Import extends WP_Importer {
 		do_action( 'import_start' );
 	}
 }
+// phpcs:enable Generic.Files.OneObjectStructurePerFile.MultipleFound

@@ -1,15 +1,6 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
-
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import Bar from './bar';
-
 import XAxis from './x-axis';
 
 export default class ModuleChartBarContainer extends React.Component {

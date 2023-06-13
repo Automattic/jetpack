@@ -1,0 +1,35 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.is-beta-extension {
+	position: relative;
+	box-shadow: 0 0 3px var( --jp-green-30 );
+	transition: 0.5s box-shadow linear;
+
+	&::before {
+		content: 'BETA';
+		position: absolute;
+		top: 3px;
+		right: 3px;
+		height: 24px;
+		line-height: 24px;
+		font-size: 11px;
+		padding: 0 5px;
+		background-color: var( --jp-green-30 );
+		color: white;
+		border-radius: 4px;
+		font-weight: 600;
+		z-index: 10000;
+		transition: visibility 0.5s, opacity 0.5s linear;
+		visibility: visible;
+		opacity: 1;
+	}
+
+	&:focus,
+	&:hover {
+		box-shadow: none;
+		&::before {
+			opacity: 0;
+			visibility: hidden;
+		}
+	}
+}

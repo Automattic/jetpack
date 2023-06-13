@@ -302,7 +302,7 @@ class REST_Connector {
 		$connection = new Manager();
 
 		$connection_status = array(
-			'isActive'          => $connection->is_active(), // TODO deprecate this.
+			'isActive'          => $connection->has_connected_owner(), // TODO deprecate this.
 			'isStaging'         => $status->is_staging_site(),
 			'isRegistered'      => $connection->is_connected(),
 			'isUserConnected'   => $connection->is_user_connected(),
@@ -365,7 +365,6 @@ class REST_Connector {
 		}
 
 		return array_values( $plugins );
-
 	}
 
 	/**
@@ -398,7 +397,6 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_activate_plugins', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
-
 	}
 
 	/**
@@ -432,6 +430,8 @@ class REST_Connector {
 	 * @return \WP_REST_Response|array
 	 */
 	public static function get_user_connection_data( $rest_response = true ) {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
 		$connection = new Manager();
 
 		$current_user     = wp_get_current_user();
@@ -464,6 +464,7 @@ class REST_Connector {
 			'isMaster'    => $is_master_user,
 			'username'    => $current_user->user_login,
 			'id'          => $current_user->ID,
+			'blogId'      => $blog_id,
 			'wpcomUser'   => $wpcom_user_data,
 			'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
 			'permissions' => array(
@@ -492,7 +493,6 @@ class REST_Connector {
 		}
 
 		return $response;
-
 	}
 
 	/**
@@ -510,7 +510,6 @@ class REST_Connector {
 			self::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
-
 	}
 
 	/**
@@ -522,7 +521,7 @@ class REST_Connector {
 	 */
 	public static function is_request_signed_by_jetpack_debugger( $pub_key = null ) {
 		 // phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'], $_GET['rest_route'] ) ) {
+		if ( ! isset( $_GET['signature'] ) || ! isset( $_GET['timestamp'] ) || ! isset( $_GET['url'] ) || ! isset( $_GET['rest_route'] ) ) {
 			return false;
 		}
 

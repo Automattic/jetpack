@@ -3,8 +3,8 @@
 /* eslint-env node */
 /* eslint-disable no-console, no-process-exit */
 
-const parseDiff = require( 'parse-diff' );
 const spawnSync = require( 'child_process' ).spawnSync;
+const parseDiff = require( 'parse-diff' );
 
 const res = spawnSync(
 	'git',

@@ -1,4 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -503,7 +506,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 
 			// `bumps_stats_extra` only exists on .com
 			if ( function_exists( 'bump_stats_extras' ) ) {
-				jetpack_require_lib( 'tracks/client' );
+				require_lib( 'tracks/client' );
 				tracks_record_event( $current_user, 'simple_payments_button_' . $event_action, $event_properties );
 				/** This action is documented in modules/widgets/social-media-icons.php */
 				do_action( 'jetpack_bump_stats_extra', 'jetpack-simple_payments', $stat_name );

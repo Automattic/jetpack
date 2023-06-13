@@ -48,6 +48,15 @@ class WPCOM_JSON_API_Metadata {
 	 * @return bool True or false depending on whether the key meets the defined criteria.
 	 **/
 	public static function is_internal_only( $key ) {
+		// We want to always return the `_jetpack_blogging_prompt_key` key in post responses if it is available.
+		if ( $key === '_jetpack_blogging_prompt_key' ) {
+			return false;
+		}
+
+		// We want to always return the `_jetpack_newsletter_access` key to display the correct newsletter access in Calypso.
+		if ( $key === '_jetpack_newsletter_access' ) {
+			return false;
+		}
 
 		if ( 0 === strpos( $key, '_jetpack_' ) ) {
 			return true;

@@ -39,6 +39,7 @@ class Test_Google_Fonts_Provider extends TestCase {
 
 		Functions\stubs(
 			array(
+				'esc_url'                          => null,
 				'get_site_transient'               => false,
 				'set_site_transient'               => 'foo',
 				'wp_remote_retrieve_response_code' => 200,

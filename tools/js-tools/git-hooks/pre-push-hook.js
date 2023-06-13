@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console */
-const isJetpackDraftMode = require( './jetpack-draft' );
 const { spawnSync } = require( 'child_process' );
 const chalk = require( 'chalk' );
+const isJetpackDraftMode = require( './jetpack-draft' );
 
 /**
  * Print the "push again" message.
@@ -29,16 +29,20 @@ function checkChangelogFiles() {
 	// Bail if we're pushing to a release branch, like boost/branch-1.3.0
 	let currentBranch = spawnSync( 'git', [ 'branch', '--show-current' ] );
 	currentBranch = currentBranch.stdout.toString().trim();
-	const branchReg = /.*\/branch-(\d+).(\d+)(.(\d+))?/; // match example: jetpack/branch-1.2.3
+	const branchReg = /.*\/branch-/; // match example: jetpack/branch-1.2.3
 	if ( currentBranch.match( branchReg ) ) {
 		console.log( chalk.green( 'Release branch detected. Skipping changelog test.' ) );
+		return;
+	}
+	if ( currentBranch === 'prerelease' ) {
+		console.log( chalk.green( 'Prerelease branch detected. Skipping changelog test.' ) );
 		return;
 	}
 
 	// Check if any changelog files are needed.
 	const needChangelog = spawnSync(
 		'tools/check-changelogger-use.php',
-		[ '--maybe-merge', 'origin/master', 'HEAD' ],
+		[ '--maybe-merge', 'origin/trunk', 'HEAD' ],
 		{
 			stdio: 'inherit',
 			cwd: __dirname + '/../../../',

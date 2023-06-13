@@ -70,12 +70,15 @@ class Jetpack_Google_Analytics_Legacy {
 			return;
 		}
 
-		// If we're in the admin_area, return without inserting code.
-		if ( is_admin() ) {
+		// If we're in the admin_area or DNT is honored and enabled, return without inserting code.
+		if (
+			is_admin()
+			|| Jetpack_Google_Analytics_Utils::is_dnt_enabled()
+		) {
 			return;
 		}
 
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) {
 			// For Reader mode — legacy.
 			add_filter( 'amp_post_template_analytics', 'Jetpack_Google_Analytics::amp_analytics_entries', 1000 );
 			// For Standard and Transitional modes.

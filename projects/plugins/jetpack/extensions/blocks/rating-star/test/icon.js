@@ -1,16 +1,4 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import { StarIcon } from '../icon';
 
 describe( 'StarIcon', () => {
@@ -21,13 +9,17 @@ describe( 'StarIcon', () => {
 
 	test( 'loads and applies default props to children', () => {
 		const { container } = render( <StarIcon /> );
-		expect( container.firstChild.getAttribute( 'color' ) ).toEqual( 'currentColor' );
-		expect( container.firstChild.firstChild.getAttribute( 'class' ) ).toEqual( '' )
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( container.firstChild ).toHaveAttribute( 'color', 'currentColor' );
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( container.firstChild.firstChild ).toHaveAttribute( 'class', '' );
 	} );
 
 	test( 'loads and applies passed props to children', () => {
 		const { container } = render( <StarIcon { ...defaultProps } /> );
-		expect( container.firstChild.getAttribute( 'color' ) ).toEqual( 'orange' );
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( container.firstChild ).toHaveAttribute( 'color', 'orange' );
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( container.firstChild.firstChild ).toHaveClass( 'juice' );
 	} );
 } );

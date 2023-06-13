@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import PhoneEdit from '../edit';
 
 const setAttributes = jest.fn();
@@ -54,9 +46,10 @@ describe( 'Phone', () => {
 		};
 		render( <PhoneEdit { ...propsNotSelected } /> );
 
-		expect(
-			screen.getByRole( 'link', { name: '+1-123-456-7890' } ).getAttribute( 'href' )
-		).toEqual( 'tel:+11234567890' );
+		expect( screen.getByRole( 'link', { name: '+1-123-456-7890' } ) ).toHaveAttribute(
+			'href',
+			'tel:+11234567890'
+		);
 		expect( screen.getByText( 'call me on:' ) ).toBeInTheDocument();
 	} );
 

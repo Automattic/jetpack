@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
-import type { SvelteComponent } from 'svelte';
-
-/**
- * WordPress dependencies
- */
 import { __, _n, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import type { ErrorSet } from '../stores/critical-css-recommendations';
-import type { CriticalCssErrorDetails } from '../stores/critical-css-status';
-import { castToNumber } from './cast-to-number';
 import UrlComponentsExample from '../pages/settings/elements/UrlComponentsExample.svelte';
+import { CriticalCssErrorDetails } from '../stores/critical-css-state-types';
+import { castToNumber } from './cast-to-number';
+import type { ErrorSet } from '../stores/critical-css-state-errors';
+import type { SvelteComponent } from 'svelte';
 
 type Suggestion = {
 	paragraph: string;
@@ -205,7 +194,7 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 				list: [
 					__( 'Visit the link and check for an error.', 'jetpack-boost' ),
 					__(
-						'<retry>Try to generate Critical CSS again<retry>, in case the error was intermittent.',
+						'<retry>Try to generate Critical CSS again</retry>, in case the error was intermittent.',
 						'jetpack-boost'
 					),
 					sprintf(

@@ -10,7 +10,8 @@
 	background: var( --jp-white );
 
 	a:not( [type='button'] ) {
-		@include rna-link;
+		// $has-focus-state: false - as we don't need a focus state for navigation links
+		@include rna-link( $has-focus-state: false );
 	}
 }
 
@@ -44,5 +45,53 @@
 
 	@include breakpoint( '<1040px' ) {
 		background: none;
+	}
+}
+
+.jp-recommendations__links {
+	text-align: center;
+	margin-top: 3rem;
+
+	a {
+		margin-right: 16px;
+
+		@include breakpoint( '<660px' ) {
+			display: block;
+			margin-right: 0;
+			margin-bottom: 16px;
+		}
+
+		&:last-child {
+			margin-right: 0;
+
+			@include breakpoint( '<660px' ) {
+				margin-bottom: 0;
+			}
+		}
+
+		&,
+		&:active,
+		&:hover,
+		&:link,
+		&:visited {
+			color: var( --jp-black );
+			text-decoration: underline;
+		}
+
+		&:focus {
+			border-radius: 2px;
+			outline-offset: 3px;
+			outline: 1.5px solid var( --jp-black );
+			box-shadow: none;
+			text-decoration: none;
+		}
+	
+		&:hover {
+			text-decoration-thickness: var( --jp-underline-thickness );
+		}
+
+		&:hover:focus {
+			text-decoration: none;
+		}
 	}
 }

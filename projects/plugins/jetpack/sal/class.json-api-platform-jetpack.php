@@ -15,7 +15,7 @@ class WPORG_Platform extends SAL_Platform {
 	/**
 	 * Given a Jetpack blog ID, this function returns a Jetpack_Site instance
 	 *
-	 * @param int $blog_id A post metadata key value to check.
+	 * @param int $blog_id A Jetpack blog ID.
 	 * @return Jetpack_Site A Jetpack_Site instance including all relevant details needed to define a Jetpack site.
 	 **/
 	public function get_site( $blog_id ) {
@@ -23,6 +23,8 @@ class WPORG_Platform extends SAL_Platform {
 		return new Jetpack_Site( $blog_id, $this );
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 /**
  * Given a token instance (with blog and user id related information), this function returns a new WPORG_Platform instance

@@ -12,16 +12,22 @@ namespace Automattic\Jetpack;
  * contain the package classes shown below. The consumer plugin
  * must require the corresponding packages to use these features.
  */
+use Automattic\Jetpack\Blaze as Blaze;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Plugin;
+use Automattic\Jetpack\Import\Main as Import_Main;
 use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\Post_List\Post_List as Post_List;
 use Automattic\Jetpack\Publicize\Publicize_Setup as Publicize_Setup;
 use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
+use Automattic\Jetpack\Stats\Main as Stats_Main;
+use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
+use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 use Automattic\Jetpack\Waf\Waf_Initializer as Jetpack_Waf_Main;
 use Automattic\Jetpack\WordAds\Initializer as Jetpack_WordAds_Main;
+use Automattic\Jetpack\Yoast_Promo as Yoast_Promo;
 
 /**
  * The configuration class.
@@ -47,6 +53,12 @@ class Config {
 		'publicize'       => false,
 		'wordads'         => false,
 		'waf'             => false,
+		'videopress'      => false,
+		'stats'           => false,
+		'stats_admin'     => false,
+		'blaze'           => false,
+		'yoast_promo'     => false,
+		'import'          => false,
 	);
 
 	/**
@@ -72,6 +84,8 @@ class Config {
 	 * the package to their composer project. Declaring a requirement using this method
 	 * instructs the class to initialize it.
 	 *
+	 * Run the options method (if exists) every time the method is called.
+	 *
 	 * @param String $feature the feature slug.
 	 * @param array  $options Additional options, optional.
 	 */
@@ -79,6 +93,11 @@ class Config {
 		$this->config[ $feature ] = true;
 
 		$this->set_feature_options( $feature, $options );
+
+		$method_options = 'ensure_options_' . $feature;
+		if ( method_exists( $this, $method_options ) ) {
+			$this->{ $method_options }();
+		}
 	}
 
 	/**
@@ -133,6 +152,29 @@ class Config {
 			$this->ensure_class( 'Automattic\Jetpack\Waf\Waf_Initializer' )
 				&& $this->ensure_feature( 'waf' );
 		}
+
+		if ( $this->config['videopress'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\VideoPress\Initializer' ) && $this->ensure_feature( 'videopress' );
+		}
+		if ( $this->config['stats'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Stats\Main' ) && $this->ensure_feature( 'stats' );
+		}
+		if ( $this->config['stats_admin'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Stats_Admin\Main' ) && $this->ensure_feature( 'stats_admin' );
+		}
+
+		if ( $this->config['blaze'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Blaze' ) && $this->ensure_feature( 'blaze' );
+		}
+
+		if ( $this->config['yoast_promo'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Yoast_Promo' ) && $this->ensure_feature( 'yoast_promo' );
+		}
+
+		if ( $this->config['import'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Import\Main' )
+				&& $this->ensure_feature( 'import' );
+		}
 	}
 
 	/**
@@ -166,7 +208,6 @@ class Config {
 
 	/**
 	 * Ensures a feature is enabled, sets it up if it hasn't already been set up.
-	 * Run the options method (if exists) every time the method is called.
 	 *
 	 * @param String $feature slug of the feature.
 	 * @return Integer either FEATURE_ENSURED, FEATURE_ALREADY_ENSURED or FEATURE_NOT_AVAILABLE constants.
@@ -175,11 +216,6 @@ class Config {
 		$method = 'enable_' . $feature;
 		if ( ! method_exists( $this, $method ) ) {
 			return self::FEATURE_NOT_AVAILABLE;
-		}
-
-		$method_options = 'ensure_options_' . $feature;
-		if ( method_exists( $this, $method_options ) ) {
-			$this->{ $method_options }();
 		}
 
 		if ( did_action( 'jetpack_feature_' . $feature . '_enabled' ) ) {
@@ -263,6 +299,17 @@ class Config {
 	}
 
 	/**
+	 * Handles Publicize options.
+	 */
+	protected function ensure_options_publicize() {
+		$options = $this->get_feature_options( 'publicize' );
+
+		if ( ! empty( $options['force_refresh'] ) ) {
+			Publicize_Setup::$refresh_plan_info = true;
+		}
+	}
+
+	/**
 	 * Enables WordAds.
 	 */
 	protected function enable_wordads() {
@@ -274,6 +321,66 @@ class Config {
 	 */
 	protected function enable_waf() {
 		Jetpack_Waf_Main::init();
+
+		return true;
+	}
+
+	/**
+	 * Enables VideoPress.
+	 */
+	protected function enable_videopress() {
+		VideoPress_Pkg_Initializer::init();
+		return true;
+	}
+
+	/**
+	 * Enables Stats.
+	 */
+	protected function enable_stats() {
+		Stats_Main::init();
+		return true;
+	}
+
+	/**
+	 * Enables Stats Admin.
+	 */
+	protected function enable_stats_admin() {
+		Stats_Admin_Main::init();
+		return true;
+	}
+
+	/**
+	 * Handles VideoPress options
+	 */
+	protected function ensure_options_videopress() {
+		$options = $this->get_feature_options( 'videopress' );
+		if ( ! empty( $options ) ) {
+			VideoPress_Pkg_Initializer::update_init_options( $options );
+		}
+		return true;
+	}
+
+	/**
+	 * Enables Blaze.
+	 */
+	protected function enable_blaze() {
+		Blaze::init();
+		return true;
+	}
+
+	/**
+	 * Enables Yoast Promo.
+	 */
+	protected function enable_yoast_promo() {
+		Yoast_Promo::init();
+		return true;
+	}
+
+	/**
+	 * Enables the Import feature.
+	 */
+	protected function enable_import() {
+		Import_Main::configure();
 
 		return true;
 	}

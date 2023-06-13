@@ -93,7 +93,7 @@ class REST_API_Tester {
 				<div class="api-tester-block">
 					<label for="api-tester-url">REST Route:</label>
 					<div class="api-tester-field">
-						<span class="rest-route-prefix">/jetpack/v4/</span>
+						<span class="rest-route-prefix">/</span>
 						<input type="text" name="url" class="input-url" id="api-tester-url">
 					</div>
 				</div>

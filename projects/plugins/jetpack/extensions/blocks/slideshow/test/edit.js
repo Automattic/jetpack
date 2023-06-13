@@ -1,12 +1,4 @@
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import { SlideshowEdit } from '../edit';
 
 const defaultAttributes = {

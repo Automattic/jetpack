@@ -19,7 +19,7 @@ class Jetpack_Tiled_Gallery_Shape {
 	 */
 	public function __construct( $images ) {
 		$this->images      = $images;
-		$this->images_left = count( $images );
+		$this->images_left = is_countable( $images ) ? count( $images ) : 0;
 	}
 
 	/**
@@ -408,11 +408,11 @@ class Jetpack_Tiled_Gallery_Three_Columns extends Jetpack_Tiled_Gallery_Shape {
 
 		foreach ( $this->images as $image ) {
 			if ( $sum <= $approximate_column_ratio ) {
-				$column_one_images++;
+				++$column_one_images;
 			}
 
 			if ( $sum > $approximate_column_ratio && $sum <= 2 * $approximate_column_ratio ) {
-				$column_two_images++;
+				++$column_two_images;
 			}
 			$sum += $image->ratio;
 		}

@@ -1,8 +1,14 @@
-const pluginTester = require( 'babel-plugin-tester' ).default;
+/* eslint-disable import/order */
 
+const mockOrigDebug = jest.requireActual( 'debug' );
 const mockDebug = jest.fn();
 jest.mock( 'debug', () => {
-	return () => mockDebug;
+	return name => {
+		if ( name.startsWith( '@automattic/babel-plugin-replace-textdomain' ) ) {
+			return mockDebug;
+		}
+		return mockOrigDebug( name );
+	};
 } );
 const setup = () => {
 	mockDebug.mockClear();
@@ -11,6 +17,7 @@ const setup = () => {
 	};
 };
 
+const pluginTester = require( 'babel-plugin-tester' ).default;
 const plugin = require( '../src/index.js' );
 
 pluginTester( {
@@ -146,6 +153,7 @@ pluginTester( {
 			title: "Doesn't try to handle `toString()` or the like",
 			setup,
 			code: `x.toString();`,
+			snapshot: false,
 			pluginOptions: {
 				textdomain: 'new-domain',
 			},
@@ -220,6 +228,6 @@ test( 'Default functions exported', () => {
 	// Test that it's immutable.
 	plugin.defaultFunctions.__ = 10;
 	plugin.defaultFunctions.foo = 11;
-	expect( plugin.defaultFunctions.__ ).toEqual( 1 );
+	expect( plugin.defaultFunctions.__ ).toBe( 1 );
 	expect( plugin.defaultFunctions.foo ).toBeUndefined();
 } );

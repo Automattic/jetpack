@@ -79,6 +79,15 @@
 		@include features-list;
 	}
 
+	&__disclaimer {
+		margin-top: 0;
+		margin-bottom: 1rem;
+
+		a {
+			white-space: nowrap;
+		}
+	}
+
 	&__button {
 		align-self: center;
 		margin-top: 0.25rem;

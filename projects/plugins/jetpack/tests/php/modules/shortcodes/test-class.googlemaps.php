@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Googlemaps extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_googlemaps_exists() {
-		$this->assertEquals( shortcode_exists( 'googlemaps' ), true );
+		$this->assertTrue( shortcode_exists( 'googlemaps' ) );
 	}
 
 	/**
@@ -52,6 +52,11 @@ class WP_Test_Jetpack_Shortcodes_Googlemaps extends WP_UnitTestCase {
 	 * @param string $expected  The expected rendered shortcode.
 	 */
 	public function test_shortcodes_googlemaps( $shortcode, $is_amp, $expected ) {
+		if ( $is_amp && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
+			return;
+		}
+
 		if ( $is_amp ) {
 			add_filter( 'jetpack_is_amp_request', '__return_true' );
 		}

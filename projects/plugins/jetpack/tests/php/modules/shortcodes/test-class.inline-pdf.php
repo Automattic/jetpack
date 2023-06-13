@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
 
 		$url      = 'https://jetpackme.files.wordpress.com/2017/08/jetpack-tips-for-hosts.pdf';
 		$filename = 'jetpack-tips-for-hosts.pdf';
-		$post     = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
+		$post     = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
 
 		setup_postdata( $post );
 

@@ -5,6 +5,114 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.39] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## [2.1.38] - 2023-05-11
+
+- Updated package dependencies
+
+## [2.1.37] - 2023-05-02
+### Changed
+- Updated package dependencies. [#30375]
+
+## [2.1.36] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [2.1.35] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## [2.1.34] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [2.1.33] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+### Fixed
+- Fix lazy-load images in Safari [#29243]
+
+## [2.1.32] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [2.1.31] - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## [2.1.30] - 2023-01-26
+### Changed
+- Minor internal updates.
+
+## [2.1.29] - 2022-12-06
+### Changed
+- Updated package dependencies. [#27688, #27696]
+
+## [2.1.28] - 2022-11-28
+### Changed
+- Updated package dependencies. [#27043]
+
+## [2.1.27] - 2022-11-14
+### Changed
+- Updated package dependencies. [#27289]
+
+## [2.1.26] - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## [2.1.25] - 2022-10-13
+### Changed
+- Updated package dependencies. [#26791]
+
+## [2.1.24] - 2022-10-05
+### Changed
+- Updated package dependencies. [#26568]
+
+## [2.1.23] - 2022-09-20
+### Changed
+- Updated package dependencies.
+
+## [2.1.22] - 2022-08-30
+### Changed
+- Updated package dependencies. [#25814]
+
+## [2.1.21] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [2.1.20] - 2022-07-12
+### Fixed
+- Do not attempt to lazy-load images in embeds. [#24989]
+
+## [2.1.19] - 2022-06-28
+### Fixed
+- Fix an issue where processing image attributes more than once resulted in images not being displayed.
+
+## [2.1.18] - 2022-06-21
+### Changed
+- Disable core lazy loading implementation for images that get lazy loaded by Jetpack
+- Renaming master to trunk.
+- Updated package dependencies.
+
+## [2.1.17] - 2022-06-14
+
+## [2.1.16] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## [2.1.15] - 2022-05-24
+### Fixed
+- Do not lazy-load images when in RSS feeds. [#24471]
+
+## [2.1.14] - 2022-05-18
+### Changed
+- Setup lazy-images filters to run on 'the_post' hook not 'wp_head' to fix a variety of issues. [#24277]
+- Updated package dependencies [#24372]
+
 ## [2.1.13] - 2022-05-10
 ### Changed
 - Updated package dependencies. [#24302]
@@ -216,6 +324,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[2.1.39]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.38...v2.1.39
+[2.1.38]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.37...v2.1.38
+[2.1.37]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.36...v2.1.37
+[2.1.36]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.35...v2.1.36
+[2.1.35]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.34...v2.1.35
+[2.1.34]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.33...v2.1.34
+[2.1.33]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.32...v2.1.33
+[2.1.32]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.31...v2.1.32
+[2.1.31]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.30...v2.1.31
+[2.1.30]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.29...v2.1.30
+[2.1.29]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.28...v2.1.29
+[2.1.28]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.27...v2.1.28
+[2.1.27]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.26...v2.1.27
+[2.1.26]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.25...v2.1.26
+[2.1.25]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.24...v2.1.25
+[2.1.24]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.23...v2.1.24
+[2.1.23]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.22...v2.1.23
+[2.1.22]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.21...v2.1.22
+[2.1.21]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.20...v2.1.21
+[2.1.20]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.19...v2.1.20
+[2.1.19]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.18...v2.1.19
+[2.1.18]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.17...v2.1.18
+[2.1.17]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.16...v2.1.17
+[2.1.16]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.15...v2.1.16
+[2.1.15]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.14...v2.1.15
+[2.1.14]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.13...v2.1.14
 [2.1.13]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.12...v2.1.13
 [2.1.12]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.11...v2.1.12
 [2.1.11]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.10...v2.1.11

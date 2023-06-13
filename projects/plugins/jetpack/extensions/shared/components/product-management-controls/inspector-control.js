@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
@@ -17,15 +14,12 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { lock } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
+import { useEffect } from 'react';
+import { store as membershipProductsStore } from '../../../store/membership-products';
+import { CURRENCY_OPTIONS } from '../../currencies';
 import { API_STATE_NOT_REQUESTING, API_STATE_REQUESTING } from './constants';
 import { useProductManagementContext } from './context';
-import { getMessageByProductType } from './utils';
-import { CURRENCY_OPTIONS } from '../../currencies';
-import { store as membershipProductsStore } from '../../../store/membership-products';
+import { getMessageByProductType, getTitleByProps } from './utils';
 
 const DEFAULT_CURRENCY = 'USD';
 const DEFAULT_PRICE = 5;
@@ -36,9 +30,8 @@ const DEFAULT_IS_CUSTOM_AMOUNT = false;
 export default function ProductManagementInspectorControl() {
 	const { productType, setSelectedProductId } = useProductManagementContext();
 	const { shouldUpgrade, siteSlug } = useSelect( select => {
-		const { getShouldUpgrade, getSiteSlug } = select( membershipProductsStore );
+		const { getSiteSlug } = select( membershipProductsStore );
 		return {
-			shouldUpgrade: getShouldUpgrade(),
 			siteSlug: getSiteSlug(),
 		};
 	} );
@@ -48,6 +41,7 @@ export default function ProductManagementInspectorControl() {
 	const [ title, setTitle ] = useState(
 		getMessageByProductType( 'default new product title', productType )
 	);
+	const [ isCustomTitle, setIsCustomTitle ] = useState( false );
 	const [ currency, setCurrency ] = useState( DEFAULT_CURRENCY );
 	const [ price, setPrice ] = useState( DEFAULT_PRICE );
 	const [ interval, setInterval ] = useState( DEFAULT_INTERVAL );
@@ -78,9 +72,8 @@ export default function ProductManagementInspectorControl() {
 			success => {
 				setApiState( API_STATE_NOT_REQUESTING );
 				if ( success ) {
-					const defaultTitle = getMessageByProductType( 'default new product title', productType );
 					setPrice( DEFAULT_PRICE );
-					setTitle( defaultTitle );
+					setIsCustomTitle( false );
 					setInterval( DEFAULT_INTERVAL );
 					setIsMarkedAsDonation( DEFAULT_IS_MARKED_AS_DONATION );
 					setIsCustomAmount( DEFAULT_IS_CUSTOM_AMOUNT );
@@ -89,6 +82,15 @@ export default function ProductManagementInspectorControl() {
 			}
 		);
 	};
+
+	useEffect( () => {
+		// If the user has manually selected a title then that should be left as-is, don't overwrite it
+		if ( isCustomTitle ) {
+			return;
+		}
+		setTitle( getTitleByProps( isMarkedAsDonation, interval ) );
+		setIsCustomTitle( false );
+	}, [ interval, isMarkedAsDonation, isCustomTitle ] );
 
 	return (
 		<InspectorControls>
@@ -119,7 +121,10 @@ export default function ProductManagementInspectorControl() {
 								<TextControl
 									id="new-product-title"
 									label={ __( 'Name', 'jetpack' ) }
-									onChange={ value => setTitle( value ) }
+									onChange={ value => {
+										setTitle( value );
+										setIsCustomTitle( true );
+									} }
 									value={ title }
 								/>
 							</PanelRow>

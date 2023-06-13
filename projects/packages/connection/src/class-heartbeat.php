@@ -164,7 +164,6 @@ class Heartbeat {
 		}
 
 		return $return;
-
 	}
 
 	/**

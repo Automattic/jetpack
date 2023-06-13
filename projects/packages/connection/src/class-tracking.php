@@ -125,7 +125,6 @@ class Tracking {
 				'dependencies' => array( 'jp-tracks' ),
 				'enqueue'      => $enqueue,
 				'in_footer'    => true,
-				'nonmin_path'  => 'js/tracks-callables.js',
 			)
 		);
 	}
@@ -142,7 +141,6 @@ class Tracking {
 				'dependencies' => array( 'jquery' ),
 				'enqueue'      => true,
 				'in_footer'    => true,
-				'nonmin_path'  => 'js/tracks-ajax.js',
 			)
 		);
 
@@ -309,13 +307,12 @@ class Tracking {
 		}
 
 		if ( ! isset( $_COOKIE['tk_ai'] ) && ! headers_sent() ) {
-			setcookie( 'tk_ai', $anon_id );
+			setcookie( 'tk_ai', $anon_id, 0, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- This is a random string and should be fine.
 		}
 
 		return array(
 			'_ut' => 'anon',
 			'_ui' => $anon_id,
 		);
-
 	}
 }

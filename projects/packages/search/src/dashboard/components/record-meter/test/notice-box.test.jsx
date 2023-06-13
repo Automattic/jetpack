@@ -2,20 +2,12 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import { NoticeBox } from 'components/record-meter/notice-box';
+import React from 'react';
 
 describe( 'with notices to display', () => {
-	test( 'not-indexed notice is displayed', () => {
+	test( 'unable to locate content notice is displayed when not yet indexed', () => {
 		render(
 			<NoticeBox
 				recordCount={ 20 }
@@ -25,7 +17,7 @@ describe( 'with notices to display', () => {
 				hasItems={ true }
 			></NoticeBox>
 		);
-		expect( screen.getByText( /not yet been indexed/i ) ).toBeVisible();
+		expect( screen.getByText( /gathering your usage data/i ) ).toBeVisible();
 	} );
 
 	test( 'unable to access data notice is displayed', () => {
@@ -39,10 +31,10 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect( screen.getByText( /locate your content/i ) ).toBeVisible();
+		expect( screen.getByText( /index your content/i ) ).toBeVisible();
 	} );
 
-	test( 'unable to locate content notice is displayed', () => {
+	test( 'unable to locate content notice is displayed when there are no items', () => {
 		render(
 			<NoticeBox
 				recordCount={ 20 }
@@ -53,23 +45,8 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect( screen.getByText( /locate any content/i ) ).toBeVisible();
+		expect( screen.getByText( /gathering your usage data/i ) ).toBeVisible();
 	} );
-
-	test( 'recently surpassed record limit notice is displayed', () => {
-		render(
-			<NoticeBox
-				recordCount={ 120 }
-				tierMaximumRecords={ 100 }
-				hasBeenIndexed={ true }
-				hasValidData={ true }
-				hasItems={ true }
-			></NoticeBox>
-		);
-
-		expect( screen.getByText( /automatically upgraded to the next billing tier/i ) ).toBeVisible();
-	} );
-
 	test( 'getting close to record limit notice is displayed', () => {
 		render(
 			<NoticeBox
@@ -81,7 +58,7 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect( screen.getByText( /close to the max amount of records/i ) ).toBeVisible();
+		expect( screen.getByText( /close to the maximum records/i ) ).toBeVisible();
 	} );
 } );
 

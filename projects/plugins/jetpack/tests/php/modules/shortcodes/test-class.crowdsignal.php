@@ -25,8 +25,8 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_crowdsignal_exists() {
-		$this->assertEquals( shortcode_exists( 'crowdsignal' ), true );
-		$this->assertEquals( shortcode_exists( 'polldaddy' ), true );
+		$this->assertTrue( shortcode_exists( 'crowdsignal' ) );
+		$this->assertTrue( shortcode_exists( 'polldaddy' ) );
 	}
 
 	/**
@@ -221,7 +221,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 		$id      = 8755352;
 		$content = '[polldaddy rating=' . $id . ']';
-		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $content ) );
+		$post    = self::factory()->post->create_and_get( array( 'post_content' => $content ) );
 
 		setup_postdata( $post );
 		ob_start();
@@ -248,7 +248,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 		$id      = 8755352;
 		$content = '[crowdsignal rating=' . $id . ']';
-		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $content ) );
+		$post    = self::factory()->post->create_and_get( array( 'post_content' => $content ) );
 
 		setup_postdata( $post );
 		ob_start();

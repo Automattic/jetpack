@@ -2,6 +2,9 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
+use Automattic\Jetpack\Boost_Core\Lib\Transient;
+
 class Premium_Features {
 
 	const CLOUD_CSS        = 'cloud-critical-css';
@@ -17,9 +20,9 @@ class Premium_Features {
 	}
 
 	public static function get_features() {
-		$features = Transient::get( self::TRANSIENT_KEY, array() );
+		$features = Transient::get( self::TRANSIENT_KEY, false );
 
-		if ( empty( $features ) ) {
+		if ( ! is_array( $features ) ) {
 			$features = Boost_API::get( 'features' );
 			if ( ! is_array( $features ) ) {
 				$features = array();
@@ -28,6 +31,10 @@ class Premium_Features {
 		}
 
 		return $features;
+	}
+
+	public static function has_any() {
+		return count( self::get_features() ) > 0;
 	}
 
 	public static function clear_cache() {

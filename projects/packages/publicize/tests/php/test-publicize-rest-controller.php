@@ -18,6 +18,13 @@ use WP_REST_Server;
 class Test_REST_Controller extends TestCase {
 
 	/**
+	 * Admin user ID.
+	 *
+	 * @var int
+	 */
+	private $admin_id;
+
+	/**
 	 * REST Server object.
 	 *
 	 * @var WP_REST_Server
@@ -89,8 +96,7 @@ class Test_REST_Controller extends TestCase {
 	 */
 	public function test_get_publicize_connections_with_proper_permission() {
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/publicize/connections' );
-		$user    = wp_get_current_user( $this->admin_id );
-		$user->add_cap( 'manage_options' );
+		wp_set_current_user( $this->admin_id );
 		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
@@ -196,6 +202,8 @@ class Test_REST_Controller extends TestCase {
 		switch ( $name ) {
 			case 'blog_token':
 				return 'new.blogtoken';
+			case 'user_tokens':
+				return array( $this->admin_id => 'token.secret.' . $this->admin_id );
 			case 'id':
 				return get_current_blog_id();
 		}

@@ -30,17 +30,12 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 
 	await test.step( 'Check Personal and Other checkboxes', async () => {
 		await recommendationsPage.checkPersonalSiteType();
-		await recommendationsPage.checkOtherSiteType();
 		expect(
 			await recommendationsPage.isPersonalSiteTypeChecked(),
 			'Personal site type should be checked'
 		).toBeTruthy();
 		expect(
-			await recommendationsPage.isOtherSiteTypeChecked(),
-			'Other site type should be checked'
-		).toBeTruthy();
-		expect(
-			await recommendationsPage.isBusinessTypeUnchecked(),
+			await recommendationsPage.isAgencyTypeUnchecked(),
 			'Business type should be checked'
 		).toBeFalsy();
 		expect(
@@ -88,8 +83,20 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 		).toBeTruthy();
 	} );
 
-	await test.step( 'Skip Site Accelerator and continue to Summary', async () => {
+	await test.step( 'Skip Site Accelerator and continue to VaultPress Backup card', async () => {
 		await recommendationsPage.skipSiteAcceleratorAndContinue();
+		await recommendationsPage.reload();
+		await recommendationsPage.waitForNetworkIdle();
+		const isVaultPressBackupStep = await recommendationsPage.isTryVaultPressBackupButtonVisible();
+		expect( isVaultPressBackupStep, 'VaultPress Backup step should be visible' ).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'vaultpress-backup' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
+	} );
+
+	await test.step( 'Skip VaultPress Backup card and continue to Summary', async () => {
+		await recommendationsPage.skipVaultPressBackupAndContinue();
 		await recommendationsPage.reload();
 		await recommendationsPage.waitForNetworkIdle();
 		const isSummaryContent = await recommendationsPage.isSummaryContentVisible();
@@ -115,7 +122,8 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 
 	await test.step( 'Verify Creative Mail and Site Accelerator are disabled', async () => {
 		const isCreativeMailFeatureEnabled = await recommendationsPage.isCreativeMailFeatureEnabled();
-		const isSiteAcceleratorFeatureEnabled = await recommendationsPage.isSiteAcceleratorFeatureEnabled();
+		const isSiteAcceleratorFeatureEnabled =
+			await recommendationsPage.isSiteAcceleratorFeatureEnabled();
 		expect(
 			isCreativeMailFeatureEnabled && isSiteAcceleratorFeatureEnabled,
 			'Creative Mail and Site Accelerator should be enabled'

@@ -23,8 +23,6 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Initialize the object before running the test method.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->manager = new Manager();
@@ -204,7 +202,6 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		$this->assertTrue( $this->manager->has_connected_user() );
 		$this->assertTrue( $this->manager->has_connected_admin() );
-
 	}
 
 	/**
@@ -242,7 +239,6 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		wp_set_current_user( $other_user_id );
 		$this->assertFalse( $this->manager->is_connection_owner() );
-
 	}
 
 	/**
@@ -311,7 +307,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 				'no_possible_tokens', // expected error code.
 				false, // expected token.
 			),
-			'no tokens'                        => array(
+			'no tokens, has user_id'           => array(
 				false, // blog token.
 				false, // user tokens.
 				false, // master_user.
@@ -595,6 +591,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			3
 		);
 
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
 		\Jetpack_Options::update_option(
 			'user_tokens',
 			array(

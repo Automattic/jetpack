@@ -10,7 +10,7 @@ You can also test with the latest development versions like below:
 
 ```json
 "require": {
-    "automattic/jetpack-google-fonts-provider": "dev-master"
+    "automattic/jetpack-google-fonts-provider": "dev-trunk"
 }
 ```
 
@@ -50,6 +50,10 @@ add_filter( 'wp_resource_hints', '\Automattic\Jetpack\Fonts\Utils::font_source_r
 ### Additional info
 
 For a discussion about the Webfonts API in WordPress, see https://make.wordpress.org/core/2021/09/28/implementing-a-webfonts-api-in-wordpress-core/.
+
+## Using this package in your WordPress plugin
+
+If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
 
 ## Security
 

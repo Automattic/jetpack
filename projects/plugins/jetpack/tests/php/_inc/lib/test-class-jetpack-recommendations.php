@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-jetpack_require_lib( 'class-jetpack-recommendations' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
 
 /**
  * Class for testing the Jetpack_Currencies class.

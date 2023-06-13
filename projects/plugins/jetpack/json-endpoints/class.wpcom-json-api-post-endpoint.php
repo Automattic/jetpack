@@ -51,7 +51,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'format'           => array(), // see constructor
 		'geo'              => '(object>geo|false)',
 		'menu_order'       => '(int) (Pages Only) The order pages should appear in.',
-		'publicize_URLs'   => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
+		'publicize_URLs'   => '(array:URL) Array of Facebook URLs published by this post.',
 		'tags'             => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
 		'categories'       => '(object:category) Hash of categories (keyed by category name) applied to the post.',
 		'attachments'      => '(object:attachment) Hash of post attachments (keyed by attachment ID).',
@@ -248,7 +248,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response[ $key ] = htmlspecialchars_decode( (string) $response[ $key ], ENT_QUOTES );
 					}
 					break;
-				case 'parent': /** (object|false) */
+				/** (object|false) */
+				case 'parent':
 					if ( $post->post_parent ) {
 						$parent = get_post( $post->post_parent );
 						if ( 'display' === $context ) {
@@ -345,7 +346,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response[ $key ] = 'standard';
 					}
 					break;
-				case 'geo': /** (object|false) */
+				/** (object|false) */
+				case 'geo':
 					if ( ! $geo ) {
 						$response[ $key ] = false;
 					} else {
@@ -389,6 +391,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( $publicize ) {
 						foreach ( $publicize as $service => $data ) {
 							switch ( $service ) {
+								// @todo Explore removing once Twitter has been removed from Publicize.
 								case 'twitter':
 									foreach ( $data as $datum ) {
 										$publicize_urls[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
@@ -439,7 +442,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					$response[ $key ] = (object) $response[ $key ];
 					break;
-				case 'metadata': /** (array|false) */
+				/** (array|false) */
+				case 'metadata':
 					$metadata = array();
 					foreach ( (array) has_meta( $post_id ) as $meta ) {
 						// Don't expose protected fields.
@@ -451,7 +455,10 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 							$show = true;
 						}
 
-						if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY === $meta['meta_key'] && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+						if (
+							in_array( $meta['meta_key'], Jetpack_SEO_Posts::POST_META_KEYS_ARRAY, true ) &&
+							! Jetpack_SEO_Utils::is_enabled_jetpack_seo()
+						) {
 							$show = false;
 						}
 
@@ -512,7 +519,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$old_pages = $pages;
 		$old_page  = $page;
 
-		$content = join( "\n\n", $pages );
+		$content = implode( "\n\n", $pages );
 		$content = preg_replace( '/<!--more(.*?)?-->/', '', $content );
 		$pages   = array( $content ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$page    = 1; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -561,7 +568,6 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		} else {
 			return (object) array();
 		}
-
 	}
 
 	/**
@@ -573,7 +579,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		global $post;
 
 		static $instance = 0;
-		$instance++;
+		++$instance;
 
 		// @todo - find out if this is a bug, intentionally unused, or can be removed.
 		$output = ''; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -659,7 +665,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					: wp_get_attachment_link( $id, $size, true, false );
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				if ( $captiontag && trim( $attachment->post_excerpt ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-					$output .= "<div class='wp-caption aligncenter'>$link 
+					$output .= "<div class='wp-caption aligncenter'>$link
 						<p class='wp-caption-text'>" . wptexturize( $attachment->post_excerpt ) . '</p>
 						</div>';
 				} else {

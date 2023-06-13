@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status;
 use Twitter\Text\Regex as Twitter_Regex;
 use Twitter\Text\Validator as Twitter_Validator;
@@ -210,6 +211,45 @@ class Jetpack_Tweetstorm_Helper {
 	private static $urls = array();
 
 	/**
+	 * Checks if a given request is allowed to gather tweets.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return true|WP_Error True if the request has access to gather tweets from a thread, WP_Error object otherwise.
+	 */
+	public static function permissions_check( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$blog_id = get_current_blog_id();
+
+		/*
+		 * User hitting the endpoint hosted on their Jetpack site, from their Jetpack site,
+		 * or hitting the endpoint hosted on WPCOM, from their WPCOM site.
+		 */
+		if ( current_user_can_for_blog( $blog_id, 'edit_posts' ) ) {
+			return true;
+		}
+
+		// Jetpack hitting the endpoint hosted on WPCOM, from a Jetpack site with a blog token.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( is_jetpack_site( $blog_id ) ) {
+				if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Jetpack_Auth' ) ) {
+					require_once dirname( __DIR__ ) . '/rest-api-plugins/endpoints/jetpack-auth.php';
+				}
+
+				$jp_auth_endpoint = new WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
+				if ( true === $jp_auth_endpoint->is_jetpack_authorized_for_site() ) {
+					return true;
+				}
+			}
+		}
+
+		return new WP_Error(
+			'rest_forbidden',
+			__( 'Sorry, you are not allowed to use tweetstorm endpoints on this site.', 'jetpack' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
 	 * Gather the Tweetstorm.
 	 *
 	 * @param  string $url The tweet URL to gather from.
@@ -223,14 +263,14 @@ class Jetpack_Tweetstorm_Helper {
 			);
 		}
 
-		$site_id = self::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if ( ! class_exists( 'WPCOM_Gather_Tweetstorm' ) ) {
-				\jetpack_require_lib( 'gather-tweetstorm' );
+				\require_lib( 'gather-tweetstorm' );
 			}
 
 			return WPCOM_Gather_Tweetstorm::gather( $url );
@@ -352,7 +392,8 @@ class Jetpack_Tweetstorm_Helper {
 		} else {
 			$lines = array( $block['text'] );
 		}
-		$line_total = count( $lines );
+
+		$line_total = is_array( $lines ) ? count( $lines ) : 0;
 
 		// Keep track of how many characters from this block we've allocated to tweets.
 		$current_character_count = 0;
@@ -403,8 +444,9 @@ class Jetpack_Tweetstorm_Helper {
 			}
 
 			// The line is too long for a single tweet, so split it by sentences, or linebreaks.
-			$sentences      = preg_split( '/(?|(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[\p{L}\'"\(])|(\n+))/u', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
-			$sentence_total = count( $sentences );
+			$sentences = preg_split( '/(?|(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[\p{L}\'"\(])|(\n+))/u', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
+
+			$sentence_total = $sentences !== false ? count( $sentences ) : 0;
 
 			// preg_split() puts the blank space between sentences into a seperate entry in the result,
 			// so we need to step through the result array by two, and append the blank space when needed.
@@ -461,7 +503,7 @@ class Jetpack_Tweetstorm_Helper {
 
 				// Split the long sentence into words.
 				$words      = preg_split( '/(\p{Z})/u', $current_sentence, -1, PREG_SPLIT_DELIM_CAPTURE );
-				$word_total = count( $words );
+				$word_total = $words !== false ? count( $words ) : 0;
 				for ( $word_count = 0; $word_count < $word_total; $word_count += 2 ) {
 					// Make sure we have the most recent tweet.
 					$current_tweet = self::get_current_tweet();
@@ -514,6 +556,9 @@ class Jetpack_Tweetstorm_Helper {
 	 * @param array $block  The block to process.
 	 */
 	private static function add_media_to_tweets( $block ) {
+		if ( ! is_countable( $block['media'] ) ) {
+			return;
+		}
 		// There's some media to attach!
 		$media_count = count( $block['media'] );
 		if ( 0 === $media_count ) {
@@ -524,7 +569,7 @@ class Jetpack_Tweetstorm_Helper {
 
 		// We can only attach media to the previous tweet if the previous tweet
 		// doesn't already have media.
-		if ( count( $current_tweet['media'] ) > 0 ) {
+		if ( is_countable( $current_tweet['media'] ) && count( $current_tweet['media'] ) > 0 ) {
 			$current_tweet = self::start_new_tweet();
 		}
 
@@ -859,7 +904,7 @@ class Jetpack_Tweetstorm_Helper {
 
 		$block_def = self::get_block_definition( $block['name'] );
 
-		if ( isset( $block_def['content'] ) && count( $block_def['content'] ) > 0 ) {
+		if ( ! empty( $block_def['content'] ) ) {
 			$tags = $block_def['content'];
 		} else {
 			$tags = array( 'content' );
@@ -1009,11 +1054,11 @@ class Jetpack_Tweetstorm_Helper {
 				}
 
 				// The newline at the end of each line is 1 byte, but we don't need to count empty lines.
-				$total_bytes_processed++;
+				++$total_bytes_processed;
 			}
 
 			// We do need to count empty lines in the editor, since they'll be displayed.
-			$characters_processed++;
+			++$characters_processed;
 		}
 
 		return false;
@@ -1410,7 +1455,7 @@ class Jetpack_Tweetstorm_Helper {
 
 				if ( "<$tag>" === $token || 0 === strpos( $token, "<$tag " ) ) {
 					// A tag has just been opened.
-					$opened++;
+					++$opened;
 					// Set an empty value now, so we're keeping track of empty tags.
 					if ( ! isset( $values[ $tag ][ $opened ] ) ) {
 						$values[ $tag ][ $opened ] = '';
@@ -1420,7 +1465,7 @@ class Jetpack_Tweetstorm_Helper {
 
 				if ( "</$tag>" === $token ) {
 					// The tag has been closed.
-					$closed++;
+					++$closed;
 					continue;
 				}
 
@@ -1590,7 +1635,10 @@ class Jetpack_Tweetstorm_Helper {
 
 		$requests = array_map(
 			function ( $url ) use ( $validator ) {
-				if ( $validator->isValidURL( $url ) ) {
+				if (
+					false !== wp_http_validate_url( $url )
+					&& $validator->isValidURL( $url )
+				) {
 					return array(
 						'url' => $url,
 					);
@@ -1603,7 +1651,32 @@ class Jetpack_Tweetstorm_Helper {
 
 		$requests = array_filter( $requests );
 
-		$results = Requests::request_multiple( $requests );
+		// Remove this check once WordPress 6.2 is the minimum supported version.
+		if ( ! class_exists( '\WpOrg\Requests\Hooks' ) ) {
+			$hooks = new Requests_Hooks();
+		} else {
+			$hooks = new \WpOrg\Requests\Hooks();
+		}
+
+		$hooks->register(
+			'requests.before_redirect',
+			array( self::class, 'validate_redirect_url' )
+		);
+
+		// Remove this check once WordPress 6.2 is the minimum supported version.
+		$results = class_exists( '\WpOrg\Requests\Requests' )
+			? \WpOrg\Requests\Requests::request_multiple( $requests, array( 'hooks' => $hooks ) )
+			: Requests::request_multiple( $requests, array( 'hooks' => $hooks ) );
+
+		foreach ( $results as $result ) {
+			if ( $result instanceof Requests_Exception || $result instanceof \WpOrg\Requests\Exception ) {
+				return new WP_Error(
+					'invalid_url',
+					__( 'Sorry, something is wrong with the requested URL.', 'jetpack' ),
+					403
+				);
+			}
+		}
 
 		$card_data = array(
 			'creator'     => array(
@@ -1615,7 +1688,6 @@ class Jetpack_Tweetstorm_Helper {
 			),
 			'image'       => array(
 				'name'     => 'twitter:image',
-				'property' => 'og:image:secure',
 				'property' => 'og:image',
 			),
 			'title'       => array(
@@ -1663,20 +1735,20 @@ class Jetpack_Tweetstorm_Helper {
 	}
 
 	/**
-	 * Get the WPCOM or self-hosted site ID.
+	 * Filters the redirect URLs that can appear when requesting passed URLs.
 	 *
-	 * @return mixed
+	 * @param String $redirect_url the URL to which a redirect is requested.
+	 * @throws Requests_Exception        In case the URL is not validated, if WP version is less than 6.2.
+	 * @throws \WpOrg\Requests\Exception In case the URL is not validated, if WP version is 6.2 or greater.
+	 * @return void
 	 */
-	public static function get_site_id() {
-		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-		$site_id  = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'unavailable_site_id',
-				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack' ),
-				403
-			);
+	public static function validate_redirect_url( $redirect_url ) {
+		if ( ! wp_http_validate_url( $redirect_url ) ) {
+			// Remove this check once WordPress 6.2 is the minimum supported version.
+			if ( ! class_exists( '\WpOrg\Requests\Exception' ) ) {
+				throw new Requests_Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
+			}
+			throw new \WpOrg\Requests\Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
 		}
-		return (int) $site_id;
 	}
 }

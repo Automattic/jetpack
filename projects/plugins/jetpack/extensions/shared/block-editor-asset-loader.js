@@ -3,7 +3,7 @@
  * Use to retrieve the correct context for elements that may be within an iframe.
  *
  * @param   {HTMLElement} elementRef - The element whose context we want to return.
- * @returns {Object}                 - The current document (`currentDoc`) and window (`currentWindow`) contexts.
+ * @returns {object}                 - The current document (`currentDoc`) and window (`currentWindow`) contexts.
  */
 
 export function getLoadContext( elementRef ) {
@@ -92,6 +92,8 @@ export function maybeCopyElementsToSiteEditorContext(
 
 		return results;
 	}
+
+	return results;
 }
 
 /**
@@ -102,7 +104,7 @@ export function maybeCopyElementsToSiteEditorContext(
  * into the current editor iframe.
  *
  * @param   {Array}       resources - An array of css and js resources to copy to iframe head.
- * @param   {Object}      callbacks - A map of any callbacks for js resources to be called when script loaded.
+ * @param   {object}      callbacks - A map of any callbacks for js resources to be called when script loaded.
  * @param   {HTMLElement} elementRef  - A reference for an element within the current block.
  */
 export function loadBlockEditorAssets( resources, callbacks, elementRef ) {
@@ -144,7 +146,7 @@ export function loadBlockEditorAssets( resources, callbacks, elementRef ) {
  * Returns a promise that resolves when a specified object becomes available on specified window.
  *
  * @param   {HTMLElement} currentWindow - The window on which to check for the object.
- * @param   {Object} objectName         - The object to check for.
+ * @param   {object} objectName         - The object to check for.
  * @returns {Promise}                   - Whether `elementRef` is contained within an Editor iframe.
  */
 export function waitForObject( currentWindow, objectName ) {

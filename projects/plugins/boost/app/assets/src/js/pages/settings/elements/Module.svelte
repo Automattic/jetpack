@@ -1,69 +1,33 @@
-<script>
-	/**
-	 * External dependencies
-	 */
+<script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { derived } from 'svelte/store';
-
-	/**
-	 * WordPress dependencies
-	 */
-	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
-	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import Toggle from '../../../elements/Toggle.svelte';
-	import { modules, updateModuleState } from '../../../stores/modules';
+	import { modulesState } from '../../../stores/modules';
 
-	export let slug;
+	export let slug: string;
 
 	const dispatch = createEventDispatcher();
 
-	const isEnabled = derived( modules, $modules => $modules[ slug ] && $modules[ slug ].enabled );
-	const isAvailable = derived( modules, $modules => typeof $modules[ slug ] !== 'undefined' );
-
-	let error = null;
-	let isLoading = false;
+	$: isModuleActive = $modulesState[ slug ].active;
+	$: isModuleAvailable = $modulesState[ slug ].available;
 
 	async function handleToggle() {
-		if ( isLoading ) {
-			return;
-		}
-
-		error = null;
-		isLoading = true;
-
-		try {
-			if ( await updateModuleState( slug, ! $isEnabled ) ) {
-				dispatch( 'enabled' );
-			} else {
-				dispatch( 'disabled' );
-			}
-		} catch ( caughtError ) {
-			error = caughtError;
-		}
-
-		isLoading = false;
+		const toggledState = ! isModuleActive;
+		$modulesState[ slug ].active = toggledState;
+		const eventName = toggledState === true ? 'enabled' : 'disabled';
+		dispatch( eventName );
 	}
 
 	onMount( async () => {
-		if ( $isEnabled ) {
+		if ( isModuleAvailable && isModuleActive ) {
 			dispatch( 'mountEnabled' );
 		}
 	} );
 </script>
 
-{#if $isAvailable}
+{#if isModuleAvailable}
 	<div class="jb-feature-toggle">
 		<div class="jb-feature-toggle__toggle">
-			<Toggle
-				id={`jb-feature-toggle-${ slug }`}
-				checked={$isEnabled}
-				bind:disabled={isLoading}
-				on:click={handleToggle}
-			/>
+			<Toggle id={`jb-feature-toggle-${ slug }`} checked={isModuleActive} on:click={handleToggle} />
 		</div>
 		<div class="jb-feature-toggle__content">
 			<slot name="title" />
@@ -75,12 +39,12 @@
 			<div class="jb-feature-toggle__content">
 				<slot />
 
-				{#if error}
-					<ErrorNotice title={__( 'Failed to toggle feature', 'jetpack-boost' )} {error} />
-				{/if}
-
-				{#if $isEnabled}
+				{#if isModuleActive}
 					<slot name="meta" />
+
+					<slot name="notice" />
+
+					<slot name="cta" />
 				{/if}
 			</div>
 		</div>

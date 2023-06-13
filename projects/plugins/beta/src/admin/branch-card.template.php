@@ -51,7 +51,7 @@ $tmp = function ( $plugin, $branch, $active_branch ) {
 			esc_html( $branch->version ),
 			esc_attr( $branch->version )
 		);
-	} elseif ( 'rc' === $branch->source || 'master' === $branch->source || 'unknown' === $branch->source ) {
+	} elseif ( 'rc' === $branch->source || 'trunk' === $branch->source || 'unknown' === $branch->source ) {
 		$more_info[] = sprintf(
 			// translators: %s: Version number.
 			__( 'Version %s', 'jetpack-beta' ),
@@ -89,13 +89,13 @@ $tmp = function ( $plugin, $branch, $active_branch ) {
 	$updater_version = sprintf( __( 'Version %s', 'default' ), $branch->version );
 
 	?>
-			<div <?php echo $data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> class="<?php echo esc_attr( join( ' ', $classes ) ); ?>" data-slug="<?php echo esc_attr( $slug ); ?>" data-updater-version="<?php echo esc_attr( $updater_version ); ?>">
+			<div <?php echo $data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" data-slug="<?php echo esc_attr( $slug ); ?>" data-updater-version="<?php echo esc_attr( $updater_version ); ?>">
 				<div class="dops-foldable-card__header has-border" >
 					<span class="dops-foldable-card__main">
 						<div class="dops-foldable-card__header-text">
 							<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $branch->pretty_version ); ?></div>
 							<div class="dops-foldable-card__subheader">
-							<?php echo wp_kses_post( join( ' - ', $more_info ) ); ?>
+							<?php echo wp_kses_post( implode( ' - ', $more_info ) ); ?>
 							</div>
 						</div>
 					</span>

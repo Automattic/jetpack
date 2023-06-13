@@ -1,20 +1,11 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { cleanForSlug } from '@wordpress/url';
+import React, { Component } from 'react';
 import Gridicon from './gridicon';
 import PhotonImage from './photon-image';
-import ProductRatings from './product-ratings';
 import ProductPrice from './product-price';
+import ProductRatings from './product-ratings';
 
-/**
- * Style dependencies
- */
 import './search-result-product.scss';
 
 class SearchResultProduct extends Component {
@@ -23,6 +14,20 @@ class SearchResultProduct extends Component {
 		if ( result_type !== 'post' ) {
 			return null;
 		}
+
+		const getCategories = () => {
+			let cats = fields[ 'category.name.default' ];
+
+			if ( ! cats ) {
+				return [];
+			}
+
+			if ( ! Array.isArray( cats ) ) {
+				cats = [ cats ];
+			}
+
+			return cats;
+		};
 
 		const firstImage = Array.isArray( fields[ 'image.url.raw' ] )
 			? fields[ 'image.url.raw' ][ 0 ]
@@ -44,7 +49,15 @@ class SearchResultProduct extends Component {
 			highlight.content[ 0 ]?.length > 0;
 
 		return (
-			<li className="jetpack-instant-search__search-result jetpack-instant-search__search-result-product">
+			<li
+				className={ [
+					'jetpack-instant-search__search-result',
+					'jetpack-instant-search__search-result-product',
+					getCategories()
+						.map( cat => 'jetpack-instant-search__search-result-category--' + cleanForSlug( cat ) )
+						.join( ' ' ),
+				].join( ' ' ) }
+			>
 				<a
 					className="jetpack-instant-search__search-result-product-img-link"
 					href={ `//${ fields[ 'permalink.url.raw' ] }` }

@@ -1,11 +1,8 @@
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const glob = require( 'glob' );
 const path = require( 'path' );
-const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const glob = require( 'glob' );
+const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plugin' );
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -80,7 +77,6 @@ const supportedModules = [
 	'custom-post-types',
 	'sharedaddy',
 	'contact-form',
-	'photon',
 	'carousel',
 	'related-posts',
 	'tiled-gallery',
@@ -92,12 +88,13 @@ const supportedModules = [
 	'lazy-images',
 	'scan',
 	'wordads',
+	'theme-tools/responsive-videos',
 ];
 
 const moduleSources = [
 	...glob.sync( '_inc/*.js' ),
-	...glob.sync( `modules/@(${ supportedModules.join( '|' ) })/**/*.js` ),
-].filter( name => ! name.endsWith( '.min.js' ) && ! /\/test-[^/]\.js$/.test( name ) );
+	...supportedModules.map( dir => glob.sync( `modules/${ dir }/**/*.js` ) ).flat(),
+].filter( name => ! name.endsWith( '.min.js' ) && name.indexOf( '/test/' ) < 0 );
 
 // Library definitions for certain modules.
 const libraryDefs = {
@@ -150,6 +147,7 @@ module.exports = [
 				},
 			},
 			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
+			'activation-modal': path.join( __dirname, '../_inc/client', 'activation-modal-entry.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,

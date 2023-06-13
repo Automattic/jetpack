@@ -69,12 +69,12 @@ class Jetpack_Media {
 
 		do {
 			$filename  = $filename_base;
-			$filename .= $number_suffix;
+			$filename .= "e{$number_suffix}";
 			$file_ext  = $new_file_ext ? $new_file_ext : $current_file_ext;
 
 			$new_filename = "{$filename}.{$file_ext}";
 			$new_path     = "{$current_file_dirname}/$new_filename";
-			$number_suffix++;
+			++$number_suffix;
 		} while ( file_exists( $new_path ) );
 
 		return $new_filename;
@@ -148,14 +148,11 @@ class Jetpack_Media {
 	 * Try to remove the temporal file from the given file array.
 	 *
 	 * @param array $file_array Array with data about the temporal file.
-	 *
-	 * @return bool `true` if the file has been removed. `false` either the file doesn't exist or it couldn't be removed.
 	 */
 	private static function remove_tmp_file( $file_array ) {
-		if ( ! file_exists( $file_array['tmp_name'] ) ) {
-			return false;
+		if ( file_exists( $file_array['tmp_name'] ) ) {
+			wp_delete_file( $file_array['tmp_name'] );
 		}
-		return @unlink( $file_array['tmp_name'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	}
 
 	/**
@@ -186,7 +183,7 @@ class Jetpack_Media {
 			! self::is_file_supported_for_sideloading( $tmp_filename ) &&
 			! file_is_displayable_image( $tmp_filename )
 		) {
-			@unlink( $tmp_filename ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			wp_delete_file( $tmp_filename );
 			return new WP_Error( 'invalid_input', 'Invalid file type.', 403 );
 		}
 		remove_filter( 'jetpack_supported_media_sideload_types', $mime_type_static_filter );
@@ -278,7 +275,7 @@ class Jetpack_Media {
 	public static function delete_file( $pathname ) {
 		if ( ! file_exists( $pathname ) || ! is_file( $pathname ) ) {
 			// let's touch a fake file to try to `really` remove the media file.
-			touch( $pathname );
+			touch( $pathname ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
 		}
 
 		return wp_delete_file( $pathname );
@@ -322,9 +319,9 @@ class Jetpack_Media {
 	 *
 	 * Also, it removes the file defined in each item.
 	 *
-	 * @param int    $media_id - media post ID.
-	 * @param object $criteria - criteria to remove the items.
-	 * @param array  $revision_history - revision history array.
+	 * @param int   $media_id - media post ID.
+	 * @param array $criteria - criteria to remove the items.
+	 * @param array $revision_history - revision history array.
 	 *
 	 * @return array `revision_history` array updated.
 	 */
@@ -502,6 +499,8 @@ class Jetpack_Media {
 		return $media_item;
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 /**
  * Clean revision history when the media item is deleted.

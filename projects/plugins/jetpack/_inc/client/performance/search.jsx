@@ -1,25 +1,18 @@
-/**
- * External dependencies
- */
-import React, { Fragment, useCallback, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
-import { FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
 import { FormFieldset } from 'components/forms';
-import { isOfflineMode } from 'state/connection';
-import { hasActiveSiteFeature, isFetchingSitePurchases } from 'state/site';
-import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
+import React, { Fragment, useCallback, useEffect } from 'react';
+import { connect } from 'react-redux';
+import { isOfflineMode } from 'state/connection';
+import { currentThemeSupports } from 'state/initial-state';
+import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
+import { siteHasFeature, isFetchingSitePurchases } from 'state/site';
 
 const SEARCH_DESCRIPTION = __(
 	'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
@@ -66,7 +59,6 @@ function Search( props ) {
 
 	const togglingModule = !! props.isSavingAnyOption( 'search' );
 	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
-	const isSavingEitherOption = togglingModule || togglingInstantSearch;
 	return (
 		<SettingsCard { ...props } module="search" feature={ FEATURE_SEARCH_JETPACK } hideButton>
 			<SettingsGroup
@@ -89,36 +81,35 @@ function Search( props ) {
 						<ModuleToggle
 							activated={ isModuleEnabled }
 							compact
-							disabled={ isSavingEitherOption }
+							toggling={ togglingModule }
 							slug="search"
 							toggleModule={ toggleSearchModule }
-							toggling={ togglingModule }
 						>
 							{ __( 'Enable Search', 'jetpack' ) }
 						</ModuleToggle>
 
 						<FormFieldset>
-							<CompactFormToggle
+							<ToggleControl
 								checked={ isModuleEnabled && isInstantSearchEnabled }
-								disabled={ isSavingEitherOption || ! props.hasInstantSearch }
-								onChange={ toggleInstantSearch }
+								disabled={ togglingModule || ! props.hasInstantSearch }
 								toggling={ togglingInstantSearch }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-							<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
-								{ __(
-									'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
-									'jetpack'
-								) }
-							</p>
+								onChange={ toggleInstantSearch }
+								label={ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
+								help={
+									<span className="jp-form-setting-explanation jp-form-search-setting-explanation">
+										{ __(
+											'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
+											'jetpack'
+										) }
+									</span>
+								}
+							/>
 						</FormFieldset>
 					</Fragment>
 				) }
 			</SettingsGroup>
 			{ ! props.isLoading &&
+				props.isWidgetsSupported &&
 				( props.hasClassicSearch || props.hasInstantSearch ) &&
 				isModuleEnabled &&
 				! isInstantSearchEnabled && (
@@ -147,11 +138,12 @@ export default connect( state => {
 	return {
 		isLoading: isFetchingSitePurchases( state ),
 		inOfflineMode: isOfflineMode( state ),
-		hasClassicSearch: hasActiveSiteFeature( state, 'search' ),
-		hasInstantSearch: hasActiveSiteFeature( state, 'instant-search' ),
+		hasClassicSearch: siteHasFeature( state, 'search' ),
+		hasInstantSearch: siteHasFeature( state, 'instant-search' ),
 		failedToEnableSearch:
 			! isSettingActivated( state, 'search' ) &&
 			! isUpdatingSetting( state, 'search' ) &&
 			false === hasUpdatedSetting( state, 'search' ),
+		isWidgetsSupported: currentThemeSupports( state, 'widgets' ),
 	};
 } )( withModuleSettingsFormHelpers( Search ) );

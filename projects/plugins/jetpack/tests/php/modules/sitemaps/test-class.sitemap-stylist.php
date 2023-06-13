@@ -6,7 +6,7 @@
  * @since 4.7.0
  */
 
-require_jetpack_file( 'modules/sitemaps/sitemap-stylist.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-stylist.php';
 
 /**
  * Test class for Jetpack_Sitemap_Stylist.

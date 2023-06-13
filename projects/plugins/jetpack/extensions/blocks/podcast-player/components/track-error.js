@@ -1,10 +1,3 @@
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
 import { memo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 

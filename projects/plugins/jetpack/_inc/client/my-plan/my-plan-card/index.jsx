@@ -1,23 +1,24 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import PlanIcon from 'components/plans/plan-icon/index';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
-const MyPlanCard = ( { productSlug, action, isError, isPlaceholder, details, tagLine, title } ) => {
-	const cardClassNames = classNames( 'my-plan-card', {
+const MyPlanCard = ( {
+	productSlug,
+	action,
+	isError,
+	isPlaceholder,
+	details,
+	tagLine,
+	title,
+	isPlan,
+	cardClassNames = [],
+} ) => {
+	cardClassNames = classNames( 'my-plan-card', ...cardClassNames, {
 		'is-placeholder': isPlaceholder,
+		'is-plan': isPlan,
 		'has-action-only': action && ! details && ! isPlaceholder,
 	} );
 	const detailsClassNames = classNames( 'my-plan-card__details', { 'is-error': isError } );
@@ -51,6 +52,7 @@ MyPlanCard.propTypes = {
 	details: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
 	tagLine: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
 	title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
+	classNames: PropTypes.array,
 };
 
 export default MyPlanCard;

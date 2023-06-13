@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React, { useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
 import { ActionButton, JetpackLogo } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import { usePartnerCouponRedemption } from '../../hooks';
+import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
+import { usePartnerCouponRedemption } from '../../hooks.js';
 
 /**
  * Import styles
@@ -47,14 +40,8 @@ function dismiss() {
 }
 
 const RedeemPartnerCouponPostConnection = props => {
-	const {
-		connectionStatus,
-		partnerCoupon,
-		assetBaseUrl,
-		siteRawUrl,
-		tracksUserData,
-		analytics,
-	} = props;
+	const { connectionStatus, partnerCoupon, assetBaseUrl, siteRawUrl, tracksUserData, analytics } =
+		props;
 	const [ dismissed, setDismissed ] = useState( isDismissed() );
 
 	const onClick = usePartnerCouponRedemption(

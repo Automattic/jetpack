@@ -126,7 +126,7 @@ export const scanProductData = {
 export const searchProductData = {
 	slug: 'search',
 	name: 'Search',
-	title: 'Jetpack Site Search',
+	title: 'Jetpack Search',
 	description: 'Help them find what they need',
 	long_description:
 		'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.',
@@ -134,7 +134,7 @@ export const searchProductData = {
 	features: [
 		'Instant search and indexing',
 		'Powerful filtering',
-		'Supports 29 languages',
+		'Supports 38 languages',
 		'Spelling correction',
 	],
 	pricingForUi: {
@@ -177,7 +177,7 @@ export const videoPressProductData = {
 	features: [
 		'1TB of storage',
 		'Built into WordPress editor',
-		'Ad-free and brandable player',
+		'Ad-free and customizable player',
 		'Unlimited users',
 	],
 	pricingForUi: {

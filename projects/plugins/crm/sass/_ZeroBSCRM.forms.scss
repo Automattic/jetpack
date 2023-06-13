@@ -1,0 +1,189 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 27/06/16
+ */
+
+/*
+	Global styles for form elements
+*/
+
+
+// Info box - will be replaced by js with (i) when page activated (gets class .zbs-live)
+.zbs-infobox {  
+
+	// init
+	display:none;
+
+	// fade in
+	-webkit-transition: all 1s ease-in-out;
+	-moz-transition: all 1s ease-in-out;
+	-o-transition: all 1s ease-in-out;
+	transition: all 1s ease-in-out;
+
+}
+.zbs-infobox.zbs-live {
+
+	//show it
+	display:inline-block;
+
+	// size etc.
+	position:relative;
+	color:#000;
+	padding:4px 6px;
+	text-align:center;
+
+	// ico
+	i.zbs-help-ico {		
+		font-size:18px;
+		font-weight:800;
+		opacity:0.6;
+	}
+
+}
+
+// This is the associated hover box
+// It'll sit in the main infobox but be hidden unless shown
+.zbs-infobox-detail {
+
+	// init
+	display:none;
+
+	position: absolute;
+	top:24px;
+	left:0;	
+    z-index: 10001;
+
+	min-width:300px;
+	max-width:500px;
+	max-height:500px;
+	overflow-x:hidden;
+	overflow-y:auto;
+	font-size:14px;
+	font-weight:normal;
+	background:#FFF;
+	border:1px solid #CCC;
+	border-radius:5px;
+	padding:8px 10px;
+	text-align:left;
+
+
+	// standout div
+	div.greenhighlight {
+
+	    color: green;
+	    padding: 4px 10px;
+	    
+	}
+
+
+}
+
+
+// This is a prominent txt str/input
+input.zbs-prominent {
+
+    font-size: 14px !important;
+    color: green !important;
+    line-height: 1.4em;
+    height: 38px !important;
+}
+
+// second address / main addr
+tr.zbs-field-group-tr .zbs-field-group {
+    border-left: 3px solid var(--jp-gray-20) !important;
+    padding-left: 2% !important;
+}
+tr.zbs-field-group-tr label.zbs-field-group-label {
+
+    font-weight: 800 !important;
+    margin-top: 12px !important;
+
+}
+
+
+// Media queries for customer page (second addr only for now)
+@media all and (min-width: 1500px) {
+
+	// 2 inline addr fields
+	tr.zbs-field-group-tr .zbs-field-group {
+	    width: 44% !important;
+	    margin-right: 2% !important;
+	    display: inline-block !important;
+	    border-left: 3px solid var(--jp-gray-20) !important;
+	    padding-left: 2% !important;
+	}
+
+	tr.zbs-field-group-tr label.zbs-field-group-label {
+
+	    font-weight: 800 !important;
+	    margin-top: 12px !important;
+
+	}
+
+	tr.zbs-field-group-tr table.wh-metatab {
+	    min-width: 100% !important;
+	    width: 100% !important;
+	}
+
+	tr.wh-large.zbs-field-group-tr th, tr.wh-large.zbs-field-group-tr td {
+	    padding: 6px 16px !important;
+	}
+
+	tr.zbs-field-group-tr .form-table th {
+		width:auto !important;
+	}
+
+}
+
+// Needed for custom contact avatars add/edit pages
+.jpcrm-customer-file-upload:before {
+  content: "\f0ee"; 
+  display: inline-block;
+  font-family: FontAwesome;
+}
+
+.jpcrm-customer-file-upload-remove:before {
+  content: "\f00d"; 
+  display: inline-block;
+  font-family: FontAwesome;
+}
+
+.jpcrm-customer-file-upload, 
+.jpcrm-customer-file-upload-remove {
+    border: 1px solid #ccc;
+    display: inline-block !important;
+    padding: 6px 12px !important;
+    cursor: pointer;
+	 width: initial;
+	 font-weight: 500;
+}
+
+.jpcrm-customer-file-upload:hover, 
+.jpcrm-customer-file-upload-remove:hover {
+    border: 1px solid #999;
+}
+
+.jpcrm-customer-input-file {
+	display: none !important;
+}
+
+.jpcrm-customer-profile-picture {
+  max-width: 150px;
+  height: auto;
+  display: inline-block;
+}
+
+.jpcrm-customer-profile-picture-container {
+  display: inline-block;
+  text-align: center;
+}
+
+#zbs-add-tag-value {
+  font-size: 14px;
+  line-height: 1.4em;
+}

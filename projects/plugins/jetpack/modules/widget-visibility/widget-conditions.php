@@ -162,6 +162,7 @@ class Jetpack_Widget_Conditions {
 			'core/tag-cloud',
 			'core/page-list',
 			'core/latest-posts',
+			'woocommerce/product-categories',
 		);
 
 		$filter_metadata_registration = function ( $settings, $metadata ) use ( $blocks_to_add_visibility_conditions ) {
@@ -711,6 +712,10 @@ class Jetpack_Widget_Conditions {
 	public static function sidebars_widgets( $widget_areas ) {
 		$settings = array();
 
+		if ( ! is_array( $widget_areas ) ) {
+			return $widget_areas;
+		}
+
 		foreach ( $widget_areas as $widget_area => $widgets ) {
 			if ( empty( $widgets ) ) {
 				continue;
@@ -1127,6 +1132,10 @@ class Jetpack_Widget_Conditions {
 				$opts      = $wp_registered_widgets[ $widget ];
 				$instances = get_option( $opts['callback'][0]->option_name );
 
+				if ( ! is_array( $instances ) || empty( $instances ) ) {
+					continue;
+				}
+
 				// Going through each instance of the widget.
 				foreach ( $instances as $number => $instance ) {
 					if (
@@ -1177,6 +1186,10 @@ add_action( 'init', array( 'Jetpack_Widget_Conditions', 'init' ) );
 // 'init' happens too late to hook on block registration.
 global $pagenow;
 $current_url = ! empty( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-if ( is_customize_preview() || 'widgets.php' === $pagenow || ( false !== strpos( $current_url, '/wp-json/wp/v2/block-renderer' ) ) ) {
+if ( is_customize_preview()
+	|| 'widgets.php' === $pagenow
+	|| ( false !== strpos( $current_url, '/wp-json/wp/v2/block-renderer' ) )
+	|| 1 === preg_match( '~^/wp/v2/sites/\d+/block-renderer~', $current_url )
+) {
 	Jetpack_Widget_Conditions::add_block_attributes_filter();
 }

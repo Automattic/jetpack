@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
-
 import SimpleNotice from 'components/notice';
+import PropTypes from 'prop-types';
+import React from 'react';
 import NoticeActionReconnect from './notice-action-reconnect';
 
 export default class ErrorNoticeCycleConnection extends React.Component {
 	static defaultProps = {
 		text: __( 'Connection Error, please reconnect.', 'jetpack' ),
+		display: true,
 	};
 
 	static propTypes = {
@@ -22,6 +15,7 @@ export default class ErrorNoticeCycleConnection extends React.Component {
 		errorCode: PropTypes.string,
 		errorData: PropTypes.object,
 		action: PropTypes.string,
+		display: PropTypes.bool,
 	};
 
 	render() {
@@ -31,6 +25,7 @@ export default class ErrorNoticeCycleConnection extends React.Component {
 				text={ this.props.text }
 				status={ 'is-error' }
 				icon={ 'link-break' }
+				display={ this.props.display }
 			>
 				<NoticeActionReconnect
 					errorCode={ this.props.errorCode }

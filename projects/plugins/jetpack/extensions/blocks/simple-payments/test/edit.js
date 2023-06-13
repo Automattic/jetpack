@@ -1,28 +1,13 @@
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
 import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
-// this is necessary because block editor store becomes unregistered during jest initialization
-import { register } from '@wordpress/data';
-import { store as blockEditorStore } from '@wordpress/block-editor';
-register( blockEditorStore );
-
-/**
- * Internal dependencies
- */
 import { SimplePaymentsEdit } from '../edit';
 
 const setAttributes = jest.fn();
+const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );
 beforeEach( () => {
-	Intl.NumberFormat = jest
-		.fn()
+	intlNumberFormatSpy
+		.mockReset()
 		.mockImplementation( () => ( { format: value => `A$${ value.toString() }.00` } ) );
-} );
-afterEach( () => {
-	jest.resetAllMocks();
 } );
 
 const props = {
@@ -155,7 +140,6 @@ describe( 'Edit component', () => {
 	} );
 
 	test( 'displays title and price fields when not selected', () => {
-
 		const notSelectedProps = {
 			...props,
 			isSelected: false,

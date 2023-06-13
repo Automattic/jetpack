@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
@@ -55,6 +56,8 @@ class Jetpack_SSO {
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
+
+		add_filter( 'wp_login_errors', array( $this, 'sso_reminder_logout_wpcom' ) );
 	}
 
 	/**
@@ -77,6 +80,35 @@ class Jetpack_SSO {
 	 **/
 	public static function module_configure_button() {
 		Jetpack::enable_module_configurable( __FILE__ );
+	}
+
+	/**
+	 * Safety heads-up added to the logout messages when SSO is enabled.
+	 * Some folks on a shared computer don't know that they need to log out of WordPress.com as well.
+	 *
+	 * @param WP_Error $errors WP_Error object.
+	 */
+	public function sso_reminder_logout_wpcom( $errors ) {
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return $errors;
+		}
+
+		if ( ! empty( $errors->errors['loggedout'] ) ) {
+			$logout_message = wp_kses(
+				sprintf(
+					/* translators: %1$s is a link to the WordPress.com account settings page. */
+					__( 'If you are on a shared computer, remember to also <a href="%1$s">log out of WordPress.com</a>.', 'jetpack' ),
+					'https://wordpress.com/me'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			);
+			$errors->add( 'jetpack-sso-show-logout', $logout_message, 'message' );
+		}
+		return $errors;
 	}
 
 	/**
@@ -376,27 +408,25 @@ class Jetpack_SSO {
 		}
 
 		if ( 'jetpack-sso' === $action ) {
-			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' === $_GET['result'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET['result'] ) && isset( $_GET['user_id'] ) && isset( $_GET['sso_nonce'] ) && 'success' === $_GET['result'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$this->handle_login();
 				$this->display_sso_login_form();
+			} elseif ( ( new Status() )->is_staging_site() ) {
+				add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
 			} else {
-				if ( ( new Status() )->is_staging_site() ) {
-					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
-				} else {
-					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
-					add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
-					$reauth  = ! empty( $_GET['force_reauth'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					$sso_url = $this->get_sso_url_or_die( $reauth );
+				// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
+				add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
+				$reauth  = ! empty( $_GET['force_reauth'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$sso_url = $this->get_sso_url_or_die( $reauth );
 
-					$tracking->record_user_event( 'sso_login_redirect_success' );
-					wp_safe_redirect( $sso_url );
-					exit;
-				}
+				$tracking->record_user_event( 'sso_login_redirect_success' );
+				wp_safe_redirect( $sso_url );
+				exit;
 			}
 		} elseif ( Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 
 			// Save cookies so we can handle redirects after SSO.
-			$this->save_cookies();
+			static::save_cookies();
 
 			/**
 			 * Check to see if the site admin wants to automagically forward the user
@@ -465,7 +495,7 @@ class Jetpack_SSO {
 			setcookie( 'jetpack_sso_redirect_to', $url, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 		} elseif ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
 			// Otherwise, if it's already set, purge it.
-			setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 		}
 	}
 
@@ -594,7 +624,8 @@ class Jetpack_SSO {
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
 				COOKIE_DOMAIN,
-				is_ssl()
+				is_ssl(),
+				true
 			);
 		}
 
@@ -605,7 +636,8 @@ class Jetpack_SSO {
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
 				COOKIE_DOMAIN,
-				is_ssl()
+				is_ssl(),
+				true
 			);
 		}
 	}
@@ -624,7 +656,8 @@ class Jetpack_SSO {
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
 				COOKIE_DOMAIN,
-				is_ssl()
+				is_ssl(),
+				true
 			);
 		}
 
@@ -635,7 +668,8 @@ class Jetpack_SSO {
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
 				COOKIE_DOMAIN,
-				is_ssl()
+				is_ssl(),
+				true
 			);
 		}
 
@@ -646,7 +680,8 @@ class Jetpack_SSO {
 				time() - YEAR_IN_SECONDS,
 				COOKIEPATH,
 				COOKIE_DOMAIN,
-				is_ssl()
+				is_ssl(),
+				true
 			);
 		}
 	}
@@ -716,7 +751,8 @@ class Jetpack_SSO {
 				time() + ( 10 * MINUTE_IN_SECONDS ),
 				COOKIEPATH,
 				COOKIE_DOMAIN,
-				is_ssl()
+				is_ssl(),
+				true
 			);
 		}
 
@@ -1179,7 +1215,8 @@ class Jetpack_SSO {
 			time() + WEEK_IN_SECONDS,
 			COOKIEPATH,
 			COOKIE_DOMAIN,
-			is_ssl()
+			is_ssl(),
+			true
 		);
 
 		setcookie(
@@ -1194,7 +1231,8 @@ class Jetpack_SSO {
 			time() + WEEK_IN_SECONDS,
 			COOKIEPATH,
 			COOKIE_DOMAIN,
-			is_ssl()
+			is_ssl(),
+			true
 		);
 	}
 

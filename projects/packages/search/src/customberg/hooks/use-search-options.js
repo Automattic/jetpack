@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { useMemo } from 'react';
-
-/**
- * WordPress dependencies
- */
 import { useEntityProp } from '@wordpress/core-data';
+import { useMemo } from 'react';
 
 /**
  * Fetches values and setters for various search configuration values.
@@ -33,12 +26,21 @@ export default function useSearchOptions() {
 		'site',
 		'jetpack_search_inf_scroll'
 	);
+	const [ filteringOpensOverlay, setFilteringOpensOverlay ] = useEntityProp(
+		'root',
+		'site',
+		'jetpack_search_filtering_opens_overlay'
+	);
 	const [ showLogo, setShowLogo ] = useEntityProp(
 		'root',
 		'site',
 		'jetpack_search_show_powered_by'
 	);
-
+	const [ postDate, setPostDate ] = useEntityProp(
+		'root',
+		'site',
+		'jetpack_search_show_post_date'
+	);
 	const [ excludedPostTypesCsv, setExcludedPostTypesCsv ] = useEntityProp(
 		'root',
 		'site',
@@ -56,10 +58,12 @@ export default function useSearchOptions() {
 		color,
 		excludedPostTypes,
 		infiniteScroll,
+		filteringOpensOverlay,
 		resultFormat,
 		setColor,
 		setExcludedPostTypes,
 		setInfiniteScroll,
+		setFilteringOpensOverlay,
 		setResultFormat,
 		setShowLogo,
 		setSort,
@@ -71,5 +75,7 @@ export default function useSearchOptions() {
 		sortEnabled,
 		theme,
 		trigger,
+		postDate,
+		setPostDate,
 	};
 }

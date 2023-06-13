@@ -55,7 +55,6 @@ class Test_Product_Multiple_Filenames extends TestCase {
 			unlink( WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
 			rmdir( WP_PLUGIN_DIR . '/jetpack' );
 		}
-
 	}
 
 	/**
@@ -72,7 +71,6 @@ class Test_Product_Multiple_Filenames extends TestCase {
 		}
 
 		copy( __DIR__ . '/assets/backup-mock-plugin.txt', WP_PLUGIN_DIR . '/' . $dest_folder . '/jetpack-backup.php' );
-
 	}
 
 	/**
@@ -95,9 +93,7 @@ class Test_Product_Multiple_Filenames extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
-
 		WorDBless_Options::init()->clear_options();
-
 	}
 
 	/**
@@ -146,7 +142,6 @@ class Test_Product_Multiple_Filenames extends TestCase {
 		$this->assertSame( $success, Backup::is_plugin_installed() );
 		$expected_file = $success ? $folder . '/jetpack-backup.php' : null;
 		$this->assertSame( $expected_file, Backup::get_installed_plugin_filename() );
-
 	}
 
 	/**
@@ -170,7 +165,6 @@ class Test_Product_Multiple_Filenames extends TestCase {
 
 		$this->assertTrue( Backup::is_plugin_active() );
 		$this->assertTrue( is_plugin_active( $filename ) );
-
 	}
 
 }

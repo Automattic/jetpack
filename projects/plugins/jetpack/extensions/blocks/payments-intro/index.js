@@ -1,18 +1,11 @@
-/**
- * WordPress dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
+import { __, _x } from '@wordpress/i18n';
 import { currencyDollar } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
 import { getIconColor } from '../../shared/block-icons';
 import { settings as donationSettings } from '../donations';
-import { settings as recurringPaymentSettings } from '../recurring-payments';
 import { settings as premiumContentSettings } from '../premium-content';
+import { settings as recurringPaymentSettings } from '../recurring-payments';
+import edit from './edit';
 
 export const name = 'payments-intro';
 export const title = __( 'Payments', 'jetpack' );
@@ -42,7 +35,7 @@ export const settings = {
 		// This block acts as a temporary placeholder before inserting a different block and so should not offer any
 		// customisation or mark-up specific to this block. Such things are up to the individual blocks inserted instead.
 		alignWide: false,
-		className: false,
+		className: true,
 		customClassName: false,
 		html: false,
 		reusable: false,

@@ -23,7 +23,7 @@ $jetpack_74_path    = '/path/to/Downloads/jetpack';
 $external_repo_path = '/path/to/workspace/a8c/some-repo';
 $jetpack_exclude    = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
 
-echo "Scan master declarations\n";
+echo "Scan trunk declarations\n";
 $jetpack_75_declarations = new Automattic\Jetpack\Analyzer\Declarations();
 $jetpack_75_declarations->scan( $jetpack_75_path, $jetpack_exclude );
 

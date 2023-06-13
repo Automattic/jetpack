@@ -116,7 +116,6 @@ abstract class Module_Product extends Product {
 		}
 
 		return $module_activation;
-
 	}
 
 	/**

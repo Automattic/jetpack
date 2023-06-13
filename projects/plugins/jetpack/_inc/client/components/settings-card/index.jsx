@@ -1,17 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { get, includes } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Button from 'components/button';
+import JetpackBanner from 'components/jetpack-banner';
+import ModuleOverridenBanner from 'components/module-overridden-banner';
+import SectionHeader from 'components/section-header';
+import analytics from 'lib/analytics';
 import {
 	FEATURE_SECURITY_SCANNING_JETPACK,
 	FEATURE_SITE_BACKUPS_JETPACK,
@@ -22,7 +14,16 @@ import {
 	FEATURE_SEARCH_JETPACK,
 	getJetpackProductUpsellByFeature,
 } from 'lib/plans/constants';
-import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import { get, includes } from 'lodash';
+import ProStatus from 'pro-status';
+import {
+	getProductDescriptionUrl,
+	isSearchNewPricingLaunched202208,
+} from 'product-descriptions/utils';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
@@ -34,13 +35,8 @@ import {
 	isMultisite,
 	userCanManageModules,
 } from 'state/initial-state';
-import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
-import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
-import SectionHeader from 'components/section-header';
-import ProStatus from 'pro-status';
-import JetpackBanner from 'components/jetpack-banner';
-import ModuleOverridenBanner from 'components/module-overridden-banner';
 import { getModuleOverride, getModule } from 'state/modules';
+import { siteHasFeature, isFetchingSiteData } from 'state/site';
 
 export const SettingsCard = props => {
 	const trackBannerClick = feature => {
@@ -119,6 +115,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEO_HOSTING_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
+						rna
 					/>
 				);
 
@@ -135,6 +132,7 @@ export const SettingsCard = props => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.adsUpgradeUrl }
+						rna
 					/>
 				) : (
 					<JetpackBanner
@@ -146,6 +144,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
+						rna
 					/>
 				);
 
@@ -166,6 +165,7 @@ export const SettingsCard = props => {
 							feature={ feature }
 							onClick={ handleClickForTracking( feature ) }
 							href={ props.securityUpgradeUrl }
+							rna
 						/>
 					) : (
 						<JetpackBanner
@@ -177,6 +177,7 @@ export const SettingsCard = props => {
 							callToAction={ connectLabel }
 							feature={ feature }
 							onClick={ handleConnectClick( feature ) }
+							rna
 						/>
 					);
 				}
@@ -192,6 +193,7 @@ export const SettingsCard = props => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.scanUpgradeUrl }
+						rna
 					/>
 				) : (
 					<JetpackBanner
@@ -203,6 +205,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
+						rna
 					/>
 				);
 
@@ -219,6 +222,7 @@ export const SettingsCard = props => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.gaUpgradeUrl }
+						rna
 					/>
 				) : (
 					<JetpackBanner
@@ -230,6 +234,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_GOOGLE_ANALYTICS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
+						rna
 					/>
 				);
 
@@ -240,7 +245,11 @@ export const SettingsCard = props => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ upgradeLabel }
+						callToAction={
+							isSearchNewPricingLaunched202208()
+								? __( 'Start for free', 'jetpack' )
+								: _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' )
+						}
 						title={ __(
 							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 							'jetpack'
@@ -249,6 +258,7 @@ export const SettingsCard = props => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.searchUpgradeUrl }
+						rna
 					/>
 				) : (
 					<JetpackBanner
@@ -260,6 +270,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
+						rna
 					/>
 				);
 
@@ -275,6 +286,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
+						rna
 					/>
 				) : (
 					<JetpackBanner
@@ -286,6 +298,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
 						onclick={ props.doConnectUser }
+						rna
 					/>
 				);
 
@@ -385,7 +398,7 @@ export const SettingsCard = props => {
 			>
 				<SectionHeader label={ header }>
 					{ ! props.hideButton && (
-						<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
+						<Button primary rna compact type="submit" disabled={ isSaving || ! props.isDirty() }>
 							{ isSaving
 								? _x( 'Saving…', 'Button caption', 'jetpack' )
 								: _x(
@@ -441,13 +454,13 @@ export default connect(
 			multisite: isMultisite( state ),
 			inOfflineMode: isOfflineMode( state ),
 			hasConnectedOwner: hasConnectedOwnerSelector( state ),
-			hasAntispam: hasActiveSiteFeature( state, 'antispam' ),
-			hasBackups: hasActiveSiteFeature( state, 'backups' ),
-			hasGoogleAnalytics: hasActiveSiteFeature( state, 'google-analytics' ),
-			hasInstantSearch: hasActiveSiteFeature( state, 'instant-search' ),
-			hasScan: hasActiveSiteFeature( state, 'scan' ),
-			hasVideoPress: hasActiveSiteFeature( state, 'videopress' ),
-			hasWordAds: hasActiveSiteFeature( state, 'wordads' ),
+			hasAntispam: siteHasFeature( state, 'antispam' ),
+			hasBackups: siteHasFeature( state, 'backups' ),
+			hasGoogleAnalytics: siteHasFeature( state, 'google-analytics' ),
+			hasInstantSearch: siteHasFeature( state, 'instant-search' ),
+			hasScan: siteHasFeature( state, 'scan' ),
+			hasVideoPress: siteHasFeature( state, 'videopress' ),
+			hasWordAds: siteHasFeature( state, 'wordads' ),
 		};
 	},
 	dispatch => ( {

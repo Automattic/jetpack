@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
-import ReactDOM from 'react-dom';
-import React from 'react';
 import { ThemeProvider } from '@automattic/jetpack-components';
-
-/**
- * WordPress dependencies
- */
 import { createReduxStore, register } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import { STORE_ID, storeConfig } from './store';
+import * as WPElement from '@wordpress/element';
+import React from 'react';
 import WordAdsDashboard from './components/dashboard';
+import { STORE_ID, storeConfig } from './store';
 
 const store = createReduxStore( STORE_ID, storeConfig );
 register( store );
@@ -29,12 +18,17 @@ function init() {
 		return;
 	}
 
-	ReactDOM.render(
+	// @todo: Remove fallback when we drop support for WP 6.1
+	const component = (
 		<ThemeProvider>
 			<WordAdsDashboard />
-		</ThemeProvider>,
-		container
+		</ThemeProvider>
 	);
+	if ( WPElement.createRoot ) {
+		WPElement.createRoot( container ).render( component );
+	} else {
+		WPElement.render( component, container );
+	}
 }
 
 // Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.

@@ -1,9 +1,7 @@
-/**
- * Internal dependencies
- */
 import APISelectors from './api';
-import jetpackStatusSelectors from './jetpack-status';
 import connectedPluginsSelectors from './connected-plugins';
+import jetpackStatusSelectors from './jetpack-status';
+import siteBackupSelectors from './site-backup';
 import siteDataSelectors from './site-data';
 
 const selectors = {
@@ -11,6 +9,7 @@ const selectors = {
 	...jetpackStatusSelectors,
 	...connectedPluginsSelectors,
 	...siteDataSelectors,
+	...siteBackupSelectors,
 };
 
 export default selectors;

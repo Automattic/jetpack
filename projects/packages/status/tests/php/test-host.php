@@ -57,22 +57,13 @@ class Test_Host extends TestCase {
 	}
 
 	/**
-	 * Tests if WoA Site based on option
-	 */
-	public function test_woa_site_based_on_option() {
-		$this->setup_atomic_constants();
-		Functions\when( 'get_option' )->justReturn( array( 'fruit' => 'apples' ) ); // Just need a non-empty value.
-		$this->assertTrue( $this->host_obj->is_woa_site() );
-	}
-
-	/**
-	 * Tests if WoA Site based on option
+	 * Tests if WoA Site based on constant
 	 */
 	public function test_woa_site_based_on_constant() {
 		$this->setup_atomic_constants();
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
-		Functions\when( 'get_option' )->justReturn( array() ); // Intentionally want to return empty the option.
 		$this->assertTrue( $this->host_obj->is_woa_site() );
+		$this->assertTrue( $this->host_obj->is_wpcom_platform() );
 	}
 
 	/**
@@ -81,7 +72,6 @@ class Test_Host extends TestCase {
 	public function test_atomic_not_woa() {
 		$this->setup_atomic_constants();
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', false );
-		Functions\when( 'get_option' )->justReturn( array() ); // Intentionally want to return empty the option.
 		$this->assertTrue( $this->host_obj->is_atomic_platform() );
 		$this->assertFalse( $this->host_obj->is_woa_site() );
 	}
@@ -104,12 +94,22 @@ class Test_Host extends TestCase {
 	}
 
 	/**
+	 * Tests if a Simple Site based on constant
+	 */
+	public function test_simple_site_based_on_constant() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->assertTrue( $this->host_obj->is_wpcom_simple() );
+		$this->assertTrue( $this->host_obj->is_wpcom_platform() );
+	}
+
+	/**
 	 * Test result is cached.
 	 */
 	public function test_cached() {
 		$this->setup_atomic_constants();
-		Functions\expect( 'get_option' )->once()->andReturn( array( 'fruit' => 'apples' ) );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
 		$this->assertTrue( $this->host_obj->is_woa_site() );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', false );
 		$this->assertTrue( $this->host_obj->is_woa_site() );
 	}
 

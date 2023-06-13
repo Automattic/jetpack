@@ -11,6 +11,8 @@
  * Additional Search Queries: scroll, infinite, infinite scroll
  */
 
+use Automattic\Jetpack\Stats\Options as Stats_Options;
+
 /**
  * Jetpack-specific elements of Infinite Scroll
  */
@@ -76,6 +78,10 @@ class Jetpack_Infinite_Scroll_Extras {
 	 * @action admin_init
 	 */
 	public function action_admin_init() {
+		if ( ! Jetpack_Plan::supports( 'google-analytics' ) ) {
+			return;
+		}
+
 		add_settings_field( $this->option_name_google_analytics, '<span id="infinite-scroll-google-analytics">' . __( 'Use Google Analytics with Infinite Scroll', 'jetpack' ) . '</span>', array( $this, 'setting_google_analytics' ), 'reading' );
 		register_setting( 'reading', $this->option_name_google_analytics, array( $this, 'sanitize_boolean_value' ) );
 	}
@@ -145,9 +151,9 @@ class Jetpack_Infinite_Scroll_Extras {
 		// Abort if Stats module isn't active
 		if ( in_array( 'stats', Jetpack::get_active_modules(), true ) ) {
 			// Abort if user is logged in but logged-in users shouldn't be tracked.
-			if ( is_user_logged_in() && function_exists( 'stats_get_options' ) ) {
-				$stats_options        = stats_get_options();
-				$track_loggedin_users = isset( $stats_options['reg_users'] ) ? (bool) $stats_options['reg_users'] : false;
+			if ( is_user_logged_in() ) {
+				$stats_options        = Stats_Options::get_options();
+				$track_loggedin_users = isset( $stats_options['count_roles'] ) ? (bool) $stats_options['count_roles'] : false;
 
 				if ( ! $track_loggedin_users ) {
 					return $settings;
@@ -166,8 +172,8 @@ class Jetpack_Infinite_Scroll_Extras {
 			$settings['stats'] .= '-jetpack';
 		}
 
-		// Check if Google Analytics tracking is requested
-		$settings['google_analytics'] = (bool) Jetpack_Options::get_option_and_ensure_autoload( $this->option_name_google_analytics, 0 );
+		// Check if Google Analytics tracking is requested.
+		$settings['google_analytics'] = Jetpack_Plan::supports( 'google-analytics' ) && Jetpack_Options::get_option_and_ensure_autoload( $this->option_name_google_analytics, 0 );
 
 		return $settings;
 	}

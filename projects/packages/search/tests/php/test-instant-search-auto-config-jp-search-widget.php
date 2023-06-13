@@ -42,7 +42,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 		remove_filter( 'option_widget_jetpack-search-filters', array( $this, 'jp_search_widgets' ) );
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
-		$this->assertEquals( 'jetpack-search-filters-13', $sidebars_widgets['jetpack-instant-search-sidebar'][0] );
+		$this->assertEquals( 'jetpack-search-filters-13', $sidebars_widgets[ Instant_Search::INSTANT_SEARCH_SIDEBAR ][0] );
 	}
 
 	/**
@@ -68,10 +68,10 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	 */
 	public function test_auto_config_non_fse_theme_sidebar_search_widget_replace_success() {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_core_search' ) );
-		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 		$this->assertTrue( Instant_Search::instance()->auto_config_non_fse_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_core_search' ) );
-		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
 		$this->assertEquals( 'jetpack-search-filters-1', $sidebars_widgets['sidebar-1'][0] );
@@ -84,11 +84,11 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	 */
 	public function test_auto_config_theme_sidebar_search_block_replace_success() {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_search_block' ) );
-		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 		add_filter( 'option_widget_block', array( $this, 'widget_block_widgets' ) );
 		$this->assertTrue( Instant_Search::instance()->auto_config_non_fse_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_has_search_block' ) );
-		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 		remove_filter( 'option_widget_block', array( $this, 'widget_block_widgets' ) );
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
@@ -100,10 +100,10 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 	 */
 	public function test_auto_config_non_fse_theme_sidebar_search_widget_add_success() {
 		add_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ) );
-		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		add_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 		$this->assertTrue( Instant_Search::instance()->auto_config_non_fse_theme_sidebar_search_widget() );
 		remove_filter( 'option_sidebars_widgets', array( $this, 'sidebars_widgets_theme_empty_sidebar' ) );
-		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_false' );
+		remove_filter( 'option_' . Helper::get_widget_option_name(), '__return_empty_array' );
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
 		$this->assertEquals( 'jetpack-search-filters-1', $sidebars_widgets['sidebar-1'][0] );
@@ -197,7 +197,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 		 * Value for sidebars_widgets - theme_sidebar_configured
 		 */
 	public function sidebars_widgets_overlay_sidebar_configured() {
-		return array( 'jetpack-instant-search-sidebar' => array( 'jetpack-search-filters-12' ) );
+		return array( Instant_Search::INSTANT_SEARCH_SIDEBAR => array( 'jetpack-search-filters-12' ) );
 	}
 
 	/**

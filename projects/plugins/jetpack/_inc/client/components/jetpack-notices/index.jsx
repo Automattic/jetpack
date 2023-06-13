@@ -1,28 +1,20 @@
-/**
- * External dependencies
- */
+import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import ConnectionBanner from 'components/connection-banner';
+import NoticesList from 'components/global-notices';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import SocialLogo from 'social-logos';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import ConnectionBanner from 'components/connection-banner';
-import DismissableNotices from './dismissable';
-import UserLicenseActivationNotice from './user-license-activation';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
+	isConnectionOwner,
 	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
@@ -40,13 +32,10 @@ import {
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
-import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
-import JetpackStateNotices from './state-notices';
+import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
-import NoticeAction from 'components/notice/notice-action.jsx';
-import NoticesList from 'components/global-notices';
 import PlanConflictWarning from './plan-conflict-warning';
-import SimpleNotice from 'components/notice';
+import JetpackStateNotices from './state-notices';
 
 export class DevVersionNotice extends React.Component {
 	static displayName = 'DevVersionNotice';
@@ -189,7 +178,8 @@ export class UserUnlinked extends React.Component {
 			return (
 				<div className="jp-unlinked-notice">
 					<ConnectionBanner
-						title={ __(
+						title={ __( 'Connect your WordPress.com account', 'jetpack' ) }
+						description={ __(
 							'Jetpack is powering your site, but to access all of its features you’ll need to connect your account to WordPress.com.',
 							'jetpack'
 						) }
@@ -221,18 +211,17 @@ class JetpackNotices extends React.Component {
 			error.hasOwnProperty( 'action' )
 		);
 
-		const isUserConnectScreen = '/connect-user' === this.props.location.pathname;
-		const isUserLicenseActivationScreen = this.props.location.pathname.startsWith( '/license' );
+		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
 
 		return (
 			<div aria-live="polite">
 				<NoticesList />
 				{ this.props.siteConnectionStatus &&
 					this.props.userCanConnectSite &&
-					! this.props.isReconnectingSite &&
 					( this.props.connectionErrors.length > 0 || siteDataErrors.length > 0 ) && (
 						<JetpackConnectionErrors
 							errors={ this.props.connectionErrors.concat( siteDataErrors ) }
+							display={ ! this.props.isReconnectingSite }
 						/>
 					) }
 				<JetpackStateNotices />
@@ -280,9 +269,6 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
-				{ ! isUserLicenseActivationScreen && ! this.props.isAtomicSite && (
-					<UserLicenseActivationNotice pathname={ this.props.location.pathname } />
-				) }
 			</div>
 		);
 	}
@@ -296,6 +282,7 @@ export default connect(
 			userCanConnectSite: userCanConnectSite( state ),
 			userCanConnectAccount: userCanConnectAccount( state ),
 			userIsSubscriber: userIsSubscriber( state ),
+			isConnectionOwner: isConnectionOwner( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
 			isAtomicSite: isAtomicSite( state ),

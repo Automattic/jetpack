@@ -1,21 +1,10 @@
-/**
- * External dependencies
- *
- * @format
- */
-
+import { __ } from '@wordpress/i18n';
+import QuerySite from 'components/data/query-site';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import { getModule, getModuleOverride } from 'state/modules';
 import { isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
+import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
-import Card from 'components/card';
-import QuerySite from 'components/data/query-site';
 import Media from './media';
 import Search from './search';
 import SpeedUpSite from './speed-up-site';
@@ -45,17 +34,15 @@ class Performance extends Component {
 		return (
 			<div>
 				<QuerySite />
-				<Card
-					title={
-						this.props.searchTerm
-							? __( 'Performance', 'jetpack' )
-							: __(
-									'Load pages faster, optimize images, and speed up your visitors’ experience.',
-									'jetpack'
-							  )
-					}
-					className="jp-settings-description"
-				/>
+				<h1 className="screen-reader-text">{ __( 'Jetpack Performance Settings', 'jetpack' ) }</h1>
+				<h2 className="jp-settings__section-title">
+					{ this.props.searchTerm
+						? __( 'Performance', 'jetpack' )
+						: __(
+								'Load pages faster, optimize images, and speed up your visitors’ experience.',
+								'jetpack'
+						  ) }
+				</h2>
 				<Search { ...commonProps } />
 				<SpeedUpSite { ...commonProps } />
 				<Media { ...commonProps } />

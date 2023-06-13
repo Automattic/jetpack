@@ -5,7 +5,7 @@
  * @package automattic/jetpack-status
  */
 
-// phpcs:disable WordPress.PHP.IniSet.display_errors_Blacklisted
+// phpcs:disable WordPress.PHP.IniSet.display_errors_Disallowed
 // phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
 // phpcs:disable WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_error_reporting
 // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting

@@ -22,8 +22,6 @@ $overlay-horizontal-padding-lg: 3em;
 	overflow-x: hidden;
 	overflow-y: auto;
 
-	transition: opacity 0.1s ease-in;
-
 	z-index: 9999999999999;
 
 	// Override font for Argent theme.
@@ -44,6 +42,15 @@ $overlay-horizontal-padding-lg: 3em;
 		padding: $overlay-vertical-padding-lg $overlay-horizontal-padding-lg;
 	}
 
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		@include remove-header-styling();
+	}
+
 	&.is-hidden {
 		background: transparent;
 		opacity: 0;
@@ -59,8 +66,14 @@ $overlay-horizontal-padding-lg: 3em;
 
 // Ensure the hidden overlay doesn't add whitespace to printed pages
 @media print {
-    .jetpack-instant-search__overlay.is-hidden {
-        display: none;
-    }
+	.jetpack-instant-search__overlay.is-hidden {
+		display: none;
+	}
 }
 
+// Only show animation to users who have not chosen reduced motion
+@media ( prefers-reduced-motion: no-preference ) {
+	.jetpack-instant-search__overlay {
+		transition: opacity 0.1s ease-in;
+	}
+}

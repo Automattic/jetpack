@@ -1,12 +1,9 @@
-/**
- * External dependencies
- */
 import { useMediaQuery } from '@wordpress/compose';
 import breakpointsValues from '../breakpoints.module.scss';
 
 const BREAKPOINTS = [ 'sm', 'md', 'lg' ] as const;
 
-type Breakpoints = typeof BREAKPOINTS[ number ];
+type Breakpoints = ( typeof BREAKPOINTS )[ number ];
 
 type Operators = '<' | '<=' | '>' | '>=';
 

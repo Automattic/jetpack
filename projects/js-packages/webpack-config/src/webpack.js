@@ -1,17 +1,19 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
-const webpack = require( 'webpack' );
-
-const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
-const TerserPlugin = require( './webpack/terser' );
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
-const DuplicatePackageCheckerWebpackPlugin = require( 'duplicate-package-checker-webpack-plugin' );
-const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
-const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
-const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
-const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
 const I18nCheckWebpackPlugin = require( '@automattic/i18n-check-webpack-plugin' );
+const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
+const WebpackRTLPlugin = require( '@automattic/webpack-rtl-plugin' );
+const DuplicatePackageCheckerWebpackPlugin = require( '@cerner/duplicate-package-checker-webpack-plugin' );
+const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
+const CssMinimizerPlugin = require( 'css-minimizer-webpack-plugin' );
+const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
+const webpack = require( 'webpack' );
+const CssRule = require( './webpack/css-rule' );
+const FileRule = require( './webpack/file-rule' );
+const MiniCSSWithRTLPlugin = require( './webpack/mini-css-with-rtl' );
 const PnpmDeterministicModuleIdsPlugin = require( './webpack/pnpm-deterministic-ids.js' );
+const TerserPlugin = require( './webpack/terser' );
+const TranspileRule = require( './webpack/transpile-rule' );
 
 const MyCssMinimizerPlugin = options => new CssMinimizerPlugin( options );
 
@@ -34,6 +36,12 @@ const optimization = {
 };
 const resolve = {
 	extensions: [ '.js', '.jsx', '.ts', '.tsx', '...' ],
+	conditionNames: [
+		...( process.env.npm_config_jetpack_webpack_config_resolve_conditions
+			? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
+			: [] ),
+		'...',
+	],
 };
 
 /****** Plugins ******/
@@ -148,10 +156,6 @@ const StandardPlugins = ( options = {} ) => {
 };
 
 /****** Module rules ******/
-
-const TranspileRule = require( './webpack/transpile-rule' );
-const CssRule = require( './webpack/css-rule' );
-const FileRule = require( './webpack/file-rule' );
 
 // Note: For this cjs module to be used with named exports in an mjs context, modules.exports
 // needs to contain only simple variables like `a` or `a: b`. Define anything more complex

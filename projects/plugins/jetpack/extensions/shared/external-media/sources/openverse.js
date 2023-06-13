@@ -1,18 +1,11 @@
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
 import { TextControl, Button } from '@wordpress/components';
+import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { sample } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import { SOURCE_OPENVERSE, PEXELS_EXAMPLE_QUERIES } from '../constants';
-import withMedia from './with-media';
 import MediaBrowser from '../media-browser';
 import { getApiUrl } from './api';
+import withMedia from './with-media';
 
 function OpenverseMedia( props ) {
 	const { media, isCopying, isLoading, pageHandle, multiple, copyMedia, getMedia } = props;

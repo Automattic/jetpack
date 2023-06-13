@@ -101,6 +101,9 @@ class Defaults {
 		'jetpack_wga',
 		'large_size_h',
 		'large_size_w',
+		'launch-status',
+		'launchpad_checklist_tasks_statuses',
+		'launchpad_screen',
 		'mailserver_login', // Not syncing contents, only the option name.
 		'mailserver_pass', // Not syncing contents, only the option name.
 		'mailserver_port',
@@ -169,10 +172,14 @@ class Defaults {
 		'wp_mobile_excerpt',
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
+		'wpcom_featured_image_in_email',
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
+		'wpcom_reader_views_enabled',
+		'wpcom_subscription_emails_use_excerpt',
 		'videopress_private_enabled_for_site',
+		'wpcom_gifting_subscription',
 	);
 
 	/**
@@ -312,6 +319,7 @@ class Defaults {
 		'wp_get_environment_type'          => 'wp_get_environment_type',
 		'wp_max_upload_size'               => 'wp_max_upload_size',
 		'wp_version'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+		'active_modules'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_active_modules' ),
 	);
 
 	/**
@@ -406,6 +414,7 @@ class Defaults {
 		'scheduled-action', // Action Scheduler - Job Queue for WordPress https://github.com/woocommerce/woocommerce/tree/e7762627c37ec1f7590e6cac4218ba0c6a20024d/includes/libraries/action-scheduler .
 		'secupress_log_action',
 		'sg_optimizer_jobs',
+		'sl-insta-media',
 		'snitch',
 		'vip-legacy-redirect',
 		'wp-rest-api-log', // https://wordpress.org/plugins/wp-rest-api-log/.
@@ -720,6 +729,7 @@ class Defaults {
 		'_wpas_feature_enabled',
 		'_wpas_is_tweetstorm',
 		'_wpas_mess',
+		'_wpas_options',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
 		'content_width',
 		'custom_css_add',
@@ -732,6 +742,7 @@ class Defaults {
 		'switch_like_status',
 		'videopress_guid',
 		'vimeo_poster_image',
+		'_jetpack_blogging_prompt_key',
 	);
 
 	/**
@@ -794,15 +805,21 @@ class Defaults {
 	 */
 	public static $default_theme_support_whitelist = array(
 		'align-wide',
+		'appearance-tools', // In Gutenberg.
 		'automatic-feed-links',
+		'block-templates',
+		'block-template-parts', // WP 6.1. Added via https://core.trac.wordpress.org/changeset/54176
 		'custom-background',
 		'custom-header',
 		'custom-logo',
 		'customize-selective-refresh-widgets',
 		'dark-editor-style',
+		'default-color-palette', // In Gutenberg.
+		'default-gradient-presets', // In Gutenberg.
 		'disable-custom-colors',
 		'disable-custom-font-sizes',
 		'disable-custom-gradients',
+		'disable-layout-styles', // WP 6.1. Added via https://core.trac.wordpress.org/changeset/54159
 		'editor-color-palette',
 		'editor-font-sizes',
 		'editor-gradient-presets',

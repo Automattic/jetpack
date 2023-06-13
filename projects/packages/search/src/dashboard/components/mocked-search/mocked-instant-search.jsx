@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { Gridicon } from '@automattic/jetpack-components';
+import { __, sprintf } from '@wordpress/i18n';
+import React from 'react';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-instant-search.scss';
 
@@ -17,30 +10,6 @@ import './mocked-instant-search.scss';
  * @returns {React.Component}	Mocked Search instant dialog component.
  */
 export default function MockedInstantSearch() {
-	const renderFilterOption = ( val, key ) => (
-		<div className="jp-mocked-instant-search__search-filter" key={ key }>
-			<label>
-				<input type="checkbox" disabled="disabled" />{ ' ' }
-				<TextRowPlaceHolder style={ { width: '30%' } } />
-			</label>
-		</div>
-	);
-
-	const renderSearchResult = ( val, key ) => (
-		<div className="jp-mocked-instant-search__search-result" key={ key }>
-			<TextRowPlaceHolder
-				style={ {
-					height: '2.5em',
-					width: '50%',
-					maxWidth: '200px',
-					margin: '0.1em 0.1em 1em 0.1em',
-				} }
-			/>
-			<TextRowPlaceHolder style={ { height: '1em', width: '90%', margin: '0.1em' } } />
-			<TextRowPlaceHolder style={ { height: '1em', width: '70%', margin: '0.1em' } } />
-		</div>
-	);
-
 	return (
 		<div className="jp-mocked-instant-search" aria-hidden="true">
 			<div className="jp-mocked-instant-search__search-controls">
@@ -74,7 +43,9 @@ export default function MockedInstantSearch() {
 						</div>
 					</div>
 					<div className="jp-mocked-instant-search__search-results-content">
-						{ Array.apply( null, Array( 3 ) ).map( renderSearchResult ) }
+						<MockedSearchResult />
+						<MockedSearchResult />
+						<MockedSearchResult />
 					</div>
 				</div>
 				<div className="jp-mocked-instant-search__search-results-secondary">
@@ -82,10 +53,35 @@ export default function MockedInstantSearch() {
 						{ __( 'Filter options', 'jetpack-search-pkg' ) }
 					</div>
 					<div className="jp-mocked-instant-search__search-filter-list">
-						{ Array.apply( null, Array( 2 ) ).map( renderFilterOption ) }
+						<MockedFilterOption />
+						<MockedFilterOption />
 					</div>
 				</div>
 			</div>
 		</div>
 	);
 }
+
+const MockedFilterOption = () => (
+	<div className="jp-mocked-instant-search__search-filter">
+		<label>
+			<input type="checkbox" disabled="disabled" />{ ' ' }
+			<TextRowPlaceHolder style={ { width: '30%' } } />
+		</label>
+	</div>
+);
+
+const MockedSearchResult = () => (
+	<div className="jp-mocked-instant-search__search-result">
+		<TextRowPlaceHolder
+			style={ {
+				height: '2.5em',
+				width: '50%',
+				maxWidth: '200px',
+				margin: '0.1em 0.1em 1em 0.1em',
+			} }
+		/>
+		<TextRowPlaceHolder style={ { height: '1em', width: '90%', margin: '0.1em' } } />
+		<TextRowPlaceHolder style={ { height: '1em', width: '70%', margin: '0.1em' } } />
+	</div>
+);

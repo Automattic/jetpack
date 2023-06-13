@@ -2,18 +2,11 @@
 	This Component shows a span with the given time (Date) as a relative time in
 	the past. Mouseover to show the exact time.
 -->
-<script>
-	/**
-	 * External dependencies
-	 */
+<script lang="ts">
 	import { readable } from 'svelte/store';
+	import describeTimeAgo from '../utils/describe-time-ago';
 
-	/**
-	 * Internal dependencies
-	 */
-	import describeTimeAgo from '../utils/describe-time-ago.ts';
-
-	export let time;
+	export let time: Date;
 
 	const label = readable( describeTimeAgo( time ), set => {
 		// Update label every 10 seconds.

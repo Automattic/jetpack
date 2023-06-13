@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
+import { ExternalLink } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import InfoPopover from 'components/info-popover';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import InfoPopover from 'components/info-popover';
 
 import './style.scss';
 
@@ -79,15 +72,17 @@ export default class SupportInfo extends Component {
 					screenReaderText={ __( 'Learn more', 'jetpack' ) }
 				>
 					{ text + ' ' }
-					<span className="jp-support-info__learn-more">
-						<ExternalLink
-							href={ link }
-							onClick={ this.trackLearnMoreClick }
-							rel="noopener noreferrer"
-						>
-							{ __( 'Learn more', 'jetpack' ) }
-						</ExternalLink>
-					</span>
+					{ link && (
+						<span className="jp-support-info__learn-more">
+							<ExternalLink
+								href={ link }
+								onClick={ this.trackLearnMoreClick }
+								rel="noopener noreferrer"
+							>
+								{ __( 'Learn more', 'jetpack' ) }
+							</ExternalLink>
+						</span>
+					) }
 					<span className="jp-support-info__privacy">
 						<ExternalLink
 							href={ privacyLink }

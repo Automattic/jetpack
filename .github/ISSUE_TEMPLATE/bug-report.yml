@@ -1,40 +1,58 @@
 name: Bug Report
 description: Report issues with one of our products.
-labels: [ '[Type] Bug' ]
+labels: [ 'Needs triage', '[Type] Bug', 'User Report' ]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for contributing to Jetpack!
-        Pick a clear title ("Sharing: add new Facebook button") and proceed.
+        ### Thanks for contributing to Jetpack!
+
+        Please write a clear title, then fill in the fields below and submit.
+
+        Please **do not** link to image hosting services such as Cloudup, Droplr, Imgur, etc…
+        Instead, directly embed screenshot(s) or recording(s) in any of the text areas below: click, then drag and drop.
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Core Information
   - type: dropdown
     id: plugin-type
     attributes:
       label: Impacted plugin
-      description: Multiple selection is supported.
+      description: Multiple selection is supported. If you experienced the issue on WordPress.com, please select "Jetpack".
       options:
         - Jetpack
         - Backup
         - Boost
         - Beta
+        - CRM
         - Debug Helper
+        - Migration
+        - mu wpcom
         - Protect
         - Search
         - Social
+        - Super Cache
         - VaultPress
+        - VideoPress
         - None / Other
       multiple: true
     validations:
       required: true
   - type: textarea
+    id: summary
+    attributes:
+        label: Quick summary
+  - type: textarea
     id: steps
     attributes:
-      label: Steps to Reproduce
+      label: Steps to reproduce
       placeholder: |
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        ...
+        1. Start at `site-domain.com/blog`.
+        2. Click on any blog post.
+        3. Click on the 'Like' button.
+        4. ...
     validations:
       required: true
   - type: textarea
@@ -49,43 +67,53 @@ body:
       label: What actually happened
       placeholder: |
         eg. Clicking the button does nothing visibly.
-  - type: textarea
-    id: other
-    attributes:
-      label: Other information
-      placeholder: Screenshots, additional logs, notes, etc.
   - type: dropdown
-    id: os
+    id: users-affected
     attributes:
-      label: Operating System
-      description: Multiple selection is supported.
+      label: Impact
+      description: Approximately how many users are impacted?
       options:
-        - Windows
-        - macOS
-        - Linux
-        - Android
-        - iOS
-        - Other
-      multiple: true
-  - type: input
-    id: os_version
-    attributes:
-      label: OS Version
-  - type: dropdown
-    id: browser
-    attributes:
-      label: Browser
-      description: Multiple selection is supported.
-      options:
-        - Chrome/Chromium
-        - Firefox
-        - Microsoft Edge
-        - Microsoft Edge (legacy)
-        - Safari
-        - Other / Not applicable
-      multiple: true
+        - One
+        - Some (< 50%)
+        - Most (> 50%)
+        - All
     validations:
       required: true
-  - type: input
+  - type: dropdown
+    id: workarounds
     attributes:
-      label: Browser Version(s)
+      label: Available workarounds?
+      options:
+        - No and the platform is unusable
+        - No but the platform is still usable
+        - Yes, difficult to implement
+        - Yes, easy to implement
+        - There is no user impact
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        <br>
+
+        ## Optional Information
+        The following section is optional.
+  - type: dropdown
+    id: site-type
+    attributes:
+      label: Platform (Simple and/or Atomic)
+      description: (You may select more than one)
+      options:
+        - Simple
+        - Atomic
+        - Self-hosted
+      multiple: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or notes
+      placeholder: |
+        Add any information that may be relevant, such as:
+          - Browser/Platform
+          - Theme
+          - Logs/Errors
