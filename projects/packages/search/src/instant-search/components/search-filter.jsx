@@ -69,7 +69,7 @@ class SearchFilter extends Component {
 	renderDate = ( { key_as_string: key, doc_count: count } ) => {
 		const { locale = 'en-US' } = this.props;
 		return (
-			<div>
+			<div className={ `jetpack-instant-search__search-filter__dates-${ key }` }>
 				<input
 					checked={ this.isChecked( key ) }
 					disabled={ ! this.isChecked( key ) && count === 0 }
@@ -96,7 +96,7 @@ class SearchFilter extends Component {
 	renderPostType = ( { key, doc_count: count } ) => {
 		const name = key in this.props.postTypes ? this.props.postTypes[ key ].singular_name : key;
 		return (
-			<div>
+			<div className={ `jetpack-instant-search__search-filter__post-types-${ key }` }>
 				<input
 					checked={ this.isChecked( key ) }
 					disabled={ ! this.isChecked( key ) && count === 0 }
@@ -120,7 +120,7 @@ class SearchFilter extends Component {
 		const [ slug, name ] = key && key.split( /\/(.+)/ );
 
 		return (
-			<div>
+			<div className={ `jetpack-instant-search__search-filter__authors-${ slug }` }>
 				<input
 					checked={ this.isChecked( slug ) }
 					disabled={ ! this.isChecked( slug ) && count === 0 }
@@ -147,7 +147,7 @@ class SearchFilter extends Component {
 		const name = this.props.blogIdFilteringLabels?.[ key ] || strKey;
 
 		return (
-			<div>
+			<div className={ `jetpack-instant-search__search-filter__blog-ids-${ strKey }` }>
 				<input
 					checked={ this.isChecked( strKey ) }
 					disabled={ ! this.isChecked( strKey ) && count === 0 }
@@ -172,7 +172,7 @@ class SearchFilter extends Component {
 		const [ slug, name ] = key && key.split( /\/(.+)/ );
 
 		return (
-			<div>
+			<div className={ `jetpack-instant-search__search-filter__taxonomies-${ slug }` }>
 				<input
 					checked={ this.isChecked( slug ) }
 					disabled={ ! this.isChecked( slug ) && count === 0 }
