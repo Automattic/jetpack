@@ -10,7 +10,7 @@
 	}
 
 	&__heading {
-		margin-left: 5px;
+		margin-left: 3px;
 	}
 
 	&__notice {
@@ -39,9 +39,11 @@
 		fill: currentColor;
 	}
 
-	.components-button {
-		padding-top: 0.5em;
-		padding-bottom: 0.4em;
+	.post-publish-panel__postpublish-buttons {
+		.components-button {
+			padding-top: 0.5em;
+			padding-bottom: 0.4em;
+		}
 	}
 
 	.components-panel__body-toggle svg {
