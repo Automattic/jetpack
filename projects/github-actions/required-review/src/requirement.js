@@ -10,12 +10,13 @@ class RequirementError extends SError {}
  * Prints a result set, then returns it.
  *
  * @param {string} label - Label for the set.
- * @param {string[]} items - Items to print. If an empty array, will print `<empty set>` instead.
- * @returns {string[]} `items`.
+ * @param {string[]} teamReviewers - Team members that have reviewed the file. If an empty array, will print `<empty set>` instead.
+ * @param {string[]} neededTeams - Teams that have no reviews from it's members.
+ * @returns {{teamReviewers, neededTeams}} `{teamReviewers, neededTeams}`.
  */
-function printSet( label, items ) {
-	core.info( label + ' ' + ( items.length ? items.join( ', ' ) : '<empty set>' ) );
-	return items;
+function printSet( label, teamReviewers, neededTeams ) {
+	core.info( label + ' ' + ( teamReviewers.length ? teamReviewers.join( ', ' ) : '<empty set>' ) );
+	return { teamReviewers, neededTeams };
 }
 
 /**
@@ -31,10 +32,9 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 		const team = teamConfig;
 		return async function ( reviewers ) {
 			const members = await fetchTeamMembers( team );
-			return printSet(
-				`${ indent }Members of ${ team }:`,
-				reviewers.filter( reviewer => members.includes( reviewer ) )
-			);
+			const teamReviewers = reviewers.filter( reviewer => members.includes( reviewer ) );
+			const neededTeams = teamReviewers.length ? [] : [ team ];
+			return printSet( `${ indent }Members of ${ team }:`, teamReviewers, neededTeams );
 		};
 	}
 
@@ -81,22 +81,48 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 	if ( op === 'any-of' ) {
 		return async function ( reviewers ) {
 			core.info( `${ indent }Union of these:` );
-			return printSet( `${ indent }=>`, [
-				...new Set(
-					( await Promise.all( arg.map( f => f( reviewers, `${ indent }  ` ) ) ) ).flat( 1 )
-				),
-			] );
+			const reviewersAny = await Promise.all( arg.map( f => f( reviewers, `${ indent }  ` ) ) );
+			const requirementsMet = [];
+			const neededTeams = [];
+			for ( const requirementResult of reviewersAny ) {
+				if ( requirementResult.teamReviewers.length !== 0 ) {
+					requirementsMet.push( requirementResult.teamReviewers );
+				}
+				if ( requirementResult.neededTeams.length !== 0 ) {
+					neededTeams.push( requirementResult.neededTeams );
+				}
+			}
+			if ( requirementsMet.length > 0 ) {
+				// If there are requirements met, zero out the needed teams
+				neededTeams.length = 0;
+			}
+			return printSet(
+				`${ indent }=>`,
+				[ ...new Set( requirementsMet.flat( 1 ) ) ],
+				[ ...new Set( neededTeams.flat( 1 ) ) ]
+			);
 		};
 	}
 
 	if ( op === 'all-of' ) {
 		return async function ( reviewers ) {
 			core.info( `${ indent }Union of these, if none are empty:` );
-			const filtered = await Promise.all( arg.map( f => f( reviewers, `${ indent }  ` ) ) );
-			if ( filtered.some( a => a.length === 0 ) ) {
-				return printSet( `${ indent }=>`, [] );
+			const reviewersAll = await Promise.all( arg.map( f => f( reviewers, `${ indent }  ` ) ) );
+			const requirementsMet = [];
+			const neededTeams = [];
+			for ( const requirementResult of reviewersAll ) {
+				if ( requirementResult.teamReviewers.length !== 0 ) {
+					requirementsMet.push( requirementResult.teamReviewers );
+				}
+				if ( requirementResult.neededTeams.length !== 0 ) {
+					neededTeams.push( requirementResult.neededTeams );
+				}
 			}
-			return printSet( `${ indent }=>`, [ ...new Set( filtered.flat( 1 ) ) ] );
+			if ( neededTeams.length !== 0 ) {
+				// If there are needed teams, zero out requirements met
+				return printSet( `${ indent }=>`, [], [ ...new Set( neededTeams.flat( 1 ) ) ] );
+			}
+			return printSet( `${ indent }=>`, [ ...new Set( requirementsMet.flat( 1 ) ) ], [] );
 		};
 	}
 
@@ -215,9 +241,10 @@ class Requirement {
 	 * @param {string[]} reviewers - Reviewers to test against.
 	 * @returns {boolean} Whether the requirement is satisfied.
 	 */
-	async isSatisfied( reviewers ) {
+	async needsReviewsFrom( reviewers ) {
 		core.info( 'Checking reviewers...' );
-		return ( await this.reviewerFilter( reviewers ) ).length > 0;
+		const checkNeededTeams = await this.reviewerFilter( reviewers );
+		return checkNeededTeams.neededTeams;
 	}
 }
 

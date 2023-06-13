@@ -29,6 +29,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => '__return_true',
 			'is_disabled_callback' => 'wpcom_is_design_step_enabled',
 		),
+		'domain_claim'                    => array(
+			'get_title'            => function () {
+				return __( 'Claim your free one-year domain', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_domain_claim_completed',
+			'is_visible_callback'  => 'wpcom_domain_claim_is_visible_callback',
+		),
 		'domain_upsell'                   => array(
 			'id_map'               => 'domain_upsell_deferred',
 			'get_title'            => function () {
@@ -543,3 +550,39 @@ function wpcom_mark_site_title_complete( $old_value, $value ) {
 	}
 }
 add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
+
+/**
+ * Determine `domain_claim` task visibility.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_domain_claim_is_visible_callback() {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
+		return false;
+	}
+
+	return wpcom_site_has_feature( 'custom-domain' );
+}
+
+/**
+ * Determines whether or not domain claim task is completed.
+ *
+ * @return bool True if domain claim task is completed.
+ */
+function wpcom_is_domain_claim_completed() {
+	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+		return false;
+	}
+
+	$site_purchases = wpcom_get_site_purchases();
+
+	// Check if the site has any domain purchases.
+	$domain_purchases = array_filter(
+		$site_purchases,
+		function ( $site_purchase ) {
+			return in_array( $site_purchase->product_type, array( 'domain_map', 'domain_reg' ), true );
+		}
+	);
+
+	return ! empty( $domain_purchases );
+}
