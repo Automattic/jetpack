@@ -235,7 +235,7 @@ function NewsletterPostPublishSettingsPanel( {
 					<>
 						{ __( 'Newsletter:', 'jetpack' ) }
 						{ accessLevel && (
-							<span className={ 'editor-post-publish-panel__link' }>
+							<span className={ 'jetpack-subscribe-post-publish-panel__heading' }>
 								{ accessOptions[ accessLevel ].panelHeading }
 							</span>
 						) }
@@ -245,7 +245,7 @@ function NewsletterPostPublishSettingsPanel( {
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				{ ! showMisconfigurationWarning && (
-					<Notice className="post-publish-panel__notice" isDismissible={ false }>
+					<Notice className="jetpack-subscribe-post-publish-panel__notice" isDismissible={ false }>
 						{ createInterpolateElement( numberOfSubscribersText, {
 							strong: <strong />,
 							postPublishedLink: <Link href={ postPublishedLink } />,
@@ -253,10 +253,12 @@ function NewsletterPostPublishSettingsPanel( {
 					</Notice>
 				) }
 			</PluginPostPublishPanel>
+
 			{ ! isStripeConnected && (
 				<PluginPostPublishPanel
 					initialOpen
-					title={ __( 'Setup paid newsletter', 'jetpack' ) }
+					className="paid-newsletters-post-publish-panel"
+					title={ __( 'Set up paid newsletter', 'jetpack' ) }
 					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 				>
 					<PanelRow>
@@ -277,7 +279,10 @@ function NewsletterPostPublishSettingsPanel( {
 							} ) }
 						>
 							{ __( 'Turn on paid newsletters', 'jetpack' ) }
-							<Icon icon={ external } />
+							<Icon
+								icon={ external }
+								className="paid-newsletters-post-publish-panel__external_icon"
+							/>
 						</Button>
 					</div>
 				</PluginPostPublishPanel>
