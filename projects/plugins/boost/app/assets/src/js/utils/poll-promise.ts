@@ -33,11 +33,11 @@ export default async function pollPromise< ReturnType = void >( {
 	let timeoutHandle: number, intervalHandle: number;
 
 	return new Promise< ReturnType >( ( resolve, reject ) => {
-		timeoutHandle = setTimeout( () => {
+		timeoutHandle = window.setTimeout( () => {
 			reject( new Error( timeoutError || __( 'Timed out', 'jetpack-boost' ) ) );
 		}, timeout || 2 * 60 * 1000 );
 
-		intervalHandle = setInterval( async () => {
+		intervalHandle = window.setInterval( async () => {
 			try {
 				await Promise.resolve( callback( resolve ) );
 			} catch ( err ) {
