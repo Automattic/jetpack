@@ -586,7 +586,7 @@ function wpcom_launchpad_keep_building_visible_tasks( $task_list ) {
 		$task_ids,
 		function ( $task_id ) {
 			// Only show design_edited/site_edited if it hasn't been marked as complete.
-			if ( in_array( $task_id, [ 'design_edited', 'site_edited' ], true ) ) {
+			if ( in_array( $task_id, array( 'design_edited', 'site_edited' ), true ) ) {
 				return ! is_array( wpcom_is_checklist_task_complete( $task_id ) );
 			}
 
