@@ -8,6 +8,7 @@ import {
 	CustomSelectControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { post, termDescription } from '@wordpress/icons';
 import React from 'react';
 /**
  * Internal dependencies
@@ -38,11 +39,13 @@ const quickActionsList = [
 		name: __( 'Correct spelling and grammar', 'jetpack' ),
 		key: QUICK_EDIT_KEY_CORRECT_SPELLING,
 		aiSuggestion: QUICK_EDIT_SUGGESTION_CORRECT_SPELLING,
+		icon: termDescription,
 	},
 	{
 		name: __( 'Simplify', 'jetpack' ),
 		key: QUICK_EDIT_KEY_SIMPLIFY,
 		aiSuggestion: QUICK_EDIT_SUGGESTION_SIMPLIFY,
+		icon: post,
 	},
 ];
 
@@ -80,6 +83,8 @@ const QuickEditsMenuGroup = ( {
 		<MenuGroup label={ label }>
 			{ quickActionsListFiltered.map( quickAction => (
 				<MenuItem
+					icon={ quickAction?.icon }
+					iconPosition="left"
 					key={ `key-${ quickAction.key }` }
 					onClick={ () => onChange( quickAction.aiSuggestion, { contentType: 'generated' } ) }
 					isSelected={ key === quickAction.key }
