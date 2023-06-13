@@ -204,6 +204,14 @@ class zeroBSCRM_list{
 			}
 		}
 
+		$screen_opts = $zbs->global_screen_options();
+
+		if ( ! empty( $screen_opts['perpage'] ) && $screen_opts['perpage'] > 0 ) {
+			$per_page = (int) $screen_opts['perpage'];
+		} else {
+			$per_page = 20;
+		}
+
         #} Refresh 2
         ?>
 
@@ -331,41 +339,28 @@ class zeroBSCRM_list{
                 <div class="ui divider"></div>
                 <?php } // if admin/can manage columns ?>
 
-                <div id="zbs-list-options-base-wrap" class="ui grid">
+								<div id="zbs-list-options-base-wrap" class="ui grid">
 
-                    <?php 
-                        # here we add stuff which is saved by screenOptions, even tho it's in its own dom elements, not sceen options area 
-                        $screenOpts = $zbs->userScreenOptions();
+									<div class="two column clearing centered row">
+										<div class="column" style="max-width:364px;">
+											<div class="ui labeled input">
+												<div class="ui label"><i class="table icon"></i>  <?php esc_html_e( 'Records per page:', 'zero-bs-crm' ); ?></div>
+												<input type="text" style="width:70px;" class="intOnly" id="zbs-screenoptions-records-per-page" value="<?php echo esc_attr( $per_page ); ?>" />
+											</div>
+										</div>
+									</div>
 
-                        // debug echo '<pre>'; print_r($screenOpts); echo '</pre>'; 
+									<div class="ui divider" style="margin-bottom:0;margin-top:0;"></div>
 
-                        // default
-                        $perPage = 20; 
-                        if (isset($screenOpts) && is_array($screenOpts) && isset($screenOpts['perpage']) && !empty($screenOpts['perpage']) && $screenOpts['perpage'] > 0) $perPage = (int)$screenOpts['perpage'];
-                    ?>
-                    <div class="two column clearing centered row">
+									<div class="two column clearing centered row">
+										<div class="column" style="max-width:364px;">
+											<button id="zbs-columnmanager-bottomsave" type="button" class="ui button black positive">
+												<i class="check square icon"></i> <?php esc_html_e( 'Save Options and Close', 'zero-bs-crm' ); ?>
+											</button>
+										</div>
+									</div>
 
-                        <div class="column" style="max-width:364px;">
-                            <div class="ui labeled input">
-										<div class="ui label"><i class="table icon"></i>  <?php esc_html_e( 'Records per page:', 'zero-bs-crm' ); ?></div>
-                                <input type="text" style="width:70px;" class="intOnly" id="zbs-screenoptions-records-per-page" value="<?php echo esc_attr( $perPage ); ?>" />
-                            </div>
-                        </div>
-
-                    </div>
-
-
-                <div class="ui divider" style="margin-bottom:0;margin-top:0;"></div>
-
-                    <div class="two column clearing centered row">
-
-                        <div class="column" style="max-width:364px;">
-									<button id="zbs-columnmanager-bottomsave" type="button" class="ui button black positive"><i class="check square icon"></i> <?php esc_html_e( 'Save Options and Close', 'zero-bs-crm' ); ?></button>
-                        </div>
-
-                    </div>
-
-                </div>
+								</div>
 
 
             </div>
@@ -456,17 +451,6 @@ class zeroBSCRM_list{
 
 		            $inlineEditStr[ $colKey ] = (int) $inline;
 	            }
-            }
-
-            #} Check for screen options (perpage)
-            $per_page = 20;
-            $screenOpts = $zbs->userScreenOptions();
-            if ( is_array( $screenOpts ) ) {
-
-	            if ( isset( $screenOpts['perpage'] ) ) $per_page = (int)$screenOpts['perpage'];
-	            // catch
-	            if ( $per_page < 1 ) $per_page = 20;
-
             }
 
             // build options objects
