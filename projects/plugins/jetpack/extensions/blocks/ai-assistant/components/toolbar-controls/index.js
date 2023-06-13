@@ -10,7 +10,7 @@ import { image, pencil, update, check } from '@wordpress/icons';
  */
 import I18nDropdownControl from '../i18n-dropdown-control';
 import PromptTemplatesControl from '../prompt-templates-control';
-import ToneDropdownControl from '../tone-dropdown-control';
+import ToneToolbarDropdownMenu from '../tone-dropdown-control';
 
 // Consider to enable when we have image support
 const isImageGenerationEnabled = false;
@@ -53,7 +53,7 @@ const ToolbarControls = ( {
 		<>
 			{ contentIsLoaded && (
 				<BlockControls group="block">
-					<ToneDropdownControl
+					<ToneToolbarDropdownMenu
 						value="neutral"
 						onChange={ tone =>
 							getSuggestionFromOpenAI( 'changeTone', { tone, contentType: 'generated' } )
@@ -110,7 +110,7 @@ const ToolbarControls = ( {
 
 					{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
 						<BlockControls group="block">
-							<ToneDropdownControl
+							<ToneToolbarDropdownMenu
 								value="neutral"
 								onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
 							/>
