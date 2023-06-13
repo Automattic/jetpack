@@ -50,7 +50,7 @@ const MyComp = ( props ) => {
 You can request a completion from the Jetpack AI API using the `requestCompletion` function. This function takes a prompt and optionally a post ID as parameters and returns an instance of `SuggestionsEventSource`.
 
 ```
-import { requestCompletion } from 'jetpack-ai-client';
+import { requestCompletion } from '@automattic/jetpack-ai-client';
 
 // postId is the post where the request is being triggered
 // It's only used for loggin purposes and can be omitted.
@@ -71,7 +71,7 @@ eventSource.addEventListener('suggestion', event => {
 You can fetch images from Jetpack AI using the `requestImages` function. This function takes a prompt and a post ID as parameters and returns a promise that resolves to an array of base64 encoded images.
 
 ```
-import { requestImages } from 'jetpack-ai-client';
+import { requestImages } from '@automattic/jetpack-ai-client';
 
 requestImages( 'a flower', postId )
   .then( images => {
@@ -89,7 +89,7 @@ The `SuggestionsEventSource` class is a wrapper around `EventSource` that emits 
 You shouldn't need to instantiate this class. You get one of these by calling `requestCompletion()`.
 
 ```
-import { requestCompletion } from 'jetpack-ai-client';
+import { requestCompletion } from '@automattic/jetpack-ai-client';
 
 const eventSource = new SuggestionsEventSource( url );
 
@@ -109,7 +109,7 @@ You can request a token from the Jetpack site using the `requestCompletionAuthTo
 This function behaves properly whether it's called from a Jetpack environment or a WordPress.com one.
 
 ```
-import { requestCompletionAuthToken } from 'jetpack-ai-client';
+import { requestCompletionAuthToken } from '@automattic/jetpack-ai-client';
 
 requestCompletionAuthToken()
   .then(tokenData => {
