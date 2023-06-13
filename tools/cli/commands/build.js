@@ -930,7 +930,7 @@ async function buildProject( t ) {
 						cwd: t.cwd,
 						stdio: [ null, 'pipe', null ],
 					} )
-				 ).stdout;
+				).stdout;
 				if ( ts.match( /^\d+$/ ) ) {
 					projectRunVersionNumber += '.' + ts;
 				}
