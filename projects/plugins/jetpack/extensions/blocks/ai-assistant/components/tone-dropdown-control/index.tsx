@@ -128,7 +128,7 @@ export const PROMPT_TONES_MAP = {
 export type ToneProp = ( typeof PROMPT_TONES_LIST )[ number ];
 
 type ToneDropdownMenuControlProps = {
-	value: ToneProp;
+	value?: ToneProp;
 	onChange: ( value: ToneProp ) => void;
 };
 
