@@ -328,6 +328,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			if ( class_exists( 'Jetpack_Custom_CSS' ) && empty( Jetpack_Custom_CSS::get_css() ) ) {
 				$user_can_customize = false;
 			}
+			remove_filter( 'safecss_is_freetrial', '__return_false', PHP_INT_MAX );
 		}
 
 		if ( $user_can_customize ) {
