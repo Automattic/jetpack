@@ -576,8 +576,7 @@ async function buildProject( t ) {
 			const versions = {};
 			for ( const dep of [ ...deps ].sort() ) {
 				if ( t.ctx.versions[ dep ] ) {
-					versions[ t.ctx.versions[ dep ].name ] =
-						t.ctx.versions[ dep ].runversion ?? t.ctx.versions[ dep ].version;
+					versions[ t.ctx.versions[ dep ].name ] = t.ctx.versions[ dep ].runversion;
 				}
 			}
 
@@ -912,7 +911,7 @@ async function buildProject( t ) {
 
 	// Get the project version number from the changelog.md file.
 	let projectVersionNumber = '',
-		projectRunVersionNumber = '';
+		projectRunVersionNumber;
 	const changelogFileName = composerJson.extra?.changelogger?.changelog || 'CHANGELOG.md';
 	const rl = rlcreateInterface( {
 		input: createReadStream( `${ t.cwd }/${ changelogFileName }`, {
@@ -921,17 +920,20 @@ async function buildProject( t ) {
 		crlfDelay: Infinity,
 	} );
 
-	rl.on( 'line', line => {
+	rl.on( 'line', async line => {
 		const match = line.match( /^## +(\[?[^\] ]+\]?)/ );
 		if ( match && match[ 1 ] ) {
-			projectVersionNumber = match[ 1 ].replace( /[[\]]/g, '' );
-			if ( process.env.GITHUB_RUN_NUMBER && projectVersionNumber.endsWith( 'alpha' ) ) {
-				projectRunVersionNumber =
-					projectVersionNumber +
-					'.' +
-					process.env.GITHUB_RUN_NUMBER +
-					'.' +
-					process.env.GITHUB_RUN_ATTEMPT;
+			projectRunVersionNumber = projectVersionNumber = match[ 1 ].replace( /[[\]]/g, '' );
+			if ( t.project.startsWith( 'packages/' ) && projectVersionNumber.endsWith( 'alpha' ) ) {
+				const ts = (
+					await t.execa( 'git', [ 'log', '-1', '--format=%ct', '.' ], {
+						cwd: t.cwd,
+						stdio: [ null, 'pipe', null ],
+					} )
+				 ).stdout;
+				if ( ts.match( /^\d+$/ ) ) {
+					projectRunVersionNumber += '.' + ts;
+				}
 			}
 			rl.close();
 			rl.removeAllListeners();
@@ -948,10 +950,8 @@ async function buildProject( t ) {
 		name: composerJson.name,
 		jsName: packageJson?.name,
 		version: projectVersionNumber,
+		runversion: projectRunVersionNumber,
 	};
-	if ( projectRunVersionNumber ) {
-		t.ctx.versions[ t.project ].runversion = projectRunVersionNumber;
-	}
 	await t.ctx.mirrorMutex( async () => {
 		// prettier-ignore
 		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );
