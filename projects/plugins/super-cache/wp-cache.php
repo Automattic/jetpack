@@ -3168,9 +3168,10 @@ function clear_post_supercache( $post_id ) {
 function wp_cron_preload_cache() {
 	global $wpdb, $wp_cache_preload_interval, $wp_cache_preload_posts, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $cache_path, $wp_cache_preload_taxonomies;
 
-	if ( get_option( 'preload_cache_stop' ) ) {
-		delete_option( 'preload_cache_stop' );
-		wp_cache_debug( 'wp_cron_preload_cache: preload cancelled', 1 );
+	// check if stop_preload.txt exists and preload should be stopped.
+	// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	if ( @file_exists( $cache_path . 'stop_preload.txt' ) ) {
+		wp_cache_debug( 'wp_cron_preload_cache: preload cancelled. Aborting preload.' );
 		wpsc_reset_preload_settings();
 		return true;
 	}
@@ -3698,7 +3699,6 @@ function wpsc_reset_preload_settings() {
 }
 
 function wpsc_cancel_preload() {
-	global $cache_path;
 	$next_preload      = wp_next_scheduled( 'wp_cache_preload_hook' );
 	$next_full_preload = wp_next_scheduled( 'wp_cache_full_preload_hook' );
 
@@ -3716,16 +3716,25 @@ function wpsc_cancel_preload() {
 		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
 	}
 	wp_cache_debug( 'wpsc_cancel_preload: creating stop_preload.txt' );
-	$stop_preload_flag = $cache_path . 'stop_preload.txt';
-	if ( file_exists( $stop_preload_flag ) && time() - filemtime( $stop_preload_flag ) > 2 ) {
-		wp_cache_debug( 'wpsc_cancel_preload: force cancelled preload' );
-		wpsc_reset_preload_settings(); // reset the preload if we already tried more than 2 seconds ago.
-	} else {
-		// phpcs:ignore -- WordPress.WP.AlternativeFunctions.file_system_read_fopen WordPress.PHP.NoSilencedErrors.Discouraged
-		$fp = @fopen( $stop_preload_flag, 'w' );
-		// phpcs:ignore -- WordPress.WP.AlternativeFunctions.file_system_operations_fclose WordPress.PHP.NoSilencedErrors.Discouraged
-		@fclose( $fp );
-	}
+
+	/*
+	* Reset the preload settings, but also create the stop_preload.txt file to
+	* prevent the preload from starting again.
+	* By creating the stop_preload.txt file, we can be sure the preload will cancel.
+	*/
+	wpsc_reset_preload_settings();
+	wpsc_create_stop_preload_flag();
+}
+
+/*
+ * The preload process checks for a file called stop_preload.txt and will stop if found.
+ * This function creates that file.
+ */
+function wpsc_create_stop_preload_flag() {
+	// phpcs:ignore -- WordPress.WP.AlternativeFunctions.file_system_read_fopen WordPress.PHP.NoSilencedErrors.Discouraged
+	$fp = @fopen( $cache_path . 'stop_preload.txt', 'w' );
+	// phpcs:ignore -- WordPress.WP.AlternativeFunctions.file_system_operations_fclose WordPress.PHP.NoSilencedErrors.Discouraged
+	@fclose( $fp );
 }
 
 function wpsc_enable_preload() {
@@ -3845,8 +3854,7 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 	if ( $next_preload && ( ! $should_schedule || $force_preload_reschedule ) ) {
 		wp_cache_debug( 'Clearing old preload event' );
 		wpsc_reset_preload_counter();
-
-		add_option( 'preload_cache_stop', 1 );
+		wpsc_create_stop_preload_flag();
 		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
 
 		$next_preload = 0;
