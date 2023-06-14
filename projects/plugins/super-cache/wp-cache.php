@@ -3638,16 +3638,14 @@ function supercache_admin_bar_render() {
 function wpsc_is_preload_active() {
 	global $cache_path;
 
-	$mutex = $cache_path . 'preload_mutex.tmp';
-	if ( file_exists( $mutex ) ) {
-		return true;
-	} else {
-		return false;
-	}
-
 	// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	if ( @file_exists( $cache_path . 'stop_preload.txt' ) ) {
 		return false;
+	}
+
+	$mutex = $cache_path . 'preload_mutex.tmp';
+	if ( file_exists( $mutex ) ) {
+		return true;
 	}
 
 	$taxonomies = apply_filters(
