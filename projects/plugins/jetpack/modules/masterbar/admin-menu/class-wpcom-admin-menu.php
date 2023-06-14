@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Status;
+use Jetpack_Custom_CSS;
 use JITM;
 
 require_once __DIR__ . '/class-admin-menu.php';
