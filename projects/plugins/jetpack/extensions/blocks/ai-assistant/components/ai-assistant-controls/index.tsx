@@ -8,7 +8,7 @@ import {
 	CustomSelectControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { post, termDescription } from '@wordpress/icons';
+import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
 import React from 'react';
 /**
  * Internal dependencies
@@ -26,11 +26,26 @@ const QUICK_EDIT_SUGGESTION_CORRECT_SPELLING = 'correctSpelling' as const;
 const QUICK_EDIT_KEY_SIMPLIFY = 'simplify' as const;
 const QUICK_EDIT_SUGGESTION_SIMPLIFY = 'simplify' as const;
 
-const QUICK_EDIT_KEY_LIST = [ QUICK_EDIT_KEY_CORRECT_SPELLING, QUICK_EDIT_KEY_SIMPLIFY ] as const;
+// Quick edits option: "Summarize"
+const QUICK_EDIT_KEY_SUMMARIZE = 'summarize' as const;
+const QUICK_EDIT_SUGGESTION_SUMMARIZE = 'summarize' as const;
+
+// Quick edits option: "Make longer"
+const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
+const QUICK_EDIT_SUGGESTION_MAKE_LONGER = 'makeLonger' as const;
+
+const QUICK_EDIT_KEY_LIST = [
+	QUICK_EDIT_KEY_CORRECT_SPELLING,
+	QUICK_EDIT_KEY_SIMPLIFY,
+	QUICK_EDIT_KEY_SUMMARIZE,
+	QUICK_EDIT_KEY_MAKE_LONGER,
+] as const;
 
 const QUICK_EDIT_SUGGESTION_LIST = [
 	QUICK_EDIT_SUGGESTION_CORRECT_SPELLING,
 	QUICK_EDIT_SUGGESTION_SIMPLIFY,
+	QUICK_EDIT_SUGGESTION_SUMMARIZE,
+	QUICK_EDIT_SUGGESTION_MAKE_LONGER,
 ] as const;
 
 type QuickEditsKeyProp = ( typeof QUICK_EDIT_KEY_LIST )[ number ];
@@ -52,13 +67,27 @@ const quickActionsList = [
 		aiSuggestion: QUICK_EDIT_SUGGESTION_SIMPLIFY,
 		icon: post,
 	},
+	{
+		name: __( 'Summarize', 'jetpack' ),
+		key: QUICK_EDIT_KEY_SUMMARIZE,
+		aiSuggestion: QUICK_EDIT_SUGGESTION_SUMMARIZE,
+		icon: postExcerpt,
+	},
+	{
+		name: __( 'Expand', 'jetpack' ),
+		key: QUICK_EDIT_KEY_MAKE_LONGER,
+		aiSuggestion: QUICK_EDIT_SUGGESTION_MAKE_LONGER,
+		icon: postContent,
+	},
 ];
 
-type AiAssistantDropdownOnChangeOptionsArgProps = {
+export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	contentType: 'generated' | string;
 	tone?: ToneProp;
 	language?: string;
 };
+
+export type AiAssistantSuggestionProp = QuickEditsSuggestionProp | 'changeTone';
 
 type AiAssistantControlComponentProps = {
 	/*
@@ -77,7 +106,7 @@ type AiAssistantControlComponentProps = {
 	exclude?: QuickEditsKeyProp[];
 
 	onChange: (
-		item: QuickEditsSuggestionProp,
+		item: AiAssistantSuggestionProp,
 		options?: AiAssistantDropdownOnChangeOptionsArgProps
 	) => void;
 };
