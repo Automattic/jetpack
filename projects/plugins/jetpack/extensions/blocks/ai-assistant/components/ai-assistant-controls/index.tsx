@@ -15,6 +15,7 @@ import React from 'react';
  */
 import AIAssistantIcon from '../../icons/ai-assistant';
 import {
+	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
 	PROMPT_TYPE_MAKE_LONGER,
 	PROMPT_TYPE_SIMPLIFY,
@@ -77,8 +78,6 @@ export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	tone?: ToneProp;
 };
 
-export type AiAssistantSuggestionProp = PromptTypeProp | 'changeTone';
-
 type AiAssistantControlComponentProps = {
 	/*
 	 * Can be used to externally control the value of the control. Optional.
@@ -95,10 +94,7 @@ type AiAssistantControlComponentProps = {
 	 */
 	exclude?: QuickEditsKeyProp[];
 
-	onChange: (
-		item: AiAssistantSuggestionProp,
-		options?: AiAssistantDropdownOnChangeOptionsArgProps
-	) => void;
+	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
 };
 
 export default function AiAssistantDropdown( {
@@ -138,7 +134,7 @@ export default function AiAssistantDropdown( {
 
 					<ToneDropdownMenu
 						onChange={ tone => {
-							onChange( 'changeTone', { tone, contentType: 'generated' } );
+							onChange( PROMPT_TYPE_CHANGE_TONE, { tone, contentType: 'generated' } );
 							closeDropdown();
 						} }
 					/>

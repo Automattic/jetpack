@@ -269,7 +269,7 @@ export function buildPrompt( {
 		/*
 		 * Change the tone of the content.
 		 */
-		case 'changeTone':
+		case PROMPT_TYPE_CHANGE_TONE:
 			prompt = buildPromptTemplate( {
 				request: `Rewrite ${ isGenerated ? reference.generated : reference.content } with a ${
 					options.tone
