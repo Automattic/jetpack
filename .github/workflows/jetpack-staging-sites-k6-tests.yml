@@ -9,9 +9,6 @@ on:
 jobs:
   run_tests:
     runs-on: ubuntu-latest
-    env:
-      JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
-      JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -20,11 +17,17 @@ jobs:
         uses: grafana/k6-action@v0.3.0
         with:
           filename: .github/files/jetpack-staging-sites/k6-frontend.js
+        env:
+          JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
+          JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
 
       - name: Run k6 backend tests
         uses: grafana/k6-action@v0.3.0
         with:
           filename: .github/files/jetpack-staging-sites/k6-backend.js
+        env:
+          JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
+          JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
 
       - name: Send Slack alert on failure
         uses: slackapi/slack-github-action@v1.23.0
