@@ -56,7 +56,7 @@ function NewsletterEditorSettingsPanel( {
 	showMisconfigurationWarning,
 } ) {
 	if ( ! isModuleActive ) {
-		return;
+		return null;
 	}
 
 	return (
@@ -185,7 +185,7 @@ function NewsletterPostPublishSettingsPanel( {
 	showMisconfigurationWarning,
 } ) {
 	if ( ! isModuleActive ) {
-		return;
+		return null;
 	}
 
 	return (
