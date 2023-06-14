@@ -217,14 +217,20 @@ function NewsletterPostPublishSettingsPanel( {
 
 	const reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
 
+	let subscriberType = __( 'subscribers', 'jetpack' );
+	if ( accessLevel === accessOptions.paid_subscribers.key ) {
+		subscriberType = __( 'paid subscribers', 'jetpack' );
+	}
+
 	const numberOfSubscribersText = sprintf(
-		/* translators: %1s is the post name,  %2s is the number of subscribers in numerical format */
+		/* translators: %1s is the post name,  %2s is the number of subscribers in numerical format, %3s Options are paid subscribers or subscribers */
 		__(
-			'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s subscribers</strong>.',
+			'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s %3$s</strong>.',
 			'jetpack'
 		),
 		postName,
-		reachCount
+		reachCount,
+		subscriberType
 	);
 
 	return (
