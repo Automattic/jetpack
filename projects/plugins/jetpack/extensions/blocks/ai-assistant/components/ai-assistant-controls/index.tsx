@@ -77,7 +77,7 @@ const quickActionsList = [
 	},
 ];
 
-type AiAssistantDropdownOnChangeOptionsArgProps = {
+export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	contentType: 'generated' | string;
 	tone?: ToneProp;
 };
