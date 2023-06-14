@@ -114,7 +114,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 
 	const { part, isLoading } = useCookieConsentTemplatePart();
 	const innerBlocks = useSelect(
-		select => select( 'core/editor' ).getBlocks( clientId ),
+		select => select( 'core/block-editor' ).getBlocks( clientId ),
 		[ clientId ]
 	);
 

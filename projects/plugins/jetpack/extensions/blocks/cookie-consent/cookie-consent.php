@@ -74,7 +74,7 @@ function load_assets( $attr, $content ) {
 		return '';
 	}
 
-	if ( $attr['isInWarningState'] ) {
+	if ( isset( $attr['isInWarningState'] ) && $attr['isInWarningState'] ) {
 		return '';
 	}
 
