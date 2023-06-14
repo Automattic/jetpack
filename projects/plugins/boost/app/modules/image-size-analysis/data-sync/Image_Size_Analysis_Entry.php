@@ -72,7 +72,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	 *
 	 * @todo: Implement
 	 */
-	private function get_page( $key ) {
+	private function get_page( $_key ) {
 		return array(
 			'id'    => 134,
 			'url'   => 'https://boost.in.ngrok.io?p=134',
@@ -83,7 +83,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	/**
 	 * Generate instructions for an issue.
 	 */
-	private function get_instructions( $issue ) {
+	private function get_instructions( $_issue ) {
 		return __( 'Resize the image to the expected dimensions and compress it.', 'jetpack-boost' );
 	}
 
