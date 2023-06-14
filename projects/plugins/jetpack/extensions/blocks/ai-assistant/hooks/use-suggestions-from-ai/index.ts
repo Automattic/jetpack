@@ -83,8 +83,6 @@ export default function useSuggestionsFromAI( {
 	// Store the event source in a ref, so we can handle it if needed.
 	const source = useRef< SuggestionsEventSource | undefined >( undefined );
 
-	const readyToRequest = postId && prompt?.length;
-
 	/**
 	 * onSuggestion function handler.
 	 *
@@ -132,7 +130,8 @@ export default function useSuggestionsFromAI( {
 
 	// Request suggestions automatically when ready.
 	useEffect( () => {
-		if ( ! readyToRequest ) {
+		// Check if there is a prompt to request.
+		if ( ! prompt?.length ) {
 			return;
 		}
 
@@ -154,11 +153,11 @@ export default function useSuggestionsFromAI( {
 			source?.current?.removeEventListener( 'suggestion', handleSuggestion );
 			source?.current?.removeEventListener( 'done', handleDone );
 		};
-	}, [ autoRequest, handleDone, handleSuggestion, readyToRequest, request ] );
+	}, [ autoRequest, handleDone, handleSuggestion, prompt, request ] );
 
 	return {
 		// Expose the request handler.
-		request: readyToRequest ? request : undefined,
+		request,
 
 		// Expose the EventHandlerSource
 		source: source.current,
