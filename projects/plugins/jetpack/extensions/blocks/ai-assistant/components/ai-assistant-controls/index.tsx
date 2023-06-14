@@ -19,6 +19,7 @@ import {
 	QUICK_EDIT_SUGGESTION_MAKE_LONGER,
 	QUICK_EDIT_SUGGESTION_SIMPLIFY,
 	QUICK_EDIT_SUGGESTION_SUMMARIZE,
+	QuickEditsSuggestionProp,
 } from '../../lib/prompt';
 import { ToneDropdownMenu, ToneProp } from '../tone-dropdown-control';
 import './style.scss';
@@ -42,15 +43,7 @@ const QUICK_EDIT_KEY_LIST = [
 	QUICK_EDIT_KEY_MAKE_LONGER,
 ] as const;
 
-const QUICK_EDIT_SUGGESTION_LIST = [
-	QUICK_EDIT_SUGGESTION_CORRECT_SPELLING,
-	QUICK_EDIT_SUGGESTION_SIMPLIFY,
-	QUICK_EDIT_SUGGESTION_SUMMARIZE,
-	QUICK_EDIT_SUGGESTION_MAKE_LONGER,
-] as const;
-
 type QuickEditsKeyProp = ( typeof QUICK_EDIT_KEY_LIST )[ number ];
-type QuickEditsSuggestionProp = ( typeof QUICK_EDIT_SUGGESTION_LIST )[ number ] | 'changeTone';
 
 const quickActionsList = [
 	{
