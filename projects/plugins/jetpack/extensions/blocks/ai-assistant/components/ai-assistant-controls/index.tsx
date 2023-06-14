@@ -15,6 +15,7 @@ import React from 'react';
  */
 import AIAssistantIcon from '../../icons/ai-assistant';
 import './style.scss';
+import I18nDropdownControl from '../i18n-dropdown-control';
 import { ToneDropdownMenu, ToneProp } from '../tone-dropdown-control';
 
 // Quick edits option: "Correct spelling and grammar"
@@ -33,7 +34,10 @@ const QUICK_EDIT_SUGGESTION_LIST = [
 ] as const;
 
 type QuickEditsKeyProp = ( typeof QUICK_EDIT_KEY_LIST )[ number ];
-type QuickEditsSuggestionProp = ( typeof QUICK_EDIT_SUGGESTION_LIST )[ number ] | 'changeTone';
+type QuickEditsSuggestionProp =
+	| ( typeof QUICK_EDIT_SUGGESTION_LIST )[ number ]
+	| 'changeTone'
+	| 'changeLanguage';
 
 const quickActionsList = [
 	{
@@ -53,6 +57,7 @@ const quickActionsList = [
 type AiAssistantDropdownOnChangeOptionsArgProps = {
 	contentType: 'generated' | string;
 	tone?: ToneProp;
+	language?: string;
 };
 
 type AiAssistantControlComponentProps = {
@@ -115,6 +120,14 @@ export default function AiAssistantDropdown( {
 					<ToneDropdownMenu
 						onChange={ tone => {
 							onChange( 'changeTone', { tone, contentType: 'generated' } );
+							closeDropdown();
+						} }
+					/>
+
+					<I18nDropdownControl
+						showText
+						onChange={ language => {
+							onChange( 'changeLanguage', { language, contentType: 'generated' } );
 							closeDropdown();
 						} }
 					/>

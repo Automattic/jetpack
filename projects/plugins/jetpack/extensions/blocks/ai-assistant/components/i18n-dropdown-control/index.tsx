@@ -3,8 +3,10 @@
  */
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Icon, chevronRight } from '@wordpress/icons';
 import { globe } from '@wordpress/icons';
 import React from 'react';
+import './style.scss';
 
 const LANGUAGE_LIST = [
 	'en',
@@ -27,7 +29,8 @@ export type LanguageProp = ( typeof LANGUAGE_LIST )[ number ];
 type LanguageDropdownControlProps = {
 	value?: LanguageProp;
 	onChange: ( value: string ) => void;
-	label: string;
+	label?: string;
+	showText?: boolean;
 };
 
 const defaultLanguageLocale =
@@ -108,6 +111,7 @@ export const LANGUAGE_MAP = {
 export default function I18nDropdownControl( {
 	value = defaultLanguage,
 	label = defaultLabel,
+	showText = false,
 	onChange,
 }: LanguageDropdownControlProps ) {
 	// Move the default language to the top of the list.
@@ -118,8 +122,17 @@ export default function I18nDropdownControl( {
 
 	return (
 		<ToolbarDropdownMenu
+			className="ai-assistant__i18n-dropdown"
 			icon={ globe }
 			label={ label }
+			text={
+				showText && (
+					<>
+						<div className="ai-assistant__i18n-dropdown__toggle-label">{ label }</div>
+						<Icon icon={ chevronRight } />
+					</>
+				)
+			}
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
