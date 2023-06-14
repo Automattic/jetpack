@@ -55,7 +55,7 @@ export const withAIAssistant = createHigherOrderComponent(
 		const requestSuggestion = useCallback(
 			( promptTupe: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
 				setPrompt(
-					getPrompt( promptTupe, {
+					getPrompt( promptType, {
 						...options,
 						content,
 					} )
