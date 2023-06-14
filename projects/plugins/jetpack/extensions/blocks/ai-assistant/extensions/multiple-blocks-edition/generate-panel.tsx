@@ -20,9 +20,9 @@ import React from 'react';
  */
 import { LANGUAGE_MAP } from '../../components/i18n-dropdown-control';
 import { PROMPT_TONES_MAP } from '../../components/tone-dropdown-control';
-import { buildPromptTemplate } from '../../create-prompt';
-import { askQuestion } from '../../get-suggestion-with-stream';
 import Icon from '../../icons/ai-assistant';
+import { buildPromptTemplate } from '../../lib/prompt';
+import { askQuestion } from '../../lib/suggestions';
 
 // Create a Tone Array of objects with `key` and `name` keys
 export const toneOptions = Object.keys( PROMPT_TONES_MAP ).map( key => {
