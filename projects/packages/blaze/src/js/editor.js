@@ -84,7 +84,7 @@ const BlazePostPublishPanel = () => {
 	return (
 		<PluginPostPublishPanel { ...panelBodyProps }>
 			<PanelRow>
-				<p className="blaze-panel__paragraph">
+				<p>
 					{ __(
 						'Reach a larger audience boosting the content to the WordPress.com community of blogs and sites.',
 						'jetpack-blaze'
