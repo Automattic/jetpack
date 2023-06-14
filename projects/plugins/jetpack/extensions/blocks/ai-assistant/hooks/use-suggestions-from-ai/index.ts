@@ -143,7 +143,9 @@ export default function useSuggestionsFromAI( {
 				return;
 			}
 
+			// Close the connection.
 			source.current.close();
+
 			// Clean up the event listeners.
 			source?.current?.removeEventListener( 'suggestion', handleSuggestion );
 			source?.current?.removeEventListener( 'done', handleDone );
