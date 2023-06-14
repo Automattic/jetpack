@@ -51,6 +51,9 @@ const UrlDropdown = ( { tockUrl, setEditedUrl, setUrl, cancel } ) => {
 	return (
 		<ToolbarGroup>
 			<Dropdown
+				popoverProps={ {
+					variant: 'toolbar',
+				} }
 				onClose={ () =>
 					committedChanges.current ? ( committedChanges.current = false ) : cancel()
 				}
