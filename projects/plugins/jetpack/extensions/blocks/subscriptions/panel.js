@@ -258,7 +258,7 @@ function NewsletterPostPublishSettingsPanel( {
 				<PluginPostPublishPanel
 					initialOpen
 					className="paid-newsletters-post-publish-panel"
-					title={ __( 'Set up paid newsletter', 'jetpack' ) }
+					title={ __( 'Set up a paid newsletter', 'jetpack' ) }
 					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 				>
 					<PanelRow>
