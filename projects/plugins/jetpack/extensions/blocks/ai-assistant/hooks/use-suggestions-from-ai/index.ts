@@ -86,6 +86,25 @@ export default function useSuggestionsFromAI( {
 	const readyToRequest = postId && prompt?.length;
 
 	/**
+	 * onSuggestion function handler.
+	 *
+	 * @param {string} suggestion - The suggestion.
+	 * @returns {void}
+	 */
+	const handleSuggestion = useCallback(
+		( event: CustomEvent ) => onSuggestion( event?.detail ),
+		[ onSuggestion ]
+	);
+
+	/**
+	 * onDone function handler.
+	 *
+	 * @param {string} content - The content.
+	 * @returns {void}
+	 */
+	const handleDone = useCallback( ( event: CustomEvent ) => onDone( event?.detail ), [ onDone ] );
+
+	/**
 	 * Request handler.
 	 *
 	 * @returns {Promise<void>} The promise.
@@ -99,21 +118,17 @@ export default function useSuggestionsFromAI( {
 			} );
 
 			if ( onSuggestion ) {
-				source?.current?.addEventListener( 'suggestion', ( event: CustomEvent ) => {
-					onSuggestion( event?.detail );
-				} );
+				source?.current?.addEventListener( 'suggestion', handleSuggestion );
 			}
 
 			if ( onDone ) {
-				source?.current?.addEventListener( 'done', ( event: CustomEvent ) => {
-					onDone( event?.detail );
-				} );
+				source?.current?.addEventListener( 'done', handleDone );
 			}
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
 			console.error( e );
 		}
-	}, [ prompt, postId, onSuggestion, onDone ] );
+	}, [ prompt, postId, onSuggestion, onDone, handleSuggestion, handleDone ] );
 
 	// Request suggestions automatically when ready.
 	useEffect( () => {
@@ -135,8 +150,11 @@ export default function useSuggestionsFromAI( {
 			}
 
 			source.current.close();
+			// Clean up the event listeners.
+			source?.current?.removeEventListener( 'suggestion', handleSuggestion );
+			source?.current?.removeEventListener( 'done', handleDone );
 		};
-	}, [ autoRequest, readyToRequest, request ] );
+	}, [ autoRequest, handleDone, handleSuggestion, readyToRequest, request ] );
 
 	return {
 		// Expose the request handler.
