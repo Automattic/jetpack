@@ -92,8 +92,8 @@ class Stats extends Module_Product {
 			// TODO: replace with `Wpcom_Products::get_product_pricing` once available.
 			array(
 				'currency_code'    => 'USD',
-				'full_price'       => '10',
-				'discounted_price' => '10',
+				'full_price'       => 10,
+				'discounted_price' => 10,
 				'product_term'     => 'month',
 			)
 		);
