@@ -63,7 +63,7 @@ type useSuggestionsFromAIProps = {
  * React custom hook to get suggestions from AI,
  * by hitting the query endpoint.
  *
- * @param {useSuggestionsFromAIOptions} options - The options for the hook.
+ * @param {UseSuggestionsFromAIOptions} options - The options for the hook.
  * @returns {useSuggestionsFromAIProps}           The props for the hook.
  */
 export default function useSuggestionsFromAI( {
@@ -71,7 +71,7 @@ export default function useSuggestionsFromAI( {
 	autoRequest = true,
 	onSuggestion,
 	onDone,
-}: useSuggestionsFromAIOptions ): useSuggestionsFromAIProps {
+}: UseSuggestionsFromAIOptions ): useSuggestionsFromAIProps {
 	// Collect data
 	const { postId, postTitle } = useSelect( select => {
 		return {

@@ -13,7 +13,7 @@ import AiAssistantDropdown, {
 	AiAssistantSuggestionProp,
 } from '../../components/ai-assistant-controls';
 import AiAssistantPanel from '../../components/ai-assistant-panel';
-import useSuggestionsFromAI from '../../hooks/use-ai-suggestions-from-ai';
+import useSuggestionsFromAI from '../../hooks/use-suggestions-from-ai';
 import { PromptItemProps, buildPrompt } from '../../lib/prompt';
 
 /*
