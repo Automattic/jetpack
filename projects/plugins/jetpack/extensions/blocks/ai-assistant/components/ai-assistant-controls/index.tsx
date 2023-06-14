@@ -15,11 +15,11 @@ import React from 'react';
  */
 import AIAssistantIcon from '../../icons/ai-assistant';
 import {
-	QUICK_EDIT_SUGGESTION_CORRECT_SPELLING,
-	QUICK_EDIT_SUGGESTION_MAKE_LONGER,
-	QUICK_EDIT_SUGGESTION_SIMPLIFY,
-	QUICK_EDIT_SUGGESTION_SUMMARIZE,
-	QuickEditsSuggestionProp,
+	PROMPT_TYPE_CORRECT_SPELLING,
+	PROMPT_TYPE_MAKE_LONGER,
+	PROMPT_TYPE_SIMPLIFY,
+	PROMPT_TYPE_SUMMARIZE,
+	PromptTypeProp,
 } from '../../lib/prompt';
 import { ToneDropdownMenu, ToneProp } from '../tone-dropdown-control';
 import './style.scss';
@@ -49,25 +49,25 @@ const quickActionsList = [
 	{
 		name: __( 'Correct spelling and grammar', 'jetpack' ),
 		key: QUICK_EDIT_KEY_CORRECT_SPELLING,
-		aiSuggestion: QUICK_EDIT_SUGGESTION_CORRECT_SPELLING,
+		aiSuggestion: PROMPT_TYPE_CORRECT_SPELLING,
 		icon: termDescription,
 	},
 	{
 		name: __( 'Simplify', 'jetpack' ),
 		key: QUICK_EDIT_KEY_SIMPLIFY,
-		aiSuggestion: QUICK_EDIT_SUGGESTION_SIMPLIFY,
+		aiSuggestion: PROMPT_TYPE_SIMPLIFY,
 		icon: post,
 	},
 	{
 		name: __( 'Summarize', 'jetpack' ),
 		key: QUICK_EDIT_KEY_SUMMARIZE,
-		aiSuggestion: QUICK_EDIT_SUGGESTION_SUMMARIZE,
+		aiSuggestion: PROMPT_TYPE_SUMMARIZE,
 		icon: postExcerpt,
 	},
 	{
 		name: __( 'Expand', 'jetpack' ),
 		key: QUICK_EDIT_KEY_MAKE_LONGER,
-		aiSuggestion: QUICK_EDIT_SUGGESTION_MAKE_LONGER,
+		aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
 		icon: postContent,
 	},
 ];
@@ -77,7 +77,7 @@ export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	tone?: ToneProp;
 };
 
-export type AiAssistantSuggestionProp = QuickEditsSuggestionProp | 'changeTone';
+export type AiAssistantSuggestionProp = PromptTypeProp | 'changeTone';
 
 type AiAssistantControlComponentProps = {
 	/*

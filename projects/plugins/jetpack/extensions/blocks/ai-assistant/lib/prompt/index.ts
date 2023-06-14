@@ -10,21 +10,19 @@ import { ToneProp } from '../../components/tone-dropdown-control';
 /**
  * Types & consts
  */
-export const QUICK_EDIT_SUGGESTION_CORRECT_SPELLING = 'correctSpelling' as const;
-export const QUICK_EDIT_SUGGESTION_SIMPLIFY = 'simplify' as const;
-export const QUICK_EDIT_SUGGESTION_SUMMARIZE = 'summarize' as const;
-export const QUICK_EDIT_SUGGESTION_MAKE_LONGER = 'makeLonger' as const;
+export const PROMPT_TYPE_CORRECT_SPELLING = 'correctSpelling' as const;
+export const PROMPT_TYPE_SIMPLIFY = 'simplify' as const;
+export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
+export const PROMPT_TYPE_MAKE_LONGER = 'makeLonger' as const;
 
-export const QUICK_EDIT_SUGGESTION_LIST = [
-	QUICK_EDIT_SUGGESTION_CORRECT_SPELLING,
-	QUICK_EDIT_SUGGESTION_SIMPLIFY,
-	QUICK_EDIT_SUGGESTION_SUMMARIZE,
-	QUICK_EDIT_SUGGESTION_MAKE_LONGER,
+export const PROMPT_TYPE_LIST = [
+	PROMPT_TYPE_CORRECT_SPELLING,
+	PROMPT_TYPE_SIMPLIFY,
+	PROMPT_TYPE_SUMMARIZE,
+	PROMPT_TYPE_MAKE_LONGER,
 ] as const;
 
-export type QuickEditsSuggestionProp =
-	| ( typeof QUICK_EDIT_SUGGESTION_LIST )[ number ]
-	| 'changeTone';
+export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ] | 'changeTone';
 
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant';
