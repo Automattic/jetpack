@@ -1277,9 +1277,6 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.InvoiceBuilder.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.QuoteBuilder.php';
 
-		// Ajax for /admin/*
-		require_once ZEROBSCRM_PATH . 'admin/email/ajax.php';
-
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SystemChecks.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.IntegrationFuncs.php';
 
@@ -1998,41 +1995,6 @@ final class ZeroBSCRM {
 
 			// autohide admin_notices on pages we specify
 			jpcrm_autohide_admin_notices_for_specific_pages();
-
-			// Custom msgs (LEGACY < 3.0)
-			if ( ! $this->isDAL3() ) {
-
-				if (
-					( isset( $_GET['post_type'] ) && $_GET['post_type'] == 'zerobs_customer' ) ||
-					( ! empty( $postTypeStr ) && $postTypeStr == 'zerobs_customer' )
-				) {
-					add_filter( 'post_updated_messages', 'zeroBSCRM_improvedPostMsgsCustomers' );
-				}
-				if (
-					( isset( $_GET['post_type'] ) && $_GET['post_type'] == 'zerobs_company' ) ||
-					( ! empty( $postTypeStr ) && $postTypeStr == 'zerobs_company' )
-				) {
-					add_filter( 'post_updated_messages', 'zeroBSCRM_improvedPostMsgsCompanies' );
-				}
-				if (
-					( isset( $_GET['post_type'] ) && $_GET['post_type'] == 'zerobs_invoice' ) ||
-					( ! empty( $postTypeStr ) && $postTypeStr == 'zerobs_invoice' )
-				) {
-					add_filter( 'post_updated_messages', 'zeroBSCRM_improvedPostMsgsInvoices' );
-				}
-				if (
-					( isset( $_GET['post_type'] ) && $_GET['post_type'] == 'zerobs_quote' ) ||
-					( ! empty( $postTypeStr ) && $postTypeStr == 'zerobs_quote' )
-				) {
-					add_filter( 'post_updated_messages', 'zeroBSCRM_improvedPostMsgsQuotes' );
-				}
-				if (
-					( isset( $_GET['post_type'] ) && $_GET['post_type'] == 'zerobs_transaction' ) ||
-					( ! empty( $postTypeStr ) && $postTypeStr == 'zerobs_transaction' )
-				) {
-					add_filter( 'post_updated_messages', 'zeroBSCRM_improvedPostMsgsTransactions' );
-				}
-			}
 		}
 
 		// ====================================================================
