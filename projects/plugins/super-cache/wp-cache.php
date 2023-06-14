@@ -3644,8 +3644,7 @@ function wpsc_is_preload_active() {
 		return false;
 	}
 
-	$mutex = $cache_path . 'preload_mutex.tmp';
-	if ( file_exists( $mutex ) ) {
+	if ( file_exists( $cache_path . 'preload_mutex.tmp' ) ) {
 		return true;
 	}
 
