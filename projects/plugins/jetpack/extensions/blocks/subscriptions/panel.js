@@ -61,7 +61,7 @@ function NewsletterEditorSettingsPanel( {
 	showMisconfigurationWarning,
 } ) {
 	if ( ! isModuleActive ) {
-		return;
+		return null;
 	}
 
 	return (
@@ -212,7 +212,7 @@ function NewsletterPostPublishSettingsPanel( {
 	);
 
 	if ( ! isModuleActive ) {
-		return;
+		return null;
 	}
 
 	const reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );

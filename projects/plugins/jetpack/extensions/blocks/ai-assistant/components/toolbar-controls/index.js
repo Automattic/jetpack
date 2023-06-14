@@ -2,15 +2,16 @@
  * External dependencies
  */
 import { BlockControls } from '@wordpress/block-editor';
-import { ToolbarButton, ToolbarDropdownMenu, ToolbarGroup } from '@wordpress/components';
+import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { image, pencil, update, check } from '@wordpress/icons';
+import { image, update, check } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
 import I18nDropdownControl from '../i18n-dropdown-control';
+import ImproveToolbarDropdownMenu from '../improve-dropdown-control';
 import PromptTemplatesControl from '../prompt-templates-control';
-import ToneDropdownControl from '../tone-dropdown-control';
+import ToneToolbarDropdownMenu from '../tone-dropdown-control';
 
 // Consider to enable when we have image support
 const isImageGenerationEnabled = false;
@@ -30,30 +31,11 @@ const ToolbarControls = ( {
 	recordEvent,
 	isGeneratingTitle,
 } ) => {
-	const dropdownControls = [
-		// Interactive controls
-		{
-			title: __( 'Make longer', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'makeLonger', { contentType: 'generated' } ),
-		},
-		{
-			title: __( 'Make shorter', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
-		},
-	];
-
-	if ( ! isGeneratingTitle ) {
-		dropdownControls.unshift( {
-			title: __( 'Summarize', 'jetpack' ),
-			onClick: () => getSuggestionFromOpenAI( 'summarize', { contentType: 'generated' } ),
-		} );
-	}
-
 	return (
 		<>
 			{ contentIsLoaded && (
 				<BlockControls group="block">
-					<ToneDropdownControl
+					<ToneToolbarDropdownMenu
 						value="neutral"
 						onChange={ tone =>
 							getSuggestionFromOpenAI( 'changeTone', { tone, contentType: 'generated' } )
@@ -69,10 +51,9 @@ const ToolbarControls = ( {
 						disabled={ contentIsLoaded }
 					/>
 
-					<ToolbarDropdownMenu
-						icon={ pencil }
-						label={ __( 'Improve', 'jetpack' ) }
-						controls={ dropdownControls }
+					<ImproveToolbarDropdownMenu
+						onChange={ getSuggestionFromOpenAI }
+						exclude={ isGeneratingTitle ? [ 'summarize' ] : [] }
 					/>
 				</BlockControls>
 			) }
@@ -110,7 +91,7 @@ const ToolbarControls = ( {
 
 					{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
 						<BlockControls group="block">
-							<ToneDropdownControl
+							<ToneToolbarDropdownMenu
 								value="neutral"
 								onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
 							/>
