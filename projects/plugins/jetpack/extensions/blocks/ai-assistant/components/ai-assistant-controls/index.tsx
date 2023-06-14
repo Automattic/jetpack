@@ -77,10 +77,12 @@ const quickActionsList = [
 	},
 ];
 
-type AiAssistantDropdownOnChangeOptionsArgProps = {
+export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	contentType: 'generated' | string;
 	tone?: ToneProp;
 };
+
+export type AiAssistantSuggestionProp = QuickEditsSuggestionProp | 'changeTone';
 
 type AiAssistantControlComponentProps = {
 	/*
@@ -99,7 +101,7 @@ type AiAssistantControlComponentProps = {
 	exclude?: QuickEditsKeyProp[];
 
 	onChange: (
-		item: QuickEditsSuggestionProp,
+		item: AiAssistantSuggestionProp,
 		options?: AiAssistantDropdownOnChangeOptionsArgProps
 	) => void;
 };

@@ -3,21 +3,28 @@
  */
 import { select } from '@wordpress/data';
 import debugFactory from 'debug';
+import { ToneProp } from '../../components/tone-dropdown-control';
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
+
+type PromptItemProps = {
+	role: 'system' | 'user' | 'assistant';
+	content: string;
+};
 
 /*
  * Builds a prompt template based on context, rules and content
  *
- * @param {object} options          - The prompt options.
- * @param {string} options.context  - The expected context to the prompt, e.g. "You are...".
- * @param {array} options.rules     - An array of rules to be followed.
- * @param {string} options.request  - The prompt request.
- * @param {string} options.content  - The content to be modified.
- * @param {string} options.language - The language of the content.
- * @param {string} options.locale   - The locale of the content.
+ * @param {object} options                     - The prompt options.
+ * @param {string} options.context             - The expected context to the prompt, e.g. "You are...".
+ * @param {Array<string>} options.rules        - The rules to follow.
+ * @param {string} options.request             - The request to the AI assistant.
+ * @param {string} options.relevantContent     - The relevant content to the request.
+ * @param {boolean} options.isContentGenerated - Whether the content is generated or not.
+ * @param {string} options.fullContent         - The full content of the post.
+ * @param {boolean} options.isGeneratingTitle  - Whether the title is being generated or not.
  *
- * @return {array} The prompt.
+ * @return {Array<PromptItemProps>}
  */
 export const buildPromptTemplate = ( {
 	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
@@ -27,7 +34,7 @@ export const buildPromptTemplate = ( {
 	isContentGenerated = false,
 	fullContent = null,
 	isGeneratingTitle = false,
-} ) => {
+} ): Array< PromptItemProps > => {
 	if ( ! request && ! relevantContent ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
@@ -93,9 +100,33 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 	messages.forEach( message => {
 		debug( `Role: ${ message?.role }.\nMessage: ${ message?.content }\n---` );
 	} );
+
 	return messages;
 };
 
+type BuildPromptOptions = {
+	generatedContent: string;
+	allPostContent?: string;
+	postContentAbove?: string;
+	currentPostTitle?: string;
+	prompt?: Array< PromptItemProps >;
+	type: string;
+	userPrompt?: string;
+	isGeneratingTitle?: boolean;
+	options: {
+		contentType?: string;
+		tone?: ToneProp;
+		language?: string;
+	};
+};
+
+/**
+ * Builds a prompt based on the type of prompt.
+ *
+ * @param {BuildPromptOptions} options - The prompt options.
+ * @returns {Array< PromptItemProps >} The prompt.
+ * @throws {Error} If the type is not recognized.
+ */
 export function buildPrompt( {
 	generatedContent,
 	allPostContent,
@@ -106,7 +137,7 @@ export function buildPrompt( {
 	type,
 	userPrompt,
 	isGeneratingTitle,
-} ) {
+}: BuildPromptOptions ): Array< PromptItemProps > {
 	const isGenerated = options?.contentType === 'generated';
 	const reference = {
 		content: isGeneratingTitle ? 'the title' : 'the content',
@@ -280,5 +311,6 @@ export function buildPrompt( {
 			} );
 			break;
 	}
+
 	return prompt;
 }

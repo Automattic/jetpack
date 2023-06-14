@@ -3,12 +3,17 @@
  */
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useCallback } from '@wordpress/element';
 import React from 'react';
 /**
  * Internal dependencies
  */
-import AiAssistantDropdown from '../../components/ai-assistant-controls';
+import AiAssistantDropdown, {
+	AiAssistantDropdownOnChangeOptionsArgProps,
+	AiAssistantSuggestionProp,
+} from '../../components/ai-assistant-controls';
 import AiAssistantPanel from '../../components/ai-assistant-panel';
+import { buildPrompt } from '../../lib/prompt';
 
 /*
  * Extend the withAIAssistant function of the block
@@ -16,6 +21,22 @@ import AiAssistantPanel from '../../components/ai-assistant-panel';
  */
 export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
+		const content = props?.attributes?.content;
+		const requestSuggestion = useCallback(
+			(
+				suggestion: AiAssistantSuggestionProp,
+				options: AiAssistantDropdownOnChangeOptionsArgProps
+			) => {
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				const prompt = buildPrompt( {
+					type: suggestion,
+					generatedContent: content,
+					options,
+				} );
+			},
+			[ content ]
+		);
+
 		return (
 			<>
 				<BlockEdit { ...props } />
@@ -25,12 +46,7 @@ export const withAIAssistant = createHigherOrderComponent(
 				</InspectorControls>
 
 				<BlockControls group="block">
-					<AiAssistantDropdown
-						onChange={ ( suggestion, options ) => {
-							console.log( { suggestion } ); // eslint-disable-line no-console
-							console.log( { options } ); // eslint-disable-line no-console
-						} }
-					/>
+					<AiAssistantDropdown onChange={ requestSuggestion } />
 				</BlockControls>
 			</>
 		);
