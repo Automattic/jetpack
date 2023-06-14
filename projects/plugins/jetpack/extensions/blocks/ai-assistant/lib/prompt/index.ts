@@ -3,14 +3,34 @@
  */
 import { select } from '@wordpress/data';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
 import { ToneProp } from '../../components/tone-dropdown-control';
+/**
+ * Types & consts
+ */
+export const PROMPT_TYPE_CORRECT_SPELLING = 'correctSpelling' as const;
+export const PROMPT_TYPE_SIMPLIFY = 'simplify' as const;
+export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
+export const PROMPT_TYPE_MAKE_LONGER = 'makeLonger' as const;
+export const PROMPT_TYPE_CHANGE_TONE = 'changeTone' as const;
 
-const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
+export const PROMPT_TYPE_LIST = [
+	PROMPT_TYPE_CORRECT_SPELLING,
+	PROMPT_TYPE_SIMPLIFY,
+	PROMPT_TYPE_SUMMARIZE,
+	PROMPT_TYPE_MAKE_LONGER,
+] as const;
+
+export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ] | typeof PROMPT_TYPE_CHANGE_TONE;
 
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant';
 	content: string;
 };
+
+const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 /*
  * Builds a prompt template based on context, rules and content
@@ -114,7 +134,7 @@ type BuildPromptOptions = {
 	userPrompt?: string;
 	isGeneratingTitle?: boolean;
 	options: {
-		contentType?: string;
+		contentType?: 'generated' | string;
 		tone?: ToneProp;
 		language?: string;
 	};
@@ -249,7 +269,7 @@ export function buildPrompt( {
 		/*
 		 * Change the tone of the content.
 		 */
-		case 'changeTone':
+		case PROMPT_TYPE_CHANGE_TONE:
 			prompt = buildPromptTemplate( {
 				request: `Rewrite ${ isGenerated ? reference.generated : reference.content } with a ${
 					options.tone
@@ -313,4 +333,30 @@ export function buildPrompt( {
 	}
 
 	return prompt;
+}
+
+type GetPromptOptionsProps = {
+	content: string;
+};
+
+/**
+ * Returns a prompt based on the type and options
+ *
+ * @param {PromptTypeProp} type           - The type of prompt.
+ * @param {GetPromptOptionsProps} options - The prompt options.
+ * @returns {Array< PromptItemProps >}      The prompt.
+ */
+export function getPrompt(
+	type: PromptTypeProp,
+	options: GetPromptOptionsProps
+): Array< PromptItemProps > {
+	return buildPrompt( {
+		type,
+		generatedContent: options.content,
+		postContentAbove: options.content,
+		options: {
+			...options,
+			contentType: 'generated', // Set `generated` to ensure providing the generated content :-/
+		},
+	} );
 }
