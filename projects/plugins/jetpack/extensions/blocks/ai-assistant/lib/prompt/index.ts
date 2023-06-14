@@ -134,7 +134,7 @@ type BuildPromptOptions = {
 	userPrompt?: string;
 	isGeneratingTitle?: boolean;
 	options: {
-		contentType?: string;
+		contentType?: 'generated' | string;
 		tone?: ToneProp;
 		language?: string;
 	};
@@ -333,4 +333,29 @@ export function buildPrompt( {
 	}
 
 	return prompt;
+}
+
+type GetPromptOptionsProps = {
+	content: string;
+};
+
+/**
+ * Retunr a prompt based on the type and options
+ *
+ * @param {PromptTypeProp} type           - The type of prompt.
+ * @param {GetPromptOptionsProps} options - The prompt options.
+ * @returns {Array< PromptItemProps >}      The prompt.
+ */
+export function getPrompt(
+	type: PromptTypeProp,
+	options: GetPromptOptionsProps
+): Array< PromptItemProps > {
+	return buildPrompt( {
+		type,
+		generatedContent: options.content,
+		postContentAbove: options.content,
+		options: {
+			contentType: 'generated', // Set `generated` to ensure providing the generated content :-/
+		},
+	} );
 }
