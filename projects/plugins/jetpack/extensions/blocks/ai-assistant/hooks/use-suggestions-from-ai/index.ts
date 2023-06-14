@@ -105,7 +105,7 @@ export default function useSuggestionsFromAI( {
 			}
 
 			if ( onDone ) {
-				source?.current?.addEventListener( 'suggestion', ( event: CustomEvent ) => {
+				source?.current?.addEventListener( 'done', ( event: CustomEvent ) => {
 					onDone( event?.detail );
 				} );
 			}
