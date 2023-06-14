@@ -920,21 +920,10 @@ async function buildProject( t ) {
 		crlfDelay: Infinity,
 	} );
 
-	rl.on( 'line', async line => {
+	rl.on( 'line', line => {
 		const match = line.match( /^## +(\[?[^\] ]+\]?)/ );
 		if ( match && match[ 1 ] ) {
 			projectRunVersionNumber = projectVersionNumber = match[ 1 ].replace( /[[\]]/g, '' );
-			if ( t.project.startsWith( 'packages/' ) && projectVersionNumber.endsWith( 'alpha' ) ) {
-				const ts = (
-					await t.execa( 'git', [ 'log', '-1', '--format=%ct', '.' ], {
-						cwd: t.cwd,
-						stdio: [ null, 'pipe', null ],
-					} )
-				 ).stdout;
-				if ( ts.match( /^\d+$/ ) ) {
-					projectRunVersionNumber += '.' + ts;
-				}
-			}
 			rl.close();
 			rl.removeAllListeners();
 		}
@@ -943,6 +932,18 @@ async function buildProject( t ) {
 
 	if ( ! projectVersionNumber ) {
 		throw new Error( `\nError fetching latest version number from ${ changelogFileName }\n` );
+	}
+
+	if ( t.project.startsWith( 'packages/' ) && projectVersionNumber.endsWith( 'alpha' ) ) {
+		const ts = (
+			await t.execa( 'git', [ 'log', '-1', '--format=%ct', '.' ], {
+				cwd: t.cwd,
+				stdio: [ null, 'pipe', null ],
+			} )
+		 ).stdout;
+		if ( ts.match( /^\d+$/ ) ) {
+			projectRunVersionNumber += '.' + ts;
+		}
 	}
 
 	// Build succeeded! Now do some bookkeeping.
