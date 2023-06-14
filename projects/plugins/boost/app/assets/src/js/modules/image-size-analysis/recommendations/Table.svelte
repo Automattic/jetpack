@@ -60,15 +60,6 @@
 			dimensions={image.image.dimensions}
 			edit_url={image.page.edit_url}
 			instructions={image.instructions}
-			status={image.status}
-			on:clickIgnore={() => {
-				ignoreStatusUpdated = true;
-				isaData.update( store => {
-					const target = store.data.images.find( i => i.id === image.id );
-					target.status = target.status === 'ignored' ? 'active' : 'ignored';
-					return store;
-				} );
-			}}
 		/>
 	{/each}
 </div>

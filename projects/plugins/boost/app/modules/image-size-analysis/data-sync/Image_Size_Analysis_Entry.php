@@ -21,6 +21,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 			'image-guide/reports/latest/issues',
 			array(
 				'page'     => $this->page,
+				'group'    => $this->group,
 				'per_page' => 20,
 			)
 		);
