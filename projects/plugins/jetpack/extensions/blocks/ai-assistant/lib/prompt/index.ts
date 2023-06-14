@@ -7,6 +7,11 @@ import { ToneProp } from '../../components/tone-dropdown-control';
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
+export const QUICK_EDIT_SUGGESTION_CORRECT_SPELLING = 'correctSpelling' as const;
+export const QUICK_EDIT_SUGGESTION_SIMPLIFY = 'simplify' as const;
+export const QUICK_EDIT_SUGGESTION_SUMMARIZE = 'summarize' as const;
+export const QUICK_EDIT_SUGGESTION_MAKE_LONGER = 'makeLonger' as const;
+
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant';
 	content: string;

@@ -14,24 +14,26 @@ import React from 'react';
  * Internal dependencies
  */
 import AIAssistantIcon from '../../icons/ai-assistant';
-import './style.scss';
+import {
+	QUICK_EDIT_SUGGESTION_CORRECT_SPELLING,
+	QUICK_EDIT_SUGGESTION_MAKE_LONGER,
+	QUICK_EDIT_SUGGESTION_SIMPLIFY,
+	QUICK_EDIT_SUGGESTION_SUMMARIZE,
+} from '../../lib/prompt';
 import { ToneDropdownMenu, ToneProp } from '../tone-dropdown-control';
+import './style.scss';
 
 // Quick edits option: "Correct spelling and grammar"
 const QUICK_EDIT_KEY_CORRECT_SPELLING = 'correct-spelling' as const;
-const QUICK_EDIT_SUGGESTION_CORRECT_SPELLING = 'correctSpelling' as const;
 
 // Quick edits option: "Simplify"
 const QUICK_EDIT_KEY_SIMPLIFY = 'simplify' as const;
-const QUICK_EDIT_SUGGESTION_SIMPLIFY = 'simplify' as const;
 
 // Quick edits option: "Summarize"
 const QUICK_EDIT_KEY_SUMMARIZE = 'summarize' as const;
-const QUICK_EDIT_SUGGESTION_SUMMARIZE = 'summarize' as const;
 
 // Quick edits option: "Make longer"
 const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
-const QUICK_EDIT_SUGGESTION_MAKE_LONGER = 'makeLonger' as const;
 
 const QUICK_EDIT_KEY_LIST = [
 	QUICK_EDIT_KEY_CORRECT_SPELLING,
