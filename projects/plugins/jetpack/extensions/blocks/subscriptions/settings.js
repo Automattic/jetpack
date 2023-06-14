@@ -164,6 +164,7 @@ function NewsletterAccessRadioButtons( {
 	hasNewsletterPlans,
 	stripeConnectUrl,
 	showMisconfigurationWarning,
+	isEditorPanel = false,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons );
@@ -209,11 +210,13 @@ function NewsletterAccessRadioButtons( {
 					) }
 				</div>
 			) ) }
-			<NewsletterAccessSetupNudge
-				stripeConnectUrl={ stripeConnectUrl }
-				hasNewsletterPlans={ hasNewsletterPlans }
-				isStripeConnected={ isStripeConnected }
-			/>
+			{ isEditorPanel && (
+				<NewsletterAccessSetupNudge
+					stripeConnectUrl={ stripeConnectUrl }
+					isStripeConnected={ isStripeConnected }
+					hasNewsletterPlans={ hasNewsletterPlans }
+				/>
+			) }
 		</fieldset>
 	);
 }
@@ -259,6 +262,7 @@ export function NewsletterAccessDocumentSettings( {
 							{ canEdit && (
 								<div className="editor-post-visibility">
 									<NewsletterAccessRadioButtons
+										isEditorPanel={ true }
 										onChange={ setPostMeta }
 										accessLevel={ _accessLevel }
 										emailSubscribers={ emailSubscribers }
