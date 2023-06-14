@@ -1300,7 +1300,6 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Edit.Segment.php';
 
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Events.php';
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.CompletedEvents.php';
 
 		// } Semantic UI Helper + columns list
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SemanticUIHelpers.php';
@@ -1770,16 +1769,6 @@ final class ZeroBSCRM {
 		zeroBSCRM_wooCommerceRemoveBlock();
 		// add_action('init', array($this, 'post_init_plugins_loaded')); #} Registers stuff that needs settings etc.
 		$this->post_init_plugins_loaded();
-
-		// } Setting Enabled List Inc:
-		$useQuoteBuilder = $this->settings->get( 'usequotebuilder' );
-		if ( $useQuoteBuilder == '1' ) {
-
-			// <DAL3 needed this old class, V3.0+ uses our list view class :)
-			if ( ! $this->isDAL3() && ! class_exists( 'zeroBSCRM_QuoteTemplate_List' ) && ! function_exists( 'zeroBSCRM_render_quotetemplateslist_page' ) ) {
-				require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.QuoteTemplate.php';
-			}
-		}
 
 		// run migrations
 		$this->run_migrations( 'init' );
