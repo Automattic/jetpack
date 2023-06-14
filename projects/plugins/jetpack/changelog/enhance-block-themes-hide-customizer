@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+The Customize menu is removed on self hosted sites that are using a block based theme.
