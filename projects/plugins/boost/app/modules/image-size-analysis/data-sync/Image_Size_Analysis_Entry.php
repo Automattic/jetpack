@@ -33,7 +33,6 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 				'device_type'  => $issue->device,
 				'status'       => $issue->status,
 				'instructions' => $this->get_instructions( $issue ),
-				'edit_url'     => $this->get_edit_url( $issue->page_provider ),
 				'page'         => $this->get_page( $issue ),
 				'image'        => $this->get_image_info( $issue ),
 			);
@@ -60,31 +59,25 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	}
 
 	/**
-	 * Get the edit url for a given key
-	 *
-	 * @todo: Implement
-	 */
-	private function get_edit_url( $key ) {
-		return 'https://boost.in.ngrok.io/wp-admin/post.php?post=' . $key . '&action=edit';
-	}
-
-	/**
 	 * Get the page info for a given key
 	 *
 	 * @todo: Implement
 	 */
 	private function get_page( $issue ) {
-		$provider = $this->get_provider( $issue->page_provider );
-		$title    = empty( $provider ) ? $issue->page_provider : $provider::describe_key( $issue->page_provider );
+		$key      = $issue->page_provider;
+		$provider = $this->get_provider( $key );
+		$title    = empty( $provider ) ? $key : $provider::describe_key( $key );
+		$edit_url = empty( $provider ) ? null : $provider::get_edit_url( $key );
 
 		if ( empty( $title ) ) {
 			$title = $issue->page_provider;
 		}
 
 		return array(
-			'id'    => $issue->page_id,
-			'url'   => $issue->page_url,
-			'title' => $title,
+			'id'       => $issue->page_id,
+			'url'      => $issue->page_url,
+			'edit_url' => $edit_url,
+			'title'    => $title,
 		);
 	}
 

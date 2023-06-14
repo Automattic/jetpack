@@ -11,12 +11,12 @@ $image_data = Schema::as_assoc_array(
 		'device_type'  => Schema::enum( array( 'phone', 'desktop' ) ),
 		'status'       => Schema::enum( array( 'active', 'ignored' ) )->fallback( 'active' ),
 		'instructions' => Schema::as_string(),
-		'edit_url'     => Schema::as_string(),
 		'page'         => Schema::as_assoc_array(
 			array(
-				'id'    => Schema::as_number(),
-				'url'   => Schema::as_string(),
-				'title' => Schema::as_string(),
+				'id'       => Schema::as_number(),
+				'url'      => Schema::as_string(),
+				'edit_url' => Schema::as_string()->nullable(),
+				'title'    => Schema::as_string(),
 			)
 		),
 		'image'        => Schema::as_assoc_array(

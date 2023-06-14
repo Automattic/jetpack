@@ -58,7 +58,7 @@
 			device_type={image.device_type}
 			page_title={image.page.title}
 			dimensions={image.image.dimensions}
-			edit_url={image.page.url}
+			edit_url={image.page.edit_url}
 			instructions={image.instructions}
 			status={image.status}
 			on:clickIgnore={() => {

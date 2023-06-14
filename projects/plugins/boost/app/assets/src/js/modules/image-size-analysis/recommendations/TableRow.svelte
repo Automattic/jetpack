@@ -17,7 +17,7 @@
 	export let device_type: ISA_Data[ 'device_type' ];
 	export let page_title: string;
 	export let dimensions: ISA_Data[ 'image' ][ 'dimensions' ];
-	export let edit_url: string;
+	export let edit_url: string | null;
 	export let instructions: string;
 	export let enableTransition: boolean;
 

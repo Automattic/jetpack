@@ -73,6 +73,14 @@ class Post_ID_Provider extends Provider {
 		return $post->post_title;
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	/** @inheritdoc */
+	public static function get_edit_url( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		$post_id = (int) substr( $provider_key, strlen( self::$name ) + 1 );
+
+		return get_edit_post_link( $post_id, 'link' );
+	}
+
 	/**
 	 * Returns a key that can be used to identify the current page, if any exists.
 	 *
