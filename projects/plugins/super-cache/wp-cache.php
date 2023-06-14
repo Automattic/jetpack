@@ -3471,6 +3471,7 @@ function wpsc_schedule_next_preload() {
 	 * This can happen if the preload is cancelled by the user right after a loop finishes.
 	 */
 	if ( ! wpsc_is_preload_active() ) {
+		wpsc_reset_preload_settings();
 		wp_cache_debug( 'wpsc_schedule_next_preload: preload is not active. not scheduling next preload.' );
 		return;
 	}
