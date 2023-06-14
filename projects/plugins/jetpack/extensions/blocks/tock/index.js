@@ -42,6 +42,6 @@ export const settings = {
 		attributes: {
 			url: 'roister',
 		},
-		viewportWidth: 265,
+		viewportWidth: 250,
 	},
 };
