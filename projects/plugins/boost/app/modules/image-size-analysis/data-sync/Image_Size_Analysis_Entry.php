@@ -112,7 +112,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 			),
 			'weight'     => array(
 				'current'   => $issue->meta->fileSize_weight,
-				'potential' => $issue->meta->fileSize_weight,
+				'potential' => (int) $issue->meta->potentialSavings,
 			),
 		);
 	}
