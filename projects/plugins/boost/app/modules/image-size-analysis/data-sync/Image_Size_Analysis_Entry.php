@@ -6,6 +6,7 @@ use Automattic\Jetpack\Boost_Speed_Score\Lib\Boost_API;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 
 require_once dirname( __DIR__ ) . '/jetpack-boost-mock-api.php';
 
@@ -33,7 +34,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 				'status'       => $issue->status,
 				'instructions' => $this->get_instructions( $issue ),
 				'edit_url'     => $this->get_edit_url( $issue->page_provider ),
-				'page'         => $this->get_page( $issue->page_provider ),
+				'page'         => $this->get_page( $issue ),
 				'image'        => $this->get_image_info( $issue ),
 			);
 		}
@@ -72,11 +73,18 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	 *
 	 * @todo: Implement
 	 */
-	private function get_page( $_key ) {
+	private function get_page( $issue ) {
+		$provider = $this->get_provider( $issue->page_provider );
+		$title    = empty( $provider ) ? $issue->page_provider : $provider::describe_key( $issue->page_provider );
+
+		if ( empty( $title ) ) {
+			$title = $issue->page_provider;
+		}
+
 		return array(
-			'id'    => 134,
-			'url'   => 'https://boost.in.ngrok.io?p=134',
-			'title' => 'Et atque molestias quisquam.',
+			'id'    => $issue->page_id,
+			'url'   => $issue->page_url,
+			'title' => $title,
 		);
 	}
 
@@ -120,6 +128,18 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 		$this->page         = $value['query']['page'];
 		$this->group        = $value['query']['group'];
 		$this->search_query = $value['query']['search'];
+	}
+
+	/**
+	 * Get a provider for a given key.
+	 */
+	private function get_provider( $key ) {
+		static $providers = null;
+		if ( null === $providers ) {
+			$providers = new Source_Providers();
+		}
+
+		return $providers->get_provider_for_key( $key );
 	}
 }
 
