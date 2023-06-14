@@ -2,7 +2,7 @@
 /**
  * Tock Block.
  *
- * @since $$next-version$$
+ * @since 12.3
  *
  * @package automattic/jetpack
  */
@@ -41,7 +41,7 @@ function render_block( $attr, $content ) {
 		}
 
 		$content .= Jetpack_Gutenberg::notice(
-			__( 'The block will not be shown to your site visitors until a Tock business name is set', 'jetpack' ),
+			__( 'The block will not be shown to your site visitors until a Tock business name is set.', 'jetpack' ),
 			'warning',
 			Blocks::classes( FEATURE_NAME, $attr )
 		);

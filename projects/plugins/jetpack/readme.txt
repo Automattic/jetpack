@@ -293,9 +293,35 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.3-a.3 - 2023-06-08
+### 12.3-a.5 - 2023-06-12
+#### Enhancements
+- AI Assistant: add keyboard shortcuts.
+- AI Assistant: change icon on AI disclaimer message.
+- AI Assistant: move caret to end of generated content when accepting.
+- AI Assistant: show message when content generated.
+- AI Assistant: tidy some block components.
+- AI Assistant: tweak content generated message.
+- AI Assistant: remove shortcuts labels from block area.
+- Backup: add video section to Backup connect page.
+- Blocks: add new Tock block.
+- Blocks: load block stylesheets inline when possible for improved performance.
+
+#### Improved compatibility
+- PHP8 compatibility updates. [#31240, #31242, #31243, #31250]
+
 #### Bug fixes
-- Memberships: fix potential class not found error.
+- AI Assistant: block query requests when upgrade required.
+- AI Assistant: check if the block is in the block editor context before enabling accept title action.
+- AI Assistant: fix translation feature.
+- AI Assistant: request completion JWT token as the user, not the blog.
+- AI Assistant: show Jetpack AI product in the plan products list.
+- Connection: fix redirecting users who click back button before approving connection to Jetpack Dashboard.
+- Dashboard: display an external icon next to the link to the Subscribers list.
+- Memberships: correctly gate posts rendered on pages.
+- Memberships: fix an issue where Jetpack_Memberships::user_can_view_post would cache the wrong value.
+- Markdown Block: render single and double quotes as smart quotes.
+- Newsletters: do not display Newsletter plans in the Premium Content and Recurring Payment blocks.
+- Newsletters: make the subscribers reach sentence future-tense for scheduled posts.
 
 --------
 

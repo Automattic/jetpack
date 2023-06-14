@@ -13,16 +13,17 @@ import attributes from './attributes';
 import edit from './edit';
 import Icon from './icons/ai-assistant';
 /**
- * Extend:
- * - blocks (Multiple-blocks edition)
+ * Supports and extensions
  */
-// import './extensions/multiple-blocks-edition'; @todo: cosider to enable it in the future
+import './supports';
+import './extensions/ai-assistant';
 /**
  * Style dependencies
  */
 import './editor.scss';
 
 export const name = 'ai-assistant';
+export const blockName = `jetpack/${ name }`;
 export const title = __( 'AI Assistant (Experimental)', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
