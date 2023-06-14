@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.2.1 - 2023-06-14
+### Bug fixes
+- Newsletters: fix sidebar panel in WordPress 6.1. [#31386]
+- Newsletters: show paid Newsletter subscriber reach numbers in the past tense when the post has already been published. [#30883]
+
 ## 12.2 - 2023-06-06
 ### Major Enhancements
 - New AI Assistant block: harness AI power directly from your editor.
