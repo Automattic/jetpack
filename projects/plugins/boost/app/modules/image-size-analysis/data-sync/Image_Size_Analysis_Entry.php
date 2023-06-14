@@ -16,23 +16,24 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	private $search_query = '';
 
 	public function get() {
-		$data   = Boost_API::get(
+		$data = Boost_API::get(
 			'image-guide/reports/latest/issues',
 			array(
 				'page'     => $this->page,
 				'per_page' => 20,
 			)
 		);
+
 		$issues = array();
-		foreach ( $data->issues as $issue_id => $issue ) {
+		foreach ( $data->issues as $issue ) {
 			$issues[] = array(
-				'id'           => $issue_id,
-				'thumbnail'    => $issue->issue_url,
+				'id'           => $issue->id,
+				'thumbnail'    => $issue->url,
 				'device_type'  => $issue->device,
-				'status'       => 'active', // @todo: Update
-				'instructions' => 'Resize the image to the expected dimensions and compress it.', // @todo: Update
-				'edit_url'     => $this->get_edit_url( $issue->page ),
-				'page'         => $this->get_page( $issue->page ),
+				'status'       => $issue->status,
+				'instructions' => $this->get_instructions( $issue ),
+				'edit_url'     => $this->get_edit_url( $issue->page_provider ),
+				'page'         => $this->get_page( $issue->page_provider ),
 				'image'        => $this->get_image_info( $issue ),
 			);
 		}
@@ -80,30 +81,37 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	}
 
 	/**
+	 * Generate instructions for an issue.
+	 */
+	private function get_instructions( $issue ) {
+		return __( 'Resize the image to the expected dimensions and compress it.', 'jetpack-boost' );
+	}
+
+	/**
 	 * Get the image info for a given issue
 	 *
 	 * @todo: Implement
 	 */
 	private function get_image_info( $issue ) {
 		return array(
-			'url'        => $issue->issue_url,
+			'url'        => $issue->url,
 			'dimensions' => array(
 				'file'           => array(
-					'width'  => 400,
-					'height' => 400,
+					'width'  => $issue->meta->fileSize_width,
+					'height' => $issue->meta->fileSize_height,
 				),
 				'expected'       => array(
-					'width'  => 216,
-					'height' => 216,
+					'width'  => $issue->meta->expectedSize_width,
+					'height' => $issue->meta->expectedSize_height,
 				),
 				'size_on_screen' => array(
-					'width'  => 108,
-					'height' => 108,
+					'width'  => $issue->meta->sizeOnPage_width,
+					'height' => $issue->meta->sizeOnPage_height,
 				),
 			),
 			'weight'     => array(
-				'current'   => 10,
-				'potential' => 5,
+				'current'   => $issue->meta->fileSize_weight,
+				'potential' => $issue->meta->fileSize_weight,
 			),
 		);
 	}
