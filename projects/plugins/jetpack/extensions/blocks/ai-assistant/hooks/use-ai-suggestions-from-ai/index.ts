@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { SuggestionsEventSource, askQuestion } from '../../lib/suggestions';
 import type { PromptItemProps } from '../../lib/prompt';
 
-type useSuggestionsFromAIOptions = {
+type UseSuggestionsFromAIOptions = {
 	/*
 	 * The content to get suggestions for.
 	 */
