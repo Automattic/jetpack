@@ -3243,7 +3243,7 @@ function wp_cron_preload_cache() {
 			if ( false === @file_exists( $taxonomy_filename ) ) {
 
 				if ( ! $just_started_preloading && $wp_cache_preload_email_me ) {
-					// translators: 1: site url, 2: blank space
+					// translators: 1: site url
 					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), home_url(), '' ), ' ' );
 				}
 
@@ -3338,7 +3338,7 @@ function wp_cron_preload_cache() {
 			return true;
 		}
 	} elseif ( $c === 0 && $wp_cache_preload_email_me ) {
-		// translators: Home URL of website, blank space
+		// translators: Home URL of website
 		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), home_url(), '' ), ' ' );
 	}
 
