@@ -340,7 +340,7 @@ type GetPromptOptionsProps = {
 };
 
 /**
- * Retunr a prompt based on the type and options
+ * Returns a prompt based on the type and options
  *
  * @param {PromptTypeProp} type           - The type of prompt.
  * @param {GetPromptOptionsProps} options - The prompt options.
