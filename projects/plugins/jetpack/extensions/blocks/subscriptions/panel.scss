@@ -13,12 +13,15 @@
 		margin-left: 3px;
 	}
 
+	.components-notice__content {
+		margin-top: 0px;
+	}
+
 	&__notice {
 		&.components-notice {
 			margin: 0px;
 			padding: 0px;
-			margin-top: 13px;
-			margin-top: 13px;
+			margin-top: 0px;
 
 			&.is-info {
 				border-left-color: #fff;
@@ -48,5 +51,9 @@
 
 	.components-panel__body-toggle svg {
 		margin: 0 0 0 0.5em;
+	}
+
+	p {
+		margin-top: 0px;
 	}
 }
