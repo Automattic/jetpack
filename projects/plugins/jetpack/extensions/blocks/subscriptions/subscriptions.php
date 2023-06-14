@@ -32,6 +32,14 @@ const DEFAULT_SPACING_VALUE       = 10;
  * registration if we need to.
  */
 function register_block() {
+	/*
+	 * Disable the feature on P2 blogs
+	 */
+	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) &&
+		\WPForTeams\is_wpforteams_site( get_current_blog_id() ) ) {
+		return;
+	}
+
 	if (
 		( defined( 'IS_WPCOM' ) && IS_WPCOM )
 		|| ( Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() )
@@ -56,14 +64,6 @@ function register_block() {
 	 * do not make any further changes on the site.
 	 */
 	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
-		return;
-	}
-
-	/*
-	 * Disable the feature on P2 blogs
-	 */
-	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) &&
-		\WPForTeams\is_wpforteams_site( get_current_blog_id() ) ) {
 		return;
 	}
 
@@ -136,7 +136,7 @@ function is_wpcom() {
  */
 function register_newsletter_access_column( $columns ) {
 
-	if ( get_post_type() != 'post' ) {
+	if ( get_post_type() !== 'post' ) {
 		return $columns;
 	}
 
