@@ -7,7 +7,7 @@ import { ToneProp } from '../../components/tone-dropdown-control';
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
-type PromptItemProps = {
+export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant';
 	content: string;
 };
