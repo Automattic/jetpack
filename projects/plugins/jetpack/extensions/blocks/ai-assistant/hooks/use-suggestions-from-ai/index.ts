@@ -12,11 +12,6 @@ import type { PromptItemProps } from '../../lib/prompt';
 
 type UseSuggestionsFromAIOptions = {
 	/*
-	 * The content to get suggestions for.
-	 */
-	content: string;
-
-	/*
 	 * Request prompt.
 	 */
 	prompt: Array< PromptItemProps >;
@@ -83,7 +78,24 @@ export default function useSuggestionsFromAI( {
 	// Store the event source in a ref, so we can handle it if needed.
 	const source = useRef< SuggestionsEventSource | undefined >( undefined );
 
-	const readyToRequest = postId && prompt?.length;
+	/**
+	 * onSuggestion function handler.
+	 *
+	 * @param {string} suggestion - The suggestion.
+	 * @returns {void}
+	 */
+	const handleSuggestion = useCallback(
+		( event: CustomEvent ) => onSuggestion( event?.detail ),
+		[ onSuggestion ]
+	);
+
+	/**
+	 * onDone function handler.
+	 *
+	 * @param {string} content - The content.
+	 * @returns {void}
+	 */
+	const handleDone = useCallback( ( event: CustomEvent ) => onDone( event?.detail ), [ onDone ] );
 
 	/**
 	 * Request handler.
@@ -99,25 +111,22 @@ export default function useSuggestionsFromAI( {
 			} );
 
 			if ( onSuggestion ) {
-				source?.current?.addEventListener( 'suggestion', ( event: CustomEvent ) => {
-					onSuggestion( event?.detail );
-				} );
+				source?.current?.addEventListener( 'suggestion', handleSuggestion );
 			}
 
 			if ( onDone ) {
-				source?.current?.addEventListener( 'suggestion', ( event: CustomEvent ) => {
-					onDone( event?.detail );
-				} );
+				source?.current?.addEventListener( 'done', handleDone );
 			}
 		} catch ( e ) {
 			// eslint-disable-next-line no-console
 			console.error( e );
 		}
-	}, [ prompt, postId, onSuggestion, onDone ] );
+	}, [ prompt, postId, onSuggestion, onDone, handleSuggestion, handleDone ] );
 
 	// Request suggestions automatically when ready.
 	useEffect( () => {
-		if ( ! readyToRequest ) {
+		// Check if there is a prompt to request.
+		if ( ! prompt?.length ) {
 			return;
 		}
 
@@ -134,13 +143,18 @@ export default function useSuggestionsFromAI( {
 				return;
 			}
 
+			// Close the connection.
 			source.current.close();
+
+			// Clean up the event listeners.
+			source?.current?.removeEventListener( 'suggestion', handleSuggestion );
+			source?.current?.removeEventListener( 'done', handleDone );
 		};
-	}, [ autoRequest, readyToRequest, request ] );
+	}, [ autoRequest, handleDone, handleSuggestion, prompt, request ] );
 
 	return {
 		// Expose the request handler.
-		request: readyToRequest ? request : undefined,
+		request,
 
 		// Expose the EventHandlerSource
 		source: source.current,
