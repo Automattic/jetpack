@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
-import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import icon from './icon';
 import save from './save';
@@ -59,5 +58,4 @@ export const settings = {
 	example: {
 		attributes: {},
 	},
-	deprecated: [ deprecatedV1 ],
 };

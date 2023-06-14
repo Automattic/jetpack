@@ -74,6 +74,10 @@ function load_assets( $attr, $content ) {
 		return '';
 	}
 
+	if ( $attr['isInWarningState'] ) {
+		return '';
+	}
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */

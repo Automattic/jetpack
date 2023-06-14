@@ -15,7 +15,17 @@ import { addFilter } from '@wordpress/hooks';
 import { __, isRTL } from '@wordpress/i18n';
 import './editor.scss';
 import { useEffect, useState } from 'react';
+import createBlocksFromTemplate from '../../shared/create-block-from-inner-blocks-template';
 import { name as blockName } from '.';
+
+const DEFAULT_INNER_BLOCKS = [
+	[
+		'core/button',
+		{
+			text: __( 'Accept', 'jetpack' ),
+		},
+	],
+];
 
 const PART_SLUG = 'cookie-consent-block-template-part';
 
@@ -35,7 +45,7 @@ function createTemplatePart( attributes, innerBlocks ) {
 						remove: true,
 					},
 				},
-				innerBlocks
+				innerBlocks.length ? innerBlocks : createBlocksFromTemplate( DEFAULT_INNER_BLOCKS )
 			)
 		),
 		area: 'footer',
@@ -152,17 +162,16 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 		className: `wp-block-jetpack-cookie-consent align${ align }`,
 	} );
 
-	const isInWarningState = parentPost?.slug !== PART_SLUG;
-
 	/* If the block is added in the right place (in its own part), mark it as such, this is needed in the save function */
 	useEffect( () => {
-		if ( parentPost ) {
+		const isInWarningState = parentPost?.slug !== PART_SLUG;
+		if ( parentPost && ! innerBlocks.length ) {
 			setAttributes( { isInWarningState } );
 		}
-	}, [ setAttributes, parentPost, isInWarningState ] );
+	}, [ setAttributes, parentPost, innerBlocks ] );
 
 	/* If the block is added in the wrong place (not in its own part), render UI that helps the user create a template part. */
-	if ( isInWarningState ) {
+	if ( attributes.isInWarningState ) {
 		if ( mode === 'LOADING' ) {
 			return __( 'Loading…', 'jetpack' );
 		} else if ( mode === 'PART_EXISTS' ) {
@@ -281,14 +290,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 				/>
 				<InnerBlocks
 					allowedBlocks={ [ 'core/button' ] }
-					template={ [
-						[
-							'core/button',
-							{
-								text: __( 'Accept', 'jetpack' ),
-							},
-						],
-					] }
+					template={ DEFAULT_INNER_BLOCKS }
 					templateLock="all"
 				></InnerBlocks>
 			</div>
