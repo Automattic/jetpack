@@ -355,6 +355,7 @@ export function getPrompt(
 		generatedContent: options.content,
 		postContentAbove: options.content,
 		options: {
+			...options,
 			contentType: 'generated', // Set `generated` to ensure providing the generated content :-/
 		},
 	} );
