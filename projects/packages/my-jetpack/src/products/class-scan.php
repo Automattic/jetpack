@@ -114,7 +114,7 @@ class Scan extends Module_Product {
 	 *
 	 * @return Object|WP_Error
 	 */
-	private static function get_state_from_wpcom() {
+	protected static function get_state_from_wpcom() {
 		static $status = null;
 
 		if ( $status !== null ) {

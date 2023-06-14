@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Client;
 use Jetpack;
+use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -131,4 +133,64 @@ abstract class Module_Product extends Product {
 		return Jetpack::deactivate_module( static::$module_name );
 	}
 
+	/**
+	 * Get Products that support this product
+	 *
+	 * @return array
+	 */
+	public static function get_supporting_products() {
+		return array();
+	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		$purchases_data = static::get_state_from_wpcom();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if ( in_array( $purchase->product_slug, static::get_supporting_products(), true ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Hits the wpcom api to check stats status.
+	 *
+	 * @todo Maybe add caching.
+	 *
+	 * @return Object|WP_Error
+	 */
+	protected static function get_state_from_wpcom() {
+		static $status = null;
+
+		if ( $status !== null ) {
+			return $status;
+		}
+
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/purchases', $site_id ),
+			'1.1',
+			array(
+				'method' => 'GET',
+			)
+		);
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'purchases_state_fetch_failed' );
+		}
+
+		$body   = wp_remote_retrieve_body( $response );
+		$status = json_decode( $body );
+		return $status;
+	}
 }
