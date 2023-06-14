@@ -51,7 +51,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ setAttributes ]
 		);
 
-		useSuggestionsFromAI( { content, prompt, onSuggestion: setContent } );
+		useSuggestionsFromAI( { prompt, onSuggestion: setContent } );
 
 		const requestSuggestion = useCallback(
 			(

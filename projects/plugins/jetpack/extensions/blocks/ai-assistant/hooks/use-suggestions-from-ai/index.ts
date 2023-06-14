@@ -12,11 +12,6 @@ import type { PromptItemProps } from '../../lib/prompt';
 
 type UseSuggestionsFromAIOptions = {
 	/*
-	 * The content to get suggestions for.
-	 */
-	content: string;
-
-	/*
 	 * Request prompt.
 	 */
 	prompt: Array< PromptItemProps >;
