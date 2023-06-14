@@ -128,7 +128,7 @@ function is_wpcom() {
  */
 function register_newsletter_access_column( $columns ) {
 
-	if ( ! is_singular( 'post' ) ) {
+	if ( get_post_type() != 'post' ) {
 		return $columns;
 	}
 
