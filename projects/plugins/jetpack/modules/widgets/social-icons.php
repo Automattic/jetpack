@@ -596,6 +596,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Medium',
 			),
 			array(
+				'url'   => array( 'nextdoor.com' ),
+				'icon'  => 'nextdoor',
+				'label' => 'Nextdoor',
+			),
+			array(
 				'url'   => array( 'patreon.com' ),
 				'icon'  => 'patreon',
 				'label' => 'Patreon',
