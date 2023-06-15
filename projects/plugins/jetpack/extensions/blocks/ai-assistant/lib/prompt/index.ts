@@ -108,8 +108,6 @@ ${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
 		fullContent ? `- Current content: ${ fullContent }` : ''
 	}`;
 
-	messages.push();
-
 	if ( postTitle?.length || !! fullContent ) {
 		messages.push( {
 			role: 'user',
