@@ -108,6 +108,11 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 			ancestor.style.position = 'relative';
 		}
 
+		if ( image.node instanceof HTMLImageElement ) {
+			// The guide element should be on the same y-axis level as the image.
+			wrapper.style.top = `${ image.node.offsetTop }px`;
+		}
+
 		ancestor.prepend( wrapper );
 		return wrapper;
 	}
