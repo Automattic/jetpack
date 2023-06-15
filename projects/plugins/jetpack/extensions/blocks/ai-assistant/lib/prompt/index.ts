@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { select } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -75,6 +76,31 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 	return { role: 'system', content: prompt };
 }
 
+/**
+ * Helper function to get the blog post data prompt.
+ *
+ * @param {object} options         - The options for the prompt.
+ * @param {string} options.content - The content of the post.
+ * @returns {PromptItemProps} The blog post data prompt.
+ */
+export function getBlogPostDataPrompt( { content }: { content: string } ): PromptItemProps {
+	const postTitle = select( editorStore ).getEditedPostAttribute( 'title' );
+
+	if ( ! postTitle?.length && ! content?.length ) {
+		return null;
+	}
+
+	const blogPostData = `Here's the content in the editor that serves as context to the user request:
+${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
+		content ? `- Current content: ${ content }` : ''
+	}`;
+
+	return {
+		role: 'user',
+		content: blogPostData,
+	};
+}
+
 /*
  * Builds a prompt template based on context, rules and content.
  *
@@ -110,18 +136,10 @@ export const buildPromptTemplate = ( {
 	// Add initial system prompt.
 	const messages = [ getInitialSystemPrompt( { rules } ) ];
 
-	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' ) || '';
-
-	const blogPostData = `Here's the content in the editor that serves as context to the user request:
-${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
-		fullContent ? `- Current content: ${ fullContent }` : ''
-	}`;
-
-	if ( postTitle?.length || !! fullContent ) {
-		messages.push( {
-			role: 'user',
-			content: blogPostData,
-		} );
+	// Add blog post data prompt.
+	const postDataPrompt = getBlogPostDataPrompt( { content: fullContent } );
+	if ( postDataPrompt ) {
+		messages.push( postDataPrompt );
 	}
 
 	if ( relevantContent != null && relevantContent?.length ) {
