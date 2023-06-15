@@ -13,22 +13,29 @@ jQuery( document ).ready( function () {
 	}
 
 	update_preload_status( window.wpsc_preload_ajax.preload_status );
+	run_preload_interval();
 
-	setInterval( () => {
-		jQuery.post(
-			window.wpsc_preload_ajax.ajax_url,
-			{
-				action: 'wpsc_get_preload_status',
-			},
-			json => {
-				if ( ! json || ! json.success ) {
-					return;
+	/**
+	 * Regularly check the preload status.
+	 */
+	function run_preload_interval() {
+		setTimeout( () => {
+			jQuery.post(
+				window.wpsc_preload_ajax.ajax_url,
+				{
+					action: 'wpsc_get_preload_status',
+				},
+				json => {
+					if ( ! json || ! json.success ) {
+						return;
+					}
+
+					update_preload_status( json.data );
+					run_preload_interval();
 				}
-
-				update_preload_status( json.data );
-			}
-		);
-	}, CHECK_INTERVAL );
+			);
+		}, CHECK_INTERVAL );
+	}
 
 	/**
 	 * Update displayed preload status using the provided data.
