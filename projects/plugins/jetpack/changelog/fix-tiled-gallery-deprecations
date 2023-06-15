@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Tiled Galleries: avoid PHP deprecation notices on sites using PHP 8.2.
