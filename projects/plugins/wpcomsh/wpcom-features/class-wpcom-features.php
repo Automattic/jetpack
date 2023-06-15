@@ -113,6 +113,7 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_T0_MONTHLY                   = 'jetpack_backup_t0_monthly'; // 2121
 	private const JETPACK_SEARCH_FREE                         = 'jetpack_search_free'; // 2130
 	private const JETPACK_BACKUP_ONE_TIME                     = 'jetpack_backup_one_time'; // 2201
+	private const JETPACK_STATS_PWYW                          = 'jetpack_stats_pwyw_yearly'; // 2220
 	private const AKISMET_FREE                                = 'ak_free_yearly'; // 2300
 	private const AKISMET_PERSONAL_MONTHLY                    = 'ak_personal_monthly'; // 2309
 	private const AKISMET_PERSONAL_YEARLY                     = 'ak_personal_yearly'; // 2310
@@ -190,6 +191,8 @@ class WPCOM_Features {
 
 	private const JETPACK_SOCIAL_PLANS          = array( self::JETPACK_SOCIAL_BASIC, self::JETPACK_SOCIAL_BASIC_MONTHLY, self::JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY );
 	private const JETPACK_SOCIAL_ADVANCED_PLANS = array( self::JETPACK_SOCIAL_ADVANCED, self::JETPACK_SOCIAL_ADVANCED_MONTHLY );
+
+	private const JETPACK_STATS_PLANS = array( self::JETPACK_STATS_PWYW );
 
 	private const JETPACK_BACKUP_DAILY_PLANS    = array( self::JETPACK_BACKUP_DAILY, self::JETPACK_BACKUP_DAILY_MONTHLY );
 	private const JETPACK_BACKUP_REALTIME_PLANS = array( self::JETPACK_BACKUP_REALTIME, self::JETPACK_BACKUP_REALTIME_MONTHLY );
