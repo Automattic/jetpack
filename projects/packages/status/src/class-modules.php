@@ -442,7 +442,7 @@ class Modules {
 				}
 			}
 
-			if ( Jetpack_Plan::supports( $module ) ) {
+			if ( ! Jetpack_Plan::supports( $module ) ) {
 				return false;
 			}
 
