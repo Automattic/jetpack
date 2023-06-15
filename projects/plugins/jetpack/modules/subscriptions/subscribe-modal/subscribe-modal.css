@@ -1,0 +1,45 @@
+#wpcom-subscribe-modal {
+	visibility: hidden;
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: transparent;
+	transition: all 0.4s;
+}
+
+#wpcom-subscribe-modal.open {
+	background-color: rgba(0,0,0,0.2);
+	visibility: visible;
+}
+
+#wpcom-subscribe-modal .modal-content {
+	position: relative;
+	visibility: hidden;
+    top: 100%;
+	background-color: #fefefe;
+    margin: 15% auto;
+    padding: 60px 90px;
+    border: 1px solid #ddd;
+    width: 600px;
+    border-radius: 10px;
+    box-sizing: border-box;
+	transition: all 0.4s;
+}
+
+#wpcom-subscribe-modal.open .modal-content {
+	top: 0;
+	visibility: visible;
+}
+
+#wpcom-subscribe-modal #close {
+	text-align: center;
+}
+
+#wpcom-subscribe-modal #close a {
+	font-size: 13px;
+	color: #666666;
+}
