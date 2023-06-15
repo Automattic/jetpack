@@ -179,7 +179,7 @@ class Security extends Module_Product {
 	}
 
 	/**
-	 * Return all the products that supports the Stats.
+	 * Return all the products that supports the security product.
 	 *
 	 * @return Array Product slugs
 	 */
