@@ -67,6 +67,10 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 		! ( image.node instanceof HTMLImageElement ) &&
 		[ 'static', 'relative' ].includes( getComputedStyle( node ).position )
 	) {
+		if ( ! node.classList.contains( 'jetpack-boost-guide' ) ) {
+			node.classList.add( 'jetpack-boost-guide', 'relative' );
+			node.dataset.jetpackBoostGuideId = ( ++wrapperID ).toString();
+		}
 		return node;
 	}
 
