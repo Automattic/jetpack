@@ -15,7 +15,7 @@ import React from 'react';
  */
 import AIAssistantIcon from '../../icons/ai-assistant';
 import './style.scss';
-import I18nDropdownControl from '../i18n-dropdown-control';
+import { I18nMenuDropdown } from '../i18n-dropdown-control';
 import { ToneDropdownMenu, ToneProp } from '../tone-dropdown-control';
 
 // Quick edits option: "Correct spelling and grammar"
@@ -153,8 +153,7 @@ export default function AiAssistantDropdown( {
 						} }
 					/>
 
-					<I18nDropdownControl
-						showText
+					<I18nMenuDropdown
 						onChange={ language => {
 							onChange( 'changeLanguage', { language, contentType: 'generated' } );
 							closeDropdown();
