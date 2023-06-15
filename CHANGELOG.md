@@ -1,5 +1,8 @@
 _The versioning refers to the React component build._
 
+#### v2.5.3 (2023-05-24)
+* Added Fediverse icon.
+
 #### v2.5.2 (2023-02-01)
 * Added Mastodon icon.
 
