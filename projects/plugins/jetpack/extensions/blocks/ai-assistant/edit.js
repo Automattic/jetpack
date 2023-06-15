@@ -15,11 +15,11 @@ import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
-import AIControl from './ai-control';
+import AIControl from './components/ai-control';
+import ImageWithSelect from './components/image-with-select';
 import useAIFeature from './hooks/use-ai-feature';
-import ImageWithSelect from './image-with-select';
-import { getImagesFromOpenAI } from './lib';
-import useSuggestionsFromOpenAI from './use-suggestions-from-openai';
+import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
+import { getImagesFromOpenAI } from './lib/image';
 import './editor.scss';
 
 const markdownConverter = new MarkdownIt( {
@@ -144,11 +144,44 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	// Content is loaded
 	const contentIsLoaded = !! attributes.content;
 
-	const handleAcceptContent = () => {
-		replaceBlocks(
-			clientId,
-			rawHandler( { HTML: markdownConverter.render( attributes.content ) } )
-		);
+	const getLastEditableElement = newContentBlocks => {
+		let lastEditableElement = null;
+
+		newContentBlocks.forEach( block => {
+			const element = document.querySelector( `.wp-block[data-block="${ block.clientId }"]` );
+			if ( ! element ) {
+				return;
+			}
+
+			if ( element.contentEditable === 'true' ) {
+				lastEditableElement = element;
+			}
+
+			const editableChildren = element.querySelectorAll( `[contenteditable=true]` );
+			lastEditableElement = editableChildren.length
+				? editableChildren[ editableChildren.length - 1 ]
+				: lastEditableElement;
+		} );
+
+		return lastEditableElement;
+	};
+
+	const moveCaretToEnd = element => {
+		const selection = window.getSelection();
+		selection.selectAllChildren( element );
+		selection.collapseToEnd();
+		element.focus();
+	};
+
+	const handleAcceptContent = async () => {
+		const newContentBlocks = rawHandler( { HTML: markdownConverter.render( attributes.content ) } );
+		await replaceBlocks( clientId, newContentBlocks );
+
+		const lastEditableElement = getLastEditableElement( newContentBlocks );
+
+		if ( lastEditableElement ) {
+			moveCaretToEnd( lastEditableElement );
+		}
 	};
 
 	const handleAcceptTitle = () => {
@@ -164,8 +197,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setAttributes( { content: undefined, promptType: undefined } );
 	};
 
-	const handleGetSuggestion = type => {
-		getSuggestionFromOpenAI( type );
+	const handleGetSuggestion = ( ...args ) => {
+		getSuggestionFromOpenAI( ...args );
 		focusOnBlock();
 		return;
 	};

@@ -90,7 +90,10 @@ function jpcrm_viewcontact_learn_menu( $learn_menu ) {
  */
 function jpcrm_viewcompany_learn_menu( $learn_menu ) {
 
-	$company_id                  = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$company_id = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	// page options likely are meant to configure object tab columns in the view profile, but they don't currently work
+	// $learn_menu['left_buttons']  = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_page_options">' . esc_html__( 'Page options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
 	$learn_menu['right_buttons'] = zeroBSCRM_getObjNav( $company_id, 'view', ZBS_TYPE_COMPANY );
 
 	return $learn_menu;

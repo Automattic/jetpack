@@ -19,7 +19,6 @@ const ConnectScreenVisual = props => {
 		children,
 		assetBaseUrl,
 		isLoading,
-		showConnectButton,
 		buttonLabel,
 		handleButtonClick,
 		displayButtonError,
@@ -55,21 +54,17 @@ const ConnectScreenVisual = props => {
 			<div className="jp-connection__connect-screen__content">
 				{ children }
 
-				{ showConnectButton && (
-					<>
-						<div className="jp-connection__connect-screen__tos">
-							<TermsOfService agreeButtonLabel={ buttonLabel } />
-						</div>
-						<ActionButton
-							label={ buttonLabel }
-							onClick={ handleButtonClick }
-							displayError={ displayButtonError || isOfflineMode }
-							errorMessage={ errorMessage }
-							isLoading={ buttonIsLoading }
-							isDisabled={ isOfflineMode }
-						/>
-					</>
-				) }
+				<div className="jp-connection__connect-screen__tos">
+					<TermsOfService agreeButtonLabel={ buttonLabel } />
+				</div>
+				<ActionButton
+					label={ buttonLabel }
+					onClick={ handleButtonClick }
+					displayError={ displayButtonError || isOfflineMode }
+					errorMessage={ errorMessage }
+					isLoading={ buttonIsLoading }
+					isDisabled={ isOfflineMode }
+				/>
 
 				{ footer && <div className="jp-connection__connect-screen__footer">{ footer }</div> }
 			</div>
@@ -86,8 +81,6 @@ ConnectScreenVisual.propTypes = {
 	assetBaseUrl: PropTypes.string,
 	/** Whether the connection status is still loading. */
 	isLoading: PropTypes.bool,
-	/** Whether the connection button appears or not. */
-	showConnectButton: PropTypes.bool,
 	/** Text label to be used into button. */
 	buttonLabel: PropTypes.string.isRequired,
 	/** Callback to be called on button click. */
@@ -105,7 +98,6 @@ ConnectScreenVisual.propTypes = {
 };
 
 ConnectScreenVisual.defaultProps = {
-	showConnectButton: true,
 	isLoading: false,
 	buttonIsLoading: false,
 	displayButtonError: false,
