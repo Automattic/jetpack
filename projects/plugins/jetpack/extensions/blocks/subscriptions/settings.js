@@ -77,17 +77,24 @@ export function NewsletterNotice( {
 		);
 	}
 
+	let subscriberType = __( 'subscribers', 'jetpack' );
+	if ( accessLevel === accessOptions.paid_subscribers.key ) {
+		subscriberType = __( 'paid subscribers', 'jetpack' );
+	}
+
 	let numberOfSubscribersText = sprintf(
-		/* translators: %s is the number of subscribers in numerical format */
-		__( 'This will also be sent to <br/><strong>%s subscribers</strong>.', 'jetpack' ),
-		reachCount
+		/* translators: %1s is the number of subscribers in numerical format, %2s options are paid subscribers or subscribers */
+		__( 'This will also be sent to <br/><strong>%1$s %2$s</strong>.', 'jetpack' ),
+		reachCount,
+		subscriberType
 	);
 
 	if ( hasPostBeenPublished && ! hasPostBeenScheduled ) {
 		numberOfSubscribersText = sprintf(
-			/* translators: %s is the number of subscribers in numerical format */
-			__( 'This was sent to <strong>%s subscribers</strong>.', 'jetpack' ),
-			reachCount
+			/* translators: %1s is the number of subscribers in numerical format, %2s options are paid subscribers or subscribers */
+			__( 'This was sent to <strong>%1$s %2$s</strong>.', 'jetpack' ),
+			reachCount,
+			subscriberType
 		);
 	}
 

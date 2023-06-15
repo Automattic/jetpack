@@ -10,11 +10,10 @@ import React from 'react';
  */
 import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
-	AiAssistantSuggestionProp,
 } from '../../components/ai-assistant-controls';
 import AiAssistantPanel from '../../components/ai-assistant-panel';
 import useSuggestionsFromAI from '../../hooks/use-suggestions-from-ai';
-import { PromptItemProps, buildPrompt } from '../../lib/prompt';
+import { PromptItemProps, PromptTypeProp, buildPromptForExtensions } from '../../lib/prompt';
 
 /*
  * Extend the withAIAssistant function of the block
@@ -51,18 +50,15 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ setAttributes ]
 		);
 
-		useSuggestionsFromAI( { content, prompt, onDone: setContent } );
+		useSuggestionsFromAI( { prompt, onSuggestion: setContent } );
 
 		const requestSuggestion = useCallback(
-			(
-				suggestion: AiAssistantSuggestionProp,
-				options: AiAssistantDropdownOnChangeOptionsArgProps
-			) => {
+			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
 				setPrompt(
-					buildPrompt( {
-						type: suggestion,
-						generatedContent: content,
-						options,
+					buildPromptForExtensions( promptType, {
+						...options,
+						contentType: 'original', // Extended block content is not interactive.
+						content,
 					} )
 				);
 			},

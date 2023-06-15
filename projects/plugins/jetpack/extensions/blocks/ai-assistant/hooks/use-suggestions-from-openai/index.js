@@ -12,7 +12,7 @@ import TurndownService from 'turndown';
  * Internal dependencies
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
-import { buildPrompt } from '../../lib/prompt';
+import { buildPromptForBlock } from '../../lib/prompt';
 import { askJetpack, askQuestion } from '../../lib/suggestions';
 
 const debug = debugFactory( 'jetpack-ai-assistant' );
@@ -162,13 +162,12 @@ const useSuggestionsFromOpenAI = ( {
 
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
-			prompt = buildPrompt( {
+			prompt = buildPromptForBlock( {
 				generatedContent: content,
 				allPostContent: getContentFromBlocks(),
 				postContentAbove: getPartialContentToBlock( clientId ),
 				currentPostTitle,
 				options,
-				prompt,
 				userPrompt,
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',

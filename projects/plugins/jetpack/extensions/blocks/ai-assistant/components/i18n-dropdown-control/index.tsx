@@ -1,10 +1,12 @@
 /*
  * External dependencies
  */
-import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
+import { MenuItem, MenuGroup, ToolbarDropdownMenu, DropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Icon, chevronRight } from '@wordpress/icons';
 import { globe } from '@wordpress/icons';
 import React from 'react';
+import './style.scss';
 
 const LANGUAGE_LIST = [
 	'en',
@@ -27,7 +29,7 @@ export type LanguageProp = ( typeof LANGUAGE_LIST )[ number ];
 type LanguageDropdownControlProps = {
 	value?: LanguageProp;
 	onChange: ( value: string ) => void;
-	label: string;
+	label?: string;
 };
 
 const defaultLanguageLocale =
@@ -105,17 +107,38 @@ export const LANGUAGE_MAP = {
 	},
 };
 
-export default function I18nDropdownControl( {
-	value = defaultLanguage,
-	label = defaultLabel,
+const I18nMenuGroup = ( {
+	value,
 	onChange,
-}: LanguageDropdownControlProps ) {
+}: Pick< LanguageDropdownControlProps, 'value' | 'onChange' > ) => {
 	// Move the default language to the top of the list.
 	const languageList = [
 		defaultLanguage,
 		...LANGUAGE_LIST.filter( language => language !== defaultLanguage ),
 	];
 
+	return (
+		<MenuGroup label={ __( 'Select language', 'jetpack' ) }>
+			{ languageList.map( language => {
+				return (
+					<MenuItem
+						key={ `key-${ language }` }
+						onClick={ () => onChange( language + ' (' + LANGUAGE_MAP[ language ].label + ')' ) }
+						isSelected={ value === language }
+					>
+						{ LANGUAGE_MAP[ language ].label }
+					</MenuItem>
+				);
+			} ) }
+		</MenuGroup>
+	);
+};
+
+export default function I18nDropdownControl( {
+	value = defaultLanguage,
+	label = defaultLabel,
+	onChange,
+}: LanguageDropdownControlProps ) {
 	return (
 		<ToolbarDropdownMenu
 			icon={ globe }
@@ -124,25 +147,31 @@ export default function I18nDropdownControl( {
 				variant: 'toolbar',
 			} }
 		>
-			{ () => {
-				return (
-					<MenuGroup label={ __( 'Select language', 'jetpack' ) }>
-						{ languageList.map( language => {
-							return (
-								<MenuItem
-									key={ `key-${ language }` }
-									onClick={ () =>
-										onChange( language + ' (' + LANGUAGE_MAP[ language ].label + ')' )
-									}
-									isSelected={ value === language }
-								>
-									{ LANGUAGE_MAP[ language ].label }
-								</MenuItem>
-							);
-						} ) }
-					</MenuGroup>
-				);
-			} }
+			{ () => <I18nMenuGroup value={ value } onChange={ onChange } /> }
 		</ToolbarDropdownMenu>
+	);
+}
+
+export function I18nMenuDropdown( {
+	value = defaultLanguage,
+	label = defaultLabel,
+	onChange,
+}: Pick< LanguageDropdownControlProps, 'label' | 'onChange' | 'value' > ) {
+	return (
+		<DropdownMenu
+			className="ai-assistant__i18n-dropdown"
+			icon={ globe }
+			label={ label }
+			toggleProps={ {
+				children: (
+					<>
+						<div className="ai-assistant__i18n-dropdown__toggle-label">{ label }</div>
+						<Icon icon={ chevronRight } />
+					</>
+				),
+			} }
+		>
+			{ () => <I18nMenuGroup onChange={ onChange } value={ value } /> }
+		</DropdownMenu>
 	);
 }
