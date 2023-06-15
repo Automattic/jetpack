@@ -9,6 +9,9 @@ module.exports = function( grunt ) {
   // Loads all tasks from `grunt-tasks/`
   grunt.loadTasks( 'grunt-tasks' );
 
+  // Load webfont tooling.
+  grunt.loadNpmTasks( 'grunt-webfonts' );
+
   // Loads all `grunt-*`` tasks listed in package.json --> `devDependencies`
   require( 'load-grunt-tasks' )( grunt );
 
@@ -89,9 +92,10 @@ module.exports = function( grunt ) {
 				'autoHint': false,
 				'normalize': true,
 				'optimize': false,
+				'syntax': 'bootstrap',
 				'font': 'social-logos',
-				'types': 'eot,woff2,woff,ttf',
-				'order': 'eot,woff,ttf',
+				'types': 'woff2,woff,ttf',
+				'order': 'woff,ttf',
 				'embed': true,
 				'descent': 0,
 				'htmlDemoTemplate': 'sources/icon-font/demo-template.html',
@@ -200,8 +204,8 @@ module.exports = function( grunt ) {
     'svg-to-react',
     'babel',
     'svg-transform-add-square',
-    'svg-to-pdf',
     'webfont',
+    'svg-to-pdf',
     'clean'
   ]);
 };

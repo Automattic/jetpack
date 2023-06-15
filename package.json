@@ -31,7 +31,7 @@
     "grunt-rename-util": "^1.0.0",
     "grunt-svgmin": "^6.0.1",
     "grunt-svgstore": "^2.0.0",
-    "grunt-webfont": "^1.7.2",
+    "grunt-webfonts": "^4.0.3",
     "husky": "^7.0.2",
     "jit-grunt": "^0.10.0",
     "load-grunt-tasks": "^5.1.0",
