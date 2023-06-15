@@ -58,6 +58,9 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 export function getInitialSystemPrompt( {
 	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
 	rules,
+}: {
+	context?: string;
+	rules?: Array< string >;
 } ): PromptItemProps {
 	// Rules
 	let extraRules = '';
@@ -128,6 +131,13 @@ export const buildPromptTemplate = ( {
 	isContentGenerated = false,
 	fullContent = null,
 	isGeneratingTitle = false,
+}: {
+	rules?: Array< string >;
+	request?: string;
+	relevantContent?: string;
+	isContentGenerated?: boolean;
+	fullContent?: string;
+	isGeneratingTitle?: boolean;
 } ): Array< PromptItemProps > => {
 	if ( ! request && ! relevantContent ) {
 		throw new Error( 'You must provide either a request or content' );
