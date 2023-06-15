@@ -136,6 +136,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_claim',
 				'verify_email',
 				'domain_upsell',
+				'drive_traffic',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),

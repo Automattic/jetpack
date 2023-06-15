@@ -65,8 +65,9 @@ function zeroBSCRM_menu_buildMenu() {
 	$use_calendar     = zeroBSCRM_getSetting( 'feat_calendar' ) == 1;
 
 	// Check if it has license to show the Support menu
-	$license     = zeroBSCRM_getSetting( 'license_key' );
-	$has_license = is_array( $license ) && ! empty( $license['key'] );
+	$license      = zeroBSCRM_getSetting( 'license_key' );
+	$has_license  = is_array( $license ) && ! empty( $license['key'] );
+	$support_menu = $has_license ? 'jpcrm' : 'hidden';
 
 	// this is the "first build" function, so begin with this :)
 	$menu = array(
@@ -293,8 +294,6 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'jpcrm_crm_resources_page_styles_scripts' ),
 		);
 
-		$support_menu = $has_license ? 'jpcrm' : 'hidden';
-
 		$menu[ $support_menu ]['subitems']['support'] = array(
 			'title'      => '<span>' . __( 'Support', 'zero-bs-crm' ) . '</span>',
 			'url'        => $zbs->slugs['support'],
@@ -396,8 +395,9 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_settingspage_admin_styles' ),
 		);
 
-		// Feedback (sub)
-		$menu['jpcrm']['subitems']['feedback'] = array(
+		##WLREMOVE
+		// Resources (sub)
+		$menu['jpcrm']['subitems']['crmresources'] = array(
 			'title'      => '<span style="color: #64ca43;">' . __( 'Resources', 'zero-bs-crm' ) . '</span>',
 			'url'        => $zbs->slugs['crmresources'],
 			'perms'      => 'admin_zerobs_manage_options',
@@ -406,6 +406,17 @@ function zeroBSCRM_menu_buildMenu() {
 			'callback'   => 'zeroBSCRM_pages_crmresources',
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'jpcrm_crm_resources_page_styles_scripts' ),
 		);
+
+		$menu[ $support_menu ]['subitems']['support'] = array(
+			'title'      => '<span>' . __( 'Support', 'zero-bs-crm' ) . '</span>',
+			'url'        => $zbs->slugs['support'],
+			'perms'      => 'admin_zerobs_manage_options',
+			'order'      => 102,
+			'wpposition' => 102,
+			'callback'   => 'jpcrm_pages_support',
+			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'jpcrm_support_page_styles_scripts' ),
+		);
+		##/WLREMOVE
 		/**
 		 * End Jetpack CRM submenu items
 		 */
