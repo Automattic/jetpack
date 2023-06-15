@@ -38,7 +38,7 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 /**
  * Helper function to get the initial system prompt.
- * It defined the `context` value in case it isn't provided.
+ * It defines the `context` value in case it isn't provided.
  *
  * @param {object} options - The options for the prompt.
  * @param {string} options.context - The context of the prompt.
