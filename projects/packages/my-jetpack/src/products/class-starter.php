@@ -173,7 +173,7 @@ class Starter extends Module_Product {
 	}
 
 	/**
-	 * Return all the products it contains.
+	 * Return all the products that support the current product.
 	 *
 	 * @return Array Product slugs
 	 */
