@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-The Customize menu is removed on self hosted sites that are using a block based theme.
+Removed the "Appearance > Customize" entry from the WordPress.com menu when the site uses a block-based theme.
