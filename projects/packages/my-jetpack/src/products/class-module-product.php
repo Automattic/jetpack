@@ -134,7 +134,7 @@ abstract class Module_Product extends Product {
 	}
 
 	/**
-	 * Get Products that support this product
+	 * Get Products that support the current product
 	 *
 	 * @return array
 	 */

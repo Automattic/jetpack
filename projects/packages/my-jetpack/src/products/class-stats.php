@@ -136,7 +136,7 @@ class Stats extends Module_Product {
 	}
 
 	/**
-	 * Get all product slugs that support the product
+	 * Get Products that support the Stats product
 	 *
 	 * @return array
 	 */
