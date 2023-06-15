@@ -174,7 +174,6 @@ class Defaults {
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
 		'wpcom_featured_image_in_email',
-		'wpcom_subscribe_modal',
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
