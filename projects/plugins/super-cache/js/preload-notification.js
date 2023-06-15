@@ -58,7 +58,9 @@ jQuery( document ).ready( function () {
 		if ( data.running ) {
 			const panel = jQuery( '<div class="notice notice-warning">' );
 
-			panel.append( jQuery( '<b>' ).text( __( 'Preloading', 'wp-super-cache' ) ) );
+			panel.append(
+				jQuery( '<p>' ).append( jQuery( '<b>' ).text( __( 'Preloading', 'wp-super-cache' ) ) )
+			);
 			panel.append(
 				jQuery( '<p>' ).text( __( 'Preloading is currently running.', 'wp-super-cache' ) )
 			);
