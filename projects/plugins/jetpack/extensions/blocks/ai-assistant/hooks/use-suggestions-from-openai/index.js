@@ -2,62 +2,19 @@
  * External dependencies
  */
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { serialize } from '@wordpress/blocks';
-import { useSelect, select as selectData, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
 import { buildPromptForBlock } from '../../lib/prompt';
 import { askJetpack, askQuestion } from '../../lib/suggestions';
+import { getContentFromBlocks, getPartialContentToBlock } from '../../lib/utils/block-content';
 
-const debug = debugFactory( 'jetpack-ai-assistant' );
-
-const turndownService = new TurndownService();
-
-/**
- * Returns partial content from the beginning of the post
- * to the current block (clientId)
- *
- * @param {string} clientId - The current block clientId.
- * @returns {string}          The partial content.
- */
-export function getPartialContentToBlock( clientId ) {
-	if ( ! clientId ) {
-		return '';
-	}
-
-	const editor = selectData( 'core/block-editor' );
-	const index = editor.getBlockIndex( clientId );
-	const blocks = editor.getBlocks().slice( 0, index ) ?? [];
-
-	if ( ! blocks?.length ) {
-		return '';
-	}
-
-	return turndownService.turndown( serialize( blocks ) );
-}
-
-/**
- * Returns content from all blocks,
- * by inspecting the blocks `content` attributes
- *
- * @returns {string} The content.
- */
-export function getContentFromBlocks() {
-	const editor = selectData( 'core/block-editor' );
-	const blocks = editor.getBlocks();
-
-	if ( ! blocks?.length ) {
-		return '';
-	}
-
-	return turndownService.turndown( serialize( blocks ) );
-}
+const debug = debugFactory( 'jetpack-ai-assistant:event:fullMessage' );
 
 const useSuggestionsFromOpenAI = ( {
 	attributes,
