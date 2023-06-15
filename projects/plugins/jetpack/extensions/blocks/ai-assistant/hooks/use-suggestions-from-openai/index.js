@@ -135,15 +135,26 @@ const useSuggestionsFromOpenAI = ( {
 			post_id: postId,
 		} );
 
-		// Collect the last user prompt and the assistant response.
-		let userAssistantExchange = [];
+		// Create a copy of the prompt history.
+		const updatedPromptHistory = [ ...attributes.promptHistory ] ?? [];
+
+		/*
+		 * Pop the last item from the prompt history,
+		 * which is the fresh `user` request by convention.
+		 */
+		const lastUserPrompt = prompt.pop();
+
+		// Populate prompt with the prompt history.
+		prompt = [ ...prompt, ...updatedPromptHistory ];
+
+		// Restore the last user prompt.
+		prompt.push( lastUserPrompt );
 
 		if ( ! options.retryRequest ) {
 			setLastPrompt( prompt );
 
-			// Populate the user/assistant exchange with the last user prompt.
-			const lastUserPrompt = prompt.findLast( p => p.role === 'user' );
-			userAssistantExchange = [ lastUserPrompt ];
+			// Populate the prompt history with the last user prompt.
+			updatedPromptHistory.push( lastUserPrompt );
 
 			// If it is a title generation, keep the prompt type in subsequent changes.
 			if ( attributes.promptType !== 'generateTitle' ) {
@@ -154,6 +165,7 @@ const useSuggestionsFromOpenAI = ( {
 		try {
 			setIsLoadingCompletion( true );
 			setWasCompletionJustRequested( true );
+
 			source.current = await askQuestion( prompt, { postId, requireUpgrade } );
 		} catch ( err ) {
 			if ( err.message ) {
@@ -176,17 +188,17 @@ const useSuggestionsFromOpenAI = ( {
 		source?.current?.addEventListener( 'done', e => {
 			const { detail: assistantResponse } = e;
 
-			// Populate the user/assistant exchange with the last assistant response.
-			userAssistantExchange.push( {
+			// Populate the prompt history with the assistant response.
+			updatedPromptHistory.push( {
 				role: 'assistant',
-				text: assistantResponse,
+				content: assistantResponse,
 			} );
 
 			stopSuggestion();
 
 			updateBlockAttributes( clientId, {
 				content: assistantResponse,
-				promptHistory: [ ...attributes.promptHistory, ...userAssistantExchange ],
+				promptHistory: updatedPromptHistory,
 			} );
 			refreshFeatureData();
 		} );
@@ -286,7 +298,7 @@ const useSuggestionsFromOpenAI = ( {
 		showRetry,
 		postTitle: currentPostTitle,
 		contentBefore: getPartialContentToBlock( clientId ),
-		wholeContent: getContentFromBlocks( clientId ),
+		wholeContent: getContentFromBlocks(),
 
 		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
 		stopSuggestion,
