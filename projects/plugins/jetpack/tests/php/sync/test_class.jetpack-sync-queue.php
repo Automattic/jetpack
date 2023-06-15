@@ -21,6 +21,9 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		parent::set_up();
 
 		$this->queue = new Queue( 'my_queue' );
+		// TODO this is for the storage table
+
+		$this->queue->init_dedicated_table();
 	}
 
 	public function test_add_queue_items() {

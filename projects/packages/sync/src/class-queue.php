@@ -89,7 +89,19 @@ class Queue {
 	// TODO find use of this. Should be part of bigger piece of code to enable the dedicated table.
 	// TODO add hooks to the upgrade calls to enable it.
 	public function can_use_dedicated_table() {
-		return ( new Queue_Storage_Table() )->is_dedicated_table_healthy();
+		return ( new Queue_Storage_Table($this->id) )->is_dedicated_table_healthy();
+	}
+
+	public function init_dedicated_table() {
+		$queue_storage_table = new Queue_Storage_Table( $this->id );
+		if ( ! $queue_storage_table->is_dedicated_table_healthy() ) {
+			$queue_storage_table->create_table();
+		}
+	}
+
+	public function cleanup_dedicated_table() {
+		$queue_storage_table = new Queue_Storage_Table($this->id);
+		return $queue_storage_table->drop_table();
 	}
 
 	/**
@@ -202,31 +214,7 @@ class Queue {
 	 * @return float|int|mixed|null
 	 */
 	public function lag( $now = null ) {
-		global $wpdb;
-
-		// TODO replace with peek and a flag to fetch only the name.
-		$first_item_name = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT 1",
-				"jpsq_{$this->id}-%"
-			)
-		);
-
-		if ( ! $first_item_name ) {
-			return 0;
-		}
-
-		if ( null === $now ) {
-			$now = microtime( true );
-		}
-
-		// Break apart the item name to get the timestamp.
-		$matches = null;
-		if ( preg_match( '/^jpsq_' . $this->id . '-(\d+\.\d+)-/', $first_item_name, $matches ) ) {
-			return $now - (float) $matches[1];
-		} else {
-			return 0;
-		}
+		return $this->queue_storage->get_lag($this->id, $now);
 	}
 
 	/**
@@ -254,16 +242,7 @@ class Queue {
 	 * @return bool
 	 */
 	public function has_any_items() {
-		// TODO make better in some way? How to extract, Is `count()` fast enough?. peek might be a better option here.
-		global $wpdb;
-		$value = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT exists( SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s )",
-				"jpsq_{$this->id}-%"
-			)
-		);
-
-		return ( '1' === $value );
+		return $this->size() > 0;
 	}
 
 	/**
@@ -709,27 +688,7 @@ class Queue {
 	 * @return array|object|null
 	 */
 	private function fetch_items_by_id( $items_ids ) {
-		global $wpdb;
-		// TODO implement
-
-		// return early if $items_ids is empty or not an array.
-		if ( empty( $items_ids ) || ! is_array( $items_ids ) ) {
-			return null;
-		}
-
-		$ids_placeholders        = implode( ', ', array_fill( 0, count( $items_ids ), '%s' ) );
-		$query_with_placeholders = "SELECT option_name AS id, option_value AS value
-				FROM $wpdb->options
-				WHERE option_name IN ( $ids_placeholders )";
-		$items                   = $wpdb->get_results(
-			$wpdb->prepare(
-				$query_with_placeholders, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				$items_ids
-			),
-			OBJECT
-		);
-
-		return $this->unserialize_values( $items );
+		return $this->queue_storage->fetch_items_by_ids( $this->id, $items_ids );
 	}
 
 	/**

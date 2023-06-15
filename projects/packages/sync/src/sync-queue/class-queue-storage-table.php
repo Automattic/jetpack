@@ -34,6 +34,9 @@ class Queue_Storage_Table {
 	public function create_table() {
 		global $wpdb;
 
+		// TODO if we run this only in the context of an upgrade, we should not include this here.
+		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
+
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$table_definition = "CREATE TABLE {$this->table_name} (
@@ -165,6 +168,44 @@ class Queue_Storage_Table {
 		return $items;
 	}
 
+	public function fetch_items_by_ids( $queue_id, $items_ids ) {
+		global $wpdb;
+		// TODO implement
+		vaR_dump( $items_ids );
+
+		// return early if $items_ids is empty or not an array.
+		if ( empty( $items_ids ) || ! is_array( $items_ids ) ) {
+			return null;
+		}
+		vaR_dump( $items_ids );
+
+		$ids_placeholders        = implode( ', ', array_fill( 0, count( $items_ids ), '%s' ) );
+		$query_with_placeholders = "SELECT event_id AS id, event_payload AS value
+				FROM {$this->table_name}
+				WHERE queue_id = %s AND event_id IN ( $ids_placeholders )";
+
+		var_dump(
+			$wpdb->prepare(
+				$query_with_placeholders, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				$queue_id,
+				$items_ids
+			)
+		);
+
+		$items = $wpdb->get_results(
+			$wpdb->prepare(
+				$query_with_placeholders, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				$queue_id,
+				$items_ids
+			),
+			OBJECT
+		);
+
+		var_dump( $items );
+
+		return $this->unserialize_values( $items );
+	}
+
 	public function get_item_count( $queue_id ) {
 		global $wpdb;
 
@@ -177,4 +218,43 @@ class Queue_Storage_Table {
 	}
 	// TODO pending implementation
 
+	public function clear_queue( $queue_id ) {
+		global $wpdb;
+
+		return $wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$this->table_name} WHERE queue_id LIKE %s",
+				$queue_id
+			)
+		);
+	}
+
+	public function get_lag( $queue_name, $now = null ) {
+		global $wpdb;
+
+		// TODO replace with peek and a flag to fetch only the name.
+		$first_item_name = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT event_id FROM {$this->table_name} WHERE queue_id = %s and event_id LIKE %s ORDER BY event_id ASC LIMIT 1",
+				$queue_name,
+				"jpsq_{$queue_name}-%"
+			)
+		);
+
+		if ( ! $first_item_name ) {
+			return 0;
+		}
+
+		if ( null === $now ) {
+			$now = microtime( true );
+		}
+
+		// Break apart the item name to get the timestamp.
+		$matches = null;
+		if ( preg_match( '/^jpsq_' . $queue_name . '-(\d+\.\d+)-/', $first_item_name, $matches ) ) {
+			return $now - (float) $matches[1];
+		} else {
+			return 0;
+		}
+	}
 }
