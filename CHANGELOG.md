@@ -3,6 +3,8 @@ _The versioning refers to the React component build._
 #### v2.5.3 (2023-06-15)
 * Added Fediverse icon.
 * Added Nextdoor icon.
+* Updated dev dependencies and build tools.
+* Updated icon font.
 
 #### v2.5.2 (2023-02-01)
 * Added Mastodon icon.
