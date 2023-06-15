@@ -29,6 +29,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => '__return_true',
 			'is_disabled_callback' => 'wpcom_is_design_step_enabled',
 		),
+		'domain_claim'                    => array(
+			'get_title'            => function () {
+				return __( 'Claim your free one-year domain', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_domain_claim_completed',
+			'is_visible_callback'  => 'wpcom_domain_claim_is_visible_callback',
+		),
 		'domain_upsell'                   => array(
 			'id_map'               => 'domain_upsell_deferred',
 			'get_title'            => function () {
@@ -36,6 +43,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_domain_upsell_completed',
 			'badge_text_callback'  => 'wpcom_get_domain_upsell_badge_text',
+			'is_visible_callback'  => 'wpcom_is_domain_upsell_task_visible',
 		),
 		'first_post_published'            => array(
 			'get_title'             => function () {
@@ -207,6 +215,13 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
+
+		'drive_traffic'                   => array(
+			'get_title'            => function () {
+				return __( 'Drive traffic to your site', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -256,10 +271,10 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
  * Initialize the Launchpad task listener callbacks.
  *
  * @param array $task_definitions The tasks to initialize.
+ *
+ * @return mixed void or WP_Error.
  */
 function wpcom_launchpad_init_listeners( $task_definitions ) {
-	require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
-
 	foreach ( $task_definitions as $task_id => $task_definition ) {
 		if ( isset( $task_definition['add_listener_callback'] ) && is_callable( $task_definition['add_listener_callback'] ) ) {
 			$task_data = array_merge( $task_definition, array( 'id' => $task_id ) );
@@ -267,19 +282,25 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
 			try {
 				call_user_func( $task_definition['add_listener_callback'], $task_data ); // Current callbacks expect the built, registered task for the second parameter, which won't work in this case.
 			} catch ( Exception $e ) {
-				$data = array(
-					'blog_id'     => get_current_blog_id(),
-					'task_id'     => $task_id,
-					'site_intent' => get_option( 'site_intent' ),
-				);
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
 
-				log2logstash(
-					array(
-						'feature' => 'launchpad',
-						'message' => 'Launchpad failed to add listener callback.',
-						'extra'   => wp_json_encode( $data ),
-					)
-				);
+					$data = array(
+						'blog_id'     => get_current_blog_id(),
+						'task_id'     => $task_id,
+						'site_intent' => get_option( 'site_intent' ),
+					);
+
+					log2logstash(
+						array(
+							'feature' => 'launchpad',
+							'message' => 'Launchpad failed to add listener callback.',
+							'extra'   => wp_json_encode( $data ),
+						)
+					);
+				}
+
+				return new WP_Error( 'launchpad_add_listener_callback_failed', $e->getMessage() );
 			}
 		}
 	}
@@ -342,6 +363,23 @@ function wpcom_is_domain_upsell_completed( $task, $default ) {
 	if ( wpcom_site_has_feature( 'custom-domain' ) ) {
 		return true;
 	}
+
+	if ( function_exists( 'wpcom_get_site_purchases' ) ) {
+		$site_purchases = wpcom_get_site_purchases();
+
+		// Check if the site has any domain purchases.
+		$domain_purchases = array_filter(
+			$site_purchases,
+			function ( $site_purchase ) {
+				return in_array( $site_purchase->product_type, array( 'domain_map', 'domain_reg' ), true );
+			}
+		);
+
+		if ( ! empty( $domain_purchases ) ) {
+			return true;
+		}
+	}
+
 	return $default;
 }
 
@@ -353,6 +391,28 @@ function wpcom_is_domain_upsell_completed( $task, $default ) {
 function wpcom_get_domain_upsell_badge_text() {
 	// Never run `wpcom_is_checklist_task_complete` within a is_complete_callback unless you are fond of infinite loops.
 	return wpcom_is_checklist_task_complete( 'domain_upsell' ) ? '' : __( 'Upgrade plan', 'jetpack-mu-wpcom' );
+}
+
+/**
+ * Determines whether or not domain upsell task should be visible.
+ *
+ * @return bool True if user is on a free plan.
+ */
+function wpcom_is_domain_upsell_task_visible() {
+	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+		return false;
+	}
+
+	$site_purchases = wpcom_get_site_purchases();
+
+	$bundle_purchases = array_filter(
+		$site_purchases,
+		function ( $site_purchase ) {
+			return $site_purchase->product_type === 'bundle';
+		}
+	);
+
+	return empty( $bundle_purchases );
 }
 
 /**
@@ -537,3 +597,39 @@ function wpcom_mark_site_title_complete( $old_value, $value ) {
 	}
 }
 add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
+
+/**
+ * Determine `domain_claim` task visibility.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_domain_claim_is_visible_callback() {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
+		return false;
+	}
+
+	return wpcom_site_has_feature( 'custom-domain' );
+}
+
+/**
+ * Determines whether or not domain claim task is completed.
+ *
+ * @return bool True if domain claim task is completed.
+ */
+function wpcom_is_domain_claim_completed() {
+	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+		return false;
+	}
+
+	$site_purchases = wpcom_get_site_purchases();
+
+	// Check if the site has any domain purchases.
+	$domain_purchases = array_filter(
+		$site_purchases,
+		function ( $site_purchase ) {
+			return in_array( $site_purchase->product_type, array( 'domain_map', 'domain_reg' ), true );
+		}
+	);
+
+	return ! empty( $domain_purchases );
+}

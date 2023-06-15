@@ -56,11 +56,7 @@ export function getLinkedInDetails( { forceDefaults = false } = {} ) {
 		}
 	}
 
-	return {
-		name: __( 'Account Name', 'jetpack' ),
-		profileImage:
-			"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128' id='person-accent-4'%3E%3Cpath fill='%23e7e2dc' d='M0 0h128v128H0z'/%3E%3Cpath d='M88.41 84.67a32 32 0 10-48.82 0 66.13 66.13 0 0148.82 0z' fill='%23788fa5'/%3E%3Cpath d='M88.41 84.67a32 32 0 01-48.82 0A66.79 66.79 0 000 128h128a66.79 66.79 0 00-39.59-43.33z' fill='%239db3c8'/%3E%3Cpath d='M64 96a31.93 31.93 0 0024.41-11.33 66.13 66.13 0 00-48.82 0A31.93 31.93 0 0064 96z' fill='%2356687a'/%3E%3C/svg%3E",
-	};
+	return { name: '', profileImage: '' };
 }
 
 /**
@@ -106,12 +102,9 @@ export function getTweetTemplate( state ) {
 	const twitterAccount = connections?.find( connection => 'twitter' === connection.service_name );
 
 	return {
-		date: Date.now(),
-		name: twitterAccount?.profile_display_name || __( 'Account Name', 'jetpack' ),
-		profileImage:
-			twitterAccount?.profile_picture ||
-			'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
-		screenName: twitterAccount?.display_name || '@account',
+		name: twitterAccount?.profile_display_name,
+		profileImage: twitterAccount?.profile_picture,
+		screenName: twitterAccount?.display_name,
 	};
 }
 
