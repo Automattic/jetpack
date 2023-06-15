@@ -333,7 +333,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds Users menu.
 	 */
 	public function add_users_menu() {
-		$current_locale = get_locale();
+		$current_locale = get_user_locale();
 
 		$submenus_to_update = array(
 			'grofiles-editor'        => 'https://wordpress.com/me',

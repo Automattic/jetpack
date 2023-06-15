@@ -179,8 +179,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function add_jetpack_menu() {
 		parent::add_jetpack_menu();
 
-		$current_locale = get_locale();
-
+		$current_locale = get_user_locale();
 		/* translators: Jetpack sidebar menu item. */
 		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'manage_options', 'jetpack-search', admin_url( 'admin.php?page=jetpack-search' ), 4 );
 
