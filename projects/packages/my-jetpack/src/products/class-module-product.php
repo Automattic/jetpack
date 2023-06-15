@@ -163,7 +163,7 @@ abstract class Module_Product extends Product {
 	}
 
 	/**
-	 * Hits the wpcom api to check stats status.
+	 * Hits the wpcom api to check purchase status.
 	 *
 	 * @todo Maybe add caching.
 	 *
