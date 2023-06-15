@@ -135,8 +135,15 @@ const useSuggestionsFromOpenAI = ( {
 			post_id: postId,
 		} );
 
+		// Collect the last user prompt and the assistant response.
+		let userAssistantExchange = [];
+
 		if ( ! options.retryRequest ) {
 			setLastPrompt( prompt );
+
+			// Populate the user/assistant exchange with the last user prompt.
+			const lastUserPrompt = prompt.findLast( p => p.role === 'user' );
+			userAssistantExchange = [ lastUserPrompt ];
 
 			// If it is a title generation, keep the prompt type in subsequent changes.
 			if ( attributes.promptType !== 'generateTitle' ) {
@@ -167,8 +174,20 @@ const useSuggestionsFromOpenAI = ( {
 		}
 
 		source?.current?.addEventListener( 'done', e => {
+			const { detail: assistantResponse } = e;
+
+			// Populate the user/assistant exchange with the last assistant response.
+			userAssistantExchange.push( {
+				role: 'assistant',
+				text: assistantResponse,
+			} );
+
 			stopSuggestion();
-			updateBlockAttributes( clientId, { content: e.detail } );
+
+			updateBlockAttributes( clientId, {
+				content: assistantResponse,
+				promptHistory: [ ...attributes.promptHistory, ...userAssistantExchange ],
+			} );
 			refreshFeatureData();
 		} );
 
