@@ -75,7 +75,7 @@ jQuery( document ).ready( function () {
 			const panel = jQuery( '<div class="notice notice-info">' );
 
 			if ( data.next ) {
-				const diff = data.next - Math.floor( Date.now() / 1000 );
+				const diff = Math.max( 0, data.next - Math.floor( Date.now() / 1000 ) );
 				const seconds = diff % 60;
 				const minutes = Math.floor( diff / 60 ) % 60;
 				const hours = Math.floor( diff / 3600 ) % 24;
