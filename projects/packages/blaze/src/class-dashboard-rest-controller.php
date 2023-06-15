@@ -173,7 +173,7 @@ class Dashboard_REST_Controller {
 		}
 
 		return $this->request_as_user(
-			sprintf( '/sites/%d/wordads/dsp/api/%s', $site_id, $this->build_subpath_with_query_strings( $req->get_params() ) ),
+			sprintf( '/sites/%d/wordads/dsp/api/%s', $site_id, $req->get_param( 'sub_path' ) ),
 			'v2',
 			array( 'method' => $req->get_method() ),
 			$req->get_body()
