@@ -37,7 +37,13 @@ export type PromptItemProps = {
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 /*
- * Builds a prompt template based on context, rules and content
+ * Builds a prompt template based on context, rules and content.
+ *
+ * By default, the first item of the prompt arrays is `system` role,
+ * which provides the context and rules to the user.
+ *
+ * The last item of the prompt arrays is `user` role,
+ * which provides the user request.
  *
  * @param {object} options                     - The prompt options.
  * @param {string} options.context             - The expected context to the prompt, e.g. "You are...".
