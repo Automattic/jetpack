@@ -4,7 +4,7 @@ name: k6 Tests for Jetpack Staging Test Sites
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 1,6,12,18 * * *" # “At minute 0 past hour 1, 6, 12, and 18.”
+    - cron: '0 1,6,12,18 * * *' # “At minute 0 past hour 1, 6, 12, and 18.”
 
 jobs:
   run_tests:
@@ -28,25 +28,3 @@ jobs:
         env:
           JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
           JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
-
-      - name: Send Slack alert on failure
-        uses: slackapi/slack-github-action@v1.23.0
-        if: ${{ failure() }}
-        with:
-          channel-id: ${{ secrets.SLACK_JP_ALERTS_CHANNEL }}
-          payload: |
-            {
-              "icon_emoji": ":github-rejected:",
-              "text": "Failure for workflow `${{ github.workflow }}`: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Failure for workflow `${{ github.workflow }}`: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
