@@ -10,6 +10,7 @@ on:
       - Gardening
       - Post-Build
       - PR is up-to-date
+      - Update Jetpack Staging Test Sites
       - k6 Tests for Jetpack Staging Test Sites
     branches: [ 'trunk', 'prerelease', '*/branch-*' ]
 
