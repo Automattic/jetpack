@@ -1036,3 +1036,4 @@ class Jetpack_Subscriptions {
 Jetpack_Subscriptions::init();
 
 require __DIR__ . '/subscriptions/views.php';
+require __DIR__ . '/subscriptions/subscribe-modal/subscribe-modal.php';

@@ -226,6 +226,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_is_fse_activated'                       => '1',
 			'videopress_private_enabled_for_site'          => false,
 			'wpcom_featured_image_in_email'                => false,
+			'wpcom_subscribe_modal'                        => false,
 			'wpcom_gifting_subscription'                   => true,
 			'launch-status'                                => 'unlaunched',
 			'wpcom_subscription_emails_use_excerpt'        => false,
