@@ -23,7 +23,7 @@ class Jetpack_Plan {
 	 *
 	 * @var string
 	 */
-	const PLAN_OPTION = 'jetpack_active_plan';
+	const PLAN_OPTION = Current_Plan::PLAN_OPTION;
 
 	/**
 	 * The name of the option that will store the site's products.
@@ -32,7 +32,7 @@ class Jetpack_Plan {
 	 *
 	 * @var string
 	 */
-	const SITE_PRODUCTS_OPTION = 'jetpack_site_products';
+	const SITE_PRODUCTS_OPTION = Current_Plan::SITE_PRODUCTS_OPTION;
 
 	/**
 	 * Array of products supported by each plan.
@@ -41,97 +41,7 @@ class Jetpack_Plan {
 	 *
 	 * @var array
 	 */
-	const PLAN_DATA = array(
-		'free'     => array(
-			'plans'    => array(
-				'jetpack_free',
-			),
-			'supports' => array(
-				'opentable',
-				'calendly',
-				'send-a-message',
-				'whatsapp-button',
-				'social-previews',
-				'videopress',
-				'videopress/video',
-				'v6-video-frame-poster',
-
-				'core/video',
-				'core/cover',
-				'core/audio',
-			),
-		),
-		'personal' => array(
-			'plans'    => array(
-				'jetpack_personal',
-				'jetpack_personal_monthly',
-				'personal-bundle',
-				'personal-bundle-monthly',
-				'personal-bundle-2y',
-				'personal-bundle-3y',
-				'starter-plan',
-			),
-			'supports' => array(
-				'akismet',
-				'payments',
-				'videopress',
-			),
-		),
-		'premium'  => array(
-			'plans'    => array(
-				'jetpack_premium',
-				'jetpack_premium_monthly',
-				'value_bundle',
-				'value_bundle-monthly',
-				'value_bundle-2y',
-				'value_bundle-3y',
-			),
-			'supports' => array(
-				'simple-payments',
-				'vaultpress',
-				'videopress',
-				'republicize',
-			),
-		),
-		'security' => array(
-			'plans'    => array(
-				'jetpack_security_daily',
-				'jetpack_security_daily_monthly',
-				'jetpack_security_realtime',
-				'jetpack_security_realtime_monthly',
-				'jetpack_security_t1_yearly',
-				'jetpack_security_t1_monthly',
-				'jetpack_security_t2_yearly',
-				'jetpack_security_t2_monthly',
-			),
-			'supports' => array(),
-		),
-		'business' => array(
-			'plans'    => array(
-				'jetpack_business',
-				'jetpack_business_monthly',
-				'business-bundle',
-				'business-bundle-monthly',
-				'business-bundle-2y',
-				'business-bundle-3y',
-				'ecommerce-bundle',
-				'ecommerce-bundle-monthly',
-				'ecommerce-bundle-2y',
-				'ecommerce-bundle-3y',
-				'pro-plan',
-			),
-			'supports' => array(),
-		),
-
-		'complete' => array(
-			'plans'    => array(
-				'jetpack_complete',
-				'jetpack_complete_monthly',
-				'vip',
-			),
-			'supports' => array(),
-		),
-	);
+	const PLAN_DATA = Current_Plan::PLAN_DATA;
 
 	/**
 	 * Given a response to the `/sites/%d` endpoint, will parse the response and attempt to set the
