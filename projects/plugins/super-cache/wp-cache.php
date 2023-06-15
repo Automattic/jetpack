@@ -3464,6 +3464,8 @@ function wp_cron_preload_cache() {
 					// translators: Home URL of website
 					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
 				}
+
+				wpsc_update_idle_preload( time() );
 				return true;
 			}
 
