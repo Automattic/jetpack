@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed stylesheet loading and content for the broken-token and idc-simulator modules.

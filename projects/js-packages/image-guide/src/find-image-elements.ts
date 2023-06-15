@@ -56,14 +56,15 @@ export function backgroundImageSource( node: HTMLElement ) {
  * and remove any nodes that can't be measured.
  *
  * @param {Element[]} domNodes - A list of nodes to measure
+ * @param {(input: string, init?: Array) => Promise<Response>} fetchFn -  A function that fetches a URL and returns a Promise.
  * @returns {MeasurableImage[]} - A list of MeasurableImage objects.
  */
-export function getMeasurableImages( domNodes: Element[] ): MeasurableImage[] {
+export function getMeasurableImages( domNodes: Element[], fetchFn = fetch ): MeasurableImage[] {
 	const nodes = findMeasurableElements( domNodes );
 	return nodes
 		.map( node => {
 			if ( node instanceof HTMLImageElement ) {
-				return new MeasurableImage( node, imageTagSource );
+				return new MeasurableImage( node, imageTagSource, fetchFn );
 			} else if ( node instanceof HTMLElement ) {
 				if ( ! backgroundImageSource( node ) ) {
 					/**

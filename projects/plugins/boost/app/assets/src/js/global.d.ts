@@ -14,6 +14,11 @@ declare global {
 		nonce: string;
 	};
 
+	const jbImageGuide: {
+		proxyNonce: string;
+		ajax_url: string;
+	};
+
 	// Constants provided by the plugin.
 	const Jetpack_Boost: {
 		preferences: {

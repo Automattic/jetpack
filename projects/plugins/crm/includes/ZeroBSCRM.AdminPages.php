@@ -1329,7 +1329,7 @@ function zeroBSCRM_html_wlHome() {
 	global $zbs;
 
 	?>
-	<div class="wrap">
+	<div>
 	<h1 style="font-size: 34px;margin-left: 50px;color: #e06d17;margin-top: 1em;"><?php esc_html_e( 'Welcome to Jetpack CRM', 'zero-bs-crm' ); ?></h1>
 	<p style="font-size: 16px;margin-left: 50px;padding: 12px 20px 10px 20px;"><?php esc_html_e( 'This CRM Plugin is managed by Jetpack CRM', 'zero-bs-crm' ); ?>. <?php esc_html_e( 'If you have any questions, please', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( $zbs->urls['support'] ); ?>"><?php esc_html_e( 'email us', 'zero-bs-crm' ); ?></a>.</p>
 	<?php
@@ -1365,8 +1365,6 @@ function zeroBSCRM_html_home2() {
 	// this stops hopscotch ever loading on this page :)
 	?>
 	<script type="text/javascript">var zbscrmjs_hopscotch_squash = true;</script>
-  
-	<div class='top-bar-welcome'></div>
 
 	<div id="zbs-welcome">
 	<div class="container">
@@ -1387,10 +1385,10 @@ function zeroBSCRM_html_home2() {
 		</h6>
 		<div class='zbs-button-wrap'>
 			<div class="left">
-			<a href="<?php echo esc_url( $add_new_customer_link ); ?>" class='add-first-customer btn btn-cta'><?php esc_html_e( 'Add Your First Contact', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo esc_url( $add_new_customer_link ); ?>" class="jpcrm-button font-14px"><?php esc_html_e( 'Add Your First Contact', 'zero-bs-crm' ); ?></a>
 			</div>
 			<div class="right">
-			<a href="<?php echo esc_url( $zbs->urls['kbfirstcontact'] ); ?>" target="_blank" class='read-full-guide btn btn-hta'><?php esc_html_e( 'Read the full guide', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo esc_url( $zbs->urls['kbfirstcontact'] ); ?>" target="_blank" class="jpcrm-button white-bg font-14px"><?php esc_html_e( 'Read the full guide', 'zero-bs-crm' ); ?></a>
 			</div>
 			<div class="clear"></div>
 		</div>
@@ -1410,7 +1408,7 @@ function zeroBSCRM_html_home2() {
 		<div id="action-buttons" class='block'>
 		<h6><?php esc_html_e( 'Connect today your WooCommerce Store and start importing your orders and customers into Jetpack CRM.', 'zero-bs-crm' ); ?></h6>
 		<div class='zbs-button-wrap'>
-			<a href="<?php echo esc_url( wp_nonce_url( '?page=' . $zbs->slugs['module-activate-redirect'] . '&jpcrm-module-name=woo-sync', 'jpcrmmoduleactivateredirectnonce' ) ); ?>" class='btn btn-cta'><?php esc_html_e( 'Connect your WooCommerce Store to Jetpack CRM', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo esc_url( wp_nonce_url( '?page=' . $zbs->slugs['module-activate-redirect'] . '&jpcrm-module-name=woo-sync', 'jpcrmmoduleactivateredirectnonce' ) ); ?>" class='jpcrm-button font-14px'><?php esc_html_e( 'Connect your WooCommerce Store to Jetpack CRM', 'zero-bs-crm' ); ?></a>
 		</div>
 		</div>
 
@@ -1498,7 +1496,7 @@ function zeroBSCRM_html_home2() {
 		<div class="clear"></div>
 
 		<div class='zbs-button-wrap'>
-			<a href="https://jetpackcrm.com/features/" target="_blank" class='add-first-customer btn btn-hta'><?php esc_html_e( 'See All Features', 'zero-bs-crm' ); ?></a>
+			<a href="https://jetpackcrm.com/features/" target="_blank" class="jpcrm-button white-bg font-14px"><?php esc_html_e( 'See All Features', 'zero-bs-crm' ); ?></a>
 		</div>
 
 		</div><!-- / .intro.zbs-features -->
@@ -1551,7 +1549,7 @@ function zeroBSCRM_html_home2() {
 			<div class="clear"></div>
 			</div> <!-- / .block -->
 			<div class="zbs-button-wrap">
-			<a href="<?php echo esc_url( $zbs->urls['upgrade'] ); ?>" rel="noopener noreferrer" target="_blank" class="upgrade-today btn btn-bta"><?php esc_html_e( 'Upgrade your CRM today', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo esc_url( $zbs->urls['upgrade'] ); ?>" rel="noopener noreferrer" target="_blank" class="jpcrm-button font-14px"><?php esc_html_e( 'Upgrade your CRM today', 'zero-bs-crm' ); ?></a>
 		</div>
 		</div> <!-- / .upgrade-cta -->
 	</div>
@@ -1572,8 +1570,8 @@ function zeroBSCRM_html_home2() {
 
 			<h4><?php esc_html_e( 'Your Account:', 'zero-bs-crm' ); ?></h4>
 
-			<a href="<?php echo jpcrm_esc_link( $zbs->slugs['extensions'] ); ?>" class='btn btn-bta'><?php esc_html_e( 'Manage Extensions', 'zero-bs-crm' ); ?></a>
-			<a href="<?php echo esc_url( $zbs->urls['account'] ); ?>" target="_blank" class='btn btn-cta'><?php esc_html_e( 'Download Extensions', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo jpcrm_esc_link( $zbs->slugs['extensions'] ); ?>" class='jpcrm-button font-14px'><?php esc_html_e( 'Manage Extensions', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo esc_url( $zbs->urls['account'] ); ?>" target="_blank" class='jpcrm-button white-bg font-14px'><?php esc_html_e( 'Download Extensions', 'zero-bs-crm' ); ?></a>
 
 			<div class="clear"></div>
 		</div>

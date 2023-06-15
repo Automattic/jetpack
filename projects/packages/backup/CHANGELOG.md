@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0] - 2023-06-15
+### Added
+- Add testimonial component and use it on the backup connect screen [#31221]
+
+## [1.15.0] - 2023-06-12
+### Added
+- Add "Why I need VaultPress Backup" section to connect page [#31285]
+- Add video section to backup connect page [#31260]
+
 ## [1.14.0] - 2023-06-06
 ### Changed
 - Update connection module to have an RNA option that updates the design [#31201]
@@ -424,6 +433,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.16.0]: https://github.com/Automattic/jetpack-backup/compare/v1.15.0...v1.16.0
+[1.15.0]: https://github.com/Automattic/jetpack-backup/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/Automattic/jetpack-backup/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/Automattic/jetpack-backup/compare/v1.12.17...v1.13.0
 [1.12.17]: https://github.com/Automattic/jetpack-backup/compare/v1.12.16...v1.12.17
