@@ -138,7 +138,7 @@ abstract class Module_Product extends Product {
 	 *
 	 * @return array
 	 */
-	public static function get_supporting_products() {
+	public static function get_products() {
 		return array();
 	}
 
@@ -154,7 +154,7 @@ abstract class Module_Product extends Product {
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if ( in_array( $purchase->product_slug, static::get_supporting_products(), true ) ) {
+				if ( in_array( $purchase->product_slug, static::get_products(), true ) ) {
 					return true;
 				}
 			}

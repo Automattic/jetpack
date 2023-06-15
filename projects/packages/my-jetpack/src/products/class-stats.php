@@ -140,7 +140,7 @@ class Stats extends Module_Product {
 	 *
 	 * @return array
 	 */
-	public static function get_supporting_products() {
+	public static function get_products() {
 		return array(
 			static::get_wpcom_product_slug(),
 			static::get_wpcom_free_product_slug(),

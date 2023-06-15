@@ -177,7 +177,7 @@ class Starter extends Module_Product {
 	 *
 	 * @return Array Product slugs
 	 */
-	public static function get_supporting_products() {
+	public static function get_products() {
 		return array( 'jetpack_starter' );
 	}
 
