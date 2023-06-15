@@ -14,6 +14,13 @@ abstract class Jetpack_Tiled_Gallery_Item {
 	public $grayscale;
 
 	/**
+	 * The image URL, in grayscale.
+	 *
+	 * @var string
+	 */
+	public $img_src_grayscale;
+
+	/**
 	 * The image title.
 	 *
 	 * @var string
@@ -26,6 +33,13 @@ abstract class Jetpack_Tiled_Gallery_Item {
 	 * @var string
 	 */
 	public $image_alt;
+
+	/**
+	 * The image size.
+	 *
+	 * @var string|null
+	 */
+	public $size;
 
 	/**
 	 * The original file.
@@ -164,20 +178,6 @@ abstract class Jetpack_Tiled_Gallery_Item {
  */
 class Jetpack_Tiled_Gallery_Rectangular_Item extends Jetpack_Tiled_Gallery_Item { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
 	/**
-	 * The image URL, in grayscale.
-	 *
-	 * @var string
-	 */
-	public $img_src_grayscale;
-
-	/**
-	 * The image size.
-	 *
-	 * @var string
-	 */
-	public $size;
-
-	/**
 	 * Constructor function.
 	 *
 	 * @param object $attachment_image - the attachment image.
@@ -200,13 +200,6 @@ class Jetpack_Tiled_Gallery_Rectangular_Item extends Jetpack_Tiled_Gallery_Item 
  * Tiled gallery square item class.
  */
 class Jetpack_Tiled_Gallery_Square_Item extends Jetpack_Tiled_Gallery_Item { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
-	/**
-	 * The image URL, in grayscale.
-	 *
-	 * @var string
-	 */
-	public $img_src_grayscale;
-
 	/**
 	 * Constructor function.
 	 *
