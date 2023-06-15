@@ -8,11 +8,8 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Sync\Queue\Queue_Storage_Options;
+use Automattic\Jetpack\Sync\Queue\Queue_Storage_Table;
 use WP_Error;
-
-ini_set('error_reporting', E_ALL); // or error_reporting(E_ALL);
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
 
 /**
  * A persistent queue that can be flushed in increments of N items,
@@ -44,6 +41,8 @@ class Queue {
 
 	public $queue_storage = null;
 
+	public $use_dedicated_table_option_name = 'jetpack_sync_use_dedicated_table';
+
 	/**
 	 * Queue constructor.
 	 *
@@ -54,9 +53,43 @@ class Queue {
 		$this->row_iterator = 0;
 		$this->random_int   = wp_rand( 1, 1000000 );
 
-		// TODO implement switching to other storage.
-		$this->queue_storage = new Queue_Storage_Options();
+		if (1||$this->should_use_dedicated_table()) {
+			$this->queue_storage = new Queue_Storage_Table( $this->id );
+		} else {
+			$this->queue_storage = new Queue_Storage_Options();
+		}
 
+
+	}
+
+	// TODO should we create the table in-line when we detect we haven't actually enabled it?
+	// TODO or should we only create it during an upgrade?
+	public function should_use_dedicated_table() {
+		// TODO move this to a Jetpack setting so we can control it from WPCOM
+		$option_value = get_option($this->use_dedicated_table_option_name, null);
+
+		switch ($option_value) {
+			default:
+			case null:
+				// Option doesn't exist
+			case '0':
+				// Dedicated table is disabled, but we should attempt to enable it at some point.
+			case '-1':
+				// Forced do NOT use the table
+
+				return false;
+				// TODO if we should try to enable the table anyway in this case. Include upgrade file and run the create_table
+				break;
+			case '1':
+				// Use the table
+				return true;
+		}
+	}
+
+	// TODO find use of this. Should be part of bigger piece of code to enable the dedicated table.
+	// TODO add hooks to the upgrade calls to enable it.
+	public function can_use_dedicated_table() {
+		return ( new Queue_Storage_Table() )->is_dedicated_table_healthy();
 	}
 
 	/**

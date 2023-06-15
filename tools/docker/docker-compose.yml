@@ -18,6 +18,8 @@ services:
     env_file:
       - default.env
       - .env
+    ports:
+      - "3309:3306"
     entrypoint: [ '/bin/bash', '/var/scripts/docker-db-start-and-autoupgrade.sh' ]
     command: [ 'mysqld' ]
 
