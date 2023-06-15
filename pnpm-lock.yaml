@@ -96,6 +96,25 @@ importers:
         specifier: 13.2.9
         version: 13.2.9
 
+  projects/js-packages/ai-client:
+    dependencies:
+      '@microsoft/fetch-event-source':
+        specifier: 2.0.1
+        version: 2.0.1
+      '@wordpress/api-fetch':
+        specifier: 6.29.0
+        version: 6.29.0
+      debug:
+        specifier: 4.3.4
+        version: 4.3.4
+    devDependencies:
+      jest:
+        specifier: '*'
+        version: 29.5.0
+      jest-environment-jsdom:
+        specifier: 29.5.0
+        version: 29.5.0
+
   projects/js-packages/analytics:
     devDependencies:
       debug:
@@ -246,6 +265,9 @@ importers:
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(@testing-library/dom@8.19.1)(react-dom@18.2.0)(react@18.2.0)
+      '@testing-library/user-event':
+        specifier: 14.4.3
+        version: 14.4.3(@testing-library/dom@8.19.1)
       '@types/jest':
         specifier: 29.2.5
         version: 29.2.5
@@ -10212,6 +10234,15 @@ packages:
       - react
     dev: false
 
+  /@wordpress/api-fetch@6.29.0:
+    resolution: {integrity: sha512-6qtKZbS6mQl0PQhTB6BX9f9n3ika+R2RH+AqIQHiQH2yMulWlcaW6s/aOMLhEdXKPgG7geDqTdcASDJluV1yhQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.21.5
+      '@wordpress/i18n': 4.34.0
+      '@wordpress/url': 3.35.0
+    dev: false
+
   /@wordpress/api-fetch@6.31.0:
     resolution: {integrity: sha512-3l2jT7eD6kOK+GM1qcXsk7BGmmrU+//uT1wWOSpx+x4vpPABKlm7yfPvjHG7SqbgHXQzLD6eFvo/nmwN3JbGNg==}
     engines: {node: '>=12'}
@@ -17083,6 +17114,29 @@ packages:
 
   /jest-environment-jsdom@29.4.3:
     resolution: {integrity: sha512-rFjf8JXrw3OjUzzmSE5l0XjMj0/MSVEUMCSXBGPDkfwb1T03HZI7iJSL0cGctZApPSyJxbjyKDVxkZuyhHkuTw==}
+    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+    peerDependencies:
+      canvas: ^2.5.0
+    peerDependenciesMeta:
+      canvas:
+        optional: true
+    dependencies:
+      '@jest/environment': 29.5.0
+      '@jest/fake-timers': 29.5.0
+      '@jest/types': 29.5.0
+      '@types/jsdom': 20.0.1
+      '@types/node': 20.1.0
+      jest-mock: 29.5.0
+      jest-util: 29.5.0
+      jsdom: 20.0.3
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+    dev: true
+
+  /jest-environment-jsdom@29.5.0:
+    resolution: {integrity: sha512-/KG8yEK4aN8ak56yFVdqFDzKNHgF4BAymCx2LbPNPsUshUlfAl0eX402Xm1pt+eoG9SLZEUVifqXtX8SK74KCw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
       canvas: ^2.5.0

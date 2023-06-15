@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed an issue where Instagram restricitons are not working because of the service name
