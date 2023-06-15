@@ -36,6 +36,36 @@ export type PromptItemProps = {
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
+/**
+ * Helper function to get the initial system prompt.
+ * It defined the `context` value in case it isn't provided.
+ *
+ * @param {object} options - The options for the prompt.
+ * @param {string} options.context - The context of the prompt.
+ * @param {Array<string>} options.rules - The rules to follow.
+ * @returns {PromptItemProps} The initial system prompt.
+ */
+export function getInitialSystemPrompt( {
+	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
+	rules,
+} ): PromptItemProps {
+	// Rules
+	let extraRules = '';
+	if ( rules?.length ) {
+		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
+	}
+	const prompt = `${ context }.
+Strictly follow these rules:
+
+${ extraRules }- Format your responses in Markdown syntax, ready to be published.
+- Execute the request without any acknowledgement to the user.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+`;
+
+	return { role: 'system', content: prompt };
+}
+
 /*
  * Builds a prompt template based on context, rules and content.
  *
@@ -57,7 +87,6 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
  * @return {Array<PromptItemProps>}
  */
 export const buildPromptTemplate = ( {
-	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
 	rules = [],
 	request = null,
 	relevantContent = null,
@@ -69,7 +98,8 @@ export const buildPromptTemplate = ( {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
-	const messages = [];
+	// Add initial system prompt.
+	const messages = [ getInitialSystemPrompt( { rules } ) ];
 
 	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' ) || '';
 
@@ -78,21 +108,7 @@ ${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
 		fullContent ? `- Current content: ${ fullContent }` : ''
 	}`;
 
-	// Rules
-	let extraRules = '';
-	if ( rules?.length ) {
-		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
-	}
-	const prompt = `${ context }.
-Strictly follow these rules:
-
-${ extraRules }- Format your responses in Markdown syntax, ready to be published.
-- Execute the request without any acknowledgement to the user.
-- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
-`;
-
-	messages.push( { role: 'system', content: prompt } );
+	messages.push();
 
 	if ( postTitle?.length || !! fullContent ) {
 		messages.push( {
