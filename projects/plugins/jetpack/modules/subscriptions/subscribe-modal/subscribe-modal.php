@@ -152,10 +152,9 @@ add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_subscribe_modal_assets' );
 function should_enable_subscriber_modal() {
 	$is_lettre          = get_option( 'stylesheet' ) === 'lettre';
 	$is_newsletter_site = get_option( 'site_intent' ) === 'newsletter';
+	$is_modal_enabled   = get_option( 'sm_enabled' ) || false;
 
-	// TODO: check if newsletter feature setting is enabled
-	// TODO: check if site goals include newsletter
-	return $is_lettre || $is_newsletter_site;
+	return ( $is_lettre || $is_newsletter_site ) && $is_modal_enabled;
 }
 
 /**

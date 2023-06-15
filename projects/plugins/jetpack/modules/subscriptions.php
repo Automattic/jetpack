@@ -348,6 +348,21 @@ class Jetpack_Subscriptions {
 			'stc_enabled'
 		);
 
+		/** Enable Subscribe Modal */
+
+		add_settings_field(
+			'jetpack_subscriptions_comment_subscribe',
+			__( 'Enable Subscribe Modal', 'jetpack' ),
+			array( $this, 'subscribe_modal_setting' ),
+			'discussion',
+			'jetpack_subscriptions'
+		);
+
+		register_setting(
+			'discussion',
+			'sm_enabled'
+		);
+
 		/** Email me whenever: Someone follows my blog */
 		/* @since 8.1 */
 
@@ -454,6 +469,29 @@ class Jetpack_Subscriptions {
 					'jetpack'
 				),
 				array( 'em' => array() )
+			);
+			?>
+		</p>
+
+		<?php
+	}
+
+	/**
+	 * Subscribe Modal Toggle.
+	 */
+	public function subscribe_modal_setting() {
+
+		$sm_enabled = get_option( 'sm_enabled', 1 );
+		?>
+
+		<p class="description">
+			<input type="checkbox" name="sm_enabled" id="jetpack-subscribe-modal" value="1" <?php checked( $sm_enabled, 1 ); ?> />
+			<?php
+			echo wp_kses(
+				__(
+					'Show a popup subscribe modal to readers.',
+					'jetpack'
+				)
 			);
 			?>
 		</p>

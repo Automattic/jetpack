@@ -14,12 +14,13 @@ class SubscriptionsComponent extends React.Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {{stb_enabled: *, stc_enabled: *}} initial state for the component.
+	 * @returns {{stb_enabled: *, stc_enabled: *, sm_enabled: *}} initial state for the component.
 	 */
 	getInitialState = () => {
 		return {
 			stb_enabled: this.props.getOptionValue( 'stb_enabled' ),
 			stc_enabled: this.props.getOptionValue( 'stc_enabled' ),
+			sm_enabled: this.props.getOptionValue( 'sm_enabled' ),
 		};
 	};
 
@@ -52,6 +53,10 @@ class SubscriptionsComponent extends React.Component {
 
 	handleSubscribeToCommentToggleChange = () => {
 		this.updateOptions( 'stc_enabled' );
+	};
+
+	handleSubscribeModalToggleChange = () => {
+		this.updateOptions( 'sm_enabled' );
 	};
 
 	render() {
@@ -133,6 +138,17 @@ class SubscriptionsComponent extends React.Component {
 									'Enable the “subscribe to comments” option on your comment form',
 									'jetpack'
 								) }
+							/>
+							<ToggleControl
+								checked={ isSubscriptionsActive && this.props.getOptionValue( 'sm_enabled' ) }
+								disabled={
+									! isSubscriptionsActive ||
+									unavailableInOfflineMode ||
+									this.props.isSavingAnyOption( [ 'subscriptions' ] )
+								}
+								toggling={ this.props.isSavingAnyOption( [ 'sm_enabled' ] ) }
+								onChange={ this.handleSubscribeModalToggleChange }
+								label={ __( 'Enable the popup Subscribe Modal', 'jetpack' ) }
 							/>
 						</FormFieldset>
 					}
