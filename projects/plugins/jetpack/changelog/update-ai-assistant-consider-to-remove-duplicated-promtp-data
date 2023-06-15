@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: remove duplicated prompt from `system` role
