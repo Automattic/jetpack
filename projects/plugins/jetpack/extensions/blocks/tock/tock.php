@@ -31,10 +31,10 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Render the widget and associated JS
  *
- * @param array  $attr    The block attributes.
- * @param string $content The saved content of the block, which is the placeholder div.
+ * @param array $attr    The block attributes.
  */
-function render_block( $attr, $content ) {
+function render_block( $attr ) {
+	$content = '<div id="Tock_widget_container" data-tock-display-mode="Button" data-tock-color-mode="Blue" data-tock-locale="en-us" data-tock-timezone="America/New_York"></div>';
 	if ( empty( $attr['url'] ) ) {
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			return;
