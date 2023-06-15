@@ -10,24 +10,33 @@ import { ToneProp } from '../../components/tone-dropdown-control';
 /**
  * Types & consts
  */
-export const PROMPT_TYPE_CORRECT_SPELLING = 'correctSpelling' as const;
+export const PROMPT_TYPE_SUMMARY_BY_TITLE = 'titleSummary' as const;
+export const PROMPT_TYPE_CONTINUE = 'continue' as const;
 export const PROMPT_TYPE_SIMPLIFY = 'simplify' as const;
-export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
+export const PROMPT_TYPE_CORRECT_SPELLING = 'correctSpelling' as const;
+export const PROMPT_TYPE_GENERATE_TITLE = 'generateTitle' as const;
 export const PROMPT_TYPE_MAKE_LONGER = 'makeLonger' as const;
+export const PROMPT_TYPE_MAKE_SHORTER = 'makeShorter' as const;
 export const PROMPT_TYPE_CHANGE_TONE = 'changeTone' as const;
+export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
 export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
+export const PROMPT_TYPE_USER_PROMPT = 'userPrompt' as const;
 
 export const PROMPT_TYPE_LIST = [
-	PROMPT_TYPE_CORRECT_SPELLING,
+	PROMPT_TYPE_SUMMARY_BY_TITLE,
+	PROMPT_TYPE_CONTINUE,
 	PROMPT_TYPE_SIMPLIFY,
-	PROMPT_TYPE_SUMMARIZE,
+	PROMPT_TYPE_CORRECT_SPELLING,
+	PROMPT_TYPE_GENERATE_TITLE,
 	PROMPT_TYPE_MAKE_LONGER,
+	PROMPT_TYPE_MAKE_SHORTER,
+	PROMPT_TYPE_CHANGE_TONE,
+	PROMPT_TYPE_SUMMARIZE,
+	PROMPT_TYPE_CHANGE_LANGUAGE,
+	PROMPT_TYPE_USER_PROMPT,
 ] as const;
 
-export type PromptTypeProp =
-	| ( typeof PROMPT_TYPE_LIST )[ number ]
-	| typeof PROMPT_TYPE_CHANGE_TONE
-	| typeof PROMPT_TYPE_CHANGE_LANGUAGE;
+export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
 
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant';
@@ -153,8 +162,7 @@ type BuildPromptOptions = {
 	allPostContent?: string;
 	postContentAbove?: string;
 	currentPostTitle?: string;
-	prompt?: Array< PromptItemProps >;
-	type: string;
+	type: PromptTypeProp;
 	userPrompt?: string;
 	isGeneratingTitle?: boolean;
 	options: {
@@ -164,203 +172,132 @@ type BuildPromptOptions = {
 	};
 };
 
-/**
- * Builds a prompt based on the type of prompt.
- *
- * @param {BuildPromptOptions} options - The prompt options.
- * @returns {Array< PromptItemProps >} The prompt.
- * @throws {Error} If the type is not recognized.
- */
-export function buildPrompt( {
-	generatedContent,
-	allPostContent,
-	postContentAbove,
-	currentPostTitle,
-	options,
-	prompt,
-	type,
-	userPrompt,
-	isGeneratingTitle,
-}: BuildPromptOptions ): Array< PromptItemProps > {
+export function promptTextFor(
+	type: PromptTypeProp,
+	isGeneratingTitle = false,
+	options: GetPromptOptionsProps
+): { request: string; rules?: string[] } {
 	const isGenerated = options?.contentType === 'generated';
-	const reference = {
-		content: isGeneratingTitle ? 'the title' : 'the content',
-		generated: isGeneratingTitle ? 'the title' : 'your last answer',
-	};
+	let subject = 'the title';
+	if ( ! isGeneratingTitle ) {
+		subject = isGenerated ? 'your last answer' : 'the content';
+	}
 
 	switch ( type ) {
-		/*
-		 * Non-interactive types
-		 */
-
-		/*
-		 * Generate content from title.
-		 */
-		case 'titleSummary':
-			prompt = buildPromptTemplate( {
-				request: 'Write a short piece for a blog post based on the content.',
-				fullContent: allPostContent,
-				relevantContent: currentPostTitle,
-			} );
-			break;
-
-		/*
-		 * Continue generating from the content.
-		 */
-		case 'continue':
-			prompt = buildPromptTemplate( {
-				request: 'Continue writing from the content.',
-				rules: [ 'Only output the continuation of the content, without repeating it' ],
-				fullContent: allPostContent,
-				relevantContent: postContentAbove,
-			} );
-			break;
-
-		/*
-		 * Simplify the content.
-		 */
-		case 'simplify':
-			prompt = buildPromptTemplate( {
-				request: 'Simplify the content.',
+		case PROMPT_TYPE_SUMMARY_BY_TITLE:
+			return { request: `Write a short piece for a blog post based on ${ subject }.` };
+		case PROMPT_TYPE_CONTINUE:
+			return {
+				request: `Continue writing from ${ subject }.`,
+				rules: isGenerated
+					? []
+					: [ 'Only output the continuation of the content, without repeating it' ],
+			};
+		case PROMPT_TYPE_SIMPLIFY:
+			return {
+				request: `Simplify ${ subject }.`,
 				rules: [
 					'Use words and phrases that are easier to understand for non-technical people',
 					'Output in the same language of the content',
 					'Use as much of the original language as possible',
 				],
-				fullContent: allPostContent,
-				relevantContent: postContentAbove,
-			} );
-			break;
-
-		/**
-		 * Correct grammar and spelling
-		 */
-		case 'correctSpelling':
-			prompt = buildPromptTemplate( {
-				request:
-					'Repeat the content, correcting any spelling and grammar mistakes, and do not add new content.',
-				fullContent: allPostContent,
-				relevantContent: postContentAbove,
-			} );
-			break;
-
-		/*
-		 * Generate a title for this blog post, based on the content.
-		 */
-		case 'generateTitle':
-			prompt = buildPromptTemplate( {
+			};
+		case PROMPT_TYPE_CORRECT_SPELLING:
+			return {
+				request: `Repeat ${ subject }, correcting any spelling and grammar mistakes, and do not add new content.`,
+			};
+		case PROMPT_TYPE_GENERATE_TITLE:
+			return {
 				request: 'Generate a new title for this blog post and only output the title.',
 				rules: [ 'Only output the raw title, without any prefix or quotes' ],
-				fullContent: allPostContent,
-				relevantContent: allPostContent,
-			} );
-			break;
-
-		/*
-		 * Interactive only types
-		 */
-
-		/*
-		 * Make the content longer.
-		 */
-		case 'makeLonger':
-			prompt = buildPromptTemplate( {
-				request: `Make ${ reference.generated } longer.`,
-				fullContent: allPostContent,
-				relevantContent: generatedContent,
-				isContentGenerated: true,
-				isGeneratingTitle,
-			} );
-			break;
-
-		/*
-		 * Make the content shorter.
-		 */
-		case 'makeShorter':
-			prompt = buildPromptTemplate( {
-				request: `Make ${ reference.generated } shorter.`,
-				fullContent: allPostContent,
-				relevantContent: generatedContent,
-				isContentGenerated: true,
-				isGeneratingTitle,
-			} );
-			break;
-
-		/*
-		 * Types that can be interactive or non-interactive
-		 */
-
-		/*
-		 * Change the tone of the content.
-		 */
+			};
+		case PROMPT_TYPE_MAKE_LONGER:
+			return { request: `Make ${ subject } longer.` };
+		case PROMPT_TYPE_MAKE_SHORTER:
+			return { request: `Make ${ subject } shorter.` };
 		case PROMPT_TYPE_CHANGE_TONE:
-			prompt = buildPromptTemplate( {
-				request: `Rewrite ${ isGenerated ? reference.generated : reference.content } with a ${
-					options.tone
-				} tone.`,
-				fullContent: allPostContent,
-				relevantContent: isGenerated ? generatedContent : allPostContent,
-				isContentGenerated: isGenerated,
-				isGeneratingTitle,
-			} );
-			break;
-
-		/*
-		 * Summarize the content.
-		 */
-		case 'summarize':
-			prompt = buildPromptTemplate( {
-				request: `Summarize ${ isGenerated ? reference.generated : reference.content }.`,
-				fullContent: allPostContent,
-				relevantContent: isGenerated ? generatedContent : allPostContent,
-				isContentGenerated: isGenerated,
-			} );
-			break;
-
-		/**
-		 * Change the language, based on options.language
-		 */
-		case 'changeLanguage':
-			prompt = buildPromptTemplate( {
-				request: `Translate ${
-					isGenerated ? reference.generated : reference.content
-				} to the following language: ${ options.language }.`,
-				fullContent: allPostContent,
-				relevantContent: isGenerated ? generatedContent : allPostContent,
-				isContentGenerated: isGenerated,
-				isGeneratingTitle,
-			} );
-			break;
-
-		/**
-		 * Open ended prompt from user
-		 */
-		case 'userPrompt':
-			prompt = buildPromptTemplate( {
-				request: userPrompt,
-				fullContent: allPostContent,
-				relevantContent: generatedContent || allPostContent,
-				isContentGenerated: !! generatedContent?.length,
-				isGeneratingTitle,
-			} );
-			break;
-
+			return { request: `Rewrite ${ subject } with a ${ options.tone } tone.` };
+		case PROMPT_TYPE_SUMMARIZE:
+			return { request: `Summarize ${ subject }.` };
+		case PROMPT_TYPE_CHANGE_LANGUAGE:
+			return {
+				request: `Translate ${ subject } to the following language: ${ options.language }.`,
+			};
 		default:
-			prompt = buildPromptTemplate( {
-				request: userPrompt,
-				fullContent: allPostContent,
-				relevantContent: generatedContent,
-				isContentGenerated: true,
-				isGeneratingTitle,
-			} );
-			break;
+			return null;
+	}
+}
+
+/**
+ * Builds a prompt based on the type of prompt.
+ * Meant for use by the block, not the extensions.
+ *
+ * @param {BuildPromptOptions} options - The prompt options.
+ * @returns {Array< PromptItemProps >} The prompt.
+ * @throws {Error} If the type is not recognized.
+ */
+export function buildPromptForBlock( {
+	generatedContent,
+	allPostContent,
+	postContentAbove,
+	currentPostTitle,
+	options,
+	type,
+	userPrompt,
+	isGeneratingTitle,
+}: BuildPromptOptions ): Array< PromptItemProps > {
+	const isContentGenerated = options?.contentType === 'generated';
+	const promptText = promptTextFor( type, isGeneratingTitle, options );
+
+	if ( type !== PROMPT_TYPE_USER_PROMPT ) {
+		let relevantContent;
+
+		switch ( type ) {
+			case PROMPT_TYPE_SUMMARY_BY_TITLE:
+				relevantContent = currentPostTitle;
+				break;
+			case PROMPT_TYPE_CONTINUE:
+			case PROMPT_TYPE_SIMPLIFY:
+			case PROMPT_TYPE_CORRECT_SPELLING:
+				relevantContent = postContentAbove;
+				break;
+			case PROMPT_TYPE_GENERATE_TITLE:
+				relevantContent = allPostContent;
+				break;
+			case PROMPT_TYPE_MAKE_LONGER:
+			case PROMPT_TYPE_MAKE_SHORTER:
+				relevantContent = generatedContent;
+				break;
+			case PROMPT_TYPE_CHANGE_TONE:
+			case PROMPT_TYPE_SUMMARIZE:
+			case PROMPT_TYPE_CHANGE_LANGUAGE:
+				relevantContent = isContentGenerated ? generatedContent : allPostContent;
+				break;
+		}
+
+		return buildPromptTemplate( {
+			...promptText,
+			fullContent: allPostContent,
+			relevantContent,
+			isContentGenerated,
+			isGeneratingTitle,
+		} );
 	}
 
-	return prompt;
+	return buildPromptTemplate( {
+		request: userPrompt,
+		fullContent: allPostContent,
+		relevantContent: generatedContent || allPostContent,
+		isContentGenerated: !! generatedContent?.length,
+		isGeneratingTitle,
+	} );
 }
 
 type GetPromptOptionsProps = {
-	content: string;
+	content?: string;
+	contentType?: 'generated' | string;
+	tone?: ToneProp;
+	language?: string;
 };
 
 /**
@@ -370,17 +307,16 @@ type GetPromptOptionsProps = {
  * @param {GetPromptOptionsProps} options - The prompt options.
  * @returns {Array< PromptItemProps >}      The prompt.
  */
-export function getPrompt(
+export function buildPromptForExtensions(
 	type: PromptTypeProp,
 	options: GetPromptOptionsProps
 ): Array< PromptItemProps > {
-	return buildPrompt( {
-		type,
-		generatedContent: options.content,
-		postContentAbove: options.content,
-		options: {
-			...options,
-			contentType: 'generated', // Set `generated` to ensure providing the generated content :-/
-		},
+	const promptText = promptTextFor( type, false, options );
+
+	return buildPromptTemplate( {
+		...promptText,
+		fullContent: options.content,
+		relevantContent: options.content,
+		isContentGenerated: false,
 	} );
 }
