@@ -14,7 +14,7 @@ import { buildPromptForBlock } from '../../lib/prompt';
 import { askJetpack, askQuestion } from '../../lib/suggestions';
 import { getContentFromBlocks, getPartialContentToBlock } from '../../lib/utils/block-content';
 
-const debug = debugFactory( 'jetpack-ai-assistant' );
+const debug = debugFactory( 'jetpack-ai-assistant:event:fullMessage' );
 
 const useSuggestionsFromOpenAI = ( {
 	attributes,
