@@ -641,6 +641,48 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 		return get_avatar( $user_id, $size, $default, $alt, $args );
 	}
 
+/**
+ * Inject contacts as desired
+ *
+ * @param array $contacts Array of contact objects.
+ * @param array $args Array of contact query args.
+ *
+ * @return array Array of contact objects.
+ */
+function jpcrm_inject_contacts( $contacts, $args ) {
+	$injected_contacts = array();
+
+	if ( $args['searchPhrase'] === 'Project Oz' ) {
+		$injected_contacts = array(
+			array(
+				'id'   => 0,
+				'name' => '<i class="fa fa-diamond green"></i>',
+			),
+			array(
+				'id'   => -1,
+				'name' => 'Wizard of Oz',
+			),
+			array(
+				'id'   => -2,
+				'name' => 'Dorothy',
+			),
+			array(
+				'id'   => -3,
+				'name' => 'Toto the Dog',
+			),
+			array(
+				'id'   => -4,
+				'name' => 'Scarecrow',
+			),
+			array(
+				'id'   => -5,
+				'name' => 'Tin Man',
+			),
+		);
+	}
+	$contacts = array_merge( $injected_contacts, $contacts );
+	return $contacts;
+}
 
 	function zeroBSCRM_getGravatarURLfromEmail($email='',$size=80){
 
@@ -1591,21 +1633,4 @@ function jpcrm_generate_pdf( $html, $pdf_filename ) {
  */
 function jpcrm_disable_browser_autocomplete() {
 	return time() . wp_rand( 0, 1000000 );
-}
-
-/**
- * Inject contacts as desired
- *
- * @param array $contacts Array of contact objects.
- * @param array $args Array of contact query args.
- *
- * @return array Array of contact objects.
- */
-function jpcrm_inject_contacts( $contacts, $args ) {
-
-	if ( $args['searchPhrase'] === 'Project Oz' ) {
-		$injected_contacts = json_decode( base64_decode( 'W3siaWQiOjAsIm5hbWUiOiI8aSBjbGFzcz1cImZhIGZhLWRpYW1vbmQgZ3JlZW5cIj48XC9pPiJ9LHsiaWQiOi0xLCJuYW1lIjoiV2l6YXJkIG9mIE96In0seyJpZCI6LTIsIm5hbWUiOiJEb3JvdGh5In0seyJpZCI6LTMsIm5hbWUiOiJUb3RvIHRoZSBEb2cifSx7ImlkIjotNCwibmFtZSI6IlNjYXJlY3JvdyJ9LHsiaWQiOi01LCJuYW1lIjoiVGluIE1hbiJ9XQ==' ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-		$contacts          = array_merge( $injected_contacts, $contacts );
-	}
-	return $contacts;
 }

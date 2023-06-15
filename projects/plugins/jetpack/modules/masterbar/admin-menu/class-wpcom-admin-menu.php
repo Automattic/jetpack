@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Status;
+use Jetpack_Custom_CSS;
 use JITM;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -322,6 +323,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$this->hide_submenu_page( 'themes.php', 'theme-editor.php' );
 
 		$user_can_customize = current_user_can( 'customize' );
+
+		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+			add_filter( 'safecss_is_freetrial', '__return_false', PHP_INT_MAX );
+			if ( class_exists( 'Jetpack_Custom_CSS' ) && empty( Jetpack_Custom_CSS::get_css() ) ) {
+				$user_can_customize = false;
+			}
+			remove_filter( 'safecss_is_freetrial', '__return_false', PHP_INT_MAX );
+		}
 
 		if ( $user_can_customize ) {
 			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => 'jetpack_custom_css' ) ), $customize_url );
