@@ -15,6 +15,7 @@ export const PROMPT_TYPE_SIMPLIFY = 'simplify' as const;
 export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
 export const PROMPT_TYPE_MAKE_LONGER = 'makeLonger' as const;
 export const PROMPT_TYPE_CHANGE_TONE = 'changeTone' as const;
+export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
 
 export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -23,7 +24,10 @@ export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_MAKE_LONGER,
 ] as const;
 
-export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ] | typeof PROMPT_TYPE_CHANGE_TONE;
+export type PromptTypeProp =
+	| ( typeof PROMPT_TYPE_LIST )[ number ]
+	| typeof PROMPT_TYPE_CHANGE_TONE
+	| typeof PROMPT_TYPE_CHANGE_LANGUAGE;
 
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant';
