@@ -33,7 +33,6 @@ const DefaultArgs = {
 	buttonLabel: 'Get Jetpack Backup',
 	isLoading: false,
 	handleButtonClick: action( 'onButtonClick' ),
-	showConnectButton: true,
 	displayButtonError: false,
 	buttonIsLoading: false,
 };

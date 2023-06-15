@@ -25,29 +25,15 @@
     color: #8bc63f !important;
 }
 
-//============== Hide show wp menu
+/* Full-screen mode */
 
-	// these replace the JS so we can build in compat for other themes etc.
-
-	// default (not open)
-	#wpcontent {
-
-		 /* Removed  !important 3.0.12 as was conflicting with calypsoify, avoid using these without testing */
-		margin-left:160px;
-		margin-top:0px;
-
+// open
+body.zbs-fullscreen {
+	#wpcontent, #wpfooter{
+		margin-left:0px !important; 
+		margin-top:-32px !important;
 	}
-
-	// open
-	body.zbs-fullscreen {
-
-		#wpcontent, #wpfooter{
-			margin-left:0px !important; 
-			margin-top:-32px !important;
-		}
-		#wpadminbar, #adminmenuback, #adminmenuwrap{
-			display:none !important;
-		}
-
-
+	#wpadminbar, #adminmenuback, #adminmenuwrap{
+		display:none !important;
 	}
+}

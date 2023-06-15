@@ -358,12 +358,13 @@ function wpsc_jetpack_boost_install_banner() {
 	$button_url   = $is_installed ? $activate_url : $install_url;
 	$button_label = $is_installed ? __( 'Activate Jetpack Boost', 'wp-super-cache' ) : __( 'Install Jetpack Boost', 'wp-super-cache' );
 	$button_id    = $is_installed ? 'wpsc-activate-boost-button' : 'wpsc-install-boost-button';
+	$plugin_url   = plugin_dir_url( __FILE__ );
 
 	?>
 		<div class="wpsc-boost-banner">
 			<div class="wpsc-boost-banner-inner">
 				<div class="wpsc-boost-banner-content">
-					<img style="width:176px" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-logo.svg' ); ?>" height="32" />
+					<img style="width:282px" src="<?php echo esc_url( $plugin_url . '/assets/jetpack-logo.svg' ); ?>" height="36" />
 
 					<h3>
 						<?php esc_html_e( 'Find out how much Super Cache speeds up your site', 'wp-super-cache' ); ?>
@@ -388,11 +389,11 @@ function wpsc_jetpack_boost_install_banner() {
 
 				<div class="wpsc-boost-banner-image-container">
 					<img
-						src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?>"
+						src="<?php echo esc_url( $plugin_url . '/assets/boost-install-card-main.png' ); ?>"
 						title="<?php esc_attr_e( 'Check how your web site performance scores for desktop and mobile.', 'wp-super-cache' ); ?>"
-						alt="<?php esc_attr_e( 'An image showing a web site with a photo of a time-lapsed watch face. In the foreground is a graph showing a speed score for mobile and desktop in yellow and green with an overall score of B', 'wp-super-cache' ); ?>"
-						srcset="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?> 650w <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance-2x.png' ); ?> 1306w"
-						sizes="(max-width: 782px) 654px, 1306px"
+						alt="<?php esc_attr_e( 'An image showing a space shuttle. In the foreground are two graphs in yellow and green', 'wp-super-cache' ); ?>"
+						srcset="<?php echo esc_url( $plugin_url . '/assets/boost-install-card-main.png' ); ?> 352w <?php echo esc_url( $plugin_url . '/assets/boost-install-card-main-2x.png' ); ?> 730w"
+						sizes="(max-width: 782px) 352px, 730px"
 					>
 				</div>
 			</div>
@@ -1088,7 +1089,7 @@ table.wpsc-settings-table {
 		.wpsc-boost-banner-content {
 			display: inline-flex;
 			flex-direction: column;
-			padding: 2rem 3rem 2rem 2rem;
+			padding: 2.5rem;
 			text-align: left;
 		}
 
@@ -1096,6 +1097,7 @@ table.wpsc-settings-table {
 			position: relative;
 			background-image: url( <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-colors.svg' ); ?> );
 			background-size: cover;
+			min-width: 40%;
 			max-width: 40%;
 			overflow: hidden;
 		}
@@ -1108,10 +1110,15 @@ table.wpsc-settings-table {
 			width: 100%;
 		}
 
+		.wpsc-boost-banner h3 {
+			font-size: 24px;
+			line-height: 32px;
+		}
+
 		.wpsc-boost-banner p {
-			font-size: 16px;
-			line-height: 1.5;
-			margin: 1rem 0 2rem;
+			font-size: 14px;
+			line-height: 24px;
+			margin: 0 0 1.9rem;
 		}
 
 		.wpsc-boost-banner .wpsc-boost-dismiss {
@@ -1129,6 +1136,7 @@ table.wpsc-settings-table {
 			width: fit-content;
 			padding: 0.4rem 1rem;
 			font-size: 16px;
+			line-height: 23px;
 		}
 
 		.wpsc-boost-banner .button-primary:hover {

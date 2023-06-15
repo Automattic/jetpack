@@ -1921,32 +1921,6 @@ class jpcrm_templating_placeholders {
 
 		$placeholder_list = array();
 
-
-		// placeholder type-ahead
-		/* This is the pre-work to provide typeahead placeholders. Functional in as far as passing & drawing as at #1373.
-
-		if ( is_array( $tooling ) ){
-
-			$placeholder_list = $this->get_placeholders_for_tooling( $tooling, true );
-
-		} else {
-
-			// retrieve simplified placeholder list (not divided by category)
-			$placeholder_list = $this->get_placeholders( false );
-
-		}
-
-		// pass specific placeholder list
-		// <TBC> is there a better place to pass this? 
-		$html = '<script>var jpcrm_placeholder_list = ' . json_encode( $this->simplify_placeholders( $placeholder_list ) ) . ';</script>';
-
-		// build typeahead HTML input		
-		$html .= '<div class="zbstypeaheadwrap '.$extra_classes.'">';
-		$html .= '<input class="jpcrm-placeholder-typeahead" id="' . $id .'" type="text" placeholder="' . __( 'Placeholder...',"zero-bs-crm") . '" data-target="' . $insert_target_id .'" autocomplete="jpcrm-'.time().'-typeahead" data-autokey="placeholderlist">';	
-		$html .= '</div>';
-
-		*/
-
 		// Simpler <select>
 		if ( is_array( $tooling ) ){
 

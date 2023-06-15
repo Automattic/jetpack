@@ -1,13 +1,21 @@
 /*
  * External dependencies
  */
-import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
+import {
+	MenuItem,
+	MenuGroup,
+	ToolbarDropdownMenu,
+	DropdownMenu,
+	Icon,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { chevronRight } from '@wordpress/icons';
 import React from 'react';
 /**
  * Internal dependencies
  */
 import speakToneIcon from '../../icons/speak-tone';
+import './style.scss';
 
 const PROMPT_TONES_LIST = [
 	'formal',
@@ -119,15 +127,59 @@ export const PROMPT_TONES_MAP = {
 
 export type ToneProp = ( typeof PROMPT_TONES_LIST )[ number ];
 
-type ToneDropdownControlProps = {
-	value: ToneProp;
-	onChange: ( value: string ) => void;
+type ToneToolbarDropdownMenuProps = {
+	value?: ToneProp;
+	onChange: ( value: ToneProp ) => void;
 };
 
-export default function ToneDropdownControl( {
+const ToneMenuGroup = ( { value, onChange }: ToneToolbarDropdownMenuProps ) => (
+	<MenuGroup label={ __( 'Select tone', 'jetpack' ) }>
+		{ PROMPT_TONES_LIST.map( tone => {
+			return (
+				<MenuItem
+					key={ `key-${ tone }` }
+					onClick={ () => onChange( tone ) }
+					isSelected={ value === tone }
+				>
+					{ `${ PROMPT_TONES_MAP[ tone ].emoji } ${ PROMPT_TONES_MAP[ tone ].label }` }
+				</MenuItem>
+			);
+		} ) }
+	</MenuGroup>
+);
+
+export function ToneDropdownMenu( {
 	value = DEFAULT_PROMPT_TONE,
 	onChange,
-}: ToneDropdownControlProps ) {
+}: ToneToolbarDropdownMenuProps ) {
+	return (
+		<DropdownMenu
+			icon={ speakToneIcon }
+			label={ __( 'Change tone', 'jetpack' ) }
+			className="ai-assistant__tone-dropdown"
+			popoverProps={ {
+				variant: 'toolbar',
+			} }
+			toggleProps={ {
+				children: (
+					<>
+						<div className="ai-assistant__tone-dropdown__toggle-label">
+							{ __( 'Change tone', 'jetpack' ) }
+						</div>
+						<Icon icon={ chevronRight } />
+					</>
+				),
+			} }
+		>
+			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }
+		</DropdownMenu>
+	);
+}
+
+export default function ToneToolbarDropdownMenu( {
+	value = DEFAULT_PROMPT_TONE,
+	onChange,
+}: ToneToolbarDropdownMenuProps ) {
 	return (
 		<ToolbarDropdownMenu
 			icon={ speakToneIcon }
@@ -136,23 +188,7 @@ export default function ToneDropdownControl( {
 				variant: 'toolbar',
 			} }
 		>
-			{ () => {
-				return (
-					<MenuGroup label={ __( 'Select tone', 'jetpack' ) }>
-						{ PROMPT_TONES_LIST.map( tone => {
-							return (
-								<MenuItem
-									key={ `key-${ tone }` }
-									onClick={ () => onChange( tone ) }
-									isSelected={ value === tone }
-								>
-									{ `${ PROMPT_TONES_MAP[ tone ].emoji } ${ PROMPT_TONES_MAP[ tone ].label }` }
-								</MenuItem>
-							);
-						} ) }
-					</MenuGroup>
-				);
-			} }
+			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }
 		</ToolbarDropdownMenu>
 	);
 }
