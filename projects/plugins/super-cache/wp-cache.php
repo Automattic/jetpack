@@ -3737,6 +3737,7 @@ function wpsc_cancel_preload() {
  * This function creates that file.
  */
 function wpsc_create_stop_preload_flag() {
+	global $cache_path;
 	// phpcs:ignore -- WordPress.WP.AlternativeFunctions.file_system_read_fopen WordPress.PHP.NoSilencedErrors.Discouraged
 	$fp = @fopen( $cache_path . 'stop_preload.txt', 'w' );
 	// phpcs:ignore -- WordPress.WP.AlternativeFunctions.file_system_operations_fclose WordPress.PHP.NoSilencedErrors.Discouraged
