@@ -1,29 +1,26 @@
 jQuery( document ).ready( function () {
-	const { __, sprintf } = wp.i18n;
-
-	// Set the maximum number of entries to show
-	const MAX_PRELOAD_ENTRIES = 5;
+	const { __, sprintf } = window.wp.i18n;
 
 	// Set how often to check.
 	const CHECK_INTERVAL = 3000;
 
 	// Get a reference to the log element and the previous log entry
-	const preloadInfoPanel = jQuery( "#wpsc-preload-status" );
+	const preloadInfoPanel = jQuery( '#wpsc-preload-status' );
 
 	// Abort early if no info panel exists.
 	if ( ! preloadInfoPanel.length ) {
 		return;
 	}
 
-	update_preload_status( wpsc_preload_ajax.preload_status );
+	update_preload_status( window.wpsc_preload_ajax.preload_status );
 
 	setInterval( () => {
 		jQuery.post(
-			wpsc_preload_ajax.ajax_url,
+			window.wpsc_preload_ajax.ajax_url,
 			{
 				action: 'wpsc_get_preload_status',
 			},
-			( json ) => {
+			json => {
 				if ( ! json || ! json.success ) {
 					return;
 				}
@@ -33,6 +30,11 @@ jQuery( document ).ready( function () {
 		);
 	}, CHECK_INTERVAL );
 
+	/**
+	 * Update displayed preload status using the provided data.
+	 *
+	 * @param {object} data - description of the preload status.
+	 */
 	function update_preload_status( data ) {
 		// Bail early if no data is available.
 		if ( ! data || ( ! data.running && ! data.next && ! data.previous ) ) {
@@ -45,7 +47,9 @@ jQuery( document ).ready( function () {
 			const panel = jQuery( '<div class="notice notice-warning">' );
 
 			panel.append( jQuery( '<b>' ).text( __( 'Preloading', 'wp-super-cache' ) ) );
-			panel.append( jQuery( '<p>' ).text( __( 'Preloading is currently running.', 'wp-super-cache' ) ) );
+			panel.append(
+				jQuery( '<p>' ).text( __( 'Preloading is currently running.', 'wp-super-cache' ) )
+			);
 
 			const ul = panel.append( jQuery( '<ul>' ) );
 			for ( const entry of data.history ) {
@@ -67,11 +71,14 @@ jQuery( document ).ready( function () {
 					jQuery( '<b>' ).html(
 						sprintf(
 							/* Translators: 1: Number of hours, 2: Number of minutes, 3: Number of seconds */
-							__( '<b>Next preload scheduled</b> in %1$s hours, %2$s minutes and %3$s seconds.', 'wp-super-cache' ),
+							__(
+								'<b>Next preload scheduled</b> in %1$s hours, %2$s minutes and %3$s seconds.',
+								'wp-super-cache'
+							),
 							hours,
 							minutes,
 							seconds
-						) 
+						)
 					)
 				);
 
@@ -88,5 +95,4 @@ jQuery( document ).ready( function () {
 			preloadInfoPanel.append( panel );
 		}
 	}
-
 } );

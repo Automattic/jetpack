@@ -9,7 +9,7 @@ function wpsc_preload_notification_scripts() {
 	) {
 		wp_enqueue_script(
 			'preload-notification',
-			plugins_url( '/preload-notification.js', __FILE__ ),
+			plugins_url( '/js/preload-notification.js', __DIR__ ),
 			array( 'jquery', 'wp-i18n' ),
 			WPSC_VERSION,
 			true
