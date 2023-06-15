@@ -19,6 +19,7 @@ Official guideline resources:
 - reddit: https://www.reddit.com/about/alien/
 - Mastodon: https://joinmastodon.org/branding
 - Fediverse: https://commons.wikimedia.org/wiki/File:Fediverse_logo_proposal.svg
+- Nextdoor: https://about.nextdoor.com/gb/media/
 - http://findguidelin.es
 
 ## Using the SocialLogo Component in your project:
