@@ -8,6 +8,7 @@ import { image, update, check } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
+import { PROMPT_TYPE_CHANGE_TONE } from '../../lib/prompt';
 import I18nDropdownControl from '../i18n-dropdown-control';
 import ImproveToolbarDropdownMenu from '../improve-dropdown-control';
 import PromptTemplatesControl from '../prompt-templates-control';
@@ -38,7 +39,7 @@ const ToolbarControls = ( {
 					<ToneToolbarDropdownMenu
 						value="neutral"
 						onChange={ tone =>
-							getSuggestionFromOpenAI( 'changeTone', { tone, contentType: 'generated' } )
+							getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_TONE, { tone, contentType: 'generated' } )
 						}
 						disabled={ contentIsLoaded }
 					/>

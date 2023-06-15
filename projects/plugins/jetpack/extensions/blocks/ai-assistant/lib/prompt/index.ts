@@ -3,51 +3,52 @@
  */
 import { select } from '@wordpress/data';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
 import { ToneProp } from '../../components/tone-dropdown-control';
+/**
+ * Types & consts
+ */
+export const PROMPT_TYPE_CORRECT_SPELLING = 'correctSpelling' as const;
+export const PROMPT_TYPE_SIMPLIFY = 'simplify' as const;
+export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
+export const PROMPT_TYPE_MAKE_LONGER = 'makeLonger' as const;
+export const PROMPT_TYPE_CHANGE_TONE = 'changeTone' as const;
+export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
 
-const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
+export const PROMPT_TYPE_LIST = [
+	PROMPT_TYPE_CORRECT_SPELLING,
+	PROMPT_TYPE_SIMPLIFY,
+	PROMPT_TYPE_SUMMARIZE,
+	PROMPT_TYPE_MAKE_LONGER,
+] as const;
 
-type PromptItemProps = {
+export type PromptTypeProp =
+	| ( typeof PROMPT_TYPE_LIST )[ number ]
+	| typeof PROMPT_TYPE_CHANGE_TONE
+	| typeof PROMPT_TYPE_CHANGE_LANGUAGE;
+
+export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant';
 	content: string;
 };
 
-/*
- * Builds a prompt template based on context, rules and content
+const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
+
+/**
+ * Helper function to get the initial system prompt.
+ * It defines the `context` value in case it isn't provided.
  *
- * @param {object} options                     - The prompt options.
- * @param {string} options.context             - The expected context to the prompt, e.g. "You are...".
- * @param {Array<string>} options.rules        - The rules to follow.
- * @param {string} options.request             - The request to the AI assistant.
- * @param {string} options.relevantContent     - The relevant content to the request.
- * @param {boolean} options.isContentGenerated - Whether the content is generated or not.
- * @param {string} options.fullContent         - The full content of the post.
- * @param {boolean} options.isGeneratingTitle  - Whether the title is being generated or not.
- *
- * @return {Array<PromptItemProps>}
+ * @param {object} options - The options for the prompt.
+ * @param {string} options.context - The context of the prompt.
+ * @param {Array<string>} options.rules - The rules to follow.
+ * @returns {PromptItemProps} The initial system prompt.
  */
-export const buildPromptTemplate = ( {
+export function getInitialSystemPrompt( {
 	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
-	rules = [],
-	request = null,
-	relevantContent = null,
-	isContentGenerated = false,
-	fullContent = null,
-	isGeneratingTitle = false,
-} ): Array< PromptItemProps > => {
-	if ( ! request && ! relevantContent ) {
-		throw new Error( 'You must provide either a request or content' );
-	}
-
-	const messages = [];
-
-	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' ) || '';
-
-	const blogPostData = `Here's the content in the editor that serves as context to the user request:
-${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
-		fullContent ? `- Current content: ${ fullContent }` : ''
-	}`;
-
+	rules,
+} ): PromptItemProps {
 	// Rules
 	let extraRules = '';
 	if ( rules?.length ) {
@@ -62,7 +63,50 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 - If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `;
 
-	messages.push( { role: 'system', content: prompt } );
+	return { role: 'system', content: prompt };
+}
+
+/*
+ * Builds a prompt template based on context, rules and content.
+ *
+ * By default, the first item of the prompt arrays is `system` role,
+ * which provides the context and rules to the user.
+ *
+ * The last item of the prompt arrays is `user` role,
+ * which provides the user request.
+ *
+ * @param {object} options                     - The prompt options.
+ * @param {string} options.context             - The expected context to the prompt, e.g. "You are...".
+ * @param {Array<string>} options.rules        - The rules to follow.
+ * @param {string} options.request             - The request to the AI assistant.
+ * @param {string} options.relevantContent     - The relevant content to the request.
+ * @param {boolean} options.isContentGenerated - Whether the content is generated or not.
+ * @param {string} options.fullContent         - The full content of the post.
+ * @param {boolean} options.isGeneratingTitle  - Whether the title is being generated or not.
+ *
+ * @return {Array<PromptItemProps>}
+ */
+export const buildPromptTemplate = ( {
+	rules = [],
+	request = null,
+	relevantContent = null,
+	isContentGenerated = false,
+	fullContent = null,
+	isGeneratingTitle = false,
+} ): Array< PromptItemProps > => {
+	if ( ! request && ! relevantContent ) {
+		throw new Error( 'You must provide either a request or content' );
+	}
+
+	// Add initial system prompt.
+	const messages = [ getInitialSystemPrompt( { rules } ) ];
+
+	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' ) || '';
+
+	const blogPostData = `Here's the content in the editor that serves as context to the user request:
+${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
+		fullContent ? `- Current content: ${ fullContent }` : ''
+	}`;
 
 	if ( postTitle?.length || !! fullContent ) {
 		messages.push( {
@@ -114,7 +158,7 @@ type BuildPromptOptions = {
 	userPrompt?: string;
 	isGeneratingTitle?: boolean;
 	options: {
-		contentType?: string;
+		contentType?: 'generated' | string;
 		tone?: ToneProp;
 		language?: string;
 	};
@@ -249,7 +293,7 @@ export function buildPrompt( {
 		/*
 		 * Change the tone of the content.
 		 */
-		case 'changeTone':
+		case PROMPT_TYPE_CHANGE_TONE:
 			prompt = buildPromptTemplate( {
 				request: `Rewrite ${ isGenerated ? reference.generated : reference.content } with a ${
 					options.tone
@@ -313,4 +357,30 @@ export function buildPrompt( {
 	}
 
 	return prompt;
+}
+
+type GetPromptOptionsProps = {
+	content: string;
+};
+
+/**
+ * Returns a prompt based on the type and options
+ *
+ * @param {PromptTypeProp} type           - The type of prompt.
+ * @param {GetPromptOptionsProps} options - The prompt options.
+ * @returns {Array< PromptItemProps >}      The prompt.
+ */
+export function getPrompt(
+	type: PromptTypeProp,
+	options: GetPromptOptionsProps
+): Array< PromptItemProps > {
+	return buildPrompt( {
+		type,
+		generatedContent: options.content,
+		postContentAbove: options.content,
+		options: {
+			...options,
+			contentType: 'generated', // Set `generated` to ensure providing the generated content :-/
+		},
+	} );
 }
