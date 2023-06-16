@@ -137,7 +137,7 @@ const useSuggestionsFromOpenAI = ( {
 		} );
 
 		// Create a copy of the prompt history.
-		const updatedPromptHistory = [ ...attributes.promptHistory ] ?? [];
+		let updatedPromptHistory = [ ...attributes.promptHistory ] ?? [];
 
 		/*
 		 * Pop the last item from the prompt history,
@@ -200,7 +200,7 @@ const useSuggestionsFromOpenAI = ( {
 			 * @todo: limit the prompt based on tokens.
 			 */
 			if ( updatedPromptHistory.length > 20 ) {
-				updatedPromptHistory.splice( 0, updatedPromptHistory.length - 20 );
+				updatedPromptHistory = updatedPromptHistory.splice( 0, updatedPromptHistory.length - 20 );
 			}
 
 			stopSuggestion();
