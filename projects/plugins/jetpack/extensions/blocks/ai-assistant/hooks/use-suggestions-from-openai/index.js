@@ -137,7 +137,7 @@ const useSuggestionsFromOpenAI = ( {
 		} );
 
 		// Create a copy of the prompt history.
-		let updatedPromptHistory = [ ...attributes.promptHistory ] ?? [];
+		const updatedPromptHistory = [ ...attributes.promptHistory ] ?? [];
 
 		/*
 		 * Pop the last item from the prompt history,
@@ -199,9 +199,9 @@ const useSuggestionsFromOpenAI = ( {
 			 * Limit the prompt history to 20 items.
 			 * @todo: limit the prompt based on tokens.
 			 */
-			if ( updatedPromptHistory.length > 20 ) {
-				updatedPromptHistory = updatedPromptHistory.splice( 0, updatedPromptHistory.length - 20 );
-			}
+			// if ( updatedPromptHistory.length > 20 ) {
+			// 	updatedPromptHistory = updatedPromptHistory.splice( 0, updatedPromptHistory.length - 20 );
+			// }
 
 			stopSuggestion();
 
@@ -232,9 +232,9 @@ const useSuggestionsFromOpenAI = ( {
 				 * Probably: "414 Request-URI Too Large".
 				 * Let's clean up the prompt history and try again.
 				 */
-				updateBlockAttributes( clientId, {
-					promptHistory: updatedPromptHistory.splice( 0, updatedPromptHistory.length - 8 ),
-				} );
+				// updateBlockAttributes( clientId, {
+				// 	promptHistory: updatedPromptHistory.splice( 0, updatedPromptHistory.length - 8 ),
+				// } );
 			}
 
 			source?.current?.close();
