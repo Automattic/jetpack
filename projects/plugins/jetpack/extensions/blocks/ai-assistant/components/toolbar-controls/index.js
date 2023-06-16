@@ -30,7 +30,7 @@ const ToolbarControls = ( {
 	wholeContent,
 	setUserPrompt,
 	recordEvent,
-	isGeneratingTitle,
+	promptType,
 } ) => {
 	return (
 		<>
@@ -54,7 +54,7 @@ const ToolbarControls = ( {
 
 					<ImproveToolbarDropdownMenu
 						onChange={ getSuggestionFromOpenAI }
-						exclude={ isGeneratingTitle ? [ 'summarize' ] : [] }
+						exclude={ promptType === 'generateTitle' ? [ 'summarize' ] : [] }
 					/>
 				</BlockControls>
 			) }

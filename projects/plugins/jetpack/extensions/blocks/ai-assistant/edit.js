@@ -284,7 +284,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				onChange={ () => setErrorDismissed( true ) }
 				requireUpgrade={ errorData?.code === 'error_quota_exceeded' || requireUpgrade }
 				recordEvent={ tracks.recordEvent }
-				isGeneratingTitle={ attributes.promptType === 'generateTitle' }
 			/>
 
 			{ ! loadingImages && resultImages.length > 0 && (

@@ -137,7 +137,7 @@ const useSuggestionsFromOpenAI = ( {
 				options,
 				userPrompt,
 				type,
-				isGeneratingTitle: attributes.promptType === 'generateTitle',
+				promptType: attributes.promptType,
 			} );
 
 			/*
@@ -256,9 +256,9 @@ const useSuggestionsFromOpenAI = ( {
 					postContentAbove: getPartialContentToBlock( clientId ),
 					currentPostTitle,
 					options,
-					userPrompt,
 					type,
-					isGeneratingTitle: attributes.promptType === 'generateTitle',
+					userPrompt,
+					promptType: attributes.promptType,
 				} );
 
 				setLastPrompt( [ ...prompt, ...updatedMessaages, lastUserPrompt ] );

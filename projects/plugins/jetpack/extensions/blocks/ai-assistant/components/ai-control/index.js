@@ -46,7 +46,6 @@ const AIControl = forwardRef(
 			onChange,
 			requireUpgrade,
 			recordEvent,
-			isGeneratingTitle,
 		},
 		ref
 	) => {
@@ -145,7 +144,6 @@ const AIControl = forwardRef(
 							}
 						} }
 						recordEvent={ recordEvent }
-						isGeneratingTitle={ isGeneratingTitle }
 					/>
 				) }
 				<div className="jetpack-ai-assistant__input-container">
