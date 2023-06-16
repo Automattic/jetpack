@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync;
 
-use Automattic\Jetpack\Boost_Speed_Score\Lib\Boost_API;
+use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 
