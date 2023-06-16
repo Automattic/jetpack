@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Removed the Jetpack > Settings > Writing > Custom CSS toggle when the site uses a block-based theme.
