@@ -67,7 +67,7 @@ if ( isset( $customer_params['company'] ) ) {
 	$companyID = (int) $customer_params['company'];
 }
 
-$withTags = -1;
+$withTags = false;
 if ( isset( $customer_params['tags'] ) ) {
 	$withTags = true;
 }
