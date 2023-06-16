@@ -194,7 +194,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleTryAgain = () => {
-		setAttributes( { content: undefined, promptType: undefined, promptHistory: [] } );
+		setAttributes( { content: undefined, promptType: undefined, messages: [] } );
 	};
 
 	const handleGetSuggestion = ( ...args ) => {

@@ -7,7 +7,7 @@ export default {
 		type: 'string',
 	},
 
-	promptHistory: {
+	messages: {
 		type: 'array',
 		default: [],
 	},

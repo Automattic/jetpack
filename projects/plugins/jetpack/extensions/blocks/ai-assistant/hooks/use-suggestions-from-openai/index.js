@@ -122,8 +122,8 @@ const useSuggestionsFromOpenAI = ( {
 			post_id: postId,
 		} );
 
-		// Create a copy of the prompt history.
-		const updatedPromptHistory = [ ...attributes.promptHistory ] ?? [];
+		// Create a copy of the messages.
+		const updatedMessaages = [ ...attributes.messages ] ?? [];
 
 		let lastUserPrompt = {};
 
@@ -141,13 +141,13 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 
 			/*
-			 * Pop the last item from the prompt history,
+			 * Pop the last item from the messages array,
 			 * which is the fresh `user` request by convention.
 			 */
 			lastUserPrompt = prompt.pop();
 
-			// Populate prompt with the prompt history.
-			prompt = [ ...prompt, ...updatedPromptHistory ];
+			// Populate prompt with the messages.
+			prompt = [ ...prompt, ...updatedMessaages ];
 
 			// Restore the last user prompt.
 			prompt.push( lastUserPrompt );
@@ -193,29 +193,29 @@ const useSuggestionsFromOpenAI = ( {
 		source?.current?.addEventListener( 'done', e => {
 			const { detail: assistantResponse } = e;
 
-			// Populate the prompt history with the assistant response.
+			// Populate the messages with the assistant response.
 			const lastAssistantPrompt = {
 				role: 'assistant',
 				content: assistantResponse,
 			};
-			updatedPromptHistory.push( lastUserPrompt, lastAssistantPrompt );
+			updatedMessaages.push( lastUserPrompt, lastAssistantPrompt );
 
 			debugPromt( 'Add %o\n%s', `[${ lastUserPrompt.role }]`, lastUserPrompt.content );
 			debugPromt( 'Add %o\n%s', `[${ lastAssistantPrompt.role }]`, lastAssistantPrompt.content );
 
 			/*
-			 * Limit the prompt history to 20 items.
+			 * Limit the messages to 20 items.
 			 * @todo: limit the prompt based on tokens.
 			 */
-			if ( updatedPromptHistory.length > 20 ) {
-				updatedPromptHistory.splice( 0, updatedPromptHistory.length - 20 );
+			if ( updatedMessaages.length > 20 ) {
+				updatedMessaages.splice( 0, updatedMessaages.length - 20 );
 			}
 
 			stopSuggestion();
 
 			updateBlockAttributes( clientId, {
 				content: assistantResponse,
-				promptHistory: updatedPromptHistory,
+				messages: updatedMessaages,
 			} );
 			refreshFeatureData();
 		} );
@@ -238,17 +238,17 @@ const useSuggestionsFromOpenAI = ( {
 				/*
 				 * This is a network error.
 				 * Probably: "414 Request-URI Too Large".
-				 * Let's clean up the prompt history and try again.
+				 * Let's clean up the messages array and try again.
 				 * @todo: improve the process based on tokens / URL length.
 				 */
-				updatedPromptHistory.splice( 0, 8 );
+				updatedMessaages.splice( 0, 8 );
 				updateBlockAttributes( clientId, {
-					promptHistory: updatedPromptHistory,
+					messages: updatedMessaages,
 				} );
 
 				/*
-				 * Update the last prompt with the new prompt history.
-				 * @todo: Iterate over Prompt libraru to address properly the prompt history.
+				 * Update the last prompt with the new messages.
+				 * @todo: Iterate over Prompt libraru to address properly the messages.
 				 */
 				prompt = buildPromptForBlock( {
 					generatedContent: content,
@@ -261,7 +261,7 @@ const useSuggestionsFromOpenAI = ( {
 					isGeneratingTitle: attributes.promptType === 'generateTitle',
 				} );
 
-				setLastPrompt( [ ...prompt, ...updatedPromptHistory, lastUserPrompt ] );
+				setLastPrompt( [ ...prompt, ...updatedMessaages, lastUserPrompt ] );
 			}
 
 			source?.current?.close();
