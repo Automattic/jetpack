@@ -106,7 +106,7 @@ export function getRulesPrompt( {
 	// Rules
 	const promptRules = [
 		...rules,
-		'Execute the request without any acknowledgement to the user',
+		'Execute the request without any acknowledgement of it, only outputting the final result',
 		'Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent',
 		'If you cannot generate a meaningful response to a user\'s request, reply with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors',
 	];
@@ -144,7 +144,7 @@ ${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
 	}`;
 
 	return {
-		role: 'user',
+		role: 'system',
 		content: blogPostData,
 	};
 }
@@ -200,7 +200,7 @@ export const buildPromptTemplate = ( {
 	if ( relevantContent != null && relevantContent?.length ) {
 		if ( ! isContentGenerated ) {
 			messages.push( {
-				role: 'system',
+				role: 'user',
 				content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
 			} );
 		}
