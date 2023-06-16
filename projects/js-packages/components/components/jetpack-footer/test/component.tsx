@@ -16,7 +16,7 @@ describe( 'JetpackFooter', () => {
 		it( 'validates Jetpack logo', () => {
 			render( <JetpackFooter /> );
 
-			expect( screen.getByLabelText( 'Jetpack logo' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Jetpack' ) ).toBeInTheDocument();
 		} );
 
 		it( 'tests for module name and link', () => {
@@ -27,7 +27,7 @@ describe( 'JetpackFooter', () => {
 				/>
 			);
 
-			const element = screen.getByLabelText( 'Test module' );
+			const element = screen.getByText( 'Test module' );
 
 			expect( element ).toBeInTheDocument();
 			expect( element ).toBeInstanceOf( HTMLAnchorElement );
@@ -37,9 +37,9 @@ describe( 'JetpackFooter', () => {
 		it( 'validates the a8c label', () => {
 			render( <JetpackFooter /> );
 
-			for ( const element of screen.getAllByLabelText( 'An Automattic Airline' ) ) {
-				expect( element ).toBeInTheDocument();
-			}
+			expect(
+				screen.getByLabelText( 'An Automattic Airline', { selector: 'a' } )
+			).toBeInTheDocument();
 		} );
 	} );
 } );
