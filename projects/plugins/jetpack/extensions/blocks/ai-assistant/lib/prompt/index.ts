@@ -56,7 +56,7 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
  * @returns {PromptItemProps} The initial system prompt.
  */
 export function getInitialSystemPrompt( {
-	context = 'Impersonate a ghostwriter to help me write in the WordPress editor, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
+	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
 	rules,
 }: {
 	context?: string;
@@ -93,7 +93,7 @@ export function getBlogPostDataUserPrompt( { content }: { content: string } ): P
 		return null;
 	}
 
-	const blogPostData = `I'm working on a blog post. Here's the data I have so far:
+	const blogPostData = `Here's the content in the editor that serves as context to the user request:
 ${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
 		content ? `- Current content: ${ content }` : ''
 	}`;
