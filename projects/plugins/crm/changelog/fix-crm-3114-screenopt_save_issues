@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+Listview: per-page settings no longer reset
+Listview: PHP notice no longer shows when saving settings

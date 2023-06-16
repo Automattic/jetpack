@@ -1,0 +1,11 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-assistant__ai-assistant-panel {
+	.components-custom-select-control {
+		width: 100%;
+	}
+
+	.components-panel__body-toggle .block-editor-block-icon {
+		color: var( --jp-green-40 );
+	}
+}

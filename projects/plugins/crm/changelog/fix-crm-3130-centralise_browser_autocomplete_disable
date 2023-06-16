@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use jpcrm_disable_browser_autocomplete() throughout
+
+

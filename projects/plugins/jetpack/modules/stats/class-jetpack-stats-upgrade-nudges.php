@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Redirect;

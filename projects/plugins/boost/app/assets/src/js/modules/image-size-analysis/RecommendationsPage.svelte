@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import Hero from './recommendations/Hero.svelte';
@@ -6,7 +7,13 @@
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
 	import { initializeIsaData } from './store/isa-data';
+	import { initializeIsaSummary } from './store/isa-summary';
+
 	initializeIsaData();
+
+	onMount( () => {
+		initializeIsaSummary();
+	} );
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
