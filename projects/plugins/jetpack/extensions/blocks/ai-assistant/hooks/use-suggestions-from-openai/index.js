@@ -168,7 +168,7 @@ const useSuggestionsFromOpenAI = ( {
 			setWasCompletionJustRequested( true );
 			// debug all prompt items, one by one
 			prompt.forEach( ( { role, content: promptContent }, i ) =>
-				debugPromt( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
+				debugPrompt( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
 			);
 
 			source.current = await askQuestion( prompt, { postId, requireUpgrade } );
@@ -200,8 +200,8 @@ const useSuggestionsFromOpenAI = ( {
 			};
 			updatedMessaages.push( lastUserPrompt, lastAssistantPrompt );
 
-			debugPromt( 'Add %o\n%s', `[${ lastUserPrompt.role }]`, lastUserPrompt.content );
-			debugPromt( 'Add %o\n%s', `[${ lastAssistantPrompt.role }]`, lastAssistantPrompt.content );
+			debugPrompt( 'Add %o\n%s', `[${ lastUserPrompt.role }]`, lastUserPrompt.content );
+			debugPrompt( 'Add %o\n%s', `[${ lastAssistantPrompt.role }]`, lastAssistantPrompt.content );
 
 			/*
 			 * Limit the messages to 20 items.
