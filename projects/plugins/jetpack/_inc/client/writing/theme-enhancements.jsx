@@ -32,7 +32,7 @@ class ThemeEnhancements extends React.Component {
 	/**
 	 * Update the state for infinite scroll options and prepare options to submit
 	 *
-	 * @param {string} radio Update options to save when Infinite Scroll options change.
+	 * @param {string} radio - Update options to save when Infinite Scroll options change.
 	 */
 	updateInfiniteMode = radio => {
 		this.setState(
@@ -63,8 +63,8 @@ class ThemeEnhancements extends React.Component {
 	/**
 	 * Update state so toggles are updated.
 	 *
-	 * @param {string} optionName option slug
-	 * @param {string} module module slug
+	 * @param {string} optionName - option slug
+	 * @param {string} module - module slug
 	 */
 	updateOptions = ( optionName, module ) => {
 		this.setState(
@@ -94,8 +94,8 @@ class ThemeEnhancements extends React.Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {Object} {{
-	 * 		infinite_scroll: *
+	 * @returns {object} {{
+	 * infinite_scroll: *
 	 * }}
 	 */
 	state = {
@@ -194,7 +194,7 @@ class ThemeEnhancements extends React.Component {
 						) }
 					</SettingsGroup>
 				) }
-				{ foundCustomCSS && (
+				{ ! this.props.isBlockBasedThemeActive && foundCustomCSS && (
 					<SettingsGroup
 						module={ { module: customCSS.module } }
 						support={ {
