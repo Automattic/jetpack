@@ -155,7 +155,7 @@ export const buildPromptTemplate = ( {
 	if ( relevantContent != null && relevantContent?.length ) {
 		if ( ! isContentGenerated ) {
 			messages.push( {
-				role: 'system',
+				role: 'user',
 				content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
 			} );
 		}
