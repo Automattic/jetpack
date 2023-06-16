@@ -14,7 +14,7 @@ import { buildPromptForBlock } from '../../lib/prompt';
 import { askJetpack, askQuestion } from '../../lib/suggestions';
 import { getContentFromBlocks, getPartialContentToBlock } from '../../lib/utils/block-content';
 
-const debug = debugFactory( 'jetpack-ai-assistant:event:fullMessage' );
+const debug = debugFactory( 'jetpack-ai-assistant:event' );
 
 const useSuggestionsFromOpenAI = ( {
 	attributes,
@@ -165,7 +165,6 @@ const useSuggestionsFromOpenAI = ( {
 		try {
 			setIsLoadingCompletion( true );
 			setWasCompletionJustRequested( true );
-
 			source.current = await askQuestion( prompt, { postId, requireUpgrade } );
 		} catch ( err ) {
 			if ( err.message ) {
@@ -272,7 +271,7 @@ const useSuggestionsFromOpenAI = ( {
 
 		source?.current?.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
-			debug( 'fullMessage', e.detail );
+			debug( '(suggestion)', e.detail );
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
 		return source?.current;
