@@ -44,9 +44,13 @@ export function imageTagSource( node: HTMLImageElement ) {
  */
 export function backgroundImageSource( node: HTMLElement ) {
 	const src = getComputedStyle( node ).backgroundImage;
-	const url = src.match( /url\(.?(.*?).?\)/i );
-	if ( url && url[ 1 ] && imageLikeURL( url[ 1 ] ) ) {
-		return url[ 1 ];
+	const url = src.match( /url\(\s*(['"])(.*?)\1\s*\)/i );
+
+	// If background image is `url('')`, the computed value becomes the current page URL. So we need to check for that.
+	const currentUrlWithoutHash = window.location.href.split( '#' )[ 0 ];
+
+	if ( url && url[ 2 ] && url[ 2 ] !== currentUrlWithoutHash && imageLikeURL( url[ 2 ] ) ) {
+		return url[ 2 ];
 	}
 	return null;
 }
