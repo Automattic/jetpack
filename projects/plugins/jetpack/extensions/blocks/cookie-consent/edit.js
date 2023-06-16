@@ -1,5 +1,4 @@
 import { InspectorControls, useBlockProps, InnerBlocks, RichText } from '@wordpress/block-editor';
-import { createBlock, serialize } from '@wordpress/blocks';
 import {
 	PanelBody,
 	TextControl,
@@ -9,48 +8,19 @@ import {
 	CardBody,
 	CardFooter,
 } from '@wordpress/components';
-import { useEntityRecord } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
 import { __, isRTL } from '@wordpress/i18n';
 import './editor.scss';
 import { useEffect, useState } from 'react';
-import createBlocksFromTemplate from '../../shared/create-block-from-inner-blocks-template';
-import { name as blockName } from '.';
-
-const DEFAULT_INNER_BLOCKS = [
-	[
-		'core/button',
-		{
-			text: __( 'Accept', 'jetpack' ),
-		},
-	],
-];
-
-const PART_SLUG = 'cookie-consent-block-template-part';
-
-function createTemplatePart( attributes, innerBlocks ) {
-	return {
-		slug: PART_SLUG,
-		description: __( 'Contains the cookie consent block.', 'jetpack' ),
-		title: __( 'Cookie Consent Block Template Part', 'jetpack' ),
-		content: serialize(
-			createBlock(
-				`jetpack/${ blockName }`,
-				{
-					...attributes,
-					isInWarningState: false,
-					lock: {
-						move: true,
-						remove: true,
-					},
-				},
-				innerBlocks.length ? innerBlocks : createBlocksFromTemplate( DEFAULT_INNER_BLOCKS )
-			)
-		),
-		area: 'footer',
-	};
-}
+import {
+	createTemplatePart,
+	DEFAULT_INNER_BLOCKS,
+	openTemplate,
+	PART_SLUG,
+	useCookieConsentTemplatePart,
+	useWarningState,
+} from './util';
 
 /**
  * Hide the cookie consent block pattern from the inserter. It should not be inserted by the user, only edited or deleted.
@@ -75,24 +45,6 @@ addFilter( 'blocks.registerBlockType', 'core/template-part', function ( settings
 } );
 
 /**
- * Fetches the template part for the cookie consent block
- *
- * @returns {object} { part, isLoading }
- */
-function useCookieConsentTemplatePart() {
-	const theme = useSelect( select => select( 'core' ).getCurrentTheme() );
-	const { record, isResolving } = useEntityRecord(
-		'postType',
-		'wp_template_part',
-		`${ theme?.stylesheet }//${ PART_SLUG }`,
-		{
-			enabled: !! theme,
-		}
-	);
-
-	return { part: record, isLoading: ! theme || isResolving };
-}
-/**
  * Cookie Consent Edit Component.
  *
  * @param {object} props - Component props.
@@ -102,14 +54,8 @@ function useCookieConsentTemplatePart() {
  * @returns {object} Element to render.
  */
 function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
-	const parentPost = useSelect( select => {
-		const id = select( 'core/edit-site' ).getEditedPostId();
-		const type = select( 'core/edit-site' ).getEditedPostType();
-		return select( 'core' ).getEntityRecord( 'postType', type, id );
-	}, [] );
-
 	const { removeBlock } = useDispatch( 'core/block-editor' );
-	const { saveEntityRecord } = useDispatch( 'core' );
+	const { saveEntityRecord } = useDispatch( 'core' ) || {};
 	const [ isSaving, setIsSaving ] = useState( false );
 
 	const { part, isLoading } = useCookieConsentTemplatePart();
@@ -118,6 +64,7 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 		[ clientId ]
 	);
 
+	const isInWarningState = useWarningState( innerBlocks );
 	const templatePart = createTemplatePart( attributes, innerBlocks );
 
 	/**
@@ -153,22 +100,20 @@ function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
 	async function goToTemplatePart( savedTemplate ) {
 		setIsSaving( false );
 		removeBlock( clientId );
-		window.open(
-			`/wp-admin/site-editor.php?postType=${ savedTemplate.type }&postId=${ savedTemplate.id }`
-		);
+		openTemplate( savedTemplate );
 	}
 
 	const blockProps = useBlockProps( {
 		className: `wp-block-jetpack-cookie-consent align${ align }`,
 	} );
 
+	const shouldUpdateWarningState = ! attributes.isInWarningState && isInWarningState;
 	/* If the block is added in the right place (in its own part), mark it as such, this is needed in the save function */
 	useEffect( () => {
-		const isInWarningState = parentPost?.slug !== PART_SLUG;
-		if ( parentPost && ! innerBlocks.length ) {
-			setAttributes( { isInWarningState } );
+		if ( shouldUpdateWarningState ) {
+			setAttributes( { isInWarningState: true } );
 		}
-	}, [ setAttributes, parentPost, innerBlocks ] );
+	}, [ shouldUpdateWarningState, setAttributes ] );
 
 	/* If the block is added in the wrong place (not in its own part), render UI that helps the user create a template part. */
 	if ( attributes.isInWarningState ) {
