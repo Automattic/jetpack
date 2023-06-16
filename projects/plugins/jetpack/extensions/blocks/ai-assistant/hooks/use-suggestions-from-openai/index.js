@@ -118,6 +118,15 @@ const useSuggestionsFromOpenAI = ( {
 
 		let prompt = lastPrompt;
 
+		tracks.recordEvent( 'jetpack_ai_chat_completion', {
+			post_id: postId,
+		} );
+
+		// Create a copy of the prompt history.
+		const updatedPromptHistory = [ ...attributes.promptHistory ] ?? [];
+
+		let lastUserPrompt = {};
+
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
 			prompt = buildPromptForBlock( {
@@ -130,22 +139,13 @@ const useSuggestionsFromOpenAI = ( {
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
 			} );
-		}
 
-		tracks.recordEvent( 'jetpack_ai_chat_completion', {
-			post_id: postId,
-		} );
+			/*
+			 * Pop the last item from the prompt history,
+			 * which is the fresh `user` request by convention.
+			 */
+			lastUserPrompt = prompt.pop();
 
-		// Create a copy of the prompt history.
-		const updatedPromptHistory = [ ...attributes.promptHistory ] ?? [];
-
-		/*
-		 * Pop the last item from the prompt history,
-		 * which is the fresh `user` request by convention.
-		 */
-		const lastUserPrompt = prompt.pop();
-
-		if ( ! options.retryRequest ) {
 			// Populate prompt with the prompt history.
 			prompt = [ ...prompt, ...updatedPromptHistory ];
 
@@ -159,6 +159,8 @@ const useSuggestionsFromOpenAI = ( {
 			if ( attributes.promptType !== 'generateTitle' ) {
 				updateBlockAttributes( clientId, { promptType: type } );
 			}
+		} else {
+			lastUserPrompt = prompt[ prompt.length - 1 ];
 		}
 
 		try {
@@ -206,7 +208,7 @@ const useSuggestionsFromOpenAI = ( {
 			 * @todo: limit the prompt based on tokens.
 			 */
 			if ( updatedPromptHistory.length > 20 ) {
-				updatedPromptHistory.splice( 0, 20 );
+				updatedPromptHistory.splice( 0, updatedPromptHistory.length - 20 );
 			}
 
 			stopSuggestion();
@@ -243,6 +245,23 @@ const useSuggestionsFromOpenAI = ( {
 				updateBlockAttributes( clientId, {
 					promptHistory: updatedPromptHistory,
 				} );
+
+				/*
+				 * Update the last prompt with the new prompt history.
+				 * @todo: Iterate over Prompt libraru to address properly the prompt history.
+				 */
+				prompt = buildPromptForBlock( {
+					generatedContent: content,
+					allPostContent: getContentFromBlocks(),
+					postContentAbove: getPartialContentToBlock( clientId ),
+					currentPostTitle,
+					options,
+					userPrompt,
+					type,
+					isGeneratingTitle: attributes.promptType === 'generateTitle',
+				} );
+
+				setLastPrompt( [ ...prompt, ...updatedPromptHistory, lastUserPrompt ] );
 			}
 
 			source?.current?.close();
