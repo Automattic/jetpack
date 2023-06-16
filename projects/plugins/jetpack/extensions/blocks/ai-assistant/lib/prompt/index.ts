@@ -153,12 +153,7 @@ export const buildPromptTemplate = ( {
 	}
 
 	if ( relevantContent != null && relevantContent?.length ) {
-		if ( isContentGenerated ) {
-			messages.push( {
-				role: 'assistant',
-				content: relevantContent,
-			} );
-		} else {
+		if ( ! isContentGenerated ) {
 			messages.push( {
 				role: 'system',
 				content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
