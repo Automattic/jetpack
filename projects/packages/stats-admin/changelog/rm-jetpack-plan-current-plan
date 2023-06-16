@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Switch to relying on the Plans package instead of a class available in the Jetpack plugin only.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixes output of staticized script path on wordpress.com

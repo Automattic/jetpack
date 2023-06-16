@@ -399,7 +399,7 @@ class zeroBSCRM_list{
 			// If totals, show the wrapper. Currently only implemented in contacts
 			if ( $zbs->settings->get( 'show_totals_table' ) === 1 && $this->objType === 'customer' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				?>
-				<jpcrm-dashcount></jpcrm-dashcount>
+				<jpcrm-dashcount class="wide-cards"></jpcrm-dashcount>
 				<?php
 			}
 			##WLREMOVE
