@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack\Boost_Speed_Score\Lib\Boost_API;
+use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
