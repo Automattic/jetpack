@@ -143,7 +143,7 @@ abstract class Module_Product extends Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * Checks whether the site already supports this product through an existing plan or purchase
 	 *
 	 * @return boolean
 	 */
