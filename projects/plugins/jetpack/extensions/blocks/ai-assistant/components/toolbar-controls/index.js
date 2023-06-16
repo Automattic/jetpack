@@ -8,7 +8,12 @@ import { image, update, check } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
-import { PROMPT_TYPE_CHANGE_TONE } from '../../lib/prompt';
+import {
+	PROMPT_TYPE_CHANGE_LANGUAGE,
+	PROMPT_TYPE_CHANGE_TONE,
+	PROMPT_TYPE_GENERATE_TITLE,
+	PROMPT_TYPE_SUMMARIZE,
+} from '../../lib/prompt';
 import I18nDropdownControl from '../i18n-dropdown-control';
 import ImproveToolbarDropdownMenu from '../improve-dropdown-control';
 import PromptTemplatesControl from '../prompt-templates-control';
@@ -47,14 +52,17 @@ const ToolbarControls = ( {
 					<I18nDropdownControl
 						value="en"
 						onChange={ language =>
-							getSuggestionFromOpenAI( 'changeLanguage', { language, contentType: 'generated' } )
+							getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_LANGUAGE, {
+								language,
+								contentType: 'generated',
+							} )
 						}
 						disabled={ contentIsLoaded }
 					/>
 
 					<ImproveToolbarDropdownMenu
 						onChange={ getSuggestionFromOpenAI }
-						exclude={ promptType === 'generateTitle' ? [ 'summarize' ] : [] }
+						exclude={ promptType === PROMPT_TYPE_GENERATE_TITLE ? [ PROMPT_TYPE_SUMMARIZE ] : [] }
 					/>
 				</BlockControls>
 			) }
@@ -94,12 +102,14 @@ const ToolbarControls = ( {
 						<BlockControls group="block">
 							<ToneToolbarDropdownMenu
 								value="neutral"
-								onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
+								onChange={ tone => getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_TONE, { tone } ) }
 							/>
 							<I18nDropdownControl
 								value="en"
 								label={ __( 'Translate', 'jetpack' ) }
-								onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
+								onChange={ language =>
+									getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_LANGUAGE, { language } )
+								}
 							/>
 						</BlockControls>
 					) }

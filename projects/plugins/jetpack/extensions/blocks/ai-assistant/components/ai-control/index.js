@@ -15,6 +15,7 @@ import classNames from 'classnames';
 import AIAssistantIcon from '../../icons/ai-assistant';
 import origamiPlane from '../../icons/origami-plane';
 import { isUserConnected } from '../../lib/connection';
+import { PROMPT_TYPE_GENERATE_TITLE, PROMPT_TYPE_USER_PROMPT } from '../../lib/prompt';
 import ConnectPrompt from '../connect-prompt';
 import Message, { ASSISTANT_STATE_CONTENT_GENERATED } from '../message/block-message';
 import ToolbarControls from '../toolbar-controls';
@@ -84,7 +85,7 @@ const AIControl = forwardRef(
 			[ 'command+enter', 'ctrl+enter' ],
 			() => {
 				if ( contentIsLoaded ) {
-					if ( promptType === 'generateTitle' ) {
+					if ( promptType === PROMPT_TYPE_GENERATE_TITLE ) {
 						handleAcceptTitle();
 					} else {
 						handleAcceptContent();
@@ -99,7 +100,7 @@ const AIControl = forwardRef(
 		useKeyboardShortcut(
 			'enter',
 			() => {
-				handleGetSuggestion( 'userPrompt' );
+				handleGetSuggestion( PROMPT_TYPE_USER_PROMPT );
 			},
 			{
 				target: promptUserInputRef,
@@ -180,7 +181,7 @@ const AIControl = forwardRef(
 								{ ! isWaitingState ? (
 									<Button
 										className="jetpack-ai-assistant__prompt_button"
-										onClick={ () => handleGetSuggestion( 'userPrompt' ) }
+										onClick={ () => handleGetSuggestion( PROMPT_TYPE_USER_PROMPT ) }
 										isSmall={ true }
 										disabled={ ! userPrompt?.length || ! connected || requireUpgrade }
 										label={ __( 'Send request', 'jetpack' ) }
@@ -204,7 +205,7 @@ const AIControl = forwardRef(
 							<div className="jetpack-ai-assistant__prompt_button_wrapper">
 								{ contentIsLoaded &&
 									! isWaitingState &&
-									( isInBlockEditor && promptType === 'generateTitle' ? (
+									( isInBlockEditor && promptType === PROMPT_TYPE_GENERATE_TITLE ? (
 										<Button
 											className="jetpack-ai-assistant__prompt_button"
 											onClick={ handleAcceptTitle }

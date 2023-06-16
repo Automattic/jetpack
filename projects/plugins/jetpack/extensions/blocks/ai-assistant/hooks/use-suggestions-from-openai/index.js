@@ -10,7 +10,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
-import { buildPromptForBlock } from '../../lib/prompt';
+import { PROMPT_TYPE_GENERATE_TITLE, buildPromptForBlock } from '../../lib/prompt';
 import { askJetpack, askQuestion } from '../../lib/suggestions';
 import { getContentFromBlocks, getPartialContentToBlock } from '../../lib/utils/block-content';
 
@@ -156,7 +156,7 @@ const useSuggestionsFromOpenAI = ( {
 			setLastPrompt( prompt );
 
 			// If it is a title generation, keep the prompt type in subsequent changes.
-			if ( attributes.promptType !== 'generateTitle' ) {
+			if ( attributes.promptType !== PROMPT_TYPE_GENERATE_TITLE ) {
 				updateBlockAttributes( clientId, { promptType: type } );
 			}
 		} else {
