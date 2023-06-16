@@ -195,6 +195,14 @@ const useSuggestionsFromOpenAI = ( {
 				content: assistantResponse,
 			} );
 
+			/*
+			 * Limit the prompt history to 20 items.
+			 * @todo: limit the prompt based on tokens.
+			 */
+			if ( updatedPromptHistory.length > 20 ) {
+				updatedPromptHistory.splice( 0, updatedPromptHistory.length - 20 );
+			}
+
 			stopSuggestion();
 
 			updateBlockAttributes( clientId, {
