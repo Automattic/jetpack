@@ -20,8 +20,10 @@ import {
 	PROMPT_TYPE_MAKE_LONGER,
 	PROMPT_TYPE_SIMPLIFY,
 	PROMPT_TYPE_SUMMARIZE,
+	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PromptTypeProp,
 } from '../../lib/prompt';
+import { I18nMenuDropdown } from '../i18n-dropdown-control';
 import { ToneDropdownMenu, ToneProp } from '../tone-dropdown-control';
 import './style.scss';
 
@@ -76,6 +78,7 @@ const quickActionsList = [
 export type AiAssistantDropdownOnChangeOptionsArgProps = {
 	contentType: 'generated' | string;
 	tone?: ToneProp;
+	language?: string;
 };
 
 type AiAssistantControlComponentProps = {
@@ -135,6 +138,13 @@ export default function AiAssistantDropdown( {
 					<ToneDropdownMenu
 						onChange={ tone => {
 							onChange( PROMPT_TYPE_CHANGE_TONE, { tone, contentType: 'generated' } );
+							closeDropdown();
+						} }
+					/>
+
+					<I18nMenuDropdown
+						onChange={ language => {
+							onChange( PROMPT_TYPE_CHANGE_LANGUAGE, { language, contentType: 'generated' } );
 							closeDropdown();
 						} }
 					/>

@@ -73,6 +73,19 @@ class WP_Core_Provider extends Provider {
 		return array( self::$name . '_' . $key );
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	/** @inheritdoc */
+	public static function get_edit_url( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		if ( $provider_key === 'core_front_page' ) {
+			$front_page_id = get_option( 'page_on_front' );
+			if ( ! empty( $front_page_id ) ) {
+				return get_edit_post_link( $front_page_id, 'link' );
+			}
+		}
+
+		return null;
+	}
+
 	// phpcs:ignore
 	/** @inheritdoc */
 	public static function describe_key( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort

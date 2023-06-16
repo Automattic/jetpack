@@ -992,10 +992,12 @@ class Learn_Menu {
 				'content' => '<p>' . __( 'As your business grows you will want to expand your team.', 'zero-bs-crm' ) . '</p><p>' . __( 'Add new team members or search existing WordPress users to add them to your team.', 'zero-bs-crm' ) . '</p><p>' . __( 'WordPress Administrator level by default has access to everything. You can manage your other user permissions here.', 'zero-bs-crm' ) . '</p>',
 			),
 			'extensions'         => array(
-				'title'   => __( 'Extensions', 'zero-bs-crm' ),
-				'url'     => 'https://jetpackcrm.com/pricing/',
-				'img'     => 'learn-extensions-list.png',
-				'content' => '<p>' . sprintf( __( 'The core of the CRM is free to use, and you can manage your core modules (extensions) <a href="%s">here</a>; this page lets you manage premium extensions.', 'zero-bs-crm' ), admin_url( 'admin.php?page=' . $zbs->slugs['modules'] ) ) . '</p><p>' . __( '<b>Premium Extensions</b> Want all the extensions? Purchase our Entrepeneur Bundle to get access to them all.', 'zero-bs-crm' ) . '</p>', // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+				'title'           => __( 'Extensions', 'zero-bs-crm' ),
+				'url'             => 'https://jetpackcrm.com/pricing/',
+				'img'             => 'learn-extensions-list.png',
+				'video'           => false,
+				'content'         => '<p>' . sprintf( __( 'The core of the CRM is free to use, and you can manage your core modules (extensions) <a href="%s">here</a>; this page lets you manage premium extensions.', 'zero-bs-crm' ), admin_url( 'admin.php?page=' . $zbs->slugs['modules'] ) ) . '</p><p>' . __( '<b>Premium Extensions</b> Want all the extensions? Purchase our Entrepeneur Bundle to get access to them all.', 'zero-bs-crm' ) . '</p>', // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+				'filter_function' => 'jpcrm_extensions_learn_menu',
 			),
 			'managecompanies'    => array(
 				'title'           => __( jpcrm_label_company( true ), 'zero-bs-crm' ), // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText

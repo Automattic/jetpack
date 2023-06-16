@@ -67,6 +67,14 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 		! ( image.node instanceof HTMLImageElement ) &&
 		[ 'static', 'relative' ].includes( getComputedStyle( node ).position )
 	) {
+		/* 
+		 Since we are only taking static and relative, let's convert it to relative 
+		 and mark it as a wrapper so that we can position the guide component properly.
+		*/
+		if ( ! node.classList.contains( 'jetpack-boost-guide' ) ) {
+			node.classList.add( 'jetpack-boost-guide', 'relative' );
+			node.dataset.jetpackBoostGuideId = ( ++wrapperID ).toString();
+		}
 		return node;
 	}
 
@@ -98,6 +106,11 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 		wrapper.dataset.jetpackBoostGuideId = ( ++wrapperID ).toString();
 		if ( parentStyle.position === 'static' ) {
 			ancestor.style.position = 'relative';
+		}
+
+		if ( image.node instanceof HTMLImageElement ) {
+			// The guide element should be on the same y-axis level as the image.
+			wrapper.style.top = `${ image.node.offsetTop }px`;
 		}
 
 		ancestor.prepend( wrapper );

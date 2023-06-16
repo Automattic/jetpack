@@ -125,13 +125,14 @@ var zbsTour = {
 			},
 		},
 
-		/* things break from here on down */
 		{
 			title: window.zbs_tour.lang.step9.title,
 			content: window.zbs_tour.lang.step9.content,
 			target: 'learn',
 			placement: 'right',
+			multipage: true,
 			showPrevButton: true,
+			yOffset: -20,
 			onNext: function () {
 				window.location = zbs_tour.admin_url + 'admin.php?page=zerobscrm-plugin-settings';
 			},
@@ -149,12 +150,7 @@ var zbsTour = {
 			target: 'zbs-settings-head-tour',
 			placement: 'bottom',
 		},
-		{
-			title: window.zbs_tour.lang.step11.title,
-			content: window.zbs_tour.lang.step11.content,
-			target: 'b2b-tour',
-			placement: 'right',
-		},
+
 		{
 			title: window.zbs_tour.lang.step12.title,
 			content: window.zbs_tour.lang.step12.content,
@@ -169,6 +165,7 @@ var zbsTour = {
 			content: window.zbs_tour.lang.step13.content,
 			target: 'jpcrm-user-menu-item',
 			placement: 'left',
+			yOffset: -10,
 			onShow: function () {
 				// highlight item
 				//jQuery('#jpcrm-user-menu-item').addClass('active');
