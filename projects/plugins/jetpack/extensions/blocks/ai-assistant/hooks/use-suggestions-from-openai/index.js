@@ -224,7 +224,19 @@ const useSuggestionsFromOpenAI = ( {
 			onUnclearPrompt?.();
 		} );
 
-		source?.current?.addEventListener( 'error_network', () => {
+		source?.current?.addEventListener( 'error_network', ( { detail: error } ) => {
+			const { name: errorName, message: errorMessage } = error;
+			if ( errorName === 'TypeError' && errorMessage === 'Failed to fetch' ) {
+				/*
+				 * This is a network error.
+				 * Probably: "414 Request-URI Too Large".
+				 * Let's clean up the prompt history and try again.
+				 */
+				updateBlockAttributes( clientId, {
+					promptHistory: updatedPromptHistory.splice( 0, updatedPromptHistory.length - 8 ),
+				} );
+			}
+
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
