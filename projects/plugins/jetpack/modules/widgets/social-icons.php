@@ -767,7 +767,17 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			),
 		);
 
-		return $social_links_icons;
+		/**
+		 * Filter the list of services matching Social Media Icons available in the Social Icons SVG sprite.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $social_links_icons Array of social links icons.
+		 */
+		return apply_filters(
+			'jetpack_social_icons_supported_icons',
+			$social_links_icons
+		);
 	}
 } // Jetpack_Widget_Social_Icons
 
