@@ -194,7 +194,6 @@ class Dedicated_Sender {
 		$url = add_query_arg( self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME, $request_lock, $url );
 
 		$args = array(
-			'cookies'   => $_COOKIE,
 			'blocking'  => false,
 			'timeout'   => 0.01,
 			/** This filter is documented in wp-includes/class-wp-http-streams.php */
