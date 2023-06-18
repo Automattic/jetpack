@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -93,6 +94,7 @@ class Odyssey_Config_Data {
 								'stats_admin_version'   => Main::VERSION,
 								'software_version'      => $wp_version,
 							),
+							// TODO remove this and use API so that we could reduce loading time.
 							'stats_notices' => ( new Notices() )->get_notices_to_show(),
 						),
 					),
@@ -171,10 +173,7 @@ class Odyssey_Config_Data {
 	 * Get the features of the current plan.
 	 */
 	protected function get_plan_features() {
-		if ( ! class_exists( 'Jetpack_Plan' ) ) {
-			return array();
-		}
-		$plan = \Jetpack_Plan::get();
+		$plan = Jetpack_Plan::get();
 		if ( empty( $plan['features'] ) ) {
 			return array();
 		}

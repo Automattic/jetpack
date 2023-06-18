@@ -30,3 +30,12 @@
 		width: 100%;
 	}
 }
+
+.zbs-infobox-transaction {
+	margin: 0px !important;
+	padding: 0px !important;
+
+	.zbs-live i.zbs-help-ico {
+		font-size: unset;
+	}
+}

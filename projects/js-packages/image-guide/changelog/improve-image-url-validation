@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Improved image url validation for background image source.

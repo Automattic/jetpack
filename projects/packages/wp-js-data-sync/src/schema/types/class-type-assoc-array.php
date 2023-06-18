@@ -31,6 +31,10 @@ class Type_Assoc_Array implements Parser {
 	 * @return array
 	 */
 	public function parse( $input_value ) {
+		// Allow coercing stdClass objects (often returned from json_decode) to an assoc array.
+		if ( is_object( $input_value ) && get_class( $input_value ) === 'stdClass' ) {
+			$input_value = (array) $input_value;
+		}
 
 		if ( ! is_array( $input_value ) || $this->is_sequential_array( $input_value ) ) {
 			$message = "Expected an associative array, received '" . gettype( $input_value ) . "'";

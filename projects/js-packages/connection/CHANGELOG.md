@@ -2,6 +2,19 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.29.0 - 2023-06-15
+### Changed
+- Connection: always display connection button on connection screen. [#31196]
+
+## 0.28.0 - 2023-06-06
+### Changed
+- Update connection module to have an RNA option that updates the design [#31201]
+- Updated package dependencies. [#31129]
+
+## 0.27.1 - 2023-05-29
+### Added
+- Add logo prop to `ConnectScreen` and `ConnectScreenVisual` so we could use produucts logos similar to `ConnectScreenRequiredPlan` component. [#30886]
+
 ## 0.27.0 - 2023-05-22
 ### Added
 - Offline Mode handling. [#30570]

@@ -235,7 +235,6 @@ function getPlanData(
 
 /**
  * Returns a JSON representation of Jetpack plan data.
- * TODO: Share the mock data with methods in jetpack/tests/php/general/test_class.jetpack-plan.php somehow.
  *
  * @param {string} type Jetpack plan slug.
  * @return {JSON} JSON Jetpack plan object.
@@ -252,13 +251,7 @@ function getPlan( type ) {
 				user_is_owner: false,
 				is_free: true,
 				features: {
-					active: [
-						'akismet',
-						'donations',
-						'recurring-payments',
-						'premium-content/container',
-						'simple-payments',
-					],
+					active: [ 'akismet', 'donations', 'recurring-payments', 'premium-content/container' ],
 					available: {
 						akismet: [
 							'jetpack_free',
@@ -289,7 +282,6 @@ function getPlan( type ) {
 							'jetpack_business_monthly',
 						],
 						'simple-payments': [
-							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
@@ -329,7 +321,6 @@ function getPlan( type ) {
 						'donations',
 						'recurring-payments',
 						'premium-content/container',
-						'simple-payments',
 					],
 					available: {
 						akismet: [
@@ -417,7 +408,6 @@ function getPlan( type ) {
 							'jetpack_business_monthly',
 						],
 						'simple-payments': [
-							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_business',
 							'jetpack_premium_monthly',

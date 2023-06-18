@@ -8,6 +8,10 @@
 	}
 }
 
+.jetpack-newsletter-link {
+	text-decoration: none;
+}
+
 .edit-post-post-misconfiguration {
 	&__warning {
 		margin: 0;
@@ -18,15 +22,14 @@
 		}
 	}
 }
+
 .edit-post-post-visibility {
+	display: block;
 	&__notice {
 		margin: 0;
-
-		// General notice background color.
-		// Colors are forced as per instructions: https://github.com/Automattic/jetpack/pull/30446#issuecomment-1543510120
 		&.is-info {
 			background: #e9f0f5;
-			border-left-color: #007cba;
+			border-left-color: #e9f0f5;
 		}
 	}
 
@@ -36,19 +39,29 @@
 
 }
 
-.jetpack-newsletter-link {
-	text-decoration: none;
-}
+fieldset.editor-post-visibility__fieldset .editor-post-visibility {
+	&__choice {
+		margin-bottom: 15px;
+		.editor-post-visibility__label {
+			font-size: 14px;
+		}
 
-.editor-post-visibility__choice input[disabled] {
-	background-color: $gray-400;
-	cursor:no-drop;
+		input[disabled] {
+			cursor: no-drop;
 
-	&+label{
-		cursor:no-drop;
+			&+label {
+				cursor: no-drop;
+				text-decoration: line-through;
+			}
+		}
 	}
-}
 
-.pre-public-panel-notice-reach{
-		margin-bottom:20px;
+	&__notice {
+		margin-top: 5px;
+		margin-left: 33px;
+	}
+
+	&__info {
+		margin-top: -10px;
+	}
 }

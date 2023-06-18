@@ -365,7 +365,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "75636f868cbb649407ca7368f1af690d2214fd3f"
+                "reference": "e10b58b99b076a80696cf84909c1a6233dc544a8"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -398,7 +398,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.13.x-dev"
+                    "dev-trunk": "1.16.x-dev"
                 }
             },
             "autoload": {
@@ -450,7 +450,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "c15d3c034cc4bceaa02c1c3376a7e99cb464de92"
+                "reference": "4e871a8a06c7e91843ac6766e602dab2594c503b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -473,7 +473,7 @@
                     "link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "textdomain": "jetpack-blaze",
                 "version-constants": {
@@ -573,12 +573,76 @@
             }
         },
         {
+            "name": "automattic/jetpack-boost-core",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/boost-core",
+                "reference": "e9cf3b3305c1da7269891a78182416a851be10e7"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-boost-core",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-boost-core/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-boost-core"
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Core functionality for boost and relevant packages to depend on",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-boost-speed-score",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-speed-score",
-                "reference": "a8fb6391ea66536025236a2d84a3eb775c5367b7"
+                "reference": "c79df5cb20ee4ccadbc002db7483b3c6a4b41057"
+            },
+            "require": {
+                "automattic/jetpack-boost-core": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -596,7 +660,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "textdomain": "jetpack-boost-speed-score",
                 "version-constants": {
@@ -784,7 +848,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "6157e784394700ac8663b629c55cba5632a2b1a5"
+                "reference": "81ed0f365380e1b51c1873e520944f4c00bf8b36"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -815,7 +879,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.52.x-dev"
+                    "dev-trunk": "1.53.x-dev"
                 }
             },
             "autoload": {
@@ -1711,49 +1775,6 @@
             }
         },
         {
-            "name": "automattic/jetpack-options",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/options",
-                "reference": "fc17d17f66d419f29fcbef2e073c6e050bd48a17"
-            },
-            "require": {
-                "automattic/jetpack-connection": "@dev"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.0.4"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-options",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "1.16.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "legacy"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "A wrapper for wp-options to manage specific Jetpack options.",
-            "abandoned": "automattic/jetpack-connection",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "automattic/jetpack-partner",
             "version": "dev-trunk",
             "dist": {
@@ -2368,12 +2389,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "cc191277c2f3d7980556703070eb3e5e7d6c0ad3"
+                "reference": "faac780f3f5a28b267eef563ee7d9adeebad4a8f"
             },
             "require": {
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",
-                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-stats": "@dev",
                 "automattic/jetpack-status": "@dev"
             },
@@ -2390,7 +2412,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.10.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -2488,7 +2510,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "a42c6a95760781a8f0d6c25a360ce745f618b834"
+                "reference": "82fae1ac3076aa675fa884a03b8cb593dcfd9a28"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2519,7 +2541,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.48.x-dev"
+                    "dev-trunk": "1.49.x-dev"
                 }
             },
             "autoload": {

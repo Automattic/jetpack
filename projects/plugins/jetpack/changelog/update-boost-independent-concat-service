@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Added Page-Optimize-compatible PHP endpoint for loading concatenated files without loading wp

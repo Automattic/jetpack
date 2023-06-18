@@ -11,6 +11,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -213,10 +214,10 @@ class Jetpack_Gutenberg {
 	 * Used to initialize the class, no longer in use.
 	 *
 	 * @return void
-	 * @deprecated $$next-version$$ No longer needed.
+	 * @deprecated 12.2 No longer needed.
 	 */
 	public static function init() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '12.2' );
 	}
 
 	/**
@@ -502,6 +503,7 @@ class Jetpack_Gutenberg {
 				echo '<link rel="stylesheet" id="jetpack-block-' . esc_attr( $type ) . '" href="' . esc_attr( $view_style ) . '&amp;ver=' . esc_attr( $style_version ) . '" media="all">';
 			} else {
 				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
+				wp_style_add_data( 'jetpack-block-' . $type, 'path', JETPACK__PLUGIN_DIR . $style_relative_path );
 			}
 		}
 	}
@@ -655,6 +657,20 @@ class Jetpack_Gutenberg {
 			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
+		// AI Assistant
+		$ai_assistant_state = Jetpack_AI_Helper::get_ai_assistance_feature();
+		if ( is_wp_error( $ai_assistant_state ) ) {
+			$ai_assistant_state = array(
+				'error-message' => $ai_assistant_state->get_error_message(),
+				'error-code'    => $ai_assistant_state->get_error_code(),
+			);
+		}
+
+		$screen_base = null;
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen_base = get_current_screen()->base;
+		}
+
 		$initial_state = array(
 			'available_blocks' => self::get_availability(),
 			'jetpack'          => array(
@@ -700,6 +716,8 @@ class Jetpack_Gutenberg {
 			'wpcomBlogId'      => $blog_id,
 			'allowedMimeTypes' => wp_get_mime_types(),
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'     => $ai_assistant_state,
+			'screenBase'       => $screen_base,
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
@@ -713,6 +731,7 @@ class Jetpack_Gutenberg {
 				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
 				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
+				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
 			);
 		}
 

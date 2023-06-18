@@ -240,6 +240,7 @@ class Jetpack_Social {
 						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
 						'dismissedNotices'               => $publicize->get_dismissed_notices(),
 						'isInstagramConnectionSupported' => $publicize->has_instagram_connection_feature(),
+						'isMastodonConnectionSupported'  => $publicize->has_mastodon_connection_feature(),
 					),
 					'connectionData'               => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
@@ -335,6 +336,7 @@ class Jetpack_Social {
 					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 					'dismissedNotices'                => $publicize->get_dismissed_notices(),
 					'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
+					'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
 				),
 			)
 		);

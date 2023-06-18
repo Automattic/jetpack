@@ -42,6 +42,7 @@
 		"story",
 		"subscriptions",
 		"tiled-gallery",
+		"tock",
 		"videopress",
 		"wordads",
 		"payments-intro",
@@ -61,10 +62,12 @@
 		"post-publish-promote-post-panel",
 		"recipe",
 		"v6-video-frame-poster",
-		"videopress/video-chapters"
+		"videopress/video-chapters",
+		"ai-assistant-support"
 	],
-	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm" ],
+	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
+		"ai-assistant",
 		"business-hours",
 		"button",
 		"calendly",
@@ -87,6 +90,7 @@
 		"simple-payments",
 		"slideshow",
 		"tiled-gallery",
+		"tock",
 		"videopress",
 		"wordads"
 	]

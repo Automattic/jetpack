@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 12.1
+Stable tag: 12.2.1
 Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.2
@@ -43,7 +43,7 @@ Get blazing fast site speed with Jetpack. Jetpack’s free CDN (content delivery
 = POWERFUL TOOLS FOR GROWTH =
 Create and customize your WordPress site, optimize it for visitors and revenue, and enjoy watching your stats tick up. Build it, share it, and watch it grow.
 
-* Auto publish blog posts and products to social media by simply using our tools to connect to Facebook, Tumblr, and LinkedIn.
+* Auto publish blog posts and products to social media by simply using our tools to connect to Facebook, Tumblr, Mastodon, and LinkedIn.
 * Easily share Instagram posts on your pages and blog posts.
 * Collect a payment or donation, sell a product, service, or membership with simple integrations with PayPal and Stripe.
 * Grow traffic with SEO tools for Google, Bing, Facebook, and WordPress.com. XML sitemap created automatically.
@@ -64,6 +64,17 @@ With Jetpack Stats, you don’t need to be a data scientist to see how your site
 * Get detailed insights on the referrers that bring traffic to your site.
 * Discover what countries your visitors are coming from.
 * Measure link clicks, video plays, and file downloads within your site.
+
+= WRITE SMARTER, NOT HARDER. =
+Experience the ease of crafting professional content with intuitive and powerful AI. Jetpack AI Assistant effortlessly integrates with your WordPress editor, offering an intuitive interface to interact with AI.
+This powerful block lets you generate diverse content at your command, significantly reducing the time and effort required in content creation.
+
+Simply provide a prompt, and watch as Jetpack AI Assistant crafts compelling blog posts, detailed pages, structured lists, and comprehensive tables - all tailored to your needs.
+
+* Harness AI power directly from your editor.
+* Unlock high-quality, tailored content at your command.
+* Maintain professional standards with ease.
+* AI-powered translations across numerous languages at your fingertips, breaking down language barriers.
 
 = PROMOTE YOUR CONTENT EASILY WITH JETPACK BLAZE =
 Find new fans by promoting your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.
@@ -282,8 +293,35 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.2-a.5 - 2023-05-08
-- Extends release `12.2-a.3` with a fix for the Payments block.
+### 12.3-a.5 - 2023-06-12
+#### Enhancements
+- AI Assistant: add keyboard shortcuts.
+- AI Assistant: change icon on AI disclaimer message.
+- AI Assistant: move caret to end of generated content when accepting.
+- AI Assistant: show message when content generated.
+- AI Assistant: tidy some block components.
+- AI Assistant: tweak content generated message.
+- AI Assistant: remove shortcuts labels from block area.
+- Backup: add video section to Backup connect page.
+- Blocks: add new Tock block.
+- Blocks: load block stylesheets inline when possible for improved performance.
+
+#### Improved compatibility
+- PHP8 compatibility updates. [#31240, #31242, #31243, #31250]
+
+#### Bug fixes
+- AI Assistant: block query requests when upgrade required.
+- AI Assistant: check if the block is in the block editor context before enabling accept title action.
+- AI Assistant: fix translation feature.
+- AI Assistant: request completion JWT token as the user, not the blog.
+- AI Assistant: show Jetpack AI product in the plan products list.
+- Connection: fix redirecting users who click back button before approving connection to Jetpack Dashboard.
+- Dashboard: display an external icon next to the link to the Subscribers list.
+- Memberships: correctly gate posts rendered on pages.
+- Memberships: fix an issue where Jetpack_Memberships::user_can_view_post would cache the wrong value.
+- Markdown Block: render single and double quotes as smart quotes.
+- Newsletters: do not display Newsletter plans in the Premium Content and Recurring Payment blocks.
+- Newsletters: make the subscribers reach sentence future-tense for scheduled posts.
 
 --------
 

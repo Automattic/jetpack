@@ -13,9 +13,9 @@ import { SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
  */
 export async function refreshConnectionTestResults() {
 	try {
+		const jetpackSocialData = getJetpackData()?.social || {};
 		const connectionRefreshPath =
-			getJetpackData()?.social?.connectionRefreshPath ??
-			'/wpcom/v2/publicize/connection-test-results';
+			jetpackSocialData.connectionRefreshPath ?? '/wpcom/v2/publicize/connection-test-results';
 		const results = await apiFetch( { path: connectionRefreshPath } );
 
 		// Combine current connections with new connections.
@@ -24,7 +24,7 @@ export async function refreshConnectionTestResults() {
 		const connections = [];
 		const defaults = {
 			done: false,
-			enabled: true,
+			enabled: Boolean( jetpackSocialData.sharesData?.shares_remaining ),
 			toggleable: true,
 		};
 
@@ -41,6 +41,7 @@ export async function refreshConnectionTestResults() {
 			const { done, enabled, toggleable } = prevConnection ?? defaults;
 			const connection = {
 				display_name: freshConnection.display_name,
+				username: freshConnection.username,
 				service_name: freshConnection.service_name,
 				id: freshConnection.id,
 				profile_picture: freshConnection.profile_picture,

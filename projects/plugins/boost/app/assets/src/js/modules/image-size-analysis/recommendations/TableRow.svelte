@@ -9,7 +9,6 @@
 	import RowTitle from './components/RowTitle.svelte';
 	import Thumbnail from './components/Thumbnail.svelte';
 
-	export let status: ISA_Data[ 'status' ];
 	export let title: string;
 	export let image_url: string;
 	export let page_url: string;
@@ -17,7 +16,7 @@
 	export let device_type: ISA_Data[ 'device_type' ];
 	export let page_title: string;
 	export let dimensions: ISA_Data[ 'image' ][ 'dimensions' ];
-	export let edit_url: string;
+	export let edit_url: string | null;
 	export let instructions: string;
 	export let enableTransition: boolean;
 
@@ -86,7 +85,7 @@
 		</div>
 	</div>
 	{#if expanded}
-		<TableRowExpanded {...{ status, dimensions, edit_url, instructions }} on:clickIgnore />
+		<TableRowExpanded {...{ dimensions, edit_url, instructions }} />
 	{/if}
 </div>
 

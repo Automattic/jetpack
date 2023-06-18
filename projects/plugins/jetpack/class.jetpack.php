@@ -21,6 +21,7 @@ use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Errors;
 use Automattic\Jetpack\Files;
@@ -770,7 +771,7 @@ class Jetpack {
 		);
 
 		// Update the site's Jetpack plan and products from API on heartbeats.
-		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_from_wpcom' ) );
+		add_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
 
 		/**
 		 * This is the hack to concatenate all css files into one.

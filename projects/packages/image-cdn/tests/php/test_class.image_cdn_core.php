@@ -52,6 +52,24 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	}
 
 	/**
+	 * @author donncha
+	 * @covers ::Image_CDN_Core::cdn_url
+	 * @since 0.2.3
+	 */
+	public function test_photon_url_with_query_parameters() {
+		$args = array(
+			'a' => 2,
+			'b' => 3,
+		);
+
+		add_filter( 'jetpack_photon_add_query_string_to_domain', '__return_true' );
+		$url = Image_CDN_Core::cdn_url( 'https://example.com/images/photon.jpg?t=1', $args );
+		remove_filter( 'jetpack_photon_add_query_string_to_domain', '__return_true' );
+
+		$this->assertStringContainsString( 'images/photon.jpg?q=t%3D1&a=2&b=3', $url, 'Image URL should have t, a, and b parameters.' );
+	}
+
+	/**
 	 * @author aduth
 	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0

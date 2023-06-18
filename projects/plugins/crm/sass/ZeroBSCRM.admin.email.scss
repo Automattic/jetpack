@@ -90,21 +90,22 @@ html,body{
     padding-bottom: 10px;
     position:relative;
 }
-.zbs-email-list-item:hover{
-    background: #f7f7f7;
-    border-left: 7px solid #2085d0 !important;
-}
-.zbs-email-list .active:hover{
-    border-left: 7px solid #2085d0 !important;
-    background: #f7f7f7;
-}
-.zbs-email-list .item{
+
+.zbs-email-list .item {
     border-left:7px solid white;
 }
-.zbs-email-list .active{
-    border-left: 7px solid #2085d0;
+
+.zbs-email-list .active:hover,
+.zbs-email-list .active {
     background: #f7f7f7;
+    border-left: 7px solid var(--jp-green);
 }
+
+.zbs-email-list-item:hover {
+    background: #f7f7f7;
+    border-left: 7px solid var(--jp-green-5);
+}
+
 .zbs-email-list input[type=checkbox], input[type=radio] {
     margin: 4px 0 0;
     line-height: normal;
@@ -143,13 +144,9 @@ html,body{
 }
 .zbs-ajax-loading{
     text-align: center;
-    margin-top: calc(100vh - 50% - 100px);
+    margin-top: 250px;
 }
 
-.inbox-email-list{
-    display:none;
-    width: 25%;
-}
 .starred-email-list{
     display:none;
     width:25%;
@@ -283,7 +280,7 @@ font-weight:300;
     color: #ccc;
     font-size: 18px;
     text-align: center;
-    margin-top: calc(100vh - 50% - 255px);
+    margin-top: 200px;
 }
 
 
@@ -353,14 +350,6 @@ font-weight:300;
 .zbs-email-thread{
     .zbs-message{
         position:relative;
-    }
-    .inbox{
-        background: #e7f3fd;
-        padding: 5px;
-        border-radius: 5px;
-        width: 90%;
-        float: left;
-        padding-left:10px;
     }
     .sent{
         background: #efefef;
@@ -524,13 +513,3 @@ font-weight:300;
         font-weight:900;
     }
 }
-
-.zbsreadinbox{
-    font-size:13px;
-    text-align:left;
-    color: #b2d6f5;
-    .bold{
-        font-weight:900;
-    }    
-}
-

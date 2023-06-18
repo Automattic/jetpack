@@ -224,7 +224,7 @@ class Jetpack_Podcast_Helper {
 			return $rss;
 		}
 
-		$tracks_quantity = $this->get_tracks_quantity();
+		$tracks_quantity = static::get_tracks_quantity();
 
 		/**
 		 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.

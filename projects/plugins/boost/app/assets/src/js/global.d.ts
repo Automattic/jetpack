@@ -14,6 +14,11 @@ declare global {
 		nonce: string;
 	};
 
+	const jbImageGuide: {
+		proxyNonce: string;
+		ajax_url: string;
+	};
+
 	// Constants provided by the plugin.
 	const Jetpack_Boost: {
 		preferences: {
@@ -72,6 +77,16 @@ declare global {
 			eventType: string,
 			eventProp: TracksEventProperites
 		): JQueryXHR;
+	};
+
+	const jetpackBoostAnalytics: {
+		tracksData: {
+			userData: {
+				userid: number;
+				username: string;
+			};
+			blogId: number;
+		};
 	};
 }
 
