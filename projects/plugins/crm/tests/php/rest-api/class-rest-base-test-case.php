@@ -6,7 +6,7 @@
  * @package automattic/jetpack-crm
  */
 
-namespace Automattic\Jetpack_CRM\Tests;
+namespace Automattic\Jetpack\CRM\Tests;
 
 use WorDBless\BaseTestCase;
 

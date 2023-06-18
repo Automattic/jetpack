@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_CRM\Tests;
+namespace Automattic\Jetpack\CRM\Tests;
 
 use Exception;
 use WP_REST_Request;

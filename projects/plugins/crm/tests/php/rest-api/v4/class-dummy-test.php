@@ -6,14 +6,14 @@
  * @package automattic/jetpack-crm
  */
 
-namespace Automattic\Jetpack_CRM\Tests;
+namespace Automattic\Jetpack\CRM\Tests;
 
 use WorDBless\BaseTestCase;
 
 /**
  * Dummy test class to ensure tests are working.
  *
- * @covers Automattic\Jetpack_CRM
+ * @covers Automattic\Jetpack\CRM
  */
 class Dummy_Test extends BaseTestCase {
 

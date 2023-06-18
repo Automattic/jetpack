@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_CRM\Tests;
+namespace Automattic\Jetpack\CRM\Tests;
 
 use WP_REST_Request;
 use WP_REST_Server;
