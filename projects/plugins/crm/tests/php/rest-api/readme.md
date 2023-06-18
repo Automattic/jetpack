@@ -18,4 +18,4 @@ These instructions assume that you've successfully gone through the [Development
 1. Run `jetpack install plugins/crm`
 2. Go to the crm plugins directory `projects/plugins/crm`
 3. Run `composer run-script phpunit`
-	* This is to overcome the `test-php` limitation described above.
+	* This is to overcome the `test-php` limitation(s) described in [the root readme file](../readme.md).
