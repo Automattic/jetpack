@@ -1,4 +1,6 @@
-window.onload = function () {
+const { domReady } = wp;
+
+domReady( function () {
 	const modal = document.getElementsByClassName( 'jetpack-subscribe-modal' )[ 0 ];
 	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
 
@@ -29,4 +31,4 @@ window.onload = function () {
 			modal.style.display = 'none';
 		}
 	};
-};
+} );
