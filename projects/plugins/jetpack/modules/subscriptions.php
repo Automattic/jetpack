@@ -486,14 +486,7 @@ class Jetpack_Subscriptions {
 
 		<p class="description">
 			<input type="checkbox" name="sm_enabled" id="jetpack-subscribe-modal" value="1" <?php checked( $sm_enabled, 1 ); ?> />
-			<?php
-			echo wp_kses(
-				__(
-					'Show a popup subscribe modal to readers.',
-					'jetpack'
-				)
-			);
-			?>
+			<?php esc_html_e( 'Show a popup subscribe modal to readers.', 'jetpack' ); ?>
 		</p>
 
 		<?php
