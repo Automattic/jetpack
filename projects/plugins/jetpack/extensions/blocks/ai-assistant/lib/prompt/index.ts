@@ -400,8 +400,6 @@ export function getPrompt(
 			break;
 	}
 
-	prompt[ prompt.length - 1 ].content += '\nDo not add any feedback to the user.';
-
 	prompt.forEach( ( { role, content: promptContent }, i ) =>
 		debug( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
 	);
