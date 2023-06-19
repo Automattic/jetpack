@@ -104,6 +104,26 @@ ${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
 	};
 }
 
+type PromptOptionsProps = {
+	content: string;
+	language: string;
+	role?: PromptItemProps[ 'role' ];
+};
+
+function getTranslatePrompt( {
+	content,
+	language,
+	role = 'user',
+}: PromptOptionsProps ): PromptItemProps {
+	return {
+		role,
+		content: `Translate the following text to ${ language }:
+
+${ content }
+`,
+	};
+}
+
 /*
  * Builds a prompt template based on context, rules and content.
  *
@@ -192,6 +212,13 @@ type BuildPromptOptions = {
 		tone?: ToneProp;
 		language?: string;
 	};
+};
+
+type GetPromptOptionsProps = {
+	content?: string;
+	contentType?: 'generated' | string;
+	tone?: ToneProp;
+	language?: string;
 };
 
 export function promptTextFor(
@@ -315,13 +342,6 @@ export function buildPromptForBlock( {
 	} );
 }
 
-type GetPromptOptionsProps = {
-	content?: string;
-	contentType?: 'generated' | string;
-	tone?: ToneProp;
-	language?: string;
-};
-
 /**
  * Returns a prompt based on the type and options
  *
@@ -329,11 +349,24 @@ type GetPromptOptionsProps = {
  * @param {GetPromptOptionsProps} options - The prompt options.
  * @returns {Array< PromptItemProps >}      The prompt.
  */
-export function buildPromptForExtensions(
+export function getPrompt(
 	type: PromptTypeProp,
-	options: GetPromptOptionsProps
+	options: PromptOptionsProps
 ): Array< PromptItemProps > {
+	const initialSystemPrompt = getInitialSystemPrompt( {} );
 	const promptText = promptTextFor( type, false, options );
+
+	let prompt: Array< PromptItemProps > = [];
+	switch ( type ) {
+		case PROMPT_TYPE_CHANGE_LANGUAGE:
+			prompt = [ initialSystemPrompt, getTranslatePrompt( options ) ];
+	}
+
+	prompt.forEach( ( { role, content: promptContent }, i ) =>
+		debug( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
+	);
+
+	return prompt;
 
 	return buildPromptTemplate( {
 		...promptText,
