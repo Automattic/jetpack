@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PricingSlider from '../index';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
@@ -11,3 +12,25 @@ const Template: ComponentStory< typeof PricingSlider > = args => <PricingSlider 
 
 // Export Default story
 export const _default = Template.bind( {} );
+
+// Export additional stories using chaning values
+const TemplateWithChangingValue: ComponentStory< typeof PricingSlider > = args => {
+	const [ value, setValue ] = useState( 10 );
+	const [ endValue, setEndValue ] = useState( 10 );
+
+	return (
+		<div>
+			<PricingSlider
+				{ ...args }
+				value={ value }
+				onChange={ setValue }
+				onAfterChange={ setEndValue }
+			/>
+			<div>{ `Value on changing: ${ value }` }</div>
+			<div>{ `Value on change ends: ${ endValue }` }</div>
+		</div>
+	);
+};
+
+// Export With Default Value story
+export const WithDefaultValue = TemplateWithChangingValue.bind( {} );
