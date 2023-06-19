@@ -1530,7 +1530,7 @@ EOT;
 				$multipliers   = array( 1, 2, 3, 4 );
 				$srcset_values = array();
 				foreach ( $multipliers as $multiplier ) {
-					// Forcefully cast to int, in case we ever aff decimal multipliers.
+					// Forcefully cast to int, in case we ever add decimal multipliers.
 					$srcset_width  = (int) $thumbnail_size['width'] * $multiplier;
 					$srcset_height = (int) $thumbnail_size['height'] * $multiplier;
 					if ( ! isset( $src_width ) || $srcset_width > $src_width ) {
