@@ -3788,6 +3788,7 @@ function wpsc_cancel_preload() {
 	*/
 	wpsc_reset_preload_settings();
 	wpsc_create_stop_preload_flag();
+	wpsc_update_idle_preload( time() );
 }
 
 /*
@@ -3840,20 +3841,6 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 
 	if ( isset( $_POST[ 'preload_off' ] ) ) {
 		wpsc_cancel_preload();
-		?>
-		<div class="notice notice-warning">
-			<p>
-				<strong>
-					<?php
-						esc_html_e(
-							'Scheduled preloading of cache almost cancelled. It may take up to a minute for it to cancel completely.',
-							'wp-super-cache'
-						)
-					?>
-				</strong>
-			</p>
-		</div>
-		<?php
 		return;
 	} elseif ( isset( $_POST[ 'preload_now' ] ) ) {
 		wpsc_enable_preload();
