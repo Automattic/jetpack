@@ -32,7 +32,8 @@ export const saveProduct =
 		product,
 		productType = PRODUCT_TYPE_PAYMENT_PLAN,
 		setSelectedProductId = () => {},
-		callback = () => {}
+		callback = () => {},
+		shouldDisplayProductCreationNotice = true
 	) =>
 	async ( { dispatch, registry } ) => {
 		const { title, price, currency } = product;
@@ -82,7 +83,12 @@ export const saveProduct =
 
 			dispatch( setProducts( products.concat( [ newProduct ] ) ) );
 			setSelectedProductId( newProduct.id );
-			onSuccess( getMessageByProductType( 'successfully created product', productType ), registry );
+			if ( shouldDisplayProductCreationNotice ) {
+				onSuccess(
+					getMessageByProductType( 'successfully created product', productType ),
+					registry
+				);
+			}
 			callback( true );
 		} catch ( error ) {
 			onError(

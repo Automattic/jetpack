@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2023-06-19
+### Fixed
+- Removed the extra margin in the Blaze panel [#31411]
+
 ## [0.5.14] - 2023-06-06
 ### Changed
 - Updated package dependencies. [#31129]
@@ -130,6 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.6.0]: https://github.com/automattic/jetpack-blaze/compare/v0.5.14...v0.6.0
 [0.5.14]: https://github.com/automattic/jetpack-blaze/compare/v0.5.13...v0.5.14
 [0.5.13]: https://github.com/automattic/jetpack-blaze/compare/v0.5.12...v0.5.13
 [0.5.12]: https://github.com/automattic/jetpack-blaze/compare/v0.5.11...v0.5.12
