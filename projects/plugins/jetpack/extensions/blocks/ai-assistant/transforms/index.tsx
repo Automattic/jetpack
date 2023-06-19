@@ -25,6 +25,6 @@ const transformFromCore = {
 	},
 };
 
-const from = [ transformFromCoreEmbed ];
+const from = [ transformFromCore ];
 
 export default { from };
