@@ -233,9 +233,11 @@ function wpcom_launchpad_get_task_definitions() {
  * Record completion event in Tracks if we're running on WP.com.
  *
  * @param string $task_id The task ID.
+ * @param array  $extra_props Optional extra arguments to pass to the Tracks event.
+ *
  * @return void
  */
-function wpcom_launchpad_track_completed_task( $task_id ) {
+function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() ) {
 	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 		return;
 	}
@@ -245,7 +247,7 @@ function wpcom_launchpad_track_completed_task( $task_id ) {
 	tracks_record_event(
 		wp_get_current_user(),
 		'wpcom_launchpad_mark_task_complete',
-		array( 'task_id' => $task_id )
+		array( 'task_id' => $task_id, ...$extra_props )
 	);
 }
 
