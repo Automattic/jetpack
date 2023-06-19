@@ -15,10 +15,10 @@ class Checking_Linter {
 	/**
 	 * Test the linter if it skips for PHP version below 7.1
 	 *
-	 * @param bool $test Testing the linter.
+	 * @param array $test Testing the linter.
 	 * @return bool|null
 	 */
-	public function test_linter_71( bool $test ): ?bool {
+	public function test_linter_71( array $test ): ?bool {
 		if ( $test ) {
 			return true;
 		}
@@ -38,21 +38,18 @@ class Checking_Linter {
 	/**
 	 * Test the linter if doesn't pass for PHP 7.3 syntax. Trailing comma in function call.
 	 *
-	 * @return void
+	 * @return array
 	 */
-	public function test_linter_73() {
+	public function test_linter_73(): array {
 		$test_1 = array(
 			'one',
 			'two',
 			'three',
 		);
-		$test_2 = array(
-			'one',
-			'two',
-			'three',
-		);
 
-		print_r( $test_1 );
-		print_r( $test_2 );
+		//phpcs:ignore PHPCompatibility.Syntax.NewFunctionCallTrailingComma.FoundInFunctionCall
+		$this->test_linter_71( $test_1, );
+
+		return $test_1;
 	}
 }
