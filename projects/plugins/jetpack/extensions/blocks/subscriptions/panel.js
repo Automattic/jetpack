@@ -294,7 +294,7 @@ function NewsletterPostPublishSettingsPanel( {
 				<PanelRow>
 					<p>
 						{ __(
-							'With your current plan, the transaction fee for payments is XX% (+ Stripe fees). Upgrade to {another plan} to lower it.',
+							'With your current plan, the transaction fee for payments is XX% (+ Stripe fees). Upgrade to to lower it.',
 							'jetpack'
 						) }
 					</p>
