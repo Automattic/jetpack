@@ -1501,9 +1501,8 @@ EOT;
 			);
 
 			if ( is_array( $post_image ) ) {
-				$img_url    = $post_image['src'];
-				$src_width  = $post_image['src_width'];
-				$src_height = $post_image['src_height'];
+				$img_url   = $post_image['src'];
+				$src_width = $post_image['src_width'];
 			} elseif ( class_exists( 'Jetpack_Media_Summary' ) ) {
 				$media = Jetpack_Media_Summary::get( $post_id );
 
@@ -1539,8 +1538,8 @@ EOT;
 
 					$srcset_url      = Jetpack_PostImages::fit_image_url(
 						$img_url,
-						$thumbnail_size['width'] * $multiplier,
-						$thumbnail_size['height'] * $multiplier
+						$srcset_width,
+						$srcset_height
 					);
 					$srcset_values[] = "{$srcset_url} {$multiplier}x";
 				}
