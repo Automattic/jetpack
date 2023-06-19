@@ -34,9 +34,11 @@ class Test_REST_Controller extends Stats_Test_Case {
 		'/jetpack/v4/stats-app/sites/999/stats/publicize',
 		'/jetpack/v4/stats-app/sites/999/stats/comments',
 		'/jetpack/v4/stats-app/sites/999/stats/comment-followers',
+		'/jetpack/v4/stats-app/sites/999/stats/subscribers',
 		'/jetpack/v4/stats-app/sites/999/stats/post/1',
 		'/jetpack/v4/stats-app/sites/999/stats/video/1',
 		'/jetpack/v4/stats-app/sites/999/site-has-never-published-post',
+		'/jetpack/v4/stats-app/sites/999/subscribers/counts',
 	);
 
 	const SUPPORTED_POST_ROUTES = array(
