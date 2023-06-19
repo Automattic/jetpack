@@ -3,7 +3,7 @@
  * Adds support for Jetpack Subscribe Modal feature
  *
  * @package automattic/jetpack-mu-wpcom
- * @since 2.2.1
+ * @since $$next-version$$
  */
 
 /**
