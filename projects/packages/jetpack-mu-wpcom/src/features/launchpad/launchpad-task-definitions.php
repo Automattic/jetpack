@@ -230,6 +230,26 @@ function wpcom_launchpad_get_task_definitions() {
 }
 
 /**
+ * Record completion event in Tracks if we're running on WP.com.
+ *
+ * @param string $task_id The task ID.
+ * @return void
+ */
+function wpcom_launchpad_track_completed_task( $task_id ) {
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return;
+	}
+
+	require_lib( 'tracks/client' );
+
+	tracks_record_event(
+		wp_get_current_user(),
+		'wpcom_launchpad_mark_task_complete',
+		array( 'task_id' => $task_id )
+	);
+}
+
+/**
  * Mark a task as complete.
  *
  * @param string $task_id The task ID.
@@ -254,29 +274,9 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
 	$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
 
 	// Record the completion event in Tracks.
-	wpcom_track_task_is_complete( $key );
+	wpcom_launchpad_track_completed_task( $key );
 
 	return $result;
-}
-
-/**
- * Record completion event in Tracks if we're running on WP.com.
- *
- * @param string $task_id The task ID.
- * @return void
- */
-function wpcom_track_task_is_complete( $task_id ) {
-	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-		return;
-	}
-
-	require_lib( 'tracks/client' );
-
-	tracks_record_event(
-		wp_get_current_user(),
-		'wpcom_launchpad_mark_task_complete',
-		array( 'task_id' => $task_id )
-	);
 }
 
 /**
@@ -342,6 +342,7 @@ add_action( 'init', 'wpcom_launchpad_init_task_definitions', 11 );
  * @return bool True if successful, false if not.
  */
 function wpcom_mark_launchpad_task_complete_if_active( $task_id ) {
+	wpcom_launchpad_track_completed_task( $task_id );
 	return wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id );
 }
 
