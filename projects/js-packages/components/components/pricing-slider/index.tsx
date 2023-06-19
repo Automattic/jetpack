@@ -1,4 +1,3 @@
-import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React from 'react';
 import ReactSlider from 'react-slider';
@@ -21,12 +20,15 @@ const PricingSlider: React.FC< PricingSliderProps > = ( {
 	onChange,
 	onBeforeChange,
 	onAfterChange,
+	renderThumb,
 } ) => {
 	const componentClassName = classNames( 'jp-components__pricing-slider', className );
 
-	const renderThumb = ( props, state ) => {
-		return <div { ...props }>{ `$${ state.valueNow } / ${ __( 'Year', 'jetpack' ) }` }</div>;
-	};
+	const renderThumbCallback = renderThumb
+		? renderThumb
+		: ( props, state ) => {
+				return <div { ...props }>{ state.valueNow }</div>;
+		  };
 
 	return (
 		<div className={ componentClassName } data-testid="pricing-slider">
@@ -39,7 +41,7 @@ const PricingSlider: React.FC< PricingSliderProps > = ( {
 				max={ maxValue }
 				min={ minValue }
 				step={ step }
-				renderThumb={ renderThumb } // eslint-disable-line react/jsx-no-bind
+				renderThumb={ renderThumbCallback } // eslint-disable-line react/jsx-no-bind
 				onChange={ onChange } // eslint-disable-line react/jsx-no-bind
 				onBeforeChange={ onBeforeChange } // eslint-disable-line react/jsx-no-bind
 				onAfterChange={ onAfterChange } // eslint-disable-line react/jsx-no-bind

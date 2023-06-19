@@ -17,6 +17,13 @@ export const _default = Template.bind( {} );
 const TemplateWithChangingValue: ComponentStory< typeof PricingSlider > = args => {
 	const [ value, setValue ] = useState( 10 );
 	const [ endValue, setEndValue ] = useState( 10 );
+	const renderThumb = ( props, state ) => {
+		return (
+			<div { ...props }>
+				{ state.valueNow } - { state.valueNow % 2 === 0 ? 'Even' : 'Odd' }
+			</div>
+		);
+	};
 
 	return (
 		<div>
@@ -25,6 +32,7 @@ const TemplateWithChangingValue: ComponentStory< typeof PricingSlider > = args =
 				value={ value }
 				onChange={ setValue }
 				onAfterChange={ setEndValue }
+				renderThumb={ renderThumb } // eslint-disable-line react/jsx-no-bind
 			/>
 			<div>{ `Value on changing: ${ value }` }</div>
 			<div>{ `Value on change ends: ${ endValue }` }</div>
