@@ -9,7 +9,7 @@ import { blockName } from '..';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
 import { PromptItemProps } from '../lib/prompt';
 
-const transformFromCoreEmbed = {
+const transformFromCore = {
 	type: 'block',
 	blocks: EXTENDED_BLOCKS,
 	isMatch: () => isPossibleToExtendBlock(),
