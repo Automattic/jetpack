@@ -371,7 +371,7 @@ export function NewsletterPostPublishPanelUpgradeNude() {
 
 	// Get the current blog ID
 	const { userConnectionData = {} } = useConnection();
-	const { blogId } = userConnectionData.currentUser || 0;
+	const { blogId = 0 } = userConnectionData.currentUser || {};
 
 	useEffect( () => {
 		fetchSiteEarnings( blogId ).then( result => {
