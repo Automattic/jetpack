@@ -185,8 +185,9 @@ class Jetpack_Subscribe_Modal {
 		$is_lettre          = get_option( 'stylesheet' ) === 'lettre';
 		$is_newsletter_site = get_option( 'site_intent' ) === 'newsletter';
 		$is_modal_enabled   = get_option( 'sm_enabled' ) || false;
+		$is_fse_theme       = wp_is_block_theme();
 
-		return ( $is_lettre || $is_newsletter_site ) && $is_modal_enabled;
+		return ( $is_lettre || $is_newsletter_site ) && $is_fse_theme && $is_modal_enabled;
 	}
 
 	/**
