@@ -770,7 +770,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		/**
 		 * Filter the list of services matching Social Media Icons available in the Social Icons SVG sprite.
 		 *
-		 * @since $$next-version$$
+		 * @since 12.3
 		 *
 		 * @param array $social_links_icons Array of social links icons.
 		 */

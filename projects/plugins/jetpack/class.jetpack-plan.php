@@ -2,7 +2,7 @@
 /**
  * Handles fetching of the site's plan and products from WordPress.com and caching values locally.
  *
- * @deprecated $$next-version$$ use Automattic\Jetpack\Current_Plan instead.
+ * @deprecated 12.3 use Automattic\Jetpack\Current_Plan instead.
  *
  * Not to be confused with the `Jetpack_Plans` class (in `_inc/lib/plans.php`), which
  * fetches general information about all available plans from WordPress.com, side-effect free.
@@ -19,7 +19,7 @@ class Jetpack_Plan {
 	/**
 	 * The name of the option that will store the site's plan.
 	 *
-	 * @deprecated $$next-version$$ use Automattic\Jetpack\Current_Plan::PLAN_OPTION
+	 * @deprecated 12.3 use Automattic\Jetpack\Current_Plan::PLAN_OPTION
 	 *
 	 * @var string
 	 */
@@ -28,7 +28,7 @@ class Jetpack_Plan {
 	/**
 	 * The name of the option that will store the site's products.
 	 *
-	 * @deprecated $$next-version$$ use Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION
+	 * @deprecated 12.3 use Automattic\Jetpack\Current_Plan::SITE_PRODUCTS_OPTION
 	 *
 	 * @var string
 	 */
@@ -37,7 +37,7 @@ class Jetpack_Plan {
 	/**
 	 * Array of products supported by each plan.
 	 *
-	 * @deprecated $$next-version$$ use Automattic\Jetpack\Current_Plan::PLAN_DATA
+	 * @deprecated 12.3 use Automattic\Jetpack\Current_Plan::PLAN_DATA
 	 *
 	 * @var array
 	 */
@@ -47,13 +47,13 @@ class Jetpack_Plan {
 	 * Given a response to the `/sites/%d` endpoint, will parse the response and attempt to set the
 	 * site's plan and products from the response.
 	 *
-	 * @deprecated $$next-version$$ use Automattic\Jetpack\Current_Plan::update_from_sites_response instead.
+	 * @deprecated 12.3 use Automattic\Jetpack\Current_Plan::update_from_sites_response instead.
 	 *
 	 * @param array $response The response from `/sites/%d`.
 	 * @return bool Was the plan successfully updated?
 	 */
 	public static function update_from_sites_response( $response ) {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Current_Plan::update_from_sites_response' );
+		_deprecated_function( __METHOD__, '12.3', 'Automattic\Jetpack\Current_Plan::update_from_sites_response' );
 
 		return Current_Plan::update_from_sites_response( $response );
 	}
@@ -61,7 +61,7 @@ class Jetpack_Plan {
 	/**
 	 * Make an API call to WordPress.com for plan status
 	 *
-	 * @deprecated $$next-version$$ use Automattic\Jetpack\Current_Plan::refresh_from_wpcom instead.
+	 * @deprecated 12.3 use Automattic\Jetpack\Current_Plan::refresh_from_wpcom instead.
 	 *
 	 * @access public
 	 * @static
@@ -69,7 +69,7 @@ class Jetpack_Plan {
 	 * @return bool True if plan is updated, false if no update
 	 */
 	public static function refresh_from_wpcom() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Current_Plan::refresh_from_wpcom' );
+		_deprecated_function( __METHOD__, '12.3', 'Automattic\Jetpack\Current_Plan::refresh_from_wpcom' );
 
 		return Current_Plan::refresh_from_wpcom();
 	}
@@ -77,7 +77,7 @@ class Jetpack_Plan {
 	/**
 	 * Get the plan that this Jetpack site is currently using.
 	 *
-	 * @deprecated $$next-version$$ use Automattic\Jetpack\Current_Plan::get instead.
+	 * @deprecated 12.3 use Automattic\Jetpack\Current_Plan::get instead.
 	 *
 	 * @access public
 	 * @static
@@ -85,7 +85,7 @@ class Jetpack_Plan {
 	 * @return array Active Jetpack plan details
 	 */
 	public static function get() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Current_Plan::get' );
+		_deprecated_function( __METHOD__, '12.3', 'Automattic\Jetpack\Current_Plan::get' );
 
 		return Current_Plan::get();
 	}
@@ -93,7 +93,7 @@ class Jetpack_Plan {
 	/**
 	 * Get the site's products.
 	 *
-	 * @deprecated $$next-version$$ use Automattic\Jetpack\Current_Plan::get_products instead.
+	 * @deprecated 12.3 use Automattic\Jetpack\Current_Plan::get_products instead.
 	 *
 	 * @access public
 	 * @static
@@ -101,7 +101,7 @@ class Jetpack_Plan {
 	 * @return array Active Jetpack products
 	 */
 	public static function get_products() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Current_Plan::get_products' );
+		_deprecated_function( __METHOD__, '12.3', 'Automattic\Jetpack\Current_Plan::get_products' );
 
 		return Current_Plan::get_products();
 	}
@@ -109,14 +109,14 @@ class Jetpack_Plan {
 	/**
 	 * Gets the minimum plan slug that supports the given feature
 	 *
-	 * @deprecated $$next-version$$ use Automattic\Jetpack\Current_Plan::get_minimum_plan_for_feature instead.
+	 * @deprecated 12.3 use Automattic\Jetpack\Current_Plan::get_minimum_plan_for_feature instead.
 	 *
 	 * @param string $feature The name of the feature.
 	 * @return string|bool The slug for the minimum plan that supports.
 	 *  the feature or false if not found
 	 */
 	public static function get_minimum_plan_for_feature( $feature ) {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Current_Plan::get_minimum_plan_for_feature' );
+		_deprecated_function( __METHOD__, '12.3', 'Automattic\Jetpack\Current_Plan::get_minimum_plan_for_feature' );
 
 		return Current_Plan::get_minimum_plan_for_feature( $feature );
 	}
@@ -124,7 +124,7 @@ class Jetpack_Plan {
 	/**
 	 * Determine whether the active plan supports a particular feature
 	 *
-	 * @deprecated $$next-version$$ use Automattic\Jetpack\Current_Plan::supports instead.
+	 * @deprecated 12.3 use Automattic\Jetpack\Current_Plan::supports instead.
 	 *
 	 * @access public
 	 * @static
@@ -134,7 +134,7 @@ class Jetpack_Plan {
 	 * @return bool True if plan supports feature, false if not
 	 */
 	public static function supports( $feature ) {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\Jetpack\Current_Plan::supports' );
+		_deprecated_function( __METHOD__, '12.3', 'Automattic\Jetpack\Current_Plan::supports' );
 
 		return Current_Plan::supports( $feature );
 	}
