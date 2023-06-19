@@ -79,6 +79,29 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 	return { role: 'system', content: prompt };
 }
 
+export function getInitialSystemPrompt35( {
+	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Please remember to provide only the direct translation without any introductory or explanatory sentences',
+	rules,
+}: {
+	context?: string;
+	rules?: Array< string >;
+} ): PromptItemProps {
+	// Rules
+	let extraRules = '';
+	if ( rules?.length ) {
+		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
+	}
+	const prompt = `${ context }.
+Strictly follow these rules:
+
+${ extraRules }- Format your responses in Markdown syntax, ready to be published.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+`;
+
+	return { role: 'system', content: prompt };
+}
+
 /**
  * Helper function to get the blog post data prompt.
  *
@@ -364,7 +387,7 @@ export function getPrompt(
 	type: PromptTypeProp,
 	options: PromptOptionsProps
 ): Array< PromptItemProps > {
-	const initialSystemPrompt = getInitialSystemPrompt( {} );
+	const initialSystemPrompt = getInitialSystemPrompt35( {} );
 
 	let prompt: Array< PromptItemProps > = [];
 	switch ( type ) {
