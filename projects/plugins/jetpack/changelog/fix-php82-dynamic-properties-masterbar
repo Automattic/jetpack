@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+WordPress.com Toolbar: avoid PHP warnings with PHP 8.2.
