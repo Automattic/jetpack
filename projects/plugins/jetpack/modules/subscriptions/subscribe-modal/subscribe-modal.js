@@ -2,6 +2,10 @@ window.onload = function () {
 	const modal = document.getElementsByClassName( 'jetpack-subscribe-modal' )[ 0 ];
 	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
 
+	if ( ! modal ) {
+		return;
+	}
+
 	let hasLoaded = false;
 	let isScrolling;
 
