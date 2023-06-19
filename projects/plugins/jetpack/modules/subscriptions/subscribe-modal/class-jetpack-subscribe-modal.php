@@ -144,14 +144,14 @@ class Jetpack_Subscribe_Modal {
 			);
 
 			?>
-				<div id="wpcom-subscribe-modal">
-					<div class="modal-content">
+				<div class="jetpack-subscribe-modal">
+					<div class="jetpack-subscribe-modal__modal-content">
 						<?php
 						foreach ( $blocks as $block ) {
 							echo wp_kses( render_block( $block ), $allowed_html );
 						}
 						?>
-						<div id="close"><a href="#">Close</a></div>
+						<div class="jetpack-subscribe-modal__close"><a href="#">Close</a></div>
 					</div>
 				</div>
 			<?php
