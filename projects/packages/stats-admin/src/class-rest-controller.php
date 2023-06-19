@@ -408,9 +408,7 @@ class REST_Controller {
 						)
 					),
 					'v1.1',
-					array( 'timeout' => 5 ),
-					'rest',
-					false
+					array( 'timeout' => 5 )
 				);
 
 			default:
@@ -827,6 +825,9 @@ class REST_Controller {
 	 * @return string The filtered and built query string.
 	 */
 	protected function filter_and_build_query_string( $params, $keys_to_unset = array() ) {
+		if ( ! is_array( $params ) ) {
+			return '';
+		}
 		if ( isset( $params['rest_route'] ) ) {
 			unset( $params['rest_route'] );
 		}
