@@ -1501,7 +1501,8 @@ EOT;
 			);
 
 			if ( is_array( $post_image ) ) {
-				$img_url = $post_image['src'];
+				$img_url   = $post_image['src'];
+				$src_width = $post_image['src_width'];
 			} elseif ( class_exists( 'Jetpack_Media_Summary' ) ) {
 				$media = Jetpack_Media_Summary::get( $post_id );
 
@@ -1523,6 +1524,29 @@ EOT;
 					$thumbnail_size['width'],
 					$thumbnail_size['height']
 				);
+
+				// Add a srcset to handle zoomed views and high-density screens.
+				$multipliers   = array( 1, 2, 3, 4 );
+				$srcset_values = array();
+				foreach ( $multipliers as $multiplier ) {
+					// Forcefully cast to int, in case we ever add decimal multipliers.
+					$srcset_width  = (int) $thumbnail_size['width'] * $multiplier;
+					$srcset_height = (int) $thumbnail_size['height'] * $multiplier;
+					if ( ! isset( $src_width ) || $srcset_width > $src_width ) {
+						break;
+					}
+
+					$srcset_url      = Jetpack_PostImages::fit_image_url(
+						$img_url,
+						$srcset_width,
+						$srcset_height
+					);
+					$srcset_values[] = "{$srcset_url} {$multiplier}x";
+				}
+
+				if ( count( $srcset_values ) > 1 ) {
+					$image_params['srcset'] = implode( ', ', $srcset_values );
+				}
 			}
 		}
 

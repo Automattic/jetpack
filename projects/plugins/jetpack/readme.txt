@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 12.2
+Stable tag: 12.2.1
 Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.2
@@ -293,86 +293,35 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.2 - 2023-06-06
-#### Major Enhancements
-- New AI Assistant block: harness AI power directly from your editor.
-- Donations, Paid Content and Payment Buttons blocks are now available with all Jetpack plans. A commission is charged for free plans.
-- Social: automatically share your new posts to Mastodon.
-
+### 12.3-a.5 - 2023-06-12
 #### Enhancements
-- Author Recommendations: Connected block with backend and added `remove_user_blogs` option.
-- Blocks: Rename "Premium Content" block to "Paid Content" block.
-- Contact Form: Improve spam filtering.
-- Dashboard: Add Jetpack Boost module.
-- Forms: Improve styling of response emails.
-- Forms: Introduce Multiple Choice and Single Choice style variations.
-- Forms: Update pattern modal default view to Grid.
-- Image CDN: Replace Photon implementation with the image-cdn package.
-- Maps: Add Mapkit maps.
-- Modules list: Update to current styles. Visual refresh, if you will.
-- My Plan: Display the correct plan for Jetpack Security and Backup 2-year plans.
-- My Plan: Hide the "My Plan" on My Plan page if user has a paid product and a free plan.
-- My Plan: Properly display plans with no expiration date.
-- Newsletters: Add misconfiguration warning functionality and improve design.
-- Newsletters: Add newsletter access level to the post edit page.
-- Newsletters: Add Post Publish Panel.
-- Newsletters: Enable on self-hosted environments.
-- Newsletters: Refactor and update Paid Newsletter user experience.
-- Publicize: Changed the way we skip a post from being publicized.
-- Reading Settings: Add a toggle for showing post views in the WordPress.com Reader.
-- Recommendations: Change CTA on backup recommendation card to inform about first year discount.
-- Related Posts: Add "Display author" toggle to block.
-- Related Posts: Add per-block header support.
-- Related Posts: Reorganize sidebar into layout and metadata.
-- Related Posts: Update labels for consistency with core.
-- Social: Add a notice to let users know Instagram is available.
-- Social: Use `connection_id` as the uninque identifier of the editor elements on the sidebar.
-- Social Previews: Add Instagram preview.
-- Social Previews: Add Mastodon post preview.
-- Starter: Add post-purchase flow to recommendations.
-- Subscriptions: Make free subscribers confirm email before viewing content.
-- Theme Tools: Remove jQuery dependency from responsive-videos script.
-- WordPress.com: Adds a 'Staging' badge to the wp-admin nav menu when the site is a WordPress.com staging site.
+- AI Assistant: add keyboard shortcuts.
+- AI Assistant: change icon on AI disclaimer message.
+- AI Assistant: move caret to end of generated content when accepting.
+- AI Assistant: show message when content generated.
+- AI Assistant: tidy some block components.
+- AI Assistant: tweak content generated message.
+- AI Assistant: remove shortcuts labels from block area.
+- Backup: add video section to Backup connect page.
+- Blocks: add new Tock block.
+- Blocks: load block stylesheets inline when possible for improved performance.
 
 #### Improved compatibility
-- ActivityPub: Allow disabling Jetpack's Image CDN in requests made for the ActivityPub plugin.
-- Bit.ly: Avoid errors when using non-official Bit.ly plugins alongside Jetpack.
-- Earn: Add "Read me" links to Stripe connection banners in blocks.
-- Filters: `jetpack_set_available_blocks` and `jetpack_set_available_plugins`, deprecated since Jetpack 7.0, have been removed.
-- Full-Site Editing: Use modern `wp_is_block_theme` instead of `gutenberg_is_fse_theme`.
-- General: PHP 8 compatibility updates.
-- Internationalization: Add necessary context to the word "Trash" in the Contact Form interface.
-- Security: Ensure blocks are always fully displayed on your site, even when using a caching plugin.
-- Sharing / Likes / Related Posts: Do not display them in JSON requests available when using the ActivityPub plugin.
-- Social: Flag unsupported connections in the editor UI.
-- WooCommerce: Avoid fatal errors when other plugins make changes to WooCommerce Products or Orders.
+- PHP8 compatibility updates. [#31240, #31242, #31243, #31250]
 
 #### Bug fixes
-- API: Add a `WP_User` check in `get_author` method.
-- API: Fix race condition bug in the Plugin update endpoint.
-- API: Use default values in settings API, when set.
-- At-a-Glance: Fix styling for Stats banner.
-- Carousel: Stop auto-scrolling to top when advancing slides.
-- Dashboard: Use the correct file path for all images in the "My Plan" screen.
-- Donations Block: Ensure the tab colors are correct in all themes.
-- Donations Block: Fix crash on currency change.
-- Donations Block: Make the "Connect" link the primary color.
-- Forms: Fix Forms hash generation.
-- Identity Crisis: Fix Jetpack Dashboard for broken connection.
-- Maps: Fix zoom being reset when changing map marker color.
-- Newsletters: Return early when possible to prevent spamming the database.
-- Related Posts: Fix context for use in block editor.
-- Security: WordPress.com REST API: Ensure that files uploaded via the API are properly validated.
-- SEO Tools: Suggest a specific SEO description maximum length.
-- Settings: Add loading indicator when fetching rewind state.
-- Settings: Fixed the site preview in SEO settings.
-- Social: Add username to publicize connection test results.
-- Subscriptions: Change the "Add payments" text to "Set up a paid plan".
-- Subscriptions: Fix display of number of paid subscribers.
-- Subscriptions: Do not remove bulk-editing checkboxes from the posts list.
-- Users: Display "Super Admin" badge in edit user form.
-- VideoPress: Add tracks to attributes definition.
-- WAF: Fix IP allow list updates.
+- AI Assistant: block query requests when upgrade required.
+- AI Assistant: check if the block is in the block editor context before enabling accept title action.
+- AI Assistant: fix translation feature.
+- AI Assistant: request completion JWT token as the user, not the blog.
+- AI Assistant: show Jetpack AI product in the plan products list.
+- Connection: fix redirecting users who click back button before approving connection to Jetpack Dashboard.
+- Dashboard: display an external icon next to the link to the Subscribers list.
+- Memberships: correctly gate posts rendered on pages.
+- Memberships: fix an issue where Jetpack_Memberships::user_can_view_post would cache the wrong value.
+- Markdown Block: render single and double quotes as smart quotes.
+- Newsletters: do not display Newsletter plans in the Premium Content and Recurring Payment blocks.
+- Newsletters: make the subscribers reach sentence future-tense for scheduled posts.
 
 --------
 

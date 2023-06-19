@@ -2,6 +2,16 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.38.0 - 2023-06-15
+### Added
+- Add testimonial component and use it on the backup connect screen [#31221]
+
+## 0.37.0 - 2023-06-06
+### Changed
+- Update connection module to have an RNA option that updates the design [#31201]
+- Updated package dependencies. [#31129]
+- Update pricing table tooltip to allow its position to be configurable from pricing table. [#31107]
+
 ## 0.36.0 - 2023-05-29
 ### Added
 - Added the Instagram social icon [#30803]

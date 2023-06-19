@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
@@ -196,9 +197,9 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 */
 	public function process( $request ) {
 		if ( 'GET' === $request->get_method() ) {
-			return $this->get_modules( $request );
+			return $this->get_modules();
 		} else {
-			return $this->activate_modules( $request );
+			return static::activate_modules( $request );
 		}
 	}
 

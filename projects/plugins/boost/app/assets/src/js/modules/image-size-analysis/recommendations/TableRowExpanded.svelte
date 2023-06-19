@@ -1,17 +1,13 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import { quadOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
+	import { __ } from '@wordpress/i18n';
 	import Button from '../../../elements/Button.svelte';
 	import { ISA_Data } from '../store/isa-data';
 
-	export let status: ISA_Data[ 'status' ];
 	export let dimensions: ISA_Data[ 'image' ][ 'dimensions' ];
 	export let edit_url: string;
 	export let instructions: string;
-
-	// Dispatch an event when the user clicks the "Ignore" button.
-	const dispatch = createEventDispatcher();
 </script>
 
 <div class="table-row-expanded" transition:slide|local={{ duration: 100, easing: quadOut }}>
@@ -19,7 +15,9 @@
 		<h4>Image Details</h4>
 
 		<div class="row">
-			<div class="label">File Dimensions</div>
+			<div class="label">
+				{__( 'File Dimensions', 'jetpack-boost' )}
+			</div>
 			<div class="value">
 				{Math.round( dimensions.file.width )}
 				x
@@ -29,7 +27,9 @@
 		</div>
 
 		<div class="row">
-			<div class="label">Expected Dimensions</div>
+			<div class="label">
+				{__( 'Expected Dimensions', 'jetpack-boost' )}
+			</div>
 			<div class="value">
 				{Math.round( dimensions.expected.width )}
 				x
@@ -39,7 +39,9 @@
 		</div>
 
 		<div class="row">
-			<div class="label">Size on screen</div>
+			<div class="label">
+				{__( 'Size on screen', 'jetpack-boost' )}
+			</div>
 			<div class="value">
 				{Math.round( dimensions.size_on_screen.width )}
 				x
@@ -50,16 +52,13 @@
 	</div>
 
 	<div class="fix-options">
-		<h4>How to fix</h4>
+		<h4>
+			{__( 'How to fix', 'jetpack-boost' )}
+		</h4>
 		<p>{instructions}</p>
 		<div class="jb-actions">
-			<Button width="auto" href={edit_url} fill>Fix on page</Button>
-			<Button width="auto" on:click={() => dispatch( 'clickIgnore' )}>
-				{#if status === 'ignored'}
-					Don't Ignore
-				{:else}
-					Ignore
-				{/if}
+			<Button width="auto" href={edit_url} fill>
+				{__( 'Fix on page', 'jetpack-boost' )}
 			</Button>
 		</div>
 	</div>
