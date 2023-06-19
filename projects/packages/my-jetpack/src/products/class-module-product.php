@@ -130,13 +130,4 @@ abstract class Module_Product extends Product {
 		}
 		return Jetpack::deactivate_module( static::$module_name );
 	}
-
-	/**
-	 * Get products that include the current product
-	 *
-	 * @return array
-	 */
-	public static function get_products() {
-		return array();
-	}
 }
