@@ -1,0 +1,37 @@
+{
+	"private": false,
+	"name": "@automattic/jetpack-ai-client",
+	"version": "0.1.0-alpha",
+	"description": "A JS client for consuming Jetpack AI services",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/ai-client/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Ai Client"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/ai-client"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
+	},
+	"type": "module",
+	"devDependencies": {
+		"jest": "*",
+		"jest-environment-jsdom": "29.5.0"
+	},
+	"engines": {
+		"node": "^18.13.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"exports": {
+		".": "./index.js"
+	},
+	"dependencies": {
+		"@microsoft/fetch-event-source": "2.0.1",
+		"@wordpress/api-fetch": "6.29.0",
+		"debug": "4.3.4"
+	}
+}

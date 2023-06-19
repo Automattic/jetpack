@@ -15,11 +15,11 @@ import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
-import AIControl from './ai-control';
+import AIControl from './components/ai-control';
+import ImageWithSelect from './components/image-with-select';
 import useAIFeature from './hooks/use-ai-feature';
-import ImageWithSelect from './image-with-select';
-import { getImagesFromOpenAI } from './lib';
-import useSuggestionsFromOpenAI from './use-suggestions-from-openai';
+import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
+import { getImagesFromOpenAI } from './lib/image';
 import './editor.scss';
 
 const markdownConverter = new MarkdownIt( {
@@ -194,7 +194,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleTryAgain = () => {
-		setAttributes( { content: undefined, promptType: undefined } );
+		setAttributes( { content: undefined, promptType: undefined, messages: [] } );
 	};
 
 	const handleGetSuggestion = ( ...args ) => {

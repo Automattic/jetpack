@@ -23,4 +23,4 @@ jobs:
 
       - name: Execute shell script
         shell: bash
-        run: .github/files/update-jetpack-staging-sites.sh
+        run: .github/files/jetpack-staging-sites/update-jetpack-staging-sites.sh
