@@ -46,8 +46,7 @@ class Checking_Linter {
 			'two',
 			'three',
 		);
-
-		//phpcs:ignore PHPCompatibility.Syntax.NewFunctionCallTrailingComma.FoundInFunctionCall
+		
 		$this->test_linter_71( $test_1, );
 
 		return $test_1;
