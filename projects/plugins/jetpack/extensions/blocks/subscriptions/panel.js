@@ -303,7 +303,7 @@ function NewsletterPostPublishSettingsPanel( {
 					<Button
 						target="_blank"
 						variant="secondary"
-						href={ getRedirectUrl( 'wpcom-earn', {
+						href={ getRedirectUrl( 'calypso-plans', {
 							site: getSiteFragment(),
 						} ) }
 					>
