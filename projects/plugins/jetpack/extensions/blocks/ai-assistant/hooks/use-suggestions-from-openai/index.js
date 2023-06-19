@@ -146,8 +146,17 @@ const useSuggestionsFromOpenAI = ( {
 			 */
 			lastUserPrompt = prompt.pop();
 
+			/*
+			 * Pop the second last item from the messages array,
+			 * which is the rules `system` prompt.
+			 */
+			const rulesPrompt = prompt.pop();
+
 			// Populate prompt with the messages.
 			prompt = [ ...prompt, ...updatedMessaages ];
+
+			// Restore the rules prompt.
+			prompt.push( rulesPrompt );
 
 			// Restore the last user prompt.
 			prompt.push( lastUserPrompt );

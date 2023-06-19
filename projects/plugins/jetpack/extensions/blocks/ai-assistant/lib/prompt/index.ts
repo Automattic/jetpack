@@ -120,7 +120,7 @@ export function getRulesPrompt( {
 	const prompt = `Strictly follow these rules:
 ${ formattedRules }`;
 
-	return { role: 'user', content: prompt };
+	return { role: 'system', content: prompt };
 }
 
 /**
