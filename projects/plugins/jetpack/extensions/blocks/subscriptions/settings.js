@@ -1,4 +1,5 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import {
 	Button,
@@ -11,11 +12,13 @@ import {
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
+import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
+import fetchSiteEarnings from './fetch-earnings';
 import { getPaidPlanLink, MisconfigurationWarning } from './utils';
 
 import './settings.scss';
@@ -364,13 +367,41 @@ export function NewsletterAccessPrePublishSettings( {
 }
 
 export function NewsletterPostPublishPanelUpgradeNude() {
+	const [ commission, setCommission ] = useState( 0 );
+
+	// Get the current blog ID
+	const { userConnectionData = {} } = useConnection();
+	const { blogId } = userConnectionData.currentUser || 0;
+
+	useEffect( () => {
+		fetchSiteEarnings( blogId ).then( result => {
+			if ( result?.commission ) {
+				setCommission( result.commission );
+			}
+		} );
+	}, [ blogId, commission ] );
+
+	if ( 0 === commission || 0 === blogId ) {
+		// Do not display panel
+		return;
+	}
+
 	return (
-		<>
+		<PluginPostPublishPanel
+			initialOpen
+			className="paid-newsletters-post-publish-panel"
+			title={ __( 'Lower transaction fees', 'jetpack' ) }
+			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+		>
 			<PanelRow>
 				<p>
-					{ __(
-						'With your current plan, the transaction fee for payments is XX% (+ Stripe fees). Upgrade to to lower it.',
-						'jetpack'
+					{ sprintf(
+						/* translators: %s is the commission based on the current WordPress.com plan */
+						__(
+							'With your current plan, the transaction fee for payments is %s (+ Stripe fees). Upgrade to to lower it.',
+							'jetpack'
+						),
+						commission * 100 + '%'
 					) }
 				</p>
 			</PanelRow>
@@ -386,6 +417,6 @@ export function NewsletterPostPublishPanelUpgradeNude() {
 					<Icon icon={ external } className="paid-newsletters-post-publish-panel__external_icon" />
 				</Button>
 			</div>
-		</>
+		</PluginPostPublishPanel>
 	);
 }

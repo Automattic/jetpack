@@ -293,16 +293,7 @@ function NewsletterPostPublishSettingsPanel( {
 			     Fees and "Upgrade plan" links displayed are WPCOM specific.
 			  */ }
 
-			{ ! isJetpackSite && (
-				<PluginPostPublishPanel
-					initialOpen
-					className="paid-newsletters-post-publish-panel"
-					title={ __( 'Lower transaction fees', 'jetpack' ) }
-					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
-				>
-					<NewsletterPostPublishPanelUpgradeNude />
-				</PluginPostPublishPanel>
-			) }
+			{ ! isJetpackSite && <NewsletterPostPublishPanelUpgradeNude /> }
 		</>
 	);
 }
