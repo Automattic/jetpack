@@ -107,6 +107,7 @@ ${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
 type PromptOptionsProps = {
 	content: string;
 	language: string;
+	tone?: ToneProp;
 	role?: PromptItemProps[ 'role' ];
 };
 
@@ -118,6 +119,16 @@ function getTranslatePrompt( {
 	return {
 		role,
 		content: `Translate the following text to ${ language }:
+
+${ content }
+`,
+	};
+}
+
+function getTonePrompt( { content, tone, role = 'user' }: PromptOptionsProps ): PromptItemProps {
+	return {
+		role,
+		content: `Rewrite the following text with a ${ tone } tone:
 
 ${ content }
 `,
@@ -354,24 +365,23 @@ export function getPrompt(
 	options: PromptOptionsProps
 ): Array< PromptItemProps > {
 	const initialSystemPrompt = getInitialSystemPrompt( {} );
-	const promptText = promptTextFor( type, false, options );
 
 	let prompt: Array< PromptItemProps > = [];
 	switch ( type ) {
 		case PROMPT_TYPE_CHANGE_LANGUAGE:
 			prompt = [ initialSystemPrompt, getTranslatePrompt( options ) ];
+			break;
+
+		case PROMPT_TYPE_CHANGE_TONE:
+			prompt = [ initialSystemPrompt, getTonePrompt( options ) ];
+			break;
 	}
+
+	prompt[ prompt.length - 1 ].content += '\nDo not add any feedback to the user.';
 
 	prompt.forEach( ( { role, content: promptContent }, i ) =>
 		debug( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
 	);
 
 	return prompt;
-
-	return buildPromptTemplate( {
-		...promptText,
-		fullContent: options.content,
-		relevantContent: options.content,
-		isContentGenerated: false,
-	} );
 }
