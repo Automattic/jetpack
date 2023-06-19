@@ -56,21 +56,29 @@ export default function EmailPreview() {
 				{ __( 'Send test email', 'jetpack' ) }
 			</Button>
 			{ isModalOpen && (
-				<Modal className="jetpack-email-preview" onRequestClose={ () => setIsModalOpen( false ) }>
-					{ errorMessage && (
-						<HStack className="jetpack-email-preview__email-sent">{ errorMessage }</HStack>
-					) }
-					{ emailSent ? (
-						<HStack>
-							<Icon className="jetpack-email-preview__check" icon={ check } />
-							{ __( 'Email sent successfull', 'jetpack' ) }
-						</HStack>
-					) : (
-						<HStack alignment="topLeft">
-							<VStack className="jetpack-email-preview__main" alignment="topLeft">
-								<h1 className="jetpack-email-preview__title">
-									{ __( 'Send test email', 'jetpack' ) }
-								</h1>
+				<Modal
+					className="jetpack-email-preview"
+					onRequestClose={ () => {
+						setIsModalOpen( false );
+						setEmailSent( false );
+					} }
+				>
+					<HStack alignment="topLeft">
+						<VStack className="jetpack-email-preview__main" alignment="topLeft">
+							<h1 className="jetpack-email-preview__title">
+								{ __( 'Send a test email', 'jetpack' ) }
+							</h1>
+							{ errorMessage && (
+								<HStack className="jetpack-email-preview__email-sent">{ errorMessage }</HStack>
+							) }
+							{ emailSent ? (
+								<HStack className="jetpack-email-preview__email-sent">
+									<Icon className="jetpack-email-preview__check" icon={ check } size={ 28 } />
+									<div className="jetpack-email-preview__sent_text">
+										{ __( 'Email sent successfully', 'jetpack' ) }
+									</div>
+								</HStack>
+							) : (
 								<HStack>
 									<TextControl
 										className="jetpack-email-preview__email"
@@ -86,12 +94,12 @@ export default function EmailPreview() {
 										{ __( 'Send', 'jetpack' ) }
 									</Button>
 								</HStack>
-							</VStack>
-							{ ! isSmall && (
-								<img className="jetpack-email-preview__img" src={ illustration } alt="" />
 							) }
-						</HStack>
-					) }
+						</VStack>
+						{ ! isSmall && (
+							<img className="jetpack-email-preview__img" src={ illustration } alt="" />
+						) }
+					</HStack>
 				</Modal>
 			) }
 		</>

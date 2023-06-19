@@ -20,10 +20,14 @@
   height: 110px;
   padding-right: 30px;
   padding-left: 80px;
+  margin-left: auto;
 }
 
 .jetpack-email-preview__email-sent {
   color: $studio-jetpack-green-30;
+  .jetpack-email-preview__sent_text {
+    font-size: 20px;
+  }
 }
 
 .jetpack-email-preview__check {
