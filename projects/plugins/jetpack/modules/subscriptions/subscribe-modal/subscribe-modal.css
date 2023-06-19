@@ -19,14 +19,14 @@
 .jetpack-subscribe-modal__modal-content {
 	position: relative;
 	visibility: hidden;
-    top: 100%;
+	top: 100%;
 	background-color: #fefefe;
-    margin: 15% auto;
-    padding: 60px 90px;
-    border: 1px solid #ddd;
-    width: 600px;
-    border-radius: 10px;
-    box-sizing: border-box;
+	margin: 15% auto;
+	padding: 60px 90px;
+	border: 1px solid #ddd;
+	width: 600px;
+	border-radius: 10px;
+	box-sizing: border-box;
 	transition: all 0.4s;
 }
 
