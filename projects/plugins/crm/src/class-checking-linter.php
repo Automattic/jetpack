@@ -46,7 +46,6 @@ class Checking_Linter {
 			'two',
 			'three',
 		);
-		
 		$this->test_linter_71( $test_1, );
 
 		return $test_1;
