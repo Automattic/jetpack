@@ -97,6 +97,8 @@ global $wp_super_cache_debug, $wp_super_cache_advanced_debug, $wp_cache_debug_le
 global $wp_cache_debug_log, $wp_cache_debug_ip, $wp_cache_debug_username, $wp_cache_debug_email;
 global $cache_time_interval, $cache_scheduled_time, $cache_schedule_interval, $cache_schedule_type, $cache_gc_email_me;
 global $wp_cache_preload_on, $wp_cache_preload_interval, $wp_cache_preload_posts, $wp_cache_preload_taxonomies;
+
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- these are used by various functions but the linter complains.
 global $wp_cache_preload_email_me, $wp_cache_preload_email_volume;
 global $wp_cache_mobile, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes;
 global $wp_cache_config_file, $wp_cache_config_file_sample;
@@ -3322,50 +3324,48 @@ function wp_cron_preload_cache() {
 					// translators: 1: site url
 					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), home_url(), '' ), ' ' );
 				}
-					foreach( (array)$rows as $url ) {
-						set_time_limit( 60 );
-						if ( $url == '' )
-							continue;
-						$url_info = parse_url( $url );
-						$dir = get_supercache_dir() . $url_info[ 'path' ];
-						wp_cache_debug( "wp_cron_preload_cache: delete $dir", 5 );
-						wpsc_delete_files( $dir );
-						prune_super_cache( trailingslashit( $dir ) . 'feed/', true );
-						prune_super_cache( trailingslashit( $dir ) . 'page/', true );
 
-						wpsc_update_active_preload( 'taxonomies', $taxonomy, $url );
+				$just_started_preloading = true;
+				$out                     = '';
+				$records                 = get_terms( $taxonomy );
+				foreach ( $records as $term ) {
+					$out .= get_term_link( $term ) . "\n";
+				}
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+				$fp = fopen( $taxonomy_filename, 'w' );
+				if ( $fp ) {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+					fwrite( $fp, $out );
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+					fclose( $fp );
+				}
+				$details = explode( "\n", $out );
+			} else {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				$details = explode( "\n", file_get_contents( $taxonomy_filename ) );
+			}
+			if ( count( $details ) > 0 && $details[0] !== '' ) {
+				$rows = array_splice( $details, 0, WPSC_PRELOAD_POST_COUNT );
+				if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume === 'many' ) {
+					// translators: 1: Site URL, 2: Taxonomy name, 3: Number of posts done, 4: Number of posts to preload
+					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), home_url(), $taxonomy, $c, ( $c + WPSC_PRELOAD_POST_COUNT ) ), 'Refreshing: ' . print_r( $rows, 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+				}
 
-						wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-						wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
-						sleep( 1 );
-
-						if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
-							wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
-							wpsc_reset_preload_settings();
-
-							if ( $wp_cache_preload_email_me ) {
-								// translators: Home URL of website
-								wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
-							}
-							wpsc_update_idle_preload( time() );
-							return true;
-						}
+				foreach ( (array) $rows as $url ) {
+					set_time_limit( 60 );
+					if ( $url === '' ) {
+						continue;
 					}
 
 					$url_info = wp_parse_url( $url );
 					$dir      = get_supercache_dir() . $url_info['path'];
-					wp_cache_debug( "wp_cron_preload_cache: delete $dir", 5 );
+					wp_cache_debug( "wp_cron_preload_cache: delete $dir" );
 					wpsc_delete_files( $dir );
 					prune_super_cache( trailingslashit( $dir ) . 'feed/', true );
 					prune_super_cache( trailingslashit( $dir ) . 'page/', true );
-					// phpcs:ignore -- WordPress.PHP.NoSilencedErrors.Discouraged WordPress.WP.AlternativeFunctions.file_system_operations_fopen
-					$fp = @fopen( $permalink_counter_msg, 'w' );
-					if ( $fp ) {
-						// phpcs:ignore -- WordPress.PHP.NoSilencedErrors.Discouraged WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
-						@fwrite( $fp, "$taxonomy: $url" );
-						// phpcs:ignore -- WordPress.WP.AlternativeFunctions.file_system_operations_fclose WordPress.PHP.NoSilencedErrors.Discouraged
-						@fclose( $fp );
-					}
+
+					wpsc_update_active_preload( 'taxonomies', $taxonomy, $url );
+
 					wp_remote_get(
 						$url,
 						array(
@@ -3373,7 +3373,7 @@ function wp_cron_preload_cache() {
 							'blocking' => true,
 						)
 					);
-					wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
+					wp_cache_debug( "wp_cron_preload_cache: fetched $url" );
 					sleep( 1 );
 
 					if ( ! wpsc_is_preload_active() ) {
@@ -3384,6 +3384,7 @@ function wp_cron_preload_cache() {
 							// translators: Home URL of website
 							wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
 						}
+						wpsc_update_idle_preload( time() );
 						return true;
 					}
 				}
