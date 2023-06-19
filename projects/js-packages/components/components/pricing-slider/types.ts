@@ -41,4 +41,9 @@ export type PricingSliderProps = {
 	 * The function will be called with two arguments, the first being the result value(s) the second being thumb index.
 	 */
 	onAfterChange?: ( value: number ) => void;
+
+	/**
+	 * Node to render on the slider.
+	 */
+	renderThumb?: React.ReactNode;
 };
