@@ -247,7 +247,10 @@ function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() 
 	tracks_record_event(
 		wp_get_current_user(),
 		'wpcom_launchpad_mark_task_complete',
-		array( 'task_id' => $task_id, ...$extra_props )
+		array_merge(
+			array( 'task_id' => $task_id ),
+			$extra_props
+		)
 	);
 }
 
