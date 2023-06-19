@@ -1,4 +1,4 @@
-#wpcom-subscribe-modal {
+.jetpack-subscribe-modal {
 	visibility: hidden;
 	position: fixed;
 	z-index: 1;
@@ -11,12 +11,12 @@
 	transition: all 0.4s;
 }
 
-#wpcom-subscribe-modal.open {
+.jetpack-subscribe-modal.open {
 	background-color: rgba(0,0,0,0.2);
 	visibility: visible;
 }
 
-#wpcom-subscribe-modal .modal-content {
+.jetpack-subscribe-modal__modal-content {
 	position: relative;
 	visibility: hidden;
     top: 100%;
@@ -30,16 +30,16 @@
 	transition: all 0.4s;
 }
 
-#wpcom-subscribe-modal.open .modal-content {
+.jetpack-subscribe-modal.open .jetpack-subscribe-modal__modal-content {
 	top: 0;
 	visibility: visible;
 }
 
-#wpcom-subscribe-modal #close {
+.jetpack-subscribe-modal__close {
 	text-align: center;
 }
 
-#wpcom-subscribe-modal #close a {
+.jetpack-subscribe-modal__close a {
 	font-size: 13px;
 	color: #666666;
 }

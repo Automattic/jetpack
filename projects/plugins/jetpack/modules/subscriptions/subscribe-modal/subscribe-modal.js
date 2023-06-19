@@ -1,6 +1,7 @@
 window.onload = function () {
-	const modal = document.getElementById( 'wpcom-subscribe-modal' );
-	const close = document.getElementById( 'close' );
+	const modal = document.getElementsByClassName( 'jetpack-subscribe-modal' )[ 0 ];
+	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
+
 	let hasLoaded = false;
 	let isScrolling;
 
