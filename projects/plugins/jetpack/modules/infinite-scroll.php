@@ -11,6 +11,7 @@
  * Additional Search Queries: scroll, infinite, infinite scroll
  */
 
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
 /**

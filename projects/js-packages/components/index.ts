@@ -33,6 +33,7 @@ export { default as AdminSectionHero } from './components/admin-section/hero';
 export { default as AdminPage } from './components/admin-page';
 export { default as DecorativeCard } from './components/decorative-card';
 export { default as Col } from './components/layout/col';
+export { default as Testimonials } from './components/testimonials';
 export { default as Container } from './components/layout/container';
 export { default as useBreakpointMatch } from './components/layout/use-breakpoint-match';
 export * from './components/icons';
