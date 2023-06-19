@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Client Portal: Fix a fatal error initializing endpoints and shortcodes.

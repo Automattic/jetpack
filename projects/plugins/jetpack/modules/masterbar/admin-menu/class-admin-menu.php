@@ -308,6 +308,10 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->hide_submenu_page( 'themes.php', 'custom-header' );
 		$this->hide_submenu_page( 'themes.php', 'custom-background' );
 
+		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+			$this->hide_submenu_page( 'themes.php', $customize_url );
+		}
+
 		return $customize_url;
 	}
 

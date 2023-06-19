@@ -38,7 +38,7 @@ export async function askJetpack( question ) {
 /**
  * Leaving this here to make it easier to debug the streaming API calls for now
  *
- * @param {string} question                   - The query to send to the API
+ * @param {string|Array} question             - The query to send to the API
  * @param {object} options                    - Options
  * @param {number} options.postId             - The post where this completion is being requested, if available
  * @param {boolean} options.fromCache         - Get a cached response. False by default.
@@ -50,7 +50,10 @@ export async function askQuestion(
 	{ postId = null, fromCache = false, requireUpgrade }
 ) {
 	if ( requireUpgrade ) {
-		// Return an empty event source
+		/*
+		 * Return an empty event source
+		 * @todo: ideally, business part shouln't be here
+		 */
 		return new SuggestionsEventSource( '' );
 	}
 
@@ -214,6 +217,6 @@ export class SuggestionsEventSource extends EventTarget {
 		debug( e );
 
 		// Dispatch a generic network error event
-		this.dispatchEvent( new CustomEvent( 'error_network' ) );
+		this.dispatchEvent( new CustomEvent( 'error_network', { detail: e } ) );
 	}
 }
