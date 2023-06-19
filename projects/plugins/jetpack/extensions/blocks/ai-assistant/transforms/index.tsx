@@ -7,13 +7,21 @@ import { createBlock } from '@wordpress/blocks';
  */
 import { blockName } from '..';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
+import { PromptItemProps } from '../lib/prompt';
 
 const transformFromCoreEmbed = {
 	type: 'block',
 	blocks: EXTENDED_BLOCKS,
 	isMatch: () => isPossibleToExtendBlock(),
 	transform: ( { content } ) => {
-		return createBlock( blockName, { content } );
+		const messages: Array< PromptItemProps > = [
+			{
+				role: 'user',
+				content,
+			},
+		];
+
+		return createBlock( blockName, { content, messages } );
 	},
 };
 
