@@ -51,7 +51,7 @@ class Jetpack_Subscribe_Modal {
 				$template = array(
 					'slug'         => $this->get_subscribe_template_slug(),
 					'post_name'    => $this->get_subscribe_template_slug(),
-					'post_title'   => $this->get_subscribe_template_title(),
+					'post_title'   => __( 'Subscribe Modal', 'jetpack' ),
 					'post_content' => $this->get_subscribe_template_content(),
 					'post_status'  => 'publish',
 					'post_author'  => 1,
@@ -151,7 +151,11 @@ class Jetpack_Subscribe_Modal {
 							echo wp_kses( render_block( $block ), $allowed_html );
 						}
 						?>
-						<div class="jetpack-subscribe-modal__close"><a href="#">Close</a></div>
+						<div class="jetpack-subscribe-modal__close">
+							<a href="#">
+								<?php esc_html_e( 'Close', 'jetpack' ); ?>
+							</a>
+						</div>
 					</div>
 				</div>
 			<?php
@@ -192,15 +196,6 @@ class Jetpack_Subscribe_Modal {
 	 */
 	public function get_subscribe_template_slug() {
 		return 'subscribe-modal';
-	}
-
-	/**
-	 * Returns the title for the Subcribe template.
-	 *
-	 * @return string
-	 */
-	public function get_subscribe_template_title() {
-		return 'Subscribe Modal';
 	}
 
 	/**
