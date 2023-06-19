@@ -161,6 +161,29 @@ class Security extends Module_Product {
 	}
 
 	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if (
+					0 === strpos( $purchase->product_slug, 'jetpack_security' ) ||
+					0 === strpos( $purchase->product_slug, 'jetpack_complete' )
+				) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Checks whether product is a bundle.
 	 *
 	 * @return boolean True
@@ -176,15 +199,6 @@ class Security extends Module_Product {
 	 */
 	public static function get_supported_products() {
 		return array( 'backup', 'scan', 'anti-spam' );
-	}
-
-	/**
-	 * Return all the products that supports the security product.
-	 *
-	 * @return Array Product slugs
-	 */
-	public static function get_products() {
-		return array( 'jetpack_security', 'jetpack_complete' );
 	}
 
 	/**

@@ -127,6 +127,26 @@ class Stats extends Module_Product {
 	}
 
 	/**
+	 * Checks whether the site already supports this product through an existing plan or purchase
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if ( in_array( $purchase->product_slug, static::get_products(), true ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
