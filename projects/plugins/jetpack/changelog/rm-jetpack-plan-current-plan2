@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Plans: switch to using the Plans package to detect feature support.

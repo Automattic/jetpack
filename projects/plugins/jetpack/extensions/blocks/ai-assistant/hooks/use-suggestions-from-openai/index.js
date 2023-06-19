@@ -14,7 +14,8 @@ import { buildPromptForBlock } from '../../lib/prompt';
 import { askJetpack, askQuestion } from '../../lib/suggestions';
 import { getContentFromBlocks, getPartialContentToBlock } from '../../lib/utils/block-content';
 
-const debug = debugFactory( 'jetpack-ai-assistant:event:fullMessage' );
+const debug = debugFactory( 'jetpack-ai-assistant:event' );
+const debugPrompt = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 const useSuggestionsFromOpenAI = ( {
 	attributes,
@@ -117,6 +118,15 @@ const useSuggestionsFromOpenAI = ( {
 
 		let prompt = lastPrompt;
 
+		tracks.recordEvent( 'jetpack_ai_chat_completion', {
+			post_id: postId,
+		} );
+
+		// Create a copy of the messages.
+		const updatedMessaages = [ ...attributes.messages ] ?? [];
+
+		let lastUserPrompt = {};
+
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
 			prompt = buildPromptForBlock( {
@@ -129,24 +139,38 @@ const useSuggestionsFromOpenAI = ( {
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
 			} );
-		}
 
-		tracks.recordEvent( 'jetpack_ai_chat_completion', {
-			post_id: postId,
-		} );
+			/*
+			 * Pop the last item from the messages array,
+			 * which is the fresh `user` request by convention.
+			 */
+			lastUserPrompt = prompt.pop();
 
-		if ( ! options.retryRequest ) {
+			// Populate prompt with the messages.
+			prompt = [ ...prompt, ...updatedMessaages ];
+
+			// Restore the last user prompt.
+			prompt.push( lastUserPrompt );
+
+			// Store the last prompt to be used when retrying.
 			setLastPrompt( prompt );
 
 			// If it is a title generation, keep the prompt type in subsequent changes.
 			if ( attributes.promptType !== 'generateTitle' ) {
 				updateBlockAttributes( clientId, { promptType: type } );
 			}
+		} else {
+			lastUserPrompt = prompt[ prompt.length - 1 ];
 		}
 
 		try {
 			setIsLoadingCompletion( true );
 			setWasCompletionJustRequested( true );
+			// debug all prompt items, one by one
+			prompt.forEach( ( { role, content: promptContent }, i ) =>
+				debugPrompt( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
+			);
+
 			source.current = await askQuestion( prompt, { postId, requireUpgrade } );
 		} catch ( err ) {
 			if ( err.message ) {
@@ -167,8 +191,32 @@ const useSuggestionsFromOpenAI = ( {
 		}
 
 		source?.current?.addEventListener( 'done', e => {
+			const { detail: assistantResponse } = e;
+
+			// Populate the messages with the assistant response.
+			const lastAssistantPrompt = {
+				role: 'assistant',
+				content: assistantResponse,
+			};
+			updatedMessaages.push( lastUserPrompt, lastAssistantPrompt );
+
+			debugPrompt( 'Add %o\n%s', `[${ lastUserPrompt.role }]`, lastUserPrompt.content );
+			debugPrompt( 'Add %o\n%s', `[${ lastAssistantPrompt.role }]`, lastAssistantPrompt.content );
+
+			/*
+			 * Limit the messages to 20 items.
+			 * @todo: limit the prompt based on tokens.
+			 */
+			if ( updatedMessaages.length > 20 ) {
+				updatedMessaages.splice( 0, updatedMessaages.length - 20 );
+			}
+
 			stopSuggestion();
-			updateBlockAttributes( clientId, { content: e.detail } );
+
+			updateBlockAttributes( clientId, {
+				content: assistantResponse,
+				messages: updatedMessaages,
+			} );
 			refreshFeatureData();
 		} );
 
@@ -184,7 +232,38 @@ const useSuggestionsFromOpenAI = ( {
 			onUnclearPrompt?.();
 		} );
 
-		source?.current?.addEventListener( 'error_network', () => {
+		source?.current?.addEventListener( 'error_network', ( { detail: error } ) => {
+			const { name: errorName, message: errorMessage } = error;
+			if ( errorName === 'TypeError' && errorMessage === 'Failed to fetch' ) {
+				/*
+				 * This is a network error.
+				 * Probably: "414 Request-URI Too Large".
+				 * Let's clean up the messages array and try again.
+				 * @todo: improve the process based on tokens / URL length.
+				 */
+				updatedMessaages.splice( 0, 8 );
+				updateBlockAttributes( clientId, {
+					messages: updatedMessaages,
+				} );
+
+				/*
+				 * Update the last prompt with the new messages.
+				 * @todo: Iterate over Prompt libraru to address properly the messages.
+				 */
+				prompt = buildPromptForBlock( {
+					generatedContent: content,
+					allPostContent: getContentFromBlocks(),
+					postContentAbove: getPartialContentToBlock( clientId ),
+					currentPostTitle,
+					options,
+					userPrompt,
+					type,
+					isGeneratingTitle: attributes.promptType === 'generateTitle',
+				} );
+
+				setLastPrompt( [ ...prompt, ...updatedMessaages, lastUserPrompt ] );
+			}
+
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -241,7 +320,7 @@ const useSuggestionsFromOpenAI = ( {
 
 		source?.current?.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
-			debug( 'fullMessage', e.detail );
+			debug( '(suggestion)', e.detail );
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
 		return source?.current;
@@ -267,7 +346,7 @@ const useSuggestionsFromOpenAI = ( {
 		showRetry,
 		postTitle: currentPostTitle,
 		contentBefore: getPartialContentToBlock( clientId ),
-		wholeContent: getContentFromBlocks( clientId ),
+		wholeContent: getContentFromBlocks(),
 
 		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
 		stopSuggestion,

@@ -86,7 +86,7 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
  * @param {string} options.content - The content of the post.
  * @returns {PromptItemProps} The blog post data prompt.
  */
-export function getBlogPostDataPrompt( { content }: { content: string } ): PromptItemProps {
+export function getBlogPostDataUserPrompt( { content }: { content: string } ): PromptItemProps {
 	const postTitle = select( editorStore ).getEditedPostAttribute( 'title' );
 
 	if ( ! postTitle?.length && ! content?.length ) {
@@ -147,18 +147,13 @@ export const buildPromptTemplate = ( {
 	const messages = [ getInitialSystemPrompt( { rules } ) ];
 
 	// Add blog post data prompt.
-	const postDataPrompt = getBlogPostDataPrompt( { content: fullContent } );
+	const postDataPrompt = getBlogPostDataUserPrompt( { content: fullContent } );
 	if ( postDataPrompt ) {
 		messages.push( postDataPrompt );
 	}
 
 	if ( relevantContent != null && relevantContent?.length ) {
-		if ( isContentGenerated ) {
-			messages.push( {
-				role: 'assistant',
-				content: relevantContent,
-			} );
-		} else {
+		if ( ! isContentGenerated ) {
 			messages.push( {
 				role: 'system',
 				content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
@@ -166,17 +161,16 @@ export const buildPromptTemplate = ( {
 		}
 	}
 
-	messages.push( {
+	const lastUserRequest: PromptItemProps = {
 		role: 'user',
 		content: request,
-	} );
+	};
 
 	if ( isGeneratingTitle ) {
-		messages.push( {
-			role: 'user',
-			content: 'Only output a title, do not generate body content.',
-		} );
+		lastUserRequest.content += ' Only output a title, do not generate body content.';
 	}
+
+	messages.push( lastUserRequest );
 
 	messages.forEach( message => {
 		debug( `Role: ${ message?.role }.\nMessage: ${ message?.content }\n---` );
