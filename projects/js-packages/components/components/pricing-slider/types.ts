@@ -1,3 +1,9 @@
+import type { HTMLProps, RefCallback } from 'react';
+
+interface HTMLPropsWithRefCallback< T > extends HTMLProps< T > {
+	ref: RefCallback< T >;
+}
+
 export type PricingSliderProps = {
 	/**
 	 * The wrapper class name of this PricingSlider component.
@@ -45,5 +51,8 @@ export type PricingSliderProps = {
 	/**
 	 * Node to render on the slider.
 	 */
-	renderThumb?: React.ReactNode;
+	renderThumb?: (
+		props: HTMLPropsWithRefCallback< HTMLDivElement >,
+		state: { index: number; value: number | ReadonlyArray< number >; valueNow: number }
+	) => JSX.Element | null;
 };
