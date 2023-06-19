@@ -130,7 +130,7 @@ class REST_Controller {
 			)
 		);
 
-		// List posts.
+		// Subscribers counts.
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/subscribers/counts', Jetpack_Options::get_option( 'id' ) ),
@@ -825,9 +825,6 @@ class REST_Controller {
 	 * @return string The filtered and built query string.
 	 */
 	protected function filter_and_build_query_string( $params, $keys_to_unset = array() ) {
-		if ( ! is_array( $params ) ) {
-			return '';
-		}
 		if ( isset( $params['rest_route'] ) ) {
 			unset( $params['rest_route'] );
 		}
