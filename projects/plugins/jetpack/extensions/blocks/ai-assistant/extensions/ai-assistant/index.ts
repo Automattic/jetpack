@@ -11,7 +11,7 @@ import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
 
 /*
- * Types and Contstants
+ * Types and Constants
  */
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
 
