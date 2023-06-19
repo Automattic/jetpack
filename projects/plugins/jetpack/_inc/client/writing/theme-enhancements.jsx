@@ -194,6 +194,11 @@ class ThemeEnhancements extends React.Component {
 						) }
 					</SettingsGroup>
 				) }
+				<p>
+					This will be removed: is block theme active:{ ' ' }
+					{ this.props.isBlockBasedThemeActive ? 'true' : 'false' }, foundCustomCSS:{ ' ' }
+					{ foundCustomCSS ? 'true' : 'false' }
+				</p>
 				{ ! this.props.isBlockBasedThemeActive && foundCustomCSS && (
 					<SettingsGroup
 						module={ { module: customCSS.module } }
