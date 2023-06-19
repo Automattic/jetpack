@@ -26,6 +26,7 @@ import {
 	getReachForAccessLevelKey,
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessPrePublishSettings,
+	NewsletterPostPublishPanelUpgradeNude,
 } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
@@ -299,29 +300,7 @@ function NewsletterPostPublishSettingsPanel( {
 					title={ __( 'Lower transaction fees', 'jetpack' ) }
 					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 				>
-					<PanelRow>
-						<p>
-							{ __(
-								'With your current plan, the transaction fee for payments is XX% (+ Stripe fees). Upgrade to to lower it.',
-								'jetpack'
-							) }
-						</p>
-					</PanelRow>
-					<div role="link" className="post-publish-panel__postpublish-buttons">
-						<Button
-							target="_blank"
-							variant="secondary"
-							href={ getRedirectUrl( 'calypso-plans', {
-								site: getSiteFragment(),
-							} ) }
-						>
-							{ __( 'Upgrade plan', 'jetpack' ) }
-							<Icon
-								icon={ external }
-								className="paid-newsletters-post-publish-panel__external_icon"
-							/>
-						</Button>
-					</div>
+					<NewsletterPostPublishPanelUpgradeNude />
 				</PluginPostPublishPanel>
 			) }
 		</>

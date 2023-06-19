@@ -1,10 +1,20 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Flex, Notice, FlexBlock, PanelRow, VisuallyHidden, Spinner } from '@wordpress/components';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import {
+	Button,
+	Flex,
+	Notice,
+	FlexBlock,
+	PanelRow,
+	VisuallyHidden,
+	Spinner,
+} from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { external, Icon } from '@wordpress/icons';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import { getPaidPlanLink, MisconfigurationWarning } from './utils';
 
@@ -350,5 +360,32 @@ export function NewsletterAccessPrePublishSettings( {
 				</PanelRow>
 			) }
 		/>
+	);
+}
+
+export function NewsletterPostPublishPanelUpgradeNude() {
+	return (
+		<>
+			<PanelRow>
+				<p>
+					{ __(
+						'With your current plan, the transaction fee for payments is XX% (+ Stripe fees). Upgrade to to lower it.',
+						'jetpack'
+					) }
+				</p>
+			</PanelRow>
+			<div role="link" className="post-publish-panel__postpublish-buttons">
+				<Button
+					target="_blank"
+					variant="secondary"
+					href={ getRedirectUrl( 'calypso-plans', {
+						site: getSiteFragment(),
+					} ) }
+				>
+					{ __( 'Upgrade plan', 'jetpack' ) }
+					<Icon icon={ external } className="paid-newsletters-post-publish-panel__external_icon" />
+				</Button>
+			</div>
+		</>
 	);
 }
