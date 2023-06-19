@@ -3706,6 +3706,7 @@ function wpsc_is_preload_active() {
 		return true;
 	}
 
+	// check taxonomy preload loop
 	$taxonomies = apply_filters(
 		'wp_cache_preload_taxonomies',
 		array(
@@ -3719,6 +3720,16 @@ function wpsc_is_preload_active() {
 		if ( file_exists( $taxonomy_filename ) ) {
 			return true;
 		}
+	}
+
+	// check post preload loop
+	$preload_cache_counter = get_option( 'prelaod_cache_counter' );
+	if (
+		is_array( $preload_cache_counter )
+		&& isset( $preload_cache_counter['c'] )
+		&& $preload_cache_counter['c'] > 0
+	) {
+		return true;
 	}
 
 	return false;
