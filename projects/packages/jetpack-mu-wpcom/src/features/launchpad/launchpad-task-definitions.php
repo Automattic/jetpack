@@ -30,9 +30,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_disabled_callback' => 'wpcom_is_design_step_enabled',
 		),
 		'domain_claim'                    => array(
-			'get_title'            => function () {
-				return __( 'Claim your free one-year domain', 'jetpack-mu-wpcom' );
-			},
+			'get_title'            => 'wpcom_get_domain_claim_title',
 			'is_complete_callback' => 'wpcom_is_domain_claim_completed',
 			'is_visible_callback'  => 'wpcom_domain_claim_is_visible_callback',
 		),
@@ -350,6 +348,34 @@ function wpcom_track_edit_site_task() {
  */
 function wpcom_is_design_step_enabled() {
 	return ! wpcom_can_update_design_selected_task();
+}
+
+/**
+ * Get the title for the `domain_claim` task.
+ *
+ * @return string The title for the `domain_claim` task.
+ */
+function wpcom_get_domain_claim_title() {
+	if ( function_exists( 'wpcom_get_site_purchases' ) ) {
+		$site_purchases = wpcom_get_site_purchases();
+
+		// Get site domain purchase product types.
+		$domain_purchase_types = array_map(
+			function ( $site_purchase ) {
+				if ( $site_purchase->product_type === 'domain_map' || $site_purchase->product_type === 'domain_reg' ) {
+					return $site_purchase->product_type;
+				}
+			},
+			$site_purchases
+		);
+
+		// If we've mapped a domain but there's no registration, change the task title.
+		if ( in_array( 'domain_map', $domain_purchase_types ) && ! in_array( 'domain_reg', $domain_purchase_types ) ) {
+			return __( 'Connect a domain', 'jetpack-mu-wpcom' );
+		}
+	}
+
+	return __( 'Claim your free one-year domain', 'jetpack-mu-wpcom' );
 }
 
 /**
