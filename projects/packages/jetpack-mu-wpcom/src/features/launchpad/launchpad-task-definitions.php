@@ -651,3 +651,28 @@ function wpcom_is_domain_claim_completed() {
 
 	return ! empty( $domain_purchases );
 }
+
+/**
+ * Mark `domain_claim`, `domain_upsell`, and `domain_upsell_deferred` tasks complete
+ * when a domain product is activated.
+ *
+ * @param int    $blog_id The blog ID.
+ * @param int    $user_id The user ID.
+ * @param string $product_id The product ID.
+ *
+ * @return void
+ */
+function wpcom_mark_domain_tasks_complete( $blog_id, $user_id, $product_id ) {
+	if ( ! class_exists( 'domains' ) ) {
+		return;
+	}
+
+	if ( ! domains::is_domain_product( $product_id ) ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'domain_claim' );
+	wpcom_mark_launchpad_task_complete( 'domain_upsell' );
+	wpcom_mark_launchpad_task_complete( 'domain_upsell_deferred' );
+}
+add_action( 'activate_product', 'wpcom_mark_domain_tasks_complete', 10, 6 );
