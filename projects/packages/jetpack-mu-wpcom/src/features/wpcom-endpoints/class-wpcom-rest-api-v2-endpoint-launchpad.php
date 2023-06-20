@@ -155,23 +155,20 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 		foreach ( $input as $key => $value ) {
 			switch ( $key ) {
 				case 'checklist_statuses':
-					$complete_values = array_filter(
-						$value,
-						function ( $item_value ) {
-							return $item_value;
-						}
-					);
+					$complete_values   = array();
+					$incomplete_values = array();
 
-					$incomplete_values = array_filter(
-						$value,
-						function ( $item_value ) {
-							return ! $item_value;
+					foreach ( $value as $task_id => $task_status ) {
+						if ( $task_status ) {
+							$complete_values[] = $task_id;
+						} else {
+							$incomplete_values[] = $task_id;
 						}
-					);
+					}
 
 					if (
-						wpcom_mark_launchpad_task_complete( array_keys( $complete_values ) ) ||
-						wpcom_mark_launchpad_task_incomplete( array_keys( $incomplete_values ) )
+						wpcom_mark_launchpad_task_complete( $complete_values ) ||
+						wpcom_mark_launchpad_task_incomplete( $incomplete_values )
 					) {
 						$updated[ $key ] = $value;
 					}
