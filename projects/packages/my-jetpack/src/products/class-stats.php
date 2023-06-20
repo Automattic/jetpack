@@ -139,7 +139,7 @@ class Stats extends Module_Product {
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if ( in_array( $purchase->product_slug, static::get_products(), true ) ) {
+				if ( 0 === strpos( $purchase->product_slug, 'jetpack_stats' ) ) {
 					return true;
 				}
 			}
@@ -154,18 +154,5 @@ class Stats extends Module_Product {
 	 */
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=stats' );
-	}
-
-	/**
-	 * Get Products that support the Stats product
-	 *
-	 * @return array
-	 */
-	public static function get_products() {
-		return array(
-			static::get_wpcom_product_slug(),
-			static::get_wpcom_free_product_slug(),
-			static::get_wpcom_pwyw_product_slug(),
-		);
 	}
 }
