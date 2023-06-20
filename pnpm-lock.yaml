@@ -1803,6 +1803,9 @@ importers:
       '@babel/preset-env':
         specifier: 7.21.5
         version: 7.21.5(@babel/core@7.21.5)
+      '@babel/runtime':
+        specifier: 7.21.5
+        version: 7.21.5
       '@storybook/react':
         specifier: 7.0.5
         version: 7.0.5(react-dom@18.2.0)(react@18.2.0)(typescript@5.0.4)
