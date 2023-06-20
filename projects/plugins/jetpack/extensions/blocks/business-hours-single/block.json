@@ -24,6 +24,6 @@
 		"align": [ "wide", "full" ]
 	},
 	"editorScript": "file:./editor.js",
-	"editorStyle": "file:./_editor.css",
-	"style": "file:./_style.css"
+	"editorStyle": "file:./editor.css",
+	"style": "file:./view.css"
 }

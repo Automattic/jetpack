@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\Business_Hours_Single;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'business-hours-single';
@@ -23,11 +24,12 @@ function register_block() {
 	$dir      = dirname( JETPACK__PLUGIN_FILE );
 	$json_dir = $dir . '/_inc/blocks/' . FEATURE_NAME;
 
-	register_block_type(
-		$json_dir,
+	Blocks::jetpack_register_block(
+		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render',
-		)
+		),
+		$json_dir,
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );

@@ -7,6 +7,9 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const webpack = jetpackWebpackConfig.webpack;
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const {
+	defaultRequestToExternal,
+} = require( '@wordpress/dependency-extraction-webpack-plugin/lib/util' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const jsdom = require( 'jsdom' );
 const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
@@ -109,22 +112,6 @@ const viewSingleBlocksScripts = presetSingleBlocks.reduce( ( viewBlocks, block )
 	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
 	if ( fs.existsSync( viewScriptPath ) ) {
 		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
-	}
-	return viewBlocks;
-}, {} );
-
-const editorSingleBlocksStyles = presetSingleBlocks.reduce( ( editorBlocks, block ) => {
-	const editorStylePath = path.join( __dirname, '../extensions/blocks', block, 'editor.scss' );
-	if ( fs.existsSync( editorStylePath ) ) {
-		editorBlocks[ block + '/editor' ] = [ editorStylePath ];
-	}
-	return editorBlocks;
-}, {} );
-
-const viewSingleBlocksStyles = presetSingleBlocks.reduce( ( viewBlocks, block ) => {
-	const viewStylePath = path.join( __dirname, '../extensions/blocks', block, 'style.scss' );
-	if ( fs.existsSync( viewStylePath ) ) {
-		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewStylePath ] ];
 	}
 	return viewBlocks;
 }, {} );
@@ -308,7 +295,6 @@ module.exports = [
 			...viewSingleBlocksScripts,
 		},
 		plugins: [
-			...sharedWebpackConfig.plugins,
 			new CopyWebpackPlugin( {
 				patterns: [
 					{
@@ -318,36 +304,23 @@ module.exports = [
 					},
 				],
 			} ),
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: {
+					injectPolyfill: true,
+					requestToExternal( request ) {
+						if ( request === 'editor-core' ) {
+							return 'editor-core';
+						}
+						return defaultRequestToExternal( request );
+					},
+				},
+			} ),
 		],
 	},
 	{
 		...sharedWebpackConfig,
 		entry: {
-			...editorSingleBlocksStyles,
-			...viewSingleBlocksStyles,
-		},
-		module: {
-			rules: [
-				{
-					test: /\.scss$/,
-					use: [
-						{
-							loader: 'file-loader',
-							options: {
-								name: '[path]_[name].css',
-								context: path.join( __dirname, '../extensions/blocks' ),
-							},
-						},
-						{
-							loader: 'postcss-loader',
-							options: {
-								postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-							},
-						},
-						'sass-loader',
-					],
-				},
-			],
+			'editor-core': path.join( __dirname, '../extensions/editor.js' ),
 		},
 	},
 ];
