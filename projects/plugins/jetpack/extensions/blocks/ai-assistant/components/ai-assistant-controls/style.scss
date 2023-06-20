@@ -1,3 +1,23 @@
-.jetpack-ai-assistant__menu-item {
-	flex-grow: 2;
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-assistant__button {
+	&.is-requesting {
+		animation: color-switch 500ms infinite;
+	}
+
+	&:disabled {
+		opacity: 1;
+	}
+}
+
+@keyframes color-switch {
+	0% {
+		color: var( --jp-green-20 );
+	}
+	50% {
+		color: var( --jp-white );
+	}
+	100% {
+		color: var( --jp-green-20 );
+	}
 }
