@@ -12,6 +12,7 @@ import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import Icon from './icons/ai-assistant';
+import transforms from './transforms';
 /**
  * Supports and extensions
  */
@@ -79,7 +80,7 @@ export const settings = {
 	edit,
 	save: () => null,
 	attributes,
-	transforms: {},
+	transforms,
 	example: {
 		attributes: {
 			content: __( "I'm afraid I can't do that, Dave.", 'jetpack' ),
