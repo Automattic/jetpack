@@ -108,7 +108,6 @@ export const withAIAssistant = createHigherOrderComponent(
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
 			onDone: updateStoredPrompt,
-			onError: showSuggestionError,
 			autoRequest: false,
 		} );
 

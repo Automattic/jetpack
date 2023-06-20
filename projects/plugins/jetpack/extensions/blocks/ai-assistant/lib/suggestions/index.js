@@ -197,6 +197,7 @@ export class SuggestionsEventSource extends EventTarget {
 		if ( chunk ) {
 			this.fullMessage += chunk;
 			this.checkForUnclearPrompt();
+			return this.dispatchEvent( new CustomEvent( 'error_quota_exceeded', { detail: chunk } ) );
 
 			if ( this.isPromptClear ) {
 				// Dispatch an event with the chunk

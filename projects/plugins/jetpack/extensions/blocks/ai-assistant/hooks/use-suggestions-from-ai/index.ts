@@ -3,7 +3,7 @@
  */
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useEffect, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
@@ -70,6 +70,11 @@ type useSuggestionsFromAIProps = {
 	postTitle: string;
 
 	/*
+	 * Whether the request is in progress.
+	 */
+	isRequesting: boolean;
+
+	/*
 	 * The event source.
 	 */
 	source: SuggestionsEventSource | undefined;
@@ -94,6 +99,7 @@ export default function useSuggestionsFromAI( {
 	onDone,
 	onError,
 }: UseSuggestionsFromAIOptions ): useSuggestionsFromAIProps {
+	const [ isRequesting, setIsRequesting ] = useState( false );
 	// Collect data
 	const { postId, postTitle } = useSelect( select => {
 		return {
@@ -137,6 +143,7 @@ export default function useSuggestionsFromAI( {
 			 */
 			const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
 			onDone( event?.detail?.replace( delimiterRegEx, '' ) );
+			setIsRequesting( false );
 		},
 		[ onDone ]
 	);
@@ -151,13 +158,15 @@ export default function useSuggestionsFromAI( {
 			promptArg.forEach( ( { role, content: promptContent }, i ) =>
 				debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
 			);
-
 			try {
 				source.current = await askQuestion( promptArg, {
 					postId,
 					requireUpgrade: false, // It shouldn't be part of the askQuestion API.
 					fromCache: false,
 				} );
+
+				// Set the request status.
+				setIsRequesting( true );
 
 				if ( onSuggestion ) {
 					source?.current?.addEventListener( 'suggestion', handleSuggestion );
@@ -167,61 +176,64 @@ export default function useSuggestionsFromAI( {
 					source?.current?.addEventListener( 'done', handleDone );
 				}
 
-				if ( onError ) {
-					source?.current?.addEventListener( 'error_quota_exceeded', () => {
-						source?.current?.close();
-						onError( {
-							code: 'error_quota_exceeded',
-							message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
-							status: 'info',
-						} );
+				source?.current?.addEventListener( 'error_quota_exceeded', () => {
+					source?.current?.close();
+					setIsRequesting( false );
+					onError?.( {
+						code: 'error_quota_exceeded',
+						message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
+						status: 'info',
 					} );
+				} );
 
-					source?.current?.addEventListener( 'error_unclear_prompt', () => {
-						source?.current?.close();
-						onError( {
-							code: 'error_unclear_prompt',
-							message: __( 'Your request was unclear. Mind trying again?', 'jetpack' ),
-							status: 'info',
-						} );
+				source?.current?.addEventListener( 'error_unclear_prompt', () => {
+					source?.current?.close();
+					setIsRequesting( false );
+					onError?.( {
+						code: 'error_unclear_prompt',
+						message: __( 'Your request was unclear. Mind trying again?', 'jetpack' ),
+						status: 'info',
 					} );
+				} );
 
-					source?.current?.addEventListener( 'error_service_unavailable', () => {
-						source?.current?.close();
-						onError( {
-							code: 'error_service_unavailable',
-							message: __(
-								'Jetpack AI services are currently unavailable. Sorry for the inconvenience.',
-								'jetpack'
-							),
-							status: 'info',
-						} );
+				source?.current?.addEventListener( 'error_service_unavailable', () => {
+					source?.current?.close();
+					setIsRequesting( false );
+					onError?.( {
+						code: 'error_service_unavailable',
+						message: __(
+							'Jetpack AI services are currently unavailable. Sorry for the inconvenience.',
+							'jetpack'
+						),
+						status: 'info',
 					} );
+				} );
 
-					source?.current?.addEventListener( 'error_moderation', () => {
-						source?.current?.close();
-						onError( {
-							code: 'error_moderation',
-							message: __(
-								'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
-								'jetpack'
-							),
-							status: 'info',
-						} );
+				source?.current?.addEventListener( 'error_moderation', () => {
+					source?.current?.close();
+					setIsRequesting( false );
+					onError?.( {
+						code: 'error_moderation',
+						message: __(
+							'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
+							'jetpack'
+						),
+						status: 'info',
 					} );
+				} );
 
-					source?.current?.addEventListener( 'error_network', () => {
-						source?.current?.close();
-						onError( {
-							code: 'error_network',
-							message: __(
-								'It was not possible to process your request. Mind trying again?',
-								'jetpack'
-							),
-							status: 'info',
-						} );
+				source?.current?.addEventListener( 'error_network', () => {
+					source?.current?.close();
+					setIsRequesting( false );
+					onError?.( {
+						code: 'error_network',
+						message: __(
+							'It was not possible to process your request. Mind trying again?',
+							'jetpack'
+						),
+						status: 'info',
 					} );
-				}
+				} );
 			} catch ( e ) {
 				// eslint-disable-next-line no-console
 				console.error( e );
@@ -267,6 +279,9 @@ export default function useSuggestionsFromAI( {
 
 		// Expose the EventHandlerSource
 		source: source.current,
+
+		// Process statuses
+		isRequesting,
 
 		// Export additional props doesn't hurt.
 		postId,
