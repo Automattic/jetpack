@@ -138,7 +138,9 @@ export default function useSuggestionsFromAI( {
 		}
 
 		// Trigger the request.
-		request();
+		if ( autoRequest ) {
+			request();
+		}
 
 		// Close the connection when unmounting.
 		return () => {
