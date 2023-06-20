@@ -270,8 +270,9 @@ export default function useSuggestionsFromAI( {
 			// Clean up the event listeners.
 			source?.current?.removeEventListener( 'suggestion', handleSuggestion );
 			source?.current?.removeEventListener( 'done', handleDone );
+			source?.current?.removeEventListener( 'error_network', handleError );
 		};
-	}, [ autoRequest, handleDone, handleSuggestion, prompt, request ] );
+	}, [ autoRequest, handleDone, handleError, handleSuggestion, prompt, request ] );
 
 	return {
 		// Expose the request handler.
