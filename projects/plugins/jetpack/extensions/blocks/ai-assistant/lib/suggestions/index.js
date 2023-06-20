@@ -217,6 +217,6 @@ export class SuggestionsEventSource extends EventTarget {
 		debug( e );
 
 		// Dispatch a generic network error event
-		this.dispatchEvent( new CustomEvent( 'error_network' ) );
+		this.dispatchEvent( new CustomEvent( 'error_network', { detail: e } ) );
 	}
 }

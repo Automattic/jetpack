@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -270,8 +271,8 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		add_submenu_page( $slug, esc_attr__( 'Reading', 'jetpack' ), __( 'Reading', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/reading/' . $this->domain );
 		add_submenu_page( $slug, esc_attr__( 'Discussion', 'jetpack' ), __( 'Discussion', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/discussion/' . $this->domain );
 
-		$plan_supports_scan = \Jetpack_Plan::supports( 'scan' );
-		$products           = \Jetpack_Plan::get_products();
+		$plan_supports_scan = Jetpack_Plan::supports( 'scan' );
+		$products           = Jetpack_Plan::get_products();
 		$has_scan_product   = false;
 
 		if ( is_array( $products ) ) {

@@ -232,4 +232,51 @@ describe( 'Membership Products Actions', () => {
 			PRODUCT_TYPE_PAYMENT_PLAN
 		);
 	} );
+
+	test( 'Silent case displays does not display a success notice.', async () => {
+		// Given
+		const anyValidProduct = buildAnyValidProduct();
+		const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
+		const selectedProductCallback = jest.fn( anyFunction );
+		const apiResponseProduct = {
+			id: 1,
+			title: 'anyTitle',
+			interval: 'anyInterval',
+			price: '12',
+			currency: 'anyCurrency',
+		};
+		const registryProductList = [ apiResponseProduct, apiResponseProduct ];
+		const registry = {
+			select: () => ( { getProducts: () => registryProductList } ),
+		};
+		const dispatch = jest.fn( anyFunction );
+		const noticeMock = jest.spyOn( utils, 'onSuccess' ).mockImplementation( anyFunction );
+		const getMessageMock = jest
+			.spyOn( message, 'getMessageByProductType' )
+			.mockImplementation( anyFunction );
+		apiFetch.mockReturnValue( Promise.resolve( apiResponseProduct ) );
+
+		// When
+		await saveProduct(
+			anyValidProduct,
+			paymentPlanProductType,
+			selectedProductCallback,
+			() => {},
+			false
+		)( { dispatch, registry } );
+
+		// Then
+		expect( apiFetch ).toHaveBeenCalledWith( {
+			path: '/wpcom/v2/memberships/product',
+			method: 'POST',
+			data: anyValidProduct,
+		} );
+		expect( dispatch ).toHaveBeenCalledWith( {
+			products: registryProductList.concat( [ apiResponseProduct ] ),
+			type: 'SET_PRODUCTS',
+		} );
+		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
+		expect( noticeMock ).not.toHaveBeenCalled();
+		expect( getMessageMock ).not.toHaveBeenCalled();
+	} );
 } );

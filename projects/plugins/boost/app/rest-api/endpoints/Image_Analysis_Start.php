@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack\Boost_Speed_Score\Lib\Boost_API;
+use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
@@ -19,7 +19,7 @@ class Image_Analysis_Start implements Endpoint {
 
 	public function response( $_request ) {
 		// @TODO: Add a proper feature flag for this instead of just checking if priority support available.
-		if ( ! Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ) ) {
+		if ( ! Premium_Features::has_feature( Premium_Features::IMAGE_SIZE_ANALYSIS ) ) {
 			return new \WP_Error( 'not-allowed', 'Feature not enabled' );
 		}
 

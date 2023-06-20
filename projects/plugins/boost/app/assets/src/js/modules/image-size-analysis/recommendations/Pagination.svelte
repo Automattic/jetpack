@@ -67,15 +67,16 @@
 		<ul>
 			{#each pages as page}
 				<li>
-					<span class="jb-pagination__page" class:jb-pagination__current={page === current}>
-						{#if page === MORE_ICON}
-							...
-						{:else}
-							<Link to="/image-size-analysis/{$isaData.query.group}/{page}">
-								{page}
-							</Link>
-						{/if}
-					</span>
+					{#if page === MORE_ICON}
+						<span class="jb-pagination__page jb-pagination__more"> ... </span>
+					{:else}
+						<Link
+							to="/image-size-analysis/{$isaData.query.group}/{page}"
+							class="jb-pagination__page{page === current ? ' jb-pagination__current' : ''}"
+						>
+							{page}
+						</Link>
+					{/if}
 				</li>
 			{/each}
 		</ul>
@@ -106,7 +107,8 @@
 	}
 
 	button,
-	.jb-pagination__page {
+	.jb-pagination__page,
+	.jb-pagination :global( a ) {
 		background-color: transparent;
 		border: 0;
 		cursor: pointer;
@@ -115,10 +117,7 @@
 		line-height: 1;
 		font-size: 13px;
 		font-weight: 600;
-
-		:global( a ) {
-			text-decoration: none;
-		}
+		text-decoration: none;
 
 		&[disabled] {
 			cursor: default;
@@ -129,14 +128,13 @@
 			opacity: 0.25;
 			cursor: not-allowed;
 		}
-		&.jb-pagination__current {
-			background-color: #000;
-			border-radius: var( --border-radius );
-			cursor: pointer;
-			border: 0;
-			:global( a ) {
-				color: #fff;
-			}
-		}
+	}
+
+	.jb-pagination :global( .jb-pagination__current ) {
+		background-color: #000;
+		border-radius: var( --border-radius );
+		cursor: pointer;
+		border: 0;
+		color: #fff;
 	}
 </style>
