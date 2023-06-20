@@ -22,7 +22,7 @@ const PricingSlider: React.FC< PricingSliderProps > = ( {
 	onAfterChange,
 	renderThumb,
 } ) => {
-	const componentClassName = classNames( 'jp-components__pricing-slider', className );
+	const componentClassName = classNames( 'jp-components-pricing-slider', className );
 
 	const renderThumbCallback = renderThumb
 		? renderThumb
@@ -33,10 +33,10 @@ const PricingSlider: React.FC< PricingSliderProps > = ( {
 	return (
 		<div className={ componentClassName } data-testid="pricing-slider">
 			<ReactSlider
-				className="pricing-slider"
-				thumbClassName="pricing-slider__thumb"
-				thumbActiveClassName="pricing-slider__thumb--is-active"
-				trackClassName="pricing-slider__track"
+				className="jp-components-pricing-slider__control"
+				thumbClassName="jp-components-pricing-slider__thumb"
+				thumbActiveClassName="jp-components-pricing-slider__thumb--is-active"
+				trackClassName="jp-components-pricing-slider__track"
 				value={ value }
 				max={ maxValue }
 				min={ minValue }
