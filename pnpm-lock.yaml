@@ -738,6 +738,9 @@ importers:
       '@wordpress/data':
         specifier: 9.4.0
         version: 9.4.0(react@18.2.0)
+      '@wordpress/edit-post':
+        specifier: 7.11.0
+        version: 7.11.0(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/editor':
         specifier: 13.11.0
         version: 13.11.0(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
