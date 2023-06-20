@@ -24,7 +24,7 @@ import { PromptItemProps, PromptTypeProp, getPrompt } from '../../lib/prompt';
 export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
 		const { clientId } = props;
-		const [ storedPrompt, storePromptInLocalState ] = useState< Array< PromptItemProps > >( [] );
+		const [ storedPrompt, setStoredPrompt ] = useState< Array< PromptItemProps > >( [] );
 
 		const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
