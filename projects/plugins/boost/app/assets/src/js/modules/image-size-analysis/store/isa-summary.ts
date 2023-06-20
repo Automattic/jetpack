@@ -42,7 +42,7 @@ export const isaGroupLabels = {
 	front_page: __( 'Homepage', 'jetpack-boost' ),
 	page: __( 'Pages', 'jetpack-boost' ),
 	post: __( 'Posts', 'jetpack-boost' ),
-	other: __( 'Custom Post Types', 'jetpack-boost' ),
+	other: __( 'Other', 'jetpack-boost' ),
 };
 
 /**
