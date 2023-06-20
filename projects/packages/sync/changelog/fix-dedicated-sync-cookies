@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Removing cookies from the dedicates sync request to fix compatibility with WCPay.
+Initialize dedicated hook endpoint earlier in the 'init' hook to avoid cookie conflicts.
