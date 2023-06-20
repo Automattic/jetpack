@@ -35,10 +35,10 @@ const ProductCardsSection = () => {
 				<SearchCard admin={ true } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<StatsCard admin={ true } />
+				<VideopressCard admin={ true } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<VideopressCard admin={ true } />
+				<StatsCard admin={ true } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<CrmCard admin={ true } />
