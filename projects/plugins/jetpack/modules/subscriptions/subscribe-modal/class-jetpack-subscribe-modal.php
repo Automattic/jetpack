@@ -72,7 +72,12 @@ class Jetpack_Subscribe_Modal {
 	 * @return void
 	 */
 	public function wpcom_add_subscribe_modal_to_frontend() {
-		if ( $this->should_enable_subscriber_modal() && ! is_admin() ) {
+		if (
+			$this->should_enable_subscriber_modal() &&
+			! is_admin() &&
+			is_single() &&
+			'post' == get_post_type()
+		) {
 			$posts = get_posts(
 				array(
 					'post_type'   => 'wp_template_part',
@@ -151,11 +156,7 @@ class Jetpack_Subscribe_Modal {
 							echo wp_kses( render_block( $block ), $allowed_html );
 						}
 						?>
-						<div class="jetpack-subscribe-modal__close">
-							<a href="#">
-								<?php esc_html_e( 'Close', 'jetpack' ); ?>
-							</a>
-						</div>
+						<Dashicon icon="minus" className="jp-idc__idc-screen__card-action-separator" />
 					</div>
 				</div>
 			<?php
@@ -206,16 +207,28 @@ class Jetpack_Subscribe_Modal {
 	 * @return string
 	 */
 	public function get_subscribe_template_content() {
-		return '<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|40","right":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|40"}}},"layout":{"type":"constrained"}} -->
-		<div class="wp-block-group" style="padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)"><!-- wp:heading {"textAlign":"center"} -->
-		<h2 class="wp-block-heading has-text-align-center">This post is for subscribers</h2>
+		return '<!-- wp:group {"style":{"spacing":{"padding":{"top":"50px","bottom":"50px","left":"20px","right":"20px"}}},"layout":{"type":"constrained"}} -->
+		<div class="wp-block-group" style="padding-top:50px;padding-right:20px;padding-bottom:50px;padding-left:20px"><!-- wp:group {"style":{"dimensions":{"minHeight":"0px"},"spacing":{"blockGap":"8px"}},"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"center"}} -->
+		<div class="wp-block-group" style="min-height:0px"><!-- wp:heading {"style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null}}} -->
+		<h2 class="wp-block-heading" style="font-size:26px;font-style:normal;font-weight:600">Discover more from</h2>
 		<!-- /wp:heading -->
 		
-		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"bottom":"var:preset|spacing|60"}}}} -->
-		<p class="has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60)">Subscribe to to keep reading and get access to the full archive.</p>
+		<!-- wp:site-title {"level":2,"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","lineHeight":"1.2","fontSize":"26px"}}} /--></div>
+		<!-- /wp:group -->
+		
+		<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"4px","bottom":"0px"}}}} -->
+		<p class="has-text-align-center" style="margin-top:4px;margin-bottom:0px;font-size:15px">Subscribe to the newsletter to keep reading</p>
 		<!-- /wp:paragraph -->
 		
-		<!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /--></div>
+		<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"bottom":"20px","top":"0px"}}}} -->
+		<p class="has-text-align-center" style="margin-top:0px;margin-bottom:20px;font-size:15px">and get access to the full archive.</p>
+		<!-- /wp:paragraph -->
+		
+		<!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
+		
+		<!-- wp:paragraph {"align":"center","style":{"color":{"text":"#666666"},"typography":{"fontSize":"14px","textDecoration":"underline"}},"className":"jetpack-subscribe-modal__close"} -->
+		<p class="has-text-align-center jetpack-subscribe-modal__close has-text-color" style="color:#666666;font-size:14px;text-decoration:underline"><a href="#">Continue Reading</a></p>
+		<!-- /wp:paragraph --></div>
 		<!-- /wp:group -->';
 	}
 }
