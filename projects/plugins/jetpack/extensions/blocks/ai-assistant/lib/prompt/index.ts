@@ -153,7 +153,7 @@ function getTonePrompt( {
 	return [
 		{
 			role,
-			content: `Rewrite the following text with a ${ tone } tone. Write the content in the same language as the original content:\n\n${ content }`,
+			content: `Rewrite the following text with a ${ tone } tone, keeping the language:\n\n${ content }`,
 		},
 	];
 }
