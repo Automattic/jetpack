@@ -56,7 +56,6 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return bool Whether the user can view the content
 	 */
 	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
-		l( '$valid_plan_ids', $valid_plan_ids );
 
 		// URL token always has a precedence, so it can overwrite the cookie when new data available.
 		$token = $this->token_from_request();
@@ -93,16 +92,12 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			);
 			$subscriptions      = (array) $payload['subscriptions'];
 			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
-			l( '$subscriptions:', $subscriptions );
-			l( '$is_paid_subscriber:', $is_paid_subscriber );
 		} else {
 			// Token not valid. We bail even unless the post can be accessed publicly.
 			return $this->user_has_access( $access_level, false, false, get_the_ID() );
 		}
 
-		$user_has_access = $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID() );
-		l( '$user_has_access:', $user_has_access );
-		return $user_has_access;
+		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID() );
 	}
 
 	/**
@@ -239,13 +234,11 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		// Create a list of product_ids to compare against.
 		$product_ids = array();
 		foreach ( $valid_plan_ids as $plan_id ) {
-			// TODO: There's an issue here where $plan_ids share the same product IDs
 			$product_id = (int) get_post_meta( $plan_id, 'jetpack_memberships_product_id', true );
 			if ( isset( $product_id ) ) {
 				$product_ids[] = $product_id;
 			}
 		}
-
 		foreach ( $token_subscriptions as $product_id => $token_subscription ) {
 			if ( in_array( intval( $product_id ), $product_ids, true ) ) {
 				$end = is_int( $token_subscription->end_date ) ? $token_subscription->end_date : strtotime( $token_subscription->end_date );
