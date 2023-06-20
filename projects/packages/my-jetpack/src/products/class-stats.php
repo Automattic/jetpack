@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the Jetpack Stats product
