@@ -87,7 +87,7 @@ $learn_from_mike_videos = array(
 			<div class="jpcrm-modal-learn-footer">
 			<div class="jpcrm-modal-learn-footer-paragraph"><?php esc_html_e( 'You can learn more about how to use Jetpack CRM to its full potential from our videos on YouTube.', 'zero-bs-crm' ); ?></div>
 				<div class="jpcrm-modal-learn-footer-actions">
-				<a href="<?php echo esc_url( $zbs->urls['youtube_intro_playlist'] ); ?>" target="_blank"><img src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/first-use-dash-learn-video-ico.png" alt="<?php esc_attr_e( 'Learn from Mike', 'zero-bs-crm' ); ?>" /> <?php esc_html_e( 'Get Started Playlist', 'zero-bs-crm' ); ?></a>
+				<a href="<?php echo esc_url( $zbs->urls['youtube_intro_playlist'] ); ?>" target="_blank"><img src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/first-use-dash-learn-video-ico.png" alt="<?php esc_attr_e( 'Get Started Playlist', 'zero-bs-crm' ); ?>" /> <?php esc_html_e( 'Get Started Playlist', 'zero-bs-crm' ); ?></a>
 				</div>
 			</div>
 
