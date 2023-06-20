@@ -34,7 +34,7 @@ class Dashboard_Config_Data {
 		return array(
 			'admin_page_base'          => $this->get_admin_path(),
 			'api_root'                 => esc_url_raw( rest_url() ),
-			'blog_id'                  => Jetpack_Options::get_option( 'id' ),
+			'blog_id'                  => $blog_id,
 			'enable_all_sections'      => false,
 			'env_id'                   => 'production',
 			'google_analytics_key'     => 'UA-10673494-15',
