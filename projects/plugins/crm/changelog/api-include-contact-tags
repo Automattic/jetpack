@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+API contact endpoints: Now it retrieves contacts with tags
