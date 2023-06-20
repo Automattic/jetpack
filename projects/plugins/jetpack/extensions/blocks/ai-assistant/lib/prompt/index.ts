@@ -78,10 +78,29 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 }
 
 type PromptOptionsProps = {
+	/*
+	 * The content to add to the prompt.
+	 */
 	content: string;
+
+	/*
+	 * The language to translate to. Optional.
+	 */
 	language?: string;
+
+	/*
+	 * The tone to use. Optional.
+	 */
 	tone?: ToneProp;
+
+	/*
+	 * The role of the prompt. Optional.
+	 */
 	role?: PromptItemProps[ 'role' ];
+
+	/*
+	 * The previous messages of the same prompt. Optional.
+	 */
 	prevMessages?: Array< PromptItemProps >;
 };
 
@@ -384,6 +403,10 @@ export function getPrompt(
 		'You are an excellent polyglot ghostwriter. ' +
 		'Your task is to help the user to create and modify content based on their requests.';
 
+	/*
+	 * Create the initial prompt only if there are no previous messages.
+	 * Otherwise, let's use the previous messages as the initial prompt.
+	 */
 	let prompt: Array< PromptItemProps > = ! prevMessages?.length
 		? [
 				{
