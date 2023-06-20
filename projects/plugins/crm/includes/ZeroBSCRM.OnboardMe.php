@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /*!
  * Jetpack CRM - Onboard Me
  * https://jetpackcrm.com
