@@ -154,7 +154,7 @@ function getExpandPrompt( {
 	return [
 		{
 			role,
-			content: `Expand the following text to about double its size approximately. Write the content in the same language as the original content:\n\n${ content }`,
+			content: `Expand the following text to about double its size. Write the content in the same language as the original content:\n\n${ content }`,
 		},
 	];
 }
