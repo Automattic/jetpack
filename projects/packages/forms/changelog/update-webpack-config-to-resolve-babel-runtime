@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Update webpack config of projects to fix builds with @babel/runtime
