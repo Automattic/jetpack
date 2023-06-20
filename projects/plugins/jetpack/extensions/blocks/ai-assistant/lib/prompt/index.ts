@@ -79,29 +79,6 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 	return { role: 'system', content: prompt };
 }
 
-export function getInitialSystemPrompt35( {
-	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Please remember to provide only the direct translation without any introductory or explanatory sentences',
-	rules,
-}: {
-	context?: string;
-	rules?: Array< string >;
-} ): PromptItemProps {
-	// Rules
-	let extraRules = '';
-	if ( rules?.length ) {
-		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
-	}
-	const prompt = `${ context }.
-Strictly follow these rules:
-
-${ extraRules }- Format your responses in Markdown syntax, ready to be published.
-- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
-`;
-
-	return { role: 'system', content: prompt };
-}
-
 /**
  * Helper function to get the blog post data prompt.
  *
@@ -129,33 +106,83 @@ ${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
 
 type PromptOptionsProps = {
 	content: string;
-	language: string;
+	language?: string;
 	tone?: ToneProp;
 	role?: PromptItemProps[ 'role' ];
 };
+
+function getCorrectSpellingPrompt( {
+	content,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Repeat the following text, correcting any spelling and grammar mistakes:\n\n${ content }`,
+		},
+	];
+}
+
+function getSimplifyPrompt( {
+	content,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Simplify the following text, using words and phrases that are easier to understand. Write the content in the same language as the original content:\n\n${ content }`,
+		},
+	];
+}
+
+function getSummarizePrompt( {
+	content,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Summarize the following text. Write the content in the same language as the original content:\n\n${ content }`,
+		},
+	];
+}
+
+function getExpandPrompt( {
+	content,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Expand the following text to about double its size approximately. Write the content in the same language as the original content:\n\n${ content }`,
+		},
+	];
+}
 
 function getTranslatePrompt( {
 	content,
 	language,
 	role = 'user',
-}: PromptOptionsProps ): PromptItemProps {
-	return {
-		role,
-		content: `Translate the following text to ${ language }:
-
-${ content }
-`,
-	};
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Translate the following text to ${ language }. Preserve the same core meaning and tone:\n\n${ content }`,
+		},
+	];
 }
 
-function getTonePrompt( { content, tone, role = 'user' }: PromptOptionsProps ): PromptItemProps {
-	return {
-		role,
-		content: `Rewrite the following text with a ${ tone } tone:
-
-${ content }
-`,
-	};
+function getTonePrompt( {
+	content,
+	tone,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Rewrite the following text with a ${ tone } tone. Write the content in the same language as the original content:\n\n${ content }`,
+		},
+	];
 }
 
 /*
@@ -387,16 +414,46 @@ export function getPrompt(
 	type: PromptTypeProp,
 	options: PromptOptionsProps
 ): Array< PromptItemProps > {
-	const initialSystemPrompt = getInitialSystemPrompt35( {} );
+	const context =
+		'You are an excellent polyglot ghostwriter. ' +
+		'Your task is to help to the user to create and modify content based on their requests.';
 
-	let prompt: Array< PromptItemProps > = [];
+	const initialSystemPrompt: PromptItemProps = {
+		role: 'system',
+		content: `${ context }
+Writing rules:
+- When it isn't clarified, the content should be written in the same language as the original content.
+- Format your responses in Markdown syntax.
+- Execute the request without any acknowledgement to the user.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+`,
+	};
+
+	const prompt: Array< PromptItemProps > = [ initialSystemPrompt ];
 	switch ( type ) {
+		case PROMPT_TYPE_CORRECT_SPELLING:
+			prompt.push( ...getCorrectSpellingPrompt( options ) );
+			break;
+
+		case PROMPT_TYPE_SIMPLIFY:
+			prompt.push( ...getSimplifyPrompt( options ) );
+			break;
+
+		case PROMPT_TYPE_SUMMARIZE:
+			prompt.push( ...getSummarizePrompt( options ) );
+			break;
+
+		case PROMPT_TYPE_MAKE_LONGER:
+			prompt.push( ...getExpandPrompt( options ) );
+			break;
+
 		case PROMPT_TYPE_CHANGE_LANGUAGE:
-			prompt = [ initialSystemPrompt, getTranslatePrompt( options ) ];
+			prompt.push( ...getTranslatePrompt( options ) );
 			break;
 
 		case PROMPT_TYPE_CHANGE_TONE:
-			prompt = [ initialSystemPrompt, getTonePrompt( options ) ];
+			prompt.push( ...getTonePrompt( options ) );
 			break;
 	}
 
