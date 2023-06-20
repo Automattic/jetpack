@@ -12,7 +12,7 @@
 }
 
 .jetpack-subscribe-modal.open {
-	background-color: rgba(0,0,0,0.2);
+	background-color: rgba(0,0,0,0.3);
 	visibility: visible;
 }
 
@@ -22,12 +22,36 @@
 	top: 100%;
 	background-color: #fefefe;
 	margin: 15% auto;
-	padding: 60px 90px;
 	border: 1px solid #ddd;
 	width: 600px;
 	border-radius: 10px;
 	box-sizing: border-box;
 	transition: all 0.4s;
+}
+
+.jetpack-subscribe-modal__modal-content .wp-block-group {
+    justify-content: center;
+	gap: 0;
+}
+
+.jetpack-subscribe-modal__modal-content > .wp-block-group {
+    max-width: 450px;
+	margin: 0 auto;
+}
+
+.jetpack-subscribe-modal__modal-content > .wp-block-group:before {
+	content: '\f160';
+    text-align: center;
+    display: block;
+    font-family: 'Dashicons';
+    color: black;
+    font-size: 24px;
+    margin-bottom: 24px;
+    line-height: 1;
+}
+
+.jetpack-subscribe-modal__modal-content h2 {
+    margin: 4px;
 }
 
 .jetpack-subscribe-modal.open .jetpack-subscribe-modal__modal-content {
@@ -36,10 +60,5 @@
 }
 
 .jetpack-subscribe-modal__close {
-	text-align: center;
-}
-
-.jetpack-subscribe-modal__close a {
-	font-size: 13px;
-	color: #666666;
+	cursor: pointer;
 }
