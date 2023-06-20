@@ -21,6 +21,10 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * Set up the actions and filters needed for our compatability layer on top of core's Custom CSS implementation.
 	 */
 	public static function add_hooks() {
+		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+			return;
+		}
+
 		add_action( 'init', array( __CLASS__, 'init' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'customize_controls_enqueue_scripts' ) );
 		add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
