@@ -22,7 +22,7 @@ const transformFromCore = {
 	transform: ( { content } ) => {
 		const messages: Array< PromptItemProps > = [
 			{
-				role: 'user',
+				role: 'assistant',
 				content,
 			},
 		];
