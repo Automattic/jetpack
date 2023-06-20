@@ -68,15 +68,16 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				setStoredPrompt( prevMessages => ( {
-					messages: [
-						...prevMessages.messages,
-						...getPrompt( promptType, {
+				setStoredPrompt( prevPrompt => {
+					return {
+						...prevPrompt,
+						messages: getPrompt( promptType, {
 							...options,
 							content,
+							prevMessages: prevPrompt.messages,
 						} ),
-					],
-				} ) );
+					};
+				} );
 			},
 			[ content ]
 		);
