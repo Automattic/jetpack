@@ -221,7 +221,9 @@ class Dashboard_REST_Controller {
 		}
 
 		// We don't use sub_path in the blaze posts, only query strings
-		unset( $req->get_params()['sub_path'] );
+		if ( isset( $params['sub_path'] ) ) {
+			unset( $req->get_params()['sub_path'] );
+		}
 
 		return $this->request_as_user(
 			sprintf( '/sites/%d/blaze/posts%s', $site_id, $this->build_subpath_with_query_strings( $req->get_params() ) ),
@@ -253,6 +255,10 @@ class Dashboard_REST_Controller {
 		if ( isset( $params['sub_path'] ) ) {
 			$sub_path = $params['sub_path'];
 			unset( $params['sub_path'] );
+		}
+
+		if ( isset( $params['rest_route'] ) ) {
+			unset( $params['rest_route'] );
 		}
 
 		if ( ! empty( $params ) ) {
