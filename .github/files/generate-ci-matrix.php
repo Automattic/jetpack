@@ -65,10 +65,16 @@ foreach ( array( '5.6', '7.0', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2' ) as $ph
 	);
 }
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
+	// PHP 8.1+ compatibility only came in with WP 6.2.
+	// @todo Remove this when 6.2 is "previous".
+	$phpver = $versions['PHP_VERSION'];
+	if ( $wp === 'previous' ) {
+		$phpver = '8.0';
+	}
 	$matrix[] = array(
-		'name'    => "PHP tests: PHP {$versions['PHP_VERSION']} WP $wp",
+		'name'    => "PHP tests: PHP {$phpver} WP $wp",
 		'script'  => 'test-php',
-		'php'     => $versions['PHP_VERSION'],
+		'php'     => $phpver,
 		'wp'      => $wp,
 		'timeout' => 15, // 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
 	);
