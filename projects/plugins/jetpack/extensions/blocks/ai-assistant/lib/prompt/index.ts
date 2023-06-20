@@ -416,7 +416,7 @@ export function getPrompt(
 ): Array< PromptItemProps > {
 	const context =
 		'You are an excellent polyglot ghostwriter. ' +
-		'Your task is to help to the user to create and modify content based on their requests.';
+		'Your task is to help the user to create and modify content based on their requests.';
 
 	const initialSystemPrompt: PromptItemProps = {
 		role: 'system',
