@@ -91,20 +91,18 @@ const useSuggestionsFromOpenAI = ( {
 
 	useEffect( () => {
 		setIsLoadingCategories( loading );
-	}, [ loading ] );
 
-	useEffect( () => {
 		/*
 		 * Returning a cleanup function that will stop
 		 * the suggestion if it's still rolling.
 		 */
 		return () => {
-			debug( 'Cleaning things up...' );
 			if ( source?.current ) {
+				debug( 'Cleaning things up...' );
 				source?.current?.close();
 			}
 		};
-	}, [ source ] );
+	}, [ loading, source ] );
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	// eslint-disable-next-line no-unused-vars
