@@ -17,8 +17,7 @@ import './email-preview.scss';
 import { check } from '@wordpress/icons';
 import illustration from './email-preview-illustration.svg';
 
-export default function EmailPreview() {
-	const [ isModalOpen, setIsModalOpen ] = useState( false );
+export default function EmailPreview( { isModalOpen, closeModal } ) {
 	const [ emailSent, setEmailSent ] = useState( false );
 	const [ emailSending, setEmailSending ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
@@ -52,14 +51,11 @@ export default function EmailPreview() {
 
 	return (
 		<>
-			<Button variant="primary" onClick={ () => setIsModalOpen( true ) }>
-				{ __( 'Send test email', 'jetpack' ) }
-			</Button>
 			{ isModalOpen && (
 				<Modal
 					className="jetpack-email-preview"
 					onRequestClose={ () => {
-						setIsModalOpen( false );
+						closeModal();
 						setEmailSent( false );
 					} }
 				>
