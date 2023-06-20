@@ -2,12 +2,18 @@
  * External dependencies
  */
 import { createBlock } from '@wordpress/blocks';
+import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
 import { blockName } from '..';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
+/**
+ * Types
+ */
 import { PromptItemProps } from '../lib/prompt';
+
+const turndownService = new TurndownService();
 
 const transformFromCore = {
 	type: 'block',
@@ -21,7 +27,7 @@ const transformFromCore = {
 			},
 		];
 
-		return createBlock( blockName, { content, messages } );
+		return createBlock( blockName, { content: turndownService.turndown( content ), messages } );
 	},
 };
 
