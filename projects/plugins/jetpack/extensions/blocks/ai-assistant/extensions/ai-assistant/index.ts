@@ -10,12 +10,15 @@ import { blockName } from '../..';
 import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
 
+/*
+ * Types and Constants
+ */
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
 
-/*
- * List of blocks that can be extended.
- */
-export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading' ];
+// List of blocks that can be extended.
+export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading' ] as const;
+
+type ExtendedBlock = ( typeof EXTENDED_BLOCKS )[ number ];
 
 type BlockSettingsProps = {
 	supports: {
@@ -69,10 +72,13 @@ export function isPossibleToExtendBlock(): boolean {
  * Add jetpack/ai support to the extended blocks.
  *
  * @param {BlockSettingsProps} settings - Block settings.
- * @param {string} name                 - Block name.
+ * @param {ExtendedBlock} name          - Block name.
  * @returns {BlockSettingsProps}          Block settings.
  */
-function addJetpackAISupport( settings: BlockSettingsProps, name: string ): BlockSettingsProps {
+function addJetpackAISupport(
+	settings: BlockSettingsProps,
+	name: ExtendedBlock
+): BlockSettingsProps {
 	if ( ! isPossibleToExtendBlock() ) {
 		return settings;
 	}

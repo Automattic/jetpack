@@ -129,8 +129,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'keep-building'   => array(
-			'title'               => 'Keep Building',
-			'task_ids'            => array(
+			'title'                  => 'Keep Building',
+			'task_ids'               => array(
 				'site_title',
 				'design_edited',
 				'domain_claim',
@@ -138,7 +138,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_upsell',
 				'drive_traffic',
 			),
-			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
+			'is_enabled_callback'    => 'wpcom_launchpad_is_keep_building_enabled',
+			'visible_tasks_callback' => 'wpcom_launchpad_keep_building_visible_tasks',
 		),
 	);
 
@@ -565,6 +566,33 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
  */
 function wpcom_launchpad_is_keep_building_enabled() {
 	return apply_filters( 'is_launchpad_keep_building_enabled', false );
+}
+
+/**
+ * Filter task visibility for the Keep building task list.
+ *
+ * @param array $task_list The task array.
+ *
+ * @return array The filtered array of task IDs.
+ */
+function wpcom_launchpad_keep_building_visible_tasks( $task_list ) {
+	$task_ids = $task_list['task_ids'];
+
+	if ( ! $task_ids ) {
+		return array();
+	}
+
+	return array_filter(
+		$task_ids,
+		function ( $task_id ) {
+			// Only show design_edited/site_edited if it hasn't been marked as complete.
+			if ( in_array( $task_id, array( 'design_edited', 'site_edited' ), true ) ) {
+				return ! wpcom_is_checklist_task_complete( $task_id );
+			}
+
+			return true;
+		}
+	);
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
