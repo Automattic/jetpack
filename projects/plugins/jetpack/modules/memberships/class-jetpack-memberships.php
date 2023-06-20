@@ -43,6 +43,20 @@ class Jetpack_Memberships {
 	public static $post_access_level_meta_name = \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 	/**
+	 * Plan type of of 'non-newsletter'
+	 *
+	 * @var string
+	 */
+	public static $plan_type_non_newsletter = 'non-newsletter';
+
+	/**
+	 * Plan type of of 'newsletter'
+	 *
+	 * @var string
+	 */
+	public static $plan_type_newsletter = 'newsletter';
+
+	/**
 	 * Button block type to use.
 	 *
 	 * @var string
@@ -487,7 +501,7 @@ class Jetpack_Memberships {
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$paywall       = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$can_view_post = $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $post_access_level );
+		$can_view_post = $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments( self::$plan_type_newsletter ), $post_access_level );
 
 		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
 		return $can_view_post;
@@ -532,21 +546,41 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Return all plans
+	 * Return membership plans
 	 *
+	 * @param string $plan_type - Type of a plan for which site is configured. For now supports: 'non-newsletter', 'newsletter'.
 	 * @return array
 	 */
-	public static function get_all_plans_id_jetpack_recurring_payments() {
+	public static function get_all_plans_id_jetpack_recurring_payments( $plan_type = '' ) {
 		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
 			return array();
 		}
-		return get_posts(
-			array(
-				'post_type'      => self::$post_type_plan,
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-			)
+
+		$query = array(
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'post_type'      => self::$post_type_plan,
 		);
+
+		if ( $plan_type === self::$plan_type_newsletter ) {
+			$query['meta_value'] = true;
+			$query['meta_key']   = 'jetpack_memberships_site_subscriber';
+
+			return get_posts( $query );
+		}
+
+		if ( $plan_type === self::$plan_type_non_newsletter ) {
+			$plan_ids = get_posts( $query );
+
+			return array_filter(
+				$plan_ids,
+				function ( $plan_id ) {
+					return empty( get_post_meta( $plan_id, 'jetpack_memberships_site_subscriber', true ) );
+				}
+			);
+		}
+
+		return get_posts( $query );
 	}
 
 	/**
