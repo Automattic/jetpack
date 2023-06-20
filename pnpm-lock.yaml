@@ -10865,7 +10865,7 @@ packages:
       dom-scroll-into-view: 1.2.1
       downshift: 6.1.12(react@18.2.0)
       fast-deep-equal: 3.1.3
-      framer-motion: 10.12.16(react-dom@18.2.0)(react@18.2.0)
+      framer-motion: 10.12.15(react-dom@18.2.0)(react@18.2.0)
       gradient-parser: 0.1.5
       highlight-words-core: 1.2.2
       is-plain-object: 5.0.0
@@ -10932,7 +10932,7 @@ packages:
       dom-scroll-into-view: 1.2.1
       downshift: 6.1.12(react@18.2.0)
       fast-deep-equal: 3.1.3
-      framer-motion: 10.12.16(react-dom@18.2.0)(react@18.2.0)
+      framer-motion: 10.12.15(react-dom@18.2.0)(react@18.2.0)
       gradient-parser: 0.1.5
       highlight-words-core: 1.2.2
       is-plain-object: 5.0.0
@@ -10998,7 +10998,7 @@ packages:
       dom-scroll-into-view: 1.2.1
       downshift: 6.1.12(react@18.2.0)
       fast-deep-equal: 3.1.3
-      framer-motion: 10.12.16(react-dom@18.2.0)(react@18.2.0)
+      framer-motion: 10.12.15(react-dom@18.2.0)(react@18.2.0)
       gradient-parser: 0.1.5
       highlight-words-core: 1.2.2
       is-plain-object: 5.0.0
@@ -15723,8 +15723,8 @@ packages:
     resolution: {integrity: sha512-MhLuK+2gUcnZe8ZHlaaINnQLl0xRIGRfcGk2yl8xoQAfHrSsL3rYu6FCmBdkdbhc9EPlwyGHewaRsvwRMJtAlA==}
     dev: true
 
-  /framer-motion@10.12.16(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-w/SfWEIWJkYSgRHYBmln7EhcNo31ao8Xexol8lGXf1pR/tlnBtf1HcxoUmEiEh6pacB4/geku5ami53AAQWHMQ==}
+  /framer-motion@10.12.15(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-6+4UbaveKbDwWfTddkGPti29XhdaGomkzXo5wirq6USIK6HBTRjj+4ZPLfo7t/rurDK0K/4ucmfgMfepfahgkw==}
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
