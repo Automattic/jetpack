@@ -44,7 +44,7 @@ class Dashboard_REST_Controller {
 		// WPCOM API routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/blaze/posts', $site_id ),
+			sprintf( '/sites/%d/blaze/posts(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_blaze_posts' ),
@@ -55,7 +55,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Credits routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/credits(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/credits(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_credits' ),
@@ -66,7 +66,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Campaigns routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_campaigns' ),
@@ -86,7 +86,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Site Campaigns routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/sites/%d/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id, $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/sites/%d/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id, $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_site_campaigns' ),
@@ -97,7 +97,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Search routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/search(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/search(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_search' ),
@@ -108,7 +108,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Users routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/user(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/user(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_user' ),
@@ -119,7 +119,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Templates routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/templates(?P<sub_path>[a-zA-Z0-9-_\/:]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/templates(?P<sub_path>[a-zA-Z0-9-_\/:]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_templates' ),
@@ -130,7 +130,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Subscriptions routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/subscriptions(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/subscriptions(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_subscriptions' ),
@@ -141,7 +141,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Smart routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/smart(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/smart(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_smart' ),
@@ -161,7 +161,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Locations routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/locations(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/locations(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_locations' ),
@@ -172,7 +172,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Woo countries routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/woo/countries(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/woo/countries(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_countries' ),
@@ -183,7 +183,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Image routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/image(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/v1/image(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_image' ),
