@@ -2,7 +2,9 @@
  * External dependencies
  */
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import React from 'react';
 /**
@@ -13,7 +15,7 @@ import AiAssistantDropdown, {
 } from '../../components/ai-assistant-controls';
 import AiAssistantPanel from '../../components/ai-assistant-panel';
 import useSuggestionsFromAI from '../../hooks/use-suggestions-from-ai';
-import { PromptItemProps, PromptTypeProp, buildPromptForExtensions } from '../../lib/prompt';
+import { PromptItemProps, PromptTypeProp, getPrompt } from '../../lib/prompt';
 
 /*
  * Extend the withAIAssistant function of the block
@@ -21,8 +23,10 @@ import { PromptItemProps, PromptTypeProp, buildPromptForExtensions } from '../..
  */
 export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
-		const { setAttributes } = props;
-		const [ prompt, setPrompt ] = useState< Array< PromptItemProps > >( [] );
+		const { clientId } = props;
+		const [ storedPrompt, setStoredPrompt ] = useState< Array< PromptItemProps > >( [] );
+
+		const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
 		/*
 		 * Pick the content from the block attribute from now.
@@ -45,19 +49,18 @@ export const withAIAssistant = createHigherOrderComponent(
 				 * It doesn't scale for other blocks.
 				 * @todo: find a better way to update the content.
 				 */
-				setAttributes( { content: newContent } );
+				updateBlockAttributes( clientId, { content: newContent } );
 			},
-			[ setAttributes ]
+			[ clientId, updateBlockAttributes ]
 		);
 
-		useSuggestionsFromAI( { prompt, onSuggestion: setContent } );
+		useSuggestionsFromAI( { prompt: storedPrompt, onSuggestion: setContent } );
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				setPrompt(
-					buildPromptForExtensions( promptType, {
+				setStoredPrompt(
+					getPrompt( promptType, {
 						...options,
-						contentType: 'original', // Extended block content is not interactive.
 						content,
 					} )
 				);

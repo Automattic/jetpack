@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: false
@@ -2941,8 +2941,8 @@ importers:
         specifier: 7.3.5
         version: 7.3.5
       social-logos:
-        specifier: 2.5.2
-        version: 2.5.2(react@18.2.0)
+        specifier: 2.5.3
+        version: 2.5.3(react@18.2.0)
       swiper:
         specifier: 6.7.0
         version: 6.7.0
@@ -22666,8 +22666,8 @@ packages:
       dot-case: 3.0.4
       tslib: 2.5.0
 
-  /social-logos@2.5.2(react@18.2.0):
-    resolution: {integrity: sha512-cEucM1RY+dnILiU+vpce7AIMJ4L3e06rfYKVq8FQlNRZsG+MI4nMbXkIyuULoqO8mciNQ3kfQm47R+DsKzzeLA==}
+  /social-logos@2.5.3(react@18.2.0):
+    resolution: {integrity: sha512-b5GmwhsYD6eIukV7Q2LkAHjulG7y1mqNeBkinOuhKXGPjWlGFTPe+xQMB2vNqDN0IK4u7TtlOg/baviT7TOIXg==}
     peerDependencies:
       react: 15 - 18
     dependencies:
