@@ -347,8 +347,12 @@ add_action( 'init', 'wpcom_launchpad_init_task_definitions', 11 );
  * @return bool True if successful, false if not.
  */
 function wpcom_mark_launchpad_task_complete_if_active( $task_id ) {
-	wpcom_launchpad_track_completed_task( $task_id );
-	return wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id );
+	if ( wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id ) ) {
+		wpcom_launchpad_track_completed_task( $task_id );
+		return true;
+	}
+
+	return false;
 }
 
 /**
