@@ -69,7 +69,7 @@ if ( isset( $customer_params['company'] ) ) {
 
 $withTags = false;
 if ( isset( $customer_params['tags'] ) ) {
-	$withTags = true;
+	$withTags = (bool) $customer_params['tags'];
 }
 
 // #FORMIKENOTES -
