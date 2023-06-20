@@ -64,7 +64,29 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ clientId, updateBlockAttributes ]
 		);
 
-		useSuggestionsFromAI( { prompt: storedPrompt.messages, onSuggestion: setContent } );
+		const addAssistantMessage = useCallback(
+			( assistantContent: string ) => {
+				setStoredPrompt( prevPrompt => {
+					return {
+						...prevPrompt,
+						messages: [
+							...prevPrompt.messages,
+							{
+								role: 'assistant',
+								content: assistantContent,
+							},
+						],
+					};
+				} );
+			},
+			[ setStoredPrompt ]
+		);
+
+		useSuggestionsFromAI( {
+			prompt: storedPrompt.messages,
+			onSuggestion: setContent,
+			onDone: addAssistantMessage,
+		} );
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
