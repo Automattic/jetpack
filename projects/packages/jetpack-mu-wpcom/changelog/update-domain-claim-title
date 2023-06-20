@@ -1,0 +1,4 @@
+Significance: minor
+Type: patch
+
+Update the `domain_claim` task title when a domain is mapped.
