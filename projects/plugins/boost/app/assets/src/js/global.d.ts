@@ -4,7 +4,10 @@
 
 import type { ConnectionStatus } from './stores/connection';
 import type { Optimizations } from './stores/modules';
-import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
+import type {
+	BrowserInterfaceIframe,
+	generateCriticalCSS,
+} from '@automattic/jetpack-critical-css-gen';
 
 // <reference types ="@types/jquery"/>
 

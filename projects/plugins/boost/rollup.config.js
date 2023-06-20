@@ -15,7 +15,7 @@ import sveltePreprocess from 'svelte-preprocess';
 import tsconfig from './rollup-tsconfig.json';
 
 const cssGenPath = path.dirname(
-	path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) )
+	path.dirname( require.resolve( '@automattic/jetpack-critical-css-gen' ) )
 );
 
 const production = ! process.env.ROLLUP_WATCH;
