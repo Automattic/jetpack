@@ -26,6 +26,7 @@ export async function refreshConnectionTestResults() {
 			done: false,
 			enabled: Boolean( jetpackSocialData.sharesData?.shares_remaining ),
 			toggleable: true,
+			disabled: undefined,
 		};
 
 		/*
@@ -38,7 +39,7 @@ export async function refreshConnectionTestResults() {
 					? conn.connection_id === freshConnection.connection_id
 					: conn.id === freshConnection.id
 			);
-			const { done, enabled, toggleable } = prevConnection ?? defaults;
+			const { done, enabled, toggleable, disabled } = prevConnection ?? defaults;
 			const connection = {
 				display_name: freshConnection.display_name,
 				username: freshConnection.username,
@@ -48,6 +49,7 @@ export async function refreshConnectionTestResults() {
 				done,
 				enabled,
 				toggleable,
+				disabled,
 				is_healthy: freshConnection.test_success,
 				error_code: freshConnection.error_code,
 				connection_id: freshConnection.connection_id,
@@ -61,6 +63,38 @@ export async function refreshConnectionTestResults() {
 	} catch ( error ) {
 		// Refreshing connections failed
 	}
+}
+
+/**
+ * Effect handler which updates the enabled connections based on the passed IDs.
+ *
+ * @param {object} action               - Action which had initiated the effect handler.
+ * @param {string} action.connectionIds - Connection IDs to disabled.
+ * @returns {object} Switch connection enable-status action.
+ */
+export async function setConnectionsDisabled( { connectionIds } ) {
+	const connections = select( 'jetpack/publicize' ).getConnections();
+
+	/*
+	 * Map connections re-defining the enabled state based on the connection IDs.
+	 */
+	const updatedConnections = connections.map( connection => {
+		const isDisabled = connection.connection_id
+			? connectionIds.includes( connection.connection_id )
+			: connectionIds.includes( connection.id );
+		const disabled = isDisabled
+			? { enabled: connection.disabled?.enabled ?? connection.enabled }
+			: undefined;
+		const enabled = isDisabled ? false : connection.disabled?.enabled ?? connection.enabled;
+		return {
+			...connection,
+			disabled,
+			enabled,
+		};
+	} );
+
+	// Update post metadata.
+	return dispatch( editorStore ).editPost( { jetpack_publicize_connections: updatedConnections } );
 }
 
 /**
@@ -204,4 +238,5 @@ export default {
 	TOGGLE_PUBLICIZE_FEATURE: togglePublicizeFeature,
 	REFRESH_TWEETS: refreshTweets,
 	GET_TWITTER_CARDS: getTwitterCards,
+	SET_CONNECTIONS_DISABLED: setConnectionsDisabled,
 };

@@ -15,6 +15,19 @@ export function refreshConnectionTestResults() {
 /**
  * Returns an action object to toggle the publicize connection
  *
+ * @param {Array} connectionIds - The connection IDs to disable.
+ * @returns {object} Action object.
+ */
+export function setConnectionsDisabled( connectionIds ) {
+	return {
+		type: 'SET_CONNECTIONS_DISABLED',
+		connectionIds,
+	};
+}
+
+/**
+ * Returns an action object to toggle the publicize connection
+ *
  * @param {number} connectionId - The connection ID to toggle
  * @returns {object} Action object.
  */
