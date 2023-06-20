@@ -4,8 +4,9 @@
 import {
 	MenuItem,
 	MenuGroup,
-	ToolbarDropdownMenu,
 	CustomSelectControl,
+	ToolbarButton,
+	Dropdown,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
@@ -110,14 +111,23 @@ export default function AiAssistantDropdown( {
 	);
 
 	return (
-		<ToolbarDropdownMenu
-			icon={ AIAssistantIcon }
-			label={ label || __( 'AI Assistant', 'jetpack' ) }
+		<Dropdown
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
-		>
-			{ ( { onClose: closeDropdown } ) => (
+			renderToggle={ ( { isOpen, onToggle } ) => {
+				return (
+					<ToolbarButton
+						showTooltip
+						onClick={ onToggle }
+						aria-haspopup="true"
+						aria-expanded={ isOpen }
+						label={ label || __( 'AI Assistant', 'jetpack' ) }
+						icon={ AIAssistantIcon }
+					/>
+				);
+			} }
+			renderContent={ ( { onClose: closeDropdown } ) => (
 				<MenuGroup label={ label }>
 					{ quickActionsListFiltered.map( quickAction => (
 						<MenuItem
@@ -149,7 +159,7 @@ export default function AiAssistantDropdown( {
 					/>
 				</MenuGroup>
 			) }
-		</ToolbarDropdownMenu>
+		/>
 	);
 }
 
