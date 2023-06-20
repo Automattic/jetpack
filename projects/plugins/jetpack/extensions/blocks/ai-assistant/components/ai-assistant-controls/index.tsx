@@ -98,7 +98,7 @@ type AiAssistantControlComponentProps = {
 	exclude?: QuickEditsKeyProp[];
 
 	/*
-	 * Whether the dropdown is requesting data. Optional.
+	 * Whether the dropdown is requesting suggestions from AI.
 	 */
 	isRequesting?: boolean;
 
@@ -109,6 +109,7 @@ export default function AiAssistantDropdown( {
 	key,
 	label,
 	exclude = [],
+	isRequesting,
 	onChange,
 }: AiAssistantControlComponentProps ) {
 	const quickActionsListFiltered = quickActionsList.filter(
@@ -124,6 +125,8 @@ export default function AiAssistantDropdown( {
 				return (
 					<ToolbarButton
 						showTooltip
+						isActive={ isRequesting }
+						disabled={ isRequesting }
 						onClick={ onToggle }
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
