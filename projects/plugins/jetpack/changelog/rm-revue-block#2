@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Blocks: introduce standardized messaging system to display notices when a block is no longer supported on a site.
