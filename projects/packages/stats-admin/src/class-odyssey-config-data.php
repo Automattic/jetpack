@@ -199,7 +199,7 @@ class Odyssey_Config_Data {
 			'manage_categories'   => current_user_can( 'manage_categories' ),
 			'manage_options'      => current_user_can( 'manage_options' ),
 			'moderate_comments'   => current_user_can( 'moderate_comments' ),
-			'activate_wordads'    => current_user_can( 'activate_wordads' ),
+			'activate_wordads'    => current_user_can( 'manage_options' ),
 			'promote_users'       => current_user_can( 'promote_users' ),
 			'publish_posts'       => current_user_can( 'publish_posts' ),
 			'upload_files'        => current_user_can( 'upload_files' ),
