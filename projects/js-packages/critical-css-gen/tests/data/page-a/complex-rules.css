@@ -1,0 +1,4 @@
+/* This rule is included using complex media="" rules, so should be appropriately wrapped */
+div.complex_media_rules {
+	color: purple;
+}

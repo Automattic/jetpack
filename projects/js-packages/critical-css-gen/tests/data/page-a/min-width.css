@@ -1,0 +1,6 @@
+@media screen {
+	/* This rule should appear inside two media rules; min-width and screen */
+	div.min_width_screen {
+		color: pink;
+	}
+}
