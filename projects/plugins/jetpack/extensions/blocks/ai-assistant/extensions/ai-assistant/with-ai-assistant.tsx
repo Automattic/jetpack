@@ -15,7 +15,15 @@ import AiAssistantDropdown, {
 } from '../../components/ai-assistant-controls';
 import AiAssistantPanel from '../../components/ai-assistant-panel';
 import useSuggestionsFromAI from '../../hooks/use-suggestions-from-ai';
-import { PromptItemProps, PromptTypeProp, getPrompt } from '../../lib/prompt';
+import { getPrompt } from '../../lib/prompt';
+/*
+ * Types
+ */
+import type { PromptItemProps, PromptTypeProp } from '../../lib/prompt';
+
+type StoredPromptProps = {
+	messages: Array< PromptItemProps >;
+};
 
 /*
  * Extend the withAIAssistant function of the block
@@ -24,7 +32,9 @@ import { PromptItemProps, PromptTypeProp, getPrompt } from '../../lib/prompt';
 export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
 		const { clientId } = props;
-		const [ storedPrompt, setStoredPrompt ] = useState< Array< PromptItemProps > >( [] );
+		const [ storedPrompt, setStoredPrompt ] = useState< StoredPromptProps >( {
+			messages: [],
+		} );
 
 		const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
@@ -54,16 +64,16 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ clientId, updateBlockAttributes ]
 		);
 
-		useSuggestionsFromAI( { prompt: storedPrompt, onSuggestion: setContent } );
+		useSuggestionsFromAI( { prompt: storedPrompt.messages, onSuggestion: setContent } );
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				setStoredPrompt(
-					getPrompt( promptType, {
+				setStoredPrompt( {
+					messages: getPrompt( promptType, {
 						...options,
 						content,
-					} )
-				);
+					} ),
+				} );
 			},
 			[ content ]
 		);

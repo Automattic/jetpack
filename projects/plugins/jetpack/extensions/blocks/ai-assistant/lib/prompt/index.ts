@@ -376,6 +376,8 @@ export function getPrompt(
 	type: PromptTypeProp,
 	options: PromptOptionsProps
 ): Array< PromptItemProps > {
+	debug( 'Addressing prompt type: %o %o', type, options );
+
 	const context =
 		'You are an excellent polyglot ghostwriter. ' +
 		'Your task is to help the user to create and modify content based on their requests.';
