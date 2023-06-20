@@ -97,6 +97,11 @@ type AiAssistantControlComponentProps = {
 	 */
 	exclude?: QuickEditsKeyProp[];
 
+	/*
+	 * Whether the dropdown is requesting data. Optional.
+	 */
+	isRequesting?: boolean;
+
 	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
 };
 
