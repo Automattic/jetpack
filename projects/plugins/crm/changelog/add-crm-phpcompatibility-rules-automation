@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-PHPCompatibility: Adding additional rules based on new PHP added in the Automations project.
+PHPCompatibility: Adding additional rules based on new PHP 7.2 added in the Automations project.
