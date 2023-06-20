@@ -23,11 +23,16 @@ import {
 	PROMPT_TYPE_SIMPLIFY,
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
-	PromptTypeProp,
 } from '../../lib/prompt';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
-import { ToneDropdownMenu, ToneProp } from '../tone-dropdown-control';
+import { ToneDropdownMenu } from '../tone-dropdown-control';
 import './style.scss';
+/**
+ * Types and constants
+ */
+import type { RequestingStateProp } from '../../hooks/use-suggestions-from-ai';
+import type { PromptTypeProp } from '../../lib/prompt';
+import type { ToneProp } from '../tone-dropdown-control';
 
 // Quick edits option: "Correct spelling and grammar"
 const QUICK_EDIT_KEY_CORRECT_SPELLING = 'correct-spelling' as const;
@@ -101,7 +106,7 @@ type AiAssistantControlComponentProps = {
 	/*
 	 * Whether the dropdown is requesting suggestions from AI.
 	 */
-	isRequesting?: boolean;
+	requestingState?: RequestingStateProp;
 
 	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
 };
@@ -110,7 +115,7 @@ export default function AiAssistantDropdown( {
 	key,
 	label,
 	exclude = [],
-	isRequesting,
+	requestingState,
 	onChange,
 }: AiAssistantControlComponentProps ) {
 	const quickActionsListFiltered = quickActionsList.filter(
@@ -126,11 +131,11 @@ export default function AiAssistantDropdown( {
 				return (
 					<ToolbarButton
 						className={ classNames( 'jetpack-ai-assistant__button', {
-							'is-requesting': isRequesting,
+							[ `is-${ requestingState }` ]: true,
 						} ) }
 						showTooltip
-						isActive={ isRequesting }
-						disabled={ isRequesting }
+						isActive={ requestingState === 'requesting' || requestingState === 'suggesting' }
+						disabled={ requestingState === 'requesting' || requestingState === 'suggesting' }
 						onClick={ onToggle }
 						aria-haspopup="true"
 						aria-expanded={ isOpen }

@@ -104,7 +104,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ setStoredPrompt ]
 		);
 
-		const { request, isRequesting } = useSuggestionsFromAI( {
+		const { request, requestingState } = useSuggestionsFromAI( {
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
 			onDone: updateStoredPrompt,
@@ -145,7 +145,7 @@ export const withAIAssistant = createHigherOrderComponent(
 				<BlockEdit { ...props } />
 
 				<BlockControls group="block">
-					<AiAssistantDropdown onChange={ requestSuggestion } isRequesting={ isRequesting } />
+					<AiAssistantDropdown requestingState={ requestingState } onChange={ requestSuggestion } />
 				</BlockControls>
 			</>
 		);

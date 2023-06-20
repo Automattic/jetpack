@@ -58,6 +58,8 @@ type UseSuggestionsFromAIOptions = {
 	onError?: ( error: SuggestionError ) => void;
 };
 
+export type RequestingStateProp = 'init' | 'requesting' | 'suggesting' | 'done' | 'error';
+
 type useSuggestionsFromAIProps = {
 	/*
 	 * The post ID.
@@ -72,7 +74,7 @@ type useSuggestionsFromAIProps = {
 	/*
 	 * Whether the request is in progress.
 	 */
-	isRequesting: boolean;
+	requestingState: RequestingStateProp;
 
 	/*
 	 * The event source.
@@ -99,7 +101,7 @@ export default function useSuggestionsFromAI( {
 	onDone,
 	onError,
 }: UseSuggestionsFromAIOptions ): useSuggestionsFromAIProps {
-	const [ isRequesting, setIsRequesting ] = useState( false );
+	const [ requestingState, setRequestingState ] = useState< RequestingStateProp >( 'init' );
 	// Collect data
 	const { postId, postTitle } = useSelect( select => {
 		return {
@@ -143,7 +145,7 @@ export default function useSuggestionsFromAI( {
 			 */
 			const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
 			onDone( event?.detail?.replace( delimiterRegEx, '' ) );
-			setIsRequesting( false );
+			setRequestingState( 'done' );
 		},
 		[ onDone ]
 	);
@@ -153,11 +155,15 @@ export default function useSuggestionsFromAI( {
 	 *
 	 * @returns {Promise<void>} The promise.
 	 */
+
 	const request = useCallback(
 		async ( promptArg: Array< PromptItemProps > ) => {
 			promptArg.forEach( ( { role, content: promptContent }, i ) =>
 				debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
 			);
+			// Set the request status.
+			setRequestingState( 'requesting' );
+
 			try {
 				source.current = await askQuestion( promptArg, {
 					postId,
@@ -166,7 +172,7 @@ export default function useSuggestionsFromAI( {
 				} );
 
 				// Set the request status.
-				setIsRequesting( true );
+				setRequestingState( 'suggesting' );
 
 				if ( onSuggestion ) {
 					source?.current?.addEventListener( 'suggestion', handleSuggestion );
@@ -174,7 +180,7 @@ export default function useSuggestionsFromAI( {
 
 				source?.current?.addEventListener( 'error_quota_exceeded', () => {
 					source?.current?.close();
-					setIsRequesting( false );
+					setRequestingState( 'error' );
 					onError?.( {
 						code: 'error_quota_exceeded',
 						message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
@@ -184,7 +190,7 @@ export default function useSuggestionsFromAI( {
 
 				source?.current?.addEventListener( 'error_unclear_prompt', () => {
 					source?.current?.close();
-					setIsRequesting( false );
+					setRequestingState( 'error' );
 					onError?.( {
 						code: 'error_unclear_prompt',
 						message: __( 'Your request was unclear. Mind trying again?', 'jetpack' ),
@@ -194,7 +200,7 @@ export default function useSuggestionsFromAI( {
 
 				source?.current?.addEventListener( 'error_service_unavailable', () => {
 					source?.current?.close();
-					setIsRequesting( false );
+					setRequestingState( 'error' );
 					onError?.( {
 						code: 'error_service_unavailable',
 						message: __(
@@ -207,7 +213,7 @@ export default function useSuggestionsFromAI( {
 
 				source?.current?.addEventListener( 'error_moderation', () => {
 					source?.current?.close();
-					setIsRequesting( false );
+					setRequestingState( 'error' );
 					onError?.( {
 						code: 'error_moderation',
 						message: __(
@@ -220,7 +226,7 @@ export default function useSuggestionsFromAI( {
 
 				source?.current?.addEventListener( 'error_network', () => {
 					source?.current?.close();
-					setIsRequesting( false );
+					setRequestingState( 'error' );
 					onError?.( {
 						code: 'error_network',
 						message: __(
@@ -279,7 +285,7 @@ export default function useSuggestionsFromAI( {
 		source: source.current,
 
 		// Process statuses
-		isRequesting,
+		requestingState,
 
 		// Export additional props doesn't hurt.
 		postId,

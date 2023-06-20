@@ -1,7 +1,7 @@
 @import '@automattic/jetpack-base-styles/style';
 
 .jetpack-ai-assistant__button {
-	&.is-requesting {
+	&.is-suggesting {
 		animation: color-switch 500ms infinite;
 	}
 
