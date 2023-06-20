@@ -172,10 +172,6 @@ export default function useSuggestionsFromAI( {
 					source?.current?.addEventListener( 'suggestion', handleSuggestion );
 				}
 
-				if ( onDone ) {
-					source?.current?.addEventListener( 'done', handleDone );
-				}
-
 				source?.current?.addEventListener( 'error_quota_exceeded', () => {
 					source?.current?.close();
 					setIsRequesting( false );
@@ -234,12 +230,14 @@ export default function useSuggestionsFromAI( {
 						status: 'info',
 					} );
 				} );
+
+				source?.current?.addEventListener( 'done', handleDone );
 			} catch ( e ) {
 				// eslint-disable-next-line no-console
 				console.error( e );
 			}
 		},
-		[ postId, onSuggestion, onDone, onError, handleSuggestion, handleDone ]
+		[ postId, onSuggestion, onError, handleSuggestion, handleDone ]
 	);
 
 	// Request suggestions automatically when ready.
@@ -270,9 +268,8 @@ export default function useSuggestionsFromAI( {
 			// Clean up the event listeners.
 			source?.current?.removeEventListener( 'suggestion', handleSuggestion );
 			source?.current?.removeEventListener( 'done', handleDone );
-			source?.current?.removeEventListener( 'error_network', handleError );
 		};
-	}, [ autoRequest, handleDone, handleError, handleSuggestion, prompt, request ] );
+	}, [ autoRequest, handleDone, handleSuggestion, prompt, request ] );
 
 	return {
 		// Expose the request handler.
