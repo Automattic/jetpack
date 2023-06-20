@@ -82,6 +82,7 @@ type PromptOptionsProps = {
 	language?: string;
 	tone?: ToneProp;
 	role?: PromptItemProps[ 'role' ];
+	prevMessages?: Array< PromptItemProps >;
 };
 
 function getCorrectSpellingPrompt( {
@@ -377,14 +378,17 @@ export function getPrompt(
 	options: PromptOptionsProps
 ): Array< PromptItemProps > {
 	debug( 'Addressing prompt type: %o %o', type, options );
+	const { prevMessages } = options;
 
 	const context =
 		'You are an excellent polyglot ghostwriter. ' +
 		'Your task is to help the user to create and modify content based on their requests.';
 
-	const initialSystemPrompt: PromptItemProps = {
-		role: 'system',
-		content: `${ context }
+	let prompt: Array< PromptItemProps > = ! prevMessages?.length
+		? [
+				{
+					role: 'system',
+					content: `${ context }
 Writing rules:
 - When it isn't clarified, the content should be written in the same language as the original content.
 - Format your responses in Markdown syntax.
@@ -392,32 +396,33 @@ Writing rules:
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `,
-	};
+				},
+		  ]
+		: prevMessages;
 
-	const prompt: Array< PromptItemProps > = [ initialSystemPrompt ];
 	switch ( type ) {
 		case PROMPT_TYPE_CORRECT_SPELLING:
-			prompt.push( ...getCorrectSpellingPrompt( options ) );
+			prompt = [ ...prompt, ...getCorrectSpellingPrompt( options ) ];
 			break;
 
 		case PROMPT_TYPE_SIMPLIFY:
-			prompt.push( ...getSimplifyPrompt( options ) );
+			prompt = [ ...prompt, ...getSimplifyPrompt( options ) ];
 			break;
 
 		case PROMPT_TYPE_SUMMARIZE:
-			prompt.push( ...getSummarizePrompt( options ) );
+			prompt = [ ...prompt, ...getSummarizePrompt( options ) ];
 			break;
 
 		case PROMPT_TYPE_MAKE_LONGER:
-			prompt.push( ...getExpandPrompt( options ) );
+			prompt = [ ...prompt, ...getExpandPrompt( options ) ];
 			break;
 
 		case PROMPT_TYPE_CHANGE_LANGUAGE:
-			prompt.push( ...getTranslatePrompt( options ) );
+			prompt = [ ...prompt, ...getTranslatePrompt( options ) ];
 			break;
 
 		case PROMPT_TYPE_CHANGE_TONE:
-			prompt.push( ...getTonePrompt( options ) );
+			prompt = [ ...prompt, ...getTonePrompt( options ) ];
 			break;
 	}
 
