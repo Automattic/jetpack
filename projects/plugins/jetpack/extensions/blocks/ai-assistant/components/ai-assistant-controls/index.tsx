@@ -10,6 +10,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
+import classNames from 'classnames';
 import React from 'react';
 /**
  * Internal dependencies
@@ -124,6 +125,9 @@ export default function AiAssistantDropdown( {
 			renderToggle={ ( { isOpen, onToggle } ) => {
 				return (
 					<ToolbarButton
+						className={ classNames( 'jetpack-ai-assistant__button', {
+							'is-requesting': isRequesting,
+						} ) }
 						showTooltip
 						isActive={ isRequesting }
 						disabled={ isRequesting }
