@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { InspectorControls, BlockControls } from '@wordpress/block-editor';
+import { BlockControls } from '@wordpress/block-editor';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
@@ -13,7 +13,6 @@ import React from 'react';
 import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 } from '../../components/ai-assistant-controls';
-import AiAssistantPanel from '../../components/ai-assistant-panel';
 import useSuggestionsFromAI from '../../hooks/use-suggestions-from-ai';
 import { PromptItemProps, PromptTypeProp, getPrompt } from '../../lib/prompt';
 
@@ -71,10 +70,6 @@ export const withAIAssistant = createHigherOrderComponent(
 		return (
 			<>
 				<BlockEdit { ...props } />
-
-				<InspectorControls>
-					<AiAssistantPanel />
-				</InspectorControls>
 
 				<BlockControls group="block">
 					<AiAssistantDropdown onChange={ requestSuggestion } />
