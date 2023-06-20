@@ -451,33 +451,93 @@ function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() 
 }
 
 /**
- * Mark a task as complete.
+ * Returns a list of mappings from 'id_map' to the actual task id.
  *
- * @param string $task_id The task ID.
- * @return bool True if the task was marked as complete, false otherwise.
+ * @return array
  */
-function wpcom_mark_launchpad_task_complete( $task_id ) {
+function wpcom_launchpad_get_reverse_id_mappings() {
 	$task_definitions = wpcom_launchpad_get_task_definitions();
 
-	// If the task ID isn't defined, return false.
-	if ( ! isset( $task_definitions[ $task_id ] ) ) {
-		return false;
+	$mapping = array();
+	foreach ( $task_definitions as $task_id => $value ) {
+		if ( ! isset( $value['id_map'] ) ) {
+			continue;
+		}
+		$mapping[ $value['id_map'] ] = $task_id;
 	}
 
-	// If the task has an id_map, use that instead.
-	$key = $task_id;
-	if ( isset( $task_definitions[ $task_id ]['id_map'] ) ) {
-		$key = $task_definitions[ $task_id ]['id_map'];
-	}
+	return $mapping;
+}
+/**
+ * Mark a task as complete.
+ *
+ * @param string|string[] $task_ids The task IDs that should be marked as complete.
+ * @return bool True if the task was marked as complete, false otherwise.
+ */
+function wpcom_mark_launchpad_task_complete( $task_ids ) {
+	$task_ids = is_array( $task_ids ) ? $task_ids : array( $task_ids );
+	$values   = array_fill_keys( $task_ids, true );
 
-	$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
-	$statuses[ $key ] = true;
-	$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
+	$result = wpcom_update_launchpad_task_status( $values );
 
+<<<<<<< HEAD
 	// Record the completion event in Tracks.
 	wpcom_launchpad_track_completed_task( $key );
+=======
+	foreach ( $task_ids as $key => $value ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_lib( 'tracks/client' );
+
+			tracks_record_event(
+				wp_get_current_user(),
+				'launchpad_mark_task_completed',
+				array( 'task_id' => $key )
+			);
+		}
+	}
+>>>>>>> c51e097aa6 (reuse completion method across all plugin codebase)
 
 	return $result;
+}
+
+/**
+ * Mark a task as incomplete. This method is here for backwards compatibility of
+ * the Rest API that allowed marking a task as incomplete.
+ *
+ * @param string|string[] $task_ids The task IDs that should be marked as complete.
+ * @return bool True if the task was marked as complete, false otherwise.
+ */
+function wpcom_mark_launchpad_task_incomplete( $task_ids ) {
+	$task_ids = is_array( $task_ids ) ? $task_ids : array( $task_ids );
+	$values   = array_fill_keys( $task_ids, false );
+
+	return wpcom_update_launchpad_task_status( $values );
+}
+
+/**
+ * Updates task/s statuses. If a non-existent task is passed, it will be ignored.
+ *
+ * @param array $original_statuses Array of mappings [ task_id: string => status: bool ].
+ * @return bool True if the option where the statuses are stored was updated, false otherwise.
+ */
+function wpcom_update_launchpad_task_status( $original_statuses ) {
+	$task_definitions = wpcom_launchpad_get_task_definitions();
+	$reverse_id_map   = wpcom_launchpad_get_reverse_id_mappings();
+
+	// Filter out non-existent tasks taking into account the id_map.
+	$statuses = array();
+	foreach ( $original_statuses as $task_id => $value ) {
+		$actual_task_id = ( isset( $reverse_id_map[ $task_id ] ) ) ? $reverse_id_map[ $task_id ] : $task_id;
+		if ( ! isset( $task_definitions[ $actual_task_id ] ) ) {
+			continue;
+		}
+		$statuses[ $task_id ] = $value;
+	}
+
+	$old_values = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+	$new_values = array_merge( $old_values, $statuses );
+
+	return update_option( 'launchpad_checklist_tasks_statuses', $new_values );
 }
 
 /**

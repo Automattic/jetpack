@@ -155,19 +155,27 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 		foreach ( $input as $key => $value ) {
 			switch ( $key ) {
 				case 'checklist_statuses':
-					$launchpad_checklist_tasks_statuses_option = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
-					$launchpad_checklist_tasks_statuses_option = array_merge( $launchpad_checklist_tasks_statuses_option, $value );
-
-					foreach ( $value as $task => $task_value ) {
-						if ( $task_value ) {
-							// If we're marking a task as complete, the value should be truthy, so fire the Tracks event.
-							wpcom_launchpad_track_completed_task( $task );
+					$complete_values = array_filter(
+						$value,
+						function ( $item_value ) {
+							return $item_value;
 						}
-					}
+					);
 
-					if ( update_option( 'launchpad_checklist_tasks_statuses', $launchpad_checklist_tasks_statuses_option ) ) {
+					$incomplete_values = array_filter(
+						$value,
+						function ( $item_value ) {
+							return ! $item_value;
+						}
+					);
+
+					if (
+						wpcom_mark_launchpad_task_complete( array_keys( $complete_values ) ) ||
+						wpcom_mark_launchpad_task_incomplete( array_keys( $incomplete_values ) )
+					) {
 						$updated[ $key ] = $value;
 					}
+
 					// This will check if we have completed all the tasks and disable Launchpad if so.
 					wpcom_launchpad_checklists()->maybe_disable_fullscreen_launchpad();
 					break;
