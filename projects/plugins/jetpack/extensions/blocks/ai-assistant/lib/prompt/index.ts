@@ -421,9 +421,5 @@ Writing rules:
 			break;
 	}
 
-	prompt.forEach( ( { role, content: promptContent }, i ) =>
-		debug( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
-	);
-
 	return prompt;
 }

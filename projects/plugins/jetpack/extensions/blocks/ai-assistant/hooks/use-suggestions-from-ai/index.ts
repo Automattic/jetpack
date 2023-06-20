@@ -4,11 +4,14 @@
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
+import debugFactory from 'debug';
 /**
  * Types
  */
 import { SuggestionsEventSource, askQuestion } from '../../lib/suggestions';
 import type { PromptItemProps } from '../../lib/prompt';
+
+const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 type UseSuggestionsFromAIOptions = {
 	/*
@@ -103,6 +106,10 @@ export default function useSuggestionsFromAI( {
 	 * @returns {Promise<void>} The promise.
 	 */
 	const request = useCallback( async () => {
+		prompt.forEach( ( { role, content: promptContent }, i ) =>
+			debug( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
+		);
+
 		try {
 			source.current = await askQuestion( prompt, {
 				postId,
