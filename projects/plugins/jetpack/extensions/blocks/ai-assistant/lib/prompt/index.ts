@@ -1,8 +1,6 @@
 /**
  * External dependencies
  */
-import { select } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -77,31 +75,6 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 `;
 
 	return { role: 'system', content: prompt };
-}
-
-/**
- * Helper function to get the blog post data prompt.
- *
- * @param {object} options         - The options for the prompt.
- * @param {string} options.content - The content of the post.
- * @returns {PromptItemProps} The blog post data prompt.
- */
-export function getBlogPostDataUserPrompt( { content }: { content: string } ): PromptItemProps {
-	const postTitle = select( editorStore ).getEditedPostAttribute( 'title' );
-
-	if ( ! postTitle?.length && ! content?.length ) {
-		return null;
-	}
-
-	const blogPostData = `Here's the content in the editor that serves as context to the user request:
-${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
-		content ? `- Current content: ${ content }` : ''
-	}`;
-
-	return {
-		role: 'user',
-		content: blogPostData,
-	};
 }
 
 type PromptOptionsProps = {
@@ -200,7 +173,6 @@ function getTonePrompt( {
  * @param {string} options.request             - The request to the AI assistant.
  * @param {string} options.relevantContent     - The relevant content to the request.
  * @param {boolean} options.isContentGenerated - Whether the content is generated or not.
- * @param {string} options.fullContent         - The full content of the post.
  * @param {boolean} options.isGeneratingTitle  - Whether the title is being generated or not.
  *
  * @return {Array<PromptItemProps>}
@@ -210,14 +182,12 @@ export const buildPromptTemplate = ( {
 	request = null,
 	relevantContent = null,
 	isContentGenerated = false,
-	fullContent = null,
 	isGeneratingTitle = false,
 }: {
 	rules?: Array< string >;
 	request?: string;
 	relevantContent?: string;
 	isContentGenerated?: boolean;
-	fullContent?: string;
 	isGeneratingTitle?: boolean;
 } ): Array< PromptItemProps > => {
 	if ( ! request && ! relevantContent ) {
@@ -226,12 +196,6 @@ export const buildPromptTemplate = ( {
 
 	// Add initial system prompt.
 	const messages = [ getInitialSystemPrompt( { rules } ) ];
-
-	// Add blog post data prompt.
-	const postDataPrompt = getBlogPostDataUserPrompt( { content: fullContent } );
-	if ( postDataPrompt ) {
-		messages.push( postDataPrompt );
-	}
 
 	if ( relevantContent != null && relevantContent?.length ) {
 		if ( ! isContentGenerated ) {
@@ -387,7 +351,6 @@ export function buildPromptForBlock( {
 
 		return buildPromptTemplate( {
 			...promptText,
-			fullContent: allPostContent,
 			relevantContent,
 			isContentGenerated,
 			isGeneratingTitle,
@@ -396,7 +359,6 @@ export function buildPromptForBlock( {
 
 	return buildPromptTemplate( {
 		request: userPrompt,
-		fullContent: allPostContent,
 		relevantContent: generatedContent || allPostContent,
 		isContentGenerated: !! generatedContent?.length,
 		isGeneratingTitle,
