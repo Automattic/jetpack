@@ -40,6 +40,7 @@ module.exports = {
 
 	// HACK
 	baseBranches: [ 'renovate/renovatebot-github-action-38.x' ],
+	useBaseBranchConfig: 'merge',
 
 	// Extra code to run before creating a commit.
 	allowPostUpgradeCommandTemplating: true,
