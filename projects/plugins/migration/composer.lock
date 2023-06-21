@@ -242,7 +242,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "55f9ab30166ee3089953a8847c960fe03a9f75ab"
+                "reference": "e10b58b99b076a80696cf84909c1a6233dc544a8"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -275,7 +275,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.17.x-dev"
+                    "dev-trunk": "1.16.x-dev"
                 }
             },
             "autoload": {
@@ -592,7 +592,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "640cb33156d6f6790aae0c86d86f372108e7a9e6"
+                "reference": "d59b99834924d39cf29c69d3172c1478728f6df7"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -621,7 +621,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.9.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 }
             },
             "autoload": {
@@ -896,7 +896,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "fb8dd5a141bcc4414b9ec7626c70c8076cce5cdf"
+                "reference": "ebcda0c43475dece868ad5b79f88af134bf0e699"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -926,7 +926,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.15.x-dev"
+                    "dev-trunk": "2.14.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"

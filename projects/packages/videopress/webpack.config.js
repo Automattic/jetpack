@@ -33,10 +33,6 @@ module.exports = [
 		},
 		resolve: {
 			...jetpackWebpackConfig.resolve,
-			modules: [
-				'node_modules',
-				path.resolve( __dirname, './node_modules' ), // For core-js
-			],
 		},
 		node: false,
 		plugins: [
