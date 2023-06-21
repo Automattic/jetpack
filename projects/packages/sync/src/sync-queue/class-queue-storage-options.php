@@ -16,7 +16,9 @@ namespace Automattic\Jetpack\Sync\Queue;
  */
 class Queue_Storage_Options {
 	/**
-	 * @var string What queue is this instance responsible for.
+	 * What queue is this instance responsible for.
+	 *
+	 * @var string
 	 */
 	public $queue_id = '';
 
@@ -134,6 +136,8 @@ class Queue_Storage_Options {
 	public function clear_queue() {
 		global $wpdb;
 
+		// Ignoring the linting warning, as there's still no placeholder replacement for DB field name.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",

@@ -15,18 +15,28 @@ namespace Automattic\Jetpack\Sync\Queue;
  * Dedicated Sync events table storage backend for the Queue.
  */
 class Queue_Storage_Table {
-
-	/** @var string The dedicated Sync events table name, without a prefix.
-	 *             A prefix will be added when the class is instantiated,
-	 *             as we fetch the prefix from `$wpdb` as is configured in
-	 *             the WordPress config file.
+	/**
+	 * The dedicated Sync events table name, without a prefix.
+	 * A prefix will be added when the class is instantiated,
+	 * as we fetch the prefix from `$wpdb` as is configured in
+	 * the WordPress config file.
+	 *
+	 * @var string
 	 */
 	public $table_name_no_prefix = 'jetpack_sync_queue';
 
-	/** @var string The table name with the DB prefix. */
+	/**
+	 * The table name with the DB prefix.
+	 *
+	 * @var string
+	 */
 	public $table_name = '';
 
-	/** @var string What queue is this instance responsible for. */
+	/**
+	 * What queue is this instance responsible for.
+	 *
+	 * @var string
+	 */
 	public $queue_id = '';
 
 	/**
@@ -96,10 +106,13 @@ class Queue_Storage_Table {
 	 */
 	public function is_dedicated_table_healthy() {
 		global $wpdb;
-		// Check if the table exists
-		$query = $wpdb->prepare( 'SHOW TABLES LIKE %s', $this->table_name );
 
-		$result = $wpdb->get_row( $query, ARRAY_N );
+		// Check if the table exists
+		$result = $wpdb->get_row(
+			$wpdb->prepare( 'SHOW TABLES LIKE %s', $this->table_name ),
+			ARRAY_N
+		);
+
 		if ( empty( $result ) || count( $result ) !== 1 || $result[0] !== $this->table_name ) {
 			return false;
 		}
@@ -112,6 +125,11 @@ class Queue_Storage_Table {
 		return true;
 	}
 
+	/**
+	 * Disable usage of the dedicated table.
+	 *
+	 * @return void
+	 */
 	public function disable_dedicated_table_usage() {
 		// TODO disable the option to use the table
 		// TODO check if healthy
