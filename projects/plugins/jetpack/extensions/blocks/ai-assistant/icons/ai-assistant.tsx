@@ -2,8 +2,9 @@
  * WordPress dependencies
  */
 import { SVG, Path } from '@wordpress/components';
+import React from 'react';
 
-const AIAssistantIcon = (
+const aiAssistant = (
 	<SVG
 		viewBox="0 0 32 32"
 		width="32"
@@ -17,4 +18,4 @@ const AIAssistantIcon = (
 	</SVG>
 );
 
-export default AIAssistantIcon;
+export default aiAssistant;

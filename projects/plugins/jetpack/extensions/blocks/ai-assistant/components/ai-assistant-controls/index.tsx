@@ -15,7 +15,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import AIAssistantIcon from '../../icons/ai-assistant';
+import aiAssistant from '../../icons/ai-assistant';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -140,7 +140,7 @@ export default function AiAssistantDropdown( {
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
 						label={ label || __( 'AI Assistant', 'jetpack' ) }
-						icon={ AIAssistantIcon }
+						icon={ aiAssistant }
 					/>
 				);
 			} }
