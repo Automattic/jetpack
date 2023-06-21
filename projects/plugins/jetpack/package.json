@@ -74,6 +74,7 @@
 		"@wordpress/i18n": "4.35.0",
 		"@wordpress/icons": "9.26.0",
 		"@wordpress/primitives": "3.33.0",
+		"@wordpress/rich-text": "6.12.0",
 		"@wordpress/url": "3.36.0",
 		"@wordpress/viewport": "5.12.0",
 		"@wordpress/widgets": "3.12.0",
