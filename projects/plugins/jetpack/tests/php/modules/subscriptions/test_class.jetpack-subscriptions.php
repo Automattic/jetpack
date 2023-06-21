@@ -251,17 +251,20 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	/**
 	 * Retrieves payload for JWT token
 	 *
-	 * @param bool $is_subscribed
-	 * @param bool $is_paid_subscriber
-	 * @param int  $subscription_end_date
+	 * @param bool   $is_subscribed
+	 * @param bool   $is_paid_subscriber
+	 * @param int    $subscription_end_date
+	 * @param string $status
+	 * @param int    $product_id
 	 * @return array
 	 */
-	private function get_payload( $is_subscribed, $is_paid_subscriber = false, $subscription_end_date = null, $status = null ) {
+	private function get_payload( $is_subscribed, $is_paid_subscriber = false, $subscription_end_date = null, $status = null, $product_id = 0 ) {
+		$product_id    = $product_id ? $product_id : $this->product_id;
 		$subscriptions = ! $is_paid_subscriber ? array() : array(
-			$this->product_id => array(
+			$product_id => array(
 				'status'     => $status ? $status : 'active',
 				'end_date'   => $subscription_end_date ? $subscription_end_date : time() + HOUR_IN_SECONDS,
-				'product_id' => $this->product_id,
+				'product_id' => $product_id,
 			),
 		);
 
@@ -279,8 +282,6 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	public function test_subscriber_access_level( $type_user_id, $logged, $token_set, $post_access_level, $should_email_be_sent, $should_user_access_post, $subscription_end_date = null, $status = null ) {
 		if ( $type_user_id !== null ) {
 			$user_id = $this->{$type_user_id};
-		} else {
-			$user_id = 0;
 		}
 
 		$is_blog_subscriber = $user_id === $this->paid_subscriber_id || $user_id === $this->regular_subscriber_id;
@@ -450,5 +451,41 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		);
 
 		return new WPCOM_Online_Subscription_Service();
+	}
+
+	/**
+	 * Verifies that a premium content JWT can't be be used to access a Paid Newsletter post
+	 *
+	 * @return void
+	 */
+	public function test_verify_a_premium_content_token_cannot_grant_access_to_paid_newsletter_post() {
+		/**
+		 * Create a premium content plan
+		 */
+		$premium_content_product_id = 5678;
+		$premium_content_plan_id    = $this->factory->post->create(
+			array(
+				'post_type' => Jetpack_Memberships::$post_type_plan,
+			)
+		);
+		update_post_meta( $premium_content_plan_id, 'jetpack_memberships_product_id', $premium_content_product_id );
+		$this->factory->post->create();
+
+		/**
+		 * Generate a payload based on the premium content product ID
+		 * and create a JWT token based on the payload
+		 */
+		$premium_content_jwt_payload = $this->get_payload( true, true, null, null, $premium_content_product_id );
+		$subscription_service        = $this->set_returned_token( $premium_content_jwt_payload );
+
+		/**
+		 * Setup a paid newsletter plan and post then verify a premium content customer cannot access a newsletter paid post
+		 */
+		$post_access_level       = 'paid_subscribers';
+		$newsletter_paid_post_id = $this->setup_jetpack_paid_newsletters();
+		update_post_meta( $newsletter_paid_post_id, '_jetpack_newsletter_access', $post_access_level );
+
+		$GLOBALS['post'] = get_post( $newsletter_paid_post_id );
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 	}
 }
