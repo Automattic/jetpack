@@ -75,6 +75,11 @@ export function getBlockTextContent( clientId: string ): string {
 		return '';
 	}
 
+	// Attempt to pick the content from the block `content` attribute.
+	if ( block?.attributes?.content ) {
+		return block.attributes.content;
+	}
+
 	const htmlContent = getBlockContent( block );
 
 	return htmlContent;
