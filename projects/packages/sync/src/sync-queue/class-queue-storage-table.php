@@ -129,7 +129,7 @@ class Queue_Storage_Table {
 		return ( 0 !== $rows_added );
 	}
 
-	public function fetch_items( $queue_id, $item_count ) {
+	public function fetch_items( $item_count ) {
 		global $wpdb;
 
 		// TODO make it more simple for the $item_count
@@ -145,7 +145,7 @@ class Queue_Storage_Table {
 						ORDER BY event_id ASC
 						LIMIT %d
 					",
-					$queue_id,
+					$this->queue_id,
 					$item_count
 				)
 			);
@@ -160,7 +160,7 @@ class Queue_Storage_Table {
 							WHERE queue_id LIKE %s
 						ORDER BY event_id ASC
 					",
-					$queue_id
+					$this->queue_id
 				)
 			);
 		}
@@ -168,76 +168,63 @@ class Queue_Storage_Table {
 		return $items;
 	}
 
-	public function fetch_items_by_ids( $queue_id, $items_ids ) {
+	public function fetch_items_by_ids( $items_ids ) {
 		global $wpdb;
-		// TODO implement
-		vaR_dump( $items_ids );
 
 		// return early if $items_ids is empty or not an array.
 		if ( empty( $items_ids ) || ! is_array( $items_ids ) ) {
-			return null;
+			return array();
 		}
-		vaR_dump( $items_ids );
 
 		$ids_placeholders        = implode( ', ', array_fill( 0, count( $items_ids ), '%s' ) );
 		$query_with_placeholders = "SELECT event_id AS id, event_payload AS value
 				FROM {$this->table_name}
 				WHERE queue_id = %s AND event_id IN ( $ids_placeholders )";
 
-		var_dump(
-			$wpdb->prepare(
-				$query_with_placeholders, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				$queue_id,
-				$items_ids
-			)
-		);
+		$replacement_values = array_merge( array( $this->queue_id ), $items_ids );
 
 		$items = $wpdb->get_results(
 			$wpdb->prepare(
 				$query_with_placeholders, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				$queue_id,
-				$items_ids
+				$replacement_values
 			),
 			OBJECT
 		);
 
-		var_dump( $items );
-
-		return $this->unserialize_values( $items );
+		return $items;
 	}
 
-	public function get_item_count( $queue_id ) {
+	public function get_item_count() {
 		global $wpdb;
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT count(*) FROM {$this->table_name} WHERE queue_id LIKE %s",
-				$queue_id
+				"SELECT count(*) FROM {$this->table_name} WHERE queue_id = %s",
+				$this->queue_id
 			)
 		);
 	}
 	// TODO pending implementation
 
-	public function clear_queue( $queue_id ) {
+	public function clear_queue() {
 		global $wpdb;
 
 		return $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$this->table_name} WHERE queue_id LIKE %s",
-				$queue_id
+				"DELETE FROM {$this->table_name} WHERE queue_id = %s",
+				$this->queue_id
 			)
 		);
 	}
 
-	public function get_lag( $queue_name, $now = null ) {
+	public function get_lag( $now = null ) {
 		global $wpdb;
 
 		// TODO replace with peek and a flag to fetch only the name.
 		$first_item_name = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT event_id FROM {$this->table_name} WHERE queue_id = %s and event_id LIKE %s ORDER BY event_id ASC LIMIT 1",
-				$queue_name,
-				"jpsq_{$queue_name}-%"
+				"SELECT event_id FROM {$this->table_name} WHERE queue_id = %s ORDER BY event_id ASC LIMIT 1",
+				$this->queue_id
 			)
 		);
 
@@ -251,10 +238,60 @@ class Queue_Storage_Table {
 
 		// Break apart the item name to get the timestamp.
 		$matches = null;
-		if ( preg_match( '/^jpsq_' . $queue_name . '-(\d+\.\d+)-/', $first_item_name, $matches ) ) {
+		if ( preg_match( '/^jpsq_' . $this->queue_id . '-(\d+\.\d+)-/', $first_item_name, $matches ) ) {
 			return $now - (float) $matches[1];
 		} else {
 			return 0;
 		}
+	}
+
+	public function add_all( $items, $id_prefix ) {
+		global $wpdb;
+
+		$query = "INSERT INTO {$this->table_name} (queue_id, event_id, event_payload ) VALUES ";
+
+		$rows        = array();
+		$count_items = count( $items );
+		for ( $i = 0; $i < $count_items; ++$i ) {
+			// skip empty items.
+			if ( empty( $items[ $i ] ) ) {
+				continue;
+			}
+			try {
+				$event_id      = esc_sql( $id_prefix . '-' . $i );
+				$event_payload = esc_sql( serialize( $items[ $i ] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+				$rows[]        = "('{$this->queue_id}', '$event_id','$event_payload')";
+			} catch ( \Exception $e ) {
+				// Item cannot be serialized so skip.
+				continue;
+			}
+		}
+
+		$rows_added = $wpdb->query( $query . implode( ',', $rows ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		return $rows_added;
+	}
+
+	public function get_items_ids_with_size( $max_count ) {
+		global $wpdb;
+
+		// TODO optimize the fetch to happen by queue name not by the IDs as it can be issue cross-queues.
+		return $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT event_id AS id, LENGTH(event_payload) AS value_size FROM {$this->table_name} WHERE queue_id = %s ORDER BY event_id ASC LIMIT %d",
+				$this->queue_id,
+				$max_count
+			),
+			OBJECT
+		);
+	}
+
+	public function delete_items_by_ids( $ids ) {
+		global $wpdb;
+		$ids_placeholders = implode( ', ', array_fill( 0, count( $ids ), '%s' ) );
+
+		$sql = "DELETE FROM {$this->table_name} WHERE queue_id = %s AND event_id IN ( $ids_placeholders )";
+
+		return $wpdb->query( $wpdb->prepare( $sql, array_merge( array( $this->queue_id ), $ids ) ) );
 	}
 }

@@ -53,22 +53,20 @@ class Queue {
 		$this->row_iterator = 0;
 		$this->random_int   = wp_rand( 1, 1000000 );
 
-		if (1||$this->should_use_dedicated_table()) {
+		if ( $this->should_use_dedicated_table() ) {
 			$this->queue_storage = new Queue_Storage_Table( $this->id );
 		} else {
-			$this->queue_storage = new Queue_Storage_Options();
+			$this->queue_storage = new Queue_Storage_Options( $this->id );
 		}
-
-
 	}
 
 	// TODO should we create the table in-line when we detect we haven't actually enabled it?
 	// TODO or should we only create it during an upgrade?
 	public function should_use_dedicated_table() {
 		// TODO move this to a Jetpack setting so we can control it from WPCOM
-		$option_value = get_option($this->use_dedicated_table_option_name, null);
+		$option_value = get_option( $this->use_dedicated_table_option_name, null );
 
-		switch ($option_value) {
+		switch ( $option_value ) {
 			default:
 			case null:
 				// Option doesn't exist
@@ -89,7 +87,7 @@ class Queue {
 	// TODO find use of this. Should be part of bigger piece of code to enable the dedicated table.
 	// TODO add hooks to the upgrade calls to enable it.
 	public function can_use_dedicated_table() {
-		return ( new Queue_Storage_Table($this->id) )->is_dedicated_table_healthy();
+		return ( new Queue_Storage_Table( $this->id ) )->is_dedicated_table_healthy();
 	}
 
 	public function init_dedicated_table() {
@@ -100,7 +98,8 @@ class Queue {
 	}
 
 	public function cleanup_dedicated_table() {
-		$queue_storage_table = new Queue_Storage_Table($this->id);
+		$queue_storage_table = new Queue_Storage_Table( $this->id );
+
 		return $queue_storage_table->drop_table();
 	}
 
@@ -142,33 +141,14 @@ class Queue {
 	 */
 	public function add_all( $items ) {
 		// TODO check and figure out if it's used at all and if we can optimize it.
-		global $wpdb;
 		$base_option_name = $this->get_next_data_row_option_name();
 
-		$query = "INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ";
-
-		$rows        = array();
-		$count_items = count( $items );
-		for ( $i = 0; $i < $count_items; ++$i ) {
-			// skip empty items.
-			if ( empty( $items[ $i ] ) ) {
-				continue;
-			}
-			try {
-				$option_name  = esc_sql( $base_option_name . '-' . $i );
-				$option_value = esc_sql( serialize( $items[ $i ] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-				$rows[]       = "('$option_name', '$option_value', 'no')";
-			} catch ( \Exception $e ) {
-				// Item cannot be serialized so skip.
-				continue;
-			}
-		}
-
-		$rows_added = $wpdb->query( $query . implode( ',', $rows ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows_added = $this->queue_storage->add_all( $items, $base_option_name );
 
 		if ( count( $items ) !== $rows_added ) {
 			return new WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
 		}
+
 		return true;
 	}
 
@@ -214,7 +194,7 @@ class Queue {
 	 * @return float|int|mixed|null
 	 */
 	public function lag( $now = null ) {
-		return $this->queue_storage->get_lag($this->id, $now);
+		return $this->queue_storage->get_lag($now);
 	}
 
 	/**
@@ -222,7 +202,7 @@ class Queue {
 	 */
 	public function reset() {
 		$this->delete_checkout_id();
-		$this->queue_storage->clear_queue( $this->id );
+		$this->queue_storage->clear_queue();
 	}
 
 	/**
@@ -231,7 +211,7 @@ class Queue {
 	 * @return int
 	 */
 	public function size() {
-		return $this->queue_storage->get_item_count( $this->id );
+		return $this->queue_storage->get_item_count();
 	}
 
 	/**
@@ -257,7 +237,8 @@ class Queue {
 			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 
-		$buffer_id = uniqid();
+		// TODO check if adding a prefix is going to be a problem
+		$buffer_id = uniqid( '', true );
 
 		$result = $this->set_checkout_id( $buffer_id );
 
@@ -275,9 +256,7 @@ class Queue {
 			return false;
 		}
 
-		$buffer = new Queue_Buffer( $buffer_id, array_slice( $items, 0, $buffer_size ) );
-
-		return $buffer;
+		return new Queue_Buffer( $buffer_id, array_slice( $items, 0, $buffer_size ) );
 	}
 
 	/**
@@ -333,7 +312,7 @@ class Queue {
 			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
 
-		$buffer_id = uniqid();
+		$buffer_id = uniqid( '', true );
 
 		$result = $this->set_checkout_id( $buffer_id );
 
@@ -344,14 +323,16 @@ class Queue {
 		// Get the map of buffer_id -> memory_size.
 		global $wpdb;
 
-		$items_with_size = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT option_name AS id, LENGTH(option_value) AS value_size FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d",
-				"jpsq_{$this->id}-%",
-				$max_buffer_size
-			),
-			OBJECT
-		);
+		$items_with_size = $this->queue_storage->get_items_ids_with_size( $max_buffer_size );
+
+//		$items_with_size = $wpdb->get_results(
+//			$wpdb->prepare(
+//				"SELECT option_name AS id, LENGTH(option_value) AS value_size FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d",
+//				"jpsq_{$this->id}-%",
+//				$max_buffer_size
+//			),
+//			OBJECT
+//		);
 
 		if ( ! is_countable( $items_with_size ) ) {
 			return false;
@@ -362,8 +343,8 @@ class Queue {
 		}
 
 		$total_memory = 0;
-		$max_item_id  = $items_with_size[0]->id;
-		$min_item_id  = $max_item_id;
+
+		$item_ids_to_fetch = array();
 
 		foreach ( $items_with_size as $id => $item_with_size ) {
 			$total_memory += $item_with_size->value_size;
@@ -374,16 +355,20 @@ class Queue {
 				break;
 			}
 
-			$max_item_id = $item_with_size->id;
+			$item_ids_to_fetch[] = $item_with_size->id;
 		}
 
-		$query = $wpdb->prepare(
-			"SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name >= %s and option_name <= %s ORDER BY option_name ASC",
-			$min_item_id,
-			$max_item_id
-		);
+//		$query = $wpdb->prepare(
+//			"SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name >= %s and option_name <= %s ORDER BY option_name ASC",
+//			$min_item_id,
+//			$max_item_id
+//		);
+//
+//		$items = $wpdb->get_results( $query, OBJECT ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-		$items = $wpdb->get_results( $query, OBJECT ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// TODO add chunking so we don't try to fetch too many items or create too large of a query.
+
+		$items = $this->queue_storage->fetch_items_by_ids( $item_ids_to_fetch );
 		$items_count = is_countable( $items ) ? count( $items ) : 0;
 
 		if ( $items_count > 0 ) {
@@ -399,9 +384,7 @@ class Queue {
 			return false;
 		}
 
-		$buffer = new Queue_Buffer( $buffer_id, $items );
-
-		return $buffer;
+		return new Queue_Buffer( $buffer_id, $items );
 	}
 
 	/**
@@ -463,15 +446,11 @@ class Queue {
 	 * @return bool|int
 	 */
 	private function delete( $ids ) {
-		// TODO implement
 		if ( array() === $ids ) {
 			return 0;
 		}
-		global $wpdb;
-		$sql   = "DELETE FROM $wpdb->options WHERE option_name IN (" . implode( ', ', array_fill( 0, count( $ids ), '%s' ) ) . ')';
-		$query = call_user_func_array( array( $wpdb, 'prepare' ), array_merge( array( $sql ), $ids ) );
 
-		return $wpdb->query( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return $this->queue_storage->delete_items_by_ids( $ids );
 	}
 
 	/**
@@ -675,7 +654,7 @@ class Queue {
 	 * @return array|object|null
 	 */
 	private function fetch_items( $limit = null ) {
-		$items = $this->queue_storage->fetch_items( $this->id, $limit );
+		$items = $this->queue_storage->fetch_items( $limit );
 
 		return $this->unserialize_values( $items );
 	}
@@ -688,7 +667,7 @@ class Queue {
 	 * @return array|object|null
 	 */
 	private function fetch_items_by_id( $items_ids ) {
-		return $this->queue_storage->fetch_items_by_ids( $this->id, $items_ids );
+		return $this->unserialize_values( $this->queue_storage->fetch_items_by_ids( $items_ids ) );
 	}
 
 	/**
