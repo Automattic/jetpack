@@ -7,10 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
-use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -163,44 +161,12 @@ class Security extends Module_Product {
 	}
 
 	/**
-	 * Hits the wpcom api to check scan status.
-	 *
-	 * @todo Maybe add caching.
-	 *
-	 * @return Object|WP_Error
-	 */
-	private static function get_state_from_wpcom() {
-		static $status = null;
-
-		if ( $status !== null ) {
-			return $status;
-		}
-
-		$site_id = Jetpack_Options::get_option( 'id' );
-
-		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/purchases', $site_id ),
-			'1.1',
-			array(
-				'method' => 'GET',
-			)
-		);
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'purchases_state_fetch_failed' );
-		}
-
-		$body   = wp_remote_retrieve_body( $response );
-		$status = json_decode( $body );
-		return $status;
-	}
-
-	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
-		$purchases_data = static::get_state_from_wpcom();
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;
 		}

@@ -142,6 +142,13 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					$launchpad_checklist_tasks_statuses_option = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
 					$launchpad_checklist_tasks_statuses_option = array_merge( $launchpad_checklist_tasks_statuses_option, $value );
 
+					foreach ( $value as $task => $task_value ) {
+						if ( $task_value ) {
+							// If we're marking a task as complete, the value should be truthy, so fire the Tracks event.
+							wpcom_launchpad_track_completed_task( $task );
+						}
+					}
+
 					if ( update_option( 'launchpad_checklist_tasks_statuses', $launchpad_checklist_tasks_statuses_option ) ) {
 						$updated[ $key ] = $value;
 					}

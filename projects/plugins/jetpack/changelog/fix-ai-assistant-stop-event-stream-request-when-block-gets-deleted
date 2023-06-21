@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: Close event stream of completions when the block gets deleted.
