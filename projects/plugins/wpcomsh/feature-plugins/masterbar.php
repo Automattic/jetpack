@@ -290,6 +290,10 @@ add_filter( 'jetpack_dsp_promote_posts_enabled', '__return_true' );
  */
 function wpcomsh_fix_appearance_menu() {
 	global $submenu;
+	if ( empty( $submenu['themes.php'] ) ) {
+		return;
+	}
+
 	$hidden_customize_menus = array_filter(
 		$submenu['themes.php'],
 		function ( $item ) {
