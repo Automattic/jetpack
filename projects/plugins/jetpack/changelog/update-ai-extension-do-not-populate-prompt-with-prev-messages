@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Extension: do not populate the prompt with previous messages for now
