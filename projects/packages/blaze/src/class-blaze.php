@@ -9,6 +9,7 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
 use Automattic\Jetpack\Blaze\Dashboard_REST_Controller as Blaze_Dashboard_REST_Controller;
+use Automattic\Jetpack\Blaze\REST_Controller;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
@@ -46,8 +47,10 @@ class Blaze {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
-		// Adds Blaze rest API
+		// Add Blaze dashboard app REST API endpoints.
 		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
+		// Add general Blaze REST API endpoints.
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 	}
 
 	/**
