@@ -72,40 +72,42 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ removeBlocks, updateBlockAttributes ]
 		);
 
-		const addAssistantMessage = useCallback(
-			( assistantContent: string ) => {
-				setStoredPrompt( prevPrompt => {
-					/*
-					 * Add the assistant messages to the prompt.
-					 * - Preserve the first item of the array (`system` role )
-					 * - Keep the last 4 messages.
-					 */
+		// This commented function is used to add the assistant messages to the prompt.
+		// It's not used for now.
+		// const addAssistantMessage = useCallback(
+		// 	( assistantContent: string ) => {
+		// 		setStoredPrompt( prevPrompt => {
+		// 			/*
+		// 			 * Add the assistant messages to the prompt.
+		// 			 * - Preserve the first item of the array (`system` role )
+		// 			 * - Keep the last 4 messages.
+		// 			 */
 
-					// Pick the first item of the array.
-					const firstItem = prevPrompt.messages.shift();
+		// 			// Pick the first item of the array.
+		// 			const firstItem = prevPrompt.messages.shift();
 
-					const messages: Array< PromptItemProps > = [
-						firstItem, // first item (`system` by default)
-						...prevPrompt.messages.splice( -3 ), // last 3 items
-						{
-							role: 'assistant',
-							content: assistantContent, // + 1 `assistant` role item
-						},
-					];
+		// 			const messages: Array< PromptItemProps > = [
+		// 				firstItem, // first item (`system` by default)
+		// 				// ...prevPrompt.messages.splice( -3 ), // last 3 items
+		// 				{
+		// 					role: 'assistant',
+		// 					content: assistantContent, // + 1 `assistant` role item
+		// 				},
+		// 			];
 
-					return {
-						...prevPrompt,
-						messages,
-					};
-				} );
-			},
-			[ setStoredPrompt ]
-		);
+		// 			return {
+		// 				...prevPrompt,
+		// 				messages,
+		// 			};
+		// 		} );
+		// 	},
+		// 	[ setStoredPrompt ]
+		// );
 
 		const { request } = useSuggestionsFromAI( {
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
-			onDone: addAssistantMessage,
+			// onDone: addAssistantMessage,
 			autoRequest: false,
 		} );
 
@@ -120,22 +122,14 @@ export const withAIAssistant = createHigherOrderComponent(
 				 */
 				clientIdsRef.current = clientIds;
 
-				setStoredPrompt( prevPrompt => {
-					const freshPrompt = {
-						...prevPrompt,
-						messages: getPrompt( promptType, {
-							...options,
-							content,
-							prevMessages: prevPrompt.messages,
-						} ),
-					};
-
-					// Request the suggestion from the AI.
-					request( freshPrompt.messages );
-
-					// Update the stored prompt locally.
-					return freshPrompt;
+				const messages = getPrompt( promptType, {
+					...options,
+					content,
 				} );
+
+				setStoredPrompt( { messages } );
+
+				request( messages );
 			},
 			[ request ]
 		);
