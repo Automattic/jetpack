@@ -92,9 +92,9 @@ export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
 /**
  * Return the block content from the given block clientId.
  *
- * The first option is to get the content from the block `content` attribute.
- * In case it is not possible,
- * it will try to get the content from bny using the `getBlockContent` function.
+ * It will try to get the content from the block `content` attribute.
+ * Otherwise, it will try to get the content
+ * by using the `getBlockContent` function.
  *
  * @param {string} clientId   - The block clientId.
  * @returns {string}            The block content.
@@ -120,7 +120,5 @@ export function getBlockTextContent( clientId: string ): string {
 		return block.attributes.content;
 	}
 
-	const htmlContent = getBlockContent( block );
-
-	return htmlContent;
+	return getBlockContent( block );
 }
