@@ -1,22 +1,47 @@
 <?php
+/**
+ * The class responsible for storing Queue events in a dedicated Sync events table.
+ *
+ * Used by class Queue.
+ *
+ * @see \Automattic\Jetpack\Sync\Queue
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Queue;
 
+/**
+ * Dedicated Sync events table storage backend for the Queue.
+ */
 class Queue_Storage_Table {
-	public $table_name_no_prefix = 'jetpack_sync_queue';
-	/**
-	 * @var string The table name with the DB prefix.
+
+	/** @var string The dedicated Sync events table name, without a prefix.
+	 *             A prefix will be added when the class is instantiated,
+	 *             as we fetch the prefix from `$wpdb` as is configured in
+	 *             the WordPress config file.
 	 */
+	public $table_name_no_prefix = 'jetpack_sync_queue';
+
+	/** @var string The table name with the DB prefix. */
 	public $table_name = '';
 
+	/** @var string What queue is this instance responsible for. */
 	public $queue_id = '';
 
+	/**
+	 * Class constructor.
+	 *
+	 * @param string $queue_id The queue name this instance will be responsible for.
+	 *
+	 * @throws \Exception If queue name was not provided.
+	 */
 	public function __construct( $queue_id ) {
 		global $wpdb;
 
 		if ( empty( $queue_id ) ) {
 			// TODO what should we return here or throw an exception?
-			throw new Exception( 'Invalid queue_id provided' );
+			throw new \Exception( 'Invalid queue_id provided' );
 		}
 
 		// TODO validate the value maybe?
@@ -27,7 +52,8 @@ class Queue_Storage_Table {
 	}
 
 	/**
-	 * Creates the new table and updates the options to work with the new table if it was created successfully.
+	 * Creates the new table and updates the options to work with
+	 * the new table if it was created successfully.
 	 *
 	 * @return void
 	 */
@@ -57,8 +83,8 @@ class Queue_Storage_Table {
 			) $charset_collate;";
 
 		/**
-		 * dbDelta will only return the differences. If the table exists, the result will be empty, so let's run
-		 * a check afterward to see if the table exists and is healthy.
+		 * The function dbDelta will only return the differences. If the table exists, the result will be empty,
+		 * so let's run a check afterward to see if the table exists and is healthy.
 		 */
 		\dbDelta( $table_definition );
 	}
@@ -114,6 +140,14 @@ class Queue_Storage_Table {
 	 * Queue API implementation
 	 */
 
+	/**
+	 * Insert an item in the queue.
+	 *
+	 * @param string $item_id The item ID.
+	 * @param string $item Serialized item data.
+	 *
+	 * @return bool If the item was added.
+	 */
 	public function insert_item( $item_id, $item ) {
 		global $wpdb;
 
@@ -129,6 +163,14 @@ class Queue_Storage_Table {
 		return ( 0 !== $rows_added );
 	}
 
+	/**
+	 * Fetch items from the queue.
+	 *
+	 * @param int|null $item_count How many items to fetch from the queue.
+	 *                             The parameter is null-able, if no limit on the amount of items.
+	 *
+	 * @return array|object|\stdClass[]|null
+	 */
 	public function fetch_items( $item_count ) {
 		global $wpdb;
 
@@ -168,6 +210,13 @@ class Queue_Storage_Table {
 		return $items;
 	}
 
+	/**
+	 * Fetches items with specific IDs from the Queue.
+	 *
+	 * @param array $items_ids
+	 *
+	 * @return array|object|\stdClass[]|null
+	 */
 	public function fetch_items_by_ids( $items_ids ) {
 		global $wpdb;
 
@@ -194,6 +243,11 @@ class Queue_Storage_Table {
 		return $items;
 	}
 
+	/**
+	 * Check how many items are in the queue.
+	 *
+	 * @return int
+	 */
 	public function get_item_count() {
 		global $wpdb;
 
@@ -204,8 +258,12 @@ class Queue_Storage_Table {
 			)
 		);
 	}
-	// TODO pending implementation
 
+	/**
+	 * Clear out the queue.
+	 *
+	 * @return bool|int|\mysqli_result|resource|null
+	 */
 	public function clear_queue() {
 		global $wpdb;
 
@@ -217,6 +275,13 @@ class Queue_Storage_Table {
 		);
 	}
 
+	/**
+	 * Return the lag amount for the queue.
+	 *
+	 * @param float|int|null $now A timestamp to use as starting point when calculating the lag.
+	 *
+	 * @return float|int The lag amount.
+	 */
 	public function get_lag( $now = null ) {
 		global $wpdb;
 
@@ -245,6 +310,14 @@ class Queue_Storage_Table {
 		}
 	}
 
+	/**
+	 * Add multiple items to the queue at once.
+	 *
+	 * @param array  $items Array of items to add.
+	 * @param string $id_prefix Prefix to use for all the items.
+	 *
+	 * @return bool|int|\mysqli_result|resource|null
+	 */
 	public function add_all( $items, $id_prefix ) {
 		global $wpdb;
 
@@ -272,6 +345,13 @@ class Queue_Storage_Table {
 		return $rows_added;
 	}
 
+	/**
+	 * Return $max_count items from the queue, including their value string length.
+	 *
+	 * @param int $max_count How many items to fetch from the queue.
+	 *
+	 * @return array|object|\stdClass[]|null
+	 */
 	public function get_items_ids_with_size( $max_count ) {
 		global $wpdb;
 
@@ -286,6 +366,13 @@ class Queue_Storage_Table {
 		);
 	}
 
+	/**
+	 * Delete items with specific IDs from the queue.
+	 *
+	 * @param array $ids IDs of the items to remove from the queue.
+	 *
+	 * @return bool|int|\mysqli_result|resource|null
+	 */
 	public function delete_items_by_ids( $ids ) {
 		global $wpdb;
 		$ids_placeholders = implode( ', ', array_fill( 0, count( $ids ), '%s' ) );

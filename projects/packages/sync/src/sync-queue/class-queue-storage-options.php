@@ -1,18 +1,50 @@
 <?php
+/**
+ * The class responsible for storing Queue events in the `wp_options` table.
+ *
+ * Used by class Queue.
+ *
+ * @see \Automattic\Jetpack\Sync\Queue
+ *
+ * @package automattic/jetpack-sync
+ */
 
 namespace Automattic\Jetpack\Sync\Queue;
 
+/**
+ * `wp_options` storage backend for the Queue.
+ */
 class Queue_Storage_Options {
+	/**
+	 * @var string What queue is this instance responsible for.
+	 */
+	public $queue_id = '';
+
+	/**
+	 * Class constructor.
+	 *
+	 * @param string $queue_id The queue name this instance will be responsible for.
+	 *
+	 * @throws \Exception If queue name was not provided.
+	 */
 	public function __construct( $queue_id ) {
 		if ( empty( $queue_id ) ) {
 			// TODO what should we return here or throw an exception?
-			throw new Exception( 'Invalid queue_id provided' );
+			throw new \Exception( 'Invalid queue_id provided' );
 		}
 
 		// TODO validate the value maybe?
 		$this->queue_id = $queue_id;
 	}
 
+	/**
+	 * Insert an item in the queue.
+	 *
+	 * @param string $item_id The item ID.
+	 * @param string $item Serialized item data.
+	 *
+	 * @return bool If the item was added.
+	 */
 	public function insert_item( $item_id, $item ) {
 		global $wpdb;
 
@@ -28,6 +60,14 @@ class Queue_Storage_Options {
 		return ( 0 !== $rows_added );
 	}
 
+	/**
+	 * Fetch items from the queue.
+	 *
+	 * @param int|null $item_count How many items to fetch from the queue.
+	 *                             The parameter is null-able, if no limit on the amount of items.
+	 *
+	 * @return array|object|\stdClass[]|null
+	 */
 	public function fetch_items( $item_count ) {
 		global $wpdb;
 
@@ -54,6 +94,13 @@ class Queue_Storage_Options {
 		return $items;
 	}
 
+	/**
+	 * Fetches items with specific IDs from the Queue.
+	 *
+	 * @param array $items_ids
+	 *
+	 * @return array|object|\stdClass[]|null
+	 */
 	public function fetch_items_by_ids( $items_ids ) {
 		global $wpdb;
 
@@ -79,12 +126,11 @@ class Queue_Storage_Options {
 		return $items;
 	}
 
-	public function delete_item() {
-	}
-
-	public function find() {
-	}
-
+	/**
+	 * Clear out the queue.
+	 *
+	 * @return bool|int|\mysqli_result|resource|null
+	 */
 	public function clear_queue() {
 		global $wpdb;
 
@@ -96,6 +142,11 @@ class Queue_Storage_Options {
 		);
 	}
 
+	/**
+	 * Check how many items are in the queue.
+	 *
+	 * @return int
+	 */
 	public function get_item_count() {
 		global $wpdb;
 
@@ -107,6 +158,13 @@ class Queue_Storage_Options {
 		);
 	}
 
+	/**
+	 * Return the lag amount for the queue.
+	 *
+	 * @param float|int|null $now A timestamp to use as starting point when calculating the lag.
+	 *
+	 * @return float|int The lag amount.
+	 */
 	public function get_lag( $now = null ) {
 		global $wpdb;
 
@@ -135,6 +193,14 @@ class Queue_Storage_Options {
 		}
 	}
 
+	/**
+	 * Add multiple items to the queue at once.
+	 *
+	 * @param array  $items Array of items to add.
+	 * @param string $id_prefix Prefix to use for all the items.
+	 *
+	 * @return bool|int|\mysqli_result|resource|null
+	 */
 	public function add_all( $items, $id_prefix ) {
 		global $wpdb;
 
@@ -162,6 +228,13 @@ class Queue_Storage_Options {
 		return $rows_added;
 	}
 
+	/**
+	 * Return $max_count items from the queue, including their value string length.
+	 *
+	 * @param int $max_count How many items to fetch from the queue.
+	 *
+	 * @return array|object|\stdClass[]|null
+	 */
 	public function get_items_ids_with_size( $max_count ) {
 		global $wpdb;
 
@@ -175,6 +248,13 @@ class Queue_Storage_Options {
 		);
 	}
 
+	/**
+	 * Delete items with specific IDs from the queue.
+	 *
+	 * @param array $ids IDs of the items to remove from the queue.
+	 *
+	 * @return bool|int|\mysqli_result|resource|null
+	 */
 	public function delete_items_by_ids( $ids ) {
 		global $wpdb;
 		// TODO check if it's working properly - no need to delete all options in the table if the params are not right
