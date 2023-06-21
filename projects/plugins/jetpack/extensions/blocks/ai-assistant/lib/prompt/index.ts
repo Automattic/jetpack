@@ -413,7 +413,6 @@ export function getPrompt(
 					role: 'system',
 					content: `${ context }
 Writing rules:
-- When it isn't clarified, the content should be written in the same language as the original content.
 - Execute the request without any acknowledgement to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
