@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a completion check callback to the keep-building task list.
