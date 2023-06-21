@@ -253,7 +253,7 @@ function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() 
 		)
 	);
 
-	if ( wpcom_default_launchpad_task_list_completed( 'keep-building' ) ) {
+	if ( wpcom_default_launchpad_task_list_completed( array( 'id' => 'keep-building' ) ) ) {
 		tracks_record_event(
 			wp_get_current_user(),
 			'wpcom_launchpad_mark_task_list_complete',
