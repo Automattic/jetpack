@@ -13,6 +13,7 @@ import React from 'react';
 import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 } from '../../components/ai-assistant-controls';
+import ErrorNotice from '../../components/error-notice';
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import { getPrompt } from '../../lib/prompt';
 import { getTextContentFromBlocks } from '../../lib/utils/block-content';
@@ -145,7 +146,13 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		return (
 			<>
-				{ suggestionError && suggestionError.message }
+				{ suggestionError && (
+					<ErrorNotice
+						message={ suggestionError.message }
+						onRemove={ () => setSuggestionError( null ) }
+					></ErrorNotice>
+				) }
+
 				<BlockEdit { ...props } />
 
 				<BlockControls group="block">
