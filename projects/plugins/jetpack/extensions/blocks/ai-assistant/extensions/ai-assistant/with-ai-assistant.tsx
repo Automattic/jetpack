@@ -97,7 +97,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const content = getTextContentFromBlocks();
+				const { content } = getTextContentFromBlocks();
 
 				setStoredPrompt( prevPrompt => {
 					const freshPrompt = {

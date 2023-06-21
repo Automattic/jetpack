@@ -52,24 +52,40 @@ export function getContentFromBlocks(): string {
 	return turndownService.turndown( serialize( blocks ) );
 }
 
+type GetTextContentFromBlocksProps = {
+	count: number;
+	content: string;
+};
+
 /**
  * Returns the text content from all selected blocks.
  *
- * @returns {string} The text content.
+ * @returns {GetTextContentFromBlocksProps} The text content.
  */
-export function getTextContentFromBlocks(): string {
+export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
 	const clientIds = select( blockEditorStore ).getSelectedBlockClientIds();
 
 	if ( ! clientIds?.length ) {
-		return '';
+		return {
+			count: 0,
+			content: '',
+		};
 	}
 
 	const blocks = select( blockEditorStore ).getBlocksByClientId( clientIds );
 	if ( ! blocks?.length ) {
-		return '';
+		return {
+			count: 0,
+			content: '',
+		};
 	}
 
-	return blocks.map( block => getBlockTextContent( block.clientId ) ).join( HTML_JOIN_CHARACTERS );
+	return {
+		count: blocks.length,
+		content: blocks
+			.map( block => getBlockTextContent( block.clientId ) )
+			.join( HTML_JOIN_CHARACTERS ),
+	};
 }
 
 /**
