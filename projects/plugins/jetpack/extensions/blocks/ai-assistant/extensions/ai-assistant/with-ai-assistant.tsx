@@ -15,7 +15,7 @@ import AiAssistantDropdown, {
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI from '../../hooks/use-suggestions-from-ai';
 import { getPrompt } from '../../lib/prompt';
-import { getBlockTextContent } from '../../lib/utils/block-content';
+import { getTextContentFromBlocks } from '../../lib/utils/block-content';
 /*
  * Types
  */
@@ -97,7 +97,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const content = getBlockTextContent( clientId );
+				const content = getTextContentFromBlocks();
 
 				setStoredPrompt( prevPrompt => {
 					const freshPrompt = {
@@ -116,7 +116,7 @@ export const withAIAssistant = createHigherOrderComponent(
 					return freshPrompt;
 				} );
 			},
-			[ clientId, request ]
+			[ request ]
 		);
 
 		return (
