@@ -15,6 +15,7 @@ import AiAssistantDropdown, {
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI from '../../hooks/use-suggestions-from-ai';
 import { getPrompt } from '../../lib/prompt';
+import { getBlockTextContent } from '../../lib/utils/block-content';
 /*
  * Types
  */
@@ -37,11 +38,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
-		/*
-		 * Pick the content from the block attribute from now.
-		 * @todo: it doesn't scale well, we need to find a better way to get the content.
-		 */
-		const content: string = props?.attributes?.content;
+		const content = getBlockTextContent( clientId );
 
 		/**
 		 * Set the content of the block.
