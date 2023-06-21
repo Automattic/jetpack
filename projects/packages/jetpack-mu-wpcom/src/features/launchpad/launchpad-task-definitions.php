@@ -370,7 +370,7 @@ function wpcom_get_domain_claim_title() {
 		);
 
 		// If we've mapped a domain but there's no registration, change the task title.
-		if ( in_array( 'domain_map', $domain_purchase_types ) && ! in_array( 'domain_reg', $domain_purchase_types ) ) {
+		if ( in_array( 'domain_map', $domain_purchase_types, true ) && ! in_array( 'domain_reg', $domain_purchase_types, true ) ) {
 			return __( 'Connect a domain', 'jetpack-mu-wpcom' );
 		}
 	}
