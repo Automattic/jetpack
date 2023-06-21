@@ -5,7 +5,7 @@ import { BlockControls } from '@wordpress/block-editor';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useState, useRef } from '@wordpress/element';
 import React from 'react';
 /**
  * Internal dependencies
@@ -35,10 +35,9 @@ export const withAIAssistant = createHigherOrderComponent(
 			messages: [],
 		} );
 
-		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
+		const clientIdsRef = useRef< Array< string > >();
 
-		const { content, clientIds } = getTextContentFromBlocks();
-		const clientIdOfBlockToUpdate = clientIds.shift(); // first block by convention.
+		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
 
 		/**
 		 * Set the content of the block.
@@ -49,23 +48,28 @@ export const withAIAssistant = createHigherOrderComponent(
 		const setContent = useCallback(
 			( newContent: string ) => {
 				/*
+				 * Pick the first item of the array,
+				 * to be udpated with the new content.
+				 * The rest of the items will be removed.
+				 */
+				const [ firstClientId, ...restClientIds ] = clientIdsRef.current;
+				/*
 				 * Update the content of the block
 				 * by calling the setAttributes function,
 				 * updating the `content` attribute.
 				 * It doesn't scale for other blocks.
 				 * @todo: find a better way to update the content.
 				 */
-				updateBlockAttributes( clientIdOfBlockToUpdate, { content: newContent } );
+				updateBlockAttributes( firstClientId, { content: newContent } );
 
 				// Remove the rest of the block in case there are more than one.
-				if ( clientIds.length ) {
-					removeBlocks( clientIds ).then( () => {
-						// clean the clientIds array.
-						clientIds.splice( 0, clientIds.length );
+				if ( restClientIds.length ) {
+					removeBlocks( restClientIds ).then( () => {
+						clientIdsRef.current = [ firstClientId ];
 					} );
 				}
 			},
-			[ updateBlockAttributes, clientIdOfBlockToUpdate, clientIds, removeBlocks ]
+			[ removeBlocks, updateBlockAttributes ]
 		);
 
 		const addAssistantMessage = useCallback(
@@ -107,6 +111,15 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
+				const { content, clientIds } = getTextContentFromBlocks();
+
+				/*
+				 * Store the selected clientIds when the user requests a suggestion.
+				 * The client Ids will be used to update the content of the block,
+				 * when suggestions are received from the AI.
+				 */
+				clientIdsRef.current = clientIds;
+
 				setStoredPrompt( prevPrompt => {
 					const freshPrompt = {
 						...prevPrompt,
@@ -120,11 +133,11 @@ export const withAIAssistant = createHigherOrderComponent(
 					// Request the suggestion from the AI.
 					request( freshPrompt.messages );
 
-					// Update the stored prompt.
+					// Update the stored prompt locally.
 					return freshPrompt;
 				} );
 			},
-			[ content, request ]
+			[ request ]
 		);
 
 		return (
