@@ -2220,6 +2220,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_updateable_data_list( $selector = '' ) {
 
 		$options = array(
+			// Blaze.
+			'jetpack_blaze_dashboard_enable'       => array(
+				'description'       => esc_html__( 'Enable a dashboard to manage your Blaze campaigns.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => false,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'blaze',
+			),
+
 			// Blocks.
 			'jetpack_blocks_disabled'              => array(
 				'description'       => esc_html__( 'Jetpack Blocks disabled.', 'jetpack' ),

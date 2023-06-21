@@ -1,7 +1,8 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
+import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -12,7 +13,7 @@ import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 
 const trackDashboardClick = () => {
-	analytics.tracks.recordJetpackClick( 'view-blaze-dashboard' );
+	analytics.tracks.recordJetpackClick( 'blaze-dashboard' );
 };
 
 /**
@@ -24,11 +25,14 @@ const trackDashboardClick = () => {
 function Blaze( props ) {
 	const {
 		blazeActive,
+		blazeDashboardEnabled,
 		blazeModule: { description },
+		getSettingCurrentValue,
 		hasConnectedOwner,
 		isOfflineMode,
 		isSavingAnyOption,
 		isUnavailableInOfflineMode,
+		updateOptions,
 		toggleModuleNow,
 	} = props;
 
@@ -44,6 +48,16 @@ function Blaze( props ) {
 				{ __( 'Manage your campaigns and view your earnings in the Blaze dashboard', 'jetpack' ) }
 			</Card>
 		);
+	};
+
+	/**
+	 * Update the option that enables or disables the Blaze dashboard.
+	 *
+	 * @returns {*} the updated value
+	 */
+	const toggleBlazeDashboard = () => {
+		const updateValue = ! getSettingCurrentValue( 'jetpack_blaze_dashboard_enable' );
+		return updateOptions( { jetpack_blaze_dashboard_enable: updateValue } );
 	};
 
 	return (
@@ -71,6 +85,22 @@ function Blaze( props ) {
 				>
 					{ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
 				</ModuleToggle>
+				<FormFieldset className="jp-blaze-dashboard-toggle">
+					<ToggleControl
+						checked={ !! blazeDashboardEnabled }
+						disabled={
+							! blazeActive || unavailableInOfflineMode || isSavingAnyOption( [ 'blaze' ] )
+						}
+						toggling={ isSavingAnyOption( [ 'jetpack_blaze_dashboard_enable' ] ) }
+						onChange={ toggleBlazeDashboard() }
+						label={
+							<>
+								{ __( 'Manage your Blaze campaigns straight from your dashboard', 'jetpack' ) }
+								<span className="jp-blaze-dashboard-badge">{ __( 'New', 'jetpack' ) }</span>
+							</>
+						}
+					/>
+				</FormFieldset>
 			</SettingsGroup>
 			{ blazeActive && hasConnectedOwner && ! isOfflineMode && blazeCard() }
 			{ ! hasConnectedOwner && ! isOfflineMode && (
@@ -88,6 +118,7 @@ export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
 			blazeActive: ownProps.getOptionValue( 'blaze' ),
+			blazeDashboardEnabled: ownProps.getOptionValue( 'jetpack_blaze_dashboard_enable' ),
 			blazeModule: getModule( state, 'blaze' ),
 		};
 	} )( Blaze )
