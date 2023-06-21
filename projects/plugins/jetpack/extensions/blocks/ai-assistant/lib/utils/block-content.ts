@@ -82,7 +82,7 @@ export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
 
 	return {
 		count: blocks.length,
-		clientIds,
+		clientIds: [ ...clientIds ],
 		content: blocks
 			.map( block => getBlockTextContent( block.clientId ) )
 			.join( HTML_JOIN_CHARACTERS ),

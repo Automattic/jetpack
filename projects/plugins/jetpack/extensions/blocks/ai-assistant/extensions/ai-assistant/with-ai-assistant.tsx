@@ -31,14 +31,14 @@ type StoredPromptProps = {
  */
 export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
-		const { clientId } = props;
 		const [ storedPrompt, setStoredPrompt ] = useState< StoredPromptProps >( {
 			messages: [],
 		} );
 
-		const { updateBlockAttributes } = useDispatch( blockEditorStore );
+		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
 
-		const { content } = getTextContentFromBlocks();
+		const { content, clientIds } = getTextContentFromBlocks();
+		const clientIdOfBlockToUpdate = clientIds.shift(); // first block by convention.
 
 		/**
 		 * Set the content of the block.
@@ -55,9 +55,17 @@ export const withAIAssistant = createHigherOrderComponent(
 				 * It doesn't scale for other blocks.
 				 * @todo: find a better way to update the content.
 				 */
-				updateBlockAttributes( clientId, { content: newContent } );
+				updateBlockAttributes( clientIdOfBlockToUpdate, { content: newContent } );
+
+				// Remove the rest of the block in case there are more than one.
+				if ( clientIds.length ) {
+					removeBlocks( clientIds ).then( () => {
+						// clean the clientIds array.
+						clientIds.splice( 0, clientIds.length );
+					} );
+				}
 			},
-			[ clientId, updateBlockAttributes ]
+			[ updateBlockAttributes, clientIdOfBlockToUpdate, clientIds, removeBlocks ]
 		);
 
 		const addAssistantMessage = useCallback(
