@@ -53,9 +53,9 @@ export function getContentFromBlocks(): string {
 /**
  * Return the block content from the given block clientId.
  *
- * It picks the content from the block `content` attribute,
- * which is not ideal because it doesn't scale well for all blocks.
- * ToDo: Find a better way to get the block content.
+ * The first option is to get the content from the block `content` attribute.
+ * In case it is not possible,
+ * it will try to get the content from bny using the `getBlockContent` function.
  *
  * @param {string} clientId   - The block clientId.
  * @returns {string}            The block content.
@@ -67,6 +67,7 @@ export function getBlockTextContent( clientId: string ): string {
 
 	const editor = select( blockEditorStore );
 	const block = editor.getBlock( clientId );
+
 	/*
 	 * In some context, the block can be undefined,
 	 * for instance, when previewing the block.
