@@ -3723,7 +3723,7 @@ function wpsc_is_preload_active() {
 	}
 
 	// check post preload loop
-	$preload_cache_counter = get_option( 'prelaod_cache_counter' );
+	$preload_cache_counter = get_option( 'preload_cache_counter' );
 	if (
 		is_array( $preload_cache_counter )
 		&& isset( $preload_cache_counter['c'] )
