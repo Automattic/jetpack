@@ -119,7 +119,7 @@ function debounceDimensionUpdates() {
 		if ( debounce ) {
 			clearTimeout( debounce );
 		}
-		debounce = setTimeout( () => {
+		debounce = window.setTimeout( () => {
 			stores.forEach( store => {
 				store.updateDimensions();
 			} );

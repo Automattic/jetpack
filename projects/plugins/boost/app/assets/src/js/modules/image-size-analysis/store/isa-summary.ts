@@ -109,7 +109,7 @@ isaSummary.subscribe( summary => {
 	const shouldPoll = [ 'new', 'queued' ].includes( summary.status );
 
 	if ( shouldPoll && ! pollIntervalId ) {
-		pollIntervalId = setInterval( () => {
+		pollIntervalId = window.setInterval( () => {
 			image_size_analysis_summary.refresh();
 		}, 3000 );
 	} else if ( ! shouldPoll && pollIntervalId ) {

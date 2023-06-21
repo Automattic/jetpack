@@ -16,6 +16,6 @@ export default function debounce( callback: CallbackFunction, wait: number ): Ca
 
 	return function ( ...args ) {
 		clearTimeout( timer );
-		timer = setTimeout( () => callback.apply( this, args ), wait );
+		timer = window.setTimeout( () => callback.apply( this, args ), wait );
 	};
 }
