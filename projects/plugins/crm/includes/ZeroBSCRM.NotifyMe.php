@@ -454,11 +454,7 @@ function zeroBSCRM_notifyme_activity(){
 
         $sender_avatar = "<img src='".$notify_logo_url."'  width='30px;float:left;'>";
 
-        $another_notty = __("Here is another notification example. From a random person.", "zero-bs-crm");
-        ##WLREMOVE
-        $another_notty  = __("Here is another example. This time from Mike, one of our Jetpack CRM Founders.", "zero-bs-crm");
-        ##/WLREMOVE
-
+		$another_notty = __( 'Here is another notification example from John Doe.', 'zero-bs-crm' );
 
         echo "<div class='ph_notification_list r0' id='mike-face' style='display:none;'>";
           echo '<div class="ph_noti_img">';
