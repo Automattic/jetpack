@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blaze: introduce module, instead of automatically initializing the feature.
