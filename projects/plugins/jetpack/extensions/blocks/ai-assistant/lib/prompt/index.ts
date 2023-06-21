@@ -123,7 +123,7 @@ function getSimplifyPrompt( {
 	return [
 		{
 			role,
-			content: `Simplify the following text, using words and phrases that are easier to understand. Write the content in the same language as the original content:\n\n${ content }`,
+			content: `Simplify the following text. Use words and phrases that are easier to understand. Use the same language of the content:\n\n${ content }`,
 		},
 	];
 }
@@ -135,7 +135,7 @@ function getSummarizePrompt( {
 	return [
 		{
 			role,
-			content: `Summarize the following text. Write the content in the same language as the original content:\n\n${ content }`,
+			content: `Summarize the following text. Use the same language of the content:\n\n${ content }`,
 		},
 	];
 }
@@ -147,7 +147,7 @@ function getExpandPrompt( {
 	return [
 		{
 			role,
-			content: `Expand the following text to about double its size. Write the content in the same language as the original content:\n\n${ content }`,
+			content: `Expand the following text to about double its size. Use the same language of the content:\n\n${ content }`,
 		},
 	];
 }
