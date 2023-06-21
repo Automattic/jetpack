@@ -54,6 +54,7 @@ export function getContentFromBlocks(): string {
 
 type GetTextContentFromBlocksProps = {
 	count: number;
+	clientIds: string[];
 	content: string;
 };
 
@@ -64,24 +65,24 @@ type GetTextContentFromBlocksProps = {
  */
 export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
 	const clientIds = select( blockEditorStore ).getSelectedBlockClientIds();
+	const defaultContent = {
+		count: 0,
+		clientIds: [],
+		content: '',
+	};
 
 	if ( ! clientIds?.length ) {
-		return {
-			count: 0,
-			content: '',
-		};
+		return defaultContent;
 	}
 
 	const blocks = select( blockEditorStore ).getBlocksByClientId( clientIds );
 	if ( ! blocks?.length ) {
-		return {
-			count: 0,
-			content: '',
-		};
+		return defaultContent;
 	}
 
 	return {
 		count: blocks.length,
+		clientIds,
 		content: blocks
 			.map( block => getBlockTextContent( block.clientId ) )
 			.join( HTML_JOIN_CHARACTERS ),
