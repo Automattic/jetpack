@@ -7,7 +7,7 @@
  * First Introduced: 12.3
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: Traffic
+ * Module Tags: Traffic, Social
  * Additional Search Queries: advertising, ads
  *
  * @package automattic/jetpack
