@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
+import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -24,9 +25,14 @@ function Blaze( props ) {
 	const {
 		blazeActive,
 		blazeModule: { description },
+		hasConnectedOwner,
+		isOfflineMode,
 		isSavingAnyOption,
+		isUnavailableInOfflineMode,
 		toggleModuleNow,
 	} = props;
+
+	const unavailableInOfflineMode = isUnavailableInOfflineMode( 'blaze' );
 
 	const blazeCard = () => {
 		return (
@@ -49,6 +55,8 @@ function Blaze( props ) {
 		>
 			<SettingsGroup
 				module={ { module: 'blaze' } }
+				disableInOfflineMode
+				disableInSiteConnectionMode
 				support={ {
 					text: description,
 					link: getRedirectUrl( 'jetpack-support-blaze' ),
@@ -57,13 +65,21 @@ function Blaze( props ) {
 				<ModuleToggle
 					slug="blaze"
 					activated={ blazeActive }
+					disabled={ unavailableInOfflineMode || ! hasConnectedOwner }
 					toggling={ isSavingAnyOption( 'blaze' ) }
 					toggleModule={ toggleModuleNow }
 				>
 					{ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
 				</ModuleToggle>
 			</SettingsGroup>
-			{ blazeActive && blazeCard() }
+			{ blazeActive && hasConnectedOwner && ! isOfflineMode && blazeCard() }
+			{ ! hasConnectedOwner && ! isOfflineMode && (
+				<ConnectUserBar
+					feature="blaze"
+					featureLabel={ __( 'Blaze', 'jetpack' ) }
+					text={ __( 'Connect to set up campaigns and promote your content.', 'jetpack' ) }
+				/>
+			) }
 		</SettingsCard>
 	);
 }
