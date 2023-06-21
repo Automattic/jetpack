@@ -63,7 +63,7 @@ export default function MediaPicker( {
 							></VideoPreview>
 						) : (
 							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
-								<img src={ sourceUrl } alt="" />
+								<img src={ sourceUrl } alt="" className={ styles[ 'preview-image' ] } />
 							</ResponsiveWrapper>
 						) }
 					</button>

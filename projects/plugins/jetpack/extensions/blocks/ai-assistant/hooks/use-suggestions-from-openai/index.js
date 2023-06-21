@@ -2,62 +2,20 @@
  * External dependencies
  */
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { serialize } from '@wordpress/blocks';
-import { useSelect, select as selectData, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
-import { buildPrompt } from '../../lib/prompt';
+import { buildPromptForBlock } from '../../lib/prompt';
 import { askJetpack, askQuestion } from '../../lib/suggestions';
+import { getContentFromBlocks, getPartialContentToBlock } from '../../lib/utils/block-content';
 
-const debug = debugFactory( 'jetpack-ai-assistant' );
-
-const turndownService = new TurndownService();
-
-/**
- * Returns partial content from the beginning of the post
- * to the current block (clientId)
- *
- * @param {string} clientId - The current block clientId.
- * @returns {string}          The partial content.
- */
-export function getPartialContentToBlock( clientId ) {
-	if ( ! clientId ) {
-		return '';
-	}
-
-	const editor = selectData( 'core/block-editor' );
-	const index = editor.getBlockIndex( clientId );
-	const blocks = editor.getBlocks().slice( 0, index ) ?? [];
-
-	if ( ! blocks?.length ) {
-		return '';
-	}
-
-	return turndownService.turndown( serialize( blocks ) );
-}
-
-/**
- * Returns content from all blocks,
- * by inspecting the blocks `content` attributes
- *
- * @returns {string} The content.
- */
-export function getContentFromBlocks() {
-	const editor = selectData( 'core/block-editor' );
-	const blocks = editor.getBlocks();
-
-	if ( ! blocks?.length ) {
-		return '';
-	}
-
-	return turndownService.turndown( serialize( blocks ) );
-}
+const debug = debugFactory( 'jetpack-ai-assistant:event' );
+const debugPrompt = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 const useSuggestionsFromOpenAI = ( {
 	attributes,
@@ -133,7 +91,18 @@ const useSuggestionsFromOpenAI = ( {
 
 	useEffect( () => {
 		setIsLoadingCategories( loading );
-	}, [ loading ] );
+
+		/*
+		 * Returning a cleanup function that will stop
+		 * the suggestion if it's still rolling.
+		 */
+		return () => {
+			if ( source?.current ) {
+				debug( 'Cleaning things up...' );
+				source?.current?.close();
+			}
+		};
+	}, [ loading, source ] );
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	// eslint-disable-next-line no-unused-vars
@@ -160,37 +129,59 @@ const useSuggestionsFromOpenAI = ( {
 
 		let prompt = lastPrompt;
 
+		tracks.recordEvent( 'jetpack_ai_chat_completion', {
+			post_id: postId,
+		} );
+
+		// Create a copy of the messages.
+		const updatedMessaages = [ ...attributes.messages ] ?? [];
+
+		let lastUserPrompt = {};
+
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
-			prompt = buildPrompt( {
+			prompt = buildPromptForBlock( {
 				generatedContent: content,
 				allPostContent: getContentFromBlocks(),
 				postContentAbove: getPartialContentToBlock( clientId ),
 				currentPostTitle,
 				options,
-				prompt,
 				userPrompt,
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
 			} );
-		}
 
-		tracks.recordEvent( 'jetpack_ai_chat_completion', {
-			post_id: postId,
-		} );
+			/*
+			 * Pop the last item from the messages array,
+			 * which is the fresh `user` request by convention.
+			 */
+			lastUserPrompt = prompt.pop();
 
-		if ( ! options.retryRequest ) {
+			// Populate prompt with the messages.
+			prompt = [ ...prompt, ...updatedMessaages ];
+
+			// Restore the last user prompt.
+			prompt.push( lastUserPrompt );
+
+			// Store the last prompt to be used when retrying.
 			setLastPrompt( prompt );
 
 			// If it is a title generation, keep the prompt type in subsequent changes.
 			if ( attributes.promptType !== 'generateTitle' ) {
 				updateBlockAttributes( clientId, { promptType: type } );
 			}
+		} else {
+			lastUserPrompt = prompt[ prompt.length - 1 ];
 		}
 
 		try {
 			setIsLoadingCompletion( true );
 			setWasCompletionJustRequested( true );
+			// debug all prompt items, one by one
+			prompt.forEach( ( { role, content: promptContent }, i ) =>
+				debugPrompt( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
+			);
+
 			source.current = await askQuestion( prompt, { postId, requireUpgrade } );
 		} catch ( err ) {
 			if ( err.message ) {
@@ -211,8 +202,32 @@ const useSuggestionsFromOpenAI = ( {
 		}
 
 		source?.current?.addEventListener( 'done', e => {
+			const { detail: assistantResponse } = e;
+
+			// Populate the messages with the assistant response.
+			const lastAssistantPrompt = {
+				role: 'assistant',
+				content: assistantResponse,
+			};
+			updatedMessaages.push( lastUserPrompt, lastAssistantPrompt );
+
+			debugPrompt( 'Add %o\n%s', `[${ lastUserPrompt.role }]`, lastUserPrompt.content );
+			debugPrompt( 'Add %o\n%s', `[${ lastAssistantPrompt.role }]`, lastAssistantPrompt.content );
+
+			/*
+			 * Limit the messages to 20 items.
+			 * @todo: limit the prompt based on tokens.
+			 */
+			if ( updatedMessaages.length > 20 ) {
+				updatedMessaages.splice( 0, updatedMessaages.length - 20 );
+			}
+
 			stopSuggestion();
-			updateBlockAttributes( clientId, { content: e.detail } );
+
+			updateBlockAttributes( clientId, {
+				content: assistantResponse,
+				messages: updatedMessaages,
+			} );
 			refreshFeatureData();
 		} );
 
@@ -228,7 +243,38 @@ const useSuggestionsFromOpenAI = ( {
 			onUnclearPrompt?.();
 		} );
 
-		source?.current?.addEventListener( 'error_network', () => {
+		source?.current?.addEventListener( 'error_network', ( { detail: error } ) => {
+			const { name: errorName, message: errorMessage } = error;
+			if ( errorName === 'TypeError' && errorMessage === 'Failed to fetch' ) {
+				/*
+				 * This is a network error.
+				 * Probably: "414 Request-URI Too Large".
+				 * Let's clean up the messages array and try again.
+				 * @todo: improve the process based on tokens / URL length.
+				 */
+				updatedMessaages.splice( 0, 8 );
+				updateBlockAttributes( clientId, {
+					messages: updatedMessaages,
+				} );
+
+				/*
+				 * Update the last prompt with the new messages.
+				 * @todo: Iterate over Prompt libraru to address properly the messages.
+				 */
+				prompt = buildPromptForBlock( {
+					generatedContent: content,
+					allPostContent: getContentFromBlocks(),
+					postContentAbove: getPartialContentToBlock( clientId ),
+					currentPostTitle,
+					options,
+					userPrompt,
+					type,
+					isGeneratingTitle: attributes.promptType === 'generateTitle',
+				} );
+
+				setLastPrompt( [ ...prompt, ...updatedMessaages, lastUserPrompt ] );
+			}
+
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -285,7 +331,7 @@ const useSuggestionsFromOpenAI = ( {
 
 		source?.current?.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
-			debug( 'fullMessage', e.detail );
+			debug( '(suggestion)', e.detail );
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
 		return source?.current;
@@ -311,7 +357,7 @@ const useSuggestionsFromOpenAI = ( {
 		showRetry,
 		postTitle: currentPostTitle,
 		contentBefore: getPartialContentToBlock( clientId ),
-		wholeContent: getContentFromBlocks( clientId ),
+		wholeContent: getContentFromBlocks(),
 
 		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
 		stopSuggestion,

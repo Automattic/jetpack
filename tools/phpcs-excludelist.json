@@ -298,7 +298,6 @@
 	"projects/plugins/jetpack/tests/php/sync/test_interface.jetpack-sync-replicastore.php",
 	"projects/plugins/super-cache/advanced-cache.php",
 	"projects/plugins/super-cache/inc/delete-cache-button.php",
-	"projects/plugins/super-cache/inc/preload-notification.php",
 	"projects/plugins/super-cache/ossdl-cdn.php",
 	"projects/plugins/super-cache/partials/advanced.php",
 	"projects/plugins/super-cache/partials/debug.php",

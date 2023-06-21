@@ -137,9 +137,6 @@ function jpcrm_formlist_learn_menu( $learn_menu ) {
 		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_form', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new form', 'zero-bs-crm' ) . '</a>';
 	}
 
-	// ? Yup ?
-	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:11")) {hopscotch.startTour(window.zbsTour);}';
-
 	return $learn_menu;
 }
 
@@ -220,9 +217,6 @@ function jpcrm_quotelist_learn_menu( $learn_menu ) {
 	if ( zeroBSCRM_permsCustomers() ) {
 		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_quote', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new quote', 'zero-bs-crm' ) . '</a>';
 	}
-
-	// ? Yup ?
-	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:11")) {hopscotch.startTour(window.zbsTour);}';
 
 	return $learn_menu;
 }
@@ -456,7 +450,7 @@ function jpcrm_settings_learn_menu( $learn_menu ) {
 		$learn_menu['right_buttons'] = ' <a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '" class="jpcrm-button white-bg font-14px" id="manage-features">' . __( 'Manage modules', 'zero-bs-crm' ) . '</a>';
 	}
 
-	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:10:5")) { hopscotch.startTour(window.zbsTour);}';
+	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:10:5")) { hopscotch.startTour(window.zbsTour);}';
 	return $learn_menu;
 }
 
@@ -519,6 +513,18 @@ function jpcrm_delete_learn_menu() {
  */
 function jpcrm_notifications_learn_menu( $learn_menu ) {
 	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && hopscotch.getState() === "zbs-welcome-tour:4") { hopscotch.startTour(window.zbsTour);}';
+	return $learn_menu;
+}
+
+/**
+ * Extend extensions learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_extensions_learn_menu( $learn_menu ) {
+	$learn_menu['extra_js'] = 'if (hopscotch && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:9:5")) { hopscotch.startTour(window.zbsTour);}';
 	return $learn_menu;
 }
 
