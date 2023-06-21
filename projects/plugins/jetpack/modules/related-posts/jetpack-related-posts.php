@@ -1546,7 +1546,7 @@ EOT;
 					// Forcefully cast to int, in case we ever add decimal multipliers.
 					$srcset_width  = (int) ( $thumbnail_width * $multiplier );
 					$srcset_height = (int) ( $thumbnail_height * $multiplier );
-					if ( empty( $src_width ) || $srcset_width > $src_width ) {
+					if ( empty( $src_width ) || $srcset_width < 1 || $srcset_width > $src_width ) {
 						break;
 					}
 
