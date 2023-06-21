@@ -38,8 +38,6 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
-		const content = getBlockTextContent( clientId );
-
 		/**
 		 * Set the content of the block.
 		 *
@@ -99,6 +97,8 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
+				const content = getBlockTextContent( clientId );
+
 				setStoredPrompt( prevPrompt => {
 					const freshPrompt = {
 						...prevPrompt,
@@ -116,7 +116,7 @@ export const withAIAssistant = createHigherOrderComponent(
 					return freshPrompt;
 				} );
 			},
-			[ content, request ]
+			[ clientId, request ]
 		);
 
 		return (
