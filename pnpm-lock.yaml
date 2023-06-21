@@ -207,6 +207,9 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
+      '@babel/runtime':
+        specifier: ^7
+        version: 7.21.5
       '@wordpress/browserslist-config':
         specifier: 5.18.0
         version: 5.18.0
@@ -239,7 +242,7 @@ importers:
         version: 3.1.0(react@18.2.0)
       react-slider:
         specifier: 2.0.5
-        version: 2.0.5(react@18.2.0)
+        version: 2.0.5(@babel/runtime@7.21.5)(react@18.2.0)
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
@@ -20768,11 +20771,13 @@ packages:
       react-is: 18.2.0
     dev: true
 
-  /react-slider@2.0.5(react@18.2.0):
+  /react-slider@2.0.5(@babel/runtime@7.21.5)(react@18.2.0):
     resolution: {integrity: sha512-MU5gaK1yYCKnbDDN3CMiVcgkKZwMvdqK2xUEW7fFU37NAzRgS1FZbF9N7vP08E3XXNVhiuZnwVzUa3PYQAZIMg==}
     peerDependencies:
+      '@babel/runtime': ^7
       react: ^16 || ^17 || ^18
     dependencies:
+      '@babel/runtime': 7.21.5
       prop-types: 15.8.1
       react: 18.2.0
     dev: false
