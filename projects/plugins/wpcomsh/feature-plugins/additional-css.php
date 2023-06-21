@@ -34,6 +34,13 @@ add_action( 'jetpack_loaded', 'wpcomsh_maybe_disable_custom_css' );
  * Handle our admin menu item and legacy page declaration.
  */
 function wpcomsh_custom_css_admin_menu() {
+	if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+		$styles = wp_get_custom_css();
+		if ( ! $styles ) {
+			return;
+		}
+	}
+
 	// Add in our legacy page to support old bookmarks and such.
 	add_submenu_page( null, __( 'CSS', 'wpcomsh' ), __( 'Additional CSS', 'wpcomsh' ), 'edit_theme_options', 'editcss', '__return_false' );
 
