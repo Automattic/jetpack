@@ -38,9 +38,8 @@ module.exports = {
 	platform: 'github',
 	repositories: [ 'Automattic/jetpack' ],
 
-	// We're including configuration in this file.
-	onboarding: false,
-	requireConfig: 'optional',
+	// HACK
+	baseBranches: [ 'renovate/renovatebot-github-action-38.x' ],
 
 	// Extra code to run before creating a commit.
 	allowPostUpgradeCommandTemplating: true,
