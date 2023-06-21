@@ -1,12 +1,18 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
+import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import analytics from 'lib/analytics';
 import React from 'react';
 import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
+
+const trackDashboardClick = () => {
+	analytics.tracks.recordJetpackClick( 'view-blaze-dashboard' );
+};
 
 /**
  * Blaze settings component.
@@ -21,6 +27,18 @@ function Blaze( props ) {
 		isSavingAnyOption,
 		toggleModuleNow,
 	} = props;
+
+	const blazeCard = () => {
+		return (
+			<Card
+				className="blaze-card"
+				href="tools.php?page=advertising"
+				onClick={ trackDashboardClick }
+			>
+				{ __( 'Manage your campaigns and view your earnings in the Blaze dashboard', 'jetpack' ) }
+			</Card>
+		);
+	};
 
 	return (
 		<SettingsCard
@@ -45,6 +63,7 @@ function Blaze( props ) {
 					{ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
 				</ModuleToggle>
 			</SettingsGroup>
+			{ blazeActive && blazeCard() }
 		</SettingsCard>
 	);
 }
