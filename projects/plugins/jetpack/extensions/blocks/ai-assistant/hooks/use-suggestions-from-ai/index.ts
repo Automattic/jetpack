@@ -13,6 +13,10 @@ import type { PromptItemProps } from '../../lib/prompt';
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
+type SourceCallback = ( event: CustomEvent ) => void;
+
+type ExtraArgs = object | undefined;
+
 type UseSuggestionsFromAIOptions = {
 	/*
 	 * Request prompt.
@@ -27,12 +31,12 @@ type UseSuggestionsFromAIOptions = {
 	/*
 	 * onSuggestion callback.
 	 */
-	onSuggestion?: ( suggestion: string ) => void;
+	onSuggestion?: ( suggestion: string, extraArgs?: ExtraArgs ) => void;
 
 	/*
 	 * onDone callback.
 	 */
-	onDone?: ( content: string ) => void;
+	onDone?: ( content: string, extraArgs?: ExtraArgs ) => void;
 };
 
 type useSuggestionsFromAIProps = {
@@ -54,7 +58,7 @@ type useSuggestionsFromAIProps = {
 	/*
 	 * The request handler.
 	 */
-	request: ( prompt: Array< PromptItemProps > ) => Promise< void >;
+	request: ( prompt: Array< PromptItemProps >, extraArgs?: ExtraArgs ) => Promise< void >;
 };
 
 /**
@@ -81,24 +85,9 @@ export default function useSuggestionsFromAI( {
 	// Store the event source in a ref, so we can handle it if needed.
 	const source = useRef< SuggestionsEventSource | undefined >( undefined );
 
-	/**
-	 * onSuggestion function handler.
-	 *
-	 * @param {string} suggestion - The suggestion.
-	 * @returns {void}
-	 */
-	const handleSuggestion = useCallback(
-		( event: CustomEvent ) => onSuggestion( event?.detail ),
-		[ onSuggestion ]
-	);
-
-	/**
-	 * onDone function handler.
-	 *
-	 * @param {string} content - The content.
-	 * @returns {void}
-	 */
-	const handleDone = useCallback( ( event: CustomEvent ) => onDone( event?.detail ), [ onDone ] );
+	// Store callback fn
+	const handleSuggestion = useRef< SourceCallback | undefined >( undefined );
+	const handleDone = useRef< SourceCallback | undefined >( undefined );
 
 	/**
 	 * Request handler.
@@ -106,7 +95,7 @@ export default function useSuggestionsFromAI( {
 	 * @returns {Promise<void>} The promise.
 	 */
 	const request = useCallback(
-		async ( promptArg: Array< PromptItemProps > ) => {
+		async ( promptArg: Array< PromptItemProps >, extraArgs?: ExtraArgs ) => {
 			promptArg.forEach( ( { role, content: promptContent }, i ) =>
 				debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
 			);
@@ -119,11 +108,15 @@ export default function useSuggestionsFromAI( {
 				} );
 
 				if ( onSuggestion ) {
-					source?.current?.addEventListener( 'suggestion', handleSuggestion );
+					handleSuggestion.current = ( event: CustomEvent ) =>
+						onSuggestion( event?.detail, extraArgs );
+
+					source?.current?.addEventListener( 'suggestion', handleSuggestion.current );
 				}
 
 				if ( onDone ) {
-					source?.current?.addEventListener( 'done', handleDone );
+					handleDone.current = ( event: CustomEvent ) => onDone( event?.detail, extraArgs );
+					source?.current?.addEventListener( 'done', handleDone.current );
 				}
 			} catch ( e ) {
 				// eslint-disable-next-line no-console
@@ -159,8 +152,8 @@ export default function useSuggestionsFromAI( {
 			source.current.close();
 
 			// Clean up the event listeners.
-			source?.current?.removeEventListener( 'suggestion', handleSuggestion );
-			source?.current?.removeEventListener( 'done', handleDone );
+			source?.current?.removeEventListener( 'suggestion', handleSuggestion.current );
+			source?.current?.removeEventListener( 'done', handleDone.current );
 		};
 	}, [ autoRequest, handleDone, handleSuggestion, prompt, request ] );
 
