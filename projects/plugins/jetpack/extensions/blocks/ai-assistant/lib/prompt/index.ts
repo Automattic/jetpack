@@ -71,7 +71,7 @@ Strictly follow these rules:
 ${ extraRules }- Format your responses in Markdown syntax, ready to be published.
 - Execute the request without any acknowledgement to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `;
 
 	return { role: 'system', content: prompt };
@@ -111,7 +111,7 @@ function getCorrectSpellingPrompt( {
 	return [
 		{
 			role,
-			content: `Repeat the following text, correcting any spelling and grammar mistakes:\n\n${ content }`,
+			content: `Repeat the following text, correcting any spelling and grammar mistakes, keeping the language of the text:\n\n${ content }`,
 		},
 	];
 }
@@ -123,7 +123,7 @@ function getSimplifyPrompt( {
 	return [
 		{
 			role,
-			content: `Simplify the following text, using words and phrases that are easier to understand. Write the content in the same language as the original content:\n\n${ content }`,
+			content: `Simplify the following text, using words and phrases that are easier to understand and keeping the language of the text:\n\n${ content }`,
 		},
 	];
 }
@@ -135,7 +135,7 @@ function getSummarizePrompt( {
 	return [
 		{
 			role,
-			content: `Summarize the following text. Write the content in the same language as the original content:\n\n${ content }`,
+			content: `Summarize the following text, keeping the language of the text:\n\n${ content }`,
 		},
 	];
 }
@@ -147,7 +147,7 @@ function getExpandPrompt( {
 	return [
 		{
 			role,
-			content: `Expand the following text to about double its size. Write the content in the same language as the original content:\n\n${ content }`,
+			content: `Expand the following text to about double its size, keeping the language of the text:\n\n${ content }`,
 		},
 	];
 }
@@ -160,7 +160,7 @@ function getTranslatePrompt( {
 	return [
 		{
 			role,
-			content: `Translate the following text to ${ language }. Preserve the same core meaning and tone:\n\n${ content }`,
+			content: `Translate the following text to ${ language }, preserving the same core meaning and tone:\n\n${ content }`,
 		},
 	];
 }
@@ -173,7 +173,7 @@ function getTonePrompt( {
 	return [
 		{
 			role,
-			content: `Rewrite the following text with a ${ tone } tone, keeping the language:\n\n${ content }`,
+			content: `Rewrite the following text with a ${ tone } tone, keeping the language of the text:\n\n${ content }`,
 		},
 	];
 }
@@ -413,8 +413,6 @@ export function getPrompt(
 					role: 'system',
 					content: `${ context }
 Writing rules:
-- When it isn't clarified, the content should be written in the same language as the original content.
-- Format your responses in Markdown syntax.
 - Execute the request without any acknowledgement to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
