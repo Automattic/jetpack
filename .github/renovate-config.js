@@ -153,6 +153,19 @@ module.exports = {
 			addLabels: [ 'Search', 'Instant Search' ],
 		},
 	],
+
+	regexManagers: [
+		// Update the renovate-version in the action itself.
+		// See also https://github.com/renovatebot/github-action/issues/756
+		{
+			fileMatch: [ '^\\.github/workflows/renovate\\.yml$' ],
+			matchStrings: [ 'renovate-version: (?<currentValue>[^\\s]+)' ],
+			datasourceTemplate: 'docker',
+			depNameTemplate: 'renovate',
+			packageNameTemplate: 'ghcr.io/renovatebot/renovate',
+		},
+	],
+
 	lockFileMaintenance: {
 		enabled: true,
 		schedule: [ 'before 3:00 am on Monday on the 7th through 13th day of the month' ],
