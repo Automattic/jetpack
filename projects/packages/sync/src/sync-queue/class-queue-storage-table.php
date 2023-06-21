@@ -149,6 +149,8 @@ class Queue_Storage_Table {
 			return false;
 		}
 
+		// Ignoring the linting warning, as there's still no placeholder replacement for DB field name.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query( "DROP TABLE {$this->table_name}" );
 
 		return ! $this->is_dedicated_table_healthy();
@@ -171,6 +173,11 @@ class Queue_Storage_Table {
 
 		$rows_added = $wpdb->query(
 			$wpdb->prepare(
+				/**
+				 * Ignoring the linting warning, as there's still no placeholder replacement for DB field name,
+				 * in this case this is `$this->table_name`
+				 */
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"INSERT INTO {$this->table_name} (queue_id, event_id, event_payload) VALUES (%s, %s,%s)",
 				$this->queue_id,
 				$item_id,
@@ -191,6 +198,12 @@ class Queue_Storage_Table {
 	 */
 	public function fetch_items( $item_count ) {
 		global $wpdb;
+
+		/**
+		 * Ignoring the linting warning, as there's still no placeholder replacement for DB field name,
+		 * in this case this is `$this->table_name`
+		 */
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// TODO make it more simple for the $item_count
 		if ( $item_count ) {
@@ -225,13 +238,15 @@ class Queue_Storage_Table {
 			);
 		}
 
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
 		return $items;
 	}
 
 	/**
 	 * Fetches items with specific IDs from the Queue.
 	 *
-	 * @param array $items_ids
+	 * @param array $items_ids Items IDs to fetch from the queue.
 	 *
 	 * @return array|object|\stdClass[]|null
 	 */
@@ -271,6 +286,11 @@ class Queue_Storage_Table {
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
+				/**
+				 * Ignoring the linting warning, as there's still no placeholder replacement for DB field name,
+				 * in this case this is `$this->table_name`
+				 */
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT count(*) FROM {$this->table_name} WHERE queue_id = %s",
 				$this->queue_id
 			)
@@ -287,6 +307,11 @@ class Queue_Storage_Table {
 
 		return $wpdb->query(
 			$wpdb->prepare(
+				/**
+				 * Ignoring the linting warning, as there's still no placeholder replacement for DB field name,
+				 * in this case this is `$this->table_name`
+				 */
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"DELETE FROM {$this->table_name} WHERE queue_id = %s",
 				$this->queue_id
 			)
@@ -306,6 +331,11 @@ class Queue_Storage_Table {
 		// TODO replace with peek and a flag to fetch only the name.
 		$first_item_name = $wpdb->get_var(
 			$wpdb->prepare(
+				/**
+				 * Ignoring the linting warning, as there's still no placeholder replacement for DB field name,
+				 * in this case this is `$this->table_name`
+				 */
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT event_id FROM {$this->table_name} WHERE queue_id = %s ORDER BY event_id ASC LIMIT 1",
 				$this->queue_id
 			)
@@ -376,6 +406,11 @@ class Queue_Storage_Table {
 		// TODO optimize the fetch to happen by queue name not by the IDs as it can be issue cross-queues.
 		return $wpdb->get_results(
 			$wpdb->prepare(
+				/**
+				 * Ignoring the linting warning, as there's still no placeholder replacement for DB field name,
+				 * in this case this is `$this->table_name`
+				 */
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				"SELECT event_id AS id, LENGTH(event_payload) AS value_size FROM {$this->table_name} WHERE queue_id = %s ORDER BY event_id ASC LIMIT %d",
 				$this->queue_id,
 				$max_count
@@ -395,8 +430,16 @@ class Queue_Storage_Table {
 		global $wpdb;
 		$ids_placeholders = implode( ', ', array_fill( 0, count( $ids ), '%s' ) );
 
-		$sql = "DELETE FROM {$this->table_name} WHERE queue_id = %s AND event_id IN ( $ids_placeholders )";
-
-		return $wpdb->query( $wpdb->prepare( $sql, array_merge( array( $this->queue_id ), $ids ) ) );
+		return $wpdb->query(
+			$wpdb->prepare(
+				/**
+				 * Ignoring the linting warning, as there's still no placeholder replacement for DB field name,
+				 * in this case this is `$this->table_name`
+				 */
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"DELETE FROM {$this->table_name} WHERE queue_id = %s AND event_id IN ( $ids_placeholders )",
+				array_merge( array( $this->queue_id ), $ids )
+			)
+		);
 	}
 }

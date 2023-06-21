@@ -99,7 +99,7 @@ class Queue_Storage_Options {
 	/**
 	 * Fetches items with specific IDs from the Queue.
 	 *
-	 * @param array $items_ids
+	 * @param array $items_ids Items IDs to fetch from the queue.
 	 *
 	 * @return array|object|\stdClass[]|null
 	 */
@@ -136,8 +136,6 @@ class Queue_Storage_Options {
 	public function clear_queue() {
 		global $wpdb;
 
-		// Ignoring the linting warning, as there's still no placeholder replacement for DB field name.
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
@@ -264,8 +262,16 @@ class Queue_Storage_Options {
 		// TODO check if it's working properly - no need to delete all options in the table if the params are not right
 		$ids_placeholders = implode( ', ', array_fill( 0, count( $ids ), '%s' ) );
 
-		$sql = "DELETE FROM {$wpdb->options} WHERE option_name IN ( $ids_placeholders )";
-
-		return $wpdb->query( $wpdb->prepare( $sql, $ids ) );
+		return $wpdb->query(
+			$wpdb->prepare(
+			/**
+			 * Ignoring the linting warning, as there's still no placeholder replacement for DB field name,
+			 * in this case this is `$ids_placeholders`, as we're preparing them above and are a dynamic count.
+			 */
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"DELETE FROM {$wpdb->options} WHERE option_name IN ( $ids_placeholders )",
+				$ids
+			)
+		);
 	}
 }
