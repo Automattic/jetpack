@@ -13,7 +13,7 @@ import React from 'react';
 import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 } from '../../components/ai-assistant-controls';
-import useSuggestionsFromAI from '../../hooks/use-suggestions-from-ai';
+import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import { getPrompt } from '../../lib/prompt';
 import { getTextContentFromBlocks } from '../../lib/utils/block-content';
 /*
@@ -34,6 +34,8 @@ export const withAIAssistant = createHigherOrderComponent(
 		const [ storedPrompt, setStoredPrompt ] = useState< StoredPromptProps >( {
 			messages: [],
 		} );
+
+		const [ suggestionError, setSuggestionError ] = useState< SuggestionError >( null );
 
 		const clientIdsRef = useRef< Array< string > >();
 
@@ -106,6 +108,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
 			onDone: addAssistantMessage,
+			onError: setSuggestionError,
 			autoRequest: false,
 		} );
 
@@ -142,6 +145,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		return (
 			<>
+				{ suggestionError && suggestionError.message }
 				<BlockEdit { ...props } />
 
 				<BlockControls group="block">
