@@ -4,11 +4,14 @@
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
+import debugFactory from 'debug';
 /**
  * Types
  */
 import { SuggestionsEventSource, askQuestion } from '../../lib/suggestions';
 import type { PromptItemProps } from '../../lib/prompt';
+
+const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 type UseSuggestionsFromAIOptions = {
 	/*
@@ -51,7 +54,7 @@ type useSuggestionsFromAIProps = {
 	/*
 	 * The request handler.
 	 */
-	request: () => Promise< void >;
+	request: ( prompt: Array< PromptItemProps > ) => Promise< void >;
 };
 
 /**
@@ -102,26 +105,33 @@ export default function useSuggestionsFromAI( {
 	 *
 	 * @returns {Promise<void>} The promise.
 	 */
-	const request = useCallback( async () => {
-		try {
-			source.current = await askQuestion( prompt, {
-				postId,
-				requireUpgrade: false, // It shouldn't be part of the askQuestion API.
-				fromCache: false,
-			} );
+	const request = useCallback(
+		async ( promptArg: Array< PromptItemProps > ) => {
+			promptArg.forEach( ( { role, content: promptContent }, i ) =>
+				debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
+			);
 
-			if ( onSuggestion ) {
-				source?.current?.addEventListener( 'suggestion', handleSuggestion );
-			}
+			try {
+				source.current = await askQuestion( promptArg, {
+					postId,
+					requireUpgrade: false, // It shouldn't be part of the askQuestion API.
+					fromCache: false,
+				} );
 
-			if ( onDone ) {
-				source?.current?.addEventListener( 'done', handleDone );
+				if ( onSuggestion ) {
+					source?.current?.addEventListener( 'suggestion', handleSuggestion );
+				}
+
+				if ( onDone ) {
+					source?.current?.addEventListener( 'done', handleDone );
+				}
+			} catch ( e ) {
+				// eslint-disable-next-line no-console
+				console.error( e );
 			}
-		} catch ( e ) {
-			// eslint-disable-next-line no-console
-			console.error( e );
-		}
-	}, [ prompt, postId, onSuggestion, onDone, handleSuggestion, handleDone ] );
+		},
+		[ postId, onSuggestion, onDone, handleSuggestion, handleDone ]
+	);
 
 	// Request suggestions automatically when ready.
 	useEffect( () => {
@@ -131,7 +141,9 @@ export default function useSuggestionsFromAI( {
 		}
 
 		// Trigger the request.
-		request();
+		if ( autoRequest ) {
+			request( prompt );
+		}
 
 		// Close the connection when unmounting.
 		return () => {
