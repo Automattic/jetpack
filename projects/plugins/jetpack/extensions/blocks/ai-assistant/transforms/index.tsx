@@ -37,7 +37,7 @@ for ( const blockType of EXTENDED_BLOCKS ) {
 			const messages: Array< PromptItemProps > = [
 				{
 					role: 'user',
-					content: 'Tell me with some content for this block, please.',
+					content: 'Tell me some content for this block, please.',
 				},
 				{
 					role: 'assistant',
