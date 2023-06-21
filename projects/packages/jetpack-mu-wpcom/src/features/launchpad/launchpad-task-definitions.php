@@ -230,6 +230,31 @@ function wpcom_launchpad_get_task_definitions() {
 }
 
 /**
+ * Record completion event in Tracks if we're running on WP.com.
+ *
+ * @param string $task_id The task ID.
+ * @param array  $extra_props Optional extra arguments to pass to the Tracks event.
+ *
+ * @return void
+ */
+function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() ) {
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return;
+	}
+
+	require_lib( 'tracks/client' );
+
+	tracks_record_event(
+		wp_get_current_user(),
+		'wpcom_launchpad_mark_task_complete',
+		array_merge(
+			array( 'task_id' => $task_id ),
+			$extra_props
+		)
+	);
+}
+
+/**
  * Mark a task as complete.
  *
  * @param string $task_id The task ID.
@@ -253,16 +278,8 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
 	$statuses[ $key ] = true;
 	$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
 
-	// Record the completion event in Tracks if we're running on WP.com.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		require_lib( 'tracks/client' );
-
-		tracks_record_event(
-			wp_get_current_user(),
-			'launchpad_mark_task_completed',
-			array( 'task_id' => $key )
-		);
-	}
+	// Record the completion event in Tracks.
+	wpcom_launchpad_track_completed_task( $key );
 
 	return $result;
 }
@@ -330,7 +347,12 @@ add_action( 'init', 'wpcom_launchpad_init_task_definitions', 11 );
  * @return bool True if successful, false if not.
  */
 function wpcom_mark_launchpad_task_complete_if_active( $task_id ) {
-	return wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id );
+	if ( wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id ) ) {
+		wpcom_launchpad_track_completed_task( $task_id );
+		return true;
+	}
+
+	return false;
 }
 
 /**
@@ -633,3 +655,28 @@ function wpcom_is_domain_claim_completed() {
 
 	return ! empty( $domain_purchases );
 }
+
+/**
+ * Mark `domain_claim`, `domain_upsell`, and `domain_upsell_deferred` tasks complete
+ * when a domain product is activated.
+ *
+ * @param int    $blog_id The blog ID.
+ * @param int    $user_id The user ID.
+ * @param string $product_id The product ID.
+ *
+ * @return void
+ */
+function wpcom_mark_domain_tasks_complete( $blog_id, $user_id, $product_id ) {
+	if ( ! class_exists( 'domains' ) ) {
+		return;
+	}
+
+	if ( ! domains::is_domain_product( $product_id ) ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'domain_claim' );
+	wpcom_mark_launchpad_task_complete( 'domain_upsell' );
+	wpcom_mark_launchpad_task_complete( 'domain_upsell_deferred' );
+}
+add_action( 'activate_product', 'wpcom_mark_domain_tasks_complete', 10, 6 );
