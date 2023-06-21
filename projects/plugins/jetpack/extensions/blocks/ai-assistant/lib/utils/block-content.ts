@@ -10,6 +10,8 @@ import TurndownService from 'turndown';
 // Turndown instance
 const turndownService = new TurndownService();
 
+const HTML_JOIN_CHARACTERS = '<br />';
+
 /**
  * Returns partial content from the beginning of the post
  * to the current block, based on the given block clientId.
@@ -48,6 +50,26 @@ export function getContentFromBlocks(): string {
 	}
 
 	return turndownService.turndown( serialize( blocks ) );
+}
+
+/**
+ * Returns the text content from all selected blocks.
+ *
+ * @returns {string} The text content.
+ */
+export function getTextContentFromBlocks(): string {
+	const clientIds = select( blockEditorStore ).getSelectedBlockClientIds();
+
+	if ( ! clientIds?.length ) {
+		return '';
+	}
+
+	const blocks = select( blockEditorStore ).getBlocksByClientId( clientIds );
+	if ( ! blocks?.length ) {
+		return '';
+	}
+
+	return blocks.map( block => getBlockTextContent( block.clientId ) ).join( HTML_JOIN_CHARACTERS );
 }
 
 /**
