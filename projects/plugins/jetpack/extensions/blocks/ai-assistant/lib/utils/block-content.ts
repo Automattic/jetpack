@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import TurndownService from 'turndown';
@@ -46,4 +48,34 @@ export function getContentFromBlocks(): string {
 	}
 
 	return turndownService.turndown( serialize( blocks ) );
+}
+
+/**
+ * Return the block content from the given block clientId.
+ *
+ * It picks the content from the block `content` attribute,
+ * which is not ideal because it doesn't scale well for all blocks.
+ * ToDo: Find a better way to get the block content.
+ *
+ * @param {string} clientId   - The block clientId.
+ * @returns {string}            The block content.
+ */
+export function getBlockTextContent( clientId: string ): string {
+	if ( ! clientId ) {
+		return '';
+	}
+
+	const editor = select( blockEditorStore );
+	const block = editor.getBlock( clientId );
+	/*
+	 * In some context, the block can be undefined,
+	 * for instance, when previewing the block.
+	 */
+	if ( ! block ) {
+		return '';
+	}
+
+	const htmlContent = getBlockContent( block );
+
+	return htmlContent;
 }
