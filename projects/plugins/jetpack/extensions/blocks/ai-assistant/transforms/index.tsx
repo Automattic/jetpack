@@ -33,7 +33,7 @@ for ( const blockType of EXTENDED_BLOCKS ) {
 			// Convert the content to markdown.
 			content = turndownService.turndown( htmlContent );
 
-			// Create anr user/assistant message.
+			// Create a pair of user/assistant messages.
 			const messages: Array< PromptItemProps > = [
 				{
 					role: 'user',
