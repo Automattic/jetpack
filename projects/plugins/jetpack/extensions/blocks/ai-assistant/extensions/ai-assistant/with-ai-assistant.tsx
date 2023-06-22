@@ -118,7 +118,8 @@ export const withAIAssistant = createHigherOrderComponent(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
 				const blocks = getTextContentFromBlocks();
 				const firstBlock = blocks[ 0 ];
-				const otherBlocks = blocks.slice( 1 );
+				const otherBlocks = blocks.slice( 1, blocks.length - 1 );
+				const lastBlock = blocks[ blocks.length - 1 ];
 				const mixedContent = join( blocks.map( block => block.content ) );
 
 				const handleSetStoredPrompt = ( blocksList: Array< SetContentOptionsProps > ) =>
@@ -128,7 +129,7 @@ export const withAIAssistant = createHigherOrderComponent(
 								getPrompt( promptType, {
 									...options,
 									content: toHTMLString( { value: slice( content, offset.start, offset.end ) } ),
-									prevMessages: prevPrompt.messages,
+									prevMessages: [ ...prevPrompt.messages, ...acc ],
 								} )
 							);
 
@@ -139,7 +140,9 @@ export const withAIAssistant = createHigherOrderComponent(
 						request( allMessages, { blocks: blocksList } );
 
 						// Update the stored prompt locally.
-						return prevPrompt;
+						// Getting only the last since it will contain the previous ones.
+						const lastMessage = allMessages?.[ allMessages?.length - 1 ] || [];
+						return { ...prevPrompt, messages: lastMessage };
 					} );
 
 				const generateDataForMixedContent = () => ( {
@@ -147,9 +150,28 @@ export const withAIAssistant = createHigherOrderComponent(
 					content: mixedContent,
 					offset: {
 						start: 0,
-						end: toHTMLString( { value: mixedContent } ).length,
+						end: mixedContent.text.length,
 					},
 				} );
+
+				const removeUnusedBlocks = () => {
+					removeBlocks( otherBlocks.map( block => block.clientId ) );
+
+					// Remove entire last block or partial if it was partial selected.
+					if ( lastBlock.offset.end === lastBlock.content.text.length ) {
+						removeBlocks( lastBlock.clientId );
+					} else {
+						updateBlockAttributes( lastBlock.clientId, {
+							content: toHTMLString( {
+								value: slice(
+									lastBlock.content,
+									lastBlock.offset.end,
+									lastBlock.content.text.length
+								),
+							} ),
+						} );
+					}
+				};
 
 				switch ( promptType ) {
 					case PROMPT_TYPE_CORRECT_SPELLING:
@@ -159,11 +181,11 @@ export const withAIAssistant = createHigherOrderComponent(
 						break;
 					default:
 						handleSetStoredPrompt( [ generateDataForMixedContent() ] );
-						removeBlocks( otherBlocks.map( block => block.clientId ) );
+						removeUnusedBlocks();
 						break;
 				}
 			},
-			[ removeBlocks, request ]
+			[ removeBlocks, request, updateBlockAttributes ]
 		);
 
 		return (
