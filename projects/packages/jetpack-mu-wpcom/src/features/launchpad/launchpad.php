@@ -138,7 +138,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_upsell',
 				'drive_traffic',
 			),
-			'is_enabled_callback'    => 'wpcom_is_launchpad_keep_building_enabled',
+			'is_enabled_callback'    => 'wpcom_launchpad_is_keep_building_enabled',
 			'visible_tasks_callback' => 'wpcom_launchpad_keep_building_visible_tasks',
 		),
 	);
@@ -557,6 +557,18 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
 }
 
 /**
+ * Checks if the Keep building task list is enabled.
+ *
+ * This function uses the `is_launchpad_keep_building_enabled` filter to allow for overriding the
+ * default value.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_keep_building_enabled() {
+	return apply_filters( 'is_launchpad_keep_building_enabled', false );
+}
+
+/**
  * Filter task visibility for the Keep building task list.
  *
  * @param array $task_list The task array.
@@ -596,7 +608,7 @@ if ( ! function_exists( 'wpcom_is_launchpad_keep_building_enabled' ) ) {
 	 *
 	 * @return bool Whether the "Keep building" task list is enabled.
 	 */
-	function wpcom_is_launchpad_keep_building_enabled() {
+	function wpcom_is_launchpad_keep_building_enabled( $is_enabled ) {
 		$intent = get_option( 'site_intent', false );
 
 		if ( 'build' !== $intent ) {
