@@ -16,6 +16,10 @@ import VideopressCard from './videopress-card';
  *
  * @returns {object} ProductCardsSection React component.
  */
+
+// flag for enabling stats card. Logic is in 02-stats.php mu-plugin
+const { jetpackStats = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
+
 const ProductCardsSection = () => {
 	return (
 		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
@@ -37,9 +41,11 @@ const ProductCardsSection = () => {
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<VideopressCard admin={ true } />
 			</Col>
-			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<StatsCard admin={ true } />
-			</Col>
+			{ jetpackStats && (
+				<Col sm={ 4 } md={ 4 } lg={ 4 }>
+					<StatsCard admin={ true } />
+				</Col>
+			) }
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<CrmCard admin={ true } />
 			</Col>
