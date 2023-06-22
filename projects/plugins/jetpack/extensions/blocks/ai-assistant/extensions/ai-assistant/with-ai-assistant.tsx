@@ -72,21 +72,11 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ removeBlocks, updateBlockAttributes ]
 		);
 
-		const addAssistantMessage = useCallback(
+		const updateStoredPrompt = useCallback(
 			( assistantContent: string ) => {
 				setStoredPrompt( prevPrompt => {
-					/*
-					 * Add the assistant messages to the prompt.
-					 * - Preserve the first item of the array (`system` role )
-					 * - Keep the last 4 messages.
-					 */
-
-					// Pick the first item of the array.
-					const firstItem = prevPrompt.messages.shift();
-
 					const messages: Array< PromptItemProps > = [
-						firstItem, // first item (`system` by default)
-						...prevPrompt.messages.splice( -3 ), // last 3 items
+						...prevPrompt.messages.splice( -3 ), // Preserv only the last 3 items
 						{
 							role: 'assistant',
 							content: assistantContent, // + 1 `assistant` role item
@@ -105,7 +95,7 @@ export const withAIAssistant = createHigherOrderComponent(
 		const { request } = useSuggestionsFromAI( {
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
-			onDone: addAssistantMessage,
+			onDone: updateStoredPrompt,
 			autoRequest: false,
 		} );
 
