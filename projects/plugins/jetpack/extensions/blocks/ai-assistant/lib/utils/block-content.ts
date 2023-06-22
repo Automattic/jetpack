@@ -5,12 +5,11 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
+import { RichTextValue, create } from '@wordpress/rich-text';
 import TurndownService from 'turndown';
 
 // Turndown instance
 const turndownService = new TurndownService();
-
-const HTML_JOIN_CHARACTERS = '<br />';
 
 /**
  * Returns partial content from the beginning of the post
@@ -53,9 +52,12 @@ export function getContentFromBlocks(): string {
 }
 
 type GetTextContentFromBlocksProps = {
-	count: number;
-	clientIds: string[];
-	content: string;
+	clientId: string;
+	content: RichTextValue;
+	offset: {
+		start: number;
+		end: number;
+	};
 };
 
 /**
@@ -63,30 +65,41 @@ type GetTextContentFromBlocksProps = {
  *
  * @returns {GetTextContentFromBlocksProps} The text content.
  */
-export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
+export function getTextContentFromBlocks(): GetTextContentFromBlocksProps[] {
+	const start = select( blockEditorStore ).getSelectionStart();
+	const end = select( blockEditorStore ).getSelectionEnd();
 	const clientIds = select( blockEditorStore ).getSelectedBlockClientIds();
-	const defaultContent = {
-		count: 0,
-		clientIds: [],
-		content: '',
-	};
+	const defaultContent = [];
 
 	if ( ! clientIds?.length ) {
 		return defaultContent;
 	}
 
 	const blocks = select( blockEditorStore ).getBlocksByClientId( clientIds );
+
 	if ( ! blocks?.length ) {
 		return defaultContent;
 	}
 
-	return {
-		count: blocks.length,
-		clientIds,
-		content: blocks
-			.map( block => getBlockTextContent( block.clientId ) )
-			.join( HTML_JOIN_CHARACTERS ),
-	};
+	return blocks.map( block => {
+		const content = getBlockTextContent( block.clientId );
+
+		// If they are the same, it means that there is no selection, but just the caret position.
+		const hasSelection = start.offset !== end.offset;
+		const useStart = hasSelection && start.clientId === block.clientId;
+		const useEnd = hasSelection && end.clientId === block.clientId;
+
+		const offset = {
+			start: useStart ? start.offset : 0,
+			end: useEnd ? end.offset : content.length,
+		};
+
+		return {
+			clientId: block.clientId,
+			content: create( { html: content } ),
+			offset,
+		};
+	} );
 }
 
 /**
