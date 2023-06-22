@@ -6,6 +6,7 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState, useRef } from '@wordpress/element';
+import { store as noticesStore } from '@wordpress/notices';
 import React from 'react';
 /**
  * Internal dependencies
@@ -13,7 +14,6 @@ import React from 'react';
 import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 } from '../../components/ai-assistant-controls';
-import ErrorNotice from '../../components/error-notice';
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import { getPrompt } from '../../lib/prompt';
 import { getTextContentFromBlocks } from '../../lib/utils/block-content';
@@ -36,14 +36,19 @@ export const withAIAssistant = createHigherOrderComponent(
 			messages: [],
 		} );
 
-		const [ suggestionError, setSuggestionError ] = useState< SuggestionError >( null );
-		const clearSuggestionError = useCallback( () => {
-			setSuggestionError( null );
-		}, [ setSuggestionError ] );
-
 		const clientIdsRef = useRef< Array< string > >();
 
 		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
+		const { createNotice } = useDispatch( noticesStore );
+
+		const showSuggestionError = useCallback(
+			( suggestionError: SuggestionError ) => {
+				createNotice( suggestionError.status, suggestionError.message, {
+					isDismissible: true,
+				} );
+			},
+			[ createNotice ]
+		);
 
 		/**
 		 * Set the content of the block.
@@ -112,7 +117,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
 			onDone: addAssistantMessage,
-			onError: setSuggestionError,
+			onError: showSuggestionError,
 			autoRequest: false,
 		} );
 
@@ -149,13 +154,6 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		return (
 			<>
-				{ suggestionError && (
-					<ErrorNotice
-						message={ suggestionError.message }
-						onRemove={ clearSuggestionError }
-					></ErrorNotice>
-				) }
-
 				<BlockEdit { ...props } />
 
 				<BlockControls group="block">
