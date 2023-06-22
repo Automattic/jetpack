@@ -207,6 +207,9 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
+      '@babel/runtime':
+        specifier: ^7
+        version: 7.21.5
       '@wordpress/browserslist-config':
         specifier: 5.18.0
         version: 5.18.0
@@ -237,6 +240,9 @@ importers:
       qrcode.react:
         specifier: 3.1.0
         version: 3.1.0(react@18.2.0)
+      react-slider:
+        specifier: 2.0.5
+        version: 2.0.5(@babel/runtime@7.21.5)(react@18.2.0)
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
@@ -280,6 +286,9 @@ importers:
       '@types/react-dom':
         specifier: 18.0.10
         version: 18.0.10
+      '@types/react-slider':
+        specifier: 1.3.1
+        version: 1.3.1
       '@types/react-test-renderer':
         specifier: 18.0.0
         version: 18.0.0
@@ -304,6 +313,9 @@ importers:
       require-from-string:
         specifier: 2.0.2
         version: 2.0.2
+      resize-observer-polyfill:
+        specifier: 1.5.1
+        version: 1.5.1
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -5438,6 +5450,7 @@ packages:
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
+    requiresBuild: true
     dev: true
 
   /@dabh/diagnostics@2.0.3:
@@ -9926,6 +9939,12 @@ packages:
       hoist-non-react-statics: 3.3.2
       redux: 4.1.1
     dev: false
+
+  /@types/react-slider@1.3.1:
+    resolution: {integrity: sha512-4X2yK7RyCIy643YCFL+bc6XNmcnBtt8n88uuyihvcn5G7Lut23eNQU3q3KmwF7MWIfKfsW5NxCjw0SeDZRtgaA==}
+    dependencies:
+      '@types/react': 18.0.27
+    dev: true
 
   /@types/react-test-renderer@18.0.0:
     resolution: {integrity: sha512-C7/5FBJ3g3sqUahguGi03O79b8afNeSD6T8/GU50oQrJCU0bVCCGQHaGKUbg2Ce8VQEEqTw8/HiS6lXHHdgkdQ==}
@@ -20756,6 +20775,17 @@ packages:
       react-is: 18.2.0
     dev: true
 
+  /react-slider@2.0.5(@babel/runtime@7.21.5)(react@18.2.0):
+    resolution: {integrity: sha512-MU5gaK1yYCKnbDDN3CMiVcgkKZwMvdqK2xUEW7fFU37NAzRgS1FZbF9N7vP08E3XXNVhiuZnwVzUa3PYQAZIMg==}
+    peerDependencies:
+      '@babel/runtime': ^7
+      react: ^16 || ^17 || ^18
+    dependencies:
+      '@babel/runtime': 7.21.5
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
   /react-style-singleton@2.2.1(@types/react@18.0.27)(react@18.2.0):
     resolution: {integrity: sha512-ZWj0fHEMyWkHzKYUr2Bs/4zU6XLmq9HsgBURm7g5pAVfyn49DgUiNgY2d4lXRlYSiCif9YBGpQleewkcqddc7g==}
     engines: {node: '>=10'}
@@ -21173,7 +21203,6 @@ packages:
 
   /resize-observer-polyfill@1.5.1:
     resolution: {integrity: sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==}
-    dev: false
 
   /resolve-cwd@3.0.0:
     resolution: {integrity: sha512-OrZaX2Mb+rJCpH/6CpSqt9xFVpN++x01XnN2ie9g6P5/3xelLAkXWVADpdz1IHD/KFfEXyE6V0U01OQ3UO2rEg==}
