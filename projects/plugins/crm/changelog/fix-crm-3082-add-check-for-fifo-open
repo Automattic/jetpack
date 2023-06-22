@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-File Uploads: Fix bug that prevented file uploads from working in environments where the PHP fifo_open function was not available
+File Uploads: Fix bug that prevented file uploads from working in environments where the PHP finfo_open function was not available
