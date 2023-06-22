@@ -44,6 +44,8 @@ export type PromptItemProps = {
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
+export const delimiter = '####';
+
 /**
  * Helper function to get the initial system prompt.
  * It defines the `context` value in case it isn't provided.
@@ -84,6 +86,11 @@ type PromptOptionsProps = {
 	content: string;
 
 	/*
+	 * The delimited content.
+	 */
+	delimitedContent: string;
+
+	/*
 	 * The language to translate to. Optional.
 	 */
 	language?: string;
@@ -105,75 +112,75 @@ type PromptOptionsProps = {
 };
 
 function getCorrectSpellingPrompt( {
-	content,
+	delimitedContent,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Repeat the following text, correcting any spelling and grammar mistakes directly in the text without providing feedback about the corrections, keeping the language of the text: \n\n${ content }`,
+			content: `Repeat the text delimited with ${ delimiter }, without the delimiter, correcting any spelling and grammar mistakes directly in the text without providing feedback about the corrections, keeping the language of the text: ${ delimitedContent }`,
 		},
 	];
 }
 
 function getSimplifyPrompt( {
-	content,
+	delimitedContent,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Simplify the following text, using words and phrases that are easier to understand and keeping the language of the text:\n\n${ content }`,
+			content: `Simplify the text delimited with ${ delimiter }, using words and phrases that are easier to understand and keeping the language of the text: ${ delimitedContent }`,
 		},
 	];
 }
 
 function getSummarizePrompt( {
-	content,
+	delimitedContent,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Summarize the following text, keeping the language of the text:\n\n${ content }`,
+			content: `Summarize the text delimited with ${ delimiter }, keeping the language of the text: ${ delimitedContent }`,
 		},
 	];
 }
 
 function getExpandPrompt( {
-	content,
+	delimitedContent,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Expand the following text to about double its size, keeping the language of the text:\n\n${ content }`,
+			content: `Expand the text delimited with ${ delimiter } to about double its size, keeping the language of the text: ${ delimitedContent }`,
 		},
 	];
 }
 
 function getTranslatePrompt( {
-	content,
+	delimitedContent,
 	language,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Translate the following text to ${ language }, preserving the same core meaning and tone:\n\n${ content }`,
+			content: `Translate the text delimited with ${ delimiter } to ${ language }, preserving the same core meaning and tone: ${ delimitedContent }`,
 		},
 	];
 }
 
 function getTonePrompt( {
-	content,
+	delimitedContent,
 	tone,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Rewrite the following text with a ${ tone } tone, keeping the language of the text:\n\n${ content }`,
+			content: `Rewrite the text delimited with ${ delimiter }, with a ${ tone } tone, keeping the language of the text: ${ delimitedContent }`,
 		},
 	];
 }
@@ -218,10 +225,12 @@ export const buildPromptTemplate = ( {
 	const messages = [ getInitialSystemPrompt( { rules } ) ];
 
 	if ( relevantContent != null && relevantContent?.length ) {
+		const sanitizedContent = relevantContent.replaceAll( delimiter, '' );
+
 		if ( ! isContentGenerated ) {
 			messages.push( {
-				role: 'system',
-				content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
+				role: 'user',
+				content: `The specific relevant content for this request, if necessary, delimited with ${ delimiter } characters: ${ delimiter }${ sanitizedContent }${ delimiter }`,
 			} );
 		}
 	}
@@ -420,6 +429,11 @@ Writing rules:
 				},
 		  ]
 		: prevMessages;
+
+	options.delimitedContent = `${ delimiter }${ options.content?.replaceAll(
+		delimiter,
+		''
+	) }${ delimiter }`;
 
 	switch ( type ) {
 		case PROMPT_TYPE_CORRECT_SPELLING:
