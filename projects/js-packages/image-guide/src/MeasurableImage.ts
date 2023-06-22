@@ -125,7 +125,7 @@ export class MeasurableImage {
 	/**
 	 * Checks if the image is too small and should be ignored
 	 *
-	 * @returns {boolean} - if the image is smaller than 65 pixels width and height
+	 * @returns {boolean} - if the image is smaller than 65 pixels width and height return false
 	 */
 	public isImageBig(): boolean {
 		const minSize = 65;
