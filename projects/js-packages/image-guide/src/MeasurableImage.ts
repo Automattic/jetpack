@@ -127,8 +127,9 @@ export class MeasurableImage {
 	 *
 	 * @returns {boolean} - if the image is smaller than 65 pixels width and height
 	 */
-	public isSmall(): boolean {
+	public isImageBig(): boolean {
+		const minSize = 65;
 		const { width, height } = this.getSizeOnPage();
-		return width < 65 && height < 65;
+		return width >= minSize && height >= minSize;
 	}
 }
