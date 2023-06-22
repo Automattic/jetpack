@@ -76,7 +76,6 @@ const quickActionsList = [
 ];
 
 export type AiAssistantDropdownOnChangeOptionsArgProps = {
-	contentType: 'generated' | string;
 	tone?: ToneProp;
 	language?: string;
 };
@@ -126,7 +125,7 @@ export default function AiAssistantDropdown( {
 							iconPosition="left"
 							key={ `key-${ quickAction.key }` }
 							onClick={ () => {
-								onChange( quickAction.aiSuggestion, { contentType: 'generated' } );
+								onChange( quickAction.aiSuggestion );
 								closeDropdown();
 							} }
 							isSelected={ key === quickAction.key }
@@ -137,14 +136,14 @@ export default function AiAssistantDropdown( {
 
 					<ToneDropdownMenu
 						onChange={ tone => {
-							onChange( PROMPT_TYPE_CHANGE_TONE, { tone, contentType: 'generated' } );
+							onChange( PROMPT_TYPE_CHANGE_TONE, { tone } );
 							closeDropdown();
 						} }
 					/>
 
 					<I18nMenuDropdown
 						onChange={ language => {
-							onChange( PROMPT_TYPE_CHANGE_LANGUAGE, { language, contentType: 'generated' } );
+							onChange( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
 							closeDropdown();
 						} }
 					/>

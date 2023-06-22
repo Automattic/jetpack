@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Fix Image Size Analysis pagination links not clickable. Change label for "other" group.

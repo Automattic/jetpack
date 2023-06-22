@@ -11,6 +11,9 @@ export const getProductsNoResolver = state => getProducts( state );
 export const getProduct = ( state, productId ) =>
 	getProducts( state ).find( product => product.id === productId );
 
+export const getNewsletterProducts = state =>
+	state.products.filter( product => product.subscribe_as_site_subscriber );
+
 export const getSiteSlug = state => state.siteSlug;
 
 export const isApiStateConnected = state => state.apiState === API_STATE_CONNECTED;

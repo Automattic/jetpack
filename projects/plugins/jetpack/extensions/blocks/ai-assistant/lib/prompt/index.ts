@@ -1,8 +1,6 @@
 /**
  * External dependencies
  */
-import { select } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -73,35 +71,111 @@ Strictly follow these rules:
 ${ extraRules }- Format your responses in Markdown syntax, ready to be published.
 - Execute the request without any acknowledgement to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `;
 
 	return { role: 'system', content: prompt };
 }
 
-/**
- * Helper function to get the blog post data prompt.
- *
- * @param {object} options         - The options for the prompt.
- * @param {string} options.content - The content of the post.
- * @returns {PromptItemProps} The blog post data prompt.
- */
-export function getBlogPostDataUserPrompt( { content }: { content: string } ): PromptItemProps {
-	const postTitle = select( editorStore ).getEditedPostAttribute( 'title' );
+type PromptOptionsProps = {
+	/*
+	 * The content to add to the prompt.
+	 */
+	content: string;
 
-	if ( ! postTitle?.length && ! content?.length ) {
-		return null;
-	}
+	/*
+	 * The language to translate to. Optional.
+	 */
+	language?: string;
 
-	const blogPostData = `Here's the content in the editor that serves as context to the user request:
-${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
-		content ? `- Current content: ${ content }` : ''
-	}`;
+	/*
+	 * The tone to use. Optional.
+	 */
+	tone?: ToneProp;
 
-	return {
-		role: 'user',
-		content: blogPostData,
-	};
+	/*
+	 * The role of the prompt. Optional.
+	 */
+	role?: PromptItemProps[ 'role' ];
+
+	/*
+	 * The previous messages of the same prompt. Optional.
+	 */
+	prevMessages?: Array< PromptItemProps >;
+};
+
+function getCorrectSpellingPrompt( {
+	content,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Repeat the following text, correcting any spelling and grammar mistakes, keeping the language of the text:\n\n${ content }`,
+		},
+	];
+}
+
+function getSimplifyPrompt( {
+	content,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Simplify the following text, using words and phrases that are easier to understand and keeping the language of the text:\n\n${ content }`,
+		},
+	];
+}
+
+function getSummarizePrompt( {
+	content,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Summarize the following text, keeping the language of the text:\n\n${ content }`,
+		},
+	];
+}
+
+function getExpandPrompt( {
+	content,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Expand the following text to about double its size, keeping the language of the text:\n\n${ content }`,
+		},
+	];
+}
+
+function getTranslatePrompt( {
+	content,
+	language,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Translate the following text to ${ language }, preserving the same core meaning and tone:\n\n${ content }`,
+		},
+	];
+}
+
+function getTonePrompt( {
+	content,
+	tone,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Rewrite the following text with a ${ tone } tone, keeping the language of the text:\n\n${ content }`,
+		},
+	];
 }
 
 /*
@@ -119,7 +193,6 @@ ${ postTitle?.length ? `- Current title: ${ postTitle }\n` : '' }${
  * @param {string} options.request             - The request to the AI assistant.
  * @param {string} options.relevantContent     - The relevant content to the request.
  * @param {boolean} options.isContentGenerated - Whether the content is generated or not.
- * @param {string} options.fullContent         - The full content of the post.
  * @param {boolean} options.isGeneratingTitle  - Whether the title is being generated or not.
  *
  * @return {Array<PromptItemProps>}
@@ -129,14 +202,12 @@ export const buildPromptTemplate = ( {
 	request = null,
 	relevantContent = null,
 	isContentGenerated = false,
-	fullContent = null,
 	isGeneratingTitle = false,
 }: {
 	rules?: Array< string >;
 	request?: string;
 	relevantContent?: string;
 	isContentGenerated?: boolean;
-	fullContent?: string;
 	isGeneratingTitle?: boolean;
 } ): Array< PromptItemProps > => {
 	if ( ! request && ! relevantContent ) {
@@ -145,12 +216,6 @@ export const buildPromptTemplate = ( {
 
 	// Add initial system prompt.
 	const messages = [ getInitialSystemPrompt( { rules } ) ];
-
-	// Add blog post data prompt.
-	const postDataPrompt = getBlogPostDataUserPrompt( { content: fullContent } );
-	if ( postDataPrompt ) {
-		messages.push( postDataPrompt );
-	}
 
 	if ( relevantContent != null && relevantContent?.length ) {
 		if ( ! isContentGenerated ) {
@@ -192,6 +257,13 @@ type BuildPromptOptions = {
 		tone?: ToneProp;
 		language?: string;
 	};
+};
+
+type GetPromptOptionsProps = {
+	content?: string;
+	contentType?: 'generated' | string;
+	tone?: ToneProp;
+	language?: string;
 };
 
 export function promptTextFor(
@@ -299,7 +371,6 @@ export function buildPromptForBlock( {
 
 		return buildPromptTemplate( {
 			...promptText,
-			fullContent: allPostContent,
 			relevantContent,
 			isContentGenerated,
 			isGeneratingTitle,
@@ -308,19 +379,11 @@ export function buildPromptForBlock( {
 
 	return buildPromptTemplate( {
 		request: userPrompt,
-		fullContent: allPostContent,
 		relevantContent: generatedContent || allPostContent,
 		isContentGenerated: !! generatedContent?.length,
 		isGeneratingTitle,
 	} );
 }
-
-type GetPromptOptionsProps = {
-	content?: string;
-	contentType?: 'generated' | string;
-	tone?: ToneProp;
-	language?: string;
-};
 
 /**
  * Returns a prompt based on the type and options
@@ -329,16 +392,60 @@ type GetPromptOptionsProps = {
  * @param {GetPromptOptionsProps} options - The prompt options.
  * @returns {Array< PromptItemProps >}      The prompt.
  */
-export function buildPromptForExtensions(
+export function getPrompt(
 	type: PromptTypeProp,
-	options: GetPromptOptionsProps
+	options: PromptOptionsProps
 ): Array< PromptItemProps > {
-	const promptText = promptTextFor( type, false, options );
+	debug( 'Addressing prompt type: %o %o', type, options );
+	const { prevMessages } = options;
 
-	return buildPromptTemplate( {
-		...promptText,
-		fullContent: options.content,
-		relevantContent: options.content,
-		isContentGenerated: false,
-	} );
+	const context =
+		'You are an excellent polyglot ghostwriter. ' +
+		'Your task is to help the user to create and modify content based on their requests.';
+
+	/*
+	 * Create the initial prompt only if there are no previous messages.
+	 * Otherwise, let's use the previous messages as the initial prompt.
+	 */
+	let prompt: Array< PromptItemProps > = ! prevMessages?.length
+		? [
+				{
+					role: 'system',
+					content: `${ context }
+Writing rules:
+- Execute the request without any acknowledgement to the user.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+`,
+				},
+		  ]
+		: prevMessages;
+
+	switch ( type ) {
+		case PROMPT_TYPE_CORRECT_SPELLING:
+			prompt = [ ...prompt, ...getCorrectSpellingPrompt( options ) ];
+			break;
+
+		case PROMPT_TYPE_SIMPLIFY:
+			prompt = [ ...prompt, ...getSimplifyPrompt( options ) ];
+			break;
+
+		case PROMPT_TYPE_SUMMARIZE:
+			prompt = [ ...prompt, ...getSummarizePrompt( options ) ];
+			break;
+
+		case PROMPT_TYPE_MAKE_LONGER:
+			prompt = [ ...prompt, ...getExpandPrompt( options ) ];
+			break;
+
+		case PROMPT_TYPE_CHANGE_LANGUAGE:
+			prompt = [ ...prompt, ...getTranslatePrompt( options ) ];
+			break;
+
+		case PROMPT_TYPE_CHANGE_TONE:
+			prompt = [ ...prompt, ...getTonePrompt( options ) ];
+			break;
+	}
+
+	return prompt;
 }

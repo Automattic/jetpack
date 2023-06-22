@@ -293,35 +293,42 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.3-a.5 - 2023-06-12
+### 12.3-a.7 - 2023-06-19
 #### Enhancements
-- AI Assistant: add keyboard shortcuts.
-- AI Assistant: change icon on AI disclaimer message.
-- AI Assistant: move caret to end of generated content when accepting.
-- AI Assistant: show message when content generated.
-- AI Assistant: tidy some block components.
-- AI Assistant: tweak content generated message.
-- AI Assistant: remove shortcuts labels from block area.
-- Backup: add video section to Backup connect page.
-- Blocks: add new Tock block.
-- Blocks: load block stylesheets inline when possible for improved performance.
+- AI Assistant: add and use ImproveToolbarDropdownMenu in block toolbar.
+- AI Assistant: add Expand option into AI Assistant dropdown menu.
+- AI Assistant: add Summarize option to the AI Assistant dropdown menu.
+- AI Assistant: add tone into AI Assistant dropdown menu.
+- AI Assistant: add translate option in extensions.
+- AI Assistant: build prompt from AI Assistant toolbar menu.
+- AI Assistant: collect, store and send prompt history.
+- AI Assistant: create function to build the post data prompt.
+- AI Assistant: extend blocks toolbar.
+- AI Assistant: extract and use block content utils.
+- AI Assistant: introduce function to create the initial system prompt.
+- AI Assistant: introduce jetpack/ai supports.
+- AI Assistant: iterate over custom hook to request suggestions.
+- AI Assistant: register ai-assistant-support beta extension.
+- AI Assistant: separate prompt text from relevant content for extensions.
+- AI Assistant: do not extend if the AI Assistant block is not registered.
+- AI Assistant: fix generating prompt when requesting suggestion.
+- AI Assistant: update block content once AI response is ready.
+- Customizer: hide the customizer submenu for block based themes. [#31353, #31376]
+- Newsletters: silence creation of the default membership product in a newsletter context.
+- Newsletters: update Paid newsletter panel designs.
+- Related Posts: add srcset for the thumbnails.
+- Social Logos: update to include a Nextdoor and a Fediverse logo.
+- Subscribers: add menu item to Calypso interface.
+- Tock Block: update the block settings interface.
 
 #### Improved compatibility
-- PHP8 compatibility updates. [#31240, #31242, #31243, #31250]
+- Tiled Galleries: avoid PHP deprecation notices on sites using PHP 8.2.
+- WordPress.com Toolbar: avoid PHP warnings with PHP 8.2.
 
 #### Bug fixes
-- AI Assistant: block query requests when upgrade required.
-- AI Assistant: check if the block is in the block editor context before enabling accept title action.
-- AI Assistant: fix translation feature.
-- AI Assistant: request completion JWT token as the user, not the blog.
-- AI Assistant: show Jetpack AI product in the plan products list.
-- Connection: fix redirecting users who click back button before approving connection to Jetpack Dashboard.
-- Dashboard: display an external icon next to the link to the Subscribers list.
-- Memberships: correctly gate posts rendered on pages.
-- Memberships: fix an issue where Jetpack_Memberships::user_can_view_post would cache the wrong value.
-- Markdown Block: render single and double quotes as smart quotes.
-- Newsletters: do not display Newsletter plans in the Premium Content and Recurring Payment blocks.
-- Newsletters: make the subscribers reach sentence future-tense for scheduled posts.
+- Newsletters: remove Newsletter column on products post type.
+- Tock Block: fix the embed rendering on WordPress.com sites.
+- WPcom: fix output of static script path on WordPress.com sites.
 
 --------
 

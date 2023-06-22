@@ -21,6 +21,7 @@ import { external, Icon } from '@wordpress/icons';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
+import EmailPreview from './email-preview';
 import {
 	Link,
 	getReachForAccessLevelKey,
@@ -118,6 +119,7 @@ function NewsletterPrePublishSettingsPanel( {
 	paidSubscribers,
 	isModuleActive,
 	showMisconfigurationWarning,
+	showPreviewModal,
 } ) {
 	const { tracks } = useAnalytics();
 	const { changeStatus, isLoadingModules, isChangingStatus } = useModuleStatus( name );
@@ -150,14 +152,19 @@ function NewsletterPrePublishSettingsPanel( {
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
 			{ isModuleActive && (
-				<NewsletterAccessPrePublishSettings
-					accessLevel={ accessLevel }
-					setPostMeta={ setPostMeta }
-					socialFollowers={ socialFollowers }
-					emailSubscribers={ emailSubscribers }
-					paidSubscribers={ paidSubscribers }
-					showMisconfigurationWarning={ showMisconfigurationWarning }
-				/>
+				<>
+					<NewsletterAccessPrePublishSettings
+						accessLevel={ accessLevel }
+						setPostMeta={ setPostMeta }
+						socialFollowers={ socialFollowers }
+						emailSubscribers={ emailSubscribers }
+						paidSubscribers={ paidSubscribers }
+						showMisconfigurationWarning={ showMisconfigurationWarning }
+					/>
+					<Button variant="secondary" onClick={ showPreviewModal }>
+						{ __( 'Preview', 'jetpack' ) }
+					</Button>
+				</>
 			) }
 
 			{ shouldLoadSubscriptionPlaceholder && (
@@ -296,6 +303,7 @@ export default function SubscribePanels() {
 	const [ emailSubscribers, setEmailSubscribers ] = useState( null );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	// Set the accessLevel to "everybody" when one is not defined
 	let accessLevel =
@@ -359,6 +367,7 @@ export default function SubscribePanels() {
 				paidSubscribers={ paidSubscribers }
 				isModuleActive={ isModuleActive }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
+				showPreviewModal={ () => setIsModalOpen( true ) }
 			/>
 			<NewsletterPostPublishSettingsPanel
 				accessLevel={ accessLevel }
@@ -368,6 +377,7 @@ export default function SubscribePanels() {
 				isModuleActive={ isModuleActive }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
 			/>
+			<EmailPreview isModalOpen={ isModalOpen } closeModal={ () => setIsModalOpen( false ) } />
 		</>
 	);
 }
