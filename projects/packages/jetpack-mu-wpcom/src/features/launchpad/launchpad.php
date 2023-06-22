@@ -610,18 +610,13 @@ if ( ! function_exists( 'wpcom_is_launchpad_keep_building_enabled' ) ) {
 	 */
 	function wpcom_is_launchpad_keep_building_enabled( $is_enabled ) {
 		$intent = get_option( 'site_intent', false );
+		$blog_id = get_current_blog_id();
 
-		if ( 'build' !== $intent ) {
+		if ( 'build' !== $intent || $blog_id < 220443356) {
 			return false;
 		}
 
-		$blog_id = get_current_blog_id();
-
-		/**
-		 * All blogs created after blog ID `220443356`
-		 * should show the "Keep building" task list.
-		 */
-		return $blog_id > 220443356;
+		return $is_enabled;
 	}
 }
 
