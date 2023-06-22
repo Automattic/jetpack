@@ -38,10 +38,6 @@ module.exports = {
 	platform: 'github',
 	repositories: [ 'Automattic/jetpack' ],
 
-	// HACK
-	baseBranches: [ 'renovate/renovatebot-github-action-38.x' ],
-	useBaseBranchConfig: 'merge',
-
 	// Extra code to run before creating a commit.
 	allowPostUpgradeCommandTemplating: true,
 	allowedPostUpgradeCommands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh' ],
