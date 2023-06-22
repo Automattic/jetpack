@@ -89,8 +89,12 @@ export default function useSuggestionsFromAI( {
 	 */
 	const handleSuggestion = useCallback(
 		( event: CustomEvent ) => {
-			// Remove the delimiter from the suggestion.
-			onSuggestion( event?.detail?.replaceAll( delimiter, '' ) );
+			/*
+			 * Remove the delimiter string from the suggestion,
+			 * only at the beginning and end of the string.
+			 */
+			const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
+			onSuggestion( event?.detail?.replace( delimiterRegEx, '' ) );
 		},
 		[ onSuggestion ]
 	);
@@ -104,10 +108,9 @@ export default function useSuggestionsFromAI( {
 	const handleDone = useCallback(
 		( event: CustomEvent ) => {
 			/*
-			 * Create a regex to remove the delimiter string from the suggestion,
+			 * Remove the delimiter string from the suggestion,
 			 * only at the beginning and end of the string.
 			 */
-
 			const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
 			onDone( event?.detail?.replace( delimiterRegEx, '' ) );
 		},
