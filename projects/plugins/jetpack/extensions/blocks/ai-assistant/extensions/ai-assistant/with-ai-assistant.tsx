@@ -97,6 +97,10 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ updateBlockAttributes ]
 		);
 
+		const filterMessages = ( messages: Array< PromptItemProps > ) => {
+			return messages.filter( message => message.role !== 'system' ).slice( -3 );
+		};
+
 		const updateStoredPrompt = useCallback(
 			( assistantContent: string ) => {
 				setStoredPrompt( prevPrompt => {
@@ -105,7 +109,7 @@ export const withAIAssistant = createHigherOrderComponent(
 						 * Do not store `system` role items,
 						 * and preserve the last 3 ones.
 						 */
-						...prevPrompt.messages.filter( message => message.role !== 'system' ).slice( -3 ),
+						...filterMessages( prevPrompt.messages ),
 						{
 							role: 'assistant',
 							content: assistantContent, // + 1 `assistant` role item
@@ -137,11 +141,14 @@ export const withAIAssistant = createHigherOrderComponent(
 				const handleSetStoredPrompt = ( blocksList: Array< SetContentOptionsProps > ) =>
 					setStoredPrompt( prevPrompt => {
 						const allMessages = blocksList.reduce( ( acc, { content, offset } ) => {
+							const prevMessages = acc[ acc.length - 1 ] || prevPrompt.messages;
+							const prevMessagesFiltered = filterMessages( prevMessages );
+
 							acc.push(
 								getPrompt( promptType, {
 									...options,
 									content: toHTMLString( { value: slice( content, offset.start, offset.end ) } ),
-									prevMessages: [ ...prevPrompt.messages, ...acc ],
+									prevMessages: prevMessagesFiltered,
 								} )
 							);
 
