@@ -44,6 +44,8 @@ export type PromptItemProps = {
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
+export const delimiter = '####';
+
 /**
  * Helper function to get the initial system prompt.
  * It defines the `context` value in case it isn't provided.
@@ -69,7 +71,7 @@ export function getInitialSystemPrompt( {
 Strictly follow these rules:
 
 ${ extraRules }- Format your responses in Markdown syntax, ready to be published.
-- Execute the request without any acknowledgement to the user.
+- Execute the request without any acknowledgment to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `;
@@ -104,6 +106,10 @@ type PromptOptionsProps = {
 	prevMessages?: Array< PromptItemProps >;
 };
 
+function getDelimitedContent( content: string ): string {
+	return `${ delimiter }${ content.replaceAll( delimiter, '' ) }${ delimiter }`;
+}
+
 function getCorrectSpellingPrompt( {
 	content,
 	role = 'user',
@@ -111,7 +117,9 @@ function getCorrectSpellingPrompt( {
 	return [
 		{
 			role,
-			content: `Repeat the following text, correcting any spelling and grammar mistakes, keeping the language of the text:\n\n${ content }`,
+			content: `Repeat the text delimited with ${ delimiter }, without the delimiter, correcting any spelling and grammar mistakes directly in the text without providing feedback about the corrections, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -123,7 +131,9 @@ function getSimplifyPrompt( {
 	return [
 		{
 			role,
-			content: `Simplify the following text, using words and phrases that are easier to understand and keeping the language of the text:\n\n${ content }`,
+			content: `Simplify the text delimited with ${ delimiter }, using words and phrases that are easier to understand and keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -135,7 +145,9 @@ function getSummarizePrompt( {
 	return [
 		{
 			role,
-			content: `Summarize the following text, keeping the language of the text:\n\n${ content }`,
+			content: `Summarize the text delimited with ${ delimiter }, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -147,7 +159,9 @@ function getExpandPrompt( {
 	return [
 		{
 			role,
-			content: `Expand the following text to about double its size, keeping the language of the text:\n\n${ content }`,
+			content: `Expand the text delimited with ${ delimiter } to about double its size, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -160,7 +174,9 @@ function getTranslatePrompt( {
 	return [
 		{
 			role,
-			content: `Translate the following text to ${ language }, preserving the same core meaning and tone:\n\n${ content }`,
+			content: `Translate the text delimited with ${ delimiter } to ${ language }, preserving the same core meaning and tone: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -173,7 +189,9 @@ function getTonePrompt( {
 	return [
 		{
 			role,
-			content: `Rewrite the following text with a ${ tone } tone, keeping the language of the text:\n\n${ content }`,
+			content: `Rewrite the text delimited with ${ delimiter }, with a ${ tone } tone, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -218,10 +236,12 @@ export const buildPromptTemplate = ( {
 	const messages = [ getInitialSystemPrompt( { rules } ) ];
 
 	if ( relevantContent != null && relevantContent?.length ) {
+		const sanitizedContent = relevantContent.replaceAll( delimiter, '' );
+
 		if ( ! isContentGenerated ) {
 			messages.push( {
-				role: 'system',
-				content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
+				role: 'user',
+				content: `The specific relevant content for this request, if necessary, delimited with ${ delimiter } characters: ${ delimiter }${ sanitizedContent }${ delimiter }`,
 			} );
 		}
 	}
@@ -400,51 +420,47 @@ export function getPrompt(
 	const { prevMessages } = options;
 
 	const context =
-		'You are an excellent polyglot ghostwriter. ' +
-		'Your task is to help the user to create and modify content based on their requests.';
+		'You are an advanced polyglot ghostwriter.' +
+		'Your task is to help the user create and modify content based on their requests.';
 
-	/*
-	 * Create the initial prompt only if there are no previous messages.
-	 * Otherwise, let's use the previous messages as the initial prompt.
-	 */
-	let prompt: Array< PromptItemProps > = ! prevMessages?.length
-		? [
-				{
-					role: 'system',
-					content: `${ context }
+	const systemPrompt: PromptItemProps = {
+		role: 'system',
+		content: `${ context }
 Writing rules:
-- Execute the request without any acknowledgement to the user.
+- Execute the request without any acknowledgment or explanation to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `,
-				},
-		  ]
-		: prevMessages;
+	};
 
+	// Prompt starts with the previous messages, if any.
+	const prompt: Array< PromptItemProps > = prevMessages;
+
+	// Then, add the `system` prompt to clarify the context.
+	prompt.push( systemPrompt );
+
+	// Finally, add the current `user` request.
 	switch ( type ) {
 		case PROMPT_TYPE_CORRECT_SPELLING:
-			prompt = [ ...prompt, ...getCorrectSpellingPrompt( options ) ];
-			break;
+			return [ ...prompt, ...getCorrectSpellingPrompt( options ) ];
 
 		case PROMPT_TYPE_SIMPLIFY:
-			prompt = [ ...prompt, ...getSimplifyPrompt( options ) ];
-			break;
+			return [ ...prompt, ...getSimplifyPrompt( options ) ];
 
 		case PROMPT_TYPE_SUMMARIZE:
-			prompt = [ ...prompt, ...getSummarizePrompt( options ) ];
-			break;
+			return [ ...prompt, ...getSummarizePrompt( options ) ];
 
 		case PROMPT_TYPE_MAKE_LONGER:
-			prompt = [ ...prompt, ...getExpandPrompt( options ) ];
-			break;
+			return [ ...prompt, ...getExpandPrompt( options ) ];
 
 		case PROMPT_TYPE_CHANGE_LANGUAGE:
-			prompt = [ ...prompt, ...getTranslatePrompt( options ) ];
-			break;
+			return [ ...prompt, ...getTranslatePrompt( options ) ];
 
 		case PROMPT_TYPE_CHANGE_TONE:
-			prompt = [ ...prompt, ...getTonePrompt( options ) ];
-			break;
+			return [ ...prompt, ...getTonePrompt( options ) ];
+
+		default:
+			throw new Error( `Unknown prompt type: ${ type }` );
 	}
 
 	return prompt;
