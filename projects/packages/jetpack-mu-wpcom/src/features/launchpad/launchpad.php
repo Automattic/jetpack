@@ -607,11 +607,11 @@ if ( ! function_exists( 'wpcom_is_launchpad_keep_building_enabled' ) ) {
 	 * and is being moved to Jetpack to enable the task list on Atomic sites.
 	 *
 	 * @param bool $is_enabled Whether the "Keep building" task list is enabled.
-	 * 
+	 *
 	 * @return bool Whether the "Keep building" task list is enabled.
 	 */
 	function wpcom_is_launchpad_keep_building_enabled( $is_enabled ) {
-		$intent = get_option( 'site_intent', false );
+		$intent  = get_option( 'site_intent', false );
 		$blog_id = get_current_blog_id();
 
 		if ( 'build' !== $intent || $blog_id < 220443356 ) {
