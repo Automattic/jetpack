@@ -69,7 +69,7 @@ export function getInitialSystemPrompt( {
 Strictly follow these rules:
 
 ${ extraRules }- Format your responses in Markdown syntax, ready to be published.
-- Execute the request without any acknowledgement to the user.
+- Execute the request without any acknowledgment to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `;
@@ -111,7 +111,7 @@ function getCorrectSpellingPrompt( {
 	return [
 		{
 			role,
-			content: `Repeat the following text, correcting any spelling and grammar mistakes, keeping the language of the text:\n\n${ content }`,
+			content: `Repeat the following text, correcting any spelling and grammar mistakes directly in the text without providing feedback about the corrections, keeping the language of the text: \n\n${ content }`,
 		},
 	];
 }
@@ -400,8 +400,8 @@ export function getPrompt(
 	const { prevMessages } = options;
 
 	const context =
-		'You are an excellent polyglot ghostwriter. ' +
-		'Your task is to help the user to create and modify content based on their requests.';
+		'You are an advanced polyglot ghostwriter.' +
+		'Your task is to help the user create and modify content based on their requests.';
 
 	/*
 	 * Create the initial prompt only if there are no previous messages.
@@ -413,7 +413,7 @@ export function getPrompt(
 					role: 'system',
 					content: `${ context }
 Writing rules:
-- Execute the request without any acknowledgement to the user.
+- Execute the request without any acknowledgment or explanation to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `,
