@@ -168,13 +168,6 @@ module.exports = [
 			...sharedWebpackConfig.output,
 			libraryTarget: 'commonjs2',
 		},
-		resolve: {
-			...sharedWebpackConfig.resolve,
-			alias: {
-				...sharedWebpackConfig.resolve.alias,
-				'react-redux': require.resolve( 'react-redux/lib/alternate-renderers' ),
-			},
-		},
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: false,
