@@ -614,7 +614,7 @@ if ( ! function_exists( 'wpcom_is_launchpad_keep_building_enabled' ) ) {
 		$intent = get_option( 'site_intent', false );
 		$blog_id = get_current_blog_id();
 
-		if ( 'build' !== $intent || $blog_id < 220443356) {
+		if ( 'build' !== $intent || $blog_id < 220443356 ) {
 			return false;
 		}
 
