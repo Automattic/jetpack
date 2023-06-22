@@ -3659,8 +3659,8 @@ importers:
   tools/cli:
     dependencies:
       '@octokit/auth-token':
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.4
+        version: 3.0.4
       '@octokit/rest':
         specifier: 19.0.11
         version: 19.0.11
@@ -3795,8 +3795,8 @@ importers:
         specifier: 7.21.5
         version: 7.21.5(@babel/core@7.21.5)
       '@octokit/auth-token':
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 3.0.4
+        version: 3.0.4
       '@octokit/rest':
         specifier: 19.0.11
         version: 19.0.11
@@ -6390,11 +6390,9 @@ packages:
       '@octokit/types': 6.41.0
     dev: false
 
-  /@octokit/auth-token@3.0.3:
-    resolution: {integrity: sha512-/aFM2M4HVDBT/jjDBa84sJniv1t9Gm/rLkalaz9htOm+L+8JMj1k9w0CkUdcxNyNxZPlTxKPVko+m1VlM58ZVA==}
+  /@octokit/auth-token@3.0.4:
+    resolution: {integrity: sha512-TWFX7cZF2LXoCvdmJWY7XVPi74aSY0+FfBZNSXEXFkMpjcqsQwDSYVv5FhRFaI0V1ECnwbz4j59T/G+rXNWaIQ==}
     engines: {node: '>= 14'}
-    dependencies:
-      '@octokit/types': 9.3.2
 
   /@octokit/core@3.6.0:
     resolution: {integrity: sha512-7RKRKuA4xTjMhY+eG3jthb3hlZCsOwg3rztWh75Xc+ShDWOfDDATWbeZpAHBNRpm4Tv9WgBMOy1zEJYXG6NJ7Q==}
@@ -6414,7 +6412,7 @@ packages:
     resolution: {integrity: sha512-rYKilwgzQ7/imScn3M9/pFfUf4I1AZEH3KhyJmtPdE2zfaXAn2mFfUy4FbKewzc2We5y/LlKLj36fWJLKC2SIQ==}
     engines: {node: '>= 14'}
     dependencies:
-      '@octokit/auth-token': 3.0.3
+      '@octokit/auth-token': 3.0.4
       '@octokit/graphql': 5.0.6
       '@octokit/request': 6.2.8
       '@octokit/request-error': 3.0.3
@@ -12521,7 +12519,6 @@ packages:
     resolution: {integrity: sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==}
     dependencies:
       deep-equal: 2.2.1
-      dequal: 2.0.3
     dev: true
 
   /array-buffer-byte-length@1.0.0:
