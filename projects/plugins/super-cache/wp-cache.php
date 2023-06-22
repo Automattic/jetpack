@@ -3831,7 +3831,6 @@ function wpsc_get_post_types() {
 
 	return "'" . implode( "', '", array_map( 'esc_sql', $post_types ) ) . "'";
 }
-
 function wpsc_post_count() {
 	global $wpdb;
 	static $count;
@@ -3845,7 +3844,6 @@ function wpsc_post_count() {
 
 	return $count;
 }
-
 function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 	global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_taxonomies, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
 
