@@ -44,7 +44,7 @@ export type PromptItemProps = {
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
-export const delimiter = '####';
+export const delimiter = '````';
 
 /**
  * Helper function to get the initial system prompt.

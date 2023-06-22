@@ -9,8 +9,8 @@ import debugFactory from 'debug';
 /**
  * Types
  */
+import { PromptItemProps, delimiter } from '../../lib/prompt';
 import { SuggestionsEventSource, askQuestion } from '../../lib/suggestions';
-import type { PromptItemProps } from '../../lib/prompt';
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
@@ -112,7 +112,14 @@ export default function useSuggestionsFromAI( {
 	 * @returns {void}
 	 */
 	const handleSuggestion = useCallback(
-		( event: CustomEvent ) => onSuggestion( event?.detail ),
+		( event: CustomEvent ) => {
+			/*
+			 * Remove the delimiter string from the suggestion,
+			 * only at the beginning and end of the string.
+			 */
+			const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
+			onSuggestion( event?.detail?.replace( delimiterRegEx, '' ) );
+		},
 		[ onSuggestion ]
 	);
 
@@ -122,7 +129,17 @@ export default function useSuggestionsFromAI( {
 	 * @param {string} content - The content.
 	 * @returns {void}
 	 */
-	const handleDone = useCallback( ( event: CustomEvent ) => onDone( event?.detail ), [ onDone ] );
+	const handleDone = useCallback(
+		( event: CustomEvent ) => {
+			/*
+			 * Remove the delimiter string from the suggestion,
+			 * only at the beginning and end of the string.
+			 */
+			const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
+			onDone( event?.detail?.replace( delimiterRegEx, '' ) );
+		},
+		[ onDone ]
+	);
 
 	/**
 	 * Request handler.
