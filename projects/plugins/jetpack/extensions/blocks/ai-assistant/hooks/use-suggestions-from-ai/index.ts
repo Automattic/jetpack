@@ -8,8 +8,8 @@ import debugFactory from 'debug';
 /**
  * Types
  */
+import { PromptItemProps, delimiter } from '../../lib/prompt';
 import { SuggestionsEventSource, askQuestion } from '../../lib/suggestions';
-import type { PromptItemProps } from '../../lib/prompt';
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
@@ -88,7 +88,10 @@ export default function useSuggestionsFromAI( {
 	 * @returns {void}
 	 */
 	const handleSuggestion = useCallback(
-		( event: CustomEvent ) => onSuggestion( event?.detail ),
+		( event: CustomEvent ) => {
+			// Remove the delimiter from the suggestion.
+			onSuggestion( event?.detail?.replaceAll( delimiter, '' ) );
+		},
 		[ onSuggestion ]
 	);
 
@@ -98,7 +101,13 @@ export default function useSuggestionsFromAI( {
 	 * @param {string} content - The content.
 	 * @returns {void}
 	 */
-	const handleDone = useCallback( ( event: CustomEvent ) => onDone( event?.detail ), [ onDone ] );
+	const handleDone = useCallback(
+		( event: CustomEvent ) => {
+			// Remove the delimiter from the suggestion.
+			onDone( event?.detail?.replaceAll( delimiter, '' ) );
+		},
+		[ onDone ]
+	);
 
 	/**
 	 * Request handler.

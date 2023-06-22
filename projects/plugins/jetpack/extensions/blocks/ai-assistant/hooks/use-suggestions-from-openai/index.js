@@ -10,7 +10,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
-import { buildPromptForBlock } from '../../lib/prompt';
+import { buildPromptForBlock, delimiter } from '../../lib/prompt';
 import { askJetpack, askQuestion } from '../../lib/suggestions';
 import { getContentFromBlocks, getPartialContentToBlock } from '../../lib/utils/block-content';
 
@@ -202,7 +202,10 @@ const useSuggestionsFromOpenAI = ( {
 		}
 
 		source?.current?.addEventListener( 'done', e => {
-			const { detail: assistantResponse } = e;
+			const { detail } = e;
+
+			// Remove the delimiter from the suggestion.
+			const assistantResponse = detail.replaceAll( delimiter, '' );
 
 			// Populate the messages with the assistant response.
 			const lastAssistantPrompt = {
@@ -331,8 +334,9 @@ const useSuggestionsFromOpenAI = ( {
 
 		source?.current?.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
-			debug( '(suggestion)', e.detail );
-			updateBlockAttributes( clientId, { content: e.detail } );
+			debug( '(suggestion)', e?.detail );
+			// Remove the delimiter from the suggestion and update the block.
+			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );
 		} );
 		return source?.current;
 	};
