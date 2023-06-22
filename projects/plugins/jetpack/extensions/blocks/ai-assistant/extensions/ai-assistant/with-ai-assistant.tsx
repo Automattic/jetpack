@@ -6,6 +6,7 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
+import { store as noticesStore } from '@wordpress/notices';
 import { RichTextValue, create, insert, join, slice, toHTMLString } from '@wordpress/rich-text';
 import React from 'react';
 /**
@@ -14,7 +15,7 @@ import React from 'react';
 import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 } from '../../components/ai-assistant-controls';
-import useSuggestionsFromAI from '../../hooks/use-suggestions-from-ai';
+import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import {
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_CHANGE_TONE,
@@ -46,10 +47,20 @@ type SetContentOptionsProps = {
  */
 export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
+		const { createNotice } = useDispatch( noticesStore );
 		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
 		const [ storedPrompt, setStoredPrompt ] = useState< StoredPromptProps >( {
 			messages: [],
 		} );
+
+		const showSuggestionError = useCallback(
+			( suggestionError: SuggestionError ) => {
+				createNotice( suggestionError.status, suggestionError.message, {
+					isDismissible: true,
+				} );
+			},
+			[ createNotice ]
+		);
 
 		/**
 		 * Set the content of the block.
@@ -111,6 +122,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
 			onDone: updateStoredPrompt,
+			onError: showSuggestionError,
 			autoRequest: false,
 		} );
 
