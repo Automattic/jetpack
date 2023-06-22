@@ -606,6 +606,8 @@ if ( ! function_exists( 'wpcom_is_launchpad_keep_building_enabled' ) ) {
 	 * We wrap it in a `function_exists` check for now because this function originated on WP.com
 	 * and is being moved to Jetpack to enable the task list on Atomic sites.
 	 *
+	 * @param bool $is_enabled Whether the "Keep building" task list is enabled.
+	 * 
 	 * @return bool Whether the "Keep building" task list is enabled.
 	 */
 	function wpcom_is_launchpad_keep_building_enabled( $is_enabled ) {
