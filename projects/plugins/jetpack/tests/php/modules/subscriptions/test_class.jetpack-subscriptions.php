@@ -6,10 +6,12 @@ require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-membership
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
+use \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
+use const \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
@@ -403,6 +405,50 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		$this->assertFalse( apply_filters( 'comments_open', false, $post_id ) );
 	}
 
+	public function test_posts_in_loop_have_the_right_access() {
+		/**
+		 *
+		 * This test was implemented to prvent issues in loop (either because of cache issue or other
+		 * It pre supposes that  while ( have_posts() ) : the_post(); uses the same order as the post creation
+		 */
+		$first_post_id  = $this->setup_jetpack_paid_newsletters();
+		$second_post_id = $this->factory->post->create();
+		update_post_meta( $second_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, WPCOM_Offline_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS );
+		$third_post_id = $this->factory->post->create();
+		update_post_meta( $third_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, WPCOM_Offline_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS );
+		$fourth_post_id = $this->factory->post->create();
+		update_post_meta( $fourth_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, WPCOM_Offline_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY );
+
+		wp_publish_post( $first_post_id );
+		wp_publish_post( $second_post_id );
+		wp_publish_post( $third_post_id );
+		wp_publish_post( $fourth_post_id );
+
+		$posts_ids = array(
+			$first_post_id,
+			$second_post_id,
+			$third_post_id,
+			$fourth_post_id,
+		);
+
+		foreach ( $posts_ids as $current_post_id ) {
+
+			$post            = get_post( $current_post_id );
+			$GLOBALS['post'] =& $post;
+			setup_postdata( $post );
+			$level = get_post_meta( $current_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+			if ( empty( $level ) ) {
+				$level = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+			}
+
+			$this->assertEquals( $level, Jetpack_Memberships::get_post_access_level() );
+			$this->assertEquals( $current_post_id === $first_post_id || $current_post_id === $fourth_post_id, Jetpack_Memberships::user_can_view_post() );
+
+			wp_reset_postdata();
+
+		}
+	}
+
 	/**
 	 * Setup the newsletter post
 	 *
@@ -410,7 +456,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 */
 	private function setup_jetpack_paid_newsletters() {
 		// We create a plan
-		$this->plan_id = $this->factory->post->create(
+		$this->plan_id = WP_UnitTestCase_Base::factory()->post->create(
 			array(
 				'post_type' => Jetpack_Memberships::$post_type_plan,
 			)
