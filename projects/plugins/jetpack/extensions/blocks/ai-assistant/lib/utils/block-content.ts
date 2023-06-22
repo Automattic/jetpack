@@ -66,10 +66,8 @@ type GetTextContentFromBlocksProps = {
  * @returns {GetTextContentFromBlocksProps} The text content.
  */
 export function getTextContentFromBlocks(): GetTextContentFromBlocksProps[] {
-	const start = select( blockEditorStore ).getSelectionStart();
-	const end = select( blockEditorStore ).getSelectionEnd();
-	const clientIds = select( blockEditorStore ).getSelectedBlockClientIds();
 	const defaultContent = [];
+	const clientIds = select( blockEditorStore ).getSelectedBlockClientIds();
 
 	if ( ! clientIds?.length ) {
 		return defaultContent;
@@ -81,8 +79,29 @@ export function getTextContentFromBlocks(): GetTextContentFromBlocksProps[] {
 		return defaultContent;
 	}
 
+	const startSelection = select( blockEditorStore ).getSelectionStart();
+	const endSelection = select( blockEditorStore ).getSelectionEnd();
+
+	const startSelectionBlockIndex = blocks.findIndex(
+		block => block.clientId === startSelection.clientId
+	);
+	const endSelectionBlockIndex = blocks.findIndex(
+		block => block.clientId === endSelection.clientId
+	);
+
+	let start = startSelection;
+	let end = endSelection;
+
+	// If the start selection is after the end selection, this was a selection made from bottom to top.
+	// We swap them to make sure we have the right order.
+	if ( startSelectionBlockIndex > endSelectionBlockIndex ) {
+		start = endSelection;
+		end = startSelection;
+	}
+
 	return blocks.map( block => {
-		const content = getBlockTextContent( block.clientId );
+		const blockTextContent = getBlockTextContent( block.clientId );
+		const content = create( { html: blockTextContent } );
 
 		// If they are the same, it means that there is no selection, but just the caret position.
 		const hasSelection = start.offset !== end.offset;
@@ -91,12 +110,12 @@ export function getTextContentFromBlocks(): GetTextContentFromBlocksProps[] {
 
 		const offset = {
 			start: useStart ? start.offset : 0,
-			end: useEnd ? end.offset : content.length,
+			end: useEnd ? end.offset : content.text.length,
 		};
 
 		return {
 			clientId: block.clientId,
-			content: create( { html: content } ),
+			content,
 			offset,
 		};
 	} );
