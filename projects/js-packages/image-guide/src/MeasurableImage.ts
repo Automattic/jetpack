@@ -121,4 +121,14 @@ export class MeasurableImage {
 			};
 		} );
 	}
+
+	/**
+	 * Checks if the image is too small and should be ignored
+	 *
+	 * @returns {boolean} - if the image is smaller than 65 pixels width and height
+	 */
+	public isSmall(): boolean {
+		const { width, height } = this.getSizeOnPage();
+		return width < 65 && height < 65;
+	}
 }

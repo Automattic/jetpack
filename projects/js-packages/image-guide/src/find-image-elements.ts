@@ -83,7 +83,8 @@ export function getMeasurableImages( domNodes: Element[], fetchFn = fetch ): Mea
 
 			return null;
 		} )
-		.filter( image => image !== null );
+		.filter( image => image !== null )
+		.filter( image => image.isSmall() );
 }
 
 /**
