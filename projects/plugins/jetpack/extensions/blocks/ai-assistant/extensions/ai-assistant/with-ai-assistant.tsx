@@ -5,7 +5,8 @@ import { BlockControls } from '@wordpress/block-editor';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState, useRef } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
+import { RichTextValue, create, insert, join, slice, toHTMLString } from '@wordpress/rich-text';
 import React from 'react';
 /**
  * Internal dependencies
@@ -14,7 +15,12 @@ import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI from '../../hooks/use-suggestions-from-ai';
-import { getPrompt } from '../../lib/prompt';
+import {
+	PROMPT_TYPE_CHANGE_LANGUAGE,
+	PROMPT_TYPE_CHANGE_TONE,
+	PROMPT_TYPE_CORRECT_SPELLING,
+	getPrompt,
+} from '../../lib/prompt';
 import { getTextContentFromBlocks } from '../../lib/utils/block-content';
 /*
  * Types
@@ -25,19 +31,25 @@ type StoredPromptProps = {
 	messages: Array< PromptItemProps >;
 };
 
+type SetContentOptionsProps = {
+	clientId: string;
+	content: RichTextValue;
+	offset: {
+		start: number;
+		end: number;
+	};
+};
+
 /*
  * Extend the withAIAssistant function of the block
  * to implement multiple blocks edition
  */
 export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
+		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
 		const [ storedPrompt, setStoredPrompt ] = useState< StoredPromptProps >( {
 			messages: [],
 		} );
-
-		const clientIdsRef = useRef< Array< string > >();
-
-		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
 
 		/**
 		 * Set the content of the block.
@@ -46,30 +58,32 @@ export const withAIAssistant = createHigherOrderComponent(
 		 * @returns {void}
 		 */
 		const setContent = useCallback(
-			( newContent: string ) => {
-				/*
-				 * Pick the first item of the array,
-				 * to be udpated with the new content.
-				 * The rest of the items will be removed.
-				 */
-				const [ firstClientId, ...restClientIds ] = clientIdsRef.current;
+			(
+				newContent: string,
+				{ blocks, index }: { blocks: Array< SetContentOptionsProps >; index?: number }
+			) => {
+				const block = blocks[ index || 0 ];
+				const clientId = block?.clientId;
+				const content = block?.content;
+				const offset = block?.offset;
+				const newRichTextContent = create( { html: newContent } );
+				const replacedRichTextContent = insert(
+					content,
+					newRichTextContent,
+					offset.start,
+					offset.end
+				);
+
 				/*
 				 * Update the content of the block
 				 * by calling the setAttributes function,
 				 * updating the `content` attribute.
-				 * It doesn't scale for other blocks.
-				 * @todo: find a better way to update the content.
 				 */
-				updateBlockAttributes( firstClientId, { content: newContent } );
-
-				// Remove the rest of the block in case there are more than one.
-				if ( restClientIds.length ) {
-					removeBlocks( restClientIds ).then( () => {
-						clientIdsRef.current = [ firstClientId ];
-					} );
-				}
+				updateBlockAttributes( clientId, {
+					content: toHTMLString( { value: replacedRichTextContent } ),
+				} );
 			},
-			[ removeBlocks, updateBlockAttributes ]
+			[ updateBlockAttributes ]
 		);
 
 		const addAssistantMessage = useCallback(
@@ -111,33 +125,54 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const { content, clientIds } = getTextContentFromBlocks();
+				const blocks = getTextContentFromBlocks();
+				const firstBlock = blocks[ 0 ];
+				const otherBlocks = blocks.slice( 1 );
+				const mixedContent = join( blocks.map( block => block.content ) );
 
-				/*
-				 * Store the selected clientIds when the user requests a suggestion.
-				 * The client Ids will be used to update the content of the block,
-				 * when suggestions are received from the AI.
-				 */
-				clientIdsRef.current = clientIds;
+				const handleSetStoredPrompt = ( blocksList: Array< SetContentOptionsProps > ) =>
+					setStoredPrompt( prevPrompt => {
+						const allMessages = blocksList.reduce( ( acc, { content, offset } ) => {
+							acc.push(
+								getPrompt( promptType, {
+									...options,
+									content: toHTMLString( { value: slice( content, offset.start, offset.end ) } ),
+									prevMessages: prevPrompt.messages,
+								} )
+							);
 
-				setStoredPrompt( prevPrompt => {
-					const freshPrompt = {
-						...prevPrompt,
-						messages: getPrompt( promptType, {
-							...options,
-							content,
-							prevMessages: prevPrompt.messages,
-						} ),
-					};
+							return acc;
+						}, [] );
 
-					// Request the suggestion from the AI.
-					request( freshPrompt.messages );
+						// Request the suggestion from the AI.
+						request( allMessages, { blocks: blocksList } );
 
-					// Update the stored prompt locally.
-					return freshPrompt;
+						// Update the stored prompt locally.
+						return prevPrompt;
+					} );
+
+				const generateDataForMixedContent = () => ( {
+					clientId: firstBlock.clientId,
+					content: mixedContent,
+					offset: {
+						start: 0,
+						end: toHTMLString( { value: mixedContent } ).length,
+					},
 				} );
+
+				switch ( promptType ) {
+					case PROMPT_TYPE_CORRECT_SPELLING:
+					case PROMPT_TYPE_CHANGE_LANGUAGE:
+					case PROMPT_TYPE_CHANGE_TONE:
+						handleSetStoredPrompt( blocks );
+						break;
+					default:
+						handleSetStoredPrompt( [ generateDataForMixedContent() ] );
+						removeBlocks( otherBlocks.map( block => block.clientId ) );
+						break;
+				}
 			},
-			[ request ]
+			[ removeBlocks, request ]
 		);
 
 		return (
