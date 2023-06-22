@@ -428,7 +428,7 @@ importers:
         version: 4.2.1
       browserslist:
         specifier: ^4.17.6
-        version: 4.20.4
+        version: 4.21.9
       debug:
         specifier: ^4.3.2
         version: 4.3.4
@@ -1205,8 +1205,8 @@ importers:
         specifier: 9.1.2
         version: 9.1.2(@babel/core@7.21.5)(webpack@5.76.0)
       browserslist:
-        specifier: 4.20.4
-        version: 4.20.4
+        specifier: 4.21.9
+        version: 4.21.9
       css-loader:
         specifier: 6.5.1
         version: 6.5.1(webpack@5.76.0)
@@ -10397,7 +10397,7 @@ packages:
       '@wordpress/browserslist-config': 5.18.0
       '@wordpress/element': 5.12.0
       '@wordpress/warning': 2.35.0
-      browserslist: 4.20.4
+      browserslist: 4.21.9
       core-js: 3.23.5
     transitivePeerDependencies:
       - supports-color
@@ -12521,7 +12521,6 @@ packages:
     resolution: {integrity: sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==}
     dependencies:
       deep-equal: 2.2.1
-      dequal: 2.0.3
     dev: true
 
   /array-buffer-byte-length@1.0.0:
@@ -13046,17 +13045,6 @@ packages:
       pako: 0.2.9
     dev: true
 
-  /browserslist@4.20.4:
-    resolution: {integrity: sha512-ok1d+1WpnU24XYN7oC3QWgTyMhY/avPJ/r9T00xxvUOIparA/gc+UPUMaod3i+G6s+nI2nUb9xZ5k794uIwShw==}
-    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
-    dependencies:
-      caniuse-lite: 1.0.30001505
-      electron-to-chromium: 1.4.435
-      escalade: 3.1.1
-      node-releases: 2.0.12
-      picocolors: 1.0.0
-
   /browserslist@4.21.9:
     resolution: {integrity: sha512-M0MFoZzbUrRU4KNfCrDLnvyE7gub+peetoTid3TBIqtunaDJyXlwhakT+/VkvSXcfIzFfK/nkCs4nmyTmxdNSg==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
@@ -13173,7 +13161,7 @@ packages:
   /caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
     dependencies:
-      browserslist: 4.20.4
+      browserslist: 4.21.9
       caniuse-lite: 1.0.30001505
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
@@ -23435,7 +23423,7 @@ packages:
       '@webassemblyjs/wasm-parser': 1.11.1
       acorn: 8.9.0
       acorn-import-assertions: 1.9.0(acorn@8.9.0)
-      browserslist: 4.20.4
+      browserslist: 4.21.9
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.15.0
       es-module-lexer: 0.9.3
