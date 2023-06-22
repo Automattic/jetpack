@@ -9,8 +9,8 @@ import debugFactory from 'debug';
 /**
  * Types
  */
+import { PromptItemProps, delimiter } from '../../lib/prompt';
 import { SuggestionsEventSource, askQuestion } from '../../lib/suggestions';
-import type { PromptItemProps } from '../../lib/prompt';
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
@@ -152,13 +152,17 @@ export default function useSuggestionsFromAI( {
 					fromCache: false,
 				} );
 
-				handleSuggestion.current = ( event: CustomEvent ) =>
-					onSuggestion?.( event?.detail, extraArgs );
+				handleSuggestion.current = ( event: CustomEvent ) => {
+					const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
+					onSuggestion?.( event?.detail?.replace( delimiterRegEx, '' ) );
+				};
 
 				source?.current?.addEventListener( 'suggestion', handleSuggestion.current );
 
 				handleDone.current = ( event: CustomEvent ) => {
-					onDone?.( event?.detail, extraArgs );
+					const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
+					onDone( event?.detail?.replace( delimiterRegEx, '' ) );
+
 					if ( hasNext ) {
 						request( promptArg, nextExtraArgs );
 					}
