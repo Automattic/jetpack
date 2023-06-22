@@ -44,6 +44,8 @@ export type PromptItemProps = {
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
+export const delimiter = '####';
+
 /**
  * Helper function to get the initial system prompt.
  * It defines the `context` value in case it isn't provided.
@@ -104,6 +106,10 @@ type PromptOptionsProps = {
 	prevMessages?: Array< PromptItemProps >;
 };
 
+function getDelimitedContent( content: string ): string {
+	return `${ delimiter }${ content.replaceAll( delimiter, '' ) }${ delimiter }`;
+}
+
 function getCorrectSpellingPrompt( {
 	content,
 	role = 'user',
@@ -111,7 +117,9 @@ function getCorrectSpellingPrompt( {
 	return [
 		{
 			role,
-			content: `Repeat the following text, correcting any spelling and grammar mistakes directly in the text without providing feedback about the corrections, keeping the language of the text: \n\n${ content }`,
+			content: `Repeat the text delimited with ${ delimiter }, without the delimiter, correcting any spelling and grammar mistakes directly in the text without providing feedback about the corrections, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -123,7 +131,9 @@ function getSimplifyPrompt( {
 	return [
 		{
 			role,
-			content: `Simplify the following text, using words and phrases that are easier to understand and keeping the language of the text:\n\n${ content }`,
+			content: `Simplify the text delimited with ${ delimiter }, using words and phrases that are easier to understand and keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -135,7 +145,9 @@ function getSummarizePrompt( {
 	return [
 		{
 			role,
-			content: `Summarize the following text, keeping the language of the text:\n\n${ content }`,
+			content: `Summarize the text delimited with ${ delimiter }, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -147,7 +159,9 @@ function getExpandPrompt( {
 	return [
 		{
 			role,
-			content: `Expand the following text to about double its size, keeping the language of the text:\n\n${ content }`,
+			content: `Expand the text delimited with ${ delimiter } to about double its size, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -160,7 +174,9 @@ function getTranslatePrompt( {
 	return [
 		{
 			role,
-			content: `Translate the following text to ${ language }, preserving the same core meaning and tone:\n\n${ content }`,
+			content: `Translate the text delimited with ${ delimiter } to ${ language }, preserving the same core meaning and tone: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -173,7 +189,9 @@ function getTonePrompt( {
 	return [
 		{
 			role,
-			content: `Rewrite the following text with a ${ tone } tone, keeping the language of the text:\n\n${ content }`,
+			content: `Rewrite the text delimited with ${ delimiter }, with a ${ tone } tone, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -218,10 +236,12 @@ export const buildPromptTemplate = ( {
 	const messages = [ getInitialSystemPrompt( { rules } ) ];
 
 	if ( relevantContent != null && relevantContent?.length ) {
+		const sanitizedContent = relevantContent.replaceAll( delimiter, '' );
+
 		if ( ! isContentGenerated ) {
 			messages.push( {
-				role: 'system',
-				content: `The specific relevant content for this request, if necessary: ${ relevantContent }`,
+				role: 'user',
+				content: `The specific relevant content for this request, if necessary, delimited with ${ delimiter } characters: ${ delimiter }${ sanitizedContent }${ delimiter }`,
 			} );
 		}
 	}
