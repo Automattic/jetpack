@@ -72,31 +72,22 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ removeBlocks, updateBlockAttributes ]
 		);
 
-		const addAssistantMessage = useCallback(
+		const updateStoredPrompt = useCallback(
 			( assistantContent: string ) => {
 				setStoredPrompt( prevPrompt => {
-					/*
-					 * Add the assistant messages to the prompt.
-					 * - Preserve the first item of the array (`system` role )
-					 * - Keep the last 4 messages.
-					 */
-
-					// Pick the first item of the array.
-					const firstItem = prevPrompt.messages.shift();
-
 					const messages: Array< PromptItemProps > = [
-						firstItem, // first item (`system` by default)
-						...prevPrompt.messages.splice( -3 ), // last 3 items
+						/*
+						 * Do not store `system` role items,
+						 * and preserve the last 3 ones.
+						 */
+						...prevPrompt.messages.filter( message => message.role !== 'system' ).slice( -3 ),
 						{
 							role: 'assistant',
 							content: assistantContent, // + 1 `assistant` role item
 						},
 					];
 
-					return {
-						...prevPrompt,
-						messages,
-					};
+					return { ...prevPrompt, messages };
 				} );
 			},
 			[ setStoredPrompt ]
@@ -105,7 +96,7 @@ export const withAIAssistant = createHigherOrderComponent(
 		const { request } = useSuggestionsFromAI( {
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
-			onDone: addAssistantMessage,
+			onDone: updateStoredPrompt,
 			autoRequest: false,
 		} );
 
@@ -121,15 +112,13 @@ export const withAIAssistant = createHigherOrderComponent(
 				clientIdsRef.current = clientIds;
 
 				setStoredPrompt( prevPrompt => {
-					const freshPrompt = {
-						...prevPrompt,
-						messages: getPrompt( promptType, {
-							...options,
-							content,
-							prevMessages: prevPrompt.messages,
-						} ),
-					};
+					const messages = getPrompt( promptType, {
+						...options,
+						content,
+						prevMessages: prevPrompt.messages,
+					} );
 
+					const freshPrompt = { ...prevPrompt, messages };
 					// Request the suggestion from the AI.
 					request( freshPrompt.messages );
 

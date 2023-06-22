@@ -423,48 +423,44 @@ export function getPrompt(
 		'You are an advanced polyglot ghostwriter.' +
 		'Your task is to help the user create and modify content based on their requests.';
 
-	/*
-	 * Create the initial prompt only if there are no previous messages.
-	 * Otherwise, let's use the previous messages as the initial prompt.
-	 */
-	let prompt: Array< PromptItemProps > = ! prevMessages?.length
-		? [
-				{
-					role: 'system',
-					content: `${ context }
+	const systemPrompt: PromptItemProps = {
+		role: 'system',
+		content: `${ context }
 Writing rules:
 - Execute the request without any acknowledgment or explanation to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `,
-				},
-		  ]
-		: prevMessages;
+	};
 
+	// Prompt starts with the previous messages, if any.
+	const prompt: Array< PromptItemProps > = prevMessages;
+
+	// Then, add the `system` prompt to clarify the context.
+	prompt.push( systemPrompt );
+
+	// Finally, add the current `user` request.
 	switch ( type ) {
 		case PROMPT_TYPE_CORRECT_SPELLING:
-			prompt = [ ...prompt, ...getCorrectSpellingPrompt( options ) ];
-			break;
+			return [ ...prompt, ...getCorrectSpellingPrompt( options ) ];
 
 		case PROMPT_TYPE_SIMPLIFY:
-			prompt = [ ...prompt, ...getSimplifyPrompt( options ) ];
-			break;
+			return [ ...prompt, ...getSimplifyPrompt( options ) ];
 
 		case PROMPT_TYPE_SUMMARIZE:
-			prompt = [ ...prompt, ...getSummarizePrompt( options ) ];
-			break;
+			return [ ...prompt, ...getSummarizePrompt( options ) ];
 
 		case PROMPT_TYPE_MAKE_LONGER:
-			prompt = [ ...prompt, ...getExpandPrompt( options ) ];
-			break;
+			return [ ...prompt, ...getExpandPrompt( options ) ];
 
 		case PROMPT_TYPE_CHANGE_LANGUAGE:
-			prompt = [ ...prompt, ...getTranslatePrompt( options ) ];
-			break;
+			return [ ...prompt, ...getTranslatePrompt( options ) ];
 
 		case PROMPT_TYPE_CHANGE_TONE:
-			prompt = [ ...prompt, ...getTonePrompt( options ) ];
-			break;
+			return [ ...prompt, ...getTonePrompt( options ) ];
+
+		default:
+			throw new Error( `Unknown prompt type: ${ type }` );
 	}
 
 	return prompt;
