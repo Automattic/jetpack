@@ -76,17 +76,18 @@ export const withAIAssistant = createHigherOrderComponent(
 			( assistantContent: string ) => {
 				setStoredPrompt( prevPrompt => {
 					const messages: Array< PromptItemProps > = [
-						...prevPrompt.messages.splice( -3 ), // Preserv only the last 3 items
+						/*
+						 * Do not store `system` role items,
+						 * and preserve the last 3 ones.
+						 */
+						...prevPrompt.messages.filter( _ => _.role !== 'system' ).slice( -3 ),
 						{
 							role: 'assistant',
 							content: assistantContent, // + 1 `assistant` role item
 						},
 					];
 
-					return {
-						...prevPrompt,
-						messages,
-					};
+					return { ...prevPrompt, messages };
 				} );
 			},
 			[ setStoredPrompt ]
@@ -111,15 +112,13 @@ export const withAIAssistant = createHigherOrderComponent(
 				clientIdsRef.current = clientIds;
 
 				setStoredPrompt( prevPrompt => {
-					const freshPrompt = {
-						...prevPrompt,
-						messages: getPrompt( promptType, {
-							...options,
-							content,
-							prevMessages: prevPrompt.messages,
-						} ),
-					};
+					const messages = getPrompt( promptType, {
+						...options,
+						content,
+						prevMessages: prevPrompt.messages,
+					} );
 
+					const freshPrompt = { ...prevPrompt, messages };
 					// Request the suggestion from the AI.
 					request( freshPrompt.messages );
 
