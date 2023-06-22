@@ -595,6 +595,39 @@ function wpcom_launchpad_keep_building_visible_tasks( $task_list ) {
 	);
 }
 
+/**
+ * Determines if the Launchpad "Keep building" task list is enabled.
+ *
+ * This filter allows customization of the Launchpad "Keep building" task list.
+ * By default, the "Keep building" task list should be enabled for sites with the Build intent,
+ * new sites only.
+ *
+ * We wrap it in a `function_exists` check for now because this function originated on WP.com
+ * and is being moved to Jetpack to enable the task list on Atomic sites.
+ *
+ * @param bool $is_enabled The current state of the "Keep building" task list.
+ * @return bool Whether the "Keep building" task list is enabled.
+ */
+if ( ! function_exists( 'wpcom_is_launchpad_keep_building_enabled' ) ) {
+	function wpcom_is_launchpad_keep_building_enabled( $is_enabled ) {
+		$intent = get_option( 'site_intent', false );
+
+		if ( 'build' !== $intent ) {
+			return false;
+		}
+
+		$blog_id = get_current_blog_id();
+
+		/**
+		 * All blogs created after blog ID `220443356`
+		 * should show the "Keep building" task list.
+		 */
+		return $blog_id > 220443356;
+	}
+
+	add_filter( 'is_launchpad_keep_building_enabled', 'wpcom_is_launchpad_keep_building_enabled' );
+}
+
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
 if ( class_exists( 'WPCOM_Launchpad' ) ) {
 	remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
