@@ -434,7 +434,7 @@ importers:
         version: 4.3.4
       semver:
         specifier: ^7.3.5
-        version: 7.3.5
+        version: 7.5.2
     devDependencies:
       '@wordpress/browserslist-config':
         specifier: 5.18.0
@@ -1536,8 +1536,8 @@ importers:
         specifier: 1.38.1
         version: 1.38.1
       semver:
-        specifier: 7.3.5
-        version: 7.3.5
+        specifier: 7.5.2
+        version: 7.5.2
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -3713,8 +3713,8 @@ importers:
         specifier: 0.11.10
         version: 0.11.10
       semver:
-        specifier: 7.3.5
-        version: 7.3.5
+        specifier: 7.5.2
+        version: 7.5.2
       sprintf-js:
         specifier: 1.1.2
         version: 1.1.2
@@ -5431,7 +5431,7 @@ packages:
       chalk: 4.1.2
       find-root: 1.1.0
       lodash.groupby: 4.6.0
-      semver: 7.3.5
+      semver: 7.5.2
       webpack: 5.76.0(webpack-cli@4.9.1)
     dev: false
 
@@ -12521,7 +12521,6 @@ packages:
     resolution: {integrity: sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==}
     dependencies:
       deep-equal: 2.2.1
-      dequal: 2.0.3
     dev: true
 
   /array-buffer-byte-length@1.0.0:
@@ -13866,7 +13865,7 @@ packages:
       postcss-modules-scope: 3.0.0(postcss@8.4.21)
       postcss-modules-values: 4.0.0(postcss@8.4.21)
       postcss-value-parser: 4.2.0
-      semver: 7.3.5
+      semver: 7.5.2
       webpack: 5.76.0(webpack-cli@4.9.1)
 
   /css-loader@6.8.1(webpack@5.76.0):
@@ -15719,7 +15718,7 @@ packages:
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.3.5
+      semver: 7.5.2
       tapable: 2.2.1
       typescript: 5.0.4
       webpack: 5.76.0(webpack-cli@4.9.1)
@@ -17485,7 +17484,7 @@ packages:
       jest-util: 29.5.0
       natural-compare: 1.4.0
       pretty-format: 29.5.0
-      semver: 7.3.5
+      semver: 7.5.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -19637,7 +19636,7 @@ packages:
       pm2-deploy: 1.0.2
       pm2-multimeter: 0.1.2
       promptly: 2.2.0
-      semver: 7.3.5
+      semver: 7.5.2
       source-map-support: 0.5.21
       sprintf-js: 1.1.2
       vizion: 2.2.1
@@ -19756,7 +19755,7 @@ packages:
       cosmiconfig: 7.1.0
       klona: 2.0.6
       postcss: 8.4.21
-      semver: 7.3.5
+      semver: 7.5.2
       webpack: 5.76.0(webpack-cli@4.9.1)
     dev: true
 
@@ -22722,7 +22721,7 @@ packages:
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.3.5
+      semver: 7.5.2
       typescript: 5.0.4
       yargs-parser: 21.1.1
     dev: true
@@ -22737,7 +22736,7 @@ packages:
       chalk: 4.1.2
       enhanced-resolve: 5.15.0
       micromatch: 4.0.5
-      semver: 7.3.5
+      semver: 7.5.2
       typescript: 5.0.4
       webpack: 5.76.0(webpack-cli@4.9.1)
     dev: true
