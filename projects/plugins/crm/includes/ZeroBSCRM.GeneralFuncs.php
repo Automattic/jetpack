@@ -1634,3 +1634,21 @@ function jpcrm_generate_pdf( $html, $pdf_filename ) {
 function jpcrm_disable_browser_autocomplete() {
 	return time() . wp_rand( 0, 1000000 );
 }
+
+/**
+ * Retrieves the MIME type of a file.
+ *
+ * If the FileInfo extension is available, it uses finfo_file to determine the MIME type.
+ * Otherwise, it falls back to mime_content_type for MIME type detection.
+ *
+ * @param string $file_path The path to the file.
+ * @return string|false The MIME type of the file, or false if the MIME type cannot be determined.
+ */
+function jpcrm_get_mimetype( $file_path ) {
+	if ( function_exists( 'finfo_file' ) ) {
+		$file_info = finfo_open( FILEINFO_MIME_TYPE );
+		return finfo_file( $file_info, $file_path );
+	}
+
+	return mime_content_type( $file_path );
+}
