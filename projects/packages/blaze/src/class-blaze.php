@@ -35,7 +35,7 @@ class Blaze {
 
 	/**
 	 * Initializer.
-	 * Used to configure the stats package, eg when called via the Config package.
+	 * Used to configure the blaze package, eg when called via the Config package.
 	 *
 	 * @return void
 	 */
