@@ -37,6 +37,9 @@ export const withAIAssistant = createHigherOrderComponent(
 		} );
 
 		const [ suggestionError, setSuggestionError ] = useState< SuggestionError >( null );
+		const clearSuggestionError = useCallback( () => {
+			setSuggestionError( null );
+		}, [ setSuggestionError ] );
 
 		const clientIdsRef = useRef< Array< string > >();
 
@@ -149,7 +152,7 @@ export const withAIAssistant = createHigherOrderComponent(
 				{ suggestionError && (
 					<ErrorNotice
 						message={ suggestionError.message }
-						onRemove={ () => setSuggestionError( null ) }
+						onRemove={ clearSuggestionError }
 					></ErrorNotice>
 				) }
 
