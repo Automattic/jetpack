@@ -134,7 +134,7 @@ const useSuggestionsFromOpenAI = ( {
 		} );
 
 		// Create a copy of the messages.
-		const updatedMessaages = [ ...attributes.messages ] ?? [];
+		const updatedMessages = [ ...attributes.messages ] ?? [];
 
 		let lastUserPrompt = {};
 
@@ -158,7 +158,7 @@ const useSuggestionsFromOpenAI = ( {
 			lastUserPrompt = prompt.pop();
 
 			// Populate prompt with the messages.
-			prompt = [ ...prompt, ...updatedMessaages ];
+			prompt = [ ...prompt, ...updatedMessages ];
 
 			// Restore the last user prompt.
 			prompt.push( lastUserPrompt );
@@ -212,7 +212,7 @@ const useSuggestionsFromOpenAI = ( {
 				role: 'assistant',
 				content: assistantResponse,
 			};
-			updatedMessaages.push( lastUserPrompt, lastAssistantPrompt );
+			updatedMessages.push( lastUserPrompt, lastAssistantPrompt );
 
 			debugPrompt( 'Add %o\n%s', `[${ lastUserPrompt.role }]`, lastUserPrompt.content );
 			debugPrompt( 'Add %o\n%s', `[${ lastAssistantPrompt.role }]`, lastAssistantPrompt.content );
@@ -221,15 +221,15 @@ const useSuggestionsFromOpenAI = ( {
 			 * Limit the messages to 20 items.
 			 * @todo: limit the prompt based on tokens.
 			 */
-			if ( updatedMessaages.length > 20 ) {
-				updatedMessaages.splice( 0, updatedMessaages.length - 20 );
+			if ( updatedMessages.length > 20 ) {
+				updatedMessages.splice( 0, updatedMessages.length - 20 );
 			}
 
 			stopSuggestion();
 
 			updateBlockAttributes( clientId, {
 				content: assistantResponse,
-				messages: updatedMessaages,
+				messages: updatedMessages,
 			} );
 			refreshFeatureData();
 		} );
@@ -255,9 +255,9 @@ const useSuggestionsFromOpenAI = ( {
 				 * Let's clean up the messages array and try again.
 				 * @todo: improve the process based on tokens / URL length.
 				 */
-				updatedMessaages.splice( 0, 8 );
+				updatedMessages.splice( 0, 8 );
 				updateBlockAttributes( clientId, {
-					messages: updatedMessaages,
+					messages: updatedMessages,
 				} );
 
 				/*
@@ -275,7 +275,7 @@ const useSuggestionsFromOpenAI = ( {
 					isGeneratingTitle: attributes.promptType === 'generateTitle',
 				} );
 
-				setLastPrompt( [ ...prompt, ...updatedMessaages, lastUserPrompt ] );
+				setLastPrompt( [ ...prompt, ...updatedMessages, lastUserPrompt ] );
 			}
 
 			source?.current?.close();
