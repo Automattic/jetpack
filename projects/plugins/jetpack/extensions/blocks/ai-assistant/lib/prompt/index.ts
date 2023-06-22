@@ -86,11 +86,6 @@ type PromptOptionsProps = {
 	content: string;
 
 	/*
-	 * The delimited content.
-	 */
-	delimitedContent: string;
-
-	/*
 	 * The language to translate to. Optional.
 	 */
 	language?: string;
@@ -111,76 +106,92 @@ type PromptOptionsProps = {
 	prevMessages?: Array< PromptItemProps >;
 };
 
+function getDelimitedContent( content: string ): string {
+	return `${ delimiter }${ content.replaceAll( delimiter, '' ) }${ delimiter }`;
+}
+
 function getCorrectSpellingPrompt( {
-	delimitedContent,
+	content,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Repeat the text delimited with ${ delimiter }, without the delimiter, correcting any spelling and grammar mistakes directly in the text without providing feedback about the corrections, keeping the language of the text: ${ delimitedContent }`,
+			content: `Repeat the text delimited with ${ delimiter }, without the delimiter, correcting any spelling and grammar mistakes directly in the text without providing feedback about the corrections, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
 
 function getSimplifyPrompt( {
-	delimitedContent,
+	content,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Simplify the text delimited with ${ delimiter }, using words and phrases that are easier to understand and keeping the language of the text: ${ delimitedContent }`,
+			content: `Simplify the text delimited with ${ delimiter }, using words and phrases that are easier to understand and keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
 
 function getSummarizePrompt( {
-	delimitedContent,
+	content,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Summarize the text delimited with ${ delimiter }, keeping the language of the text: ${ delimitedContent }`,
+			content: `Summarize the text delimited with ${ delimiter }, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
 
 function getExpandPrompt( {
-	delimitedContent,
+	content,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Expand the text delimited with ${ delimiter } to about double its size, keeping the language of the text: ${ delimitedContent }`,
+			content: `Expand the text delimited with ${ delimiter } to about double its size, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
 
 function getTranslatePrompt( {
-	delimitedContent,
+	content,
 	language,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Translate the text delimited with ${ delimiter } to ${ language }, preserving the same core meaning and tone: ${ delimitedContent }`,
+			content: `Translate the text delimited with ${ delimiter } to ${ language }, preserving the same core meaning and tone: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
 
 function getTonePrompt( {
-	delimitedContent,
+	content,
 	tone,
 	role = 'user',
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	return [
 		{
 			role,
-			content: `Rewrite the text delimited with ${ delimiter }, with a ${ tone } tone, keeping the language of the text: ${ delimitedContent }`,
+			content: `Rewrite the text delimited with ${ delimiter }, with a ${ tone } tone, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -429,11 +440,6 @@ Writing rules:
 				},
 		  ]
 		: prevMessages;
-
-	options.delimitedContent = `${ delimiter }${ options.content?.replaceAll(
-		delimiter,
-		''
-	) }${ delimiter }`;
 
 	switch ( type ) {
 		case PROMPT_TYPE_CORRECT_SPELLING:
