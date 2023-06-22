@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+Comment: fixes send preview email not working when using plain permalink
+
