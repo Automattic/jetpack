@@ -80,7 +80,7 @@ export const withAIAssistant = createHigherOrderComponent(
 						 * Do not store `system` role items,
 						 * and preserve the last 3 ones.
 						 */
-						...prevPrompt.messages.filter( _ => _.role !== 'system' ).slice( -3 ),
+						...prevPrompt.messages.filter( message => message.role !== 'system' ).slice( -3 ),
 						{
 							role: 'assistant',
 							content: assistantContent, // + 1 `assistant` role item
