@@ -2,7 +2,7 @@ import { serialize } from '@wordpress/blocks';
 import { usePrevious } from '@wordpress/compose';
 import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useCallback } from '@wordpress/element';
 
 export function useSaveCookieConsentSettings( clientId ) {
 	const isSaving = useSelect( select => {
@@ -12,7 +12,6 @@ export function useSaveCookieConsentSettings( clientId ) {
 	const wasSaving = usePrevious( isSaving );
 	const postHasBeenJustSaved = !! ( wasSaving && ! isSaving );
 
-	// eslint-disable-next-line no-unused-vars
 	const [ cookieConsentTemplate, setCookieConsentTemplate ] = useEntityProp(
 		'root',
 		'site',
@@ -21,30 +20,38 @@ export function useSaveCookieConsentSettings( clientId ) {
 	const { saveEditedEntityRecord } = useDispatch( coreStore );
 	const [ isSavingSetting, setIsSavingSetting ] = useState( false );
 
-	const content = useSelect(
-		select => {
-			const { getBlock } = select( 'core/block-editor' );
-			return serialize( [ getBlock( clientId ) ] );
-		},
-		[ serialize ]
-	);
+	const getBlockById = useSelect( select => {
+		const { getBlock } = select( 'core/block-editor' );
+		return getBlock;
+	} );
 
-	useEffect( () => {
-		if ( postHasBeenJustSaved && ! isSavingSetting ) {
+	const saveTemplate = useCallback(
+		template => {
 			setIsSavingSetting( true );
-			setCookieConsentTemplate( content );
+			setCookieConsentTemplate( template );
 			saveEditedEntityRecord( 'root', 'site', undefined, {
-				cookie_consent_template: content,
+				cookie_consent_template: template,
 			} ).finally( () => {
 				setIsSavingSetting( false );
 			} );
+		},
+		[ setIsSavingSetting, setCookieConsentTemplate, saveEditedEntityRecord ]
+	);
+
+	useEffect( () => {
+		return () => {
+			const block = getBlockById( clientId );
+
+			if ( ! block && cookieConsentTemplate ) {
+				saveTemplate( null );
+			}
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	useEffect( () => {
+		if ( postHasBeenJustSaved && ! isSavingSetting ) {
+			saveTemplate( serialize( [ getBlockById( clientId ) ] ) );
 		}
-	}, [
-		content,
-		postHasBeenJustSaved,
-		setCookieConsentTemplate,
-		saveEditedEntityRecord,
-		isSavingSetting,
-		setIsSavingSetting,
-	] );
+	}, [ postHasBeenJustSaved, isSavingSetting, saveTemplate, getBlockById, clientId ] );
 }
