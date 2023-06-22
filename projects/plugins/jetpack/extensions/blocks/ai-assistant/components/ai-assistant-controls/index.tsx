@@ -134,7 +134,6 @@ export default function AiAssistantDropdown( {
 							[ `is-${ requestingState }` ]: true,
 						} ) }
 						showTooltip
-						isActive={ requestingState === 'requesting' || requestingState === 'suggesting' }
 						onClick={ onToggle }
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
