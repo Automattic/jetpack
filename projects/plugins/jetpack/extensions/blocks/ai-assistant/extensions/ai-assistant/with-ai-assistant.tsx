@@ -4,6 +4,7 @@
 import { BlockControls } from '@wordpress/block-editor';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState, useRef } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
@@ -36,6 +37,11 @@ export const withAIAssistant = createHigherOrderComponent(
 			messages: [],
 		} );
 
+		const {
+			name,
+			context: { postType, postId },
+		} = props;
+
 		const clientIdsRef = useRef< Array< string > >();
 
 		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
@@ -50,6 +56,8 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ createNotice ]
 		);
 
+		const [ , setTitle ] = useEntityProp( 'postType', postType, 'title', postId );
+
 		/**
 		 * Set the content of the block.
 		 *
@@ -58,6 +66,11 @@ export const withAIAssistant = createHigherOrderComponent(
 		 */
 		const setContent = useCallback(
 			( newContent: string ) => {
+				// Update the block post title block
+				if ( name === 'core/post-title' ) {
+					return setTitle( newContent );
+				}
+
 				/*
 				 * Pick the first item of the array,
 				 * to be udpated with the new content.
@@ -80,7 +93,7 @@ export const withAIAssistant = createHigherOrderComponent(
 					} );
 				}
 			},
-			[ removeBlocks, updateBlockAttributes ]
+			[ name, removeBlocks, setTitle, updateBlockAttributes ]
 		);
 
 		const updateStoredPrompt = useCallback(
