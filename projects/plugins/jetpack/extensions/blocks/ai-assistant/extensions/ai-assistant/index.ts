@@ -3,7 +3,6 @@
  */
 import { getBlockType } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import { store as editPostStore } from '@wordpress/edit-post';
 import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
@@ -72,7 +71,7 @@ export function isPossibleToExtendBlock(): boolean {
 	 * ToDo: the `editPostStore` is undefined for P2 sites.
 	 * Let's find a way to check if the block is hidden.
 	 */
-	const { getHiddenBlockTypes } = select( editPostStore ) || {};
+	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
 	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will extend the block if the function is undefined.
 	if ( hiddenBlocks.includes( blockName ) ) {
 		return false;
