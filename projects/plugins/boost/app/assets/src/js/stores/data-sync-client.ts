@@ -31,6 +31,6 @@ const allowedSuggestions = [
 export type RegenReason = ( typeof allowedSuggestions )[ number ];
 
 export const suggestRegenerateDS = jetpack_boost_ds.createAsyncStore(
-	'critical_css_suggest_regenerate',
+	'critical_css_regen',
 	z.enum( allowedSuggestions ).nullable()
 );

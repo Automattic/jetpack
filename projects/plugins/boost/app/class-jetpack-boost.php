@@ -200,7 +200,7 @@ class Jetpack_Boost {
 			Regenerate_Admin_Notice::enable();
 		}
 
-		jetpack_boost_ds_set( 'critical_css_suggest_regenerate', $change_type );
+		jetpack_boost_ds_set( 'critical_css_regen', $change_type );
 	}
 
 	/**

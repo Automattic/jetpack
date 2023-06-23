@@ -60,7 +60,7 @@ class Boost_Health {
 			return false;
 		}
 
-		$suggest_regenerate = jetpack_boost_ds_get( 'critical_css_suggest_regenerate' );
+		$suggest_regenerate = jetpack_boost_ds_get( 'critical_css_regen' );
 
 		return in_array( $suggest_regenerate, Environment_Change_Detector::get_available_env_change_statuses(), true );
 	}
