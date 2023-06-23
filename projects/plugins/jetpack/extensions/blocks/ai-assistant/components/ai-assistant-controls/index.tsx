@@ -108,6 +108,11 @@ type AiAssistantControlComponentProps = {
 	 */
 	requestingState?: RequestingStateProp;
 
+	/*
+	 * Whether the dropdown is disabled.
+	 */
+	disabled?: boolean;
+
 	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
 };
 
@@ -117,6 +122,7 @@ export default function AiAssistantDropdown( {
 	exclude = [],
 	requestingState,
 	onChange,
+	disabled,
 }: AiAssistantControlComponentProps ) {
 	const quickActionsListFiltered = quickActionsList.filter(
 		quickAction => ! exclude.includes( quickAction.key )
@@ -139,6 +145,7 @@ export default function AiAssistantDropdown( {
 						aria-expanded={ isOpen }
 						label={ label || __( 'AI Assistant', 'jetpack' ) }
 						icon={ aiAssistant }
+						disabled={ disabled }
 					/>
 				);
 			} }

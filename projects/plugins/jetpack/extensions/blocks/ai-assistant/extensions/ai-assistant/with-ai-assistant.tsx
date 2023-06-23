@@ -16,7 +16,10 @@ import AiAssistantDropdown, {
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import { getPrompt } from '../../lib/prompt';
-import { getTextContentFromBlocks } from '../../lib/utils/block-content';
+import {
+	getRawTextFromHTML,
+	getTextContentFromSelectedBlocks,
+} from '../../lib/utils/block-content';
 /*
  * Types
  */
@@ -112,10 +115,10 @@ export const withAIAssistant = createHigherOrderComponent(
 			autoRequest: false,
 		} );
 
+		const { content, clientIds } = getTextContentFromSelectedBlocks();
+
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const { content, clientIds } = getTextContentFromBlocks();
-
 				/*
 				 * Store the selected clientIds when the user requests a suggestion.
 				 * The client Ids will be used to update the content of the block,
@@ -138,15 +141,21 @@ export const withAIAssistant = createHigherOrderComponent(
 					return freshPrompt;
 				} );
 			},
-			[ request ]
+			[ clientIds, content, request ]
 		);
+
+		const rawContent = getRawTextFromHTML( props.attributes.content );
 
 		return (
 			<>
 				<BlockEdit { ...props } />
 
 				<BlockControls group="block">
-					<AiAssistantDropdown onChange={ requestSuggestion } requestingState={ requestingState } />
+					<AiAssistantDropdown
+						onChange={ requestSuggestion }
+						requestingState={ requestingState }
+						disabled={ ! rawContent?.length }
+					/>
 				</BlockControls>
 			</>
 		);
