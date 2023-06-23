@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+CPT Exclusion: do not sync Jetpack Inspect Log entries.

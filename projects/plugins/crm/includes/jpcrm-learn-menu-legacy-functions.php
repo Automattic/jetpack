@@ -90,7 +90,10 @@ function jpcrm_viewcontact_learn_menu( $learn_menu ) {
  */
 function jpcrm_viewcompany_learn_menu( $learn_menu ) {
 
-	$company_id                  = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$company_id = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	// page options likely are meant to configure object tab columns in the view profile, but they don't currently work
+	// $learn_menu['left_buttons']  = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_page_options">' . esc_html__( 'Page options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
 	$learn_menu['right_buttons'] = zeroBSCRM_getObjNav( $company_id, 'view', ZBS_TYPE_COMPANY );
 
 	return $learn_menu;
@@ -134,9 +137,6 @@ function jpcrm_formlist_learn_menu( $learn_menu ) {
 		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_form', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new form', 'zero-bs-crm' ) . '</a>';
 	}
 
-	// ? Yup ?
-	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:11")) {hopscotch.startTour(window.zbsTour);}';
-
 	return $learn_menu;
 }
 
@@ -170,7 +170,10 @@ function jpcrm_tasklistview_learn_menu( $learn_menu ) {
 	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
 	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'View Calendar', 'zero-bs-crm' ) . '</a>';
-	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new task', 'zero-bs-crm' ) . '</a>';
+
+	if ( zeroBSCRM_permsEvents() ) {
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new task', 'zero-bs-crm' ) . '</a>';
+	}
 
 	return $learn_menu;
 }
@@ -214,9 +217,6 @@ function jpcrm_quotelist_learn_menu( $learn_menu ) {
 	if ( zeroBSCRM_permsCustomers() ) {
 		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_quote', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new quote', 'zero-bs-crm' ) . '</a>';
 	}
-
-	// ? Yup ?
-	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:11")) {hopscotch.startTour(window.zbsTour);}';
 
 	return $learn_menu;
 }
@@ -392,7 +392,10 @@ EOF;
 
 	$learn_menu['right_buttons']  = $task_users_html;
 	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events-list'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'List view', 'zero-bs-crm' ) . '</a>';
-	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new event', 'zero-bs-crm' ) . '</a>';
+
+	if ( zeroBSCRM_permsEvents() ) {
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new task', 'zero-bs-crm' ) . '</a>';
+	}
 
 	return $learn_menu;
 }
@@ -447,7 +450,7 @@ function jpcrm_settings_learn_menu( $learn_menu ) {
 		$learn_menu['right_buttons'] = ' <a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '" class="jpcrm-button white-bg font-14px" id="manage-features">' . __( 'Manage modules', 'zero-bs-crm' ) . '</a>';
 	}
 
-	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:10:5")) { hopscotch.startTour(window.zbsTour);}';
+	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:10:5")) { hopscotch.startTour(window.zbsTour);}';
 	return $learn_menu;
 }
 
@@ -510,6 +513,18 @@ function jpcrm_delete_learn_menu() {
  */
 function jpcrm_notifications_learn_menu( $learn_menu ) {
 	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && hopscotch.getState() === "zbs-welcome-tour:4") { hopscotch.startTour(window.zbsTour);}';
+	return $learn_menu;
+}
+
+/**
+ * Extend extensions learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_extensions_learn_menu( $learn_menu ) {
+	$learn_menu['extra_js'] = 'if (hopscotch && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:9:5")) { hopscotch.startTour(window.zbsTour);}';
 	return $learn_menu;
 }
 

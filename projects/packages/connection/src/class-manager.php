@@ -1647,6 +1647,11 @@ class Manager {
 			return false;
 		}
 
+		if ( ( new Status() )->is_offline_mode() && ! apply_filters( 'jetpack_connection_disconnect_site_wpcom_offline_mode', false ) ) {
+			// Prevent potential disconnect of the live site by removing WPCOM tokens.
+			return false;
+		}
+
 		/**
 		 * Fires upon the disconnect attempt.
 		 * Return `false` to prevent the disconnect.

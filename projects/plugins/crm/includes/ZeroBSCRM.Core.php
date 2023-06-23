@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '5.8.0';
+	public $version = '6.0.0';
 
 	/**
 	 * WordPress version tested with.
@@ -1277,9 +1277,6 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.InvoiceBuilder.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.QuoteBuilder.php';
 
-		// Ajax for /admin/*
-		require_once ZEROBSCRM_PATH . 'admin/email/ajax.php';
-
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SystemChecks.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.IntegrationFuncs.php';
 
@@ -1300,7 +1297,6 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Edit.Segment.php';
 
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Events.php';
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.CompletedEvents.php';
 
 		// } Semantic UI Helper + columns list
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SemanticUIHelpers.php';
@@ -1771,16 +1767,6 @@ final class ZeroBSCRM {
 		// add_action('init', array($this, 'post_init_plugins_loaded')); #} Registers stuff that needs settings etc.
 		$this->post_init_plugins_loaded();
 
-		// } Setting Enabled List Inc:
-		$useQuoteBuilder = $this->settings->get( 'usequotebuilder' );
-		if ( $useQuoteBuilder == '1' ) {
-
-			// <DAL3 needed this old class, V3.0+ uses our list view class :)
-			if ( ! $this->isDAL3() && ! class_exists( 'zeroBSCRM_QuoteTemplate_List' ) && ! function_exists( 'zeroBSCRM_render_quotetemplateslist_page' ) ) {
-				require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.QuoteTemplate.php';
-			}
-		}
-
 		// run migrations
 		$this->run_migrations( 'init' );
 
@@ -2009,41 +1995,6 @@ final class ZeroBSCRM {
 
 			// autohide admin_notices on pages we specify
 			jpcrm_autohide_admin_notices_for_specific_pages();
-
-			// Custom msgs (LEGACY < 3.0)
-			if ( ! $this->isDAL3() ) {
-
-				if (
-					( isset( $_GET['post_type'] ) && $_GET['post_type'] == 'zerobs_customer' ) ||
-					( ! empty( $postTypeStr ) && $postTypeStr == 'zerobs_customer' )
-				) {
-					add_filter( 'post_updated_messages', 'zeroBSCRM_improvedPostMsgsCustomers' );
-				}
-				if (
-					( isset( $_GET['post_type'] ) && $_GET['post_type'] == 'zerobs_company' ) ||
-					( ! empty( $postTypeStr ) && $postTypeStr == 'zerobs_company' )
-				) {
-					add_filter( 'post_updated_messages', 'zeroBSCRM_improvedPostMsgsCompanies' );
-				}
-				if (
-					( isset( $_GET['post_type'] ) && $_GET['post_type'] == 'zerobs_invoice' ) ||
-					( ! empty( $postTypeStr ) && $postTypeStr == 'zerobs_invoice' )
-				) {
-					add_filter( 'post_updated_messages', 'zeroBSCRM_improvedPostMsgsInvoices' );
-				}
-				if (
-					( isset( $_GET['post_type'] ) && $_GET['post_type'] == 'zerobs_quote' ) ||
-					( ! empty( $postTypeStr ) && $postTypeStr == 'zerobs_quote' )
-				) {
-					add_filter( 'post_updated_messages', 'zeroBSCRM_improvedPostMsgsQuotes' );
-				}
-				if (
-					( isset( $_GET['post_type'] ) && $_GET['post_type'] == 'zerobs_transaction' ) ||
-					( ! empty( $postTypeStr ) && $postTypeStr == 'zerobs_transaction' )
-				) {
-					add_filter( 'post_updated_messages', 'zeroBSCRM_improvedPostMsgsTransactions' );
-				}
-			}
 		}
 
 		// ====================================================================
@@ -2734,22 +2685,36 @@ final class ZeroBSCRM {
 
 		if ( $currentUserID > 0 && ! empty( $pageKeyCheck ) ) {
 
-			/*
-			Array
-			(
-				[tabs_1] => zerobs-customer-logs,zerobs-customer-edit
-				[zerobs-customer-files] => self
-			)
-			*/
-
 			// retrieve via dal
-			// print_r($this->DAL->userSetting($currentUserID,'screenopts_'.$currentPageKey,false));
 
 			return $this->DAL->userSetting( $currentUserID, 'screenopts_' . $pageKeyCheck, false );
 
 		}
 
 		return array();
+	}
+
+	/**
+	 * Get global screen option settings
+	 *
+	 * @param string $page_key Page key.
+	 */
+	public function global_screen_options( $page_key = false ) {
+
+		if ( empty( $page_key ) ) {
+			$page_key = apply_filters( 'zbs_pagekey', $this->pageKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
+
+		if ( empty( $page_key ) ) {
+			return array();
+		}
+
+		$screen_options = $this->DAL->getSetting( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'key' => 'screenopts_' . $page_key,
+			)
+		);
+		return $screen_options;
 	}
 
 	/**

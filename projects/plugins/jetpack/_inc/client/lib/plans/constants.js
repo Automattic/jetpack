@@ -48,6 +48,7 @@ export const PLAN_JETPACK_COMPLETE = 'jetpack_complete';
 export const PLAN_JETPACK_COMPLETE_MONTHLY = 'jetpack_complete_monthly';
 export const PLAN_JETPACK_BOOST = 'jetpack_boost_yearly';
 export const PLAN_JETPACK_BOOST_MONTHLY = 'jetpack_boost_monthly';
+export const PLAN_JETPACK_AI_MONTHLY = 'jetpack_ai_monthly';
 export const PLAN_WPCOM_SEARCH = 'wpcom_search';
 export const PLAN_WPCOM_SEARCH_MONTHLY = 'wpcom_search_monthly';
 export const PLAN_JETPACK_SCAN = 'jetpack_scan';
@@ -249,6 +250,8 @@ export const JETPACK_SOCIAL_PRODUCTS = [
 
 export const JETPACK_BOOST_PRODUCTS = [ PLAN_JETPACK_BOOST, PLAN_JETPACK_BOOST_MONTHLY ];
 
+export const JETPACK_AI_PRODUCTS = [ PLAN_JETPACK_AI_MONTHLY ];
+
 export const PLAN_MONTHLY_PERIOD = 31;
 export const PLAN_ANNUAL_PERIOD = 365;
 
@@ -444,6 +447,16 @@ export function isJetpackBoost( product ) {
 }
 
 /**
+ * Determines if a product is Jetpack AI.
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is Jetpack AI, false otherwise.
+ */
+export function isJetpackAI( product ) {
+	return JETPACK_AI_PRODUCTS.includes( product );
+}
+
+/**
  * Checks if a product slug is a Jetpack product.
  *
  * @param {string} product - The product id.
@@ -457,7 +470,8 @@ export function isJetpackProduct( product ) {
 		isJetpackAntiSpam( product ) ||
 		isJetpackVideoPress( product ) ||
 		isJetpackSocial( product ) ||
-		isJetpackBoost( product )
+		isJetpackBoost( product ) ||
+		isJetpackAI( product )
 	);
 }
 
@@ -628,6 +642,10 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_BOOST:
 		case PLAN_JETPACK_BOOST_MONTHLY:
 			return 'is-jetpack-boost-plan';
+
+		case PLAN_JETPACK_AI_MONTHLY:
+			return 'is-jetpack-ai-plan';
+
 		default:
 			return '';
 	}

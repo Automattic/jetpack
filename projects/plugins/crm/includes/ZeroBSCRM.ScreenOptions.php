@@ -24,7 +24,7 @@ function zeroBSCRM_screenOptionsPanel(){
 	global $zbs;
 
 	$screenOptionsHTML = ''; $options = array(); $rights = true; // this is 'okay for everyone' - current_user_can('administrator')?
-    $screenOpts = $zbs->userScreenOptions();
+	$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	switch ($zbs->pageKey){
 
@@ -221,7 +221,7 @@ function zeroBS_outputScreenOptions(){
 
 	global $zbs;
 
-	$screenOpts = $zbs->userScreenOptions();
+	$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	?><script type="text/javascript">var zbsPageKey = '<?php echo esc_html( $zbs->pageKey ); ?>';var zbsScreenOptions = <?php echo json_encode($screenOpts); ?>;</script><?php
 

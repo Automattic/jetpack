@@ -39,6 +39,7 @@
 		} );
 
 		if ( connectionStore.connected ) {
+			recordBoostEvent( 'using_existing_connection', {} );
 			return;
 		}
 
@@ -47,64 +48,58 @@
 		if ( ! connectionStore.connected ) {
 			throw connectionStore.error;
 		}
+
+		recordBoostEvent( 'established_connection', {} );
 	};
 
 	const chooseFreePlan = async () => {
 		initiatingFreePlan = true;
 
-		await Promise.all( [
-			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} ),
-			await ( async () => {
-				try {
-					await ensureConnection();
+		try {
+			await ensureConnection();
 
-					// Allow opening the boost settings page. The actual flag is changed in the backend by enabling the critical-css module below.
-					markGetStartedComplete();
+			// Allow opening the boost settings page. The actual flag is changed in the backend by enabling the critical-css module below.
+			markGetStartedComplete();
+			await recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
 
-					// Wait for the module to become active.
-					// Otherwise Critical CSS Generation will fail to start.
-					$modulesState.critical_css.active = true;
-					const unsubscribe = modulesStatePending.subscribe( isPending => {
-						if ( isPending === false ) {
-							unsubscribe();
-							navigate( '/' );
-						}
-					} );
-				} catch ( e ) {
-					dismissedSnackbar.set( false );
-				} finally {
-					initiatingFreePlan = false;
+			// Wait for the module to become active.
+			// Otherwise Critical CSS Generation will fail to start.
+			$modulesState.critical_css.active = true;
+			const unsubscribe = modulesStatePending.subscribe( isPending => {
+				if ( isPending === false ) {
+					unsubscribe();
+					navigate( '/' );
 				}
-			} )(),
-		] );
+			} );
+		} catch ( e ) {
+			dismissedSnackbar.set( false );
+		} finally {
+			initiatingFreePlan = false;
+		}
 	};
 
 	const choosePaidPlan = async () => {
 		initiatingPaidPlan = true;
 
-		await Promise.all( [
-			await recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} ),
-			await ( async () => {
-				try {
-					await ensureConnection();
+		try {
+			await ensureConnection();
 
-					// Check if the site is already on a premium plan and go directly to settings if so.
-					if ( get( config ).isPremium ) {
-						// Allow opening the boost settings page.
-						markGetStartedComplete();
+			// Check if the site is already on a premium plan and go directly to settings if so.
+			if ( get( config ).isPremium ) {
+				// Allow opening the boost settings page.
+				markGetStartedComplete();
+				await recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
 
-						navigate( '/', { replace: true } );
-						return;
-					}
+				navigate( '/', { replace: true } );
+				return;
+			}
 
-					window.location.href = getUpgradeURL();
-				} catch ( e ) {
-					dismissedSnackbar.set( false );
-				} finally {
-					initiatingPaidPlan = false;
-				}
-			} )(),
-		] );
+			window.location.href = getUpgradeURL();
+		} catch ( e ) {
+			dismissedSnackbar.set( false );
+		} finally {
+			initiatingPaidPlan = false;
+		}
 	};
 
 	onMount( () => {

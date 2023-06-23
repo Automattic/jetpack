@@ -7,7 +7,9 @@ import footnote_plugin from 'markdown-it-footnote';
 /**
  * Module variables
  */
-const markdownConverter = new MarkdownIt().use( footnote_plugin );
+const markdownConverter = new MarkdownIt( {
+	typographer: true,
+} ).use( footnote_plugin );
 const handleLinkClick = event => {
 	if ( event.target.nodeName === 'A' ) {
 		const hasConfirmed = window.confirm(

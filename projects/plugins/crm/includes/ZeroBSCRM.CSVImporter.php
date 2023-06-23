@@ -102,12 +102,11 @@ function zeroBSCRM_CSVImporterLitepages_header( $subpage = '' ) {
 
 	?>
 
-	<h1><?php echo ( empty( $subpage ) ? '' : esc_html( $subpage ) ); ?></h1>
-
-
 <div id="sgpBody">
 
 	<div id="ZeroBSCRMAdminPage" class="ui segment">
+
+<h1><?php echo ( empty( $subpage ) ? '' : esc_html( $subpage ) ); ?></h1>
 	<?php
 
 	// } Check for required upgrade

@@ -3,6 +3,7 @@
 	export let fill = false;
 	export let width: string | null = null;
 	export let href = '';
+	export let disabled = false;
 </script>
 
 {#if href}
@@ -10,7 +11,7 @@
 		<slot />
 	</a>
 {:else}
-	<button class="button" class:small class:fill on:click style:width>
+	<button class="button" {disabled} class:small class:fill on:click style:width>
 		<slot />
 	</button>
 {/if}

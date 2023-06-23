@@ -1,15 +1,17 @@
 <script lang="ts">
 	import Button from '../../../elements/Button.svelte';
-	export let edit_url: string;
+	export let edit_url: string | null;
 	export let instructions: string;
 </script>
 
 <div class="hover">
 	<p>{instructions}</p>
 
-	<div class="button-container">
-		<Button small fill href={edit_url}>Edit Page</Button>
-	</div>
+	{#if edit_url}
+		<div class="button-container">
+			<Button small fill href={edit_url}>Edit Page</Button>
+		</div>
+	{/if}
 </div>
 
 <style lang="scss">

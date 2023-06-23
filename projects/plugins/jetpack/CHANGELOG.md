@@ -2,10 +2,111 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.2-beta - 2023-05-30
+## 12.3-a.7 - 2023-06-19
+### Enhancements
+- AI Assistant: add and use ImproveToolbarDropdownMenu in block toolbar. [#31346]
+- AI Assistant: add Expand option into AI Assistant dropdown menu. [#31363]
+- AI Assistant: add Summarize option to the AI Assistant dropdown menu. [#31364]
+- AI Assistant: add tone into AI Assistant dropdown menu. [#31359]
+- AI Assistant: add translate option in extensions. [#31384]
+- AI Assistant: build prompt from AI Assistant toolbar menu. [#31366]
+- AI Assistant: collect, store and send prompt history. [#31416]
+- AI Assistant: create function to build the post data prompt. [#31403]
+- AI Assistant: extend blocks toolbar. [#31354]
+- AI Assistant: extract and use block content utils. [#31409]
+- AI Assistant: introduce function to create the initial system prompt. [#31398]
+- AI Assistant: introduce jetpack/ai supports. [#30908]
+- AI Assistant: iterate over custom hook to request suggestions. [#31389]
+- AI Assistant: register ai-assistant-support beta extension. [#31335]
+- AI Assistant: separate prompt text from relevant content for extensions. [#31401]
+- AI Assistant: do not extend if the AI Assistant block is not registered. [#31350]
+- AI Assistant: fix generating prompt when requesting suggestion. [#31387]
+- AI Assistant: update block content once AI response is ready. [#31378]
+- Customizer: hide the customizer submenu for block based themes. [#31353, #31376]
+- Newsletters: silence creation of the default membership product in a newsletter context. [#30940]
+- Newsletters: update Paid newsletter panel designs. [#31224]
+- Related Posts: add srcset for the thumbnails. [#31432]
+- Social Logos: update to include a Nextdoor and a Fediverse logo. [#31404]
+- Subscribers: add menu item to Calypso interface. [#31170]
+- Tock Block: update the block settings interface. [#31355]
+
+### Improved compatibility
+- Tiled Galleries: avoid PHP deprecation notices on sites using PHP 8.2. [#31296]
+- WordPress.com Toolbar: avoid PHP warnings with PHP 8.2. [#31438]
+
+### Bug fixes
+- Newsletters: remove Newsletter column on products post type. [#31374]
+- Tock Block: fix the embed rendering on WordPress.com sites. [#31385]
+- WPcom: fix output of static script path on WordPress.com sites. [#31402]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Plans: switch to using the Plans package to detect feature support. [#31213]
+
+## 12.3-a.5 - 2023-06-12
+### Enhancements
+- AI Assistant: add keyboard shortcuts. [#31264]
+- AI Assistant: change icon on AI disclaimer message. [#31320]
+- AI Assistant: move caret to end of generated content when accepting. [#31286]
+- AI Assistant: show message when content generated. [#31271]
+- AI Assistant: tidy some block components. [#31222]
+- AI Assistant: tweak content generated message. [#31298]
+- AI Assistant: remove shortcuts labels from block area. [#31278]
+- Backup: add video section to Backup connect page. [#31260]
+- Blocks: add new Tock block to beta blocks. [#31303]
+- Blocks: load block stylesheets inline when possible for improved performance. [#31214]
+
+### Improved compatibility
+- PHP8 compatibility updates. [#31240, #31242, #31243, #31250]
+
+### Bug fixes
+- AI Assistant: block query requests when upgrade required. [#31282]
+- AI Assistant: check if the block is in the block editor context before enabling accept title action. [#31255]
+- AI Assistant: fix translation feature. [#31300]
+- AI Assistant: request completion JWT token as the user, not the blog. [#31262]
+- AI Assistant: show Jetpack AI product in the plan products list. [#31291]
+- Connection: fix redirecting users who click back button before approving connection to Jetpack Dashboard. [#31212]
+- Dashboard: display an external icon next to the link to the Subscribers list. [#31159]
+- Memberships: correctly gate posts rendered on pages. [#31254]
+- Memberships: fix an issue where Jetpack_Memberships::user_can_view_post would cache the wrong value. [#31249]
+- Markdown Block: render single and double quotes as smart quotes. [#31187]
+- Newsletters: do not display Newsletter plans in the Premium Content and Recurring Payment blocks. [#31200]
+- Newsletters: make the subscribers reach sentence future-tense for scheduled posts. [#31215]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: update documentation. [#31206]
+- Jetpack: jsdoc improvements in reducer file. [#31290]
+
+## 12.3-a.3 - 2023-06-08
+### Bug fixes
+- Memberships: fix potential class not found error. [#31268]
+
+## 12.3-a.1 - 2023-06-06
+### Enhancements
+- AI Assistant: improve the process of getting post content. [#31211]
+- AI Assistant: replace tone button icon for clarity. [#31152]
+- Stats: display the links to a post's stats in the Posts list as soon as the user has access to stats. [#31025]
+
+### Bug fixes
+- Newsletters: verify the access level should be gated before checking subscriptions. [#30807]
+- Newsletters: show paid subscriber reach numbers in the past tense when the post has been already been published. [#30883]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added comments to the LaunchpadSaveModal code for future reference. [#31149]
+- Remove Anchor.fm extension. [#31117]
+- RNA: update connection module to have an RNA option that updates the design [#31201]
+- Updated package dependencies.
+- WPcom: add send email preview endpoint. [#31028]
+
+## 12.2.1 - 2023-06-14
+### Bug fixes
+- Newsletters: fix sidebar panel in WordPress 6.1. [#31386]
+- Newsletters: show paid Newsletter subscriber reach numbers in the past tense when the post has already been published. [#30883]
+
+## [12.2] - 2023-06-06
 ### Major Enhancements
-- Add an AI Assistant block, replacing the previous experimental AI Paragraph and AI Image blocks.
+- New AI Assistant block: harness AI power directly from your editor.
 - Donations, Paid Content and Payment Buttons blocks are now available with all Jetpack plans. A commission is charged for free plans.
+- Social: automatically share your new posts to Mastodon.
 
 ### Enhancements
 - Author Recommendations: Connected block with backend and added `remove_user_blogs` option. [#30639]
@@ -38,12 +139,14 @@
 - Social Previews: Add Instagram preview. [#30929]
 - Social Previews: Add Mastodon post preview. [#30919]
 - Starter: Add post-purchase flow to recommendations. [#30680]
+- Subscriptions: Make free subscribers confirm email before viewing content. [#31054]
 - Theme Tools: Remove jQuery dependency from responsive-videos script. [#30420]
 - WordPress.com: Adds a 'Staging' badge to the wp-admin nav menu when the site is a WordPress.com staging site. [#30296]
 
 ### Improved compatibility
 - ActivityPub: Allow disabling Jetpack's Image CDN in requests made for the ActivityPub plugin. [#30298]
 - Bit.ly: Avoid errors when using non-official Bit.ly plugins alongside Jetpack. [#30415]
+- Earn: Add "Read me" links to Stripe connection banners in blocks. [#31099]
 - Filters: `jetpack_set_available_blocks` and `jetpack_set_available_plugins`, deprecated since Jetpack 7.0, have been removed. [#30875]
 - Full-Site Editing: Use modern `wp_is_block_theme` instead of `gutenberg_is_fse_theme`. [#30806]
 - General: PHP 8 compatibility updates.
@@ -56,13 +159,15 @@
 ### Bug fixes
 - API: Add a `WP_User` check in `get_author` method. [#30902]
 - API: Fix race condition bug in the Plugin update endpoint. [#30770]
+- API: Use default values in settings API, when set. [#31123]
 - At-a-Glance: Fix styling for Stats banner. [#30403]
 - Carousel: Stop auto-scrolling to top when advancing slides. [#30964]
 - Dashboard: Use the correct file path for all images in the "My Plan" screen. [#30685]
 - Donations Block: Ensure the tab colors are correct in all themes. [#30864]
 - Donations Block: Fix crash on currency change. [#30530]
-- Donations Block: Make the "Connect" link the primary color [#30320]
+- Donations Block: Make the "Connect" link the primary color. [#30320]
 - Forms: Fix Forms hash generation. [#30764]
+- Identity Crisis: Fix Jetpack Dashboard for broken connection. [#31183]
 - Maps: Fix zoom being reset when changing map marker color. [#30482]
 - Newsletters: Return early when possible to prevent spamming the database. [#30355]
 - Related Posts: Fix context for use in block editor. [#30682]
@@ -72,6 +177,7 @@
 - Settings: Fixed the site preview in SEO settings. [#30973]
 - Social: Add username to publicize connection test results. [#30987]
 - Subscriptions: Change the "Add payments" text to "Set up a paid plan". [#30671]
+- Subscriptions: Fix display of number of paid subscribers. [#31141]
 - Subscriptions: Do not remove bulk-editing checkboxes from the posts list. [#30747]
 - Users: Display "Super Admin" badge in edit user form. [#30496]
 - VideoPress: Add tracks to attributes definition. [#30743]
@@ -101,7 +207,7 @@
 - wpcom/v3/blogging-prompts endpoint: Add param to force prompt dates to be a specific year [#30255]
 - Zendesk chat widget: Remove conditional rendering from component due to it being handled by an api endpoint now. [#29942]
 
-## 12.1 - 2023-05-02
+## [12.1] - 2023-05-02
 ### Enhancements
 - Dashboard: added Jetpack Starter bundle post-activation screen and plan header. [#30368]
 - Dashboard: add link to renew expired subscription. [#30357]
@@ -8169,6 +8275,8 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 - Initial release
 
 [11.6]: https://wp.me/p1moTy-PLI
+[12.2]: https://wp.me/p1moTy-Tzw
+[12.1]: https://wp.me/p1moTy-TA2
 [12.0]: https://wp.me/p1moTy-RGw
 [11.9]: https://wp.me/p1moTy-RdX
 [11.8]: https://wp.me/p1moTy-QEM

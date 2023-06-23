@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix not loading report items if one of them was missing the edit_url property.

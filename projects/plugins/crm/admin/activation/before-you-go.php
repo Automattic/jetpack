@@ -56,7 +56,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 			<p><?php esc_html_e( 'Thank you for trying Jetpack CRM! Before you go, we\'d really love your feedback on our free CRM plugin. It\'d make our day if you could guide us to improving Jetpack CRM.', 'zero-bs-crm' ); ?> :)</p>
 			<p><?php esc_html_e( 'Just temporarily deactivating, or don\'t fancy giving feedback? No worries.', 'zero-bs-crm' ); ?><br /><?php echo wp_kses( sprintf( __( 'We\'re improving Jetpack CRM every week, so come back sometime and check us out @ <a href="%1$s">%2$s</a>', 'zero-bs-crm' ), esc_url( 'https://jetpackcrm.com' ), 'jetpackcrm.com' ), $zbs->acceptable_restricted_html ); ?></p>
 			<p><?php esc_html_e( 'All the best', 'zero-bs-crm' ); ?></p>
-			<p><?php esc_html_e( 'Mike and Woody', 'zero-bs-crm' ); ?></p>
+			<p><?php esc_html_e( 'The Jetpack CRM Team', 'zero-bs-crm' ); ?></p>
 			<p class="wc-setup-actions step">
 				<a href="https://forms.gle/q5KjMBytni3kfFco7" target="_blank" class="button-primary button button-large button-next" id="giveFeedback"><?php esc_html_e( 'Let\'s Go! (Give Feedback)', 'zero-bs-crm' ); ?></a>
 				<a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>" class="button button-large" id="notNow"><?php esc_html_e( 'Not right now', 'zero-bs-crm' ); ?></a>

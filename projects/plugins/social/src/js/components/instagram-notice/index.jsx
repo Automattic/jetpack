@@ -6,7 +6,7 @@ import {
 } from '@automattic/jetpack-components';
 import { useDismissNotice } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
@@ -22,7 +22,7 @@ const paidPlanNoticeText = __(
 
 const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 	const { dismissedNotices, dismissNotice } = useDismissNotice();
-	const [ showNotice, setShowNotice ] = useState( ! dismissedNotices.includes( 'instagram' ) );
+	const showNotice = ! dismissedNotices.includes( 'instagram' );
 
 	const { connectionsAdminUrl, isInstagramConnectionSupported, isEnhancedPublishingEnabled } =
 		useSelect( select => {
@@ -36,8 +36,7 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 
 	const handleDismiss = useCallback( () => {
 		dismissNotice( 'instagram' );
-		setShowNotice( false );
-	}, [ dismissNotice, setShowNotice ] );
+	}, [ dismissNotice ] );
 
 	if ( ! showNotice || ! isInstagramConnectionSupported ) {
 		return null;

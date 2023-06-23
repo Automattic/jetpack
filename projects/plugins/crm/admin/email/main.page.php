@@ -450,7 +450,7 @@ function zeroBSCRM_pages_admin_sendmail() {
 
 		}
 		?>
-			<form autocomplete="off" id="zbs-send-single-email" class="ui form" action="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['emails'] ) ); ?>" method="POST">
+			<form autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" id="zbs-send-single-email" class="ui form" action="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['emails'] ) ); ?>" method="POST">
 
 			<?php
 			if ( is_array( $customerMeta ) && array_key_exists( 'fname', $customerMeta ) ) {

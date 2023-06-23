@@ -65,8 +65,9 @@ function zeroBSCRM_menu_buildMenu() {
 	$use_calendar     = zeroBSCRM_getSetting( 'feat_calendar' ) == 1;
 
 	// Check if it has license to show the Support menu
-	$license     = zeroBSCRM_getSetting( 'license_key' );
-	$has_license = is_array( $license ) && ! empty( $license['key'] );
+	$license      = zeroBSCRM_getSetting( 'license_key' );
+	$has_license  = is_array( $license ) && ! empty( $license['key'] );
+	$support_menu = $has_license ? 'jpcrm' : 'hidden';
 
 	// this is the "first build" function, so begin with this :)
 	$menu = array(
@@ -293,8 +294,6 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'jpcrm_crm_resources_page_styles_scripts' ),
 		);
 
-		$support_menu = $has_license ? 'jpcrm' : 'hidden';
-
 		$menu[ $support_menu ]['subitems']['support'] = array(
 			'title'      => '<span>' . __( 'Support', 'zero-bs-crm' ) . '</span>',
 			'url'        => $zbs->slugs['support'],
@@ -396,8 +395,9 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_settingspage_admin_styles' ),
 		);
 
-		// Feedback (sub)
-		$menu['jpcrm']['subitems']['feedback'] = array(
+		##WLREMOVE
+		// Resources (sub)
+		$menu['jpcrm']['subitems']['crmresources'] = array(
 			'title'      => '<span style="color: #64ca43;">' . __( 'Resources', 'zero-bs-crm' ) . '</span>',
 			'url'        => $zbs->slugs['crmresources'],
 			'perms'      => 'admin_zerobs_manage_options',
@@ -406,6 +406,17 @@ function zeroBSCRM_menu_buildMenu() {
 			'callback'   => 'zeroBSCRM_pages_crmresources',
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'jpcrm_crm_resources_page_styles_scripts' ),
 		);
+
+		$menu[ $support_menu ]['subitems']['support'] = array(
+			'title'      => '<span>' . __( 'Support', 'zero-bs-crm' ) . '</span>',
+			'url'        => $zbs->slugs['support'],
+			'perms'      => 'admin_zerobs_manage_options',
+			'order'      => 102,
+			'wpposition' => 102,
+			'callback'   => 'jpcrm_pages_support',
+			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'jpcrm_support_page_styles_scripts' ),
+		);
+		##/WLREMOVE
 		/**
 		 * End Jetpack CRM submenu items
 		 */
@@ -675,7 +686,7 @@ function zeroBSCRM_menu_buildMenu() {
 				'ico'        => 'dashicons-calendar-alt',
 				'title'      => __( 'Task Scheduler', 'zero-bs-crm' ),
 				'url'        => $zbs->slugs['manage-events'],
-				'perms'      => 'admin_zerobs_events',
+				'perms'      => 'admin_zerobs_view_events',
 				'order'      => 50,
 				'wpposition' => 50,
 				'subitems'   => array(),
@@ -690,7 +701,7 @@ function zeroBSCRM_menu_buildMenu() {
 			$menu['calendar']['subitems']['list'] = array(
 				'title'      => __( 'Task List', 'zero-bs-crm' ),
 				'url'        => $zbs->slugs['manage-events-list'],
-				'perms'      => 'admin_zerobs_customers',
+				'perms'      => 'admin_zerobs_view_events',
 				'order'      => 1,
 				'wpposition' => 1,
 				'callback'   => 'zeroBSCRM_render_eventslist_page',
@@ -701,7 +712,7 @@ function zeroBSCRM_menu_buildMenu() {
 			$menu['calendar']['subitems']['tags'] = array(
 				'title'      => __( 'Task Tags', 'zero-bs-crm' ),
 				'url'        => 'admin.php?page=' . $zbs->slugs['tagmanager'] . '&tagtype=event',
-				'perms'      => 'admin_zerobs_customers',
+				'perms'      => 'admin_zerobs_view_events',
 				'order'      => 2,
 				'wpposition' => 2,
 				'callback'   => '',
@@ -950,7 +961,7 @@ function zeroBSCRM_menu_buildMenu() {
 	$menu['hidden']['subitems']['eventlist'] = array(
 		'title'      => __( 'Task List', 'zero-bs-crm' ),
 		'url'        => $zbs->slugs['manage-events-list'],
-		'perms'      => 'admin_zerobs_customers',
+		'perms'      => 'admin_zerobs_view_events',
 		'order'      => 1,
 		'wpposition' => 3,
 		'callback'   => 'zeroBSCRM_render_eventslist_page',
@@ -961,7 +972,7 @@ function zeroBSCRM_menu_buildMenu() {
 	$menu['hidden']['subitems']['eventtags'] = array(
 		'title'      => __( 'Task Tags', 'zero-bs-crm' ),
 		'url'        => 'admin.php?page=' . $zbs->slugs['tagmanager'] . '&tagtype=event',
-		'perms'      => 'admin_zerobs_customers',
+		'perms'      => 'admin_zerobs_view_events',
 		'order'      => 3,
 		'wpposition' => 3,
 		'callback'   => '',

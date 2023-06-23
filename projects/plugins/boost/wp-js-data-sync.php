@@ -5,7 +5,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
-use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
@@ -124,11 +123,21 @@ $critical_css_state_schema = Schema::as_assoc_array(
 	)
 );
 
+$critical_css_suggest_regenerate_schema = Schema::enum(
+	array(
+		'1', // Old versions of Boost stored a boolean in the DB.
+		'page_saved',
+		'post_saved',
+		'switched_theme',
+		'plugin_change',
+	)
+)->nullable();
+
 /**
  * Register Data Sync Stores
  */
 jetpack_boost_register_option( 'critical_css_state', $critical_css_state_schema );
-jetpack_boost_register_option( 'critical_css_suggest_regenerate', Schema::as_boolean()->fallback( false ) );
+jetpack_boost_register_option( 'critical_css_suggest_regenerate', $critical_css_suggest_regenerate_schema );
 
 $modules_state_schema = Schema::as_array(
 	Schema::as_assoc_array(
@@ -142,9 +151,7 @@ $modules_state_schema = Schema::as_array(
 $entry = new Modules_State_Entry();
 jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
 
-if ( Image_Size_Analysis::is_available() ) {
-	require_once __DIR__ . '/app/modules/image-size-analysis/data-sync/init.php';
-}
+require_once __DIR__ . '/app/modules/image-size-analysis/data-sync/init.php';
 
 /**
  * Register Minify Excludes stores.

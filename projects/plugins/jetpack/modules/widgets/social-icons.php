@@ -596,6 +596,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Medium',
 			),
 			array(
+				'url'   => array( 'nextdoor.com' ),
+				'icon'  => 'nextdoor',
+				'label' => 'Nextdoor',
+			),
+			array(
 				'url'   => array( 'patreon.com' ),
 				'icon'  => 'patreon',
 				'label' => 'Patreon',
@@ -762,7 +767,17 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			),
 		);
 
-		return $social_links_icons;
+		/**
+		 * Filter the list of services matching Social Media Icons available in the Social Icons SVG sprite.
+		 *
+		 * @since 12.3
+		 *
+		 * @param array $social_links_icons Array of social links icons.
+		 */
+		return apply_filters(
+			'jetpack_social_icons_supported_icons',
+			$social_links_icons
+		);
 	}
 } // Jetpack_Widget_Social_Icons
 

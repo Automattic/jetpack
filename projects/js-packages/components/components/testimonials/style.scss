@@ -1,0 +1,127 @@
+.testimonials {
+    position: relative;
+
+    margin-top: 1.5rem;
+    padding: calc(var(--spacing-base) * 3);
+    padding-bottom: 0;
+
+    color: var(--jp-black);
+    background-color: var(--jp-white);
+    border-radius: var(--jp-border-radius);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+
+    &__left-arrow,
+    &__right-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+
+        background: none;
+        border: none;
+
+        svg {
+            color: #1e1e1e;
+        }
+
+        &:hover {
+            cursor: pointer;
+
+            svg {
+                color: var(--jp-gray-20);
+            }
+        }
+    }
+
+    &__left-arrow {
+        left: 0;
+    }
+
+    &__right-arrow {
+        right: 0;
+    }
+}
+
+.testimonial {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+
+    &__author-img {
+        min-width: 325px;
+        width: 365px;
+        max-width: 100%;
+        margin-top: 3rem;
+    }
+    
+    &__content {
+        display: flex;
+        gap: 1rem;
+    }
+
+    &__quote-icon {
+        min-width: 32px;
+    }
+
+    &__quote,
+    &__author {
+        font-size: var(--font-title-medium);
+        font-weight: 500;
+        line-height: 1.3;
+    }
+
+    &__quote {
+        margin: 0;
+    }
+
+    &__author {
+        display: block;
+        margin-top: 2rem;
+    }
+
+    &__profession {
+        display: block;
+        margin-top: 0.5rem;
+    }
+
+    @media (min-width: 600px) {
+        padding: calc(var(--spacing-base) * 8);
+        padding-bottom: 0;
+    }
+
+    @media (min-width: 1080px) {
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 3rem;
+
+        padding-top: 0;
+
+        &__content {
+            align-self: center;
+
+            min-width: 350px;
+            max-width: 550px;
+        }
+
+        &__text-block {
+            padding-bottom: calc(var(--spacing-base) * 3);
+        }
+    }
+}
+
+.show {
+    animation: showTestimonial 500ms ease-in-out forwards;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes showTestimonial {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
