@@ -21,9 +21,20 @@ trait WPCOM_REST_API_Proxy_Request_Trait {
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
 	 */
 	public function proxy_request_to_wpcom_as_user( $request, $path = '' ) {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
-		$path    = '/sites/' . rawurldecode( $blog_id ) . rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
-		$api_url = add_query_arg( $request->get_query_params(), $path );
+		$blog_id      = \Jetpack_Options::get_option( 'id' );
+		$path         = '/sites/' . rawurldecode( $blog_id ) . rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
+		$query_params = $request->get_query_params();
+
+		/*
+		 * A rest_route parameter can be added when using plain permalinks.
+		 * It is not necessary to pass them to WordPress.com,
+		 * and may even cause issues with some endpoints.
+		 * Let's remove it.
+		 */
+		if ( isset( $query_params['rest_route'] ) ) {
+			unset( $query_params['rest_route'] );
+		}
+		$api_url = add_query_arg( $query_params, $path );
 
 		$request_options = array(
 			'headers' => array(

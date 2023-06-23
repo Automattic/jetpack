@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Use sha256 instead of md5 for gravatar images

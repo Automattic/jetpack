@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Properly gate newsletters based on the correct subscription product

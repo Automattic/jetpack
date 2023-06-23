@@ -389,39 +389,26 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 5.8.0 - 2023-05-18
+### 6.0.0 - 2023-06-21
 #### Added
-- Composer: Added jetpack-forms as a required dependency to fix a Jetpack form compat issue
-- Segments: Adding a doesnotcontain condition for email segments, for better compatibility with Advanced Segments
+- CRM: Revamped CRM User Interface - Merge the sleek aesthetics of Jetpack’s style, bringing a new level of sophistication and seamless navigation to your CRM experience
+- API: Now it retrieves contacts with tags
+- Contacts: Allow unsubscribe flag to be removed
 
 #### Changed
-- Code cleanup: Cleaning up WP Editor helper functions and wp_editor usage
-- General: Update link references to releases in changelog
-- Navigation: Changed Learn More button and Learn More link to be consistent with Jetpack styles
-- PDF generator: Objects in filenames are translated
-- WooSync: Improved status mapping logic
+- User roles: Further restricted capabilities on some roles
+- Contacts: Use sha256 instead of md5 for gravatar images
 
 #### Fixed
-- Companies: Fix company name prefill so add links - transaction, invoice and tasks - prefill company name
-- Contact / Company: Fix date styling for transactions, invoices and quotes
-- Contact / Company: Profile summary total value and invoice count now removes deleted invoices
-- Custom fields: Use native date pickers
-- Quotes: Use native date pickers
-- Export: Contact segments now export company info
-- Logs: Facebook, Twitter, Feedback, and Other Contact log types now update last contacted timestamp
-- Settings: Eliminate orphaned references to custom fields within field sorting settings when removing custom fields
-- Segments: Make sure total count is updated on tag changes
-- Tasks: Start and end times now show correctly throughout the CRM
-- Tasks: New migration to remove timezone offset from database
-- Tasks: Removed reliance on strftime for better PHP 8.1 compatibility
-- Tasks: Switch to native browser date and time inputs
-- Tasks: Catch moment.js notice due to using fallback date format
-- Tasks: Fix ##TASK-BODY## placeholder
-- Tooling: Allowing minification of JS files in development
-- Transactions: Always show current status in editor
-- WooSync: Fix the fee amount from a WooCommerce order is not added to the invoice
-- WooSync: Fix shipping tax and discount amounts from Woocommerce orders are not calculated in invoices
-- WooSync: Fix the subtotal amount from WooCommerce orders is not calculated in invoices
-- WooSync: Fix PHP Warning
-- Invoices: On invoice update the shipping tax selected is removed resulting on incorrect total amount
+- Client Portal: Fix a fatal error initializing endpoints and shortcodes
+- CRM: Fix new lines display in quote templates
+- CRM: Fix whitelabel bug with full menu layout
+- CRM: Page layout now has a max width of 1551px
+- CRM: Welcome tour now goes through all steps
+- Extensions: Catch PHP notice if offline
+- Invoices: Show assigned contact/company link
+- Listview: Per-page settings no longer reset
+- Listview: PHP notice no longer shows when saving settings
+- Quotes: Fix sort by status
+- White label: JPCRM support and resources pages no longer show
 
