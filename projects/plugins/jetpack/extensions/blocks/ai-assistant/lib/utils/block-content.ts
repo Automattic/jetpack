@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
@@ -64,7 +63,7 @@ type GetTextContentFromBlocksProps = {
  * @returns {GetTextContentFromBlocksProps} The text content.
  */
 export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
-	const clientIds = select( blockEditorStore ).getSelectedBlockClientIds();
+	const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
 	const defaultContent = {
 		count: 0,
 		clientIds: [],
@@ -75,7 +74,7 @@ export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
 		return defaultContent;
 	}
 
-	const blocks = select( blockEditorStore ).getBlocksByClientId( clientIds );
+	const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
 	if ( ! blocks?.length ) {
 		return defaultContent;
 	}
@@ -104,7 +103,7 @@ export function getBlockTextContent( clientId: string ): string {
 		return '';
 	}
 
-	const editor = select( blockEditorStore );
+	const editor = select( 'core/block-editor' );
 	const block = editor.getBlock( clientId );
 
 	/*
