@@ -122,3 +122,19 @@ export function getBlockTextContent( clientId: string ): string {
 
 	return getBlockContent( block );
 }
+
+/**
+ * Extract raw text from HTML content
+ *
+ * @param {string} htmlString - The HTML content.
+ * @returns {string}            The raw text.
+ */
+export function getRawTextFromHTML( htmlString: string ): string {
+	if ( ! htmlString?.length ) {
+		return '';
+	}
+
+	const tempDomContainer = document.createElement( 'div' );
+	tempDomContainer.innerHTML = htmlString;
+	return tempDomContainer.textContent || tempDomContainer.innerText || '';
+}
