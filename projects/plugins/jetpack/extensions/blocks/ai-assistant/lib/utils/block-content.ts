@@ -51,7 +51,7 @@ export function getContentFromBlocks(): string {
 	return turndownService.turndown( serialize( blocks ) );
 }
 
-type GetTextContentFromBlocksProps = {
+export type GetTextContentFromBlocksProps = {
 	clientId: string;
 	content: RichTextValue;
 	offset: {
