@@ -1,5 +1,5 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -9,7 +9,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React from 'react';
 import { connect } from 'react-redux';
-import { isBlazeDashboardEnabled } from 'state/initial-state';
+import { isBlazeDashboardEnabled, shouldInitializeBlaze } from 'state/initial-state';
 import { getModule } from 'state/modules';
 
 const trackDashboardClick = () => {
@@ -25,6 +25,7 @@ const trackDashboardClick = () => {
 function Blaze( props ) {
 	const {
 		blazeActive,
+		blazeAvailable,
 		blazeModule: { description },
 		blazeDashboardEnabled,
 		hasConnectedOwner,
@@ -37,7 +38,7 @@ function Blaze( props ) {
 
 	const unavailableInOfflineMode = isUnavailableInOfflineMode( 'blaze' );
 
-	const blazeCard = () => {
+	const blazeDashboardLink = () => {
 		return (
 			<Card
 				compact
@@ -55,13 +56,31 @@ function Blaze( props ) {
 		);
 	};
 
+	const blazeToggle = () => {
+		if ( ! blazeAvailable ) {
+			return (
+				<ToggleControl
+					disabled={ true }
+					label={ __( 'Blaze is not available on your site.', 'jetpack' ) }
+				/>
+			);
+		}
+
+		return (
+			<ModuleToggle
+				slug="blaze"
+				activated={ blazeActive }
+				disabled={ unavailableInOfflineMode || ! hasConnectedOwner }
+				toggling={ isSavingAnyOption( 'blaze' ) }
+				toggleModule={ toggleModuleNow }
+			>
+				{ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
+			</ModuleToggle>
+		);
+	};
+
 	return (
-		<SettingsCard
-			{ ...props }
-			header={ _x( 'Blaze', 'Settings header', 'jetpack' ) }
-			module="blaze"
-			hideButton
-		>
+		<SettingsCard { ...props } header={ __( 'Blaze', 'jetpack' ) } module="blaze" hideButton>
 			<SettingsGroup
 				module={ { module: 'blaze' } }
 				disableInOfflineMode
@@ -71,18 +90,14 @@ function Blaze( props ) {
 					link: getRedirectUrl( 'jetpack-support-blaze' ),
 				} }
 			>
-				<ModuleToggle
-					slug="blaze"
-					activated={ blazeActive }
-					disabled={ unavailableInOfflineMode || ! hasConnectedOwner }
-					toggling={ isSavingAnyOption( 'blaze' ) }
-					toggleModule={ toggleModuleNow }
-				>
-					{ __( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' ) }
-				</ModuleToggle>
+				{ blazeToggle() }
 			</SettingsGroup>
-			{ blazeActive && hasConnectedOwner && ! isOfflineMode && blazeCard() }
-			{ ! hasConnectedOwner && ! isOfflineMode && (
+			{ blazeAvailable &&
+				blazeActive &&
+				hasConnectedOwner &&
+				! isOfflineMode &&
+				blazeDashboardLink() }
+			{ blazeAvailable && ! hasConnectedOwner && ! isOfflineMode && (
 				<ConnectUserBar
 					feature="blaze"
 					featureLabel={ __( 'Blaze', 'jetpack' ) }
@@ -99,6 +114,7 @@ export default withModuleSettingsFormHelpers(
 			blazeActive: ownProps.getOptionValue( 'blaze' ),
 			blazeDashboardEnabled: isBlazeDashboardEnabled( state ),
 			blazeModule: getModule( state, 'blaze' ),
+			blazeAvailable: shouldInitializeBlaze( state ),
 		};
 	} )( Blaze )
 );
