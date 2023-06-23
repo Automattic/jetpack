@@ -3218,16 +3218,6 @@ class Share_Nextdoor extends Sharing_Source {
 	public $icon = '\f10c';
 
 	/**
-	 * Constructor.
-	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
-	 */
-	public function __construct( $id, array $settings ) { // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
-		parent::__construct( $id, $settings );
-	}
-
-	/**
 	 * Service name.
 	 *
 	 * @return string
