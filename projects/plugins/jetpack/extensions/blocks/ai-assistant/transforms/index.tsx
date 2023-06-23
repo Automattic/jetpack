@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, getBlockContent } from '@wordpress/blocks';
 import TurndownService from 'turndown';
 /**
  * Internal dependencies
@@ -13,24 +13,41 @@ import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assis
  */
 import { PromptItemProps } from '../lib/prompt';
 
-const turndownService = new TurndownService();
+const turndownService = new TurndownService( { emDelimiter: '_' } );
 
-const transformFromCore = {
-	type: 'block',
-	blocks: EXTENDED_BLOCKS,
-	isMatch: () => isPossibleToExtendBlock(),
-	transform: ( { content } ) => {
-		const messages: Array< PromptItemProps > = [
-			{
-				role: 'assistant',
-				content,
-			},
-		];
+const from = [];
 
-		return createBlock( blockName, { content: turndownService.turndown( content ), messages } );
-	},
-};
+/*
+ * Create individual transform handler for each block type.
+ */
+for ( const blockType of EXTENDED_BLOCKS ) {
+	from.push( {
+		type: 'block',
+		blocks: [ blockType ],
+		isMatch: () => isPossibleToExtendBlock(),
+		transform: ( { content } ) => {
+			// Create a temporary block to get the HTML content.
+			const temporaryBlock = createBlock( blockType, { content } );
+			const htmlContent = getBlockContent( temporaryBlock );
 
-const from = [ transformFromCore ];
+			// Convert the content to markdown.
+			content = turndownService.turndown( htmlContent );
+
+			// Create a pair of user/assistant messages.
+			const messages: Array< PromptItemProps > = [
+				{
+					role: 'user',
+					content: 'Tell me some content for this block, please.',
+				},
+				{
+					role: 'assistant',
+					content,
+				},
+			];
+
+			return createBlock( blockName, { content, messages } );
+		},
+	} );
+}
 
 export default { from };
