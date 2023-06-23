@@ -230,6 +230,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
 
+		'add_new_page'                    => array(
+			'get_title'            => function () {
+				return __( 'Add a new page', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_add_new_page_completed',
+		),
+
 		'domain_customize'                => array(
 			'id_map'               => 'domain_customize_deferred',
 			'get_title'            => function () {
@@ -298,6 +305,18 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
 	wpcom_launchpad_track_completed_task( $key );
 
 	return $result;
+}
+
+/**
+ * Check if a task is complete in the launchpad_checklist_tasks_statuses option.
+ *
+ * @param string $task_id The task ID.
+ * @return bool True if the task was marked as complete, false otherwise.
+ */
+function wpcom_is_launchpad_task_complete( $task_id ) {
+	$statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
+
+	return isset( $statuses[ $task_id ] ) && $statuses[ $task_id ];
 }
 
 /**
@@ -671,6 +690,42 @@ function wpcom_is_domain_claim_completed() {
 
 	return ! empty( $domain_purchases );
 }
+
+/**
+ * Check if the add_new_page task is complete.
+ *
+ * @return bool True if add_new_page task is completed.
+ */
+function wpcom_is_add_new_page_completed() {
+	return wpcom_is_launchpad_task_complete( 'add_new_page' );
+}
+
+/**
+ * When a new page is added to the site, mark the add_new_page task complete as needed.
+ *
+ * @param int    $post_id The ID of the post being updated.
+ * @param object $post    The post object.
+ * @param bool   $update  Whether this is an existing post being updated or not.
+ */
+function wpcom_add_new_page_check( $post_id, $post, $update ) {
+	// Don't do anything if the task is already complete.
+	if ( wpcom_is_launchpad_task_complete( 'add_new_page' ) ) {
+		return;
+	}
+
+	// We only care about pages, no other post types.
+	if ( $post->post_type !== 'page' ) {
+		return;
+	}
+
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'add_new_page' );
+}
+add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
 
 /**
  * Returns if the site has domain or bundle purchases.
