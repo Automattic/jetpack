@@ -119,7 +119,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'design-first'    => array(
 			'title'               => 'Pick a Design',
 			'task_ids'            => array(
-				'design_selected',
+				'design_completed',
 				'setup_blog',
 				'domain_upsell',
 				'plan_completed',

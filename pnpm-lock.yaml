@@ -207,6 +207,9 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
+      '@babel/runtime':
+        specifier: ^7
+        version: 7.21.5
       '@wordpress/browserslist-config':
         specifier: 5.18.0
         version: 5.18.0
@@ -237,6 +240,9 @@ importers:
       qrcode.react:
         specifier: 3.1.0
         version: 3.1.0(react@18.2.0)
+      react-slider:
+        specifier: 2.0.5
+        version: 2.0.5(@babel/runtime@7.21.5)(react@18.2.0)
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
@@ -280,6 +286,9 @@ importers:
       '@types/react-dom':
         specifier: 18.0.10
         version: 18.0.10
+      '@types/react-slider':
+        specifier: 1.3.1
+        version: 1.3.1
       '@types/react-test-renderer':
         specifier: 18.0.0
         version: 18.0.0
@@ -304,6 +313,9 @@ importers:
       require-from-string:
         specifier: 2.0.2
         version: 2.0.2
+      resize-observer-polyfill:
+        specifier: 1.5.1
+        version: 1.5.1
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -434,7 +446,7 @@ importers:
         version: 4.3.4
       semver:
         specifier: ^7.3.5
-        version: 7.3.5
+        version: 7.5.2
     devDependencies:
       '@wordpress/browserslist-config':
         specifier: 5.18.0
@@ -1536,8 +1548,8 @@ importers:
         specifier: 1.38.1
         version: 1.38.1
       semver:
-        specifier: 7.3.5
-        version: 7.3.5
+        specifier: 7.5.2
+        version: 7.5.2
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -2516,8 +2528,8 @@ importers:
         specifier: 5.3.0
         version: 5.3.0
       jetpack-boost-critical-css-gen:
-        specifier: github:automattic/jetpack-boost-critical-css-gen#release-0.0.7
-        version: github.com/automattic/jetpack-boost-critical-css-gen/d46421f455e3f7ff025a4e7f4b9d01443dfdc8aa
+        specifier: github:automattic/jetpack-boost-critical-css-gen#release-0.0.9
+        version: github.com/automattic/jetpack-boost-critical-css-gen/7b1368f6fc4551745ac7681de73c3a4c6049dce6
       prettier:
         specifier: 2.8.6
         version: 2.8.6
@@ -2929,8 +2941,8 @@ importers:
         specifier: 1.38.1
         version: 1.38.1
       semver:
-        specifier: 7.3.5
-        version: 7.3.5
+        specifier: 7.5.2
+        version: 7.5.2
       social-logos:
         specifier: 2.5.3
         version: 2.5.3(react@18.2.0)
@@ -3713,8 +3725,8 @@ importers:
         specifier: 0.11.10
         version: 0.11.10
       semver:
-        specifier: 7.3.5
-        version: 7.3.5
+        specifier: 7.5.2
+        version: 7.5.2
       sprintf-js:
         specifier: 1.1.2
         version: 1.1.2
@@ -3906,8 +3918,8 @@ importers:
         specifier: 2.4.0
         version: 2.4.0(svelte@3.58.0)(wp-prettier@2.8.5)
       semver:
-        specifier: 7.3.5
-        version: 7.3.5
+        specifier: 7.5.2
+        version: 7.5.2
       sort-package-json:
         specifier: 1.50.0
         version: 1.50.0
@@ -5431,13 +5443,14 @@ packages:
       chalk: 4.1.2
       find-root: 1.1.0
       lodash.groupby: 4.6.0
-      semver: 7.3.5
+      semver: 7.5.2
       webpack: 5.76.0(webpack-cli@4.9.1)
     dev: false
 
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
+    requiresBuild: true
     dev: true
 
   /@dabh/diagnostics@2.0.3:
@@ -9927,6 +9940,12 @@ packages:
       redux: 4.1.1
     dev: false
 
+  /@types/react-slider@1.3.1:
+    resolution: {integrity: sha512-4X2yK7RyCIy643YCFL+bc6XNmcnBtt8n88uuyihvcn5G7Lut23eNQU3q3KmwF7MWIfKfsW5NxCjw0SeDZRtgaA==}
+    dependencies:
+      '@types/react': 18.0.27
+    dev: true
+
   /@types/react-test-renderer@18.0.0:
     resolution: {integrity: sha512-C7/5FBJ3g3sqUahguGi03O79b8afNeSD6T8/GU50oQrJCU0bVCCGQHaGKUbg2Ce8VQEEqTw8/HiS6lXHHdgkdQ==}
     dependencies:
@@ -12521,7 +12540,6 @@ packages:
     resolution: {integrity: sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==}
     dependencies:
       deep-equal: 2.2.1
-      dequal: 2.0.3
     dev: true
 
   /array-buffer-byte-length@1.0.0:
@@ -13866,7 +13884,7 @@ packages:
       postcss-modules-scope: 3.0.0(postcss@8.4.21)
       postcss-modules-values: 4.0.0(postcss@8.4.21)
       postcss-value-parser: 4.2.0
-      semver: 7.3.5
+      semver: 7.5.2
       webpack: 5.76.0(webpack-cli@4.9.1)
 
   /css-loader@6.8.1(webpack@5.76.0):
@@ -15719,7 +15737,7 @@ packages:
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.3.5
+      semver: 7.5.2
       tapable: 2.2.1
       typescript: 5.0.4
       webpack: 5.76.0(webpack-cli@4.9.1)
@@ -17485,7 +17503,7 @@ packages:
       jest-util: 29.5.0
       natural-compare: 1.4.0
       pretty-format: 29.5.0
-      semver: 7.3.5
+      semver: 7.5.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -19637,7 +19655,7 @@ packages:
       pm2-deploy: 1.0.2
       pm2-multimeter: 0.1.2
       promptly: 2.2.0
-      semver: 7.3.5
+      semver: 7.5.2
       source-map-support: 0.5.21
       sprintf-js: 1.1.2
       vizion: 2.2.1
@@ -19756,7 +19774,7 @@ packages:
       cosmiconfig: 7.1.0
       klona: 2.0.6
       postcss: 8.4.21
-      semver: 7.3.5
+      semver: 7.5.2
       webpack: 5.76.0(webpack-cli@4.9.1)
     dev: true
 
@@ -20756,6 +20774,17 @@ packages:
       react-is: 18.2.0
     dev: true
 
+  /react-slider@2.0.5(@babel/runtime@7.21.5)(react@18.2.0):
+    resolution: {integrity: sha512-MU5gaK1yYCKnbDDN3CMiVcgkKZwMvdqK2xUEW7fFU37NAzRgS1FZbF9N7vP08E3XXNVhiuZnwVzUa3PYQAZIMg==}
+    peerDependencies:
+      '@babel/runtime': ^7
+      react: ^16 || ^17 || ^18
+    dependencies:
+      '@babel/runtime': 7.21.5
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
   /react-style-singleton@2.2.1(@types/react@18.0.27)(react@18.2.0):
     resolution: {integrity: sha512-ZWj0fHEMyWkHzKYUr2Bs/4zU6XLmq9HsgBURm7g5pAVfyn49DgUiNgY2d4lXRlYSiCif9YBGpQleewkcqddc7g==}
     engines: {node: '>=10'}
@@ -21173,7 +21202,6 @@ packages:
 
   /resize-observer-polyfill@1.5.1:
     resolution: {integrity: sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==}
-    dev: false
 
   /resolve-cwd@3.0.0:
     resolution: {integrity: sha512-OrZaX2Mb+rJCpH/6CpSqt9xFVpN++x01XnN2ie9g6P5/3xelLAkXWVADpdz1IHD/KFfEXyE6V0U01OQ3UO2rEg==}
@@ -21699,6 +21727,7 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
+    dev: true
 
   /semver@7.5.2:
     resolution: {integrity: sha512-SoftuTROv/cRjCze/scjGyiDtcUyxw1rgYQSZY7XTmtR5hX+dm76iDbTH8TkLPHCQmlbQVSSbNZCPM2hb0knnQ==}
@@ -22722,7 +22751,7 @@ packages:
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.3.5
+      semver: 7.5.2
       typescript: 5.0.4
       yargs-parser: 21.1.1
     dev: true
@@ -22737,7 +22766,7 @@ packages:
       chalk: 4.1.2
       enhanced-resolve: 5.15.0
       micromatch: 4.0.5
-      semver: 7.3.5
+      semver: 7.5.2
       typescript: 5.0.4
       webpack: 5.76.0(webpack-cli@4.9.1)
     dev: true
@@ -23823,10 +23852,10 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: true
 
-  github.com/automattic/jetpack-boost-critical-css-gen/d46421f455e3f7ff025a4e7f4b9d01443dfdc8aa:
-    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/d46421f455e3f7ff025a4e7f4b9d01443dfdc8aa}
+  github.com/automattic/jetpack-boost-critical-css-gen/7b1368f6fc4551745ac7681de73c3a4c6049dce6:
+    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/7b1368f6fc4551745ac7681de73c3a4c6049dce6}
     name: jetpack-boost-critical-css-gen
-    version: 0.0.6
+    version: 0.0.9
     prepare: true
     requiresBuild: true
     dependencies:

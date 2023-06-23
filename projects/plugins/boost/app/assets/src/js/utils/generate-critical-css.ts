@@ -132,6 +132,7 @@ async function generateForKeys(
 					properties: keepProperty,
 				},
 				successRatio: success_ratio,
+				maxPages: 10,
 			} );
 
 			const updateResult = await saveCriticalCssChunk( key, css, passthrough );
