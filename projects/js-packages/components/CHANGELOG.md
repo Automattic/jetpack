@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.39.0 - 2023-06-23
+### Added
+- Add component Pricing Slider for Stat pricing page. [#31425]
+
 ## 0.38.1 - 2023-06-21
 ### Changed
 - Updated package dependencies. [#31468]
