@@ -1,2 +1,10 @@
-vendor/
-node_modules/
+.vscode
+*.swp
+node_modules
+public/build
+dist
+
+/vendor/
+/app-ui/build
+/composer.lock
+/release

@@ -1,0 +1,15 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"include": [ "app-ui/src/**/*", "packages/Async_Option/scripts", "testbed" ],
+	"exclude": [ "node_modules/*", "app-ui/build/*" ],
+	"compilerOptions": {
+		"strict": true,
+		"types": [],
+		"baseUrl": ".",
+		"paths": {
+			"@src/": [ "./app-ui/src/" ],
+			"@src/*": [ "./app-ui/src/*" ],
+			"@async-options/*": [ "./packages/Async_Option/scripts/*" ]
+		}
+	}
+}

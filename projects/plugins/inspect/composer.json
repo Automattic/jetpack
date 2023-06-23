@@ -3,7 +3,23 @@
 	"description": "A debugging plugin to inspect Jetpack interactions with WordPress.com.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Automattic\\Jetpack_Inspect\\": "app/",
+			"Automattic\\Jetpack\\Packages\\": "packages/"
+		}
+	},
+	"authors": [
+		{
+			"name": "pyronaur",
+			"email": "hi@pyronaur.com"
+		}
+	],
+	"require": {
+		"automattic/jetpack-autoloader": "^2.11",
+		"automattic/jetpack-connection": "^1.42",
+		"automattic/jetpack-config": "^1.9"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev"
@@ -12,6 +28,11 @@
 		"classmap": [
 			"src/"
 		]
+	},
+	"config": {
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true
+		}
 	},
 	"scripts": {
 		"phpunit": [
