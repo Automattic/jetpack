@@ -462,6 +462,4 @@ Writing rules:
 		default:
 			throw new Error( `Unknown prompt type: ${ type }` );
 	}
-
-	return prompt;
 }
