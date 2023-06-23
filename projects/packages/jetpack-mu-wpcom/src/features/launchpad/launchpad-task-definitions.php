@@ -22,6 +22,13 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
 			},
 		),
+		// design_completed checks for task completion while design_selected always returns true.
+		'design_completed'                => array(
+			'get_title'            => function () {
+				return __( 'Select a design', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
