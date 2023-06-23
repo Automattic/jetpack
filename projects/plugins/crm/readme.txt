@@ -2,7 +2,7 @@
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
 Tested up to: 6.2
-Stable tag: 5.8.0
+Stable tag: 6.0.0
 Requires at least: 5.0
 Requires PHP: 7.2
 License: GPLv2
