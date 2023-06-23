@@ -385,6 +385,11 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-official .sd-content li.share-nextdoor a:before {
 	color: #8ED500;
 }
+.sd-social-icon .sd-content ul li[class*='share-'].share-nextdoor a.sd-button {
+	background: #8ED500;
+	color: #fff !important;
+}
+
 
 .sd-social-icon .sd-content ul li.share-deprecated a:before,
 .sd-social-icon-text .sd-content li.share-deprecated a:before,
