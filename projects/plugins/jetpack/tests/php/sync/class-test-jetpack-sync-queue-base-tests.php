@@ -7,24 +7,15 @@ use Automattic\Jetpack\Sync\Queue_Buffer;
  * @group jetpack-sync
  * @group jetpack-sync-queue
  */
-class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
+/**
+ * This is abstract class to cover common test cases between testing the Options Table and Dedicated Table
+ */
+abstract class WP_Test_Jetpack_Sync_Queue_Base_Tests extends PHPUnit\Framework\TestCase {
 	/**
 	 * @var Queue
 	 */
-	private $queue;
-
-	/**
-	 * Set up.
-	 */
-	public function set_up() {
-		parent::set_up();
-
-		$this->queue = new Queue( 'my_queue' );
-		// TODO this is for the storage table
-
-		$this->queue->init_dedicated_table();
-	}
+	public $queue;
 
 	public function test_add_queue_items() {
 		$this->assertSame( 0, $this->queue->size() );
@@ -34,16 +25,6 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$this->assertSame( 1, $this->queue->size() );
 		$this->assertEquals( array( 'foo' ), $this->queue->flush_all() );
 		$this->assertSame( 0, $this->queue->size() );
-	}
-
-	public function test_add_queue_item_is_not_set_to_autoload() {
-		global $wpdb;
-		$this->assertSame( 0, $this->queue->size() );
-		$this->queue->add( 'foo' );
-
-		$queue = $wpdb->get_row( "SELECT * FROM $wpdb->options WHERE option_name LIKE 'jpsq_my_queue%'" );
-
-		$this->assertEquals( 'no', $queue->autoload );
 	}
 
 	public function test_peek_items() {
@@ -68,13 +49,13 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		 * @var $queue Automattic\Jetpack\Sync\Queue|\PHPUnit\Framework\MockObject\MockObject
 		 */
 		$queue = $this->getMockBuilder( 'Automattic\\Jetpack\\Sync\\Queue' )
-			->setMethods( array( 'generate_option_name_timestamp' ) )
-			->setConstructorArgs( array( 'my_queue' ) )
-			->getMock();
+						->setMethods( array( 'generate_option_name_timestamp' ) )
+						->setConstructorArgs( array( 'my_queue' ) )
+						->getMock();
 
 		$queue->expects( $this->exactly( 2 ) )
-			->method( 'generate_option_name_timestamp' )
-			->willReturnOnConsecutiveCalls( '1.5', '3.0' );
+				->method( 'generate_option_name_timestamp' )
+				->willReturnOnConsecutiveCalls( '1.5', '3.0' );
 
 		$queue->reset();
 		$queue->add( 'foo' );
@@ -213,7 +194,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 		$this->assertEquals( 5, $this->queue->size() );
 
-		$this->assertEquals( count( $this->queue->checkout( 2 )->get_items() ), 2 );
+		$this->assertCount( 2, $this->queue->checkout( 2 )->get_items() );
 	}
 
 	public function test_close_buffer_removes_items() {

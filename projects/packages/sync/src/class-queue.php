@@ -41,7 +41,33 @@ class Queue {
 
 	public $queue_storage = null;
 
-	public $use_dedicated_table_option_name = 'jetpack_sync_use_dedicated_table';
+	/**
+	 * Option name for the flag if we should be using the Dedicated Table or not.
+	 *
+	 * @var string
+	 */
+	public static $use_dedicated_table_option_name = 'jetpack_sync_use_dedicated_table';
+
+	/**
+	 * Transient name where we store the last check time for the Dedicated Table logic.
+	 *
+	 * @var string
+	 */
+	public static $dedicated_table_last_check_time_transient = 'jetpack_sync_use_dedicated_table_last_check';
+
+	/**
+	 * How often to check if the dedicated table is working correctly.
+	 *
+	 * @var float|int
+	 */
+	public static $dedicated_table_last_check_timeout = 8 * HOUR_IN_SECONDS;
+
+	/**
+	 * Used to inject a mock in the unit tests.
+	 *
+	 * @var Queue_Storage_Table
+	 */
+	public $dedicated_table_instance = null;
 
 	/**
 	 * Queue constructor.
@@ -53,20 +79,145 @@ class Queue {
 		$this->row_iterator = 0;
 		$this->random_int   = wp_rand( 1, 1000000 );
 
-		if ( $this->should_use_dedicated_table() ) {
+		/**
+		 * If the Dedicated table is not force-disabled (status = -1), we can try to initialize it.
+		 */
+		if ( ! self::dedicated_table_disabled() ) {
+			$this->maybe_initialize_dedicated_sync_table();
 			$this->queue_storage = new Queue_Storage_Table( $this->id );
-		} else {
+		}
+
+		/**
+		 * Default to the Options table if we didn't manage to initialize the dedicated table.
+		 */
+		if ( ! $this->queue_storage ) {
 			$this->queue_storage = new Queue_Storage_Options( $this->id );
 		}
 	}
 
+	/**
+	 * Try to initialize the Dedicated Table.
+	 *
+	 * We will try this every so often and is controlled by a transient.
+	 *
+	 * @see self::$dedicated_table_last_check_time_transient
+	 * @see self::$dedicated_table_last_check_timeout
+	 *
+	 * @return bool
+	 * @throws \Exception When initialization for the Queue_Storage_Table fails due to bad queue name.
+	 */
+	public function maybe_initialize_dedicated_sync_table() {
+		/**
+		 * Check if we have already done this check. If we have, no need to check and just return the option.
+		 */
+		$has_checked_timestamp = get_transient( self::$dedicated_table_last_check_time_transient );
+
+		if (
+			// Valid number/timestamp.
+			is_numeric( $has_checked_timestamp )
+
+			// Last check was more recent than the timeout value.
+			&& ( time() - $has_checked_timestamp < self::$dedicated_table_last_check_timeout )
+		) {
+			// We have checked and let's return the last status.
+			return $this->should_use_dedicated_table();
+		}
+
+		/**
+		 * Timestamp has expired, let's check if the table is healthy, and we can read from it.
+		 *
+		 * Write checks happen during write calls and have separate logic to disable the dedicated table.
+		 */
+
+		if ( $this->dedicated_table_instance ) {
+			// Used to inject a mock in the unit tests
+			$dedicated_table_instance = $this->dedicated_table_instance;
+		} else {
+			// Instantiate a Dedicated Table Queue storage instance to use it for initialization.
+			$dedicated_table_instance = new Queue_Storage_Table( $this->id );
+		}
+
+		// TODO handle exception in the instantiation
+		// TODO add filtering to permanently disable the dedicated table
+
+		// Check if the table exists
+		if ( ! $dedicated_table_instance->dedicated_table_exists() ) {
+			$dedicated_table_instance->create_table();
+		}
+
+		if ( ! $dedicated_table_instance->is_dedicated_table_healthy() ) {
+			self::disable_dedicated_table_usage();
+
+			return false;
+		}
+
+		// TODO additional checks that things are OK
+
+		self::enable_dedicated_table_usage();
+
+		return true;
+	}
+
+	/**
+	 * Disable the dedicated table. Either temporarily or permanently.
+	 *
+	 * @param bool $force_disable If the dedicated table should be disabled permanently.
+	 *
+	 * @return void
+	 */
+	public static function disable_dedicated_table_usage( $force_disable = false ) {
+		set_transient( self::$dedicated_table_last_check_time_transient, time(), self::$dedicated_table_last_check_timeout );
+
+		/**
+		 * 0 - for just disabled, temporary
+		 * -1 - when disabled permanently
+		 */
+		$value = '0';
+		if ( $force_disable ) {
+			$value = '-1';
+		}
+
+		// Autoload is set to true, as we care about the value of the option when initializing the queue
+		update_option( self::$use_dedicated_table_option_name, $value, true );
+	}
+
+	/**
+	 * Enable usage of the dedicated table.
+	 *
+	 * @return void
+	 */
+	public static function enable_dedicated_table_usage() {
+		set_transient( self::$dedicated_table_last_check_time_transient, time(), self::$dedicated_table_last_check_timeout );
+
+		// Autoload is set to true, as we care about the value of the option when initializing the queue
+		update_option( self::$use_dedicated_table_option_name, '1', true );
+	}
+	// TODO add logic to upgrade to the table at runtime when writing into it, if the enable option is not `-1`.
 	// TODO should we create the table in-line when we detect we haven't actually enabled it?
 	// TODO or should we only create it during an upgrade?
+
+	/**
+	 * Check whether the dedicated table is permanently disabled or not.
+	 *
+	 * @return bool
+	 */
+	public static function dedicated_table_disabled() {
+		return get_option( self::$use_dedicated_table_option_name, null ) === '-1';
+	}
+
+	/**
+	 * Check if we should be using the dedicated table or not.
+	 *
+	 * @return bool
+	 */
 	public function should_use_dedicated_table() {
 		// TODO move this to a Jetpack setting so we can control it from WPCOM
-		$option_value = get_option( $this->use_dedicated_table_option_name, null );
+		$option_value = get_option( self::$use_dedicated_table_option_name, null );
 
 		switch ( $option_value ) {
+			/**
+			 * Fall through for `default`, `0`, `-1` to return `false` as those are states that we don't want to use the table with.
+			 */
 			default:
 			case null:
 				// Option doesn't exist
@@ -307,7 +458,6 @@ class Queue {
 	 * @return Automattic\Jetpack\Sync\Queue_Buffer|bool|int|\WP_Error
 	 */
 	public function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
-		// TODO work on this.
 		if ( $this->get_checkout_id() ) {
 			return new WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' );
 		}
@@ -321,18 +471,7 @@ class Queue {
 		}
 
 		// Get the map of buffer_id -> memory_size.
-		global $wpdb;
-
 		$items_with_size = $this->queue_storage->get_items_ids_with_size( $max_buffer_size );
-
-//		$items_with_size = $wpdb->get_results(
-//			$wpdb->prepare(
-//				"SELECT option_name AS id, LENGTH(option_value) AS value_size FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d",
-//				"jpsq_{$this->id}-%",
-//				$max_buffer_size
-//			),
-//			OBJECT
-//		);
 
 		if ( ! is_countable( $items_with_size ) ) {
 			return false;
@@ -357,14 +496,6 @@ class Queue {
 
 			$item_ids_to_fetch[] = $item_with_size->id;
 		}
-
-//		$query = $wpdb->prepare(
-//			"SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name >= %s and option_name <= %s ORDER BY option_name ASC",
-//			$min_item_id,
-//			$max_item_id
-//		);
-//
-//		$items = $wpdb->get_results( $query, OBJECT ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		// TODO add chunking so we don't try to fetch too many items or create too large of a query.
 

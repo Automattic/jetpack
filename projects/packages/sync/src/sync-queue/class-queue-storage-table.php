@@ -100,11 +100,11 @@ class Queue_Storage_Table {
 	}
 
 	/**
-	 * Check if the table is healthy, and we can read and write from/to it.
+	 * Check if the Dedicated table actually exists.
 	 *
-	 * @return bool If the dedicated table is available, and we can read and write from/to it.
+	 * @return bool
 	 */
-	public function is_dedicated_table_healthy() {
+	public function dedicated_table_exists() {
 		global $wpdb;
 
 		// Check if the table exists
@@ -117,10 +117,36 @@ class Queue_Storage_Table {
 			return false;
 		}
 
-		// TODO check if we can read and write
-		// TODO Check count of items or if it can read the count and it's not an error.
+		return true;
+	}
+	/**
+	 * Check if the table is healthy, and we can read and write from/to it.
+	 *
+	 * @return bool If the dedicated table is available, and we can read and write from/to it.
+	 */
+	public function is_dedicated_table_healthy() {
+		global $wpdb;
 
-		// TODO check errors?
+		if ( ! $this->dedicated_table_exists() ) {
+			return false;
+		}
+
+		// Try to read from the table
+
+		// Ignore the interpolated table name
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$query = $wpdb->query( "SELECT count(`ID`) FROM {$this->table_name}" );
+
+		if ( ! $query ) {
+			// The query failed to select anything from the table, so there must be an issue reading from it.
+			return false;
+		}
+
+		if ( $wpdb->last_error ) {
+			// There was an error reading, that's not necessarily failing the query.
+			// TODO check if we need this error check.
+			return false;
+		}
 
 		return true;
 	}
