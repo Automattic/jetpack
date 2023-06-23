@@ -110,7 +110,7 @@ const BlazePostPublishPanel = () => {
 						/* translators: %s is the post type (e.g. Post, Page, Product). */
 						__( 'Blaze this %s', 'jetpack-blaze' ),
 						postTypeLabel.toLowerCase()
-					) }{ ' ' }
+					) }
 					{ ! isDashboardEnabled && (
 						<Icon icon={ external } className="blaze-panel-outbound-link__external_icon" />
 					) }
