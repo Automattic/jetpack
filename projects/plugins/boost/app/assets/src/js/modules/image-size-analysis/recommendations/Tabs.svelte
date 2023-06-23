@@ -1,22 +1,25 @@
 <script lang="ts">
 	import { Link } from '../../../utils/router';
 	import { isaData } from '../store/isa-data';
-	import { imageDataGroupTabs } from '../store/isa-groups';
+	import { isaGroupLabels, imageDataGroupTabs } from '../store/isa-summary';
 </script>
 
 <div class="jb-tabs">
-	{#each Object.entries( $imageDataGroupTabs ) as [key, group]}
-		<div class="jb-tab jb-tab--{key}" class:active={$isaData.query.group === key}>
+	{#each Object.entries( $imageDataGroupTabs ) as [group, details]}
+		{@const  label = isaGroupLabels[ group ] }
+		{@const  issues = details.issue_count }
+
+		<div class="jb-tab jb-tab--{group}" class:active={$isaData.query.group === group}>
 			<div class="jb-tab__header">
-				{#if group.issues > 0}
-					<Link class="jb-navigator-link" to="/image-size-analysis/{key}/1">
-						{group.name}
-						<span>{group.issues}</span>
+				{#if issues > 0}
+					<Link class="jb-navigator-link" to="/image-size-analysis/{group}/1">
+						{label}
+						<span>{issues}</span>
 					</Link>
 				{:else}
 					<div class="jb-navigator-link jb-navigator-link--inactive">
-						{group.name}
-						<span>{group.issues}</span>
+						{label}
+						<span>{issues}</span>
 					</div>
 				{/if}
 			</div>

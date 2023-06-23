@@ -30,7 +30,6 @@
 		"recurring-payments",
 		"related-posts",
 		"repeat-visitor",
-		"revue",
 		"send-a-message",
 		"whatsapp-button",
 		"seo",
@@ -42,6 +41,7 @@
 		"story",
 		"subscriptions",
 		"tiled-gallery",
+		"tock",
 		"videopress",
 		"wordads",
 		"payments-intro",
@@ -60,7 +60,6 @@
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
 		"recipe",
-		"tock",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-support"
@@ -86,10 +85,10 @@
 		"rating-star",
 		"related-posts",
 		"repeat-visitor",
-		"revue",
 		"simple-payments",
 		"slideshow",
 		"tiled-gallery",
+		"tock",
 		"videopress",
 		"wordads"
 	]

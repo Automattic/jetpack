@@ -20,6 +20,15 @@ export class ApiError extends Error {
 	 * Override Error.message to generate a message based on http code and json body.
 	 */
 	get message(): string {
+		// If a body is present and an 'error' or 'message' key exists in it, present that as the message.
+		if ( isJsonObject( this.body ) ) {
+			for ( const key of [ 'error', 'message' ] ) {
+				if ( typeof this.body[ key ] === 'string' ) {
+					return this.body[ key ] as string;
+				}
+			}
+		}
+
 		switch ( this.httpCode ) {
 			case 403: {
 				return this.getRestApiErrorMessage();

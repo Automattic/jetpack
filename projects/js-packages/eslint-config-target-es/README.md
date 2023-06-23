@@ -1,13 +1,13 @@
 # eslint-config-target-es
 
-ESLint shareable config to activate [eslint-plugin-es] checks based on [browserslist] browser targets and [MDN browser compatibility data].
+ESLint shareable config to activate [eslint-plugin-es-x] checks based on [browserslist] browser targets and [MDN browser compatibility data].
 
 ## Installation
 
 Generally you'll install this via your package manager, e.g.
 
 ```
-npm install --save-dev eslint eslint-plugin-es @automattic/eslint-config-target-es
+npm install --save-dev eslint eslint-plugin-es-x @automattic/eslint-config-target-es
 ```
 
 ## Usage
@@ -75,6 +75,6 @@ eslint-config-target-es is licensed under [GNU General Public License v2 (or lat
 
 --
 
-[eslint-plugin-es]: https://www.npmjs.com/package/eslint-plugin-es
+[eslint-plugin-es-x]: https://www.npmjs.com/package/eslint-plugin-es-x
 [browserslist]: https://www.npmjs.com/package/browserslist
 [MDN browser compatibility data]: https://www.npmjs.com/package/@mdn/browser-compat-data

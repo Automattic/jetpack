@@ -11,10 +11,10 @@
 namespace Automattic\Jetpack\Extensions;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
-use Jetpack_Plan;
 
 /**
  * Jetpack Tiled Gallery Block class
@@ -61,11 +61,8 @@ class Tiled_Gallery {
 
 		$is_squareish_layout = self::is_squareish_layout( $attr );
 
-		// Jetpack_Plan::get does not exist on WordPress.com.
-		if ( method_exists( 'Jetpack_Plan', 'get' ) ) {
-			$jetpack_plan = Jetpack_Plan::get();
-			wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetpack_plan['product_slug'] ) );
-		}
+		$jetpack_plan = Jetpack_Plan::get();
+		wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetpack_plan['product_slug'] ) );
 
 		if ( preg_match_all( '/<img [^>]+>/', $content, $images ) ) {
 			/**

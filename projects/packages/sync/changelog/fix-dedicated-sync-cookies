@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Initialize dedicated hook endpoint earlier in the 'init' hook to avoid cookie conflicts.

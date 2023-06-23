@@ -133,6 +133,18 @@ class Gridicon extends Component< GridiconProps > {
 						<path d="M11 17.768l-4.884-4.884 1.768-1.768L11 14.232l8.658-8.658C17.823 3.39 15.075 2 12 2 6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10c0-1.528-.353-2.97-.966-4.266L11 17.768z" />
 					</g>
 				);
+			case 'gridicons-chevron-left':
+				return (
+					<g>
+						<path d="M16.443 7.41L15.0399 6L9.06934 12L15.0399 18L16.443 16.59L11.8855 12L16.443 7.41Z" />
+					</g>
+				);
+			case 'gridicons-chevron-right':
+				return (
+					<g>
+						<path d="M10.2366 6L8.8335 7.41L13.391 12L8.8335 16.59L10.2366 18L16.2072 12L10.2366 6Z" />
+					</g>
+				);
 			case 'gridicons-chevron-down':
 				return (
 					<g>

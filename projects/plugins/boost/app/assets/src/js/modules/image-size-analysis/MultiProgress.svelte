@@ -2,39 +2,47 @@
 	import { sprintf, __ } from '@wordpress/i18n';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
-	import { isaGroups } from './store/isa-groups';
+	import { isaGroupLabels, isaSummary } from './store/isa-summary';
 
-	// Limit which groups are shown in the multi-progress
-	$: groups = [ $isaGroups.home, $isaGroups.pages, $isaGroups.posts, $isaGroups.other ];
+	function safePercent( value: number, outOf: number ): number {
+		if ( ! outOf ) {
+			return 100;
+		}
+
+		return Math.min( 100, Math.max( 0, ( value * 100 ) / outOf ) );
+	}
 </script>
 
 <div class="jb-multi-progress">
-	{#each groups as group, index}
+	{#each Object.entries( $isaSummary.groups ) as [group, summary], index}
+		{@const  progress = safePercent( summary.scanned_pages, summary.total_pages ) }
+		{@const  isDone = progress === 100 }
+		{@const  hasIssues = summary.issue_count > 0 }
+
 		<div class="jb-entry">
 			<div class="jb-progress">
-				<ProgressBar progress={group.progress} />
+				<ProgressBar progress={safePercent( summary.scanned_pages, summary.total_pages )} />
 			</div>
-			{#if ! group.done && group.progress > 0}
+
+			{#if progress > 0 && progress < 100}
 				<Spinner />
 			{:else}
-				<span class="jb-bubble" class:done={group.done}>
-					{#if group.done}
-						✓
-					{:else}
-						{index + 1}
-					{/if}
+				<span class="jb-bubble" class:done={isDone}>
+					{isDone ? '✓' : index + 1}
 				</span>
 			{/if}
+
 			<div class="jb-category-name">
-				{group.name}
+				{isaGroupLabels[ group ] || group}
 			</div>
-			{#if group.done || group.issues > 0}
-				<div class="jb-status" class:has-issues={group.issues > 0}>
-					{#if group.issues > 0}
+
+			{#if isDone || hasIssues}
+				<div class="jb-status" class:has-issues={hasIssues}>
+					{#if hasIssues}
 						{sprintf(
 							/* translators: %d is the number of items in this list hidden behind this link */
 							__( '%d issues', 'jetpack-boost' ),
-							group.issues
+							summary.issue_count
 						)}
 					{:else}
 						{__( 'No issues', 'jetpack-boost' )}

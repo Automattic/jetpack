@@ -2,10 +2,14 @@ jpcrm-dashcount {
 	box-sizing: content-box;
 	margin: 10px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, 300px);
+  grid-template-columns: repeat(auto-fit, 250px);
   counter-reset: grid-items;
 	grid-gap: 10px 20px;
-	
+
+	&.wide-cards {
+		grid-template-columns: repeat(auto-fit, 300px);
+	}
+
 	jpcrm-dashcount-card {
 		display: flex;
 		align-items: center;
@@ -14,7 +18,7 @@ jpcrm-dashcount {
 		padding: 15px;
 		background-color: var(--jp-white);
 		height: 120px;
-		
+
 		h3 {
 			position: absolute;
 			top: 18px;
@@ -22,7 +26,7 @@ jpcrm-dashcount {
 			font-weight: 600;
 			margin-block-start: 0;
 		}
-		
+
 		.range_total {
 			font-size: 42px;
 			color: var(--jp-green-50);

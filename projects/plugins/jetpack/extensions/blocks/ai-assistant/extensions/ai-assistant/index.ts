@@ -1,19 +1,26 @@
 /*
  * External dependencies
  */
+import { getBlockType } from '@wordpress/blocks';
+import { select } from '@wordpress/data';
+import { store as editPostStore } from '@wordpress/edit-post';
 import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
  */
+import { blockName } from '../..';
 import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
 
+/*
+ * Types and Constants
+ */
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
 
-/*
- * List of blocks that can be extended.
- */
-export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading' ];
+// List of blocks that can be extended.
+export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading', 'core/list-item' ] as const;
+
+type ExtendedBlock = ( typeof EXTENDED_BLOCKS )[ number ];
 
 type BlockSettingsProps = {
 	supports: {
@@ -34,6 +41,11 @@ const siteRequiresUpgrade = AI_Assistant_Initial_State.requireUpgrade;
  * @returns {boolean} True if it is possible to extend the block.
  */
 export function isPossibleToExtendBlock(): boolean {
+	const isBlockRegistered = getBlockType( blockName );
+	if ( ! isBlockRegistered ) {
+		return false;
+	}
+
 	// Check Jetpack extension is enabled.
 	if ( ! isAiAssistantSupportExtensionEnabled ) {
 		return false;
@@ -55,6 +67,13 @@ export function isPossibleToExtendBlock(): boolean {
 		return false;
 	}
 
+	// Do not extend if the AI Assistant block is hidden
+	const { getHiddenBlockTypes } = select( editPostStore );
+	const hiddenBlocks = getHiddenBlockTypes();
+	if ( hiddenBlocks.includes( blockName ) ) {
+		return false;
+	}
+
 	return true;
 }
 
@@ -62,16 +81,19 @@ export function isPossibleToExtendBlock(): boolean {
  * Add jetpack/ai support to the extended blocks.
  *
  * @param {BlockSettingsProps} settings - Block settings.
- * @param {string} name                 - Block name.
+ * @param {ExtendedBlock} name          - Block name.
  * @returns {BlockSettingsProps}          Block settings.
  */
-function addJetpackAISupport( settings: BlockSettingsProps, name: string ): BlockSettingsProps {
-	if ( ! isPossibleToExtendBlock() ) {
+function addJetpackAISupport(
+	settings: BlockSettingsProps,
+	name: ExtendedBlock
+): BlockSettingsProps {
+	// Only extend the blocks in the list.
+	if ( ! EXTENDED_BLOCKS.includes( name ) ) {
 		return settings;
 	}
 
-	// Only extend the blocks in the list.
-	if ( ! EXTENDED_BLOCKS.includes( name ) ) {
+	if ( ! isPossibleToExtendBlock() ) {
 		return settings;
 	}
 
@@ -87,4 +109,4 @@ function addJetpackAISupport( settings: BlockSettingsProps, name: string ): Bloc
 }
 
 // Extend BlockType.
-addFilter( 'blocks.registerBlockType', 'jetpack/ai-assistant-support', addJetpackAISupport );
+addFilter( 'blocks.registerBlockType', 'jetpack/ai-assistant-support', addJetpackAISupport, 100 );

@@ -399,6 +399,7 @@ class Defaults {
 		'flamingo_outbound',
 		'http',
 		'idx_page',
+		'jetpack_inspect_log', // Jetpack Inspect dev tool. p1HpG7-nkd-p2
 		'jetpack_migration',
 		'jp_img_sitemap',
 		'jp_img_sitemap_index',
