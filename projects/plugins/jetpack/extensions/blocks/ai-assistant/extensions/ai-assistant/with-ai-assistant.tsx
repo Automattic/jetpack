@@ -5,7 +5,7 @@ import { BlockControls } from '@wordpress/block-editor';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useState, useRef } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 import { RichTextValue, create, insert, join, slice, toHTMLString } from '@wordpress/rich-text';
 import React from 'react';
@@ -22,7 +22,10 @@ import {
 	PROMPT_TYPE_CORRECT_SPELLING,
 	getPrompt,
 } from '../../lib/prompt';
-import { getTextContentFromBlocks } from '../../lib/utils/block-content';
+import {
+	GetTextContentFromBlocksProps,
+	getTextContentFromBlocks,
+} from '../../lib/utils/block-content';
 /*
  * Types
  */
@@ -35,6 +38,8 @@ type StoredPromptProps = {
 type SetContentOptionsProps = {
 	clientId: string;
 	content: RichTextValue;
+	messages: Array< PromptItemProps >;
+	flush: () => void;
 	offset: {
 		start: number;
 		end: number;
@@ -53,6 +58,11 @@ export const withAIAssistant = createHigherOrderComponent(
 			messages: [],
 		} );
 
+		const requestList = useRef< { index: number; data: Array< SetContentOptionsProps > } >( {
+			index: 0,
+			data: [],
+		} );
+
 		const showSuggestionError = useCallback(
 			( suggestionError: SuggestionError ) => {
 				createNotice( suggestionError.status, suggestionError.message, {
@@ -69,11 +79,8 @@ export const withAIAssistant = createHigherOrderComponent(
 		 * @returns {void}
 		 */
 		const setContent = useCallback(
-			(
-				newContent: string,
-				{ blocks, index }: { blocks: Array< SetContentOptionsProps >; index?: number }
-			) => {
-				const block = blocks[ index || 0 ];
+			( newContent: string ) => {
+				const block = requestList.current.data[ requestList.current.index ];
 				const clientId = block?.clientId;
 				const content = block?.content;
 				const offset = block?.offset;
@@ -122,10 +129,28 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ setStoredPrompt ]
 		);
 
+		const handleDone = useCallback(
+			( newContent: string ) => {
+				// Update Stored Prompt
+				updateStoredPrompt( newContent );
+
+				if ( requestList.current.index === requestList.current.data.length - 1 ) {
+					// Reset request list
+					requestList.current.index = 0;
+					requestList.current.data = [];
+				} else {
+					// Flush next request
+					requestList.current.index += 1;
+					requestList.current.data[ requestList.current.index ]?.flush();
+				}
+			},
+			[ updateStoredPrompt ]
+		);
+
 		const { request } = useSuggestionsFromAI( {
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
-			onDone: updateStoredPrompt,
+			onDone: handleDone,
 			onError: showSuggestionError,
 			autoRequest: false,
 		} );
@@ -136,40 +161,51 @@ export const withAIAssistant = createHigherOrderComponent(
 				const firstBlock = blocks[ 0 ];
 				const otherBlocks = blocks.slice( 1, blocks.length - 1 );
 				const lastBlock = blocks[ blocks.length - 1 ];
-				const mixedContent = join( blocks.map( block => block.content ) );
+				const allSelectedContent = join( blocks.map( block => block.content ) );
 
-				const handleSetStoredPrompt = ( blocksList: Array< SetContentOptionsProps > ) =>
+				const handleSetStoredPrompt = () =>
 					setStoredPrompt( prevPrompt => {
-						const allMessages = blocksList.reduce( ( acc, { content, offset } ) => {
-							const prevMessages = acc[ acc.length - 1 ] || prevPrompt.messages;
-							const prevMessagesFiltered = filterMessages( prevMessages );
+						const current = requestList.current.data;
 
-							acc.push(
-								getPrompt( promptType, {
-									...options,
-									content: toHTMLString( { value: slice( content, offset.start, offset.end ) } ),
-									prevMessages: prevMessagesFiltered,
-								} )
-							);
-
-							return acc;
-						}, [] );
-
-						// Request the suggestion from the AI.
-						request( allMessages, { blocks: blocksList } );
+						// Flush first request
+						current[ 0 ]?.flush();
 
 						// Update the stored prompt locally.
 						// Getting only the last since it will contain the previous ones.
-						const lastMessage = allMessages?.[ allMessages?.length - 1 ] || [];
+						const lastMessage = current[ current?.length - 1 ]?.messages || [];
 						return { ...prevPrompt, messages: lastMessage };
 					} );
 
+				const generateRequestList = ( list: Array< GetTextContentFromBlocksProps > ) => {
+					return list.reduce( ( acc, block ) => {
+						const { content, offset } = block;
+						const prevMessages = acc[ acc.length - 1 ]?.messages || storedPrompt.messages;
+						const prevMessagesFiltered = filterMessages( prevMessages );
+						const messages = getPrompt( promptType, {
+							...options,
+							content: toHTMLString( { value: slice( content, offset.start, offset.end ) } ),
+							prevMessages: prevMessagesFiltered,
+						} );
+
+						return [
+							...acc,
+							{
+								...block,
+								messages,
+								flush: () => {
+									request( messages );
+								},
+							},
+						];
+					}, [] );
+				};
+
 				const generateDataForMixedContent = () => ( {
 					clientId: firstBlock.clientId,
-					content: mixedContent,
+					content: allSelectedContent,
 					offset: {
 						start: 0,
-						end: mixedContent.text.length,
+						end: allSelectedContent.text.length,
 					},
 				} );
 
@@ -196,15 +232,17 @@ export const withAIAssistant = createHigherOrderComponent(
 					case PROMPT_TYPE_CORRECT_SPELLING:
 					case PROMPT_TYPE_CHANGE_LANGUAGE:
 					case PROMPT_TYPE_CHANGE_TONE:
-						handleSetStoredPrompt( blocks );
+						requestList.current.data = generateRequestList( blocks );
+						handleSetStoredPrompt();
 						break;
 					default:
-						handleSetStoredPrompt( [ generateDataForMixedContent() ] );
+						requestList.current.data = generateRequestList( [ generateDataForMixedContent() ] );
+						handleSetStoredPrompt();
 						removeUnusedBlocks();
 						break;
 				}
 			},
-			[ removeBlocks, request, updateBlockAttributes ]
+			[ removeBlocks, request, storedPrompt.messages, updateBlockAttributes ]
 		);
 
 		return (
