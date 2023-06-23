@@ -4,7 +4,9 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
+import { store as coreDataStore } from '@wordpress/core-data';
 import { select } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import TurndownService from 'turndown';
 
 // Turndown instance
@@ -113,6 +115,21 @@ export function getBlockTextContent( clientId: string ): string {
 	 */
 	if ( ! block ) {
 		return '';
+	}
+
+	const { name } = block;
+
+	// Special case for the post title block.
+	if ( name === 'core/post-title' ) {
+		const { getCurrentPostType, getCurrentPostId } = select( editorStore );
+		const postType = getCurrentPostType();
+		const postId = getCurrentPostId();
+
+		const { getEntityRecord, getEditedEntityRecord } = select( coreDataStore );
+		const record = getEntityRecord( 'postType', postType, postId ); // Trigger resolver.
+		const editedRecord = getEditedEntityRecord( 'postType', postType, postId );
+
+		return record && editedRecord ? editedRecord?.title : ''; // Return the edited title.
 	}
 
 	// Attempt to pick the content from the block `content` attribute.
