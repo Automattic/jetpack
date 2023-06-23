@@ -4,6 +4,15 @@
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/components"
+	},
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Components"
+	},
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",
 		"@babel/runtime": "^7",
