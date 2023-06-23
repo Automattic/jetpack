@@ -45,6 +45,7 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 
 		// Clear the table
 		$this->queue->queue_storage->drop_table();
+		$this->queue->queue_storage->create_table();
 	}
 
 	public function test_dedicated_table_disabled_should_instantiate_options_backend() {
