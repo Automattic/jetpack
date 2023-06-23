@@ -4,16 +4,18 @@
 import {
 	MenuItem,
 	MenuGroup,
-	ToolbarDropdownMenu,
 	CustomSelectControl,
+	ToolbarButton,
+	Dropdown,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
+import classNames from 'classnames';
 import React from 'react';
 /**
  * Internal dependencies
  */
-import AIAssistantIcon from '../../icons/ai-assistant';
+import aiAssistant from '../../icons/ai-assistant';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -21,11 +23,16 @@ import {
 	PROMPT_TYPE_SIMPLIFY,
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
-	PromptTypeProp,
 } from '../../lib/prompt';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
-import { ToneDropdownMenu, ToneProp } from '../tone-dropdown-control';
+import { ToneDropdownMenu } from '../tone-dropdown-control';
 import './style.scss';
+/**
+ * Types and constants
+ */
+import type { RequestingStateProp } from '../../hooks/use-suggestions-from-ai';
+import type { PromptTypeProp } from '../../lib/prompt';
+import type { ToneProp } from '../tone-dropdown-control';
 
 // Quick edits option: "Correct spelling and grammar"
 const QUICK_EDIT_KEY_CORRECT_SPELLING = 'correct-spelling' as const;
@@ -96,6 +103,11 @@ type AiAssistantControlComponentProps = {
 	 */
 	exclude?: QuickEditsKeyProp[];
 
+	/*
+	 * Whether the dropdown is requesting suggestions from AI.
+	 */
+	requestingState?: RequestingStateProp;
+
 	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
 };
 
@@ -103,6 +115,7 @@ export default function AiAssistantDropdown( {
 	key,
 	label,
 	exclude = [],
+	requestingState,
 	onChange,
 }: AiAssistantControlComponentProps ) {
 	const quickActionsListFiltered = quickActionsList.filter(
@@ -110,14 +123,26 @@ export default function AiAssistantDropdown( {
 	);
 
 	return (
-		<ToolbarDropdownMenu
-			icon={ AIAssistantIcon }
-			label={ label || __( 'AI Assistant', 'jetpack' ) }
+		<Dropdown
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
-		>
-			{ ( { onClose: closeDropdown } ) => (
+			renderToggle={ ( { isOpen, onToggle } ) => {
+				return (
+					<ToolbarButton
+						className={ classNames( 'jetpack-ai-assistant__button', {
+							[ `is-${ requestingState }` ]: true,
+						} ) }
+						showTooltip
+						onClick={ onToggle }
+						aria-haspopup="true"
+						aria-expanded={ isOpen }
+						label={ label || __( 'AI Assistant', 'jetpack' ) }
+						icon={ aiAssistant }
+					/>
+				);
+			} }
+			renderContent={ ( { onClose: closeDropdown } ) => (
 				<MenuGroup label={ label }>
 					{ quickActionsListFiltered.map( quickAction => (
 						<MenuItem
@@ -149,7 +174,7 @@ export default function AiAssistantDropdown( {
 					/>
 				</MenuGroup>
 			) }
-		</ToolbarDropdownMenu>
+		/>
 	);
 }
 

@@ -22,15 +22,15 @@ const BlazePostPublishPanel = () => {
 		[ tracks ]
 	);
 
-	const { isPostPublished, isPublishingPost, postId, postType, postVisibility } = useSelect(
-		selector => ( {
+	const { isPostPublished, isPublishingPost, postId, postType, postTypeLabel, postVisibility } =
+		useSelect( selector => ( {
 			isPostPublished: selector( editorStore ).isCurrentPostPublished(),
 			isPublishingPost: selector( editorStore ).isPublishingPost(),
 			postId: selector( editorStore ).getCurrentPostId(),
 			postType: selector( editorStore ).getCurrentPostType(),
+			postTypeLabel: selector( editorStore ).getPostTypeLabel(),
 			postVisibility: selector( editorStore ).getEditedPostVisibility(),
-		} )
-	);
+		} ) );
 	const wasPublishing = usePrevious( isPublishingPost );
 
 	const panelBodyProps = {
@@ -109,7 +109,7 @@ const BlazePostPublishPanel = () => {
 					{ sprintf(
 						/* translators: %s is the post type (e.g. Post, Page, Product). */
 						__( 'Blaze this %s', 'jetpack-blaze' ),
-						postType
+						postTypeLabel.toLowerCase()
 					) }
 					{ ! isDashboardEnabled && (
 						<Icon icon={ external } className="blaze-panel-outbound-link__external_icon" />
