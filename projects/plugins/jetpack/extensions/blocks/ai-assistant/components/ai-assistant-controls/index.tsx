@@ -114,6 +114,8 @@ type AiAssistantControlComponentProps = {
 	disabled?: boolean;
 
 	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
+
+	onReplace: () => void;
 };
 
 export default function AiAssistantDropdown( {
@@ -121,8 +123,9 @@ export default function AiAssistantDropdown( {
 	label,
 	exclude = [],
 	requestingState,
-	onChange,
 	disabled,
+	onChange,
+	onReplace,
 }: AiAssistantControlComponentProps ) {
 	const quickActionsListFiltered = quickActionsList.filter(
 		quickAction => ! exclude.includes( quickAction.key )
@@ -151,6 +154,18 @@ export default function AiAssistantDropdown( {
 			} }
 			renderContent={ ( { onClose: closeDropdown } ) => (
 				<MenuGroup label={ label }>
+					<MenuItem
+						icon={ aiAssistant }
+						iconPosition="left"
+						key="key-ai-assistant"
+						onClick={ onReplace }
+						isSelected={ key === 'key-ai-assistant' }
+					>
+						<div className="jetpack-ai-assistant__menu-item">
+							{ __( 'Ask AI Assistant', 'jetpack' ) }
+						</div>
+					</MenuItem>
+
 					{ quickActionsListFiltered.map( quickAction => (
 						<MenuItem
 							icon={ quickAction?.icon }

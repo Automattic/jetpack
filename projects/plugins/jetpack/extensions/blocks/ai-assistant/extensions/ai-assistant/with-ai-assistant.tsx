@@ -3,6 +3,7 @@
  */
 import { BlockControls } from '@wordpress/block-editor';
 import { store as blockEditorStore } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState, useRef } from '@wordpress/element';
@@ -43,6 +44,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
 		const { createNotice } = useDispatch( noticesStore );
+		const { replaceBlock } = useDispatch( blockEditorStore );
 
 		const showSuggestionError = useCallback(
 			( suggestionError: SuggestionError ) => {
@@ -144,6 +146,18 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ clientIds, content, request ]
 		);
 
+		const replaceWithAiAssistantBlock = useCallback( () => {
+			// Create a new AI Assistant block instance.
+			const aiAssistantBlock = createBlock( 'jetpack/ai-assistant', {
+				content,
+			} );
+
+			/*
+			 * Replace the current block with a new AI Assistant block instance.
+			 */
+			replaceBlock( props.clientId, aiAssistantBlock );
+		}, [ content, replaceBlock, props.clientId ] );
+
 		const rawContent = getRawTextFromHTML( props.attributes.content );
 
 		return (
@@ -152,9 +166,10 @@ export const withAIAssistant = createHigherOrderComponent(
 
 				<BlockControls group="block">
 					<AiAssistantDropdown
-						onChange={ requestSuggestion }
 						requestingState={ requestingState }
 						disabled={ ! rawContent?.length }
+						onChange={ requestSuggestion }
+						onReplace={ replaceWithAiAssistantBlock }
 					/>
 				</BlockControls>
 			</>
