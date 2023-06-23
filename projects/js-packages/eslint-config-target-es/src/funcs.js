@@ -1,7 +1,7 @@
 const mdn = require( '@mdn/browser-compat-data' );
 const browserslist = require( 'browserslist' );
 const debug = require( 'debug' );
-const { rules: esRules } = require( 'eslint-plugin-es' );
+const { rules: esRules } = require( 'eslint-plugin-es-x' );
 const semver = require( 'semver' );
 const browsersMap = require( './browsersMap.js' );
 const rulesMap = require( './rulesMap.js' );
@@ -122,7 +122,7 @@ function needsCheck( rule, browsers, options = {} ) {
 }
 
 /**
- * Get the es rule configurations.
+ * Get the es-x rule configurations.
  *
  * @param {object} options - Options.
  * @param {boolean|null} options.builtins - If true, only rules with "javascript.builtins" paths are checked. If false, such rules are not checked. If null/undefined, all may be checked.
@@ -133,7 +133,7 @@ function getRules( options = {} ) {
 	const browsers = getBrowsers( options );
 	const ret = {};
 	for ( const rule of Object.keys( esRules ) ) {
-		ret[ `es/${ rule }` ] = needsCheck( rule, browsers, options ) ? 2 : 0;
+		ret[ `es-x/${ rule }` ] = needsCheck( rule, browsers, options ) ? 2 : 0;
 	}
 	return ret;
 }

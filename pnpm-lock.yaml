@@ -454,9 +454,9 @@ importers:
       eslint:
         specifier: 8.39.0
         version: 8.39.0
-      eslint-plugin-es:
-        specifier: 4.1.0
-        version: 4.1.0(eslint@8.39.0)
+      eslint-plugin-es-x:
+        specifier: 7.1.0
+        version: 7.1.0(eslint@8.39.0)
       jest:
         specifier: 29.4.3
         version: 29.4.3
@@ -14864,6 +14864,17 @@ packages:
       eslint-import-resolver-node: 0.3.7
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /eslint-plugin-es-x@7.1.0(eslint@8.39.0):
+    resolution: {integrity: sha512-AhiaF31syh4CCQ+C5ccJA0VG6+kJK8+5mXKKE7Qs1xcPRg02CDPOj3mWlQxuWS/AYtg7kxrDNgW9YW3vc0Q+Mw==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    peerDependencies:
+      eslint: '>=8'
+    dependencies:
+      '@eslint-community/eslint-utils': 4.4.0(eslint@8.39.0)
+      '@eslint-community/regexpp': 4.5.1
+      eslint: 8.39.0
     dev: true
 
   /eslint-plugin-es@4.1.0(eslint@8.39.0):
