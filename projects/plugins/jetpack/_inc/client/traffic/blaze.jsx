@@ -9,6 +9,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React from 'react';
 import { connect } from 'react-redux';
+import { isBlazeDashboardEnabled } from 'state/initial-state';
 import { getModule } from 'state/modules';
 
 const trackDashboardClick = () => {
@@ -25,10 +26,12 @@ function Blaze( props ) {
 	const {
 		blazeActive,
 		blazeModule: { description },
+		blazeDashboardEnabled,
 		hasConnectedOwner,
 		isOfflineMode,
 		isSavingAnyOption,
 		isUnavailableInOfflineMode,
+		siteAdminUrl,
 		toggleModuleNow,
 	} = props;
 
@@ -37,9 +40,15 @@ function Blaze( props ) {
 	const blazeCard = () => {
 		return (
 			<Card
-				className="blaze-card"
-				href="tools.php?page=advertising"
+				compact
+				className="jp-settings-card__configure-link"
+				href={
+					blazeDashboardEnabled
+						? siteAdminUrl + 'tools.php?page=advertising'
+						: getRedirectUrl( 'jetpack-blaze' )
+				}
 				onClick={ trackDashboardClick }
+				{ ...( ! blazeDashboardEnabled ? { target: '_blank', rel: 'noopener noreferrer' } : {} ) }
 			>
 				{ __( 'Manage your campaigns and view your earnings in the Blaze dashboard', 'jetpack' ) }
 			</Card>
@@ -88,6 +97,7 @@ export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
 			blazeActive: ownProps.getOptionValue( 'blaze' ),
+			blazeDashboardEnabled: isBlazeDashboardEnabled( state ),
 			blazeModule: getModule( state, 'blaze' ),
 		};
 	} )( Blaze )
