@@ -17,7 +17,7 @@ import VideopressCard from './videopress-card';
  * @returns {object} ProductCardsSection React component.
  */
 
-// flag for enabling stats card. Logic is in 02-stats.php mu-plugin
+// flag for enabling stats card.
 const { jetpackStats = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
 
 const ProductCardsSection = () => {
