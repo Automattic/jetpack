@@ -62,7 +62,8 @@ type GetTextContentFromBlocksProps = {
  *
  * @returns {GetTextContentFromBlocksProps} The text content.
  */
-export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
+
+export function getTextContentFromSelectedBlocks(): GetTextContentFromBlocksProps {
 	const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
 	const defaultContent = {
 		count: 0,

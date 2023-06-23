@@ -16,7 +16,7 @@ import AiAssistantDropdown, {
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import { getPrompt } from '../../lib/prompt';
-import { getTextContentFromBlocks } from '../../lib/utils/block-content';
+import { getTextContentFromSelectedBlocks } from '../../lib/utils/block-content';
 /*
  * Types
  */
@@ -114,7 +114,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const { content, clientIds } = getTextContentFromBlocks();
+				const { content, clientIds } = getTextContentFromSelectedBlocks();
 
 				/*
 				 * Store the selected clientIds when the user requests a suggestion.
