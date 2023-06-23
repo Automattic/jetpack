@@ -605,7 +605,7 @@ if ( class_exists( 'WPCOM_Launchpad' ) ) {
  *
  * @param array $allowed_options The allowed options.
  */
-function test_add_launchpad_options_to_jetpack_sync( $allowed_options ) {
+function add_launchpad_options_to_jetpack_sync( $allowed_options ) {
 	// Bail if not on an Atomic site
 	if ( ! jetpack_is_atomic_site() ) {
 		return $allowed_options;
@@ -622,4 +622,4 @@ function test_add_launchpad_options_to_jetpack_sync( $allowed_options ) {
 
 	return array_merge( $allowed_options, $launchpad_options );
 }
-add_filter( 'jetpack_sync_options_whitelist', 'test_add_launchpad_options_to_jetpack_sync', 10, 1 );
+add_filter( 'jetpack_sync_options_whitelist', 'add_launchpad_options_to_jetpack_sync', 10, 1 );
