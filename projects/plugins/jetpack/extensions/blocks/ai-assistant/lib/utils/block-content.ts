@@ -84,8 +84,8 @@ export function getTextContentFromSelectedBlocks(): GetTextContentFromBlocksProp
 		count: blocks.length,
 		clientIds,
 		content: blocks
-			.map( block => getBlockTextContent( block.clientId ) )
-			.join( HTML_JOIN_CHARACTERS ),
+			? blocks.map( block => getBlockTextContent( block.clientId ) ).join( HTML_JOIN_CHARACTERS )
+			: '',
 	};
 }
 
