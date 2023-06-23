@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Update CSS regen notice data sync option name, to allow it to work on Atomic.
