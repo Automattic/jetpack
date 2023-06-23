@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;

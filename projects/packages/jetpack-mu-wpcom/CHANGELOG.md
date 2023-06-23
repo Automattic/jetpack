@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2023-06-19
+### Added
+- Add new claim free domain task to Keep Building task list. [#31275]
+- Adds domain_upsell task to keep-building list and updates visibility rules for that same task. [#31281]
+- Adds drive_traffic task to keep-building list. [#31377]
+
+### Fixed
+- Updates package version. [#31349]
+
+## [3.0.0] - 2023-06-12
+### Added
+- Add a site title task to the Keep Building task list. [#31246]
+- Move the completion check logic out of the task list availability status [#31055]
+- Support task list filtering of visible task [#31186]
+
+### Changed
+- Launchpad: Add verify email task to keep-building task list [#31239]
+- Launchpad: Refactor task definitions [#31121]
+
+### Fixed
+- Fix fatal error for WoA sites due to absence of Logstash on that infrastructure. [#31284]
+
+## [2.4.0] - 2023-06-06
+### Added
+- Add a new is_enabled logic to the launchpad endpoint to determine whether the task list is enabled for a site. [#30913]
+- Add `is_enabled_callback` to all existing task lists with a callback function that checks launchpad_screen. [#31092]
+- Apply filter to the Keep building task list [#31113]
+- Register a "Keep Building" task list. [#30954]
+- Remove unused API endpoint launchpad/checklist [#30882]
+
+### Changed
+- Launchpad: use callbacks for task titles to pick up the user locale [#30915]
+
 ## [2.3.0] - 2023-05-29
 ### Added
 - Launchpad: Add design-first Launchpad checklist API definition [#30871]
@@ -155,6 +188,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[3.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.0.0...v3.1.0
+[3.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v2.4.0...v3.0.0
+[2.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v2.2.1...v2.3.0
 [2.2.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v2.1.0...v2.2.0

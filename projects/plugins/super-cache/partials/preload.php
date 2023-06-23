@@ -67,7 +67,11 @@ echo '<option value="medium" ' . selected( 'medium', $wp_cache_preload_email_vol
 echo '<option value="less" ' . selected( 'less', $wp_cache_preload_email_volume ) . '>' . esc_html__( 'Less emails, 1 at the start and 1 at the end of preloading all posts.', 'wp-super-cache' ) . '</option>';
 echo "</select>";
 
-if ( wp_next_scheduled( 'wp_cache_preload_hook' ) || wp_next_scheduled( 'wp_cache_full_preload_hook' ) ) {
+if (
+	wp_next_scheduled( 'wp_cache_preload_hook' )
+	|| wp_next_scheduled( 'wp_cache_full_preload_hook' )
+	|| wpsc_is_preload_active()
+) {
 	$currently_preloading = true;
 }
 echo '<div class="submit"><input class="button-primary" type="submit" name="preload" value="' . __( 'Save Settings', 'wp-super-cache' ) . '" />';

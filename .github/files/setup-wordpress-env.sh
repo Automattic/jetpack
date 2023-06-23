@@ -39,6 +39,7 @@ case "$WP_BRANCH" in
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
+		# @todo Update generate-ci-matrix.php as well when this bumps to 6.2.
 		TAG=6.1
 		;;
 	*)

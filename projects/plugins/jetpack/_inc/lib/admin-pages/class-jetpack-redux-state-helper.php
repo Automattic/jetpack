@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
@@ -161,7 +162,7 @@ class Jetpack_Redux_State_Helper {
 			),
 			'aff'                         => Partner::init()->get_partner_code( Partner::AFFILIATE_CODE ),
 			'partnerSubsidiaryId'         => Partner::init()->get_partner_code( Partner::SUBSIDIARY_CODE ),
-			'settings'                    => self::get_flattened_settings( $modules ),
+			'settings'                    => self::get_flattened_settings(),
 			'userData'                    => array(
 				'currentUser' => $current_user_data,
 			),

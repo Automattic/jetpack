@@ -17,6 +17,10 @@ class Image_Guide implements Pluggable {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$override = isset( $_GET['jb-debug-ig'] );
 
+		if ( is_admin() || is_user_logged_in() || current_user_can( 'manage_options' ) ) {
+			Image_Guide_Proxy::init();
+		}
+
 		// Show the UI only when the user is logged in, with sufficient permissions and isn't looking at the dashboard.
 		if ( true !== $override && ( is_admin() || ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) ) {
 			return;
@@ -54,6 +58,14 @@ class Image_Guide implements Pluggable {
 			'jetpackBoostAnalytics',
 			array(
 				'tracksData' => Analytics::get_tracking_data(),
+			)
+		);
+		wp_localize_script(
+			'jetpack-boost-guide',
+			'jbImageGuide',
+			array(
+				'proxyNonce' => wp_create_nonce( Image_Guide_Proxy::NONCE_ACTION ),
+				'ajax_url'   => admin_url( 'admin-ajax.php' ),
 			)
 		);
 	}

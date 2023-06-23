@@ -11,6 +11,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -70,6 +71,15 @@ class Jetpack_Gutenberg {
 	 * @var array Site-specific features
 	 */
 	private static $site_specific_features = array();
+
+	/**
+	 * List of deprecated blocks.
+	 *
+	 * @var array List of deprecated blocks.
+	 */
+	private static $deprecated_blocks = array(
+		'jetpack/revue',
+	);
 
 	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
@@ -502,6 +512,7 @@ class Jetpack_Gutenberg {
 				echo '<link rel="stylesheet" id="jetpack-block-' . esc_attr( $type ) . '" href="' . esc_attr( $view_style ) . '&amp;ver=' . esc_attr( $style_version ) . '" media="all">';
 			} else {
 				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
+				wp_style_add_data( 'jetpack-block-' . $type, 'path', JETPACK__PLUGIN_DIR . $style_relative_path );
 			}
 		}
 	}
@@ -664,6 +675,11 @@ class Jetpack_Gutenberg {
 			);
 		}
 
+		$screen_base = null;
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen_base = get_current_screen()->base;
+		}
+
 		$initial_state = array(
 			'available_blocks' => self::get_availability(),
 			'jetpack'          => array(
@@ -710,6 +726,7 @@ class Jetpack_Gutenberg {
 			'allowedMimeTypes' => wp_get_mime_types(),
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
 			'ai-assistant'     => $ai_assistant_state,
+			'screenBase'       => $screen_base,
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
@@ -1283,6 +1300,33 @@ class Jetpack_Gutenberg {
 
 			return null;
 		};
+	}
+
+	/**
+	 * Display a message to site editors and roles above when a block is no longer supported.
+	 * This is only displayed on the frontend.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
+	 *
+	 * @return string
+	 */
+	public static function display_deprecated_block_message( $block_content, $block ) {
+		if ( in_array( $block['blockName'], self::$deprecated_blocks, true ) ) {
+			if ( current_user_can( 'edit_posts' ) ) {
+				$block_content = self::notice(
+					__( 'This block is no longer supported. Its contents will no longer be displayed to your visitors and as such this block should be removed.', 'jetpack' ),
+					'warning',
+					'jetpack-block-deprecated'
+				);
+			} else {
+				$block_content = '';
+			}
+		}
+
+		return $block_content;
 	}
 }
 

@@ -72,6 +72,7 @@ import {
 	PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY,
 	PLAN_JETPACK_BOOST,
 	PLAN_JETPACK_BOOST_MONTHLY,
+	PLAN_JETPACK_AI_MONTHLY,
 } from 'lib/plans/constants';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -151,6 +152,7 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_SECURITY_REALTIME_MONTHLY ]: 'plans/jetpack.svg',
 	[ PLAN_JETPACK_BOOST ]: 'products/product-jetpack-boost.svg',
 	[ PLAN_JETPACK_BOOST_MONTHLY ]: 'products/product-jetpack-boost.svg',
+	[ PLAN_JETPACK_AI_MONTHLY ]: 'products/product-jetpack-ai.svg',
 };
 const DEFAULT_SIZE = 32;
 

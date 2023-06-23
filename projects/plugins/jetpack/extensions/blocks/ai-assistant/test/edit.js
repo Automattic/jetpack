@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { buildPromptTemplate } from '../create-prompt';
+import { buildPromptTemplate } from '../lib/prompt';
 
 describe( 'AIAssistanceEdit', () => {
 	describe.skip( 'buildPromptTemplate', () => {

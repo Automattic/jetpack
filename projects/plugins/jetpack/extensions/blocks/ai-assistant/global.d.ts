@@ -48,8 +48,14 @@ declare global {
 			connectionErrors: Array;
 		};
 		Jetpack_Editor_Initial_State: {
+			available_blocks: {
+				'ai-assistant-support': boolean;
+			};
 			adminUrl: string;
+			siteLocale: string;
 			'ai-assistant': SiteAIAssistantFeatureEndpointResponseProps;
+			screenBase?: string;
 		};
+		wpcomFetch: function;
 	}
 }

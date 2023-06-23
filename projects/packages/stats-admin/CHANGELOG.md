@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.10.0 - 2023-06-19
+### Added
+- Add new dependency: Jetpack Plans package. [#31213]
+
+### Changed
+- Switch to relying on the Plans package instead of a class available in the Jetpack plugin only. [#31213]
+
+## 0.9.0 - 2023-06-12
+### Added
+- Stats Admin: added modules toggling API support [#31230]
+- Stats Admin: Add module settings API [#31231]
+
+### Changed
+- Stats Admin: use WPCOM notices API [#31261]
+
+### Fixed
+- Replace dependency on deprecated `automattic/jetpack-options` package. [#31280]
+
 ## 0.8.0 - 2023-05-15
 ### Added
 - Stats Admin: adds rest api for marking and unmarking referrers as spam [#30625]

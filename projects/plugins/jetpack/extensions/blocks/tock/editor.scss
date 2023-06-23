@@ -1,0 +1,28 @@
+@import './style.scss';
+
+.jetpack-tock-url-settings {
+	margin: 8px;
+}
+
+.jetpack-tock-url-input {
+	width: 90vw;
+	max-width: 300px;
+	min-width: auto;
+	& .components-text-control__input {
+		padding: 10px 36px 10px 10px;
+	}
+}
+
+.jetpack-tock-url-instructions {
+	margin: 16px;
+}
+
+.jetpack-tock-url-input-wrapper {
+	position: relative;
+}
+
+.jetpack-tock-url-input-action {
+	position: absolute;
+	right: 14px;
+	top: 0px;
+}
