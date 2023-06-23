@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { getBlockType } from '@wordpress/blocks';
+import { select } from '@wordpress/data';
+import { store as editPostStore } from '@wordpress/edit-post';
 import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
@@ -65,6 +67,13 @@ export function isPossibleToExtendBlock(): boolean {
 		return false;
 	}
 
+	// Do not extend if the AI Assistant block is hidden
+	const { getHiddenBlockTypes } = select( editPostStore );
+	const hiddenBlocks = getHiddenBlockTypes();
+	if ( hiddenBlocks.includes( blockName ) ) {
+		return false;
+	}
+
 	return true;
 }
 
@@ -79,12 +88,12 @@ function addJetpackAISupport(
 	settings: BlockSettingsProps,
 	name: ExtendedBlock
 ): BlockSettingsProps {
-	if ( ! isPossibleToExtendBlock() ) {
+	// Only extend the blocks in the list.
+	if ( ! EXTENDED_BLOCKS.includes( name ) ) {
 		return settings;
 	}
 
-	// Only extend the blocks in the list.
-	if ( ! EXTENDED_BLOCKS.includes( name ) ) {
+	if ( ! isPossibleToExtendBlock() ) {
 		return settings;
 	}
 

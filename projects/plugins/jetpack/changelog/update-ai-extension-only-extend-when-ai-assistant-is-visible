@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Extension: Do not extend core blocks when the user decided to hide the AI Assistant block.
