@@ -14,19 +14,6 @@ import { SuggestionsEventSource, askQuestion } from '../../lib/suggestions';
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
-type SourceCallback = ( event: CustomEvent ) => void;
-
-type PromptMessages = Array< PromptItemProps >;
-
-type PromptArg = PromptMessages[] | PromptMessages;
-
-type ExtraArgs =
-	| {
-			[ key: string ]: object | string | number | boolean;
-			index?: number;
-	  }
-	| undefined;
-
 export type SuggestionError = {
 	/*
 	 * A string code to refer to the error.
@@ -58,12 +45,12 @@ type UseSuggestionsFromAIOptions = {
 	/*
 	 * onSuggestion callback.
 	 */
-	onSuggestion?: ( suggestion: string, extraArgs?: ExtraArgs ) => void;
+	onSuggestion?: ( suggestion: string ) => void;
 
 	/*
 	 * onDone callback.
 	 */
-	onDone?: ( content: string, extraArgs?: ExtraArgs ) => void;
+	onDone?: ( content: string ) => void;
 
 	/*
 	 * onError callback.
@@ -90,7 +77,7 @@ type useSuggestionsFromAIProps = {
 	/*
 	 * The request handler.
 	 */
-	request: ( prompt: PromptArg, extraArgs?: ExtraArgs ) => Promise< void >;
+	request: ( prompt: Array< PromptItemProps > ) => Promise< void >;
 };
 
 /**
@@ -118,9 +105,41 @@ export default function useSuggestionsFromAI( {
 	// Store the event source in a ref, so we can handle it if needed.
 	const source = useRef< SuggestionsEventSource | undefined >( undefined );
 
-	// Store callback fn
-	const handleSuggestion = useRef< SourceCallback | undefined >( undefined );
-	const handleDone = useRef< SourceCallback | undefined >( undefined );
+	/**
+	 * onSuggestion function handler.
+	 *
+	 * @param {string} suggestion - The suggestion.
+	 * @returns {void}
+	 */
+	const handleSuggestion = useCallback(
+		( event: CustomEvent ) => {
+			/*
+			 * Remove the delimiter string from the suggestion,
+			 * only at the beginning and end of the string.
+			 */
+			const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
+			onSuggestion( event?.detail?.replace( delimiterRegEx, '' ) );
+		},
+		[ onSuggestion ]
+	);
+
+	/**
+	 * onDone function handler.
+	 *
+	 * @param {string} content - The content.
+	 * @returns {void}
+	 */
+	const handleDone = useCallback(
+		( event: CustomEvent ) => {
+			/*
+			 * Remove the delimiter string from the suggestion,
+			 * only at the beginning and end of the string.
+			 */
+			const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
+			onDone( event?.detail?.replace( delimiterRegEx, '' ) );
+		},
+		[ onDone ]
+	);
 
 	/**
 	 * Request handler.
@@ -128,47 +147,25 @@ export default function useSuggestionsFromAI( {
 	 * @returns {Promise<void>} The promise.
 	 */
 	const request = useCallback(
-		async ( promptArg: PromptArg, extraArgs?: ExtraArgs ) => {
-			const currentIndex = extraArgs?.index ?? 0;
-			const isMultiple = Array.isArray( promptArg[ 0 ] );
-			const hasNext = isMultiple && promptArg?.[ currentIndex + 1 ] !== undefined;
-			const nextExtraArgs = { ...( extraArgs || {} ), index: currentIndex + 1 };
-			const currentPrompt = (
-				isMultiple ? promptArg[ currentIndex ] : promptArg
-			) as PromptMessages;
-
-			const log = ( messages: PromptMessages ) => {
-				messages.forEach( ( { role, content: promptContent }, i ) =>
-					debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
-				);
-			};
+		async ( promptArg: Array< PromptItemProps > ) => {
+			promptArg.forEach( ( { role, content: promptContent }, i ) =>
+				debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
+			);
 
 			try {
-				log( currentPrompt );
-
-				source.current = await askQuestion( currentPrompt, {
+				source.current = await askQuestion( promptArg, {
 					postId,
 					requireUpgrade: false, // It shouldn't be part of the askQuestion API.
 					fromCache: false,
 				} );
 
-				handleSuggestion.current = ( event: CustomEvent ) => {
-					const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
-					onSuggestion?.( event?.detail?.replace( delimiterRegEx, '' ) );
-				};
+				if ( onSuggestion ) {
+					source?.current?.addEventListener( 'suggestion', handleSuggestion );
+				}
 
-				source?.current?.addEventListener( 'suggestion', handleSuggestion.current );
-
-				handleDone.current = ( event: CustomEvent ) => {
-					const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
-					onDone( event?.detail?.replace( delimiterRegEx, '' ) );
-
-					if ( hasNext ) {
-						request( promptArg, nextExtraArgs );
-					}
-				};
-
-				source?.current?.addEventListener( 'done', handleDone.current );
+				if ( onDone ) {
+					source?.current?.addEventListener( 'done', handleDone );
+				}
 
 				if ( onError ) {
 					source?.current?.addEventListener( 'error_quota_exceeded', () => {
@@ -259,8 +256,8 @@ export default function useSuggestionsFromAI( {
 			source.current.close();
 
 			// Clean up the event listeners.
-			source?.current?.removeEventListener( 'suggestion', handleSuggestion.current );
-			source?.current?.removeEventListener( 'done', handleDone.current );
+			source?.current?.removeEventListener( 'suggestion', handleSuggestion );
+			source?.current?.removeEventListener( 'done', handleDone );
 		};
 	}, [ autoRequest, handleDone, handleSuggestion, prompt, request ] );
 
