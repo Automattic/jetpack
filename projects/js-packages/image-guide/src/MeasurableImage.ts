@@ -94,7 +94,7 @@ export class MeasurableImage {
 	 */
 	private async fetchFileWeight( url: string ) {
 		const response = await this.fetch( url );
-		if ( ! response.url ) {
+		if ( ! response.ok ) {
 			// eslint-disable-next-line no-console
 			console.log( `Can't get image size for ${ url } likely due to a CORS error.` );
 			return -1;
