@@ -436,8 +436,8 @@ importers:
   projects/js-packages/eslint-config-target-es:
     dependencies:
       '@mdn/browser-compat-data':
-        specifier: 4.2.1
-        version: 4.2.1
+        specifier: 5.2.66
+        version: 5.2.66
       browserslist:
         specifier: ^4.17.6
         version: 4.21.9
@@ -6347,8 +6347,8 @@ packages:
     engines: {node: '>=6.0.0'}
     dev: false
 
-  /@mdn/browser-compat-data@4.2.1:
-    resolution: {integrity: sha512-EWUguj2kd7ldmrF9F+vI5hUOralPd+sdsUnYbRy33vZTuZkduC1shE9TtEMEjAQwyfyMb4ole5KtjF8MsnQOlA==}
+  /@mdn/browser-compat-data@5.2.66:
+    resolution: {integrity: sha512-5dh2D/a0rI9ZgIrjEhicHo+iXCvCfMV49oQMICGMsSEXO64e6POjWQIaUPGheubwoJ9KDQwBigj+4FoPDXVyiw==}
     dev: false
 
   /@mdx-js/react@2.3.0(react@18.2.0):

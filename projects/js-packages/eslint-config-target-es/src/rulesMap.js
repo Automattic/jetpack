@@ -4,7 +4,7 @@ module.exports = {
 	// ES2021
 	'no-logical-assignment-operators': [
 		'javascript.operators.logical_and_assignment',
-		'javascript.operators.logical_nullish_assignment',
+		'javascript.operators.nullish_coalescing_assignment',
 		'javascript.operators.logical_or_assignment',
 	],
 	'no-numeric-separators': 'javascript.grammar.numeric_separators',
@@ -17,10 +17,10 @@ module.exports = {
 		'javascript.builtins.BigInt64Array',
 		'javascript.builtins.BigUint64Array',
 	],
-	'no-dynamic-import': 'javascript.statements.import.dynamic_import',
+	'no-dynamic-import': 'javascript.operators.import',
 	'no-export-ns-from': 'javascript.statements.export.namespace',
 	'no-global-this': 'javascript.builtins.globalThis',
-	'no-import-meta': 'javascript.statements.import_meta',
+	'no-import-meta': 'javascript.operators.import_meta',
 	'no-nullish-coalescing-operators': 'javascript.operators.nullish_coalescing',
 	'no-optional-chaining': 'javascript.operators.optional_chaining',
 	'no-promise-all-settled': 'javascript.builtins.Promise.allSettled',
@@ -38,10 +38,11 @@ module.exports = {
 	],
 	'no-malformed-template-literals':
 		'javascript.grammar.template_literals.template_literal_revision',
-	'no-regexp-lookbehind-assertions': 'javascript.builtins.RegExp.lookbehind_assertion',
-	'no-regexp-named-capture-groups': 'javascript.builtins.RegExp.named_capture_groups',
+	'no-regexp-lookbehind-assertions': 'javascript.regular_expressions.lookahead_assertion',
+	'no-regexp-named-capture-groups': 'javascript.regular_expressions.named_capturing_group',
 	'no-regexp-s-flag': 'javascript.builtins.RegExp.dotAll',
-	'no-regexp-unicode-property-escapes': 'javascript.builtins.RegExp.property_escapes',
+	'no-regexp-unicode-property-escapes':
+		'javascript.regular_expressions.unicode_character_class_escape',
 	'no-rest-spread-properties': [
 		'javascript.operators.object_initializer.spread_properties',
 		'javascript.operators.spread.spread_in_object_literals',
