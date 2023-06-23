@@ -937,6 +937,6 @@ add_action( 'jetpack_learn_more_button_blaze', 'jetpack_blaze_more_link' );
  * Blaze description.
  */
 function jetpack_more_info_blaze() {
-	esc_html_e( 'Attract high-quality traffic to your site using Blaze.', 'jetpack' );
+	esc_html_e( 'Grow your audience by promoting your content across Tumblr and WordPress.com.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_blaze', 'jetpack_more_info_blaze' );

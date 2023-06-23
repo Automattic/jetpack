@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Blaze
- * Module Description: Attract high-quality traffic to your site using Blaze.
+ * Module Description: Grow your audience by promoting your content across Tumblr and WordPress.com.
  * Sort Order: 22
  * Recommendation Order: 12
  * First Introduced: 12.3
