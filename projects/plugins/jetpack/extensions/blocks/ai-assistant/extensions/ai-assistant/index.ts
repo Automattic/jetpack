@@ -79,12 +79,12 @@ function addJetpackAISupport(
 	settings: BlockSettingsProps,
 	name: ExtendedBlock
 ): BlockSettingsProps {
-	if ( ! isPossibleToExtendBlock() ) {
+	// Only extend the blocks in the list.
+	if ( ! EXTENDED_BLOCKS.includes( name ) ) {
 		return settings;
 	}
 
-	// Only extend the blocks in the list.
-	if ( ! EXTENDED_BLOCKS.includes( name ) ) {
+	if ( ! isPossibleToExtendBlock() ) {
 		return settings;
 	}
 
