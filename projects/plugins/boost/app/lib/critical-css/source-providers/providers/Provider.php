@@ -54,6 +54,13 @@ abstract class Provider {
 	abstract public static function describe_key( $provider_key );
 
 	/**
+	 * Get the URL of the edit page for the given provider key.
+	 *
+	 * @param string $provider_key the key to edit.
+	 */
+	abstract public static function get_edit_url( $provider_key );
+
+	/**
 	 * Returns true if the key looks like it belongs to this provider.
 	 *
 	 * @param boolean $key The key.

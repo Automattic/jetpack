@@ -41,6 +41,7 @@ class Current_Plan {
 				'jetpack_free',
 			),
 			'supports' => array(
+				'advanced-seo',
 				'opentable',
 				'calendly',
 				'send-a-message',

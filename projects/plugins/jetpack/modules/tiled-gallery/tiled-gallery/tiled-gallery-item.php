@@ -6,6 +6,61 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
  * Jetpack Tiled Gallery Item class.
  */
 abstract class Jetpack_Tiled_Gallery_Item {
+	/**
+	 * Is the image grayscale.
+	 *
+	 * @var bool
+	 */
+	public $grayscale;
+
+	/**
+	 * The image URL, in grayscale.
+	 *
+	 * @var string
+	 */
+	public $img_src_grayscale;
+
+	/**
+	 * The image title.
+	 *
+	 * @var string
+	 */
+	public $image_title;
+
+	/**
+	 * The image alt.
+	 *
+	 * @var string
+	 */
+	public $image_alt;
+
+	/**
+	 * The image size.
+	 *
+	 * @var string|null
+	 */
+	public $size;
+
+	/**
+	 * The original file.
+	 *
+	 * @var string|bool
+	 */
+	public $orig_file;
+
+	/**
+	 * The image attachment link.
+	 *
+	 * @var string
+	 */
+	public $link;
+
+	/**
+	 * The image URL.
+	 *
+	 * @var string
+	 */
+	public $img_src;
 
 	/**
 	 * The image data.

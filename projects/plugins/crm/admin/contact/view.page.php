@@ -12,9 +12,6 @@ global $zbs;
  */
 function jpcrm_render_contact_view_page( $id = -1 ) {
 
-	// generic php-js for view pages (lang labels)
-	zeroBSCRM_pages_admin_contact_view_page_js();
-
 	if ( ! empty( $id ) && $id > 0 ) {
 
 		global $zbs;
@@ -555,6 +552,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						<tr class="zbs-view-vital-flags">
 							<td class="zbs-view-vital-label"><?php esc_html_e( 'Flags', 'zero-bs-crm' ); ?></td>
 							<td>
+
 								<?php
 
 								foreach ( $contact_flags as $flag ) {
@@ -1384,7 +1382,8 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 			var zbsViewSettings = {
 
 				objid: <?php echo esc_html( $id ); ?>,
-				objdbname: 'contact' <?php // echo $this->objType; ?>
+				objdbname: 'contact',
+				update_meta_nonce: '<?php echo esc_html( wp_create_nonce( 'jpcrm-update-meta-ajax' ) ); ?>'
 
 			};
 
@@ -1395,22 +1394,6 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 			do_action( 'zerobscrm_contactview_postscripts' );
 
 	} // if ID
-}
-
-/*
-	Exposes generic php-js for view pages (lang labels)
-*/
-function zeroBSCRM_pages_admin_contact_view_page_js() {
-
-	?>
-	<script>
-		var zbsViewLang = {
-
-			'error': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Error', 'zero-bs-crm' ) ) ); ?>',
-			'unabletodelete': '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Unable to delete this file.', 'zero-bs-crm' ) ) ); ?>'
-		};
-	</script>
-	<?php
 }
 
 /*

@@ -6,7 +6,9 @@
 </script>
 
 <b>{title}</b>
-<span>{urlWithoutProtocol}</span>
+<a href={url} target="_blank">
+	{urlWithoutProtocol}
+</a>
 
 <style lang="scss">
 	b {
@@ -14,8 +16,14 @@
 		font-size: 1.125rem;
 		margin-bottom: 4px;
 	}
-	span {
+
+	a {
 		font-size: 0.875rem;
 		color: var( --gray-80 );
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
 	}
 </style>

@@ -7,6 +7,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+
 /**
  * Jetpack_Simple_Payments
  */

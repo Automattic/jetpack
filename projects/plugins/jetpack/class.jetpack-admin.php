@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -129,6 +130,16 @@ class Jetpack_Admin {
 	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php (now custom-css.php).
 	 */
 	public static function additional_css_menu() {
+		/*
+		 * Custom CSS for the Customizer is deprecated for block themes as of WP 6.1, so we only expose it with a menu
+		 * if the site already has existing CSS code.
+		 */
+		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+			$styles = wp_get_custom_css();
+			if ( ! $styles ) {
+				return;
+			}
+		}
 
 		// If the site is a WoA site and the custom-css feature is not available, return.
 		// See https://github.com/Automattic/jetpack/pull/19965 for more on how this menu item is dealt with on WoA sites.

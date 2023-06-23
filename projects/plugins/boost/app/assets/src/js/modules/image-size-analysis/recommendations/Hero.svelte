@@ -2,7 +2,8 @@
 	import { quadOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
 	import { isaData } from '../store/isa-data';
-	import { imageDataActiveGroup } from '../store/isa-groups';
+	import { imageDataActiveGroup } from '../store/isa-summary';
+
 	const formatter = new Intl.DateTimeFormat( 'en-US', {
 		month: 'long',
 		day: 'numeric',
@@ -12,12 +13,13 @@
 	} );
 </script>
 
-{#if $imageDataActiveGroup && $imageDataActiveGroup.issues && $isaData.data.last_updated}
+{#if $imageDataActiveGroup && $imageDataActiveGroup.issue_count && $isaData.data.last_updated}
 	{@const  lastUpdated = formatter.format( $isaData.data.last_updated ) }
+
 	<div class="jb-hero" in:fade={{ duration: 300, easing: quadOut }}>
 		<span>Latest report as of {lastUpdated}</span>
 		<h1>
-			{$imageDataActiveGroup.issues}
+			{$imageDataActiveGroup.issue_count}
 			Image Recommendations
 		</h1>
 	</div>

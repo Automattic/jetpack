@@ -112,6 +112,8 @@ class Jetpack_Social {
 
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
+		// Adds the review prompt initial state
+		add_action( 'enqueue_block_editor_assets', array( $this, 'add_review_initial_state' ), 30 );
 
 		// Add meta tags.
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
@@ -287,16 +289,23 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Checks that we're connected, Publicize is active and that we're editing a post that supports it.
+	 *
+	 * @returns boolean True if the criteria are met.
+	 */
+	public function should_enqueue_block_editor_scripts() {
+		return $this->is_connected() && self::is_publicize_active() && $this->is_supported_post();
+	}
+
+	/**
 	 * Enqueue block editor scripts and styles.
 	 */
 	public function enqueue_block_editor_scripts() {
 		global $publicize;
 
 		if (
-			! $this->is_connected() ||
-			! self::is_publicize_active() ||
 			class_exists( 'Jetpack' ) ||
-			! $this->is_supported_post()
+			! $this->should_enqueue_block_editor_scripts()
 		) {
 			return;
 		}
@@ -323,8 +332,6 @@ class Jetpack_Social {
 				'social'       => array(
 					'adminUrl'                        => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
 					'sharesData'                      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'reviewRequestDismissed'          => self::is_review_request_dismissed(),
-					'dismissReviewRequestPath'        => '/jetpack/v4/social/review-dismiss',
 					'connectionRefreshPath'           => '/jetpack/v4/publicize/connection-test-results',
 					'resharePath'                     => '/jetpack/v4/publicize/{postId}',
 					'publicizeConnectionsUrl'         => esc_url_raw(
@@ -348,6 +355,27 @@ class Jetpack_Social {
 		if ( ! in_array( get_post_status(), array( 'publish', 'private', 'trash' ), true ) && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
+	}
+
+	/**
+	 * Adds the extra bits of initial state needed to display the review prompt.
+	 * Doing it separately means that it also gets added to the initial state for Jetpack.
+	 */
+	public function add_review_initial_state() {
+		if ( ! $this->should_enqueue_block_editor_scripts() ) {
+			return;
+		}
+
+		$review_state = array(
+			'reviewRequestDismissed'   => self::is_review_request_dismissed(),
+			'dismissReviewRequestPath' => '/jetpack/v4/social/review-dismiss',
+		);
+
+		wp_add_inline_script(
+			class_exists( 'Jetpack' ) ? 'jetpack-blocks-editor' : 'jetpack-social-editor',
+			sprintf( 'Object.assign( window.Jetpack_Editor_Initial_State.social, %s )', wp_json_encode( $review_state ) ),
+			'after'
+		);
 	}
 
 	/**

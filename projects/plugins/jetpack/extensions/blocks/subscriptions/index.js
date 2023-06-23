@@ -7,7 +7,6 @@ import attributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
 import SubscribePanels from './panel';
-
 export const name = 'subscriptions';
 export const icon = (
 	<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -95,5 +94,9 @@ export const settings = {
 };
 
 export const pluginSettings = {
-	render: SubscribePanels,
+	render: () => (
+		<>
+			<SubscribePanels />
+		</>
+	),
 };

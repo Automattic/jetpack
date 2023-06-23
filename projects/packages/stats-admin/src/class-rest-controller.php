@@ -130,6 +130,17 @@ class REST_Controller {
 			)
 		);
 
+		// Subscribers counts.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/subscribers/counts', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_site_subscribers_counts' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
 		// WordAds Earnings.
 		register_rest_route(
 			static::$namespace,
@@ -387,6 +398,19 @@ class REST_Controller {
 			case 'highlights':
 				return $this->wpcom_stats->get_highlights( $req->get_params() );
 
+			case 'subscribers':
+				return WPCOM_Client::request_as_blog_cached(
+					sprintf(
+						'/sites/%d/stats/subscribers?%s',
+						Jetpack_Options::get_option( 'id' ),
+						$this->filter_and_build_query_string(
+							$req->get_query_params()
+						)
+					),
+					'v1.1',
+					array( 'timeout' => 5 )
+				);
+
 			default:
 				return $this->get_forbidden_error();
 		}
@@ -521,6 +545,29 @@ class REST_Controller {
 		}
 
 		return $response_body;
+	}
+
+	/**
+	 * Get site subscribers counts.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 *
+	 * @return array
+	 */
+	public function get_site_subscribers_counts( $req ) {
+		return WPCOM_Client::request_as_blog_cached(
+			sprintf(
+				'/sites/%d/subscribers/counts?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_query_params()
+				)
+			),
+			'v2',
+			array( 'timeout' => 5 ),
+			null,
+			'wpcom'
+		);
 	}
 
 	/**
