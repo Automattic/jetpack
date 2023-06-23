@@ -2941,8 +2941,8 @@ importers:
         specifier: 1.38.1
         version: 1.38.1
       semver:
-        specifier: 7.3.5
-        version: 7.3.5
+        specifier: 7.5.2
+        version: 7.5.2
       social-logos:
         specifier: 2.5.3
         version: 2.5.3(react@18.2.0)
@@ -3918,8 +3918,8 @@ importers:
         specifier: 2.4.0
         version: 2.4.0(svelte@3.58.0)(wp-prettier@2.8.5)
       semver:
-        specifier: 7.3.5
-        version: 7.3.5
+        specifier: 7.5.2
+        version: 7.5.2
       sort-package-json:
         specifier: 1.50.0
         version: 1.50.0
@@ -21727,6 +21727,7 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
+    dev: true
 
   /semver@7.5.2:
     resolution: {integrity: sha512-SoftuTROv/cRjCze/scjGyiDtcUyxw1rgYQSZY7XTmtR5hX+dm76iDbTH8TkLPHCQmlbQVSSbNZCPM2hb0knnQ==}
