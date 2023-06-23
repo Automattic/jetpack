@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add new endpoints to access general Blaze site information via the API.
