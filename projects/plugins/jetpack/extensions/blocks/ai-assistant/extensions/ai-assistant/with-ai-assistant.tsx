@@ -3,7 +3,6 @@
  */
 import { BlockControls } from '@wordpress/block-editor';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState, useRef } from '@wordpress/element';
@@ -24,6 +23,7 @@ import {
 /*
  * Types
  */
+import { transfromToAIAssistantBlock } from '../../transforms';
 import type { PromptItemProps, PromptTypeProp } from '../../lib/prompt';
 
 type StoredPromptProps = {
@@ -41,6 +41,8 @@ export const withAIAssistant = createHigherOrderComponent(
 		} );
 
 		const clientIdsRef = useRef< Array< string > >();
+
+		const { name: blockType } = props;
 
 		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
 		const { createNotice } = useDispatch( noticesStore );
@@ -147,16 +149,8 @@ export const withAIAssistant = createHigherOrderComponent(
 		);
 
 		const replaceWithAiAssistantBlock = useCallback( () => {
-			// Create a new AI Assistant block instance.
-			const aiAssistantBlock = createBlock( 'jetpack/ai-assistant', {
-				content,
-			} );
-
-			/*
-			 * Replace the current block with a new AI Assistant block instance.
-			 */
-			replaceBlock( props.clientId, aiAssistantBlock );
-		}, [ content, replaceBlock, props.clientId ] );
+			replaceBlock( props.clientId, transfromToAIAssistantBlock( { content, blockType } ) );
+		}, [ blockType, content, props.clientId, replaceBlock ] );
 
 		const rawContent = getRawTextFromHTML( props.attributes.content );
 
