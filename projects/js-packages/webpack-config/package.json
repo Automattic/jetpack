@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "1.5.2-alpha",
+	"version": "1.5.3-alpha",
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/webpack-config/#readme",
 	"bugs": {
@@ -32,7 +32,7 @@
 		"@wordpress/browserslist-config": "5.18.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "4.18.0",
 		"babel-loader": "9.1.2",
-		"browserslist": "4.20.4",
+		"browserslist": "4.21.9",
 		"css-loader": "6.5.1",
 		"css-minimizer-webpack-plugin": "5.0.0",
 		"mini-css-extract-plugin": "2.4.5",

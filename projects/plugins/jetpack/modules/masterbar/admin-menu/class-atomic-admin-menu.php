@@ -460,19 +460,4 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 		wp_die();
 	}
-
-	/**
-	 * Handles Appearance menu.
-	 */
-	public function add_appearance_menu() {
-		parent::add_appearance_menu();
-
-		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
-			if ( class_exists( 'Jetpack_Custom_CSS' ) && ! empty( Jetpack_Custom_CSS::get_css() ) ) {
-				return;
-			}
-		}
-
-		remove_submenu_page( 'themes.php', 'editcss-customizer-redirect' );
-	}
 }
