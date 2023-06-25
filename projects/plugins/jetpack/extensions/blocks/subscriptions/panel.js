@@ -67,6 +67,7 @@ function NewsletterEditorSettingsPanel( {
 
 	return (
 		<PluginDocumentSettingPanel
+			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
@@ -91,18 +92,21 @@ const NewsletterDisabledNotice = () => (
 const NewsletterDisabledPanels = () => (
 	<>
 		<PluginDocumentSettingPanel
+			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginDocumentSettingPanel>
 		<PluginPrePublishPanel
+			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginPrePublishPanel>
 		<PluginPostPublishPanel
+			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
@@ -138,6 +142,7 @@ function NewsletterPrePublishSettingsPanel( {
 	return (
 		<PluginPrePublishPanel
 			initialOpen
+			className="jetpack-subscribe-newsletters-panel"
 			title={
 				<>
 					{ __( 'Newsletter:', 'jetpack' ) }
@@ -148,7 +153,6 @@ function NewsletterPrePublishSettingsPanel( {
 					) }
 				</>
 			}
-			className="jetpack-subscribe-pre-publish-panel"
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
 			{ isModuleActive && (
@@ -247,7 +251,7 @@ function NewsletterPostPublishSettingsPanel( {
 						) }
 					</>
 				}
-				className="jetpack-subscribe-post-publish-panel"
+				className="jetpack-subscribe-newsletters-panel jetpack-subscribe-post-publish-panel"
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				{ ! showMisconfigurationWarning && (
@@ -263,7 +267,7 @@ function NewsletterPostPublishSettingsPanel( {
 			{ ! isStripeConnected && (
 				<PluginPostPublishPanel
 					initialOpen
-					className="paid-newsletters-post-publish-panel"
+					className="jetpack-subscribe-newsletters-panel paid-newsletters-post-publish-panel"
 					title={ __( 'Set up a paid newsletter', 'jetpack' ) }
 					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 				>
