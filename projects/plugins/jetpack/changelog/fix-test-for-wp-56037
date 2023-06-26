@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Update a PHPUnit test for https://core.trac.wordpress.org/ticket/58235. No change to the plugin itself.
+
+
