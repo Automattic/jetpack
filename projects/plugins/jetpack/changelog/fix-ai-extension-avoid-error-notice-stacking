@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Extension: Use ID on error notices to prevent stacking multiple notices.
