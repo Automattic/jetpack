@@ -133,6 +133,8 @@ export default function AiAssistantDropdown( {
 	const quickActionsListFiltered = quickActionsList.filter(
 		quickAction => ! exclude.includes( quickAction.key )
 	);
+	const toolbarLabel =
+		requestingState === 'suggesting' ? null : label || __( 'AI Assistant', 'jetpack' );
 
 	return (
 		<Dropdown
@@ -149,7 +151,7 @@ export default function AiAssistantDropdown( {
 						onClick={ onToggle }
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
-						label={ label || __( 'AI Assistant', 'jetpack' ) }
+						label={ toolbarLabel }
 						icon={ aiAssistant }
 						disabled={ disabled }
 					/>
