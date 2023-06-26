@@ -279,12 +279,6 @@ add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
 add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
 
 /**
- * Enables the Advertising menu item. This can be removed after BlazePress
- * is deployed for all users.
- */
-add_filter( 'jetpack_dsp_promote_posts_enabled', '__return_true' );
-
-/**
  * Temporary fix until changes from https://github.com/Automattic/jetpack/pull/31452
  * are deployed to Atomic sites. Can be removed afterwards.
  */
