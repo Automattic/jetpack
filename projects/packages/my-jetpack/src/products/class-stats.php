@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -133,18 +134,24 @@ class Stats extends Module_Product {
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
-		if ( is_wp_error( $purchases_data ) ) {
-			return false;
-		}
-		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
-			foreach ( $purchases_data as $purchase ) {
-				if ( 0 === strpos( $purchase->product_slug, 'jetpack_stats' ) ) {
-					return true;
+		// Check if paid stats plans have been enabled.
+		if ( Jetpack_Constants::is_true( 'JETPACK_PAID_STATS_ENABLED' ) ) {
+			$purchases_data = Wpcom_Products::get_site_current_purchases();
+			if ( is_wp_error( $purchases_data ) ) {
+				return false;
+			}
+			if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+				foreach ( $purchases_data as $purchase ) {
+					if ( 0 === strpos( $purchase->product_slug, 'jetpack_stats' ) ) {
+						return true;
+					}
 				}
 			}
+			return false;
 		}
-		return false;
+
+		// Until the new paid stats plans roll out, no plan purchase is required for Jetpack Stats.
+		return true;
 	}
 
 	/**
@@ -153,6 +160,7 @@ class Stats extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		// NOTE: Alternatively, use 'admin.php?page=jetpack#/settings?term=jetpack stats' to send visitors to Stats settings.
 		return admin_url( 'admin.php?page=stats' );
 	}
 }
