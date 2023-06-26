@@ -127,7 +127,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ setStoredPrompt ]
 		);
 
-		const { request, requestingState } = useSuggestionsFromAI( {
+		const { request, cancelRequest, requestingState } = useSuggestionsFromAI( {
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
 			onDone: updateStoredPrompt,
@@ -180,6 +180,7 @@ export const withAIAssistant = createHigherOrderComponent(
 						disabled={ ! rawContent?.length }
 						onChange={ requestSuggestion }
 						onReplace={ replaceWithAiAssistantBlock }
+						onCancel={ cancelRequest }
 						exclude={ exclude }
 					/>
 				</BlockControls>
