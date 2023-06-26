@@ -3,11 +3,12 @@
  */
 import { BlockControls } from '@wordpress/block-editor';
 import { store as blockEditorStore } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState, useRef } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
-import { RichTextValue, create, insert, join, slice, toHTMLString } from '@wordpress/rich-text';
+import { RichTextValue, create, insert, slice, toHTMLString } from '@wordpress/rich-text';
 import React from 'react';
 /**
  * Internal dependencies
@@ -27,10 +28,10 @@ import {
 	GetTextContentFromSelectedBlocksProps,
 	getTextContentFromSelectedBlocks,
 } from '../../lib/utils/block-content';
+import { transfromToAIAssistantBlock } from '../../transforms';
 /*
  * Types
  */
-import { transfromToAIAssistantBlock } from '../../transforms';
 import type { PromptItemProps, PromptTypeProp } from '../../lib/prompt';
 
 type StoredPromptProps = {
@@ -55,7 +56,8 @@ type SetContentOptionsProps = {
 export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
 		const { createNotice } = useDispatch( noticesStore );
-		const { updateBlockAttributes, removeBlocks, replaceBlock } = useDispatch( blockEditorStore );
+		const { updateBlockAttributes, removeBlocks, insertBlock, replaceBlock } =
+			useDispatch( blockEditorStore );
 		const [ storedPrompt, setStoredPrompt ] = useState< StoredPromptProps >( {
 			messages: [],
 		} );
@@ -168,62 +170,30 @@ export const withAIAssistant = createHigherOrderComponent(
 			autoRequest: false,
 		} );
 
-		const blocks = getTextContentFromSelectedBlocks();
-		const allSelectedContent = join( blocks.map( block => block.content ) );
+		const removeFirstBlockPartialContent = useCallback(
+			( blocks: GetTextContentFromSelectedBlocksProps[] ) => {
+				const firstBlock = blocks?.[ 0 ];
 
-		const requestSuggestion = useCallback(
-			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const firstBlock = blocks[ 0 ];
-				const otherBlocks = blocks.slice( 1, blocks.length - 1 );
-				const lastBlock = blocks[ blocks.length - 1 ];
-
-				const handleSetStoredPrompt = () =>
-					setStoredPrompt( prevPrompt => {
-						const current = requestList.current.data;
-
-						// Flush first request
-						current[ 0 ]?.flush();
-
-						// Update the stored prompt locally.
-						// Getting only the last since it will contain the previous ones.
-						const lastMessage = current[ current?.length - 1 ]?.messages || [];
-						return { ...prevPrompt, messages: lastMessage };
+				// Remove partial content from first block if needed
+				if ( firstBlock?.offset?.start !== 0 ) {
+					updateBlockAttributes( firstBlock.clientId, {
+						content: toHTMLString( {
+							value: slice( firstBlock.content, 0, firstBlock.offset.start ),
+						} ),
 					} );
+				}
+			},
+			[ updateBlockAttributes ]
+		);
 
-				const generateRequestList = ( list: Array< GetTextContentFromSelectedBlocksProps > ) => {
-					return list.reduce( ( acc, block ) => {
-						const { content, offset } = block;
-						const prevMessages = acc[ acc.length - 1 ]?.messages || storedPrompt.messages;
-						const prevMessagesFiltered = filterMessages( prevMessages );
-						const messages = getPrompt( promptType, {
-							...options,
-							content: toHTMLString( { value: slice( content, offset.start, offset.end ) } ),
-							prevMessages: prevMessagesFiltered,
-						} );
+		const removeUnusedBlocks = useCallback(
+			( blocks: GetTextContentFromSelectedBlocksProps[] ) => {
+				// Just remove blocks if has more than one.
+				if ( blocks?.length > 1 ) {
+					const otherBlocks = [ ...blocks ];
+					const lastBlock = otherBlocks.pop();
+					otherBlocks.shift();
 
-						return [
-							...acc,
-							{
-								...block,
-								messages,
-								flush: () => {
-									request( messages );
-								},
-							},
-						];
-					}, [] );
-				};
-
-				const generateDataForMixedContent = () => ( {
-					clientId: firstBlock.clientId,
-					content: allSelectedContent,
-					offset: {
-						start: 0,
-						end: allSelectedContent.text.length,
-					},
-				} );
-
-				const removeUnusedBlocks = () => {
 					removeBlocks( otherBlocks.map( block => block.clientId ) );
 
 					// Remove entire last block or partial if it was partial selected.
@@ -240,6 +210,75 @@ export const withAIAssistant = createHigherOrderComponent(
 							} ),
 						} );
 					}
+				}
+			},
+			[ removeBlocks, updateBlockAttributes ]
+		);
+
+		const insertNewBlockAfterSelectedContent = useCallback(
+			( blocks: GetTextContentFromSelectedBlocksProps[], type: string, content: string ) => {
+				const newBlock = createBlock( type, { content } );
+				const lastBlock = blocks[ blocks.length - 1 ];
+				insertBlock( newBlock, lastBlock.index + 1 );
+				return newBlock;
+			},
+			[ insertBlock ]
+		);
+
+		const requestSuggestion = useCallback(
+			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
+				const { blocks, allSelectedContent, allContent } = getTextContentFromSelectedBlocks();
+
+				const handleSetStoredPrompt = () =>
+					setStoredPrompt( prevPrompt => {
+						const current = requestList.current.data;
+
+						// Flush first request
+						current[ 0 ]?.flush();
+
+						// Update the stored prompt locally.
+						// Getting only the last since it will contain the previous ones.
+						const lastMessage = current[ current?.length - 1 ]?.messages || [];
+						return { ...prevPrompt, messages: lastMessage };
+					} );
+
+				const generateRequestList = ( list: Array< GetTextContentFromSelectedBlocksProps > ) => {
+					return list.reduce( ( acc, block ) => {
+						const { selectedContent } = block;
+						const prevMessages = acc[ acc.length - 1 ]?.messages || storedPrompt.messages;
+						const prevMessagesFiltered = filterMessages( prevMessages );
+						const messages = getPrompt( promptType, {
+							...options,
+							content: toHTMLString( { value: selectedContent } ),
+							prevMessages: prevMessagesFiltered,
+						} );
+
+						return [
+							...acc,
+							{
+								...block,
+								messages,
+								flush: () => {
+									request( messages );
+								},
+							},
+						];
+					}, [] );
+				};
+
+				const generateDataForAllContent = () => {
+					const newBlock = insertNewBlockAfterSelectedContent( blocks, blockType, '...' );
+
+					return {
+						clientId: newBlock.clientId,
+						index: 0,
+						content: allContent,
+						selectedContent: allSelectedContent,
+						offset: {
+							start: 0,
+							end: allSelectedContent.text.length,
+						},
+					};
 				};
 
 				switch ( promptType ) {
@@ -247,34 +286,59 @@ export const withAIAssistant = createHigherOrderComponent(
 					case PROMPT_TYPE_CHANGE_LANGUAGE:
 					case PROMPT_TYPE_CHANGE_TONE:
 						requestList.current.data = generateRequestList( blocks );
+						removeFirstBlockPartialContent( blocks );
 						handleSetStoredPrompt();
 						break;
 					default:
-						requestList.current.data = generateRequestList( [ generateDataForMixedContent() ] );
+						requestList.current.data = generateRequestList( [ generateDataForAllContent() ] );
+						removeUnusedBlocks( blocks );
+						removeFirstBlockPartialContent( blocks );
 						handleSetStoredPrompt();
-						removeUnusedBlocks();
 						break;
 				}
 			},
 			[
-				allSelectedContent,
-				blocks,
-				removeBlocks,
+				blockType,
+				insertNewBlockAfterSelectedContent,
+				removeFirstBlockPartialContent,
+				removeUnusedBlocks,
 				request,
 				storedPrompt.messages,
-				updateBlockAttributes,
 			]
 		);
 
 		const replaceWithAiAssistantBlock = useCallback( () => {
-			replaceBlock(
-				props.clientId,
-				transfromToAIAssistantBlock( {
-					content: toHTMLString( { value: allSelectedContent } ),
-					blockType,
-				} )
-			);
-		}, [ allSelectedContent, blockType, props.clientId, replaceBlock ] );
+			const { blocks, allSelectedContent } = getTextContentFromSelectedBlocks();
+
+			removeUnusedBlocks( blocks );
+
+			// If we have more than one block selected, and the first block is selected after the initial point
+			// we need to create a new block.
+			if ( blocks?.[ 0 ]?.offset?.start !== 0 ) {
+				removeFirstBlockPartialContent( blocks );
+				insertNewBlockAfterSelectedContent(
+					blocks,
+					'jetpack/ai-assistant',
+					toHTMLString( { value: allSelectedContent } )
+				);
+			} else {
+				replaceBlock(
+					blocks?.[ 0 ]?.clientId,
+					transfromToAIAssistantBlock( {
+						content: toHTMLString( { value: allSelectedContent } ),
+						blockType,
+					} )
+				);
+			}
+		}, [
+			blockType,
+			insertNewBlockAfterSelectedContent,
+			removeFirstBlockPartialContent,
+			removeUnusedBlocks,
+			replaceBlock,
+		] );
+
+		const { allContent } = getTextContentFromSelectedBlocks();
 
 		return (
 			<>
@@ -283,7 +347,7 @@ export const withAIAssistant = createHigherOrderComponent(
 				<BlockControls group="block">
 					<AiAssistantDropdown
 						requestingState={ requestingState }
-						disabled={ ! allSelectedContent?.text?.length }
+						disabled={ ! allContent?.text?.length }
 						onChange={ requestSuggestion }
 						onReplace={ replaceWithAiAssistantBlock }
 						exclude={ exclude }

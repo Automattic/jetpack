@@ -4,7 +4,7 @@
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import { RichTextValue, create } from '@wordpress/rich-text';
+import { RichTextValue, create, join, slice } from '@wordpress/rich-text';
 import TurndownService from 'turndown';
 
 // Turndown instance
@@ -53,6 +53,8 @@ export function getContentFromBlocks(): string {
 export type GetTextContentFromSelectedBlocksProps = {
 	clientId: string;
 	content: RichTextValue;
+	selectedContent: RichTextValue;
+	index: number;
 	offset: {
 		start: number;
 		end: number;
@@ -64,22 +66,28 @@ export type GetTextContentFromSelectedBlocksProps = {
  *
  * @returns {GetTextContentFromSelectedBlocksProps} The text content.
  */
-export function getTextContentFromSelectedBlocks(): GetTextContentFromSelectedBlocksProps[] {
+export function getTextContentFromSelectedBlocks(): {
+	allSelectedContent: RichTextValue;
+	allContent: RichTextValue;
+	blocks: GetTextContentFromSelectedBlocksProps[];
+} {
 	const defaultContent = [];
-	const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
+	const editor = select( 'core/block-editor' );
+
+	const clientIds = editor.getSelectedBlockClientIds();
 
 	if ( ! clientIds?.length ) {
-		return defaultContent;
+		return { allContent: null, allSelectedContent: null, blocks: defaultContent };
 	}
 
-	const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
+	const blocks = editor.getBlocksByClientId( clientIds );
 
 	if ( ! blocks?.length ) {
-		return defaultContent;
+		return { allContent: null, allSelectedContent: null, blocks: defaultContent };
 	}
 
-	const startSelection = select( 'core/block-editor' ).getSelectionStart();
-	const endSelection = select( 'core/block-editor' ).getSelectionEnd();
+	const startSelection = editor.getSelectionStart();
+	const endSelection = editor.getSelectionEnd();
 
 	const startSelectionBlockIndex = blocks.findIndex(
 		block => block.clientId === startSelection.clientId
@@ -98,7 +106,7 @@ export function getTextContentFromSelectedBlocks(): GetTextContentFromSelectedBl
 		end = startSelection;
 	}
 
-	return blocks.map( block => {
+	const mappedBlocks = blocks.map( block => {
 		const blockTextContent = getBlockTextContent( block.clientId );
 		const content = create( { html: blockTextContent } );
 
@@ -114,10 +122,26 @@ export function getTextContentFromSelectedBlocks(): GetTextContentFromSelectedBl
 
 		return {
 			clientId: block.clientId,
+			selectedContent: slice( content, offset.start, offset.end ),
+			index: editor.getBlockIndex( block.clientId ),
 			content,
 			offset,
 		};
 	} );
+
+	const allSelectedContent = mappedBlocks?.length
+		? join( mappedBlocks.map( block => block.selectedContent ) )
+		: null;
+
+	const allContent = mappedBlocks?.length
+		? join( mappedBlocks.map( block => block.content ) )
+		: null;
+
+	return {
+		allContent,
+		allSelectedContent,
+		blocks: mappedBlocks,
+	};
 }
 
 /**
