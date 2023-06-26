@@ -2,11 +2,9 @@
  * External dependencies
  */
 import { BlockControls } from '@wordpress/block-editor';
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState, useRef } from '@wordpress/element';
-import { store as noticesStore } from '@wordpress/notices';
 import React from 'react';
 /**
  * Internal dependencies
@@ -52,8 +50,9 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const { name: blockType } = props;
 
-		const { updateBlockAttributes, removeBlocks, replaceBlock } = useDispatch( blockEditorStore );
-		const { createNotice } = useDispatch( noticesStore );
+		const { updateBlockAttributes, removeBlocks, replaceBlock } =
+			useDispatch( 'core/block-editor' );
+		const { createNotice } = useDispatch( 'core/notices' );
 
 		/*
 		 * Set exclude dropdown options.
