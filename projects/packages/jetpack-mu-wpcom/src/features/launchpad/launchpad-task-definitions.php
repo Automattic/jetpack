@@ -229,6 +229,15 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
+
+		'domain_customize'                => array(
+			'id_map'               => 'domain_customize_deferred',
+			'get_title'            => function () {
+				return __( 'Customize your domain', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_domain_customize_completed',
+			'is_visible_callback'  => 'wpcom_is_domain_customize_task_visible',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -661,6 +670,85 @@ function wpcom_is_domain_claim_completed() {
 	);
 
 	return ! empty( $domain_purchases );
+}
+
+/**
+ * Returns if the site has domain or bundle purchases.
+ *
+ * @return array Array of booleans, first value is if the site has a bundle, second is if the site has a domain.
+ */
+function wpcom_domain_customize_check_purchases() {
+	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+		return false;
+	}
+
+	$site_purchases = wpcom_get_site_purchases();
+	$has_bundle     = false;
+	$has_domain     = false;
+
+	foreach ( $site_purchases as $site_purchase ) {
+		if ( 'bundle' === $site_purchase->product_type ) {
+			$has_bundle = true;
+		}
+
+		if ( in_array( $site_purchase->product_type, array( 'domain_map', 'domain_reg' ), true ) ) {
+			$has_domain = true;
+		}
+	}
+
+	return array( $has_bundle, $has_domain );
+}
+
+/**
+ * Determines whether or not domain customize task is complete.
+ *
+ * @param array $task    The Task object.
+ * @param mixed $default The default value.
+ * @return bool True if domain customize task is complete.
+ */
+function wpcom_is_domain_customize_completed( $task, $default ) {
+	$result = wpcom_domain_customize_check_purchases();
+
+	if ( $result === false ) {
+		return false;
+	}
+
+	list( $has_bundle, $has_domain ) = $result;
+
+	// For paid users with a custom domain, show the task as complete.
+	if ( $has_bundle && $has_domain ) {
+		return true;
+	}
+
+	// For everyone else, show the task as incomplete.
+	return $default;
+}
+
+/**
+ * Determines whether or not domain customize task is visible.
+ *
+ * @return bool True if user is on a free plan and didn't purchase domain or if user is on a paid plan and did purchase a domain.
+ */
+function wpcom_is_domain_customize_task_visible() {
+	$result = wpcom_domain_customize_check_purchases();
+
+	if ( $result === false ) {
+		return false;
+	}
+
+	list( $has_bundle, $has_domain ) = $result;
+
+	// Free user who didn't purchase a domain.
+	if ( ! $has_bundle && ! $has_domain ) {
+		return true;
+	}
+
+	// Paid user who purchased a domain.
+	if ( $has_bundle && $has_domain ) {
+		return true;
+	}
+
+	return false;
 }
 
 /**

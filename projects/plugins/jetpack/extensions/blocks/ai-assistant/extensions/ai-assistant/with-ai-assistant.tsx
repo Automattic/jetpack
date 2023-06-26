@@ -50,14 +50,21 @@ type SetContentOptionsProps = {
 };
 
 /*
+ * An identifier to use on the extension error notices,
+ * so a existing notice with the same ID gets replaced
+ * by a new one, avoiding the stacking of notices.
+ */
+const AI_ASSISTANT_NOTICE_ID = 'ai-assistant';
+
+/*
  * Extend the withAIAssistant function of the block
  * to implement multiple blocks edition
  */
 export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
-		const { createNotice } = useDispatch( noticesStore );
-		const { updateBlockAttributes, removeBlocks, insertBlock, replaceBlock } =
-			useDispatch( blockEditorStore );
+		const { updateBlockAttributes, removeBlocks, replaceBlock, insertBlock } =
+			useDispatch( 'core/block-editor' );
+		const { createNotice } = useDispatch( 'core/notices' );
 		const [ storedPrompt, setStoredPrompt ] = useState< StoredPromptProps >( {
 			messages: [],
 		} );
@@ -82,6 +89,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			( suggestionError: SuggestionError ) => {
 				createNotice( suggestionError.status, suggestionError.message, {
 					isDismissible: true,
+					id: AI_ASSISTANT_NOTICE_ID,
 				} );
 			},
 			[ createNotice ]
@@ -324,10 +332,12 @@ export const withAIAssistant = createHigherOrderComponent(
 			} else {
 				replaceBlock(
 					blocks?.[ 0 ]?.clientId,
-					transfromToAIAssistantBlock( {
-						content: toHTMLString( { value: allSelectedContent } ),
-						blockType,
-					} )
+					transfromToAIAssistantBlock(
+						{
+							content: toHTMLString( { value: allSelectedContent } ),
+						},
+						blockType
+					)
 				);
 			}
 		}, [

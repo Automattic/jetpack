@@ -6,6 +6,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
@@ -231,6 +232,8 @@ class Jetpack_Redux_State_Helper {
 			'isWooCommerceActive'         => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
 			'useMyJetpackLicensingUI'     => My_Jetpack_Initializer::is_licensing_ui_enabled(),
 			'isOdysseyStatsEnabled'       => Stats_Options::get_option( 'enable_odyssey_stats' ),
+			'shouldInitializeBlaze'       => Blaze::should_initialize(),
+			'isBlazeDashboardEnabled'     => Blaze::is_dashboard_enabled(),
 		);
 	}
 

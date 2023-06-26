@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.7] - 2023-06-23
+### Changed
+- Updated package dependencies. [#31468]
+
 ## [0.14.6] - 2023-06-12
 ### Added
 - RNMobile: Display no title and no description placeholder for not belonged videos [#31134]
@@ -1036,6 +1040,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.14.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.6...v0.14.7
 [0.14.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.5...v0.14.6
 [0.14.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.4...v0.14.5
 [0.14.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.3...v0.14.4

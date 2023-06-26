@@ -14,6 +14,7 @@ import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { Ads } from './ads';
+import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
 import { RelatedPosts } from './related-posts';
 import SEO from './seo';
@@ -44,7 +45,8 @@ export class Traffic extends React.Component {
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
-			foundAnalytics = this.props.isModuleFound( 'google-analytics' );
+			foundAnalytics = this.props.isModuleFound( 'google-analytics' ),
+			foundBlaze = this.props.isModuleFound( 'blaze' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
@@ -58,7 +60,8 @@ export class Traffic extends React.Component {
 			! foundRelated &&
 			! foundVerification &&
 			! foundSitemaps &&
-			! foundAnalytics
+			! foundAnalytics &&
+			! foundBlaze
 		) {
 			return null;
 		}
@@ -116,6 +119,7 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
+				{ foundBlaze && <Blaze { ...commonProps } /> }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
 				{ foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ foundVerification && <VerificationServices { ...commonProps } /> }

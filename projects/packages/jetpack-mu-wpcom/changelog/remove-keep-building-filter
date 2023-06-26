@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Remove use of the is_launchpad_keep_building_enabled feature.
