@@ -559,13 +559,17 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
 /**
  * Checks if the Keep building task list is enabled.
  *
- * This function uses the `is_launchpad_keep_building_enabled` filter to allow for overriding the
- * default value.
- *
  * @return bool True if the task list is enabled, false otherwise.
  */
 function wpcom_launchpad_is_keep_building_enabled() {
-	return apply_filters( 'is_launchpad_keep_building_enabled', false );
+	$intent  = get_option( 'site_intent', false );
+	$blog_id = get_current_blog_id();
+
+	if ( 'build' === $intent && $blog_id > 220443356 ) {
+		return true;
+	}
+
+	return false;
 }
 
 /**
