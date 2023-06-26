@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
@@ -75,14 +76,14 @@ class Odyssey_Config_Data {
 				'sites'       => array(
 					'items'    => array(
 						"$blog_id" => array(
-							'ID'            => $blog_id,
-							'URL'           => site_url(),
-							'jetpack'       => true,
-							'visible'       => true,
-							'capabilities'  => $empty_object,
-							'products'      => array(),
-							'plan'          => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
-							'options'       => array(
+							'ID'           => $blog_id,
+							'URL'          => site_url(),
+							'jetpack'      => true,
+							'visible'      => true,
+							'capabilities' => $empty_object,
+							'products'     => array(),
+							'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
+							'options'      => array(
 								'wordads'               => ( new Modules() )->is_active( 'wordads' ),
 								'admin_url'             => admin_url(),
 								'gmt_offset'            => $this->get_gmt_offset(),
@@ -93,8 +94,6 @@ class Odyssey_Config_Data {
 								'stats_admin_version'   => Main::VERSION,
 								'software_version'      => $wp_version,
 							),
-							// TODO remove this and use API so that we could reduce loading time.
-							'stats_notices' => ( new Notices() )->get_notices_to_show(),
 						),
 					),
 					'features' => array( "$blog_id" => array( 'data' => $this->get_plan_features() ) ),
@@ -172,10 +171,7 @@ class Odyssey_Config_Data {
 	 * Get the features of the current plan.
 	 */
 	protected function get_plan_features() {
-		if ( ! class_exists( 'Jetpack_Plan' ) ) {
-			return array();
-		}
-		$plan = \Jetpack_Plan::get();
+		$plan = Jetpack_Plan::get();
 		if ( empty( $plan['features'] ) ) {
 			return array();
 		}

@@ -19,6 +19,8 @@ const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
 const SET_CHAT_AVAILABILITY_IS_FETCHING = 'SET_CHAT_AVAILABILITY_IS_FETCHING';
 const SET_CHAT_AVAILABILITY = 'SET_CHAT_AVAILABILITY';
+const SET_CHAT_AUTHENTICATION_IS_FETCHING = 'SET_CHAT_AUTHENTICATION_IS_FETCHING';
+const SET_CHAT_AUTHENTICATION = 'SET_CHAT_AUTHENTICATION';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
@@ -34,6 +36,10 @@ const setChatAvailabilityIsFetching = isFetching => {
 	return { type: SET_CHAT_AVAILABILITY_IS_FETCHING, isFetching };
 };
 
+const setChatAuthenticationIsFetching = isFetching => {
+	return { type: SET_CHAT_AUTHENTICATION_IS_FETCHING, isFetching };
+};
+
 const fetchPurchases = () => {
 	return { type: FETCH_PURCHASES };
 };
@@ -44,6 +50,10 @@ const setPurchases = purchases => {
 
 const setChatAvailability = chatAvailability => {
 	return { type: SET_CHAT_AVAILABILITY, chatAvailability };
+};
+
+const setChatAuthentication = chatAuthentication => {
+	return { type: SET_CHAT_AUTHENTICATION, chatAuthentication };
 };
 
 const setAvailableLicensesIsFetching = isFetching => {
@@ -256,9 +266,11 @@ const noticeActions = {
 const actions = {
 	setPurchasesIsFetching,
 	setChatAvailabilityIsFetching,
+	setChatAuthenticationIsFetching,
 	fetchPurchases,
 	setPurchases,
 	setChatAvailability,
+	setChatAuthentication,
 	setAvailableLicensesIsFetching,
 	fetchAvailableLicenses,
 	setAvailableLicenses,
@@ -286,5 +298,7 @@ export {
 	SET_IS_FETCHING_PRODUCT_STATS,
 	SET_CHAT_AVAILABILITY,
 	SET_CHAT_AVAILABILITY_IS_FETCHING,
+	SET_CHAT_AUTHENTICATION,
+	SET_CHAT_AUTHENTICATION_IS_FETCHING,
 	actions as default,
 };

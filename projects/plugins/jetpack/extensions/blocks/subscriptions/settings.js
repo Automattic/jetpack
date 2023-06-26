@@ -236,15 +236,14 @@ export function NewsletterAccessDocumentSettings( {
 	showMisconfigurationWarning,
 } ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
-		const { getProducts, getConnectUrl, isApiStateLoading } = select(
+		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
 		);
 
 		return {
 			isLoading: isApiStateLoading(),
 			stripeConnectUrl: getConnectUrl(),
-			hasNewsletterPlans:
-				getProducts()?.filter( product => product.subscribe_as_site_subscriber )?.length !== 0,
+			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
 		};
 	} );
 

@@ -168,6 +168,9 @@ li.service.share-skype span:before {
 li.service.share-mastodon span:before {
 	content: '\f10a';
 }
+li.service.share-nextdoor span:before {
+	content: '\f10c';
+}
 
 /**
  * Preview section

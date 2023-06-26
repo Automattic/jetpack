@@ -9,8 +9,8 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
-use Jetpack_Plan;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -459,20 +459,5 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$jitm->dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
 		}
 		wp_die();
-	}
-
-	/**
-	 * Handles Appearance menu.
-	 */
-	public function add_appearance_menu() {
-		parent::add_appearance_menu();
-
-		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
-			if ( class_exists( 'Jetpack_Custom_CSS' ) && ! empty( Jetpack_Custom_CSS::get_css() ) ) {
-				return;
-			}
-		}
-
-		remove_submenu_page( 'themes.php', 'editcss-customizer-redirect' );
 	}
 }

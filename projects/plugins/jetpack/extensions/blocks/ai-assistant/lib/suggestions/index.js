@@ -167,7 +167,7 @@ export class SuggestionsEventSource extends EventTarget {
 			 * - the doouble asterisks (bold markdown)
 			 */
 			const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
-			if ( replacedMessage === 'JETPACK_AI_ERROR' ) {
+			if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {
 				// The unclear prompt marker was found, so we dispatch an error event
 				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
 			} else if ( 'JETPACK_AI_ERROR'.startsWith( replacedMessage ) ) {
@@ -217,6 +217,6 @@ export class SuggestionsEventSource extends EventTarget {
 		debug( e );
 
 		// Dispatch a generic network error event
-		this.dispatchEvent( new CustomEvent( 'error_network' ) );
+		this.dispatchEvent( new CustomEvent( 'error_network', { detail: e } ) );
 	}
 }
