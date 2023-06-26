@@ -32,6 +32,13 @@ type StoredPromptProps = {
 };
 
 /*
+ * An identifier to use on the extension error notices,
+ * so a existing notice with the same ID gets replaced
+ * by a new one, avoiding the stacking of notices.
+ */
+const AI_ASSISTANT_NOTICE_ID = 'ai-assistant';
+
+/*
  * Extend the withAIAssistant function of the block
  * to implement multiple blocks edition
  */
@@ -61,6 +68,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			( suggestionError: SuggestionError ) => {
 				createNotice( suggestionError.status, suggestionError.message, {
 					isDismissible: true,
+					id: AI_ASSISTANT_NOTICE_ID,
 				} );
 			},
 			[ createNotice ]
