@@ -45,9 +45,8 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const { name: blockType } = props;
 
-		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
+		const { updateBlockAttributes, removeBlocks, replaceBlock } = useDispatch( blockEditorStore );
 		const { createNotice } = useDispatch( noticesStore );
-		const { replaceBlock } = useDispatch( blockEditorStore );
 
 		/*
 		 * Set exclude dropdown options.
