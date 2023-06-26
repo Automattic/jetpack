@@ -40,7 +40,7 @@ function render_block( $attr ) {
 			return;
 		}
 
-		$content .= Jetpack_Gutenberg::notice(
+		return Jetpack_Gutenberg::notice(
 			__( 'The block will not be shown to your site visitors until a Tock business name is set.', 'jetpack' ),
 			'warning',
 			Blocks::classes( FEATURE_NAME, $attr )
