@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tock Block: avoid PHP warning when restaurant name isn't set.
