@@ -15,7 +15,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "NODE_PATH=\"$PWD/node_modules\" pnpm run clean && webpack",
+		"build": "pnpm run clean && webpack",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"clean": "rm -rf build/ .cache/",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",

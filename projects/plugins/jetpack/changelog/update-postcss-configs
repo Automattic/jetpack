@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Update postcss configs to use array syntax for plugins. No change to the project itself.
+
+

@@ -2410,12 +2410,6 @@ importers:
       jest-environment-jsdom:
         specifier: 29.4.3
         version: 29.4.3
-      postcss:
-        specifier: 8.4.21
-        version: 8.4.21
-      postcss-loader:
-        specifier: 6.2.0
-        version: 6.2.0(postcss@8.4.21)(webpack@5.76.0)
       prettier:
         specifier: npm:wp-prettier@2.8.5
         version: /wp-prettier@2.8.5
