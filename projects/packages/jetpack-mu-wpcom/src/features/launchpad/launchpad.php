@@ -599,3 +599,27 @@ function wpcom_launchpad_keep_building_visible_tasks( $task_list ) {
 if ( class_exists( 'WPCOM_Launchpad' ) ) {
 	remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
 }
+
+/**
+ * Add launchpad options to Jetpack Sync.
+ *
+ * @param array $allowed_options The allowed options.
+ */
+function add_launchpad_options_to_jetpack_sync( $allowed_options ) {
+	// Bail if not on an Atomic site
+	if ( ! jetpack_is_atomic_site() ) {
+		return $allowed_options;
+	}
+
+	if ( ! is_array( $allowed_options ) ) {
+		return $allowed_options;
+	}
+
+	$launchpad_options = array(
+		'site_intent',
+		'launchpad_checklist_tasks_statuses',
+	);
+
+	return array_merge( $allowed_options, $launchpad_options );
+}
+add_filter( 'jetpack_sync_options_whitelist', 'add_launchpad_options_to_jetpack_sync', 10, 1 );
