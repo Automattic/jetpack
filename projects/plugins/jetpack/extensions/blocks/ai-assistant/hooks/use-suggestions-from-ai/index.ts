@@ -84,6 +84,11 @@ type useSuggestionsFromAIProps = {
 	 * The request handler.
 	 */
 	request: ( prompt: Array< PromptItemProps > ) => Promise< void >;
+
+	/*
+	 * The cancel request handler.
+	 */
+	cancelRequest: () => void;
 };
 
 /**
@@ -154,7 +159,6 @@ export default function useSuggestionsFromAI( {
 	 *
 	 * @returns {Promise<void>} The promise.
 	 */
-
 	const request = useCallback(
 		async ( promptArg: Array< PromptItemProps > ) => {
 			promptArg.forEach( ( { role, content: promptContent }, i ) =>
@@ -245,6 +249,15 @@ export default function useSuggestionsFromAI( {
 		[ postId, onSuggestion, onError, handleSuggestion, handleDone ]
 	);
 
+	const cancelRequest = useCallback( () => {
+		if ( ! source?.current ) {
+			return;
+		}
+
+		setRequestingState( 'init' );
+		source.current.close();
+	}, [] );
+
 	// Request suggestions automatically when ready.
 	useEffect( () => {
 		// Check if there is a prompt to request.
@@ -279,6 +292,7 @@ export default function useSuggestionsFromAI( {
 	return {
 		// Expose the request handler.
 		request,
+		cancelRequest,
 
 		// Expose the EventHandlerSource
 		source: source.current,
