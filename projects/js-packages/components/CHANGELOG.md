@@ -2,9 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
-## 0.39.0 - 2023-06-23
+## [0.39.0] - 2023-06-23
 ### Added
-- Add component Pricing Slider for Stat pricing page. [#31425]
+- Add component Pricing Slider for Stat pricing page.
+- Added config values to publish mirror repo
+- Auto-publish jetpack-components package to npm
 
 ## 0.38.1 - 2023-06-21
 ### Changed
@@ -741,3 +743,5 @@
 
 ### Changed
 - Update node version requirement to 14.16.1
+
+[0.39.0]: https://github.com/Automattic/jetpack-components/compare/0.38.1...0.39.0

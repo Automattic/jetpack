@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
@@ -63,8 +62,9 @@ type GetTextContentFromBlocksProps = {
  *
  * @returns {GetTextContentFromBlocksProps} The text content.
  */
-export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
-	const clientIds = select( blockEditorStore ).getSelectedBlockClientIds();
+
+export function getTextContentFromSelectedBlocks(): GetTextContentFromBlocksProps {
+	const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
 	const defaultContent = {
 		count: 0,
 		clientIds: [],
@@ -75,7 +75,7 @@ export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
 		return defaultContent;
 	}
 
-	const blocks = select( blockEditorStore ).getBlocksByClientId( clientIds );
+	const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
 	if ( ! blocks?.length ) {
 		return defaultContent;
 	}
@@ -84,8 +84,8 @@ export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
 		count: blocks.length,
 		clientIds,
 		content: blocks
-			.map( block => getBlockTextContent( block.clientId ) )
-			.join( HTML_JOIN_CHARACTERS ),
+			? blocks.map( block => getBlockTextContent( block.clientId ) ).join( HTML_JOIN_CHARACTERS )
+			: '',
 	};
 }
 
@@ -104,7 +104,7 @@ export function getBlockTextContent( clientId: string ): string {
 		return '';
 	}
 
-	const editor = select( blockEditorStore );
+	const editor = select( 'core/block-editor' );
 	const block = editor.getBlock( clientId );
 
 	/*
@@ -121,4 +121,20 @@ export function getBlockTextContent( clientId: string ): string {
 	}
 
 	return getBlockContent( block );
+}
+
+/**
+ * Extract raw text from HTML content
+ *
+ * @param {string} htmlString - The HTML content.
+ * @returns {string}            The raw text.
+ */
+export function getRawTextFromHTML( htmlString: string ): string {
+	if ( ! htmlString?.length ) {
+		return '';
+	}
+
+	const tempDomContainer = document.createElement( 'div' );
+	tempDomContainer.innerHTML = htmlString;
+	return tempDomContainer.textContent || tempDomContainer.innerText || '';
 }

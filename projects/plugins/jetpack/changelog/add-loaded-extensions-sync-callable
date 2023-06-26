@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Added a new callable to a list of default callables.

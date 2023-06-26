@@ -13,13 +13,18 @@ import React from 'react';
  */
 import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
+	KEY_ASK_AI_ASSISTANT,
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import { getPrompt } from '../../lib/prompt';
-import { getTextContentFromBlocks } from '../../lib/utils/block-content';
+import {
+	getRawTextFromHTML,
+	getTextContentFromSelectedBlocks,
+} from '../../lib/utils/block-content';
 /*
  * Types
  */
+import { transfromToAIAssistantBlock } from '../../transforms';
 import type { PromptItemProps, PromptTypeProp } from '../../lib/prompt';
 
 type StoredPromptProps = {
@@ -38,8 +43,19 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const clientIdsRef = useRef< Array< string > >();
 
-		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
+		const { name: blockType } = props;
+
+		const { updateBlockAttributes, removeBlocks, replaceBlock } = useDispatch( blockEditorStore );
 		const { createNotice } = useDispatch( noticesStore );
+
+		/*
+		 * Set exclude dropdown options.
+		 * - Exclude "Ask AI Assistant" for core/list-item block.
+		 */
+		const exclude = [];
+		if ( blockType === 'core/list-item' ) {
+			exclude.push( KEY_ASK_AI_ASSISTANT );
+		}
 
 		const showSuggestionError = useCallback(
 			( suggestionError: SuggestionError ) => {
@@ -104,7 +120,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ setStoredPrompt ]
 		);
 
-		const { request } = useSuggestionsFromAI( {
+		const { request, requestingState } = useSuggestionsFromAI( {
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
 			onDone: updateStoredPrompt,
@@ -112,10 +128,10 @@ export const withAIAssistant = createHigherOrderComponent(
 			autoRequest: false,
 		} );
 
+		const { content, clientIds } = getTextContentFromSelectedBlocks();
+
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const { content, clientIds } = getTextContentFromBlocks();
-
 				/*
 				 * Store the selected clientIds when the user requests a suggestion.
 				 * The client Ids will be used to update the content of the block,
@@ -138,15 +154,27 @@ export const withAIAssistant = createHigherOrderComponent(
 					return freshPrompt;
 				} );
 			},
-			[ request ]
+			[ clientIds, content, request ]
 		);
+
+		const replaceWithAiAssistantBlock = useCallback( () => {
+			replaceBlock( props.clientId, transfromToAIAssistantBlock( { content, blockType } ) );
+		}, [ blockType, content, props.clientId, replaceBlock ] );
+
+		const rawContent = getRawTextFromHTML( props.attributes.content );
 
 		return (
 			<>
 				<BlockEdit { ...props } />
 
 				<BlockControls group="block">
-					<AiAssistantDropdown onChange={ requestSuggestion } />
+					<AiAssistantDropdown
+						requestingState={ requestingState }
+						disabled={ ! rawContent?.length }
+						onChange={ requestSuggestion }
+						onReplace={ replaceWithAiAssistantBlock }
+						exclude={ exclude }
+					/>
 				</BlockControls>
 			</>
 		);

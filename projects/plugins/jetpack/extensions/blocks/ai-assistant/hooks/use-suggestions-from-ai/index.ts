@@ -3,7 +3,7 @@
  */
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback, useEffect, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
@@ -58,6 +58,8 @@ type UseSuggestionsFromAIOptions = {
 	onError?: ( error: SuggestionError ) => void;
 };
 
+export type RequestingStateProp = 'init' | 'requesting' | 'suggesting' | 'done' | 'error';
+
 type useSuggestionsFromAIProps = {
 	/*
 	 * The post ID.
@@ -68,6 +70,11 @@ type useSuggestionsFromAIProps = {
 	 * The post title.
 	 */
 	postTitle: string;
+
+	/*
+	 * Whether the request is in progress.
+	 */
+	requestingState: RequestingStateProp;
 
 	/*
 	 * The event source.
@@ -94,6 +101,7 @@ export default function useSuggestionsFromAI( {
 	onDone,
 	onError,
 }: UseSuggestionsFromAIOptions ): useSuggestionsFromAIProps {
+	const [ requestingState, setRequestingState ] = useState< RequestingStateProp >( 'init' );
 	// Collect data
 	const { postId, postTitle } = useSelect( select => {
 		return {
@@ -137,6 +145,7 @@ export default function useSuggestionsFromAI( {
 			 */
 			const delimiterRegEx = new RegExp( `^${ delimiter }|${ delimiter }$`, 'g' );
 			onDone( event?.detail?.replace( delimiterRegEx, '' ) );
+			setRequestingState( 'done' );
 		},
 		[ onDone ]
 	);
@@ -146,11 +155,14 @@ export default function useSuggestionsFromAI( {
 	 *
 	 * @returns {Promise<void>} The promise.
 	 */
+
 	const request = useCallback(
 		async ( promptArg: Array< PromptItemProps > ) => {
 			promptArg.forEach( ( { role, content: promptContent }, i ) =>
 				debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
 			);
+			// Set the request status.
+			setRequestingState( 'requesting' );
 
 			try {
 				source.current = await askQuestion( promptArg, {
@@ -159,75 +171,79 @@ export default function useSuggestionsFromAI( {
 					fromCache: false,
 				} );
 
+				// Set the request status.
+				setRequestingState( 'suggesting' );
+
 				if ( onSuggestion ) {
 					source?.current?.addEventListener( 'suggestion', handleSuggestion );
 				}
 
-				if ( onDone ) {
-					source?.current?.addEventListener( 'done', handleDone );
-				}
-
-				if ( onError ) {
-					source?.current?.addEventListener( 'error_quota_exceeded', () => {
-						source?.current?.close();
-						onError( {
-							code: 'error_quota_exceeded',
-							message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
-							status: 'info',
-						} );
+				source?.current?.addEventListener( 'error_quota_exceeded', () => {
+					source?.current?.close();
+					setRequestingState( 'error' );
+					onError?.( {
+						code: 'error_quota_exceeded',
+						message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
+						status: 'info',
 					} );
+				} );
 
-					source?.current?.addEventListener( 'error_unclear_prompt', () => {
-						source?.current?.close();
-						onError( {
-							code: 'error_unclear_prompt',
-							message: __( 'Your request was unclear. Mind trying again?', 'jetpack' ),
-							status: 'info',
-						} );
+				source?.current?.addEventListener( 'error_unclear_prompt', () => {
+					source?.current?.close();
+					setRequestingState( 'error' );
+					onError?.( {
+						code: 'error_unclear_prompt',
+						message: __( 'Your request was unclear. Mind trying again?', 'jetpack' ),
+						status: 'info',
 					} );
+				} );
 
-					source?.current?.addEventListener( 'error_service_unavailable', () => {
-						source?.current?.close();
-						onError( {
-							code: 'error_service_unavailable',
-							message: __(
-								'Jetpack AI services are currently unavailable. Sorry for the inconvenience.',
-								'jetpack'
-							),
-							status: 'info',
-						} );
+				source?.current?.addEventListener( 'error_service_unavailable', () => {
+					source?.current?.close();
+					setRequestingState( 'error' );
+					onError?.( {
+						code: 'error_service_unavailable',
+						message: __(
+							'Jetpack AI services are currently unavailable. Sorry for the inconvenience.',
+							'jetpack'
+						),
+						status: 'info',
 					} );
+				} );
 
-					source?.current?.addEventListener( 'error_moderation', () => {
-						source?.current?.close();
-						onError( {
-							code: 'error_moderation',
-							message: __(
-								'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
-								'jetpack'
-							),
-							status: 'info',
-						} );
+				source?.current?.addEventListener( 'error_moderation', () => {
+					source?.current?.close();
+					setRequestingState( 'error' );
+					onError?.( {
+						code: 'error_moderation',
+						message: __(
+							'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
+							'jetpack'
+						),
+						status: 'info',
 					} );
+				} );
 
-					source?.current?.addEventListener( 'error_network', () => {
-						source?.current?.close();
-						onError( {
-							code: 'error_network',
-							message: __(
-								'It was not possible to process your request. Mind trying again?',
-								'jetpack'
-							),
-							status: 'info',
-						} );
+				source?.current?.addEventListener( 'error_network', () => {
+					source?.current?.close();
+					setRequestingState( 'error' );
+					onError?.( {
+						code: 'error_network',
+						message: __(
+							'It was not possible to process your request. Mind trying again?',
+							'jetpack'
+						),
+						status: 'info',
 					} );
-				}
+				} );
+
+				source?.current?.addEventListener( 'done', handleDone );
 			} catch ( e ) {
 				// eslint-disable-next-line no-console
 				console.error( e );
 			}
 		},
-		[ postId, onSuggestion, onDone, onError, handleSuggestion, handleDone ]
+		[ postId, onSuggestion, onError, handleSuggestion, handleDone ]
 	);
 
 	// Request suggestions automatically when ready.
@@ -267,6 +283,9 @@ export default function useSuggestionsFromAI( {
 
 		// Expose the EventHandlerSource
 		source: source.current,
+
+		// Process statuses
+		requestingState,
 
 		// Export additional props doesn't hurt.
 		postId,
