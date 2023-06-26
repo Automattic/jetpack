@@ -7,7 +7,11 @@ import TurndownService from 'turndown';
  * Internal dependencies
  */
 import { blockName } from '..';
-import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
+import {
+	EXTENDED_BLOCKS,
+	ExtendedBlockProp,
+	isPossibleToExtendBlock,
+} from '../extensions/ai-assistant';
 /**
  * Types
  */
@@ -17,8 +21,15 @@ const turndownService = new TurndownService( { emDelimiter: '_', headingStyle: '
 
 const from = [];
 
-export function transfromToAIAssistantBlock( attrs ) {
-	const { blockType, content } = attrs;
+/**
+ * Return an AI Assistant block instance from a given block type.
+ *
+ * @param {object} attrs                - Block attributes.
+ * @param {ExtendedBlockProp} blockType - Block type.
+ * @returns {object}                      AI Assistant block instance.
+ */
+export function transfromToAIAssistantBlock( attrs, blockType: ExtendedBlockProp ) {
+	const { content } = attrs;
 	// Create a temporary block to get the HTML content.
 	const temporaryBlock = createBlock( blockType, { content } );
 	let htmlContent = getBlockContent( temporaryBlock );
@@ -55,7 +66,7 @@ for ( const blockType of EXTENDED_BLOCKS ) {
 		type: 'block',
 		blocks: [ blockType ],
 		isMatch: () => isPossibleToExtendBlock(),
-		transform: attrs => transfromToAIAssistantBlock( { ...attrs, blockType } ),
+		transform: attrs => transfromToAIAssistantBlock( attrs, blockType ),
 	} );
 }
 
