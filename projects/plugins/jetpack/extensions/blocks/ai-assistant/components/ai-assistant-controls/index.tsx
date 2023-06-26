@@ -136,6 +136,8 @@ export default function AiAssistantDropdown( {
 	const toolbarLabel =
 		requestingState === 'suggesting' ? null : label || __( 'AI Assistant', 'jetpack' );
 
+	const isProcessingRequest = requestingState === 'requesting' || requestingState === 'suggesting';
+
 	return (
 		<Dropdown
 			popoverProps={ {
@@ -154,6 +156,7 @@ export default function AiAssistantDropdown( {
 						label={ toolbarLabel }
 						icon={ aiAssistant }
 						disabled={ disabled }
+						isActive={ isProcessingRequest }
 					/>
 				);
 			} }
