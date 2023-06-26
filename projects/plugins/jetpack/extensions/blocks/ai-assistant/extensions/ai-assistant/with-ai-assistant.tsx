@@ -21,10 +21,10 @@ import {
 	getRawTextFromHTML,
 	getTextContentFromSelectedBlocks,
 } from '../../lib/utils/block-content';
+import { transfromToAIAssistantBlock } from '../../transforms';
 /*
  * Types
  */
-import { transfromToAIAssistantBlock } from '../../transforms';
 import type { PromptItemProps, PromptTypeProp } from '../../lib/prompt';
 
 type StoredPromptProps = {
@@ -158,7 +158,7 @@ export const withAIAssistant = createHigherOrderComponent(
 		);
 
 		const replaceWithAiAssistantBlock = useCallback( () => {
-			replaceBlock( props.clientId, transfromToAIAssistantBlock( { content, blockType } ) );
+			replaceBlock( props.clientId, transfromToAIAssistantBlock( { content }, blockType ) );
 		}, [ blockType, content, props.clientId, replaceBlock ] );
 
 		const rawContent = getRawTextFromHTML( props.attributes.content );
