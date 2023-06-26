@@ -9,7 +9,11 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React from 'react';
 import { connect } from 'react-redux';
-import { isBlazeDashboardEnabled, shouldInitializeBlaze } from 'state/initial-state';
+import {
+	isBlazeDashboardEnabled,
+	isWoASite as getIsWoASite,
+	shouldInitializeBlaze,
+} from 'state/initial-state';
 import { getModule } from 'state/modules';
 
 const trackDashboardClick = () => {
@@ -32,9 +36,14 @@ function Blaze( props ) {
 		isOfflineMode,
 		isSavingAnyOption,
 		isUnavailableInOfflineMode,
+		isWoASite,
 		siteAdminUrl,
 		toggleModuleNow,
 	} = props;
+
+	if ( isWoASite ) {
+		return null;
+	}
 
 	const unavailableInOfflineMode = isUnavailableInOfflineMode( 'blaze' );
 
@@ -115,6 +124,7 @@ export default withModuleSettingsFormHelpers(
 			blazeDashboardEnabled: isBlazeDashboardEnabled( state ),
 			blazeModule: getModule( state, 'blaze' ),
 			blazeAvailable: shouldInitializeBlaze( state ),
+			isWoASite: getIsWoASite( state ),
 		};
 	} )( Blaze )
 );
