@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Update config to work around some bugs so `NODE_PATH` is no longer needed when running storybook.

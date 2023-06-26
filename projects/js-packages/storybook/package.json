@@ -15,9 +15,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"//": "# We set NODE_PATH here so storybook can find its plugins with pnpm 7. See https://github.com/pnpm/pnpm/discussions/3536#discussioncomment-2688984",
-		"storybook:build": "NODE_PATH=\"$PWD/node_modules\" storybook build -c ./storybook -o ./docs",
-		"storybook:dev": "NODE_PATH=\"$PWD/node_modules\" storybook dev -c ./storybook -p 50240",
+		"storybook:build": "storybook build -c ./storybook -o ./docs",
+		"storybook:dev": "storybook dev -c ./storybook -p 50240",
 		"test": "jest tests/"
 	},
 	"devDependencies": {
