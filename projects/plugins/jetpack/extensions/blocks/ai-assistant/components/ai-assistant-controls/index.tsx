@@ -119,6 +119,8 @@ type AiAssistantControlComponentProps = {
 	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
 
 	onReplace: () => void;
+
+	onCancel: () => void;
 };
 
 export default function AiAssistantDropdown( {
@@ -129,6 +131,7 @@ export default function AiAssistantDropdown( {
 	disabled,
 	onChange,
 	onReplace,
+	onCancel,
 }: AiAssistantControlComponentProps ) {
 	const quickActionsListFiltered = quickActionsList.filter(
 		quickAction => ! exclude.includes( quickAction.key )
@@ -150,7 +153,13 @@ export default function AiAssistantDropdown( {
 							[ `is-${ requestingState }` ]: true,
 						} ) }
 						showTooltip
-						onClick={ onToggle }
+						onClick={ () => {
+							if ( ! isProcessingRequest ) {
+								onToggle();
+							}
+
+							onCancel?.();
+						} }
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
 						label={ toolbarLabel }
