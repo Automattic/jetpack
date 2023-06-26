@@ -74,7 +74,7 @@ class Blaze {
 		/**
 		 * Enable a wp-admin dashboard for Blaze campaign management.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.7.0
 		 *
 		 * @param bool $should_enable Should the dashboard be enabled? False by default for now.
 		 */

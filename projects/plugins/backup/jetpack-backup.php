@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack VaultPress Backup
  * Plugin URI: https://jetpack.com/jetpack-backup
  * Description: Easily restore or download a backup of your site from a specific moment in time.
- * Version: 1.9-alpha
+ * Version: 1.9-beta
  * Author: Automattic - Jetpack Backup team
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
