@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -105,8 +104,8 @@ export default function useSuggestionsFromAI( {
 	// Collect data
 	const { postId, postTitle } = useSelect( select => {
 		return {
-			postId: select( editorStore ).getCurrentPostId(),
-			postTitle: select( editorStore ).getEditedPostAttribute( 'title' ),
+			postId: select( 'core/editor' ).getCurrentPostId(),
+			postTitle: select( 'core/editor' ).getEditedPostAttribute( 'title' ),
 		};
 	}, [] );
 
