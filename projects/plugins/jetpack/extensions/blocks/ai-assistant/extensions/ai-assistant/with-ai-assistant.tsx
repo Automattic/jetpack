@@ -13,6 +13,7 @@ import React from 'react';
  */
 import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
+	KEY_ASK_AI_ASSISTANT,
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import { getPrompt } from '../../lib/prompt';
@@ -47,6 +48,15 @@ export const withAIAssistant = createHigherOrderComponent(
 		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
 		const { createNotice } = useDispatch( noticesStore );
 		const { replaceBlock } = useDispatch( blockEditorStore );
+
+		/*
+		 * Set exclude dropdown options.
+		 * - Exclude "Ask AI Assistant" for core/list-item block.
+		 */
+		const exclude = [];
+		if ( blockType === 'core/list-item' ) {
+			exclude.push( KEY_ASK_AI_ASSISTANT );
+		}
 
 		const showSuggestionError = useCallback(
 			( suggestionError: SuggestionError ) => {
@@ -164,6 +174,7 @@ export const withAIAssistant = createHigherOrderComponent(
 						disabled={ ! rawContent?.length }
 						onChange={ requestSuggestion }
 						onReplace={ replaceWithAiAssistantBlock }
+						exclude={ exclude }
 					/>
 				</BlockControls>
 			</>
