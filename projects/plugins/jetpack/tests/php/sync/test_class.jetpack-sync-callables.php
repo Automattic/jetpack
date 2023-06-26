@@ -137,6 +137,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'wp_get_environment_type'          => wp_get_environment_type(),
 			'is_fse_theme'                     => Functions::get_is_fse_theme(),
 			'get_themes'                       => Functions::get_themes(),
+			'get_loaded_extensions'            => Functions::get_loaded_extensions(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
