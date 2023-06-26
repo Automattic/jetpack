@@ -13,17 +13,24 @@ import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assis
  */
 import { PromptItemProps } from '../lib/prompt';
 
-const turndownService = new TurndownService( { emDelimiter: '_' } );
+const turndownService = new TurndownService( { emDelimiter: '_', headingStyle: 'atx' } );
 
 const from = [];
 
-export function transfromToAIAssistantBlock( { content, blockType } ) {
+export function transfromToAIAssistantBlock( attrs ) {
+	const { blockType, content } = attrs;
 	// Create a temporary block to get the HTML content.
 	const temporaryBlock = createBlock( blockType, { content } );
-	const htmlContent = getBlockContent( temporaryBlock );
+	let htmlContent = getBlockContent( temporaryBlock );
+
+	// core/heading custom transform handling.
+	if ( blockType === 'core/heading' && attrs?.level ) {
+		// Replace the HTML tags with the block level.
+		htmlContent = htmlContent.replace( /<(\/?)h\d([^>]*)>/g, `<$1h${ attrs.level }$2>` );
+	}
 
 	// Convert the content to markdown.
-	content = turndownService.turndown( htmlContent );
+	const aiAssistantBlockcontent = turndownService.turndown( htmlContent );
 
 	// Create a pair of user/assistant messages.
 	const messages: Array< PromptItemProps > = [
@@ -37,7 +44,7 @@ export function transfromToAIAssistantBlock( { content, blockType } ) {
 		},
 	];
 
-	return createBlock( blockName, { content, messages } );
+	return createBlock( blockName, { content: aiAssistantBlockcontent, messages } );
 }
 
 /*
@@ -48,7 +55,7 @@ for ( const blockType of EXTENDED_BLOCKS ) {
 		type: 'block',
 		blocks: [ blockType ],
 		isMatch: () => isPossibleToExtendBlock(),
-		transform: ( { content } ) => transfromToAIAssistantBlock( { content, blockType } ),
+		transform: attrs => transfromToAIAssistantBlock( { ...attrs, blockType } ),
 	} );
 }
 
