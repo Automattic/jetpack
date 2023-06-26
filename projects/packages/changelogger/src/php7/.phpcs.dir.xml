@@ -2,13 +2,5 @@
 <ruleset>
 	<!-- Ideally we'd just configure PHPCompatibility with the right PHP version, but it uses <config> rather than <properties>. Sigh. -->
 	<!-- So instead we have to manually disable certain sniffs. -->
-	<rule ref="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.boolFound">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.class_nameFound">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.arrayFound">
-		<severity>0</severity>
-	</rule>
+	<rule ref="./.phpcs.dir.phpcompatibility.xml" />
 </ruleset>
