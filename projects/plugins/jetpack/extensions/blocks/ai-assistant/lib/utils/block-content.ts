@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
@@ -51,7 +50,7 @@ export function getContentFromBlocks(): string {
 	return turndownService.turndown( serialize( blocks ) );
 }
 
-export type GetTextContentFromBlocksProps = {
+export type GetTextContentFromSelectedBlocksProps = {
 	clientId: string;
 	content: RichTextValue;
 	offset: {
@@ -63,24 +62,24 @@ export type GetTextContentFromBlocksProps = {
 /**
  * Returns the text content from all selected blocks.
  *
- * @returns {GetTextContentFromBlocksProps} The text content.
+ * @returns {GetTextContentFromSelectedBlocksProps} The text content.
  */
-export function getTextContentFromBlocks(): GetTextContentFromBlocksProps[] {
+export function getTextContentFromSelectedBlocks(): GetTextContentFromSelectedBlocksProps[] {
 	const defaultContent = [];
-	const clientIds = select( blockEditorStore ).getSelectedBlockClientIds();
+	const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
 
 	if ( ! clientIds?.length ) {
 		return defaultContent;
 	}
 
-	const blocks = select( blockEditorStore ).getBlocksByClientId( clientIds );
+	const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
 
 	if ( ! blocks?.length ) {
 		return defaultContent;
 	}
 
-	const startSelection = select( blockEditorStore ).getSelectionStart();
-	const endSelection = select( blockEditorStore ).getSelectionEnd();
+	const startSelection = select( 'core/block-editor' ).getSelectionStart();
+	const endSelection = select( 'core/block-editor' ).getSelectionEnd();
 
 	const startSelectionBlockIndex = blocks.findIndex(
 		block => block.clientId === startSelection.clientId
@@ -136,7 +135,7 @@ export function getBlockTextContent( clientId: string ): string {
 		return '';
 	}
 
-	const editor = select( blockEditorStore );
+	const editor = select( 'core/block-editor' );
 	const block = editor.getBlock( clientId );
 
 	/*
@@ -153,4 +152,20 @@ export function getBlockTextContent( clientId: string ): string {
 	}
 
 	return getBlockContent( block );
+}
+
+/**
+ * Extract raw text from HTML content
+ *
+ * @param {string} htmlString - The HTML content.
+ * @returns {string}            The raw text.
+ */
+export function getRawTextFromHTML( htmlString: string ): string {
+	if ( ! htmlString?.length ) {
+		return '';
+	}
+
+	const tempDomContainer = document.createElement( 'div' );
+	tempDomContainer.innerHTML = htmlString;
+	return tempDomContainer.textContent || tempDomContainer.innerText || '';
 }

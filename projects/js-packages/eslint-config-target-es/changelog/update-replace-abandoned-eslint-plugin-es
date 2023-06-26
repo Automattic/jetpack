@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+As `eslint-plugin-es` appears to be abandoned, change to using `eslint-plugin-es-x`.

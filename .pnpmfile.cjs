@@ -106,6 +106,16 @@ function fixDeps( pkg ) {
 		pkg.dependencies.svelte2tsx = '^0.6.10';
 	}
 
+	// Missing dep or peer dep on @babel/runtime
+	// https://github.com/zillow/react-slider/issues/296
+	if (
+		pkg.name === 'react-slider' &&
+		! pkg.dependencies?.[ '@babel/runtime' ] &&
+		! pkg.peerDependencies?.[ '@babel/runtime' ]
+	) {
+		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+	}
+
 	return pkg;
 }
 

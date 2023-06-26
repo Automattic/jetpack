@@ -88,6 +88,5 @@ Test using Core’s block editor and latest Gutenberg plugin.
 - [ ] Star rating
 - [ ] Recurring Payments
 - [ ] Repeat Visitor
-- [ ] Revue
 - [ ] Simple Payments
 - [ ] Slideshow

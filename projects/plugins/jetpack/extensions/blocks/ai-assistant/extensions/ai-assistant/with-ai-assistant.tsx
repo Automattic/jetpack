@@ -14,6 +14,7 @@ import React from 'react';
  */
 import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
+	KEY_ASK_AI_ASSISTANT,
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import {
@@ -23,12 +24,13 @@ import {
 	getPrompt,
 } from '../../lib/prompt';
 import {
-	GetTextContentFromBlocksProps,
-	getTextContentFromBlocks,
+	GetTextContentFromSelectedBlocksProps,
+	getTextContentFromSelectedBlocks,
 } from '../../lib/utils/block-content';
 /*
  * Types
  */
+import { transfromToAIAssistantBlock } from '../../transforms';
 import type { PromptItemProps, PromptTypeProp } from '../../lib/prompt';
 
 type StoredPromptProps = {
@@ -53,7 +55,7 @@ type SetContentOptionsProps = {
 export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
 		const { createNotice } = useDispatch( noticesStore );
-		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
+		const { updateBlockAttributes, removeBlocks, replaceBlock } = useDispatch( blockEditorStore );
 		const [ storedPrompt, setStoredPrompt ] = useState< StoredPromptProps >( {
 			messages: [],
 		} );
@@ -62,6 +64,17 @@ export const withAIAssistant = createHigherOrderComponent(
 			index: 0,
 			data: [],
 		} );
+
+		const { name: blockType } = props;
+
+		/*
+		 * Set exclude dropdown options.
+		 * - Exclude "Ask AI Assistant" for core/list-item block.
+		 */
+		const exclude = [];
+		if ( blockType === 'core/list-item' ) {
+			exclude.push( KEY_ASK_AI_ASSISTANT );
+		}
 
 		const showSuggestionError = useCallback(
 			( suggestionError: SuggestionError ) => {
@@ -147,7 +160,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ updateStoredPrompt ]
 		);
 
-		const { request } = useSuggestionsFromAI( {
+		const { request, requestingState } = useSuggestionsFromAI( {
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
 			onDone: handleDone,
@@ -155,13 +168,14 @@ export const withAIAssistant = createHigherOrderComponent(
 			autoRequest: false,
 		} );
 
+		const blocks = getTextContentFromSelectedBlocks();
+		const allSelectedContent = join( blocks.map( block => block.content ) );
+
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const blocks = getTextContentFromBlocks();
 				const firstBlock = blocks[ 0 ];
 				const otherBlocks = blocks.slice( 1, blocks.length - 1 );
 				const lastBlock = blocks[ blocks.length - 1 ];
-				const allSelectedContent = join( blocks.map( block => block.content ) );
 
 				const handleSetStoredPrompt = () =>
 					setStoredPrompt( prevPrompt => {
@@ -176,7 +190,7 @@ export const withAIAssistant = createHigherOrderComponent(
 						return { ...prevPrompt, messages: lastMessage };
 					} );
 
-				const generateRequestList = ( list: Array< GetTextContentFromBlocksProps > ) => {
+				const generateRequestList = ( list: Array< GetTextContentFromSelectedBlocksProps > ) => {
 					return list.reduce( ( acc, block ) => {
 						const { content, offset } = block;
 						const prevMessages = acc[ acc.length - 1 ]?.messages || storedPrompt.messages;
@@ -242,15 +256,38 @@ export const withAIAssistant = createHigherOrderComponent(
 						break;
 				}
 			},
-			[ removeBlocks, request, storedPrompt.messages, updateBlockAttributes ]
+			[
+				allSelectedContent,
+				blocks,
+				removeBlocks,
+				request,
+				storedPrompt.messages,
+				updateBlockAttributes,
+			]
 		);
+
+		const replaceWithAiAssistantBlock = useCallback( () => {
+			replaceBlock(
+				props.clientId,
+				transfromToAIAssistantBlock( {
+					content: toHTMLString( { value: allSelectedContent } ),
+					blockType,
+				} )
+			);
+		}, [ allSelectedContent, blockType, props.clientId, replaceBlock ] );
 
 		return (
 			<>
 				<BlockEdit { ...props } />
 
 				<BlockControls group="block">
-					<AiAssistantDropdown onChange={ requestSuggestion } />
+					<AiAssistantDropdown
+						requestingState={ requestingState }
+						disabled={ ! allSelectedContent?.text?.length }
+						onChange={ requestSuggestion }
+						onReplace={ replaceWithAiAssistantBlock }
+						exclude={ exclude }
+					/>
 				</BlockControls>
 			</>
 		);

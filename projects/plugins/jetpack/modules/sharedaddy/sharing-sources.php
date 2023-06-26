@@ -3198,3 +3198,66 @@ class Share_Mastodon extends Sharing_Source {
 		);
 	}
 }
+
+/**
+ * Nextdoor sharing service.
+ */
+class Share_Nextdoor extends Sharing_Source {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'nextdoor';
+
+	/**
+	 * Service icon font code.
+	 *
+	 * @var string
+	 */
+	public $icon = '\f10c';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Nextdoor', 'jetpack' );
+	}
+
+	/**
+	 * Get the markup of the sharing button.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_display( $post ) {
+		return $this->get_link(
+			$this->get_process_request_url( $post->ID ),
+			_x( 'Nextdoor', 'share to', 'jetpack' ),
+			__( 'Click to share on Nextdoor', 'jetpack' ),
+			'share=nextdoor',
+			'sharing-nextdoor-' . $post->ID
+		);
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		$url  = 'https://nextdoor.com/sharekit/?source=jetpack&body=';
+		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
+
+		parent::redirect_request( $url );
+	}
+}
