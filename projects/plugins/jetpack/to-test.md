@@ -35,7 +35,6 @@ A new block is now available for the Tock reservations service:
 We've added a new sharing button for the Nextdoor service:
 
 - In `Jetpack > Settings > Sharing`, make sure that the Sharing Buttons feature is enabled, then click on the "Configure your sharing buttons" link.
-- Try adding the Nextdor sharing button and be sure to save the changes.
 + Try adding the Nextdoor sharing button and be sure to save the changes.
 - Open a post on the frontend of your site and make sure the Nextdoor sharing button is displayed.
 
