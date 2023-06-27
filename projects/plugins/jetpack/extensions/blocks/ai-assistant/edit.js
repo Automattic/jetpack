@@ -110,6 +110,24 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		requireUpgrade,
 	} );
 
+	// Auto request if the block has the autoRequestPrompt attribute
+	useEffect( () => {
+		if ( ! attributes?.autoRequestPrompt?.type ) {
+			return;
+		}
+
+		const { type, options } = attributes.autoRequestPrompt;
+		setAttributes( { autoRequestPrompt: undefined } );
+
+		/*
+		 * Add a small delay to race condition with the block editor.
+		 * Todo: Let's clean this up when we have a better way to handle this.
+		 */
+		setTimeout( () => {
+			getSuggestionFromOpenAI( type, options );
+		}, 200 );
+	}, [ attributes.autoRequestPrompt, getSuggestionFromOpenAI, setAttributes ] );
+
 	useEffect( () => {
 		if ( errorData ) {
 			setErrorDismissed( false );
