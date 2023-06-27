@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Update Image Guide tracking in front-end, to use Pixel tracking, instead of AJAX requests to the server.

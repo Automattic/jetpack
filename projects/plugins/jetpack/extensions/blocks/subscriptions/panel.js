@@ -308,6 +308,7 @@ export default function SubscribePanels() {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const { tracks } = useAnalytics();
 
 	// Set the accessLevel to "everybody" when one is not defined
 	let accessLevel =
@@ -371,7 +372,10 @@ export default function SubscribePanels() {
 				paidSubscribers={ paidSubscribers }
 				isModuleActive={ isModuleActive }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
-				showPreviewModal={ () => setIsModalOpen( true ) }
+				showPreviewModal={ () => {
+					tracks.recordEvent( 'jetpack_send_email_preview_prepublish_preview_button' );
+					setIsModalOpen( true );
+				} }
 			/>
 			<NewsletterPostPublishSettingsPanel
 				accessLevel={ accessLevel }

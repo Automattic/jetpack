@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
+import { useBlockProps } from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
 import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
@@ -40,10 +40,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const aiControlRef = useRef( null );
 	const blockRef = useRef( null );
 
-	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( blockEditorStore );
+	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { mediaUpload } = useSelect( select => {
-		const { getSettings } = select( blockEditorStore );
+		const { getSettings } = select( 'core/block-editor' );
 		const settings = getSettings();
 		return {
 			mediaUpload: settings.mediaUpload,
