@@ -183,7 +183,16 @@ class Jetpack_Subscribe_Modal {
 		$is_modal_enabled   = get_option( 'sm_enabled' ) || false;
 		$is_fse_theme       = wp_is_block_theme();
 
-		return ( $is_lettre || $is_newsletter_site ) && $is_fse_theme && $is_modal_enabled;
+		$should_enable_subscriber_modal = ( $is_lettre || $is_newsletter_site ) && $is_fse_theme && $is_modal_enabled;
+
+		/**
+		* Allows force-enabling or disabling the Subscriptions modal.
+		*
+		* @since $$next-version$$
+		*
+		* @param bool $should_enable_subscriber_modal Whether the Subscriptions modal should be enabled.
+		*/
+		return (bool) apply_filters( 'jetpack_subscriptions_modal_enabled', $should_enable_subscriber_modal );
 	}
 
 	/**
