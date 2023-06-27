@@ -84,6 +84,7 @@ export const settings = {
 	example: {
 		attributes: {
 			content: __( "I'm afraid I can't do that, Dave.", 'jetpack' ),
+			originalContent: __( "I'm afraid I can't do that, Dave.", 'jetpack' ),
 		},
 	},
 };
