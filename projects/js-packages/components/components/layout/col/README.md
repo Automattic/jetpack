@@ -16,10 +16,18 @@ import { Container, Col, Text } from '@automattic/jetpack-components';
 		<Text>Hello</Text>
 		<Text>World!</Text>
 	</Col>
-</Container>
+</Container>;
 ```
 
 ## Props
+
+### tagName
+
+The HTML tag of the column element.
+
+- Type: `String`
+- Default: `div`
+- Required: `false`
 
 ### className
 
