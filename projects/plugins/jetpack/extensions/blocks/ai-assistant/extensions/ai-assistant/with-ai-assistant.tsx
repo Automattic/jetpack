@@ -2,12 +2,10 @@
  * External dependencies
  */
 import { BlockControls } from '@wordpress/block-editor';
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState, useRef } from '@wordpress/element';
-import { store as noticesStore } from '@wordpress/notices';
 import { RichTextValue, create, insert, slice, toHTMLString } from '@wordpress/rich-text';
 import React from 'react';
 /**
