@@ -13,7 +13,6 @@ import { userCanManageModules, userCanEditPosts, isAtomicSite } from 'state/init
 import { isModuleActivated, getModuleOverride, getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
-import { getIsCoreSiteEditorEnabled } from 'state/site';
 import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
 import { Masterbar } from './masterbar';
@@ -123,7 +122,6 @@ export default connect( state => {
 		userCanManageModules: userCanManageModules( state ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		connectUrl: getConnectUrl( state ),
-		isBlockBasedThemeActive: getIsCoreSiteEditorEnabled( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 	};
 } )( Writing );

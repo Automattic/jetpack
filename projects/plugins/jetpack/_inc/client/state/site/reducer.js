@@ -533,16 +533,6 @@ export function getSiteID( state ) {
 }
 
 /**
- * Returns if the site has the core site editor feature enabled.
- *
- * @param {object} state - Global state tree
- * @returns {boolean} True if the site has the core site editor feature enabled, false otherwise.
- */
-export function getIsCoreSiteEditorEnabled( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'is_core_site_editor_enabled' ] );
-}
-
-/**
  * Returns plugins that use the Jetpack connection
  *
  * @param  {object} state - Global state tree

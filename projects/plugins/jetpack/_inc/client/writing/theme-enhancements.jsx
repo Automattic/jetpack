@@ -9,7 +9,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React from 'react';
 import { connect } from 'react-redux';
-import { currentThemeSupports } from 'state/initial-state';
+import { currentThemeSupports, currentThemeIsBlockTheme } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
 
@@ -194,7 +194,7 @@ class ThemeEnhancements extends React.Component {
 						) }
 					</SettingsGroup>
 				) }
-				{ ! this.props.isBlockBasedThemeActive && foundCustomCSS && (
+				{ ! this.props.isBlockThemeActive && foundCustomCSS && (
 					<SettingsGroup
 						module={ { module: customCSS.module } }
 						support={ {
@@ -240,6 +240,7 @@ class ThemeEnhancements extends React.Component {
 export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
+		isBlockThemeActive: currentThemeIsBlockTheme( state ),
 		isInfiniteScrollSupported: currentThemeSupports( state, 'infinite-scroll' ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 	};
