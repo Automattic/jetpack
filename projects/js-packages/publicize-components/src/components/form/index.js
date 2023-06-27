@@ -258,9 +258,21 @@ export default function PublicizeForm( {
 								</ExternalLink>
 							</Notice>
 						) : (
-							<Notice isDismissible={ true } type={ 'warning' }>
+							<Notice type={ 'warning' }>
 								<p>
-									{ __( 'The selected media cannot be shared to all these platforms.', 'jetpack' ) }
+									{ Object.values( validationErrors ).length === connections.length
+										? _n(
+												'The selected media cannot be shared to this platform.',
+												'The selectod media cannot be shared to any of these platforms.',
+												connections.length,
+												'jetpack'
+										  )
+										: _n(
+												'The selected media cannot be shared to one of these platforms.',
+												'The selectod media cannot be shared to some of these platforms.',
+												Object.keys( validationErrors ).length,
+												'jetpack'
+										  ) }
 								</p>
 								<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
 									{ __( 'Troubleshooting tips', 'jetpack' ) }
