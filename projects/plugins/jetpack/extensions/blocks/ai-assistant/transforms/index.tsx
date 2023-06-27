@@ -30,16 +30,11 @@ const from = [];
  * @param {transfromToAIAssistantBlockOptionsProps} blockType - Block type.
  * @returns {object}                                            AI Assistant block instance.
  */
-<<<<<<< HEAD
-export function transfromToAIAssistantBlock( attrs, blockType: ExtendedBlockProp ) {
-	const { content, ...otherAttrs } = attrs;
-=======
 export function transfromToAIAssistantBlock(
 	attrs,
 	{ blockType }: transfromToAIAssistantBlockOptionsProps
 ) {
 	const { content, ...restAttrs } = attrs;
->>>>>>> 5bdb725a5a (change transfromToAIAssistantBlockOptionsProps API)
 	// Create a temporary block to get the HTML content.
 	const temporaryBlock = createBlock( blockType, { content } );
 	let htmlContent = getBlockContent( temporaryBlock );
@@ -66,7 +61,7 @@ export function transfromToAIAssistantBlock(
 	];
 
 	return createBlock( blockName, {
-		...otherAttrs,
+		...restAttrs,
 		content: aiAssistantBlockcontent,
 		originalContent: aiAssistantBlockcontent,
 		messages,

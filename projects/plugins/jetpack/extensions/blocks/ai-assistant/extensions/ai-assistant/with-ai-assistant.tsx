@@ -15,7 +15,6 @@ import AiAssistantDropdown, {
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-selected-blocks';
-import { getPrompt } from '../../lib/prompt';
 import { getRawTextFromHTML } from '../../lib/utils/block-content';
 import { transfromToAIAssistantBlock } from '../../transforms';
 /*
@@ -127,39 +126,28 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ setStoredPrompt ]
 		);
 
-		const { request, requestingState } = useSuggestionsFromAI( {
+		const { requestingState } = useSuggestionsFromAI( {
 			prompt: storedPrompt.messages,
 			onSuggestion: setContent,
 			onDone: updateStoredPrompt,
 			onError: showSuggestionError,
-			autoRequest: false,
 		} );
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				/*
-				 * Store the selected clientIds when the user requests a suggestion.
-				 * The client Ids will be used to update the content of the block,
-				 * when suggestions are received from the AI.
-				 */
-				clientIdsRef.current = clientIds;
+				const autoRequestPrompt = {
+					type: promptType,
+					options,
+				};
 
-				setStoredPrompt( prevPrompt => {
-					const messages = getPrompt( promptType, {
-						...options,
-						content,
-						prevMessages: prevPrompt.messages,
-					} );
+				const newAIAssistantBlock = transfromToAIAssistantBlock(
+					{ content, autoRequestPrompt },
+					{ blockType }
+				);
 
-					const freshPrompt = { ...prevPrompt, messages };
-					// Request the suggestion from the AI.
-					request( freshPrompt.messages );
-
-					// Update the stored prompt locally.
-					return freshPrompt;
-				} );
+				replaceBlock( props.clientId, newAIAssistantBlock );
 			},
-			[ clientIds, content, request ]
+			[ blockType, content, props.clientId, replaceBlock ]
 		);
 
 		const replaceWithAiAssistantBlock = useCallback( () => {
