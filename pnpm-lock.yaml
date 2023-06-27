@@ -2785,9 +2785,12 @@ importers:
       '@rollup/plugin-node-resolve':
         specifier: 13.3.0
         version: 13.3.0(rollup@2.79.1)
+      '@rollup/plugin-terser':
+        specifier: 0.4.3
+        version: 0.4.3(rollup@2.79.1)
       '@rollup/plugin-typescript':
         specifier: 8.3.3
-        version: 8.3.3(rollup@2.79.1)(typescript@5.0.4)
+        version: 8.3.3(rollup@2.79.1)(tslib@2.5.0)(typescript@5.0.4)
       '@wordpress/i18n':
         specifier: 4.35.0
         version: 4.35.0
@@ -2806,12 +2809,12 @@ importers:
       rollup-plugin-svelte:
         specifier: 7.1.0
         version: 7.1.0(rollup@2.79.1)(svelte@3.58.0)
-      rollup-plugin-terser:
-        specifier: 7.0.2
-        version: 7.0.2(rollup@2.79.1)
       svelte-preprocess:
         specifier: 5.0.3
         version: 5.0.3(@babel/core@7.21.5)(postcss@8.4.21)(svelte@3.58.0)(typescript@5.0.4)
+      tslib:
+        specifier: 2.5.0
+        version: 2.5.0
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -8312,23 +8315,6 @@ packages:
       resolve: 1.22.2
       rollup: 2.79.1
       tslib: 2.5.0
-      typescript: 5.0.4
-    dev: true
-
-  /@rollup/plugin-typescript@8.3.3(rollup@2.79.1)(typescript@5.0.4):
-    resolution: {integrity: sha512-55L9SyiYu3r/JtqdjhwcwaECXP7JeJ9h1Sg1VWRJKIutla2MdZQodTgcCNybXLMCnqpNLEhS2vGENww98L1npg==}
-    engines: {node: '>=8.0.0'}
-    peerDependencies:
-      rollup: ^2.14.0
-      tslib: '*'
-      typescript: '>=3.7.0'
-    peerDependenciesMeta:
-      tslib:
-        optional: true
-    dependencies:
-      '@rollup/pluginutils': 3.1.0(rollup@2.79.1)
-      resolve: 1.22.2
-      rollup: 2.79.1
       typescript: 5.0.4
     dev: true
 
@@ -17632,15 +17618,6 @@ packages:
       string-length: 4.0.2
     dev: true
 
-  /jest-worker@26.6.2:
-    resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
-    engines: {node: '>= 10.13.0'}
-    dependencies:
-      '@types/node': 20.3.1
-      merge-stream: 2.0.0
-      supports-color: 7.2.0
-    dev: true
-
   /jest-worker@27.5.1:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
@@ -21473,19 +21450,6 @@ packages:
       svelte: 3.58.0
     dev: true
 
-  /rollup-plugin-terser@7.0.2(rollup@2.79.1):
-    resolution: {integrity: sha512-w3iIaU4OxcF52UUXiZNsNeuXIMDvFrr+ZXK6bFZ0Q60qyVfq4uLptoS4bbq3paG3x216eQllFZX7zt6TIImguQ==}
-    deprecated: This package has been deprecated and is no longer maintained. Please use @rollup/plugin-terser
-    peerDependencies:
-      rollup: ^2.0.0
-    dependencies:
-      '@babel/code-frame': 7.22.5
-      jest-worker: 26.6.2
-      rollup: 2.79.1
-      serialize-javascript: 4.0.0
-      terser: 5.18.1
-    dev: true
-
   /rollup-pluginutils@1.5.2:
     resolution: {integrity: sha512-SjdWWWO/CUoMpDy8RUbZ/pSpG68YHmhk5ROKNIoi2En9bJ8bTt3IhYi254RWiTclQmL7Awmrq+rZFOhZkJAHmQ==}
     dependencies:
@@ -21881,12 +21845,6 @@ packages:
       no-case: 3.0.4
       tslib: 2.5.0
       upper-case-first: 2.0.2
-
-  /serialize-javascript@4.0.0:
-    resolution: {integrity: sha512-GaNA54380uFefWghODBWEGisLZFj00nS5ACs6yHa9nLqlLpVLO8ChDGeKRjZnV4Nh4n0Qi7nhYZD/9fCPzEqkw==}
-    dependencies:
-      randombytes: 2.1.0
-    dev: true
 
   /serialize-javascript@6.0.1:
     resolution: {integrity: sha512-owoXEFjWRllis8/M1Q+Cw5k8ZH40e3zhp/ovX+Xr/vi1qj6QesbyXXViFbpNvWvPNAD62SutwEXavefrLJWj7w==}

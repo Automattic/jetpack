@@ -16,9 +16,9 @@
 		}
 	],
 	"require": {
-		"automattic/jetpack-autoloader": "^2.11",
-		"automattic/jetpack-connection": "^1.42",
-		"automattic/jetpack-config": "^1.9"
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-config": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
