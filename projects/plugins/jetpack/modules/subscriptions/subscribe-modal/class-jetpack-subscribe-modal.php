@@ -166,7 +166,7 @@ class Jetpack_Subscribe_Modal {
 	public function wpcom_enqueue_subscribe_modal_assets() {
 		if ( $this->is_front_end_single_post() ) {
 			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
-			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array(), JETPACK__VERSION, true );
+			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-components' ), JETPACK__VERSION, true );
 		}
 	}
 
