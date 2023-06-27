@@ -12,14 +12,10 @@ import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assis
  * Types
  */
 import type { ExtendedBlockProp } from '../extensions/ai-assistant';
-import type { BuildPromptOptionsProps, PromptItemProps, PromptTypeProp } from '../lib/prompt';
+import type { PromptItemProps } from '../lib/prompt';
 
 type transfromToAIAssistantBlockOptionsProps = {
 	blockType: ExtendedBlockProp;
-	autoRequestPrompt?: {
-		type: PromptTypeProp;
-		options?: BuildPromptOptionsProps;
-	};
 };
 
 const turndownService = new TurndownService( { emDelimiter: '_', headingStyle: 'atx' } );
