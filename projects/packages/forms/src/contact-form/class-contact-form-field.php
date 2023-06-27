@@ -718,16 +718,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 		$field .= "\t</select>\n";
 
-		jetpack_enqueue_style(
+		wp_enqueue_style(
 			'jquery-ui-selectmenu',
 			plugins_url( 'css/jquery-ui-selectmenu.css', __FILE__ ),
 			array(),
 			'1.13.2'
 		);
 
-		jetpack_enqueue_script( 'jquery-ui-selectmenu' );
+		wp_enqueue_script( 'jquery-ui-selectmenu' );
 
-		jetpack_enqueue_script(
+		wp_enqueue_script(
 			'contact-form-dropdown',
 			plugins_url( 'js/dropdown.js', __FILE__ ),
 			array( 'jquery', 'jquery-ui-selectmenu' ),
@@ -766,7 +766,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			);
 		}
 
-		jetpack_enqueue_script(
+		wp_enqueue_script(
 			'grunion-frontend',
 			Assets::get_file_url_for_environment(
 				'_inc/build/contact-form/js/grunion-frontend.min.js',
@@ -776,7 +776,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			\JETPACK__VERSION,
 			false
 		);
-		jetpack_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( 'css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
+		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( 'css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
 
 		// Using Core's built-in datepicker localization routine
 		wp_localize_jquery_ui_datepicker();

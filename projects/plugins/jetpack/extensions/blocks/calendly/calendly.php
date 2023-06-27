@@ -83,7 +83,7 @@ function load_assets( $attr, $content ) {
 
 	if ( 'link' === $style ) {
 		if ( ! wp_style_is( 'jetpack-calendly-external-css' ) ) {
-			jetpack_enqueue_style( 'jetpack-calendly-external-css', 'https://assets.calendly.com/assets/external/widget.css', null, JETPACK__VERSION );
+			wp_enqueue_style( 'jetpack-calendly-external-css', 'https://assets.calendly.com/assets/external/widget.css', null, JETPACK__VERSION );
 		}
 
 		// Render deprecated version of Calendly block if needed. New markup block button class before rendering here.
@@ -157,7 +157,7 @@ function get_attribute( $attributes, $attribute_name ) {
  * @return void
  */
 function enqueue_calendly_js() {
-	jetpack_enqueue_script(
+	wp_enqueue_script(
 		'jetpack-calendly-external-js',
 		'https://assets.calendly.com/assets/external/widget.js',
 		null,

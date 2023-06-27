@@ -456,12 +456,12 @@ class Admin {
 			return;
 		}
 
-		jetpack_enqueue_script( 'wp-lists' );
+		wp_enqueue_script( 'wp-lists' );
 
 		wp_register_style( 'grunion-admin.css', plugin_dir_url( __FILE__ ) . 'css/grunion-admin.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion-admin.css', 'rtl', 'replace' );
 
-		jetpack_enqueue_style( 'grunion-admin.css' );
+		wp_enqueue_style( 'grunion-admin.css' );
 	}
 
 	/**
@@ -1258,9 +1258,9 @@ class Admin {
 			true
 		);
 
-		jetpack_enqueue_script( 'grunion-admin' );
+		wp_enqueue_script( 'grunion-admin' );
 
-		jetpack_enqueue_style( 'grunion.css' );
+		wp_enqueue_style( 'grunion.css' );
 
 		// Only add to feedback, only to spam view.
 		if ( empty( $_GET['post_status'] ) || 'spam' !== $_GET['post_status'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check

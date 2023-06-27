@@ -65,13 +65,13 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	 * Enqueues scripts and styles for the admin page.
 	 */
 	public function page_admin_scripts() {
-		jetpack_enqueue_style( 'plugin-install' );
-		jetpack_enqueue_script( 'plugin-install' );
+		wp_enqueue_style( 'plugin-install' );
+		wp_enqueue_script( 'plugin-install' );
 		// required for plugin modal action button functionality.
-		jetpack_enqueue_script( 'updates' );
+		wp_enqueue_script( 'updates' );
 		// required for modal popup JS and styling.
-		jetpack_enqueue_style( 'thickbox' );
-		jetpack_enqueue_script( 'thickbox' );
+		wp_enqueue_style( 'thickbox' );
+		wp_enqueue_script( 'thickbox' );
 	}
 
 	/**

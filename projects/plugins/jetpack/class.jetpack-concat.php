@@ -15,14 +15,14 @@ class Jetpack_Concat {
 	 *
 	 * @var array
 	 */
-	protected $enqueued_scripts = array();
+	public $enqueued_scripts = array();
 
 	/**
 	 * Holds a list of style handles that have been enqueued.
 	 *
 	 * @var array
 	 */
-	protected $enqueued_styles = array();
+	public $enqueued_styles = array();
 
 	/**
 	 * Holds the inline data.
@@ -42,9 +42,6 @@ class Jetpack_Concat {
 	 * Constructor.
 	 */
 	public function __construct() {
-		add_action( 'wp_print_footer_scripts', array( $this, 'do_script_enqueue' ), 0 );
-		add_action( 'wp_head', array( $this, 'do_style_enqueue' ), 1000 ); // Do Late to allow registration of header styles.
-		add_action( 'print_late_styles', array( $this, 'do_style_enqueue' ), 1000 ); // Late / On-demand styles.
 		add_action( 'jetpack_pre_activate_module', array( $this, 'flush_cache' ) );
 		add_action( 'jetpack_pre_deactivate_module', array( $this, 'flush_cache' ) );
 
@@ -71,14 +68,14 @@ class Jetpack_Concat {
 	/**
 	 * Get the current script key hash.
 	 */
-	protected function get_script_hash() {
+	public function get_script_hash() {
 		return md5( implode( '-', array_keys( $this->enqueued_scripts ) ) ) . '.js';
 	}
 
 	/**
 	 * Get current script file path.
 	 */
-	protected function get_script_path() {
+	public function get_script_path() {
 
 		return $this->cache_folder . '/' . $this->get_script_hash();
 	}
@@ -86,14 +83,14 @@ class Jetpack_Concat {
 	/**
 	 * Get the current style key hash.
 	 */
-	protected function get_style_hash() {
+	public function get_style_hash() {
 		return md5( implode( '-', array_keys( $this->enqueued_styles ) ) ) . '.css';
 	}
 
 	/**
 	 * Get current style file path.
 	 */
-	protected function get_style_path() {
+	public function get_style_path() {
 
 		return $this->cache_folder . '/' . $this->get_style_hash();
 	}
@@ -101,7 +98,7 @@ class Jetpack_Concat {
 	/**
 	 * Get current style file url.
 	 */
-	protected function get_style_url() {
+	public function get_style_url() {
 		$path = $this->get_style_path();
 
 		return str_replace( ABSPATH, home_url() . '/', $path );
@@ -110,7 +107,7 @@ class Jetpack_Concat {
 	/**
 	 * Get current script file url.
 	 */
-	protected function get_script_url() {
+	public function get_script_url() {
 		$path = $this->get_script_path();
 
 		return str_replace( ABSPATH, home_url() . '/', $path );
@@ -124,13 +121,7 @@ class Jetpack_Concat {
 	public function add_script( $handle ) {
 		$wp_scripts = wp_scripts();
 
-		if ( empty( $wp_scripts->registered[ $handle ] ) ) {
-			return;
-		}
-
-		if ( ! $this->is_local( $wp_scripts->registered[ $handle ]->src ) ) {
-			wp_enqueue_script( $handle );
-
+		if ( empty( $wp_scripts->registered[ $handle ] ) || ! $this->is_local( $wp_scripts->registered[ $handle ]->src ) ) {
 			return;
 		}
 
@@ -138,6 +129,7 @@ class Jetpack_Concat {
 			$this->add_script_deps( $wp_scripts->registered[ $handle ] );
 		}
 		$this->enqueued_scripts[ $handle ] = $wp_scripts->registered[ $handle ];
+		$wp_scripts->done[]                = $handle;
 	}
 
 	/**
@@ -160,6 +152,7 @@ class Jetpack_Concat {
 			$this->add_style_deps( $wp_styles->registered[ $handle ] );
 		}
 		$this->enqueued_styles[ $handle ] = $wp_styles->registered[ $handle ];
+		$wp_styles->done[]                = $handle;
 	}
 
 	/**
@@ -167,7 +160,7 @@ class Jetpack_Concat {
 	 *
 	 * @param _WP_Dependency $object The script object.
 	 */
-	protected function add_script_deps( $object ) {
+	public function add_script_deps( $object ) {
 		$wp_scripts = wp_scripts();
 		$deps       = $object->deps;
 		foreach ( $deps as $dep ) {
@@ -182,7 +175,7 @@ class Jetpack_Concat {
 	 *
 	 * @param _WP_Dependency $object The style object.
 	 */
-	protected function add_style_deps( $object ) {
+	public function add_style_deps( $object ) {
 		$wp_styles = wp_styles();
 		$deps      = $object->deps;
 		foreach ( $deps as $dep ) {
@@ -197,7 +190,7 @@ class Jetpack_Concat {
 	 *
 	 * @param string $type The type of asset to build.
 	 */
-	protected function build_cache( $type ) {
+	public function build_cache( $type ) {
 		global $wp_filesystem;
 		static $home_url;
 		if ( ! $wp_filesystem ) {
@@ -228,33 +221,11 @@ class Jetpack_Concat {
 	}
 
 	/**
-	 * Enqueue the script package.
-	 */
-	public function do_script_enqueue() {
-
-		if ( ! empty( $this->enqueued_scripts ) ) {
-
-			$path = $this->get_script_path();
-			$hash = $this->get_script_hash();
-			if ( ! file_exists( $path ) ) {
-				$this->build_cache( 'script' );
-			}
-			wp_register_script( $hash, $this->get_script_url(), array(), filemtime( $path ), true );
-
-			foreach ( $this->enqueued_scripts as $script ) {
-				$this->prep_inlines( $script );
-			}
-			wp_enqueue_script( $hash );
-			$this->enqueued_scripts = array();
-		}
-	}
-
-	/**
 	 * Prepare inline scripts.
 	 *
 	 * @param \_WP_Dependency $script The script dependency.
 	 */
-	protected function prep_inlines( $script ) {
+	public function prep_inlines( $script ) {
 		$hash = $this->get_script_hash();
 		if ( ! empty( $script->extra['data'] ) ) {
 			wp_add_inline_script( $hash, $script->extra['data'], 'before' );
@@ -267,31 +238,13 @@ class Jetpack_Concat {
 	}
 
 	/**
-	 * Enqueue the style package.
-	 */
-	public function do_style_enqueue() {
-		if ( ! empty( $this->enqueued_styles ) ) {
-			$styles = wp_styles();
-			$path   = $this->get_style_path();
-			$hash   = $this->get_style_hash();
-			if ( ! file_exists( $path ) ) {
-				$this->build_cache( 'style' );
-			}
-			wp_register_style( $hash, $this->get_style_url(), array(), filemtime( $path ) );
-			wp_enqueue_style( $hash );
-			$styles->do_item( $hash );
-			$this->enqueued_styles = array();
-		}
-	}
-
-	/**
 	 * Check if the url is local or not.
 	 *
 	 * @param string $url The url to check.
 	 *
 	 * @return bool
 	 */
-	protected function is_local( $url ) {
+	public function is_local( $url ) {
 		static $host;
 		if ( ! $host ) {
 			$host = wp_parse_url( home_url(), PHP_URL_HOST );

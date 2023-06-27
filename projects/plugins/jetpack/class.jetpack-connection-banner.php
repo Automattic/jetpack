@@ -174,7 +174,7 @@ class Jetpack_Connection_Banner {
 	 * Include the needed styles
 	 */
 	public function admin_banner_styles() {
-		jetpack_enqueue_style(
+		wp_enqueue_style(
 			'jetpack-connection-banner',
 			Assets::get_file_url_for_environment(
 				'css/jetpack-connection-banner.min.css',
@@ -191,7 +191,7 @@ class Jetpack_Connection_Banner {
 	 * @since 4.4.0
 	 */
 	public static function enqueue_banner_scripts() {
-		jetpack_enqueue_script(
+		wp_enqueue_script(
 			'jetpack-connection-banner-js',
 			Assets::get_file_url_for_environment(
 				'_inc/build/jetpack-connection-banner.min.js',
@@ -218,7 +218,7 @@ class Jetpack_Connection_Banner {
 	 * @since 7.7
 	 */
 	public static function enqueue_connect_button_scripts() {
-		jetpack_enqueue_script(
+		wp_enqueue_script(
 			'jetpack-connect-button',
 			Assets::get_file_url_for_environment(
 				'_inc/build/connect-button.min.js',
@@ -229,7 +229,7 @@ class Jetpack_Connection_Banner {
 			true
 		);
 
-		jetpack_enqueue_style(
+		wp_enqueue_style(
 			'jetpack-connect-button',
 			Assets::get_file_url_for_environment(
 				'css/jetpack-connect.min.css',

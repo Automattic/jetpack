@@ -154,7 +154,7 @@ class Jetpack_Recommendations_Banner {
 	 * Enqueue JavaScript files.
 	 */
 	public function enqueue_banner_scripts() {
-		jetpack_enqueue_script(
+		wp_enqueue_script(
 			'jetpack-recommendations-banner-js',
 			Assets::get_file_url_for_environment(
 				'_inc/build/jetpack-recommendations-banner.min.js',
@@ -180,7 +180,7 @@ class Jetpack_Recommendations_Banner {
 	 * Include the needed styles
 	 */
 	public function admin_banner_styles() {
-		jetpack_enqueue_style(
+		wp_enqueue_style(
 			'jetpack-recommendations-banner',
 			Assets::get_file_url_for_environment(
 				'css/jetpack-recommendations-banner.min.css',
