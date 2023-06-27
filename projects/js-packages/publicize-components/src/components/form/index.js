@@ -10,7 +10,13 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { Fragment, createInterpolateElement, useCallback, useEffect } from '@wordpress/element';
+import {
+	Fragment,
+	createInterpolateElement,
+	useMemo,
+	useCallback,
+	useEffect,
+} from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useDismissNotice from '../../hooks/use-dismiss-notice';
@@ -150,12 +156,13 @@ export default function PublicizeForm( {
 		shouldUploadAttachedMedia,
 	} );
 
-	useEffect( () => {
-		setConnectionsDisabled( Object.keys( validationErrors ) );
-	}, [ validationErrors, setConnectionsDisabled ] );
+	const invalidIds = useMemo( () => Object.keys( validationErrors ), [ validationErrors ] );
 
-	const showValidationNotice =
-		numberOfSharesRemaining !== 0 && Object.keys( validationErrors ).length > 0;
+	useEffect( () => {
+		setConnectionsDisabled( invalidIds );
+	}, [ invalidIds, setConnectionsDisabled ] );
+
+	const showValidationNotice = numberOfSharesRemaining !== 0 && invalidIds.length > 0;
 
 	const isConnectionEnabled = useCallback(
 		( { enabled, is_healthy = true } ) =>
@@ -260,17 +267,17 @@ export default function PublicizeForm( {
 						) : (
 							<Notice type={ 'warning' }>
 								<p>
-									{ Object.values( validationErrors ).length === connections.length
+									{ invalidIds.length === connections.length
 										? _n(
 												'The selected media cannot be shared to this platform.',
-												'The selectod media cannot be shared to any of these platforms.',
+												'The selected media cannot be shared to any of these platforms.',
 												connections.length,
 												'jetpack'
 										  )
 										: _n(
 												'The selected media cannot be shared to one of these platforms.',
-												'The selectod media cannot be shared to some of these platforms.',
-												Object.keys( validationErrors ).length,
+												'The selected media cannot be shared to some of these platforms.',
+												invalidIds.length,
 												'jetpack'
 										  ) }
 								</p>
