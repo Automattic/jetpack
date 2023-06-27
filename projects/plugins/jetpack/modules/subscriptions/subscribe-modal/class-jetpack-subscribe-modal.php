@@ -78,17 +78,11 @@ class Jetpack_Subscribe_Modal {
 					'post_type'   => 'wp_template_part',
 					'post_status' => 'publish',
 					'numberposts' => -1,
+					'post_name'   => $this->get_subscribe_template_slug(),
 				)
 			);
 
-			$subscribe_template = reset(
-				array_filter(
-					$posts,
-					function ( $post ) {
-						return $post->post_name === $this->get_subscribe_template_slug();
-					}
-				)
-			);
+			$subscribe_template = end( $posts );
 
 			$blocks = parse_blocks( $subscribe_template->post_content );
 
