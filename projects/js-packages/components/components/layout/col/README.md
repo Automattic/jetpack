@@ -16,7 +16,7 @@ import { Container, Col, Text } from '@automattic/jetpack-components';
 		<Text>Hello</Text>
 		<Text>World!</Text>
 	</Col>
-</Container>;
+</Container>
 ```
 
 ## Props

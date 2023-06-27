@@ -15,7 +15,7 @@ import { Container, Col, Button } from '@automattic/jetpack-components';
 	<Col>
 		<Button>Click me!</Button>
 	</Col>
-</Container>;
+</Container>
 ```
 
 ## Props
@@ -64,7 +64,7 @@ Value is multiplied by `8px`, following our specs.
 
 ```jsx
 // Space will be 16px
-<Container horizontalSpacing={2} />
+<Container horizontalSpacing={ 2 } />
 ```
 
 ### horizontalGap
@@ -81,5 +81,5 @@ Value is multiplied by `8px`, following our specs.
 
 ```jsx
 // Space will be 24px
-<Container horizontalGap={3} />
+<Container horizontalGap={ 3 } />
 ```
