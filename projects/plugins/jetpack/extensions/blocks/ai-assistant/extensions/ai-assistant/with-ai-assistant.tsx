@@ -26,6 +26,10 @@ type StoredPromptProps = {
 	messages: Array< PromptItemProps >;
 };
 
+export function getStoreBlockId( clientId ) {
+	return `ai-assistant-block-${ clientId }`;
+}
+
 /*
  * An identifier to use on the extension error notices,
  * so a existing notice with the same ID gets replaced
@@ -135,14 +139,25 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const autoRequestPrompt = {
+				const newAIAssistantBlock = transfromToAIAssistantBlock( { content }, { blockType } );
+
+				/*
+				 * Store in the local storage the client id
+				 * of the block that need to auto-trigger the AI Assistant request.
+				 * @todo: find a better way to update the content,
+				 * probably using a new store triggering an action.
+				 */
+
+				// Storage client Id, prompt type, and options.
+				const storeObject = {
+					clientId: props.clientId,
 					type: promptType,
 					options,
 				};
 
-				const newAIAssistantBlock = transfromToAIAssistantBlock(
-					{ content, autoRequestPrompt },
-					{ blockType }
+				localStorage.setItem(
+					getStoreBlockId( newAIAssistantBlock.clientId ),
+					JSON.stringify( storeObject )
 				);
 
 				replaceBlock( props.clientId, newAIAssistantBlock );
