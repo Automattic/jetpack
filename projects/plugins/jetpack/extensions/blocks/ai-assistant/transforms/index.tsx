@@ -7,15 +7,17 @@ import TurndownService from 'turndown';
  * Internal dependencies
  */
 import { blockName } from '..';
-import {
-	EXTENDED_BLOCKS,
-	ExtendedBlockProp,
-	isPossibleToExtendBlock,
-} from '../extensions/ai-assistant';
+import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
 /**
  * Types
  */
-import { PromptItemProps } from '../lib/prompt';
+import type { ExtendedBlockProp } from '../extensions/ai-assistant';
+import type { PromptItemProps } from '../lib/prompt';
+
+type transfromToAIAssistantBlockOptionsProps = {
+	blockType: ExtendedBlockProp;
+	autoRequestPrompt?: string;
+};
 
 const turndownService = new TurndownService( { emDelimiter: '_', headingStyle: 'atx' } );
 
@@ -24,12 +26,20 @@ const from = [];
 /**
  * Return an AI Assistant block instance from a given block type.
  *
- * @param {object} attrs                - Block attributes.
- * @param {ExtendedBlockProp} blockType - Block type.
- * @returns {object}                      AI Assistant block instance.
+ * @param {object} attrs                                      - Block attributes.
+ * @param {transfromToAIAssistantBlockOptionsProps} blockType - Block type.
+ * @returns {object}                                            AI Assistant block instance.
  */
+<<<<<<< HEAD
 export function transfromToAIAssistantBlock( attrs, blockType: ExtendedBlockProp ) {
 	const { content, ...otherAttrs } = attrs;
+=======
+export function transfromToAIAssistantBlock(
+	attrs,
+	{ blockType }: transfromToAIAssistantBlockOptionsProps
+) {
+	const { content, ...restAttrs } = attrs;
+>>>>>>> 5bdb725a5a (change transfromToAIAssistantBlockOptionsProps API)
 	// Create a temporary block to get the HTML content.
 	const temporaryBlock = createBlock( blockType, { content } );
 	let htmlContent = getBlockContent( temporaryBlock );
@@ -72,7 +82,7 @@ for ( const blockType of EXTENDED_BLOCKS ) {
 		type: 'block',
 		blocks: [ blockType ],
 		isMatch: () => isPossibleToExtendBlock(),
-		transform: attrs => transfromToAIAssistantBlock( attrs, blockType ),
+		transform: attrs => transfromToAIAssistantBlock( attrs, { blockType } ),
 	} );
 }
 
