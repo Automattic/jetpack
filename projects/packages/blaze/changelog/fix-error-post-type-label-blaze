@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid errors when the post type label is not defined.
