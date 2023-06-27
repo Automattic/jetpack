@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added a new callable to the whitelist for get_loaded_extensions().

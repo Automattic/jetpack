@@ -293,40 +293,104 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.3-a.7 - 2023-06-19
+### 12.3-beta - 2023-06-26
 #### Enhancements
 - AI Assistant: add and use ImproveToolbarDropdownMenu in block toolbar.
+- AI Assistant: add a specific delimiter for content in the prompts.
 - AI Assistant: add Expand option into AI Assistant dropdown menu.
+- AI Assistant: add keyboard shortcuts.
 - AI Assistant: add Summarize option to the AI Assistant dropdown menu.
 - AI Assistant: add tone into AI Assistant dropdown menu.
+- AI Assistant: add transform from core to AI Assistant block.
 - AI Assistant: add translate option in extensions.
 - AI Assistant: build prompt from AI Assistant toolbar menu.
+- AI Assistant: change delimiter and remove it from responses.
+- AI Assistant: change icon on AI disclaimer message.
 - AI Assistant: collect, store and send prompt history.
 - AI Assistant: create function to build the post data prompt.
+- AI Assistant: disable toolbar tooltip when streaming suggestion.
+- AI Assistant: do not extend if the AI Assistant block is not registered.
 - AI Assistant: extend blocks toolbar.
 - AI Assistant: extract and use block content utils.
+- AI Assistant: fix generating prompt when requesting suggestion.
+- AI Assistant: improve the process of getting post content.
 - AI Assistant: introduce function to create the initial system prompt.
 - AI Assistant: introduce jetpack/ai supports.
 - AI Assistant: iterate over custom hook to request suggestions.
+- AI Assistant: move caret to end of generated content when accepting.
 - AI Assistant: register ai-assistant-support beta extension.
+- AI Assistant: remove page content from prompt.
+- AI Assistant: remove shortcuts labels from block area.
+- AI Assistant: replace tone button icon for clarity.
 - AI Assistant: separate prompt text from relevant content for extensions.
-- AI Assistant: do not extend if the AI Assistant block is not registered.
-- AI Assistant: fix generating prompt when requesting suggestion.
+- AI Assistant: show message when content generated.
+- AI Assistant: tidy some block components.
+- AI Assistant: tweak content generated message.
 - AI Assistant: update block content once AI response is ready.
+- AI Extension: add ask assistant menu option.
+- AI Extension: disable the AI toolbar button when the block doesn't have content.
+- AI Extension: dispatch action to update extended block attributes.
+- AI Extension: do not extend block sidebar.
+- AI Extension: do not extend core blocks when the user decided to hide the AI Assistant block.
+- AI Extension: extend core list item core block.
+- AI Extension: handle errors from extended blocks actions.
+- AI Extension: handle multiple blocks editing.
+- AI Extension: improve block transform process.
+- AI Extension: improve block transform process for Heading core block type.
+- AI Extension: improve prompt when using the AI Assistant in extended blocks.
+- AI Extension: iterate over prompt to try to keep the lang of the content.
+- AI Extension: iterate over spelling and grammar prompt item.
+- AI Extension: move feature from beta to production.
+- AI Extension: populate the prompt with previous messages.
+- AI Extension: reorganize prompt items for the AI extension.
+- AI Extension: tweak the tone prompt.
+- AI Extension: winking toolbar color when requesting.
+- Backup: add video section to Backup connect page.
+- Blocks: add new Tock block to beta blocks.
+- Blocks: load block stylesheets inline when possible for improved performance.
+- Blocks: remove retired Revue Block.
 - Customizer: hide the customizer submenu for block based themes. [#31353, #31376]
+- Newsletters: add an Email Preview feature.
 - Newsletters: silence creation of the default membership product in a newsletter context.
 - Newsletters: update Paid newsletter panel designs.
 - Related Posts: add srcset for the thumbnails.
+- Sharing Buttons: add a Nextdoor sharing button.
 - Social Logos: update to include a Nextdoor and a Fediverse logo.
+- Stats: display the links to a post's stats in the Posts list as soon as the user has access to stats.
 - Subscribers: add menu item to Calypso interface.
 - Tock Block: update the block settings interface.
 
 #### Improved compatibility
+- Blocks: introduce standardized messaging system to display notices when a block is no longer supported on a site.
+- PHP8 compatibility updates. [#31240, #31242, #31243, #31250]
 - Tiled Galleries: avoid PHP deprecation notices on sites using PHP 8.2.
 - WordPress.com Toolbar: avoid PHP warnings with PHP 8.2.
 
 #### Bug fixes
+- AI Assistant: block query requests when upgrade required.
+- AI Assistant: check if the block is in the block editor context before enabling accept title action.
+- AI Assistant: close event stream of completions when the block gets deleted.
+- AI Assistant: fix empty content on P2.
+- AI Assistant: fix translation feature.
+- AI Assistant: request completion JWT token as the user, not the blog.
+- AI Assistant: show Jetpack AI product in the plan products list.
+- AI Extension: extend the block when the edit post store is undefined (P2).
+- AI Extension: use ID on error notices to prevent stacking multiple notices.
+- Connection: fix redirecting users who click back button before approving connection to Jetpack Dashboard.
+- Customizer: fix an issue which was preventing the Customize menu from appearing for plugins that still require it to be present.
+- Dashboard: display an external icon next to the link to the Subscribers list.
+- Markdown Block: render single and double quotes as smart quotes.
+- Memberships: correctly gate posts rendered on pages.
+- Memberships: fix an issue where Jetpack_Memberships::user_can_view_post would cache the wrong value.
+- Memberships: fix potential class not found error.
+- Newsletters: do not display Newsletter plans in the Premium Content and Recurring Payment blocks.
+- Newsletters: make the subscribers reach sentence future-tense for scheduled posts.
+- Newsletters: properly gate newsletters based on the correct subscription product.
 - Newsletters: remove Newsletter column on products post type.
+- Newsletters: show paid subscriber reach numbers in the past tense when the post has been already been published.
+- Newsletters: verify the access level should be gated before checking subscriptions.
+- Social Review Prompt: fix the state so it is shown when Jetpack is also active.
+- Subscriptions: fix visibility misalignment.
 - Tock Block: fix the embed rendering on WordPress.com sites.
 - WPcom: fix output of static script path on WordPress.com sites.
 

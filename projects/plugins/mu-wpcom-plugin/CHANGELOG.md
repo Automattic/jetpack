@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.6.1 - 2023-06-26
+### Changed
+- Updated package dependencies.
+
+## 1.6.0 - 2023-06-26
+### Changed
+- Updated package dependencies. [#31308]
+
+### Fixed
+- Updates package version. [#31191]
+
 ## 1.5.0 - 2023-06-19
 ### Fixed
 - Updates package version to 3.1.0-alpha [#31349]

@@ -2,11 +2,9 @@
  * External dependencies
  */
 import { BlockControls } from '@wordpress/block-editor';
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useState, useRef } from '@wordpress/element';
-import { store as noticesStore } from '@wordpress/notices';
 import React from 'react';
 /**
  * Internal dependencies
@@ -21,15 +19,22 @@ import {
 	getRawTextFromHTML,
 	getTextContentFromSelectedBlocks,
 } from '../../lib/utils/block-content';
+import { transfromToAIAssistantBlock } from '../../transforms';
 /*
  * Types
  */
-import { transfromToAIAssistantBlock } from '../../transforms';
 import type { PromptItemProps, PromptTypeProp } from '../../lib/prompt';
 
 type StoredPromptProps = {
 	messages: Array< PromptItemProps >;
 };
+
+/*
+ * An identifier to use on the extension error notices,
+ * so a existing notice with the same ID gets replaced
+ * by a new one, avoiding the stacking of notices.
+ */
+const AI_ASSISTANT_NOTICE_ID = 'ai-assistant';
 
 /*
  * Extend the withAIAssistant function of the block
@@ -45,8 +50,9 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const { name: blockType } = props;
 
-		const { updateBlockAttributes, removeBlocks, replaceBlock } = useDispatch( blockEditorStore );
-		const { createNotice } = useDispatch( noticesStore );
+		const { updateBlockAttributes, removeBlocks, replaceBlock } =
+			useDispatch( 'core/block-editor' );
+		const { createNotice } = useDispatch( 'core/notices' );
 
 		/*
 		 * Set exclude dropdown options.
@@ -61,6 +67,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			( suggestionError: SuggestionError ) => {
 				createNotice( suggestionError.status, suggestionError.message, {
 					isDismissible: true,
+					id: AI_ASSISTANT_NOTICE_ID,
 				} );
 			},
 			[ createNotice ]
@@ -158,7 +165,7 @@ export const withAIAssistant = createHigherOrderComponent(
 		);
 
 		const replaceWithAiAssistantBlock = useCallback( () => {
-			replaceBlock( props.clientId, transfromToAIAssistantBlock( { content, blockType } ) );
+			replaceBlock( props.clientId, transfromToAIAssistantBlock( { content }, blockType ) );
 		}, [ blockType, content, props.clientId, replaceBlock ] );
 
 		const rawContent = getRawTextFromHTML( props.attributes.content );

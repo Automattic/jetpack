@@ -80,7 +80,7 @@ class Odyssey_Config_Data {
 							'URL'          => site_url(),
 							'jetpack'      => true,
 							'visible'      => true,
-							'capabilities' => $empty_object,
+							'capabilities' => $this->get_current_user_capabilities(),
 							'products'     => array(),
 							'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
 							'options'      => array(
@@ -184,10 +184,38 @@ class Odyssey_Config_Data {
 	 * @return array An array of capabilities.
 	 */
 	protected function get_current_user_capabilities() {
-		$user = wp_get_current_user();
-		if ( ! $user || is_wp_error( $user ) ) {
-			return array();
-		}
-		return $user->allcaps;
+		return array(
+			'edit_pages'          => current_user_can( 'edit_pages' ),
+			'edit_posts'          => current_user_can( 'edit_posts' ),
+			'edit_others_posts'   => current_user_can( 'edit_others_posts' ),
+			'edit_others_pages'   => current_user_can( 'edit_others_pages' ),
+			'delete_posts'        => current_user_can( 'delete_posts' ),
+			'delete_others_posts' => current_user_can( 'delete_others_posts' ),
+			'edit_theme_options'  => current_user_can( 'edit_theme_options' ),
+			'edit_users'          => current_user_can( 'edit_users' ),
+			'list_users'          => current_user_can( 'list_users' ),
+			'manage_categories'   => current_user_can( 'manage_categories' ),
+			'manage_options'      => current_user_can( 'manage_options' ),
+			'moderate_comments'   => current_user_can( 'moderate_comments' ),
+			'activate_wordads'    => current_user_can( 'manage_options' ),
+			'promote_users'       => current_user_can( 'promote_users' ),
+			'publish_posts'       => current_user_can( 'publish_posts' ),
+			'upload_files'        => current_user_can( 'upload_files' ),
+			'delete_users'        => current_user_can( 'delete_users' ),
+			'remove_users'        => current_user_can( 'remove_users' ),
+			'own_site'            => current_user_can( 'manage_options' ), // Administrators are considered owners on site.
+			/**
+			 * Filter whether the Hosting section in Calypso should be available for site.
+			 *
+			 * @module json-api
+			 *
+			 * @since 8.2.0
+			 *
+			 * @param bool $view_hosting Can site access Hosting section. Default to false.
+			 */
+			'view_hosting'        => apply_filters( 'jetpack_json_api_site_can_view_hosting', false ),
+			'view_stats'          => current_user_can( 'view_stats' ),
+			'activate_plugins'    => current_user_can( 'activate_plugins' ),
+		);
 	}
 }

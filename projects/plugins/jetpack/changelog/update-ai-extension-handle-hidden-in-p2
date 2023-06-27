@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-AI Extension: extend the block when the edit post store is undefined (P2)
