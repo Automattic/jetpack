@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Check that the function jetpack_is_atomic_site exists before using it.
