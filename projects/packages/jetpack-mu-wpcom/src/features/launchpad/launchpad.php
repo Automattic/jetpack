@@ -611,12 +611,11 @@ if ( class_exists( 'WPCOM_Launchpad' ) ) {
  */
 function add_launchpad_options_to_jetpack_sync( $allowed_options ) {
 	// We are not either in Simple or Atomic
-	if ( ! function_exists( 'jetpack_is_atomic_site' ) ) {
+	if ( ! class_exists( 'Automattic\Jetpack\Host' ) ) {
 		return $allowed_options;
 	}
 
-	// Bail if not on an Atomic site
-	if ( ! jetpack_is_atomic_site() ) {
+	if ( ! ( new Host() )->is_woa_site() ) {
 		return $allowed_options;
 	}
 
