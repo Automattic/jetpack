@@ -82,6 +82,10 @@ class Jetpack_Subscribe_Modal {
 				)
 			);
 
+			if ( ! $posts ) {
+				return;
+			}
+
 			$subscribe_template = end( $posts );
 
 			$blocks = parse_blocks( $subscribe_template->post_content );
