@@ -3,15 +3,15 @@ import { __ } from '@wordpress/i18n';
 import { FormLabel, FormLegend } from 'components/forms';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React from 'react';
 import { connect } from 'react-redux';
-import { currentThemeSupports, currentThemeIsBlockTheme } from 'state/initial-state';
+import { currentThemeSupports } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
+import CustomCss from './custom-css';
 
 class ThemeEnhancements extends React.Component {
 	/**
@@ -83,14 +83,6 @@ class ThemeEnhancements extends React.Component {
 		} );
 	};
 
-	trackVisitCustomizer = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'visit-customizer',
-			feature: 'custom-css',
-			extra: 'not-supported-link',
-		} );
-	};
-
 	/**
 	 * Get options for initial state.
 	 *
@@ -115,7 +107,6 @@ class ThemeEnhancements extends React.Component {
 		}
 
 		const infScr = this.props.getModule( 'infinite-scroll' );
-		const customCSS = this.props.getModule( 'custom-css' );
 
 		const infiniteScrollDisabledByOverride =
 			'inactive' === this.props.getModuleOverride( 'infinite-scroll' );
@@ -194,44 +185,7 @@ class ThemeEnhancements extends React.Component {
 						) }
 					</SettingsGroup>
 				) }
-				{ ! this.props.isBlockThemeActive && foundCustomCSS && (
-					<SettingsGroup
-						module={ { module: customCSS.module } }
-						support={ {
-							text: customCSS.description,
-							link: getRedirectUrl( 'jetpack-support-custom-css' ),
-						} }
-					>
-						<FormLegend className="jp-form-label-wide">{ customCSS.name }</FormLegend>
-						<p>
-							{ __(
-								'Additional CSS can be added from the Customizer. Enable the enhanced Custom CSS feature below to add additional features.',
-								'jetpack'
-							) + ' ' }
-							<a
-								onClick={ this.trackVisitCustomizer }
-								href={ `${ this.props.siteAdminUrl }customize.php?autofocus%5Bsection%5D=custom_css` }
-								title={ __(
-									'Edit and add CSS directly on your site from the Customizer.',
-									'jetpack'
-								) }
-							>
-								{ __( 'Access the Customizer here.', 'jetpack' ) }
-							</a>
-						</p>
-						<ModuleToggle
-							slug="custom-css"
-							activated={ !! this.props.getOptionValue( 'custom-css' ) }
-							toggling={ this.props.isSavingAnyOption( [ 'custom-css' ] ) }
-							disabled={ this.props.isSavingAnyOption( [ 'custom-css' ] ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Enhance CSS customization panel', 'jetpack' ) }
-							</span>
-						</ModuleToggle>
-					</SettingsGroup>
-				) }
+				{ foundCustomCSS && <CustomCss /> }
 			</SettingsCard>
 		);
 	}
@@ -240,7 +194,6 @@ class ThemeEnhancements extends React.Component {
 export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
-		isBlockThemeActive: currentThemeIsBlockTheme( state ),
 		isInfiniteScrollSupported: currentThemeSupports( state, 'infinite-scroll' ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 	};
