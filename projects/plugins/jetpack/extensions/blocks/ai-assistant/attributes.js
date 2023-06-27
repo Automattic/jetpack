@@ -16,6 +16,10 @@ export default {
 		default: [],
 	},
 
+	autoRequestPrompt: {
+		type: 'string',
+	},
+
 	messages: {
 		type: 'array',
 		default: [],
