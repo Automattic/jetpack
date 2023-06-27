@@ -4,12 +4,33 @@
 
 ## 12.3-beta - 2023-06-26
 ### Enhancements
+- AI Assistant: extend AI features to select core blocks.
+- AI Extension: add ask assistant menu option. [#31568]
+- Blocks: add a new Tock block. [#31303]
+- Newsletters: add an Email Preview feature. [#31021]
+- Sharing Buttons: add a Nextdoor sharing button. [#31537]
+
+### Improved compatibility
+- Blocks: introduce standardized messaging system to display notices when a block is no longer supported on a site. [#31463]
+- Blocks: remove retired Revue Block. [#31463]
+
+### Bug fixes
+- AI Assistant: close event stream of completions when the block gets deleted. [#31447]
+- AI Assistant: fix empty content on P2. [#31561]
+- AI Extension: extend the block when the edit post store is undefined (P2). [#31563]
+- AI Extension: use ID on error notices to prevent stacking multiple notices. [#31584]
+- Customizer: fix an issue which was preventing the Customize menu from appearing for plugins that still require it to be present. [#31452]
+- Newsletters: properly gate newsletters based on the correct subscription product. [#31450]
+- Social Review Prompt: fix the state so it is shown when Jetpack is also active. [#31456]
+- Subscriptions: fix visibility misalignment. [#31544]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: replace imported store constants with strings. [#31585]
 - AI Assistant: add a specific delimiter for content in the prompts. [#31515]
 - AI Assistant: add transform from core to AI Assistant block. [#31442]
 - AI Assistant: change delimiter and remove it from responses. [#31518]
 - AI Assistant: disable toolbar tooltip when streaming suggestion. [#31581]
 - AI Assistant: remove page content from prompt. [#31465]
-- AI Extension: add ask assistant menu option. [#31568]
 - AI Extension: disable the AI toolbar button when the block doesn't have content. [#31559]
 - AI Extension: dispatch action to update extended block attributes. [#31437]
 - AI Extension: do not extend core blocks when the user decided to hide the AI Assistant block. [#31557]
@@ -27,25 +48,6 @@
 - AI Extension: tweak the tone prompt. [#31466]
 - AI Extension: winking toolbar color when requesting. [#31474]
 - AI Extension: do not extend block sidebar. [#31476]
-- Blocks: remove retired Revue Block. [#31463]
-- Newsletters: add an Email Preview feature. [#31021]
-- Sharing Buttons: add a Nextdoor sharing button. [#31537]
-
-### Improved compatibility
-- Blocks: introduce standardized messaging system to display notices when a block is no longer supported on a site. [#31463]
-
-### Bug fixes
-- AI Assistant: close event stream of completions when the block gets deleted. [#31447]
-- AI Assistant: fix empty content on P2. [#31561]
-- AI Extension: extend the block when the edit post store is undefined (P2). [#31563]
-- AI Extension: use ID on error notices to prevent stacking multiple notices. [#31584]
-- Customizer: fix an issue which was preventing the Customize menu from appearing for plugins that still require it to be present. [#31452]
-- Newsletters: properly gate newsletters based on the correct subscription product. [#31450]
-- Social Review Prompt: fix the state so it is shown when Jetpack is also active. [#31456]
-- Subscriptions: fix visibility misalignment. [#31544]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Assistant: replace imported store constants with strings. [#31585]
 - Blaze: introduce module, instead of automatically initializing the feature. [#31479]
 - Connection: update visual used in banner. [#31440]
 - Dependency update. [#31394]

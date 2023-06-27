@@ -296,20 +296,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 ### 12.3-beta - 2023-06-26
 #### Enhancements
 - AI Assistant: add and use ImproveToolbarDropdownMenu in block toolbar.
-- AI Assistant: add a specific delimiter for content in the prompts.
 - AI Assistant: add Expand option into AI Assistant dropdown menu.
 - AI Assistant: add keyboard shortcuts.
 - AI Assistant: add Summarize option to the AI Assistant dropdown menu.
 - AI Assistant: add tone into AI Assistant dropdown menu.
-- AI Assistant: add transform from core to AI Assistant block.
 - AI Assistant: add translate option in extensions.
 - AI Assistant: build prompt from AI Assistant toolbar menu.
-- AI Assistant: change delimiter and remove it from responses.
 - AI Assistant: change icon on AI disclaimer message.
 - AI Assistant: collect, store and send prompt history.
 - AI Assistant: create function to build the post data prompt.
-- AI Assistant: disable toolbar tooltip when streaming suggestion.
 - AI Assistant: do not extend if the AI Assistant block is not registered.
+- AI Assistant: extend AI features to select core blocks.
 - AI Assistant: extend blocks toolbar.
 - AI Assistant: extract and use block content utils.
 - AI Assistant: fix generating prompt when requesting suggestion.
@@ -319,7 +316,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - AI Assistant: iterate over custom hook to request suggestions.
 - AI Assistant: move caret to end of generated content when accepting.
 - AI Assistant: register ai-assistant-support beta extension.
-- AI Assistant: remove page content from prompt.
 - AI Assistant: remove shortcuts labels from block area.
 - AI Assistant: replace tone button icon for clarity.
 - AI Assistant: separate prompt text from relevant content for extensions.
@@ -328,27 +324,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - AI Assistant: tweak content generated message.
 - AI Assistant: update block content once AI response is ready.
 - AI Extension: add ask assistant menu option.
-- AI Extension: disable the AI toolbar button when the block doesn't have content.
-- AI Extension: dispatch action to update extended block attributes.
-- AI Extension: do not extend block sidebar.
-- AI Extension: do not extend core blocks when the user decided to hide the AI Assistant block.
-- AI Extension: extend core list item core block.
-- AI Extension: handle errors from extended blocks actions.
-- AI Extension: handle multiple blocks editing.
-- AI Extension: improve block transform process.
-- AI Extension: improve block transform process for Heading core block type.
-- AI Extension: improve prompt when using the AI Assistant in extended blocks.
-- AI Extension: iterate over prompt to try to keep the lang of the content.
-- AI Extension: iterate over spelling and grammar prompt item.
-- AI Extension: move feature from beta to production.
-- AI Extension: populate the prompt with previous messages.
-- AI Extension: reorganize prompt items for the AI extension.
-- AI Extension: tweak the tone prompt.
-- AI Extension: winking toolbar color when requesting.
 - Backup: add video section to Backup connect page.
+- Blocks: add a new Tock block.
 - Blocks: add new Tock block to beta blocks.
 - Blocks: load block stylesheets inline when possible for improved performance.
-- Blocks: remove retired Revue Block.
 - Customizer: hide the customizer submenu for block based themes. [#31353, #31376]
 - Newsletters: add an Email Preview feature.
 - Newsletters: silence creation of the default membership product in a newsletter context.
@@ -362,6 +341,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Improved compatibility
 - Blocks: introduce standardized messaging system to display notices when a block is no longer supported on a site.
+- Blocks: remove retired Revue Block.
 - PHP8 compatibility updates. [#31240, #31242, #31243, #31250]
 - Tiled Galleries: avoid PHP deprecation notices on sites using PHP 8.2.
 - WordPress.com Toolbar: avoid PHP warnings with PHP 8.2.
