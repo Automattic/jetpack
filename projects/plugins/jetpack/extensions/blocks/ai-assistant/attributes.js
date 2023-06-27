@@ -17,7 +17,7 @@ export default {
 	},
 
 	autoRequestPrompt: {
-		type: 'string',
+		type: 'object',
 	},
 
 	messages: {
