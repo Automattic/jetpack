@@ -32,9 +32,11 @@ class Jetpack_Subscribe_Modal {
 	 * Jetpack_Subscribe_Modal class constructor.
 	 */
 	public function __construct() {
-		add_action( 'wp_loaded', array( $this, 'wpcom_create_subscribe_template' ) );
-		add_action( 'wp_footer', array( $this, 'wpcom_add_subscribe_modal_to_frontend' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'wpcom_enqueue_subscribe_modal_assets' ) );
+		if ( $this->should_enable_subscriber_modal() ) {
+			add_action( 'wp_loaded', array( $this, 'wpcom_create_subscribe_template' ) );
+			add_action( 'wp_footer', array( $this, 'wpcom_add_subscribe_modal_to_frontend' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'wpcom_enqueue_subscribe_modal_assets' ) );
+		}
 	}
 
 	/**
@@ -44,25 +46,23 @@ class Jetpack_Subscribe_Modal {
 	 * @return void
 	 */
 	public function wpcom_create_subscribe_template() {
-		if ( $this->should_enable_subscriber_modal() ) {
-			$post = get_page_by_path( $this->get_subscribe_template_slug(), OBJECT, 'wp_template_part' );
+		$post = get_page_by_path( $this->get_subscribe_template_slug(), OBJECT, 'wp_template_part' );
 
-			if ( ! $post ) {
-				$template = array(
-					'slug'         => $this->get_subscribe_template_slug(),
-					'post_name'    => $this->get_subscribe_template_slug(),
-					'post_title'   => __( 'Subscribe Modal', 'jetpack' ),
-					'post_content' => $this->get_subscribe_template_content(),
-					'post_status'  => 'publish',
-					'post_author'  => 1,
-					'post_type'    => 'wp_template_part',
-					'scope'        => array(),
-					'tax_input'    => array(
-						'wp_theme' => get_option( 'stylesheet' ),
-					),
-				);
-				wp_insert_post( $template );
-			}
+		if ( ! $post ) {
+			$template = array(
+				'slug'         => $this->get_subscribe_template_slug(),
+				'post_name'    => $this->get_subscribe_template_slug(),
+				'post_title'   => __( 'Subscribe Modal', 'jetpack' ),
+				'post_content' => $this->get_subscribe_template_content(),
+				'post_status'  => 'publish',
+				'post_author'  => 1,
+				'post_type'    => 'wp_template_part',
+				'scope'        => array(),
+				'tax_input'    => array(
+					'wp_theme' => get_option( 'stylesheet' ),
+				),
+			);
+			wp_insert_post( $template );
 		}
 	}
 
@@ -72,12 +72,7 @@ class Jetpack_Subscribe_Modal {
 	 * @return void
 	 */
 	public function wpcom_add_subscribe_modal_to_frontend() {
-		if (
-			$this->should_enable_subscriber_modal() &&
-			! is_admin() &&
-			is_single() &&
-			'post' === get_post_type()
-		) {
+		if ( $this->is_front_end_single_post() ) {
 			$posts = get_posts(
 				array(
 					'post_type'   => 'wp_template_part',
@@ -169,7 +164,7 @@ class Jetpack_Subscribe_Modal {
 	 * @return void
 	 */
 	public function wpcom_enqueue_subscribe_modal_assets() {
-		if ( $this->should_enable_subscriber_modal() && ! is_admin() ) {
+		if ( $this->is_front_end_single_post() ) {
 			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
 			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array(), JETPACK__VERSION, true );
 		}
@@ -189,6 +184,19 @@ class Jetpack_Subscribe_Modal {
 		$is_fse_theme       = wp_is_block_theme();
 
 		return ( $is_lettre || $is_newsletter_site ) && $is_fse_theme && $is_modal_enabled;
+	}
+
+	/**
+	 * Returns true if we we are on frontend of single post.
+	 * Note: Because of how WordPress works, this function will
+	 * only return the correct value after a certain point in the
+	 * WordPress loading process. You cannot, for example, use this
+	 * method in the class contructor method - it will always return false.
+	 *
+	 * @return bool
+	 */
+	public function is_front_end_single_post() {
+		return ! is_admin() && is_single() && 'post' === get_post_type();
 	}
 
 	/**
