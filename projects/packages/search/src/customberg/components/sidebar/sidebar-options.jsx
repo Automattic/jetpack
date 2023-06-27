@@ -93,6 +93,9 @@ export default function SidebarOptions() {
 						{ label: __( 'Relevance (recommended)', 'jetpack-search-pkg' ), value: 'relevance' },
 						{ label: __( 'Newest first', 'jetpack-search-pkg' ), value: 'newest' },
 						{ label: __( 'Oldest first', 'jetpack-search-pkg' ), value: 'oldest' },
+						{ label: __( 'Rating', 'jetpack-search-pkg' ), value: 'rating_desc' },
+						{ label: __( 'Price: low to high', 'jetpack-search-pkg' ), value: 'price_asc' },
+						{ label: __( 'Price: high to low', 'jetpack-search-pkg' ), value: 'price_desc' },
 					] }
 					onChange={ setSort }
 				/>
