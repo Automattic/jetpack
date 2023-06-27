@@ -705,9 +705,8 @@ function wpcom_is_add_new_page_completed() {
  *
  * @param int    $post_id The ID of the post being updated.
  * @param object $post    The post object.
- * @param bool   $update  Whether this is an existing post being updated or not.
  */
-function wpcom_add_new_page_check( $post_id, $post, $update ) {
+function wpcom_add_new_page_check( $post_id, $post ) {
 	// Don't do anything if the task is already complete.
 	if ( wpcom_is_launchpad_task_complete( 'add_new_page' ) ) {
 		return;
