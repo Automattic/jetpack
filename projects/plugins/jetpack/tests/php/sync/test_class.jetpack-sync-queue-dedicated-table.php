@@ -172,13 +172,13 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 		 * @var Queue $queue_table
 		 */
 		$queue_table = $this->getMockBuilder( 'Automattic\\Jetpack\\Sync\\Queue' )
-							->setMethods( array( 'should_use_dedicated_table' ) )
+							->setMethods( array( 'should_use_dedicated_table', 'dedicated_table_enabled' ) )
 							->setConstructorArgs( array( 'my_queue' ) )
 							->disableOriginalConstructor() // Need to disable the constructor to test the method.
 							->getMock();
 
 		$queue_table->expects( $this->once() )
-					->method( 'should_use_dedicated_table' )
+					->method( 'dedicated_table_enabled' )
 					->willReturn( 'test_value' );
 
 		$result = $queue_table->maybe_initialize_dedicated_sync_table();
@@ -197,13 +197,13 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 		 * @var Queue $queue_table
 		 */
 		$queue_table = $this->getMockBuilder( 'Automattic\\Jetpack\\Sync\\Queue' )
-							->setMethods( array( 'should_use_dedicated_table' ) )
+							->setMethods( array( 'should_use_dedicated_table', 'dedicated_table_enabled' ) )
 							->setConstructorArgs( array( 'my_queue' ) )
 							->disableOriginalConstructor() // Need to disable the constructor to test the method.
 							->getMock();
 
 		$queue_table->expects( $this->never() )
-					->method( 'should_use_dedicated_table' );
+					->method( 'dedicated_table_enabled' );
 
 		/**
 		 * @var Queue_Storage_Table $queue_table_dedicated
@@ -245,13 +245,13 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 		 * @var Queue $queue_table
 		 */
 		$queue_table = $this->getMockBuilder( 'Automattic\\Jetpack\\Sync\\Queue' )
-							->setMethods( array( 'should_use_dedicated_table' ) )
+							->setMethods( array( 'should_use_dedicated_table', 'dedicated_table_enabled' ) )
 							->setConstructorArgs( array( 'my_queue' ) )
 							->disableOriginalConstructor() // Need to disable the constructor to test the method.
 							->getMock();
 
 		$queue_table->expects( $this->never() )
-					->method( 'should_use_dedicated_table' );
+					->method( 'dedicated_table_enabled' );
 
 		/**
 		 * @var Queue_Storage_Table $queue_table_dedicated
@@ -292,13 +292,13 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 		 * @var Queue $queue_table
 		 */
 		$queue_table = $this->getMockBuilder( 'Automattic\\Jetpack\\Sync\\Queue' )
-							->setMethods( array( 'should_use_dedicated_table' ) )
+							->setMethods( array( 'should_use_dedicated_table', 'dedicated_table_enabled' ) )
 							->setConstructorArgs( array( 'my_queue' ) )
 							->disableOriginalConstructor() // Need to disable the constructor to test the method.
 							->getMock();
 
 		$queue_table->expects( $this->never() )
-					->method( 'should_use_dedicated_table' );
+					->method( 'dedicated_table_enabled' );
 
 		/**
 		 * @var Queue_Storage_Table $queue_table_dedicated

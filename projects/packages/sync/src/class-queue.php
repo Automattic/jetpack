@@ -81,9 +81,12 @@ class Queue {
 
 		/**
 		 * If the Dedicated table is not force-disabled (status = -1), we can try to initialize it.
+		 *
+		 * If initialization succeeds, we can safely use it.
+		 *
+		 * Initialization will return the last status set if it's not in the timeout period.
 		 */
-		if ( ! self::dedicated_table_disabled() ) {
-			$this->maybe_initialize_dedicated_sync_table();
+		if ( $this->should_use_dedicated_table() ) {
 			$this->queue_storage = new Queue_Storage_Table( $this->id );
 		}
 
@@ -93,6 +96,25 @@ class Queue {
 		if ( ! $this->queue_storage ) {
 			$this->queue_storage = new Queue_Storage_Options( $this->id );
 		}
+	}
+
+	/**
+	 * Check if the dedicated table should be used at all and try to initialize it if it's not disabled.
+	 *
+	 * @return bool If the dedicated table can be used.
+	 *
+	 * @throws \Exception If something fails during initialization.
+	 */
+	public function should_use_dedicated_table() {
+		if ( self::dedicated_table_disabled() ) {
+			return false;
+		}
+
+		if ( ! $this->maybe_initialize_dedicated_sync_table() ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -120,7 +142,7 @@ class Queue {
 			&& ( time() - $has_checked_timestamp < self::$dedicated_table_last_check_timeout )
 		) {
 			// We have checked and let's return the last status.
-			return $this->should_use_dedicated_table();
+			return $this->dedicated_table_enabled();
 		}
 
 		/**
@@ -206,11 +228,11 @@ class Queue {
 	}
 
 	/**
-	 * Check if we should be using the dedicated table or not.
+	 * Check if the dedicated table is enabled or not.
 	 *
 	 * @return bool
 	 */
-	public function should_use_dedicated_table() {
+	public function dedicated_table_enabled() {
 		// TODO move this to a Jetpack setting so we can control it from WPCOM
 		$option_value = get_option( self::$use_dedicated_table_option_name, null );
 
@@ -362,7 +384,22 @@ class Queue {
 	 * @return int
 	 */
 	public function size() {
-		return $this->queue_storage->get_item_count();
+		$total_size = 0;
+
+		/**
+		 * Need to check both queues to see if there are items in them.
+		 *
+		 * The dedicated table will be checked in any case if it's not disabled.
+		 */
+		if ( ! self::dedicated_table_disabled() ) {
+			$dedicated_table_storage = new Queue_Storage_Table( $this->id );
+			$total_size             += $dedicated_table_storage->get_item_count();
+		}
+
+		$options_table_storage = new Queue_Storage_Options( $this->id );
+		$total_size           += $options_table_storage->get_item_count();
+
+		return $total_size;
 	}
 
 	/**
@@ -470,48 +507,81 @@ class Queue {
 			return $result;
 		}
 
-		// Get the map of buffer_id -> memory_size.
-		$items_with_size = $this->queue_storage->get_items_ids_with_size( $max_buffer_size );
+		// TODO add proper documentation here
+		$storage_with_priority = array();
 
-		if ( ! is_countable( $items_with_size ) ) {
-			return false;
+		/**
+		 * If we're using the Dedicated table, let's empty out the options queue first.
+		 * If the options are empty, then we can move over to the dedicated table.
+		 */
+
+		if ( ! self::dedicated_table_disabled() ) {
+			if ( $this->should_use_dedicated_table() ) {
+				$storage_with_priority[] = new Queue_Storage_Options( $this->id );
+				$storage_with_priority[] = new Queue_Storage_Table( $this->id );
+
+			} else {
+				$storage_with_priority[] = new Queue_Storage_Options( $this->id );
+				$storage_with_priority[] = new Queue_Storage_Table( $this->id );
+			}
+		} else {
+			// If the dedicated table is disabled, use only the options table
+			$storage_with_priority[] = new Queue_Storage_Options( $this->id );
 		}
 
-		if ( count( $items_with_size ) === 0 ) {
-			return false;
-		}
-
+		// How much memory is currently being used by the items.
 		$total_memory = 0;
 
-		$item_ids_to_fetch = array();
+		// Store the items to return
+		$items = array();
 
-		foreach ( $items_with_size as $id => $item_with_size ) {
-			$total_memory += $item_with_size->value_size;
+		foreach ( $storage_with_priority as $storage_backend ) {
+			$current_items_ids = $storage_backend->get_items_ids_with_size( $max_buffer_size );
 
-			// If this is the first item and it exceeds memory, allow loop to continue
-			// we will exit on the next iteration instead.
-			if ( $total_memory > $max_memory && $id > 0 ) {
-				break;
+			// If no valid items are returned or no items are returned, continue.
+			if ( ! is_countable( $current_items_ids ) || count( $current_items_ids ) === 0 ) {
+				continue;
 			}
 
-			$item_ids_to_fetch[] = $item_with_size->id;
-		}
+			$item_ids_to_fetch = array();
 
-		// TODO add chunking so we don't try to fetch too many items or create too large of a query.
+			foreach ( $current_items_ids as $id => $item_with_size ) {
+				$total_memory += $item_with_size->value_size;
 
-		$items = $this->queue_storage->fetch_items_by_ids( $item_ids_to_fetch );
-		$items_count = is_countable( $items ) ? count( $items ) : 0;
+				// If this is the first item and it exceeds memory, allow loop to continue
+				// we will exit on the next iteration instead.
+				if ( $total_memory > $max_memory && $id > 0 ) {
+					break;
+				}
 
-		if ( $items_count > 0 ) {
-			foreach ( $items as $item ) {
-				// @codingStandardsIgnoreStart
-				$item->value = @unserialize( $item->value );
-				// @codingStandardsIgnoreEnd
+				$item_ids_to_fetch[] = $item_with_size->id;
+			}
+
+			$current_items = $storage_backend->fetch_items_by_ids( $item_ids_to_fetch );
+
+			$items_count = is_countable( $current_items ) ? count( $current_items ) : 0;
+
+			if ( $items_count > 0 ) {
+				/**
+				 * Save some memory by moving things one by one to the array of items being returned, instead of
+				 * unserializing all and then merging them with other items.
+				 *
+				 * PHPCS ignore is because this is the expected behavior - we're assigning a variable in the condition part of the loop.
+				 */
+				// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+				while ( ( $current_item = array_shift( $current_items ) ) !== null ) {
+					// @codingStandardsIgnoreStart
+					$current_item->value = unserialize( $current_item->value );
+					// @codingStandardsIgnoreEnd
+
+					$items[] = $current_item;
+				}
 			}
 		}
 
-		if ( $items_count === 0 ) {
+		if ( count( $items ) === 0 ) {
 			$this->delete_checkout_id();
+
 			return false;
 		}
 
@@ -581,7 +651,16 @@ class Queue {
 			return 0;
 		}
 
-		return $this->queue_storage->delete_items_by_ids( $ids );
+		// Options table delete
+		$options_storage = new Queue_Storage_Options( $this->id );
+		$options_storage->delete_items_by_ids( $ids );
+
+		if ( $this->should_use_dedicated_table() ) {
+			$table_storage = new Queue_Storage_Table( $this->id );
+			$table_storage->delete_items_by_ids( $ids );
+		}
+
+		return true;
 	}
 
 	/**

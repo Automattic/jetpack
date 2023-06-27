@@ -79,7 +79,7 @@ class Queue_Storage_Table {
 			  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
 			  `queue_id` varchar(50) NOT NULL,
 			  `event_id` varchar(100) NOT NULL,
-			  `event_payload` text NOT NULL,
+			  `event_payload` longtext NOT NULL,
 			  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
 			  `object_type` varchar(100) DEFAULT NULL,
 			  `parent_object_id` bigint(20) DEFAULT NULL,
