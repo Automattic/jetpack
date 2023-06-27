@@ -76,7 +76,7 @@ class Jetpack_Subscribe_Modal {
 			$this->should_enable_subscriber_modal() &&
 			! is_admin() &&
 			is_single() &&
-			'post' == get_post_type()
+			'post' === get_post_type()
 		) {
 			$posts = get_posts(
 				array(
