@@ -452,7 +452,7 @@ export function getPrompt(
 	options: PromptOptionsProps
 ): Array< PromptItemProps > {
 	debug( 'Addressing prompt type: %o %o', type, options );
-	const { prevMessages } = options;
+	const { prevMessages = [] } = options;
 
 	const context =
 		'You are an advanced polyglot ghostwriter.' +
