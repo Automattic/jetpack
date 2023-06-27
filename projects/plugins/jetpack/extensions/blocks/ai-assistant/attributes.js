@@ -16,10 +16,6 @@ export default {
 		default: [],
 	},
 
-	autoRequestPrompt: {
-		type: 'object',
-	},
-
 	messages: {
 		type: 'array',
 		default: [],
