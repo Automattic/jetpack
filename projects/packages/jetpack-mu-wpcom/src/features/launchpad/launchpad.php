@@ -135,14 +135,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'design_edited',
 				'domain_claim',
 				'verify_email',
-<<<<<<< HEAD
 				'domain_customize',
-||||||| parent of 4034fe2df7 ([not verified] New task for adding a page to a site)
-				'domain_upsell',
-=======
-				'domain_upsell',
 				'add_new_page',
->>>>>>> 4034fe2df7 ([not verified] New task for adding a page to a site)
 				'drive_traffic',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
