@@ -55,11 +55,16 @@ export const withAIAssistant = createHigherOrderComponent(
 		const { createNotice } = useDispatch( 'core/notices' );
 
 		/*
-		 * Set exclude dropdown options.
+		 * Handle AI Extension options per block type.
 		 * - Exclude "Ask AI Assistant" for core/list-item block.
 		 */
 		const exclude = [];
 		if ( blockType === 'core/list-item' ) {
+			/*
+			 * Exclude "Ask AI Assistant" for core/list-item block.
+			 * List block only accept ListItem as children (block template).
+			 * Thus, it isn't possible to add an AI Assistant block as a child.
+			 */
 			exclude.push( KEY_ASK_AI_ASSISTANT );
 		}
 
@@ -164,9 +169,23 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ clientIds, content, request ]
 		);
 
+		/*
+		 * Replace the current block(s) with an AI Assistant block.
+		 * If it's a multiple blocks selection,
+		 * only the first block will be replaced.
+		 * The rest of the blocks will be removed.
+		 */
 		const replaceWithAiAssistantBlock = useCallback( () => {
-			replaceBlock( props.clientId, transfromToAIAssistantBlock( { content }, blockType ) );
-		}, [ blockType, content, props.clientId, replaceBlock ] );
+			const [ firstClientId, ...restClientIds ] = clientIds;
+			replaceBlock( firstClientId, transfromToAIAssistantBlock( { content }, blockType ) );
+
+			// Remove the rest of the block in case there are more than one.
+			if ( restClientIds.length ) {
+				removeBlocks( restClientIds ).then( () => {
+					clientIdsRef.current = [ firstClientId ];
+				} );
+			}
+		}, [ blockType, clientIds, content, removeBlocks, replaceBlock ] );
 
 		const rawContent = getRawTextFromHTML( props.attributes.content );
 
