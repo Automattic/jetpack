@@ -373,6 +373,16 @@ export function currentThemeSupports( state, feature ) {
 }
 
 /**
+ * Check that the current theme is a block theme.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the current theme is a block theme, false otherwise.
+ */
+export function currentThemeIsBlockTheme( state ) {
+	return get( state.jetpack.initialState.themeData, [ 'isBlockTheme' ], false );
+}
+
+/**
  * Check if backups UI should be displayed.
  *
  * @param {object} state Global state tree

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard.
