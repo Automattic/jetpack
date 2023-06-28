@@ -10,13 +10,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import {
-	Fragment,
-	createInterpolateElement,
-	useMemo,
-	useCallback,
-	useEffect,
-} from '@wordpress/element';
+import { Fragment, createInterpolateElement, useMemo, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useDismissNotice from '../../hooks/use-dismiss-notice';
@@ -60,7 +54,7 @@ export default function PublicizeForm( {
 	connectionsAdminUrl,
 	adminUrl,
 } ) {
-	const { connections, toggleById, hasConnections, enabledConnections, setConnectionsDisabled } =
+	const { connections, toggleById, hasConnections, enabledConnections } =
 		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
@@ -158,16 +152,15 @@ export default function PublicizeForm( {
 
 	const invalidIds = useMemo( () => Object.keys( validationErrors ), [ validationErrors ] );
 
-	useEffect( () => {
-		setConnectionsDisabled( invalidIds );
-	}, [ invalidIds, setConnectionsDisabled ] );
-
 	const showValidationNotice = numberOfSharesRemaining !== 0 && invalidIds.length > 0;
 
 	const isConnectionEnabled = useCallback(
-		( { enabled, is_healthy = true } ) =>
-			enabled && ! isPublicizeDisabledBySitePlan && false !== is_healthy,
-		[ isPublicizeDisabledBySitePlan ]
+		( { enabled, is_healthy = true, connection_id } ) =>
+			enabled &&
+			! isPublicizeDisabledBySitePlan &&
+			false !== is_healthy &&
+			! validationErrors[ connection_id ],
+		[ isPublicizeDisabledBySitePlan, validationErrors ]
 	);
 
 	return (

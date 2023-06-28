@@ -1,5 +1,5 @@
 import { useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 
 /**
  * Get meta data from a VideoPress video.

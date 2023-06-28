@@ -17,26 +17,6 @@ export function isVideo( mime ) {
 }
 
 /**
- * Returns the currently allowed media types
- *
- * @param {Array} enabledConnections - Currently enabled connections.
- * @returns {Array} Array of allowed types
- */
-export const getAllowedMediaTypes = enabledConnections => {
-	const typeArrays = enabledConnections.map( connection =>
-		RESTRICTIONS[ connection.service_name ]
-			? RESTRICTIONS[ connection.service_name ].allowedMediaTypes
-			: DEFAULT_RESTRICTIONS.allowedMediaTypes
-	);
-
-	if ( typeArrays.length === 0 ) {
-		return DEFAULT_RESTRICTIONS.allowedMediaTypes;
-	}
-
-	return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
-};
-
-/**
  * This function is used to check if the provided image is valid based on it's size and type.
  *
  * @param {number} sizeInMb - The fileSize in bytes.
