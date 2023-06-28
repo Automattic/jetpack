@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
 import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -43,25 +44,43 @@ function CustomCss( props ) {
 		toggleModuleNow,
 	} = props;
 
-	const recommendGlobalStyles = () => {
+	const recommendSiteEditor = () => {
 		return (
 			<p>
 				{ createInterpolateElement(
 					__(
-						'Since you use a Block theme, we recommend that you use Global Styles to customize the look of your site. <a>Access Global styles</a>',
+						'Hurray! Your theme supports site editing with blocks. <a>Tell me more.</a>',
 						'jetpack'
 					),
 					{
 						a: (
 							<a
-								onClick={ trackVisitGlobalStyles }
-								href={ `${ siteAdminUrl }site-editor.php?path=%2Fwp_global_styles&canvas=edit` }
-								title={ __( 'Customize every aspect of your site with Global Styles.', 'jetpack' ) }
+								href="https://wordpress.org/documentation/article/site-editor/"
+								title={ __(
+									'Customize every aspect of your site with the Site Editor.',
+									'jetpack'
+								) }
 							/>
 						),
 					}
 				) }
 			</p>
+		);
+	};
+
+	const siteEditorButton = () => {
+		// If we're using a block theme and the feature is enabled, we don't want to show the button.
+		if ( isBlockThemeActive && customCssActive ) {
+			return null;
+		}
+
+		return (
+			<Button
+				onClick={ trackVisitGlobalStyles }
+				href={ `${ siteAdminUrl }site-editor.php?path=%2Fwp_global_styles&canvas=edit` }
+			>
+				{ __( 'Use Site Editor', 'jetpack' ) }
+			</Button>
 		);
 	};
 
@@ -122,9 +141,10 @@ function CustomCss( props ) {
 			} }
 		>
 			<FormLegend className="jp-form-label-wide">{ name }</FormLegend>
-			{ isBlockThemeActive && recommendGlobalStyles() }
+			{ isBlockThemeActive && recommendSiteEditor() }
 			{ ! isBlockThemeActive && customizerLink() }
 			{ toggleModule() }
+			{ siteEditorButton() }
 		</SettingsGroup>
 	);
 }
