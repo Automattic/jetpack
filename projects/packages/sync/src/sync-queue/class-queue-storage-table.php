@@ -152,17 +152,6 @@ class Queue_Storage_Table {
 	}
 
 	/**
-	 * Disable usage of the dedicated table.
-	 *
-	 * @return void
-	 */
-	public function disable_dedicated_table_usage() {
-		// TODO disable the option to use the table
-		// TODO check if healthy
-		// TODO migrate to the main queue class.
-	}
-
-	/**
 	 * Drop the dedicated table as part of cleanup.
 	 *
 	 * @return bool If the table is cleared. It's using `is_dedicated_table_healthy` to check.
@@ -213,7 +202,7 @@ class Queue_Storage_Table {
 	 * @param int|null $item_count How many items to fetch from the queue.
 	 *                             The parameter is null-able, if no limit on the amount of items.
 	 *
-	 * @return array|object|\stdClass[]|null
+	 * @return array|object|stdClass[]|null
 	 */
 	public function fetch_items( $item_count ) {
 		global $wpdb;
@@ -267,7 +256,7 @@ class Queue_Storage_Table {
 	 *
 	 * @param array $items_ids Items IDs to fetch from the queue.
 	 *
-	 * @return array|object|\stdClass[]|null
+	 * @return array|object|stdClass[]|null
 	 */
 	public function fetch_items_by_ids( $items_ids ) {
 		global $wpdb;
@@ -417,7 +406,7 @@ class Queue_Storage_Table {
 	 *
 	 * @param int $max_count How many items to fetch from the queue.
 	 *
-	 * @return array|object|\stdClass[]|null
+	 * @return array|object|stdClass[]|null
 	 */
 	public function get_items_ids_with_size( $max_count ) {
 		global $wpdb;
