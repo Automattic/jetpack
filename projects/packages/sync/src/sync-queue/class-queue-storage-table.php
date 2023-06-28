@@ -137,7 +137,7 @@ class Queue_Storage_Table {
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$query = $wpdb->query( "SELECT count(`ID`) FROM {$this->table_name}" );
 
-		if ( ! $query ) {
+		if ( $query === false ) {
 			// The query failed to select anything from the table, so there must be an issue reading from it.
 			return false;
 		}
@@ -170,16 +170,9 @@ class Queue_Storage_Table {
 	public function drop_table() {
 		global $wpdb;
 
-		// TODO do we need to check if the table is healthy or not before dropping it?
-		if ( ! $this->is_dedicated_table_healthy() ) {
-			return false;
-		}
-
 		// Ignoring the linting warning, as there's still no placeholder replacement for DB field name.
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( "DROP TABLE {$this->table_name}" );
-
-		return ! $this->is_dedicated_table_healthy();
+		return (bool) $wpdb->query( "DROP TABLE {$this->table_name}" );
 	}
 
 	/**
