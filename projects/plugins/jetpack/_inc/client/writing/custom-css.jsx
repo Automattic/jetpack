@@ -47,41 +47,39 @@ function CustomCss( props ) {
 
 	const recommendSiteEditor = () => {
 		return (
-			<p>
-				{ createInterpolateElement(
-					__(
-						'Hurray! Your theme supports site editing with blocks. <a>Tell me more.</a>',
-						'jetpack'
-					),
-					{
-						a: (
-							<ExternalLink
-								href="https://wordpress.org/documentation/article/site-editor/"
-								title={ __(
-									'Customize every aspect of your site with the Site Editor.',
-									'jetpack'
-								) }
-							/>
+			<div className="jp-custom-css-site-editor">
+				<div className="jp-custom-css-site-editor__text">
+					{ createInterpolateElement(
+						__(
+							'Hurray! Your theme supports site editing with blocks. <a>Tell me more.</a>',
+							'jetpack'
 						),
-					}
+						{
+							a: (
+								<ExternalLink
+									href="https://wordpress.org/documentation/article/site-editor/"
+									title={ __(
+										'Customize every aspect of your site with the Site Editor.',
+										'jetpack'
+									) }
+								/>
+							),
+						}
+					) }
+				</div>
+				{ ! customCssActive && (
+					<div className="jp-custom-css-site-editor__button">
+						<Button
+							rna
+							onClick={ trackVisitGlobalStyles }
+							href={ `${ siteAdminUrl }site-editor.php?path=%2Fwp_global_styles&canvas=edit` }
+							primary={ true }
+						>
+							{ __( 'Use Site Editor', 'jetpack' ) }
+						</Button>
+					</div>
 				) }
-			</p>
-		);
-	};
-
-	const siteEditorButton = () => {
-		// If we're using a block theme and the feature is enabled, we don't want to show the button.
-		if ( isBlockThemeActive && customCssActive ) {
-			return null;
-		}
-
-		return (
-			<Button
-				onClick={ trackVisitGlobalStyles }
-				href={ `${ siteAdminUrl }site-editor.php?path=%2Fwp_global_styles&canvas=edit` }
-			>
-				{ __( 'Use Site Editor', 'jetpack' ) }
-			</Button>
+			</div>
 		);
 	};
 
@@ -145,7 +143,6 @@ function CustomCss( props ) {
 			{ isBlockThemeActive && recommendSiteEditor() }
 			{ ! isBlockThemeActive && customizerLink() }
 			{ toggleModule() }
-			{ siteEditorButton() }
 		</SettingsGroup>
 	);
 }
