@@ -17,6 +17,6 @@ describe( 'load the app', () => {
 		jest.spyOn( storeSelect, 'isShareLimitEnabled' ).mockReset().mockReturnValue( true );
 		jest.spyOn( storeSelect, 'getPluginVersion' ).mockReset().mockReturnValue( version );
 		render( <Admin /> );
-		expect( screen.getByLabelText( `Jetpack Social ${ version }` ) ).toBeInTheDocument();
+		expect( screen.getByText( `Jetpack Social ${ version }` ) ).toBeInTheDocument();
 	} );
 } );
