@@ -139,6 +139,7 @@ abstract class Product {
 			'has_required_plan'        => static::has_required_plan(),
 			'has_required_tier'        => static::has_required_tier(),
 			'manage_url'               => static::get_manage_url(),
+			'purchase_url'             => static::get_purchase_url(),
 			'post_activation_url'      => static::get_post_activation_url(),
 			'standalone_plugin_info'   => static::get_standalone_info(),
 			'class'                    => static::class,
@@ -205,6 +206,16 @@ abstract class Product {
 	 * @return array
 	 */
 	abstract public static function get_pricing_for_ui();
+
+	/**
+	 * Get the URL where the user can purchase the product iff it doesn't have an interstitial page in My Jetpack.
+	 *
+	 * @return ?string
+	 */
+	public static function get_purchase_url() {
+		// Declare as concrete method as most Jetpack products use an interstitial page within My Jetpack.
+		return null;
+	}
 
 	/**
 	 * Get the URL where the user manages the product
