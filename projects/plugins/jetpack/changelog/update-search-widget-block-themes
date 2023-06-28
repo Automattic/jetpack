@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Search: do when using a block theme, do not display a link to add a wSearch widget in the Jetpack dashboard.
+Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard.
