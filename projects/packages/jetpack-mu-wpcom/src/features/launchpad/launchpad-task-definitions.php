@@ -22,6 +22,13 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
 			},
 		),
+		// design_completed checks for task completion while design_selected always returns true.
+		'design_completed'                => array(
+			'get_title'            => function () {
+				return __( 'Select a design', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
@@ -222,11 +229,45 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
+
+		'domain_customize'                => array(
+			'id_map'               => 'domain_customize_deferred',
+			'get_title'            => function () {
+				return __( 'Customize your domain', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_domain_customize_completed',
+			'is_visible_callback'  => 'wpcom_is_domain_customize_task_visible',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
 
 	return array_merge( $extended_task_definitions, $task_definitions );
+}
+
+/**
+ * Record completion event in Tracks if we're running on WP.com.
+ *
+ * @param string $task_id The task ID.
+ * @param array  $extra_props Optional extra arguments to pass to the Tracks event.
+ *
+ * @return void
+ */
+function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() ) {
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return;
+	}
+
+	require_lib( 'tracks/client' );
+
+	tracks_record_event(
+		wp_get_current_user(),
+		'wpcom_launchpad_mark_task_complete',
+		array_merge(
+			array( 'task_id' => $task_id ),
+			$extra_props
+		)
+	);
 }
 
 /**
@@ -253,16 +294,8 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
 	$statuses[ $key ] = true;
 	$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
 
-	// Record the completion event in Tracks if we're running on WP.com.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		require_lib( 'tracks/client' );
-
-		tracks_record_event(
-			wp_get_current_user(),
-			'launchpad_mark_task_completed',
-			array( 'task_id' => $key )
-		);
-	}
+	// Record the completion event in Tracks.
+	wpcom_launchpad_track_completed_task( $key );
 
 	return $result;
 }
@@ -330,7 +363,12 @@ add_action( 'init', 'wpcom_launchpad_init_task_definitions', 11 );
  * @return bool True if successful, false if not.
  */
 function wpcom_mark_launchpad_task_complete_if_active( $task_id ) {
-	return wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id );
+	if ( wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id ) ) {
+		wpcom_launchpad_track_completed_task( $task_id );
+		return true;
+	}
+
+	return false;
 }
 
 /**
@@ -633,3 +671,107 @@ function wpcom_is_domain_claim_completed() {
 
 	return ! empty( $domain_purchases );
 }
+
+/**
+ * Returns if the site has domain or bundle purchases.
+ *
+ * @return array Array of booleans, first value is if the site has a bundle, second is if the site has a domain.
+ */
+function wpcom_domain_customize_check_purchases() {
+	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+		return false;
+	}
+
+	$site_purchases = wpcom_get_site_purchases();
+	$has_bundle     = false;
+	$has_domain     = false;
+
+	foreach ( $site_purchases as $site_purchase ) {
+		if ( 'bundle' === $site_purchase->product_type ) {
+			$has_bundle = true;
+		}
+
+		if ( in_array( $site_purchase->product_type, array( 'domain_map', 'domain_reg' ), true ) ) {
+			$has_domain = true;
+		}
+	}
+
+	return array( $has_bundle, $has_domain );
+}
+
+/**
+ * Determines whether or not domain customize task is complete.
+ *
+ * @param array $task    The Task object.
+ * @param mixed $default The default value.
+ * @return bool True if domain customize task is complete.
+ */
+function wpcom_is_domain_customize_completed( $task, $default ) {
+	$result = wpcom_domain_customize_check_purchases();
+
+	if ( $result === false ) {
+		return false;
+	}
+
+	list( $has_bundle, $has_domain ) = $result;
+
+	// For paid users with a custom domain, show the task as complete.
+	if ( $has_bundle && $has_domain ) {
+		return true;
+	}
+
+	// For everyone else, show the task as incomplete.
+	return $default;
+}
+
+/**
+ * Determines whether or not domain customize task is visible.
+ *
+ * @return bool True if user is on a free plan and didn't purchase domain or if user is on a paid plan and did purchase a domain.
+ */
+function wpcom_is_domain_customize_task_visible() {
+	$result = wpcom_domain_customize_check_purchases();
+
+	if ( $result === false ) {
+		return false;
+	}
+
+	list( $has_bundle, $has_domain ) = $result;
+
+	// Free user who didn't purchase a domain.
+	if ( ! $has_bundle && ! $has_domain ) {
+		return true;
+	}
+
+	// Paid user who purchased a domain.
+	if ( $has_bundle && $has_domain ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Mark `domain_claim`, `domain_upsell`, and `domain_upsell_deferred` tasks complete
+ * when a domain product is activated.
+ *
+ * @param int    $blog_id The blog ID.
+ * @param int    $user_id The user ID.
+ * @param string $product_id The product ID.
+ *
+ * @return void
+ */
+function wpcom_mark_domain_tasks_complete( $blog_id, $user_id, $product_id ) {
+	if ( ! class_exists( 'domains' ) ) {
+		return;
+	}
+
+	if ( ! domains::is_domain_product( $product_id ) ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'domain_claim' );
+	wpcom_mark_launchpad_task_complete( 'domain_upsell' );
+	wpcom_mark_launchpad_task_complete( 'domain_upsell_deferred' );
+}
+add_action( 'activate_product', 'wpcom_mark_domain_tasks_complete', 10, 6 );

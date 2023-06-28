@@ -290,6 +290,7 @@ class Defaults {
 	 * @var array Default whitelist of callables.
 	 */
 	public static $default_callable_whitelist = array(
+		'get_loaded_extensions'            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_loaded_extensions' ),
 		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
 		'get_themes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
@@ -399,6 +400,7 @@ class Defaults {
 		'flamingo_outbound',
 		'http',
 		'idx_page',
+		'jetpack_inspect_log', // Jetpack Inspect dev tool. p1HpG7-nkd-p2
 		'jetpack_migration',
 		'jp_img_sitemap',
 		'jp_img_sitemap_index',

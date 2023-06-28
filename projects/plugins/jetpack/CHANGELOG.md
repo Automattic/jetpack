@@ -2,6 +2,102 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.3-beta - 2023-06-26
+### Enhancements
+- AI Assistant: extend AI features to select core blocks.
+- AI Extension: add ask assistant menu option. [#31568]
+- Blocks: add a new Tock block. [#31303]
+- Newsletters: add an Email Preview feature. [#31021]
+- Sharing Buttons: add a Nextdoor sharing button. [#31537]
+
+### Improved compatibility
+- Blocks: introduce standardized messaging system to display notices when a block is no longer supported on a site. [#31463]
+- Blocks: remove retired Revue Block. [#31463]
+
+### Bug fixes
+- AI Assistant: close event stream of completions when the block gets deleted. [#31447]
+- AI Assistant: fix empty content on P2. [#31561]
+- AI Extension: extend the block when the edit post store is undefined (P2). [#31563]
+- AI Extension: use ID on error notices to prevent stacking multiple notices. [#31584]
+- Customizer: fix an issue which was preventing the Customize menu from appearing for plugins that still require it to be present. [#31452]
+- Newsletters: properly gate newsletters based on the correct subscription product. [#31450]
+- Social Review Prompt: fix the state so it is shown when Jetpack is also active. [#31456]
+- Subscriptions: fix visibility misalignment. [#31544]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: replace imported store constants with strings. [#31585]
+- AI Assistant: add a specific delimiter for content in the prompts. [#31515]
+- AI Assistant: add transform from core to AI Assistant block. [#31442]
+- AI Assistant: change delimiter and remove it from responses. [#31518]
+- AI Assistant: disable toolbar tooltip when streaming suggestion. [#31581]
+- AI Assistant: remove page content from prompt. [#31465]
+- AI Extension: disable the AI toolbar button when the block doesn't have content. [#31559]
+- AI Extension: dispatch action to update extended block attributes. [#31437]
+- AI Extension: do not extend core blocks when the user decided to hide the AI Assistant block. [#31557]
+- AI Extension: extend core list item core block. [#31496]
+- AI Extension: handle errors from extended blocks actions. [#31497]
+- AI Extension: handle multiple blocks editing. [#31491]
+- AI Extension: improve block transform process for Heading core block type. [#31571]
+- AI Extension: improve block transform process. [#31481]
+- AI Extension: improve prompt when using the AI Assistant in extended blocks. [#31449]
+- AI Extension: iterate over prompt to try to keep the lang of the content. [#31482]
+- AI Extension: iterate over spelling and grammar prompt item. [#31509]
+- AI Extension: move feature from beta to production. [#31574]
+- AI Extension: populate the prompt with previous messages. [#31470]
+- AI Extension: reorganize prompt items for the AI extension. [#31514]
+- AI Extension: tweak the tone prompt. [#31466]
+- AI Extension: winking toolbar color when requesting. [#31474]
+- AI Extension: do not extend block sidebar. [#31476]
+- Blaze: introduce module, instead of automatically initializing the feature. [#31479]
+- Connection: update visual used in banner. [#31440]
+- Dependency update. [#31394]
+- General: added a new callable to a list of default callables. [#31333]
+- Newsletters: add tests for newsletter loop. [#31483]
+- Newsletters: add tracks to email preview feature. [#31566]
+- Tock Block: avoid PHP warning when restaurant name isn't set. [#31577]
+- Updated package dependencies.
+- Zendesk Chat Widget: add authentication to the widget. [#31339]
+
+## 12.3-a.7 - 2023-06-19
+### Enhancements
+- AI Assistant: add and use ImproveToolbarDropdownMenu in block toolbar. [#31346]
+- AI Assistant: add Expand option into AI Assistant dropdown menu. [#31363]
+- AI Assistant: add Summarize option to the AI Assistant dropdown menu. [#31364]
+- AI Assistant: add tone into AI Assistant dropdown menu. [#31359]
+- AI Assistant: add translate option in extensions. [#31384]
+- AI Assistant: build prompt from AI Assistant toolbar menu. [#31366]
+- AI Assistant: collect, store and send prompt history. [#31416]
+- AI Assistant: create function to build the post data prompt. [#31403]
+- AI Assistant: extend blocks toolbar. [#31354]
+- AI Assistant: extract and use block content utils. [#31409]
+- AI Assistant: introduce function to create the initial system prompt. [#31398]
+- AI Assistant: introduce jetpack/ai supports. [#30908]
+- AI Assistant: iterate over custom hook to request suggestions. [#31389]
+- AI Assistant: register ai-assistant-support beta extension. [#31335]
+- AI Assistant: separate prompt text from relevant content for extensions. [#31401]
+- AI Assistant: do not extend if the AI Assistant block is not registered. [#31350]
+- AI Assistant: fix generating prompt when requesting suggestion. [#31387]
+- AI Assistant: update block content once AI response is ready. [#31378]
+- Customizer: hide the customizer submenu for block based themes. [#31353, #31376]
+- Newsletters: silence creation of the default membership product in a newsletter context. [#30940]
+- Newsletters: update Paid newsletter panel designs. [#31224]
+- Related Posts: add srcset for the thumbnails. [#31432]
+- Social Logos: update to include a Nextdoor and a Fediverse logo. [#31404]
+- Subscribers: add menu item to Calypso interface. [#31170]
+- Tock Block: update the block settings interface. [#31355]
+
+### Improved compatibility
+- Tiled Galleries: avoid PHP deprecation notices on sites using PHP 8.2. [#31296]
+- WordPress.com Toolbar: avoid PHP warnings with PHP 8.2. [#31438]
+
+### Bug fixes
+- Newsletters: remove Newsletter column on products post type. [#31374]
+- Tock Block: fix the embed rendering on WordPress.com sites. [#31385]
+- WPcom: fix output of static script path on WordPress.com sites. [#31402]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Plans: switch to using the Plans package to detect feature support. [#31213]
+
 ## 12.3-a.5 - 2023-06-12
 ### Enhancements
 - AI Assistant: add keyboard shortcuts. [#31264]

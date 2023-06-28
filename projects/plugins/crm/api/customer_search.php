@@ -48,6 +48,7 @@ if ( isset( $_GET['email'] ) ) {
 			'email'            => $email,
 			'withInvoices'     => true,
 			'withTransactions' => true,
+			'withTags'         => true,
 		)
 	);
 

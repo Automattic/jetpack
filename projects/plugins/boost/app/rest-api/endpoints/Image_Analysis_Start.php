@@ -19,7 +19,7 @@ class Image_Analysis_Start implements Endpoint {
 
 	public function response( $_request ) {
 		// @TODO: Add a proper feature flag for this instead of just checking if priority support available.
-		if ( ! Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ) ) {
+		if ( ! Premium_Features::has_feature( Premium_Features::IMAGE_SIZE_ANALYSIS ) ) {
 			return new \WP_Error( 'not-allowed', 'Feature not enabled' );
 		}
 

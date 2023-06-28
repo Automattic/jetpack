@@ -661,6 +661,26 @@ export function isOdysseyStatsEnabled( state ) {
 }
 
 /**
+ * Returns true if Blaze can be used on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if Blaze is available on the site.
+ */
+export function shouldInitializeBlaze( state ) {
+	return !! state.jetpack.initialState.shouldInitializeBlaze;
+}
+
+/**
+ * Returns true if the wp-admin Blaze dashboard is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the Blaze dashboard is enabled.
+ */
+export function isBlazeDashboardEnabled( state ) {
+	return !! state.jetpack.initialState.isBlazeDashboardEnabled;
+}
+
+/**
  * Returns true if Jetpack's Pre-connection helpers are enabled.
  *
  * @param {object} state - Global state tree.

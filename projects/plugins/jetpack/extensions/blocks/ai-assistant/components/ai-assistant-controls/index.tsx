@@ -4,16 +4,18 @@
 import {
 	MenuItem,
 	MenuGroup,
-	ToolbarDropdownMenu,
 	CustomSelectControl,
+	ToolbarButton,
+	Dropdown,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription } from '@wordpress/icons';
+import classNames from 'classnames';
 import React from 'react';
 /**
  * Internal dependencies
  */
-import AIAssistantIcon from '../../icons/ai-assistant';
+import aiAssistant from '../../icons/ai-assistant';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -21,11 +23,16 @@ import {
 	PROMPT_TYPE_SIMPLIFY,
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
-	PromptTypeProp,
 } from '../../lib/prompt';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
-import { ToneDropdownMenu, ToneProp } from '../tone-dropdown-control';
+import { ToneDropdownMenu } from '../tone-dropdown-control';
 import './style.scss';
+/**
+ * Types and constants
+ */
+import type { RequestingStateProp } from '../../hooks/use-suggestions-from-ai';
+import type { PromptTypeProp } from '../../lib/prompt';
+import type { ToneProp } from '../tone-dropdown-control';
 
 // Quick edits option: "Correct spelling and grammar"
 const QUICK_EDIT_KEY_CORRECT_SPELLING = 'correct-spelling' as const;
@@ -39,6 +46,9 @@ const QUICK_EDIT_KEY_SUMMARIZE = 'summarize' as const;
 // Quick edits option: "Make longer"
 const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
 
+// Ask AI Assistant option
+export const KEY_ASK_AI_ASSISTANT = 'ask-ai-assistant' as const;
+
 const QUICK_EDIT_KEY_LIST = [
 	QUICK_EDIT_KEY_CORRECT_SPELLING,
 	QUICK_EDIT_KEY_SIMPLIFY,
@@ -46,7 +56,7 @@ const QUICK_EDIT_KEY_LIST = [
 	QUICK_EDIT_KEY_MAKE_LONGER,
 ] as const;
 
-type QuickEditsKeyProp = ( typeof QUICK_EDIT_KEY_LIST )[ number ];
+type AiAssistantKeyProp = ( typeof QUICK_EDIT_KEY_LIST )[ number ] | typeof KEY_ASK_AI_ASSISTANT;
 
 const quickActionsList = [
 	{
@@ -76,7 +86,6 @@ const quickActionsList = [
 ];
 
 export type AiAssistantDropdownOnChangeOptionsArgProps = {
-	contentType: 'generated' | string;
 	tone?: ToneProp;
 	language?: string;
 };
@@ -85,7 +94,7 @@ type AiAssistantControlComponentProps = {
 	/*
 	 * Can be used to externally control the value of the control. Optional.
 	 */
-	key?: QuickEditsKeyProp | string;
+	key?: AiAssistantKeyProp | string;
 
 	/*
 	 * The label to use for the dropdown. Optional.
@@ -95,38 +104,82 @@ type AiAssistantControlComponentProps = {
 	/*
 	 * A list of quick edits to exclude from the dropdown.
 	 */
-	exclude?: QuickEditsKeyProp[];
+	exclude?: AiAssistantKeyProp[];
+
+	/*
+	 * Whether the dropdown is requesting suggestions from AI.
+	 */
+	requestingState?: RequestingStateProp;
+
+	/*
+	 * Whether the dropdown is disabled.
+	 */
+	disabled?: boolean;
 
 	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
+
+	onReplace: () => void;
 };
 
 export default function AiAssistantDropdown( {
 	key,
 	label,
 	exclude = [],
+	requestingState,
+	disabled,
 	onChange,
+	onReplace,
 }: AiAssistantControlComponentProps ) {
 	const quickActionsListFiltered = quickActionsList.filter(
 		quickAction => ! exclude.includes( quickAction.key )
 	);
+	const toolbarLabel =
+		requestingState === 'suggesting' ? null : label || __( 'AI Assistant', 'jetpack' );
 
 	return (
-		<ToolbarDropdownMenu
-			icon={ AIAssistantIcon }
-			label={ label || __( 'AI Assistant', 'jetpack' ) }
+		<Dropdown
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
-		>
-			{ ( { onClose: closeDropdown } ) => (
+			renderToggle={ ( { isOpen, onToggle } ) => {
+				return (
+					<ToolbarButton
+						className={ classNames( 'jetpack-ai-assistant__button', {
+							[ `is-${ requestingState }` ]: true,
+						} ) }
+						showTooltip
+						onClick={ onToggle }
+						aria-haspopup="true"
+						aria-expanded={ isOpen }
+						label={ toolbarLabel }
+						icon={ aiAssistant }
+						disabled={ disabled }
+					/>
+				);
+			} }
+			renderContent={ ( { onClose: closeDropdown } ) => (
 				<MenuGroup label={ label }>
+					{ ! exclude.includes( KEY_ASK_AI_ASSISTANT ) && (
+						<MenuItem
+							icon={ aiAssistant }
+							iconPosition="left"
+							key="key-ai-assistant"
+							onClick={ onReplace }
+							isSelected={ key === 'key-ai-assistant' }
+						>
+							<div className="jetpack-ai-assistant__menu-item">
+								{ __( 'Ask AI Assistant', 'jetpack' ) }
+							</div>
+						</MenuItem>
+					) }
+
 					{ quickActionsListFiltered.map( quickAction => (
 						<MenuItem
 							icon={ quickAction?.icon }
 							iconPosition="left"
 							key={ `key-${ quickAction.key }` }
 							onClick={ () => {
-								onChange( quickAction.aiSuggestion, { contentType: 'generated' } );
+								onChange( quickAction.aiSuggestion );
 								closeDropdown();
 							} }
 							isSelected={ key === quickAction.key }
@@ -137,20 +190,20 @@ export default function AiAssistantDropdown( {
 
 					<ToneDropdownMenu
 						onChange={ tone => {
-							onChange( PROMPT_TYPE_CHANGE_TONE, { tone, contentType: 'generated' } );
+							onChange( PROMPT_TYPE_CHANGE_TONE, { tone } );
 							closeDropdown();
 						} }
 					/>
 
 					<I18nMenuDropdown
 						onChange={ language => {
-							onChange( PROMPT_TYPE_CHANGE_LANGUAGE, { language, contentType: 'generated' } );
+							onChange( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
 							closeDropdown();
 						} }
 					/>
 				</MenuGroup>
 			) }
-		</ToolbarDropdownMenu>
+		/>
 	);
 }
 
