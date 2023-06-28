@@ -1659,9 +1659,8 @@ function jpcrm_mail_delivery_send_via_gmail_oauth( $args ){
                         if ( !empty( $filePath ) ){
 
                             $array = explode('/', $filePath);
-                            $finfo = finfo_open( FILEINFO_MIME_TYPE );
-                            $mimeType = finfo_file( $finfo, $filePath );
-							$fileName = $array[ count( $array ) - 1 ]; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- Needs a lot of refactoring to fix.
+							$mimeType = jpcrm_get_mimetype( $filePath ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							$fileName = $array[ count( $array ) - 1 ]; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                             $fileData = base64_encode( file_get_contents( $filePath ) );
 
                             $raw_message .= "\r\n--{$boundary}\r\n";
