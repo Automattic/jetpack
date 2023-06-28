@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Extensions: check client IDs when getting text from selected blocks
