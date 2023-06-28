@@ -16,6 +16,7 @@ const ActionButton = ( {
 	status,
 	admin,
 	name,
+	slug,
 	onActivate,
 	onManage,
 	onFixConnection,
@@ -67,7 +68,9 @@ const ActionButton = ( {
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 			return (
 				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
-					{ __( 'Purchase', 'jetpack-my-jetpack' ) }
+					{ slug === 'stats'
+						? __( 'Upgrade', 'jetpack-my-jetpack' )
+						: __( 'Purchase', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
 		case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
@@ -86,7 +89,9 @@ const ActionButton = ( {
 					variant="secondary"
 					onClick={ onManage }
 				>
-					{ __( 'Manage', 'jetpack-my-jetpack' ) }
+					{ slug === 'stats'
+						? __( 'View', 'jetpack-my-jetpack' )
+						: __( 'Manage', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
 		case PRODUCT_STATUSES.ERROR:
