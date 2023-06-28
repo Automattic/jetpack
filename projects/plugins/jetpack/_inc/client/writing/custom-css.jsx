@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Button from 'components/button';
@@ -54,7 +55,7 @@ function CustomCss( props ) {
 					),
 					{
 						a: (
-							<a
+							<ExternalLink
 								href="https://wordpress.org/documentation/article/site-editor/"
 								title={ __(
 									'Customize every aspect of your site with the Site Editor.',
