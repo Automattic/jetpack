@@ -45,3 +45,9 @@
 		margin-left: 64px;
 	}
 }
+
+.jp-custom-css__module-toggle {
+	@include breakpoint('>660px') {
+		padding: rem(16px) 0 0;
+	}
+}

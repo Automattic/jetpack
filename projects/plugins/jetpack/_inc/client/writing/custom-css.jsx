@@ -118,6 +118,7 @@ function CustomCss( props ) {
 
 		return (
 			<ModuleToggle
+				className="jp-custom-css__module-toggle"
 				slug="custom-css"
 				activated={ !! customCssActive }
 				toggling={ isSavingAnyOption( [ 'custom-css' ] ) }
