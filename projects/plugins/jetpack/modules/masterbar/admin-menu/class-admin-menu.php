@@ -350,9 +350,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'export.php' ) ) {
 			$submenus_to_update['export.php'] = 'https://wordpress.com/export/' . $this->domain;
 		}
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'tools.php?page=advertising' ) ) {
-			$submenus_to_update['tools.php?page=advertising'] = 'https://wordpress.com/advertising/' . $this->domain;
-		}
 		$this->update_submenus( 'tools.php', $submenus_to_update );
 
 		$this->hide_submenu_page( 'tools.php', 'tools.php' );

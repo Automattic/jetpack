@@ -14,6 +14,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Status as Jetpack_Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
@@ -92,24 +93,31 @@ class Blaze {
 		}
 
 		$blaze_dashboard = new Blaze_Dashboard();
-		$domain          = ( new Jetpack_Status() )->get_site_suffix();
-		$menu_slug       = self::is_dashboard_enabled()
-			? 'advertising'
-			: 'https://wordpress.com/advertising/' . $domain;
-		$menu_function   = self::is_dashboard_enabled()
-			? array( $blaze_dashboard, 'render' )
-			: null;
 
-		$page_suffix = add_submenu_page(
-			'tools.php',
-			esc_attr__( 'Advertising', 'jetpack-blaze' ),
-			__( 'Advertising', 'jetpack-blaze' ),
-			'manage_options',
-			$menu_slug,
-			$menu_function,
-			1
-		);
-		add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			$domain      = ( new Jetpack_Status() )->get_site_suffix();
+			$page_suffix = add_submenu_page(
+				'tools.php',
+				esc_attr__( 'Advertising', 'jetpack-blaze' ),
+				__( 'Advertising', 'jetpack-blaze' ),
+				'manage_options',
+				'https://wordpress.com/advertising/' . $domain,
+				null,
+				1
+			);
+			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+		} elseif ( self::is_dashboard_enabled() ) {
+			$page_suffix = add_submenu_page(
+				'tools.php',
+				esc_attr__( 'Advertising', 'jetpack-blaze' ),
+				__( 'Advertising', 'jetpack-blaze' ),
+				'manage_options',
+				'advertising',
+				array( $blaze_dashboard, 'render' ),
+				1
+			);
+			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+		}
 	}
 
 	/**
