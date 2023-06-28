@@ -115,7 +115,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$values = array(
 			'domain_upsell_deferred' => true,
-			'site_launched'          => true,
+			'site_launched'          => false,
 		);
 		$data   = array( 'checklist_statuses' => $values );
 
