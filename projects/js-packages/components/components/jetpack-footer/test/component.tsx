@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import JetpackFooter from '../index';
 
 describe( 'JetpackFooter', () => {
@@ -132,22 +133,28 @@ describe( 'JetpackFooter', () => {
 			},
 		];
 
-		it( 'should call the menu item onClick function', () => {
+		it( 'should call the menu item onClick function', async () => {
+			const user = userEvent.setup();
+
 			render( <JetpackFooter menu={ menu } /> );
 
 			const element = screen.getByRole( 'link', { name: menu[ 0 ].label } );
 
-			fireEvent.click( element );
+			await user.click( element );
 
 			expect( onClick ).toHaveBeenCalled();
 		} );
 
-		it( 'should call the menu item onKeyDown function', () => {
+		it( 'should call the menu item onKeyDown function', async () => {
+			const user = userEvent.setup();
+
 			render( <JetpackFooter menu={ menu } /> );
 
 			const element = screen.getByRole( 'link', { name: menu[ 0 ].label } );
 
-			fireEvent.keyDown( element );
+			// Need to focus on element first
+			await user.click( element );
+			await user.keyboard( '[Enter]' );
 
 			expect( onKeyDown ).toHaveBeenCalled();
 		} );
