@@ -247,29 +247,20 @@ class Queue {
 				// Dedicated table is disabled, but we should attempt to enable it at some point.
 			case '-1':
 				// Forced do NOT use the table
-
 				return false;
-				// TODO if we should try to enable the table anyway in this case. Include upgrade file and run the create_table
-				break;
+
 			case '1':
 				// Use the table
 				return true;
 		}
 	}
 
-	// TODO find use of this. Should be part of bigger piece of code to enable the dedicated table.
-	// TODO add hooks to the upgrade calls to enable it.
-	public function can_use_dedicated_table() {
-		return ( new Queue_Storage_Table( $this->id ) )->is_dedicated_table_healthy();
-	}
-
-	public function init_dedicated_table() {
-		$queue_storage_table = new Queue_Storage_Table( $this->id );
-		if ( ! $queue_storage_table->is_dedicated_table_healthy() ) {
-			$queue_storage_table->create_table();
-		}
-	}
-
+	/**
+	 * Clean up the dedicated table from the database.
+	 *
+	 * @return bool
+	 * @throws \Exception If the initialization of the Queue_Storage_Table instance fails.
+	 */
 	public function cleanup_dedicated_table() {
 		$queue_storage_table = new Queue_Storage_Table( $this->id );
 
@@ -362,12 +353,12 @@ class Queue {
 	 * Lag is the difference in time between the age of the oldest item
 	 * (aka first or frontmost item) and the current time.
 	 *
-	 * @param microtime $now The current time in microtime.
+	 * @param float $now The current time in microtime.
 	 *
-	 * @return float|int|mixed|null
+	 * @return float
 	 */
 	public function lag( $now = null ) {
-		return $this->queue_storage->get_lag($now);
+		return (float) $this->queue_storage->get_lag( $now );
 	}
 
 	/**
@@ -492,7 +483,7 @@ class Queue {
 	 * @param int $max_memory (bytes) Maximum memory threshold.
 	 * @param int $max_buffer_size Maximum buffer size (number of items).
 	 *
-	 * @return Automattic\Jetpack\Sync\Queue_Buffer|bool|int|\WP_Error
+	 * @return \Automattic\Jetpack\Sync\Queue_Buffer|bool|int|\WP_Error
 	 */
 	public function checkout_with_memory_limit( $max_memory, $max_buffer_size = 500 ) {
 		if ( $this->get_checkout_id() ) {
