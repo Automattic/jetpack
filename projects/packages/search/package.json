@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-search",
-	"version": "0.37.3",
+	"version": "0.37.4-alpha",
 	"description": "Package for Jetpack Search products",
 	"main": "main.js",
 	"directories": {
@@ -10,9 +10,8 @@
 		"build": "pnpm run clean && pnpm run build-instant && pnpm run build-customberg && pnpm run build-dashboard",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build",
-		"//": "# We set NODE_PATH here so postcss-loader can find its plugins with pnpm 7. See https://github.com/pnpm/pnpm/discussions/3536#discussioncomment-2688984",
-		"build-instant": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.instant.config.js",
-		"build-customberg": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.customberg.config.js",
+		"build-instant": "webpack --config ./tools/webpack.instant.config.js",
+		"build-customberg": "webpack --config ./tools/webpack.customberg.config.js",
 		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
 		"clean": "rm -rf build/ .cache/",
 		"test": "concurrently 'pnpm:test-scripts' 'pnpm:test-size'",

@@ -29,7 +29,7 @@ const from = [];
  * @returns {object}                      AI Assistant block instance.
  */
 export function transfromToAIAssistantBlock( attrs, blockType: ExtendedBlockProp ) {
-	const { content } = attrs;
+	const { content, ...otherAttrs } = attrs;
 	// Create a temporary block to get the HTML content.
 	const temporaryBlock = createBlock( blockType, { content } );
 	let htmlContent = getBlockContent( temporaryBlock );
@@ -55,7 +55,13 @@ export function transfromToAIAssistantBlock( attrs, blockType: ExtendedBlockProp
 		},
 	];
 
-	return createBlock( blockName, { content: aiAssistantBlockcontent, messages } );
+	return createBlock( blockName, {
+		...otherAttrs,
+		content: aiAssistantBlockcontent,
+		originalContent: aiAssistantBlockcontent,
+		messages,
+		originalMessages: messages,
+	} );
 }
 
 /*
