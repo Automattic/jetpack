@@ -81,15 +81,11 @@ class Queue_Storage_Table {
 			  `event_id` varchar(100) NOT NULL,
 			  `event_payload` longtext NOT NULL,
 			  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-			  `object_type` varchar(100) DEFAULT NULL,
-			  `parent_object_id` bigint(20) DEFAULT NULL,
 			  PRIMARY KEY (`ID`),
 			  KEY `event_id` (`event_id`),
 			  KEY `queue_id` (`queue_id`),
 			  KEY `queue_id_event_id` (queue_id, event_id),
-			  KEY `timestamp` (`timestamp`),
-			  KEY `object_type` (`object_type`),
-			  KEY `parent_object_id` (`parent_object_id`)
+			  KEY `timestamp` (`timestamp`)
 			) $charset_collate;";
 
 		/**
