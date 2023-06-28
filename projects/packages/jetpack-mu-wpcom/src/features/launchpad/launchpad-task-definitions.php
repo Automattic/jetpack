@@ -480,22 +480,10 @@ function wpcom_mark_launchpad_task_complete( $task_ids ) {
 
 	$result = wpcom_update_launchpad_task_status( $values );
 
-<<<<<<< HEAD
 	// Record the completion event in Tracks.
-	wpcom_launchpad_track_completed_task( $key );
-=======
 	foreach ( $task_ids as $key => $value ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_lib( 'tracks/client' );
-
-			tracks_record_event(
-				wp_get_current_user(),
-				'launchpad_mark_task_completed',
-				array( 'task_id' => $key )
-			);
-		}
+		wpcom_launchpad_track_completed_task( $key );
 	}
->>>>>>> c51e097aa6 (reuse completion method across all plugin codebase)
 
 	return $result;
 }
