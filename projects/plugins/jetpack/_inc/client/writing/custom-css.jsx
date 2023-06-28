@@ -85,28 +85,26 @@ function CustomCss( props ) {
 
 	const customizerLink = () => {
 		return (
-			<>
-				<p>
-					{ createInterpolateElement(
-						__(
-							'Additional CSS can be added from the Customizer. Enable the enhanced Custom CSS feature below to add additional features. <a>Access the Customizer here.</a>',
-							'jetpack'
+			<div>
+				{ createInterpolateElement(
+					__(
+						'Additional CSS can be added from the Customizer. Enable the enhanced Custom CSS feature below to add additional features. <a>Access the Customizer here.</a>',
+						'jetpack'
+					),
+					{
+						a: (
+							<a
+								onClick={ trackVisitCustomizer }
+								href={ `${ siteAdminUrl }customize.php?autofocus%5Bsection%5D=custom_css` }
+								title={ __(
+									'Edit and add CSS directly on your site from the Customizer.',
+									'jetpack'
+								) }
+							/>
 						),
-						{
-							a: (
-								<a
-									onClick={ trackVisitCustomizer }
-									href={ `${ siteAdminUrl }customize.php?autofocus%5Bsection%5D=custom_css` }
-									title={ __(
-										'Edit and add CSS directly on your site from the Customizer.',
-										'jetpack'
-									) }
-								/>
-							),
-						}
-					) }
-				</p>
-			</>
+					}
+				) }
+			</div>
 		);
 	};
 
