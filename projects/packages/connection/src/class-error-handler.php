@@ -114,6 +114,7 @@ class Error_Handler {
 		'invalid_body_hash',
 		'invalid_nonce',
 		'signature_mismatch',
+		'invalid_connection_owner',
 	);
 
 	/**
@@ -170,6 +171,7 @@ class Error_Handler {
 				case 'signature_mismatch':
 				case 'no_user_tokens':
 				case 'no_token_for_user':
+				case 'invalid_connection_owner':
 					add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
 					add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
 					$this->error_code = $error_code;
@@ -309,7 +311,7 @@ class Error_Handler {
 
 		$signature_details = $data['signature_details'];
 
-		if ( ! isset( $signature_details['token'] ) || empty( $signature_details['token'] ) ) {
+		if ( ! isset( $signature_details['token'] ) ) {
 			return false;
 		}
 
@@ -390,12 +392,14 @@ class Error_Handler {
 	 * @return string $the user id or `invalid` if user id not present.
 	 */
 	public function get_user_id_from_token( $token ) {
-		$parsed_token = explode( ':', wp_unslash( $token ) );
+		$user_id = 'invalid';
 
-		if ( isset( $parsed_token[2] ) && ctype_digit( $parsed_token[2] ) ) {
-			$user_id = $parsed_token[2];
-		} else {
-			$user_id = 'invalid';
+		if ( $token ) {
+			$parsed_token = explode( ':', wp_unslash( $token ) );
+
+			if ( isset( $parsed_token[2] ) && ctype_digit( $parsed_token[2] ) ) {
+				$user_id = $parsed_token[2];
+			}
 		}
 
 		return $user_id;
