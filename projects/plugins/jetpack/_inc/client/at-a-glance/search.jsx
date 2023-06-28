@@ -82,6 +82,14 @@ class DashSearch extends Component {
 		} );
 	};
 
+	trackAddSearchBlockLink = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'search-block-link',
+			target: 'at-a-glance',
+			feature: 'search',
+		} );
+	};
+
 	activateSearch = () => {
 		this.props.updateOptions( {
 			search: true,
@@ -182,6 +190,16 @@ class DashSearch extends Component {
 							onClick={ this.trackAddSearchWidgetLink }
 						>
 							{ __( 'Add Search (Jetpack) Widget', 'jetpack' ) }
+						</Card>
+					) }
+					{ ! this.props.hasInstantSearch && this.props.isBlockThemeActive && (
+						<Card
+							compact
+							className="jp-search-config-aag"
+							href="site-editor.php"
+							onClick={ this.trackAddSearchBlockLink }
+						>
+							{ __( 'Add a Search Block', 'jetpack' ) }
 						</Card>
 					) }
 				</div>
