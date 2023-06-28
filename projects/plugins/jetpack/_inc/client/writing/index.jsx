@@ -32,7 +32,6 @@ export class Writing extends React.Component {
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			isLinked: this.props.isLinked,
 			getModuleOverride: this.props.getModuleOverride,
-			isBlockBasedThemeActive: this.props.isBlockBasedThemeActive,
 		};
 
 		const found = [
