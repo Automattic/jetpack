@@ -382,7 +382,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
 
-		if ( Blaze::should_initialize() ) {
+		if ( Blaze::should_initialize() && ! Blaze::is_dashboard_enabled() ) {
 			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
 		}
 	}

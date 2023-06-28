@@ -99,7 +99,7 @@ class Blaze {
 				'manage_options',
 				'advertising',
 				array( $blaze_dashboard, 'render' ),
-				100
+				1
 			);
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		}

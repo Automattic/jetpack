@@ -367,7 +367,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		if ( Blaze::should_initialize() ) {
+		if ( Blaze::should_initialize() && ! Blaze::is_dashboard_enabled() ) {
 			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
 		}
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
