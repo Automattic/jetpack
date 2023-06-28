@@ -775,3 +775,24 @@ function wpcom_mark_domain_tasks_complete( $blog_id, $user_id, $product_id ) {
 	wpcom_mark_launchpad_task_complete( 'domain_upsell_deferred' );
 }
 add_action( 'activate_product', 'wpcom_mark_domain_tasks_complete', 10, 6 );
+
+/**
+ * Re-trigger email campaigns for blog onboarding after user edit one of the fields in the launchpad.
+ */
+function wpcom_trigger_email_campaign() {
+	$site_intent = get_option( 'site_intent' );
+	if ( ! $site_intent ) {
+		return;
+	}
+
+	if ( ! in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+		return;
+	}
+
+	MarketingEmailCampaigns::start_tailored_use_case_new_site_workflows_if_eligible(
+		get_current_user_id(),
+		get_current_blog_id(),
+		$site_intent
+	);
+}
+add_action( 'update_option_launchpad_checklist_tasks_statuses', 'wpcom_trigger_email_campaign', 10, 3 );
