@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: do when using a block theme, do not display a link to add a wSearch widget in the Jetpack dashboard.
