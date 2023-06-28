@@ -129,8 +129,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		'keep-building'   => array(
-			'title'                  => 'Keep Building',
-			'task_ids'               => array(
+			'title'               => 'Keep Building',
+			'task_ids'            => array(
 				'site_title',
 				'design_edited',
 				'domain_claim',
@@ -138,7 +138,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_customize',
 				'drive_traffic',
 			),
-			'is_enabled_callback'    => 'wpcom_launchpad_is_keep_building_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
 	);
 
