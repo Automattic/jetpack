@@ -51,13 +51,13 @@ function CustomCss( props ) {
 				<div className="jp-custom-css-site-editor__text">
 					{ createInterpolateElement(
 						__(
-							'Hurray! Your theme supports site editing with blocks. <a>Tell me more.</a>',
+							'Your site has a block theme that allows you to apply custom CSS from the Site Editor. <a>Learn more.</a>',
 							'jetpack'
 						),
 						{
 							a: (
 								<ExternalLink
-									href="https://wordpress.org/documentation/article/site-editor/"
+									href="https://wordpress.org/documentation/article/styles-overview/#applying-custom-css"
 									title={ __(
 										'Customize every aspect of your site with the Site Editor.',
 										'jetpack'
@@ -130,14 +130,19 @@ function CustomCss( props ) {
 		);
 	};
 
+	const supportText = () => {
+		if ( isBlockThemeActive ) {
+			return {};
+		}
+
+		return {
+			text: description,
+			link: getRedirectUrl( 'jetpack-support-custom-css' ),
+		};
+	};
+
 	return (
-		<SettingsGroup
-			module={ { module } }
-			support={ {
-				text: description,
-				link: getRedirectUrl( 'jetpack-support-custom-css' ),
-			} }
-		>
+		<SettingsGroup module={ { module } } support={ supportText() }>
 			<FormLegend className="jp-form-label-wide">{ name }</FormLegend>
 			{ isBlockThemeActive && recommendSiteEditor() }
 			{ ! isBlockThemeActive && customizerLink() }
