@@ -127,9 +127,9 @@ export class MeasurableImage {
 	 *
 	 * @returns {boolean} - if the image is smaller than 65 pixels width and height return false
 	 */
-	public isImageBig(): boolean {
+	public async isImageBig(): Promise< boolean > {
 		const minSize = 65;
-		const { width, height } = this.getSizeOnPage();
-		return width >= minSize && height >= minSize;
+		const dimensions = await this.fetchFileDimensions( this.getURL() );
+		return dimensions.width >= minSize && dimensions.height >= minSize;
 	}
 }

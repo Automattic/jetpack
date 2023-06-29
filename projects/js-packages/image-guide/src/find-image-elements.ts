@@ -63,31 +63,31 @@ export function backgroundImageSource( node: HTMLElement ) {
  * @param {(input: string, init?: Array) => Promise<Response>} fetchFn -  A function that fetches a URL and returns a Promise.
  * @returns {MeasurableImage[]} - A list of MeasurableImage objects.
  */
-export function getMeasurableImages(
+export async function getMeasurableImages(
 	domNodes: Element[],
 	fetchFn: FetchFn | null = null
-): MeasurableImage[] {
+): Promise< MeasurableImage[] > {
 	const nodes = findMeasurableElements( domNodes );
-	return nodes
-		.map( node => {
-			if ( node instanceof HTMLImageElement ) {
-				return new MeasurableImage( node, imageTagSource, fetchFn );
-			} else if ( node instanceof HTMLElement ) {
-				if ( ! backgroundImageSource( node ) ) {
-					/**
-					 * Background elements that have no valid URL
-					 * shouldn't be measured.
-					 */
-					return null;
-				}
-
-				return new MeasurableImage( node, backgroundImageSource );
+	const images = nodes.map( node => {
+		if ( node instanceof HTMLImageElement ) {
+			return new MeasurableImage( node, imageTagSource, fetchFn );
+		} else if ( node instanceof HTMLElement ) {
+			if ( ! backgroundImageSource( node ) ) {
+				/**
+				 * Background elements that have no valid URL
+				 * shouldn't be measured.
+				 */
+				return null;
 			}
 
-			return null;
-		} )
-		.filter( image => image !== null )
-		.filter( image => image.isImageBig() );
+			return new MeasurableImage( node, backgroundImageSource );
+		}
+
+		return null;
+	} );
+	// wait for isImageBig() to return true/false for each image.
+	const results = await Promise.all( images.map( image => image.isImageBig() ) );
+	return images.filter( ( _, index ) => results[ index ] );
 }
 
 /**

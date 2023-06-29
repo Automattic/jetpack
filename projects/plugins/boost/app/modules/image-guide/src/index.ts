@@ -142,7 +142,7 @@ function initialize() {
 		if ( $state === 'paused' ) {
 			return;
 		}
-		const measurableImages = getMeasurableImages(
+		const measurableImages = await getMeasurableImages(
 			Array.from(
 				document.querySelectorAll(
 					'body *:not(.jetpack-boost-guide > *):not(.jetpack-boost-guide)'
