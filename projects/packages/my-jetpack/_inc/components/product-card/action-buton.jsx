@@ -16,6 +16,7 @@ const ActionButton = ( {
 	status,
 	admin,
 	name,
+	slug,
 	onActivate,
 	onManage,
 	onFixConnection,
@@ -64,19 +65,26 @@ const ActionButton = ( {
 						) }
 				</Button>
 			);
-		case PRODUCT_STATUSES.NEEDS_PURCHASE:
+		case PRODUCT_STATUSES.NEEDS_PURCHASE: {
+			const upgradeText = __( 'Upgrade', 'jetpack-my-jetpack' );
+			const purchaseText = __( 'Purchase', 'jetpack-my-jetpack' );
+			const buttonText = slug === 'stats' ? upgradeText : purchaseText;
 			return (
 				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
-					{ __( 'Purchase', 'jetpack-my-jetpack' ) }
+					{ buttonText }
 				</Button>
 			);
+		}
 		case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
 			return (
 				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
 					{ __( 'Start for free', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
-		case PRODUCT_STATUSES.ACTIVE:
+		case PRODUCT_STATUSES.ACTIVE: {
+			const viewText = __( 'View', 'jetpack-my-jetpack' );
+			const manageText = __( 'Manage', 'jetpack-my-jetpack' );
+			const buttonText = slug === 'stats' ? viewText : manageText;
 			return (
 				<Button
 					{ ...buttonState }
@@ -86,9 +94,10 @@ const ActionButton = ( {
 					variant="secondary"
 					onClick={ onManage }
 				>
-					{ __( 'Manage', 'jetpack-my-jetpack' ) }
+					{ buttonText }
 				</Button>
 			);
+		}
 		case PRODUCT_STATUSES.ERROR:
 			return (
 				<Button { ...buttonState } size="small" weight="regular" onClick={ onFixConnection }>
