@@ -1,4 +1,5 @@
 Significance: patch
 Type: fixed
 
-Hide connection owner information if the data is invalid.
+- hide connection owner information if the data is invalid
+- don't suggest user connection if user is already connected, but connection owner is invalid
