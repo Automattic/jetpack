@@ -20,7 +20,7 @@ class Jetpack_Tiled_Gallery_Shape {
 	protected $images;
 
 	/**
-	 * The images left.
+	 * How many images are left after each row.
 	 *
 	 * @var int
 	 */

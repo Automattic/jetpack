@@ -93,7 +93,7 @@ class Jetpack_Tiled_Gallery_Grouper {
 	);
 
 	/**
-	 * The last shape.
+	 * Shape of the last row in gallery.
 	 *
 	 * @var string
 	 */
