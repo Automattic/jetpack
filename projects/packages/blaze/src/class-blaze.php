@@ -68,18 +68,27 @@ class Blaze {
 
 	/**
 	 * Is the wp-admin Dashboard enabled?
+	 * That dashboard is not available or necessary on WordPress.com sites.
 	 *
 	 * @return bool
 	 */
 	public static function is_dashboard_enabled() {
+		// Right now the dashboard is disabled by default.
+		$is_dashboard_enabled = false;
+
+		// On WordPress.com sites, the dashboard is not needed.
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			$is_dashboard_enabled = false;
+		}
+
 		/**
 		 * Enable a wp-admin dashboard for Blaze campaign management.
 		 *
 		 * @since 0.7.0
 		 *
-		 * @param bool $should_enable Should the dashboard be enabled? False by default for now.
+		 * @param bool $should_enable Should the dashboard be enabled?
 		 */
-		return apply_filters( 'jetpack_blaze_dashboard_enable', false );
+		return apply_filters( 'jetpack_blaze_dashboard_enable', $is_dashboard_enabled );
 	}
 
 	/**
