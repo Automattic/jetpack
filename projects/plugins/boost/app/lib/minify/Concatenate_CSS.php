@@ -179,7 +179,7 @@ class Concatenate_CSS extends WP_Styles {
 						}
 					}
 
-					$href = $siteurl . '/_static/??' . $path_str;
+					$href = $siteurl . '/_jb_static/??' . $path_str;
 				} else {
 					$href = jetpack_boost_page_optimize_cache_bust_mtime( current( $css ), $siteurl );
 				}
