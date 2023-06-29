@@ -207,6 +207,9 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
+      '@automattic/jetpack-connection':
+        specifier: workspace:*
+        version: link:../connection
       '@babel/runtime':
         specifier: ^7
         version: 7.21.5
@@ -219,6 +222,9 @@ importers:
       '@wordpress/compose':
         specifier: 6.13.0
         version: 6.13.0(react@18.2.0)
+      '@wordpress/data':
+        specifier: 9.5.0
+        version: 9.5.0(react@18.2.0)
       '@wordpress/date':
         specifier: 4.36.0
         version: 4.36.0

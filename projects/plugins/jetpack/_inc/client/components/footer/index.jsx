@@ -147,7 +147,6 @@ export class Footer extends React.Component {
 							menu={ menu }
 							moduleNameHref={ getRedirectUrl( 'jetpack' ) }
 							siteAdminUrl={ this.props.siteAdminUrl }
-							isSiteConnected={ this.props.siteConnectionStatus }
 							onAboutClick={ this.trackAboutClick }
 							onPrivacyClick={ this.trackPrivacyClick }
 							onTermsClick={ this.trackTermsClick }

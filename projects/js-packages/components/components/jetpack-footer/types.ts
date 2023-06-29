@@ -35,11 +35,6 @@ export type JetpackFooterProps = {
 	siteAdminUrl?: string;
 
 	/**
-	 * Whether the site is connected to WordPress.com.
-	 */
-	isSiteConnected?: boolean;
-
-	/**
 	 * Function called when the About link is clicked.
 	 */
 	onAboutClick?: () => void;

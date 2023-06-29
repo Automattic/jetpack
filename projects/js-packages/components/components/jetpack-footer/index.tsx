@@ -1,3 +1,5 @@
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -25,7 +27,6 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	moduleNameHref = 'https://jetpack.com',
 	menu,
 	siteAdminUrl,
-	isSiteConnected,
 	onAboutClick,
 	onPrivacyClick,
 	onTermsClick,
@@ -35,7 +36,16 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
 	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
 
-	const areAdminLinksEnabled = isSiteConnected && siteAdminUrl;
+	const { isActive, connectedPlugins } = useSelect(
+		select => ( {
+			connectedPlugins: select( CONNECTION_STORE_ID ).getConnectedPlugins(),
+			...select( CONNECTION_STORE_ID ).getConnectionStatus(),
+		} ),
+		[ CONNECTION_STORE_ID ]
+	);
+
+	const areAdminLinksEnabled =
+		siteAdminUrl && isActive && connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	let items: JetpackFooterMenuItem[] = [
 		{
