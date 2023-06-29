@@ -45,7 +45,11 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	);
 
 	const areAdminLinksEnabled =
-		siteAdminUrl && isActive && connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
+		siteAdminUrl &&
+		// Some admin pages require the site to be connected (e.g., Privacy)
+		isActive &&
+		// Admin pages are part of the Jetpack plugin and required it to be installed
+		connectedPlugins?.some( ( { slug } ) => 'jetpack' === slug );
 
 	let items: JetpackFooterMenuItem[] = [
 		{
