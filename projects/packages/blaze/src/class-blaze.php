@@ -103,7 +103,18 @@ class Blaze {
 
 		$blaze_dashboard = new Blaze_Dashboard();
 
-		if ( ( new Host() )->is_wpcom_platform() ) {
+		if ( self::is_dashboard_enabled() ) {
+			$page_suffix = add_submenu_page(
+				'tools.php',
+				esc_attr__( 'Advertising', 'jetpack-blaze' ),
+				__( 'Advertising', 'jetpack-blaze' ),
+				'manage_options',
+				'advertising',
+				array( $blaze_dashboard, 'render' ),
+				1
+			);
+			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+		} elseif ( ( new Host() )->is_wpcom_platform() ) {
 			$domain      = ( new Jetpack_Status() )->get_site_suffix();
 			$page_suffix = add_submenu_page(
 				'tools.php',
@@ -112,17 +123,6 @@ class Blaze {
 				'manage_options',
 				'https://wordpress.com/advertising/' . $domain,
 				null,
-				1
-			);
-			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
-		} elseif ( self::is_dashboard_enabled() ) {
-			$page_suffix = add_submenu_page(
-				'tools.php',
-				esc_attr__( 'Advertising', 'jetpack-blaze' ),
-				__( 'Advertising', 'jetpack-blaze' ),
-				'manage_options',
-				'advertising',
-				array( $blaze_dashboard, 'render' ),
 				1
 			);
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
