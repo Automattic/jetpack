@@ -138,6 +138,7 @@ class Jetpack_Subscribe_Modal {
 					'type'  => array(),
 					'class' => array(),
 					'style' => array(),
+					'name'  => array(),
 				),
 			);
 
