@@ -712,13 +712,18 @@ function wpcom_add_new_page_check( $post_id, $post ) {
 		return;
 	}
 
-	// We only care about pages, no other post types.
+	// We only care about pages, ignore other post types.
 	if ( $post->post_type !== 'page' ) {
 		return;
 	}
 
 	// Ensure that Headstart posts don't mark this as complete
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// We only care about published pages. Pages added via the API are not published by default.
+	if ( $post->post_status !== 'publish' ) {
 		return;
 	}
 
