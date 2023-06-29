@@ -31,7 +31,7 @@ const PricingSlider: React.FC< PricingSliderProps > = ( {
 	const onBeforeChangeCallback = beforeValue => {
 		setIsThumbHolding( true );
 
-		if ( onBeforeChange && typeof onBeforeChange === 'function' ) {
+		if ( typeof onBeforeChange === 'function' ) {
 			onBeforeChange( beforeValue );
 		}
 	};
@@ -39,7 +39,7 @@ const PricingSlider: React.FC< PricingSliderProps > = ( {
 	const onAfterChangeCallback = afterValue => {
 		setIsThumbHolding( false );
 
-		if ( onAfterChange && typeof onAfterChange === 'function' ) {
+		if ( typeof onAfterChange === 'function' ) {
 			onAfterChange( afterValue );
 		}
 	};
