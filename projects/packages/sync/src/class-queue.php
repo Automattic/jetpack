@@ -366,7 +366,17 @@ class Queue {
 	 */
 	public function reset() {
 		$this->delete_checkout_id();
-		$this->queue_storage->clear_queue();
+
+		/**
+		 * Need to clear out both the options table and the custom table.
+		 */
+		if ( ! self::dedicated_table_disabled() ) {
+			$dedicated_table_storage = new Queue_Storage_Table( $this->id );
+			$dedicated_table_storage->clear_queue();
+		}
+
+		$options_table_storage = new Queue_Storage_Options( $this->id );
+		$options_table_storage->clear_queue();
 	}
 
 	/**
@@ -527,7 +537,7 @@ class Queue {
 		$items = array();
 
 		foreach ( $storage_with_priority as $storage_backend ) {
-			$current_items_ids = $storage_backend->get_items_ids_with_size( $max_buffer_size );
+			$current_items_ids = $storage_backend->get_items_ids_with_size( $max_buffer_size - count( $items ) );
 
 			// If no valid items are returned or no items are returned, continue.
 			if ( ! is_countable( $current_items_ids ) || count( $current_items_ids ) === 0 ) {
@@ -646,7 +656,7 @@ class Queue {
 		$options_storage = new Queue_Storage_Options( $this->id );
 		$options_storage->delete_items_by_ids( $ids );
 
-		if ( $this->should_use_dedicated_table() ) {
+		if ( ! self::dedicated_table_disabled() ) {
 			$table_storage = new Queue_Storage_Table( $this->id );
 			$table_storage->delete_items_by_ids( $ids );
 		}
