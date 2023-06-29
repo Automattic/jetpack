@@ -68,7 +68,9 @@ if ( ! defined( 'JETPACK_BOOST_PLUGINS_DIR_URL' ) ) {
 if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
-	if ( '/_jb_static/' === substr( $request_path, -9, 9 ) ) {
+
+	$static_prefix = defined( 'JETPACK_BOOST_STATIC_PREFIX' ) ? JETPACK_BOOST_STATIC_PREFIX : '/_jb_static/';
+	if ( $static_prefix === substr( $request_path, -strlen( $static_prefix ) ) ) {
 		define( 'JETPACK_BOOST_CONCAT_USE_WP', true );
 
 		require_once JETPACK_BOOST_DIR_PATH . '/serve-minified-content.php';
