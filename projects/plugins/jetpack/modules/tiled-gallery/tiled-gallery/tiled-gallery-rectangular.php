@@ -93,6 +93,27 @@ class Jetpack_Tiled_Gallery_Grouper {
 	);
 
 	/**
+	 * The last shape.
+	 *
+	 * @var string
+	 */
+	public $last_shape = '';
+
+	/**
+	 * All images to be displayed.
+	 *
+	 * @var array
+	 */
+	public $images = array();
+
+	/**
+	 * Array of tiled gallery rows (groups of images).
+	 *
+	 * @var array
+	 */
+	public $grouped_images = array();
+
+	/**
 	 * Constructor function.
 	 *
 	 * @param object $attachments - the attachments.
@@ -268,6 +289,26 @@ class Jetpack_Tiled_Gallery_Grouper {
  * Jetpack tiled row class.
  */
 class Jetpack_Tiled_Gallery_Row {
+	/**
+	 * Groups of images
+	 *
+	 * @var array
+	 */
+	public $groups;
+
+	/**
+	 * Image ratio.
+	 *
+	 * @var int
+	 */
+	public $ratio;
+
+	/**
+	 * Weighted ratio based on all the images.
+	 *
+	 * @var int
+	 */
+	public $weighted_ratio;
 
 	/**
 	 * Constructor class.
@@ -312,6 +353,20 @@ class Jetpack_Tiled_Gallery_Row {
  * Tiled gallery group class.
  */
 class Jetpack_Tiled_Gallery_Group {
+	/**
+	 * Images to be displayed in group.
+	 *
+	 * @var array
+	 */
+	public $images;
+
+	/**
+	 * Image ratio.
+	 *
+	 * @var int
+	 */
+	public $ratio;
+
 	/**
 	 * Constructor class.
 	 *

@@ -13,6 +13,20 @@ class Jetpack_Tiled_Gallery_Shape {
 	public static $shapes_used = array();
 
 	/**
+	 * The images to include in gallery.
+	 *
+	 * @var object
+	 */
+	protected $images;
+
+	/**
+	 * The images left.
+	 *
+	 * @var int
+	 */
+	protected $images_left;
+
+	/**
 	 * Constructor class.
 	 *
 	 * @param object $images - the images.
