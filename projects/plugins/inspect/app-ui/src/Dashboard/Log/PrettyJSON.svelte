@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
 	import { maybeStringify } from "../../../../packages/Async_Option/scripts/utils";
 
 	// eslint-disable-next-line

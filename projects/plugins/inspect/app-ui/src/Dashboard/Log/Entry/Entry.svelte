@@ -1,10 +1,10 @@
-<script type="ts">
+<script lang="ts">
 	import { sineInOut } from "svelte/easing";
 	import LogSummary from "../Summary.svelte";
 	import InboundDetails from "./InboundDetails.svelte";
 	import OutboundDetails from "./OutboundDetails.svelte";
 	import OutboundErrorDetails from "./OutboundErrorDetails.svelte";
-import type { LogEntry } from "../../../utils/ZodSchema";
+	import type { LogEntry } from "../../../utils/ZodSchema";
 
 	export let item: LogEntry;
 	let isOpen = false;

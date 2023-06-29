@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
 	import { createEventDispatcher } from "svelte";
 	import { API } from "../../Options";
 	import Form from "../Form.svelte";

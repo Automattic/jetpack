@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
 	import Tab from "../../../Components/Tabs/Tab.svelte";
 	import TabList from "../../../Components/Tabs/TabList.svelte";
 	import TabPanel from "../../../Components/Tabs/TabPanel.svelte";

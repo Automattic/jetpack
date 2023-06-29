@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
 	import Toggle from "../../Components/Toggle.svelte";
 	import Filters from "./Filters.svelte";
 

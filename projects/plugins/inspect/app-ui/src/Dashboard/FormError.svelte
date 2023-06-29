@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
 	export let error: { _errors: string[] } | false = false;
 </script>
 

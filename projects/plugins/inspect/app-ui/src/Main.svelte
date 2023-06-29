@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
 	import Form from "./Dashboard/Form.svelte";
 	import LogActions from "./Dashboard/Log/Actions.svelte";
 	import LogList from "./Dashboard/Log/List.svelte";

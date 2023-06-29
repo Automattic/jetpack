@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
 	import { createEventDispatcher } from "svelte";
 	import { slide } from "svelte/transition";
 	import { maybeStringify } from "../../../packages/Async_Option/scripts/utils";
