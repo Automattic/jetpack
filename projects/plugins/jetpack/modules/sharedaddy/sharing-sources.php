@@ -2931,7 +2931,7 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 /**
  * Skype sharing service.
  */
-class Share_Skype extends Sharing_Source {
+class Share_Skype extends Deprecated_Sharing_Source {
 	/**
 	 * Service short name.
 	 *
@@ -2940,150 +2940,12 @@ class Share_Skype extends Sharing_Source {
 	public $shortname = 'skype';
 
 	/**
-	 * Service icon font code.
-	 *
-	 * @var string
-	 */
-	public $icon = '\f220';
-
-	/**
-	 * Sharing type.
-	 *
-	 * @var string
-	 */
-	private $share_type = 'default';
-
-	/**
-	 * Constructor.
-	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
-	 */
-	public function __construct( $id, array $settings ) {
-		parent::__construct( $id, $settings );
-
-		if ( isset( $settings['share_type'] ) ) {
-			$this->share_type = $settings['share_type'];
-		}
-
-		if ( 'official' === $this->button_style ) {
-			$this->smart = true;
-		} else {
-			$this->smart = false;
-		}
-	}
-
-	/**
 	 * Service name.
 	 *
 	 * @return string
 	 */
 	public function get_name() {
 		return __( 'Skype', 'jetpack' );
-	}
-
-	/**
-	 * Get the markup of the sharing button.
-	 *
-	 * @param WP_Post $post Post object.
-	 *
-	 * @return string
-	 */
-	public function get_display( $post ) {
-		if ( $this->smart ) {
-			$skype_share_html = sprintf(
-				'<div class="skype-share" data-href="%1$s" data-lang="%2$s" data-style="small" data-source="jetpack" ></div>',
-				esc_attr( $this->get_share_url( $post->ID ) ),
-				'en-US'
-			);
-			return $skype_share_html;
-		}
-
-		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
-		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'skype' ) ) {
-			sharing_register_post_for_share_counts( $post->ID );
-		}
-		return $this->get_link(
-			$this->get_process_request_url( $post->ID ),
-			_x( 'Skype', 'share to', 'jetpack' ),
-			__( 'Click to share on Skype', 'jetpack' ),
-			'share=skype',
-			'sharing-skype-' . $post->ID
-		);
-	}
-
-	/**
-	 * AMP display for Skype.
-	 *
-	 * @param \WP_Post $post The current post being viewed.
-	 */
-	public function get_amp_display( $post ) {
-		$attrs = array(
-			'data-share-endpoint' => sprintf(
-				'https://web.skype.com/share?url=%1$s&lang=%2$s=&source=jetpack',
-				rawurlencode( $this->get_share_url( $post->ID ) ),
-				'en-US'
-			),
-		);
-
-		return $this->build_amp_markup( $attrs );
-	}
-
-	/**
-	 * Process sharing request. Add actions that need to happen when sharing here.
-	 *
-	 * @param WP_Post $post Post object.
-	 * @param array   $post_data Array of information about the post we're sharing.
-	 *
-	 * @return void
-	 */
-	public function process_request( $post, array $post_data ) {
-		$skype_url = sprintf(
-			'https://web.skype.com/share?url=%1$s&lang=%2$s=&source=jetpack',
-			rawurlencode( $this->get_share_url( $post->ID ) ),
-			'en-US'
-		);
-
-		// Record stats
-		parent::process_request( $post, $post_data );
-
-		parent::redirect_request( $skype_url );
-	}
-
-	/**
-	 * Add content specific to a service in the footer.
-	 */
-	public function display_footer() {
-		if ( $this->smart ) :
-			?>
-			<script>
-				(function(r, d, s) {
-					r.loadSkypeWebSdkAsync = r.loadSkypeWebSdkAsync || function(p) {
-							var js, sjs = d.getElementsByTagName(s)[0];
-							if (d.getElementById(p.id)) { return; }
-							js = d.createElement(s);
-							js.id = p.id;
-							js.src = p.scriptToLoad;
-							js.onload = p.callback
-							sjs.parentNode.insertBefore(js, sjs);
-						};
-					var p = {
-						scriptToLoad: 'https://swx.cdn.skype.com/shared/v/latest/skypewebsdk.js',
-						id: 'skype_web_sdk'
-					};
-					r.loadSkypeWebSdkAsync(p);
-				})(window, document, 'script');
-			</script>
-			<?php
-		else :
-			$this->js_dialog(
-				$this->shortname,
-				array(
-					'width'  => 305,
-					'height' => 665,
-				)
-			);
-		endif;
 	}
 }
 
