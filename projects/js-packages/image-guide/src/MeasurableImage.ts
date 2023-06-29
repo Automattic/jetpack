@@ -112,12 +112,12 @@ export class MeasurableImage {
 	private async fetchFileDimensions( url: string ) {
 		const img = new Image();
 		img.src = url;
-		return new Promise< { width: number; height: number } >( resolve => {
+		return new Promise< { width: number; height: number } >( ( resolve, reject ) => {
 			img.onload = () => {
 				resolve( { width: Math.round( img.width ), height: Math.round( img.height ) } );
 			};
 			img.onerror = () => {
-				resolve( { width: -1, height: -1 } );
+				reject( 'Unable to load image.' );
 			};
 		} );
 	}
