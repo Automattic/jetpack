@@ -57,7 +57,7 @@ function CustomCss( props ) {
 						{
 							a: (
 								<ExternalLink
-									href="https://wordpress.org/documentation/article/site-editor/"
+									href="https://wordpress.org/documentation/article/styles-overview/#applying-custom-css"
 									title={ __(
 										'Customize every aspect of your site with the Site Editor.',
 										'jetpack'
