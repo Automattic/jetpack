@@ -1,0 +1,8 @@
+{
+    "name": "automattic/jetpackcrm-modules-automation",
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    }
+}
