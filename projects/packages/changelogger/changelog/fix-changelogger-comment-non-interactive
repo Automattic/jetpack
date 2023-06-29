@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed providing a comment in non-interactive mode. Previously, this would cause an error
