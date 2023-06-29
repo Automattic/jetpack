@@ -264,7 +264,7 @@ EOF
 			}
 
 			// Determine the changelog entry and add to the file contents.
-			$entry = $input->getOption( 'entry' );
+			$entry   = $input->getOption( 'entry' );
 			$comment = (string) $input->getOption( 'comment' );
 			if ( $isInteractive ) {
 				if ( 'patch' === $significance ) {
