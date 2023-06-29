@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Return an error when an image is missing, instead of -1 by -1 dimensions.
