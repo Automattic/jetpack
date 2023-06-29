@@ -130,14 +130,19 @@ function CustomCss( props ) {
 		);
 	};
 
+	const supportText = () => {
+		if ( isBlockThemeActive ) {
+			return {};
+		}
+
+		return {
+			text: description,
+			link: getRedirectUrl( 'jetpack-support-custom-css' ),
+		};
+	};
+
 	return (
-		<SettingsGroup
-			module={ { module } }
-			support={ {
-				text: description,
-				link: getRedirectUrl( 'jetpack-support-custom-css' ),
-			} }
-		>
+		<SettingsGroup module={ { module } } support={ supportText() }>
 			<FormLegend className="jp-form-label-wide">{ name }</FormLegend>
 			{ isBlockThemeActive && recommendSiteEditor() }
 			{ ! isBlockThemeActive && customizerLink() }
