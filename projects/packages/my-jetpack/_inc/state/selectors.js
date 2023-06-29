@@ -87,6 +87,11 @@ const chatAvailabilitySelectors = {
 	isRequestingChatAvailability: state => state.chatAvailability.isFetching,
 };
 
+const chatAuthenticationSelectors = {
+	getChatAuthentication: state => state.chatAuthentication.jwt,
+	isRequestingChatAuthentication: state => state.chatAuthentication.isFetching,
+};
+
 const availableLicensesSelectors = {
 	getAvailableLicenses: state => state.availableLicenses?.items || [],
 	isFetchingAvailableLicenses: state => state.availableLicenses?.isFetching || false,
@@ -128,6 +133,7 @@ const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
 	...chatAvailabilitySelectors,
+	...chatAuthenticationSelectors,
 	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,

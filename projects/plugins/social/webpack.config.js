@@ -87,12 +87,12 @@ module.exports = [
 							loader: 'postcss-loader',
 							options: {
 								postcssOptions: {
-									plugins: {
-										'postcss-custom-properties': {
+									plugins: [
+										require( 'postcss-custom-properties' )( {
 											disableDeprecationNotice: true,
-										},
-										autoprefixer: {},
-									},
+										} ),
+										require( 'autoprefixer' ),
+									],
 								},
 							},
 						},

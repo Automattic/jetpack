@@ -103,22 +103,6 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests subscribers not being shown when locale is not English.
-	 *
-	 * @covers ::add_users_menu
-	 */
-	public function test_add_jetpack_menu_not_english() {
-		global $submenu;
-
-		add_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
-
-		static::$admin_menu->add_jetpack_menu();
-		$this->assertNotSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['jetpack'][3][2] );
-
-		remove_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
-	}
-
-	/**
 	 * Tests add_tools_menu
 	 *
 	 * @covers ::add_tools_menu
@@ -230,12 +214,5 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 
 		// Check Plugins menu always links to Calypso.
 		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, array_shift( $menu )[2] );
-	}
-
-	/**
-	 * Override the user's locale to be not English.
-	 */
-	public function set_test_locale_to_not_english() {
-		return 'nl_BE';
 	}
 }

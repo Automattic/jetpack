@@ -28,16 +28,10 @@ class Jetpack_Phpcs_Exclude_Filter extends Automattic\Jetpack\PhpcsFilter {
 		}
 
 		$lines = json_decode( file_get_contents( __DIR__ . '/phpcs-excludelist.json' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		$lines = array_filter(
-			$lines,
-			function ( $line ) {
-				$line = trim( $line );
-				return '' !== $line && '#' !== $line[0];
-			}
-		);
 		$lines = array_map(
 			function ( $line ) {
-				return $this->basedir . '/' . $line;
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				return $this->filterBaseDir . '/' . $line;
 			},
 			$lines
 		);

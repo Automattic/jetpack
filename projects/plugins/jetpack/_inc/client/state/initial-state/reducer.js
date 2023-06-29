@@ -373,6 +373,16 @@ export function currentThemeSupports( state, feature ) {
 }
 
 /**
+ * Check that the current theme is a block theme.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the current theme is a block theme, false otherwise.
+ */
+export function currentThemeIsBlockTheme( state ) {
+	return get( state.jetpack.initialState.themeData, [ 'isBlockTheme' ], false );
+}
+
+/**
  * Check if backups UI should be displayed.
  *
  * @param {object} state Global state tree
@@ -658,6 +668,26 @@ export function getJetpackCloudUrl( state, slug ) {
  */
 export function isOdysseyStatsEnabled( state ) {
 	return !! state.jetpack.initialState.isOdysseyStatsEnabled;
+}
+
+/**
+ * Returns true if Blaze can be used on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if Blaze is available on the site.
+ */
+export function shouldInitializeBlaze( state ) {
+	return !! state.jetpack.initialState.shouldInitializeBlaze;
+}
+
+/**
+ * Returns true if the wp-admin Blaze dashboard is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the Blaze dashboard is enabled.
+ */
+export function isBlazeDashboardEnabled( state ) {
+	return !! state.jetpack.initialState.isBlazeDashboardEnabled;
 }
 
 /**

@@ -48,7 +48,8 @@
 		"post-publish-qr-post-panel",
 		"payment-buttons",
 		"site-editor-snackbars",
-		"videopress/video"
+		"videopress/video",
+		"ai-assistant-support"
 	],
 	"beta": [
 		"ai-chat",
@@ -61,8 +62,7 @@
 		"post-publish-promote-post-panel",
 		"recipe",
 		"v6-video-frame-poster",
-		"videopress/video-chapters",
-		"ai-assistant-support"
+		"videopress/video-chapters"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

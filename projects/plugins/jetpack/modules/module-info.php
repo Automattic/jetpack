@@ -924,3 +924,19 @@ function jetpack_more_info_waf() {
 	esc_html_e( 'The Jetpack Firewall is a web application firewall designed to protect your WordPress site from malicious requests.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_waf', 'jetpack_more_info_waf' );
+
+/**
+ * Blaze support link.
+ */
+function jetpack_blaze_more_link() {
+	echo esc_url( Redirect::get_url( 'jetpack-support-blaze' ) );
+}
+add_action( 'jetpack_learn_more_button_blaze', 'jetpack_blaze_more_link' );
+
+/**
+ * Blaze description.
+ */
+function jetpack_more_info_blaze() {
+	esc_html_e( 'Grow your audience by promoting your content across Tumblr and WordPress.com.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_blaze', 'jetpack_more_info_blaze' );

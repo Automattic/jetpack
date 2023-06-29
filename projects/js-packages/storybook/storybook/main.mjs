@@ -2,6 +2,7 @@
  * This file is inspired by https://github.com/WordPress/gutenberg/blob/trunk/storybook/main.js
  */
 
+import path from 'node:path';
 import { fileURLToPath } from 'url';
 import postcssPlugins from '@wordpress/postcss-plugins-preset';
 import { EsbuildPlugin } from 'esbuild-loader';
@@ -28,6 +29,8 @@ const sbconfig = {
 				mdxPluginOptions: {
 					mdxCompileOptions: {
 						remarkPlugins: [ remarkGfm ],
+						// Workaround https://github.com/storybookjs/storybook/issues/23217
+						providerImportSource: require.resolve( '@storybook/addon-docs/mdx-react-shim' ),
 					},
 				},
 			},
@@ -94,7 +97,9 @@ const sbconfig = {
 		},
 	},
 	framework: {
-		name: '@storybook/react-webpack5',
+		// Workaround https://github.com/storybookjs/storybook/issues/21710
+		// from https://storybook.js.org/docs/react/faq#how-do-i-fix-module-resolution-while-using-pnpm-plug-n-play
+		name: path.dirname( require.resolve( '@storybook/react-webpack5/package.json' ) ),
 		options: {},
 	},
 	docs: {

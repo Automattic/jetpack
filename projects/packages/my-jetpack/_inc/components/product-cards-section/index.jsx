@@ -8,6 +8,7 @@ import CrmCard from './crm-card';
 import ScanAndProtectCard from './scan-protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
+import StatsCard from './stats-card';
 import VideopressCard from './videopress-card';
 
 /**
@@ -35,6 +36,9 @@ const ProductCardsSection = () => {
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<VideopressCard admin={ true } />
+			</Col>
+			<Col sm={ 4 } md={ 4 } lg={ 4 }>
+				<StatsCard admin={ true } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<CrmCard admin={ true } />
