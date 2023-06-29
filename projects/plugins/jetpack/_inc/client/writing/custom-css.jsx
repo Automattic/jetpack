@@ -51,7 +51,7 @@ function CustomCss( props ) {
 				<div className="jp-custom-css-site-editor__text">
 					{ createInterpolateElement(
 						__(
-							'Hurray! Your theme supports site editing with blocks. <a>Tell me more.</a>',
+							'Your site has a block theme that allows you to apply custom CSS from the Site Editor. <a>Learn more.</a>',
 							'jetpack'
 						),
 						{
