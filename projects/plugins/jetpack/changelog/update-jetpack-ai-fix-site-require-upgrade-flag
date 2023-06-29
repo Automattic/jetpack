@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack AI: Fix site-require-upgrade flag to be site-type agnostic, so even WPCOM sites may demand an upgrade.
