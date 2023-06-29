@@ -1306,7 +1306,7 @@ class Jetpack_Gutenberg {
 	 * Display a message to site editors and roles above when a block is no longer supported.
 	 * This is only displayed on the frontend.
 	 *
-	 * @since $$next-version$$
+	 * @since 12.3
 	 *
 	 * @param string $block_content The block content.
 	 * @param array  $block         The full block, including name and attributes.

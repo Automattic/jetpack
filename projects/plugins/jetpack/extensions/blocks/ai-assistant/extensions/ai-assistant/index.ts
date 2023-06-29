@@ -19,7 +19,7 @@ export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
 // List of blocks that can be extended.
 export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading', 'core/list-item' ] as const;
 
-type ExtendedBlock = ( typeof EXTENDED_BLOCKS )[ number ];
+export type ExtendedBlockProp = ( typeof EXTENDED_BLOCKS )[ number ];
 
 type BlockSettingsProps = {
 	supports: {
@@ -84,12 +84,12 @@ export function isPossibleToExtendBlock(): boolean {
  * Add jetpack/ai support to the extended blocks.
  *
  * @param {BlockSettingsProps} settings - Block settings.
- * @param {ExtendedBlock} name          - Block name.
+ * @param {ExtendedBlockProp} name          - Block name.
  * @returns {BlockSettingsProps}          Block settings.
  */
 function addJetpackAISupport(
 	settings: BlockSettingsProps,
-	name: ExtendedBlock
+	name: ExtendedBlockProp
 ): BlockSettingsProps {
 	// Only extend the blocks in the list.
 	if ( ! EXTENDED_BLOCKS.includes( name ) ) {

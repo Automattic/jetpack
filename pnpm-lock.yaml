@@ -316,6 +316,9 @@ importers:
       resize-observer-polyfill:
         specifier: 1.5.1
         version: 1.5.1
+      ts-dedent:
+        specifier: 2.2.0
+        version: 2.2.0
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -2196,6 +2199,9 @@ importers:
       '@jest/globals':
         specifier: 29.4.3
         version: 29.4.3
+      '@storybook/blocks':
+        specifier: 7.0.5
+        version: 7.0.5(react-dom@18.2.0)(react@18.2.0)
       '@storybook/client-api':
         specifier: 7.0.5
         version: 7.0.5
@@ -2410,12 +2416,6 @@ importers:
       jest-environment-jsdom:
         specifier: 29.4.3
         version: 29.4.3
-      postcss:
-        specifier: 8.4.21
-        version: 8.4.21
-      postcss-loader:
-        specifier: 6.2.0
-        version: 6.2.0(postcss@8.4.21)(webpack@5.76.0)
       prettier:
         specifier: npm:wp-prettier@2.8.5
         version: /wp-prettier@2.8.5
@@ -8513,7 +8513,7 @@ packages:
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       '@babel/core': 7.21.5
-      '@babel/plugin-transform-react-jsx': 7.21.5(@babel/core@7.21.5)
+      '@babel/plugin-transform-react-jsx': 7.22.5(@babel/core@7.21.5)
       '@jest/transform': 29.5.0
       '@mdx-js/react': 2.3.0(react@18.2.0)
       '@storybook/blocks': 7.0.5(react-dom@18.2.0)(react@18.2.0)
@@ -20905,7 +20905,7 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
     dependencies:
-      picomatch: 2.2.3
+      picomatch: 2.3.1
 
   /reakit-system@0.15.2(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-TvRthEz0DmD0rcJkGamMYx+bATwnGNWJpe/lc8UV2Js8nnPvkaxrHk5fX9cVASFrWbaIyegZHCWUBfxr30bmmA==}

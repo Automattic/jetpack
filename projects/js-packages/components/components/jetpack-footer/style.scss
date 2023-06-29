@@ -1,21 +1,42 @@
 .jp-dashboard-footer {
-	align-items: center;
-	color: var( --jp-black );
 	display: flex;
 	flex-wrap: wrap;
-	font-size: var( --font-body-extra-small );
-	line-height: 1.333;
+	align-items: center;
+	
 	max-width: 1128px;
 	width: 100%;
 
+	color: var( --jp-black );
+	
+	font-size: var( --font-body-extra-small );
+	line-height: 1.333;
+	
 	a {
-		&,
-		&:link,
-		&:hover,
-		&:visited,
-		&:active {
-			color: var( --jp-black );
-			text-decoration: none;
+		text-decoration: none;
+
+		&:any-link,
+		&[role=button] {
+			color: inherit;
+		}
+
+		&:hover {
+			text-decoration: underline;
+			text-decoration-thickness: 1.5px;
+		}
+
+		&:focus {
+			border-radius: 2px;
+			box-shadow: none;
+			outline: 1.5px solid currentColor;
+			outline-offset: 3px;
+		}
+	}
+
+	&.is-sm {
+		> ul {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.125rem;
 		}
 	}
 
@@ -23,94 +44,56 @@
 		flex-direction: column;
 		align-items: flex-start;
 	}
-}
 
-.jp-dashboard-footer__logo {
-	margin-right: 32px;
+	> ul {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 1rem;
 
-	.jp-dashboard-footer.is-md & {
-		margin-right: 0;
-		margin-bottom: 24px;
-	}
+		width: 100%;
+		margin: 0;
+		padding: 0;
+		
+		list-style: none;
 
-	.jp-dashboard-footer.is-sm & {
-		margin-bottom: 48px;
-	}
-}
+		> li {
+			margin-bottom: 0;
 
-.jp-dashboard-footer__module-name,
-.jp-dashboard-footer__jetpack-symbol {
-	vertical-align: middle;
-	display: inline-block;
-}
+			> a {
+				display: flex;
+				align-items: center;	
+				gap: 0.25rem;
 
-.jp-dashboard-footer__module-name {
-	margin-left: 5px;
-	font-weight: 600;
-}
-
-.jp-dashboard-footer__menu {
-	display: flex;
-
-	.jp-dashboard-footer.is-md & {
-		margin-bottom: 24px;
-	}
-
-	.jp-dashboard-footer.is-sm & {
-		flex-direction: column;
-		align-items: flex-start;
-		margin-bottom: 48px;
-
-		.jp-dashboard-footer__menu-item {
-			margin-right: 0;
-			margin-bottom: 16px;
-
-			&:last-child {
-				margin-bottom: 0;
+				min-height: 44px; // Minimum target area size
 			}
 		}
 	}
+}
 
-	.jp-dashboard-footer__menu-item {
-		position: relative;
-		color: var( --jp-black );
-		margin-right: 16px;
-		text-decoration: none;
+.jp-dashboard-footer__jp-item {
+	padding-inline-end: 1rem;
 
-		&.is-external {
-			padding-right: 20px;
-		}
-	
-		&:focus {
-			border-radius: 2px;
-			outline-offset: 3px;
-			outline: 1.5px solid var( --jp-black );
-			box-shadow: none;
-		}
-	
-		&:hover {
-			text-decoration: underline;
-			text-decoration-thickness: 1.5px;
-		}
+	font-weight: 600;
 
-		&:hover:focus {
-			text-decoration: none;
-		}
-	}
-
-	.jp-dashboard-footer__menu-item__icon {
-		width: 16px;
-		height: 16px;
-		margin-left: 4px;
-		position: absolute;
-		right: 0;
+	.jp-dashboard-footer.is-sm & {
+		padding-bottom: 1rem;
 	}
 }
 
-.jp-dashboard-footer__a8c-logo {
-	margin-left: auto;
+.jp-dashboard-footer__a8c-item {
+	.jp-dashboard-footer.is-lg & {
+		margin-inline-start: auto;
+	}
 
-	.jp-dashboard-footer.is-md & {
-		margin-left: 0;
+	.jp-dashboard-footer.is-sm & {
+		padding-top: 1rem;
+	}
+}
+
+.jp-dashboard-footer__jp-item,
+.jp-dashboard-footer__a8c-item {
+	> a {
+		text-decoration: none; // Logos typically have no hover effect
 	}
 }
