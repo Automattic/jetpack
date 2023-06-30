@@ -85,8 +85,8 @@ export async function getMeasurableImages(
 
 		return null;
 	} );
-	// wait for isImageBig() to return true/false for each image.
-	const results = await Promise.all( images.map( image => image.isImageBig() ) );
+	// wait for isImageTiny() to return true/false for each image.
+	const results = await Promise.all( images.map( image => ! image.isImageTiny() ) );
 	return images.filter( ( _, index ) => results[ index ] );
 }
 
