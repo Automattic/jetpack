@@ -140,7 +140,7 @@ class Error_Handler {
 
 		// If the site gets reconnected, clear errors.
 		add_action( 'jetpack_site_registered', array( $this, 'delete_all_errors' ) );
-		add_action( 'jetpack_get_site_data_success', array( $this, 'delete_all_errors' ) );
+		add_action( 'jetpack_get_site_data_success', array( $this, 'delete_all_api_errors' ) );
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( $this, 'delete_all_errors_and_return_unfiltered_value' ) );
 		add_filter( 'jetpack_connection_delete_all_tokens', array( $this, 'delete_all_errors_and_return_unfiltered_value' ) );
 		add_action( 'jetpack_unlinked_user', array( $this, 'delete_all_errors' ) );
@@ -485,6 +485,47 @@ class Error_Handler {
 	public function delete_all_errors() {
 		$this->delete_stored_errors();
 		$this->delete_verified_errors();
+	}
+
+	/**
+	 * Delete all stored and verified API errors from the database, leave the non-API errors intact.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function delete_all_api_errors() {
+		$type_filter = function ( $errors ) {
+			if ( is_array( $errors ) ) {
+				foreach ( $errors as $key => $error ) {
+					if ( ! empty( $error['error_type'] ) && in_array( $error['error_type'], array( 'xmlrpc', 'rest' ), true ) ) {
+						unset( $errors[ $key ] );
+					}
+				}
+			}
+
+			return count( $errors ) ? $errors : null;
+		};
+
+		$stored_errors = $this->get_stored_errors();
+		if ( is_array( $stored_errors ) && count( $stored_errors ) ) {
+			$stored_errors = array_filter( array_map( $type_filter, $stored_errors ) );
+			if ( count( $stored_errors ) ) {
+				update_option( static::STORED_ERRORS_OPTION, $stored_errors );
+			} else {
+				delete_option( static::STORED_ERRORS_OPTION );
+			}
+		}
+
+		$verified_errors = $this->get_verified_errors();
+		if ( is_array( $verified_errors ) && count( $verified_errors ) ) {
+			$verified_errors = array_filter( array_map( $type_filter, $verified_errors ) );
+			if ( count( $verified_errors ) ) {
+				update_option( static::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
+			} else {
+				delete_option( static::STORED_VERIFIED_ERRORS_OPTION );
+			}
+		}
 	}
 
 	/**
