@@ -132,7 +132,7 @@ export class MeasurableImage {
 		try {
 			const minSize = 65;
 			const dimensions = await this.fetchFileDimensions( this.getURL() );
-			return dimensions.width >= minSize && dimensions.height >= minSize;
+			return dimensions.width < minSize || dimensions.height < minSize;
 		} catch ( err ) {
 			return false;
 		}
