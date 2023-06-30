@@ -15,7 +15,7 @@ class Jetpack_Tiled_Gallery_Shape {
 	/**
 	 * The images to include in gallery.
 	 *
-	 * @var object
+	 * @var object[]
 	 */
 	protected $images;
 
@@ -29,7 +29,7 @@ class Jetpack_Tiled_Gallery_Shape {
 	/**
 	 * Constructor class.
 	 *
-	 * @param object $images - the images.
+	 * @param object[] $images - the images.
 	 */
 	public function __construct( $images ) {
 		$this->images      = $images;

@@ -56,7 +56,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 	/**
 	 * Attachment link
 	 *
-	 * @var string
+	 * @var bool
 	 */
 	public $needs_attachment_link;
 

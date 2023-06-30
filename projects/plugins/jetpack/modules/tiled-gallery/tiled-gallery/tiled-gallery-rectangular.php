@@ -292,21 +292,21 @@ class Jetpack_Tiled_Gallery_Row {
 	/**
 	 * Groups of images
 	 *
-	 * @var array
+	 * @var object[]
 	 */
 	public $groups;
 
 	/**
 	 * Image ratio.
 	 *
-	 * @var int
+	 * @var float
 	 */
 	public $ratio;
 
 	/**
 	 * Weighted ratio based on all the images.
 	 *
-	 * @var int
+	 * @var float
 	 */
 	public $weighted_ratio;
 
@@ -341,7 +341,7 @@ class Jetpack_Tiled_Gallery_Row {
 	/**
 	 * Constructor class.
 	 *
-	 * @param object $groups - the group of images.
+	 * @param object[] $groups - the group of images.
 	 */
 	public function __construct( $groups ) {
 		$this->groups         = $groups;
@@ -352,7 +352,7 @@ class Jetpack_Tiled_Gallery_Row {
 	/**
 	 * Get the ratio.
 	 *
-	 * @return int
+	 * @return float
 	 */
 	public function get_ratio() {
 		$ratio = 0;
@@ -365,7 +365,7 @@ class Jetpack_Tiled_Gallery_Row {
 	/**
 	 * Get weighted ratio.
 	 *
-	 * @return int
+	 * @return float
 	 */
 	public function get_weighted_ratio() {
 		$weighted_ratio = 0;
@@ -384,14 +384,14 @@ class Jetpack_Tiled_Gallery_Group {
 	/**
 	 * Images to be displayed in group.
 	 *
-	 * @var array
+	 * @var object[]
 	 */
 	public $images;
 
 	/**
 	 * Image ratio.
 	 *
-	 * @var int
+	 * @var float
 	 */
 	public $ratio;
 
@@ -426,7 +426,7 @@ class Jetpack_Tiled_Gallery_Group {
 	/**
 	 * Constructor class.
 	 *
-	 * @param object $images - the images.
+	 * @param object[] $images - the images.
 	 */
 	public function __construct( $images ) {
 		$this->images = $images;
@@ -436,7 +436,7 @@ class Jetpack_Tiled_Gallery_Group {
 	/**
 	 * Get the ratio.
 	 *
-	 * @return int
+	 * @return float
 	 */
 	public function get_ratio() {
 		$ratio = 0;
