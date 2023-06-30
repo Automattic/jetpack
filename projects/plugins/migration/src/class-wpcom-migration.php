@@ -116,13 +116,14 @@ class WPCOM_Migration {
 		);
 		Assets::enqueue_script( 'wpcom-migration' );
 
+		// Initial JS state including JP Connection data.
+		wp_add_inline_script( 'wpcom-migration', Connection_Initial_State::render(), 'before' );
+		wp_add_inline_script( 'wpcom-migration', $this->render_initial_state(), 'before' );
+
 		// Required for Analytics.
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
-		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'wpcom-migration', Connection_Initial_State::render(), 'before' );
-		wp_add_inline_script( 'wpcom-migration', $this->render_initial_state(), 'before' );
 	}
 
 	/**
