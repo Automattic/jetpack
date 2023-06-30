@@ -2,6 +2,7 @@
 	import { sprintf, __ } from '@wordpress/i18n';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
+	import { Link } from '../../utils/router';
 	import { isaGroupLabels, isaSummary } from './store/isa-summary';
 
 	function safePercent( value: number, outOf: number ): number {
@@ -27,26 +28,32 @@
 			{#if progress > 0 && progress < 100}
 				<Spinner />
 			{:else}
-				<span class="jb-bubble" class:done={isDone}>
-					{isDone ? '✓' : index + 1}
-				</span>
+				<Link class="jb-navigator-link" to="/image-size-analysis/{group}/1">
+					<span class="jb-bubble" class:done={isDone}>
+						{isDone ? '✓' : index + 1}
+					</span>
+				</Link>
 			{/if}
 
 			<div class="jb-category-name">
-				{isaGroupLabels[ group ] || group}
+				<Link class="jb-navigator-link" to="/image-size-analysis/{group}/1">
+					{isaGroupLabels[ group ] || group}
+				</Link>
 			</div>
 
 			{#if isDone || hasIssues}
 				<div class="jb-status" class:has-issues={hasIssues}>
-					{#if hasIssues}
-						{sprintf(
-							/* translators: %d is the number of items in this list hidden behind this link */
-							__( '%d issues', 'jetpack-boost' ),
-							summary.issue_count
-						)}
-					{:else}
-						{__( 'No issues', 'jetpack-boost' )}
-					{/if}
+					<Link class="jb-navigator-link" to="/image-size-analysis/{group}/1">
+						{#if hasIssues}
+							{sprintf(
+								/* translators: %d is the number of items in this list hidden behind this link */
+								__( '%d issues', 'jetpack-boost' ),
+								summary.issue_count
+							)}
+						{:else}
+							{__( 'No issues', 'jetpack-boost' )}
+						{/if}
+					</Link>
 				</div>
 			{/if}
 		</div>
@@ -72,6 +79,9 @@
 			'progress progress progress'
 			'bubble category category'
 			'bubble status status';
+		:global( a ) {
+			text-decoration: none;
+		}
 	}
 	.jb-bubble {
 		grid-area: bubble;
@@ -91,6 +101,7 @@
 	.jb-status {
 		grid-area: status;
 		font-size: 0.875rem;
+		:global( a ),
 		&.has-issues {
 			color: var( --color_warning );
 		}
