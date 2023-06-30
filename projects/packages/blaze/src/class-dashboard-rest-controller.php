@@ -55,7 +55,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Posts routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/wpcom/sites/%d/blaze/posts(\?.*)?', $site_id, $site_id ),
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/sites/%1$d/blaze/posts(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_blaze_posts' ),
@@ -97,7 +97,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Site Campaigns routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/sites/%d/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id, $site_id ),
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/sites/%1$d/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_site_campaigns' ),
