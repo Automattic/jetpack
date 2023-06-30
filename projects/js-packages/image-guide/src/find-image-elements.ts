@@ -61,13 +61,11 @@ export function backgroundImageSource( node: HTMLElement ) {
  *
  * @param {Element[]} domNodes - A list of nodes to measure
  * @param {(input: string, init?: Array) => Promise<Response>} fetchFn -  A function that fetches a URL and returns a Promise.
- * @param {boolean} filterImages - Whether to filter images or not.
  * @returns {MeasurableImage[]} - A list of MeasurableImage objects.
  */
 export async function getMeasurableImages(
 	domNodes: Element[],
-	fetchFn: FetchFn | null = null,
-	filterImages: true = true
+	fetchFn: FetchFn | null = null
 ): Promise< MeasurableImage[] > {
 	const nodes = findMeasurableElements( domNodes );
 	const images = nodes.map( node => {
@@ -88,13 +86,7 @@ export async function getMeasurableImages(
 		return null;
 	} );
 
-	if ( ! filterImages ) {
-		return images;
-	}
-
-	// wait for isImageTiny() to return true/false for each image.
-	const tinyImages = await Promise.all( images.map( image => image.isImageTiny() ) );
-	return images.filter( ( _, index ) => tinyImages[ index ] );
+	return images;
 }
 
 /**
