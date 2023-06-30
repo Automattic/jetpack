@@ -311,6 +311,34 @@ class Jetpack_Tiled_Gallery_Row {
 	public $weighted_ratio;
 
 	/**
+	 * Rounded value of the raw width.
+	 *
+	 * @var int
+	 */
+	public $width;
+
+	/**
+	 * Rounded value of the raw height.
+	 *
+	 * @var int
+	 */
+	public $height;
+
+	/**
+	 * Raw width of the row.
+	 *
+	 * @var int
+	 */
+	public $raw_width;
+
+	/**
+	 * Raw height of the row.
+	 *
+	 * @var int
+	 */
+	public $raw_height;
+
+	/**
 	 * Constructor class.
 	 *
 	 * @param object $groups - the group of images.
@@ -366,6 +394,34 @@ class Jetpack_Tiled_Gallery_Group {
 	 * @var int
 	 */
 	public $ratio;
+
+	/**
+	 * Rounded value of the raw width.
+	 *
+	 * @var int
+	 */
+	public $width;
+
+	/**
+	 * Rounded value of the raw height.
+	 *
+	 * @var int
+	 */
+	public $height;
+
+	/**
+	 * Raw width of the group.
+	 *
+	 * @var int
+	 */
+	public $raw_width;
+
+	/**
+	 * Raw height of the group.
+	 *
+	 * @var int
+	 */
+	public $raw_height;
 
 	/**
 	 * Constructor class.
