@@ -63,6 +63,10 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 		$site_type = is_blog_wpcom( $blog ) || is_blog_atomic( $blog ) ? 'wpcom' : 'jetpack';
 	}
 
+	// A8C override for certain sites.
+	if ( $feature === WPCOM_Features::ADVANCED_SEO && in_array( $blog_id, WPCOM_FEATURES::A8C_SITES_WITH_ADDITIONAL_SEO_FEATURES, true ) ) {
+		return true;
+	}
 	return WPCOM_Features::has_feature( $feature, $purchases, $site_type );
 }
 

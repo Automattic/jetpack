@@ -1099,6 +1099,48 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 	);
+	/**
+	 * Some A8C owned sites have additional features enabled. e.g. Jetpack SEO.
+	 * This is an array of blog IDs where these features are enabled.
+	 */
+	public const A8C_SITES_WITH_ADDITIONAL_SEO_FEATURES = array(
+		1,  // https://wordpress.com/
+		69197545, // br.support.wordpress.com
+		69197545, // br.support.wordpress.com
+		12084301, // he.support.wordpress.com
+		12358344, // pt.support.wordpress.com
+		20614491, // de.support.wordpress.com
+		110643074, // es.support.wordpress.com
+		9619154, // en.support.wordpress.com
+		9620355, // fr.support.wordpress.com
+		22718864, // ru.support.wordpress.com
+		26068228, // ja.support.wordpress.com
+		151395884, // ko.support.wordpress.com
+		151398260, // sv.support.wordpress.com
+		151398564, // ar.support.wordpress.com
+		150300509, // it.support.wordpress.com
+		150381433, // nl.support.wordpress.com
+		150645278, // id.support.wordpress.com
+		150881074, // tr.support.wordpress.com
+		151397720, // zh-cn.support.wordpress.com
+		151397956, // zh-tw.support.wordpress.com
+		3584907,  // en.blog.wordpress.com
+		7944537, // ja.blog.wordpress.com
+		11241806, // es.blog.wordpress.com
+		8181651, // pt.blog.wordpress.com
+		8994420, // fr.blog.wordpress.com
+		66243751, // br.blog.wordpress.com
+		196931530, // enwpgo.wordpress.com
+		173323553, // eswpgo.wordpress.com
+		173331416, // dewpgo.wordpress.com
+		162814143, // frwpgo.wordpress.com
+		173328699, // itwpgo.wordpress.com
+		163161552, // brwpgo.wordpress.com
+		53424024, // discover.wordpress.com
+		489937, // dailypost.wordpress.com
+		33534099,  // developer.wordpress.com
+		22994,  // theme.wordpress.com
+	);
 
 	/**
 	 * Checks whether the given feature is declared in our map.
