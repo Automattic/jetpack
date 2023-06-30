@@ -128,8 +128,13 @@ export class MeasurableImage {
 	 * @returns {boolean} - if the image is smaller than 65 pixels width and height return false
 	 */
 	public async isImageBig(): Promise< boolean > {
-		const minSize = 65;
-		const dimensions = await this.fetchFileDimensions( this.getURL() );
-		return dimensions.width >= minSize && dimensions.height >= minSize;
+		try {
+			const minSize = 65;
+			const dimensions = await this.fetchFileDimensions( this.getURL() );
+			return dimensions.width >= minSize && dimensions.height >= minSize;
+		} catch ( err ) {
+			// If we can't measure the size of the image, assume it's not to be thrown away at this stage.
+			return true;
+		}
 	}
 }
