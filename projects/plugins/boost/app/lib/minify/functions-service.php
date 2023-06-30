@@ -199,7 +199,7 @@ function jetpack_boost_page_optimize_build_output() {
 	// We can't assume that the root serves the same content as the subdir.
 	$subdir_path_prefix = '';
 	$request_path       = $utils->parse_url( $request_uri, PHP_URL_PATH );
-	$_static_index      = strpos( $request_path, '/_jb_static/' );
+	$_static_index      = strpos( $request_path, jetpack_boost_get_static_prefix() );
 	if ( $_static_index > 0 ) {
 		$subdir_path_prefix = substr( $request_path, 0, $_static_index );
 	}
