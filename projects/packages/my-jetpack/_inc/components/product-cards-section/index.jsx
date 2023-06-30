@@ -9,6 +9,7 @@ import ScanAndProtectCard from './scan-protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
 import StatsCard from './stats-card';
+import styles from './style.module.scss';
 import VideopressCard from './videopress-card';
 
 /**
@@ -31,7 +32,13 @@ const ProductCardsSection = () => {
 	];
 
 	return (
-		<Container tagName="ul" fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
+		<Container
+			className={ styles.cardlist }
+			tagName="ul"
+			fluid
+			horizontalSpacing={ 0 }
+			horizontalGap={ 3 }
+		>
 			{ items.map( ( Item, index ) => (
 				<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ index }>
 					<Item admin={ true } />
