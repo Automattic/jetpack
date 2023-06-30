@@ -261,10 +261,16 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 
 /**
  * Get the URL prefix for static minify/concat resources. Defaults to /jb_static/, but can be
- * overridden by defining JETPACK_BOOST_STATIC_PREFIX. Please include leading and trailing slashes.
+ * overridden by defining JETPACK_BOOST_STATIC_PREFIX.
  */
 function jetpack_boost_get_static_prefix() {
-	return defined( 'JETPACK_BOOST_STATIC_PREFIX' ) ? JETPACK_BOOST_STATIC_PREFIX : '/_jb_static/';
+	$prefix = defined( 'JETPACK_BOOST_STATIC_PREFIX' ) ? JETPACK_BOOST_STATIC_PREFIX : '/_jb_static/';
+
+	if ( substr( $prefix, 0, 1 ) !== '/' ) {
+		$prefix = '/' . $prefix;
+	}
+
+	return trailingslashit( $prefix );
 }
 
 /**
