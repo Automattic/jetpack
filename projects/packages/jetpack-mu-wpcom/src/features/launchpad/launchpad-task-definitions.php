@@ -22,6 +22,13 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
 			},
 		),
+		// design_completed checks for task completion while design_selected always returns true.
+		'design_completed'                => array(
+			'get_title'            => function () {
+				return __( 'Select a design', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		),
 		'design_selected'                 => array(
 			'get_title'            => function () {
 				return __( 'Select a design', 'jetpack-mu-wpcom' );
@@ -221,6 +228,15 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Drive traffic to your site', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		),
+
+		'domain_customize'                => array(
+			'id_map'               => 'domain_customize_deferred',
+			'get_title'            => function () {
+				return __( 'Customize your domain', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_domain_customize_completed',
+			'is_visible_callback'  => 'wpcom_is_domain_customize_task_visible',
 		),
 	);
 
@@ -657,6 +673,85 @@ function wpcom_is_domain_claim_completed() {
 }
 
 /**
+ * Returns if the site has domain or bundle purchases.
+ *
+ * @return array Array of booleans, first value is if the site has a bundle, second is if the site has a domain.
+ */
+function wpcom_domain_customize_check_purchases() {
+	if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
+		return false;
+	}
+
+	$site_purchases = wpcom_get_site_purchases();
+	$has_bundle     = false;
+	$has_domain     = false;
+
+	foreach ( $site_purchases as $site_purchase ) {
+		if ( 'bundle' === $site_purchase->product_type ) {
+			$has_bundle = true;
+		}
+
+		if ( in_array( $site_purchase->product_type, array( 'domain_map', 'domain_reg' ), true ) ) {
+			$has_domain = true;
+		}
+	}
+
+	return array( $has_bundle, $has_domain );
+}
+
+/**
+ * Determines whether or not domain customize task is complete.
+ *
+ * @param array $task    The Task object.
+ * @param mixed $default The default value.
+ * @return bool True if domain customize task is complete.
+ */
+function wpcom_is_domain_customize_completed( $task, $default ) {
+	$result = wpcom_domain_customize_check_purchases();
+
+	if ( $result === false ) {
+		return false;
+	}
+
+	list( $has_bundle, $has_domain ) = $result;
+
+	// For paid users with a custom domain, show the task as complete.
+	if ( $has_bundle && $has_domain ) {
+		return true;
+	}
+
+	// For everyone else, show the task as incomplete.
+	return $default;
+}
+
+/**
+ * Determines whether or not domain customize task is visible.
+ *
+ * @return bool True if user is on a free plan and didn't purchase domain or if user is on a paid plan and did purchase a domain.
+ */
+function wpcom_is_domain_customize_task_visible() {
+	$result = wpcom_domain_customize_check_purchases();
+
+	if ( $result === false ) {
+		return false;
+	}
+
+	list( $has_bundle, $has_domain ) = $result;
+
+	// Free user who didn't purchase a domain.
+	if ( ! $has_bundle && ! $has_domain ) {
+		return true;
+	}
+
+	// Paid user who purchased a domain.
+	if ( $has_bundle && $has_domain ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
  * Mark `domain_claim`, `domain_upsell`, and `domain_upsell_deferred` tasks complete
  * when a domain product is activated.
  *
@@ -680,3 +775,24 @@ function wpcom_mark_domain_tasks_complete( $blog_id, $user_id, $product_id ) {
 	wpcom_mark_launchpad_task_complete( 'domain_upsell_deferred' );
 }
 add_action( 'activate_product', 'wpcom_mark_domain_tasks_complete', 10, 6 );
+
+/**
+ * Re-trigger email campaigns for blog onboarding after user edit one of the fields in the launchpad.
+ */
+function wpcom_trigger_email_campaign() {
+	$site_intent = get_option( 'site_intent' );
+	if ( ! $site_intent ) {
+		return;
+	}
+
+	if ( ! in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+		return;
+	}
+
+	MarketingEmailCampaigns::start_tailored_use_case_new_site_workflows_if_eligible(
+		get_current_user_id(),
+		get_current_blog_id(),
+		$site_intent
+	);
+}
+add_action( 'update_option_launchpad_checklist_tasks_statuses', 'wpcom_trigger_email_campaign', 10, 3 );

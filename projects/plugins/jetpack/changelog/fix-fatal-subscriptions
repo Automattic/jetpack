@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: avoid Fatal Error when site is connected to WordPress.com, but user is not.

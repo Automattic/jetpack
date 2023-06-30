@@ -3,8 +3,17 @@ export default {
 		type: 'string',
 	},
 
+	originalContent: {
+		type: 'string',
+	},
+
 	promptType: {
 		type: 'string',
+	},
+
+	originalMessages: {
+		type: 'array',
+		default: [],
 	},
 
 	messages: {

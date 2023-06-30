@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed concatenation not working when WordPress is installed in a sub-directory on the server.

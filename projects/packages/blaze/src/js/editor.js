@@ -6,7 +6,7 @@ import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import { getPlugin, registerPlugin } from '@wordpress/plugins';
 import './editor.scss';
@@ -22,15 +22,17 @@ const BlazePostPublishPanel = () => {
 		[ tracks ]
 	);
 
-	const { isPostPublished, isPublishingPost, postId, postType, postVisibility } = useSelect(
-		selector => ( {
+	const { isPostPublished, isPublishingPost, postId, postType, postTypeLabel, postVisibility } =
+		useSelect( selector => ( {
 			isPostPublished: selector( editorStore ).isCurrentPostPublished(),
 			isPublishingPost: selector( editorStore ).isPublishingPost(),
 			postId: selector( editorStore ).getCurrentPostId(),
 			postType: selector( editorStore ).getCurrentPostType(),
+			postTypeLabel:
+				// Translators: default post type label.
+				selector( editorStore ).getPostTypeLabel() || _x( 'Post', 'noun', 'jetpack-blaze' ),
 			postVisibility: selector( editorStore ).getEditedPostVisibility(),
-		} )
-	);
+		} ) );
 	const wasPublishing = usePrevious( isPublishingPost );
 
 	const panelBodyProps = {
@@ -109,7 +111,7 @@ const BlazePostPublishPanel = () => {
 					{ sprintf(
 						/* translators: %s is the post type (e.g. Post, Page, Product). */
 						__( 'Blaze this %s', 'jetpack-blaze' ),
-						postType
+						postTypeLabel.toLowerCase()
 					) }
 					{ ! isDashboardEnabled && (
 						<Icon icon={ external } className="blaze-panel-outbound-link__external_icon" />

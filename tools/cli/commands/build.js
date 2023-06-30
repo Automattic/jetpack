@@ -525,6 +525,40 @@ async function copyFileAtomic( src, dest ) {
 }
 
 /**
+ * Check for filename collisions.
+ *
+ * @param {string} basedir - Base directory.
+ * @returns {string[]} Colliding file names.
+ */
+async function checkCollisions( basedir ) {
+	// @todo Once we require Node 20.1+, use the new `recursive` option to `fs.readdir` instead of manually recursing here.
+	// Doing `const files = await fs.readdir( basedir, { recursive: true } );` should suffice.
+	const files = [];
+	const ls = async dir => {
+		for ( const file of await fs.readdir( dir, { withFileTypes: true } ) ) {
+			const path = npath.join( dir, file.name );
+			files.push( npath.relative( basedir, path ) );
+			if ( file.isDirectory() ) {
+				await ls( path );
+			}
+		}
+	};
+	await ls( basedir );
+
+	const collisions = new Set();
+	const compare = Intl.Collator( 'und', { sensitivity: 'accent' } ).compare;
+	let prev = null;
+	for ( const file of files.sort( compare ) ) {
+		if ( prev !== null && compare( file, prev ) === 0 ) {
+			collisions.add( prev );
+			collisions.add( file );
+		}
+		prev = file;
+	}
+	return [ ...collisions ];
+}
+
+/**
  * Build a project.
  *
  * @param {object} t - Task object.
@@ -907,6 +941,15 @@ async function buildProject( t ) {
 				( await fs.readFile( `${ buildDir }/.gitattributes`, { encoding: 'utf8' } ) );
 		}
 		await fs.writeFile( `${ buildDir }/.gitattributes`, rules, { encoding: 'utf8' } );
+	}
+
+	// Check directory for filenames that differ only in case, as this will likely break.
+	const collisions = await checkCollisions( buildDir );
+	if ( collisions.length > 0 ) {
+		throw new Error(
+			'Build output constains files that differ only in case. This will be a compatibility issue.\n- ' +
+				collisions.join( '\n- ' )
+		);
 	}
 
 	// Get the project version number from the changelog.md file.
