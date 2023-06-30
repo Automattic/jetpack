@@ -12,12 +12,7 @@ export function useSaveCookieConsentSettings( clientId ) {
 	const wasSaving = usePrevious( isSaving );
 	const postHasBeenJustSaved = !! ( wasSaving && ! isSaving );
 
-	// eslint-disable-next-line no-unused-vars
-	const [ cookieConsentTemplate, setCookieConsentTemplate ] = useEntityProp(
-		'root',
-		'site',
-		'cookie_consent_template'
-	);
+	const [ , setCookieConsentTemplate ] = useEntityProp( 'root', 'site', 'cookie_consent_template' );
 	const { saveEditedEntityRecord } = useDispatch( coreStore );
 	const [ isSavingSetting, setIsSavingSetting ] = useState( false );
 
