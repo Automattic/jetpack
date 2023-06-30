@@ -106,7 +106,7 @@ const ActionButton = ( {
 		case PRODUCT_STATUSES.ACTIVE: {
 			const viewText = __( 'View', 'jetpack-my-jetpack' );
 			const manageText = __( 'Manage', 'jetpack-my-jetpack' );
-			const buttonText = purchaseUrl ? viewText : manageText; // See https://github.com/Automattic/jetpack/pull/31629
+			const buttonText = purchaseUrl ? viewText : manageText;
 			return (
 				<Button
 					{ ...buttonState }
