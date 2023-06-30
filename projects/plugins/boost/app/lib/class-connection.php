@@ -12,6 +12,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 use Automattic\Jetpack\Config as Jetpack_Config;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack_Boost\Admin\Config;
 
 /**
  * Class Connection
@@ -129,7 +130,8 @@ class Connection {
 	 */
 	public function register() {
 		if ( $this->is_connected() ) {
-			Analytics::record_user_event( 'connect_site' );
+			Analytics::record_user_event( 'using_existing_connection' );
+			Config::clear_getting_started();
 
 			return true;
 		}
@@ -137,7 +139,11 @@ class Connection {
 		$result = $this->manager->register();
 
 		if ( ! is_wp_error( $result ) ) {
-			Analytics::record_user_event( 'connect_site' );
+			Analytics::record_user_event( 'established_connection' );
+			Config::clear_getting_started();
+
+			// Special case: when connecting for the first time, ensure critical_css module is enabled.
+			update_option( 'jetpack_boost_status_critical_css', true, false );
 
 			Premium_Features::clear_cache();
 		}

@@ -213,16 +213,23 @@ class Jetpack_Boost {
 		$this->deactivate();
 
 		// Delete all Jetpack Boost options.
-		$wpdb->query(
+		//phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$option_names = $wpdb->get_col(
 			"
-			DELETE
-			FROM    `$wpdb->options`
-			WHERE   `option_name` LIKE 'jetpack_boost_%'
-		"
+				SELECT `option_name`
+				FROM   `$wpdb->options`
+				WHERE  `option_name` LIKE 'jetpack_boost_%';
+			"
 		);
+		//phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		foreach ( $option_names as $option_name ) {
+			delete_option( $option_name );
+		}
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();
+
 		// Delete all transients created by boost.
 		Transient::delete_by_prefix( '' );
 
