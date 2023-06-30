@@ -15,7 +15,6 @@
 	},
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",
-		"@automattic/jetpack-connection": "workspace:*",
 		"@babel/runtime": "^7",
 		"@wordpress/browserslist-config": "5.19.0",
 		"@wordpress/components": "25.2.0",

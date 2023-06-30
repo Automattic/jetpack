@@ -1,10 +1,10 @@
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import classnames from 'classnames';
 import React from 'react';
 import { getRedirectUrl } from '../..';
+import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store';
 import AutomatticBylineLogo from '../automattic-byline-logo';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo';
@@ -37,10 +37,14 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
 
 	const { isActive, connectedPlugins } = useSelect(
-		select => ( {
-			connectedPlugins: select( CONNECTION_STORE_ID ).getConnectedPlugins(),
-			...select( CONNECTION_STORE_ID ).getConnectionStatus(),
-		} ),
+		select => {
+			const connectionStatus = select( CONNECTION_STORE_ID ) as any;
+
+			return {
+				connectedPlugins: connectionStatus?.getConnectedPlugins(),
+				...connectionStatus.getConnectionStatus(),
+			};
+		},
 		[ CONNECTION_STORE_ID ]
 	);
 

@@ -207,9 +207,6 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
-      '@automattic/jetpack-connection':
-        specifier: workspace:*
-        version: link:../connection
       '@babel/runtime':
         specifier: ^7
         version: 7.21.5
