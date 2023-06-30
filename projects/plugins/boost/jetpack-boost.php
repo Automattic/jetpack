@@ -69,6 +69,7 @@ if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
 
+	// Handling JETPACK_BOOST_STATIC_PREFIX constant inline to avoid loading the minify module until we know we want it.
 	$static_prefix = defined( 'JETPACK_BOOST_STATIC_PREFIX' ) ? JETPACK_BOOST_STATIC_PREFIX : '/_jb_static/';
 	if ( $static_prefix === substr( $request_path, -strlen( $static_prefix ) ) ) {
 		define( 'JETPACK_BOOST_CONCAT_USE_WP', true );
