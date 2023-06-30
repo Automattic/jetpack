@@ -401,7 +401,7 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function get_dsp_countries( $req ) {
-		return $this->get_dsp_generic( 'v1/countries', $req );
+		return $this->get_dsp_generic( 'v1/woo/countries', $req );
 	}
 
 	/**
