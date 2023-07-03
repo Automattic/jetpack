@@ -453,10 +453,6 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 
 /* Individual official buttons */
-.reddit_button iframe {
-	margin-top: 1px;
-}
-
 .pocket_button iframe, .pinterest_button, .twitter_button, .linkedin_button>span {
 	margin: 0 !important;
 }
