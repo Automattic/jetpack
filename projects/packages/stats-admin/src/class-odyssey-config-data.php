@@ -37,9 +37,8 @@ class Odyssey_Config_Data {
 	public function get_data() {
 		global $wp_version;
 
-		$blog_id      = Jetpack_Options::get_option( 'id' );
-		$empty_object = json_decode( '{}' );
-		$host         = new Host();
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		$host    = new Host();
 
 		return array(
 			'admin_page_base'                => $this->get_admin_path(),
@@ -81,8 +80,8 @@ class Odyssey_Config_Data {
 							'jetpack'      => true,
 							'visible'      => true,
 							'capabilities' => $this->get_current_user_capabilities(),
-							'products'     => array(),
-							'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
+							'products'     => Jetpack_Plan::get_products(),
+							'plan'         => $this->get_plan(),
 							'options'      => array(
 								'wordads'               => ( new Modules() )->is_active( 'wordads' ),
 								'admin_url'             => admin_url(),
@@ -176,6 +175,18 @@ class Odyssey_Config_Data {
 			return array();
 		}
 		return $plan['features'];
+	}
+
+	/**
+	 * Get the current plan.
+	 *
+	 * @return array
+	 */
+	protected function get_plan() {
+		$plan = Jetpack_Plan::get();
+		unset( $plan['features'] );
+		unset( $plan['supports'] );
+		return $plan;
 	}
 
 	/**
