@@ -321,7 +321,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			'color_scheme'                                 => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
 			'lang'                                         => get_locale(),
 			'jetpack_version'                              => JETPACK__VERSION,
-			'is_test_blockratize_comments_sticker_enabled' => get_option( 'blockratize_comments_sticker_enabled', Jetpack_Options::get_option( 'id' ) ),
+			'is_test_blockratize_comments_sticker_enabled' => has_blog_sticker( 'test-blockratize-comments', Jetpack_Options::get_option( 'id' ) ),
 		);
 
 		// Extra parameters for logged in user.
