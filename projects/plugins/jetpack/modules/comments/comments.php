@@ -238,6 +238,21 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
+	 * Check if site has test-blockratize-comments sticker
+	 *
+	 * @since JetpackComments (1.4)
+	 */
+	public function blockratize_comments_sticker_exists() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'test-blockratize-comments' );
+		} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			// For atomic sites
+			return wpcomsh_is_site_sticker_active( 'test-blockratize-comments' );
+		}
+		return false;
+	}
+
+	/**
 	 * Noop the default comment form output, get some options, and output our
 	 * tricked out totally radical comment form.
 	 *
@@ -294,16 +309,16 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 
 		$params = array(
-			'blogid'                                       => Jetpack_Options::get_option( 'id' ),
-			'postid'                                       => get_the_ID(),
-			'comment_registration'                         => ( get_option( 'comment_registration' ) ? '1' : '0' ), // Need to explicitly send a '1' or a '0' for these.
-			'require_name_email'                           => ( get_option( 'require_name_email' ) ? '1' : '0' ),
-			'stc_enabled'                                  => $stc_enabled,
-			'stb_enabled'                                  => $stb_enabled,
-			'show_avatars'                                 => ( get_option( 'show_avatars' ) ? '1' : '0' ),
-			'avatar_default'                               => get_option( 'avatar_default' ),
-			'greeting'                                     => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),
-			'jetpack_comments_nonce'                       => wp_create_nonce( 'jetpack_comments_nonce-' . get_the_ID() ),
+			'blogid'                 => Jetpack_Options::get_option( 'id' ),
+			'postid'                 => get_the_ID(),
+			'comment_registration'   => ( get_option( 'comment_registration' ) ? '1' : '0' ), // Need to explicitly send a '1' or a '0' for these.
+			'require_name_email'     => ( get_option( 'require_name_email' ) ? '1' : '0' ),
+			'stc_enabled'            => $stc_enabled,
+			'stb_enabled'            => $stb_enabled,
+			'show_avatars'           => ( get_option( 'show_avatars' ) ? '1' : '0' ),
+			'avatar_default'         => get_option( 'avatar_default' ),
+			'greeting'               => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),
+			'jetpack_comments_nonce' => wp_create_nonce( 'jetpack_comments_nonce-' . get_the_ID() ),
 			/**
 			 * Changes the comment form prompt.
 			 *
@@ -313,15 +328,15 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			 *
 			 * @param string $var Default is "Leave a Reply to %s."
 			 */
-			'greeting_reply'                               => apply_filters(
+			'greeting_reply'         => apply_filters(
 				'jetpack_comment_form_prompt_reply',
 				/* translators: %s is the displayed username of the post (or comment) author */
 				__( 'Leave a Reply to %s', 'jetpack' )
 			),
-			'color_scheme'                                 => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
-			'lang'                                         => get_locale(),
-			'jetpack_version'                              => JETPACK__VERSION,
-			'is_test_blockratize_comments_sticker_enabled' => has_blog_sticker( 'test-blockratize-comments', Jetpack_Options::get_option( 'id' ) ),
+			'color_scheme'           => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
+			'lang'                   => get_locale(),
+			'jetpack_version'        => JETPACK__VERSION,
+			'should_blockratize'     => blockratize_comments_sticker_exists(),
 		);
 
 		// Extra parameters for logged in user.
