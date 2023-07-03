@@ -1,0 +1,23 @@
+[
+	{
+		"blockName": "jetpack/cookie-consent",
+		"attrs": {},
+		"innerBlocks": [
+			{
+				"blockName": "core/button",
+				"attrs": {},
+				"innerBlocks": [],
+				"innerHTML": "\n\t<div class=\"wp-block-button\"><a class=\"wp-block-button__link wp-element-button\">Accept</a></div>\n\t",
+				"innerContent": [
+					"\n\t<div class=\"wp-block-button\"><a class=\"wp-block-button__link wp-element-button\">Accept</a></div>\n\t"
+				]
+			}
+		],
+		"innerHTML": "\n<div class=\"wp-block-jetpack-cookie-consent alignwide has-text-color has-background has-text-color has-background\" style=\"color:var(--wp--preset--color--contrast);background-color:var(--wp--preset--color--tertiary);padding-top:1em;padding-right:1em;padding-bottom:1em;padding-left:1em\" role=\"dialog\" aria-modal=\"true\"><p>Privacy &amp; Cookies: This site uses cookies. By continuing to use this website, you agree to their use. To find out more, including how to control cookies, see here: <a href=\"https://automattic.com/cookies/\">Cookie Policy</a>.</p><span>365</span></div>\n",
+		"innerContent": [
+			"\n<div class=\"wp-block-jetpack-cookie-consent alignwide has-text-color has-background has-text-color has-background\" style=\"color:var(--wp--preset--color--contrast);background-color:var(--wp--preset--color--tertiary);padding-top:1em;padding-right:1em;padding-bottom:1em;padding-left:1em\" role=\"dialog\" aria-modal=\"true\"><p>Privacy &amp; Cookies: This site uses cookies. By continuing to use this website, you agree to their use. To find out more, including how to control cookies, see here: <a href=\"https://automattic.com/cookies/\">Cookie Policy</a>.</p>",
+			null,
+			"<span>365</span></div>\n"
+		]
+	}
+]
