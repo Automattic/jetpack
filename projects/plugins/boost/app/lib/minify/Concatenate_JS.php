@@ -238,7 +238,7 @@ class Concatenate_JS extends WP_Scripts {
 						}
 					}
 
-					$href = $siteurl . '/_static/??' . $path_str;
+					$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $path_str;
 				} elseif ( isset( $js_array['paths'] ) && is_array( $js_array['paths'] ) ) {
 					$href = jetpack_boost_page_optimize_cache_bust_mtime( $js_array['paths'][0], $siteurl );
 				}

@@ -592,12 +592,51 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 		return false;
 	}
 
-	function zeroBSCRM_permsCustomers(){
+/**
+ * Determine if a user is allowed to manage contacts.
+ *
+ * @since $$next-version$$
+ *
+ * @param WP_User $user The WP User to check permission access for.
+ * @param int     $contact_id (Optional) The ID of the CRM contact.
+ * @return bool Returns a bool representing a user permission state.
+ */
+function jpcrm_can_user_manage_contacts( WP_User $user, $contact_id = null ) {
+	/**
+	 * Allow third party plugins to modify the permission conditions for contacts.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param boolean  $allowed A boolean that represents the permission state.
+	 * @param WP_User  $user The WP User to check permission access for.
+	 * @param int|null $contact_id (Optional) The ID of the CRM contact.
+	 */
+	return (bool) apply_filters(
+		'jpcrm_can_user_manage_contacts',
+		$user->has_cap( 'admin_zerobs_customers' ),
+		$user,
+		$contact_id
+	);
+}
 
-	    $cu = wp_get_current_user();
-	    if ($cu->has_cap('admin_zerobs_customers')) return true;
-	    return false;
+/**
+ * Determine if the current user is allowed to manage contacts.
+ *
+ * @deprecated $$next-version$$ Use jpcrm_can_user_manage_contacts()
+ *
+ * @return bool
+ *
+ * @phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+ */
+function zeroBSCRM_permsCustomers() {
+	$current_user = wp_get_current_user();
+
+	if ( ! $current_user instanceof WP_User ) {
+		return false;
 	}
+
+	return jpcrm_can_user_manage_contacts( $current_user ) === true;
+}
 
 	function zeroBSCRM_permsSendEmailContacts(){
 

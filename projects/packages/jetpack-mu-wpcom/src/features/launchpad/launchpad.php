@@ -610,8 +610,12 @@ if ( class_exists( 'WPCOM_Launchpad' ) ) {
  * @param array $allowed_options The allowed options.
  */
 function add_launchpad_options_to_jetpack_sync( $allowed_options ) {
-	// Bail if not on an Atomic site
-	if ( ! jetpack_is_atomic_site() ) {
+	// We are not either in Simple or Atomic
+	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
+		return $allowed_options;
+	}
+
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 		return $allowed_options;
 	}
 
