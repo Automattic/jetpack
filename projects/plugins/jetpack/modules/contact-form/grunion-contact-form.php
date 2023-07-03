@@ -4264,7 +4264,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'',
 				$template
 			),
-			( ! empty( $title ) ? '<h1>' . $title . '</h1>' : '' ),
+			( $title !== '' ? '<h1>' . $title . '</h1>' : '' ),
 			$body,
 			$response_link,
 			$form_link,
