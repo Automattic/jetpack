@@ -79,6 +79,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_staging_site'       => '(bool) If the site is a WP.com staging site.',
 		'user_interactions'           => '(array) An array of user interactions with a site.',
 		'was_ecommerce_trial'         => '(bool) If the site ever used an eCommerce trial.',
+		'wpcom_site_setup'            => '(string) The WP.com site setup identifier.',
 	);
 
 	/**
@@ -201,6 +202,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_production_blog_id',
 		'wpcom_staging_blog_ids',
 		'can_blaze',
+		'wpcom_site_setup',
 	);
 
 	/**
@@ -877,6 +879,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'can_blaze':
 					$options[ $key ] = $site->can_blaze();
+					break;
+				case 'wpcom_site_setup':
+					$options[ $key ] = $site->get_wpcom_site_setup();
 					break;
 			}
 		}
