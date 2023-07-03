@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: remove Reddit's Oofficial iFramed sharing button, it is no longer working. Use icon+text sharing button instead.
