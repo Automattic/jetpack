@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Jetpack Boost: Image Guide loads images to get actual dimensions rather than just looking at "on page" dimensions.

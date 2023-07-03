@@ -3671,11 +3671,11 @@ importers:
   tools/cli:
     dependencies:
       '@octokit/auth-token':
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 4.0.0
+        version: 4.0.0
       '@octokit/rest':
-        specifier: 19.0.11
-        version: 19.0.11
+        specifier: 19.0.13
+        version: 19.0.13
       chalk:
         specifier: 4.1.2
         version: 4.1.2
@@ -3807,11 +3807,11 @@ importers:
         specifier: 7.21.5
         version: 7.21.5(@babel/core@7.21.5)
       '@octokit/auth-token':
-        specifier: 3.0.3
-        version: 3.0.3
+        specifier: 4.0.0
+        version: 4.0.0
       '@octokit/rest':
-        specifier: 19.0.11
-        version: 19.0.11
+        specifier: 19.0.13
+        version: 19.0.13
       '@rushstack/eslint-patch':
         specifier: 1.1.4
         version: 1.1.4
@@ -6409,6 +6409,10 @@ packages:
     dependencies:
       '@octokit/types': 9.3.2
 
+  /@octokit/auth-token@4.0.0:
+    resolution: {integrity: sha512-tY/msAuJo6ARbK6SPIxZrPBms3xPbfwBrulZe0Wtr/DIY9lje2HeV1uoebShn6mx7SjCHif6EjMvoREj+gZ+SA==}
+    engines: {node: '>= 18'}
+
   /@octokit/core@3.6.0:
     resolution: {integrity: sha512-7RKRKuA4xTjMhY+eG3jthb3hlZCsOwg3rztWh75Xc+ShDWOfDDATWbeZpAHBNRpm4Tv9WgBMOy1zEJYXG6NJ7Q==}
     dependencies:
@@ -6567,8 +6571,8 @@ packages:
     transitivePeerDependencies:
       - encoding
 
-  /@octokit/rest@19.0.11:
-    resolution: {integrity: sha512-m2a9VhaP5/tUw8FwfnW2ICXlXpLPIqxtg3XcAiGMLj/Xhw3RSBfZ8le/466ktO1Gcjr8oXudGnHhxV1TXJgFxw==}
+  /@octokit/rest@19.0.13:
+    resolution: {integrity: sha512-/EzVox5V9gYGdbAI+ovYj3nXQT1TtTHRT+0eZPcuC05UFSWO3mdO9UY1C0i2eLF9Un1ONJkAk+IEtYGAC+TahA==}
     engines: {node: '>= 14'}
     dependencies:
       '@octokit/core': 4.2.4
@@ -8513,7 +8517,7 @@ packages:
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       '@babel/core': 7.21.5
-      '@babel/plugin-transform-react-jsx': 7.22.5(@babel/core@7.21.5)
+      '@babel/plugin-transform-react-jsx': 7.21.5(@babel/core@7.21.5)
       '@jest/transform': 29.5.0
       '@mdx-js/react': 2.3.0(react@18.2.0)
       '@storybook/blocks': 7.0.5(react-dom@18.2.0)(react@18.2.0)
@@ -20905,7 +20909,7 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
     dependencies:
-      picomatch: 2.3.1
+      picomatch: 2.2.3
 
   /reakit-system@0.15.2(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-TvRthEz0DmD0rcJkGamMYx+bATwnGNWJpe/lc8UV2Js8nnPvkaxrHk5fX9cVASFrWbaIyegZHCWUBfxr30bmmA==}

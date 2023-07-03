@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Persist block markup and ensure it is rendered in the footer
