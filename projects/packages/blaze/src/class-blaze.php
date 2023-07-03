@@ -14,6 +14,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Status as Jetpack_Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
@@ -67,18 +68,27 @@ class Blaze {
 
 	/**
 	 * Is the wp-admin Dashboard enabled?
+	 * That dashboard is not available or necessary on WordPress.com sites.
 	 *
 	 * @return bool
 	 */
 	public static function is_dashboard_enabled() {
+		// Right now the dashboard is disabled by default.
+		$is_dashboard_enabled = false;
+
+		// On WordPress.com sites, the dashboard is not needed.
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			$is_dashboard_enabled = false;
+		}
+
 		/**
 		 * Enable a wp-admin dashboard for Blaze campaign management.
 		 *
 		 * @since 0.7.0
 		 *
-		 * @param bool $should_enable Should the dashboard be enabled? False by default for now.
+		 * @param bool $should_enable Should the dashboard be enabled?
 		 */
-		return apply_filters( 'jetpack_blaze_dashboard_enable', false );
+		return apply_filters( 'jetpack_blaze_dashboard_enable', $is_dashboard_enabled );
 	}
 
 	/**
@@ -87,19 +97,33 @@ class Blaze {
 	 * @return void
 	 */
 	public static function enable_blaze_menu() {
-		if (
-			self::should_initialize()
-			&& self::is_dashboard_enabled()
-		) {
-			$blaze_dashboard = new Blaze_Dashboard();
-			$page_suffix     = add_submenu_page(
+		if ( ! self::should_initialize() ) {
+			return;
+		}
+
+		$blaze_dashboard = new Blaze_Dashboard();
+
+		if ( self::is_dashboard_enabled() ) {
+			$page_suffix = add_submenu_page(
 				'tools.php',
 				esc_attr__( 'Advertising', 'jetpack-blaze' ),
 				__( 'Advertising', 'jetpack-blaze' ),
 				'manage_options',
 				'advertising',
 				array( $blaze_dashboard, 'render' ),
-				100
+				1
+			);
+			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+		} elseif ( ( new Host() )->is_wpcom_platform() ) {
+			$domain      = ( new Jetpack_Status() )->get_site_suffix();
+			$page_suffix = add_submenu_page(
+				'tools.php',
+				esc_attr__( 'Advertising', 'jetpack-blaze' ),
+				__( 'Advertising', 'jetpack-blaze' ),
+				'manage_options',
+				'https://wordpress.com/advertising/' . $domain,
+				null,
+				1
 			);
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		}
