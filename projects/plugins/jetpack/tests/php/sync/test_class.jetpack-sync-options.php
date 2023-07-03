@@ -232,7 +232,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'launchpad_checklist_tasks_statuses'           => array(),
 			'launchpad_screen'                             => 'full',
 			'wpcom_reader_views_enabled'                   => true,
-
+			'wpcom_site_setup'                             => '',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
