@@ -7,27 +7,6 @@ import { attachGuides } from './initialize';
 import { guideState } from './stores/GuideState';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
 import type { MeasurableImageStore } from './stores/MeasurableImageStore';
-import type { MeasurableImage } from '@automattic/jetpack-image-guide';
-
-/**
- * A helper function to filter out images
- * that are too small, for example
- * avatars, icons, etc.
- *
- * @param images An array of images to filter
- */
-function discardSmallImages( images: MeasurableImage[] ) {
-	const minSize = 65;
-	const elements = images.filter( image => {
-		const { width, height } = image.getSizeOnPage();
-		if ( ! width || ! height ) {
-			return false;
-		}
-		return width >= minSize && height >= minSize;
-	} );
-
-	return elements;
-}
 
 /**
  * Fetches the weight of a resource using a proxy if the resource is not on the same origin.
@@ -142,7 +121,7 @@ function initialize() {
 		if ( $state === 'paused' ) {
 			return;
 		}
-		const measurableImages = getMeasurableImages(
+		const measurableImages = await getMeasurableImages(
 			Array.from(
 				document.querySelectorAll(
 					'body *:not(.jetpack-boost-guide > *):not(.jetpack-boost-guide)'
@@ -150,8 +129,7 @@ function initialize() {
 			),
 			fetchWeightUsingProxy
 		);
-		const filteredImages = discardSmallImages( measurableImages );
-		stores.push( ...attachGuides( filteredImages ) );
+		stores.push( ...attachGuides( measurableImages ) );
 
 		ImageGuideAnalytics.trackPage( stores );
 	} );

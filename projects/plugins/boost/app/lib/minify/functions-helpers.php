@@ -260,7 +260,21 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 }
 
 /**
- * Detects requests within the `/_static/` directory, and serves minified content.
+ * Get the URL prefix for static minify/concat resources. Defaults to /jb_static/, but can be
+ * overridden by defining JETPACK_BOOST_STATIC_PREFIX.
+ */
+function jetpack_boost_get_static_prefix() {
+	$prefix = defined( 'JETPACK_BOOST_STATIC_PREFIX' ) ? JETPACK_BOOST_STATIC_PREFIX : '/_jb_static/';
+
+	if ( substr( $prefix, 0, 1 ) !== '/' ) {
+		$prefix = '/' . $prefix;
+	}
+
+	return trailingslashit( $prefix );
+}
+
+/**
+ * Detects requests within the `/_jb_static/` directory, and serves minified content.
  *
  * @return void
  */
@@ -270,7 +284,8 @@ function jetpack_boost_minify_serve_concatenated() {
 	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
-		if ( '/_static/' === substr( $request_path, -9, 9 ) ) {
+		$prefix       = jetpack_boost_get_static_prefix();
+		if ( $prefix === substr( $request_path, -strlen( $prefix ), strlen( $prefix ) ) ) {
 			require_once __DIR__ . '/functions-service.php';
 			jetpack_boost_page_optimize_service_request();
 			exit;

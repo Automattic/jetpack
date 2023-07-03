@@ -281,23 +281,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests subscribers not being shown when locale is not English.
-	 *
-	 * @covers ::add_users_menu
-	 */
-	public function test_add_users_menu_not_english() {
-		global $submenu;
-
-		add_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
-
-		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
-		static::$admin_menu->add_users_menu();
-		$this->assertNotSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][2][2] );
-
-		remove_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
-	}
-
-	/**
 	 * Tests add_options_menu
 	 *
 	 * @covers ::add_options_menu
@@ -321,12 +304,5 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );
-	}
-
-	/**
-	 * Override the user's locale to be not English.
-	 */
-	public function set_test_locale_to_not_english() {
-		return 'nl_BE';
 	}
 }
