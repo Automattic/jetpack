@@ -1689,7 +1689,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'',
 				$template
 			),
-			$title,
+			( ! empty( $title ) ? '<h1>' . $title . '</h1>' : '' ),
 			$body,
 			'',
 			'',
