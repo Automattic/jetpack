@@ -24,6 +24,7 @@ class Products {
 		$classes = array(
 			'anti-spam'  => Products\Anti_Spam::class,
 			'backup'     => Products\Backup::class,
+			'blaze'      => Products\Blaze::class,
 			'boost'      => Products\Boost::class,
 			'crm'        => Products\Crm::class,
 			'extras'     => Products\Extras::class,
