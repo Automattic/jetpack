@@ -1,11 +1,14 @@
 <script lang="ts">
 	export let title: string;
 	export let url: string;
+	const maxTitleLength = 20;
 
 	const urlWithoutProtocol = url.replace( /^https?:\/\/(www\.)?/, '' );
+	const croppedTitle =
+		title.length > maxTitleLength ? title.slice( 0, maxTitleLength ) + '...' : title;
 </script>
 
-<b>{title}</b>
+<b>{croppedTitle}</b>
 <a href={url} target="_blank">
 	{urlWithoutProtocol}
 </a>
