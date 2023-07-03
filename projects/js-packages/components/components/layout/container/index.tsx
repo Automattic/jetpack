@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useMemo } from 'react';
+import { createElement, useMemo } from 'react';
 import { ContainerProps } from '../types';
 import styles from './style.module.scss';
 import type React from 'react';
@@ -13,6 +13,7 @@ import type React from 'react';
 const Container: React.FC< ContainerProps > = ( {
 	children,
 	fluid = false,
+	tagName = 'div',
 	className,
 	horizontalGap = 1,
 	horizontalSpacing = 1,
@@ -32,10 +33,13 @@ const Container: React.FC< ContainerProps > = ( {
 		[ styles.fluid ]: fluid,
 	} );
 
-	return (
-		<div className={ containerClassName } style={ containerStyle }>
-			{ children }
-		</div>
+	return createElement(
+		tagName,
+		{
+			className: containerClassName,
+			style: containerStyle,
+		},
+		children
 	);
 };
 
