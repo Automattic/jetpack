@@ -191,7 +191,7 @@ class Jetpack_Subscribe_Modal {
 		*
 		* @param bool $should_enable_subscriber_modal Whether the Subscriptions modal should be enabled.
 		*/
-		return (bool) apply_filters( 'jetpack_subscriptions_modal_enabled', $should_enable_subscriber_modal );
+		return (bool) apply_filters( 'jetpack_subscriptions_modal_force_enabled', $should_enable_subscriber_modal );
 	}
 
 	/**
@@ -249,4 +249,13 @@ class Jetpack_Subscribe_Modal {
 	}
 }
 
-Jetpack_Subscribe_Modal::init();
+/**
+ * Temporary feature flag for the subscription modal
+ *
+ * @since $$next-version$$
+ *
+ * @param bool Should load subscription modal. Defaults to false.
+ */
+if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
+	Jetpack_Subscribe_Modal::init();
+}
