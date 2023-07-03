@@ -220,8 +220,8 @@ importers:
         specifier: 6.13.0
         version: 6.13.0(react@18.2.0)
       '@wordpress/data':
-        specifier: 9.5.0
-        version: 9.5.0(react@18.2.0)
+        specifier: 9.6.0
+        version: 9.6.0(react@18.2.0)
       '@wordpress/date':
         specifier: 4.36.0
         version: 4.36.0
@@ -11266,30 +11266,6 @@ packages:
       - react-dom
       - vite
 
-  /@wordpress/data@9.5.0(react@18.2.0):
-    resolution: {integrity: sha512-pZ3jBggwABh9PGbQE2xSrKpa2XHJejq+5R++baDngu//nflJcNvWzEVR56oNIy6u8SoGn1pFnka9GES+gw+Hgw==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@wordpress/compose': 6.13.0(react@18.2.0)
-      '@wordpress/deprecated': 3.36.0
-      '@wordpress/element': 5.13.0
-      '@wordpress/is-shallow-equal': 4.36.0
-      '@wordpress/priority-queue': 2.36.0
-      '@wordpress/private-apis': 0.17.1
-      '@wordpress/redux-routine': 4.36.0(redux@4.2.1)
-      deepmerge: 4.3.1
-      equivalent-key-map: 0.2.2
-      is-plain-object: 5.0.0
-      is-promise: 4.0.0
-      react: 18.2.0
-      redux: 4.2.1
-      turbo-combine-reducers: 1.0.2
-      use-memo-one: 1.1.3(react@18.2.0)
-    dev: false
-
   /@wordpress/data@9.6.0(react@18.2.0):
     resolution: {integrity: sha512-0GgzE7UI7tyiTKD7LgHmKNoJK2ir/1v3EWqIhjyg/wH6dyuaHvbkGy+DD0hLgMCbD/6mQE9fAWVd2wQaGaDxzg==}
     engines: {node: '>=12'}
@@ -12037,13 +12013,6 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
       requestidlecallback: 0.3.0
-
-  /@wordpress/private-apis@0.17.1:
-    resolution: {integrity: sha512-YQAJT03wl7L175CualL0Io3jzM5klfoJrpIhJ4hM/f7KqymxnCSMLAuRy4Hx+A8L3HCxIibKgBwTK4lyzKd/BQ==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@babel/runtime': 7.21.5
-    dev: false
 
   /@wordpress/private-apis@0.18.0:
     resolution: {integrity: sha512-3U7vz359bGHyS42uBBflF75WerlHfAYDxkXM7HfozBcWbKe6jJ/4nie/N/M0l/YfIvhc4FvwIV0svo55M8Xz4Q==}
