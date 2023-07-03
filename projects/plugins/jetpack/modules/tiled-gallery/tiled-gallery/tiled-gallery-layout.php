@@ -54,6 +54,13 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 	public $columns;
 
 	/**
+	 * Attachment link
+	 *
+	 * @var bool
+	 */
+	public $needs_attachment_link;
+
+	/**
 	 * Constructor function.
 	 *
 	 * @param object $attachments - the attachmed image.
