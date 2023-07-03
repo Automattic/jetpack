@@ -38,7 +38,10 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 
 	const { isActive, connectedPlugins } = useSelect(
 		select => {
-			const connectionStatus = select( CONNECTION_STORE_ID ) as any;
+			const connectionStatus = select( CONNECTION_STORE_ID ) as {
+				getConnectedPlugins: () => { slug: string }[];
+				getConnectionStatus: () => { isActive: boolean };
+			};
 
 			return {
 				connectedPlugins: connectionStatus?.getConnectedPlugins(),
