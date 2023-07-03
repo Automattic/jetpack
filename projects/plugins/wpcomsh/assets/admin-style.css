@@ -83,15 +83,15 @@
 	width: 47px;
 }
 
-.notice__icon-wrapper-pink {
+.notice__icon-wrapper.notice__icon-wrapper-pink {
 	background: #e34c84; /* studio-pink-40 */
 }
 
-.notice__icon-wrapper-orange {
+.notice__icon-wrapper.notice__icon-wrapper-orange {
 	background: #d67709; /* studio-orange-40 */
 }
 
-.notice__icon-wrapper-red {
+.notice__icon-wrapper.notice__icon-wrapper-red {
 	background: #e65054; /* studio-red-40 */
 }
 
