@@ -95,6 +95,7 @@ $summary_schema = Schema::as_assoc_array(
 				'queued',
 				'completed',
 				'error',
+				'error_stuck',
 			)
 		),
 		'report_id' => Schema::as_number()->nullable(),
@@ -109,8 +110,8 @@ $summary_schema = Schema::as_assoc_array(
 	)
 )->fallback(
 	array(
-		'status'  => 'not-found',
-		'summary' => null,
+		'status' => 'not-found',
+		'groups' => null,
 	)
 );
 

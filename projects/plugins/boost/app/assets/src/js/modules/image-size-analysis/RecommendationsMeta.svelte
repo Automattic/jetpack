@@ -5,7 +5,12 @@
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import MultiProgress from './MultiProgress.svelte';
-	import { requestImageAnalysis, initializeIsaSummary, isaSummary } from './store/isa-summary';
+	import {
+		requestImageAnalysis,
+		initializeIsaSummary,
+		isaSummary,
+		ISAStatus,
+	} from './store/isa-summary';
 
 	onMount( () => {
 		initializeIsaSummary();
@@ -27,9 +32,9 @@
 	 */
 	$: errorMessage =
 		submitError ||
-		( $isaSummary?.status === 'stuck' &&
+		( $isaSummary?.status === ISAStatus.Stuck &&
 			__(
-				'Oops. We seem to have run into an internal error. Please try again.',
+				'Your Image Size Analysis task seems to have gotten stuck, or our system is under unusual load. Please try again. If the issue persists, please contact support.',
 				'jetpack-boost'
 			) );
 
@@ -37,9 +42,9 @@
 	 * Work out whether we have a 'give us a minute' notice to show.
 	 */
 	$: waitNotice =
-		( $isaSummary?.status === 'new' &&
-			__( 'Give us a few minutes while we go through your content…', 'jetpack-boost' ) ) ||
-		( $isaSummary?.status === 'queued' &&
+		( requestingReport && __( 'Getting ready…', 'jetpack-boost' ) ) ||
+		( $isaSummary?.status === ISAStatus.New && __( 'Warming up the engine…', 'jetpack-boost' ) ) ||
+		( $isaSummary?.status === ISAStatus.Queued &&
 			__( 'Give us a few minutes while we go through your images…', 'jetpack-boost' ) );
 
 	/**
@@ -77,7 +82,7 @@
 	{/if}
 
 	<!-- Show a summary line if the report is completed. -->
-	{#if ! requestingReport && $isaSummary.status === 'complete'}
+	{#if ! requestingReport && $isaSummary.status === ISAStatus.Completed}
 		<div class="summary-line">
 			{#if totalIssues > 0}
 				<div class="has-issues summary">
@@ -106,12 +111,12 @@
 	{/if}
 
 	<!-- Show progress if a job is rolling. -->
-	{#if $isaSummary.status === 'queued'}
+	{#if ! requestingReport && [ ISAStatus.Completed, ISAStatus.Queued ].includes( $isaSummary.status )}
 		<MultiProgress />
 	{/if}
 
 	<!-- Show a button to view the report if it's in progress or completed. -->
-	{#if [ 'queued', 'complete' ].includes( $isaSummary.status ) && ! requestingReport}
+	{#if [ ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status ) && ! requestingReport}
 		<div class="button-area">
 			<Button href="#image-size-analysis/all/1" disabled={requestingReport}>
 				{__( 'See report in progress', 'jetpack-boost' )}
@@ -120,10 +125,10 @@
 	{/if}
 
 	<!-- Show a button to kick off a report -->
-	{#if ! [ 'new', 'queued' ].includes( $isaSummary )}
+	{#if ! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status )}
 		<div class="button-area">
 			<Button disabled={requestingReport} on:click={onStartAnalysis}>
-				{$isaSummary.status === 'complete'
+				{$isaSummary.status === ISAStatus.Completed
 					? __( 'Analyze again', 'jetpack-boost' )
 					: __( 'Start image analysis', 'jetpack-boost' )}
 			</Button>
