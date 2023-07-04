@@ -38,7 +38,7 @@ export default function getRedirectUrl( source: string, args: GetRedirectUrlArgs
 		queryVars.source = encodeURIComponent( source );
 	}
 
-	Object.keys( args ).map( argName => {
+	Object.keys( args ).forEach( argName => {
 		queryVars[ argName ] = encodeURIComponent( args[ argName ] );
 	} );
 
