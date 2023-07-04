@@ -52,7 +52,11 @@ export default function MediaPicker( {
 						<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
 						<Icon icon={ closeSmall } />
 					</button>
-					<button className={ styles.preview } onClick={ open }>
+					<button
+						className={ styles.preview }
+						onClick={ open }
+						data-unstable-ignore-focus-outside-for-relatedtarget=".media-modal"
+					>
 						{ renderVideoPreview ? (
 							<VideoPreview
 								sourceUrl={ sourceUrl }
@@ -76,7 +80,13 @@ export default function MediaPicker( {
 			<div className={ styles.container }>
 				{ ! mediaId ? (
 					<>
-						<Button variant="secondary" size="small" className={ styles.preview } onClick={ open }>
+						<Button
+							variant="secondary"
+							size="small"
+							className={ styles.preview }
+							onClick={ open }
+							data-unstable-ignore-focus-outside-for-relatedtarget=".media-modal"
+						>
 							{ buttonLabel }
 						</Button>
 						{ subTitle && <span>{ subTitle }</span> }
