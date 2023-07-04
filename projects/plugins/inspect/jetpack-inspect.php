@@ -1,5 +1,11 @@
 <?php
 /**
+ * Jetpack Inspect plugin
+ *
+ * @link              https://automattic.com
+ * @since             0.1.0
+ *
+ * @wordpress-plugin
  * Plugin Name: Jetpack Inspect
  * Version: 1.0.0-beta
  * Plugin URI: https://automattic.com
@@ -7,11 +13,10 @@
  * Author: pyronaur
  * Author URI: https://automattic.com
  * Requires at least: 6.0
- *
  * Text Domain: jetpack-inspect
+ *
+ * @package automattic/jetpack-inspect
  */
-
-require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
 
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Manager;
@@ -24,10 +29,14 @@ use Automattic\Jetpack_Inspect\REST_API\Endpoints\Send_Request;
 use Automattic\Jetpack_Inspect\REST_API\Endpoints\Test_Request;
 use Automattic\Jetpack_Inspect\REST_API\REST_API;
 
+require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+
 require __DIR__ . '/functions.php';
 require __DIR__ . '/options.php';
 
-
+/**
+ * Enables Jetpack Connection support.
+ */
 function jetpack_inspect_connection() {
 
 	// Here we enable the Jetpack packages.
@@ -41,23 +50,27 @@ function jetpack_inspect_connection() {
 	);
 }
 
-
+/**
+ * Attempts Jetpack Connection.
+ */
 function jetpack_inspect_attempt_connection() {
 	$manager = new Manager( 'jetpack-inspect' );
 	if ( ! $manager->is_connected() ) {
 		$manager->try_registration();
 	}
-
 }
 
+/**
+ * Enables Jetpack Inspect custom post type and a special REST API endpoint.
+ */
 function jetpack_inspect_initialize() {
 	Log::register_post_type();
 	REST_API::register(
-		[
+		array(
 			Latest::class,
 			Clear::class,
 			Send_Request::class,
-		]
+		)
 	);
 
 	if ( defined( 'JETPACK_INSPECT_DEBUG' ) && JETPACK_INSPECT_DEBUG ) {
@@ -66,9 +79,9 @@ function jetpack_inspect_initialize() {
 }
 
 add_action( 'init', 'jetpack_inspect_initialize' );
-add_action( 'admin_menu', [ new Admin_Page(), 'register' ] );
-add_action( 'plugins_loaded', [ Monitors::class, 'initialize' ] );
+add_action( 'admin_menu', array( new Admin_Page(), 'register' ) );
+add_action( 'plugins_loaded', array( Monitors::class, 'initialize' ) );
 
-// Jetpack Connection
+// Jetpack Connection.
 add_action( 'plugins_loaded', 'jetpack_inspect_connection', 1 );
 add_action( 'admin_init', 'jetpack_inspect_attempt_connection' );
