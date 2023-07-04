@@ -7,10 +7,6 @@
 		"strict": true,
 		"types": [],
 		"baseUrl": ".",
-		"paths": {
-			"@src/": [ "./app-ui/src/" ],
-			"@src/*": [ "./app-ui/src/*" ],
-			"@async-options/*": [ "./packages/Async_Option/scripts/*" ]
-		}
+		"paths": {}
 	}
 }
