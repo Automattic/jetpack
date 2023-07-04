@@ -26,10 +26,7 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"dependencies": {
-		"node-sass": "^9.0.0",
-		"svelte": "3.58.0",
-		"tslib": "2.5.0",
-		"zod": "3.20.2"
+		"tslib": "2.5.0"
 	},
 	"devDependencies": {
 		"@babel/core": "7.21.5",
@@ -45,8 +42,10 @@
 		"rollup-plugin-postcss": "4.0.2",
 		"rollup-plugin-svelte": "7.1.0",
 		"sass": "1.63.6",
+		"svelte": "3.58.0",
 		"svelte-preprocess": "5.0.3",
 		"tslib": "2.5.0",
-		"typescript": "5.0.4"
+		"typescript": "5.0.4",
+		"zod": "3.20.2"
 	}
 }
