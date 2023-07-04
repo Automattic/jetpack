@@ -234,7 +234,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'            => function () {
 				return __( 'Add a new page', 'jetpack-mu-wpcom' );
 			},
-			'is_complete_callback' => 'wpcom_is_add_new_page_completed',
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
 
 		'domain_customize'                => array(
@@ -677,15 +677,6 @@ function wpcom_is_domain_claim_completed() {
 	);
 
 	return ! empty( $domain_purchases );
-}
-
-/**
- * Check if the add_new_page task is complete.
- *
- * @return bool True if add_new_page task is completed.
- */
-function wpcom_is_add_new_page_completed() {
-	return wpcom_is_task_option_completed( 'add_new_page' );
 }
 
 /**
