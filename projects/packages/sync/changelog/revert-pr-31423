@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Revert dedicated hook endpoint to later in the 'init' hook, as it broke existing code that registers post statuses and such during 'init'.
