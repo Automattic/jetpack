@@ -35,6 +35,7 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 					post: zGroup.optional(),
 					other: zGroup.optional(),
 				} )
+				.nullable()
 				.optional(),
 		} )
 		// Default data if deactivated or not loaded yet.
