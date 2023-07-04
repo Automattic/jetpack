@@ -1,17 +1,31 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 namespace Automattic\Jetpack_Inspect;
 
 use Automattic\Jetpack_Inspect\Monitor\Incoming_REST_API;
 use Automattic\Jetpack_Inspect\Monitor\Outgoing;
 
+/**
+ * The Monitors class.
+ */
 class Monitors {
-	const AVAILABLE_OBSERVERS = [
+	const AVAILABLE_OBSERVERS = array(
 		'outgoing' => Outgoing::class,
 		'incoming' => Incoming_REST_API::class,
-	];
-	protected static $instances = [];
+	);
 
+	/**
+	 * Array of existing instances.
+	 *
+	 * @var array
+	 */
+	protected $instances = array();
+
+	/**
+	 * Returns an instance that observer with a specific name.
+	 *
+	 * @param String $name observer name.
+	 */
 	public static function get( $name ) {
 
 		if ( ! isset( static::AVAILABLE_OBSERVERS[ $name ] ) ) {
@@ -24,9 +38,11 @@ class Monitors {
 		}
 
 		return static::$instances[ $name ];
-
 	}
 
+	/**
+	 * Initializes the instance holder.
+	 */
 	public static function initialize() {
 		foreach ( self::AVAILABLE_OBSERVERS as $name => $class ) {
 			self::get( $name )->initialize();
