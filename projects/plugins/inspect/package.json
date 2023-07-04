@@ -15,9 +15,9 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.'",
+		"build": "pnpm build-js",
 		"build-js": "rollup -c rollup.config.js",
-		"build-production": "echo 'Not implemented.'",
+		"build-production": "pnpm build-production-js",
 		"build-production-js": "rollup -c rollup.config.js",
 		"clean": "true"
 	},
