@@ -6,7 +6,7 @@
 	import { EntryData } from "../utils/ZodSchema";
 	import { createPersistentStore } from "../utils/peristentStore";
 	import FormError from "./FormError.svelte";
-	import type { LogEntry } from "@src/utils/ZodSchema";
+	import type { LogEntry } from "../utils/ZodSchema";
 	import type { Writable } from "svelte/store";
 	import type { ZodFormattedError } from "zod";
 
