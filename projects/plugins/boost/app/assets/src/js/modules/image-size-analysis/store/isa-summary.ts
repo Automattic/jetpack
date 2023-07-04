@@ -114,5 +114,6 @@ isaSummary.subscribe( summary => {
 		}, 3000 );
 	} else if ( ! shouldPoll && pollIntervalId ) {
 		clearInterval( pollIntervalId );
+		pollIntervalId = undefined;
 	}
 } );
