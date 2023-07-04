@@ -38,7 +38,7 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 		<Flex align="center" gap={ 4 } direction="column" style={ { alignItems: 'center' } }>
 			<FlexItem>
 				{ __(
-					"Activate the Subscriptions feature to share posts with your subscribers.",
+					"In order to share posts as emails with your subscribers, activate the Subscriptions feature.",
 					'jetpack'
 				) }
 			</FlexItem>
