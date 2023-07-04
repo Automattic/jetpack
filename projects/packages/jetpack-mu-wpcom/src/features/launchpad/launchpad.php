@@ -138,6 +138,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_customize',
 				'add_new_page',
 				'drive_traffic',
+				'update_about_page',
 				'edit_page',
 				'share_site',
 			),
