@@ -308,18 +308,6 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
 }
 
 /**
- * Check if a task is complete in the launchpad_checklist_tasks_statuses option.
- *
- * @param string $task_id The task ID.
- * @return bool True if the task was marked as complete, false otherwise.
- */
-function wpcom_is_launchpad_task_complete( $task_id ) {
-	$statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
-
-	return isset( $statuses[ $task_id ] ) && $statuses[ $task_id ];
-}
-
-/**
  * Initialize the Launchpad task listener callbacks.
  *
  * @param array $task_definitions The tasks to initialize.
@@ -697,7 +685,7 @@ function wpcom_is_domain_claim_completed() {
  * @return bool True if add_new_page task is completed.
  */
 function wpcom_is_add_new_page_completed() {
-	return wpcom_is_launchpad_task_complete( 'add_new_page' );
+	return wpcom_is_task_option_completed( 'add_new_page' );
 }
 
 /**
@@ -708,7 +696,7 @@ function wpcom_is_add_new_page_completed() {
  */
 function wpcom_add_new_page_check( $post_id, $post ) {
 	// Don't do anything if the task is already complete.
-	if ( wpcom_is_launchpad_task_complete( 'add_new_page' ) ) {
+	if ( wpcom_is_task_option_completed( 'add_new_page' ) ) {
 		return;
 	}
 
