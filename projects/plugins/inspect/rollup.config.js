@@ -1,11 +1,10 @@
-import alias from '@rollup/plugin-alias';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
+import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import livereload from 'rollup-plugin-livereload';
 import postcss from 'rollup-plugin-postcss';
 import svelte from 'rollup-plugin-svelte';
-import terser from '@rollup/plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 
 const production = ! process.env.ROLLUP_WATCH;
@@ -41,12 +40,6 @@ export default {
 		file: 'app-ui/build/jetpack-inspect.js',
 	},
 	plugins: [
-		alias( {
-			entries: [
-				// If you add a new top-level-folder besides src which you want to use, add it here
-				{ find: /^@src(\/|$)/, replacement: `${ __dirname }/app-ui/src/` },
-			],
-		} ),
 		svelte( {
 			preprocess: sveltePreprocess( { sourceMap: ! production } ),
 			compilerOptions: {
