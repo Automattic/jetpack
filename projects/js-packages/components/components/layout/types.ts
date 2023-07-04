@@ -2,6 +2,11 @@ type ColSpan = number | { start: number; end: number };
 
 export type ColProps = {
 	/**
+	 * Tag name of the column element.
+	 */
+	tagName?: string;
+
+	/**
 	 * Custom className to be inserted.
 	 */
 	className?: string;
@@ -28,6 +33,11 @@ export type ColProps = {
 };
 
 export type ContainerProps = {
+	/**
+	 * Tag name of the container.
+	 */
+	tagName?: string;
+
 	/**
 	 * Make container not having a max width.
 	 */

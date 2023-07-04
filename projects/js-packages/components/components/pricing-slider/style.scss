@@ -8,6 +8,13 @@ $track-height: 8px;
 	border-radius: 8px; /* stylelint-disable-line scales/radii */
 }
 
+// On holding thumb styling
+.jp-components-pricing-slider--is-holding {
+	.jp-components-pricing-slider__thumb {
+		box-shadow: 0 6px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 3px rgba(6, 158, 8, 0.25);
+	}
+}
+
 // Base styles
 .jp-components-pricing-slider__control {
 	width: 100%;
@@ -35,8 +42,8 @@ $track-height: 8px;
 	padding: 8px 16px;
 	height: $thumb-height;
 	background-color: var(--jp-white);
-	border: 1px solid var(--jp-gray);
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 8px rgba(0, 0, 0, 0.08);
+	border: 1.5px solid var(--jp-green-50);
+	box-shadow: 0 6px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
 	border-radius: 4px;
 	color: var(--jp-black);
 	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
@@ -48,8 +55,12 @@ $track-height: 8px;
 	white-space: nowrap;
 	cursor: pointer;
 
+	// On focus thumb styling
 	&.jp-components-pricing-slider__thumb--is-active {
-		// On focus styling
 		outline: none;
+	}
+
+	&[aria-valuenow="0"] {
+		border-color: var(--jp-gray);
 	}
 }

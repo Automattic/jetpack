@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Change Dashboard: Change to return connected user information to use for analytics

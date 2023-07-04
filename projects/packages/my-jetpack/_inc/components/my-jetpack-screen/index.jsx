@@ -20,6 +20,7 @@ import React, { useEffect, useState } from 'react';
  * Internal dependencies
  */
 import useAnalytics from '../../hooks/use-analytics';
+import useChatAuthentication from '../../hooks/use-chat-authentication';
 import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
@@ -84,7 +85,9 @@ export default function MyJetpackScreen() {
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
-	const shouldShowZendeskChatWidget = ! isFetchingChatAvailability && isAvailable;
+	const { jwt, isFetchingChatAuthentication } = useChatAuthentication();
+	const shouldShowZendeskChatWidget =
+		! isFetchingChatAuthentication && ! isFetchingChatAvailability && isAvailable && jwt;
 
 	const { recordEvent } = useAnalytics();
 	const [ reloading, setReloading ] = useState( false );
@@ -146,7 +149,7 @@ export default function MyJetpackScreen() {
 				</Container>
 			</AdminSection>
 
-			{ shouldShowZendeskChatWidget && <ZendeskChat /> }
+			{ shouldShowZendeskChatWidget && <ZendeskChat jwt_token={ jwt } /> }
 		</AdminPage>
 	);
 }

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Blaze;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
 
@@ -31,6 +32,9 @@ class Dashboard_Config_Data {
 	public function get_data() {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$empty_object = json_decode( '{}' );
+
+		$user = $this->get_connected_user_identity();
+
 		return array(
 			'admin_page_base'          => $this->get_admin_path(),
 			'api_root'                 => esc_url_raw( rest_url() ),
@@ -49,12 +53,8 @@ class Dashboard_Config_Data {
 			'features'                 => array(),
 			'intial_state'             => array(
 				'currentUser' => array(
-					'id'           => 1000,
-					'user'         => array(
-						'ID'         => 1000,
-						'username'   => 'no-user',
-						'localeSlug' => $this->get_site_locale(),
-					),
+					'id'           => $user['ID'],
+					'user'         => $user,
 					'capabilities' => array(
 						"$blog_id" => $this->get_current_user_capabilities(),
 					),
@@ -78,6 +78,31 @@ class Dashboard_Config_Data {
 					'features' => array( "$blog_id" => array( 'data' => $this->get_plan_features() ) ),
 				),
 			),
+		);
+	}
+
+	/**
+	 * Gets the WordPress.com user's identity, if connected.
+	 *
+	 * @return array|bool
+	 */
+	protected function get_connected_user_identity() {
+		$user_data = ( new Manager() )->get_connected_user_data();
+		if ( ! $user_data ) {
+			return array(
+				'ID'         => 1000,
+				'username'   => 'no-user',
+				'localeSlug' => $this->get_site_locale(),
+				'site_count' => 1,
+			);
+		}
+
+		return array(
+			'ID'         => $user_data['ID'],
+			'username'   => $user_data['login'],
+			'email'      => $user_data['email'],
+			'localeSlug' => $this->get_site_locale(),
+			'site_count' => 1,
 		);
 	}
 

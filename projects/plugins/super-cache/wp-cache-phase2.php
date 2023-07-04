@@ -3370,7 +3370,7 @@ function wp_cache_post_id() {
 	if ( $comment_post_ID > 0 ) {
 		return $comment_post_ID;
 	}
-	if ( is_singular() && ! empty( $posts ) ) {
+	if ( is_singular() && ! empty( $posts ) && is_array( $posts ) ) {
 		return $posts[0]->ID;
 	}
 	if ( isset( $_GET['p'] ) && $_GET['p'] > 0 ) {
