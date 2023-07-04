@@ -45,7 +45,7 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 			<FlexItem>{ children }</FlexItem>
 			<FlexItem>
 				<ExternalLink href="https://jetpack.com/support/subscriptions/">
-					{ __( 'Learn more', 'jetpack' ) }
+					{ __( 'Learn more about Subscriptions', 'jetpack' ) }
 				</ExternalLink>
 			</FlexItem>
 		</Flex>
