@@ -3,6 +3,7 @@ import React from 'react';
 import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
+import BlazeCard from './blaze-card';
 import BoostCard from './boost-card';
 import CrmCard from './crm-card';
 import ScanAndProtectCard from './scan-protect-card';
@@ -29,6 +30,7 @@ const ProductCardsSection = () => {
 		CrmCard,
 		SocialCard,
 		AiCard,
+		BlazeCard,
 	];
 
 	return (
