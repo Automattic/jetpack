@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ruleset>
+	<rule ref="PHPCompatibility.Constants.NewConstants">
+		<severity>0</severity>
+	</rule>
+	<rule ref="PHPCompatibility.Syntax.NewFunctionCallTrailingComma">
+		<severity>0</severity>
+	</rule>
+	<rule ref="PHPCompatibility.Operators.NewOperators">
+		<severity>0</severity>
+	</rule>
+</ruleset>
