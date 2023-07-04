@@ -6,6 +6,7 @@
 	"require": {
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-blaze": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-licensing": "@dev",

@@ -1696,11 +1696,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "ef8035e8d192d699d0680374eef9636596885a0f"
+                "reference": "b6cecf8dd218a21e31fcd8b29e1efb40531d27ff"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
                 "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-blaze": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-jitm": "@dev",
