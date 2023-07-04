@@ -5,7 +5,7 @@
  * them to be experimented with.
  */
 
-import { Modal, SelectControl, Button } from '@wordpress/components';
+import { Modal, SelectControl, Button, TextControl } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useMediaDetails from '../../../hooks/use-media-details';
@@ -14,9 +14,16 @@ import MediaPicker from '../../media-picker';
 const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
 const ADD_MEDIA_LABEL = __( 'Choose Image', 'jetpack' );
 
-const SocialImageGeneratorSettingsModal = ( { onClose, setImageType, setImageId, ...props } ) => {
+const SocialImageGeneratorSettingsModal = ( {
+	onClose,
+	setImageType,
+	setImageId,
+	setCustomText,
+	...props
+} ) => {
 	const [ imageId, setEditedImageId ] = useState( props.imageId );
 	const [ imageType, setEditedImageType ] = useState( props.imageType || 'featured' );
+	const [ customText, setEditedCustomText ] = useState( props.customText );
 
 	const [ mediaDetails ] = useMediaDetails( imageId );
 
@@ -24,8 +31,9 @@ const SocialImageGeneratorSettingsModal = ( { onClose, setImageType, setImageId,
 		//TODO: Commit the settings
 		setImageType( imageType );
 		setImageId( imageId );
+		setCustomText( customText );
 		onClose();
-	}, [ onClose, setImageType, imageType, setImageId, imageId ] );
+	}, [ onClose, setImageType, imageType, setImageId, imageId, setCustomText, customText ] );
 
 	const onCustomImageChange = useCallback(
 		media => {
@@ -68,6 +76,16 @@ const SocialImageGeneratorSettingsModal = ( { onClose, setImageType, setImageId,
 	return (
 		<Modal onRequestClose={ onClose }>
 			<ImageOptions />
+			<hr />
+			<TextControl
+				value={ customText || '' }
+				onChange={ setEditedCustomText }
+				label={ __( 'Custom Header', 'jetpack' ) }
+				help={ __(
+					'By default the post title is used for the image. You can use this field to set your own text.',
+					'jetpack'
+				) }
+			/>
 			<hr />
 			<Button onClick={ onClose } variant="tertiary">
 				{ __( 'Cancel', 'jetpack' ) }

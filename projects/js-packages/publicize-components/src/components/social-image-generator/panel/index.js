@@ -1,4 +1,4 @@
-import { PanelBody, ToggleControl, TextControl, Button } from '@wordpress/components';
+import { PanelBody, ToggleControl, Button } from '@wordpress/components';
 import { useCallback, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
@@ -41,7 +41,7 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 			{ isModalOpened && (
 				<SocialImageGeneratorSettingsModal
 					onClose={ closeModal }
-					{ ...{ imageType, setImageType, imageId, setImageId } }
+					{ ...{ imageType, setImageType, imageId, setImageId, setCustomText, customText } }
 				/>
 			) }
 			<ToggleControl
@@ -54,16 +54,6 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 				<>
 					<hr />
 					<GeneratedImagePreview />
-					<hr />
-					<TextControl
-						value={ customText || '' }
-						onChange={ setCustomText }
-						label={ __( 'Custom Text', 'jetpack' ) }
-						help={ __(
-							'By default the post title is used for the image. You can use this field to set your own text.',
-							'jetpack'
-						) }
-					/>
 					<hr />
 					<TemplatePicker
 						onSelect={ setTemplate }
