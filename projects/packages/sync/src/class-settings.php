@@ -59,6 +59,7 @@ class Settings {
 		'full_sync_limits'                       => true,
 		'checksum_disable'                       => true,
 		'dedicated_sync_enabled'                 => true,
+		'custom_queue_table_enabled'             => true,
 	);
 
 	/**
@@ -585,6 +586,18 @@ class Settings {
 	 */
 	public static function is_dedicated_sync_enabled() {
 		return (bool) self::get_setting( 'dedicated_sync_enabled' );
+	}
+
+	/**
+	 * Whether custom queue table is enabled.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether custom queue table is enabled.
+	 */
+	public static function is_custom_queue_table_enabled() {
+		return (bool) self::get_setting( 'custom_queue_table_enabled' );
 	}
 
 }
