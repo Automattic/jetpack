@@ -1,6 +1,6 @@
 // @TODO: need feedback on this: 👇
 import { writable } from 'svelte/store';
-import type { AsyncOptions as AO } from '@async-options/types';
+import type { AsyncOptions as AO } from './types';
 
 export class Options< T extends AO.Options > {
 	private options: T;
