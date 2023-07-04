@@ -687,7 +687,7 @@ function wpcom_is_domain_claim_completed() {
  */
 function wpcom_add_new_page_check( $post_id, $post ) {
 	// Don't do anything if the task is already complete.
-	if ( wpcom_is_task_option_completed( 'add_new_page' ) ) {
+	if ( wpcom_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
 		return;
 	}
 
