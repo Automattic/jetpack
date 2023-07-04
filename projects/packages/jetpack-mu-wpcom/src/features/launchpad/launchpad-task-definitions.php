@@ -531,6 +531,13 @@ function wpcom_track_site_launch_task() {
 	wpcom_mark_launchpad_task_complete_if_active( 'link_in_bio_launched' );
 	wpcom_mark_launchpad_task_complete_if_active( 'videopress_launched' );
 	wpcom_mark_launchpad_task_complete_if_active( 'blog_launched' );
+
+	// Remove site intent for blog onboarding flows and disable launchpad.
+	$site_intent = get_option( 'site_intent' );
+	if ( in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+		update_option( 'site_intent', '' );
+		update_option( 'launchpad_screen', 'off' );
+	}
 }
 
 /**
