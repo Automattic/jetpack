@@ -8,6 +8,13 @@ import { isVideo } from '../../hooks/use-media-restrictions';
 import VideoPreview from '../video-preview';
 import styles from './styles.module.scss';
 
+// This is to cope with the problem describeed here:
+// https://github.com/WordPress/gutenberg/blob/ebad47952fc94ce4324e989691dde2d3d7689f45/packages/block-editor/src/components/inserter/media-tab/media-tab.js#L122
+const clickHandler = open => e => {
+	e.target.focus();
+	open();
+};
+
 /**
  * Wrapper that handles media-related functionality.
  *
@@ -54,7 +61,7 @@ export default function MediaPicker( {
 					</button>
 					<button
 						className={ styles.preview }
-						onClick={ open }
+						onClick={ clickHandler( open ) }
 						data-unstable-ignore-focus-outside-for-relatedtarget=".media-modal"
 					>
 						{ renderVideoPreview ? (
@@ -84,7 +91,7 @@ export default function MediaPicker( {
 							variant="secondary"
 							size="small"
 							className={ styles.preview }
-							onClick={ open }
+							onClick={ clickHandler( open ) }
 							data-unstable-ignore-focus-outside-for-relatedtarget=".media-modal"
 						>
 							{ buttonLabel }
