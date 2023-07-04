@@ -1,11 +1,11 @@
 <script lang="ts">
+	import { truncateString } from '../../../../utils/truncate-string';
 	export let title: string;
 	export let url: string;
 	const maxTitleLength = 20;
 
 	const urlWithoutProtocol = url.replace( /^https?:\/\/(www\.)?/, '' );
-	const croppedTitle =
-		title.length > maxTitleLength ? title.slice( 0, maxTitleLength ) + '...' : title;
+	const croppedTitle = truncateString( title, maxTitleLength );
 </script>
 
 <b>{croppedTitle}</b>
