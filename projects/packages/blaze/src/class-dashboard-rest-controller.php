@@ -202,7 +202,7 @@ class Dashboard_REST_Controller {
 			)
 		);
 
-		// WordAds DSP API Users routes
+		// WordAds DSP API Logs routes
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/wordads/dsp/api/v1/logs', $site_id ),
