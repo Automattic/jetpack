@@ -204,7 +204,7 @@ class Jetpack_Subscribe_Modal {
 	 * @return bool
 	 */
 	public function is_front_end_single_post() {
-		return ! is_admin() && is_single() && 'post' === get_post_type();
+		return ! is_admin() && is_singular( 'post' );
 	}
 
 	/**
