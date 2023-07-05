@@ -275,7 +275,7 @@ function zeroBSCRM_segments_typeConversions( $value = '', $type = '', $operator 
             if ($direction == 'in' && $operator != 'daterange' && $operator != 'datetimerange' && $operator != 'nextdays' && $operator != 'previousdays' ) {
                 switch ($available_conditions[$type]['conversion']) {
                     case 'date-to-uts':
-								$local_date_time = new DateTime( $value, new DateTimeZone( get_option( 'timezone_string' ) ) );
+								$local_date_time = new DateTime( $value, wp_timezone() );
 								$local_date_time->setTimezone( new DateTimeZone( 'UTC' ) );
 								$value = $local_date_time->format( 'Y-m-d H:i' );
                         // convert date to uts
