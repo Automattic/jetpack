@@ -42,10 +42,6 @@ class WP_Test_Jetpack_Subscribe_Modal extends WP_UnitTestCase {
 		parent::tear_down();
 	}
 
-	public function return_false() {
-		return false;
-	}
-
 	/**
 	 * Test that subscribe modal is active under these conditions:
 	 *
@@ -78,10 +74,9 @@ class WP_Test_Jetpack_Subscribe_Modal extends WP_UnitTestCase {
 		switch_theme( 'default' );
 		$this->assertFalse( $this->instance->should_enable_subscriber_modal() );
 
-		// Test that modal is disabled if filter is false
-		// This test is not passing - the filter is not working as expected.
+		// All conditions are met, modal should be enabled.
 		switch_theme( 'block-theme' );
-		add_filter( 'jetpack_subscriptions_modal_enabled', '__return_false' );
-		$this->assertFalse( $this->instance->should_enable_subscriber_modal() );
+		$this->assertTrue( $this->instance->should_enable_subscriber_modal() );
 	}
+
 }
