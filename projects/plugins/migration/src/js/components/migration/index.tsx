@@ -69,11 +69,11 @@ export function Migration( props: Props ) {
 
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
 	const isFullyConnected = isRegistered && isUserConnected;
-	const { tracks } = useAnalytics();
+	const { recordEvent } = useAnalytics();
 
 	const onGetStartedClick = useCallback(
 		( e: Event ) => {
-			tracks.recordEvent( `jetpack_migration_get_started_click`, {
+			recordEvent( `jetpack_migration_get_started_click`, {
 				source_site_slug: sourceSiteSlug,
 			} );
 			// If it's fully connected, href attribute is the final destination
@@ -81,7 +81,7 @@ export function Migration( props: Props ) {
 				handleRegisterSite( e );
 			}
 		},
-		[ isFullyConnected, handleRegisterSite, tracks, sourceSiteSlug ]
+		[ isFullyConnected, handleRegisterSite, recordEvent, sourceSiteSlug ]
 	);
 
 	return (
