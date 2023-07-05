@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.3-beta - 2023-06-26
+## 12.3 - 2023-07-05
 ### Enhancements
 - AI Assistant: extend AI features to select core blocks.
 - AI Extension: add ask assistant menu option. [#31568]
@@ -21,24 +21,27 @@
 - AI Extension: use ID on error notices to prevent stacking multiple notices. [#31584]
 - Customizer: fix an issue which was preventing the Customize menu from appearing for plugins that still require it to be present. [#31452]
 - Newsletters: properly gate newsletters based on the correct subscription product. [#31450]
+- Sharing Buttons: remove Reddit's official iframe sharing button, it is no longer working. Use icon+text sharing button instead. [#31666]
 - Social Review Prompt: fix the state so it is shown when Jetpack is also active. [#31456]
+- Subscriptions: avoid fatal error when site is connected to WordPress.com, but user account is not. [#31635]
 - Subscriptions: fix visibility misalignment. [#31544]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Assistant: replace imported store constants with strings. [#31585]
 - AI Assistant: add a specific delimiter for content in the prompts. [#31515]
 - AI Assistant: add transform from core to AI Assistant block. [#31442]
 - AI Assistant: change delimiter and remove it from responses. [#31518]
 - AI Assistant: disable toolbar tooltip when streaming suggestion. [#31581]
 - AI Assistant: remove page content from prompt. [#31465]
+- AI Assistant: replace imported store constants with strings. [#31585]
 - AI Extension: disable the AI toolbar button when the block doesn't have content. [#31559]
 - AI Extension: dispatch action to update extended block attributes. [#31437]
+- AI Extension: do not extend block sidebar. [#31476]
 - AI Extension: do not extend core blocks when the user decided to hide the AI Assistant block. [#31557]
 - AI Extension: extend core list item core block. [#31496]
 - AI Extension: handle errors from extended blocks actions. [#31497]
 - AI Extension: handle multiple blocks editing. [#31491]
-- AI Extension: improve block transform process for Heading core block type. [#31571]
 - AI Extension: improve block transform process. [#31481]
+- AI Extension: improve block transform process for Heading core block type. [#31571]
 - AI Extension: improve prompt when using the AI Assistant in extended blocks. [#31449]
 - AI Extension: iterate over prompt to try to keep the lang of the content. [#31482]
 - AI Extension: iterate over spelling and grammar prompt item. [#31509]
@@ -47,7 +50,6 @@
 - AI Extension: reorganize prompt items for the AI extension. [#31514]
 - AI Extension: tweak the tone prompt. [#31466]
 - AI Extension: winking toolbar color when requesting. [#31474]
-- AI Extension: do not extend block sidebar. [#31476]
 - Blaze: introduce module, instead of automatically initializing the feature. [#31479]
 - Connection: update visual used in banner. [#31440]
 - Dependency update. [#31394]
@@ -56,6 +58,7 @@
 - Newsletters: add tracks to email preview feature. [#31566]
 - Tock Block: avoid PHP warning when restaurant name isn't set. [#31577]
 - Updated package dependencies.
+- Upudate to-test.md for 12.3 [#31586]
 - Zendesk Chat Widget: add authentication to the widget. [#31339]
 
 ## 12.3-a.7 - 2023-06-19
