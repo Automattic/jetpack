@@ -2,6 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
+import ConnectUserBar from 'components/connect-user-bar';
 import QuerySite from 'components/data/query-site';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -10,6 +11,7 @@ import { FEATURE_SIMPLE_PAYMENTS_JETPACK } from 'lib/plans/constants';
 import React from 'react';
 import { connect } from 'react-redux';
 import {
+	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
 	isUnavailableInOfflineMode as isUnavailableInOfflineModeSelector,
 } from 'state/connection';
@@ -29,6 +31,7 @@ function EarnFeatureButton( props ) {
 		buttonText,
 		featureConstant = '',
 		featureName,
+		hasConnectedOwner,
 		infoLink,
 		infoDescription,
 		supportLink,
@@ -59,15 +62,24 @@ function EarnFeatureButton( props ) {
 			>
 				{ infoDescription }
 			</SettingsGroup>
-			<Card
-				compact
-				className="jp-settings-card__configure-link"
-				onClick={ trackButtonClick }
-				href={ infoLink }
-				target="_blank"
-			>
-				{ buttonText }
-			</Card>
+			{ hasConnectedOwner && (
+				<Card
+					compact
+					className="jp-settings-card__configure-link"
+					onClick={ trackButtonClick }
+					href={ infoLink }
+					target="_blank"
+				>
+					{ buttonText }
+				</Card>
+			) }
+			{ ! hasConnectedOwner && (
+				<ConnectUserBar
+					feature="earn"
+					featureLabel={ title }
+					text={ __( 'Connect to discover tools to earn money with your site.', 'jetpack' ) }
+				/>
+			) }
 		</SettingsCard>
 	);
 }
@@ -172,6 +184,7 @@ function Earn( props ) {
 
 export default connect( state => {
 	return {
+		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		module: module_name => getModule( state, module_name ),
 		isOffline: isOfflineMode( state ),
 		isModuleFound: module_name => isModuleFoundSelector( state, module_name ),
