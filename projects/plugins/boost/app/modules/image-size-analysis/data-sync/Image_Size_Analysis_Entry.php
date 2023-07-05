@@ -46,7 +46,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 				'search' => $this->search_query,
 			),
 			'data'  => array(
-				'last_updated' => 1682419855474, // @todo: Update
+				'last_updated' => strtotime( $data->last_updated ) . '000',
 				'total_pages'  => $data->pagination->total_pages,
 				'images'       => $issues,
 			),
