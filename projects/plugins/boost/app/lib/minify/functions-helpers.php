@@ -4,6 +4,14 @@ use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 
 /**
+ * Get an extra cache key for requests. We can manually bump this when we want
+ * to ensure a new version of Jetpack Boost never reuses old cached URLs.
+ */
+function jetpack_boost_minify_cache_buster() {
+	return 1;
+}
+
+/**
  * Cleanup the given cache folder, removing all files older than $file_age seconds.
  *
  * @param string $cache_folder The path to the cache folder to cleanup.

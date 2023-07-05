@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Minify CSS/JS: Fixed an odd caching issue on Atomic hosts
