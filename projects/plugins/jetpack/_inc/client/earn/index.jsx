@@ -25,7 +25,7 @@ import { Ads } from './ads';
  * @returns {React.Component} Feature description and CTA.
  */
 function EarnFeatureButton( props ) {
-	const { buttonText, featureName, infoLink, infoDescription, title } = props;
+	const { buttonText, featureConstant = '', featureName, infoLink, infoDescription, title } = props;
 
 	const trackButtonClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
@@ -40,7 +40,7 @@ function EarnFeatureButton( props ) {
 			header={ title }
 			hideButton
 			module="earn"
-			feature={ FEATURE_SIMPLE_PAYMENTS_JETPACK }
+			feature={ featureConstant ? featureConstant : undefined }
 		>
 			<SettingsGroup
 				support={ {
@@ -123,6 +123,7 @@ function Earn( props ) {
 						'jetpack'
 					) }
 					buttonText={ __( 'Learn how to get started', 'jetpack' ) }
+					featureConstant={ FEATURE_SIMPLE_PAYMENTS_JETPACK }
 				/>
 			</>
 		);
