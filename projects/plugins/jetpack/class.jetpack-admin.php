@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
@@ -97,6 +98,7 @@ class Jetpack_Admin {
 						add_submenu_page( 'jetpack', __( 'Anti-Spam', 'jetpack' ), __( 'Anti-Spam', 'jetpack' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 					}
 				);
+				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
 			}
 		}
 
@@ -107,6 +109,19 @@ class Jetpack_Admin {
 
 		// Register Jetpack partner coupon hooks.
 		Jetpack_Partner_Coupon::register_coupon_admin_hooks( 'jetpack', Jetpack::admin_url() );
+	}
+
+	/**
+	 * Generate styles to replace Akismet logo for the Jetpack logo. It's a workaround until we create a proper settings page for
+	 * Jetpack Anti-Spam. Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
+	 */
+	public function akismet_logo_replacement_styles() {
+		$logo = new Jetpack_Logo();
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$logo_base64     = base64_encode( $logo->get_jp_emblem_larger() );
+		$logo_base64_url = "data:image/svg+xml;base64,{$logo_base64}";
+		$style           = ".akismet-masthead__logo-container { background: url({$logo_base64_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
+		wp_add_inline_style( 'admin-bar', $style );
 	}
 
 	/**
