@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { select } from '@wordpress/data';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -129,6 +130,11 @@ type PromptOptionsProps = {
 	role?: PromptItemProps[ 'role' ];
 
 	/*
+	 * The custom prompt to use. Optional.
+	 */
+	customPrompt?: string;
+
+	/*
 	 * The previous messages of the same prompt. Optional.
 	 */
 	prevMessages?: Array< PromptItemProps >;
@@ -145,9 +151,7 @@ function getCorrectSpellingPrompt( {
 	return [
 		{
 			role,
-			content: `Repeat the text delimited with ${ delimiter }, without the delimiter, correcting any spelling and grammar mistakes directly in the text without providing feedback about the corrections, keeping the language of the text: ${ getDelimitedContent(
-				content
-			) }`,
+			content: `Repeat the following text, but correcting any spelling and grammar mistakes directly in the text without providing feedback about the corrections, keeping the language of the text:\n\n${ content }`,
 		},
 	];
 }
@@ -159,9 +163,7 @@ function getSimplifyPrompt( {
 	return [
 		{
 			role,
-			content: `Simplify the text delimited with ${ delimiter }, using words and phrases that are easier to understand and keeping the language of the text: ${ getDelimitedContent(
-				content
-			) }`,
+			content: `Simplify the text following text, using words and phrases that are easier to understand and keeping the language of the text:\n\n${ content }`,
 		},
 	];
 }
@@ -173,9 +175,31 @@ function getSummarizePrompt( {
 	return [
 		{
 			role,
-			content: `Summarize the text delimited with ${ delimiter }, keeping the language of the text: ${ getDelimitedContent(
-				content
-			) }`,
+			content: `Summarize following text, keeping the language of the text:\n\n${ content }`,
+		},
+	];
+}
+
+function getMakeShorterPrompt( {
+	content,
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Make the folloing text shorter, keeping the language of the text:\n\n${ content }`,
+		},
+	];
+}
+
+function getSummarizePromptBasedOnTitle( {
+	role = 'user',
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	const title = select( 'core/editor' ).getEditedPostAttribute( 'title' );
+	return [
+		{
+			role,
+			content: `Write a short piece for a blog post based on the following title. Use HTML syntax. Create a few paragraphs, add some bold and italic format.\n\n${ title }`,
 		},
 	];
 }
@@ -187,9 +211,7 @@ function getExpandPrompt( {
 	return [
 		{
 			role,
-			content: `Expand the text delimited with ${ delimiter } to about double its size, keeping the language of the text: ${ getDelimitedContent(
-				content
-			) }`,
+			content: `Expand the following text to about double its size, keeping the language of the text:\n\n${ content }`,
 		},
 	];
 }
@@ -202,9 +224,7 @@ function getTranslatePrompt( {
 	return [
 		{
 			role,
-			content: `Translate the text delimited with ${ delimiter } to ${ language }, preserving the same core meaning and tone: ${ getDelimitedContent(
-				content
-			) }`,
+			content: `Translate the following text to ${ language }, preserving the same core meaning and tone:\n\n${ content }`,
 		},
 	];
 }
@@ -217,9 +237,20 @@ function getTonePrompt( {
 	return [
 		{
 			role,
-			content: `Rewrite the text delimited with ${ delimiter }, with a ${ tone } tone, keeping the language of the text: ${ getDelimitedContent(
-				content
-			) }`,
+			content: `Rewrite the following text with a ${ tone } tone, keeping the language of the text:\n\n${ content }`,
+		},
+	];
+}
+
+function getCustomUserPrompt( {
+	content,
+	role = 'user',
+	customPrompt,
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Hanle the following request:\n\n${ customPrompt }\nText to change:\n\n${ content }`,
 		},
 	];
 }
@@ -456,7 +487,7 @@ export function buildPromptForBlock( {
  */
 export function getPrompt(
 	type: PromptTypeProp,
-	options: PromptOptionsProps
+	options?: PromptOptionsProps = {}
 ): Array< PromptItemProps > {
 	debug( 'Addressing prompt type: %o %o', type, options );
 	const { prevMessages = [] } = options;
@@ -469,9 +500,10 @@ export function getPrompt(
 		role: 'system',
 		content: `${ context }
 Writing rules:
+- Use HTML syntax.
 - Execute the request without any acknowledgment or explanation to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `,
 	};
 
@@ -492,6 +524,12 @@ Writing rules:
 		case PROMPT_TYPE_SUMMARIZE:
 			return [ ...prompt, ...getSummarizePrompt( options ) ];
 
+		case PROMPT_TYPE_MAKE_SHORTER:
+			return [ ...prompt, ...getMakeShorterPrompt( options ) ];
+
+		case PROMPT_TYPE_SUMMARY_BY_TITLE:
+			return [ ...prompt, ...getSummarizePromptBasedOnTitle( options ) ];
+
 		case PROMPT_TYPE_MAKE_LONGER:
 			return [ ...prompt, ...getExpandPrompt( options ) ];
 
@@ -500,6 +538,9 @@ Writing rules:
 
 		case PROMPT_TYPE_CHANGE_TONE:
 			return [ ...prompt, ...getTonePrompt( options ) ];
+
+		case PROMPT_TYPE_USER_PROMPT:
+			return [ ...prompt, ...getCustomUserPrompt( options ) ];
 
 		default:
 			throw new Error( `Unknown prompt type: ${ type }` );

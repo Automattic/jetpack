@@ -63,6 +63,7 @@ export default function QuestionAnswer() {
 	const [ showReferences, setShowReferences ] = useState( false );
 
 	const handleSubmitQuestion = () => {
+		console.log( 'HOLA!' );
 		setAnimationDone( false );
 		setShowReferences( false );
 		submitQuestion();
@@ -76,7 +77,7 @@ export default function QuestionAnswer() {
 		<>
 			<KeyboardShortcuts
 				shortcuts={ {
-					enter: handleSubmitQuestion,
+					'mod+/': handleSubmitQuestion,
 				} }
 			>
 				<div className="jetpack-ai-chat-question-wrapper">

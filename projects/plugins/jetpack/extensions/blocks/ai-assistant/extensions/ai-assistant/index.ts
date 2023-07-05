@@ -10,6 +10,7 @@ import { addFilter } from '@wordpress/hooks';
 import { blockName } from '../..';
 import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
+import withAiAssistant from './with-ai-assistant-support';
 
 /*
  * Types and Constants
@@ -105,4 +106,6 @@ function addJetpackAISupport(
 }
 
 // Extend BlockType.
-addFilter( 'blocks.registerBlockType', 'jetpack/ai-assistant-support', addJetpackAISupport, 100 );
+// addFilter( 'blocks.registerBlockType', 'jetpack/ai-assistant-support', addJetpackAISupport, 100 );
+
+// addFilter( 'editor.BlockListBlock', 'jetpack/ai-assistant-block-list', withAiAssistant );

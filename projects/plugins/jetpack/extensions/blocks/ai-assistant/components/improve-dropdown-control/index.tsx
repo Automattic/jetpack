@@ -34,17 +34,17 @@ const quickActionsList = [
 	{
 		name: __( 'Summarize', 'jetpack' ),
 		key: IMPROVE_KEY_SUMMARIZE,
-		aiSuggestion: IMPROVE_SUGGESTION_SUMMARIZE,
+		promptType: IMPROVE_SUGGESTION_SUMMARIZE,
 	},
 	{
 		name: __( 'Make longer', 'jetpack' ),
 		key: IMPROVE_KEY_MAKE_LONGER,
-		aiSuggestion: IMPROVE_SUGGESTION_MAKE_LONGER,
+		promptType: IMPROVE_SUGGESTION_MAKE_LONGER,
 	},
 	{
 		name: __( 'Make shorter', 'jetpack' ),
 		key: IMPROVE_KEY_MAKE_SHORTER,
-		aiSuggestion: IMPROVE_SUGGESTION_MAKE_SHORTER,
+		promptType: IMPROVE_SUGGESTION_MAKE_SHORTER,
 	},
 ];
 
@@ -94,7 +94,7 @@ export default function ImproveToolbarDropdownMenu( {
 								<MenuItem
 									key={ `key-${ quickAction.key }` }
 									onClick={ () =>
-										onChange( quickAction.aiSuggestion, { contentType: 'generated' } )
+										onChange( quickAction.promptType, { contentType: 'generated' } )
 									}
 									isSelected={ key === quickAction.key }
 								>

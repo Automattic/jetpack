@@ -8,10 +8,11 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { isPossibleToExtendBlock } from '../extensions/ai-assistant';
 import withAIAssistant from '../extensions/ai-assistant/with-ai-assistant';
+import { withAiAssistantToolbarButton } from '../extensions/ai-assistant/with-ai-assistant-support';
 
 export const SUPPORT_NAME = 'jetpack/ai';
 
-function handleJetpackAISupports( settings ) {
+function handleJetpackAIBlockTypeSupport( settings ) {
 	const jetpackAISupports = getBlockSupport( settings, SUPPORT_NAME );
 	if ( ! jetpackAISupports ) {
 		return settings;
@@ -28,13 +29,13 @@ function handleJetpackAISupports( settings ) {
 
 	return {
 		...settings,
-		edit: withAIAssistant( settings.edit ),
+		edit: withAIAssistant( withAiAssistantToolbarButton( settings.edit ) ),
 	};
 }
 
 addFilter(
 	'blocks.registerBlockType',
 	'jetpack/handle-jetpack-ai-supports',
-	handleJetpackAISupports,
+	handleJetpackAIBlockTypeSupport,
 	100
 );

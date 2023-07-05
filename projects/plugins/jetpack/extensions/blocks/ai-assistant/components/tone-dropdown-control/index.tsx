@@ -132,7 +132,7 @@ type ToneToolbarDropdownMenuProps = {
 	onChange: ( value: ToneProp ) => void;
 };
 
-const ToneMenuGroup = ( { value, onChange }: ToneToolbarDropdownMenuProps ) => (
+export const ToneMenuGroup = ( { value, onChange }: ToneToolbarDropdownMenuProps ) => (
 	<MenuGroup label={ __( 'Select tone', 'jetpack' ) }>
 		{ PROMPT_TONES_LIST.map( tone => {
 			return (
@@ -159,6 +159,7 @@ export function ToneDropdownMenu( {
 			className="ai-assistant__tone-dropdown"
 			popoverProps={ {
 				variant: 'toolbar',
+				placement: 'right',
 			} }
 			toggleProps={ {
 				children: (

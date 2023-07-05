@@ -1,0 +1,68 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-assistant__input-container {
+	color: var( --jp-gray-80 );
+	background-color: var( --jp-white );
+	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
+	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	min-width: 300px;
+}
+
+.jetpack-ai-assistant__input-wrapper {
+	display: flex;
+	padding: 2px;
+	gap: 8px;
+
+
+	&.is-disconnected {
+		opacity: 0.4;
+	}
+
+	textarea.jetpack-ai-assistant__input {
+		width: 100%;
+		min-width: 300px;
+		flex-grow: 1;
+		padding: 6px 8px;
+		margin: 1px 0px;
+		border-radius: 2px;
+
+		resize: none !important;
+		border: none;
+		box-shadow: none;
+		color: var( --jp-gray-80 );
+
+		font-size: 16px;
+		font-weight: 400;
+		line-height: 20px;
+
+		transition: box-shadow 0.1s linear 0s;
+
+		&:focus {
+			box-shadow: none;
+			color: var( --jp-gray-80 );
+		}
+
+		@media (min-width: 600px) {
+			font-size: 13px;
+		}
+
+		&::placeholder {
+			text-overflow:ellipsis;
+			white-space: nowrap;
+			opacity: 0.75;
+		}
+	}
+}
+
+.jetpack-ai-assistant__options-popover {
+	.components-popover__content {
+		min-width: 400px;
+	}
+}
+
+.jetpack-ai-assistant__preview {
+	position: absolute;
+	z-index: 100;
+	width: 600px;
+	border: 1px solid var( --jp-gray-20 );
+}
