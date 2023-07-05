@@ -141,6 +141,18 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
+		'blog-flow'       => array(
+			'title'               => 'Blog',
+			'task_ids'            => array(
+				'site_title',
+				'design_edited',
+				'domain_claim',
+				'verify_email',
+				'domain_customize',
+				'drive_traffic',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_is_blog_flow_enabled',
+		),
 	);
 
 	$extended_task_list_definitions = apply_filters( 'wpcom_launchpad_extended_task_list_definitions', array() );
