@@ -314,6 +314,10 @@ function jetpack_boost_page_optimize_build_output() {
 		}
 	}
 
+	// Don't let trailing whitespace ruin everyone's day. Seems to get stripped by batcache
+	// resulting in ns_error_net_partial_transfer errors.
+	$output = rtrim( $output );
+
 	$headers = array(
 		'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $last_modified ) . ' GMT',
 		'Content-Length: ' . ( strlen( $pre_output ) + strlen( $output ) ),
