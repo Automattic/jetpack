@@ -183,7 +183,7 @@ export const AiAssistantPopover = ( {
 					</div>
 				) }
 
-				{ !! generatedContent?.length && false && (
+				{ !! generatedContent?.length && (
 					<div className="jetpack-ai-assistant__preview">
 						<BlockPreview
 							viewportWidth={ 0 }

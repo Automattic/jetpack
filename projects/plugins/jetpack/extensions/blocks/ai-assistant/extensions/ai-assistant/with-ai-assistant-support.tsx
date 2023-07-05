@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { rawHandler, pasteHandler } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
@@ -16,7 +17,7 @@ import AiAssistantToobarButton from '../../components/ai-assistant-toolbar-contr
 import { PROMPT_TYPE_USER_PROMPT, getPrompt } from '../../lib/prompt';
 import { getTextContentFromSelectedBlocks } from '../../lib/utils/block-content';
 import { AiAssistantContextProvider } from './context';
-import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '.';
 
 const markdownConverter = new MarkdownIt( {
 	breaks: true,
@@ -245,6 +246,15 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 				requestingState,
 			]
 		);
+
+		if ( ! isPossibleToExtendBlock() ) {
+			return <BlockListBlock { ...props } />;
+		}
+
+		// Check if the block is listed to be extended.
+		if ( EXTENDED_BLOCKS.indexOf( props.name ) === -1 ) {
+			return <BlockListBlock { ...props } />;
+		}
 
 		return (
 			<AiAssistantContextProvider value={ contextValue }>

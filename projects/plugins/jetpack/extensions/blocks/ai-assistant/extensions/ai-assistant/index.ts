@@ -18,7 +18,13 @@ import withAiAssistant from './with-ai-assistant-support';
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
 
 // List of blocks that can be extended.
-export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading', 'core/list' ] as const;
+export const EXTENDED_BLOCKS = [
+	'core/paragraph',
+	'core/heading',
+	'core/list',
+	'core/list-item',
+	'core/table',
+] as const;
 
 export type ExtendedBlockProp = ( typeof EXTENDED_BLOCKS )[ number ];
 
@@ -106,6 +112,6 @@ function addJetpackAISupport(
 }
 
 // Extend BlockType.
-// addFilter( 'blocks.registerBlockType', 'jetpack/ai-assistant-support', addJetpackAISupport, 100 );
+addFilter( 'blocks.registerBlockType', 'jetpack/ai-assistant-support', addJetpackAISupport, 100 );
 
-// addFilter( 'editor.BlockListBlock', 'jetpack/ai-assistant-block-list', withAiAssistant );
+addFilter( 'editor.BlockListBlock', 'jetpack/ai-assistant-block-list', withAiAssistant );
