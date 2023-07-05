@@ -25,7 +25,15 @@ import { Ads } from './ads';
  * @returns {React.Component} Feature description and CTA.
  */
 function EarnFeatureButton( props ) {
-	const { buttonText, featureConstant = '', featureName, infoLink, infoDescription, title } = props;
+	const {
+		buttonText,
+		featureConstant = '',
+		featureName,
+		infoLink,
+		infoDescription,
+		supportLink,
+		title,
+	} = props;
 
 	const trackButtonClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
@@ -46,7 +54,7 @@ function EarnFeatureButton( props ) {
 				disableInOfflineMode
 				disableInSiteConnectionMode
 				support={ {
-					link: infoLink,
+					link: supportLink,
 				} }
 			>
 				{ infoDescription }
@@ -55,9 +63,7 @@ function EarnFeatureButton( props ) {
 				compact
 				className="jp-settings-card__configure-link"
 				onClick={ trackButtonClick }
-				href={ getRedirectUrl( 'wpcom-earn-payments', {
-					site: props.siteRawUrl,
-				} ) }
+				href={ infoLink }
 				target="_blank"
 			>
 				{ buttonText }
@@ -97,7 +103,10 @@ function Earn( props ) {
 					{ ...props }
 					featureName="payments"
 					title={ __( 'Collect payments', 'jetpack' ) }
-					infoLink={ getRedirectUrl( 'wpcom-payments-donations' ) }
+					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-payments-block' ) }
+					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
+						site: siteRawUrl,
+					} ) }
 					infoDescription={ __(
 						'Let visitors pay for digital goods and services or make quick, pre-set donations by enabling the Payment Button block.',
 						'jetpack'
@@ -108,7 +117,10 @@ function Earn( props ) {
 					{ ...props }
 					featureName="donations"
 					title={ __( 'Accept donations and tips', 'jetpack' ) }
-					infoLink={ getRedirectUrl( 'wpcom-payments-donations' ) }
+					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' ) }
+					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
+						site: siteRawUrl,
+					} ) }
 					infoDescription={ __(
 						'Accept one-time and recurring donations by enabling the Donations Form block.',
 						'jetpack'
@@ -119,6 +131,7 @@ function Earn( props ) {
 					{ ...props }
 					featureName="paypal"
 					title={ __( 'Collect PayPal payments', 'jetpack' ) }
+					supportLink={ getRedirectUrl( 'jetpack-support-pay-with-paypal' ) }
 					infoLink={ getRedirectUrl( 'jetpack-support-pay-with-paypal' ) }
 					infoDescription={ __(
 						'Accept credit card payments via PayPal for physical products, services, donations, or support of your creative work.',
