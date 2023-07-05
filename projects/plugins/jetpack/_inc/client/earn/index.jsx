@@ -168,7 +168,11 @@ function Earn( props ) {
 			<h2 className="jp-settings__section-title">
 				{ searchTerm
 					? __( 'Earn', 'jetpack' )
-					: __( 'Explore tools to earn money with your site.', 'jetpack' ) }
+					: __(
+							'Explore tools to earn money with your site.',
+							'jetpack',
+							/* dummy arg to avoid bad minification */ 0
+					  ) }
 			</h2>
 			{ foundAds && (
 				<Ads
