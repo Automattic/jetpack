@@ -9,11 +9,10 @@ import {
 	isUnavailableInOfflineMode,
 	hasConnectedOwner,
 } from 'state/connection';
-import { getLastPostUrl, isAtomicSite } from 'state/initial-state';
+import { getLastPostUrl } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
-import { Ads } from './ads';
 import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
 import { RelatedPosts } from './related-posts';
@@ -39,7 +38,6 @@ export class Traffic extends React.Component {
 		};
 
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
-			foundAds = this.props.isModuleFound( 'wordads' ),
 			foundStats = this.props.isModuleFound( 'stats' ),
 			foundShortlinks = this.props.isModuleFound( 'shortlinks' ),
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
@@ -54,7 +52,6 @@ export class Traffic extends React.Component {
 
 		if (
 			! foundSeo &&
-			! foundAds &&
 			! foundStats &&
 			! foundShortlinks &&
 			! foundRelated &&
@@ -78,15 +75,6 @@ export class Traffic extends React.Component {
 								'jetpack'
 						  ) }
 				</h2>
-				{ foundAds && (
-					<Ads
-						{ ...commonProps }
-						isAtomicSite={ this.props.isAtomicSite }
-						configureUrl={ getRedirectUrl( 'calypso-stats-ads-day', {
-							site: this.props.siteRawUrl,
-						} ) }
-					/>
-				) }
 				{ foundRelated && (
 					<RelatedPosts
 						{ ...commonProps }
@@ -138,7 +126,6 @@ export default connect( state => {
 		isSiteConnected: isSiteConnected( state ),
 		lastPostUrl: getLastPostUrl( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		isAtomicSite: isAtomicSite( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( Traffic );
