@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.4-a.1 - 2023-07-05
+### Enhancements
+- AI Assistant: Keep original content if try again from transform block. [#31597]
+- Contact Forms: remove the default title ("You got a new response!") added to emails sent for new feedback received. [#31667]
+- Custom CSS: display a notice to recommend the use of Global Styles when you use a Block theme on your site. [#31413]
+- Persist block markup and ensure it is rendered in the footer. [#31511]
+- Subscribers page: add subscribers page to menu. [#31567]
+
+### Improved compatibility
+- Tiled Galleries: fix deprecation notices that may appear in logs when using PHP 8.2. [#31640]
+
+### Bug fixes
+- Fix Jetpack footer accessibility issues [#31417]
+- Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard. [#31614]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add wpcom_site_setup property to /sites/{siteId} endpoint [#31664]
+- Dashboard: update wording for Custom CSS section when using a Block theme. [#31634]
+- Sync wpcom_site_setup site option [#31662]
+- Updated package dependencies. [#31659]
+- Updated package dependencies. [#31661]
+- WordPress.com Toolbar: only add Blaze Dashboard link once. [#31617]
+
 ## [12.3] - 2023-07-05
 ### Enhancements
 - AI Assistant: extend AI features to select core blocks.
