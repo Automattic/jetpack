@@ -588,6 +588,30 @@ function wpcom_launchpad_is_keep_building_enabled() {
 	return false;
 }
 
+/**
+ * Checks if the Blog flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_blog_flow_enabled() {
+
+	if ( ! is_automattician() ) {
+		return false;
+	}
+
+	$intent                  = get_option( 'site_intent', false );
+	$launchpad_task_statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
+
+	$launched = isset( $launchpad_task_statuses['site_launched'] ) && $launchpad_task_statuses['site_launched'];
+	$blog_id  = get_current_blog_id();
+
+	if ( 'blog' === $intent && $blog_id > 220443356 && $launched ) {
+		return true;
+	}
+
+	return false;
+}
+
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
 if ( class_exists( 'WPCOM_Launchpad' ) ) {
 	remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
