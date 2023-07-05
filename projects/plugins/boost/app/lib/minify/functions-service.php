@@ -320,7 +320,6 @@ function jetpack_boost_page_optimize_build_output() {
 
 	$headers = array(
 		'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $last_modified ) . ' GMT',
-		'Content-Length: ' . ( strlen( $pre_output ) + strlen( $output ) ),
 		"Content-Type: $mime_type",
 	);
 
