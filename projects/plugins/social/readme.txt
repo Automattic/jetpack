@@ -100,16 +100,13 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.11.0 - 2023-06-06
-#### Added
-- Added feature flag for Mastodon preview
-- Jetpack Social: Add a notice to let users know Instagram is available
-
+### 2.0.0 - 2023-07-05
 #### Changed
-- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now
+- Social: change the admin page plan redirect link.
+- Social: update the Readme to better reflect new features.
 - Updated package dependencies.
-- Updates the enhanced publishing feature check
 
-#### Deprecated
-- Minor changes around upcoming functionality change in Twitter.
+#### Fixed
+- Social: fix the connection state to ensure that new connections are disabled by default when there are no shares left.
+- Social Review Prompt: fix the state so it is shown when Jetpack is also active.
 
