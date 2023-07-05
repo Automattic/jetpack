@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2023-07-05
+### Changed
+- Change Dashboard: Change to return connected user information to use for analytics [#31654]
+- Dashboard Menu: change priority. [#31617]
+- Updated package dependencies. [#31659]
+
+### Fixed
+- Fixes missing controller for DSP blaze/posts request [#31641]
+
 ## [0.7.1] - 2023-06-27
 ### Fixed
 - Avoid errors when the post type label is not defined. [#31595]
@@ -150,6 +159,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.7.2]: https://github.com/automattic/jetpack-blaze/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/automattic/jetpack-blaze/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/automattic/jetpack-blaze/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/automattic/jetpack-blaze/compare/v0.5.14...v0.6.0
