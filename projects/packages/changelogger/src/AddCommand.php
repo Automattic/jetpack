@@ -286,7 +286,7 @@ EOF
 					return 1;
 				}
 			} else {
-				if ( null === $entry && $comment === null ) {
+				if ( null === $entry && $comment === '' ) {
 					$output->writeln( '<error>Entry must be specified in non-interactive mode.</>' );
 					return 1;
 				}
