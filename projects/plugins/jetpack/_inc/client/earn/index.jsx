@@ -43,6 +43,8 @@ function EarnFeatureButton( props ) {
 			feature={ featureConstant ? featureConstant : undefined }
 		>
 			<SettingsGroup
+				disableInOfflineMode
+				disableInSiteConnectionMode
 				support={ {
 					link: infoLink,
 				} }
