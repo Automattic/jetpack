@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2023-07-05
+### Fixed
+- Check response.url, not response.ok to verify a response worked [#31538]
+
 ## [0.4.0] - 2023-06-23
 ### Added
 - Jetpack Boost: add a proxy to Image Guide so it can load remote images. [#31145]
@@ -49,4 +53,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Minor package.json change - removing private entry.
 
+[0.4.1]: https://github.com/Automattic/jetpack-image-guide/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-image-guide/compare/v0.3.0...v0.4.0

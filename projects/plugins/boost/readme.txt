@@ -5,7 +5,7 @@ Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 6.2
 Requires PHP: 7.0
-Stable tag: 1.9.1
+Stable tag: 1.9.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,26 +187,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.9.2 - 2023-07-03
-#### Added
-- Image Guide: Added a proxy to allow the Image Guide UI to load the size of remote images.
-- Minify CSS/JS: Added an endpoint for fetching minfied content which does not rely on loading WordPress, allowing hosts to more efficiently fetch minified content.
-- Speed Scores: Added an internal argument to record the source of each Speed Score request.
-- Speed Scores: Added a notice to the Site Health panel when speed scores need updating.
-
-#### Changed
-- Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger.
-- General: Updated checklist spacing and button font size and line height.
-- Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax.
-- Minify CSS: Moved the default URL base of minified CSS files to /_jb_static, and added a constant to override it.
-
+### 1.9.4 - 2023-07-05
 #### Fixed
-- Critical CSS: Critical CSS Generation was skipping posts and pages on sites with fewer than 10 of either.
-- General: Compatibility fixes for older versions of Safari
-- General: Fixed a potential loop which repeatedly showed the Getting Started page.
-- General: Fixed incorrect tracks events around plugin connection
-- Image Guide: Fixed issues with Image Guide placement on the page with some themes.
-- Minify CSS: Fixed issues with relative paths when WordPress is installed in a sub-directory. [30863]
+- Minify CSS/JS: Removed Content-Length from cached minified content to avoid potential cache mangling on some hosts
 
 --------
 
