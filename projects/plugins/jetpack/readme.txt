@@ -293,7 +293,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.3-beta - 2023-06-26
+### 12.3 - 2023-07-05
 #### Enhancements
 - AI Assistant: add and use ImproveToolbarDropdownMenu in block toolbar.
 - AI Assistant: add Expand option into AI Assistant dropdown menu.
@@ -369,7 +369,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Newsletters: remove Newsletter column on products post type.
 - Newsletters: show paid subscriber reach numbers in the past tense when the post has been already been published.
 - Newsletters: verify the access level should be gated before checking subscriptions.
+- Sharing Buttons: remove Reddit's official iframe sharing button, it is no longer working. Use icon+text sharing button instead.
 - Social Review Prompt: fix the state so it is shown when Jetpack is also active.
+- Subscriptions: avoid fatal error when site is connected to WordPress.com, but user account is not.
 - Subscriptions: fix visibility misalignment.
 - Tock Block: fix the embed rendering on WordPress.com sites.
 - WPcom: fix output of static script path on WordPress.com sites.
