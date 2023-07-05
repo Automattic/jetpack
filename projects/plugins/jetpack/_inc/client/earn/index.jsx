@@ -31,7 +31,6 @@ function EarnFeatureButton( props ) {
 		buttonText,
 		featureConstant = '',
 		featureName,
-		hasConnectedOwner,
 		infoLink,
 		infoDescription,
 		supportLink,
@@ -62,24 +61,15 @@ function EarnFeatureButton( props ) {
 			>
 				{ infoDescription }
 			</SettingsGroup>
-			{ hasConnectedOwner && (
-				<Card
-					compact
-					className="jp-settings-card__configure-link"
-					onClick={ trackButtonClick }
-					href={ infoLink }
-					target="_blank"
-				>
-					{ buttonText }
-				</Card>
-			) }
-			{ ! hasConnectedOwner && (
-				<ConnectUserBar
-					feature="earn"
-					featureLabel={ title }
-					text={ __( 'Connect to discover tools to earn money with your site.', 'jetpack' ) }
-				/>
-			) }
+			<Card
+				compact
+				className="jp-settings-card__configure-link"
+				onClick={ trackButtonClick }
+				href={ infoLink }
+				target="_blank"
+			>
+				{ buttonText }
+			</Card>
 		</SettingsCard>
 	);
 }
@@ -91,7 +81,7 @@ function EarnFeatureButton( props ) {
  * @returns {React.Component} Earn settings component.
  */
 function Earn( props ) {
-	const { active, isModuleFound, isOffline, searchTerm, siteRawUrl } = props;
+	const { active, hasConnectedOwner, isModuleFound, isOffline, searchTerm, siteRawUrl } = props;
 
 	const foundAds = isModuleFound( 'wordads' );
 
@@ -106,6 +96,23 @@ function Earn( props ) {
 					<div className="jp-form-block-fade" />
 					{ __( 'Unavailable in Offline Mode.', 'jetpack' ) }
 				</SettingsGroup>
+			);
+		}
+
+		if ( ! hasConnectedOwner ) {
+			return (
+				<SettingsCard
+					{ ...props }
+					hideButton
+					module="earn"
+					header={ __( 'Collect payments', 'jetpack' ) }
+				>
+					<ConnectUserBar
+						feature="earn"
+						featureLabel={ __( 'Collect payments', 'jetpack' ) }
+						text={ __( 'Connect to discover tools to earn money with your site.', 'jetpack' ) }
+					/>
+				</SettingsCard>
 			);
 		}
 
