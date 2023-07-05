@@ -311,7 +311,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		global $submenu;
 
 		static::$admin_menu->add_users_menu();
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][16][2] );
+
+		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][6][2] );
 	}
 
 	/**
