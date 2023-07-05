@@ -1,10 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreenLayout, useConnection } from '@automattic/jetpack-connection';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { WordPressLogo, ExternalLink } from '../illustrations';
 import migrationImage1 from './../../../../images/migration-1.png';
 import type React from 'react';
@@ -69,11 +69,11 @@ export function Migration( props: Props ) {
 
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
 	const isFullyConnected = isRegistered && isUserConnected;
-	const { tracks } = useAnalytics();
+	const { recordEvent } = useAnalyticsTracks();
 
 	const onGetStartedClick = useCallback(
 		( e: Event ) => {
-			tracks.recordEvent( `jetpack_migration_get_started_click`, {
+			recordEvent( `jetpack_migration_get_started_click`, {
 				source_site_slug: sourceSiteSlug,
 			} );
 			// If it's fully connected, href attribute is the final destination
@@ -81,7 +81,7 @@ export function Migration( props: Props ) {
 				handleRegisterSite( e );
 			}
 		},
-		[ isFullyConnected, handleRegisterSite, tracks, sourceSiteSlug ]
+		[ isFullyConnected, handleRegisterSite, recordEvent, sourceSiteSlug ]
 	);
 
 	return (
