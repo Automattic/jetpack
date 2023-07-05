@@ -1,23 +1,21 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import Button from 'components/button';
+import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
-import { FormLegend } from 'components/forms';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
+import { FEATURE_SIMPLE_PAYMENTS_JETPACK } from 'lib/plans/constants';
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
 	isUnavailableInOfflineMode as isUnavailableInOfflineModeSelector,
 } from 'state/connection';
 import { isAtomicSite as isAtomicSiteSelector } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
-import { hasSecurityComparableLegacyPlan, hasActiveSecurityPurchase } from 'state/site';
 import { Ads } from './ads';
 
 /**
@@ -27,17 +25,7 @@ import { Ads } from './ads';
  * @returns {React.Component} Feature description and CTA.
  */
 function EarnFeatureButton( props ) {
-	const {
-		buttonText,
-		featureName,
-		infoLink,
-		infoDescription,
-		needsEarnPlan = false,
-		securityComparableLegacyPlan,
-		securityPurchase,
-		siteRawUrl,
-		title,
-	} = props;
+	const { buttonText, featureName, infoLink, infoDescription, title } = props;
 
 	const trackButtonClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
@@ -46,53 +34,33 @@ function EarnFeatureButton( props ) {
 		} );
 	}, [ featureName ] );
 
-	const trackViewPlans = useCallback( () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'view-plans',
-			feature: 'earn',
-		} );
-	}, [] );
-
-	const button = () => {
-		if ( needsEarnPlan && ! securityComparableLegacyPlan && ! securityPurchase ) {
-			return (
-				<Button
-					rna
-					onClick={ trackViewPlans }
-					href={ getRedirectUrl( 'jetpack-plans', {
-						site: siteRawUrl,
-					} ) }
-					primary={ true }
-				>
-					{ __( 'Unlock this feature', 'jetpack' ) }
-				</Button>
-			);
-		}
-		return (
-			<Button
-				rna
+	return (
+		<SettingsCard
+			{ ...props }
+			header={ title }
+			hideButton
+			module="earn"
+			feature={ FEATURE_SIMPLE_PAYMENTS_JETPACK }
+		>
+			<SettingsGroup
+				support={ {
+					link: infoLink,
+				} }
+			>
+				{ infoDescription }
+			</SettingsGroup>
+			<Card
+				compact
+				className="jp-settings-card__configure-link"
 				onClick={ trackButtonClick }
 				href={ getRedirectUrl( 'wpcom-earn-payments', {
 					site: props.siteRawUrl,
 				} ) }
+				target="_blank"
 			>
 				{ buttonText }
-			</Button>
-		);
-	};
-
-	return (
-		<SettingsGroup
-			support={ {
-				link: infoLink,
-			} }
-		>
-			<FormLegend className="jp-form-label-wide">{ title }</FormLegend>
-			<div className="jp-earn-payments">
-				<div className="jp-earn-payments__text">{ infoDescription }</div>
-				<div className="jp-earn-payments__button">{ button() }</div>
-			</div>
-		</SettingsGroup>
+			</Card>
+		</SettingsCard>
 	);
 }
 
@@ -155,7 +123,6 @@ function Earn( props ) {
 						'jetpack'
 					) }
 					buttonText={ __( 'Learn how to get started', 'jetpack' ) }
-					needsEarnPlan={ true }
 				/>
 			</>
 		);
@@ -182,24 +149,13 @@ function Earn( props ) {
 					} ) }
 				/>
 			) }
-			<SettingsCard
-				{ ...props }
-				header={ __( 'Add Payment and Donations options to your posts and pages', 'jetpack' ) }
-				hideButton
-				module="earn"
-			>
-				{ paymentBlocks() }
-			</SettingsCard>
+			{ paymentBlocks() }
 		</div>
 	);
 }
 
 export default connect( state => {
 	return {
-		hasConnectedOwner: hasConnectedOwnerSelector( state ),
-		// There is no "Earn" plan per se. Right now the Pay with PayPal block requires a Premium or above plan, reflected below.
-		securityComparableLegacyPlan: hasSecurityComparableLegacyPlan( state ),
-		securityPurchase: hasActiveSecurityPurchase( state ),
 		module: module_name => getModule( state, module_name ),
 		isOffline: isOfflineMode( state ),
 		isModuleFound: module_name => isModuleFoundSelector( state, module_name ),
