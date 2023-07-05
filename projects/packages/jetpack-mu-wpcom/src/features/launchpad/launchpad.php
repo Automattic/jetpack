@@ -605,7 +605,7 @@ function wpcom_launchpad_is_blog_flow_enabled() {
 	$launched = isset( $launchpad_task_statuses['site_launched'] ) && $launchpad_task_statuses['site_launched'];
 	$blog_id  = get_current_blog_id();
 
-	if ( 'blog' === $intent && $blog_id > 220443356 && $launched ) {
+	if ( 'write' === $intent && $blog_id > 220443356 && $launched ) {
 		return true;
 	}
 
