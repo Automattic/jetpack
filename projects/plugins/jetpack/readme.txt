@@ -293,43 +293,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.3 - 2023-07-05
+### 12.4-a.1 - 2023-07-05
 #### Enhancements
-- AI Assistant: extend AI features to select core blocks.
-- AI Extension: add ask assistant menu option.
-- Blocks: add a new Tock block.
-- Blocks: load block stylesheets inline when possible for improved performance.
-- Customizer: hide the customizer submenu for block based themes.
-- Newsletters: add an Email Preview feature.
-- Newsletters: update Paid newsletter panel designs.
-- Related Posts: add srcset for the thumbnails.
-- Sharing Buttons: add a Nextdoor sharing button.
-- Social Logos: update to include a Nextdoor and a Fediverse logo.
-- Stats: display the links to a post's stats in the Posts list as soon as the user has access to stats.
-- Subscribers: add menu item to Calypso interface.
+- AI Assistant: Keep original content when trying again after transforming a paragraph using the "Ask AI Assistant" button.
+- Contact Forms: remove the default title ("You got a new response!") added to emails sent for new feedback received.
+- Cookie Consent Block: Persist markup and ensure it is rendered in the footer.
+- Custom CSS: Display a notice to recommend the use of Global Styles when you use a Block theme on your site.
+- Subscribers page: Add subscribers page to menu.
 
 #### Improved compatibility
-- Blocks: introduce standardized messaging system to display notices when a block is no longer supported on a site.
-- Blocks: remove retired Revue Block.
-- PHP8 compatibility updates.
-- Tiled Galleries: avoid PHP deprecation notices on sites using PHP 8.2.
-- WordPress.com Toolbar: avoid PHP warnings with PHP 8.2.
+- Tiled Galleries: Fix deprecation notices that may appear in logs when using PHP 8.2.
 
 #### Bug fixes
-- AI Assistant: several bug fixes this release, check the CHANGELOG.md file for more info.
-- Connection: fix redirecting users who click back button before approving connection to Jetpack Dashboard.
-- Customizer: fix an issue which was preventing the Customize menu from appearing for plugins that still require it to be present.
-- Dashboard: display an external icon next to the link to the Subscribers list.
-- Markdown Block: render single and double quotes as smart quotes.
-- Memberships: correctly gate posts rendered on pages.
-- Memberships: fix an issue where Jetpack_Memberships::user_can_view_post would cache the wrong value.
-- Memberships: fix potential class not found error.
-- Newsletters: several bug fixes this release, check the CHANGELOG.md file for more info.
-- Sharing Buttons: remove Reddit's official iframe sharing button, it is no longer working. Use icon+text sharing button instead.
-- Social Review Prompt: fix the state so it is shown when Jetpack is also active.
-- Subscriptions: avoid fatal error when site is connected to WordPress.com, but user account is not.
-- Subscriptions: fix visibility misalignment.
-- WPcom: fix output of static script path on WordPress.com sites.
+- Dashboard: Fix Jetpack footer accessibility issues.
+- Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard.
 
 --------
 

@@ -4,17 +4,17 @@
 
 ## 12.4-a.1 - 2023-07-05
 ### Enhancements
-- AI Assistant: Keep original content if try again from transform block. [#31597]
+- AI Assistant: Keep original content when trying again after transforming a paragraph using the "Ask AI Assistant" button. [#31597]
 - Contact Forms: remove the default title ("You got a new response!") added to emails sent for new feedback received. [#31667]
-- Custom CSS: display a notice to recommend the use of Global Styles when you use a Block theme on your site. [#31413]
-- Persist block markup and ensure it is rendered in the footer. [#31511]
-- Subscribers page: add subscribers page to menu. [#31567]
+- Cookie Consent Block: Persist markup and ensure it is rendered in the footer. [#31511]
+- Custom CSS: Display a notice to recommend the use of Global Styles when you use a Block theme on your site. [#31413]
+- Subscribers page: Add subscribers page to menu. [#31567]
 
 ### Improved compatibility
-- Tiled Galleries: fix deprecation notices that may appear in logs when using PHP 8.2. [#31640]
+- Tiled Galleries: Fix deprecation notices that may appear in logs when using PHP 8.2. [#31640]
 
 ### Bug fixes
-- Fix Jetpack footer accessibility issues [#31417]
+- Dashboard: Fix Jetpack footer accessibility issues. [#31417]
 - Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard. [#31614]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
