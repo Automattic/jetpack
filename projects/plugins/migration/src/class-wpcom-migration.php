@@ -121,9 +121,7 @@ class WPCOM_Migration {
 		wp_add_inline_script( 'wpcom-migration', $this->render_initial_state(), 'before' );
 
 		// Required for Analytics.
-		if ( self::can_use_analytics() ) {
-			Tracking::register_tracks_functions_scripts( true );
-		}
+		Tracking::register_tracks_functions_scripts( true );
 	}
 
 	/**
