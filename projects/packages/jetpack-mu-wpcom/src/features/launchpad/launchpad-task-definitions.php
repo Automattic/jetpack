@@ -541,7 +541,7 @@ function wpcom_track_site_launch_task() {
 
 	// While in the design_first flow, if the user creates a post, deletes the default hello-world.
 	$first_post_published = wpcom_launchpad_checklists()->is_task_id_complete( 'first_post_published' );
-	if ( in_array( $site_intent, array( 'design-first' ) ) && $first_post_published ) {
+	if ( in_array( $site_intent, array( 'design-first' ), true ) && $first_post_published ) {
 		$posts = get_posts( array( 'name' => 'hello-world' ) );
 
 		if ( count( $posts ) > 0 ) {
