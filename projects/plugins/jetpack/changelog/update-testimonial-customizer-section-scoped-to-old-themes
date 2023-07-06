@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Makes the testimonials customizer section be shown only if current theme is not a block theme
