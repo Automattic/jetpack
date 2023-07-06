@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
 import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
@@ -139,6 +139,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		} );
 	};
 
+	const isLayoutBuldingModeEnable = true;
+
 	// Waiting state means there is nothing to be done until it resolves
 	const isWaitingState = isLoadingCompletion || isLoadingCategories;
 	// Content is loaded
@@ -241,13 +243,15 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}
 	);
 
+	const blockProps = useBlockProps( {
+		ref: blockRef,
+		className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
+	} );
+
+	const innerBlocks = useInnerBlocksProps( blockProps );
+
 	return (
-		<div
-			{ ...useBlockProps( {
-				ref: blockRef,
-				className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
-			} ) }
-		>
+		<div { ...blockProps }>
 			{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
 				<Notice
 					status={ errorData.status }
@@ -257,13 +261,16 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					{ errorData.message }
 				</Notice>
 			) }
-			{ contentIsLoaded && (
-				<>
-					<div className="jetpack-ai-assistant__content">
-						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
-					</div>
-				</>
+			{ contentIsLoaded && ! isLayoutBuldingModeEnable && (
+				<div className="jetpack-ai-assistant__content">
+					<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
+				</div>
 			) }
+
+			{ contentIsLoaded && isLayoutBuldingModeEnable && (
+				<div className="jetpack-ai-assistant__content is-layout-building-mode" { ...innerBlocks } />
+			) }
+
 			<AIControl
 				ref={ aiControlRef }
 				content={ attributes.content }
