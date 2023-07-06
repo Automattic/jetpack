@@ -84,7 +84,7 @@ class Jetpack_Testimonial {
 		add_filter( 'enter_title_here', array( $this, 'change_default_title' ) );
 		add_filter( sprintf( 'manage_%s_posts_columns', self::CUSTOM_POST_TYPE ), array( $this, 'edit_title_column_label' ) );
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
-		if ( ! wp_is_block_theme() ) {
+		if ( ! function_exists( 'wp_is_block_theme' ) || ( function_exists( 'wp_is_block_theme' ) && ! wp_is_block_theme() ) ) {
 			add_action( 'customize_register', array( $this, 'customize_register' ) );
 		}
 
