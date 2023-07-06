@@ -16,6 +16,11 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
+use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
+use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
@@ -125,6 +130,9 @@ class Jetpack_Subscriptions {
 		// Hide subscription messaging in Publish panel for posts that were published in the past
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
 		add_action( 'transition_post_status', array( $this, 'maybe_set_first_published_status' ), 10, 3 );
+
+		// Add Subscribers menu to Jetpack navigation.
+		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
 	}
 
 	/**
@@ -1031,6 +1039,52 @@ class Jetpack_Subscriptions {
 		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
 	}
 
+	/**
+	 * Create a Subscribers menu displayed on self-hosted sites.
+	 *
+	 * - It is not displayed on WordPress.com sites.
+	 * - If you have stats and the new Stats experience enabled, it directs you there.
+	 * - If you do not, it directs you to Calypso to the existing Subscribers page.
+	 *
+	 * @return void
+	 */
+	public function add_subscribers_menu() {
+		/*
+		 * Do not display any menu on WoA and WordPress.com Simple sites.
+		 * They already get a menu item under Users via nav-unification.
+		 */
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return;
+		}
+
+		$domain = ( new Status() )->get_site_suffix();
+
+		if (
+			( new Modules() )->is_active( 'stats' )
+			&& Stats_Options::get_option( 'enable_odyssey_stats' )
+		) {
+			$stats_dashboard = new Stats_Dashboard();
+			$hook            = add_submenu_page(
+				'jetpack',
+				__( 'Subscribers', 'jetpack' ),
+				__( 'Subscribers', 'jetpack' ),
+				'manage_options',
+				'subscribers#!/stats/subscribers/' . $domain,
+				array( $stats_dashboard, 'render' )
+			);
+			add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
+		} else {
+			add_submenu_page(
+				'jetpack',
+				esc_attr__( 'Subscribers', 'jetpack' ),
+				__( 'Subscribers', 'jetpack' ),
+				'manage_options',
+				'https://wordpress.com/subscribers/' . $domain,
+				null,
+				1
+			);
+		}
+	}
 }
 
 Jetpack_Subscriptions::init();
