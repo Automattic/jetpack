@@ -183,7 +183,11 @@ const useSuggestionsFromOpenAI = ( {
 				debugPrompt( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
 			);
 
-			source.current = await askQuestion( prompt, { postId, requireUpgrade } );
+			source.current = await askQuestion( prompt, {
+				postId,
+				requireUpgrade,
+				useGpt4: attributes?.useGpt4,
+			} );
 		} catch ( err ) {
 			if ( err.message ) {
 				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
