@@ -15,6 +15,7 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
@@ -1057,7 +1058,20 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
-		$domain = ( new Status() )->get_site_suffix();
+		$status = new Status();
+
+		/*
+		 * Do not display if we're in Offline mode,
+		 * or if the user is not connected.
+		 */
+		if (
+			$status->is_offline_mode()
+			|| ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()
+		) {
+			return;
+		}
+
+		$domain = $status->get_site_suffix();
 
 		if (
 			( new Modules() )->is_active( 'stats' )
@@ -1068,8 +1082,8 @@ class Jetpack_Subscriptions {
 				'jetpack',
 				__( 'Subscribers', 'jetpack' ),
 				__( 'Subscribers', 'jetpack' ),
-				'manage_options',
-				'subscribers#!/stats/subscribers/' . $domain,
+				'view_stats',
+				'stats#!/stats/subscribers/' . $domain,
 				array( $stats_dashboard, 'render' )
 			);
 			add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
