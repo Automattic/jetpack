@@ -149,6 +149,7 @@ const useSuggestionsFromOpenAI = ( {
 				userPrompt,
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
+				isLayoutBuldingModeEnable: !! attributes?.isLayoutBuldingModeEnable,
 			} );
 
 			/*
@@ -212,6 +213,7 @@ const useSuggestionsFromOpenAI = ( {
 				role: 'assistant',
 				content: assistantResponse,
 			};
+
 			updatedMessages.push( lastUserPrompt, lastAssistantPrompt );
 
 			debugPrompt( 'Add %o\n%s', `[${ lastUserPrompt.role }]`, lastUserPrompt.content );
@@ -227,14 +229,15 @@ const useSuggestionsFromOpenAI = ( {
 
 			stopSuggestion();
 
-			// Pick this value from Jetpack global state. cc @renatoagds
-			const isLayoutBuldingModeEnable = true;
+			const isLayoutBuldingModeEnable = attributes?.isLayoutBuldingModeEnable;
+
 			if ( ! isLayoutBuldingModeEnable ) {
 				return updateBlockAttributes( clientId, {
 					content: assistantResponse,
 					messages: updatedMessages,
 				} );
 			}
+
 			const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
 
 			// POC for layout prompts:

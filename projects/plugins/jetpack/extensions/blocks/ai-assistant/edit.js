@@ -2,9 +2,17 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
-import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
+import {
+	Flex,
+	FlexBlock,
+	Modal,
+	Notice,
+	PanelBody,
+	PanelRow,
+	ToggleControl,
+} from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
@@ -27,6 +35,8 @@ const markdownConverter = new MarkdownIt( {
 } );
 
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
+const isLayoutModeVisible =
+	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-layout-mode-visible' ];
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
@@ -139,7 +149,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		} );
 	};
 
-	const isLayoutBuldingModeEnable = true;
+	const isLayoutBuldingModeEnable = attributes?.isLayoutBuldingModeEnable;
 
 	// Waiting state means there is nothing to be done until it resolves
 	const isWaitingState = isLoadingCompletion || isLoadingCategories;
@@ -330,6 +340,20 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 						inModal={ true }
 					/>
 				</Modal>
+			) }
+
+			{ isLayoutModeVisible && (
+				<InspectorControls>
+					<PanelBody title={ __( 'Layout Mode', 'jetpack' ) } initialOpen={ true }>
+						<PanelRow>
+							<ToggleControl
+								label={ __( 'Enable Layout Mode', 'jetpack' ) }
+								onChange={ check => setAttributes( { isLayoutBuldingModeEnable: check } ) }
+								checked={ attributes.isLayoutBuldingModeEnable }
+							/>
+						</PanelRow>
+					</PanelBody>
+				</InspectorControls>
 			) }
 		</div>
 	);

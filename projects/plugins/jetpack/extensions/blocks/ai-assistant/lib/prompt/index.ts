@@ -53,20 +53,20 @@ export const delimiter = '````';
  * @param {object} options - The options for the prompt.
  * @param {string} options.context - The context of the prompt.
  * @param {Array<string>} options.rules - The rules to follow.
+ * @param {Array<string>} options.isLayoutBuldingModeEnable - Enable prompts focused on layout building.
  * @returns {PromptItemProps} The initial system prompt.
  */
 export function getInitialSystemPrompt( {
 	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
 	rules,
+	isLayoutBuldingModeEnable = false,
 }: {
 	context?: string;
 	rules?: Array< string >;
+	isLayoutBuldingModeEnable?: boolean;
 } ): PromptItemProps {
 	// Rules
 	let extraRules = '';
-
-	// Pick this value from Jetpack global state. cc @renatoagds
-	const isLayoutBuldingModeEnable = true;
 
 	if ( rules?.length ) {
 		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
@@ -238,19 +238,21 @@ export const buildPromptTemplate = ( {
 	relevantContent = null,
 	isContentGenerated = false,
 	isGeneratingTitle = false,
+	isLayoutBuldingModeEnable = false,
 }: {
 	rules?: Array< string >;
 	request?: string;
 	relevantContent?: string;
 	isContentGenerated?: boolean;
 	isGeneratingTitle?: boolean;
+	isLayoutBuldingModeEnable?: boolean;
 } ): Array< PromptItemProps > => {
 	if ( ! request && ! relevantContent ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
 	// Add initial system prompt.
-	const messages = [ getInitialSystemPrompt( { rules } ) ];
+	const messages = [ getInitialSystemPrompt( { rules, isLayoutBuldingModeEnable } ) ];
 
 	if ( relevantContent != null && relevantContent?.length ) {
 		const sanitizedContent = relevantContent.replaceAll( delimiter, '' );
@@ -289,6 +291,7 @@ type BuildPromptOptions = {
 	type: PromptTypeProp;
 	userPrompt?: string;
 	isGeneratingTitle?: boolean;
+	isLayoutBuldingModeEnable?: boolean;
 	options: {
 		contentType?: 'generated' | string;
 		tone?: ToneProp;
@@ -376,6 +379,7 @@ export function buildPromptForBlock( {
 	type,
 	userPrompt,
 	isGeneratingTitle,
+	isLayoutBuldingModeEnable,
 }: BuildPromptOptions ): Array< PromptItemProps > {
 	const isContentGenerated = options?.contentType === 'generated';
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
@@ -411,6 +415,7 @@ export function buildPromptForBlock( {
 			relevantContent,
 			isContentGenerated,
 			isGeneratingTitle,
+			isLayoutBuldingModeEnable,
 		} );
 	}
 
@@ -419,6 +424,7 @@ export function buildPromptForBlock( {
 		relevantContent: generatedContent || allPostContent,
 		isContentGenerated: !! generatedContent?.length,
 		isGeneratingTitle,
+		isLayoutBuldingModeEnable,
 	} );
 }
 
