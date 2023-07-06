@@ -29,7 +29,7 @@ describe( 'SubscriptionsComponent', () => {
 	describe( 'initial state', () => {
 		it( 'queries getOptionValue', () => {
 			render( <SubscriptionsComponent { ...props } /> );
-			expect( theSpy ).toHaveBeenCalledTimes( 3 );
+			expect( theSpy ).toHaveBeenCalledTimes( 4 );
 		} );
 
 		it( 'does not pass the second argument to getOptionValue', () => {
