@@ -71,10 +71,21 @@ export function getInitialSystemPrompt( {
 Strictly follow these rules:
 
 ${ extraRules }- Format your responses in Markdown syntax, ready to be published.
-- Execute the request without any acknowledgment to the user.
+- Execute the request without any acknowledgement to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `;
+
+	// POC for layout prompts:
+	// const prompt = `${ context }.
+	// Strictly follow these rules:
+
+	// ${ extraRules }- Format your responses in Gutenberg HTML format including HTML comments for WordPress blocks. All responses must be valid Gutenberg HTML.
+	// - Use only WordPress core blocks
+	// - Execute the request without any acknowledgement to the user.
+	// - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+	// - If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+	// `;
 
 	return { role: 'system', content: prompt };
 }
