@@ -20,4 +20,9 @@ export default {
 		type: 'array',
 		default: [],
 	},
+
+	isLayoutBuldingModeEnable: {
+		type: 'boolean',
+		default: false,
+	},
 };
