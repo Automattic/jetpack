@@ -43,7 +43,7 @@ class SubscriptionsComponent extends React.Component {
 	};
 
 	trackConfigureClick = () => {
-		analytics.tracks.recordJetpackClick( 'view-followers' );
+		analytics.tracks.recordJetpackClick( 'manage-subscribers' );
 	};
 
 	handleSubscribeToBlogToggleChange = () => {
@@ -69,7 +69,7 @@ class SubscriptionsComponent extends React.Component {
 					compact
 					className="jp-settings-card__configure-link"
 					onClick={ this.trackConfigureClick }
-					href={ getRedirectUrl( 'calypso-people-email-followers', {
+					href={ getRedirectUrl( 'calypso-subscribers', {
 						site: this.props.siteRawUrl,
 					} ) }
 					target="_blank"
