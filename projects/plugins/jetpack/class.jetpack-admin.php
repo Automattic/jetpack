@@ -116,7 +116,8 @@ class Jetpack_Admin {
 	 */
 	public function akismet_logo_replacement_styles() {
 		$logo_url = esc_url( plugins_url( 'images/products/logo-anti-spam.svg', JETPACK__PLUGIN_FILE ) );
-		$style    = ".akismet-masthead__logo-container { background: url({$logo_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
+		$style    = ".akismet-masthead__logo-container { background: url({$logo_url}) no-repeat; min-height: 45px; margin: 20px 0; padding: 0 !important; } .akismet-masthead__logo { display: none; }";
+		$style   .= '@media screen and (max-width: 782px) { .akismet-masthead__logo-container { margin-left: 4px; } }';
 		wp_add_inline_style( 'admin-bar', $style );
 	}
 
