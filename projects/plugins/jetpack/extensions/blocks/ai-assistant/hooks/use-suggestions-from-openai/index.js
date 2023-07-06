@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { useSelect, useDispatch } from '@wordpress/data';
+import { parse } from '@wordpress/blocks';
+import { useSelect, useDispatch, dispatch } from '@wordpress/data';
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -226,10 +227,23 @@ const useSuggestionsFromOpenAI = ( {
 
 			stopSuggestion();
 
-			updateBlockAttributes( clientId, {
-				content: assistantResponse,
-				messages: updatedMessages,
-			} );
+			// Pick this value from Jetpack global state. cc @renatoagds
+			const isLayoutBuldingModeEnable = true;
+			if ( ! isLayoutBuldingModeEnable ) {
+				return updateBlockAttributes( clientId, {
+					content: assistantResponse,
+					messages: updatedMessages,
+				} );
+			}
+			const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
+
+			// POC for layout prompts:
+			// Generates the list of blocks from the generated code
+			const blocks = parse( detail );
+			const validBlocks = blocks.filter( block => block.isValid );
+
+			replaceInnerBlocks( clientId, validBlocks );
+
 			refreshFeatureData();
 		} );
 

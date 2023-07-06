@@ -188,27 +188,7 @@ export class SuggestionsEventSource extends EventTarget {
 		if ( e.data === '[DONE]' ) {
 			// Dispatch an event with the full content
 			this.dispatchEvent( new CustomEvent( 'done', { detail: this.fullMessage } ) );
-			debug( 'Done. Full message: ' + this.fullMessage );
-
-			// POC for layout prompts:
-			// const generatedCode = this.fullMessage;
-			// // Generates the list of blocks from the generated code
-			// const blocks = window.wp.blocks.parse( generatedCode );
-			// const fixedBlocks = blocks.map( block => {
-			// 	if ( block.isValid ) {
-			// 		return block;
-			// 	}
-			// 	const attributes = window.wp.blocks.getBlockAttributes( block.name, block.originalContent );
-			// 	const saveContent = window.wp.blocks.getSaveContent( block.name, attributes );
-			// 	const commentCode = block.name.replace( 'core/', 'wp:' );
-			// 	const correctedSaveContent = `<!-- ${ commentCode } -->${ saveContent }<!-- /${ commentCode } -->`;
-			// 	const correctedBlockArray = window.wp.blocks.parse( correctedSaveContent );
-			// 	return correctedBlockArray[ 0 ];
-			// } );
-			// // Inserts the block in the editor
-			// window.wp.data.dispatch( 'core/editor' ).insertBlocks( fixedBlocks );
-
-			return;
+			return debug( 'Done. Full message: ' + this.fullMessage );
 		}
 
 		const data = JSON.parse( e.data );
