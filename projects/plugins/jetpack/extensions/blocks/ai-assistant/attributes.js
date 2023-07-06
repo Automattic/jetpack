@@ -30,4 +30,9 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
+
+	customSystemPrompt: {
+		type: 'string',
+		default: '',
+	},
 };

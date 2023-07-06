@@ -150,6 +150,7 @@ const useSuggestionsFromOpenAI = ( {
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
 				useGutenbergSyntax: !! attributes?.useGutenbergSyntax,
+				customSystemPrompt: attributes?.customSystemPrompt,
 			} );
 
 			/*
@@ -293,6 +294,8 @@ const useSuggestionsFromOpenAI = ( {
 					userPrompt,
 					type,
 					isGeneratingTitle: attributes.promptType === 'generateTitle',
+					useGutenbergSyntax: !! attributes?.useGutenbergSyntax,
+					customSystemPrompt: attributes?.customSystemPrompt,
 				} );
 
 				setLastPrompt( [ ...prompt, ...updatedMessages, lastUserPrompt ] );

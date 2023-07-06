@@ -12,6 +12,7 @@ import {
 	PanelBody,
 	PanelRow,
 	ToggleControl,
+	TextareaControl,
 } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useSelect, useDispatch, select as blockSelect } from '@wordpress/data';
@@ -371,6 +372,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 								label={ __( 'GPT-4', 'jetpack' ) }
 								onChange={ check => setAttributes( { useGpt4: check } ) }
 								checked={ attributes.useGpt4 }
+							/>
+						</PanelRow>
+						<PanelRow>
+							<TextareaControl
+								rows={ 6 }
+								label={ __( 'Custom System Prompt', 'jetpack' ) }
+								onChange={ value => setAttributes( { customSystemPrompt: value } ) }
+								checked={ attributes.customSystemPrompt }
 							/>
 						</PanelRow>
 					</PanelBody>
