@@ -2,7 +2,10 @@
 	import Spinner from '../../../elements/Spinner.svelte';
 	import { ISA_Data, isaData, isaDataLoading } from '../store/isa-data';
 	import { getPreloadingImages } from '../store/preloading-image';
+	import BrokenDataRow from './row-types/BrokenDataRow.svelte';
+	import ImageMissingRow from './row-types/ImageMissingRow.svelte';
 	import ImageSizeRow from './row-types/ImageSizeRow.svelte';
+
 	$: activeFilter = $isaData.query.group === 'ignored' ? 'ignored' : 'active';
 
 	let isLoading = false;
@@ -51,10 +54,10 @@
 	{#each activeImages as image (image.id)}
 		{#if image.type === 'image_size'}
 			<ImageSizeRow enableTransition={$isaData.data.images.length > 0} details={image} />
+		{:else if image.type === 'image_missing'}
+			<ImageMissingRow enableTransition={$isaData.data.images.length > 0} details={image} />
 		{:else}
-			<div>
-				{':('}
-			</div>
+			<BrokenDataRow />
 		{/if}
 	{/each}
 </div>

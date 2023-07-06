@@ -11,7 +11,7 @@ export const ImageData = z
 	.object( {
 		id: z.string(),
 		status: z.enum( [ 'active', 'ignored' ] ).default( 'active' ),
-		type: z.enum( [ 'image_size', 'bad_entry', 'image_missing' ] ),
+		type: z.enum( [ 'image_size', 'image_missing', 'bad_entry' ] ),
 		thumbnail: z.string(),
 		image: z.object( {
 			url: z.string(),

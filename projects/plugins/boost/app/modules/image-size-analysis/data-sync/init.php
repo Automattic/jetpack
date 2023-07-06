@@ -11,7 +11,7 @@ $image_data = Schema::as_assoc_array(
 		'device_type'  => Schema::enum( array( 'phone', 'desktop' ) ),
 		'status'       => Schema::enum( array( 'active', 'ignored' ) )->fallback( 'active' ),
 		'instructions' => Schema::as_string(),
-		'type'         => Schema::enum( array( 'image_size', 'image_missing' ) )->fallback( 'image_size' ),
+		'type'         => Schema::enum( array( 'image_size', 'bad_entry', 'image_missing' ) )->fallback( 'bad_entry' ),
 		'page'         => Schema::as_assoc_array(
 			array(
 				'id'       => Schema::as_number(),
