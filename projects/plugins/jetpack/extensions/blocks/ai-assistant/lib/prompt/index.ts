@@ -64,10 +64,14 @@ export function getInitialSystemPrompt( {
 } ): PromptItemProps {
 	// Rules
 	let extraRules = '';
+
+	// Pick this value from Jetpack global state. cc @renatoagds
+	const isLayoutBuldingModeEnable = true;
+
 	if ( rules?.length ) {
 		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
 	}
-	const prompt = `${ context }.
+	let prompt = `${ context }.
 Strictly follow these rules:
 
 ${ extraRules }- Format your responses in Markdown syntax, ready to be published.
@@ -77,15 +81,17 @@ ${ extraRules }- Format your responses in Markdown syntax, ready to be published
 `;
 
 	// POC for layout prompts:
-	// const prompt = `${ context }.
-	// Strictly follow these rules:
-
-	// ${ extraRules }- Format your responses in Gutenberg HTML format including HTML comments for WordPress blocks. All responses must be valid Gutenberg HTML.
-	// - Use only WordPress core blocks
-	// - Execute the request without any acknowledgement to the user.
-	// - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-	// - If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
-	// `;
+	if ( isLayoutBuldingModeEnable ) {
+		prompt = `${ context }.
+		Strictly follow these rules:
+	
+		${ extraRules }- Format your responses in Gutenberg HTML format including HTML comments for WordPress blocks. All responses must be valid Gutenberg HTML.
+		- Use only WordPress core blocks
+		- Execute the request without any acknowledgement to the user.
+		- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+		- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+		`;
+	}
 
 	return { role: 'system', content: prompt };
 }
