@@ -149,7 +149,7 @@ const useSuggestionsFromOpenAI = ( {
 				userPrompt,
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
-				isLayoutBuldingModeEnable: !! attributes?.isLayoutBuldingModeEnable,
+				useGutenbergSyntax: !! attributes?.useGutenbergSyntax,
 			} );
 
 			/*
@@ -229,9 +229,9 @@ const useSuggestionsFromOpenAI = ( {
 
 			stopSuggestion();
 
-			const isLayoutBuldingModeEnable = attributes?.isLayoutBuldingModeEnable;
+			const useGutenbergSyntax = attributes?.useGutenbergSyntax;
 
-			if ( ! isLayoutBuldingModeEnable ) {
+			if ( ! useGutenbergSyntax ) {
 				return updateBlockAttributes( clientId, {
 					content: assistantResponse,
 					messages: updatedMessages,

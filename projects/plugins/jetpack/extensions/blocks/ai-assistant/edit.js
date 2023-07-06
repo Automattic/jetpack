@@ -36,7 +36,7 @@ const markdownConverter = new MarkdownIt( {
 
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 const isLayoutModeVisible =
-	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-layout-mode-visible' ];
+	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-playground-visible' ];
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
@@ -149,7 +149,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		} );
 	};
 
-	const isLayoutBuldingModeEnable = attributes?.isLayoutBuldingModeEnable;
+	const useGutenbergSyntax = attributes?.useGutenbergSyntax;
 
 	// Waiting state means there is nothing to be done until it resolves
 	const isWaitingState = isLoadingCompletion || isLoadingCategories;
@@ -186,7 +186,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleAcceptContent = async () => {
-		if ( ! isLayoutBuldingModeEnable ) {
+		if ( ! useGutenbergSyntax ) {
 			const newContentBlocks = rawHandler( {
 				HTML: markdownConverter.render( attributes.content ),
 			} );
@@ -284,13 +284,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					{ errorData.message }
 				</Notice>
 			) }
-			{ contentIsLoaded && ! isLayoutBuldingModeEnable && (
+
+			{ contentIsLoaded && ! useGutenbergSyntax && (
 				<div className="jetpack-ai-assistant__content">
 					<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
 				</div>
 			) }
 
-			{ contentIsLoaded && isLayoutBuldingModeEnable && (
+			{ contentIsLoaded && useGutenbergSyntax && (
 				<div className="jetpack-ai-assistant__content is-layout-building-mode" { ...innerBlocks } />
 			) }
 
@@ -357,12 +358,19 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 			{ isLayoutModeVisible && (
 				<InspectorControls>
-					<PanelBody title={ __( 'Layout Mode', 'jetpack' ) } initialOpen={ true }>
+					<PanelBody title={ __( 'AI Playground', 'jetpack' ) } initialOpen={ true }>
 						<PanelRow>
 							<ToggleControl
-								label={ __( 'Enable Layout Mode', 'jetpack' ) }
-								onChange={ check => setAttributes( { isLayoutBuldingModeEnable: check } ) }
-								checked={ attributes.isLayoutBuldingModeEnable }
+								label={ __( 'Gutenberg Syntax', 'jetpack' ) }
+								onChange={ check => setAttributes( { useGutenbergSyntax: check } ) }
+								checked={ attributes.useGutenbergSyntax }
+							/>
+						</PanelRow>
+						<PanelRow>
+							<ToggleControl
+								label={ __( 'GPT-4', 'jetpack' ) }
+								onChange={ check => setAttributes( { useGpt4: check } ) }
+								checked={ attributes.useGpt4 }
 							/>
 						</PanelRow>
 					</PanelBody>

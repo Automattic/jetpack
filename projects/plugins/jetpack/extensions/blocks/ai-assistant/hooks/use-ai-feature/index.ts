@@ -12,7 +12,7 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'site-require-upgrade': boolean;
 	'error-message': string;
 	'error-code': string;
-	'is-layout-mode-visible': boolean;
+	'is-playground-visible': boolean;
 };
 
 type AIFeatureProps = {

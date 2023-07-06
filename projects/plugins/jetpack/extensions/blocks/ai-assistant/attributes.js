@@ -21,7 +21,12 @@ export default {
 		default: [],
 	},
 
-	isLayoutBuldingModeEnable: {
+	useGutenbergSyntax: {
+		type: 'boolean',
+		default: false,
+	},
+
+	useGpt4: {
 		type: 'boolean',
 		default: false,
 	},
