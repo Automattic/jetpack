@@ -105,3 +105,22 @@ function jetpack_wpcom_add_heif_mimes_to_supported_sideload_types( $mimes ) {
 	return $mimes;
 }
 add_filter( 'jetpack_supported_media_sideload_types', 'jetpack_wpcom_add_heif_mimes_to_supported_sideload_types' );
+
+/**
+ * Add HEIF to the list of supported mime types for uploads.
+ *
+ * @param array $mimes The list of supported mime types.
+ * @return array The list of supported mime types.
+ */
+function jetpack_wpcom_add_heif_mimes_to_supported_upload_types( $mimes ) {
+	if ( ! class_exists( 'Photon_OpenCV' ) ) {
+		return $mimes;
+	}
+	// Only need to modify 'upload_mimes' on Atomic.
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		$mimes['heif'] = 'image/heif';
+		$mimes['heic'] = 'image/heic';
+	}
+	return $mimes;
+}
+add_filter( 'upload_mimes', 'jetpack_wpcom_add_heif_mimes_to_supported_upload_types' );
