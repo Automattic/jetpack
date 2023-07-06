@@ -12,7 +12,11 @@ import debugFactory from 'debug';
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
 import { buildPromptForBlock, delimiter } from '../../lib/prompt';
 import { askJetpack, askQuestion } from '../../lib/suggestions';
-import { getContentFromBlocks, getPartialContentToBlock } from '../../lib/utils/block-content';
+import {
+	getContentFromBlocks,
+	getPartialContentToBlock,
+	getTextContentFromInnerBlocks,
+} from '../../lib/utils/block-content';
 
 const debug = debugFactory( 'jetpack-ai-assistant:event' );
 const debugPrompt = debugFactory( 'jetpack-ai-assistant:prompt' );
@@ -139,10 +143,14 @@ const useSuggestionsFromOpenAI = ( {
 		let lastUserPrompt = {};
 
 		if ( ! options.retryRequest ) {
+			const allPostContent = ! attributes?.isLayoutBuldingModeEnable
+				? getContentFromBlocks()
+				: getTextContentFromInnerBlocks( clientId );
+
 			// If there is a content already, let's iterate over it.
 			prompt = buildPromptForBlock( {
 				generatedContent: content,
-				allPostContent: getContentFromBlocks(),
+				allPostContent,
 				postContentAbove: getPartialContentToBlock( clientId ),
 				currentPostTitle,
 				options,
@@ -236,20 +244,20 @@ const useSuggestionsFromOpenAI = ( {
 
 			const useGutenbergSyntax = attributes?.useGutenbergSyntax;
 
-			if ( ! useGutenbergSyntax ) {
-				return updateBlockAttributes( clientId, {
-					content: assistantResponse,
-					messages: updatedMessages,
-				} );
-			}
+			updateBlockAttributes( clientId, {
+				content: assistantResponse,
+				messages: updatedMessages,
+			} );
 
-			const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
+			if ( ! useGutenbergSyntax ) {
+				return;
+			}
 
 			// POC for layout prompts:
 			// Generates the list of blocks from the generated code
+			const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
 			const blocks = parse( detail );
 			const validBlocks = blocks.filter( block => block.isValid );
-
 			replaceInnerBlocks( clientId, validBlocks );
 
 			refreshFeatureData();
