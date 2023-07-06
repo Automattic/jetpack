@@ -116,6 +116,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_users_menu() {
 		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
+
+		return parent::add_users_menu();
 	}
 
 	/**

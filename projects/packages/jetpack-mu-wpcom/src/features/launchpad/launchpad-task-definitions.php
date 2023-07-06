@@ -245,6 +245,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_domain_customize_completed',
 			'is_visible_callback'  => 'wpcom_is_domain_customize_task_visible',
 		),
+
+		'share_site'                      => array(
+			'get_title'            => function () {
+				return __( 'Share your site', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -537,6 +544,16 @@ function wpcom_track_site_launch_task() {
 	if ( in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
 		update_option( 'site_intent', '' );
 		update_option( 'launchpad_screen', 'off' );
+	}
+
+	// While in the design_first flow, if the user creates a post, deletes the default hello-world.
+	$first_post_published = wpcom_launchpad_checklists()->is_task_id_complete( 'first_post_published' );
+	if ( in_array( $site_intent, array( 'design-first' ), true ) && $first_post_published ) {
+		$posts = get_posts( array( 'name' => 'hello-world' ) );
+
+		if ( count( $posts ) > 0 ) {
+			wp_delete_post( $posts[0]->ID, true );
+		}
 	}
 }
 

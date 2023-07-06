@@ -5,13 +5,18 @@
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import MultiProgress from './MultiProgress.svelte';
-	import { requestImageAnalysis, initializeIsaSummary, isaSummary } from './store/isa-summary';
+	import {
+		requestImageAnalysis,
+		initializeIsaSummary,
+		isaSummary,
+		ISAStatus,
+	} from './store/isa-summary';
 
 	onMount( () => {
 		initializeIsaSummary();
 	} );
 
-	let errorMessage: undefined | string;
+	let submitError: undefined | string;
 	let requestingReport = false;
 
 	/**
@@ -21,6 +26,26 @@
 		( total, group ) => total + group.issue_count,
 		0
 	);
+
+	/**
+	 * Work out if there is an error to show in the UI.
+	 */
+	$: errorMessage =
+		submitError ||
+		( $isaSummary?.status === ISAStatus.Stuck &&
+			__(
+				'Your Image Size Analysis task seems to have gotten stuck, or our system is under unusual load. Please try again. If the issue persists, please contact support.',
+				'jetpack-boost'
+			) );
+
+	/**
+	 * Work out whether we have a 'give us a minute' notice to show.
+	 */
+	$: waitNotice =
+		( requestingReport && __( 'Getting ready…', 'jetpack-boost' ) ) ||
+		( $isaSummary?.status === ISAStatus.New && __( 'Warming up the engine…', 'jetpack-boost' ) ) ||
+		( $isaSummary?.status === ISAStatus.Queued &&
+			__( 'Give us a few minutes while we go through your images…', 'jetpack-boost' ) );
 
 	/**
 	 * Start a new image analysis job.
@@ -42,29 +67,22 @@
 	<div class="summary">
 		{__( 'Loading…', 'jetpack-boost' )}
 	</div>
-{:else if $isaSummary.status === 'not-found'}
-	<div class="button-area">
-		<Button disabled={requestingReport} on:click={onStartAnalysis}>Start image analysis</Button>
-	</div>
-{:else if $isaSummary.status === 'new'}
-	<!-- Boost fetches a list of the site's content between creating the report and enqueuing the job. Status = new. -->
-	<div class="wait-notice">
-		{__( 'Give us a few minutes while we go through your content…', 'jetpack-boost' )}
-	</div>
-{:else if $isaSummary.status === 'error'}
-	<!-- @TODO -->
-	<pre>
-		{JSON.stringify( $isaSummary )}
-	</pre>
 {:else}
-	<!-- Boost is either generating a report, or has finished one. -->
-	{@const  inProgress = $isaSummary.status === 'queued' }
-
-	{#if inProgress}
-		<div class="summary-line wait-notice">
-			{__( 'Give us a few minutes while we go through your images…', 'jetpack-boost' )}
+	<!-- Show error messages or "please wait" messages. -->
+	{#if errorMessage}
+		<div class="error-area">
+			<ErrorNotice title={__( 'Something has gone wrong.', 'jetpack-boost' )}>
+				{errorMessage}
+			</ErrorNotice>
 		</div>
-	{:else}
+	{:else if waitNotice}
+		<div class="summary-line wait-notice">
+			{waitNotice}
+		</div>
+	{/if}
+
+	<!-- Show a summary line if the report is completed. -->
+	{#if ! requestingReport && $isaSummary.status === ISAStatus.Completed}
 		<div class="summary-line">
 			{#if totalIssues > 0}
 				<div class="has-issues summary">
@@ -92,25 +110,30 @@
 		</div>
 	{/if}
 
-	{#if ! requestingReport && ! errorMessage}
+	<!-- Show progress if a job is rolling. -->
+	{#if ! requestingReport && [ ISAStatus.Completed, ISAStatus.Queued ].includes( $isaSummary.status )}
 		<MultiProgress />
+	{/if}
 
+	<!-- Show a button to view the report if it's in progress or completed. -->
+	{#if [ ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status ) && ! requestingReport}
 		<div class="button-area">
 			<Button href="#image-size-analysis/all/1" disabled={requestingReport}>
-				{inProgress
-					? __( 'See report in progress', 'jetpack-boost' )
-					: __( 'See full report', 'jetpack-boost' )}
+				{__( 'See report in progress', 'jetpack-boost' )}
 			</Button>
 		</div>
 	{/if}
-{/if}
 
-{#if errorMessage}
-	<div class="error-area">
-		<ErrorNotice title={__( 'Failed to request an Image Analysis job', 'jetpack-boost' )}>
-			{errorMessage}
-		</ErrorNotice>
-	</div>
+	<!-- Show a button to kick off a report -->
+	{#if ! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status )}
+		<div class="button-area">
+			<Button disabled={requestingReport} on:click={onStartAnalysis}>
+				{$isaSummary.status === ISAStatus.Completed
+					? __( 'Analyze again', 'jetpack-boost' )
+					: __( 'Start image analysis', 'jetpack-boost' )}
+			</Button>
+		</div>
+	{/if}
 {/if}
 
 <style>
