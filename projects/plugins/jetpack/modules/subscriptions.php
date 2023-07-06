@@ -1094,8 +1094,7 @@ class Jetpack_Subscriptions {
 				__( 'Subscribers', 'jetpack' ),
 				'manage_options',
 				'https://wordpress.com/subscribers/' . $domain,
-				null,
-				1
+				null
 			);
 		}
 	}
