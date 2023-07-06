@@ -1,5 +1,16 @@
 <?php
+/**
+ * HEIF support for WordPress.com sites.
+ *
+ * @package automattic/jetpack-mu-plugins
+ */
 
+/**
+ * Convert HEIF uploads to JPEG.
+ *
+ * @param string $filename Path to the file.
+ * @return bool True if the file was converted, false otherwise.
+ */
 function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 	$valid_magic_bytes = array(
 		'ftypheic',
@@ -13,6 +24,8 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 		'ftypmsf1',
 	);
 
+	// Read the first 8 bytes of the file.
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 	$magic_bytes = file_get_contents( $filename, false, null, 4, 8 );
 	if ( false === in_array( $magic_bytes, $valid_magic_bytes, true ) ) {
 		return false;
@@ -34,6 +47,12 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 	return true;
 }
 
+/**
+ * Attempts to convert HEIF uploads to JPEG.
+ *
+ * @param array $file The file array.
+ * @return array The file array.
+ */
 function jetpack_wpcom_transparently_convert_heif_upload_to_jpg( $file ) {
 	// $file only has `name` and `tmp_name` when sideloading
 	$original_size = filesize( $file['tmp_name'] );
@@ -60,10 +79,15 @@ function jetpack_wpcom_transparently_convert_heif_upload_to_jpg( $file ) {
 add_filter( 'wp_handle_upload_prefilter', 'jetpack_wpcom_transparently_convert_heif_upload_to_jpg' );
 add_filter( 'wp_handle_sideload_prefilter', 'jetpack_wpcom_transparently_convert_heif_upload_to_jpg' );
 
+/**
+ * Add HEIF to the list of supported mime types for sideloading.
+ *
+ * @param array $mimes The list of supported mime types.
+ * @return array The list of supported mime types.
+ */
 function jetpack_wpcom_add_heif_mimes_to_supported_sideload_types( $mimes ) {
 	$mimes[] = 'image/heif';
 	$mimes[] = 'image/heic';
 	return $mimes;
 }
-// Necessary for importing media from URL
 add_filter( 'jetpack_supported_media_sideload_types', 'jetpack_wpcom_add_heif_mimes_to_supported_sideload_types' );
