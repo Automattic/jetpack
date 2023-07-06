@@ -109,6 +109,11 @@ export const BoostPricingTable = ( {
 	chosenFreePlan,
 	chosenPaidPlan,
 } ) => {
+	// If no pricing info is available, set up a fake object to avoid errors.
+	if ( ! pricing || ! pricing.yearly ) {
+		pricing = { yearly: {} };
+	}
+
 	// If the first year discount ends, we want to remove the label without updating the plugin.
 	const promoLabel = pricing.yearly.isIntroductoryOffer
 		? __( 'First Year Discount', 'jetpack-boost' )

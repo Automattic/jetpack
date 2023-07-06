@@ -138,6 +138,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_customize',
 				'add_new_page',
 				'drive_traffic',
+				'share_site',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
