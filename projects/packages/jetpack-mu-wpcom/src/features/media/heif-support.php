@@ -1,6 +1,6 @@
 <?php
 
-function wpcom_maybe_convert_heif_to_jpg( $filename ) {
+function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 	$valid_magic_bytes = array(
 		'ftypheic',
 		'ftypheix',
@@ -34,11 +34,11 @@ function wpcom_maybe_convert_heif_to_jpg( $filename ) {
 	return true;
 }
 
-function wpcom_transparently_convert_heif_upload_to_jpg( $file ) {
+function jetpack_wpcom_transparently_convert_heif_upload_to_jpg( $file ) {
 	// $file only has `name` and `tmp_name` when sideloading
 	$original_size = filesize( $file['tmp_name'] );
 
-	if ( false === wpcom_maybe_convert_heif_to_jpg( $file['tmp_name'] ) ) {
+	if ( false === jetpack_wpcom_maybe_convert_heif_to_jpg( $file['tmp_name'] ) ) {
 		return $file;
 	}
 
@@ -57,13 +57,13 @@ function wpcom_transparently_convert_heif_upload_to_jpg( $file ) {
 
 	return $new_file;
 }
-add_filter( 'wp_handle_upload_prefilter', 'wpcom_transparently_convert_heif_upload_to_jpg' );
-add_filter( 'wp_handle_sideload_prefilter', 'wpcom_transparently_convert_heif_upload_to_jpg' );
+add_filter( 'wp_handle_upload_prefilter', 'jetpack_wpcom_transparently_convert_heif_upload_to_jpg' );
+add_filter( 'wp_handle_sideload_prefilter', 'jetpack_wpcom_transparently_convert_heif_upload_to_jpg' );
 
-function wpcom_add_heif_mimes_to_supported_sideload_types( $mimes ) {
+function jetpack_wpcom_add_heif_mimes_to_supported_sideload_types( $mimes ) {
 	$mimes[] = 'image/heif';
 	$mimes[] = 'image/heic';
 	return $mimes;
 }
 // Necessary for importing media from URL
-add_filter( 'jetpack_supported_media_sideload_types', 'wpcom_add_heif_mimes_to_supported_sideload_types' );
+add_filter( 'jetpack_supported_media_sideload_types', 'jetpack_wpcom_add_heif_mimes_to_supported_sideload_types' );
