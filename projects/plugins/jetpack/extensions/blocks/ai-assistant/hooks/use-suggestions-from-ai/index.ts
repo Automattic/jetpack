@@ -157,8 +157,6 @@ export default function useSuggestionsFromAI( {
 
 	const request = useCallback(
 		async ( promptArg: Array< PromptItemProps > ) => {
-			console.log( 'promptArg', promptArg );
-
 			promptArg.forEach( ( { role, content: promptContent }, i ) =>
 				debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
 			);

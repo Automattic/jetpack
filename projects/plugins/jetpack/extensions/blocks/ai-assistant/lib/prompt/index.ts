@@ -499,8 +499,22 @@ export function getPrompt(
 	const systemPrompt: PromptItemProps = {
 		role: 'system',
 		content: `${ context }
-Writing rules:
-- Use HTML syntax.
+- Compose the content following the Gutenberg block syntax:
+  - Image block: 
+    <!-- wp:image -->
+      <figure class='wp-block-image'><img src='{image-url}' alt='{image-description}'></figure>
+    <!-- /wp:image -->
+  
+  - Heading block: 
+    <!-- wp:heading {'level':2} -->
+      <h2 class='wp-block-heading'>{heading}</h2>
+    <!-- /wp:heading -->
+  
+  - Paragraph block: 
+    <!-- wp:paragraph -->
+      <p>{content}</p>
+    <!-- /wp:paragraph -->
+
 - Execute the request without any acknowledgment or explanation to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
