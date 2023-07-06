@@ -12,6 +12,9 @@
  * @return bool True if the file was converted, false otherwise.
  */
 function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
+	if ( ! class_exists( 'Photon_OpenCV' ) ) {
+		return false;
+	}
 	$valid_magic_bytes = array(
 		'ftypheic',
 		'ftypheix',
@@ -54,6 +57,11 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
  * @return array The file array.
  */
 function jetpack_wpcom_transparently_convert_heif_upload_to_jpg( $file ) {
+
+	if ( ! class_exists( 'Photon_OpenCV' ) ) {
+		return $file;
+	}
+
 	// $file only has `name` and `tmp_name` when sideloading
 	$original_size = filesize( $file['tmp_name'] );
 
@@ -86,6 +94,9 @@ add_filter( 'wp_handle_sideload_prefilter', 'jetpack_wpcom_transparently_convert
  * @return array The list of supported mime types.
  */
 function jetpack_wpcom_add_heif_mimes_to_supported_sideload_types( $mimes ) {
+	if ( ! class_exists( 'Photon_OpenCV' ) ) {
+		return $mimes;
+	}
 	$mimes[] = 'image/heif';
 	$mimes[] = 'image/heic';
 	return $mimes;
