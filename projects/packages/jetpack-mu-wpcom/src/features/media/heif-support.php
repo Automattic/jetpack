@@ -1,12 +1,12 @@
 <?php
 /**
- * HEIF support for WordPress.com sites.
+ * HEIF/HEIF support for WordPress.com sites.
  *
  * @package automattic/jetpack-mu-plugins
  */
 
 /**
- * Convert HEIF uploads to JPEG.
+ * Convert HEIF/HEIC uploads to JPEG.
  *
  * @param string $filename Path to the file.
  * @return bool True if the file was converted, false otherwise.
@@ -52,7 +52,7 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 }
 
 /**
- * Attempts to convert HEIF uploads to JPEG.
+ * Attempts to convert HEIF/HEIC uploads to JPEG.
  *
  * @param array $file The file array.
  * @return array The file array.
@@ -91,7 +91,7 @@ add_filter( 'wp_handle_upload_prefilter', 'jetpack_wpcom_transparently_convert_h
 add_filter( 'wp_handle_sideload_prefilter', 'jetpack_wpcom_transparently_convert_heif_upload_to_jpg' );
 
 /**
- * Add HEIF to the list of supported mime types for sideloading.
+ * Add HEIF/HEIC to the list of supported mime types for sideloading.
  *
  * @param array $mimes The list of supported mime types.
  * @return array The list of supported mime types.
@@ -107,7 +107,7 @@ function jetpack_wpcom_add_heif_mimes_to_supported_sideload_types( $mimes ) {
 add_filter( 'jetpack_supported_media_sideload_types', 'jetpack_wpcom_add_heif_mimes_to_supported_sideload_types' );
 
 /**
- * Add HEIF to the list of supported mime types for uploads.
+ * Add HEIF/HEIC to the list of supported mime types for uploads.
  *
  * @param array $mimes The list of supported mime types.
  * @return array The list of supported mime types.
