@@ -2,7 +2,7 @@
 	import Spinner from '../../../elements/Spinner.svelte';
 	import { ISA_Data, isaData, isaDataLoading } from '../store/isa-data';
 	import { getPreloadingImages } from '../store/preloading-image';
-	import TableRow from './TableRow.svelte';
+	import ImageSizeRow from './row-types/ImageSizeRow.svelte';
 	$: activeFilter = $isaData.query.group === 'ignored' ? 'ignored' : 'active';
 
 	let isLoading = false;
@@ -49,18 +49,13 @@
 	</div>
 
 	{#each activeImages as image (image.id)}
-		<TableRow
-			enableTransition={$isaData.data.images.length > 0}
-			title={image.image.url.split( '/' ).pop()}
-			image_url={image.image.url}
-			page_url={image.page.url}
-			weight={image.image.weight}
-			device_type={image.device_type}
-			page_title={image.page.title}
-			dimensions={image.image.dimensions}
-			edit_url={image.page.edit_url}
-			instructions={image.instructions}
-		/>
+		{#if image.type === 'image_size'}
+			<ImageSizeRow enableTransition={$isaData.data.images.length > 0} details={image} />
+		{:else}
+			<div>
+				{':('}
+			</div>
+		{/if}
 	{/each}
 </div>
 

@@ -1,27 +1,16 @@
 <script lang="ts">
 	import { quadOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
-	import { ISA_Data } from '../store/isa-data';
-	import TableRowExpanded from './TableRowExpanded.svelte';
-	import TableRowHover from './TableRowHover.svelte';
-	import Device from './components/Device.svelte';
-	import Pill from './components/Pill.svelte';
-	import RowTitle from './components/RowTitle.svelte';
-	import Thumbnail from './components/Thumbnail.svelte';
 
-	export let title: string;
-	export let image_url: string;
-	export let page_url: string;
-	export let weight: ISA_Data[ 'image' ][ 'weight' ];
-	export let device_type: ISA_Data[ 'device_type' ];
-	export let page_title: string;
-	export let dimensions: ISA_Data[ 'image' ][ 'dimensions' ];
-	export let edit_url: string | null;
-	export let instructions: string;
+	export let expandable: boolean;
 	export let enableTransition: boolean;
 
 	let expanded = false;
 	function toggleExpand( e ) {
+		if ( ! expandable ) {
+			return;
+		}
+
 		// Don't expand if the user clicked a link or a button.
 		if ( e.target.tagName === 'A' || e.target.tagName === 'BUTTON' ) {
 			return;
@@ -37,55 +26,32 @@
 	class:expanded
 >
 	<div class="jb-table-row recommendation-page-grid" on:click={toggleExpand}>
-		<div class="jb-table-row__thumbnail">
-			<Thumbnail {title} url={image_url} width={65} height={65} />
-		</div>
+		<slot name="main" />
 
-		<div class="jb-table-row__title">
-			<RowTitle {title} url={page_url} />
-		</div>
-
-		<div class="jb-table-row__potential-size">
-			<Pill color="#facfd2">
-				{Math.round( weight.current )} KB
-			</Pill>
-			<div class="jb-arrow">→</div>
-			<Pill color="#d0e6b8">
-				{Math.round( weight.potential )} KB
-			</Pill>
-		</div>
-
-		<div class="jb-table-row__hover-content">
-			<TableRowHover {edit_url} {instructions} />
-		</div>
-
-		<div class="jb-table-row__device">
-			<Device device={device_type} />
-		</div>
-
-		<div class="jb-table-row__page">
-			<a href={page_url}>{page_title}</a>
-		</div>
-
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<div class="jb-table-row__expand">
-			<svg
-				width="16"
-				height="10"
-				viewBox="0 0 16 10"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-			>
-				<path
-					d="M0.667349 1.33325L8.00068 7.99992L15.334 1.33325"
-					stroke="#1E1E1E"
-					stroke-width="1.5"
-				/>
-			</svg>
-		</div>
+		{#if expandable}
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
+			<div class="jb-table-row__expand">
+				<svg
+					width="16"
+					height="10"
+					viewBox="0 0 16 10"
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M0.667349 1.33325L8.00068 7.99992L15.334 1.33325"
+						stroke="#1E1E1E"
+						stroke-width="1.5"
+					/>
+				</svg>
+			</div>
+		{/if}
 	</div>
-	{#if expanded}
-		<TableRowExpanded {...{ dimensions, edit_url, instructions }} />
+
+	{#if expanded && expandable}
+		<div class="table-row-expanded">
+			<slot name="expanded" />
+		</div>
 	{/if}
 </div>
 
@@ -151,11 +117,11 @@
 		border-bottom: var( --border );
 	}
 
-	.jb-table-row {
+	:global .jb-table-row {
 		min-height: 115px;
 		cursor: pointer;
 
-		.jb-table-row__hover-content {
+		:global( .jb-table-row__hover-content ) {
 			display: none;
 		}
 
@@ -177,33 +143,7 @@
 			}
 		}
 	}
-	.jb-table-row__thumbnail {
-		grid-column: thumbnail;
-	}
-	.jb-table-row__title {
-		grid-column: title;
-	}
-	.jb-table-row__hover-content {
-		grid-column: device / expand;
-	}
-	.jb-table-row__potential-size {
-		grid-column: potential-size;
-		display: flex;
-		align-items: center;
-		gap: calc( var( --gap ) / 2 );
-	}
 
-	.jb-table-row__device {
-		grid-column: device;
-		text-align: center;
-	}
-	.jb-table-row__page {
-		grid-column: page;
-		a {
-			text-decoration: none;
-			color: var( --gray-60 );
-		}
-	}
 	.jb-table-row__expand {
 		cursor: pointer;
 		text-align: center;
@@ -213,5 +153,12 @@
 				transform: rotate( 180deg );
 			}
 		}
+	}
+
+	.table-row-expanded {
+		display: flex;
+		justify-content: space-between;
+		padding: var( --gap );
+		padding-left: calc( var( --thumbnail-size ) + var( --gap ) * 2 );
 	}
 </style>
