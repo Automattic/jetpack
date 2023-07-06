@@ -3,7 +3,7 @@
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
-import { rawHandler, createBlock } from '@wordpress/blocks';
+import { rawHandler, createBlock, parse } from '@wordpress/blocks';
 import {
 	Flex,
 	FlexBlock,
@@ -109,6 +109,30 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			setErrorDismissed( false );
 		}
 	}, [ errorData ] );
+
+	/*
+	 * Render children blocks if:
+	 * - The block doesn't have children blocks
+	 * - The block content contains blocks
+	 */
+	useEffect( () => {
+		if ( ! attributes?.content ) {
+			return;
+		}
+
+		const block = blockSelect( 'core/block-editor' ).getBlock( clientId );
+		if ( block?.innerBlocks?.length ) {
+			return;
+		}
+
+		const storedInnerBlocks = parse( attributes.content );
+		if ( ! storedInnerBlocks?.length ) {
+			return;
+		}
+
+		// Replace the current block by its children
+		replaceBlocks( clientId, storedInnerBlocks );
+	}, [ attributes.content, clientId, replaceBlocks ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
