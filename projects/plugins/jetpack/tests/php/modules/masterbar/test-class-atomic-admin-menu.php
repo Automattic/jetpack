@@ -311,8 +311,12 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		global $submenu;
 
 		static::$admin_menu->add_users_menu();
+		$menu_position = 6;
+		if ( is_multisite() ) {
+			$menu_position = 5;
+		}
 
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][6][2] );
+		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][ $menu_position ][2] );
 	}
 
 	/**
