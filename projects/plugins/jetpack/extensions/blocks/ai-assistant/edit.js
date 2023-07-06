@@ -381,7 +381,13 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 								rows={ 20 }
 								label={ __( 'Custom System Prompt', 'jetpack' ) }
 								onChange={ value => setAttributes( { customSystemPrompt: value } ) }
-								value={ attributes.customSystemPrompt || getInitialSystemPrompt()?.content }
+								value={
+									attributes.customSystemPrompt ||
+									getInitialSystemPrompt( {
+										useGutenbergSyntax: attributes.useGutenbergSyntax,
+										useGpt4: attributes.useGpt4,
+									} )?.content
+								}
 							/>
 							<Button onClick={ () => setAttributes( { customSystemPrompt: '' } ) }>
 								{ __( 'Restore', 'jetpack' ) }
