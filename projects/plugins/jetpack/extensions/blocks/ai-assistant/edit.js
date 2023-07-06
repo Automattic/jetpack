@@ -115,8 +115,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	 * - The block doesn't have children blocks
 	 * - The block content contains blocks
 	 */
+	const initialContent = useRef( attributes?.content );
 	useEffect( () => {
-		if ( ! attributes?.content ) {
+		if ( ! initialContent?.current?.length ) {
 			return;
 		}
 
@@ -125,14 +126,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			return;
 		}
 
-		const storedInnerBlocks = parse( attributes.content );
+		const storedInnerBlocks = parse( initialContent.current );
 		if ( ! storedInnerBlocks?.length ) {
 			return;
 		}
 
 		// Replace the current block by its children
 		replaceBlocks( clientId, storedInnerBlocks );
-	}, [ attributes.content, clientId, replaceBlocks ] );
+	}, [ initialContent, clientId, replaceBlocks ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
