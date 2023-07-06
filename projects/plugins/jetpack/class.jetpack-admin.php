@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
@@ -116,11 +115,8 @@ class Jetpack_Admin {
 		Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
 	 */
 	public function akismet_logo_replacement_styles() {
-		$logo = new Jetpack_Logo();
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$logo_base64     = base64_encode( $logo->get_jp_emblem_larger() );
-		$logo_base64_url = "data:image/svg+xml;base64,{$logo_base64}";
-		$style           = ".akismet-masthead__logo-container { background: url({$logo_base64_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
+		$logo_url = esc_url( plugins_url( 'images/products/logo-anti-spam.svg', JETPACK__PLUGIN_FILE ) );
+		$style    = ".akismet-masthead__logo-container { background: url({$logo_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
 		wp_add_inline_style( 'admin-bar', $style );
 	}
 
