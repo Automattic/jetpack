@@ -14,7 +14,7 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch, select as blockSelect } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -186,14 +186,27 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleAcceptContent = async () => {
-		const newContentBlocks = rawHandler( { HTML: markdownConverter.render( attributes.content ) } );
-		await replaceBlocks( clientId, newContentBlocks );
+		if ( ! isLayoutBuldingModeEnable ) {
+			const newContentBlocks = rawHandler( {
+				HTML: markdownConverter.render( attributes.content ),
+			} );
+			await replaceBlocks( clientId, newContentBlocks );
 
-		const lastEditableElement = getLastEditableElement( newContentBlocks );
+			const lastEditableElement = getLastEditableElement( newContentBlocks );
 
-		if ( lastEditableElement ) {
-			moveCaretToEnd( lastEditableElement );
+			if ( lastEditableElement ) {
+				moveCaretToEnd( lastEditableElement );
+			}
+			return;
 		}
+
+		/*
+		 * Pick all children blocks and replace the parent block by them.
+		 */
+		const block = blockSelect( 'core/block-editor' ).getBlock( clientId );
+
+		// Replace the current block by its children
+		replaceBlocks( clientId, block.innerBlocks );
 	};
 
 	const handleAcceptTitle = () => {
