@@ -67,7 +67,7 @@ export function getInitialSystemPrompt( {
 	rules?: Array< string >;
 	useGutenbergSyntax?: boolean;
 	customSystemPrompt?: string;
-} ): PromptItemProps {
+} = {} ): PromptItemProps {
 	// Rules
 	let extraRules = '';
 
@@ -75,8 +75,7 @@ export function getInitialSystemPrompt( {
 		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
 	}
 
-	let prompt = `${ context }.
-	Strictly follow these rules:
+	let prompt = `${ context }. Strictly follow these rules:
 
 	${ extraRules }- Format your responses in Markdown syntax, ready to be published.
 	- Execute the request without any acknowledgement to the user.
@@ -86,8 +85,7 @@ export function getInitialSystemPrompt( {
 
 	// POC for layout prompts:
 	if ( useGutenbergSyntax ) {
-		prompt = `${ context }.
-		Strictly follow these rules:
+		prompt = `${ context }. Strictly follow these rules:
 	
 		${ extraRules }- Format your responses in Gutenberg HTML format including HTML comments for WordPress blocks. All responses must be valid Gutenberg HTML.
 		- Use only WordPress core blocks
@@ -98,8 +96,7 @@ export function getInitialSystemPrompt( {
 	}
 
 	if ( customSystemPrompt ) {
-		prompt = `${ context }.
-		${ customSystemPrompt }`;
+		prompt = customSystemPrompt;
 	}
 
 	return { role: 'system', content: prompt };

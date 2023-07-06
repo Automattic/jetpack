@@ -13,6 +13,7 @@ import {
 	PanelRow,
 	ToggleControl,
 	TextareaControl,
+	Button,
 } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useSelect, useDispatch, select as blockSelect } from '@wordpress/data';
@@ -29,6 +30,7 @@ import ImageWithSelect from './components/image-with-select';
 import useAIFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { getImagesFromOpenAI } from './lib/image';
+import { getInitialSystemPrompt } from './lib/prompt';
 import './editor.scss';
 
 const markdownConverter = new MarkdownIt( {
@@ -376,11 +378,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 						</PanelRow>
 						<PanelRow>
 							<TextareaControl
-								rows={ 6 }
+								rows={ 20 }
 								label={ __( 'Custom System Prompt', 'jetpack' ) }
 								onChange={ value => setAttributes( { customSystemPrompt: value } ) }
-								checked={ attributes.customSystemPrompt }
+								value={ attributes.customSystemPrompt || getInitialSystemPrompt()?.content }
 							/>
+							<Button onClick={ () => setAttributes( { customSystemPrompt: '' } ) }>
+								{ __( 'Restore', 'jetpack' ) }
+							</Button>
 						</PanelRow>
 					</PanelBody>
 				</InspectorControls>
