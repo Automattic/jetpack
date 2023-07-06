@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Update storybook mdx to use `@storybook/blocks` directly rather than `@storybook/addon-docs`.
