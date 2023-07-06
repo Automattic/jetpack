@@ -39,7 +39,8 @@ function jetpack_wpcom_maybe_convert_heif_to_jpg( $filename ) {
 		$img->readimage( $filename );
 	} catch ( Exception $e ) {
 		// Bad detection or malformed image
-		bump_stats_extras( 'heif2jpg', 'failed-to-read' );
+		/** This action is documented in modules/widgets/social-media-icons.php */
+		do_action( 'jetpack_bump_stats_extras', 'heif2jpg', 'failed-to-read' );
 		return false;
 	}
 
@@ -79,8 +80,10 @@ function jetpack_wpcom_transparently_convert_heif_upload_to_jpg( $file ) {
 		'size'     => filesize( $file['tmp_name'] ),
 	);
 
-	bump_stats_extras( 'heif2jpg', 'conversions' );
-	bump_stats_extras( 'heif2jpg', 'bytes-added', $new_file['size'] - $original_size );
+	/** This action is documented in modules/widgets/social-media-icons.php */
+	do_action( 'jetpack_bump_stats_extras', 'heif2jpg', 'conversions' );
+	/** This action is documented in modules/widgets/social-media-icons.php */
+	do_action( 'jetpack_bump_stats_extras', 'heif2jpg', 'bytes-added', $new_file['size'] - $original_size );
 
 	return $new_file;
 }
