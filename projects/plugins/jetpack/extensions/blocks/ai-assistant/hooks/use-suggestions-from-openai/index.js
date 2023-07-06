@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { parse } from '@wordpress/blocks';
+import { parse, rawHandler } from '@wordpress/blocks';
 import { useSelect, useDispatch, dispatch } from '@wordpress/data';
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -366,6 +366,18 @@ const useSuggestionsFromOpenAI = ( {
 		source?.current?.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
 			debug( '(suggestion)', e?.detail );
+
+			// let's get valid HTML by using a temporary dom element
+			const temp = document.createElement( 'div' );
+			temp.innerHTML = e?.detail;
+
+			// Now, we are ready to create blocks from the valid HTML.
+			const blocks = rawHandler( { HTML: temp.innerHTML } );
+			const validBlocks = blocks.filter( block => block.isValid );
+
+			const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
+			replaceInnerBlocks( clientId, validBlocks );
+
 			// Remove the delimiter from the suggestion and update the block.
 			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );
 		} );
