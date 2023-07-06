@@ -63,7 +63,7 @@ info "== Generating Jetpack-Compat rulesets =="
 cd "$BASE"
 rm Jetpack-Compat-*/ruleset.xml
 rmdir Jetpack-Compat-*
-P='<rule ref="Jetpack">'
+P='<rule ref="PHPCompatibility">'
 for V in "${PHP_VERSIONS[@]:1}"; do
 	VV=${V//./}
 	printf 'Jetpack-Compat-%s... ' "$VV"
