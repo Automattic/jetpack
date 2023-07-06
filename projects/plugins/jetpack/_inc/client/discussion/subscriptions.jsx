@@ -148,7 +148,7 @@ class SubscriptionsComponent extends React.Component {
 								}
 								toggling={ this.props.isSavingAnyOption( [ 'sm_enabled' ] ) }
 								onChange={ this.handleSubscribeModalToggleChange }
-								label={ __( 'Enable the popup Subscribe Modal', 'jetpack' ) }
+								label={ __( 'Enable the popup subscription modal', 'jetpack' ) }
 							/>
 						</FormFieldset>
 					}
