@@ -200,10 +200,7 @@ export class SuggestionsEventSource extends EventTarget {
 			// 	}
 			// 	const attributes = window.wp.blocks.getBlockAttributes( block.name, block.originalContent );
 			// 	const saveContent = window.wp.blocks.getSaveContent( block.name, attributes );
-			// 	const blockTypeCommentMap = {
-			// 		'core/table': 'wp:table',
-			// 	};
-			// 	const commentCode = blockTypeCommentMap[ block.name ];
+			// 	const commentCode = block.name.replace( 'core/', 'wp:' );
 			// 	const correctedSaveContent = `<!-- ${ commentCode } -->${ saveContent }<!-- /${ commentCode } -->`;
 			// 	const correctedBlockArray = window.wp.blocks.parse( correctedSaveContent );
 			// 	return correctedBlockArray[ 0 ];
