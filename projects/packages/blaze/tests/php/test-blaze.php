@@ -85,10 +85,10 @@ class Test_Blaze extends BaseTestCase {
 	 * @covers Automattic\Jetpack\Blaze::is_dashboard_enabled
 	 */
 	public function test_dashboard_filter_enable() {
-		$this->assertFalse( Blaze::is_dashboard_enabled() );
-		add_filter( 'jetpack_blaze_dashboard_enable', '__return_true' );
 		$this->assertTrue( Blaze::is_dashboard_enabled() );
 		add_filter( 'jetpack_blaze_dashboard_enable', '__return_false' );
+		$this->assertFalse( Blaze::is_dashboard_enabled() );
+		add_filter( 'jetpack_blaze_dashboard_enable', '__return_true' );
 	}
 
 	/**
@@ -152,18 +152,9 @@ class Test_Blaze extends BaseTestCase {
 
 		add_filter( 'jetpack_blaze_enabled', '__return_true' );
 
-		// Test that no menu is added until the feature filter is enabled.
-		Blaze::enable_blaze_menu();
-
-		$this->assertEmpty( menu_page_url( 'advertising' ) );
-
-		// Enable the Dashboard.
-		add_filter( 'jetpack_blaze_dashboard_enable', '__return_true' );
-
 		Blaze::enable_blaze_menu();
 		$this->assertNotEmpty( menu_page_url( 'advertising' ) );
 
-		add_filter( 'jetpack_blaze_dashboard_enable', '__return_false' );
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
 	}
 
