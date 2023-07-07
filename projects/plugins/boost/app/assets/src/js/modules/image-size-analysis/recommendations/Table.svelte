@@ -1,10 +1,12 @@
 <script lang="ts">
+	import { __ } from '@wordpress/i18n';
 	import Spinner from '../../../elements/Spinner.svelte';
 	import { ISA_Data, isaData, isaDataLoading } from '../store/isa-data';
-	import { getPreloadingImages } from '../store/preloading-image';
+	import { ISAStatus, isaSummary } from '../store/isa-summary';
 	import BrokenDataRow from './row-types/BrokenDataRow.svelte';
 	import ImageMissingRow from './row-types/ImageMissingRow.svelte';
 	import ImageSizeRow from './row-types/ImageSizeRow.svelte';
+	import LoadingRow from './row-types/LoadingRow.svelte';
 
 	$: activeFilter = $isaData.query.group === 'ignored' ? 'ignored' : 'active';
 
@@ -19,17 +21,15 @@
 	}
 	$: delayedLoadingUpdate( $isaDataLoading );
 
-	const preloadingImages = getPreloadingImages( 10 );
-
-	function getActiveImages( images: ISA_Data[], loading: boolean ) {
-		// If the global store has no images right now, we're fetching them from wpcom
-		if ( images.length === 0 ) {
-			return preloadingImages;
+	function getActiveImages( images: ISA_Data[] ) {
+		// Return no rows while loading. The UI will auto-pad it with loading rows.
+		if ( isLoading ) {
+			return [];
 		}
 
 		// If the user is switching between tabs, we want to show the images that are already loaded
 		const filteredImages = images.filter( image => image.status === activeFilter );
-		if ( filteredImages.length === 0 && loading ) {
+		if ( filteredImages.length === 0 && isLoading ) {
 			return images;
 		}
 
@@ -38,35 +38,59 @@
 	}
 
 	$: activeImages = getActiveImages( $isaData.data.images, isLoading );
+	$: jobFinished = $isaSummary?.status === ISAStatus.Completed;
 </script>
 
 <div class="jb-loading-spinner" class:active={isLoading}>
 	<Spinner size="3rem" lineWidth="4px" />
 </div>
-<div class="jb-table" class:jb-loading={isLoading}>
-	<div class="jb-table-header recommendation-page-grid">
-		<div class="jb-table-header__image">Image</div>
-		<div class="jb-table-header__potential-size">Potential Size</div>
-		<div class="jb-table-header__device">Device</div>
-		<div class="jb-table-header__page">Page/Post</div>
-	</div>
 
-	{#each activeImages as image (image.id)}
-		{#if image.type === 'image_size'}
-			<ImageSizeRow enableTransition={$isaData.data.images.length > 0} details={image} />
-		{:else if image.type === 'image_missing'}
-			<ImageMissingRow enableTransition={$isaData.data.images.length > 0} details={image} />
+{#if ! isLoading && activeImages.length === 0}
+	<h1>
+		{jobFinished
+			? __( '🥳 No image size issues found!', 'jetpack-boost' )
+			: __( 'No image size issues found yet…', 'jetpack-boost' )}
+	</h1>
+{:else}
+	<div class="jb-table" class:jb-loading={isLoading}>
+		<div class="jb-table-header recommendation-page-grid">
+			<div class="jb-table-header__image">Image</div>
+			<div class="jb-table-header__potential-size">Potential Size</div>
+			<div class="jb-table-header__device">Device</div>
+			<div class="jb-table-header__page">Page/Post</div>
+		</div>
+
+		{#if isLoading}
+			{#each Array( 10 ) as _, i}
+				<LoadingRow />
+			{/each}
 		{:else}
-			<BrokenDataRow />
+			<!-- Actual data -->
+			{#each activeImages as image (image.id)}
+				{#if image.type === 'image_size'}
+					<ImageSizeRow enableTransition={$isaData.data.images.length > 0} details={image} />
+				{:else if image.type === 'image_missing'}
+					<ImageMissingRow enableTransition={$isaData.data.images.length > 0} details={image} />
+				{:else}
+					<BrokenDataRow />
+				{/if}
+			{/each}
 		{/if}
-	{/each}
-</div>
+	</div>
+{/if}
 
 <style lang="scss">
 	.jb-table {
 		will-change: opacity, filter;
 		transition: opacity 0.3s ease-in-out, filter 0.3s ease-in-out;
 	}
+
+	h1 {
+		padding-top: 16px;
+		width: 100%;
+		text-align: center;
+	}
+
 	.jb-loading {
 		filter: grayscale( 0.5 );
 		opacity: 0.2;
