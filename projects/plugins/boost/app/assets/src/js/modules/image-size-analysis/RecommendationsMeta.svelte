@@ -119,7 +119,9 @@
 	{#if [ ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status ) && ! requestingReport}
 		<div class="button-area">
 			<Button href="#image-size-analysis/all/1" disabled={requestingReport}>
-				{__( 'See report in progress', 'jetpack-boost' )}
+				{$isaSummary.status === ISAStatus.Completed
+					? __( 'View report in progress', 'jetpack-boost' )
+					: __( 'See full report', 'jetpack-boost' )}
 			</Button>
 		</div>
 	{/if}
