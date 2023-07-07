@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove include_viewers parameter from users GET endpoint
