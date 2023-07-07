@@ -6,7 +6,7 @@
 
 	const navigate = useNavigate();
 
-	export let subPage: string | undefined;
+	export let subPage: string | null = null;
 </script>
 
 <div class="jb-dashboard-header">
