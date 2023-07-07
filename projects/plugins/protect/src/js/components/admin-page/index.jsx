@@ -17,7 +17,7 @@ import useRegistrationWatcher from './use-registration-watcher';
 const AdminPage = ( { children } ) => {
 	useRegistrationWatcher();
 
-	const { isSupported: wafSupported, isSeen: wafSeen } = useWafData();
+	const { wafSupported, bruteForceSupported, isSeen: wafSeen } = useWafData();
 	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
@@ -54,7 +54,7 @@ const AdminPage = ( { children } ) => {
 			<Container horizontalSpacing={ 0 }>
 				<Tabs className={ styles.navigation }>
 					<Tab link="/" label={ __( 'Scan', 'jetpack-protect' ) } />
-					{ wafSupported && (
+					{ ( wafSupported || bruteForceSupported ) && (
 						<Tab
 							link="/firewall"
 							label={

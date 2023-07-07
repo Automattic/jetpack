@@ -89,15 +89,14 @@ const useWafData = () => {
 	/**
 	 * Toggle Brute Force Protection
 	 *
-	 * Flips the switch on the WAF brute force protection feature, and then refreshes the data.
+	 * Flips the switch on the brute force protection feature, and then refreshes the data.
 	 */
 	const toggleBruteForceProtection = useCallback( () => {
 		setWafIsUpdating( true );
-		return ensureModuleIsEnabled()
-			.then( () => API.updateWaf( { brute_force_protection: ! waf.config.bruteForceProtection } ) )
+		return API.updateWaf( { brute_force_protection: ! waf.config.bruteForceProtection } )
 			.then( refreshWaf )
 			.finally( () => setWafIsUpdating( false ) );
-	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.bruteForceProtection ] );
+	}, [ refreshWaf, setWafIsUpdating, waf.config.bruteForceProtection ] );
 
 	/**
 	 * Toggle Share Data
@@ -113,9 +112,9 @@ const useWafData = () => {
 	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafShareData ] );
 
 	/**
-	 * Update Config
+	 * Update WAF Config
 	 */
-	const updateConfig = useCallback(
+	const updateWafConfig = useCallback(
 		update => {
 			setWafIsUpdating( true );
 			return ensureModuleIsEnabled()
@@ -124,6 +123,19 @@ const useWafData = () => {
 				.finally( () => setWafIsUpdating( false ) );
 		},
 		[ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating ]
+	);
+
+	/**
+	 * Update Brute Force Config
+	 */
+	const updateBruteForceConfig = useCallback(
+		update => {
+			setWafIsUpdating( true );
+			return API.updateWaf( update )
+				.then( refreshWaf )
+				.finally( () => setWafIsUpdating( false ) );
+		},
+		[ refreshWaf, setWafIsUpdating ]
 	);
 
 	/**
@@ -143,7 +155,8 @@ const useWafData = () => {
 		toggleManualRules,
 		toggleBruteForceProtection,
 		toggleShareData,
-		updateConfig,
+		updateWafConfig,
+		updateBruteForceConfig,
 	};
 };
 

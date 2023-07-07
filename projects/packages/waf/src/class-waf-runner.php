@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
@@ -90,7 +91,7 @@ class Waf_Runner {
 	 * @since 0.8.0
 	 * @return bool
 	 */
-	public static function is_supported_environment() {
+	public static function is_waf_supported() {
 		// Do not run when killswitch is enabled
 		if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
 			return false;
@@ -109,6 +110,19 @@ class Waf_Runner {
 		// Do not run on the VIP platform
 		if ( ( new Host() )->is_vip_site() ) {
 			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if brute force is supported in the current environment.
+	 *
+	 * @return bool
+	 */
+	public static function is_brute_force_supported() {
+		if ( ! self::is_waf_supported() ) {
+			return Constants::is_defined( 'IS_PRESSABLE' ) && true === Constants::get_constant( 'IS_PRESSABLE' );
 		}
 
 		return true;

@@ -39,7 +39,7 @@ class Waf_Initializer {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 
 		// Run the WAF on supported environments
-		if ( Waf_Runner::is_supported_environment() ) {
+		if ( Waf_Runner::is_waf_supported() ) {
 			// Update the WAF after installing or upgrading a relevant Jetpack plugin
 			add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
 			add_action( 'admin_init', __CLASS__ . '::check_for_waf_update' );
@@ -52,12 +52,15 @@ class Waf_Initializer {
 			Waf_Runner::initialize();
 		}
 
-		// Brute force protection activation/deactivation hooks
-		add_action( 'jetpack_activate_module_protect', __CLASS__ . '::on_brute_force_protection_activation' );
-		add_action( 'jetpack_deactivate_module_protect', __CLASS__ . '::on_brute_force_protection_deactivation' );
+		// Run brute force on supported environments
+		if ( Waf_Runner::is_brute_force_supported() ) {
+			// Brute force protection activation/deactivation hooks
+			add_action( 'jetpack_activate_module_protect', __CLASS__ . '::on_brute_force_protection_activation' );
+			add_action( 'jetpack_deactivate_module_protect', __CLASS__ . '::on_brute_force_protection_deactivation' );
 
-		// Run brute force protection
-		Brute_Force_Protection::initialize();
+			// Run brute force protection
+			Brute_Force_Protection::initialize();
+		}
 	}
 
 	/**
@@ -197,35 +200,51 @@ class Waf_Initializer {
 	}
 
 	/**
-	 * Disables the WAF module when on an unsupported platform in Jetpack.
+	 * Disables the WAF and brute force modules when on an unsupported platform in Jetpack.
 	 *
 	 * @param array $modules Filterable value for `jetpack_get_available_modules`.
 	 *
 	 * @return array Array of module slugs.
 	 */
 	public static function remove_module_on_unsupported_environments( $modules ) {
-		if ( ! Waf_Runner::is_supported_environment() ) {
+		if ( ! Waf_Runner::is_waf_supported() ) {
 			// WAF should never be available on unsupported platforms.
 			unset( $modules['waf'] );
+		}
+
+		if ( ! Waf_Runner::is_brute_force_supported() ) {
+			// Brute force should never be available on unsupported platforms.
+			unset( $modules['protect'] );
 		}
 
 		return $modules;
 	}
 
 	/**
-	 * Disables the WAF module when on an unsupported platform in a standalone plugin.
+	 * Disables the WAF and brute force modules when on an unsupported platform in a standalone plugin.
 	 *
 	 * @param array $modules Filterable value for `jetpack_get_available_standalone_modules`.
 	 *
 	 * @return array Array of module slugs.
 	 */
 	public static function remove_standalone_module_on_unsupported_environments( $modules ) {
-		if ( ! Waf_Runner::is_supported_environment() ) {
+		if ( ! Waf_Runner::is_waf_supported() ) {
 			// WAF should never be available on unsupported platforms.
 			$modules = array_filter(
 				$modules,
 				function ( $module ) {
 					return $module !== 'waf';
+				}
+			);
+
+		}
+
+		if ( ! Waf_Runner::is_brute_force_supported() ) {
+			// Brute force should never be available on unsupported platforms.
+			$modules = array_filter(
+				$modules,
+				function ( $module ) {
+					return $module !== 'protect';
 				}
 			);
 
