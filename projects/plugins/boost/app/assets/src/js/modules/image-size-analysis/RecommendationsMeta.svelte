@@ -122,8 +122,8 @@
 		<div class="button-area">
 			<Button href="#image-size-analysis/all/1" disabled={requestingReport}>
 				{$isaSummary.status === ISAStatus.Completed
-					? __( 'View report in progress', 'jetpack-boost' )
-					: __( 'See full report', 'jetpack-boost' )}
+					? __( 'See full report', 'jetpack-boost' )
+					: __( 'View report in progress', 'jetpack-boost' )}
 			</Button>
 		</div>
 	{/if}
