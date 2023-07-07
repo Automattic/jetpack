@@ -33,8 +33,8 @@ class Jetpack_Subscribe_Modal {
 	 */
 	public function __construct() {
 		if ( $this->should_enable_subscriber_modal() ) {
-			add_action( 'wp_footer', array( $this, 'wpcom_add_subscribe_modal_to_frontend' ) );
-			add_action( 'wp_enqueue_scripts', array( $this, 'wpcom_enqueue_subscribe_modal_assets' ) );
+			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 			add_filter( 'get_block_template', array( $this, 'add_block_template' ), 10, 3 );
 		}
 	}
@@ -65,8 +65,9 @@ class Jetpack_Subscribe_Modal {
 	 * Makes get_block_template return the WP_Block_Template for the Subscribe Modal.
 	 *
 	 * @param WP_Block_Template $block_template The block template to be returned.
-	 * @param string            $id            Template unique identifier (example: theme_slug//template_slug).
+	 * @param string            $id Template unique identifier (example: theme_slug//template_slug).
 	 * @param string            $template_type Template type: `'wp_template'` or '`wp_template_part'`.
+	 *
 	 * @return WP_Block_Template
 	 */
 	public function add_block_template( $block_template, $id, $template_type ) {
@@ -84,13 +85,12 @@ class Jetpack_Subscribe_Modal {
 	 *
 	 * @return void
 	 */
-	public function wpcom_add_subscribe_modal_to_frontend() {
+	public function add_subscribe_modal_to_frontend() {
 		if ( $this->is_front_end_single_post() ) {
 			?>
 					<div class="jetpack-subscribe-modal">
 						<div class="jetpack-subscribe-modal__modal-content">
-				<?php block_template_part( 'jetpack-subscribe-modal' ); ?>
-							<span class="dashicons dashicons-minus jp-idc__idc-screen__card-action-separator"></span>
+							<?php block_template_part( 'jetpack-subscribe-modal' ); ?>
 						</div>
 					</div>
 			<?php
@@ -102,10 +102,9 @@ class Jetpack_Subscribe_Modal {
 	 *
 	 * @return void
 	 */
-	public function wpcom_enqueue_subscribe_modal_assets() {
+	public function enqueue_assets() {
 		if ( $this->is_front_end_single_post() ) {
 			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
-			wp_enqueue_style( 'dashicons' );
 			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
 		}
 	}
@@ -168,13 +167,10 @@ class Jetpack_Subscribe_Modal {
 		<!-- /wp:group -->
 		
 		<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"4px","bottom":"0px"}}}} -->
-		<p class="has-text-align-center" style="margin-top:4px;margin-bottom:0px;font-size:15px">' . __( 'Subscribe to the newsletter to keep reading', 'jetpack' ) . '</p>
+		<p class="has-text-align-center" style="margin-top:4px;margin-bottom:0px;font-size:15px">' . __( 'Subscribe to the newsletter to keep reading and get access to the full archive.', 'jetpack' ) . '</p>
 		<!-- /wp:paragraph -->
 		
-		<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"bottom":"20px","top":"0px"}}}} -->
-		<p class="has-text-align-center" style="margin-top:0px;margin-bottom:20px;font-size:15px">and get access to the full archive.</p>
-		<!-- /wp:paragraph -->
-		
+		<!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
 		
 		<!-- wp:paragraph {"align":"center","style":{"color":{"text":"#666666"},"typography":{"fontSize":"14px","textDecoration":"underline"}},"className":"jetpack-subscribe-modal__close"} -->
 		<p class="has-text-align-center jetpack-subscribe-modal__close has-text-color" style="color:#666666;font-size:14px;text-decoration:underline"><a href="#">' . __( 'Continue Reading', 'jetpack' ) . '</a></p>
