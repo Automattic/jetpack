@@ -33,32 +33,39 @@ class Jetpack_Subscribe_Modal {
 	 */
 	public function __construct() {
 		if ( $this->should_enable_subscriber_modal() ) {
-			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
 			add_filter( 'get_block_template', array( $this, 'add_block_template' ), 10, 3 );
 		}
 	}
 
 	/**
-	 * Returns a custom template for the Subscribe Modal.
+	 * Enqueues JS to load modal.
 	 *
-	 * @return WP_Block_Template
+	 * @return void
 	 */
-	public function get_custom_template() {
-		$template                 = new WP_Block_Template();
-		$template->theme          = get_stylesheet();
-		$template->slug           = 'jetpack-subscribe-modal';
-		$template->id             = $template->theme . '//' . $template->slug;
-		$template->content        = $this->get_subscribe_template_content();
-		$template->source         = 'plugin';
-		$template->type           = 'wp_template_part';
-		$template->title          = 'Subscribe Modal Template 2';
-		$template->status         = 'publish';
-		$template->has_theme_file = false;
-		$template->is_custom      = true;
-		$template->description    = 'Subscribe Modal Templateasdf';
+	public function enqueue_assets() {
+		if ( $this->is_front_end_single_post() ) {
+			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
+			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
+		}
+	}
 
-		return $template;
+	/**
+	 * Adds modal with Subscribe Modal content.
+	 *
+	 * @return void
+	 */
+	public function add_subscribe_modal_to_frontend() {
+		if ( $this->is_front_end_single_post() ) {
+			?>
+					<div class="jetpack-subscribe-modal">
+						<div class="jetpack-subscribe-modal__modal-content">
+				<?php block_template_part( 'jetpack-subscribe-modal' ); ?>
+						</div>
+					</div>
+			<?php
+		}
 	}
 
 	/**
@@ -81,32 +88,25 @@ class Jetpack_Subscribe_Modal {
 	}
 
 	/**
-	 * Adds modal with Subscribe Modal content.
+	 * Returns a custom template for the Subscribe Modal.
 	 *
-	 * @return void
+	 * @return WP_Block_Template
 	 */
-	public function add_subscribe_modal_to_frontend() {
-		if ( $this->is_front_end_single_post() ) {
-			?>
-					<div class="jetpack-subscribe-modal">
-						<div class="jetpack-subscribe-modal__modal-content">
-							<?php block_template_part( 'jetpack-subscribe-modal' ); ?>
-						</div>
-					</div>
-			<?php
-		}
-	}
+	public function get_custom_template() {
+		$template                 = new WP_Block_Template();
+		$template->theme          = get_stylesheet();
+		$template->slug           = 'jetpack-subscribe-modal';
+		$template->id             = $template->theme . '//' . $template->slug;
+		$template->content        = $this->get_subscribe_template_content();
+		$template->source         = 'plugin';
+		$template->type           = 'wp_template_part';
+		$template->title          = 'Subscribe Modal Template 2';
+		$template->status         = 'publish';
+		$template->has_theme_file = false;
+		$template->is_custom      = true;
+		$template->description    = 'Subscribe Modal Templateasdf';
 
-	/**
-	 * Enqueues JS to load modal.
-	 *
-	 * @return void
-	 */
-	public function enqueue_assets() {
-		if ( $this->is_front_end_single_post() ) {
-			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
-			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
-		}
+		return $template;
 	}
 
 	/**
