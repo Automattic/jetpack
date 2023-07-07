@@ -10,7 +10,7 @@ Here is the current list of tasks handled by this action:
 - Add Milestone (`addMilestone`): Adds a valid milestone to all PRs that get merged and don't already include a milestone.
 - Check Description (`checkDescription`): Checks the contents of a PR description, and ensure it matches our recommendations.
 - Add Labels (`addLabels`): Adds labels to PRs that touch specific features.
-- Clean Labels (`cleanLabels`): Removes Status labels once a PR has been merged.
+- Clean Labels (`cleanLabels`): Removes Status labels once a PR or issue has been closed or merged.
 - WordPress.com Commit Reminder (`wpcomCommitReminder`): Posts a comment on merged PRs to remind Automatticians to commit the matching WordPress.com change.
 - Notify Design (`notifyDesign`): Sends a Slack Notification to the Design team to request feedback, based on labels applied to a PR.
 - Notify Editorial (`notifyEditorial`): Sends a Slack Notification to the Editorial team to request feedback, based on labels applied to a PR.
@@ -36,6 +36,8 @@ on:
   # Refer to src/index.js to see a list of all events each task needs to be listen to.
   pull_request_target:
     types: ['closed', 'labeled']
+  issues:
+    types: ['closed']
 
 jobs:
   repo-gardening:
