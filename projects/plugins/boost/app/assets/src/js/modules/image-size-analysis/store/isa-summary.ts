@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import api from '../../../api/api';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
 import { setPromiseInterval } from '../../../utils/set-promise-interval';
-import { isaData, refreshIsaData } from './isa-data';
+import { isaData } from './isa-data';
 
 /**
  * Valid values for the status field.
@@ -122,14 +122,11 @@ isaSummary.subscribe( summary => {
 	const shouldPoll = [ 'new', 'queued' ].includes( summary.status );
 
 	if ( shouldPoll && ! clearPromiseInterval ) {
-		clearPromiseInterval = setPromiseInterval( () => image_size_analysis_summary.refresh(), 3000 );
+		clearPromiseInterval = setPromiseInterval( async () => {
+			await image_size_analysis_summary.refresh();
+		}, 3000 );
 	} else if ( ! shouldPoll && clearPromiseInterval ) {
 		clearPromiseInterval();
 		clearPromiseInterval = undefined;
-
-		// We're stopping polling. Neat! But if we've just become completed, we should tell ISAData to refresh.
-		if ( summary.status === ISAStatus.Completed ) {
-			refreshIsaData();
-		}
 	}
 } );
