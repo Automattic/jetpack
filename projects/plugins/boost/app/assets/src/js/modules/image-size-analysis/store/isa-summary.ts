@@ -122,9 +122,7 @@ isaSummary.subscribe( summary => {
 	const shouldPoll = [ 'new', 'queued' ].includes( summary.status );
 
 	if ( shouldPoll && ! clearPromiseInterval ) {
-		clearPromiseInterval = setPromiseInterval( () => {
-			image_size_analysis_summary.refresh();
-		}, 3000 );
+		clearPromiseInterval = setPromiseInterval( () => image_size_analysis_summary.refresh(), 3000 );
 	} else if ( ! shouldPoll && clearPromiseInterval ) {
 		clearPromiseInterval();
 		clearPromiseInterval = undefined;
