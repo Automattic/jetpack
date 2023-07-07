@@ -197,7 +197,7 @@ class Jetpack_Subscribe_Modal {
 	}
 
 	/**
-	 * Returns true if we we are on frontend of single post.
+	 * Returns true if we are on frontend of single post.
 	 * Note: Because of how WordPress works, this function will
 	 * only return the correct value after a certain point in the
 	 * WordPress loading process. You cannot, for example, use this
