@@ -57,14 +57,13 @@ class Jetpack_Subscribe_Modal {
 	 * @return void
 	 */
 	public function add_subscribe_modal_to_frontend() {
-		if ( $this->is_front_end_single_post() ) {
-			?>
-					<div class="jetpack-subscribe-modal">
-						<div class="jetpack-subscribe-modal__modal-content">
-				<?php block_template_part( 'jetpack-subscribe-modal' ); ?>
-						</div>
-					</div>
-			<?php
+		if ( $this->is_front_end_single_post() ) { ?>
+		<div class="jetpack-subscribe-modal">
+			<div class="jetpack-subscribe-modal__modal-content">
+			<?php block_template_part( 'jetpack-subscribe-modal' ); ?>
+			</div>
+		</div>
+				<?php
 		}
 	}
 
