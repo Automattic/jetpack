@@ -141,7 +141,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
-		'blog-flow'       => array(
+		'intent-write'    => array(
 			'title'               => 'Blog',
 			'task_ids'            => array(
 				'site_title',
@@ -151,7 +151,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_customize',
 				'drive_traffic',
 			),
-			'is_enabled_callback' => 'wpcom_launchpad_is_blog_flow_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_is_intent_write_enabled',
 		),
 	);
 
@@ -593,7 +593,7 @@ function wpcom_launchpad_is_keep_building_enabled() {
  *
  * @return bool True if the task list is enabled, false otherwise.
  */
-function wpcom_launchpad_is_blog_flow_enabled() {
+function wpcom_launchpad_is_intent_write_enabled() {
 
 	if ( ! is_automattician() ) {
 		return false;
