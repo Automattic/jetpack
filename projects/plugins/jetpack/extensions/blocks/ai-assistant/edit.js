@@ -286,6 +286,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					</div>
 				</>
 			) }
+
 			{ isPlaygroundVisible && (
 				<InspectorControls>
 					<PanelBody title={ __( 'AI Playground', 'jetpack' ) } initialOpen={ true }>
@@ -343,6 +344,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					</PanelBody>
 				</InspectorControls>
 			) }
+
 			<AIControl
 				ref={ aiControlRef }
 				content={ attributes.content }
