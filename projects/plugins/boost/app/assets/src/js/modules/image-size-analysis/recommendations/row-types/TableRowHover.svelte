@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from '../../../elements/Button.svelte';
+	import Button from '../../../../elements/Button.svelte';
 	export let edit_url: string | null;
 	export let instructions: string;
 </script>
