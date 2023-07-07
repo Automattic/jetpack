@@ -177,13 +177,15 @@ class Jetpack_Subscribe_Modal {
 	 * @return bool
 	 */
 	public function should_enable_subscriber_modal() {
-		$is_lettre          = get_option( 'stylesheet' ) === 'lettre';
-		$is_newsletter_site = get_option( 'site_intent' ) === 'newsletter';
-		$is_modal_enabled   = get_option( 'sm_enabled' ) || false;
-		$is_fse_theme       = wp_is_block_theme();
-
-		$should_enable_subscriber_modal = ( $is_lettre || $is_newsletter_site ) && $is_fse_theme && $is_modal_enabled;
-
+		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
+			return false;
+		}
+		if ( ! get_option( 'sm_enabled', false ) ) {
+			return false;
+		}
+		if ( ! wp_is_block_theme() ) {
+			return false;
+		}
 		/**
 		* Allows force-enabling or disabling the Subscriptions modal.
 		*
@@ -191,7 +193,7 @@ class Jetpack_Subscribe_Modal {
 		*
 		* @param bool $should_enable_subscriber_modal Whether the Subscriptions modal should be enabled.
 		*/
-		return (bool) apply_filters( 'jetpack_subscriptions_modal_force_enabled', $should_enable_subscriber_modal );
+		return (bool) apply_filters( 'jetpack_subscriptions_modal_force_enabled', true );
 	}
 
 	/**
