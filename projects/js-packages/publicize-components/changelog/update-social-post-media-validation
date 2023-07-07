@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Refactored the media validation so that it is done on a per connection basis

@@ -113,7 +113,7 @@ function notify_batcache_that_content_changed() {
 /**
  * Render the cookie consent template.
  *
- * @since $$next-version$$
+ * @since 12.4
  */
 function render_cookie_consent_template() {
 
@@ -143,7 +143,7 @@ add_action( 'wp_footer', __NAMESPACE__ . '\render_cookie_consent_template' );
 /**
  * Register cookie_consent_template setting
  *
- * @since $$next-version$$
+ * @since 12.4
  */
 function cookie_consent_register_settings() {
 	register_setting(

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Update `src/php7/.phpcs.dir.phpcompatibility.xml` to use new `Jetpack-Compat-70` ruleset. No change to the package itself.
+
+

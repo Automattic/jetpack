@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Add wpcom_site_setup property to /sites/{siteId} endpoint
