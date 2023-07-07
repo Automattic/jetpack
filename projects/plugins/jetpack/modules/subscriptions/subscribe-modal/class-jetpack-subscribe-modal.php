@@ -157,25 +157,34 @@ class Jetpack_Subscribe_Modal {
 	 * @return string
 	 */
 	public function get_subscribe_template_content() {
-		return '<!-- wp:group {"style":{"spacing":{"padding":{"top":"50px","bottom":"50px","left":"20px","right":"20px"}}},"layout":{"type":"constrained"}} -->
-		<div class="wp-block-group" style="padding-top:50px;padding-right:20px;padding-bottom:50px;padding-left:20px"><!-- wp:group {"style":{"dimensions":{"minHeight":"0px"},"spacing":{"blockGap":"8px"}},"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"center"}} -->
-		<div class="wp-block-group" style="min-height:0px"><!-- wp:heading {"style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null}}} -->
-		<h2 class="wp-block-heading" style="font-size:26px;font-style:normal;font-weight:600">' . __( 'Discover more from', 'jetpack' ) . '</h2>
-		<!-- /wp:heading -->
-		
-		<!-- wp:site-title {"level":2,"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","lineHeight":"1.2","fontSize":"26px"}}} /--></div>
-		<!-- /wp:group -->
-		
-		<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"4px","bottom":"0px"}}}} -->
-		<p class="has-text-align-center" style="margin-top:4px;margin-bottom:0px;font-size:15px">' . __( 'Subscribe to the newsletter to keep reading and get access to the full archive.', 'jetpack' ) . '</p>
-		<!-- /wp:paragraph -->
-		
-		<!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
-		
-		<!-- wp:paragraph {"align":"center","style":{"color":{"text":"#666666"},"typography":{"fontSize":"14px","textDecoration":"underline"}},"className":"jetpack-subscribe-modal__close"} -->
-		<p class="has-text-align-center jetpack-subscribe-modal__close has-text-color" style="color:#666666;font-size:14px;text-decoration:underline"><a href="#">' . __( 'Continue Reading', 'jetpack' ) . '</a></p>
-		<!-- /wp:paragraph --></div>
-		<!-- /wp:group -->';
+		// translators: %s is the name of the site.
+		$discover_more_from = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
+		$continue_reading   = __( 'Continue Reading', 'jetpack' );
+		$subscribe_text     = __( 'Subscribe to the newsletter to keep reading and get access to the full archive.', 'jetpack' );
+
+		return <<<HTML
+    <!-- wp:group {"style":{"spacing":{"padding":{"top":"50px","bottom":"50px","left":"20px","right":"20px"}}},"layout":{"type":"constrained"}} -->
+    <div class='wp-block-group' style='padding-top:50px;padding-right:20px;padding-bottom:50px;padding-left:20px'>
+        <!-- wp:group {"style":{"dimensions":{"minHeight":"0px"},"spacing":{"blockGap":"8px"}},"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"center"}} -->
+        <div class='wp-block-group' style='min-height:0px'>
+            <!-- wp:heading {"style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null}}} -->
+            <h2 class='wp-block-heading' style='font-size:26px;font-style:normal;font-weight:600'>$discover_more_from</h2>
+            <!-- /wp:heading -->
+            </div>
+        <!-- /wp:group -->
+
+        <!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"4px","bottom":"0px"}}}} -->
+        <p class='has-text-align-center' style='margin-top:4px;margin-bottom:0px;font-size:15px'>$subscribe_text</p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
+        
+        <!-- wp:paragraph {"align":"center","style":{"color":{"text":"#666666"},"typography":{"fontSize":"14px","textDecoration":"underline"}},"className":"jetpack-subscribe-modal__close"} -->
+        <p class='has-text-align-center jetpack-subscribe-modal__close has-text-color' style='color:#666666;font-size:14px;text-decoration:underline'><a href='#'>$continue_reading</a></p>
+        <!-- /wp:paragraph -->
+    </div>
+    <!-- /wp:group -->
+HTML;
 	}
 }
 
