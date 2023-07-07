@@ -521,7 +521,7 @@ abstract class Sharing_Source {
 			esc_attr(
 				$is_deprecated
 					/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
-					? sprintf( __( 'The %1$s sharing service is no longer supported. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
+					? sprintf( __( 'The %1$s sharing service has shut down or discontinued support for sharing buttons. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
 					: $this->get_name()
 			),
 			esc_html(
@@ -847,7 +847,7 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
 			sprintf( __( '%1$s is no longer supported', 'jetpack' ), $this->get_name() ),
 			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
-			sprintf( __( 'The %1$s sharing service is no longer supported. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
+			sprintf( __( 'The %1$s sharing service has shut down or discontinued support for sharing buttons. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
 		);
 	}
 }
