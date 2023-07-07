@@ -21,15 +21,15 @@
 	}
 	$: delayedLoadingUpdate( $isaDataLoading );
 
-	function getActiveImages( images: ISA_Data[] ) {
+	function getActiveImages( images: ISA_Data[], loading: boolean ) {
 		// Return no rows while loading. The UI will auto-pad it with loading rows.
-		if ( isLoading ) {
+		if ( loading ) {
 			return [];
 		}
 
 		// If the user is switching between tabs, we want to show the images that are already loaded
 		const filteredImages = images.filter( image => image.status === activeFilter );
-		if ( filteredImages.length === 0 && isLoading ) {
+		if ( filteredImages.length === 0 && loading ) {
 			return images;
 		}
 
@@ -37,7 +37,7 @@
 		return filteredImages;
 	}
 
-	$: activeImages = getActiveImages( $isaData.data.images );
+	$: activeImages = getActiveImages( $isaData.data.images, isLoading );
 	$: jobFinished = $isaSummary?.status === ISAStatus.Completed;
 </script>
 
