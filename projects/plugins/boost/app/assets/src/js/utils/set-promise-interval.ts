@@ -7,12 +7,20 @@
  */
 export function setPromiseInterval( fn: () => Promise< void >, ms: number ) {
 	let timer: number;
+	let stopped = false;
 
 	async function loop() {
 		await fn();
-		timer = setTimeout( loop, ms );
+
+		if ( ! stopped ) {
+			timer = setTimeout( loop, ms );
+		}
 	}
 
 	timer = setTimeout( loop, ms );
-	return () => clearTimeout( timer );
+
+	return () => {
+		stopped = true;
+		clearTimeout( timer );
+	};
 }
