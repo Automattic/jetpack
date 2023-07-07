@@ -235,6 +235,7 @@ class Jetpack_Redux_State_Helper {
 			'isOdysseyStatsEnabled'       => Stats_Options::get_option( 'enable_odyssey_stats' ),
 			'shouldInitializeBlaze'       => Blaze::should_initialize(),
 			'isBlazeDashboardEnabled'     => Blaze::is_dashboard_enabled(),
+			'isSubscriptionModalEnabled'  => apply_filters( 'jetpack_subscriptions_modal_enabled', false ),
 		);
 	}
 
