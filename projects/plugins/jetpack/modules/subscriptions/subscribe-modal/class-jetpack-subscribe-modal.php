@@ -33,37 +33,50 @@ class Jetpack_Subscribe_Modal {
 	 */
 	public function __construct() {
 		if ( $this->should_enable_subscriber_modal() ) {
-			add_action( 'wp_loaded', array( $this, 'wpcom_create_subscribe_template' ) );
 			add_action( 'wp_footer', array( $this, 'wpcom_add_subscribe_modal_to_frontend' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'wpcom_enqueue_subscribe_modal_assets' ) );
+			add_filter( 'get_block_template', array( $this, 'add_block_template' ), 10, 3 );
 		}
 	}
 
 	/**
-	 * Adds a Subscribe Modal template part that can be edited in the editor.
-	 * This is later loaded in a pop up modal for Newsletter sites.
+	 * Returns a custom template for the Subscribe Modal.
 	 *
-	 * @return void
+	 * @return WP_Block_Template
 	 */
-	public function wpcom_create_subscribe_template() {
-		$post = get_page_by_path( $this->get_subscribe_template_slug(), OBJECT, 'wp_template_part' );
+	public function get_custom_template() {
+		$template                 = new WP_Block_Template();
+		$template->theme          = get_stylesheet();
+		$template->slug           = 'jetpack-subscribe-modal';
+		$template->id             = $template->theme . '//' . $template->slug;
+		$template->content        = $this->get_subscribe_template_content();
+		$template->source         = 'plugin';
+		$template->type           = 'wp_template_part';
+		$template->title          = 'Subscribe Modal Template 2';
+		$template->status         = 'publish';
+		$template->has_theme_file = false;
+		$template->is_custom      = true;
+		$template->description    = 'Subscribe Modal Templateasdf';
 
-		if ( ! $post ) {
-			$template = array(
-				'slug'         => $this->get_subscribe_template_slug(),
-				'post_name'    => $this->get_subscribe_template_slug(),
-				'post_title'   => __( 'Subscribe Modal', 'jetpack' ),
-				'post_content' => $this->get_subscribe_template_content(),
-				'post_status'  => 'publish',
-				'post_author'  => 1,
-				'post_type'    => 'wp_template_part',
-				'scope'        => array(),
-				'tax_input'    => array(
-					'wp_theme' => get_option( 'stylesheet' ),
-				),
-			);
-			wp_insert_post( $template );
+		return $template;
+	}
+
+	/**
+	 * Makes get_block_template return the WP_Block_Template for the Subscribe Modal.
+	 *
+	 * @param WP_Block_Template $block_template The block template to be returned.
+	 * @param string            $id            Template unique identifier (example: theme_slug//template_slug).
+	 * @param string            $template_type Template type: `'wp_template'` or '`wp_template_part'`.
+	 * @return WP_Block_Template
+	 */
+	public function add_block_template( $block_template, $id, $template_type ) {
+		$custom_template = $this->get_custom_template();
+
+		if ( empty( $block_template ) && $template_type === 'wp_template_part' && $id === $custom_template->id ) {
+			$block_template = $custom_template;
 		}
+
+		return $block_template;
 	}
 
 	/**
@@ -73,86 +86,13 @@ class Jetpack_Subscribe_Modal {
 	 */
 	public function wpcom_add_subscribe_modal_to_frontend() {
 		if ( $this->is_front_end_single_post() ) {
-			$posts = get_posts(
-				array(
-					'post_type'   => 'wp_template_part',
-					'post_status' => 'publish',
-					'numberposts' => -1,
-					'post_name'   => $this->get_subscribe_template_slug(),
-				)
-			);
-
-			if ( ! $posts ) {
-				return;
-			}
-
-			$subscribe_template = end( $posts );
-
-			$blocks = parse_blocks( $subscribe_template->post_content );
-
-			/*
-			 * Jetpack requires escaping html for the render_block() call below.
-			 * I'm using wp_kses() and specifying the allowed tags.
-			 * But this is fragile: users can edit the Subscribe Modal
-			 * template and add tags that are not allowed here.
-			 */
-			$allowed_html = array(
-				'div'    => array(
-					'class' => array(),
-					'style' => array(),
-				),
-				'h2'     => array(
-					'class' => array(),
-					'style' => array(),
-				),
-				'p'      => array(
-					'type'  => array(),
-					'class' => array(),
-					'style' => array(),
-					'id'    => array(),
-				),
-				'form'   => array(
-					'action'                 => array(),
-					'method'                 => array(),
-					'accept-charset'         => array(),
-					'data-blog'              => array(),
-					'data-post_access_level' => array(),
-					'id'                     => array(),
-				),
-				'label'  => array(
-					'id'    => array(),
-					'for'   => array(),
-					'class' => array(),
-				),
-				'input'  => array(
-					'id'          => array(),
-					'type'        => array(),
-					'name'        => array(),
-					'value'       => array(),
-					'class'       => array(),
-					'style'       => array(),
-					'placeholder' => array(),
-					'required'    => array(),
-				),
-				'button' => array(
-					'type'  => array(),
-					'class' => array(),
-					'style' => array(),
-					'name'  => array(),
-				),
-			);
-
 			?>
-				<div class="jetpack-subscribe-modal">
-					<div class="jetpack-subscribe-modal__modal-content">
-						<?php
-						foreach ( $blocks as $block ) {
-							echo wp_kses( render_block( $block ), $allowed_html );
-						}
-						?>
-						<Dashicon icon="minus" className="jp-idc__idc-screen__card-action-separator" />
+					<div class="jetpack-subscribe-modal">
+						<div class="jetpack-subscribe-modal__modal-content">
+				<?php block_template_part( 'jetpack-subscribe-modal' ); ?>
+							<span class="dashicons dashicons-minus jp-idc__idc-screen__card-action-separator"></span>
+						</div>
 					</div>
-				</div>
 			<?php
 		}
 	}
@@ -165,7 +105,8 @@ class Jetpack_Subscribe_Modal {
 	public function wpcom_enqueue_subscribe_modal_assets() {
 		if ( $this->is_front_end_single_post() ) {
 			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
-			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-components' ), JETPACK__VERSION, true );
+			wp_enqueue_style( 'dashicons' );
+			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
 		}
 	}
 
@@ -186,13 +127,14 @@ class Jetpack_Subscribe_Modal {
 		if ( ! wp_is_block_theme() ) {
 			return false;
 		}
+
 		/**
-		* Allows force-enabling or disabling the Subscriptions modal.
-		*
-		* @since $$next-version$$
-		*
-		* @param bool $should_enable_subscriber_modal Whether the Subscriptions modal should be enabled.
-		*/
+		 * Allows force-enabling or disabling the Subscriptions modal.
+		 *
+		 * @param bool $should_enable_subscriber_modal Whether the Subscriptions modal should be enabled.
+		 *
+		 * @since $$next-version$$
+		 */
 		return (bool) apply_filters( 'jetpack_subscriptions_modal_force_enabled', true );
 	}
 
@@ -207,15 +149,6 @@ class Jetpack_Subscribe_Modal {
 	 */
 	public function is_front_end_single_post() {
 		return ! is_admin() && is_singular( 'post' );
-	}
-
-	/**
-	 * Returns the slug for the Subcribe template.
-	 *
-	 * @return string
-	 */
-	public function get_subscribe_template_slug() {
-		return 'subscribe-modal';
 	}
 
 	/**
@@ -242,7 +175,6 @@ class Jetpack_Subscribe_Modal {
 		<p class="has-text-align-center" style="margin-top:0px;margin-bottom:20px;font-size:15px">and get access to the full archive.</p>
 		<!-- /wp:paragraph -->
 		
-		<!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
 		
 		<!-- wp:paragraph {"align":"center","style":{"color":{"text":"#666666"},"typography":{"fontSize":"14px","textDecoration":"underline"}},"className":"jetpack-subscribe-modal__close"} -->
 		<p class="has-text-align-center jetpack-subscribe-modal__close has-text-color" style="color:#666666;font-size:14px;text-decoration:underline"><a href="#">' . __( 'Continue Reading', 'jetpack' ) . '</a></p>
@@ -254,9 +186,9 @@ class Jetpack_Subscribe_Modal {
 /**
  * Temporary feature flag for the subscription modal
  *
- * @since $$next-version$$
- *
  * @param bool Should load subscription modal. Defaults to false.
+ *
+ * @since $$next-version$$
  */
 if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
 	Jetpack_Subscribe_Modal::init();
