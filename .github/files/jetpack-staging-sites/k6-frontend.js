@@ -24,7 +24,7 @@ export const options = {
  */
 export default function () {
 	sites.forEach( site => {
-		group( `Fronted tests for site: ${ site.url } ( ${ site.blog_id } )`, () => {
+		group( `Frontend tests for site: ${ site.url } ( ${ site.blog_id } )`, () => {
 			// Homepage.
 			let res = http.get( site.url );
 			check( res, {
