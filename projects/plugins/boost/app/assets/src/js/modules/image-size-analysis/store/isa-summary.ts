@@ -5,6 +5,17 @@ import api from '../../../api/api';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
 import { isaData } from './isa-data';
 
+/**
+ * Valid values for the status field.
+ */
+export enum ISAStatus {
+	NotFound = 'not-found',
+	New = 'new',
+	Queued = 'queued',
+	Completed = 'completed',
+	Stuck = 'error_stuck',
+}
+
 const zGroup = z.object( {
 	issue_count: z.number(),
 	scanned_pages: z.number(),
@@ -15,7 +26,7 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 	'image_size_analysis_summary',
 	z
 		.object( {
-			status: z.string(),
+			status: z.nativeEnum( ISAStatus ).default( ISAStatus.NotFound ),
 			report_id: z.number().optional(),
 			groups: z
 				.object( {
@@ -24,6 +35,7 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 					post: zGroup.optional(),
 					other: zGroup.optional(),
 				} )
+				.nullable()
 				.optional(),
 		} )
 		// Default data if deactivated or not loaded yet.
@@ -82,7 +94,7 @@ export type ISA_Group = z.infer< typeof zGroup >;
  */
 export async function requestImageAnalysis() {
 	await api.post( '/image-size-analysis/start' );
-	image_size_analysis_summary.refresh();
+	await image_size_analysis_summary.refresh();
 }
 
 /**
@@ -114,5 +126,6 @@ isaSummary.subscribe( summary => {
 		}, 3000 );
 	} else if ( ! shouldPoll && pollIntervalId ) {
 		clearInterval( pollIntervalId );
+		pollIntervalId = undefined;
 	}
 } );

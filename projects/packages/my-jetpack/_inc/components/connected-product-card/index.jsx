@@ -22,13 +22,23 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 		installStandalonePlugin,
 		deactivateStandalonePlugin,
 	} = useProduct( slug );
-	const { name, description, manageUrl, requiresUserConnection, standalonePluginInfo, status } =
-		detail;
+	const {
+		name,
+		description,
+		manageUrl,
+		purchaseUrl,
+		requiresUserConnection,
+		standalonePluginInfo,
+		status,
+	} = detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );
 	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 	const navigateToAddProductPage = useMyJetpackNavigate( `add-${ slug }` );
+	const navigateToPurchasePage = useCallback( () => {
+		window.location = purchaseUrl;
+	}, [ purchaseUrl ] );
 
 	/* Menu Handling */
 	const hasStandalonePlugin = standalonePluginInfo?.hasStandalonePlugin;
@@ -114,7 +124,8 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ handleActivate }
-			onAdd={ navigateToAddProductPage }
+			// Use purchaseUrl if available, otherwise use interstitial product page.
+			onAdd={ purchaseUrl ? navigateToPurchasePage : navigateToAddProductPage }
 			onManage={ onManage }
 			onFixConnection={ navigateToConnectionPage }
 			showMenu={ menuIsActive }
