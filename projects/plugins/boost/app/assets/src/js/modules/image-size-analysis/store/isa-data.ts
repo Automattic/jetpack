@@ -2,7 +2,7 @@ import { derived } from 'svelte/store';
 import { useParams } from 'svelte-navigator';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
-import { ImageData, ImageSizeAnalysis } from './zod-types';
+import { ImageData, ImageSizeAnalysis, emptyImageSizeAnalysisData } from './zod-types';
 
 /**
  * Initialize the stores
@@ -50,6 +50,14 @@ export function initializeIsaData() {
 	queryParams.subscribe( $params => {
 		updateIsaQuery( $params.group, parseInt( $params.page ), $params.search );
 	} );
+}
+
+/**
+ * Whenever a new report is requested, clear the search results from the store otherwise
+ * it might show old data when you visit the table view.
+ */
+export function resetIsaQuery() {
+	image_size_analysis.store.override( emptyImageSizeAnalysisData );
 }
 
 type ISA = z.infer< typeof ImageSizeAnalysis >;

@@ -5,6 +5,7 @@
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import MultiProgress from './MultiProgress.svelte';
+	import { resetIsaQuery } from './store/isa-data';
 	import {
 		requestImageAnalysis,
 		initializeIsaSummary,
@@ -55,6 +56,7 @@
 			errorMessage = undefined;
 			requestingReport = true;
 			await requestImageAnalysis();
+			resetIsaQuery();
 		} catch ( err ) {
 			errorMessage = err.message;
 		} finally {
