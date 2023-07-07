@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -29,6 +30,7 @@ class Jetpack_Social {
 	const JETPACK_SOCIAL_ACTIVATION_OPTION        = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
 	const JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_show_pricing_page';
 	const JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION  = JETPACK_SOCIAL_PLUGIN_SLUG . '_review_prompt_dismissed';
+	const JETPACK_BLAZE_MODULE_SLUG               = 'blaze';
 
 	/**
 	 * The connection manager used to check if we have a Jetpack connection.
@@ -92,6 +94,20 @@ class Jetpack_Social {
 			1
 		);
 
+		// Enable Blaze if the user is connected and the module is active.
+		add_action(
+			'plugins_loaded',
+			function () {
+				if (
+					! $this->is_connected()
+					|| ! $this->is_blaze_active()
+				) {
+					return;
+				}
+				Blaze::init();
+			}
+		);
+
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
 		add_action( 'activated_plugin', array( $this, 'redirect_after_activation' ) );
@@ -140,6 +156,15 @@ class Jetpack_Social {
 	 */
 	public static function is_publicize_active() {
 		return ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG );
+	}
+
+	/**
+	 * Check if the Blaze module is active.
+	 *
+	 * @return bool
+	 */
+	public static function is_blaze_active() {
+		return ( new Modules() )->is_active( self::JETPACK_BLAZE_MODULE_SLUG );
 	}
 
 	/**
@@ -413,7 +438,8 @@ class Jetpack_Social {
 	public function do_plugin_activation_activities() {
 		if ( get_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION ) && $this->is_connected() ) {
 			$this->calculate_scheduled_shares();
-			$this->activate_module();
+			$this->activate_publicize_module();
+			$this->activate_blaze_module();
 		}
 	}
 
@@ -435,9 +461,18 @@ class Jetpack_Social {
 	/**
 	 * Activates the Publicize module and disables the activation option
 	 */
-	public function activate_module() {
+	public function activate_publicize_module() {
 		delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
 		( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
+	}
+
+	/**
+	 * Activate the Blaze module.
+	 *
+	 * @return void
+	 */
+	public function activate_blaze_module() {
+		( new Modules() )->activate( self::JETPACK_BLAZE_MODULE_SLUG, false, false );
 	}
 
 	/**
@@ -449,13 +484,19 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Adds module to the list of available modules
+	 * Adds Publicize and Blaze modules to the list of available modules
 	 *
 	 * @param array $modules The available modules.
 	 * @return array
 	 */
 	public function social_filter_available_modules( $modules ) {
-		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
+		return array_merge(
+			array(
+				self::JETPACK_PUBLICIZE_MODULE_SLUG,
+				self::JETPACK_BLAZE_MODULE_SLUG,
+			),
+			$modules
+		);
 	}
 
 	/**

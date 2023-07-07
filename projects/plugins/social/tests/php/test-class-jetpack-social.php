@@ -56,7 +56,25 @@ class Jetpack_Social_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Testh that the Publicize package isn't ensured without a user connection
+	 * Test that plugin activation activates the Blaze module.
+	 */
+	public function test_blaze_module_is_activated_on_plugin_activation() {
+		$this->activate_plugin( 'hello-world.php' );
+		$this->assertFalse( ( Jetpack_Social::is_blaze_active() ) );
+
+		$this->activate_plugin( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH );
+		$this->assertFalse( ( Jetpack_Social::is_blaze_active() ) );
+
+		$connection_manager = $this->createMock( Connection_Manager::class );
+		$connection_manager->method( 'is_connected' )->willReturn( true );
+		$connection_manager->method( 'has_connected_user' )->willReturn( true );
+
+		$this->activate_plugin( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH );
+		$this->assertTrue( Jetpack_Social::is_blaze_active() );
+	}
+
+	/**
+	 * Test that the Publicize package isn't ensured without a user connection
 	 */
 	public function test_publicize_not_configured() {
 		$connection_manager = $this->createMock( Connection_Manager::class );
