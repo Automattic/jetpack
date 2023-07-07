@@ -264,8 +264,7 @@ EOF
 			}
 
 			// Determine the changelog entry and add to the file contents.
-			$entry   = $input->getOption( 'entry' );
-			$comment = (string) $input->getOption( 'comment' );
+			$entry = $input->getOption( 'entry' );
 			if ( $isInteractive ) {
 				if ( 'patch' === $significance ) {
 					$question = new Question( "Changelog entry. May be left empty if this change is particularly insignificant.\n > ", (string) $entry );
@@ -286,8 +285,11 @@ EOF
 					return 1;
 				}
 			} else {
-				if ( null === $entry && $comment === '' ) {
+				if ( null === $entry ) {
 					$output->writeln( '<error>Entry must be specified in non-interactive mode.</>' );
+					if ( null === $entry && 'patch' === $significance ) {
+						$output->writeln( '<info>If you want to have an empty entry for this change, pass the empty string as the entry (like <comment>--entry=</>) and also please provide a comment (using <comment>--comment</>).</>' );
+					}
 					return 1;
 				}
 				if ( 'patch' !== $significance && '' === $entry ) {
@@ -297,6 +299,7 @@ EOF
 			}
 
 			// Ask if a change comment is desired, if they left the change entry itself empty.
+			$comment = (string) $input->getOption( 'comment' );
 			if ( $isInteractive && '' === $entry ) {
 				$question = new Question( "You omitted the changelog entry, which is fine. But please comment as to why no entry is needed.\n > ", $comment );
 				$comment  = $this->getHelper( 'question' )->ask( $input, $output, $question );
