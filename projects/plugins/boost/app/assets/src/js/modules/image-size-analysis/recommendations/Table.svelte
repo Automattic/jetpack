@@ -37,7 +37,7 @@
 		return filteredImages;
 	}
 
-	$: activeImages = getActiveImages( $isaData.data.images, isLoading );
+	$: activeImages = getActiveImages( $isaData.data.images );
 	$: jobFinished = $isaSummary?.status === ISAStatus.Completed;
 </script>
 
