@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { __ } from '@wordpress/i18n';
 import api from '../../../api/api';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
-import { isaData } from './isa-data';
+import { isaData, refreshIsaData } from './isa-data';
 
 /**
  * Valid values for the status field.
@@ -127,5 +127,10 @@ isaSummary.subscribe( summary => {
 	} else if ( ! shouldPoll && pollIntervalId ) {
 		clearInterval( pollIntervalId );
 		pollIntervalId = undefined;
+
+		// We're stopping polling. Neat! But if we've just become completed, we should tell ISAData to refresh.
+		if ( summary.status === ISAStatus.Completed ) {
+			refreshIsaData();
+		}
 	}
 } );
