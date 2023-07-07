@@ -10,6 +10,7 @@ import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import React from 'react';
 import { STORE_ID } from '../../store';
+import BlazeModuleToggle from '../blaze-module-toggle';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
@@ -30,6 +31,7 @@ const Admin = () => {
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
 	const {
+		adminUrl,
 		isModuleEnabled,
 		showPricingPage,
 		hasPaidPlan,
@@ -39,6 +41,7 @@ const Admin = () => {
 	} = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
+			adminUrl: store.getAdminUrl(),
 			isModuleEnabled: store.isModuleEnabled(),
 			showPricingPage: store.showPricingPage(),
 			hasPaidPlan: store.hasPaidPlan(),
@@ -81,6 +84,7 @@ const Admin = () => {
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
 						{ isModuleEnabled && isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
+						<BlazeModuleToggle adminUrl={ adminUrl } />
 					</AdminSection>
 					<AdminSectionHero>
 						<InfoSection />
