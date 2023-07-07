@@ -445,6 +445,22 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Starter', 'jetpack' ),
 				};
 
+			case 'is-jetpack-stats-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Simple, yet powerful analytics with priority support.', 'jetpack' ),
+					title: __( 'Jetpack Stats', 'jetpack' ),
+				};
+
+			case 'is-jetpack-stats-free-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Simple, yet powerful analytics.', 'jetpack' ),
+					title: __( 'Jetpack Stats Free', 'jetpack' ),
+				};
+
 			default:
 				return {
 					...productProps,
