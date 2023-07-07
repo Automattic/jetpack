@@ -429,9 +429,10 @@ class Dashboard_REST_Controller {
 	 *
 	 * @param String          $path The Root API endpoint.
 	 * @param WP_REST_Request $req The request object.
+	 * @param array           $args Request arguments.
 	 * @return array|WP_Error
 	 */
-	public function get_dsp_generic( $path, $req ) {
+	public function get_dsp_generic( $path, $req, $args = array() ) {
 		$site_id = $this->get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
@@ -440,7 +441,10 @@ class Dashboard_REST_Controller {
 		return $this->request_as_user(
 			sprintf( '/sites/%d/wordads/dsp/api/%s%s', $site_id, $path, $this->build_subpath_with_query_strings( $req->get_params() ) ),
 			'v2',
-			array( 'method' => 'GET' )
+			array_merge(
+				$args,
+				array( 'method' => 'GET' )
+			)
 		);
 	}
 
@@ -451,7 +455,7 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function edit_wpcom_checkout( $req ) {
-		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req );
+		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 20 ) );
 	}
 
 	/**
@@ -461,7 +465,7 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function edit_dsp_campaigns( $req ) {
-		return $this->edit_dsp_generic( 'v1/campaigns', $req );
+		return $this->edit_dsp_generic( 'v1/campaigns', $req, array( 'timeout' => 20 ) );
 	}
 
 	/**
@@ -489,9 +493,10 @@ class Dashboard_REST_Controller {
 	 *
 	 * @param String          $path The Root API endpoint.
 	 * @param WP_REST_Request $req The request object.
+	 * @param array           $args Request arguments.
 	 * @return array|WP_Error
 	 */
-	public function edit_dsp_generic( $path, $req ) {
+	public function edit_dsp_generic( $path, $req, $args = array() ) {
 		$site_id = $this->get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
@@ -500,7 +505,10 @@ class Dashboard_REST_Controller {
 		return $this->request_as_user(
 			sprintf( '/sites/%d/wordads/dsp/api/%s%s', $site_id, $path, $req->get_param( 'sub_path' ) ),
 			'v2',
-			array( 'method' => $req->get_method() ),
+			array_merge(
+				$args,
+				array( 'method' => $req->get_method() )
+			),
 			$req->get_body()
 		);
 	}
