@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { __ } from '@wordpress/i18n';
 import api from '../../../api/api';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
+import { setPromiseInterval } from '../../../utils/set-promise-interval';
 import { isaData, refreshIsaData } from './isa-data';
 
 /**
@@ -112,7 +113,7 @@ export function initializeIsaSummary() {
 /**
  * Automatically poll if the state is an active one.
  */
-let pollIntervalId: number | undefined;
+let clearPromiseInterval: ReturnType< typeof setPromiseInterval > | undefined;
 isaSummary.subscribe( summary => {
 	if ( ! summary ) {
 		return;
@@ -120,13 +121,13 @@ isaSummary.subscribe( summary => {
 
 	const shouldPoll = [ 'new', 'queued' ].includes( summary.status );
 
-	if ( shouldPoll && ! pollIntervalId ) {
-		pollIntervalId = setInterval( () => {
+	if ( shouldPoll && ! clearPromiseInterval ) {
+		clearPromiseInterval = setPromiseInterval( () => {
 			image_size_analysis_summary.refresh();
 		}, 3000 );
-	} else if ( ! shouldPoll && pollIntervalId ) {
-		clearInterval( pollIntervalId );
-		pollIntervalId = undefined;
+	} else if ( ! shouldPoll && clearPromiseInterval ) {
+		clearPromiseInterval();
+		clearPromiseInterval = undefined;
 
 		// We're stopping polling. Neat! But if we've just become completed, we should tell ISAData to refresh.
 		if ( summary.status === ISAStatus.Completed ) {
