@@ -48,23 +48,6 @@
 	}
 }
 
-.jb-dashboard-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	height: 120px;
-	position: relative;
-
-	&__logo {
-		max-width: 240px;
-		max-height: 42px;
-
-		svg {
-			height: auto;
-		}
-	}
-}
-
 .jb-dashboard-footer {
 	@extend .jb-container;
 

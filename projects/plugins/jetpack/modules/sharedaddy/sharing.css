@@ -285,7 +285,8 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-icon .sd-content ul li.share-reddit a:before,
 .sd-social-text .sd-content ul li.share-reddit a:before,
 .sd-content ul li.share-reddit div.option.option-smart-off a:before,
-.sd-social-icon-text .sd-content li.share-reddit a:before {
+.sd-social-icon-text .sd-content li.share-reddit a:before,
+.sd-social-official .sd-content li.share-reddit a:before {
 	content: '\f222';
 }
 .sd-social-icon .sd-content ul li.share-tumblr a:before,
@@ -453,10 +454,6 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 
 /* Individual official buttons */
-.reddit_button iframe {
-	margin-top: 1px;
-}
-
 .pocket_button iframe, .pinterest_button, .twitter_button, .linkedin_button>span {
 	margin: 0 !important;
 }

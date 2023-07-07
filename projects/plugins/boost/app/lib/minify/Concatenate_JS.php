@@ -228,7 +228,7 @@ class Concatenate_JS extends WP_Scripts {
 					} else {
 						$path_str = implode( ',', $js_array['paths'] );
 					}
-					$path_str = "$path_str?m=$mtime";
+					$path_str = "$path_str?m=$mtime&cb=" . jetpack_boost_minify_cache_buster();
 
 					if ( $this->allow_gzip_compression ) {
 						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode

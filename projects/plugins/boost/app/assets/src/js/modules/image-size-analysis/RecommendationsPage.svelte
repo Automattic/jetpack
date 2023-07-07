@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { __ } from '@wordpress/i18n';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import Hero from './recommendations/Hero.svelte';
@@ -17,7 +18,7 @@
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
-	<Header />
+	<Header subPage={__( 'Image analysis report', 'jetpack-boost' )} />
 	<div class="recommendations-page jb-container jb-section--alt">
 		<Hero />
 		<Tabs />
