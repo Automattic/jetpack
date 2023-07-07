@@ -9,6 +9,8 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React from 'react';
+import { connect } from 'react-redux';
+import { isSubscriptionModalEnabled } from 'state/initial-state';
 
 class SubscriptionsComponent extends React.Component {
 	/**
@@ -139,17 +141,19 @@ class SubscriptionsComponent extends React.Component {
 									'jetpack'
 								) }
 							/>
-							<ToggleControl
-								checked={ isSubscriptionsActive && this.props.getOptionValue( 'sm_enabled' ) }
-								disabled={
-									! isSubscriptionsActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'subscriptions' ] )
-								}
-								toggling={ this.props.isSavingAnyOption( [ 'sm_enabled' ] ) }
-								onChange={ this.handleSubscribeModalToggleChange }
-								label={ __( 'Enable the popup subscription modal', 'jetpack' ) }
-							/>
+							{ this.props.isSubscriptionModalEnabled && (
+								<ToggleControl
+									checked={ isSubscriptionsActive && this.props.getOptionValue( 'sm_enabled' ) }
+									disabled={
+										! isSubscriptionsActive ||
+										unavailableInOfflineMode ||
+										this.props.isSavingAnyOption( [ 'subscriptions' ] )
+									}
+									toggling={ this.props.isSavingAnyOption( [ 'sm_enabled' ] ) }
+									onChange={ this.handleSubscribeModalToggleChange }
+									label={ __( 'Enableeee the popup subscription modal', 'jetpack' ) }
+								/>
+							) }
 						</FormFieldset>
 					}
 				</SettingsGroup>
@@ -168,4 +172,10 @@ class SubscriptionsComponent extends React.Component {
 }
 
 export const UnwrappedComponent = SubscriptionsComponent;
-export default withModuleSettingsFormHelpers( SubscriptionsComponent );
+export default withModuleSettingsFormHelpers(
+	connect( state => {
+		return {
+			isSubscriptionModalEnabled: isSubscriptionModalEnabled( state ),
+		};
+	} )( SubscriptionsComponent )
+);
