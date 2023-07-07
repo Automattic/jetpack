@@ -2,9 +2,19 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
-import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
+import {
+	Flex,
+	FlexBlock,
+	Modal,
+	Notice,
+	PanelBody,
+	PanelRow,
+	TextareaControl,
+	Button,
+	ToggleControl,
+} from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
@@ -21,10 +31,14 @@ import useAIFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { getImagesFromOpenAI } from './lib/image';
 import './editor.scss';
+import { getInitialSystemPrompt } from './lib/prompt';
 
 const markdownConverter = new MarkdownIt( {
 	breaks: true,
 } );
+
+const isPlaygroundVisible =
+	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-playground-visible' ];
 
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 
@@ -241,6 +255,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}
 	);
 
+	/*
+	 * Custom prompt modal
+	 */
+	const [ isCustomPrompModalVisible, setIsCustomPrompModalVisible ] = useState( false );
+	const toogleShowCustomPromptModal = () => {
+		setIsCustomPrompModalVisible( ! isCustomPrompModalVisible );
+	};
+
 	return (
 		<div
 			{ ...useBlockProps( {
@@ -263,6 +285,63 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
 					</div>
 				</>
+			) }
+			{ isPlaygroundVisible && (
+				<InspectorControls>
+					<PanelBody title={ __( 'AI Playground', 'jetpack' ) } initialOpen={ true }>
+						<PanelRow>
+							<ToggleControl
+								label={ __( 'Gutenberg Syntax', 'jetpack' ) }
+								onChange={ check => setAttributes( { useGutenbergSyntax: check } ) }
+								checked={ attributes.useGutenbergSyntax }
+							/>
+						</PanelRow>
+						<PanelRow>
+							<ToggleControl
+								label={ __( 'GPT-4', 'jetpack' ) }
+								onChange={ check => setAttributes( { useGpt4: check } ) }
+								checked={ attributes.useGpt4 }
+							/>
+						</PanelRow>
+						<PanelRow>
+							{ isCustomPrompModalVisible && (
+								<Modal
+									title={ __( 'Custom System Prompt', 'jetpack' ) }
+									onRequestClose={ toogleShowCustomPromptModal }
+								>
+									<TextareaControl
+										rows={ 20 }
+										label={ __( 'Set up the custom system prompt ', 'jetpack' ) }
+										onChange={ value => setAttributes( { customSystemPrompt: value } ) }
+										className="jetpack-ai-assistant__custom-prompt"
+										value={
+											attributes.customSystemPrompt ||
+											getInitialSystemPrompt( {
+												useGutenbergSyntax: attributes.useGutenbergSyntax,
+												useGpt4: attributes.useGpt4,
+											} )?.content
+										}
+									/>
+									<div className="jetpack-ai-assistant__custom-prompt__footer">
+										<Button
+											onClick={ () => setAttributes( { customSystemPrompt: '' } ) }
+											variant="secondary"
+										>
+											{ __( 'Restore the prompt', 'jetpack' ) }
+										</Button>
+
+										<Button onClick={ toogleShowCustomPromptModal } variant="secondary">
+											{ __( 'Close', 'jetpack' ) }
+										</Button>
+									</div>
+								</Modal>
+							) }
+							<Button onClick={ toogleShowCustomPromptModal } variant="secondary">
+								{ __( 'Set system custom prompt', 'jetpack' ) }
+							</Button>
+						</PanelRow>
+					</PanelBody>
+				</InspectorControls>
 			) }
 			<AIControl
 				ref={ aiControlRef }

@@ -327,3 +327,13 @@
 		}
 	}
 }
+
+.jetpack-ai-assistant__custom-prompt {
+	width: 800px;
+}
+
+.jetpack-ai-assistant__custom-prompt__footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
