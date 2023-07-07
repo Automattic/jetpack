@@ -132,7 +132,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'title'               => 'Keep Building',
 			'task_ids'            => array(
 				'site_title',
-				'design_edited',
 				'domain_claim',
 				'verify_email',
 				'domain_customize',
