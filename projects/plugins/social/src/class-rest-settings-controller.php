@@ -106,6 +106,10 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			$data['publicize_active'] = Jetpack_Social::is_publicize_active();
 		}
 
+		if ( rest_is_field_included( 'blaze_active', $fields ) ) {
+			$data['blaze_active'] = Jetpack_Social::is_blaze_active();
+		}
+
 		if ( rest_is_field_included( 'show_pricing_page', $fields ) ) {
 			$data['show_pricing_page'] = Jetpack_Social::should_show_pricing_page();
 		}
@@ -130,6 +134,12 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			switch ( $name ) {
 				case 'publicize_active':
 					$updated = ( new Modules() )->update_status( \Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG, (bool) $params[ $name ], false, false );
+					if ( is_wp_error( $updated ) ) {
+						return $updated;
+					}
+					break;
+				case 'blaze_active':
+					$updated = ( new Modules() )->update_status( \Jetpack_Social::JETPACK_BLAZE_MODULE_SLUG, (bool) $params[ $name ], false, false );
 					if ( is_wp_error( $updated ) ) {
 						return $updated;
 					}
@@ -206,6 +216,11 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			'properties' => array(
 				'publicize_active'  => array(
 					'description' => __( 'Is the publicize module enabled?', 'jetpack-social' ),
+					'type'        => 'boolean',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'blaze_active'      => array(
+					'description' => __( 'Is the blaze module enabled?', 'jetpack-social' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),
