@@ -82,7 +82,7 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 		$available_modules = ( new Modules() )->get_available();
 
 		$this->assertNotContains( 'waf', $available_modules );
-		$this->assertContains( 'protect', $available_modules );
+		$this->assertNotContains( 'protect', $available_modules );
 	}
 
 	/**
@@ -95,7 +95,7 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 		$available_modules = ( new Modules() )->get_available();
 
 		$this->assertNotContains( 'waf', $available_modules );
-		$this->assertContains( 'protect', $available_modules );
+		$this->assertNotContains( 'protect', $available_modules );
 	}
 
 	/**
@@ -103,6 +103,20 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	 */
 	public function testWafInitVipEnvironment() {
 		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+
+		$available_modules = ( new Modules() )->get_available();
+
+		$this->assertNotContains( 'waf', $available_modules );
+		$this->assertNotContains( 'protect', $available_modules );
+	}
+
+	/**
+	 * Test WAF init in an Pressable environment.
+	 */
+	public function testWafInitPressableEnvironment() {
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 999 );
+		Constants::set_constant( 'ATOMIC_SITE_ID', 999 );
+		Constants::set_constant( 'IS_PRESSABLE', true );
 
 		$available_modules = ( new Modules() )->get_available();
 
