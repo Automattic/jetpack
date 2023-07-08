@@ -481,12 +481,16 @@ const FirewallPage = () => {
 					<Text className={ classnames( styles.status, styles.active ) } variant={ 'label' }>
 						{ bruteForceProtection
 							? __( 'Active', 'jetpack-protect' )
-							: __( 'Inactive', 'jetpack-protect' ) }
+							: __( 'Inactive', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) }
 					</Text>
 					<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
 						{ bruteForceProtection
 							? __( 'Brute force protection is on', 'jetpack-protect' )
-							: __( 'Brute force protection is off', 'jetpack-protect' ) }
+							: __(
+									'Brute force protection is off',
+									'jetpack-protect',
+									/* dummy arg to avoid bad minification */ 0
+							  ) }
 					</H3>
 				</Col>
 			</Container>
