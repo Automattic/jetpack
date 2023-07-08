@@ -35,7 +35,8 @@ class Jetpack_Subscribe_Modal {
 		if ( $this->should_enable_subscriber_modal() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
-			add_filter( 'get_block_template', array( $this, 'add_block_template' ), 10, 3 );
+			add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
+			add_filter( 'get_block_templates', array( $this, 'get_block_templates_filter' ), 10, 3 );
 		}
 	}
 
@@ -58,12 +59,12 @@ class Jetpack_Subscribe_Modal {
 	 */
 	public function add_subscribe_modal_to_frontend() {
 		if ( $this->is_front_end_single_post() ) { ?>
-		<div class="jetpack-subscribe-modal">
-			<div class="jetpack-subscribe-modal__modal-content">
-			<?php block_template_part( 'jetpack-subscribe-modal' ); ?>
-			</div>
-		</div>
-				<?php
+					<div class="jetpack-subscribe-modal">
+						<div class="jetpack-subscribe-modal__modal-content">
+				<?php block_template_part( 'jetpack-subscribe-modal' ); ?>
+						</div>
+					</div>
+			<?php
 		}
 	}
 
@@ -76,7 +77,7 @@ class Jetpack_Subscribe_Modal {
 	 *
 	 * @return WP_Block_Template
 	 */
-	public function add_block_template( $block_template, $id, $template_type ) {
+	public function get_block_template_filter( $block_template, $id, $template_type ) {
 		$custom_template = $this->get_custom_template();
 
 		if ( empty( $block_template ) && $template_type === 'wp_template_part' && $id === $custom_template->id ) {
@@ -84,6 +85,23 @@ class Jetpack_Subscribe_Modal {
 		}
 
 		return $block_template;
+	}
+
+	/**
+	 * Makes get_block_templates return the WP_Block_Template within the results.
+	 *
+	 * @param WP_Block_Template $query_result The filter result.
+	 * @param string            $query The query string.
+	 * @param string            $template_type Template type: `'wp_template'` or '`wp_template_part'`.
+	 *
+	 * @return array WP_Block_Template
+	 */
+	public function get_block_templates_filter( $query_result, $query, $template_type ) {
+		if ( empty( $query ) && $template_type === 'wp_template_part' ) {
+			$query_result[] = $this->get_custom_template();
+		}
+
+		return $query_result;
 	}
 
 	/**
@@ -96,6 +114,7 @@ class Jetpack_Subscribe_Modal {
 		$template->theme          = get_stylesheet();
 		$template->slug           = 'jetpack-subscribe-modal';
 		$template->id             = $template->theme . '//' . $template->slug;
+		$template->area           = 'footer';
 		$template->content        = $this->get_subscribe_template_content();
 		$template->source         = 'plugin';
 		$template->type           = 'wp_template_part';
