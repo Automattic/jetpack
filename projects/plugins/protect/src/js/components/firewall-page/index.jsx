@@ -478,7 +478,10 @@ const FirewallPage = () => {
 				horizontalGap={ 0 }
 			>
 				<Col>
-					<Text className={ classnames( styles.status, styles.active ) } variant={ 'label' }>
+					<Text
+						className={ classnames( styles.status, bruteForceProtection ? styles.active : null ) }
+						variant={ 'label' }
+					>
 						{ bruteForceProtection
 							? __( 'Active', 'jetpack-protect' )
 							: __( 'Inactive', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) }
