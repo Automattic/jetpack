@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { useSelect, useDispatch } from '@wordpress/data';
+import { parse } from '@wordpress/blocks';
+import { useSelect, useDispatch, dispatch } from '@wordpress/data';
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -11,7 +12,11 @@ import debugFactory from 'debug';
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
 import { buildPromptForBlock, delimiter } from '../../lib/prompt';
 import { askJetpack, askQuestion } from '../../lib/suggestions';
-import { getContentFromBlocks, getPartialContentToBlock } from '../../lib/utils/block-content';
+import {
+	getContentFromBlocks,
+	getPartialContentToBlock,
+	getTextContentFromInnerBlocks,
+} from '../../lib/utils/block-content';
 
 const debug = debugFactory( 'jetpack-ai-assistant:event' );
 const debugPrompt = debugFactory( 'jetpack-ai-assistant:prompt' );
@@ -138,16 +143,21 @@ const useSuggestionsFromOpenAI = ( {
 		let lastUserPrompt = {};
 
 		if ( ! options.retryRequest ) {
+			const allPostContent = ! attributes?.isLayoutBuldingModeEnable
+				? getContentFromBlocks()
+				: getTextContentFromInnerBlocks( clientId );
+
 			// If there is a content already, let's iterate over it.
 			prompt = buildPromptForBlock( {
 				generatedContent: content,
-				allPostContent: getContentFromBlocks(),
+				allPostContent,
 				postContentAbove: getPartialContentToBlock( clientId ),
 				currentPostTitle,
 				options,
 				userPrompt,
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
+				useGutenbergSyntax: !! attributes?.useGutenbergSyntax,
 				customSystemPrompt: attributes?.customSystemPrompt,
 			} );
 
@@ -216,6 +226,7 @@ const useSuggestionsFromOpenAI = ( {
 				role: 'assistant',
 				content: assistantResponse,
 			};
+
 			updatedMessages.push( lastUserPrompt, lastAssistantPrompt );
 
 			debugPrompt( 'Add %o\n%s', `[${ lastUserPrompt.role }]`, lastUserPrompt.content );
@@ -231,10 +242,24 @@ const useSuggestionsFromOpenAI = ( {
 
 			stopSuggestion();
 
+			const useGutenbergSyntax = attributes?.useGutenbergSyntax;
+
 			updateBlockAttributes( clientId, {
 				content: assistantResponse,
 				messages: updatedMessages,
 			} );
+
+			if ( ! useGutenbergSyntax ) {
+				return;
+			}
+
+			// POC for layout prompts:
+			// Generates the list of blocks from the generated code
+			const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
+			const blocks = parse( detail );
+			const validBlocks = blocks.filter( block => block.isValid );
+			replaceInnerBlocks( clientId, validBlocks );
+
 			refreshFeatureData();
 		} );
 
@@ -277,6 +302,7 @@ const useSuggestionsFromOpenAI = ( {
 					userPrompt,
 					type,
 					isGeneratingTitle: attributes.promptType === 'generateTitle',
+					useGutenbergSyntax: !! attributes?.useGutenbergSyntax,
 					customSystemPrompt: attributes?.customSystemPrompt,
 				} );
 
@@ -340,6 +366,18 @@ const useSuggestionsFromOpenAI = ( {
 		source?.current?.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
 			debug( '(suggestion)', e?.detail );
+
+			// let's get valid HTML by using a temporary dom element
+			// const temp = document.createElement( 'div' );
+			// temp.innerHTML = e?.detail;
+
+			// // Now, we are ready to create blocks from the valid HTML.
+			// const blocks = rawHandler( { HTML: temp.innerHTML } );
+			// const validBlocks = blocks.filter( block => block.isValid );
+
+			// const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
+			// replaceInnerBlocks( clientId, validBlocks );
+
 			// Remove the delimiter from the suggestion and update the block.
 			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );
 		} );
