@@ -131,7 +131,7 @@ const useWafData = () => {
 	const updateBruteForceConfig = useCallback(
 		update => {
 			setWafIsUpdating( true );
-			return API.updateWaf( update )
+			return API.updateWaf( { jetpack_waf_ip_allow_list: update.jetpack_waf_ip_allow_list } )
 				.then( refreshWaf )
 				.finally( () => setWafIsUpdating( false ) );
 		},
