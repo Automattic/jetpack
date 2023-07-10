@@ -1,27 +1,44 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
+	import { __ } from '@wordpress/i18n';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
-	import { initializeIsaData } from './store/isa-data';
-	import { initializeIsaSummary } from './store/isa-summary';
+	import { initializeIsaData, isaData, refreshIsaData } from './store/isa-data';
+	import { initializeIsaSummary, totalIssueCount } from './store/isa-summary';
 
 	initializeIsaData();
 
 	onMount( () => {
 		initializeIsaSummary();
 	} );
+
+	// Keep track of the total count from the summary the last time we got a data update.
+	// Useful for identify when a summary change might mean we need a refresh.
+	let countAtLastDataUpdate = 0;
+	isaData.subscribe( () => {
+		countAtLastDataUpdate = get( totalIssueCount );
+	} );
+
+	$: needsRefresh = $totalIssueCount > countAtLastDataUpdate;
+
+	async function refresh() {
+		// Don't let the UI show a refresh button until we get fresh ISA data.
+		countAtLastDataUpdate = Infinity;
+		await refreshIsaData();
+	}
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
-	<Header />
+	<Header subPage={__( 'Image analysis report', 'jetpack-boost' )} />
 	<div class="recommendations-page jb-container jb-section--alt">
-		<Hero />
+		<Hero {needsRefresh} {refresh} />
 		<Tabs />
-		<Table />
+		<Table {needsRefresh} {refresh} />
 		<Pagination />
 		<Footer />
 	</div>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Sharing: deprecate the Skype sharing button, as Skype ddoes not support those buttons anymore.

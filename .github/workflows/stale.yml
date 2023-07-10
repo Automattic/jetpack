@@ -9,19 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
     steps:
-      - uses: actions/stale@v6
+      - uses: actions/stale@v8
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          # Get issues in ascending (oldest first) order.
-          ascending: true
-          # Do not auto-close issues marked as stale.
+          # Get issues in descending (newest first) order.
+          ascending: false
+          # Operations (roughly API calls) per run. Adjust to avoid using up the rate limit (1000/hr shared across all jobs in the repo for the token used here).
+          operations-per-run: 50
+          # Do not auto-close issues/PRs marked as stale.
           days-before-close: -1
           # After 6 months, mark issue as stale.
           days-before-issue-stale: 180
           # After 3 months, mark PR as stale.
           days-before-pr-stale: 90
           # Issues and PRs with these labels will never be considered stale.
-          exempt-issue-labels: '[Pri] High,[Pri] BLOCKER,[Type] Good For Community,[Type] Good First Bug,FixTheFlows'
+          exempt-issue-labels: '[Pri] High,[Pri] BLOCKER,[Type] Feature Request,[Type] Enhancement,Good For Community,[Type] Good First Bug,FixTheFlows'
           exempt-pr-labels: '[Pri] High,[Pri] BLOCKER,FixTheFlows'
           # Label to use when marking an issue / PR as stale
           stale-pr-label: '[Status] Stale'
@@ -32,7 +34,7 @@ jobs:
 
             <ul>
               <li>It has been inactive in the past 6 months.</li>
-              <li>It hasn’t been labeled `[Pri] Blocker`, `[Pri] High`, etc.</li>
+              <li>It hasn’t been labeled `[Pri] BLOCKER`, `[Pri] High`, `[Type] Feature Request`, `[Type] Enhancement`, `Good For Community`, `[Type] Good First Bug`, etc.</li>
             </ul>
 
             <p>No further action is needed. But it's worth checking if this ticket has clear
@@ -44,7 +46,7 @@ jobs:
 
             <ul>
               <li>It has been inactive in the past 3 months.</li>
-              <li>It hasn’t been labeled `[Pri] Blocker`, `[Pri] High`, etc.</li>
+              <li>It hasn’t been labeled `[Pri] BLOCKER`, `[Pri] High`, etc.</li>
             </ul>
 
             <p>No further action is needed. But it's worth checking if this PR has clear
