@@ -38,8 +38,6 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 	}
 
 	public function set( $value ) {
-		$index = new Modules_Index();
-
 		foreach ( $value as $module_slug => $module_state ) {
 			$option_name = $this->get_module_option_name( $module_slug );
 			$updated     = update_option( $option_name, $module_state['active'] );
