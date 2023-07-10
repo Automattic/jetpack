@@ -24,7 +24,22 @@ echo '<input type="hidden" name="action" value="scupdates" />';
 		<label><input type='radio' name='wp_cache_mod_rewrite' <?php if ( $wp_cache_mod_rewrite == 1 ) echo "checked"; ?> value='1'> <?php _e( '<acronym title="Use mod_rewrite to serve cached files">Expert</acronym>', 'wp-super-cache' ); ?></label><br />
 		<em><small class='description'><?php _e( 'Expert caching requires changes to important server files and may require manual intervention if enabled.', 'wp-super-cache' ); ?></small></em>
 		<?php if ( $is_nginx ) { ?>
-			<em><small class='description'><?php printf( __( 'Nginx rules can be found <a href="%s">here</a> but are not officially supported.', 'wp-super-cache' ), 'https://codex.wordpress.org/Nginx#WP_Super_Cache_Rules' ); ?></small></em>
+			<em><small class='description'>
+				<?php
+				echo wp_kses(
+					sprintf(
+						/* Translators: placeholder is a link to a support document. */
+						__( 'Nginx rules can be found <a href="%s">here</a> but are not officially supported.', 'wp-super-cache' ),
+						'https://wordpress.org/documentation/article/nginx/#wp-super-cache-rules'
+					),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				);
+				?>
+			</small></em>
 		<?php } ?>
 		</fieldset>
 	</td>
@@ -97,7 +112,7 @@ echo '<blockquote><h5>' . __( 'Mobile Browsers', 'wp-super-cache' ) . '</h5>' . 
 				<li><?php _e( 'If the directory does not exist, it will be created. Please make sure your web server user has write access to the parent directory. The parent directory must exist.', 'wp-super-cache' ); ?></li>
 				<li><?php _e( 'If the new cache directory does not exist, it will be created and the contents of the old cache directory will be moved there. Otherwise, the old cache directory will be left where it is.', 'wp-super-cache' ); ?></li>
 				<li><?php _e( 'Submit a blank entry to set it to the default directory, WP_CONTENT_DIR . /cache/.', 'wp-super-cache' ); ?></li>
-<?php 
+<?php
 	if ( get_site_option( 'wp_super_cache_index_detected' ) && strlen( $cache_path ) > strlen( ABSPATH ) && ABSPATH == substr( $cache_path, 0, strlen( ABSPATH ) ) ) {
 		$msg = __( 'The plugin detected a bare directory index in your cache directory, which would let visitors see your cache files directly and might expose private posts.', 'wp-super-cache' );
 		if ( ! $is_nginx && $super_cache_enabled && $wp_cache_mod_rewrite == 1 ) {
