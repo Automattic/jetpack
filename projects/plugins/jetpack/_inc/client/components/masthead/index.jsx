@@ -31,6 +31,7 @@ export class Masthead extends React.Component {
 					id="sandbox-domain-badge"
 					onClick={ this.testConnection }
 					onKeyDown={ this.testConnection }
+					// eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
 					role="button"
 					tabIndex={ 0 }
 					title={ `Sandboxing via ${ sandboxDomain }. Click to test connection.` }
