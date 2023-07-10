@@ -152,12 +152,20 @@
 		flex-direction: row;
 		align-items: flex-start;
 		margin-bottom: 17px;
+
+		@media ( max-width: 600px ) {
+			flex-direction: column;
+		}
 	}
 
 	.summary-line button {
 		:global( svg ) {
 			margin: 4px 4px 2px 0;
 			fill: $jetpack-green;
+		}
+
+		@media ( max-width: 600px ) {
+			margin-top: 15px;
 		}
 	}
 
