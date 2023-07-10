@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 12.2.1
+Stable tag: 12.3
 Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.2
@@ -293,35 +293,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.3-a.5 - 2023-06-12
+### 12.4-a.1 - 2023-07-05
 #### Enhancements
-- AI Assistant: add keyboard shortcuts.
-- AI Assistant: change icon on AI disclaimer message.
-- AI Assistant: move caret to end of generated content when accepting.
-- AI Assistant: show message when content generated.
-- AI Assistant: tidy some block components.
-- AI Assistant: tweak content generated message.
-- AI Assistant: remove shortcuts labels from block area.
-- Backup: add video section to Backup connect page.
-- Blocks: add new Tock block.
-- Blocks: load block stylesheets inline when possible for improved performance.
+- AI Assistant: Keep original content when trying again after transforming a paragraph using the "Ask AI Assistant" button.
+- Contact Forms: remove the default title ("You got a new response!") added to emails sent for new feedback received.
+- Cookie Consent Block: Persist markup and ensure it is rendered in the footer.
+- Custom CSS: Display a notice to recommend the use of Global Styles when you use a Block theme on your site.
+- Subscribers page: Add subscribers page to menu.
 
 #### Improved compatibility
-- PHP8 compatibility updates. [#31240, #31242, #31243, #31250]
+- Tiled Galleries: Fix deprecation notices that may appear in logs when using PHP 8.2.
 
 #### Bug fixes
-- AI Assistant: block query requests when upgrade required.
-- AI Assistant: check if the block is in the block editor context before enabling accept title action.
-- AI Assistant: fix translation feature.
-- AI Assistant: request completion JWT token as the user, not the blog.
-- AI Assistant: show Jetpack AI product in the plan products list.
-- Connection: fix redirecting users who click back button before approving connection to Jetpack Dashboard.
-- Dashboard: display an external icon next to the link to the Subscribers list.
-- Memberships: correctly gate posts rendered on pages.
-- Memberships: fix an issue where Jetpack_Memberships::user_can_view_post would cache the wrong value.
-- Markdown Block: render single and double quotes as smart quotes.
-- Newsletters: do not display Newsletter plans in the Premium Content and Recurring Payment blocks.
-- Newsletters: make the subscribers reach sentence future-tense for scheduled posts.
+- Dashboard: Fix Jetpack footer accessibility issues.
+- Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard.
 
 --------
 

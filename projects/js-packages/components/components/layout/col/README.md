@@ -21,6 +21,14 @@ import { Container, Col, Text } from '@automattic/jetpack-components';
 
 ## Props
 
+### tagName
+
+The HTML tag of the column element.
+
+- Type: `String`
+- Default: `div`
+- Required: `false`
+
 ### className
 
 A custom class to append with the default ones.

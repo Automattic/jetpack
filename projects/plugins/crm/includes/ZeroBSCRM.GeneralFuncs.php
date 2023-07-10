@@ -1634,3 +1634,101 @@ function jpcrm_generate_pdf( $html, $pdf_filename ) {
 function jpcrm_disable_browser_autocomplete() {
 	return time() . wp_rand( 0, 1000000 );
 }
+
+/**
+ * Retrieves the MIME type of a file.
+ *
+ * If the FileInfo extension is available, it uses finfo_file to determine the MIME type.
+ * Otherwise, if the mime_content_type function is available, it falls back to mime_content_type.
+ * If neither are available it uses a file signature/MIME type map as a fallback.
+ *
+ * @param string $file_path The path to the file.
+ * @return string|false The MIME type of the file, or false if the MIME type cannot be determined.
+ */
+function jpcrm_get_mimetype( $file_path ) {
+	if ( function_exists( 'finfo_file' ) && function_exists( 'finfo_open' ) ) {
+		$file_info = finfo_open( FILEINFO_MIME_TYPE );
+		return finfo_file( $file_info, $file_path );
+	}
+
+	if ( function_exists( 'mime_content_type' ) ) {
+		return mime_content_type( $file_path );
+	}
+
+	$signature_to_mime = array(
+		'89504e47'             => 'image/png', // PNG
+		'ffd8ffe0'             => 'image/jpeg', // JPEG
+		'47494638'             => 'image/gif', // GIF
+		'49492a00'             => 'image/tiff', // TIFF
+		'4d4d002a'             => 'image/tiff', // TIFF
+		'424d'                 => 'image/bmp', // BMP
+		'3c3f786d'             => 'application/xml', // XML
+		'3c21444f'             => 'text/html', // HTML
+		'25504446'             => 'application/pdf', // PDF
+		'd0cf11e0'             => 'application/vnd.ms-office', // Microsoft Office documents (pre 2007)
+		'504b0304'             => 'application/zip', // ZIP, Java JAR, OpenDocument Format, etc.
+		'52617221'             => 'application/x-rar-compressed', // RAR
+		'1f8b08'               => 'application/gzip', // GZIP
+		'000001ba'             => 'video/mpeg', // MPEG
+		'1a45dfa3'             => 'video/matroska', // MKV
+		'664c6143'             => 'audio/flac', // FLAC
+		'494433'               => 'audio/mpeg', // MP3
+		'4f676753'             => 'application/ogg', // OGG
+		'2e736e64'             => 'audio/basic', // AU
+		'52494646'             => 'audio/wav', // WAV
+		'435753'               => 'application/x-shockwave-flash', // SWF (Compressed)
+		'465753'               => 'application/x-shockwave-flash', // SWF (Uncompressed)
+		'38425053'             => 'image/vnd.adobe.photoshop', // PSD
+		'252150532d41646f6265' => 'application/postscript', // EPS
+		'7b5c727466'           => 'application/rtf', // RTF
+		'7b5c616e7369'         => 'application/rtf', // RTF (Another variant)
+		'efbbbf'               => 'text/plain', // TXT with UTF-8 BOM
+		'5a4d'                 => 'application/x-dosexec', // EXE
+		'2321'                 => 'application/x-sh', // Unix Shell Script
+		'2521'                 => 'application/eps', // EPS
+		'cafebabe'             => 'application/java-vm', // Java class file
+		'2f2a0a'               => 'text/x-c', // C source code
+		'4f504449'             => 'audio/opus', // OPUS
+		'4d546864'             => 'audio/midi', // MIDI
+		'0000001066747970'     => 'video/mp4', // box length 16 (0x10), box type 'ftyp'
+		'0000001466747970'     => 'video/mp4', // box length 20 (0x14), box type 'ftyp'
+		'0000001866747970'     => 'video/mp4', // box length 24 (0x18), box type 'ftyp'
+		'0000001c66747970'     => 'video/mp4', // box length 28 (0x1c), box type 'ftyp'
+		'0000002066747970'     => 'video/mp4', // box length 32 (0x20), box type 'ftyp'
+		'0000002466747970'     => 'video/mp4', // box length 36 (0x24), box type 'ftyp'
+		'0000002866747970'     => 'video/mp4', // box length 40 (0x28), box type 'ftyp'
+		'0000002c66747970'     => 'video/mp4', // box length 44 (0x2c), box type 'ftyp'
+		'0000003066747970'     => 'video/mp4', // box length 48 (0x30), box type 'ftyp'
+		'0000003466747970'     => 'video/mp4', // box length 52 (0x34), box type 'ftyp'
+		'0000003866747970'     => 'video/mp4', // box length 56 (0x38), box type 'ftyp'
+		'0000003c66747970'     => 'video/mp4', // box length 60 (0x3c), box type 'ftyp'
+		'0000004066747970'     => 'video/mp4', // box length 64 (0x40), box type 'ftyp'
+		// Add more as needed.
+	);
+
+	global $wp_filesystem;
+	if ( ! is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
+		include_once ABSPATH . 'wp-admin/includes/file.php';
+		$credentials = request_filesystem_credentials( site_url() );
+		wp_filesystem( $credentials );
+	}
+	$lines = $wp_filesystem->get_contents_array( $file_path, 8 );
+	if ( $lines === false ) {
+		return 'application/octet-stream';
+	}
+	$file_signature = bin2hex( substr( implode( '', $lines ), 0, 16 ) );
+	// We loop through different lengths because, as we can see in the above mapping, the signature size varies.
+	for ( $length = 16; $length >= 2; $length -= 2 ) {
+		$part_signature = substr( $file_signature, 0, $length );
+		if ( isset( $signature_to_mime[ $part_signature ] ) ) {
+			return $signature_to_mime[ $part_signature ];
+		}
+	}
+
+	$check_for_ascii = pack( 'H*', $file_signature );
+	if ( ctype_print( $check_for_ascii ) && ! ctype_cntrl( $check_for_ascii ) ) {
+		return 'text/plain';
+	}
+
+	return 'application/octet-stream';
+}

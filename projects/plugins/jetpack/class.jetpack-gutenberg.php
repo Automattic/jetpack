@@ -73,6 +73,15 @@ class Jetpack_Gutenberg {
 	private static $site_specific_features = array();
 
 	/**
+	 * List of deprecated blocks.
+	 *
+	 * @var array List of deprecated blocks.
+	 */
+	private static $deprecated_blocks = array(
+		'jetpack/revue',
+	);
+
+	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
 	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
 	 * optionally fall back to that.
@@ -659,11 +668,14 @@ class Jetpack_Gutenberg {
 
 		// AI Assistant
 		$ai_assistant_state = Jetpack_AI_Helper::get_ai_assistance_feature();
+
 		if ( is_wp_error( $ai_assistant_state ) ) {
 			$ai_assistant_state = array(
 				'error-message' => $ai_assistant_state->get_error_message(),
 				'error-code'    => $ai_assistant_state->get_error_code(),
 			);
+		} else {
+			$ai_assistant_state['is-playground-visible'] = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' );
 		}
 
 		$screen_base = null;
@@ -1291,6 +1303,33 @@ class Jetpack_Gutenberg {
 
 			return null;
 		};
+	}
+
+	/**
+	 * Display a message to site editors and roles above when a block is no longer supported.
+	 * This is only displayed on the frontend.
+	 *
+	 * @since 12.3
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
+	 *
+	 * @return string
+	 */
+	public static function display_deprecated_block_message( $block_content, $block ) {
+		if ( in_array( $block['blockName'], self::$deprecated_blocks, true ) ) {
+			if ( current_user_can( 'edit_posts' ) ) {
+				$block_content = self::notice(
+					__( 'This block is no longer supported. Its contents will no longer be displayed to your visitors and as such this block should be removed.', 'jetpack' ),
+					'warning',
+					'jetpack-block-deprecated'
+				);
+			} else {
+				$block_content = '';
+			}
+		}
+
+		return $block_content;
 	}
 }
 

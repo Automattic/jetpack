@@ -487,7 +487,7 @@ class Jetpack_Memberships {
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$paywall       = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$can_view_post = $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $post_access_level );
+		$can_view_post = $paywall->visitor_can_view_content( self::get_all_newsletter_plan_ids(), $post_access_level );
 
 		self::$user_can_view_post_cache[ $cache_key ] = $can_view_post;
 		return $can_view_post;
@@ -532,19 +532,22 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Return all plans
+	 * Return membership plans
 	 *
 	 * @return array
 	 */
-	public static function get_all_plans_id_jetpack_recurring_payments() {
+	public static function get_all_newsletter_plan_ids() {
 		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
 			return array();
 		}
+
 		return get_posts(
 			array(
-				'post_type'      => self::$post_type_plan,
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
+				'meta_value'     => true,
+				'post_type'      => self::$post_type_plan,
+				'meta_key'       => 'jetpack_memberships_site_subscriber',
 			)
 		);
 	}

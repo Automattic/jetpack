@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Type check $posts to prevent warning

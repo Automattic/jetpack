@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.7] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## [0.10.6] - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
 ## [0.10.5] - 2023-06-06
 ### Changed
 - Updated package dependencies. [#31129]
@@ -205,6 +213,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.10.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.6...0.10.7
+[0.10.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.5...0.10.6
 [0.10.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.4...0.10.5
 [0.10.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.3...0.10.4
 [0.10.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.2...0.10.3

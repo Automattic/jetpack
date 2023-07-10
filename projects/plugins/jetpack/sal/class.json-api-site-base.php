@@ -1501,4 +1501,13 @@ abstract class SAL_Site {
 	public function can_blaze() {
 		return (bool) Blaze::site_supports_blaze( $this->blog_id );
 	}
+
+	/**
+	 * Return site's setup identifier.
+	 *
+	 * @return string
+	 */
+	public function get_wpcom_site_setup() {
+		return get_option( 'wpcom_site_setup' );
+	}
 }

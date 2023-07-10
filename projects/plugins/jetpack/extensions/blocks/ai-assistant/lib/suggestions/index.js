@@ -43,11 +43,12 @@ export async function askJetpack( question ) {
  * @param {number} options.postId             - The post where this completion is being requested, if available
  * @param {boolean} options.fromCache         - Get a cached response. False by default.
  * @param {boolean} options.requireUpgrade    - If the site requires an upgrade to use the feature
+ * @param {boolean} options.useGpt4           - If the request should use GPT-4
  * @returns {Promise<SuggestionsEventSource>} The event source
  */
 export async function askQuestion(
 	question,
-	{ postId = null, fromCache = false, requireUpgrade }
+	{ postId = null, fromCache = false, requireUpgrade, useGpt4 = false }
 ) {
 	if ( requireUpgrade ) {
 		/*
@@ -64,6 +65,9 @@ export async function askQuestion(
 		url.searchParams.append( 'messages', JSON.stringify( question ) );
 	} else {
 		url.searchParams.append( 'question', question );
+	}
+	if ( useGpt4 ) {
+		url.searchParams.append( 'feature', 'ai-assistant-experimental' );
 	}
 	url.searchParams.append( 'token', token );
 
@@ -167,7 +171,7 @@ export class SuggestionsEventSource extends EventTarget {
 			 * - the doouble asterisks (bold markdown)
 			 */
 			const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
-			if ( replacedMessage === 'JETPACK_AI_ERROR' ) {
+			if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {
 				// The unclear prompt marker was found, so we dispatch an error event
 				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
 			} else if ( 'JETPACK_AI_ERROR'.startsWith( replacedMessage ) ) {

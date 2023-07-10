@@ -26,6 +26,7 @@ use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
+use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
@@ -107,6 +108,7 @@ class Jetpack_Boost {
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ), 10, 2 );
+		add_action( 'jetpack_boost_connection_established', array( $this, 'handle_jetpack_connection' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -137,6 +139,19 @@ class Jetpack_Boost {
 		// Make sure user sees the "Get Started" when first time opening.
 		Config::set_getting_started( true );
 		Analytics::record_user_event( 'activate_plugin' );
+	}
+
+	/**
+	 * Plugin connected to Jetpack handler.
+	 */
+	public function handle_jetpack_connection() {
+		if ( Config::is_getting_started() ) {
+			// Special case: when getting started, ensure that the Critical CSS module is enabled.
+			$status = new Status( 'critical_css' );
+			$status->update( true );
+		}
+
+		Config::clear_getting_started();
 	}
 
 	/**
@@ -213,16 +228,23 @@ class Jetpack_Boost {
 		$this->deactivate();
 
 		// Delete all Jetpack Boost options.
-		$wpdb->query(
+		//phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$option_names = $wpdb->get_col(
 			"
-			DELETE
-			FROM    `$wpdb->options`
-			WHERE   `option_name` LIKE 'jetpack_boost_%'
-		"
+				SELECT `option_name`
+				FROM   `$wpdb->options`
+				WHERE  `option_name` LIKE 'jetpack_boost_%';
+			"
 		);
+		//phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		foreach ( $option_names as $option_name ) {
+			delete_option( $option_name );
+		}
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();
+
 		// Delete all transients created by boost.
 		Transient::delete_by_prefix( '' );
 

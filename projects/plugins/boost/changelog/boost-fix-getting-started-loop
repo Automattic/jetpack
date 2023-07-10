@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix a potential 'loop' getting stuck in Getting started state.

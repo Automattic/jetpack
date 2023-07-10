@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-storybook",
-	"version": "0.4.0-alpha",
+	"version": "0.4.0",
 	"description": "Jetpack components storybook",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/storybook/#readme",
 	"bugs": {
@@ -15,9 +15,8 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"//": "# We set NODE_PATH here so postcss-loader can find its plugins with pnpm 7. See https://github.com/pnpm/pnpm/discussions/3536#discussioncomment-2688984",
-		"storybook:build": "NODE_PATH=\"$PWD/node_modules\" storybook build -c ./storybook -o ./docs",
-		"storybook:dev": "NODE_PATH=\"$PWD/node_modules\" storybook dev -c ./storybook -p 50240",
+		"storybook:build": "storybook build -c ./storybook -o ./docs",
+		"storybook:dev": "storybook dev -c ./storybook -p 50240",
 		"test": "jest tests/"
 	},
 	"devDependencies": {
@@ -43,14 +42,14 @@
 		"@storybook/react-webpack5": "7.0.5",
 		"@storybook/source-loader": "7.0.5",
 		"@storybook/theming": "7.0.5",
-		"@wordpress/babel-preset-default": "7.18.0",
-		"@wordpress/base-styles": "4.25.0",
-		"@wordpress/block-editor": "12.2.0",
-		"@wordpress/block-library": "8.11.0",
-		"@wordpress/components": "25.0.0",
-		"@wordpress/element": "5.11.0",
-		"@wordpress/format-library": "4.11.0",
-		"@wordpress/postcss-plugins-preset": "4.18.0",
+		"@wordpress/babel-preset-default": "7.20.0",
+		"@wordpress/base-styles": "4.27.0",
+		"@wordpress/block-editor": "12.4.0",
+		"@wordpress/block-library": "8.13.0",
+		"@wordpress/components": "25.2.0",
+		"@wordpress/element": "5.13.0",
+		"@wordpress/format-library": "4.13.0",
+		"@wordpress/postcss-plugins-preset": "4.20.0",
 		"autoprefixer": "10.4.14",
 		"babel-loader": "9.1.2",
 		"babel-plugin-inline-json-import": "0.3.2",
@@ -79,6 +78,6 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"dependencies": {
-		"@wordpress/api-fetch": "6.31.0"
+		"@wordpress/api-fetch": "6.33.0"
 	}
 }

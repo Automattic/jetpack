@@ -1,7 +1,16 @@
 {
+	extends: [ 'config:base', 'group:definitelyTyped' ],
+	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
+	prHourlyLimit: 1,
+	timezone: 'UTC',
+	schedule: [ 'before 3am on the first day of the month' ],
+	updateNotScheduled: false,
+	semanticCommits: 'disabled',
+	osvVulnerabilityAlerts: true,
+	// Note: constraints.php is set in renovate-config.js where we can read it in code.
+
 	// Paths and files for renovate to ignore.
 	// We have to override this because the default from config:base catches projects/plugins/*/tests/e2e/package.json which we do want processed.
-	// We have to do it here rather than renovate-config.js because `extends` and `globalExtends` both somehow overwrite it when defined there, even with `ignorePresets`.
 	ignorePresets: [ ':ignoreModulesAndTests' ],
 	ignorePaths: [
 		'**/node_modules/**',
@@ -12,4 +21,87 @@
 		'**/tests/!(e2e)/**',
 		'**/__fixtures__/**',
 	],
+
+	packageRules: [
+		// Monorepo packages are excluded in renovate-config.js, where we can read
+		// the list of them in code.
+
+		// We need to keep a wide version range to support PHP 5.6.
+		// Note for libraries used in plugins this will only work right for require-dev deps, not require.
+		{
+			matchPackageNames: [
+				'johnkary/phpunit-speedtrap',
+				'symfony/console',
+				'symfony/process',
+				'wikimedia/at-ease',
+				'wikimedia/testing-access-wrapper',
+			],
+			rangeStrategy: 'widen',
+		},
+
+		// Various other monorepos and package groupings.
+		{
+			extends: [ 'monorepo:wordpress' ],
+			separateMajorMinor: false,
+			prPriority: 1,
+		},
+		{
+			extends: [ 'monorepo:react' ],
+		},
+		{
+			extends: [ 'packages:eslint' ],
+			groupName: 'Eslint packages',
+		},
+		{
+			extends: [ 'packages:jsUnitTest' ],
+			groupName: 'JS unit testing packages',
+		},
+		{
+			groupName: 'Size-limit',
+			matchPackageNames: [ 'size-limit', '@size-limit/preset-app' ],
+		},
+		// These aren't a monorepo, but we may as well do them all together anyway.
+		{
+			groupName: 'GitHub API packages',
+			matchPackagePatterns: [ '^@actions/', '^@octokit/' ],
+		},
+
+		// 🤷
+		{
+			groupName: 'Instant Search Dependency Updates',
+			matchPackageNames: [
+				'cache',
+				'preact',
+				'progress-event',
+				'q-flat',
+				'qss',
+				'strip',
+				'uuid',
+				'@testing-library/preact',
+			],
+			reviewers: [ 'team:jetpack-search' ],
+			addLabels: [ 'Search', 'Instant Search' ],
+		},
+	],
+
+	regexManagers: [
+		// Update the renovate-version in the action itself.
+		// See also https://github.com/renovatebot/github-action/issues/756
+		{
+			fileMatch: [ '^\\.github/workflows/renovate\\.yml$' ],
+			matchStrings: [ 'renovate-version: (?<currentValue>[^\\s]+)' ],
+			datasourceTemplate: 'docker',
+			depNameTemplate: 'renovate',
+			packageNameTemplate: 'ghcr.io/renovatebot/renovate',
+		},
+	],
+
+	lockFileMaintenance: {
+		enabled: true,
+		schedule: [ 'before 3:00 am on Monday on the 7th through 13th day of the month' ],
+	},
+	dependencyDashboard: true,
+	dependencyDashboardTitle: 'Renovate Dependency Updates',
+	dependencyDashboardLabels: [ 'Primary Issue', '[Type] Janitorial' ],
+	dependencyDashboardFooter: 'The bot runs every two hours, and may be monitored or triggered ahead of schedule [here](https://github.com/Automattic/jetpack/actions/workflows/renovate.yml).',
 }

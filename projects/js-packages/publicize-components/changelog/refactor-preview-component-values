@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Refactored component so it can accept values as prop, and disable debounce

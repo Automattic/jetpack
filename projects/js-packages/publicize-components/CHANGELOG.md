@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.0] - 2023-07-05
+### Changed
+- Refactored the media validation so that it is done on a per connection basis [#31565]
+- Updated package dependencies. [#31659]
+- Updated package dependencies. [#31661]
+
+## [0.27.0] - 2023-06-26
+### Changed
+- Updated package dependencies. [#31468]
+
+### Fixed
+- Media picker: Constrain the preview image [#31461]
+- Social Review Prompt: Fix the state so it is shown when Jetpack is also active [#31456]
+
+## [0.26.3] - 2023-06-19
+### Fixed
+- Fixed an issue where Instagram restricitons are not working because of the service name [#31310]
+
 ## [0.26.2] - 2023-06-12
 ### Changed
 - Improved the defaults for social previews [#31060]
@@ -325,6 +343,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.28.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.27.0...v0.28.0
+[0.27.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.3...v0.27.0
+[0.26.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.2...v0.26.3
 [0.26.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.1...v0.26.2
 [0.26.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.0...v0.26.1
 [0.26.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.25.0...v0.26.0
