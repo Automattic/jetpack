@@ -184,6 +184,22 @@
 				<ResizingUnavailable />
 			{/if}
 		</Module>
+
+		<Module slug="image_size_analysis" toggle={false}>
+			<h3 slot="title">
+				{__( 'Image Size Analysis', 'jetpack-boost' )}<span class="beta">Beta</span>
+			</h3>
+			<p slot="description">
+				{__(
+					`This tool will search your site for images that are too large and have an impact your visitors experience, page loading times, and search rankings. Once finished, it will give you a report of all improperly sized images with suggestions on how to fix them.`,
+					'jetpack-boost'
+				)}
+			</p>
+
+			<svelte:fragment slot="meta">
+				<RecommendationsMeta />
+			</svelte:fragment>
+		</Module>
 	</div>
 
 	<Module slug="minify_js">
@@ -224,22 +240,6 @@
 				on:save={e => ( $minifyCssExcludesStore = e.detail )}
 			/>
 		</div>
-	</Module>
-
-	<Module slug="image_size_analysis">
-		<h3 slot="title">
-			{__( 'Image Size Analysis', 'jetpack-boost' )}<span class="beta">Beta</span>
-		</h3>
-		<p slot="description">
-			{__(
-				`This tool will search your site for images that are too large and have an impact your visitors experience, page loading times, and search rankings. Once finished, it will give you a report of all improperly sized images with suggestions on how to fix them.`,
-				'jetpack-boost'
-			)}
-		</p>
-
-		<svelte:fragment slot="meta">
-			<RecommendationsMeta />
-		</svelte:fragment>
 	</Module>
 
 	<Module slug="image_cdn">
