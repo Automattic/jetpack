@@ -1,45 +1,162 @@
+import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import JetpackFooter from '../index';
 
 describe( 'JetpackFooter', () => {
-	const testProps = {
-		className: 'sample-classname',
-	};
+	const className = 'sample-classname';
+	const moduleName = 'Test module';
+	const moduleNameHref = 'https://jetpack.com/path/to-some-page';
+	const a8cLogoHref = 'https://automattic.com';
 
-	describe( 'Render the JetpackFooter component', () => {
-		it( 'validate the class name', () => {
-			const { container } = render( <JetpackFooter { ...testProps } /> );
-			// eslint-disable-next-line testing-library/no-node-access
-			expect( container.firstChild ).toHaveClass( 'sample-classname' );
-		} );
+	describe( 'Render the component', () => {
+		const menu = [
+			{
+				label: 'Link',
+				href: '/',
+			},
+			{
+				label: 'External link',
+				href: '/',
+				target: '_blank',
+			},
+			{
+				label: 'Button link',
+				href: '/',
+				role: 'button',
+			},
+		];
 
-		it( 'validates Jetpack logo', () => {
+		it( 'should include a footer tag', () => {
 			render( <JetpackFooter /> );
 
-			expect( screen.getByLabelText( 'Jetpack logo' ) ).toBeInTheDocument();
+			const element = screen.getByRole( 'contentinfo', { name: 'Jetpack' } );
+
+			expect( element ).toBeInTheDocument();
 		} );
 
-		it( 'tests for module name and link', () => {
-			render(
-				<JetpackFooter
-					moduleName="Test module"
-					moduleNameHref="https://jetpack.com/path/to-some-page"
-				/>
-			);
+		it( 'should apply the class name', () => {
+			render( <JetpackFooter className={ className } /> );
 
-			const element = screen.getByLabelText( 'Test module' );
+			const element = screen.getByRole( 'contentinfo' );
+
+			expect( element ).toHaveClass( className );
+		} );
+
+		it( 'should render the Jetpack logo', () => {
+			render( <JetpackFooter /> );
+
+			const element = screen.getByLabelText( 'Jetpack' );
+
+			expect( element ).toBeInTheDocument();
+		} );
+
+		it( 'should render the module name as a link', () => {
+			render( <JetpackFooter moduleName={ moduleName } moduleNameHref={ moduleNameHref } /> );
+
+			const element = screen.getByText( moduleName );
 
 			expect( element ).toBeInTheDocument();
 			expect( element ).toBeInstanceOf( HTMLAnchorElement );
-			expect( element ).toHaveAttribute( 'href', 'https://jetpack.com/path/to-some-page' );
+			expect( element ).toHaveAttribute( 'href', moduleNameHref );
 		} );
 
-		it( 'validates the a8c label', () => {
-			render( <JetpackFooter /> );
+		it( 'should render the module name as regular text', () => {
+			render( <JetpackFooter moduleName={ moduleName } moduleNameHref={ null } /> );
 
-			for ( const element of screen.getAllByLabelText( 'An Automattic Airline' ) ) {
-				expect( element ).toBeInTheDocument();
-			}
+			const element = screen.getByText( moduleName );
+
+			expect( element ).toBeInTheDocument();
+			expect( element ).not.toBeInstanceOf( HTMLAnchorElement );
+		} );
+
+		it( 'should render the Automattic logo', () => {
+			render( <JetpackFooter a8cLogoHref={ a8cLogoHref } /> );
+
+			const element = screen.getByLabelText( 'An Automattic Airline', { selector: 'a' } );
+
+			expect( element ).toBeInTheDocument();
+			expect( element ).toHaveAttribute( 'href', a8cLogoHref );
+		} );
+
+		it( 'should render a list', () => {
+			render( <JetpackFooter menu={ menu } /> );
+
+			const element = screen.getByRole( 'list' );
+
+			expect( element ).toBeInTheDocument();
+			// eslint-disable-next-line testing-library/no-node-access
+			expect( element.children ).toHaveLength( 2 + menu.length );
+		} );
+
+		it( 'should render the links', () => {
+			render( <JetpackFooter menu={ menu } /> );
+
+			const link = screen.getByRole( 'link', { name: menu[ 0 ].label } );
+			const externalLink = screen.getByRole( 'link', { name: menu[ 1 ].label } );
+			const button = screen.getByRole( 'button', { name: menu[ 2 ].label } );
+
+			expect( link ).toBeInTheDocument();
+
+			expect( externalLink ).toBeInTheDocument();
+			expect( externalLink ).toHaveAttribute( 'target', '_blank' );
+			expect( externalLink ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+			expect( externalLink ).toContainHTML( 'svg' );
+
+			expect( button ).toBeInTheDocument();
+			expect( button ).toHaveAttribute( 'tabindex', '0' );
+		} );
+
+		it( 'should match the snapshot', () => {
+			const { container } = render(
+				<JetpackFooter
+					className={ className }
+					moduleName={ moduleName }
+					moduleNameHref={ moduleNameHref }
+					a8cLogoHref={ a8cLogoHref }
+					menu={ menu }
+				/>
+			);
+			expect( container ).toMatchSnapshot( 'all props' );
+		} );
+	} );
+
+	describe( 'Fire events', () => {
+		const onClick = jest.fn();
+		const onKeyDown = jest.fn();
+		const menu = [
+			{
+				label: 'Link',
+				href: '/',
+				onClick,
+				onKeyDown,
+			},
+		];
+
+		it( 'should call the menu item onClick function', async () => {
+			const user = userEvent.setup();
+
+			render( <JetpackFooter menu={ menu } /> );
+
+			const element = screen.getByRole( 'link', { name: menu[ 0 ].label } );
+
+			await user.click( element );
+
+			expect( onClick ).toHaveBeenCalled();
+		} );
+
+		it( 'should call the menu item onKeyDown function', async () => {
+			const user = userEvent.setup();
+
+			render( <JetpackFooter menu={ menu } /> );
+
+			const element = screen.getByRole( 'link', { name: menu[ 0 ].label } );
+
+			// Need to focus on element first
+			await user.click( element );
+			await user.keyboard( '[Enter]' );
+
+			expect( onKeyDown ).toHaveBeenCalled();
 		} );
 	} );
 } );

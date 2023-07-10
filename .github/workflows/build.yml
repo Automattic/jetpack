@@ -169,7 +169,7 @@ jobs:
             const commentBody = `${ TEST_COMMENT_INDICATOR }
             Are you an Automattician? Please test your changes on all WordPress.com environments to help mitigate accidental explosions.
 
-            - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta > Jetpack and enable the \`${ BRANCH_NAME }\` branch.
+            - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta > Jetpack and enable the \`${ BRANCH_NAME }\` branch.
             - To test on Simple, run the following command on your sandbox:
             ${ commands }
 

@@ -194,9 +194,10 @@ class Jetpack_Redux_State_Helper {
 				'latestBoostSpeedScores'     => $speed_score_history->latest(),
 			),
 			'themeData'                   => array(
-				'name'      => $current_theme->get( 'Name' ),
-				'hasUpdate' => (bool) get_theme_update_available( $current_theme ),
-				'support'   => array(
+				'name'         => $current_theme->get( 'Name' ),
+				'hasUpdate'    => (bool) get_theme_update_available( $current_theme ),
+				'isBlockTheme' => (bool) $current_theme->is_block_theme(),
+				'support'      => array(
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 					'widgets'         => current_theme_supports( 'widgets' ),
 					'webfonts'        => (

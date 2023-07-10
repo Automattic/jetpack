@@ -22,13 +22,11 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 		installStandalonePlugin,
 		deactivateStandalonePlugin,
 	} = useProduct( slug );
-	const { name, description, manageUrl, requiresUserConnection, standalonePluginInfo, status } =
-		detail;
+	const { name, description, requiresUserConnection, standalonePluginInfo, status } = detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );
 	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
-	const navigateToAddProductPage = useMyJetpackNavigate( `add-${ slug }` );
 
 	/* Menu Handling */
 	const hasStandalonePlugin = standalonePluginInfo?.hasStandalonePlugin;
@@ -51,13 +49,6 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			showDeactivateOption || // Show deactivate option for standalone plugin
 			showInstallOption );
 	/* End Menu Handling */
-
-	/*
-	 * Redirect to manage URL
-	 */
-	const onManage = useCallback( () => {
-		window.location = manageUrl;
-	}, [ manageUrl ] );
 
 	/*
 	 * Redirect only if connected
@@ -110,13 +101,9 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			isFetching={ isFetching }
 			isInstallingStandalone={ installingStandalone }
 			isDeactivatingStandalone={ deactivatingStandalone }
-			isManageDisabled={ ! manageUrl }
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ handleActivate }
-			onAdd={ navigateToAddProductPage }
-			onManage={ onManage }
-			onFixConnection={ navigateToConnectionPage }
 			showMenu={ menuIsActive }
 			menuItems={ menuItems }
 			showActivateOption={ showActivateOption }

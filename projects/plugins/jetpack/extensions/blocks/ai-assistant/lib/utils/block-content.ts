@@ -84,7 +84,10 @@ export function getTextContentFromSelectedBlocks(): GetTextContentFromBlocksProp
 		count: blocks.length,
 		clientIds,
 		content: blocks
-			? blocks.map( block => getBlockTextContent( block.clientId ) ).join( HTML_JOIN_CHARACTERS )
+			? blocks
+					.filter( block => block !== null && block !== undefined ) // Safeguard against null or undefined blocks
+					.map( block => getBlockTextContent( block.clientId ) )
+					.join( HTML_JOIN_CHARACTERS )
 			: '',
 	};
 }

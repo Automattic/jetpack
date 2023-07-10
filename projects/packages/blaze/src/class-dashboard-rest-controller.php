@@ -52,6 +52,17 @@ class Dashboard_REST_Controller {
 			)
 		);
 
+		// WordAds DSP API Posts routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/sites/%1$d/blaze/posts(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_blaze_posts' ),
+				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+			)
+		);
+
 		// WordAds DSP API Credits routes
 		register_rest_route(
 			static::$namespace,
@@ -86,7 +97,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Site Campaigns routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/sites/%d/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id, $site_id ),
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/sites/%1$d/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_site_campaigns' ),
@@ -190,6 +201,17 @@ class Dashboard_REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
 			)
 		);
+
+		// WordAds DSP API Logs routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/logs', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'edit_dsp_logs' ),
+				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -266,6 +288,26 @@ class Dashboard_REST_Controller {
 		}
 
 		return $sub_path;
+	}
+
+	/**
+	 * Redirect GET requests to WordAds DSP Blaze Posts endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_blaze_posts( $req ) {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
+		// We don't use sub_path in the blaze posts, only query strings
+		if ( isset( $params['sub_path'] ) ) {
+			unset( $req->get_params()['sub_path'] );
+		}
+
+		return $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/blaze/posts', $site_id ), $req );
 	}
 
 	/**
@@ -370,7 +412,7 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function get_dsp_countries( $req ) {
-		return $this->get_dsp_generic( 'v1/countries', $req );
+		return $this->get_dsp_generic( 'v1/woo/countries', $req );
 	}
 
 	/**
@@ -411,6 +453,16 @@ class Dashboard_REST_Controller {
 	 */
 	public function edit_dsp_campaigns( $req ) {
 		return $this->edit_dsp_generic( 'v1/campaigns', $req );
+	}
+
+	/**
+	 * Redirect POST/PUT/PATCH requests to WordAds DSP Logs endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function edit_dsp_logs( $req ) {
+		return $this->edit_dsp_generic( 'v1/logs', $req );
 	}
 
 	/**

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Added yellow for images that have a size optimization less than 30%.
+
+

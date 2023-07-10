@@ -434,6 +434,12 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
+		// If we have required tasks, make sure they all exist in the array of `task_ids`.
+		if ( isset( $task_list['required_task_ids'] ) && array_intersect( $task_list['required_task_ids'], $task_list['task_ids'] ) !== $task_list['required_task_ids'] ) {
+			_doing_it_wrong( 'validate_task_list', 'The required_task_ids must be a subset of the task_ids', '6.1' );
+			return false;
+		}
+
 		if ( isset( $task_list['require_last_task_completion'] ) && ! is_bool( $task_list['require_last_task_completion'] ) ) {
 			_doing_it_wrong( 'validate_task_list', 'The require_last_task_completion attribute must be a boolean', '6.1' );
 			return false;

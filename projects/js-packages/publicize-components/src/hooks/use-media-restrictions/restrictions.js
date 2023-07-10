@@ -59,6 +59,7 @@ const mastodonVideoTypes = [ 'video/webm', 'video/quicktime', 'video/ogg' ];
 export const GLOBAL_MAX_SIZE = 100000;
 
 export const DEFAULT_RESTRICTIONS = {
+	requiresMedia: false,
 	allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS, MOV ] ),
 	image: {
 		maxSize: 4,
@@ -115,6 +116,7 @@ export const RESTRICTIONS = {
 		},
 	},
 	[ 'instagram-business' ]: {
+		requiresMedia: true,
 		allowedMediaTypes: [ 'image/jpg', 'image/jpeg' ],
 		image: {
 			maxSize: 4,

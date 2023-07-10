@@ -230,6 +230,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
 
+		'add_new_page'                    => array(
+			'get_title'            => function () {
+				return __( 'Add a new page', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		),
+
 		'domain_customize'                => array(
 			'id_map'               => 'domain_customize_deferred',
 			'get_title'            => function () {
@@ -237,6 +244,13 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_domain_customize_completed',
 			'is_visible_callback'  => 'wpcom_is_domain_customize_task_visible',
+		),
+
+		'share_site'                      => array(
+			'get_title'            => function () {
+				return __( 'Share your site', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
 	);
 
@@ -524,6 +538,23 @@ function wpcom_track_site_launch_task() {
 	wpcom_mark_launchpad_task_complete_if_active( 'link_in_bio_launched' );
 	wpcom_mark_launchpad_task_complete_if_active( 'videopress_launched' );
 	wpcom_mark_launchpad_task_complete_if_active( 'blog_launched' );
+
+	// Remove site intent for blog onboarding flows and disable launchpad.
+	$site_intent = get_option( 'site_intent' );
+	if ( in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+		update_option( 'site_intent', '' );
+		update_option( 'launchpad_screen', 'off' );
+	}
+
+	// While in the design_first flow, if the user creates a post, deletes the default hello-world.
+	$first_post_published = wpcom_launchpad_checklists()->is_task_id_complete( 'first_post_published' );
+	if ( in_array( $site_intent, array( 'design-first' ), true ) && $first_post_published ) {
+		$posts = get_posts( array( 'name' => 'hello-world' ) );
+
+		if ( count( $posts ) > 0 ) {
+			wp_delete_post( $posts[0]->ID, true );
+		}
+	}
 }
 
 /**
@@ -673,6 +704,37 @@ function wpcom_is_domain_claim_completed() {
 }
 
 /**
+ * When a new page is added to the site, mark the add_new_page task complete as needed.
+ *
+ * @param int    $post_id The ID of the post being updated.
+ * @param object $post    The post object.
+ */
+function wpcom_add_new_page_check( $post_id, $post ) {
+	// Don't do anything if the task is already complete.
+	if ( wpcom_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
+		return;
+	}
+
+	// We only care about pages, ignore other post types.
+	if ( $post->post_type !== 'page' ) {
+		return;
+	}
+
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// We only care about published pages. Pages added via the API are not published by default.
+	if ( $post->post_status !== 'publish' ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'add_new_page' );
+}
+add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
+
+/**
  * Returns if the site has domain or bundle purchases.
  *
  * @return array Array of booleans, first value is if the site has a bundle, second is if the site has a domain.
@@ -775,3 +837,24 @@ function wpcom_mark_domain_tasks_complete( $blog_id, $user_id, $product_id ) {
 	wpcom_mark_launchpad_task_complete( 'domain_upsell_deferred' );
 }
 add_action( 'activate_product', 'wpcom_mark_domain_tasks_complete', 10, 6 );
+
+/**
+ * Re-trigger email campaigns for blog onboarding after user edit one of the fields in the launchpad.
+ */
+function wpcom_trigger_email_campaign() {
+	$site_intent = get_option( 'site_intent' );
+	if ( ! $site_intent ) {
+		return;
+	}
+
+	if ( ! in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+		return;
+	}
+
+	MarketingEmailCampaigns::start_tailored_use_case_new_site_workflows_if_eligible(
+		get_current_user_id(),
+		get_current_blog_id(),
+		$site_intent
+	);
+}
+add_action( 'update_option_launchpad_checklist_tasks_statuses', 'wpcom_trigger_email_campaign', 10, 3 );

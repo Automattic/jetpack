@@ -61,9 +61,13 @@ to avoid your standard eslintrc and eslintignore and to avoid errors from any in
 
 You can import or require `@automattic/eslint-config-target-es/functions` to gain access to some functions that can be used to build your own configuration.
 
-As browserslist and MDN use different browser codes, `getBrowsers( { query: } )` will take a browserslist query and return an object with the MDN browser codes and the minimum matched version for each.
+As browserslist and MDN use different browser codes, `getAllBrowsers( { query: } )` will take a browserslist query and return an object with the MDN browser codes and the matched versions for each.
 
 `getRules( { query:, builtins: } )` will return the rules config. Set `builtins` true for "builtins", false for "language", or null/undefined for "all".
+
+### Caveats
+
+Some browsers supported by browserslist are not availble in the MDN data (e.g. Opera Mini) or are no longer being updated (e.g. Internet Explorer). In cases like these where no data is available, features are assumed to be supported. Set the environment variable `DEBUG=@automattic/eslint-config-target-es:warn` to generate messages when this happens.
 
 ## Security
 

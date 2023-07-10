@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix image guide UI bubble not showing for large images. Was broken during refactoring.
+
+

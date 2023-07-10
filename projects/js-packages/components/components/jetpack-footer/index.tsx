@@ -8,6 +8,10 @@ import JetpackLogo from '../jetpack-logo';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import type { JetpackFooterProps } from './types';
 
+const JetpackIcon: React.FC = () => (
+	<JetpackLogo logoColor="#000" showText={ false } height={ 16 } aria-hidden="true" />
+);
+
 /**
  * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
  *
@@ -24,70 +28,69 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm', '<=' );
 	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
+	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
+
+	const jetpackItemContent = (
+		<>
+			<JetpackIcon />
+			{ moduleName }
+		</>
+	);
 
 	return (
-		<div
+		<footer
 			className={ classnames(
 				'jp-dashboard-footer',
 				{
 					'is-sm': isSm,
 					'is-md': isMd,
+					'is-lg': isLg,
 				},
 				className
 			) }
+			aria-label={ __( 'Jetpack', 'jetpack' ) }
 			{ ...otherProps }
 		>
-			<div className="jp-dashboard-footer__logo">
-				<JetpackLogo
-					logoColor="#000"
-					showText={ false }
-					height={ 16 }
-					className="jp-dashboard-footer__jetpack-symbol"
-					aria-label={ __( 'Jetpack logo', 'jetpack' ) }
-				/>
-				<span className="jp-dashboard-footer__module-name">
+			<ul>
+				<li className="jp-dashboard-footer__jp-item">
 					{ moduleNameHref ? (
-						<a href={ moduleNameHref } aria-label={ moduleName }>
-							{ moduleName }
-						</a>
+						<a href={ moduleNameHref }>{ jetpackItemContent }</a>
 					) : (
-						moduleName
+						jetpackItemContent
 					) }
-				</span>
-			</div>
-			{ menu && (
-				<div className="jp-dashboard-footer__menu">
-					{ menu.map( item => (
-						<a
-							key={ item.label }
-							href={ item.href }
-							title={ item.title }
-							target={ item.target }
-							onClick={ item.onClick }
-							onKeyDown={ item.onKeyDown }
-							className={ classnames( 'jp-dashboard-footer__menu-item', {
-								'is-external': item.target === '_blank',
-							} ) }
-							role={ item.role }
-							rel="noopener noreferrer"
-							tabIndex={ item.role === 'button' ? 0 : undefined }
-						>
-							{ item.label }
-							{ item.target === '_blank' && (
-								<Icon className="jp-dashboard-footer__menu-item__icon" icon={ external } />
-							) }
-						</a>
-					) ) }
-				</div>
-			) }
-			<a
-				className="jp-dashboard-footer__a8c-logo"
-				href={ a8cLogoHref }
-				aria-label={ __( 'An Automattic Airline', 'jetpack' ) }
-			>
-				<AutomatticBylineLogo />
-			</a>
-		</div>
+				</li>
+				{ menu?.map( item => {
+					const isButton = item.role === 'button';
+					const isExternalLink = ! isButton && item.target === '_blank';
+
+					return (
+						<li key={ item.label }>
+							<a
+								href={ item.href }
+								title={ item.title }
+								target={ item.target }
+								onClick={ item.onClick }
+								onKeyDown={ item.onKeyDown }
+								className={ classnames( 'jp-dashboard-footer__menu-item', {
+									'is-external': isExternalLink,
+								} ) }
+								role={ item.role }
+								rel={ isExternalLink ? 'noopener noreferrer' : undefined }
+								tabIndex={ isButton ? 0 : undefined }
+							>
+								{ item.label }
+								{ isExternalLink && <Icon icon={ external } size={ 16 } /> }
+							</a>
+						</li>
+					);
+				} ) }
+				<li className="jp-dashboard-footer__a8c-item">
+					<a href={ a8cLogoHref } aria-label={ __( 'An Automattic Airline', 'jetpack' ) }>
+						<AutomatticBylineLogo aria-hidden="true" />
+					</a>
+				</li>
+			</ul>
+		</footer>
 	);
 };
 
