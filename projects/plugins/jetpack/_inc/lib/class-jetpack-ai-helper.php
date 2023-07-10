@@ -360,7 +360,7 @@ class Jetpack_AI_Helper {
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 === $response_code ) {
-			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			return json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
 		} else {
 			return new WP_Error(
 				'failed_to_fetch_data',

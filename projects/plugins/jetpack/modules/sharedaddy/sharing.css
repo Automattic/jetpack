@@ -334,12 +334,6 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-official .sd-content li.share-telegram a:before {
 	color: #0088cc;
 }
-.sd-social-icon .sd-content ul li.share-skype a:before,
-.sd-social-text .sd-content ul li.share-skype a:before,
-.sd-content ul li.share-skype div.option.option-smart-off a:before,
-.sd-social-icon-text .sd-content li.share-skype a:before {
-	content: '\f220';
-}
 .sd-social-icon .sd-content ul li.share-mastodon a:before,
 .sd-social-text .sd-content ul li.share-mastodon a:before,
 .sd-content ul li.share-mastodon div.option.option-smart-off a:before,
@@ -460,10 +454,6 @@ body .sd-content ul li.share-custom.no-icon a span {
 
 .linkedin_button>span, .pinterest_button a {
 	display: block !important;
-}
-
-.sd-social-official .sd-content .share-skype {
-	min-width: 55px;
 }
 
 .sd-social-official .sd-content .share-tumblr iframe {
@@ -681,11 +671,6 @@ body .sd-social-icon .sd-content li.share-custom a span {
 .sd-social-icon .sd-content ul li[class*='share-'].share-reddit a.sd-button {
 	background: #cee3f8;
 	color: #555555 !important;
-}
-
-.sd-social-icon .sd-content ul li[class*='share-'].share-skype a.sd-button {
-	background: #00AFF0;
-	color: #fff !important;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-mastodon a.sd-button {
