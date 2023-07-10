@@ -61,10 +61,11 @@ echo '::endgroup::'
 
 echo "::group::Adding and removing SVN files"
 while IFS=" " read -r FLAG FILE; do
+	# The appending of an `@` to the filename here avoids problems with filenames containing `@` being interpreted as "peg revisions".
 	if [[ "$FLAG" == '!' ]]; then
-		svn rm "$FILE"
+		svn rm "${FILE}@"
 	elif [[ "$FLAG" == "?" ]]; then
-		svn add "$FILE"
+		svn add "${FILE}@"
 	fi
 done < <( svn status )
 echo '::endgroup::'

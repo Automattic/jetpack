@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Prevent placeholders from showing when no results found, added explicit no results messages
+
+

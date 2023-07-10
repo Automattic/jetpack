@@ -12,6 +12,9 @@ import StatsCard from './stats-card';
 import styles from './style.module.scss';
 import VideopressCard from './videopress-card';
 
+// flag for enabling stats card.
+const { showJetpackStatsCard = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
+
 /**
  * Product cards section component.
  *
@@ -25,11 +28,14 @@ const ProductCardsSection = () => {
 		BoostCard,
 		SearchCard,
 		VideopressCard,
-		StatsCard,
 		CrmCard,
 		SocialCard,
 		AiCard,
 	];
+
+	if ( showJetpackStatsCard ) {
+		items.splice( 6, 0, StatsCard );
+	}
 
 	return (
 		<Container

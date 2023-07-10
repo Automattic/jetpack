@@ -31,7 +31,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '3.1.0-alpha';
+	const PACKAGE_VERSION = '3.1.2-alpha';
 
 	/**
 	 * Initialize My Jetpack
@@ -198,7 +198,8 @@ class Initializer {
 	 */
 	public static function get_my_jetpack_flags() {
 		$flags = array(
-			'videoPressStats' => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
+			'videoPressStats'      => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
+			'showJetpackStatsCard' => class_exists( 'Jetpack' ),
 		);
 
 		return $flags;
