@@ -128,34 +128,6 @@ class Jetpack_Subscribe_Modal {
 	}
 
 	/**
-	 * Returns true if we should enable Newsletter content.
-	 * This is currently limited to lettre theme or newsletter sites.
-	 * We could open it to all themes or site intents.
-	 *
-	 * @return bool
-	 */
-	public function should_enable_subscriber_modal() {
-		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
-			return false;
-		}
-		if ( ! get_option( 'sm_enabled', false ) ) {
-			return false;
-		}
-		if ( ! wp_is_block_theme() ) {
-			return false;
-		}
-
-		/**
-		 * Allows force-enabling or disabling the Subscriptions modal.
-		 *
-		 * @param bool $should_enable_subscriber_modal Whether the Subscriptions modal should be enabled.
-		 *
-		 * @since $$next-version$$
-		 */
-		return (bool) apply_filters( 'jetpack_subscriptions_modal_force_enabled', true );
-	}
-
-	/**
 	 * Returns true if we are on frontend of single post.
 	 * Note: Because of how WordPress works, this function will
 	 * only return the correct value after a certain point in the
@@ -204,7 +176,40 @@ class Jetpack_Subscribe_Modal {
     <!-- /wp:group -->
 HTML;
 	}
+
+	/**
+	 * Returns true if we should load Newsletter content.
+	 * This is currently limited to lettre theme or newsletter sites.
+	 * We could open it to all themes or site intents.
+	 *
+	 * @return bool
+	 */
+	public static function should_load_subscriber_modal() {
+		if ( apply_filters( 'jetpack_subscriptions_modal_force_enabled', false ) === true ) {
+			return true;
+		}
+		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
+			return false;
+		}
+		if ( ! get_option( 'sm_enabled', false ) ) {
+			return false;
+		}
+		if ( ! wp_is_block_theme() ) {
+			return false;
+		}
+
+		// TODO change this to true when we are ready to launch.
+		return false;
+	}
 }
+
+add_filter(
+	'jetpack_subscriptions_modal_enabled',
+	array(
+		'Jetpack_Subscribe_Modal',
+		'should_load_subscriber_modal',
+	)
+);
 
 /**
  * Temporary feature flag for the subscription modal
