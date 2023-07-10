@@ -54,8 +54,38 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="expanded">
-		<div class="image-details">
-			<h4>Image Details</h4>
+		<div class="expanded-info mobile-only">
+			<h4>{__( 'Potential Size', 'jetpack-boost' )}</h4>
+
+			<div class="pills">
+				<Pill color={pillColor}>
+					{Math.round( details.image.weight.current )} KB
+				</Pill>
+
+				<div class="jb-arrow">→</div>
+
+				<Pill color="#d0e6b8">
+					{Math.round( details.image.weight.potential )} KB
+				</Pill>
+			</div>
+		</div>
+
+		<div class="expanded-info mobile-only">
+			<h4>{__( 'Device', 'jetpack-boost' )}</h4>
+
+			<div class="icon">
+				<Device device={details.device_type} />
+			</div>
+
+			<span>
+				{details.device_type === 'desktop'
+					? __( 'This issue affects large screens', 'jetpack-boost' )
+					: __( 'This issue affects small screens', 'jetpack-boost' )}
+			</span>
+		</div>
+
+		<div class="expanded-info image-details">
+			<h4>{__( 'Image Details', 'jetpack-boost' )}</h4>
 
 			<div class="row">
 				<div class="label">
@@ -94,7 +124,7 @@
 			</div>
 		</div>
 
-		<div class="fix-options">
+		<div class="expanded-info fix-options">
 			<h4>
 				{__( 'How to fix', 'jetpack-boost' )}
 			</h4>
@@ -109,35 +139,39 @@
 </TableRow>
 
 <style lang="scss">
-	.jb-table-row__thumbnail {
-		grid-column: thumbnail;
+	.mobile-only {
+		display: none;
+
+		@media ( max-width: 782px ) {
+			display: block;
+		}
 	}
 
-	.jb-table-row__title {
-		grid-column: title;
-	}
-
-	.jb-table-row__hover-content {
-		grid-column: device / expand;
-	}
-
-	.jb-table-row__potential-size {
+	.pills {
 		grid-column: potential-size;
 		display: flex;
 		align-items: center;
 		gap: calc( var( --gap ) / 2 );
 	}
 
-	.jb-table-row__device {
-		grid-column: device;
-		text-align: center;
+	h4 {
+		font-size: 16px;
+		font-weight: 600;
 	}
 
-	.jb-table-row__page {
-		grid-column: page;
-		a {
-			text-decoration: none;
-			color: var( --gray-60 );
+	.expanded-info {
+		@media ( max-width: 782px ) {
+			margin-bottom: 16px;
+
+			h4 {
+				margin-bottom: 12px;
+			}
+
+			.icon {
+				margin-right: 12px;
+				display: inline-block;
+				aspect-ratio: 1;
+			}
 		}
 	}
 
@@ -148,9 +182,6 @@
 		flex-direction: column;
 		font-size: 0.875rem;
 		gap: calc( var( --gap ) / 2 );
-		h4 {
-			font-weight: 600;
-		}
 		.row {
 			display: flex;
 			gap: 10px;
@@ -165,8 +196,13 @@
 		display: flex;
 		gap: var( --gap );
 	}
+
 	.fix-options {
 		flex: 1;
 		margin-left: calc( var( --table-header-potential-size ) - var( --gap ) * 2 );
+
+		@media ( max-width: 782px ) {
+			margin-left: 0;
+		}
 	}
 </style>

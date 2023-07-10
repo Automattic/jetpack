@@ -122,6 +122,11 @@
 		}
 	}
 	.jb-table-header {
+		/* Hide on small screens */
+		@media ( max-width: 782px ) {
+			display: none;
+		}
+
 		font-size: 0.875rem;
 		color: var( --gray-60 );
 		border: var( --border );
