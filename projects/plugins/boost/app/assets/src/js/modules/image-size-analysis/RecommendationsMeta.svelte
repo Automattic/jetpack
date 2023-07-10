@@ -165,6 +165,7 @@
 		margin-right: 5px;
 		flex-grow: 1;
 		position: relative;
+		color: $jetpack-green;
 	}
 
 	.has-issues {
