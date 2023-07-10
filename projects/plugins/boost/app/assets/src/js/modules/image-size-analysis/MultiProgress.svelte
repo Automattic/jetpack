@@ -121,6 +121,7 @@
 	.jb-status {
 		grid-area: status;
 		font-size: 0.875rem;
+		color: var( --gray-50 );
 		:global( a ),
 		&.has-issues {
 			color: var( --color_warning );
