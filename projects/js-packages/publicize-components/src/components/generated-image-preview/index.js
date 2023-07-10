@@ -33,13 +33,22 @@ export const calculateImageUrl = ( imageType, customImageId, featuredImageId, ge
 /**
  * Fetches the preview of the generated image based on the post info
  *
+ * @param {{shouldDebounce:boolean, customText: string, imageType: string, imageId: number, template: string}} props -
+ * The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
  * @returns {React.ReactNode} The generated image preview.
  */
-export default function GeneratedImagePreview() {
+export default function GeneratedImagePreview( {
+	shouldDebounce = true,
+	...generatorConfigProps
+} ) {
 	const [ generatedImageUrl, setGeneratedImageUrl ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( true );
 
-	const { customText, imageType, imageId, template, setToken } = useImageGeneratorConfig();
+	const { customText, imageType, imageId, template, setToken } = {
+		...useImageGeneratorConfig(),
+		...generatorConfigProps,
+	};
+
 	const { title, imageUrl } = useSelect( select => {
 		const featuredImage = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 		return {
@@ -86,7 +95,7 @@ export default function GeneratedImagePreview() {
 				setGeneratedImageUrl( url );
 			},
 			// We only want to debounce on string changes.
-			imageTitle === imageTitleRef.current ? 0 : 1500
+			imageTitle === imageTitleRef.current || ! shouldDebounce ? 0 : 1500
 		);
 
 		return () => {
