@@ -152,6 +152,13 @@
 		margin-bottom: 17px;
 	}
 
+	.summary-line button {
+		:global( svg ) {
+			margin: 4px 4px 2px 0;
+			fill: $jetpack-green;
+		}
+	}
+
 	.summary {
 		margin-right: 5px;
 		flex-grow: 1;
