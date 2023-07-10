@@ -185,9 +185,6 @@ HTML;
 	 * @return bool
 	 */
 	public static function should_load_subscriber_modal() {
-		if ( apply_filters( 'jetpack_subscriptions_modal_force_enabled', false ) ) {
-			return true;
-		}
 		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
 			return false;
 		}
