@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import Button from '../../../../elements/Button.svelte';
+	import { getImageSizeDifferencePercent } from '../../../../utils/get-image-size-difference-percent';
 	import Device from '../components/Device.svelte';
 	import Pill from '../components/Pill.svelte';
 	import RowTitle from '../components/RowTitle.svelte';
@@ -13,6 +14,8 @@
 	export let details: ImageDataType;
 
 	const title = details.image.url.split( '/' ).pop();
+	const sizeDifference = getImageSizeDifferencePercent( details.image );
+	const pillColor = sizeDifference <= 30 ? '#f5e5b3' : '#facfd2';
 </script>
 
 <TableRow {enableTransition} expandable={true}>
@@ -26,7 +29,7 @@
 		</div>
 
 		<div class="jb-table-row__potential-size">
-			<Pill color="#facfd2">
+			<Pill color={pillColor}>
 				{Math.round( details.image.weight.current )} KB
 			</Pill>
 
