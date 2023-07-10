@@ -1017,10 +1017,10 @@ importers:
         version: 4.28.0
       '@wordpress/block-editor':
         specifier: 12.5.0
-        version: 12.5.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0)
+        version: 12.5.0(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/block-library':
         specifier: 8.14.0
-        version: 8.14.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0)
+        version: 8.14.0(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/components':
         specifier: 25.3.0
         version: 25.3.0(react-dom@18.2.0)(react@18.2.0)
@@ -1029,7 +1029,7 @@ importers:
         version: 5.14.0
       '@wordpress/format-library':
         specifier: 4.14.0
-        version: 4.14.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.14.0(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/postcss-plugins-preset':
         specifier: 4.21.0
         version: 4.21.0(postcss@8.4.21)
@@ -5710,64 +5710,6 @@ packages:
       '@emotion/utils': 1.2.1
       react: 18.2.0
 
-  /@emotion/styled@11.11.0(@emotion/react@11.4.1)(react@18.2.0):
-    resolution: {integrity: sha512-hM5Nnvu9P3midq5aaXj4I+lnSfNi7Pmd4EWk1fOZ3pxookaQTNew6bp4JaCBYM4HVFZF9g7UjJmsUmC2JlxOng==}
-    peerDependencies:
-      '@emotion/react': ^11.0.0-rc.0
-      '@types/react': '*'
-      react: '>=16.8.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@emotion/babel-plugin': 11.11.0
-      '@emotion/is-prop-valid': 1.2.1
-      '@emotion/react': 11.4.1(@babel/core@7.21.5)(react@18.2.0)
-      '@emotion/serialize': 1.1.2
-      '@emotion/use-insertion-effect-with-fallbacks': 1.0.1(react@18.2.0)
-      '@emotion/utils': 1.2.1
-      react: 18.2.0
-    dev: true
-
-  /@emotion/styled@11.11.0(@types/react@18.2.14)(react@18.2.0):
-    resolution: {integrity: sha512-hM5Nnvu9P3midq5aaXj4I+lnSfNi7Pmd4EWk1fOZ3pxookaQTNew6bp4JaCBYM4HVFZF9g7UjJmsUmC2JlxOng==}
-    peerDependencies:
-      '@emotion/react': ^11.0.0-rc.0
-      '@types/react': '*'
-      react: '>=16.8.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@emotion/babel-plugin': 11.11.0
-      '@emotion/is-prop-valid': 1.2.1
-      '@emotion/serialize': 1.1.2
-      '@emotion/use-insertion-effect-with-fallbacks': 1.0.1(react@18.2.0)
-      '@emotion/utils': 1.2.1
-      '@types/react': 18.2.14
-      react: 18.2.0
-
-  /@emotion/styled@11.11.0(react@18.2.0):
-    resolution: {integrity: sha512-hM5Nnvu9P3midq5aaXj4I+lnSfNi7Pmd4EWk1fOZ3pxookaQTNew6bp4JaCBYM4HVFZF9g7UjJmsUmC2JlxOng==}
-    peerDependencies:
-      '@emotion/react': ^11.0.0-rc.0
-      '@types/react': '*'
-      react: '>=16.8.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@emotion/babel-plugin': 11.11.0
-      '@emotion/is-prop-valid': 1.2.1
-      '@emotion/serialize': 1.1.2
-      '@emotion/use-insertion-effect-with-fallbacks': 1.0.1(react@18.2.0)
-      '@emotion/utils': 1.2.1
-      react: 18.2.0
-    dev: false
-
   /@emotion/styled@11.3.0(@babel/core@7.21.5)(@emotion/react@11.4.1)(react@18.2.0):
     resolution: {integrity: sha512-fUoLcN3BfMiLlRhJ8CuPUMEyKkLEoM+n+UyAbnqGEsCd5IzKQ7VQFLtzpJOaCD2/VR2+1hXQTnSZXVJeiTNltA==}
     peerDependencies:
@@ -6828,9 +6770,6 @@ packages:
   /@popperjs/core@2.11.8:
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
-  /@preact/signals-core@1.3.0:
-    resolution: {integrity: sha512-M+M3ZOtd1dtV/uasyk4SZu1vbfEJ4NeENv0F7F12nijZYedB5wSgbtZcuACyssnTznhF4ctUyrR0dZHuHfyWKA==}
-
   /@preact/signals-core@1.3.1:
     resolution: {integrity: sha512-DL+3kDssZ3UOMz9HufwSYE/gK0+TnT1jzegfF5rstgyPrnyfjz4BHAoxmzQA6Mkp4UlKe8qjsgl3v5a/obzNig==}
 
@@ -6842,14 +6781,6 @@ packages:
       '@preact/signals-core': 1.3.1
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
-
-  /@preact/signals@1.1.3(preact@10.15.1):
-    resolution: {integrity: sha512-N09DuAVvc90bBZVRwD+aFhtGyHAmJLhS3IFoawO/bYJRcil4k83nBOchpCEoS0s5+BXBpahgp0Mjf+IOqP57Og==}
-    peerDependencies:
-      preact: 10.x
-    dependencies:
-      '@preact/signals-core': 1.3.0
-      preact: 10.15.1
 
   /@preact/signals@1.1.5(preact@10.15.1):
     resolution: {integrity: sha512-OWr9TjuNh9ol/B5rNbLANEA940MvbYDMGcSAjPaKzAHBPhnTpuFCWhBB8vSm9lfy1BxKx6DKJLSs3Cz24otdkw==}
@@ -10529,72 +10460,6 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
 
-  /@wordpress/block-editor@12.5.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-57+BDu0HauCje5KgiicBglHsi9LLCd/O/0xv1hnfMjXwASnbTSmXjKYCkz/G3K9/BqCwdwxoj3DyKML84OAC6w==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@emotion/styled': 11.11.0(@emotion/react@11.4.1)(react@18.2.0)
-      '@react-spring/web': 9.7.2(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/a11y': 3.37.0
-      '@wordpress/api-fetch': 6.34.0
-      '@wordpress/blob': 3.37.0
-      '@wordpress/blocks': 12.14.0(react@18.2.0)
-      '@wordpress/components': 25.3.0(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/compose': 6.14.0(react@18.2.0)
-      '@wordpress/data': 9.7.0(react@18.2.0)
-      '@wordpress/date': 4.37.0
-      '@wordpress/deprecated': 3.37.0
-      '@wordpress/dom': 3.37.0
-      '@wordpress/element': 5.14.0
-      '@wordpress/escape-html': 2.37.0
-      '@wordpress/hooks': 3.37.0
-      '@wordpress/html-entities': 3.37.0
-      '@wordpress/i18n': 4.37.0
-      '@wordpress/icons': 9.28.0
-      '@wordpress/is-shallow-equal': 4.37.0
-      '@wordpress/keyboard-shortcuts': 4.14.0(react@18.2.0)
-      '@wordpress/keycodes': 3.37.0
-      '@wordpress/notices': 4.5.0(react@18.2.0)
-      '@wordpress/preferences': 3.14.0(@wordpress/element@5.14.0)(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/private-apis': 0.19.0
-      '@wordpress/rich-text': 6.14.0(react@18.2.0)
-      '@wordpress/shortcode': 3.37.0
-      '@wordpress/style-engine': 1.20.0
-      '@wordpress/token-list': 2.37.0
-      '@wordpress/url': 3.38.0
-      '@wordpress/warning': 2.37.0
-      '@wordpress/wordcount': 3.37.0
-      change-case: 4.1.2
-      classnames: 2.3.2
-      colord: 2.9.3
-      deepmerge: 4.3.1
-      diff: 4.0.2
-      dom-scroll-into-view: 1.2.1
-      fast-deep-equal: 3.1.3
-      inherits: 2.0.4
-      lodash: 4.17.21
-      react: 18.2.0
-      react-autosize-textarea: 7.1.0(react-dom@18.2.0)(react@18.2.0)
-      react-dom: 18.2.0(react@18.2.0)
-      react-easy-crop: 4.7.5(react-dom@18.2.0)(react@18.2.0)
-      rememo: 4.0.2
-      remove-accents: 0.4.4
-      traverse: 0.6.7
-    transitivePeerDependencies:
-      - '@babel/helper-module-imports'
-      - '@babel/types'
-      - '@emotion/react'
-      - '@types/react'
-      - '@types/react-dom'
-      - aslemammad-vite-plugin-macro
-      - babel-plugin-macros
-      - vite
-    dev: true
-
   /@wordpress/block-editor@12.5.0(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-57+BDu0HauCje5KgiicBglHsi9LLCd/O/0xv1hnfMjXwASnbTSmXjKYCkz/G3K9/BqCwdwxoj3DyKML84OAC6w==}
     engines: {node: '>=12'}
@@ -10603,7 +10468,8 @@ packages:
       react-dom: ^18.0.0
     dependencies:
       '@babel/runtime': 7.21.5
-      '@emotion/styled': 11.11.0(@types/react@18.2.14)(react@18.2.0)
+      '@emotion/react': 11.11.1(@types/react@18.2.14)(react@18.2.0)
+      '@emotion/styled': 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.14)(react@18.2.0)
       '@react-spring/web': 9.7.2(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/a11y': 3.37.0
       '@wordpress/api-fetch': 6.34.0
@@ -10653,7 +10519,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -10669,7 +10534,8 @@ packages:
       react-dom: ^18.0.0
     dependencies:
       '@babel/runtime': 7.21.5
-      '@emotion/styled': 11.11.0(@types/react@18.2.14)(react@18.2.0)
+      '@emotion/react': 11.11.1(@types/react@18.2.14)(react@18.2.0)
+      '@emotion/styled': 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.14)(react@18.2.0)
       '@react-spring/web': 9.7.2(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/a11y': 3.37.0
       '@wordpress/api-fetch': 6.34.0
@@ -10719,7 +10585,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -10734,7 +10599,8 @@ packages:
       react-dom: ^18.0.0
     dependencies:
       '@babel/runtime': 7.21.5
-      '@emotion/styled': 11.11.0(react@18.2.0)
+      '@emotion/react': 11.11.1(react@18.2.0)
+      '@emotion/styled': 11.11.0(@emotion/react@11.11.1)(react@18.2.0)
       '@react-spring/web': 9.7.2(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/a11y': 3.37.0
       '@wordpress/api-fetch': 6.34.0
@@ -10784,73 +10650,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
       - babel-plugin-macros
       - vite
-    dev: false
-
-  /@wordpress/block-library@8.14.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-r1Yz0O+UefDhCuKy8VYLFRyKdQZMZyPZKB6mENXxaxUYy0BSSmzUhosCRIepEzvyMC6cemhVNQYEH7g85JxCog==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@wordpress/a11y': 3.37.0
-      '@wordpress/api-fetch': 6.34.0
-      '@wordpress/autop': 3.37.0
-      '@wordpress/blob': 3.37.0
-      '@wordpress/block-editor': 12.5.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/blocks': 12.14.0(react@18.2.0)
-      '@wordpress/components': 25.3.0(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/compose': 6.14.0(react@18.2.0)
-      '@wordpress/core-data': 6.14.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/data': 9.7.0(react@18.2.0)
-      '@wordpress/date': 4.37.0
-      '@wordpress/deprecated': 3.37.0
-      '@wordpress/dom': 3.37.0
-      '@wordpress/element': 5.14.0
-      '@wordpress/escape-html': 2.37.0
-      '@wordpress/hooks': 3.37.0
-      '@wordpress/html-entities': 3.37.0
-      '@wordpress/i18n': 4.37.0
-      '@wordpress/icons': 9.28.0
-      '@wordpress/interactivity': 1.1.0(react@18.2.0)
-      '@wordpress/keycodes': 3.37.0
-      '@wordpress/notices': 4.5.0(react@18.2.0)
-      '@wordpress/primitives': 3.35.0
-      '@wordpress/private-apis': 0.19.0
-      '@wordpress/reusable-blocks': 4.14.0(@babel/runtime@7.21.5)(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/rich-text': 6.14.0(react@18.2.0)
-      '@wordpress/server-side-render': 4.14.0(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/url': 3.38.0
-      '@wordpress/viewport': 5.14.0(@wordpress/element@5.14.0)(react@18.2.0)
-      '@wordpress/wordcount': 3.37.0
-      change-case: 4.1.2
-      classnames: 2.3.2
-      colord: 2.9.3
-      escape-html: 1.0.3
-      fast-average-color: 9.3.0
-      fast-deep-equal: 3.1.3
-      memize: 2.1.0
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      remove-accents: 0.4.4
-      uuid: 8.3.2
-    transitivePeerDependencies:
-      - '@babel/helper-module-imports'
-      - '@babel/types'
-      - '@emotion/react'
-      - '@types/react'
-      - '@types/react-dom'
-      - aslemammad-vite-plugin-macro
-      - babel-plugin-macros
-      - vite
-    dev: true
 
   /@wordpress/block-library@8.14.0(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-r1Yz0O+UefDhCuKy8VYLFRyKdQZMZyPZKB6mENXxaxUYy0BSSmzUhosCRIepEzvyMC6cemhVNQYEH7g85JxCog==}
@@ -10904,7 +10708,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -10964,13 +10767,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
       - babel-plugin-macros
       - vite
-    dev: false
 
   /@wordpress/block-serialization-default-parser@4.37.0:
     resolution: {integrity: sha512-OF674nkHY5DKgM8PAiVXRngO4EbBXsL4UEhoTupyuTVvhyR2rIeGa7kUILxmCoRWxI1Es9JC52irOgYgm/MG+w==}
@@ -11315,7 +11116,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -11344,7 +11144,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -11352,44 +11151,6 @@ packages:
       - react-dom
       - vite
     dev: false
-
-  /@wordpress/core-data@6.14.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-bWqUtObQ9swrFlbAFdCHM6FhrTibUbsVYfoXhEpoRWUG/hox897N53WHX34SkS40YK2U+rbgJS9arx7IzvI5Qw==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@wordpress/api-fetch': 6.34.0
-      '@wordpress/block-editor': 12.5.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/blocks': 12.14.0(react@18.2.0)
-      '@wordpress/compose': 6.14.0(react@18.2.0)
-      '@wordpress/data': 9.7.0(react@18.2.0)
-      '@wordpress/deprecated': 3.37.0
-      '@wordpress/element': 5.14.0
-      '@wordpress/html-entities': 3.37.0
-      '@wordpress/i18n': 4.37.0
-      '@wordpress/is-shallow-equal': 4.37.0
-      '@wordpress/private-apis': 0.19.0
-      '@wordpress/url': 3.38.0
-      change-case: 4.1.2
-      equivalent-key-map: 0.2.2
-      fast-deep-equal: 3.1.3
-      memize: 2.1.0
-      react: 18.2.0
-      rememo: 4.0.2
-      uuid: 8.3.2
-    transitivePeerDependencies:
-      - '@babel/helper-module-imports'
-      - '@babel/types'
-      - '@emotion/react'
-      - '@types/react'
-      - '@types/react-dom'
-      - aslemammad-vite-plugin-macro
-      - babel-plugin-macros
-      - react-dom
-      - vite
-    dev: true
 
   /@wordpress/core-data@6.14.0(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-bWqUtObQ9swrFlbAFdCHM6FhrTibUbsVYfoXhEpoRWUG/hox897N53WHX34SkS40YK2U+rbgJS9arx7IzvI5Qw==}
@@ -11420,7 +11181,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -11458,7 +11218,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -11495,14 +11254,12 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
       - babel-plugin-macros
       - react-dom
       - vite
-    dev: false
 
   /@wordpress/data@9.7.0(react@18.2.0):
     resolution: {integrity: sha512-RBsgmAsG8ghR8U5zSlaAQYkovBMimAP+cnnjD1dwSq4ZPoHYXzzWPfHniVuOshK50x9pXt5ru0Zl6lvA2Es4CA==}
@@ -11612,7 +11369,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -11666,7 +11422,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -11721,7 +11476,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -11776,7 +11530,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -11830,7 +11583,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -11903,7 +11655,7 @@ packages:
       - supports-color
     dev: true
 
-  /@wordpress/format-library@4.14.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0):
+  /@wordpress/format-library@4.14.0(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-CuXqnvvgAhRXJNTH5jkwrkoWDUCugvHt0FeUieKTitB4PhXZFndkk69r/dFiQEWpP5OKBggGEKn1ufN36d0oQA==}
     engines: {node: '>=12'}
     peerDependencies:
@@ -11912,7 +11664,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
       '@wordpress/a11y': 3.37.0
-      '@wordpress/block-editor': 12.5.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/block-editor': 12.5.0(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/components': 25.3.0(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/compose': 6.14.0(react@18.2.0)
       '@wordpress/data': 9.7.0(react@18.2.0)
@@ -11927,7 +11679,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -11971,7 +11722,7 @@ packages:
     resolution: {integrity: sha512-g8H/StVbORTt+OjI9PmV5JdX7MQp8JyLQ1Bm8pp101jdDCinNhGPAT0IA2VZITOsHCe2CMrbgmTd+wLOfNa7mQ==}
     engines: {node: '>=12'}
     dependencies:
-      '@preact/signals': 1.1.3(preact@10.15.1)
+      '@preact/signals': 1.1.5(preact@10.15.1)
       deepsignal: 1.3.4(preact@10.15.1)(react@18.2.0)
       preact: 10.15.1
     transitivePeerDependencies:
@@ -12286,38 +12037,6 @@ packages:
       redux: 4.2.1
       rungen: 0.3.2
 
-  /@wordpress/reusable-blocks@4.14.0(@babel/runtime@7.21.5)(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-MDb3VXu/AM6nw03PCYo18lhjEKkJQnXSpocHDDVzb/mPzqbE2w1WigIsn93WF7Ra1OM4ZyHS2NNC+W2fDy7UQA==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      '@babel/runtime': ^7
-      react: ^18.0.0
-      react-dom: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@wordpress/block-editor': 12.5.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/blocks': 12.14.0(react@18.2.0)
-      '@wordpress/components': 25.3.0(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/core-data': 6.14.0(@emotion/react@11.4.1)(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/data': 9.7.0(react@18.2.0)
-      '@wordpress/element': 5.14.0
-      '@wordpress/i18n': 4.37.0
-      '@wordpress/icons': 9.28.0
-      '@wordpress/notices': 4.5.0(react@18.2.0)
-      '@wordpress/url': 3.38.0
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    transitivePeerDependencies:
-      - '@babel/helper-module-imports'
-      - '@babel/types'
-      - '@emotion/react'
-      - '@types/react'
-      - '@types/react-dom'
-      - aslemammad-vite-plugin-macro
-      - babel-plugin-macros
-      - vite
-    dev: true
-
   /@wordpress/reusable-blocks@4.14.0(@babel/runtime@7.21.5)(@types/react-dom@18.2.6)(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-MDb3VXu/AM6nw03PCYo18lhjEKkJQnXSpocHDDVzb/mPzqbE2w1WigIsn93WF7Ra1OM4ZyHS2NNC+W2fDy7UQA==}
     engines: {node: '>=12'}
@@ -12342,7 +12061,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -12374,7 +12092,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -12405,13 +12122,11 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
       - babel-plugin-macros
       - vite
-    dev: false
 
   /@wordpress/rich-text@6.14.0(react@18.2.0):
     resolution: {integrity: sha512-BVETmK82ru437CQQzwVnceUnkt70JPnhPo5EBP43sGovOM0HHL5SMJk9lnnOqbPW+GpqobUAcZAI8EURIAjH8g==}
@@ -12602,7 +12317,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
@@ -12634,7 +12348,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/helper-module-imports'
       - '@babel/types'
-      - '@emotion/react'
       - '@types/react'
       - '@types/react-dom'
       - aslemammad-vite-plugin-macro
