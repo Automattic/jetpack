@@ -140,7 +140,9 @@
 	{/if}
 {/if}
 
-<style>
+<style lang="scss">
+	@use '../../../css/main/variables.scss' as *;
+
 	.summary-line {
 		font-size: 14px;
 		line-height: 22px;
@@ -157,7 +159,7 @@
 	}
 
 	.has-issues {
-		color: var( --red_50 );
+		color: $red_50;
 	}
 
 	.wait-notice {
