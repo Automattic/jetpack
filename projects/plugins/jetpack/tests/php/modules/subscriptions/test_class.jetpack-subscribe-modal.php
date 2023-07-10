@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Subscribe_Modal extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		remove_filter( 'jetpack_subscriptions_modal_enabled', '__return_false', 1 );
+		remove_filter( 'jetpack_subscriptions_modal_enabled', '__return_false', 11 );
 		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
 	}
