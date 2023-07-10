@@ -32,12 +32,10 @@ class Jetpack_Subscribe_Modal {
 	 * Jetpack_Subscribe_Modal class constructor.
 	 */
 	public function __construct() {
-		if ( $this->should_enable_subscriber_modal() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
-			add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
-			add_filter( 'get_block_templates', array( $this, 'get_block_templates_filter' ), 10, 3 );
-		}
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
+		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
+		add_filter( 'get_block_templates', array( $this, 'get_block_templates_filter' ), 10, 3 );
 	}
 
 	/**
