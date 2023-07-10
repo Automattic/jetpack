@@ -185,7 +185,7 @@ HTML;
 	 * @return bool
 	 */
 	public static function should_load_subscriber_modal() {
-		if ( apply_filters( 'jetpack_subscriptions_modal_force_enabled', false ) === true ) {
+		if ( apply_filters( 'jetpack_subscriptions_modal_force_enabled', false ) ) {
 			return true;
 		}
 		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
@@ -197,9 +197,7 @@ HTML;
 		if ( ! wp_is_block_theme() ) {
 			return false;
 		}
-
-		// TODO change this to true when we are ready to launch.
-		return false;
+		return true;
 	}
 }
 
@@ -210,6 +208,9 @@ add_filter(
 		'should_load_subscriber_modal',
 	)
 );
+
+// TODO remove this filter once we are ready to launch
+add_filter( 'jetpack_subscriptions_modal_enabled', '__return_false', 11 );
 
 /**
  * Temporary feature flag for the subscription modal

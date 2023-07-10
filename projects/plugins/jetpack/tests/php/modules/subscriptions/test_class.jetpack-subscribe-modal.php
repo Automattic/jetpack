@@ -26,9 +26,9 @@ class WP_Test_Jetpack_Subscribe_Modal extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
-		$this->instance = Jetpack_Subscribe_Modal::init();
+		remove_filter( 'jetpack_subscriptions_modal_enabled', '__return_false', 1 );
 		add_filter( 'jetpack_is_connection_ready', '__return_true' );
+		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
 	}
 
 	/**
@@ -52,31 +52,31 @@ class WP_Test_Jetpack_Subscribe_Modal extends WP_UnitTestCase {
 	 */
 	public function test_subscriber_modal_enabled_under_correct_conditions() {
 		// Test that the modal is not enabled by default.
-		$this->assertFalse( $this->instance->should_enable_subscriber_modal() );
+		$this->assertFalse( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
 
 		// Set all conditions to allow modal, confirm modal is enabled.
 		switch_theme( 'block-theme' );
 		update_option( 'site_intent', 'newsletter' );
 		update_option( 'sm_enabled', true );
-		$this->assertTrue( $this->instance->should_enable_subscriber_modal() );
+		$this->assertTrue( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
 
 		// Test that modal is disabled if site_intent !== newsletter
 		update_option( 'site_intent', 'write' );
-		$this->assertFalse( $this->instance->should_enable_subscriber_modal() );
+		$this->assertFalse( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
 
 		// Test that modal is disabled if sm_enabled === false
 		update_option( 'site_intent', 'newsletter' );
 		update_option( 'sm_enabled', false );
-		$this->assertFalse( $this->instance->should_enable_subscriber_modal() );
+		$this->assertFalse( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
 
 		// Test that modal is disabled if no block theme
 		update_option( 'sm_enabled', true );
 		switch_theme( 'default' );
-		$this->assertFalse( $this->instance->should_enable_subscriber_modal() );
+		$this->assertFalse( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
 
 		// All conditions are met, modal should be enabled.
 		switch_theme( 'block-theme' );
-		$this->assertTrue( $this->instance->should_enable_subscriber_modal() );
+		$this->assertTrue( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
 	}
 
 }
