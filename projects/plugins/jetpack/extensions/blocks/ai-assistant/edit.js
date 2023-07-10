@@ -215,27 +215,34 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleAcceptContent = async () => {
+		let newGeneratedBlocks = [];
 		if ( ! useGutenbergSyntax ) {
-			const newContentBlocks = rawHandler( {
+			/*
+			 * Markdown-syntax content
+			 * - Get HTML code from markdown content
+			 * - Create blocks from HTML code
+			 */
+			newGeneratedBlocks = rawHandler( {
 				HTML: markdownConverter.render( attributes.content ),
 			} );
-			await replaceBlocks( clientId, newContentBlocks );
-
-			const lastEditableElement = getLastEditableElement( newContentBlocks );
-
-			if ( lastEditableElement ) {
-				moveCaretToEnd( lastEditableElement );
-			}
-			return;
+		} else {
+			/*
+			 * Gutenberg-syntax content
+			 * - Blocks are already created
+			 * - blocks are children of the current block
+			 */
+			newGeneratedBlocks = blockSelect( 'core/block-editor' ).getBlock( clientId );
+			newGeneratedBlocks = newGeneratedBlocks?.innerBlocks || [];
 		}
 
-		/*
-		 * Pick all children blocks and replace the parent block by them.
-		 */
-		const block = blockSelect( 'core/block-editor' ).getBlock( clientId );
+		// Replace the block with all its children's blocks
+		await replaceBlocks( clientId, newGeneratedBlocks );
 
-		// Replace the current block by its children
-		replaceBlocks( clientId, block.innerBlocks );
+		// Move the caret to the end of the last editable element
+		const lastEditableElement = getLastEditableElement( newGeneratedBlocks );
+		if ( lastEditableElement ) {
+			moveCaretToEnd( lastEditableElement );
+		}
 	};
 
 	const handleAcceptTitle = () => {
