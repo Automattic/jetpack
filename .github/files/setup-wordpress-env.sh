@@ -69,19 +69,22 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	DIR="${PLUGIN%/composer.json}"
 	NAME="$(basename "$DIR")"
 
+	echo "::group::Installing plugin $NAME into WordPress"
+
 	if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$DIR/composer.json" > /dev/null; then
 		{ composer --working-dir="$DIR" run "skip-$TEST_SCRIPT"; CODE=$?; } || true
 		if [[ $CODE -eq 3 ]]; then
+			echo "::endgroup::"
 			echo "Skipping install of plugin $NAME due to skip-$TEST_SCRIPT script"
 			continue
 		elif [[ $CODE -ne 0 ]]; then
+			echo "::endgroup::"
 			echo "::error::Script skip-$TEST_SCRIPT for plugin $NAME failed to run! ($CODE)"
 			EXIT=1
 			continue
 		fi
 	fi
 
-	echo "::group::Installing plugin $NAME into WordPress"
 	cd "$DIR"
 	if [[ ! -f "composer.lock" ]]; then
 		echo 'No composer.lock, running `composer update`'
@@ -99,12 +102,18 @@ for PLUGIN in projects/plugins/*/composer.json; do
 			DEPS=()
 			mapfile -t DEPS <<<"$TMP"
 			if ! composer update "${DEPS[@]}"; then
+				echo "::endgroup::"
 				echo "::error::plugins/$NAME: Platform reqs failed for PHP $(php -r 'echo PHP_VERSION;') and updating dev deps didn't help. The plugin is likely broken for that PHP version."
 				EXIT=1
+				cd "$BASE"
+				continue
 			fi
 		else
+			echo "::endgroup::"
 			echo "::error::plugins/$NAME: Platform reqs failed for PHP $(php -r 'echo PHP_VERSION;'). The plugin is likely broken for that PHP version."
 			EXIT=1
+			cd "$BASE"
+			continue
 		fi
 	fi
 	cd "$BASE"
