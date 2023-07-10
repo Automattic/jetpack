@@ -72,6 +72,7 @@
 		// The downside of this approach is that I can't use
 		// overflow: hidden to clip border radius here.
 		position: relative;
+
 		&:before {
 			content: '';
 			position: absolute;
@@ -134,9 +135,15 @@
 				border-top-right-radius: var( --border-radius );
 				border-top-left-radius: var( --border-radius );
 			}
+
 			.jb-table-row__hover-content {
 				display: block;
+
+				@media ( max-width: 782px ) {
+					display: none;
+				}
 			}
+
 			.jb-table-row__device,
 			.jb-table-row__page {
 				display: none;
@@ -160,5 +167,54 @@
 		justify-content: space-between;
 		padding: var( --gap );
 		padding-left: calc( var( --thumbnail-size ) + var( --gap ) * 2 );
+
+		@media ( max-width: 782px ) {
+			flex-direction: column;
+			padding-left: var( --gap );
+		}
+	}
+
+	:global( .jb-table-row__thumbnail ) {
+		grid-column: thumbnail;
+	}
+
+	:global( .jb-table-row__title ) {
+		grid-column: title;
+	}
+
+	:global( .jb-table-row__hover-content ) {
+		grid-column: device / expand;
+	}
+
+	:global( .jb-table-row__potential-size ) {
+		@media ( max-width: 782px ) {
+			display: none;
+		}
+
+		grid-column: potential-size;
+		display: flex;
+		align-items: center;
+		gap: calc( var( --gap ) / 2 );
+	}
+
+	:global( .jb-table-row__device ) {
+		@media ( max-width: 782px ) {
+			display: none;
+		}
+
+		grid-column: device;
+		text-align: center;
+	}
+
+	:global( .jb-table-row__page ) {
+		@media ( max-width: 782px ) {
+			display: none;
+		}
+
+		grid-column: page;
+		a {
+			text-decoration: none;
+			color: var( --gray-60 );
+		}
 	}
 </style>

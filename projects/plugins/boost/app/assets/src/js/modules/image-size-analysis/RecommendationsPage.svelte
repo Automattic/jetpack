@@ -35,12 +35,20 @@
 
 <div id="jb-dashboard" class="jb-dashboard">
 	<Header subPage={__( 'Image analysis report', 'jetpack-boost' )} />
-	<div class="recommendations-page jb-container jb-section--alt">
-		<Hero {needsRefresh} {refresh} />
-		<Tabs />
-		<Table {needsRefresh} {refresh} />
-		<Pagination />
-		<Footer />
+	<div class="recommendations-page jb-section--alt">
+		<div class="jb-container">
+			<Hero {needsRefresh} {refresh} />
+			<Tabs />
+		</div>
+
+		<div class="table-wrap">
+			<Table {needsRefresh} {refresh} />
+		</div>
+
+		<div class="jb-container">
+			<Pagination />
+			<Footer />
+		</div>
 	</div>
 </div>
 
@@ -48,6 +56,17 @@
 	.jb-dashboard {
 		background-color: #f9f9f6;
 	}
+
+	.table-wrap {
+		width: 87.5%;
+		margin-left: auto;
+		margin-right: auto;
+
+		@media ( max-width: 782px ) {
+			width: 100%;
+		}
+	}
+
 	.recommendations-page {
 		// Table
 		--gap: 16px;
@@ -73,6 +92,15 @@
 
 		line-height: 1.5;
 		-webkit-font-smoothing: antialiased;
+
+		/**
+		 * Narrow screen overrides.
+		 */
+		@media ( max-width: 782px ) {
+			--expanded-gap: 0px;
+			--border-radius: 0px;
+			--table-column-expand: 32px;
+		}
 	}
 
 	:global( .recommendation-page-grid ) {
@@ -87,5 +115,16 @@
 			[device] var( --table-column-device )
 			[page] 1fr
 			[expand] var( --table-column-expand );
+
+		/**
+		 * Narrow screen overrides.
+		 */
+		@media ( max-width: 782px ) {
+			// Remove some columns
+			grid-template-columns:
+				[thumbnail] var( --thumbnail-size )
+				[title] 1fr
+				[expand] var( --table-column-expand );
+		}
 	}
 </style>
