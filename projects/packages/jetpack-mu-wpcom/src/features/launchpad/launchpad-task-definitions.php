@@ -763,7 +763,7 @@ function wpcom_is_edit_page_task_visible() {
 }
 
 /**
- * When a page is updated, check to see if it's the About page and mark the task complete accordingly.
+ * When a page is updated, check to see if we've already completed the `add_new_page` task and mark the `edit_page` task complete accordingly.
  *
  * @param int     $post_id The ID of the post being updated.
  * @param WP_Post $post The post object.
