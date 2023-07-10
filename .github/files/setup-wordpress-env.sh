@@ -8,6 +8,7 @@
 #
 # Required:
 # - WP_BRANCH: Version of WordPress to check out.
+# - TEST_SCRIPT: Which test script will be run.
 #
 # Other:
 # - GITHUB_ENV: File written to to set environment variables for later steps.
@@ -67,6 +68,19 @@ EXIT=0
 for PLUGIN in projects/plugins/*/composer.json; do
 	DIR="${PLUGIN%/composer.json}"
 	NAME="$(basename "$DIR")"
+
+	if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$DIR/composer.json" > /dev/null; then
+		{ composer --working-dir="$DIR" run "skip-$TEST_SCRIPT"; CODE=$?; } || true
+		if [[ $CODE -eq 3 ]]; then
+			echo "Skipping install of plugin $NAME due to skip-$TEST_SCRIPT script"
+			continue
+		elif [[ $CODE -ne 0 ]]; then
+			echo "::error::Script skip-$TEST_SCRIPT for plugin $NAME failed to run! ($CODE)"
+			EXIT=1
+			continue
+		fi
+	fi
+
 	echo "::group::Installing plugin $NAME into WordPress"
 	cd "$DIR"
 	if [[ ! -f "composer.lock" ]]; then
