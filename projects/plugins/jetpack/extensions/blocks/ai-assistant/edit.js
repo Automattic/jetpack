@@ -111,9 +111,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	}, [ errorData ] );
 
 	/*
-	 * Render children blocks if:
+	 * Populate the block with inner blocks if:
+	 * - It's the first time the block is rendered
 	 * - The block doesn't have children blocks
-	 * - The block content contains blocks
+	 * - The `content` attribute contains contains blocks definition
 	 */
 	const initialContent = useRef( attributes?.content );
 	useEffect( () => {
@@ -131,7 +132,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			return;
 		}
 
-		// Replace the current block by its children
+		// Populate block inner blocks
 		replaceBlocks( clientId, storedInnerBlocks );
 	}, [ initialContent, clientId, replaceBlocks ] );
 
