@@ -77,6 +77,10 @@
 		width: 100%;
 		display: flex;
 		gap: 8px;
+
+		@media ( max-width: 782px ) {
+			flex-direction: column;
+		}
 	}
 	.jb-progress {
 		grid-area: progress;
