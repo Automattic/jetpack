@@ -49,6 +49,7 @@ if ! gh auth status &> /dev/null; then
 	gh auth login
 fi
 
+# Get the options passed and parse them.
 while getopts "h" opt; do
 	case ${opt} in
 		h)
