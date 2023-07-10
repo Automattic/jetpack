@@ -16,7 +16,7 @@ import {
 	Button,
 } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
-import { useSelect, useDispatch, select as blockSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -50,6 +50,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const [ errorDismissed, setErrorDismissed ] = useState( null );
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+
+	const getBlock = useSelect(
+		select => () => select( 'core/block-editor' ).getBlock( clientId ),
+		[ clientId ]
+	);
+
 	const aiControlRef = useRef( null );
 	const blockRef = useRef( null );
 
@@ -122,7 +128,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			return;
 		}
 
-		const block = blockSelect( 'core/block-editor' ).getBlock( clientId );
+		const block = getBlock();
 		if ( block?.innerBlocks?.length ) {
 			return;
 		}
@@ -134,7 +140,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 		// Populate block inner blocks
 		replaceBlocks( clientId, storedInnerBlocks );
-	}, [ initialContent, clientId, replaceBlocks ] );
+	}, [ initialContent, clientId, replaceBlocks, getBlock ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -231,11 +237,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			 * - Blocks are already created
 			 * - blocks are children of the current block
 			 */
-			newGeneratedBlocks = blockSelect( 'core/block-editor' ).getBlock( clientId );
+			newGeneratedBlocks = getBlock();
 			newGeneratedBlocks = newGeneratedBlocks?.innerBlocks || [];
 		}
 
-		// Replace the block with all its children's blocks
+		// Replace the block with the new generated blocks
 		await replaceBlocks( clientId, newGeneratedBlocks );
 
 		// Move the caret to the end of the last editable element
