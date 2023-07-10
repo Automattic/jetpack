@@ -367,6 +367,11 @@ const useSuggestionsFromOpenAI = ( {
 			setWasCompletionJustRequested( false );
 			debug( '(suggestion)', e?.detail );
 
+			/*
+			 * Progressive blocks rendering process.
+			 * ToDo: Interesting challenge. Let's comment for now.
+			 */
+
 			// let's get valid HTML by using a temporary dom element
 			// const temp = document.createElement( 'div' );
 			// temp.innerHTML = e?.detail;
