@@ -50,7 +50,7 @@
 
 <style lang="scss">
 	.jb-hero {
-		padding: 50px 0;
+		padding: 50px 0 30px;
 		display: flex;
 		flex-direction: column;
 		gap: calc( var( --gap ) / 2 );
