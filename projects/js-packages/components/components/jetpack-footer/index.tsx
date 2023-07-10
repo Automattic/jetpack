@@ -62,7 +62,9 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 		{
 			label: _x( 'About', 'Link to learn more about Jetpack.', 'jetpack' ),
 			title: __( 'About Jetpack', 'jetpack' ),
-			href: getRedirectUrl( 'jetpack-about' ),
+			href: areAdminLinksEnabled
+				? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
+				: getRedirectUrl( 'jetpack-about' ),
 			target: '_blank',
 			onClick: onAboutClick,
 		},
