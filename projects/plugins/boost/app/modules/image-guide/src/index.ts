@@ -133,7 +133,7 @@ function initialize() {
 		// wait for isImageTiny() to return true/false for each image.
 		const tinyImages = await Promise.all( measurableImages.map( image => image.isImageTiny() ) );
 		stores.push(
-			...attachGuides( measurableImages.filter( ( _, index ) => tinyImages[ index ] ) )
+			...attachGuides( measurableImages.filter( ( _, index ) => ! tinyImages[ index ] ) )
 		);
 
 		ImageGuideAnalytics.trackPage( stores );
