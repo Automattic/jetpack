@@ -33,7 +33,7 @@
 
 	{#if subPage}
 		<div class="jb-container back-button">
-			<BackButton />
+			<BackButton route="/" />
 		</div>
 	{/if}
 </div>
