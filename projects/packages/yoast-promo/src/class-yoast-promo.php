@@ -12,7 +12,7 @@ namespace Automattic\Jetpack;
  */
 class Yoast_Promo {
 
-	const PACKAGE_VERSION = '0.1.2';
+	const PACKAGE_VERSION = '0.1.3-alpha';
 
 	/**
 	 * Script handle for the JS file we enqueue in the post editor.

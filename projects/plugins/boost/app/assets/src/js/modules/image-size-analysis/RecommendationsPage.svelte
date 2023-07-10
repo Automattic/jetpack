@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
@@ -7,24 +8,47 @@
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
-	import { initializeIsaData } from './store/isa-data';
-	import { initializeIsaSummary } from './store/isa-summary';
+	import { initializeIsaData, isaData, refreshIsaData } from './store/isa-data';
+	import { initializeIsaSummary, totalIssueCount } from './store/isa-summary';
 
 	initializeIsaData();
 
 	onMount( () => {
 		initializeIsaSummary();
 	} );
+
+	// Keep track of the total count from the summary the last time we got a data update.
+	// Useful for identify when a summary change might mean we need a refresh.
+	let countAtLastDataUpdate = 0;
+	isaData.subscribe( () => {
+		countAtLastDataUpdate = get( totalIssueCount );
+	} );
+
+	$: needsRefresh = $totalIssueCount > countAtLastDataUpdate;
+
+	async function refresh() {
+		// Don't let the UI show a refresh button until we get fresh ISA data.
+		countAtLastDataUpdate = Infinity;
+		await refreshIsaData();
+	}
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
 	<Header subPage={__( 'Image analysis report', 'jetpack-boost' )} />
-	<div class="recommendations-page jb-container jb-section--alt">
-		<Hero />
-		<Tabs />
-		<Table />
-		<Pagination />
-		<Footer />
+	<div class="recommendations-page jb-section--alt">
+		<div class="jb-container">
+			<Hero {needsRefresh} {refresh} />
+			<Tabs />
+		</div>
+
+		<div class="table-wrap">
+			<Table {needsRefresh} {refresh} />
+		</div>
+
+		<div class="jb-container">
+			<Pagination />
+			<Footer />
+		</div>
 	</div>
 </div>
 
@@ -32,6 +56,17 @@
 	.jb-dashboard {
 		background-color: #f9f9f6;
 	}
+
+	.table-wrap {
+		width: 87.5%;
+		margin-left: auto;
+		margin-right: auto;
+
+		@media ( max-width: 782px ) {
+			width: 100%;
+		}
+	}
+
 	.recommendations-page {
 		// Table
 		--gap: 16px;
@@ -57,6 +92,15 @@
 
 		line-height: 1.5;
 		-webkit-font-smoothing: antialiased;
+
+		/**
+		 * Narrow screen overrides.
+		 */
+		@media ( max-width: 782px ) {
+			--expanded-gap: 0px;
+			--border-radius: 0px;
+			--table-column-expand: 32px;
+		}
 	}
 
 	:global( .recommendation-page-grid ) {
@@ -71,5 +115,16 @@
 			[device] var( --table-column-device )
 			[page] 1fr
 			[expand] var( --table-column-expand );
+
+		/**
+		 * Narrow screen overrides.
+		 */
+		@media ( max-width: 782px ) {
+			// Remove some columns
+			grid-template-columns:
+				[thumbnail] var( --thumbnail-size )
+				[title] 1fr
+				[expand] var( --table-column-expand );
+		}
 	}
 </style>
