@@ -149,6 +149,10 @@
 				display: none;
 			}
 		}
+
+		.jb-table-row__page a {
+			text-decoration: none;
+		}
 	}
 
 	.jb-table-row__expand {

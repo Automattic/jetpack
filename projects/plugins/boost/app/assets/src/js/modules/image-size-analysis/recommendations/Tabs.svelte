@@ -113,7 +113,7 @@
 		display: flex;
 		border-bottom: 1px solid var( --gray-5 );
 		margin-bottom: 32px;
-		gap: var( --gap );
+		gap: var( --expanded-gap );
 
 		/* Hide on narrow screens. */
 		@media ( max-width: 782px ) {
@@ -122,7 +122,7 @@
 	}
 
 	.jb-tab {
-		min-width: 100px;
+		min-width: 90px;
 		display: flex;
 		justify-content: center;
 		margin-bottom: -1px; // offset border
@@ -143,7 +143,7 @@
 
 	.jb-tabs :global( .jb-navigator-link ) {
 		background: none;
-		padding: 10px 16px;
+		padding: 8px 16px;
 		border: 0;
 		cursor: pointer;
 		text-decoration: none;
