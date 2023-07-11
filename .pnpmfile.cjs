@@ -64,6 +64,16 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Missing dep on @emotion/react.
+	// https://github.com/WordPress/gutenberg/issues/52474
+	if (
+		pkg.name === '@wordpress/block-editor' &&
+		pkg.dependencies?.[ '@emotion/styled' ] &&
+		! pkg.dependencies?.[ '@emotion/react' ]
+	) {
+		pkg.dependencies[ '@emotion/react' ] = '^11.7.1';
+	}
+
 	// Avoid annoying flip-flopping of sub-dep peer deps.
 	// https://github.com/localtunnel/localtunnel/issues/481
 	if ( pkg.name === 'localtunnel' ) {
