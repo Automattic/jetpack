@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2023-05-31 15:10+0300\n"
+"POT-Creation-Date: 2023-07-11 13:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,11 +61,11 @@ msgstr ""
 msgid "The ZIP file could not be extracted."
 msgstr ""
 
-#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
 msgid "CSS"
 msgstr ""
 
-#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
 msgid "Additional CSS"
 msgstr ""
 
@@ -211,23 +211,24 @@ msgid "Continue to site"
 msgstr ""
 
 #: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:143
+#: frontend-notices/gifting-banner/gifting-banner.php:144
+msgctxt "verb"
 msgid "Gift"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:182
+#: frontend-notices/gifting-banner/gifting-banner.php:184
 msgid "This site's plan has expired."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:188
+#: frontend-notices/gifting-banner/gifting-banner.php:190
 msgid "Enjoy this site?"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:209
+#: frontend-notices/gifting-banner/gifting-banner.php:211
 msgid "Gift the author a WordPress.com upgrade."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:220
+#: frontend-notices/gifting-banner/gifting-banner.php:222
 #, php-format
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural ""
@@ -235,7 +236,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:232
+#: frontend-notices/gifting-banner/gifting-banner.php:234
 msgid "Gift the author a WordPress.com plan."
 msgstr ""
 
@@ -486,7 +487,7 @@ msgid "Update"
 msgstr ""
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:139
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:164
 msgid "Launch site"
 msgstr ""
 
@@ -935,97 +936,119 @@ msgid ""
 "composer and make sure you are requiring the Jetpack autoloader"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:26
-msgid "Personalize newsletter"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:34
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:43
-msgid "Choose a plan"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:52
-msgid "Add subscribers"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:60
-msgid "Write your first post"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:70
-msgid "Start writing"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:81
-msgid "Select a design"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:90
-msgid "Personalize Link in Bio"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:98
-msgid "Add links"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:109
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:185
-msgid "Launch your site"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
-msgid "Set up your video site"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:127
-msgid "Upload your first video"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:149
-msgid "Personalize your site"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:157
-msgid "Name your blog"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:165
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:203
-msgid "Set up your site"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:174
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:18
 msgid "Edit site design"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:194
-msgid "Launch your blog"
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:28
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:34
+msgid "Select a design"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:213
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
+msgid "Claim your free one-year domain"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:49
 msgid "Choose a domain"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:222
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+msgid "Write your first post"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:72
+msgid "Choose a plan"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:80
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:212
+msgid "Set up your site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:138
+msgid "Launch your site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:94
 msgid "Confirm email (check your inbox)"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:230
-msgid "Set up payment method"
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
+msgid "Start writing"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:238
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:111
 msgid "Create paid Newsletter"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:477
-msgid ""
-"Your site contains custom colors that will only be visible once you upgrade "
-"to a Premium plan."
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
+msgid "Personalize newsletter"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:489
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:124
+msgid "Set up payment method"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:130
+msgid "Add subscribers"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
+msgid "Add links"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:155
+msgid "Personalize Link in Bio"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:171
+msgid "Set up your video site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:178
+msgid "Upload your first video"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:189
+msgid "Launch your blog"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:196
+msgid "Name your blog"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
+msgid "Personalize your site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:221
+msgid "Give your site a name"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:228
+msgid "Drive traffic to your site"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:235
+msgid "Add a new page"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:243
+msgid "Customize your domain"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:438
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:519
 msgid "Upgrade plan"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:504
+msgid ""
+"Your site contains custom styles. Upgrade now to publish them and unlock "
+"tons of other features."
 msgstr ""
 
 #: vendor/automattic/jetpack-post-list/src/class-post-list.php:170

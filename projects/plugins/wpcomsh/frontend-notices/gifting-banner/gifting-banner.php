@@ -114,8 +114,9 @@ class Gifting_Banner {
 		$data['i18n']               = array(
 			'title'       => $this->get_title_texts( $days_to_expire ),
 			'subtitle'    => $this->get_subtitle_texts( $this->current_plan, $days_to_expire ),
-			'button_text' => __(
+			'button_text' => _x(
 				'Gift',
+				'verb',
 				'gifting-banner'
 			),
 		);
@@ -139,8 +140,9 @@ class Gifting_Banner {
 		$data['i18n']               = array(
 			'title'       => $this->get_title_texts( $days_to_expire ),
 			'subtitle'    => $this->get_subtitle_texts( $this->current_plan, $days_to_expire ),
-			'button_text' => __(
+			'button_text' => _x(
 				'Gift',
+				'verb',
 				'wpcomsh'
 			),
 		);
