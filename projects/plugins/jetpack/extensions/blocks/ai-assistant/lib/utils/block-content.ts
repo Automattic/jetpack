@@ -51,47 +51,6 @@ export function getContentFromBlocks(): string {
 	return turndownService.turndown( serialize( blocks ) );
 }
 
-type GetTextContentFromBlocksProps = {
-	count: number;
-	clientIds: string[];
-	content: string;
-};
-
-/**
- * Returns the text content from all selected blocks.
- *
- * @returns {GetTextContentFromBlocksProps} The text content.
- */
-
-export function getTextContentFromSelectedBlocks(): GetTextContentFromBlocksProps {
-	const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
-	const defaultContent = {
-		count: 0,
-		clientIds: [],
-		content: '',
-	};
-
-	if ( ! clientIds?.length ) {
-		return defaultContent;
-	}
-
-	const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
-	if ( ! blocks?.length ) {
-		return defaultContent;
-	}
-
-	return {
-		count: blocks.length,
-		clientIds,
-		content: blocks
-			? blocks
-					.filter( block => block !== null && block !== undefined ) // Safeguard against null or undefined blocks
-					.map( block => getBlockTextContent( block.clientId ) )
-					.join( HTML_JOIN_CHARACTERS )
-			: '',
-	};
-}
-
 export function getTextContentFromInnerBlocks( clientId: string ) {
 	const block = select( 'core/block-editor' ).getBlock( clientId );
 	if ( ! block?.innerBlocks?.length ) {
