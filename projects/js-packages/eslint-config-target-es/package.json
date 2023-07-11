@@ -24,7 +24,7 @@
 	},
 	"devDependencies": {
 		"@wordpress/browserslist-config": "5.20.0",
-		"eslint": "8.39.0",
+		"eslint": "8.44.0",
 		"eslint-plugin-es-x": "7.1.0",
 		"jest": "29.4.3"
 	},
