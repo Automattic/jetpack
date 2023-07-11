@@ -26,7 +26,6 @@ class WP_Test_Jetpack_Subscribe_Modal extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		remove_filter( 'jetpack_subscriptions_modal_enabled', '__return_false', 11 );
 		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
 	}
@@ -37,46 +36,55 @@ class WP_Test_Jetpack_Subscribe_Modal extends WP_UnitTestCase {
 	 * @inheritDoc
 	 */
 	public function tear_down() {
-		remove_all_filters( 'jetpack_subscriptions_modal_enabled' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
+
+		// FEATURE FLAG:
+		// Reapply feature flag. This should be removed when feature flag is removed.
+		add_filter( 'jetpack_subscriptions_modal_enabled', '__return_false', 11 );
 		parent::tear_down();
 	}
 
 	/**
-	 * Test that subscribe modal is active under these conditions:
+	 * Test that jetpack_subscriptions_modal_enabled is set correctly,
+	 * and thus that Jetpack Subscribe Modal loads, as expected.
 	 *
-	 * #1 site_intent === newsletter (in this case, not relevant if theme is lettre or not)
-	 * #2 sm_enabled === true
+	 * Removed tests around sm_enabled since we no longer use that option
+	 * to set should_load_subscriber_modal() or the filter.
+	 *
+	 * This includes test of our defacto feature flag - we are setting
+	 * jetpack_subscriptions_modal_enabled to false, which should prevent
+	 * the modal from loading even if all conditions are met.
+	 *
+	 * #1 feature flag -> jetpack_subscriptions_modal_enabled false by default
+	 *                    AND even if all normal conditions are met.
+	 * #2 site_intent === newsletter (in this case, not relevant if theme is lettre or not)
 	 * #3 block theme is active
-	 * #4 jetpack_subscriptions_modal_enabled === true
 	 */
 	public function test_subscriber_modal_enabled_under_correct_conditions() {
 		// Test that the modal is not enabled by default.
 		$this->assertFalse( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
 
-		// Set all conditions to allow modal, confirm modal is enabled.
+		// FEATURE FLAG:
+		// This is a test for the feature flag.
+		// Test that modal will no load even if all normal conditions are met.
+		// We are irectly setting jetpack_subscriptions_modal_enabled
+		// to false as a feature flag. This test should change upon full release.
 		switch_theme( 'block-theme' );
 		update_option( 'site_intent', 'newsletter' );
-		update_option( 'sm_enabled', true );
+		$this->assertFalse( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
+
+		// Test modal is enabled with feature flag removed, all conditions met.
+		remove_filter( 'jetpack_subscriptions_modal_enabled', '__return_false', 11 );
 		$this->assertTrue( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
 
 		// Test that modal is disabled if site_intent !== newsletter
 		update_option( 'site_intent', 'write' );
 		$this->assertFalse( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
 
-		// Test that modal is disabled if sm_enabled === false
-		update_option( 'site_intent', 'newsletter' );
-		update_option( 'sm_enabled', false );
-		$this->assertFalse( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
-
 		// Test that modal is disabled if no block theme
-		update_option( 'sm_enabled', true );
+		update_option( 'site_intent', 'newsletter' );
 		switch_theme( 'default' );
 		$this->assertFalse( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
-
-		// All conditions are met, modal should be enabled.
-		switch_theme( 'block-theme' );
-		$this->assertTrue( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) );
 	}
 
 }
