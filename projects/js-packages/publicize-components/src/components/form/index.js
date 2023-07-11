@@ -163,6 +163,26 @@ export default function PublicizeForm( {
 		[ isPublicizeDisabledBySitePlan, validationErrors ]
 	);
 
+	const renderInstagramNotice = () => {
+		return isEnhancedPublishingEnabled ? (
+			<Notice type={ 'warning' }>
+				{ __( 'You need a valid image or video in your post to share to Instagram.', 'jetpack' ) }
+				<br />
+				<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+					{ __( 'Learn more', 'jetpack' ) }
+				</ExternalLink>
+			</Notice>
+		) : (
+			<Notice type={ 'warning' }>
+				{ __( 'You need a valid image in your post to share to Instagram.', 'jetpack' ) }
+				<br />
+				<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+					{ __( 'Learn more', 'jetpack' ) }
+				</ExternalLink>
+			</Notice>
+		);
+	};
+
 	return (
 		<Wrapper>
 			{ hasConnections && (
@@ -250,13 +270,7 @@ export default function PublicizeForm( {
 					</PanelRow>
 					{ showValidationNotice &&
 						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR ) ? (
-							<Notice type={ 'warning' }>
-								{ __( 'You need a valid image in your post to share to Instagram.', 'jetpack' ) }
-								<br />
-								<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
-									{ __( 'Learn more', 'jetpack' ) }
-								</ExternalLink>
-							</Notice>
+							renderInstagramNotice()
 						) : (
 							<Notice type={ 'warning' }>
 								<p>
