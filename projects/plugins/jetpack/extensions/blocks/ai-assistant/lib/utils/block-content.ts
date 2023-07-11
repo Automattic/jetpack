@@ -3,8 +3,9 @@
  */
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
-import { select } from '@wordpress/data';
+import { select, useSelect } from '@wordpress/data';
 import TurndownService from 'turndown';
+import type { BlockEditorStore } from '../../types';
 
 // Turndown instance
 const turndownService = new TurndownService();
@@ -63,8 +64,23 @@ type GetTextContentFromBlocksProps = {
  * @returns {GetTextContentFromBlocksProps} The text content.
  */
 
-export function getTextContentFromSelectedBlocks(): GetTextContentFromBlocksProps {
-	const clientIds = select( 'core/block-editor' ).getSelectedBlockClientIds();
+export function useTextContentFromSelectedBlocks(): GetTextContentFromBlocksProps {
+	const clientIds = useSelect(
+		selectFromHook =>
+			(
+				selectFromHook( 'core/block-editor' ) as BlockEditorStore[ 'selectors' ]
+			 ).getSelectedBlockClientIds(),
+		[]
+	);
+
+	const blocks = useSelect(
+		selectFromHook =>
+			(
+				selectFromHook( 'core/block-editor' ) as BlockEditorStore[ 'selectors' ]
+			 ).getBlocksByClientId( clientIds ),
+		[ clientIds ]
+	);
+
 	const defaultContent = {
 		count: 0,
 		clientIds: [],
@@ -75,7 +91,6 @@ export function getTextContentFromSelectedBlocks(): GetTextContentFromBlocksProp
 		return defaultContent;
 	}
 
-	const blocks = select( 'core/block-editor' ).getBlocksByClientId( clientIds );
 	if ( ! blocks?.length ) {
 		return defaultContent;
 	}
