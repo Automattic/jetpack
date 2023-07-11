@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: added
 
-Fixed providing a comment in non-interactive mode. Previously, this would cause an error
+When omitting `--entry` for `changelogger add` in non-interactive mode for a patch-significance change, provide a hint on how to successfully create an empty entry.
