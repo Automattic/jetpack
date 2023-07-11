@@ -63,6 +63,9 @@ declare global {
 				isIntroductoryOffer: boolean;
 			};
 		};
+		siteCustomPostTypes: {
+			[ key: string ]: string;
+		};
 	};
 
 	// Critical CSS Generator library.
