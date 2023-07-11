@@ -453,7 +453,7 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Stats', 'jetpack' ),
 				};
 
-			case 'is-jetpack-stats-free-plan':
+			case 'is-free-jetpack-stats-plan':
 				return {
 					...productProps,
 					details: [ activation, expiration ],
