@@ -261,8 +261,8 @@
 		padding-top: 20px;
 	}
 	.beta {
-		background: hsl( 0, 0%, 90% );
-		color: hsl( 0, 0%, 20% );
+		background: var( --jp-green-5 );
+		color: var( --jp-green-60 );
 		padding: 2px 5px;
 		border-radius: 3px;
 		font-size: 0.8rem;
