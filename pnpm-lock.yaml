@@ -439,8 +439,8 @@ importers:
   projects/js-packages/eslint-config-target-es:
     dependencies:
       '@mdn/browser-compat-data':
-        specifier: 5.2.66
-        version: 5.2.66
+        specifier: 5.3.2
+        version: 5.3.2
       browserslist:
         specifier: ^4.17.6
         version: 4.21.9
@@ -6376,8 +6376,8 @@ packages:
     engines: {node: '>=6.0.0'}
     dev: false
 
-  /@mdn/browser-compat-data@5.2.66:
-    resolution: {integrity: sha512-5dh2D/a0rI9ZgIrjEhicHo+iXCvCfMV49oQMICGMsSEXO64e6POjWQIaUPGheubwoJ9KDQwBigj+4FoPDXVyiw==}
+  /@mdn/browser-compat-data@5.3.2:
+    resolution: {integrity: sha512-c2dxwcqbClWUUSZqM6hMzM8dAUCEaPBBciBW8iyT+62OPmfb61VVZKu4vtCyAPzE/fBYY1F2bhuTsOTBRtt7WA==}
     dev: false
 
   /@mdx-js/react@2.3.0(react@18.2.0):
@@ -23389,6 +23389,7 @@ packages:
   /vm2@3.9.19:
     resolution: {integrity: sha512-J637XF0DHDMV57R6JyVsTak7nIL8gy5KH4r1HiwWLf/4GBbb5MKL5y7LpmF4A8E2nR6XmzpmMFQ7V7ppPTmUQg==}
     engines: {node: '>=6.0'}
+    deprecated: The library contains critical security issues and should not be used for production! The maintenance of the project has been discontinued. Consider migrating your code to isolated-vm.
     hasBin: true
     dependencies:
       acorn: 8.10.0
