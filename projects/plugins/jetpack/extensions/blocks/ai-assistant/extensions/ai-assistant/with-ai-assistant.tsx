@@ -4,7 +4,7 @@
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState, useRef } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import React from 'react';
 /**
  * Internal dependencies
@@ -47,8 +47,6 @@ export const withAIAssistant = createHigherOrderComponent(
 			messages: [],
 		} );
 
-		const clientIdsRef = useRef< Array< string > >();
-
 		const { name: blockType } = props;
 
 		const { updateBlockAttributes, removeBlocks, replaceBlock } =
@@ -82,31 +80,27 @@ export const withAIAssistant = createHigherOrderComponent(
 		 * @param {string} newContent - The new content of the block.
 		 * @returns {void}
 		 */
-		const setContent = useCallback(
+		const updateBlockContent = useCallback(
 			( newContent: string ) => {
 				/*
-				 * Pick the first item of the array,
-				 * to be udpated with the new content.
-				 * The rest of the items will be removed.
+				 * Pick the first client ID from the array.
+				 * This is the client ID of the block that
+				 * will updates its content.
+				 *
+				 * The rest of the items (blocks) will be removed,
+				 * in case there are more than one.
 				 */
-				const [ firstClientId, ...restClientIds ] = clientIdsRef.current;
-				/*
-				 * Update the content of the block
-				 * by calling the setAttributes function,
-				 * updating the `content` attribute.
-				 * It doesn't scale for other blocks.
-				 * @todo: find a better way to update the content.
-				 */
+				const [ firstClientId, ...restClientIds ] = clientIds;
+
+				// Update the content of the new AI Assistant block instance.
 				updateBlockAttributes( firstClientId, { content: newContent } );
 
 				// Remove the rest of the block in case there are more than one.
 				if ( restClientIds.length ) {
-					removeBlocks( restClientIds ).then( () => {
-						clientIdsRef.current = [ firstClientId ];
-					} );
+					removeBlocks( restClientIds );
 				}
 			},
-			[ removeBlocks, updateBlockAttributes ]
+			[ clientIds, removeBlocks, updateBlockAttributes ]
 		);
 
 		const updateStoredPrompt = useCallback(
@@ -132,7 +126,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const { requestingState } = useSuggestionsFromAI( {
 			prompt: storedPrompt.messages,
-			onSuggestion: setContent,
+			onSuggestion: updateBlockContent,
 			onDone: updateStoredPrompt,
 			onError: showSuggestionError,
 		} );
