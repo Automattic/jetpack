@@ -148,6 +148,7 @@ const useSuggestionsFromOpenAI = ( {
 				userPrompt,
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
+				customSystemPrompt: attributes?.customSystemPrompt,
 			} );
 
 			/*
@@ -276,6 +277,7 @@ const useSuggestionsFromOpenAI = ( {
 					userPrompt,
 					type,
 					isGeneratingTitle: attributes.promptType === 'generateTitle',
+					customSystemPrompt: attributes?.customSystemPrompt,
 				} );
 
 				setLastPrompt( [ ...prompt, ...updatedMessages, lastUserPrompt ] );
