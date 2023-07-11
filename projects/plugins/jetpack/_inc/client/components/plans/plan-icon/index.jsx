@@ -73,6 +73,9 @@ import {
 	PLAN_JETPACK_BOOST,
 	PLAN_JETPACK_BOOST_MONTHLY,
 	PLAN_JETPACK_AI_MONTHLY,
+	PLAN_JETPACK_STATS_MONTHLY,
+	PLAN_JETPACK_STATS_PWYW_YEARLY,
+	PLAN_JETPACK_STATS_FREE,
 } from 'lib/plans/constants';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -153,6 +156,9 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_BOOST ]: 'products/product-jetpack-boost.svg',
 	[ PLAN_JETPACK_BOOST_MONTHLY ]: 'products/product-jetpack-boost.svg',
 	[ PLAN_JETPACK_AI_MONTHLY ]: 'products/product-jetpack-ai.svg',
+	[ PLAN_JETPACK_STATS_MONTHLY ]: 'products/product-jetpack-stats.svg',
+	[ PLAN_JETPACK_STATS_PWYW_YEARLY ]: 'products/product-jetpack-stats.svg',
+	[ PLAN_JETPACK_STATS_FREE ]: 'products/product-jetpack-stats.svg',
 };
 const DEFAULT_SIZE = 32;
 
@@ -245,5 +251,8 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 		PLAN_JETPACK_VIDEOPRESS,
 		PLAN_JETPACK_VIDEOPRESS_MONTHLY,
+		PLAN_JETPACK_STATS_MONTHLY,
+		PLAN_JETPACK_STATS_PWYW_YEARLY,
+		PLAN_JETPACK_STATS_FREE,
 	] ).isRequired,
 };
