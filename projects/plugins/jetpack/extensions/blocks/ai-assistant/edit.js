@@ -119,20 +119,34 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	/*
 	 * Populate the block with inner blocks if:
 	 * - It's the first time the block is rendered
+	 * - It's Gutenberg syntax enabled
 	 * - The block doesn't have children blocks
 	 * - The `content` attribute contains contains blocks definition
 	 */
 	const initialContent = useRef( attributes?.content );
 	useEffect( () => {
+		// Check if is Gutenberg syntax enabled
+		if ( ! attributes?.useGutenbergSyntax ) {
+			return;
+		}
+
+		// Bail out if the block doesn't have content (via attribute)
 		if ( ! initialContent?.current?.length ) {
 			return;
 		}
 
+		// Bail out if the block already has children blocks
 		const block = getBlock();
 		if ( block?.innerBlocks?.length ) {
 			return;
 		}
 
+		/*
+		 * Bail out if the content doesn't contain blocks definition
+		 * This is a very basic check, but it's enough for now.
+		 * If the content hasn't blocks defined by using Gutenberg syntax,
+		 * it can parse undesired blocks. Eg: `core/freeform` block :scream:
+		 */
 		const storedInnerBlocks = parse( initialContent.current );
 		if ( ! storedInnerBlocks?.length ) {
 			return;
@@ -140,7 +154,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 		// Populate block inner blocks
 		replaceBlocks( clientId, storedInnerBlocks );
-	}, [ initialContent, clientId, replaceBlocks, getBlock ] );
+	}, [ initialContent, clientId, replaceBlocks, getBlock, attributes?.useGutenbergSyntax ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
