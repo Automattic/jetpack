@@ -92,6 +92,18 @@ export function getTextContentFromSelectedBlocks(): GetTextContentFromBlocksProp
 	};
 }
 
+export function getTextContentFromInnerBlocks( clientId: string ) {
+	const block = select( 'core/block-editor' ).getBlock( clientId );
+	if ( ! block?.innerBlocks?.length ) {
+		return '';
+	}
+
+	return block.innerBlocks
+		.filter( blq => blq !== null && blq !== undefined ) // Safeguard against null or undefined blocks
+		.map( blq => getBlockTextContent( blq.clientId ) )
+		.join( HTML_JOIN_CHARACTERS );
+}
+
 /**
  * Return the block content from the given block clientId.
  *
