@@ -4,11 +4,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 class Site_Urls {
 
-	public static function get( $limit = 1000 ) {
-		// @todo - after removing the core urls from the post urls,
-		// there might be core urls left that aren't in the posts urls
-		// and combining the two would result in a list over the $limit
-
+	public static function get( $limit = 100 ) {
 		$core_urls = self::get_wp_core_urls();
 		$post_urls = self::cleanup_post_urls(
 			self::get_post_urls( $limit ),
@@ -18,9 +14,13 @@ class Site_Urls {
 			)
 		);
 
-		return array_merge(
-			$core_urls,
-			$post_urls
+		return array_slice(
+			array_merge(
+				$core_urls,
+				$post_urls
+			),
+			0,
+			$limit
 		);
 	}
 
