@@ -6,6 +6,8 @@ export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
 export const FILE_SIZE_ERROR = 'FILE_SIZE_ERROR';
 export const VIDEO_LENGTH_TOO_LONG_ERROR = 'VIDEO_LENGTH_TOO_LONG_ERROR';
 export const VIDEO_LENGTH_TOO_SHORT_ERROR = 'VIDEO_LENGTH_TOO_SHORT_ERROR';
+export const VIDEO_ASPECT_RATIO_ERROR = 'VIDEO_ASPECT_RATIO_ERROR';
+
 /**
  * Checks whether a media is a video.
  *
@@ -31,13 +33,15 @@ const getImageValidationError = ( sizeInMb, maxImageSize ) =>
  *
  * @param {number} sizeInMb - The fileSize in bytes.
  * @param {number} length - Video length in seconds and.
+ * @param {number} width - Width of the video.
+ * @param {number} height - Height of the video.
  * @param {object} videoLimits - Has the properties to check against
  * @returns {(FILE_SIZE_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR)} Returns validation error.
  */
-const getVideoValidationError = ( sizeInMb, length, videoLimits ) => {
-	const { minSize, maxSize, minLength, maxLength } = videoLimits;
+const getVideoValidationError = ( sizeInMb, length, width, height, videoLimits ) => {
+	const { minSize, maxSize, minLength, maxLength, maxWidth, aspectRatio } = videoLimits;
 
-	if ( ! sizeInMb || sizeInMb > maxSize || sizeInMb < minSize ) {
+	if ( ! sizeInMb || sizeInMb > maxSize || sizeInMb < minSize || width > maxWidth ) {
 		return FILE_SIZE_ERROR;
 	}
 
@@ -49,18 +53,24 @@ const getVideoValidationError = ( sizeInMb, length, videoLimits ) => {
 		return VIDEO_LENGTH_TOO_LONG_ERROR;
 	}
 
+	const ratio = width / height;
+	if ( ratio < aspectRatio.min || ratio > aspectRatio.max ) {
+		return VIDEO_ASPECT_RATIO_ERROR;
+	}
+
 	return null;
 };
 
 /**
  * Checks whether the media with the provided metaData is valid. It can validate images or videos.
  *
- * @param {number} metaData - Data for media.
- * @param {string} serviceName - The name of the social media serice we want to validate against. facebook, tumblr etc.
+ * @param {object} metaData - Media metadata, mime, fileSize and length.
+ * @param {object} mediaData - Data for media, width, height, source_url etc.
+ * @param {string} serviceName - The name of the social media service we want to validate against. facebook, tumblr etc.
  * @param {boolean} shouldUploadAttachedMedia - Whether the social post is set to have the media attached, the 'Share as social post' option.
  * @returns {(FILE_SIZE_ERROR | FILE_TYPE_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR)} Returns validation error.
  */
-const getValidationError = ( metaData, serviceName, shouldUploadAttachedMedia ) => {
+const getValidationError = ( metaData, mediaData, serviceName, shouldUploadAttachedMedia ) => {
 	const restrictions = RESTRICTIONS[ serviceName ] ?? DEFAULT_RESTRICTIONS;
 
 	if ( ! metaData || Object.keys( metaData ).length === 0 ) {
@@ -80,7 +90,13 @@ const getValidationError = ( metaData, serviceName, shouldUploadAttachedMedia ) 
 	const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : null;
 
 	return isVideo( mime )
-		? getVideoValidationError( sizeInMb, metaData.length, restrictions.video )
+		? getVideoValidationError(
+				sizeInMb,
+				metaData.length,
+				mediaData.width,
+				mediaData.height,
+				restrictions.video
+		  )
 		: getImageValidationError( sizeInMb, restrictions.image.maxSize );
 };
 
@@ -105,6 +121,7 @@ const useMediaRestrictions = (
 			: connections.reduce( ( errs, { connection_id, service_name } ) => {
 					const error = getValidationError(
 						media.metaData,
+						media.mediaData,
 						service_name,
 						shouldUploadAttachedMedia
 					);
@@ -118,9 +135,10 @@ const useMediaRestrictions = (
 		}
 		return errors.current;
 	}, [
+		isSocialImageGeneratorEnabledForPost,
 		connections,
 		media.metaData,
-		isSocialImageGeneratorEnabledForPost,
+		media.mediaData,
 		shouldUploadAttachedMedia,
 	] );
 };
