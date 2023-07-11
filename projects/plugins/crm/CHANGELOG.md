@@ -5,6 +5,29 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] - 2023-06-21
+### Added
+- CRM: Revamped CRM User Interface - Merge the sleek aesthetics of Jetpack’s style, bringing a new level of sophistication and seamless navigation to your CRM experience [#30916]
+- API: Now it retrieves contacts with tags [#31418]
+- Contacts: Allow unsubscribe flag to be removed [#31029]
+
+### Changed
+- User roles: Further restricted capabilities on some roles [#31174]
+- Contacts: Use sha256 instead of md5 for gravatar images [#31288]
+
+### Fixed
+- Client Portal: Fix a fatal error initializing endpoints and shortcodes [#30678]
+- CRM: Fix new lines display in quote templates [#30974]
+- CRM: Fix whitelabel bug with full menu layout [#31126]
+- CRM: Page layout now has a max width of 1551px [#30961]
+- CRM: Welcome tour now goes through all steps [#31178]
+- Extensions: Catch PHP notice if offline [#31032]
+- Invoices: Show assigned contact/company link [#31153]
+- Listview: Per-page settings no longer reset
+- Listview: PHP notice no longer shows when saving settings [#31154]
+- Quotes: Fix sort by status [#31087]
+- White label: JPCRM support and resources pages no longer show [#31155]
+
 ## [5.8.0] - 2023-05-18
 ### Added
 - Composer: Added jetpack-forms as a required dependency to fix a Jetpack form compat issue [#30749]
@@ -165,6 +188,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added a migration to remove outdated AKA lines
 
 [5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[6.0.0]: https://github.com/Automattic/jetpack-crm/compare/5.8.0...6.0.0
 [5.8.0]: https://github.com/Automattic/jetpack-crm/compare/5.7.0...5.8.0
 [5.7.0]: https://github.com/Automattic/jetpack-crm/compare/v5.6.0...v5.7.0
 [5.6.0]: https://github.com/Automattic/jetpack-crm/compare/v5.5.4-a.1...v5.6.0

@@ -115,6 +115,11 @@ Genericons
 	content: "\f208";
 }
 
+/* Nextdoor */
+.jetpack-social-navigation-genericons a[href*="nextdoor.com"]:before {
+	content: "\f10c";
+}
+
 /* Path */
 .jetpack-social-navigation-genericons a[href*="path.com"]:before {
 	content: "\f219";

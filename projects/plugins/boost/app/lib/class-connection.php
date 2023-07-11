@@ -129,16 +129,14 @@ class Connection {
 	 */
 	public function register() {
 		if ( $this->is_connected() ) {
-			Analytics::record_user_event( 'connect_site' );
-
+			Analytics::record_user_event( 'using_existing_connection' );
 			return true;
 		}
 
 		$result = $this->manager->register();
 
 		if ( ! is_wp_error( $result ) ) {
-			Analytics::record_user_event( 'connect_site' );
-
+			Analytics::record_user_event( 'established_connection' );
 			Premium_Features::clear_cache();
 		}
 
@@ -203,6 +201,8 @@ class Connection {
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
+
+		do_action( 'jetpack_boost_connection_established' );
 
 		return rest_ensure_response( $this->get_connection_api_response() );
 	}

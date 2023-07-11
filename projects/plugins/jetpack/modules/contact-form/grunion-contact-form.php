@@ -3970,7 +3970,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @param string the title of the email
 		 */
-		$title   = apply_filters( 'jetpack_forms_response_email_title', __( 'You got a new response!', 'jetpack' ) );
+		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
 		$message = self::get_compiled_form_for_email( $post_id, $this );
 
 		if ( is_user_logged_in() ) {
@@ -4264,7 +4264,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'',
 				$template
 			),
-			$title,
+			( $title !== '' ? '<h1>' . $title . '</h1>' : '' ),
 			$body,
 			$response_link,
 			$form_link,

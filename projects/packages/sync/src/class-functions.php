@@ -673,4 +673,40 @@ class Functions {
 	public static function get_active_modules() {
 		return ( new Jetpack_Modules() )->get_active();
 	}
+
+	/**
+	 * Return a list of PHP modules that we want to track.
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return array
+	 */
+	public static function get_loaded_extensions() {
+		if ( function_exists( 'get_loaded_extensions' ) ) {
+			return get_loaded_extensions();
+		}
+
+		// If a hosting provider has blocked get_loaded_extensions for any reason,
+		// we check extensions manually.
+
+		$extensions_to_check = array(
+			'libxml' => array( 'class' => 'libXMLError' ),
+			'xml'    => array( 'function' => 'xml_parse' ),
+			'dom'    => array( 'class' => 'DOMDocument' ),
+			'xdebug' => array( 'function' => 'xdebug_break' ),
+		);
+
+		$enabled_extensions = array();
+		foreach ( $extensions_to_check as $extension_name => $extension ) {
+			if (
+				( isset( $extension['function'] )
+				&& function_exists( $extension['function'] ) )
+				|| class_exists( $extension['class'] )
+			) {
+				$enabled_extensions[] = $extension_name;
+			}
+		}
+
+		return $enabled_extensions;
+	}
 }

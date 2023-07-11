@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: do not pre-populate inner blocks if Gutenberg syntax is not enabled

@@ -12,7 +12,7 @@ import { closeSmall, check } from '@wordpress/icons';
  * Internal dependencies
  */
 import classNames from 'classnames';
-import AIAssistantIcon from '../../icons/ai-assistant';
+import aiAssistant from '../../icons/ai-assistant';
 import origamiPlane from '../../icons/origami-plane';
 import { isUserConnected } from '../../lib/connection';
 import ConnectPrompt from '../connect-prompt';
@@ -159,7 +159,7 @@ const AIControl = forwardRef(
 								<Spinner className="jetpack-ai-assistant__input-spinner" />
 							) : (
 								<Icon
-									icon={ AIAssistantIcon }
+									icon={ aiAssistant }
 									size={ 24 }
 									className="jetpack-ai-assistant__input-icon"
 								/>

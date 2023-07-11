@@ -2,9 +2,19 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
-import { rawHandler, createBlock } from '@wordpress/blocks';
-import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
+import { useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
+import { rawHandler, createBlock, parse } from '@wordpress/blocks';
+import {
+	Flex,
+	FlexBlock,
+	Modal,
+	Notice,
+	PanelBody,
+	PanelRow,
+	ToggleControl,
+	TextareaControl,
+	Button,
+} from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
@@ -20,6 +30,7 @@ import ImageWithSelect from './components/image-with-select';
 import useAIFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { getImagesFromOpenAI } from './lib/image';
+import { getInitialSystemPrompt } from './lib/prompt';
 import './editor.scss';
 
 const markdownConverter = new MarkdownIt( {
@@ -27,6 +38,8 @@ const markdownConverter = new MarkdownIt( {
 } );
 
 const isInBlockEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
+const isPlaygroundVisible =
+	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-playground-visible' ];
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
@@ -37,13 +50,19 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const [ errorDismissed, setErrorDismissed ] = useState( null );
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+
+	const getBlock = useSelect(
+		select => () => select( 'core/block-editor' ).getBlock( clientId ),
+		[ clientId ]
+	);
+
 	const aiControlRef = useRef( null );
 	const blockRef = useRef( null );
 
-	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( blockEditorStore );
+	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { mediaUpload } = useSelect( select => {
-		const { getSettings } = select( blockEditorStore );
+		const { getSettings } = select( 'core/block-editor' );
 		const settings = getSettings();
 		return {
 			mediaUpload: settings.mediaUpload,
@@ -97,6 +116,46 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}
 	}, [ errorData ] );
 
+	/*
+	 * Populate the block with inner blocks if:
+	 * - It's the first time the block is rendered
+	 * - It's Gutenberg syntax enabled
+	 * - The block doesn't have children blocks
+	 * - The `content` attribute contains contains blocks definition
+	 */
+	const initialContent = useRef( attributes?.content );
+	useEffect( () => {
+		// Check if is Gutenberg syntax enabled
+		if ( ! attributes?.useGutenbergSyntax ) {
+			return;
+		}
+
+		// Bail out if the block doesn't have content (via attribute)
+		if ( ! initialContent?.current?.length ) {
+			return;
+		}
+
+		// Bail out if the block already has children blocks
+		const block = getBlock();
+		if ( block?.innerBlocks?.length ) {
+			return;
+		}
+
+		/*
+		 * Bail out if the content doesn't contain blocks definition
+		 * This is a very basic check, but it's enough for now.
+		 * If the content hasn't blocks defined by using Gutenberg syntax,
+		 * it can parse undesired blocks. Eg: `core/freeform` block :scream:
+		 */
+		const storedInnerBlocks = parse( initialContent.current );
+		if ( ! storedInnerBlocks?.length ) {
+			return;
+		}
+
+		// Populate block inner blocks
+		replaceBlocks( clientId, storedInnerBlocks );
+	}, [ initialContent, clientId, replaceBlocks, getBlock, attributes?.useGutenbergSyntax ] );
+
 	const saveImage = async image => {
 		if ( loadingImages ) {
 			return;
@@ -139,6 +198,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		} );
 	};
 
+	const useGutenbergSyntax = attributes?.useGutenbergSyntax;
+
 	// Waiting state means there is nothing to be done until it resolves
 	const isWaitingState = isLoadingCompletion || isLoadingCategories;
 	// Content is loaded
@@ -174,11 +235,31 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleAcceptContent = async () => {
-		const newContentBlocks = rawHandler( { HTML: markdownConverter.render( attributes.content ) } );
-		await replaceBlocks( clientId, newContentBlocks );
+		let newGeneratedBlocks = [];
+		if ( ! useGutenbergSyntax ) {
+			/*
+			 * Markdown-syntax content
+			 * - Get HTML code from markdown content
+			 * - Create blocks from HTML code
+			 */
+			newGeneratedBlocks = rawHandler( {
+				HTML: markdownConverter.render( attributes.content ),
+			} );
+		} else {
+			/*
+			 * Gutenberg-syntax content
+			 * - Blocks are already created
+			 * - blocks are children of the current block
+			 */
+			newGeneratedBlocks = getBlock();
+			newGeneratedBlocks = newGeneratedBlocks?.innerBlocks || [];
+		}
 
-		const lastEditableElement = getLastEditableElement( newContentBlocks );
+		// Replace the block with the new generated blocks
+		await replaceBlocks( clientId, newGeneratedBlocks );
 
+		// Move the caret to the end of the last editable element
+		const lastEditableElement = getLastEditableElement( newGeneratedBlocks );
 		if ( lastEditableElement ) {
 			moveCaretToEnd( lastEditableElement );
 		}
@@ -194,7 +275,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleTryAgain = () => {
-		setAttributes( { content: undefined, promptType: undefined } );
+		setAttributes( {
+			content: attributes?.originalContent,
+			promptType: undefined,
+			messages: attributes?.originalMessages,
+		} );
 	};
 
 	const handleGetSuggestion = ( ...args ) => {
@@ -237,13 +322,23 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}
 	);
 
+	/*
+	 * Custom prompt modal
+	 */
+	const [ isCustomPrompModalVisible, setIsCustomPrompModalVisible ] = useState( false );
+	const toogleShowCustomPromptModal = () => {
+		setIsCustomPrompModalVisible( ! isCustomPrompModalVisible );
+	};
+
+	const blockProps = useBlockProps( {
+		ref: blockRef,
+		className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
+	} );
+
+	const innerBlocks = useInnerBlocksProps( blockProps );
+
 	return (
-		<div
-			{ ...useBlockProps( {
-				ref: blockRef,
-				className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
-			} ) }
-		>
+		<div { ...blockProps }>
 			{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
 				<Notice
 					status={ errorData.status }
@@ -253,13 +348,75 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					{ errorData.message }
 				</Notice>
 			) }
-			{ contentIsLoaded && (
-				<>
-					<div className="jetpack-ai-assistant__content">
-						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
-					</div>
-				</>
+
+			{ contentIsLoaded && ! useGutenbergSyntax && (
+				<div className="jetpack-ai-assistant__content">
+					<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
+				</div>
 			) }
+
+			{ contentIsLoaded && useGutenbergSyntax && (
+				<div className="jetpack-ai-assistant__content is-layout-building-mode" { ...innerBlocks } />
+			) }
+
+			{ isPlaygroundVisible && (
+				<InspectorControls>
+					<PanelBody title={ __( 'AI Playground', 'jetpack' ) } initialOpen={ true }>
+						<PanelRow>
+							<ToggleControl
+								label={ __( 'Gutenberg Syntax', 'jetpack' ) }
+								onChange={ check => setAttributes( { useGutenbergSyntax: check } ) }
+								checked={ attributes.useGutenbergSyntax }
+							/>
+						</PanelRow>
+						<PanelRow>
+							<ToggleControl
+								label={ __( 'GPT-4', 'jetpack' ) }
+								onChange={ check => setAttributes( { useGpt4: check } ) }
+								checked={ attributes.useGpt4 }
+							/>
+						</PanelRow>
+						<PanelRow>
+							{ isCustomPrompModalVisible && (
+								<Modal
+									title={ __( 'Custom System Prompt', 'jetpack' ) }
+									onRequestClose={ toogleShowCustomPromptModal }
+								>
+									<TextareaControl
+										rows={ 20 }
+										label={ __( 'Set up the custom system prompt ', 'jetpack' ) }
+										onChange={ value => setAttributes( { customSystemPrompt: value } ) }
+										className="jetpack-ai-assistant__custom-prompt"
+										value={
+											attributes.customSystemPrompt ||
+											getInitialSystemPrompt( {
+												useGutenbergSyntax: attributes.useGutenbergSyntax,
+												useGpt4: attributes.useGpt4,
+											} )?.content
+										}
+									/>
+									<div className="jetpack-ai-assistant__custom-prompt__footer">
+										<Button
+											onClick={ () => setAttributes( { customSystemPrompt: '' } ) }
+											variant="secondary"
+										>
+											{ __( 'Restore the prompt', 'jetpack' ) }
+										</Button>
+
+										<Button onClick={ toogleShowCustomPromptModal } variant="secondary">
+											{ __( 'Close', 'jetpack' ) }
+										</Button>
+									</div>
+								</Modal>
+							) }
+							<Button onClick={ toogleShowCustomPromptModal } variant="secondary">
+								{ __( 'Set system custom prompt', 'jetpack' ) }
+							</Button>
+						</PanelRow>
+					</PanelBody>
+				</InspectorControls>
+			) }
+
 			<AIControl
 				ref={ aiControlRef }
 				content={ attributes.content }

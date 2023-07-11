@@ -5,7 +5,7 @@
 	const urlWithoutProtocol = url.replace( /^https?:\/\/(www\.)?/, '' );
 </script>
 
-<b>{title}</b>
+<b {title}>{title}</b>
 <a href={url} target="_blank">
 	{urlWithoutProtocol}
 </a>
@@ -15,6 +15,9 @@
 		display: block;
 		font-size: 1.125rem;
 		margin-bottom: 4px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	a {

@@ -35,6 +35,17 @@ export class SyncedStore< T > {
 		);
 	}
 
+	/**
+	 * Deep clone a JSON-compatible value. Uses structuredClone if available, otherwise uses JSON.parse.
+	 */
+	private clone( value: T ): T {
+		if ( typeof structuredClone === 'function' ) {
+			return structuredClone( value );
+		}
+
+		return JSON.parse( JSON.stringify( value ) );
+	}
+
 	private createStore( initialValue?: T ): SyncedWritable< T > {
 		const store = writable< T >( initialValue );
 
@@ -47,7 +58,7 @@ export class SyncedStore< T > {
 			// structuredClone may be necessary because using `set` in Svelte will mutate objects.
 			// By the time the value gets to SyncedStore methods it's already mutated,
 			// and so the previous value will be the same as the current value.
-			prevValue = isPrimitive ? value : structuredClone( value );
+			prevValue = isPrimitive ? value : this.clone( value );
 		} );
 
 		// `set` is a required method in the Writable interface.
@@ -123,7 +134,7 @@ export class SyncedStore< T > {
 			// structuredClone is necessary here,
 			// because the updateCallback can mutate the value,
 			// and that's going to fail the comparison in `abortableSynchronize`.
-			set( updateCallback( structuredClone( prevValue ) ) );
+			set( updateCallback( this.clone( prevValue ) ) );
 		};
 
 		return {

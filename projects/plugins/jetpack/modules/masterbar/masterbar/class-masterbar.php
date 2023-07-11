@@ -84,6 +84,12 @@ class Masterbar {
 	 */
 	private $primary_site_slug;
 	/**
+	 * Site URL displayed in the UI.
+	 *
+	 * @var string
+	 */
+	private $primary_site_url;
+	/**
 	 * Whether the text direction is RTL (based on connected WordPress.com user's interface settings).
 	 *
 	 * @var boolean

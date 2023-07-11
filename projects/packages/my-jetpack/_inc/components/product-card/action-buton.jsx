@@ -1,6 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
+import { useProduct } from '../../hooks/use-product';
 
 export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
@@ -16,16 +17,20 @@ const ActionButton = ( {
 	status,
 	admin,
 	name,
+	slug,
 	onActivate,
 	onManage,
 	onFixConnection,
 	isFetching,
 	isInstallingStandalone,
 	isDeactivatingStandalone,
-	isManageDisabled,
 	className,
 	onAdd,
 } ) => {
+	const { detail } = useProduct( slug );
+	const { manageUrl, purchaseUrl } = detail;
+	const isManageDisabled = ! manageUrl;
+
 	if ( ! admin ) {
 		return (
 			<Button { ...buttonState } size="small" variant="link" weight="regular">
@@ -49,7 +54,13 @@ const ActionButton = ( {
 		case PRODUCT_STATUSES.ABSENT:
 		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
 			return (
-				<Button { ...buttonState } size="small" variant="link" weight="regular">
+				<Button
+					{ ...buttonState }
+					href={ `#/add-${ slug }` }
+					size="small"
+					variant="link"
+					weight="regular"
+				>
 					{ status === PRODUCT_STATUSES.ABSENT &&
 						sprintf(
 							/* translators: placeholder is product name. */
@@ -64,19 +75,38 @@ const ActionButton = ( {
 						) }
 				</Button>
 			);
-		case PRODUCT_STATUSES.NEEDS_PURCHASE:
+		case PRODUCT_STATUSES.NEEDS_PURCHASE: {
+			const upgradeText = __( 'Upgrade', 'jetpack-my-jetpack' );
+			const purchaseText = __( 'Purchase', 'jetpack-my-jetpack' );
+			const buttonText = purchaseUrl ? upgradeText : purchaseText;
 			return (
-				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
-					{ __( 'Purchase', 'jetpack-my-jetpack' ) }
+				<Button
+					{ ...buttonState }
+					href={ purchaseUrl || `#/add-${ slug }` }
+					size="small"
+					weight="regular"
+					onClick={ onAdd }
+				>
+					{ buttonText }
 				</Button>
 			);
+		}
 		case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
 			return (
-				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
+				<Button
+					{ ...buttonState }
+					href={ `#/add-${ slug }` }
+					size="small"
+					weight="regular"
+					onClick={ onAdd }
+				>
 					{ __( 'Start for free', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
-		case PRODUCT_STATUSES.ACTIVE:
+		case PRODUCT_STATUSES.ACTIVE: {
+			const viewText = __( 'View', 'jetpack-my-jetpack' );
+			const manageText = __( 'Manage', 'jetpack-my-jetpack' );
+			const buttonText = purchaseUrl ? viewText : manageText;
 			return (
 				<Button
 					{ ...buttonState }
@@ -84,14 +114,22 @@ const ActionButton = ( {
 					size="small"
 					weight="regular"
 					variant="secondary"
+					href={ manageUrl }
 					onClick={ onManage }
 				>
-					{ __( 'Manage', 'jetpack-my-jetpack' ) }
+					{ buttonText }
 				</Button>
 			);
+		}
 		case PRODUCT_STATUSES.ERROR:
 			return (
-				<Button { ...buttonState } size="small" weight="regular" onClick={ onFixConnection }>
+				<Button
+					{ ...buttonState }
+					href="#/connection"
+					size="small"
+					weight="regular"
+					onClick={ onFixConnection }
+				>
 					{ __( 'Fix connection', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
