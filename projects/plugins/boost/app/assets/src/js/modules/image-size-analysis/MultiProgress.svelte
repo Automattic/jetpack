@@ -49,19 +49,7 @@
 					{isaGroupLabels[ group ] || group}
 				</ConditionalLink>
 				{#if 'other' === group}
-					<OtherGroupContext>
-						<p>
-							{__(
-								'In addition to the Homepage, Pages and Posts, Boost will also analyze the following custom post types found on your site:',
-								'jetpack-boost'
-							)}
-						</p>
-						<ul>
-							{#each summary.post_types as postType}
-								<li>{postType}</li>
-							{/each}
-						</ul>
-					</OtherGroupContext>
+					<OtherGroupContext />
 				{/if}
 			</div>
 

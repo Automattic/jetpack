@@ -5,7 +5,6 @@ namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync;
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
-use Automattic\Jetpack_Boost\Lib\Site_Urls;
 
 class Image_Size_Analysis_Summary implements Lazy_Entry, Entry_Can_Get {
 
@@ -25,11 +24,6 @@ class Image_Size_Analysis_Summary implements Lazy_Entry, Entry_Can_Get {
 				'status' => 'error',
 				'error'  => $report->get_error_message(),
 			);
-		}
-
-		// Add custom post types to 'Other' group.
-		if ( isset( $report->groups ) && isset( $report->groups->other ) ) {
-			$report->groups->other->post_types = json_decode( json_encode( Site_Urls::get_public_post_types( true ) ) );
 		}
 
 		return $report;

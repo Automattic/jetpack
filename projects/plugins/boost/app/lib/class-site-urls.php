@@ -116,11 +116,10 @@ class Site_Urls {
 		return $clean;
 	}
 
-	public static function get_public_post_types( $include_custom_post_types = false ) {
+	private static function get_public_post_types() {
 		$post_types = get_post_types(
 			array(
-				'public'   => true,
-				'_builtin' => ! $include_custom_post_types,
+				'public' => true,
 			)
 		);
 		unset( $post_types['attachment'] );

@@ -84,7 +84,6 @@ $group_schema = Schema::as_assoc_array(
 		'issue_count'   => Schema::as_number(),
 		'scanned_pages' => Schema::as_number(),
 		'total_pages'   => Schema::as_number(),
-		'post_types'    => Schema::as_array( Schema::as_string() )->nullable(),
 	)
 )->nullable();
 
