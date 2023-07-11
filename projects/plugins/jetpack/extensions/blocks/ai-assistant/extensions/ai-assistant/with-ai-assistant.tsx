@@ -14,11 +14,9 @@ import AiAssistantDropdown, {
 	KEY_ASK_AI_ASSISTANT,
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
+import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-selected-blocks';
 import { getPrompt } from '../../lib/prompt';
-import {
-	getRawTextFromHTML,
-	useTextContentFromSelectedBlocks,
-} from '../../lib/utils/block-content';
+import { getRawTextFromHTML } from '../../lib/utils/block-content';
 import { transfromToAIAssistantBlock } from '../../transforms';
 /*
  * Types
