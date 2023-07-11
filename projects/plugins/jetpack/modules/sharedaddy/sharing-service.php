@@ -106,9 +106,10 @@ class Sharing_Service {
 			'pocket'           => 'Share_Pocket',
 			'telegram'         => 'Share_Telegram',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
-			'skype'            => 'Share_Skype',
 			'mastodon'         => 'Share_Mastodon',
 			'nextdoor'         => 'Share_Nextdoor',
+			// deprecated.
+			'skype'            => 'Share_Skype',
 		);
 
 		if ( is_multisite() && is_plugin_active( 'press-this/press-this-plugin.php' ) ) {

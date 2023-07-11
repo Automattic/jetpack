@@ -201,6 +201,17 @@ class Dashboard_REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
 			)
 		);
+
+		// WordAds DSP API Logs routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/logs', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'edit_dsp_logs' ),
+				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -442,6 +453,16 @@ class Dashboard_REST_Controller {
 	 */
 	public function edit_dsp_campaigns( $req ) {
 		return $this->edit_dsp_generic( 'v1/campaigns', $req );
+	}
+
+	/**
+	 * Redirect POST/PUT/PATCH requests to WordAds DSP Logs endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function edit_dsp_logs( $req ) {
+		return $this->edit_dsp_generic( 'v1/logs', $req );
 	}
 
 	/**

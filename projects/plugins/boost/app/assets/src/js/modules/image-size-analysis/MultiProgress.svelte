@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { sprintf, __ } from '@wordpress/i18n';
+	import ConditionalLink from '../../elements/ConditionalLink.svelte';
+	import OtherGroupContext from '../../elements/OtherGroupContext.svelte';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
-	import { Link } from '../../utils/router';
 	import { isaGroupLabels, isaSummary } from './store/isa-summary';
 
 	function safePercent( value: number, outOf: number ): number {
@@ -28,22 +29,37 @@
 			{#if progress > 0 && progress < 100}
 				<Spinner />
 			{:else}
-				<Link class="jb-navigator-link" to="/image-size-analysis/{group}/1">
+				<ConditionalLink
+					isLink={hasIssues}
+					class="jb-navigator-link"
+					to="/image-size-analysis/{group}/1"
+				>
 					<span class="jb-bubble" class:done={isDone}>
 						{isDone ? '✓' : index + 1}
 					</span>
-				</Link>
+				</ConditionalLink>
 			{/if}
 
 			<div class="jb-category-name">
-				<Link class="jb-navigator-link" to="/image-size-analysis/{group}/1">
+				<ConditionalLink
+					isLink={hasIssues}
+					class="jb-navigator-link"
+					to="/image-size-analysis/{group}/1"
+				>
 					{isaGroupLabels[ group ] || group}
-				</Link>
+				</ConditionalLink>
+				{#if 'other' === group}
+					<OtherGroupContext />
+				{/if}
 			</div>
 
 			{#if isDone || hasIssues}
 				<div class="jb-status" class:has-issues={hasIssues}>
-					<Link class="jb-navigator-link" to="/image-size-analysis/{group}/1">
+					<ConditionalLink
+						isLink={hasIssues}
+						class="jb-navigator-link"
+						to="/image-size-analysis/{group}/1"
+					>
 						{#if hasIssues}
 							{sprintf(
 								/* translators: %d is the number of items in this list hidden behind this link */
@@ -53,7 +69,7 @@
 						{:else}
 							{__( 'No issues', 'jetpack-boost' )}
 						{/if}
-					</Link>
+					</ConditionalLink>
 				</div>
 			{/if}
 		</div>
@@ -65,6 +81,10 @@
 		width: 100%;
 		display: flex;
 		gap: 8px;
+
+		@media ( max-width: 782px ) {
+			flex-direction: column;
+		}
 	}
 	.jb-progress {
 		grid-area: progress;
@@ -101,6 +121,7 @@
 	.jb-status {
 		grid-area: status;
 		font-size: 0.875rem;
+		color: var( --gray-50 );
 		:global( a ),
 		&.has-issues {
 			color: var( --color_warning );
@@ -109,5 +130,31 @@
 	.jb-category-name {
 		grid-area: category;
 		display: flex;
+
+		:global( .jb-score-context ) {
+			top: 2px;
+		}
+
+		:global( .jb-score-context__info-icon ) {
+			width: 14px;
+			height: 14px;
+			font-size: 10px;
+		}
+
+		:global( .jb-score-context__info-container ) {
+			top: 24px;
+			@media ( min-width: 782px ) {
+				left: -112px;
+			}
+			@media ( max-width: 782px ) {
+				left: 112px;
+			}
+		}
+
+		:global( .jb-score-context__info-container i ) {
+			@media ( max-width: 782px ) {
+				left: 41px;
+			}
+		}
 	}
 </style>

@@ -3,6 +3,7 @@
 	import Toggle from '../../../elements/Toggle.svelte';
 	import { modulesState } from '../../../stores/modules';
 
+	export let toggle = true;
 	export let slug: string;
 
 	const dispatch = createEventDispatcher();
@@ -27,8 +28,15 @@
 {#if isModuleAvailable}
 	<div class="jb-feature-toggle">
 		<div class="jb-feature-toggle__toggle">
-			<Toggle id={`jb-feature-toggle-${ slug }`} checked={isModuleActive} on:click={handleToggle} />
+			{#if toggle}
+				<Toggle
+					id={`jb-feature-toggle-${ slug }`}
+					checked={isModuleActive}
+					on:click={handleToggle}
+				/>
+			{/if}
 		</div>
+
 		<div class="jb-feature-toggle__content">
 			<slot name="title" />
 
@@ -50,3 +58,9 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	.jb-feature-toggle__toggle {
+		min-width: 36px;
+	}
+</style>

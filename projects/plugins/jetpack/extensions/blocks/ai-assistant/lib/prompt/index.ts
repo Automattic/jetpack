@@ -53,28 +53,35 @@ export const delimiter = '````';
  * @param {object} options - The options for the prompt.
  * @param {string} options.context - The context of the prompt.
  * @param {Array<string>} options.rules - The rules to follow.
+ * @param {string} options.customSystemPrompt - Provide a custom system prompt that will override system.
  * @returns {PromptItemProps} The initial system prompt.
  */
 export function getInitialSystemPrompt( {
 	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
 	rules,
+	customSystemPrompt = null,
 }: {
 	context?: string;
 	rules?: Array< string >;
+	customSystemPrompt?: string;
 } ): PromptItemProps {
 	// Rules
 	let extraRules = '';
 	if ( rules?.length ) {
 		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
 	}
-	const prompt = `${ context }.
-Strictly follow these rules:
+
+	let prompt = `${ context }. Strictly follow these rules:
 
 ${ extraRules }- Format your responses in Markdown syntax, ready to be published.
-- Execute the request without any acknowledgment to the user.
+- Execute the request without any acknowledgement to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `;
+
+	if ( customSystemPrompt ) {
+		prompt = customSystemPrompt;
+	}
 
 	return { role: 'system', content: prompt };
 }
@@ -221,19 +228,21 @@ export const buildPromptTemplate = ( {
 	relevantContent = null,
 	isContentGenerated = false,
 	isGeneratingTitle = false,
+	customSystemPrompt = null,
 }: {
 	rules?: Array< string >;
 	request?: string;
 	relevantContent?: string;
 	isContentGenerated?: boolean;
 	isGeneratingTitle?: boolean;
+	customSystemPrompt?: string;
 } ): Array< PromptItemProps > => {
 	if ( ! request && ! relevantContent ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
 	// Add initial system prompt.
-	const messages = [ getInitialSystemPrompt( { rules } ) ];
+	const messages = [ getInitialSystemPrompt( { rules, customSystemPrompt } ) ];
 
 	if ( relevantContent != null && relevantContent?.length ) {
 		const sanitizedContent = relevantContent.replaceAll( delimiter, '' );
@@ -272,6 +281,7 @@ type BuildPromptOptions = {
 	type: PromptTypeProp;
 	userPrompt?: string;
 	isGeneratingTitle?: boolean;
+	customSystemPrompt?: string;
 	options: {
 		contentType?: 'generated' | string;
 		tone?: ToneProp;
@@ -359,6 +369,7 @@ export function buildPromptForBlock( {
 	type,
 	userPrompt,
 	isGeneratingTitle,
+	customSystemPrompt,
 }: BuildPromptOptions ): Array< PromptItemProps > {
 	const isContentGenerated = options?.contentType === 'generated';
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
@@ -394,6 +405,7 @@ export function buildPromptForBlock( {
 			relevantContent,
 			isContentGenerated,
 			isGeneratingTitle,
+			customSystemPrompt,
 		} );
 	}
 
@@ -402,6 +414,7 @@ export function buildPromptForBlock( {
 		relevantContent: generatedContent || allPostContent,
 		isContentGenerated: !! generatedContent?.length,
 		isGeneratingTitle,
+		customSystemPrompt,
 	} );
 }
 
