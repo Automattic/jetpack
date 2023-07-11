@@ -409,7 +409,8 @@ class AddCommandTest extends CommandTestCase {
 				1,
 				null,
 				array(
-					'/Entry must be specified in non-interactive mode./\nIf you want to have an empty entry for this change, pass the empty string as the entry (like --entry=) and also please provide a comment (using --comment)./',
+					'/Entry must be specified in non-interactive mode\./',
+					'/If you want to have an empty entry for this change, pass the empty string as the entry \(like --entry=\) and also please provide a comment \(using --comment\)\./',
 				),
 			),
 			'Non-interactive use with invalid entry'       => array(
