@@ -32,8 +32,6 @@ type BlockSettingsProps = {
 export const isAiAssistantSupportExtensionEnabled =
 	window?.Jetpack_Editor_Initial_State.available_blocks?.[ AI_ASSISTANT_SUPPORT_NAME ];
 
-const siteRequiresUpgrade = AI_Assistant_Initial_State.requireUpgrade;
-
 /**
  * Check if it is possible to extend the block.
  *
@@ -53,11 +51,6 @@ export function isPossibleToExtendBlock(): boolean {
 	// Do not extend the block if the site is not connected.
 	const connected = isUserConnected();
 	if ( ! connected ) {
-		return false;
-	}
-
-	// Do not extend the block if the site requires an upgrade.
-	if ( siteRequiresUpgrade ) {
 		return false;
 	}
 
