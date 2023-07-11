@@ -287,7 +287,7 @@ EOF
 			} else {
 				if ( null === $entry ) {
 					$output->writeln( '<error>Entry must be specified in non-interactive mode.</>' );
-					if ( null === $entry && 'patch' === $significance ) {
+					if ( 'patch' === $significance ) {
 						$output->writeln( '<info>If you want to have an empty entry for this change, pass the empty string as the entry (like <comment>--entry=</>) and also please provide a comment (using <comment>--comment</>).</>' );
 					}
 					return 1;
