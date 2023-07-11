@@ -15,10 +15,6 @@ class Image_Size_Analysis implements Pluggable, Has_Endpoints, Is_Always_On {
 	}
 
 	public static function is_available() {
-		if ( ! defined( 'JETPACK_BOOST_IMAGE_SIZE_ANALYSIS' ) || ! JETPACK_BOOST_IMAGE_SIZE_ANALYSIS ) {
-			return false;
-		}
-
 		return Premium_Features::has_feature( Premium_Features::IMAGE_SIZE_ANALYSIS );
 	}
 
