@@ -51,7 +51,7 @@ export function transfromToAIAssistantBlock( attrs, blockType: ExtendedBlockProp
 		},
 		{
 			role: 'assistant',
-			content,
+			content: aiAssistantBlockcontent,
 		},
 	];
 
