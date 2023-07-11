@@ -347,7 +347,7 @@ class Search extends Module {
 		'panels_data'                            => array(),
 		'parking'                                => array(),
 		'pdf_upload'                             => array(),
-		'people_mentioned'			 => array(),
+		'people_mentioned'                       => array(),
 		'photo'                                  => array(),
 		'play_time'                              => array(),
 		'position'                               => array(),
