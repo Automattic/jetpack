@@ -594,22 +594,7 @@ function wpcom_launchpad_is_keep_building_enabled() {
  * @return bool True if the task list is enabled, false otherwise.
  */
 function wpcom_launchpad_is_intent_write_enabled() {
-
-	if ( ! is_automattician() ) {
-		return false;
-	}
-
-	$intent                  = get_option( 'site_intent', false );
-	$launchpad_task_statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
-
-	$launched = isset( $launchpad_task_statuses['site_launched'] ) && $launchpad_task_statuses['site_launched'];
-	$blog_id  = get_current_blog_id();
-
-	if ( 'write' === $intent && $blog_id > 220443356 && $launched ) {
-		return true;
-	}
-
-	return false;
+	return apply_filters( 'is_launchpad_intent_write_enabled', false );
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
