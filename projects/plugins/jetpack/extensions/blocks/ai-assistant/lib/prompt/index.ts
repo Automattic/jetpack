@@ -58,7 +58,7 @@ export const delimiter = '````';
  * @returns {PromptItemProps} The initial system prompt.
  */
 export function getInitialSystemPrompt( {
-	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
+	context = 'You are an advanced polyglot ghostwriter. Your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the WordPress editor',
 	rules,
 	useGutenbergSyntax = false,
 	customSystemPrompt = null,
