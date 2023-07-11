@@ -21,6 +21,7 @@ const zGroup = z.object( {
 	issue_count: z.number(),
 	scanned_pages: z.number(),
 	total_pages: z.number(),
+	post_types: z.array( z.string() ).nullable().optional(),
 } );
 
 const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(

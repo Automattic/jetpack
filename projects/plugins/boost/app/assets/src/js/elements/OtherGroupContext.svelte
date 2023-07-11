@@ -1,32 +1,18 @@
-<script lang="ts">
-	import { __ } from '@wordpress/i18n';
-</script>
-
 <div class="jb-score-context">
 	<span class="jb-score-context__info-icon">i</span>
 	<div class="jb-score-context__info-container">
-		<p>
-			{__(
-				'In addition to the Homepage, Pages and Posts, Boost will also analyze the following custom post types found on your site:',
-				'jetpack-boost'
-			)}
-		</p>
-		<ul>
-			<li>Testimonials</li>
-			<li>Portfolio</li>
-			<li>Projects</li>
-		</ul>
+		<slot />
 		<i />
 	</div>
 </div>
 
 <style scope="scss">
-	ul {
+	.jb-score-context :global( ul ) {
 		list-style: outside;
 		margin-left: 20px;
 	}
 
-	ul:last-of-type {
+	.jb-score-context :global( ul:last-of-type ) {
 		margin-bottom: 0;
 	}
 </style>
