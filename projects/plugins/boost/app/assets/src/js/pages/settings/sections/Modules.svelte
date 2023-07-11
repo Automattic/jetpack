@@ -170,6 +170,56 @@
 		</p>
 	</Module>
 
+	<Module slug="minify_js">
+		<h3 slot="title">{__( 'Concatenate JS', 'jetpack-boost' )}</h3>
+		<p slot="description">
+			{__(
+				'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+				'jetpack-boost'
+			)}
+		</p>
+
+		<div slot="meta">
+			<MinifyMeta
+				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
+				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
+				placeholder={__( 'Comma separated list of JS scripts to exclude', 'jetpack-boost' )}
+				value={$minifyJsExcludesStore}
+				on:save={e => ( $minifyJsExcludesStore = e.detail )}
+			/>
+		</div>
+	</Module>
+
+	<Module slug="minify_css">
+		<h3 slot="title">{__( 'Concatenate CSS', 'jetpack-boost' )}</h3>
+		<p slot="description">
+			{__(
+				'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+				'jetpack-boost'
+			)}
+		</p>
+
+		<div slot="meta">
+			<MinifyMeta
+				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
+				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
+				placeholder={__( 'Comma separated list of CSS stylesheets to exclude', 'jetpack-boost' )}
+				value={$minifyCssExcludesStore}
+				on:save={e => ( $minifyCssExcludesStore = e.detail )}
+			/>
+		</div>
+	</Module>
+
+	<Module slug="image_cdn">
+		<h3 slot="title">{__( 'Image CDN', 'jetpack-boost' )}</h3>
+		<p slot="description">
+			{__(
+				`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
+				'jetpack-boost'
+			)}
+		</p>
+	</Module>
+
 	<div class="settings">
 		<Module slug="image_guide">
 			<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
@@ -202,56 +252,6 @@
 		</Module>
 	</div>
 
-	<Module slug="minify_js">
-		<h3 slot="title">{__( 'Concatenate JS', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
-		<p slot="description">
-			{__(
-				'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-				'jetpack-boost'
-			)}
-		</p>
-
-		<div slot="meta">
-			<MinifyMeta
-				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
-				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
-				placeholder={__( 'Comma separated list of JS scripts to exclude', 'jetpack-boost' )}
-				value={$minifyJsExcludesStore}
-				on:save={e => ( $minifyJsExcludesStore = e.detail )}
-			/>
-		</div>
-	</Module>
-
-	<Module slug="minify_css">
-		<h3 slot="title">{__( 'Concatenate CSS', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
-		<p slot="description">
-			{__(
-				'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
-				'jetpack-boost'
-			)}
-		</p>
-
-		<div slot="meta">
-			<MinifyMeta
-				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
-				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
-				placeholder={__( 'Comma separated list of CSS stylesheets to exclude', 'jetpack-boost' )}
-				value={$minifyCssExcludesStore}
-				on:save={e => ( $minifyCssExcludesStore = e.detail )}
-			/>
-		</div>
-	</Module>
-
-	<Module slug="image_cdn">
-		<h3 slot="title">{__( 'Image CDN', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
-		<p slot="description">
-			{__(
-				`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
-				'jetpack-boost'
-			)}
-		</p>
-	</Module>
-
 	<SuperCacheInfo />
 </div>
 
@@ -261,8 +261,8 @@
 		padding-top: 20px;
 	}
 	.beta {
-		background: hsl( 0, 0%, 90% );
-		color: hsl( 0, 0%, 20% );
+		background: var( --jp-green-5 );
+		color: var( --jp-green-60 );
 		padding: 2px 5px;
 		border-radius: 3px;
 		font-size: 0.8rem;

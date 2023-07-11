@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+- hide connection owner information if the data is invalid
+- don't suggest user connection if user is already connected, but connection owner is invalid

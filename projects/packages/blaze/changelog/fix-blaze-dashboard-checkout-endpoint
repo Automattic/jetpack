@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Fixed compatibility with the checkout endpoint
