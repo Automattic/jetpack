@@ -349,6 +349,8 @@ class Jetpack_Subscriptions {
 		);
 
 		/** Enable Subscribe Modal */
+
+		/** This filter is documented in plugins/jetpack/modules/subscriptions/subscribe-module/class-jetpack-subscribe-module.php */
 		if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
 			add_settings_field(
 				'jetpack_subscriptions_comment_subscribe',
