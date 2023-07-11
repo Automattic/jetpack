@@ -152,9 +152,10 @@ class Initializer {
 		new Settings();
 		// Instantiate "Customberg", the live search configuration interface.
 		Customberg::instance();
-		// Enable configuring instant search within the Customizer.
-		// Not need to check existence of `WP_Customize_Manager`, because which is not loaded all the time.
-		new Customizer();
+		// Enable configuring instant search within the Customizer iff it's not using a block theme.
+		if ( ! function_exists( 'wp_is_block_theme' ) || ( function_exists( 'wp_is_block_theme' ) && ! wp_is_block_theme() ) ) {
+			new Customizer();
+		}
 		return true;
 	}
 

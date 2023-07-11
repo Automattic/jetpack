@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reset connection errors upon successful Restore request.

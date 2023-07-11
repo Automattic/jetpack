@@ -5,7 +5,7 @@
 
 	const navigate = useNavigate();
 
-	export let route = -1;
+	export let route: number | string = -1;
 </script>
 
 <button
