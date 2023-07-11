@@ -139,7 +139,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const newAIAssistantBlock = transfromToAIAssistantBlock( { content }, { blockType } );
+				const newAIAssistantBlock = transfromToAIAssistantBlock( { content }, blockType );
 
 				/*
 				 * Store in the local storage the client id

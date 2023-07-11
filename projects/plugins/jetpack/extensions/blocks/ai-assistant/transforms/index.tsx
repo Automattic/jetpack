@@ -14,10 +14,6 @@ import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assis
 import type { ExtendedBlockProp } from '../extensions/ai-assistant';
 import type { PromptItemProps } from '../lib/prompt';
 
-type transfromToAIAssistantBlockOptionsProps = {
-	blockType: ExtendedBlockProp;
-};
-
 const turndownService = new TurndownService( { emDelimiter: '_', headingStyle: 'atx' } );
 
 const from = [];
@@ -26,13 +22,10 @@ const from = [];
  * Return an AI Assistant block instance from a given block type.
  *
  * @param {object} attrs                                      - Block attributes.
- * @param {transfromToAIAssistantBlockOptionsProps} blockType - Block type.
+ * @param {ExtendedBlockProp} blockType - Block type.
  * @returns {object}                                            AI Assistant block instance.
  */
-export function transfromToAIAssistantBlock(
-	attrs,
-	{ blockType }: transfromToAIAssistantBlockOptionsProps
-) {
+export function transfromToAIAssistantBlock( attrs, blockType: ExtendedBlockProp ) {
 	const { content, ...restAttrs } = attrs;
 	// Create a temporary block to get the HTML content.
 	const temporaryBlock = createBlock( blockType, { content } );
@@ -76,7 +69,7 @@ for ( const blockType of EXTENDED_BLOCKS ) {
 		type: 'block',
 		blocks: [ blockType ],
 		isMatch: () => isPossibleToExtendBlock(),
-		transform: attrs => transfromToAIAssistantBlock( attrs, { blockType } ),
+		transform: attrs => transfromToAIAssistantBlock( attrs, blockType ),
 	} );
 }
 
