@@ -25,7 +25,7 @@ const from = [];
  * @param {ExtendedBlockProp} blockType - Block type.
  * @returns {object}                                            AI Assistant block instance.
  */
-export function transfromToAIAssistantBlock( attrs, blockType: ExtendedBlockProp ) {
+export function transformToAIAssistantBlock( attrs, blockType: ExtendedBlockProp ) {
 	const { content, ...restAttrs } = attrs;
 	// Create a temporary block to get the HTML content.
 	const temporaryBlock = createBlock( blockType, { content } );
@@ -69,7 +69,7 @@ for ( const blockType of EXTENDED_BLOCKS ) {
 		type: 'block',
 		blocks: [ blockType ],
 		isMatch: () => isPossibleToExtendBlock(),
-		transform: attrs => transfromToAIAssistantBlock( attrs, blockType ),
+		transform: attrs => transformToAIAssistantBlock( attrs, blockType ),
 	} );
 }
 

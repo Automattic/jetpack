@@ -113,7 +113,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	/*
 	 * Auto request the prompt if we detect
-	 * it was previsulay defined in the local storage.
+	 * it was previously defined in the local storage.
 	 */
 	const storeBlockId = getStoreBlockId( clientId );
 	useEffect( () => {

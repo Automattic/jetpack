@@ -16,7 +16,7 @@ import AiAssistantDropdown, {
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-selected-blocks';
 import { getRawTextFromHTML } from '../../lib/utils/block-content';
-import { transfromToAIAssistantBlock } from '../../transforms';
+import { transformToAIAssistantBlock } from '../../transforms';
 /*
  * Types
  */
@@ -140,7 +140,7 @@ export const withAIAssistant = createHigherOrderComponent(
 					content,
 				};
 
-				const newAIAssistantBlock = transfromToAIAssistantBlock(
+				const newAIAssistantBlock = transformToAIAssistantBlock(
 					extendedBlockAttributes,
 					blockType
 				);
@@ -180,7 +180,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 			replaceBlock(
 				firstClientId,
-				transfromToAIAssistantBlock( extendedBlockAttributes, blockType )
+				transformToAIAssistantBlock( extendedBlockAttributes, blockType )
 			);
 
 			removeBlocks( otherBlocksIds );
