@@ -291,7 +291,13 @@ export const buildPromptTemplate = ( {
 	return messages;
 };
 
-type BuildPromptOptions = {
+export type BuildPromptOptionsProps = {
+	contentType?: 'generated' | string;
+	tone?: ToneProp;
+	language?: string;
+};
+
+type BuildPromptProps = {
 	generatedContent: string;
 	allPostContent?: string;
 	postContentAbove?: string;
@@ -301,11 +307,7 @@ type BuildPromptOptions = {
 	isGeneratingTitle?: boolean;
 	useGutenbergSyntax?: boolean;
 	customSystemPrompt?: string;
-	options: {
-		contentType?: 'generated' | string;
-		tone?: ToneProp;
-		language?: string;
-	};
+	options: BuildPromptOptionsProps;
 };
 
 type GetPromptOptionsProps = {
@@ -375,7 +377,7 @@ export function promptTextFor(
  * Builds a prompt based on the type of prompt.
  * Meant for use by the block, not the extensions.
  *
- * @param {BuildPromptOptions} options - The prompt options.
+ * @param {BuildPromptProps} options - The prompt options.
  * @returns {Array< PromptItemProps >} The prompt.
  * @throws {Error} If the type is not recognized.
  */
@@ -390,7 +392,7 @@ export function buildPromptForBlock( {
 	isGeneratingTitle,
 	useGutenbergSyntax,
 	customSystemPrompt,
-}: BuildPromptOptions ): Array< PromptItemProps > {
+}: BuildPromptProps ): Array< PromptItemProps > {
 	const isContentGenerated = options?.contentType === 'generated';
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
 
@@ -452,7 +454,7 @@ export function getPrompt(
 	options: PromptOptionsProps
 ): Array< PromptItemProps > {
 	debug( 'Addressing prompt type: %o %o', type, options );
-	const { prevMessages } = options;
+	const { prevMessages = [] } = options;
 
 	const context =
 		'You are an advanced polyglot ghostwriter.' +

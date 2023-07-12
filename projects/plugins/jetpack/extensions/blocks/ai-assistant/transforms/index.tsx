@@ -7,15 +7,12 @@ import TurndownService from 'turndown';
  * Internal dependencies
  */
 import { blockName } from '..';
-import {
-	EXTENDED_BLOCKS,
-	ExtendedBlockProp,
-	isPossibleToExtendBlock,
-} from '../extensions/ai-assistant';
+import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '../extensions/ai-assistant';
 /**
  * Types
  */
-import { PromptItemProps } from '../lib/prompt';
+import type { ExtendedBlockProp } from '../extensions/ai-assistant';
+import type { PromptItemProps } from '../lib/prompt';
 
 const turndownService = new TurndownService( { emDelimiter: '_', headingStyle: 'atx' } );
 
@@ -24,12 +21,12 @@ const from = [];
 /**
  * Return an AI Assistant block instance from a given block type.
  *
- * @param {object} attrs                - Block attributes.
+ * @param {object} attrs                                      - Block attributes.
  * @param {ExtendedBlockProp} blockType - Block type.
- * @returns {object}                      AI Assistant block instance.
+ * @returns {object}                                            AI Assistant block instance.
  */
-export function transfromToAIAssistantBlock( attrs, blockType: ExtendedBlockProp ) {
-	const { content, ...otherAttrs } = attrs;
+export function transformToAIAssistantBlock( attrs, blockType: ExtendedBlockProp ) {
+	const { content, ...restAttrs } = attrs;
 	// Create a temporary block to get the HTML content.
 	const temporaryBlock = createBlock( blockType, { content } );
 	let htmlContent = getBlockContent( temporaryBlock );
@@ -56,7 +53,7 @@ export function transfromToAIAssistantBlock( attrs, blockType: ExtendedBlockProp
 	];
 
 	return createBlock( blockName, {
-		...otherAttrs,
+		...restAttrs,
 		content: aiAssistantBlockcontent,
 		originalContent: aiAssistantBlockcontent,
 		messages,
@@ -72,7 +69,7 @@ for ( const blockType of EXTENDED_BLOCKS ) {
 		type: 'block',
 		blocks: [ blockType ],
 		isMatch: () => isPossibleToExtendBlock(),
-		transform: attrs => transfromToAIAssistantBlock( attrs, blockType ),
+		transform: attrs => transformToAIAssistantBlock( attrs, blockType ),
 	} );
 }
 
