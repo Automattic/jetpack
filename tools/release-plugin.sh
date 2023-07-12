@@ -43,7 +43,7 @@ if ! version_compare "$GH_VER" "2.21.2"; then
 fi
 
 # Make sure we're signed into the GitHub CLI.
-if ! gh auth status &> /dev/null; then
+if ! gh auth status --hostname github.com &> /dev/null; then
 	yellow "You are not signed into the GitHub CLI."
 	proceed_p "Sign in to the GitHub CLI?"
 	gh auth login
