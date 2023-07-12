@@ -1040,17 +1040,17 @@ function supercache_filename() {
 }
 
 function get_oc_version() {
-	_deprecated_function( __FUNCTION__, '$$next-version$$' );
+	_deprecated_function( __FUNCTION__, '1.10.0' );
 }
 
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 function reset_oc_version( $version = 1 ) {
-	_deprecated_function( __FUNCTION__, '$$next-version$$' );
+	_deprecated_function( __FUNCTION__, '1.10.0' );
 }
 
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 function get_oc_key( $url = false ) {
-	_deprecated_function( __FUNCTION__, '$$next-version$$' );
+	_deprecated_function( __FUNCTION__, '1.10.0' );
 }
 
 function wp_supercache_cache_for_admins() {
