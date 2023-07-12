@@ -424,18 +424,14 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			"[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]"
 		);
 
-		$title         = 'You got a new response!';
-		$body          = 'Here are the details:';
-		$footer        = 'This is the footer';
-		$response_link = 'http://example.com/wp-admin/admin.php?page=feedback';
-		$form_link     = 'http://example.com/contact-us/';
-		$result        = $form->wrap_message_in_html_tags( $title, $response_link, $form_link, $body, $footer );
+		$title  = 'You got a new response!';
+		$body   = 'Here are the details:';
+		$footer = 'This is the footer';
+		$result = $form->wrap_message_in_html_tags( $title, $body, $footer );
 
 		$this->assertStringContainsString( $title, $result );
 		$this->assertStringContainsString( $body, $result );
 		$this->assertStringContainsString( $footer, $result );
-		$this->assertStringContainsString( $response_link, $result );
-		$this->assertStringContainsString( $form_link, $result );
 	}
 
 	/**
