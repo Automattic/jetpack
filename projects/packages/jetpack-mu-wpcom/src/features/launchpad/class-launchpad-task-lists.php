@@ -407,7 +407,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @param Task_List $task_list Task List.
 	 *
-	 * @return null | WP_Error Null if valid, WP_Error if not.
+	 * @return null|WP_Error Null if valid, WP_Error if not.
 	 */
 	public static function validate_task_list( $task_list ) {
 		$error_code = 'validate_task_list';
