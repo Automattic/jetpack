@@ -29,27 +29,27 @@ class Site_Urls {
 
 		$front_page = get_option( 'page_on_front' );
 		if ( ! empty( $front_page ) ) {
-			$urls['front_page'] = array(
+			$urls['core_front_page'] = array(
 				'url'      => get_permalink( $front_page ),
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $front_page ),
-				'group'    => 'front_page',
+				'group'    => 'core_front_page',
 			);
 		}
 
 		$posts_page = get_option( 'page_for_posts' );
 		if ( ! empty( $posts_page ) ) {
-			$urls['posts_page'] = array(
+			$urls['core_posts_page'] = array(
 				'url'      => get_permalink( $posts_page ),
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $posts_page ),
-				'group'    => 'posts_page',
+				'group'    => 'other',
 			);
 		}
 
 		if ( empty( $front_page ) && empty( $posts_page ) ) {
-			$urls['posts_page'] = array(
+			$urls['core_posts_page'] = array(
 				'url'      => home_url( '/' ),
 				'modified' => current_time( 'Y-m-d H:i:s' ),
-				'group'    => 'front_page',
+				'group'    => 'core_front_page',
 			);
 		}
 
@@ -142,7 +142,7 @@ class Site_Urls {
 	private static function get_post_group( $p ) {
 		$post_type = get_post_type( $p->ID );
 		if ( 'post' === $post_type || 'page' === $post_type ) {
-			return $post_type;
+			return 'singular_' . $post_type;
 		}
 
 		return 'other';
