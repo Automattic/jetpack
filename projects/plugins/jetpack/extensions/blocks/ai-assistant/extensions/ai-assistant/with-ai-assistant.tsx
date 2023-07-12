@@ -165,7 +165,14 @@ export const withAIAssistant = createHigherOrderComponent(
 					JSON.stringify( storeObject )
 				);
 
+				/*
+				 * Replace the first block with the new AI Assistant block instance.
+				 * This block contains the original content,
+				 * even for multiple blocks selection.
+				 */
 				replaceBlock( firstClientId, newAIAssistantBlock );
+
+				// It removes the rest of the blocks in case there are more than one.
 				removeBlocks( otherBlocksIds );
 			},
 			[ blocks, clientIds, content, blockType, replaceBlock, removeBlocks ]
