@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import Button from '../../../../elements/Button.svelte';
+	import { recordBoostEventAndRedirect } from '../../../../utils/analytics';
 	import Device from '../components/Device.svelte';
 	import Pill from '../components/Pill.svelte';
 	import RowTitle from '../components/RowTitle.svelte';
@@ -137,7 +138,16 @@
 			<p>{details.instructions}</p>
 			{#if details.page.edit_url}
 				<div class="jb-actions">
-					<Button width="auto" href={details.page.edit_url} fill>
+					<Button
+						width="auto"
+						fill
+						on:click={() =>
+							recordBoostEventAndRedirect(
+								details.page.edit_url,
+								'clicked_fix_on_page_on_isa_report',
+								{}
+							)}
+					>
 						{__( 'Fix on page', 'jetpack-boost' )}
 					</Button>
 				</div>

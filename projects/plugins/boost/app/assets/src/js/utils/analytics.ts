@@ -73,3 +73,13 @@ function addBoostProps( props: TracksEventProperties ): TracksEventProperties {
 
 	return { ...defaultProps, ...props };
 }
+
+export function recordBoostEventAndRedirect(
+	url: string,
+	eventName: string,
+	eventProp: TracksEventProperties
+) {
+	recordBoostEvent( eventName, eventProp ).then( () => {
+		window.location.href = url;
+	} );
+}
