@@ -64,6 +64,16 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Missing dep on @emotion/react.
+	// https://github.com/WordPress/gutenberg/issues/52474
+	if (
+		pkg.name === '@wordpress/block-editor' &&
+		pkg.dependencies?.[ '@emotion/styled' ] &&
+		! pkg.dependencies?.[ '@emotion/react' ]
+	) {
+		pkg.dependencies[ '@emotion/react' ] = '^11.7.1';
+	}
+
 	// Avoid annoying flip-flopping of sub-dep peer deps.
 	// https://github.com/localtunnel/localtunnel/issues/481
 	if ( pkg.name === 'localtunnel' ) {
@@ -104,6 +114,16 @@ function fixDeps( pkg ) {
 	// No upstream bug link yet.
 	if ( pkg.name === 'svelte-navigator' && pkg.dependencies.svelte2tsx === '^0.1.151' ) {
 		pkg.dependencies.svelte2tsx = '^0.6.10';
+	}
+
+	// Missing dep or peer dep on @babel/runtime
+	// https://github.com/zillow/react-slider/issues/296
+	if (
+		pkg.name === 'react-slider' &&
+		! pkg.dependencies?.[ '@babel/runtime' ] &&
+		! pkg.peerDependencies?.[ '@babel/runtime' ]
+	) {
+		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
 	return pkg;

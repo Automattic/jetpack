@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 12.2.1
+Stable tag: 12.3
 Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.2
@@ -293,42 +293,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.3-a.7 - 2023-06-19
+### 12.4-a.1 - 2023-07-05
 #### Enhancements
-- AI Assistant: add and use ImproveToolbarDropdownMenu in block toolbar.
-- AI Assistant: add Expand option into AI Assistant dropdown menu.
-- AI Assistant: add Summarize option to the AI Assistant dropdown menu.
-- AI Assistant: add tone into AI Assistant dropdown menu.
-- AI Assistant: add translate option in extensions.
-- AI Assistant: build prompt from AI Assistant toolbar menu.
-- AI Assistant: collect, store and send prompt history.
-- AI Assistant: create function to build the post data prompt.
-- AI Assistant: extend blocks toolbar.
-- AI Assistant: extract and use block content utils.
-- AI Assistant: introduce function to create the initial system prompt.
-- AI Assistant: introduce jetpack/ai supports.
-- AI Assistant: iterate over custom hook to request suggestions.
-- AI Assistant: register ai-assistant-support beta extension.
-- AI Assistant: separate prompt text from relevant content for extensions.
-- AI Assistant: do not extend if the AI Assistant block is not registered.
-- AI Assistant: fix generating prompt when requesting suggestion.
-- AI Assistant: update block content once AI response is ready.
-- Customizer: hide the customizer submenu for block based themes. [#31353, #31376]
-- Newsletters: silence creation of the default membership product in a newsletter context.
-- Newsletters: update Paid newsletter panel designs.
-- Related Posts: add srcset for the thumbnails.
-- Social Logos: update to include a Nextdoor and a Fediverse logo.
-- Subscribers: add menu item to Calypso interface.
-- Tock Block: update the block settings interface.
+- AI Assistant: Keep original content when trying again after transforming a paragraph using the "Ask AI Assistant" button.
+- Contact Forms: remove the default title ("You got a new response!") added to emails sent for new feedback received.
+- Cookie Consent Block: Persist markup and ensure it is rendered in the footer.
+- Custom CSS: Display a notice to recommend the use of Global Styles when you use a Block theme on your site.
+- Subscribers page: Add subscribers page to menu.
 
 #### Improved compatibility
-- Tiled Galleries: avoid PHP deprecation notices on sites using PHP 8.2.
-- WordPress.com Toolbar: avoid PHP warnings with PHP 8.2.
+- Tiled Galleries: Fix deprecation notices that may appear in logs when using PHP 8.2.
 
 #### Bug fixes
-- Newsletters: remove Newsletter column on products post type.
-- Tock Block: fix the embed rendering on WordPress.com sites.
-- WPcom: fix output of static script path on WordPress.com sites.
+- Dashboard: Fix Jetpack footer accessibility issues.
+- Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard.
 
 --------
 

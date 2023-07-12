@@ -37,6 +37,11 @@ const automations = [
 		task: cleanLabels,
 	},
 	{
+		event: 'issues',
+		action: [ 'closed' ],
+		task: cleanLabels,
+	},
+	{
 		event: 'pull_request_target',
 		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
 		task: ifNotClosed( checkDescription ),

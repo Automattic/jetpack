@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
@@ -116,10 +115,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Users menu.
 	 */
 	public function add_users_menu() {
-		$current_locale = get_user_locale();
-		if ( substr( $current_locale, 0, 2 ) === 'en' ) {
-			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
-		}
+		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
+
+		return parent::add_users_menu();
 	}
 
 	/**
@@ -381,10 +379,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
-
-		if ( Blaze::should_initialize() ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
-		}
 	}
 
 	/**
@@ -459,20 +453,5 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$jitm->dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
 		}
 		wp_die();
-	}
-
-	/**
-	 * Handles Appearance menu.
-	 */
-	public function add_appearance_menu() {
-		parent::add_appearance_menu();
-
-		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
-			if ( class_exists( 'Jetpack_Custom_CSS' ) && ! empty( Jetpack_Custom_CSS::get_css() ) ) {
-				return;
-			}
-		}
-
-		remove_submenu_page( 'themes.php', 'editcss-customizer-redirect' );
 	}
 }

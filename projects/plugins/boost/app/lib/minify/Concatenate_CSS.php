@@ -169,7 +169,7 @@ class Concatenate_CSS extends WP_Styles {
 					} else {
 						$path_str = implode( ',', $css );
 					}
-					$path_str = "$path_str?m=$mtime";
+					$path_str = "$path_str?m=$mtime&cb=" . jetpack_boost_minify_cache_buster();
 
 					if ( $this->allow_gzip_compression ) {
 						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
@@ -179,7 +179,7 @@ class Concatenate_CSS extends WP_Styles {
 						}
 					}
 
-					$href = $siteurl . '/_static/??' . $path_str;
+					$href = $siteurl . jetpack_boost_get_static_prefix() . '??' . $path_str;
 				} else {
 					$href = jetpack_boost_page_optimize_cache_bust_mtime( current( $css ), $siteurl );
 				}

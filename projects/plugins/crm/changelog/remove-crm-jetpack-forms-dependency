@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Composer: Removed jetpack-forms as a required dependency as the Jetpack form compat issue is now fixed
-
-

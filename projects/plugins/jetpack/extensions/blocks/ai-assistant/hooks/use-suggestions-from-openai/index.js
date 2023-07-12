@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { parse } from '@wordpress/blocks';
+import { useSelect, useDispatch, dispatch } from '@wordpress/data';
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -10,9 +10,13 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
-import { buildPromptForBlock } from '../../lib/prompt';
+import { buildPromptForBlock, delimiter } from '../../lib/prompt';
 import { askJetpack, askQuestion } from '../../lib/suggestions';
-import { getContentFromBlocks, getPartialContentToBlock } from '../../lib/utils/block-content';
+import {
+	getContentFromBlocks,
+	getPartialContentToBlock,
+	getTextContentFromInnerBlocks,
+} from '../../lib/utils/block-content';
 
 const debug = debugFactory( 'jetpack-ai-assistant:event' );
 const debugPrompt = debugFactory( 'jetpack-ai-assistant:prompt' );
@@ -35,7 +39,7 @@ const useSuggestionsFromOpenAI = ( {
 	const [ wasCompletionJustRequested, setWasCompletionJustRequested ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
-	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const source = useRef();
 
 	// Let's grab post data so that we can do something smart.
@@ -91,7 +95,18 @@ const useSuggestionsFromOpenAI = ( {
 
 	useEffect( () => {
 		setIsLoadingCategories( loading );
-	}, [ loading ] );
+
+		/*
+		 * Returning a cleanup function that will stop
+		 * the suggestion if it's still rolling.
+		 */
+		return () => {
+			if ( source?.current ) {
+				debug( 'Cleaning things up...' );
+				source?.current?.close();
+			}
+		};
+	}, [ loading, source ] );
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	// eslint-disable-next-line no-unused-vars
@@ -123,21 +138,27 @@ const useSuggestionsFromOpenAI = ( {
 		} );
 
 		// Create a copy of the messages.
-		const updatedMessaages = [ ...attributes.messages ] ?? [];
+		const updatedMessages = [ ...attributes.messages ] ?? [];
 
 		let lastUserPrompt = {};
 
 		if ( ! options.retryRequest ) {
+			const allPostContent = ! attributes?.isLayoutBuldingModeEnable
+				? getContentFromBlocks()
+				: getTextContentFromInnerBlocks( clientId );
+
 			// If there is a content already, let's iterate over it.
 			prompt = buildPromptForBlock( {
 				generatedContent: content,
-				allPostContent: getContentFromBlocks(),
+				allPostContent,
 				postContentAbove: getPartialContentToBlock( clientId ),
 				currentPostTitle,
 				options,
 				userPrompt,
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
+				useGutenbergSyntax: !! attributes?.useGutenbergSyntax,
+				customSystemPrompt: attributes?.customSystemPrompt,
 			} );
 
 			/*
@@ -147,7 +168,7 @@ const useSuggestionsFromOpenAI = ( {
 			lastUserPrompt = prompt.pop();
 
 			// Populate prompt with the messages.
-			prompt = [ ...prompt, ...updatedMessaages ];
+			prompt = [ ...prompt, ...updatedMessages ];
 
 			// Restore the last user prompt.
 			prompt.push( lastUserPrompt );
@@ -171,7 +192,11 @@ const useSuggestionsFromOpenAI = ( {
 				debugPrompt( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
 			);
 
-			source.current = await askQuestion( prompt, { postId, requireUpgrade } );
+			source.current = await askQuestion( prompt, {
+				postId,
+				requireUpgrade,
+				useGpt4: attributes?.useGpt4,
+			} );
 		} catch ( err ) {
 			if ( err.message ) {
 				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
@@ -191,14 +216,18 @@ const useSuggestionsFromOpenAI = ( {
 		}
 
 		source?.current?.addEventListener( 'done', e => {
-			const { detail: assistantResponse } = e;
+			const { detail } = e;
+
+			// Remove the delimiter from the suggestion.
+			const assistantResponse = detail.replaceAll( delimiter, '' );
 
 			// Populate the messages with the assistant response.
 			const lastAssistantPrompt = {
 				role: 'assistant',
 				content: assistantResponse,
 			};
-			updatedMessaages.push( lastUserPrompt, lastAssistantPrompt );
+
+			updatedMessages.push( lastUserPrompt, lastAssistantPrompt );
 
 			debugPrompt( 'Add %o\n%s', `[${ lastUserPrompt.role }]`, lastUserPrompt.content );
 			debugPrompt( 'Add %o\n%s', `[${ lastAssistantPrompt.role }]`, lastAssistantPrompt.content );
@@ -207,16 +236,30 @@ const useSuggestionsFromOpenAI = ( {
 			 * Limit the messages to 20 items.
 			 * @todo: limit the prompt based on tokens.
 			 */
-			if ( updatedMessaages.length > 20 ) {
-				updatedMessaages.splice( 0, updatedMessaages.length - 20 );
+			if ( updatedMessages.length > 20 ) {
+				updatedMessages.splice( 0, updatedMessages.length - 20 );
 			}
 
 			stopSuggestion();
 
+			const useGutenbergSyntax = attributes?.useGutenbergSyntax;
+
 			updateBlockAttributes( clientId, {
 				content: assistantResponse,
-				messages: updatedMessaages,
+				messages: updatedMessages,
 			} );
+
+			if ( ! useGutenbergSyntax ) {
+				return;
+			}
+
+			// POC for layout prompts:
+			// Generates the list of blocks from the generated code
+			const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
+			const blocks = parse( detail );
+			const validBlocks = blocks.filter( block => block.isValid );
+			replaceInnerBlocks( clientId, validBlocks );
+
 			refreshFeatureData();
 		} );
 
@@ -241,9 +284,9 @@ const useSuggestionsFromOpenAI = ( {
 				 * Let's clean up the messages array and try again.
 				 * @todo: improve the process based on tokens / URL length.
 				 */
-				updatedMessaages.splice( 0, 8 );
+				updatedMessages.splice( 0, 8 );
 				updateBlockAttributes( clientId, {
-					messages: updatedMessaages,
+					messages: updatedMessages,
 				} );
 
 				/*
@@ -259,9 +302,11 @@ const useSuggestionsFromOpenAI = ( {
 					userPrompt,
 					type,
 					isGeneratingTitle: attributes.promptType === 'generateTitle',
+					useGutenbergSyntax: !! attributes?.useGutenbergSyntax,
+					customSystemPrompt: attributes?.customSystemPrompt,
 				} );
 
-				setLastPrompt( [ ...prompt, ...updatedMessaages, lastUserPrompt ] );
+				setLastPrompt( [ ...prompt, ...updatedMessages, lastUserPrompt ] );
 			}
 
 			source?.current?.close();
@@ -320,8 +365,26 @@ const useSuggestionsFromOpenAI = ( {
 
 		source?.current?.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
-			debug( '(suggestion)', e.detail );
-			updateBlockAttributes( clientId, { content: e.detail } );
+			debug( '(suggestion)', e?.detail );
+
+			/*
+			 * Progressive blocks rendering process.
+			 * ToDo: Interesting challenge. Let's comment for now.
+			 */
+
+			// let's get valid HTML by using a temporary dom element
+			// const temp = document.createElement( 'div' );
+			// temp.innerHTML = e?.detail;
+
+			// // Now, we are ready to create blocks from the valid HTML.
+			// const blocks = rawHandler( { HTML: temp.innerHTML } );
+			// const validBlocks = blocks.filter( block => block.isValid );
+
+			// const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
+			// replaceInnerBlocks( clientId, validBlocks );
+
+			// Remove the delimiter from the suggestion and update the block.
+			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );
 		} );
 		return source?.current;
 	};

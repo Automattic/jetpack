@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.50.2] - 2023-07-05
+### Added
+- Sync wpcom_site_setup site option [#31662]
+
+## [1.50.1] - 2023-07-04
+### Changed
+- Revert dedicated hook endpoint to later in the 'init' hook, as it broke existing code that registers post statuses and such during 'init'. [#31685]
+
+## [1.50.0] - 2023-06-26
+### Added
+- Added a new callable to the whitelist for get_loaded_extensions(). [#31333]
+- CPT Exclusion: do not sync Jetpack Inspect Log entries. [#31535]
+
+### Fixed
+- Initialize dedicated hook endpoint earlier in the 'init' hook to avoid cookie conflicts. [#31423]
+
 ## [1.49.0] - 2023-05-29
 ### Added
 - Added `wpcom_reader_views_enabled` option to default sync list [#30800]
@@ -862,6 +878,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.50.2]: https://github.com/Automattic/jetpack-sync/compare/v1.50.1...v1.50.2
+[1.50.1]: https://github.com/Automattic/jetpack-sync/compare/v1.50.0...v1.50.1
+[1.50.0]: https://github.com/Automattic/jetpack-sync/compare/v1.49.0...v1.50.0
 [1.49.0]: https://github.com/Automattic/jetpack-sync/compare/v1.48.1...v1.49.0
 [1.48.1]: https://github.com/Automattic/jetpack-sync/compare/v1.48.0...v1.48.1
 [1.48.0]: https://github.com/Automattic/jetpack-sync/compare/v1.47.9...v1.48.0

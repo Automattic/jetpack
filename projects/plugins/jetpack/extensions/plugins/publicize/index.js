@@ -15,6 +15,7 @@ import {
 	useSocialMediaConnections,
 	usePublicizeConfig,
 	SocialImageGeneratorPanel,
+	PostPublishReviewPrompt,
 } from '@automattic/jetpack-publicize-components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
@@ -65,6 +66,8 @@ const PublicizeSettings = () => {
 					<SocialImageGeneratorPanel prePublish={ true } />
 				</PluginPrePublishPanel>
 			) }
+
+			<PostPublishReviewPrompt />
 		</PostTypeSupportCheck>
 	);
 };

@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-yoast-promo",
-	"version": "0.1.2-alpha",
+	"version": "0.1.3-alpha",
 	"description": "Components used to promote Yoast as part of our collaboration",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/yoast-promo/#readme",
 	"bugs": {
@@ -15,7 +15,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "NODE_PATH=\"$PWD/node_modules\" pnpm run clean && webpack",
+		"build": "pnpm run clean && webpack",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"clean": "rm -rf build/ .cache/",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
@@ -24,12 +24,12 @@
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
-		"@wordpress/components": "25.0.0",
-		"@wordpress/data": "9.4.0",
-		"@wordpress/edit-post": "7.11.0",
-		"@wordpress/element": "5.11.0",
-		"@wordpress/i18n": "4.34.0",
-		"@wordpress/plugins": "6.2.0",
+		"@wordpress/components": "25.3.0",
+		"@wordpress/data": "9.7.0",
+		"@wordpress/edit-post": "7.14.0",
+		"@wordpress/element": "5.14.0",
+		"@wordpress/i18n": "4.37.0",
+		"@wordpress/plugins": "6.5.0",
 		"gridicons": "3.4.1",
 		"react": "18.2.0",
 		"react-dom": "18.2.0"
@@ -40,7 +40,7 @@
 		"@babel/preset-env": "7.21.5",
 		"@babel/register": "7.21.0",
 		"@babel/runtime": "7.21.5",
-		"@wordpress/browserslist-config": "5.17.0",
+		"@wordpress/browserslist-config": "5.20.0",
 		"sass": "1.54.4",
 		"sass-loader": "12.4.0",
 		"webpack": "5.76.0",
