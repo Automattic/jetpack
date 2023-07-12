@@ -5,21 +5,24 @@
 }
 
 .jpcrm-learn-menu-subdiv-75 {
-	width: 75%;
+	flex-basis: 75%;
+	flex-grow: 0;
+	flex-shrink: 1;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 }
 
 .jpcrm-learn-menu-subdiv-25 {
-	width: 25%;
+	flex-basis: 25%;
+	flex-grow: 1;
+	flex-shrink: 0;
 	display: flex;
 	align-items: center;
 	flex-direction: row;
 	justify-content: flex-end;
 	padding: 10px 0px;
 	gap: 10px;
-	flex-wrap: wrap-reverse;
 }
 
 .jpcrm-learn-page-title {
