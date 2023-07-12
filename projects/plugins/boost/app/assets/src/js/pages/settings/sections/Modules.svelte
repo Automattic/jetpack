@@ -244,7 +244,7 @@
 				{#if ! $modulesState.image_size_analysis.available}
 					<UpgradeCTA
 						description={__(
-							'Upgrade to search your whole site for issues - automatically!',
+							'Upgrade to scan your site for issues - automatically!',
 							'jetpack-boost'
 						)}
 					/>
