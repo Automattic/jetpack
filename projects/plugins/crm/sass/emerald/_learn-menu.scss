@@ -23,6 +23,10 @@
 	justify-content: flex-end;
 	padding: 10px 0px;
 	gap: 10px;
+
+	& > *:first-child {
+		margin-left: 16px; /* keep the gap between divs when subdiv-25 gets shrinken down */
+	}
 }
 
 .jpcrm-learn-page-title {
@@ -59,8 +63,13 @@
 
 	.jpcrm-learn-menu-subdiv-75,
 	.jpcrm-learn-menu-subdiv-25 {
+		flex-grow: 1;
 		flex-wrap: wrap;
 		flex-direction: column;
 		width: 100%;
+
+		& > *:first-child {
+			margin-left: 0px; /* gap not needed anymore as the divs are centered */
+		}
 	}
 }
