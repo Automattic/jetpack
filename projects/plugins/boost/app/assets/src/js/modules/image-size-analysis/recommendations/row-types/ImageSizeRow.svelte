@@ -135,11 +135,13 @@
 				{__( 'How to fix', 'jetpack-boost' )}
 			</h4>
 			<p>{details.instructions}</p>
-			<div class="jb-actions">
-				<Button width="auto" href={details.page.edit_url} fill>
-					{__( 'Fix on page', 'jetpack-boost' )}
-				</Button>
-			</div>
+			{#if details.page.edit_url}
+				<div class="jb-actions">
+					<Button width="auto" href={details.page.edit_url} fill>
+						{__( 'Fix on page', 'jetpack-boost' )}
+					</Button>
+				</div>
+			{/if}
 		</div>
 	</svelte:fragment>
 </TableRow>
