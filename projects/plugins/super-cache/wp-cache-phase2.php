@@ -1825,6 +1825,10 @@ function wpsc_is_rejected_cookie() {
 function wp_cache_is_rejected( $uri ) {
 	global $cache_rejected_uri;
 
+	if ( empty( $uri ) ) {
+		return true; // do not cache if we don't know the URI.
+	}
+
 	$auto_rejected = array( '/wp-admin/', 'xmlrpc.php', 'wp-app.php' );
 	foreach ( $auto_rejected as $u ) {
 		if ( strstr( $uri, $u ) ) {
