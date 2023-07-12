@@ -52,7 +52,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			useDispatch( 'core/block-editor' );
 		const { createNotice } = useDispatch( 'core/notices' );
 
-		const { content, clientIds } = useTextContentFromSelectedBlocks();
+		const { content, clientIds, blocks } = useTextContentFromSelectedBlocks();
 
 		/*
 		 * Set exclude dropdown options.
@@ -164,9 +164,20 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const replaceWithAiAssistantBlock = useCallback( () => {
 			const [ firstClientId, ...otherBlocksIds ] = clientIds;
-			replaceBlock( firstClientId, transfromToAIAssistantBlock( { content }, blockType ) );
+			const [ firstBlock ] = blocks;
+
+			const extendedBlockAttributes = {
+				...( firstBlock?.attributes || {} ), // firstBlock.attributes should never be undefined, but still add a fallback
+				content,
+			};
+
+			replaceBlock(
+				firstClientId,
+				transfromToAIAssistantBlock( extendedBlockAttributes, blockType )
+			);
+
 			removeBlocks( otherBlocksIds );
-		}, [ blockType, content, replaceBlock, clientIds, removeBlocks ] );
+		}, [ blocks, blockType, content, replaceBlock, clientIds, removeBlocks ] );
 
 		const rawContent = getRawTextFromHTML( props.attributes.content );
 
