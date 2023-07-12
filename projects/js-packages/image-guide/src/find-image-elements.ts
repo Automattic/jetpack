@@ -86,7 +86,7 @@ export async function getMeasurableImages(
 		return null;
 	} );
 
-	return images;
+	return images.filter( i => i !== null );
 }
 
 /**

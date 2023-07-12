@@ -18,9 +18,7 @@ test( 'Click on the plugins page should navigate to Boost settings page', async 
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 	await ( await PluginsPage.init( page ) ).clickOnJetpackBoostSettingsLink();
-	expect( await page.url(), "URL should contain 'page=jetpack-boost" ).toContain(
-		'page=jetpack-boost'
-	);
+	expect( page.url(), "URL should contain 'page=jetpack-boost" ).toContain( 'page=jetpack-boost' );
 } );
 
 test( 'Click on the sidebar Boost Jetpack submenu should navigate to Boost settings page', async ( {
@@ -28,9 +26,7 @@ test( 'Click on the sidebar Boost Jetpack submenu should navigate to Boost setti
 } ) => {
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectJetpackBoost();
-	expect( await page.url(), "URL should contain 'page=jetpack-boost" ).toContain(
-		'page=jetpack-boost'
-	);
+	expect( page.url(), "URL should contain 'page=jetpack-boost" ).toContain( 'page=jetpack-boost' );
 } );
 
 test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommendation notice option', async ( {

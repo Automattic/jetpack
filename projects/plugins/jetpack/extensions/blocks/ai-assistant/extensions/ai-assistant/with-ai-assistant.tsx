@@ -14,11 +14,9 @@ import AiAssistantDropdown, {
 	KEY_ASK_AI_ASSISTANT,
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
+import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-selected-blocks';
 import { getPrompt } from '../../lib/prompt';
-import {
-	getRawTextFromHTML,
-	getTextContentFromSelectedBlocks,
-} from '../../lib/utils/block-content';
+import { getRawTextFromHTML } from '../../lib/utils/block-content';
 import { transfromToAIAssistantBlock } from '../../transforms';
 /*
  * Types
@@ -53,6 +51,8 @@ export const withAIAssistant = createHigherOrderComponent(
 		const { updateBlockAttributes, removeBlocks, replaceBlock } =
 			useDispatch( 'core/block-editor' );
 		const { createNotice } = useDispatch( 'core/notices' );
+
+		const { content, clientIds } = useTextContentFromSelectedBlocks();
 
 		/*
 		 * Set exclude dropdown options.
@@ -135,8 +135,6 @@ export const withAIAssistant = createHigherOrderComponent(
 			autoRequest: false,
 		} );
 
-		const { content, clientIds } = getTextContentFromSelectedBlocks();
-
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
 				/*
@@ -165,8 +163,10 @@ export const withAIAssistant = createHigherOrderComponent(
 		);
 
 		const replaceWithAiAssistantBlock = useCallback( () => {
-			replaceBlock( props.clientId, transfromToAIAssistantBlock( { content }, blockType ) );
-		}, [ blockType, content, props.clientId, replaceBlock ] );
+			const [ firstClientId, ...otherBlocksIds ] = clientIds;
+			replaceBlock( firstClientId, transfromToAIAssistantBlock( { content }, blockType ) );
+			removeBlocks( otherBlocksIds );
+		}, [ blockType, content, replaceBlock, clientIds, removeBlocks ] );
 
 		const rawContent = getRawTextFromHTML( props.attributes.content );
 
