@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Fix regression from https://github.com/Automattic/jetpack/pull/31200/files
+Fix a potential regression when selecting plans.
