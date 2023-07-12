@@ -323,9 +323,6 @@ class Jetpack_AI_Helper {
 
 			/*
 			 * Check if the site requires an upgrade.
-			 * Ideally, the feature availability
-			 * should support site-type handling.
-			 * @todo: research how to do it.
 			 */
 			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
 
