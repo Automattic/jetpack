@@ -80,11 +80,10 @@ const useWafData = () => {
 	 */
 	const toggleManualRules = useCallback( () => {
 		setWafIsUpdating( true );
-		return ensureModuleIsEnabled()
-			.then( () => API.updateWaf( { jetpack_waf_ip_list: ! waf.config.jetpackWafIpList } ) )
+		return API.updateWaf( { jetpack_waf_ip_list: ! waf.config.jetpackWafIpList } )
 			.then( refreshWaf )
 			.finally( () => setWafIsUpdating( false ) );
-	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafIpList ] );
+	}, [ refreshWaf, setWafIsUpdating, waf.config.jetpackWafIpList ] );
 
 	/**
 	 * Toggle Brute Force Protection
@@ -114,24 +113,10 @@ const useWafData = () => {
 	/**
 	 * Update WAF Config
 	 */
-	const updateWafConfig = useCallback(
+	const updateConfig = useCallback(
 		update => {
 			setWafIsUpdating( true );
-			return ensureModuleIsEnabled()
-				.then( () => API.updateWaf( update ) )
-				.then( refreshWaf )
-				.finally( () => setWafIsUpdating( false ) );
-		},
-		[ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating ]
-	);
-
-	/**
-	 * Update Brute Force Config
-	 */
-	const updateBruteForceConfig = useCallback(
-		update => {
-			setWafIsUpdating( true );
-			return API.updateWaf( { jetpack_waf_ip_allow_list: update.jetpack_waf_ip_allow_list } )
+			return API.updateWaf( update )
 				.then( refreshWaf )
 				.finally( () => setWafIsUpdating( false ) );
 		},
@@ -155,8 +140,7 @@ const useWafData = () => {
 		toggleManualRules,
 		toggleBruteForceProtection,
 		toggleShareData,
-		updateWafConfig,
-		updateBruteForceConfig,
+		updateConfig,
 	};
 };
 

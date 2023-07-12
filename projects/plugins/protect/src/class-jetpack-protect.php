@@ -219,8 +219,7 @@ class Jetpack_Protect {
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
-				'wafSupported'        => Waf_Runner::is_waf_supported(),
-				'bruteForceSupported' => Waf_Runner::is_brute_force_supported(),
+				'wafSupported'        => Waf_Runner::is_supported_environment(),
 				'currentIp'           => IP_Utils::get_ip(),
 				'isSeen'              => self::get_waf_seen_status(),
 				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),

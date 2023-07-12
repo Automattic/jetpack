@@ -182,8 +182,7 @@ class Waf_Helper {
 		<hr>
 
 		<h2>Status</h2>
-		<p>WAF is supported: <code><?php echo Waf_Runner::is_waf_supported() ? 'true' : 'false'; ?></code></p>
-		<p>Brute force is supported: <code><?php echo Waf_Runner::is_brute_force_supported() ? 'true' : 'false'; ?></code></p>
+		<p>WAF is supported: <code><?php echo Waf_Runner::is_supported_environment() ? 'true' : 'false'; ?></code></p>
 		<p>Firewall status: <code><?php echo Waf_Runner::is_enabled() ? 'enabled' : 'disabled'; ?></code></p>
 
 		<hr>
