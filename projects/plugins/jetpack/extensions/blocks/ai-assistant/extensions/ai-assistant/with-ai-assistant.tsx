@@ -133,7 +133,17 @@ export const withAIAssistant = createHigherOrderComponent(
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const newAIAssistantBlock = transfromToAIAssistantBlock( { content }, blockType );
+				const [ firstBlock ] = blocks;
+
+				const extendedBlockAttributes = {
+					...( firstBlock?.attributes || {} ), // firstBlock.attributes should never be undefined, but still add a fallback
+					content,
+				};
+
+				const newAIAssistantBlock = transfromToAIAssistantBlock(
+					extendedBlockAttributes,
+					blockType
+				);
 
 				/*
 				 * Store in the local storage the client id
@@ -156,7 +166,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 				replaceBlock( props.clientId, newAIAssistantBlock );
 			},
-			[ blockType, content, props.clientId, replaceBlock ]
+			[ blockType, blocks, content, props.clientId, replaceBlock ]
 		);
 
 		const replaceWithAiAssistantBlock = useCallback( () => {
