@@ -9,7 +9,7 @@ import {
 	isUnavailableInOfflineMode,
 	hasConnectedOwner,
 } from 'state/connection';
-import { getLastPostUrl, isAtomicSite } from 'state/initial-state';
+import { getLastPostUrl, isAtomicSite, currentThemeIsBlockTheme } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
@@ -31,11 +31,14 @@ export class Traffic extends React.Component {
 			settings: this.props.settings,
 			siteRawUrl: this.props.siteRawUrl,
 			getModule: this.props.module,
+			isBlockThemeActive: this.props.isBlockThemeActive,
 			isSiteConnected: this.props.isSiteConnected,
 			isOfflineMode: this.props.isOfflineMode,
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			getModuleOverride: this.props.getModuleOverride,
 			hasConnectedOwner: this.props.hasConnectedOwner,
+			lastPostUrl: this.props.lastPostUrl,
+			siteAdminUrl: this.props.siteAdminUrl,
 		};
 
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
@@ -87,19 +90,7 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
-				{ foundRelated && (
-					<RelatedPosts
-						{ ...commonProps }
-						configureUrl={
-							this.props.siteAdminUrl +
-							'customize.php?autofocus[section]=jetpack_relatedposts' +
-							'&return=' +
-							encodeURIComponent( this.props.siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
-							'&url=' +
-							encodeURIComponent( this.props.lastPostUrl )
-						}
-					/>
-				) }
+				{ foundRelated && <RelatedPosts { ...commonProps } /> }
 				{ foundSeo && (
 					<SEO
 						{ ...commonProps }
@@ -132,6 +123,7 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
+		isBlockThemeActive: currentThemeIsBlockTheme( state ),
 		isOfflineMode: isOfflineMode( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
