@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Update the way missing images are handled, to be up to date with the image-guide package update.

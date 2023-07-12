@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import Button from '../../../../elements/Button.svelte';
-	import { getImageSizeDifferencePercent } from '../../../../utils/get-image-size-difference-percent';
 	import Device from '../components/Device.svelte';
 	import Pill from '../components/Pill.svelte';
 	import RowTitle from '../components/RowTitle.svelte';
@@ -14,7 +13,14 @@
 	export let details: ImageDataType;
 
 	const title = details.image.url.split( '/' ).pop();
-	const sizeDifference = getImageSizeDifferencePercent( details.image );
+	const currentSize = details.image.weight.current;
+	const potentialSavings = Math.max(
+		0,
+		Math.min( currentSize - 2, details.image.weight.potential )
+	);
+	const potentialSize = potentialSavings > 0 ? Math.round( currentSize - potentialSavings ) : '?';
+
+	const sizeDifference = ( potentialSavings / currentSize ) * 100;
 	const pillColor = sizeDifference <= 30 ? '#f5e5b3' : '#facfd2';
 </script>
 
@@ -36,7 +42,7 @@
 			<div class="jb-arrow">→</div>
 
 			<Pill color="#d0e6b8">
-				{Math.round( details.image.weight.potential )} KB
+				{potentialSize} KB
 			</Pill>
 		</div>
 
@@ -65,7 +71,7 @@
 				<div class="jb-arrow">→</div>
 
 				<Pill color="#d0e6b8">
-					{Math.round( details.image.weight.potential )} KB
+					{potentialSize} KB
 				</Pill>
 			</div>
 		</div>
@@ -129,11 +135,13 @@
 				{__( 'How to fix', 'jetpack-boost' )}
 			</h4>
 			<p>{details.instructions}</p>
-			<div class="jb-actions">
-				<Button width="auto" href={details.page.edit_url} fill>
-					{__( 'Fix on page', 'jetpack-boost' )}
-				</Button>
-			</div>
+			{#if details.page.edit_url}
+				<div class="jb-actions">
+					<Button width="auto" href={details.page.edit_url} fill>
+						{__( 'Fix on page', 'jetpack-boost' )}
+					</Button>
+				</div>
+			{/if}
 		</div>
 	</svelte:fragment>
 </TableRow>
