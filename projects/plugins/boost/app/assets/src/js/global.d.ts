@@ -49,6 +49,9 @@ declare global {
 			assetPath: string;
 			getStarted: boolean;
 			canResizeImages: boolean;
+			postTypes: {
+				[ key: string ]: string;
+			};
 		};
 		optimizations: Optimizations;
 		shownAdminNoticeIds: string[];
@@ -62,9 +65,6 @@ declare global {
 				currencyCode: string;
 				isIntroductoryOffer: boolean;
 			};
-		};
-		siteCustomPostTypes: {
-			[ key: string ]: string;
 		};
 	};
 

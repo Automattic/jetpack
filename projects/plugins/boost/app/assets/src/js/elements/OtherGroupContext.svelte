@@ -13,7 +13,7 @@
 		</p>
 		<ul>
 			<!-- svelte-ignore missing-declaration -->
-			{#each Object.entries( Jetpack_Boost.siteCustomPostTypes ) as [slug, label]}
+			{#each Object.entries( Jetpack_Boost.site.postTypes ) as [slug, label]}
 				<li>{label}</li>
 			{/each}
 		</ul>

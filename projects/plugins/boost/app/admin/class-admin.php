@@ -128,12 +128,7 @@ class Admin {
 		wp_localize_script(
 			$admin_js_handle,
 			'Jetpack_Boost',
-			array_merge(
-				$this->config->constants(),
-				array(
-					'siteCustomPostTypes' => $this->get_custom_post_types(),
-				)
-			)
+			$this->config->constants()
 		);
 
 		wp_set_script_translations( $admin_js_handle, 'jetpack-boost' );
@@ -168,20 +163,5 @@ class Admin {
 		?>
 		<div id="jb-admin-settings"></div>
 		<?php
-	}
-
-	public function get_custom_post_types() {
-		$post_types = get_post_types(
-			array(
-				'public'   => true,
-				'_builtin' => false,
-			),
-			false
-		);
-		unset( $post_types['attachment'] );
-
-		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
-
-		return wp_list_pluck( $post_types, 'label', 'name' );
 	}
 }
