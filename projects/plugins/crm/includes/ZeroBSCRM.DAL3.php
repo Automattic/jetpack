@@ -6182,6 +6182,9 @@ class zbsDAL {
         global $ZBSCRM_t,$wpdb; 
         $wheres = array('direct'=>array()); $whereStr = ''; $additionalWhere = ''; $params = array(); $res = array();
 
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$whereStr .= "WHERE jobnotes <> ''";
+
         #} Build query
         $query = "SELECT * FROM ".$ZBSCRM_t['cronmanagerlogs'];
 
