@@ -277,33 +277,3 @@ add_action( 'admin_menu', 'wpcomsh_update_plugin_add_filter' );
  * Enable the mailbox in WPCOMSH sites.
  */
 add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
-
-/**
- * Temporary fix until changes from https://github.com/Automattic/jetpack/pull/31452
- * are deployed to Atomic sites. Can be removed afterwards.
- */
-function wpcomsh_fix_appearance_menu() {
-	global $submenu;
-	if ( empty( $submenu['themes.php'] ) ) {
-		return;
-	}
-
-	$hidden_customize_menus = array_filter(
-		$submenu['themes.php'],
-		function ( $item ) {
-			return strpos( $item[2], 'customize.php' ) === 0;
-		}
-	);
-
-	if ( empty( $hidden_customize_menus ) ) {
-		return;
-	}
-
-	$first_customize_menu     = reset( $hidden_customize_menus );
-	$first_customize_menu[4]  = '';
-	$first_customize_menu_key = key( $hidden_customize_menus );
-
-	// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-	$submenu['themes.php'][ $first_customize_menu_key ] = $first_customize_menu;
-}
-add_action( 'admin_menu', 'wpcomsh_fix_appearance_menu', 99999 ); // After Base_Admin_Menu::reregister_menu_items
