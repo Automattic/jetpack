@@ -832,7 +832,7 @@ function get_locked_content_placeholder_text( $newsletter_access_level ) {
 			<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
 
 			<!-- wp:paragraph {"align":"center"} -->
-			<p class="has-text-align-center">' . esc_html( $access_question ) . ' <a href="#">' . esc_html__( 'Login', 'jetpack' ) . '</a></p>
+			<p class="has-text-align-center">' . esc_html( $access_question ) . ' <a href="#" class="jetpack-subscriber-paywall-login">' . esc_html__( 'Login', 'jetpack' ) . '</a></p>
 			<!-- /wp:paragraph -->
 
 			</div>
