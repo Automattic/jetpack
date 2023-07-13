@@ -38,6 +38,7 @@
 			"@composer phpunit",
 			"tests/action-test-php.sh"
 		],
+		"test-js": "pnpm run test",
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
