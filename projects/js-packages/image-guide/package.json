@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-image-guide",
-	"version": "0.5.1",
+	"version": "0.5.2-alpha",
 	"description": "Go through the dom to analyze image size on screen vs actual file size.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/image-guide/#readme",
 	"type": "module",
@@ -22,8 +22,8 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@typescript-eslint/parser": "5.59.0",
-		"eslint": "8.39.0",
+		"@typescript-eslint/parser": "5.62.0",
+		"eslint": "8.44.0",
 		"jest": "29.4.3",
 		"ts-loader": "9.4.2",
 		"typescript": "5.0.4",

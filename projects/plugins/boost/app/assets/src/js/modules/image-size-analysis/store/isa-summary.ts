@@ -31,9 +31,9 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 			report_id: z.number().optional(),
 			groups: z
 				.object( {
-					front_page: zGroup,
-					page: zGroup.optional(),
-					post: zGroup.optional(),
+					core_front_page: zGroup,
+					singular_page: zGroup.optional(),
+					singular_post: zGroup.optional(),
 					other: zGroup.optional(),
 				} )
 				.nullable()
@@ -47,14 +47,14 @@ image_size_analysis_summary.setSyncAction( async ( _, value ) => value );
 
 export const isaSummary = image_size_analysis_summary.store;
 export const isaGroups = derived( isaSummary, () => ( {
-	front_page: { name: 'Front Page', progress: 10, issues: 0, done: false },
+	core_front_page: { name: 'Front Page', progress: 10, issues: 0, done: false },
 } ) );
 
 export const isaGroupLabels = {
 	all: __( 'All', 'jetpack-boost' ),
-	front_page: __( 'Homepage', 'jetpack-boost' ),
-	page: __( 'Pages', 'jetpack-boost' ),
-	post: __( 'Posts', 'jetpack-boost' ),
+	core_front_page: __( 'Homepage', 'jetpack-boost' ),
+	singular_page: __( 'Pages', 'jetpack-boost' ),
+	singular_post: __( 'Posts', 'jetpack-boost' ),
 	other: __( 'Other', 'jetpack-boost' ),
 };
 
