@@ -52,6 +52,7 @@
 
 .jetpack-subscribe-modal__modal-content h2 {
     margin: 4px;
+	text-align: center;
 }
 
 .jetpack-subscribe-modal.open .jetpack-subscribe-modal__modal-content {
