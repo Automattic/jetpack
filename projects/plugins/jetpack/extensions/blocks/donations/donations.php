@@ -27,8 +27,7 @@ function register_block() {
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			'attributes'      => array(
 				'currency'         => array(
-					'type'    => 'string',
-					'default' => 'USD',
+					'type' => 'string',
 				),
 				'oneTimeDonation'  => array(
 					'type'    => 'object',

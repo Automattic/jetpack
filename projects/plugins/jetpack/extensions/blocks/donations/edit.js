@@ -22,22 +22,23 @@ const Edit = props => {
 		MEMBERSHIPS_PRODUCTS_STORE
 	);
 
-	const { defaultCurrency } = useSelect( select => {
-		const stripeCurrency = select(
-			MEMBERSHIPS_PRODUCTS_STORE
-		).getConnectedAccountDefaultCurrency();
-
-		return {
-			defaultCurrency: stripeCurrency ? stripeCurrency : currency,
-		};
-	} );
-
 	useEffect( () => {
 		setAttributes( {
 			fallbackLinkUrl: post.link,
-			currency: defaultCurrency,
 		} );
-	}, [ defaultCurrency, post.link, setAttributes ] );
+	}, [ post.link, setAttributes ] );
+
+	const stripeCurrency = useSelect( select => {
+		const defaultStripeCurrency = select(
+			MEMBERSHIPS_PRODUCTS_STORE
+		).getConnectedAccountDefaultCurrency();
+
+		return defaultStripeCurrency ? defaultStripeCurrency : 'USD';
+	} );
+
+	if ( ! currency ) {
+		setAttributes( { currency: stripeCurrency } );
+	}
 
 	const apiError = message => {
 		setLoadingError( message );
@@ -68,10 +69,7 @@ const Edit = props => {
 			return;
 		}
 		setConnectUrl( getConnectUrl( post.id, result.connect_url ) );
-
-		// Update the Stripe currency in the state
-		const stripeCurrency = result.connected_account_default_currency?.toUpperCase() ?? currency;
-		setConnectedAccountDefaultCurrency( stripeCurrency );
+		setConnectedAccountDefaultCurrency( result?.connected_account_default_currency?.toUpperCase() );
 
 		const filteredProducts = filterProducts( result.products );
 
