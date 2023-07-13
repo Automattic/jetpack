@@ -1,5 +1,5 @@
 import { useRef, useMemo } from '@wordpress/element';
-import { DEFAULT_RESTRICTIONS, RESTRICTIONS } from './restrictions';
+import { DEFAULT_RESTRICTIONS, GLOBAL_MAX_SIZE, RESTRICTIONS } from './restrictions';
 
 export const NO_MEDIA_ERROR = 'NO_MEDIA_ERROR';
 export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
@@ -39,7 +39,14 @@ const getImageValidationError = ( sizeInMb, maxImageSize ) =>
  * @returns {(FILE_SIZE_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR)} Returns validation error.
  */
 const getVideoValidationError = ( sizeInMb, length, width, height, videoLimits ) => {
-	const { minSize, maxSize, minLength, maxLength, maxWidth, aspectRatio } = videoLimits;
+	const {
+		minSize = 0,
+		maxSize = GLOBAL_MAX_SIZE,
+		minLength = 0,
+		maxLength = GLOBAL_MAX_SIZE,
+		maxWidth = GLOBAL_MAX_SIZE,
+		aspectRatio = DEFAULT_RESTRICTIONS.video.aspectRatio,
+	} = videoLimits;
 
 	if ( ! sizeInMb || sizeInMb > maxSize || sizeInMb < minSize || width > maxWidth ) {
 		return FILE_SIZE_ERROR;
