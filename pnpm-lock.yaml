@@ -2786,8 +2786,8 @@ importers:
         specifier: 8.3.3
         version: 8.3.3(rollup@2.79.1)(tslib@2.5.0)(typescript@5.0.4)
       '@wordpress/i18n':
-        specifier: 4.35.0
-        version: 4.35.0
+        specifier: 4.37.0
+        version: 4.37.0
       postcss:
         specifier: 8.4.21
         version: 8.4.21
@@ -11763,19 +11763,6 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.21.5
-
-  /@wordpress/i18n@4.35.0:
-    resolution: {integrity: sha512-YT+8VHRiuna4inTb69cVI+8G3uBrq2wHfdiZesyVzRTBU7Yk/1PKIpqF4zwGNIZymuAojkFY5IS/vADLjBZ69g==}
-    engines: {node: '>=12'}
-    hasBin: true
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@wordpress/hooks': 3.37.0
-      gettext-parser: 1.4.0
-      memize: 2.1.0
-      sprintf-js: 1.1.2
-      tannin: 1.2.0
-    dev: true
 
   /@wordpress/i18n@4.37.0:
     resolution: {integrity: sha512-bjq3C9DXAay4jEe1+Brl5Jt5hymf6LZfI8XuHYMw5ejFiQUUf3J/8DZZUpC+8xNOP8FAvO6W8BWOJISBJS+Ylw==}
