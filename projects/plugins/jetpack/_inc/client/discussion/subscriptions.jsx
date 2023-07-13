@@ -102,7 +102,7 @@ class SubscriptionsComponent extends React.Component {
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					{ __( 'Manage your Subscribers in the Subscribers dashboard', 'jetpack' ) }
+					{ __( 'Manage all subscribers', 'jetpack' ) }
 				</Card>
 			);
 		};
