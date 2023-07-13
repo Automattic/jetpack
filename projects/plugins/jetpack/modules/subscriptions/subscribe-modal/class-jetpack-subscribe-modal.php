@@ -29,7 +29,15 @@ class Jetpack_Subscribe_Modal {
 	}
 
 	const BLOCK_TEMPLATE_PART_SLUG = 'jetpack-subscribe-modal';
-	const BLOCK_TEMPLATE_PART_ID   = 'jetpack//jetpack-subscribe-modal';
+
+	/**
+	 * Returns the block template part ID.
+	 *
+	 * @return string
+	 */
+	public static function get_block_template_part_id() {
+		return get_stylesheet() . '//' . self::BLOCK_TEMPLATE_PART_SLUG;
+	}
 
 	/**
 	 * Jetpack_Subscribe_Modal class constructor.
@@ -82,8 +90,8 @@ class Jetpack_Subscribe_Modal {
 	 */
 	public function get_block_template_filter( $block_template, $id, $template_type ) {
 		if ( empty( $block_template ) && $template_type === 'wp_template_part' ) {
-			if ( $id === self::BLOCK_TEMPLATE_PART_ID ) {
-				return $this->get_custom_template();
+			if ( $id === self::get_block_template_part_id() ) {
+				return $this->get_template();
 			}
 		}
 
@@ -104,12 +112,12 @@ class Jetpack_Subscribe_Modal {
 			if ( is_array( $query_result ) ) {
 				// find the custom template and return early if we have a custom version in the results.
 				foreach ( $query_result as $template ) {
-					if ( $template->id === self::BLOCK_TEMPLATE_PART_ID ) {
+					if ( $template->id === self::get_block_template_part_id() ) {
 						return $query_result;
 					}
 				}
 			}
-			$query_result[] = $this->get_custom_template();
+			$query_result[] = $this->get_template();
 		}
 
 		return $query_result;
@@ -120,11 +128,11 @@ class Jetpack_Subscribe_Modal {
 	 *
 	 * @return WP_Block_Template
 	 */
-	public function get_custom_template() {
+	public function get_template() {
 		$template                 = new WP_Block_Template();
-		$template->theme          = 'jetpack';
+		$template->theme          = get_stylesheet();
 		$template->slug           = self::BLOCK_TEMPLATE_PART_SLUG;
-		$template->id             = self::BLOCK_TEMPLATE_PART_ID;
+		$template->id             = self::get_block_template_part_id();
 		$template->area           = 'uncategorized';
 		$template->content        = $this->get_subscribe_template_content();
 		$template->source         = 'plugin';
