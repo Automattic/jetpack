@@ -5,7 +5,7 @@ Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 6.2
 Requires PHP: 7.0
-Stable tag: 1.9.1
+Stable tag: 1.9.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,20 +187,15 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.9.2-beta - 2023-06-23
+### 2.0.0-beta - 2023-07-11
 #### Added
-- Speed Scores: Added an internal argument to record the source of each Speed Score request.
-- Image Guide: Added a proxy to allow the Image Guide UI to load the size of remote images.
-- Minify CSS: Added an endpoint for fetching minfied content which does not rely on loading WordPress, allowing hosts to more efficiently fetch minified content.
+- Image Size Analyzer: A new premium feature which searches your site for images loaded at incorrect sizes.
 
 #### Changed
-- Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger.
-- General: Updated checklist spacing and button font size and line height.
-- Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax.
+- Jetpack Boost: Beta tags removed from Concatenate CSS/JS and Image CDN.
 
 #### Fixed
-- Minify CSS: Fixed issues with relative paths when WordPress is installed in a sub-directory.
-- Image Guide: Fixed issues with Image Guide placement on the page with some themes.
+- General: Fixed error snackbar from showing under UI separators on the Getting Started page.
 
 --------
 

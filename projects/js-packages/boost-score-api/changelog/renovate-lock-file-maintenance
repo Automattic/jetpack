@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix type declarations for vars holding returns from `setTimeout`, `setInterval`.
