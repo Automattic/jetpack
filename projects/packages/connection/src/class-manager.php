@@ -784,6 +784,25 @@ class Manager {
 			$connection_owner = get_userdata( $user_token->external_user_id );
 		}
 
+		if ( $connection_owner === false ) {
+			Error_Handler::get_instance()->report_error(
+				new WP_Error(
+					'invalid_connection_owner',
+					'Invalid connection owner',
+					array(
+						'user_id'           => $user_id,
+						'has_user_token'    => (bool) $user_token,
+						'error_type'        => 'connection',
+						'signature_details' => array(
+							'token' => '',
+						),
+					)
+				),
+				false,
+				true
+			);
+		}
+
 		return $connection_owner;
 	}
 

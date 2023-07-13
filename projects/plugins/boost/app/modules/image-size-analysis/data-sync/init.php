@@ -11,6 +11,7 @@ $image_data = Schema::as_assoc_array(
 		'device_type'  => Schema::enum( array( 'phone', 'desktop' ) ),
 		'status'       => Schema::enum( array( 'active', 'ignored' ) )->fallback( 'active' ),
 		'instructions' => Schema::as_string(),
+		'type'         => Schema::enum( array( 'image_size', 'bad_entry', 'image_missing' ) )->fallback( 'bad_entry' ),
 		'page'         => Schema::as_assoc_array(
 			array(
 				'id'       => Schema::as_number(),
@@ -101,10 +102,10 @@ $summary_schema = Schema::as_assoc_array(
 		'report_id' => Schema::as_number()->nullable(),
 		'groups'    => Schema::as_assoc_array(
 			array(
-				'front_page' => $group_schema,
-				'page'       => $group_schema,
-				'post'       => $group_schema,
-				'other'      => $group_schema,
+				'core_front_page' => $group_schema,
+				'singular_page'   => $group_schema,
+				'singular_post'   => $group_schema,
+				'other'           => $group_schema,
 			)
 		)->nullable(),
 	)

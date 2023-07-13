@@ -21,13 +21,8 @@ $template = '
 
 <!-- response -->
 <p>%2$s</p>
-
-<!-- link to responses page -->
-<p><a href="%3$s"> ' . esc_html__( 'View Responses', 'jetpack' ) . '</a></p>
-
-<!-- link to edit form -->
-<p><a href="%4$s">' . esc_html__( 'Edit', 'jetpack' ) . '</a></p>
-
+%3$s
+%4$s
 <!-- footer -->
 <p>%5$s</p>
 </body>

@@ -13,8 +13,8 @@ export async function measureSuperCacheSaving(): Promise< number > {
 	const url = Jetpack_Boost.site.url;
 	const uncachedUrl = addGetParameter(
 		url,
-		'donotcache',
-		Jetpack_Boost.superCache.disableCacheKey
+		'donotcachepage',
+		Jetpack_Boost.superCache.cachePageSecret
 	);
 
 	const uncachedTime = await measureFetch( uncachedUrl, false );

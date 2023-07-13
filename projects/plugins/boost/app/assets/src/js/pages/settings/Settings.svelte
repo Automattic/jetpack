@@ -39,3 +39,9 @@
 		<Footer />
 	</div>
 </ReRouter>
+
+<style lang="scss">
+	.jb-section--main {
+		z-index: 14;
+	}
+</style>
