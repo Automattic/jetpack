@@ -130,6 +130,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
+			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
 		),
 
 		// Link in bio tasks.
@@ -230,6 +231,21 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
 
+		'add_new_page'                    => array(
+			'get_title'            => function () {
+				return __( 'Add a new page', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		),
+
+		'edit_page'                       => array(
+			'get_title'            => function () {
+				return __( 'Edit a page', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_is_edit_page_task_visible',
+		),
+
 		'domain_customize'                => array(
 			'id_map'               => 'domain_customize_deferred',
 			'get_title'            => function () {
@@ -237,6 +253,13 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_domain_customize_completed',
 			'is_visible_callback'  => 'wpcom_is_domain_customize_task_visible',
+		),
+
+		'share_site'                      => array(
+			'get_title'            => function () {
+				return __( 'Share your site', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
 	);
 
@@ -524,6 +547,23 @@ function wpcom_track_site_launch_task() {
 	wpcom_mark_launchpad_task_complete_if_active( 'link_in_bio_launched' );
 	wpcom_mark_launchpad_task_complete_if_active( 'videopress_launched' );
 	wpcom_mark_launchpad_task_complete_if_active( 'blog_launched' );
+
+	// Remove site intent for blog onboarding flows and disable launchpad.
+	$site_intent = get_option( 'site_intent' );
+	if ( in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+		update_option( 'site_intent', '' );
+		update_option( 'launchpad_screen', 'off' );
+	}
+
+	// While in the design_first flow, if the user creates a post, deletes the default hello-world.
+	$first_post_published = wpcom_launchpad_checklists()->is_task_id_complete( 'first_post_published' );
+	if ( in_array( $site_intent, array( 'design-first' ), true ) && $first_post_published ) {
+		$posts = get_posts( array( 'name' => 'hello-world' ) );
+
+		if ( count( $posts ) > 0 ) {
+			wp_delete_post( $posts[0]->ID, true );
+		}
+	}
 }
 
 /**
@@ -575,6 +615,15 @@ function wpcom_launchpad_is_email_unverified() {
  */
 function wpcom_has_goal_paid_subscribers() {
 	return in_array( 'paid-subscribers', get_option( 'site_goals', array() ), true );
+}
+
+/**
+ * If the site has a import-subscriber goal.
+ *
+ * @return bool True if the site has a import-subscriber goal, false otherwise.
+ */
+function wpcom_has_goal_import_subscribers() {
+	return in_array( 'import-subscribers', get_option( 'site_goals', array() ), true );
 }
 
 /**
@@ -671,6 +720,93 @@ function wpcom_is_domain_claim_completed() {
 
 	return ! empty( $domain_purchases );
 }
+
+/**
+ * When a new page is added to the site, mark the add_new_page task complete as needed.
+ *
+ * @param int    $post_id The ID of the post being updated.
+ * @param object $post    The post object.
+ */
+function wpcom_add_new_page_check( $post_id, $post ) {
+	// Don't do anything if the task is already complete.
+	if ( wpcom_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
+		return;
+	}
+
+	// We only care about pages, ignore other post types.
+	if ( $post->post_type !== 'page' ) {
+		return;
+	}
+
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// We only care about published pages. Pages added via the API are not published by default.
+	if ( $post->post_status !== 'publish' ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'add_new_page' );
+}
+add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
+
+/**
+ * Determine `edit_page` task visibility. The task is visible if there is at least one page and the add_new_page task is complete.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_is_edit_page_task_visible() {
+	if ( ! wpcom_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
+		return false;
+	}
+
+	return ! empty(
+		get_posts(
+			array(
+				'numberposts' => 1,
+				'post_type'   => 'page',
+			)
+		)
+	);
+}
+
+/**
+ * When a page is updated, check to see if we've already completed the `add_new_page` task and mark the `edit_page` task complete accordingly.
+ *
+ * @param int     $post_id The ID of the post being updated.
+ * @param WP_Post $post The post object.
+ */
+function wpcom_edit_page_check( $post_id, $post ) {
+	// Don't do anything if the task is already complete.
+	if ( wpcom_is_task_option_completed( array( 'id' => 'edit_page' ) ) ) {
+		return;
+	}
+
+	// Don't do anything if the add_new_page task is incomplete.
+	if ( ! wpcom_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
+		return false;
+	}
+
+	// We only care about pages, ignore other post types.
+	if ( $post->post_type !== 'page' ) {
+		return;
+	}
+
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// We only care about published pages. Pages added via the API are not published by default.
+	if ( $post->post_status !== 'publish' ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'edit_page' );
+}
+add_action( 'post_updated', 'wpcom_edit_page_check', 10, 3 );
 
 /**
  * Returns if the site has domain or bundle purchases.

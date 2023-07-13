@@ -202,7 +202,7 @@ class Waf_Request {
 			$this->url = array( $uri_host, $uri_path, $query_string );
 		} else {
 			// otherwise build the URI manually
-			$uri_scheme = ( ! empty( $_SERVER['HTTPS'] ) && 'on' === $_SERVER['HTTPS'] )
+			$uri_scheme = ( ! empty( $_SERVER['HTTPS'] ) && 'off' !== $_SERVER['HTTPS'] )
 				? 'https'
 				: 'http';
 			$uri_host   = isset( $_SERVER['HTTP_HOST'] )
