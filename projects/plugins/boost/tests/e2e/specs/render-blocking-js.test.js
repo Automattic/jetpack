@@ -19,7 +19,7 @@ test.describe( 'Render Blocking JS module', () => {
 		await frontend.click( `text=${ testPostTitle }` );
 		// For this test we are checking if the JavaScript from the test content is still inside its original parent element
 		// which has the "render-blocking-js" class.
-		const script = await page.locator( '#blockingScript' );
+		const script = page.locator( '#blockingScript' );
 		expect(
 			await script.evaluate( element =>
 				element.parentElement.classList.contains( 'render-blocking-js' )
@@ -36,7 +36,7 @@ test.describe( 'Render Blocking JS module', () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'render_blocking_js' ] ).build();
 		const frontend = await PostFrontendPage.visit( page );
 		await frontend.click( `text=${ testPostTitle }` );
-		const script = await page.locator( '#blockingScript' );
+		const script = page.locator( '#blockingScript' );
 		expect(
 			await script.evaluate( element =>
 				element.parentElement.classList.contains( 'render-blocking-js' )

@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Make the Related Posts customizer extension only be shown if current theme is not a block theme

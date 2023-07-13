@@ -58,6 +58,15 @@ jest.mock( '@mdn/browser-compat-data', () => ( {
 					},
 				},
 			},
+			'added-preview': {
+				__compat: {
+					support: {
+						ff: {
+							version_added: 'preview',
+						},
+					},
+				},
+			},
 			'removed-version': {
 				__compat: {
 					support: {
@@ -95,6 +104,16 @@ jest.mock( '@mdn/browser-compat-data', () => ( {
 						ff: {
 							version_added: '3.0',
 							version_removed: '≤5.0',
+						},
+					},
+				},
+			},
+			'removed-preview': {
+				__compat: {
+					support: {
+						ff: {
+							version_added: '3.0',
+							version_removed: 'preview',
 						},
 					},
 				},
@@ -173,10 +192,12 @@ jest.mock( '../src/rulesMap.js', () => ( {
 	'all-support-2': [ 'javascript.feature.added-true', 'javascript.feature.a' ],
 	'le-support': 'javascript.feature.added-le',
 	'le-support-2': [ 'javascript.feature.added-le', 'javascript.feature.a' ],
+	'preview-support': 'javascript.feature.added-preview',
 	removed: 'javascript.feature.removed-version',
 	'removed-only': 'javascript.feature.removed-only',
 	'removed-true': 'javascript.feature.removed-true',
 	'removed-le': 'javascript.feature.removed-le',
+	'removed-preview': 'javascript.feature.removed-preview',
 	'complex-support': 'javascript.feature.complex',
 } ) );
 
@@ -417,6 +438,14 @@ describe( 'needsCheck', () => {
 		);
 	} );
 
+	test( 'Version added is "preview"', () => {
+		expect( needsCheck( 'preview-support', { ff: [ '1000.1000.1000' ] } ) ).toBe( true );
+		expect( mockDebug ).toHaveBeenCalledTimes( 1 );
+		expect( mockDebug ).toHaveBeenCalledWith(
+			'ff 1000.1000.1000 needs check for preview-support (javascript.feature.added-preview); added version is "preview"'
+		);
+	} );
+
 	describe( 'Version removed', () => {
 		test( 'Browser too old', () => {
 			expect( needsCheck( 'removed', { ff: [ '1.0.0' ] } ) ).toBe( true );
@@ -463,6 +492,11 @@ describe( 'needsCheck', () => {
 			expect( mockDebug ).toHaveBeenCalledWith(
 				'ff 10.0.0 needs check for removed-le (javascript.feature.removed-le); outside range 3.0.0 – <0.0.0'
 			);
+		} );
+
+		test( 'removed is "preview"', () => {
+			expect( needsCheck( 'removed-preview', { ff: [ '10.0.0' ] } ) ).toBe( false );
+			expect( mockDebug ).not.toHaveBeenCalled();
 		} );
 
 		describe( 'Multiple browser versions', () => {

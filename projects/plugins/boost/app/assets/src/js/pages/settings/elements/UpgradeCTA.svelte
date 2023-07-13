@@ -9,6 +9,8 @@
 
 	const { navigate } = routerHistory;
 
+	export let description = '';
+
 	onMount( () => {
 		// Throw away promise, as we don't need to wait for it.
 		void recordBoostEvent( 'view_upsell_cta_in_settings_page_in_plugin', {} );
@@ -28,7 +30,7 @@
 
 <button class="jb-premium-cta" on:click={showBenefits}>
 	<div class="jb-premium-cta__content">
-		<p>{__( 'Save time by upgrading to Automatic Critical CSS generation', 'jetpack-boost' )}</p>
+		<p>{description}</p>
 		<p class="jb-premium-cta__action-line">
 			{sprintf(
 				/* translators: %s is the price including the currency symbol in front. */
