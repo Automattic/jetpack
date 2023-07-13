@@ -1349,9 +1349,6 @@ importers:
       '@babel/preset-env':
         specifier: 7.22.9
         version: 7.22.9(@babel/core@7.22.9)
-      '@babel/register':
-        specifier: 7.22.5
-        version: 7.22.5(@babel/core@7.22.9)
       '@babel/runtime':
         specifier: 7.22.6
         version: 7.22.6
@@ -1440,9 +1437,6 @@ importers:
       '@babel/preset-env':
         specifier: 7.22.9
         version: 7.22.9(@babel/core@7.22.9)
-      '@babel/register':
-        specifier: 7.22.5
-        version: 7.22.5(@babel/core@7.22.9)
       '@babel/runtime':
         specifier: 7.22.6
         version: 7.22.6
@@ -1654,9 +1648,6 @@ importers:
       '@babel/preset-env':
         specifier: 7.22.9
         version: 7.22.9(@babel/core@7.22.9)
-      '@babel/register':
-        specifier: 7.22.5
-        version: 7.22.5(@babel/core@7.22.9)
       '@babel/runtime':
         specifier: 7.22.6
         version: 7.22.6
@@ -2473,9 +2464,6 @@ importers:
       '@babel/preset-env':
         specifier: 7.22.9
         version: 7.22.9(@babel/core@7.22.9)
-      '@babel/register':
-        specifier: 7.22.5
-        version: 7.22.5(@babel/core@7.22.9)
       '@babel/runtime':
         specifier: 7.22.6
         version: 7.22.6
@@ -2697,9 +2685,6 @@ importers:
       '@babel/preset-env':
         specifier: 7.22.9
         version: 7.22.9(@babel/core@7.22.9)
-      '@babel/register':
-        specifier: 7.22.5
-        version: 7.22.5(@babel/core@7.22.9)
       '@babel/runtime':
         specifier: 7.22.6
         version: 7.22.6
@@ -3168,9 +3153,6 @@ importers:
       '@babel/preset-env':
         specifier: 7.22.9
         version: 7.22.9(@babel/core@7.22.9)
-      '@babel/register':
-        specifier: 7.22.5
-        version: 7.22.5(@babel/core@7.22.9)
       '@babel/runtime':
         specifier: 7.22.6
         version: 7.22.6
@@ -3282,9 +3264,6 @@ importers:
       '@babel/preset-env':
         specifier: 7.22.9
         version: 7.22.9(@babel/core@7.22.9)
-      '@babel/register':
-        specifier: 7.22.5
-        version: 7.22.5(@babel/core@7.22.9)
       '@babel/runtime':
         specifier: 7.22.6
         version: 7.22.6
@@ -3387,9 +3366,6 @@ importers:
       '@babel/preset-env':
         specifier: 7.22.9
         version: 7.22.9(@babel/core@7.22.9)
-      '@babel/register':
-        specifier: 7.22.5
-        version: 7.22.5(@babel/core@7.22.9)
       '@babel/runtime':
         specifier: 7.22.6
         version: 7.22.6
@@ -3499,9 +3475,6 @@ importers:
       '@babel/preset-env':
         specifier: 7.22.9
         version: 7.22.9(@babel/core@7.22.9)
-      '@babel/register':
-        specifier: 7.22.5
-        version: 7.22.5(@babel/core@7.22.9)
       '@babel/runtime':
         specifier: 7.22.6
         version: 7.22.6
@@ -3622,9 +3595,6 @@ importers:
       '@babel/preset-env':
         specifier: 7.22.9
         version: 7.22.9(@babel/core@7.22.9)
-      '@babel/register':
-        specifier: 7.22.5
-        version: 7.22.5(@babel/core@7.22.9)
       '@babel/runtime':
         specifier: 7.22.6
         version: 7.22.6
