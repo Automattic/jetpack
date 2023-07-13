@@ -39,17 +39,6 @@
 	margin: 0 auto;
 }
 
-.jetpack-subscribe-modal__modal-content > .wp-block-group:before {
-	content: '\f160';
-    text-align: center;
-    display: block;
-    font-family: 'Dashicons';
-    color: black;
-    font-size: 24px;
-    margin-bottom: 24px;
-    line-height: 1;
-}
-
 .jetpack-subscribe-modal__modal-content h2 {
     margin: 4px;
 	text-align: center;
