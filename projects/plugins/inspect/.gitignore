@@ -1,7 +1,4 @@
 .vscode
 node_modules
-public/build
-dist
 
 /app-ui/build
-/release

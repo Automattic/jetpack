@@ -3,11 +3,6 @@
 	"description": "A debugging plugin to inspect Jetpack interactions with WordPress.com.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"autoload": {
-		"classmap": [
-			"src/"
-		]
-	},
 	"authors": [
 		{
 			"name": "pyronaur",
