@@ -12,8 +12,8 @@ import {
 const handleIframeResult = function ( eventFromIframe ) {
 	if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {
 		let premiumContentJWTToken = '';
-
 		const data = JSON.parse( eventFromIframe.data );
+
 		if ( data && data.result && data.result.jwt_token ) {
 			// We save the token for now, doing nothing.
 			premiumContentJWTToken = data.result.jwt_token;
@@ -31,7 +31,7 @@ const handleIframeResult = function ( eventFromIframe ) {
 	}
 };
 
-function handleShowingFormModal( form, email ) {
+function showPaidSubscriptionsModal( form, email ) {
 	if ( form.resubmitted || ! email ) {
 		return;
 	}
@@ -58,7 +58,30 @@ function handleShowingFormModal( form, email ) {
 	window.scrollTo( 0, 0 );
 }
 
-function initializeSubscriberPayWallLoginLink() {
+/**
+ * Initialize the free/paid subscription modal that triggers from submitting subscription form.
+ */
+function initializeSubscriptionsForm() {
+	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
+	if ( ! form ) {
+		return;
+	}
+
+	if ( ! form.payments_attached ) {
+		form.payments_attached = true;
+		form.addEventListener( 'submit', function ( event ) {
+			event.preventDefault();
+			const email = form.querySelector( 'input[type=email]' ).value;
+			showPaidSubscriptionsModal( form, email );
+		} );
+	}
+}
+
+/**
+ * Initiatlize "login" link in the paywall / subscriber wall, which opens the modal from subscribe block .
+ * The wall already contains subscriber block we can rely form being there.
+ */
+function initializeLockedContent() {
 	const loginLink = document.querySelector( '.jetpack-subscriber-paywall-login' );
 	if ( ! loginLink ) {
 		return;
@@ -77,27 +100,11 @@ function initializeSubscriberPayWallLoginLink() {
 			return;
 		}
 
-		handleShowingFormModal( form, email );
+		showPaidSubscriptionsModal( form, email );
 	} );
 }
 
-function initializeSubscriberForm() {
-	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
-	if ( ! form ) {
-		return;
-	}
-
-	if ( ! form.payments_attached ) {
-		form.payments_attached = true;
-		form.addEventListener( 'submit', function ( event ) {
-			event.preventDefault();
-			const email = form.querySelector( 'input[type=email]' ).value;
-			handleShowingFormModal( form, email );
-		} );
-	}
-}
-
 domReady( function () {
-	initializeSubscriberPayWallLoginLink();
-	initializeSubscriberForm();
+	initializeSubscriptionsForm();
+	initializeLockedContent();
 } );
