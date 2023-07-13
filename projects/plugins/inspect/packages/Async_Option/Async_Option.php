@@ -34,7 +34,8 @@ class Async_Option {
 
 	public function get() {
 		return $this->option->transform(
-			$this->storage->get( $this->key, ( $this->option )::$DEFAULT_VALUE ) // phpcs:ignore
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- False positive on the latter.
+			$this->storage->get( $this->key, ( $this->option )::$DEFAULT_VALUE )
 		);
 	}
 

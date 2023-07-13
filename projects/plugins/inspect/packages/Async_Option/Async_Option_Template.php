@@ -14,7 +14,7 @@ abstract class Async_Option_Template {
 	/**
 	 * The default value if no option is found.
 	 */
-	public static $DEFAULT_VALUE = false; // phpcs:ignore
+	public static $DEFAULT_VALUE = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 
 	/**
 	 * @var string[]

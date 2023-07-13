@@ -33,7 +33,7 @@ class Log {
 			'post_title'   => $url,
 			'post_name'    => uniqid( 'jetpack_inspect_log_', true ),
 			'post_status'  => 'publish',
-			'post_content' => base64_encode( wp_json_encode( $data ) ), // phpcs:ignore
+			'post_content' => base64_encode( wp_json_encode( $data ) ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		);
 
 		wp_insert_post( $data_post_data );
@@ -42,7 +42,8 @@ class Log {
 	public static function post_to_entry( \WP_Post $post ): array {
 		$post_id = $post->ID;
 		try {
-			$data = json_decode( base64_decode( $post->post_content ), true, 512, JSON_THROW_ON_ERROR | JSON_BIGINT_AS_STRING | JSON_OBJECT_AS_ARRAY );  // phpcs:ignore
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			$data = json_decode( base64_decode( $post->post_content ), true, 512, JSON_THROW_ON_ERROR | JSON_BIGINT_AS_STRING | JSON_OBJECT_AS_ARRAY );
 		} catch ( \JsonException $e ) {
 			$data = 'Error decoding JSON: ' . $e->getMessage();
 		}
@@ -74,7 +75,8 @@ class Log {
 	public static function clear() {
 		global $wpdb;
 
-		return $wpdb->delete( // phpcs:ignore
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return $wpdb->delete(
 			$wpdb->posts,
 			array( 'post_type' => static::POST_TYPE_NAME ),
 			array( '%s' )

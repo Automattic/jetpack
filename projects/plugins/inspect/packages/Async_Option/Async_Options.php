@@ -24,7 +24,7 @@ class Async_Options {
 	 *
 	 * @return void
 	 */
-	public function _print_options_script_tag() { // phpcs:ignore
+	public function _print_options_script_tag() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		$data = array(
 			'rest_api' => array(
 				'value' => rest_url( $this->registry->get_namespace_http() ),

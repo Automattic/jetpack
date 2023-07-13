@@ -6,7 +6,8 @@ use Automattic\Jetpack\Packages\Async_Option\Async_Option_Template;
 
 class Observer_Settings extends Async_Option_Template {
 
-	public static $DEFAULT_VALUE = array( // phpcs:ignore
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
+	public static $DEFAULT_VALUE = array(
 		'enabled' => true,
 		'filter'  => '',
 	);
