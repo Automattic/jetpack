@@ -1025,6 +1025,7 @@ final class ZeroBSCRM {
 		$this->slugs['export']       = 'zerobscrm-export';
 		$this->slugs['systemstatus'] = 'zerobscrm-systemstatus';
 		$this->slugs['sync']         = 'zerobscrm-sync';
+		$this->slugs['automations']  = 'jpcrm-automations';
 
 		// CSV importer Lite
 		$this->slugs['csvlite'] = 'zerobscrm-csvimporterlite-app';
