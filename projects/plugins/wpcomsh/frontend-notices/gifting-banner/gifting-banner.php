@@ -110,7 +110,7 @@ class Gifting_Banner {
 		$data                       = array();
 		$data['dismiss_days_count'] = $this->get_days_to_dismiss_banner();
 		$data['checkout_link']      = $this->get_checkout_link();
-		$data['more_info_link']     = $this->get_more_info_link();
+		$data['more_info_link']     = localized_wpcom_url( $this->get_more_info_link() );
 		$data['i18n']               = array(
 			'title'       => $this->get_title_texts( $days_to_expire ),
 			'subtitle'    => $this->get_subtitle_texts( $this->current_plan, $days_to_expire ),
