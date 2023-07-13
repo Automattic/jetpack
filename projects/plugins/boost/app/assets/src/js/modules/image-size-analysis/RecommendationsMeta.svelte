@@ -5,7 +5,7 @@
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import NoticeIcon from '../../svg/notice-outline.svg';
 	import RefreshIcon from '../../svg/refresh.svg';
-	import { recordBoostEventAndRedirect } from '../../utils/analytics';
+	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../utils/analytics';
 	import MultiProgress from './MultiProgress.svelte';
 	import { resetIsaQuery } from './store/isa-data';
 	import {
@@ -54,6 +54,10 @@
 	 * Start a new image analysis job.
 	 */
 	async function onStartAnalysis() {
+		const $event_name =
+			$isaSummary.status === ISAStatus.Completed ? 'clicked_restart_isa' : 'clicked_start_isa';
+		recordBoostEvent( $event_name, {} );
+
 		try {
 			errorMessage = undefined;
 			requestingReport = true;
