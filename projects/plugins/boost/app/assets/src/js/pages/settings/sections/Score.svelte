@@ -54,6 +54,16 @@
 		},
 	} );
 
+	let setinitialScoreConfigString = false;
+	$: initialScoreConfigString = () => {
+		if ( ! setinitialScoreConfigString ) {
+			setinitialScoreConfigString = true;
+			return currentScoreConfigString;
+		}
+
+		return false;
+	};
+
 	async function refreshScore( force = false ) {
 		if ( ! siteIsOnline ) {
 			return;
@@ -89,7 +99,7 @@
 	let modalData: ScoreChangeMessage | null = null;
 	$: modalData = ! isLoading && ! scores.isStale && scoreChangeModal( scores );
 
-	$: if ( currentScoreConfigString && $isGenerating === false ) {
+	$: if ( initialScoreConfigString() !== currentScoreConfigString && $isGenerating === false ) {
 		debouncedRefreshScore( true );
 	}
 
