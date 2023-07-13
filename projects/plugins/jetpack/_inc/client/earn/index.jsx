@@ -130,7 +130,7 @@ function Earn( props ) {
 						'Let visitors pay for digital goods and services or make quick, pre-set donations by enabling the Payment Button block.',
 						'jetpack'
 					) }
-					buttonText={ __( 'Enable Payment Button', 'jetpack' ) }
+					buttonText={ __( 'Enable payment button', 'jetpack' ) }
 				/>
 				<EarnFeatureButton
 					{ ...props }
@@ -144,7 +144,7 @@ function Earn( props ) {
 						'Accept one-time and recurring donations by enabling the Donations Form block.',
 						'jetpack'
 					) }
-					buttonText={ __( 'Enable Donations Form', 'jetpack' ) }
+					buttonText={ __( 'Enable donations form', 'jetpack' ) }
 				/>
 				<EarnFeatureButton
 					{ ...props }
