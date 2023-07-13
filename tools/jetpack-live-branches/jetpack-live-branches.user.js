@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.28
+// @version      1.29
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      jurassic.ninja
@@ -17,6 +17,25 @@
 	const $ = jQuery.noConflict();
 	const markdownBodySelector = '.pull-discussion-timeline .markdown-body';
 	let pluginsList = null;
+
+	const style = document.createElement( 'style' );
+	style.innerHTML = `
+		#jetpack-live-branches .optionslist {
+			list-style: none;
+			padding-left: 0;
+			margin-top: 24px;
+			display: flex;
+			flex-wrap: wrap;
+		}
+
+		#jetpack-live-branches label {
+			font-weight: inherit;
+		}
+
+		#jetpack-live-branches label.disabled {
+			color: var( --color-fg-muted, #7d8590 );
+		}
+	`;
 
 	// Watch for relevant DOM changes that indicate we need to re-run `doit()`:
 	// - Adding a new `.markdown-body`.
@@ -99,7 +118,9 @@
 			);
 		} else {
 			if ( ! pluginsList ) {
-				pluginsList = dofetch( `${ host }/wp-json/jurassic.ninja/jetpack-beta/plugins` );
+				pluginsList = dofetch(
+					`${ host }/wp-json/jurassic.ninja/jetpack-beta/branches/${ repo }/${ currentBranch }`
+				);
 			}
 			pluginsList
 				.then( body => {
@@ -109,21 +130,30 @@
 						const labels = new Set(
 							$.map( $( '.js-issue-labels a.IssueLabel' ), e => $( e ).data( 'name' ) )
 						);
-						Object.keys( body.data ).forEach( k => {
-							const data = body.data[ k ];
-							if ( data.repo === repo ) {
-								plugins.push( {
-									name: `branches.${ k }`,
-									value: currentBranch,
-									label: encodeHtmlEntities( data.name ),
-									checked: data.labels && data.labels.some( l => labels.has( l ) ),
-								} );
-							}
+						Object.keys( body.data.plugins ).forEach( k => {
+							const data = body.data.plugins[ k ];
+							plugins.push( {
+								name: `branches.${ k }`,
+								value: currentBranch,
+								label: encodeHtmlEntities( data.name ),
+								checked:
+									data.pr !== null && data.labels && data.labels.some( l => labels.has( l ) ),
+								disabled:
+									data.pr === null ? `${ data.name } has not been built for this PR` : false,
+							} );
 						} );
 						if ( ! plugins.length ) {
 							throw new Error( `No plugins are configured for ${ repo }` );
 						}
 						plugins.sort( ( a, b ) => a.label.localeCompare( b.label ) );
+
+						if ( ! plugins.some( p => ! p.disabled ) ) {
+							appendHtml(
+								markdownBody,
+								'<p><strong>No plugins have been built for this PR.</strong> (<a href="#" class="refresh">refresh</a>)</p>'
+							);
+							return;
+						}
 					} else if ( body.code === 'rest_no_route' ) {
 						plugins.push( {
 							name: 'branch',
@@ -268,7 +298,7 @@
 					appendHtml(
 						markdownBody,
 						// prettier-ignore
-						`<p><strong>Error while fetching data for live testing: ${ encodeHtmlEntities( e.message ) }.</strong></p>`
+						`<p><strong>Error while fetching data for live testing: ${ encodeHtmlEntities( e.message ) }.</strong> (<a href="#" class="refresh">retry</a>)</p>`
 					);
 				} );
 		}
@@ -350,7 +380,7 @@
 		 * @param {string} opts.name - Checkbox name.
 		 * @param {string} [opts.value] - Checkbox value, if any.
 		 * @param {boolean} [opts.checked] - Whether the checkbox is default checked.
-		 * @param {boolean} [opts.disabled] - Whether the checkbox is disabled.
+		 * @param {boolean|string} [opts.disabled] - Whether the checkbox is disabled. If a string, the string is used as a title attribute on the label.
 		 * @param {boolean} [opts.invert] - Whether the sense of the checkbox is inverted.
 		 * @param {number} columnWidth - Column width.
 		 * @returns {string} HTML.
@@ -361,12 +391,12 @@
 		) {
 			// prettier-ignore
 			return `
-			<li style="min-width: ${ columnWidth }%">
-				<label style="font-weight: inherit; ">
-					<input type="checkbox" name="${ encodeHtmlEntities( name ) }" value="${ encodeHtmlEntities( value ) }"${ checked ? ' checked' : '' }${ disabled ? ' disabled' : '' }${ invert ? ' data-invert' : '' }>
-					${ label }
-				</label>
-			</li>
+				<li style="min-width: ${ columnWidth }%">
+					<label class="${ disabled ? 'disabled' : '' }" ${ typeof disabled === 'string' ? 'title="' + encodeHtmlEntities( disabled ) + '"' : '' }>
+						<input type="checkbox" name="${ encodeHtmlEntities( name ) }" value="${ encodeHtmlEntities( value ) }"${ checked ? ' checked' : '' }${ disabled ? ' disabled' : '' }${ invert ? ' data-invert' : '' }>
+						${ label }
+					</label>
+				</li>
 			`;
 		}
 
@@ -378,13 +408,10 @@
 		 * @returns {string} HTML.
 		 */
 		function getOptionsList( options, columnWidth ) {
+			// prettier-ignore
 			return `
-				<ul style="list-style: none; padding-left: 0; margin-top: 24px; display: flex; flex-wrap: wrap;">
-					${ options
-						.map( option => {
-							return getOption( option, columnWidth );
-						} )
-						.join( '' ) }
+				<ul class="optionslist">
+					${ options.map( option => getOption( option, columnWidth ) ).join( '' ) }
 				</ul>
 			`;
 		}
@@ -403,10 +430,10 @@
 				`<h2>Jetpack Live Branches</h2> ${ contents }`
 			);
 			$( '#jetpack-live-branches' ).remove();
+			liveBranches.prepend( style );
 			$el.append( liveBranches );
-			liveBranches
-				.find( 'input[type=checkbox]' )
-				.each( () => this.addEventListener( 'change', onInputChanged ) );
+			liveBranches.find( 'input[type=checkbox]' ).on( 'change', onInputChanged );
+			liveBranches.find( 'a.refresh' ).on( 'click', onRefreshClick );
 		}
 
 		/**
@@ -423,6 +450,21 @@
 				e.target.removeAttribute( 'checked' );
 			}
 			updateLink();
+		}
+
+		/**
+		 * Refresh link click handler.
+		 *
+		 * @param {Event} e - Event object.
+		 * @returns {false} False.
+		 */
+		function onRefreshClick( e ) {
+			e.stopPropagation();
+			e.preventDefault();
+			pluginsList = null;
+			$( '#jetpack-live-branches' ).remove();
+			doit();
+			return false;
 		}
 
 		/**

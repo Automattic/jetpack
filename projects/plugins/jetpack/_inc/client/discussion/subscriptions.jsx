@@ -9,17 +9,20 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React from 'react';
+import { connect } from 'react-redux';
+import { isSubscriptionModalEnabled } from 'state/initial-state';
 
 class SubscriptionsComponent extends React.Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {{stb_enabled: *, stc_enabled: *}} initial state for the component.
+	 * @returns {{stb_enabled: *, stc_enabled: *, sm_enabled: *}} initial state for the component.
 	 */
 	getInitialState = () => {
 		return {
 			stb_enabled: this.props.getOptionValue( 'stb_enabled' ),
 			stc_enabled: this.props.getOptionValue( 'stc_enabled' ),
+			sm_enabled: this.props.getOptionValue( 'sm_enabled' ),
 		};
 	};
 
@@ -52,6 +55,10 @@ class SubscriptionsComponent extends React.Component {
 
 	handleSubscribeToCommentToggleChange = () => {
 		this.updateOptions( 'stc_enabled' );
+	};
+
+	handleSubscribeModalToggleChange = () => {
+		this.updateOptions( 'sm_enabled' );
 	};
 
 	render() {
@@ -134,6 +141,27 @@ class SubscriptionsComponent extends React.Component {
 									'jetpack'
 								) }
 							/>
+							{ this.props.isSubscriptionModalEnabled && (
+								<>
+									<ToggleControl
+										checked={ isSubscriptionsActive && this.props.getOptionValue( 'sm_enabled' ) }
+										disabled={
+											! isSubscriptionsActive ||
+											unavailableInOfflineMode ||
+											this.props.isSavingAnyOption( [ 'subscriptions' ] )
+										}
+										toggling={ this.props.isSavingAnyOption( [ 'sm_enabled' ] ) }
+										onChange={ this.handleSubscribeModalToggleChange }
+										label={ __( 'Enable subscriber modal', 'jetpack' ) }
+									/>
+									<p className="jp-form-setting-explanation">
+										{ __(
+											'Grow your subscriber list by enabling a popup modal with a subscribe form. This will show as readers scroll.',
+											'jetpack'
+										) }
+									</p>
+								</>
+							) }
 						</FormFieldset>
 					}
 				</SettingsGroup>
@@ -152,4 +180,10 @@ class SubscriptionsComponent extends React.Component {
 }
 
 export const UnwrappedComponent = SubscriptionsComponent;
-export default withModuleSettingsFormHelpers( SubscriptionsComponent );
+export default withModuleSettingsFormHelpers(
+	connect( state => {
+		return {
+			isSubscriptionModalEnabled: isSubscriptionModalEnabled( state ),
+		};
+	} )( SubscriptionsComponent )
+);

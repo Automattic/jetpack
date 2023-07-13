@@ -460,10 +460,15 @@ EOT;
 	/**
 	 * Render the related posts markup.
 	 *
-	 * @param array $attributes Block attributes.
+	 * @param array  $attributes Block attributes.
+	 * @param string $content    String containing the related Posts block content.
 	 * @return string
 	 */
-	public function render_block( $attributes ) {
+	public function render_block( $attributes, $content ) {
+		if ( ! jetpack_is_frontend() ) {
+			return $content;
+		}
+
 		$wrapper_attributes = array();
 		$post_id            = get_the_ID();
 		$block_attributes   = array(
