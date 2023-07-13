@@ -33,7 +33,7 @@
 		}
 
 		#jetpack-live-branches label.disabled {
-			color: rgba(0,0,0,0.5);
+			color: var( --color-fg-muted, #7d8590 );
 		}
 	`;
 
