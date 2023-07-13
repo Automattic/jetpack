@@ -41,23 +41,27 @@ class Tokens_Locks {
 	}
 
 	/**
-	 * Set the token lock.
+	 * Set the token lock for AIOWPM plugin export.
 	 *
-	 * @return bool
+	 * @param array $params The filter parameters.
+	 *
+	 * @return array
 	 */
-	public function set_lock() {
+	private function aiowpm_set_lock( $params ) {
 		( new Tokens() )->set_lock();
-		return true;
+		return $params;
 	}
 
 	/**
-	 * Remove the token lock.
+	 * Remove the token lock for AIOWPM plugin export.
 	 *
-	 * @return bool
+	 * @param array $params The filter parameters.
+	 *
+	 * @return array
 	 */
-	public function remove_lock() {
+	private function aiowpm_remove_lock( $params ) {
 		( new Tokens() )->remove_lock();
-		return true;
+		return $params;
 	}
 
 	/**
@@ -66,8 +70,8 @@ class Tokens_Locks {
 	 * @return void
 	 */
 	private function init_aiowpm() {
-		add_filter( 'ai1wm_export', array( $this, 'set_lock' ), 180 );
-		add_filter( 'ai1wm_export', array( $this, 'remove_lock' ), 250 );
+		add_filter( 'ai1wm_export', array( $this, 'aiowpm_set_lock' ), 180 );
+		add_filter( 'ai1wm_export', array( $this, 'aiowpm_remove_lock' ), 250 );
 	}
 
 }
