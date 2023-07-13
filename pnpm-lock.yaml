@@ -2380,9 +2380,6 @@ importers:
       '@babel/runtime':
         specifier: 7.22.6
         version: 7.22.6
-      '@size-limit/preset-app':
-        specifier: 8.2.6
-        version: 8.2.6(size-limit@8.2.6)
       '@testing-library/dom':
         specifier: 8.19.1
         version: 8.19.1
@@ -2425,9 +2422,6 @@ importers:
       sass-loader:
         specifier: 12.4.0
         version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
-      size-limit:
-        specifier: 8.2.6
-        version: 8.2.6
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
