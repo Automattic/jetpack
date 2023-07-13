@@ -142,6 +142,18 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
+		'intent-write'    => array(
+			'title'               => 'Blog',
+			'task_ids'            => array(
+				'site_title',
+				'design_edited',
+				'domain_claim',
+				'verify_email',
+				'domain_customize',
+				'drive_traffic',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_is_intent_write_enabled',
+		),
 	);
 
 	$extended_task_list_definitions = apply_filters( 'wpcom_launchpad_extended_task_list_definitions', array() );
@@ -575,6 +587,15 @@ function wpcom_launchpad_is_keep_building_enabled() {
 	}
 
 	return false;
+}
+
+/**
+ * Checks if the Blog flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_intent_write_enabled() {
+	return apply_filters( 'is_launchpad_intent_write_enabled', false );
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.

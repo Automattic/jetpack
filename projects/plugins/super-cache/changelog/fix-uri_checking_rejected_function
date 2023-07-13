@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+WP Super Cache: reject unkown URIs so they're not cached.

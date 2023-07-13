@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: When ISA summary changes to completed, force refresh of table
-
-

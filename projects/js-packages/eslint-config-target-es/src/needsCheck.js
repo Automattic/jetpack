@@ -77,6 +77,10 @@ function needsCheck( rule, browsers, options = {} ) {
 						results.push( 'no support' );
 						continue support;
 					}
+					if ( support.version_added === 'preview' ) {
+						results.push( 'added version is "preview"' );
+						continue support;
+					}
 
 					let added, removed;
 					if ( support.version_added === true ) {
@@ -88,7 +92,10 @@ function needsCheck( rule, browsers, options = {} ) {
 					}
 					if ( support.version_removed === true ) {
 						removed = semver000;
-					} else if ( typeof support.version_removed === 'string' ) {
+					} else if (
+						typeof support.version_removed === 'string' &&
+						support.version_removed !== 'preview'
+					) {
 						removed = support.version_removed.startsWith( '≤' )
 							? semver000
 							: semver.coerce( support.version_removed );

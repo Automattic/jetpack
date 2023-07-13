@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix polling for image analysis report status the second time you generate.
-
-

@@ -118,6 +118,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'wpcom_publish_comments_with_markdown'    => '(bool) Whether markdown is enabled for comments',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
 			'wpcom_featured_image_in_email'           => '(bool) Whether the Featured image is displayed in the New Post email template or not',
+			'sm_enabled'                              => '(bool) Whether the newsletter Subscribe Modal is enabled or not',
 			'wpcom_gifting_subscription'              => '(bool) Whether gifting is enabled for non auto-renew sites',
 			'wpcom_reader_views_enabled'              => '(bool) Whether showing post views in WordPress.com Reader is enabled for the site',
 			'wpcom_subscription_emails_use_excerpt'   => '(bool) Whether site subscription emails (e.g. New Post email notification) will use post excerpts',
