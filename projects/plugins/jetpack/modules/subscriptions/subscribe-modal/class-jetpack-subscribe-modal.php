@@ -210,7 +210,7 @@ add_filter(
  * jetpack_subscriptions_modal_enabled filter. If you want to test
  * this feature, you'll need to override the line below by adding
  *
- * add_filter('jetpack_subscriptions_modal_enabled', '__return_false', 20);
+ * add_filter( 'jetpack_subscriptions_modal_enabled', '__return_true', 20 );
  *
  * to your test site. When we are ready for full release of this
  * feature, we will remove this line, but will leave the
