@@ -24,7 +24,6 @@ class Registry {
 	 */
 	private $namespace;
 
-
 	private function __construct( $namespace ) {
 		$this->namespace = $namespace;
 	}
@@ -69,7 +68,7 @@ class Registry {
 		$endpoint                = new Endpoint( $this->get_namespace_http(), $this->sanitize_http_name( $option->key() ), $option );
 		$this->endpoints[ $key ] = $endpoint;
 
-		add_action( 'rest_api_init', [ $endpoint, 'register_rest_route' ] );
+		add_action( 'rest_api_init', array( $endpoint, 'register_rest_route' ) );
 
 		return $option;
 	}
@@ -99,7 +98,5 @@ class Registry {
 	public function get_namespace_http() {
 		return $this->sanitize_http_name( $this->namespace );
 	}
-
-
 
 }

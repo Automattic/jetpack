@@ -6,25 +6,25 @@ use Automattic\Jetpack\Packages\Async_Option\Async_Option_Template;
 
 class Observer_Settings extends Async_Option_Template {
 
-	public static $DEFAULT_VALUE = [
+	public static $DEFAULT_VALUE = array( // phpcs:ignore
 		'enabled' => true,
 		'filter'  => '',
-	];
+	);
 
 	public function sanitize( $value ) {
-		return [
+		return array(
 			'enabled' => filter_var( $value['enabled'], FILTER_VALIDATE_BOOLEAN ),
 			'filter'  => sanitize_text_field( $value['filter'] ),
-		];
+		);
 	}
 
 	public function validate( $value ) {
 
 		if ( ! isset( $value['enabled'] ) ) {
-			$this->add_error("Missing required key 'enabled'");
+			$this->add_error( "Missing required key 'enabled'" );
 		}
 		if ( ! isset( $value['filter'] ) ) {
-			$this->add_error("Missing required key 'filters'");
+			$this->add_error( "Missing required key 'filters'" );
 		}
 
 		return ! $this->has_errors();
@@ -34,4 +34,3 @@ class Observer_Settings extends Async_Option_Template {
 		return json_decode( $value, ARRAY_A );
 	}
 }
-

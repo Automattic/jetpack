@@ -14,12 +14,12 @@ abstract class Async_Option_Template {
 	/**
 	 * The default value if no option is found.
 	 */
-	public static $DEFAULT_VALUE = false;
+	public static $DEFAULT_VALUE = false; // phpcs:ignore
 
 	/**
 	 * @var string[]
 	 */
-	private $errors = [];
+	private $errors = array();
 
 	/**
 	 * Setup storage mechanism that subscribes to `Storage` contract
@@ -27,7 +27,6 @@ abstract class Async_Option_Template {
 	 * @param $storage_namespace string
 	 *
 	 * @return Storage
-	 *
 	 */
 	public function setup_storage( $storage_namespace ) {
 		return new WP_Option( $storage_namespace );
@@ -70,7 +69,7 @@ abstract class Async_Option_Template {
 	 *
 	 * @return bool - Return true on success, false on failure.
 	 */
-	public function validate( $value ) {
+	public function validate() {
 		return ! $this->has_errors();
 	}
 
@@ -86,14 +85,11 @@ abstract class Async_Option_Template {
 	 *
 	 * @return mixed
 	 */
-	abstract function sanitize( $value );
-
-
+	abstract public function sanitize( $value );
 
 	/**
 	 *
 	 *  Methods to help handling errors
-	 *
 	 */
 	public function has_errors() {
 		return ! empty( $this->errors );

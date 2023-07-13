@@ -9,7 +9,6 @@ namespace Automattic\Jetpack_Inspect\REST_API\Endpoints;
 use Automattic\Jetpack_Inspect\Log;
 use Automattic\Jetpack_Inspect\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Inspect\REST_API\Permissions\Current_User_Admin;
-use WP_REST_Response;
 
 class Clear implements Endpoint {
 
@@ -24,9 +23,8 @@ class Clear implements Endpoint {
 	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
 		return rest_ensure_response(
-			Log::clear() ? "OK" : ""
+			Log::clear() ? 'OK' : ''
 		);
-
 	}
 
 	public function permissions() {

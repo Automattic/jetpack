@@ -7,10 +7,7 @@
 
 namespace Automattic\Jetpack_Inspect\REST_API\Endpoints;
 
-use Automattic\Jetpack_Inspect\Log;
 use Automattic\Jetpack_Inspect\REST_API\Contracts\Endpoint;
-use Automattic\Jetpack_Inspect\REST_API\Permissions\Current_User_Admin;
-use WP_REST_Response;
 
 class Test_Request implements Endpoint {
 
@@ -26,8 +23,7 @@ class Test_Request implements Endpoint {
 	public function response( $request ) {
 		return rest_ensure_response(
 			wp_remote_request( 'http://timeout.comm' . time() )
-	);
-
+		);
 	}
 
 	public function permissions() {

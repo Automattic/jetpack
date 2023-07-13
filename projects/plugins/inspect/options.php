@@ -11,7 +11,7 @@ use Automattic\Jetpack_Inspect\Options\Observer_Settings;
  */
 function jetpack_inspect_register_option( $name, $handler ) {
 	return Registry::get_instance( 'jetpack_inspect' )
-	               ->register( $name, $handler );
+					->register( $name, $handler );
 }
 
 /**
@@ -34,10 +34,12 @@ function jetpack_inspect_update_option( $option, $value ) {
 /**
  * Ensure that Async Options are passed to the relevant scripts.
  */
-add_action( 'admin_init', function() {
-	Async_Options::setup( 'jetpack_inspect', 'jetpack-inspect-main' );
-} );
-
+add_action(
+	'admin_init',
+	function () {
+		Async_Options::setup( 'jetpack_inspect', 'jetpack-inspect-main' );
+	}
+);
 
 jetpack_inspect_register_option( 'monitor_status', new Monitor_Status() );
 jetpack_inspect_register_option( 'observer_incoming', new Observer_Settings() );

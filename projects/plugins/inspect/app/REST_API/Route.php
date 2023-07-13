@@ -41,8 +41,8 @@ class Route {
 	public function verify_permissions( $request ) {
 
 		if (
-			defined( "WP_ENVIRONMENT_TYPE" )
-			&& "development" === WP_ENVIRONMENT_TYPE
+			defined( 'WP_ENVIRONMENT_TYPE' )
+			&& 'development' === WP_ENVIRONMENT_TYPE
 			&& defined( 'JETPACK_INSPECT_DEBUG' )
 			&& JETPACK_INSPECT_DEBUG
 		) {

@@ -17,7 +17,11 @@ class Monitor_Status extends Async_Option_Template {
 
 	public function validate( $value ) {
 		if ( ! is_bool( $value ) ) {
-			return sprintf( __( "Status should be a 'boolean'. Received '%s'.", 'jetpack-inspect' ), gettype( $value ) );
+			return sprintf(
+				// translators: %s is a PHP type name.
+				__( "Status should be a 'boolean'. Received '%s'.", 'jetpack-inspect' ),
+				gettype( $value )
+			);
 		}
 		return true;
 	}
@@ -30,5 +34,3 @@ class Monitor_Status extends Async_Option_Template {
 		return filter_var( $value, FILTER_VALIDATE_BOOLEAN );
 	}
 }
-
-

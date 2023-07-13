@@ -14,7 +14,6 @@ class Endpoint {
 	 */
 	private $rest_namespace;
 
-
 	/**
 	 * @var string $route
 	 */
@@ -54,11 +53,11 @@ class Endpoint {
 	 * @param \WP_REST_Request $request
 	 */
 	public function handler( $request ) {
-		$methods = [
+		$methods = array(
 			'GET'    => 'handle_get',
 			'POST'   => 'handle_post',
 			'DELETE' => 'handle_delete',
-		];
+		);
 
 		if ( ! isset( $methods[ $request->get_method() ] ) ) {
 			return new \WP_Error( 'invalid_method', 'Invalid method.', array( 'status' => 400 ) );
@@ -69,14 +68,10 @@ class Endpoint {
 		return rest_ensure_response( $this->$method( $request ) );
 	}
 
-
-
 	/**
 	 * Handle GET Requests
-	 *
-	 * @param \WP_REST_Request $request
 	 */
-	public function handle_get( $request ) {
+	public function handle_get() {
 		return $this->option->get();
 	}
 
@@ -94,9 +89,9 @@ class Endpoint {
 	}
 
 	/**
-	 * @param \WP_REST_Request $request
+	 * Handle DELETE Requests.
 	 */
-	public function handle_delete( $request ) {
+	public function handle_delete() {
 		$this->option->delete();
 		return $this->option->get();
 	}

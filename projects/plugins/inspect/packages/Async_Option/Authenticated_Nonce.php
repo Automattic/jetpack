@@ -15,7 +15,7 @@ class Authenticated_Nonce {
 
 	public function create() {
 
-		if ( defined( "WP_DEBUG" ) && WP_DEBUG && ! did_action( 'set_current_user' ) ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! did_action( 'set_current_user' ) ) {
 			throw new \Exception( "Debug: Attempting to create {$this->key} nonce before the user is set." );
 		}
 		return wp_create_nonce( $this->key );
