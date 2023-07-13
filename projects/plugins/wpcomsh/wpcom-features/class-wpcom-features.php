@@ -330,8 +330,6 @@ class WPCOM_Features {
 	public const SPACE_UPGRADED_STORAGE           = 'space-upgraded-storage';
 	public const SSH                              = 'ssh';
 	public const STAGING_SITES                    = 'staging-sites';
-	public const STATS                            = 'stats';
-	public const STATS_PAID                       = 'stats-paid';
 	public const SUBSCRIBER_UNLIMITED_IMPORTS     = 'subscriber-unlimited-imports';
 	public const SUBSCRIPTION_GIFTING             = 'subscription-gifting';
 	public const SUPPORT                          = 'support';
@@ -831,6 +829,9 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
+		self::STAGING_SITES                    => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+		),
 
 		/*
 		 * SOCIAL_SHARES_1000 - This feature is linked to the ability to share upto 1000 social media shares on the Jetpack Social Plugin.
@@ -896,18 +897,6 @@ class WPCOM_Features {
 			self::SPACE_50GB,
 			self::SPACE_100GB,
 			self::SPACE_200GB,
-		),
-
-		self::STAGING_SITES                    => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
-		),
-
-		self::STATS                            => array(
-			self::JETPACK_STATS_PLANS,
-		),
-		self::STATS_PAID                       => array(
-			self::JETPACK_STATS_PWYW,
-			self::JETPACK_STATS_MONTHLY,
 		),
 
 		// Importing subscribers to the site without limits.
