@@ -2605,6 +2605,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'sm_enabled'                           => array(
+				'description'       => esc_html__( 'Show popup Subscribe modal to readers.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
 			'social_notifications_subscribe'       => array(
 				'description'       => esc_html__( 'Send email notification when someone follows my blog', 'jetpack' ),
 				'type'              => 'boolean',

@@ -118,6 +118,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'posts_per_rss'                           => '(int) Number of posts to show in the RSS feed',
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
+			'sm_enabled'                              => '(bool) Whether the newsletter subscribe modal is enabled',
 		),
 
 		'response_format'     => array(
@@ -441,6 +442,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
+						'sm_enabled'                       => (bool) get_option( 'sm_enabled' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'wpcom_reader_views_enabled'       => (bool) get_option( 'wpcom_reader_views_enabled', true ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
@@ -1017,6 +1019,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'wpcom_featured_image_in_email':
 					update_option( 'wpcom_featured_image_in_email', (int) (bool) $value );
+					$updated[ $key ] = (int) (bool) $value;
+					break;
+
+				case 'sm_enabled':
+					update_option( 'sm_enabled', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 
