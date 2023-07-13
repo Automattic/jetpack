@@ -324,7 +324,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ connectLabel }
 						title={ __(
-							'Connect your WordPress.com account to upgrade and access PayPay features in your editor.',
+							'Connect your WordPress.com account to upgrade and access PayPal features in your editor.',
 							'jetpack'
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SIMPLE_PAYMENTS_JETPACK ) }
