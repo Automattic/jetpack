@@ -21,6 +21,7 @@ Official guideline resources:
 - Fediverse: https://commons.wikimedia.org/wiki/File:Fediverse_logo_proposal.svg
 - Nextdoor: https://about.nextdoor.com/gb/media/
 - http://findguidelin.es
+- Threads: https://en.wikipedia.org/wiki/File:Threads_(app)_logo.svg
 
 ## Using the SocialLogo Component in your project:
 

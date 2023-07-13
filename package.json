@@ -1,6 +1,6 @@
 {
   "name": "social-logos",
-  "version": "2.5.3",
+  "version": "2.5.4",
   "main": "react/index.js",
   "peerDependencies": {
     "react": "15 - 18"

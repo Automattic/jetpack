@@ -1,5 +1,8 @@
 _The versioning refers to the React component build._
 
+#### v2.5.4 (2023-07-10)
+* Added Threads icon.
+
 #### v2.5.3 (2023-06-15)
 * Added Fediverse icon.
 * Added Nextdoor icon.
