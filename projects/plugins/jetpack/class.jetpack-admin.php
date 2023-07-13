@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
@@ -112,15 +111,13 @@ class Jetpack_Admin {
 	}
 
 	/**
-	 * Generate styles to replace Akismet logo for the Jetpack logo. It's a workaround until we create a proper settings page for
-	 * Jetpack Anti-Spam. Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
+	 * Generate styles to replace Akismet logo for the Jetpack logo.
+		Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
 	 */
 	public function akismet_logo_replacement_styles() {
-		$logo = new Jetpack_Logo();
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$logo_base64     = base64_encode( $logo->get_jp_emblem_larger() );
-		$logo_base64_url = "data:image/svg+xml;base64,{$logo_base64}";
-		$style           = ".akismet-masthead__logo-container { background: url({$logo_base64_url}) no-repeat .25rem; height: 1.8125rem; } .akismet-masthead__logo { display: none; }";
+		$logo_url = esc_url( plugins_url( 'images/products/logo-anti-spam.svg', JETPACK__PLUGIN_FILE ) );
+		$style    = ".akismet-masthead__logo-container { background: url({$logo_url}) no-repeat; min-height: 42px; margin: 20px 0; padding: 0 !important; } .akismet-masthead__logo { display: none; }";
+		$style   .= '@media screen and (max-width: 782px) { .akismet-masthead__logo-container { margin-left: 4px; } }';
 		wp_add_inline_style( 'admin-bar', $style );
 	}
 

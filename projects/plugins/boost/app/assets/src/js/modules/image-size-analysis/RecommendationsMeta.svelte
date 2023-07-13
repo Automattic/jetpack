@@ -3,8 +3,10 @@
 	import { __, sprintf } from '@wordpress/i18n';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
+	import NoticeIcon from '../../svg/notice-outline.svg';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import MultiProgress from './MultiProgress.svelte';
+	import { resetIsaQuery } from './store/isa-data';
 	import {
 		requestImageAnalysis,
 		initializeIsaSummary,
@@ -55,6 +57,7 @@
 			errorMessage = undefined;
 			requestingReport = true;
 			await requestImageAnalysis();
+			resetIsaQuery();
 		} catch ( err ) {
 			errorMessage = err.message;
 		} finally {
@@ -86,6 +89,7 @@
 		<div class="summary-line">
 			{#if totalIssues > 0}
 				<div class="has-issues summary">
+					<NoticeIcon class="icon" />
 					{sprintf(
 						/* translators: %d is the number of issues that were found */
 						__( 'Found a total of %d issues', 'jetpack-boost' ),
@@ -119,7 +123,9 @@
 	{#if [ ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status ) && ! requestingReport}
 		<div class="button-area">
 			<Button href="#image-size-analysis/all/1" disabled={requestingReport}>
-				{__( 'See report in progress', 'jetpack-boost' )}
+				{$isaSummary.status === ISAStatus.Completed
+					? __( 'See full report', 'jetpack-boost' )
+					: __( 'View report in progress', 'jetpack-boost' )}
 			</Button>
 		</div>
 	{/if}
@@ -136,7 +142,9 @@
 	{/if}
 {/if}
 
-<style>
+<style lang="scss">
+	@use '../../../css/main/variables.scss' as *;
+
 	.summary-line {
 		font-size: 14px;
 		line-height: 22px;
@@ -144,16 +152,39 @@
 		flex-direction: row;
 		align-items: flex-start;
 		margin-bottom: 17px;
+
+		@media ( max-width: 600px ) {
+			flex-direction: column;
+		}
+	}
+
+	.summary-line button {
+		:global( svg ) {
+			margin: 4px 4px 2px 0;
+			fill: $jetpack-green;
+		}
+
+		@media ( max-width: 600px ) {
+			margin-top: 15px;
+		}
 	}
 
 	.summary {
 		margin-right: 5px;
 		flex-grow: 1;
 		position: relative;
+		color: $jetpack-green;
 	}
 
 	.has-issues {
-		color: var( --red_50 );
+		color: $red_50;
+	}
+
+	.has-issues :global( svg ) {
+		width: 22px;
+		height: 22px;
+		top: 4px;
+		position: relative;
 	}
 
 	.wait-notice {

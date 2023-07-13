@@ -40,7 +40,7 @@ declare global {
 		superCache: {
 			pluginActive: boolean;
 			cacheEnabled: boolean;
-			disableCacheKey?: string;
+			cachePageSecret?: string;
 		};
 		site: {
 			domain: string;
@@ -49,6 +49,9 @@ declare global {
 			assetPath: string;
 			getStarted: boolean;
 			canResizeImages: boolean;
+			postTypes: {
+				[ key: string ]: string;
+			};
 		};
 		optimizations: Optimizations;
 		shownAdminNoticeIds: string[];

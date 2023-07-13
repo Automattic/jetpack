@@ -32,6 +32,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 				'id'           => $issue->id,
 				'thumbnail'    => $issue->url,
 				'device_type'  => $issue->device,
+				'type'         => $issue->type,
 				'status'       => $issue->status,
 				'instructions' => $this->get_instructions( $issue ),
 				'page'         => $this->get_page( $issue ),

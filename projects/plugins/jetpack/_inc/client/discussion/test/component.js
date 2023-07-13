@@ -42,6 +42,7 @@ describe( 'SubscriptionsComponent', () => {
 			render( <SubscriptionsComponent { ...props } /> );
 			expect( theSpy ).toHaveBeenCalledWith( 'stb_enabled' );
 			expect( theSpy ).toHaveBeenCalledWith( 'stc_enabled' );
+			expect( theSpy ).toHaveBeenCalledWith( 'sm_enabled' );
 		} );
 	} );
 } );
