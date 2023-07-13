@@ -4,10 +4,9 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"autoload": {
-		"psr-4": {
-			"Automattic\\Jetpack_Inspect\\": "app/",
-			"Automattic\\Jetpack\\Packages\\": "packages/"
-		}
+		"classmap": [
+			"src/"
+		]
 	},
 	"authors": [
 		{
@@ -23,11 +22,6 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev"
-	},
-	"autoload": {
-		"classmap": [
-			"src/"
-		]
 	},
 	"config": {
 		"allow-plugins": {
