@@ -12,9 +12,10 @@
 			)}
 		</p>
 		<ul>
-			<li>Testimonials</li>
-			<li>Portfolio</li>
-			<li>Projects</li>
+			<!-- svelte-ignore missing-declaration -->
+			{#each Object.entries( Jetpack_Boost.site.postTypes ) as [slug, label]}
+				<li>{label}</li>
+			{/each}
 		</ul>
 		<i />
 	</div>
