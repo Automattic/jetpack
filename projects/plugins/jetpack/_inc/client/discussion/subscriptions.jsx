@@ -142,17 +142,25 @@ class SubscriptionsComponent extends React.Component {
 								) }
 							/>
 							{ this.props.isSubscriptionModalEnabled && (
-								<ToggleControl
-									checked={ isSubscriptionsActive && this.props.getOptionValue( 'sm_enabled' ) }
-									disabled={
-										! isSubscriptionsActive ||
-										unavailableInOfflineMode ||
-										this.props.isSavingAnyOption( [ 'subscriptions' ] )
-									}
-									toggling={ this.props.isSavingAnyOption( [ 'sm_enabled' ] ) }
-									onChange={ this.handleSubscribeModalToggleChange }
-									label={ __( 'Enable the popup subscription modal', 'jetpack' ) }
-								/>
+								<>
+									<ToggleControl
+										checked={ isSubscriptionsActive && this.props.getOptionValue( 'sm_enabled' ) }
+										disabled={
+											! isSubscriptionsActive ||
+											unavailableInOfflineMode ||
+											this.props.isSavingAnyOption( [ 'subscriptions' ] )
+										}
+										toggling={ this.props.isSavingAnyOption( [ 'sm_enabled' ] ) }
+										onChange={ this.handleSubscribeModalToggleChange }
+										label={ __( 'Enable subscriber modal', 'jetpack' ) }
+									/>
+									<p className="jp-form-setting-explanation">
+										{ __(
+											'Grow your subscriber list by enabling a popup modal with a subscribe form. This will show as readers scroll.',
+											'jetpack'
+										) }
+									</p>
+								</>
 							) }
 						</FormFieldset>
 					}
