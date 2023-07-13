@@ -5,6 +5,7 @@
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import NoticeIcon from '../../svg/notice-outline.svg';
 	import RefreshIcon from '../../svg/refresh.svg';
+	import { recordBoostEventAndRedirect } from '../../utils/analytics';
 	import MultiProgress from './MultiProgress.svelte';
 	import { resetIsaQuery } from './store/isa-data';
 	import {
@@ -122,7 +123,15 @@
 	<!-- Show a button to view the report if it's in progress or completed. -->
 	{#if [ ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status ) && ! requestingReport}
 		<div class="button-area">
-			<Button href="#image-size-analysis/all/1" disabled={requestingReport}>
+			<Button
+				disabled={requestingReport}
+				on:click={() =>
+					recordBoostEventAndRedirect(
+						'#image-size-analysis/all/1',
+						'clicked_view_isa_report',
+						{}
+					)}
+			>
 				{$isaSummary.status === ISAStatus.Completed
 					? __( 'See full report', 'jetpack-boost' )
 					: __( 'View report in progress', 'jetpack-boost' )}
