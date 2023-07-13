@@ -269,8 +269,6 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			});
 		})
 		</script>
-		<style>
-		</style>
 		<!---  // mobile only menu -->
 	<jpcrm-top-menu id="jpcrm-top-menu">
 		<div class="logo-cube <?php echo esc_attr( $admin_menu_state ); ?>">
