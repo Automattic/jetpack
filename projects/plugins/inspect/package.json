@@ -19,7 +19,7 @@
 		"build-js": "rollup -c rollup.config.js",
 		"build-production": "pnpm build-production-js",
 		"build-production-js": "rollup -c rollup.config.js",
-		"clean": "true"
+		"clean": "rm -rf app-ui/build/"
 	},
 	"engines": {
 		"node": "^18.13.0",
