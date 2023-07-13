@@ -1,4 +1,6 @@
 import * as WPElement from '@wordpress/element';
+import { AutomationsAdmin } from '.';
+
 /**
  * Render function
  */
@@ -9,7 +11,7 @@ const render = () => {
 		return;
 	}
 
-	const component = <div>Hello, world!</div>;
+	const component = <AutomationsAdmin />;
 
 	if ( WPElement.createRoot ) {
 		WPElement.createRoot( container ).render( component );
