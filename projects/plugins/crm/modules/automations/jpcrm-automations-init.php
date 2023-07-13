@@ -40,7 +40,7 @@ function register_page() {
 
 	add_submenu_page(
 		$zbs->slugs['automations'],
-		__( 'Welcome to Jetpack CRM Automations', 'zero-bs-crm' ), // TODO: change this
+		__( 'Welcome to Jetpack CRM Automations', 'zero-bs-crm' ), // TODO: verify or get better copy
 		'',
 		'manage_options',
 		'jpcrm-automations',
