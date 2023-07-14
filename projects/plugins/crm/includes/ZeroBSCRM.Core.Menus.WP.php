@@ -121,6 +121,15 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_chartjs', 'zeroBSCRM_admin_styles_homedash' ),
 		);
 
+		$menu['jpcrm']['subitems']['automations'] = array(
+			'title'      => __( 'Automations', 'zero-bs-crm' ),
+			'url'        => $zbs->slugs['automations'],
+			'perms'      => 'manage_options',
+			'order'      => 2,
+			'wpposition' => 2,
+			'callback'   => 'jpcrm_pages_automations',
+		);
+
 		// Contacts (sub)
 		$menu['jpcrm']['subitems']['contacts'] = array(
 			'title'      => __( 'Contacts', 'zero-bs-crm' ),
@@ -345,6 +354,15 @@ function zeroBSCRM_menu_buildMenu() {
 			'wpposition' => 1,
 			'callback'   => 'zeroBSCRM_pages_dash',
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_chartjs', 'zeroBSCRM_admin_styles_homedash' ),
+		);
+
+		$menu['jpcrm']['subitems']['automations'] = array(
+			'title'      => __( 'Automations', 'zero-bs-crm' ),
+			'url'        => $zbs->slugs['automations'],
+			'perms'      => 'manage_options',
+			'order'      => 2,
+			'wpposition' => 2,
+			'callback'   => 'jpcrm_pages_automations',
 		);
 
 		// Core modules (sub)

@@ -26,35 +26,7 @@ use Automattic\Jetpack\Assets;
  * @return void
  */
 function init() {
-	add_action( 'admin_menu', 'Automattic\Jetpack_CRM\Automations\register_page' );
 	add_action( 'load-admin_page_jpcrm-automations', 'Automattic\Jetpack_CRM\Automations\admin_init' );
-}
-
-/**
- * Register the admin page for the Automations UI
- *
- * @return void
- */
-function register_page() {
-	global $zbs;
-
-	add_submenu_page(
-		$zbs->slugs['automations'],
-		__( 'Welcome to Jetpack CRM Automations', 'zero-bs-crm' ), // TODO: verify or get better copy
-		'',
-		'manage_options',
-		'jpcrm-automations',
-		'Automattic\Jetpack_CRM\Automations\render_page'
-	);
-}
-
-/**
- * Render the page for React to mount on.
- *
- * @return void
- */
-function render_page() {
-	echo '<div id="jetpack-crm-automations-root"></div>';
 }
 
 /**

@@ -140,6 +140,15 @@ function zeroBSCRM_pages_admin_view_page_company( $id = -1 ) {
 	jpcrm_render_company_view_page( $id );
 }
 
+/**
+ * Load the Automations admin page
+ *
+ * @return void
+ */
+function jpcrm_pages_automations() {
+	jpcrm_load_admin_page( 'automations/main' );
+}
+
 /*
 ======================================================
 	/ Page loading
@@ -292,7 +301,7 @@ function zeroBSCRM_pages_admin_team() {
 		});
 	</script>
 
-		
+
 
 
 
@@ -311,7 +320,7 @@ function zeroBSCRM_pages_admin_team() {
 
 
 		<a style="margin-left:10px;" class="ui button black right" href="<?php echo esc_url( admin_url( 'user-new.php?zbsslug=zbs-add-user' ) ); ?>">
-		<i class="add icon"></i> 
+		<i class="add icon"></i>
 			<?php esc_html_e( 'Add New Team Member', 'zero-bs-crm' ); ?>
 		</a>
 
@@ -625,7 +634,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 	}
 	.the-templates .active{
 	border: 1px solid #3f4347;
-	border-left: 3px solid #3f4347;   
+	border-left: 3px solid #3f4347;
 	}
 
 	#tinymce{
@@ -670,7 +679,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 					id:  theid,
 					status: 'i',
 					security: jQuery( '#zbs-save-email_active' ).val(),
-				}  
+				}
 				i = jQuery.ajax({
 					url: ajaxurl,
 					type: "POST",
@@ -689,12 +698,12 @@ function zeroBSCRM_pages_admin_system_emails() {
 
 			jQuery('#force-email-create').on("click", function(e){
 				jQuery('#zbs-saving-email-create').addClass('active');
-		
+
 				var t = {
 					action: "zbs_create_email_templates",
 					security: jQuery( '#zbs_create_email_nonce' ).val(),
-				}  
-			  
+				}
+
 				i = jQuery.ajax({
 					url: ajaxurl,
 					type: "POST",
@@ -708,8 +717,8 @@ function zeroBSCRM_pages_admin_system_emails() {
 				jQuery('.template-generate-results').show();
 
 				// wh: just force reload it here?
-				window.location.reload(false); 
-			   
+				window.location.reload(false);
+
 				}),i.fail(function(e) {
 				});
 
@@ -718,7 +727,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 
 
 			jQuery('.zbs-turn-active').on("click",function(e){
-			  
+
 				jQuery('#zbs-saving-email-active').addClass('active');
 
 				var theid = jQuery(this).data('emid');
@@ -728,14 +737,14 @@ function zeroBSCRM_pages_admin_system_emails() {
 
 				//we want to AJAX save it using this action
 				// zbs_save_email_status
-				// with this nonce. 
+				// with this nonce.
 				var t = {
 					action: "zbs_save_email_status",
 					id:  theid,
 					status: 'a',
 					security: jQuery( '#zbs-save-email_active' ).val(),
-				}  
-			  
+				}
+
 				i = jQuery.ajax({
 					url: ajaxurl,
 					type: "POST",
@@ -797,14 +806,14 @@ function zeroBSCRM_pages_admin_system_emails() {
 		<div class="ui segment" style="margin-right:20px;">
 		<h4 class="template-man-h4"><?php esc_html_e( 'HTML Template', 'zero-bs-crm' ); ?></h4>
 		<p class='lead'><?php _e( 'This template is used for all outgoing CRM emails. The <code>##MSG-CONTENT##</code> placeholder represents the per-template content and must not be removed.', 'zero-bs-crm' ); ?></p>
-	  
+
 		<div class="ui segment">
 			<p class='lead'>
 			<?php
 			##WLREMOVE
 			?>
 			<?php _e( 'It is strongly recommended to leave this template unchanged for maximum device support. If you still wish to modify it, you can copy the <code>emails/default-email.html</code> file from the <code>/templates</code> directory of your CRM plugin into a <code>/jetpack-crm</code> directory in your theme, and then edit the file.' ); ?>
-			<?php _e( 'You can modify this template by copying the /templates directory from your CRM plugin into your theme directory, then editing the file <code>emails/default-email.html</code>, though it is recommended to leave this template in tact for maximum device support.' ); ?>          
+			<?php _e( 'You can modify this template by copying the /templates directory from your CRM plugin into your theme directory, then editing the file <code>emails/default-email.html</code>, though it is recommended to leave this template in tact for maximum device support.' ); ?>
 			<br /><a href="<?php echo esc_url( $zbs->urls['kbtemplatefiles'] ); ?>" target="_blank" class="ui basic blue small button"><?php esc_html_e( 'Read more about templating', 'zero-bs-crm' ); ?></a>
 			<?php
 			##/WLREMOVE
@@ -838,7 +847,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 			</div>
 		</div>
 
-	  
+
 		<div class="ui divider"></div>
 		<textarea cols="70" rows="25" name="zbstemplatehtml" id="zbstemplatehtml"><?php echo esc_textarea( jpcrm_retrieve_template( 'emails/default-email.html', false ) ); ?></textarea>
 		<div class="ui grid" style="margin-right:-15px;margin-top:20px;">
@@ -1371,7 +1380,7 @@ function zeroBSCRM_html_home2() {
 
 		<div class="intro">
 			<div class="block" style="text-align:center;margin-top:-50px;">
-						<img src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>" alt="Jetpack CRMt" id="jetpack-crm-welcome" style="text-align:center;padding:30px;"> 
+						<img src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>" alt="Jetpack CRMt" id="jetpack-crm-welcome" style="text-align:center;padding:30px;">
 						<h6><?php esc_html_e( 'Thank you for choosing Jetpack CRM - The Ultimate Entrepreneurs\' CRM for WordPress', 'zero-bs-crm' ); ?></h6>
 			</div>
 		</div>
@@ -1501,7 +1510,7 @@ function zeroBSCRM_html_home2() {
 
 		</div><!-- / .intro.zbs-features -->
 	</div><!-- / .container -->
-	
+
 		<?php if ( ! $bundle ) { ?>
 	<div class="container margin-top30">
 		<div class="intro zbs-features">
@@ -1518,7 +1527,7 @@ function zeroBSCRM_html_home2() {
 						<div class="testimonial-block">
 							<img alt="Thumbnail of Dave Scribner" src="<?php echo esc_url( plugins_url( '/i/scribner.png', ZBS_ROOTFILE ) ); ?>">
 							<p><?php esc_html_e( 'We can sit back and relax safe in the knowledge that Jetpack CRM is working tirelessly behind the scenes distributing leads automatically to our clients.', 'zero-bs-crm' ); ?></p>
-				<p class='who'><strong>Dave Scribner</strong> 
+				<p class='who'><strong>Dave Scribner</strong>
 				</div>
 
 				</div><!-- / .block -->
@@ -1703,7 +1712,7 @@ function zeroBSCRM_html_datatools() {
 
 	if ( ! $deleting_data ) {
 		?>
-			
+
 		<div id="zero-bs-tools" class="ui segment" style="margin-right:20px;">
 			<h2 class="sbhomep"><?php esc_html_e( 'Welcome to Jetpack CRM Tools', 'zero-bs-crm' ); ?></h2>
 			<p class="sbhomep"><?php esc_html_e( 'This is the home for all of the different admin tools for Jetpack CRM which import data, excluding the Sync Extensions.', 'zero-bs-crm' ); ?></p>
@@ -1744,11 +1753,11 @@ function zeroBSCRM_html_datatools() {
 				}
 
 				?>
-							
+
 			</p><p class="sbhomep">
 				<!-- #datatoolsales -->
 			<strong><?php esc_html_e( 'Import Tools', 'zero-bs-crm' ); ?>:</strong><br /><br />
-				<a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank" class="ui button black primary"><?php esc_html_e( 'View Available Import Tools', 'zero-bs-crm' ); ?></a>              
+				<a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank" class="ui button black primary"><?php esc_html_e( 'View Available Import Tools', 'zero-bs-crm' ); ?></a>
 			</p>
 			<div class="sbhomep">
 				<strong><?php esc_html_e( 'Export Tools', 'zero-bs-crm' ); ?>:</strong><br/>
@@ -1758,7 +1767,7 @@ function zeroBSCRM_html_datatools() {
 	</div>
 	<div class="ui grid">
 	<div class="eight wide column">
-	  
+
 		<div class="ui segment" style="margin-right:20px;">
 			<div class='mass-delete' style="text-align:center;">
 				<h4 style="font-weight:900;"><?php esc_html_e( 'Delete CRM Data', 'zero-bs-crm' ); ?></h4>
@@ -1774,13 +1783,13 @@ function zeroBSCRM_html_datatools() {
 					<input class="form-control" id="zbs-delete-data" name="zbs-delete-data" type="text" value="" placeholder="DO IT" style="text-align:center;font-size:25px;"/>
 					<input type="submit" class="ui button red" value="<?php esc_attr_e( 'DELETE ALL DATA', 'zero-bs-crm' ); ?>" style="margin-top:10px;"/>
 				</form>
-				</div>            
+				</div>
 			</div>
 		</div>
 
 	</div>
 	<div class="eight wide column">
-	  
+
 		<div class="ui segment" style="margin-right:20px;">
 			<div class='mass-delete' style="text-align:center;">
 				<h4 style="font-weight:900;"><?php esc_html_e( 'Factory Reset CRM', 'zero-bs-crm' ); ?></h4>
@@ -1796,15 +1805,15 @@ function zeroBSCRM_html_datatools() {
 					<input class="form-control" id="zbs-delete-all-data" name="zbs-delete-all-data" type="text" value="" placeholder="FACTORY RESET" style="text-align:center;font-size:25px;"/>
 					<input type="submit" class="ui button red" value="<?php esc_attr_e( 'Reset CRM', 'zero-bs-crm' ); ?>" style="margin-top:10px;"/>
 				</form>
-				</div>          
+				</div>
 			</div>
 		</div>
 
 	</div>
 
-	
-	
-	
+
+
+
 		<?php
 
 	}
@@ -1852,7 +1861,7 @@ function zeroBSCRM_html_installextensionshelper() {
 			<?php ##/WLREMOVE ?>
 			</p>
 	</div>
-	
+
 	<?php
 }
 
@@ -1872,13 +1881,13 @@ function zeroBSCRM_html_extensions_forWelcomeWizard() {
 
 
 
-			
+
 		<div id="sbSubPage" style="width:100%;max-width:1000px"><h2 class="sbhomep"><?php esc_html_e( 'Power Up your CRM', 'zero-bs-crm' ); ?></h2>
 			<p class="sbhomep"><?php esc_html_e( 'We hope that you love using Jetpack CRM and that you agree with our mentality of stripping out useless features and keeping things simple. Cool.', 'zero-bs-crm' ); ?></p>
 			<p class="sbhomep"><?php esc_html_e( "We offer a few extensions which supercharge your CRM. As is our principle, though, you wont find any bloated products here. These are simple, effective power ups for Jetpack CRM. And compared to pay-monthly costs, they're affordable! Win!", 'zero-bs-crm' ); ?></p>
 			<div style="width:100%"><a href="<?php echo esc_url( $zbs->urls['products'] ); ?>" target="_blank"><img style="width:100%;max-width:100%;margin-left:auto;margin-right:auto;" src="<?php echo esc_url( $zbs->urls['extimgrepo'] . 'extensions.png' ); ?>" alt="" /></a></div>
 			<p class="sbhomep">
-			<a href="<?php echo esc_url( $zbs->urls['products'] ); ?>" class="ui button primary" style="padding: 7px 16px;font-size: 22px;height: 46px;" target="_blank"><?php esc_html_e( 'View More', 'zero-bs-crm' ); ?></a>    
+			<a href="<?php echo esc_url( $zbs->urls['products'] ); ?>" class="ui button primary" style="padding: 7px 16px;font-size: 22px;height: 46px;" target="_blank"><?php esc_html_e( 'View More', 'zero-bs-crm' ); ?></a>
 			</p>
 	</div>
 	<?php
@@ -2581,7 +2590,7 @@ function zeroBSCRM_html_deletion() {
 			<button type="button" class="ui button primary" onclick="javascript:window.location='<?php echo esc_url( $backToPage ); ?>'">Back to <?php echo esc_html( $delType ); ?>s</button>
 		</div>
 		</div>
-	</div> 
+	</div>
 
 
 		<?php
@@ -2591,7 +2600,7 @@ function zeroBSCRM_html_deletion() {
 		?>
 	<div id="zbsDeletionPage">
 		<div id="zbsDeletionMsgWrap">
-		<div id="zbsDeletionIco"><i class="fa 
+		<div id="zbsDeletionIco"><i class="fa
 		<?php
 		if ( $isRestore ) {
 			?>
@@ -2600,7 +2609,7 @@ function zeroBSCRM_html_deletion() {
 		} else {
 			?>
 			fa-trash<?php } ?>" aria-hidden="true"></i></div>
-		<div class="zbsDeletionMsg"><?php echo $delStr; ?> <?php esc_html_e( 'successfully', 'zero-bs-crm' ); ?> 
+		<div class="zbsDeletionMsg"><?php echo $delStr; ?> <?php esc_html_e( 'successfully', 'zero-bs-crm' ); ?>
 			<?php if ( $isRestore ) { ?>
 				<?php esc_html_e( 'retrieved from Trash', 'zero-bs-crm' ); ?>
 			<?php } else { // trashed ?>
@@ -2617,7 +2626,7 @@ function zeroBSCRM_html_deletion() {
 			<?php } ?>
 
 
-		  
+
 			<?php
 			if ( isset( $_GET['eid'] ) && ! empty( $_GET['eid'] ) ) {
 				// right now, we only ever "trash" things without the ability to fully delete...
@@ -2641,7 +2650,7 @@ function zeroBSCRM_html_deletion() {
 
 		</div>
 		</div>
-	</div>        
+	</div>
 		<?php
 
 	}
@@ -2744,7 +2753,7 @@ function zeroBSCRM_html_norights() {
 
 		</div>
 		</div>
-	</div>        
+	</div>
 	<?php
 }
 
