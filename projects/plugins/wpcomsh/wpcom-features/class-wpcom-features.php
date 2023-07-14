@@ -965,6 +965,11 @@ class WPCOM_Features {
 		),
 		self::UPLOAD_SPACE_200GB               => array(
 			self::SPACE_200GB,
+			array(
+				'before' => LEGACY_200GB_CUTOFF_DATE,
+				self::WPCOM_BUSINESS_PLANS,
+				self::WPCOM_ECOMMERCE_PLANS,
+			),
 		),
 		self::UPLOAD_SPACE_UNLIMITED           => array(
 			array(
