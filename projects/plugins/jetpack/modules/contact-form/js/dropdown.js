@@ -18,9 +18,8 @@ jQuery( function ( $ ) {
 				'ui-selectmenu-button': 'contact-form-dropdown__button',
 				'ui-selectmenu-menu': 'contact-form-dropdown__menu',
 			},
-		} );
-
-		$( '.contact-form .contact-form-dropdown' ).attr( 'aria-hidden', true );
-		$( '.contact-form .contact-form-dropdown' ).prop( 'tabindex', -1 );
+		} )
+		.attr( 'aria-hidden', true )
+		.prop( 'tabindex', -1 );
 	}
 } );
