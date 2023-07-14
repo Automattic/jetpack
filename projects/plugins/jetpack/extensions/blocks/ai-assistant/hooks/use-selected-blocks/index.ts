@@ -9,7 +9,9 @@ import type { BlockEditorStore } from '../../types';
 
 export type ExtendedBlockProps = {
 	clientId: string;
+	name: string;
 	attributes: object;
+	innerBlocks: Array< ExtendedBlockProps >;
 };
 
 export type GetSelectedBlocksProps = {
