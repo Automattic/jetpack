@@ -286,7 +286,7 @@ class Jetpack_RelatedPosts {
 			'isServerRendered'  => true,
 		);
 
-		return $this->render_block( $block_rp_settings );
+		return $this->render_block( $block_rp_settings, '' );
 	}
 
 	/**

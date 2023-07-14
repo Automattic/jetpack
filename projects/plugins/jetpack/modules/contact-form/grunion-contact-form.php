@@ -1357,7 +1357,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @return mixed
 	 */
 	public function get_post_meta_for_csv_export( $post_id ) {
-		$md                     = get_post_meta( $post_id, '_feedback_extra_fields', true );
+		$md                     = (array) get_post_meta( $post_id, '_feedback_extra_fields', true );
 		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
 		$content_fields         = self::parse_fields_from_content( $post_id );
 		$md['93_ip_address']    = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
@@ -4304,7 +4304,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			foreach ( $vars as $key => $data ) {
 				$value->{$key} = $this->addslashes_deep( $data );
 			}
-			return $value;
+			return (array) $value;
 		}
 
 		return addslashes( $value );
