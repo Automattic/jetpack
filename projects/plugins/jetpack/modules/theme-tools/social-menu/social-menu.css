@@ -167,7 +167,7 @@ Genericons
 
 /* Threads */
 .jetpack-social-navigation-genericons a[href*="threads.net"]:before {
-	content: ""\f10d";
+	content: "\f10d";
 }
 
 /* Tumblr */
