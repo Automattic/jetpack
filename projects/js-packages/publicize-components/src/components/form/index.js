@@ -174,7 +174,7 @@ export default function PublicizeForm( {
 			</Notice>
 		) : (
 			<Notice type={ 'warning' }>
-				{ __( 'You need a valid image in your post to share to Instagram.', 'jetpack' ) }
+				{ __( 'You need a featured image to share to Instagram.', 'jetpack' ) }
 				<br />
 				<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
 					{ __( 'Learn more', 'jetpack' ) }

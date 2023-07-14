@@ -6,7 +6,7 @@ export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
 export const FILE_SIZE_ERROR = 'FILE_SIZE_ERROR';
 export const VIDEO_LENGTH_TOO_LONG_ERROR = 'VIDEO_LENGTH_TOO_LONG_ERROR';
 export const VIDEO_LENGTH_TOO_SHORT_ERROR = 'VIDEO_LENGTH_TOO_SHORT_ERROR';
-export const VIDEO_ASPECT_RATIO_ERROR = 'VIDEO_ASPECT_RATIO_ERROR';
+export const DIMENSION_ERROR = 'DIMENSION_ERROR';
 
 /**
  * Checks whether a media is a video.
@@ -48,7 +48,7 @@ const getVideoValidationError = ( sizeInMb, length, width, height, videoLimits )
 		aspectRatio = DEFAULT_RESTRICTIONS.video.aspectRatio,
 	} = videoLimits;
 
-	if ( ! sizeInMb || sizeInMb > maxSize || sizeInMb < minSize || width > maxWidth ) {
+	if ( ! sizeInMb || sizeInMb > maxSize || sizeInMb < minSize ) {
 		return FILE_SIZE_ERROR;
 	}
 
@@ -61,8 +61,8 @@ const getVideoValidationError = ( sizeInMb, length, width, height, videoLimits )
 	}
 
 	const ratio = width / height;
-	if ( ratio < aspectRatio.min || ratio > aspectRatio.max ) {
-		return VIDEO_ASPECT_RATIO_ERROR;
+	if ( ratio < aspectRatio.min || ratio > aspectRatio.max || width > maxWidth ) {
+		return DIMENSION_ERROR;
 	}
 
 	return null;
