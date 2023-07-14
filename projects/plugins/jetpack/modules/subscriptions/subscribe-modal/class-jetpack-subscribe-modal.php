@@ -28,6 +28,17 @@ class Jetpack_Subscribe_Modal {
 		return self::$instance;
 	}
 
+	const BLOCK_TEMPLATE_PART_SLUG = 'jetpack-subscribe-modal';
+
+	/**
+	 * Returns the block template part ID.
+	 *
+	 * @return string
+	 */
+	public static function get_block_template_part_id() {
+		return get_stylesheet() . '//' . self::BLOCK_TEMPLATE_PART_SLUG;
+	}
+
 	/**
 	 * Jetpack_Subscribe_Modal class constructor.
 	 */
@@ -61,7 +72,7 @@ class Jetpack_Subscribe_Modal {
 		if ( $this->is_front_end_single_post() ) { ?>
 					<div class="jetpack-subscribe-modal">
 						<div class="jetpack-subscribe-modal__modal-content">
-				<?php block_template_part( 'jetpack-subscribe-modal' ); ?>
+				<?php block_template_part( self::BLOCK_TEMPLATE_PART_SLUG ); ?>
 						</div>
 					</div>
 			<?php
@@ -78,10 +89,10 @@ class Jetpack_Subscribe_Modal {
 	 * @return WP_Block_Template
 	 */
 	public function get_block_template_filter( $block_template, $id, $template_type ) {
-		$custom_template = $this->get_custom_template();
-
-		if ( empty( $block_template ) && $template_type === 'wp_template_part' && $id === $custom_template->id ) {
-			$block_template = $custom_template;
+		if ( empty( $block_template ) && $template_type === 'wp_template_part' ) {
+			if ( $id === self::get_block_template_part_id() ) {
+				return $this->get_template();
+			}
 		}
 
 		return $block_template;
@@ -98,7 +109,15 @@ class Jetpack_Subscribe_Modal {
 	 */
 	public function get_block_templates_filter( $query_result, $query, $template_type ) {
 		if ( empty( $query ) && $template_type === 'wp_template_part' ) {
-			$query_result[] = $this->get_custom_template();
+			if ( is_array( $query_result ) ) {
+				// find the custom template and return early if we have a custom version in the results.
+				foreach ( $query_result as $template ) {
+					if ( $template->id === self::get_block_template_part_id() ) {
+						return $query_result;
+					}
+				}
+			}
+			$query_result[] = $this->get_template();
 		}
 
 		return $query_result;
@@ -109,20 +128,20 @@ class Jetpack_Subscribe_Modal {
 	 *
 	 * @return WP_Block_Template
 	 */
-	public function get_custom_template() {
+	public function get_template() {
 		$template                 = new WP_Block_Template();
 		$template->theme          = get_stylesheet();
-		$template->slug           = 'jetpack-subscribe-modal';
-		$template->id             = $template->theme . '//' . $template->slug;
-		$template->area           = 'footer';
+		$template->slug           = self::BLOCK_TEMPLATE_PART_SLUG;
+		$template->id             = self::get_block_template_part_id();
+		$template->area           = 'uncategorized';
 		$template->content        = $this->get_subscribe_template_content();
 		$template->source         = 'plugin';
 		$template->type           = 'wp_template_part';
-		$template->title          = 'Subscribe Modal Template 2';
+		$template->title          = __( 'Jetpack Subscribe modal', 'jetpack' );
 		$template->status         = 'publish';
 		$template->has_theme_file = false;
 		$template->is_custom      = true;
-		$template->description    = 'Subscribe Modal Templateasdf';
+		$template->description    = __( 'A subscribe form that pops up when someone visits your site', 'jetpack' );
 
 		return $template;
 	}
