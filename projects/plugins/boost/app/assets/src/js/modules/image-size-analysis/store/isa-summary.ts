@@ -3,7 +3,19 @@ import { z } from 'zod';
 import { __ } from '@wordpress/i18n';
 import api from '../../../api/api';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
+import { setPromiseInterval } from '../../../utils/set-promise-interval';
 import { isaData } from './isa-data';
+
+/**
+ * Valid values for the status field.
+ */
+export enum ISAStatus {
+	NotFound = 'not-found',
+	New = 'new',
+	Queued = 'queued',
+	Completed = 'completed',
+	Stuck = 'error_stuck',
+}
 
 const zGroup = z.object( {
 	issue_count: z.number(),
@@ -15,15 +27,16 @@ const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
 	'image_size_analysis_summary',
 	z
 		.object( {
-			status: z.string(),
+			status: z.nativeEnum( ISAStatus ).default( ISAStatus.NotFound ),
 			report_id: z.number().optional(),
 			groups: z
 				.object( {
-					front_page: zGroup,
-					page: zGroup.optional(),
-					post: zGroup.optional(),
+					core_front_page: zGroup,
+					singular_page: zGroup.optional(),
+					singular_post: zGroup.optional(),
 					other: zGroup.optional(),
 				} )
+				.nullable()
 				.optional(),
 		} )
 		// Default data if deactivated or not loaded yet.
@@ -34,14 +47,14 @@ image_size_analysis_summary.setSyncAction( async ( _, value ) => value );
 
 export const isaSummary = image_size_analysis_summary.store;
 export const isaGroups = derived( isaSummary, () => ( {
-	front_page: { name: 'Front Page', progress: 10, issues: 0, done: false },
+	core_front_page: { name: 'Front Page', progress: 10, issues: 0, done: false },
 } ) );
 
 export const isaGroupLabels = {
 	all: __( 'All', 'jetpack-boost' ),
-	front_page: __( 'Homepage', 'jetpack-boost' ),
-	page: __( 'Pages', 'jetpack-boost' ),
-	post: __( 'Posts', 'jetpack-boost' ),
+	core_front_page: __( 'Homepage', 'jetpack-boost' ),
+	singular_page: __( 'Pages', 'jetpack-boost' ),
+	singular_post: __( 'Posts', 'jetpack-boost' ),
 	other: __( 'Other', 'jetpack-boost' ),
 };
 
@@ -82,7 +95,7 @@ export type ISA_Group = z.infer< typeof zGroup >;
  */
 export async function requestImageAnalysis() {
 	await api.post( '/image-size-analysis/start' );
-	image_size_analysis_summary.refresh();
+	await image_size_analysis_summary.refresh();
 }
 
 /**
@@ -100,7 +113,7 @@ export function initializeIsaSummary() {
 /**
  * Automatically poll if the state is an active one.
  */
-let pollIntervalId: number | undefined;
+let clearPromiseInterval: ReturnType< typeof setPromiseInterval > | undefined;
 isaSummary.subscribe( summary => {
 	if ( ! summary ) {
 		return;
@@ -108,12 +121,12 @@ isaSummary.subscribe( summary => {
 
 	const shouldPoll = [ 'new', 'queued' ].includes( summary.status );
 
-	if ( shouldPoll && ! pollIntervalId ) {
-		pollIntervalId = setInterval( () => {
-			image_size_analysis_summary.refresh();
+	if ( shouldPoll && ! clearPromiseInterval ) {
+		clearPromiseInterval = setPromiseInterval( async () => {
+			await image_size_analysis_summary.refresh();
 		}, 3000 );
-	} else if ( ! shouldPoll && pollIntervalId ) {
-		clearInterval( pollIntervalId );
-		pollIntervalId = undefined;
+	} else if ( ! shouldPoll && clearPromiseInterval ) {
+		clearPromiseInterval();
+		clearPromiseInterval = undefined;
 	}
 } );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+API: Fix PHP warning in list posts endpoint.

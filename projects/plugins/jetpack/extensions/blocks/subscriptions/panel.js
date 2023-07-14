@@ -38,14 +38,14 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 		<Flex align="center" gap={ 4 } direction="column" style={ { alignItems: 'center' } }>
 			<FlexItem>
 				{ __(
-					"In order to share your posts with your subscribers, you'll need to activate the Subscriptions feature.",
+					'In order to send posts to your subscribers, activate the Subscriptions feature.',
 					'jetpack'
 				) }
 			</FlexItem>
 			<FlexItem>{ children }</FlexItem>
 			<FlexItem>
 				<ExternalLink href="https://jetpack.com/support/subscriptions/">
-					{ __( 'Learn more about the Subscriptions feature.', 'jetpack' ) }
+					{ __( 'Learn more about Subscriptions', 'jetpack' ) }
 				</ExternalLink>
 			</FlexItem>
 		</Flex>
