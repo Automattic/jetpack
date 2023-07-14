@@ -1114,7 +1114,7 @@ class Jetpack_Subscriptions {
 			$stats_dashboard = new Stats_Dashboard();
 			$hook            = add_submenu_page(
 				'jetpack',
-				__( 'Subscribers', 'jetpack' ),
+				esc_attr__( 'Subscribers', 'jetpack' ),
 				__( 'Subscribers', 'jetpack' ),
 				'view_stats',
 				'stats#!/stats/subscribers/' . $domain,
