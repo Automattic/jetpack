@@ -56,7 +56,11 @@ class RelatedPostsComponent extends React.Component {
 					compact
 					className="jp-settings-card__configure-link"
 					onClick={ this.trackConfigureClick }
-					href={ `${ siteAdminUrl }site-editor.php` }
+					href={ getRedirectUrl( 'jetpack-support-related-posts', {
+						anchor: 'adding-related-posts-block-theme',
+					} ) }
+					target="_blank"
+					rel="noopener noreferrer"
 				>
 					{ __(
 						'Add a Related Posts Block to your site’s template in the site editor',
