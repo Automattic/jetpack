@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, getSaveContent } from '@wordpress/blocks';
 import TurndownService from 'turndown';
 /**
  * Internal dependencies
@@ -21,11 +21,11 @@ const from = [];
 /**
  * Return an AI Assistant block instance from a given block type.
  *
- * @param {object} attrs                                      - Block attributes.
  * @param {ExtendedBlockProp} blockType - Block type.
- * @returns {object}                                            AI Assistant block instance.
+ * @param {object} attrs                - Block attributes.
+ * @returns {object}                      AI Assistant block instance.
  */
-export function transformToAIAssistantBlock( attrs, blockType: ExtendedBlockProp ) {
+export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs ) {
 	const { content, ...restAttrs } = attrs;
 	let htmlContent = content;
 
@@ -67,7 +67,10 @@ for ( const blockType of EXTENDED_BLOCKS ) {
 		type: 'block',
 		blocks: [ blockType ],
 		isMatch: () => isPossibleToExtendBlock(),
-		transform: attrs => transformToAIAssistantBlock( attrs, blockType ),
+		transform: ( attrs, innerBlocks ) => {
+			const content = getSaveContent( blockType, attrs, innerBlocks );
+			return transformToAIAssistantBlock( blockType, { ...attrs, content } );
+		},
 	} );
 }
 

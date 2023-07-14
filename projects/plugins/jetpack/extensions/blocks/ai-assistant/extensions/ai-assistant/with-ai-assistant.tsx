@@ -142,8 +142,8 @@ export const withAIAssistant = createHigherOrderComponent(
 				};
 
 				const newAIAssistantBlock = transformToAIAssistantBlock(
-					extendedBlockAttributes,
-					blockType
+					blockType,
+					extendedBlockAttributes
 				);
 
 				/*
@@ -189,7 +189,7 @@ export const withAIAssistant = createHigherOrderComponent(
 
 			replaceBlock(
 				firstClientId,
-				transformToAIAssistantBlock( extendedBlockAttributes, blockType )
+				transformToAIAssistantBlock( blockType, extendedBlockAttributes )
 			);
 
 			removeBlocks( otherBlocksIds );
