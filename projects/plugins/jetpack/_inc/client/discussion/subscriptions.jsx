@@ -45,8 +45,12 @@ class SubscriptionsComponent extends React.Component {
 		);
 	};
 
-	trackConfigureClick = () => {
-		analytics.tracks.recordJetpackClick( 'view-followers' );
+	trackViewSubsClick = () => {
+		analytics.tracks.recordJetpackClick( 'manage-subscribers' );
+	};
+
+	trackViewSubsStatsClick = () => {
+		analytics.tracks.recordJetpackClick( 'subscribers-stats' );
 	};
 
 	handleSubscribeToBlogToggleChange = () => {
@@ -63,26 +67,42 @@ class SubscriptionsComponent extends React.Component {
 
 	render() {
 		const subscriptions = this.props.getModule( 'subscriptions' ),
+			isStatsActive = this.props.getOptionValue( 'stats' ),
 			isSubscriptionsActive = this.props.getOptionValue( 'subscriptions' ),
-			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'subscriptions' );
+			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'subscriptions' ),
+			isOdysseyStatsEnabled = this.props.isOdysseyStatsEnabled,
+			isWoASite = this.props.isWoASite;
 
 		const getSubClickableCard = () => {
 			if ( unavailableInOfflineMode || ! isSubscriptionsActive || ! this.props.isLinked ) {
 				return '';
 			}
 
+			if ( isStatsActive && isOdysseyStatsEnabled && ! isWoASite ) {
+				return (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						onClick={ this.trackViewSubsStatsClick }
+						href={ `${ this.props.siteAdminUrl }admin.php?page=stats#!/stats/subscribers/${ this.props.siteRawUrl }` }
+					>
+						{ __( 'View your Subscribers', 'jetpack' ) }
+					</Card>
+				);
+			}
+
 			return (
 				<Card
 					compact
 					className="jp-settings-card__configure-link"
-					onClick={ this.trackConfigureClick }
-					href={ getRedirectUrl( 'calypso-people-email-followers', {
+					onClick={ this.trackViewSubsClick }
+					href={ getRedirectUrl( 'calypso-subscribers', {
 						site: this.props.siteRawUrl,
 					} ) }
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					{ __( 'View your Email Subscribers', 'jetpack' ) }
+					{ __( 'Manage all subscribers', 'jetpack' ) }
 				</Card>
 			);
 		};
