@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { createBlock, getBlockContent } from '@wordpress/blocks';
+import { createBlock } from '@wordpress/blocks';
 import TurndownService from 'turndown';
 /**
  * Internal dependencies
@@ -27,9 +27,7 @@ const from = [];
  */
 export function transformToAIAssistantBlock( attrs, blockType: ExtendedBlockProp ) {
 	const { content, ...restAttrs } = attrs;
-	// Create a temporary block to get the HTML content.
-	const temporaryBlock = createBlock( blockType, { content } );
-	let htmlContent = getBlockContent( temporaryBlock );
+	let htmlContent = content;
 
 	// core/heading custom transform handling.
 	if ( blockType === 'core/heading' && attrs?.level ) {

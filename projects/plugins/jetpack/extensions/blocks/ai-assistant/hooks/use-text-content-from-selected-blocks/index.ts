@@ -12,8 +12,6 @@ type GetTextContentFromBlocksProps = GetSelectedBlocksProps & {
 	content: string;
 };
 
-const HTML_JOIN_CHARACTERS = '<br />';
-
 /**
  * Returns the text content from all selected blocks.
  *
@@ -29,7 +27,7 @@ export default function useTextContentFromSelectedBlocks(): GetTextContentFromBl
 			? selected.blocks
 					.filter( block => block != null ) // Safeguard against null or undefined blocks
 					.map( block => getBlockTextContent( block.clientId ) )
-					.join( HTML_JOIN_CHARACTERS )
+					.join( '\n\n' )
 			: '',
 	};
 }
