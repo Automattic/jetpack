@@ -43,14 +43,14 @@ export default function useSelectedBlocks(): GetSelectedBlocksProps {
 		[ clientIds ]
 	);
 
-	const defaltValue = {
+	const defaultValue = {
 		count: 0,
 		clientIds: [],
 		blocks: [],
 	};
 
 	if ( ! clientIds?.length || ! blocks?.length ) {
-		return defaltValue;
+		return defaultValue;
 	}
 
 	return {
