@@ -65,7 +65,7 @@
  	To keep the required validation working the select can't be 'display: none'
  	This solution will keep the select hidden without using 'display: none'
  */
-.contact-form .contact-form-dropdown {
+.contact-form .contact-form-dropdown[aria-hidden="true"] {
 	position: absolute;
 	z-index: -1;
 	width: 100%;
