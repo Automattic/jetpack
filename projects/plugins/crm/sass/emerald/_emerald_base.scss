@@ -12,6 +12,10 @@ body.jpcrm-admin {
 			align-items: center;
 			max-width: 1551px;
 			margin: 0 auto;
+
+			&.jpcrm-full-width {
+				max-width: none;
+			}
 		}
 	}
 
