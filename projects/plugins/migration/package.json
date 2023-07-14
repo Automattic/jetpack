@@ -44,7 +44,6 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.22.9",
 		"@babel/preset-env": "7.22.9",
-		"@babel/register": "7.22.5",
 		"@babel/runtime": "7.22.6",
 		"@wordpress/browserslist-config": "5.20.0",
 		"concurrently": "7.6.0",
