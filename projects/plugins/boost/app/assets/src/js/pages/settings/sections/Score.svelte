@@ -35,36 +35,43 @@
 		isStale: false,
 	};
 
-	refreshScore( false );
+	// Load the speed score. Will be cached in the plugin.
+	loadScore();
 
-	/**
-	 * The configuration that led to latest speed score.
-	 */
+	// Flat list of which modules are active; useful for tracking changes in state.
 	$: activeModules = Object.entries( $modulesState ).reduce( ( acc, [ key, value ] ) => {
 		if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
 			acc.push( value.active );
 		}
 		return acc;
 	}, [] );
-	$: lastCreatedState = $criticalCssState.created;
-	$: currentScoreConfigString = JSON.stringify( {
-		modules: activeModules,
-		criticalCss: {
-			created: lastCreatedState,
-		},
-	} );
 
-	let setinitialScoreConfigString = false;
-	$: initialScoreConfigString = () => {
-		if ( ! setinitialScoreConfigString ) {
-			setinitialScoreConfigString = true;
-			return currentScoreConfigString;
+	// Keep a string describing the settings that may affect the score. We'll use it to
+	// work out when we need a new speed score.
+	$: currentScoreConfigString = JSON.stringify( [ activeModules, $criticalCssState.created ] );
+
+	// State we had the last time we requested a speed score -- or when the page first loaded.
+	$: lastSpeedScoreConfigString = lastSpeedScoreConfigString ?? currentScoreConfigString;
+
+	// Any time the config changes, set a debounced refresh request (provided we're not already generating)
+	$: if ( currentScoreConfigString !== lastSpeedScoreConfigString && ! $isGenerating ) {
+		debouncedRefreshScore();
+	}
+
+	// Debounced function: Refresh the speed score if the config has changed.
+	const debouncedRefreshScore = debounce( async () => {
+		if ( currentScoreConfigString !== lastSpeedScoreConfigString ) {
+			await loadScore( true );
 		}
+	}, 2000 );
 
-		return false;
-	};
-
-	async function refreshScore( force = false ) {
+	/**
+	 * Load the speed score from the plugin
+	 *
+	 * @param {boolean} regenerate - If true, ask for a new speed score; discarding cached values.
+	 */
+	async function loadScore( regenerate = false ) {
+		// Don't run in offline mode.
 		if ( ! siteIsOnline ) {
 			return;
 		}
@@ -73,8 +80,9 @@
 		loadError = undefined;
 
 		try {
+			lastSpeedScoreConfigString = currentScoreConfigString;
 			scores = await requestSpeedScores(
-				force,
+				regenerate,
 				wpApiSettings.root,
 				Jetpack_Boost.site.url,
 				wpApiSettings.nonce
@@ -92,16 +100,8 @@
 		}
 	}
 
-	const debouncedRefreshScore = debounce( force => {
-		refreshScore( force );
-	}, 2000 );
-
 	let modalData: ScoreChangeMessage | null = null;
 	$: modalData = ! isLoading && ! scores.isStale && scoreChangeModal( scores );
-
-	$: if ( initialScoreConfigString() !== currentScoreConfigString && $isGenerating === false ) {
-		debouncedRefreshScore( true );
-	}
 
 	function dismissModal() {
 		modalData = null;
@@ -129,7 +129,7 @@
 					type="button"
 					class="components-button is-link"
 					disabled={isLoading}
-					on:click={() => refreshScore( true )}
+					on:click={() => loadScore( true )}
 				>
 					<RefreshIcon />
 					{__( 'Refresh', 'jetpack-boost' )}
@@ -154,7 +154,7 @@
 				title={__( 'Failed to load Speed Scores', 'jetpack-boost' )}
 				error={loadError}
 				suggestion={__( '<action name="retry">Try again</action>', 'jetpack-boost' )}
-				on:retry={() => refreshScore( true )}
+				on:retry={() => loadScore( true )}
 			/>
 		{/if}
 
