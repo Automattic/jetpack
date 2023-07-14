@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { AutomationsAdmin } from '../index';
+import { AutomationsAdminContainer } from '../index';
 
-describe( 'AutomationsAdmin', () => {
+describe( 'AutomationsAdminContainer', () => {
 	test( 'Renders the component', () => {
-		render( <AutomationsAdmin /> );
+		render( <AutomationsAdminContainer /> );
 
 		expect( screen.getByRole( 'heading', { name: 'Automations' } ) ).toBeInTheDocument();
 	} );
