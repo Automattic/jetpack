@@ -130,6 +130,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
+			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
 		),
 
 		// Link in bio tasks.
@@ -614,6 +615,15 @@ function wpcom_launchpad_is_email_unverified() {
  */
 function wpcom_has_goal_paid_subscribers() {
 	return in_array( 'paid-subscribers', get_option( 'site_goals', array() ), true );
+}
+
+/**
+ * If the site has a import-subscriber goal.
+ *
+ * @return bool True if the site has a import-subscriber goal, false otherwise.
+ */
+function wpcom_has_goal_import_subscribers() {
+	return in_array( 'import-subscribers', get_option( 'site_goals', array() ), true );
 }
 
 /**

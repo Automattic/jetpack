@@ -11,10 +11,16 @@ import { getBlockTextContent } from '../../lib/utils/block-content';
  */
 import type { BlockEditorStore } from '../../types';
 
+type ExtendedBlockProps = {
+	clientId: string;
+	attributes: object;
+};
+
 type GetTextContentFromBlocksProps = {
 	count: number;
 	clientIds: string[];
 	content: string;
+	blocks: Array< ExtendedBlockProps >;
 };
 
 const HTML_JOIN_CHARACTERS = '<br />';
@@ -46,6 +52,7 @@ export default function useTextContentFromSelectedBlocks(): GetTextContentFromBl
 		count: 0,
 		clientIds: [],
 		content: '',
+		blocks: [],
 	};
 
 	if ( ! clientIds?.length ) {
@@ -59,6 +66,7 @@ export default function useTextContentFromSelectedBlocks(): GetTextContentFromBl
 	return {
 		count: blocks.length,
 		clientIds,
+		blocks,
 		content: blocks
 			? blocks
 					.filter( block => block !== null && block !== undefined ) // Safeguard against null or undefined blocks
