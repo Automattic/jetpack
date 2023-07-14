@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: avoid Fatal errors when exporting form data to CSV.

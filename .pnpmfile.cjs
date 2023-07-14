@@ -126,6 +126,15 @@ function fixDeps( pkg ) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
+	// Annoying tilde dep, already fixed in storybook 7.1
+	if ( pkg.name === '@storybook/codemod' || pkg.name === '@storybook/csf-tools' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@babel/' ) && ver.startsWith( '~' ) ) {
+				pkg.dependencies[ dep ] = '^' + ver.substring( 1 );
+			}
+		}
+	}
+
 	return pkg;
 }
 
