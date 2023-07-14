@@ -46,7 +46,7 @@ function admin_init() {
 function enqueue_admin_scripts() {
 	Assets::register_script(
 		'jetpack-crm-automations',
-		'build/automations/index.js',
+		'build/automations-admin/index.js',
 		ZBS_ROOTFILE,
 		array(
 			'in_footer'  => true,
