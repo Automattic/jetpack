@@ -2,21 +2,21 @@
  * External dependencies
  */
 import { BlockControls } from '@wordpress/block-editor';
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState, useRef } from '@wordpress/element';
-import { store as noticesStore } from '@wordpress/notices';
+import { useCallback, useState } from '@wordpress/element';
 import React from 'react';
 /**
  * Internal dependencies
  */
 import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
+	KEY_ASK_AI_ASSISTANT,
 } from '../../components/ai-assistant-controls';
 import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
-import { getPrompt } from '../../lib/prompt';
-import { getTextContentFromBlocks } from '../../lib/utils/block-content';
+import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-selected-blocks';
+import { getRawTextFromHTML } from '../../lib/utils/block-content';
+import { transformToAIAssistantBlock } from '../../transforms';
 /*
  * Types
  */
@@ -25,6 +25,17 @@ import type { PromptItemProps, PromptTypeProp } from '../../lib/prompt';
 type StoredPromptProps = {
 	messages: Array< PromptItemProps >;
 };
+
+export function getStoreBlockId( clientId ) {
+	return `ai-assistant-block-${ clientId }`;
+}
+
+/*
+ * An identifier to use on the extension error notices,
+ * so a existing notice with the same ID gets replaced
+ * by a new one, avoiding the stacking of notices.
+ */
+const AI_ASSISTANT_NOTICE_ID = 'ai-assistant';
 
 /*
  * Extend the withAIAssistant function of the block
@@ -36,15 +47,28 @@ export const withAIAssistant = createHigherOrderComponent(
 			messages: [],
 		} );
 
-		const clientIdsRef = useRef< Array< string > >();
+		const { name: blockType } = props;
 
-		const { updateBlockAttributes, removeBlocks } = useDispatch( blockEditorStore );
-		const { createNotice } = useDispatch( noticesStore );
+		const { updateBlockAttributes, removeBlocks, replaceBlock } =
+			useDispatch( 'core/block-editor' );
+		const { createNotice } = useDispatch( 'core/notices' );
+
+		const { content, clientIds, blocks } = useTextContentFromSelectedBlocks();
+
+		/*
+		 * Set exclude dropdown options.
+		 * - Exclude "Ask AI Assistant" for core/list-item block.
+		 */
+		const exclude = [];
+		if ( blockType === 'core/list-item' ) {
+			exclude.push( KEY_ASK_AI_ASSISTANT );
+		}
 
 		const showSuggestionError = useCallback(
 			( suggestionError: SuggestionError ) => {
 				createNotice( suggestionError.status, suggestionError.message, {
 					isDismissible: true,
+					id: AI_ASSISTANT_NOTICE_ID,
 				} );
 			},
 			[ createNotice ]
@@ -56,31 +80,27 @@ export const withAIAssistant = createHigherOrderComponent(
 		 * @param {string} newContent - The new content of the block.
 		 * @returns {void}
 		 */
-		const setContent = useCallback(
+		const updateBlockContent = useCallback(
 			( newContent: string ) => {
 				/*
-				 * Pick the first item of the array,
-				 * to be udpated with the new content.
-				 * The rest of the items will be removed.
+				 * Pick the first client ID from the array.
+				 * This is the client ID of the block that
+				 * will updates its content.
+				 *
+				 * The rest of the items (blocks) will be removed,
+				 * in case there are more than one.
 				 */
-				const [ firstClientId, ...restClientIds ] = clientIdsRef.current;
-				/*
-				 * Update the content of the block
-				 * by calling the setAttributes function,
-				 * updating the `content` attribute.
-				 * It doesn't scale for other blocks.
-				 * @todo: find a better way to update the content.
-				 */
+				const [ firstClientId, ...restClientIds ] = clientIds;
+
+				// Update the content of the new AI Assistant block instance.
 				updateBlockAttributes( firstClientId, { content: newContent } );
 
 				// Remove the rest of the block in case there are more than one.
 				if ( restClientIds.length ) {
-					removeBlocks( restClientIds ).then( () => {
-						clientIdsRef.current = [ firstClientId ];
-					} );
+					removeBlocks( restClientIds );
 				}
 			},
-			[ removeBlocks, updateBlockAttributes ]
+			[ clientIds, removeBlocks, updateBlockAttributes ]
 		);
 
 		const updateStoredPrompt = useCallback(
@@ -104,49 +124,91 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ setStoredPrompt ]
 		);
 
-		const { request, requestingState } = useSuggestionsFromAI( {
+		const { requestingState } = useSuggestionsFromAI( {
 			prompt: storedPrompt.messages,
-			onSuggestion: setContent,
+			onSuggestion: updateBlockContent,
 			onDone: updateStoredPrompt,
 			onError: showSuggestionError,
-			autoRequest: false,
 		} );
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
-				const { content, clientIds } = getTextContentFromBlocks();
+				const [ firstBlock ] = blocks;
+				const [ firstClientId, ...otherBlocksIds ] = clientIds;
+
+				const extendedBlockAttributes = {
+					...( firstBlock?.attributes || {} ), // firstBlock.attributes should never be undefined, but still add a fallback
+					content,
+				};
+
+				const newAIAssistantBlock = transformToAIAssistantBlock(
+					extendedBlockAttributes,
+					blockType
+				);
 
 				/*
-				 * Store the selected clientIds when the user requests a suggestion.
-				 * The client Ids will be used to update the content of the block,
-				 * when suggestions are received from the AI.
+				 * Store in the local storage the client id
+				 * of the block that need to auto-trigger the AI Assistant request.
+				 * @todo: find a better way to update the content,
+				 * probably using a new store triggering an action.
 				 */
-				clientIdsRef.current = clientIds;
 
-				setStoredPrompt( prevPrompt => {
-					const messages = getPrompt( promptType, {
-						...options,
-						content,
-						prevMessages: prevPrompt.messages,
-					} );
+				// Storage client Id, prompt type, and options.
+				const storeObject = {
+					clientId: firstClientId,
+					type: promptType,
+					options: { ...options, contentType: 'generated' }, // When converted, the original content must be treated as generated
+				};
 
-					const freshPrompt = { ...prevPrompt, messages };
-					// Request the suggestion from the AI.
-					request( freshPrompt.messages );
+				localStorage.setItem(
+					getStoreBlockId( newAIAssistantBlock.clientId ),
+					JSON.stringify( storeObject )
+				);
 
-					// Update the stored prompt locally.
-					return freshPrompt;
-				} );
+				/*
+				 * Replace the first block with the new AI Assistant block instance.
+				 * This block contains the original content,
+				 * even for multiple blocks selection.
+				 */
+				replaceBlock( firstClientId, newAIAssistantBlock );
+
+				// It removes the rest of the blocks in case there are more than one.
+				removeBlocks( otherBlocksIds );
 			},
-			[ request ]
+			[ blocks, clientIds, content, blockType, replaceBlock, removeBlocks ]
 		);
+
+		const replaceWithAiAssistantBlock = useCallback( () => {
+			const [ firstClientId, ...otherBlocksIds ] = clientIds;
+			const [ firstBlock ] = blocks;
+
+			const extendedBlockAttributes = {
+				...( firstBlock?.attributes || {} ), // firstBlock.attributes should never be undefined, but still add a fallback
+				content,
+			};
+
+			replaceBlock(
+				firstClientId,
+				transformToAIAssistantBlock( extendedBlockAttributes, blockType )
+			);
+
+			removeBlocks( otherBlocksIds );
+		}, [ blocks, blockType, content, replaceBlock, clientIds, removeBlocks ] );
+
+		const rawContent = getRawTextFromHTML( props.attributes.content );
 
 		return (
 			<>
 				<BlockEdit { ...props } />
 
 				<BlockControls group="block">
-					<AiAssistantDropdown onChange={ requestSuggestion } requestingState={ requestingState } />
+					<AiAssistantDropdown
+						requestingState={ requestingState }
+						disabled={ ! rawContent?.length }
+						onChange={ requestSuggestion }
+						onReplace={ replaceWithAiAssistantBlock }
+						exclude={ exclude }
+					/>
 				</BlockControls>
 			</>
 		);

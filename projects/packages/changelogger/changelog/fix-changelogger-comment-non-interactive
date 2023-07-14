@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+When omitting `--entry` for `changelogger add` in non-interactive mode for a patch-significance change, provide a hint on how to successfully create an empty entry.

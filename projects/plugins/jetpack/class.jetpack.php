@@ -115,6 +115,7 @@ class Jetpack {
 		'jetpack-widget-social-icons-styles',
 		'wpcom_instagram_widget',
 		'milestone-widget',
+		'subscribe-modal-css',
 	);
 
 	/**
@@ -846,7 +847,6 @@ class Jetpack {
 
 		foreach (
 			array(
-				'blaze',
 				'jitm',
 				'sync',
 				'waf',

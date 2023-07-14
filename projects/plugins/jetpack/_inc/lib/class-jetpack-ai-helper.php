@@ -323,15 +323,8 @@ class Jetpack_AI_Helper {
 
 			/*
 			 * Check if the site requires an upgrade.
-			 * Ideally, the feature availability
-			 * should support site-type handling.
-			 * @todo: research how to do it.
 			 */
-			$blogs_details   = get_blog_details( $blog_id );
-			$is_jetpack_site = is_blog_jetpack( $blogs_details ) && ! is_blog_atomic( $blogs_details );
-			$require_upgrade = $is_jetpack_site ?
-				$is_over_limit && ! $has_ai_assistant_feature :
-				false;
+			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
 
 			return array(
 				'has-feature'          => $has_ai_assistant_feature,
@@ -360,7 +353,7 @@ class Jetpack_AI_Helper {
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 === $response_code ) {
-			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			return json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
 		} else {
 			return new WP_Error(
 				'failed_to_fetch_data',

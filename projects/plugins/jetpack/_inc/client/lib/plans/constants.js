@@ -76,6 +76,9 @@ export const PLAN_JETPACK_SECURITY_DAILY = 'jetpack_security_daily';
 export const PLAN_JETPACK_SECURITY_DAILY_MONTHLY = 'jetpack_security_daily_monthly';
 export const PLAN_JETPACK_SECURITY_REALTIME = 'jetpack_security_realtime';
 export const PLAN_JETPACK_SECURITY_REALTIME_MONTHLY = 'jetpack_security_realtime_monthly';
+export const PLAN_JETPACK_STATS_MONTHLY = 'jetpack_stats_monthly';
+export const PLAN_JETPACK_STATS_PWYW_YEARLY = 'jetpack_stats_pwyw_yearly';
+export const PLAN_JETPACK_STATS_FREE = 'jetpack_stats_free_yearly';
 
 export const POPULAR_PLANS = [ PLAN_PREMIUM ];
 export const NEW_PLANS = [ PLAN_JETPACK_PERSONAL, PLAN_JETPACK_PERSONAL_MONTHLY ];
@@ -251,6 +254,12 @@ export const JETPACK_SOCIAL_PRODUCTS = [
 export const JETPACK_BOOST_PRODUCTS = [ PLAN_JETPACK_BOOST, PLAN_JETPACK_BOOST_MONTHLY ];
 
 export const JETPACK_AI_PRODUCTS = [ PLAN_JETPACK_AI_MONTHLY ];
+
+export const JETPACK_STATS_PRODUCTS = [
+	PLAN_JETPACK_STATS_MONTHLY,
+	PLAN_JETPACK_STATS_PWYW_YEARLY,
+	PLAN_JETPACK_STATS_FREE,
+];
 
 export const PLAN_MONTHLY_PERIOD = 31;
 export const PLAN_ANNUAL_PERIOD = 365;
@@ -457,6 +466,16 @@ export function isJetpackAI( product ) {
 }
 
 /**
+ * Determines if a product is Jetpack Stats.
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is Jetpack Stats, false otherwise.
+ */
+export function isJetpackStats( product ) {
+	return JETPACK_STATS_PRODUCTS.includes( product );
+}
+
+/**
  * Checks if a product slug is a Jetpack product.
  *
  * @param {string} product - The product id.
@@ -471,7 +490,8 @@ export function isJetpackProduct( product ) {
 		isJetpackVideoPress( product ) ||
 		isJetpackSocial( product ) ||
 		isJetpackBoost( product ) ||
-		isJetpackAI( product )
+		isJetpackAI( product ) ||
+		isJetpackStats( product )
 	);
 }
 
@@ -645,6 +665,13 @@ export function getPlanClass( plan ) {
 
 		case PLAN_JETPACK_AI_MONTHLY:
 			return 'is-jetpack-ai-plan';
+
+		case PLAN_JETPACK_STATS_MONTHLY:
+		case PLAN_JETPACK_STATS_PWYW_YEARLY:
+			return 'is-jetpack-stats-plan';
+
+		case PLAN_JETPACK_STATS_FREE:
+			return 'is-free-jetpack-stats-plan';
 
 		default:
 			return '';

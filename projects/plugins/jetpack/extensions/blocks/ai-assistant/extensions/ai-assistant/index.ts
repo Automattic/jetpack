@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getBlockType } from '@wordpress/blocks';
+import { select } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
@@ -16,9 +17,9 @@ import { isUserConnected } from '../../lib/connection';
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
 
 // List of blocks that can be extended.
-export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading', 'core/list-item' ] as const;
+export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading' ] as const;
 
-type ExtendedBlock = ( typeof EXTENDED_BLOCKS )[ number ];
+export type ExtendedBlockProp = ( typeof EXTENDED_BLOCKS )[ number ];
 
 type BlockSettingsProps = {
 	supports: {
@@ -30,8 +31,6 @@ type BlockSettingsProps = {
 
 export const isAiAssistantSupportExtensionEnabled =
 	window?.Jetpack_Editor_Initial_State.available_blocks?.[ AI_ASSISTANT_SUPPORT_NAME ];
-
-const siteRequiresUpgrade = AI_Assistant_Initial_State.requireUpgrade;
 
 /**
  * Check if it is possible to extend the block.
@@ -55,13 +54,19 @@ export function isPossibleToExtendBlock(): boolean {
 		return false;
 	}
 
-	// Do not extend the block if the site requires an upgrade.
-	if ( siteRequiresUpgrade ) {
+	// Do not extend if there is an error getting the feature.
+	if ( AI_Assistant_Initial_State.errorCode ) {
 		return false;
 	}
 
-	// Do not extend if there is an error getting the feature.
-	if ( AI_Assistant_Initial_State.errorCode ) {
+	/*
+	 * Do not extend if the AI Assistant block is hidden
+	 * ToDo: the `editPostStore` is undefined for P2 sites.
+	 * Let's find a way to check if the block is hidden.
+	 */
+	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
+	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will extend the block if the function is undefined.
+	if ( hiddenBlocks.includes( blockName ) ) {
 		return false;
 	}
 
@@ -72,19 +77,19 @@ export function isPossibleToExtendBlock(): boolean {
  * Add jetpack/ai support to the extended blocks.
  *
  * @param {BlockSettingsProps} settings - Block settings.
- * @param {ExtendedBlock} name          - Block name.
+ * @param {ExtendedBlockProp} name          - Block name.
  * @returns {BlockSettingsProps}          Block settings.
  */
 function addJetpackAISupport(
 	settings: BlockSettingsProps,
-	name: ExtendedBlock
+	name: ExtendedBlockProp
 ): BlockSettingsProps {
-	if ( ! isPossibleToExtendBlock() ) {
+	// Only extend the blocks in the list.
+	if ( ! EXTENDED_BLOCKS.includes( name ) ) {
 		return settings;
 	}
 
-	// Only extend the blocks in the list.
-	if ( ! EXTENDED_BLOCKS.includes( name ) ) {
+	if ( ! isPossibleToExtendBlock() ) {
 		return settings;
 	}
 

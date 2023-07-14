@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-beta] - 2023-07-11
+### Added
+- Image Size Analyzer: A new premium feature which searches your site for images loaded at incorrect sizes.
+
+### Changed
+- Jetpack Boost: Beta tags removed from Concatenate CSS/JS and Image CDN. [#31777]
+
+### Fixed
+- General: Fixed error snackbar from showing under UI separators on the Getting Started page. [#31706]
+
+## [1.9.2-beta] - 2023-06-23
+### Added
+- Speed Scores: Added an internal argument to record the source of each Speed Score request. [#31012]
+- Image Guide: Added a proxy to allow the Image Guide UI to load the size of remote images. [#31145]
+- Minify CSS: Added an endpoint for fetching minfied content which does not rely on loading WordPress, allowing hosts to more efficiently fetch minified content. [#30825]
+
+### Changed
+- Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
+- General: Updated checklist spacing and button font size and line height. [#31098]
+- Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
+
+### Fixed
+- Minify CSS: Fixed issues with relative paths when WordPress is installed in a sub-directory. [#30863]
+- Image Guide: Fixed issues with Image Guide placement on the page with some themes. [#31410]
+
 ## [1.9.1] - 2023-05-11
 ### Added
 - New Feature: Added JS and CSS file minification [#30005]
@@ -249,6 +274,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[2.0.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/1.9.2-beta...2.0.0-beta
+[1.9.2-beta]: https://github.com/Automattic/jetpack-boost-production/compare/1.9.1...1.9.2-beta
 [1.9.1]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.8.0...boost/branch-1.9.1
 [1.8.0]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.7.0...boost/branch-1.8.0
 [1.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.6.0...boost/branch-1.7.0

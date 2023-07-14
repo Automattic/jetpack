@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Related Posts: do not display them in emails and outside of WordPress context.

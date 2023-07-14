@@ -1,5 +1,5 @@
 import { useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 
 /**
  * Get meta data from a VideoPress video.
@@ -83,7 +83,7 @@ const getMediaDetails = async media => {
  * @returns {[ mediaDetails: {metaData: {mime: string, fileSize: number, length: number}, mediaData: {width: number, height: number, sourceUrl: string}} ]} - The media details
  */
 export default function useMediaDetails( mediaId = null ) {
-	const [ mediaDetails, setMediaDetails ] = useState( {} );
+	const [ mediaDetails, setMediaDetails ] = useState( [ {} ] );
 
 	const mediaObject = useSelect(
 		select => select( 'core' ).getMedia( mediaId, { context: 'view' } ),
@@ -93,9 +93,9 @@ export default function useMediaDetails( mediaId = null ) {
 	const getAsyncDetails = useCallback( async () => {
 		try {
 			const details = await getMediaDetails( mediaObject );
-			setMediaDetails( details ?? {} );
+			setMediaDetails( [ details ?? {} ] );
 		} catch {
-			setMediaDetails( {} );
+			setMediaDetails( [ {} ] );
 		}
 	}, [ mediaObject ] );
 
@@ -103,5 +103,5 @@ export default function useMediaDetails( mediaId = null ) {
 		getAsyncDetails();
 	}, [ getAsyncDetails ] );
 
-	return [ mediaDetails ];
+	return mediaDetails;
 }

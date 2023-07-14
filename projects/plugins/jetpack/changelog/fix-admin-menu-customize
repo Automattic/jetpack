@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fixed an issue which was preventing the Customize menu from appearing for plugins that still require it to be present

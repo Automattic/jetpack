@@ -17,7 +17,7 @@ $template = '
 <html xmlns="http://www.w3.org/1999/xhtml">
 <body>
 <!-- title -->
-<h1>%1$s</h1>
+%1$s
 
 <!-- response -->
 <p>%2$s</p>

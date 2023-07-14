@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.2] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [3.1.1] - 2023-07-10
+### Fixed
+- Make product card primary buttons links when applicable [#31611]
+
+## [3.1.0] - 2023-07-05
+### Added
+- Added Jetpack Stats card to My Jetpack [#31589]
+
+### Changed
+- Jetpack Stats: Enable skipping interstitial page [#31629]
+- Updated package dependencies. [#31659]
+
+### Fixed
+- My Jetpack: hide Stats card for standalone plugins [#31689]
+- Organize product cards in list [#31606]
+
+## [3.0.0] - 2023-06-26
+### Added
+- Add authentication to Zendesk chat. [#31339]
+- Stats: add stats card to my Jetpack. [#31531]
+
+## [2.15.0] - 2023-06-23
+### Added
+- My Jetpack: add Stats product [#31368]
+
+### Changed
+- Updated package dependencies. [#31468]
+
 ## [2.14.3] - 2023-06-12
 ### Added
 - My Jetpack: populate the Jetpack AI product with feature data [#31238]
@@ -901,6 +933,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[3.1.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.1...3.1.2
+[3.1.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.0...3.1.1
+[3.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.0.0...3.1.0
+[3.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.15.0...3.0.0
+[2.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.3...2.15.0
 [2.14.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.2...2.14.3
 [2.14.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.1...2.14.2
 [2.14.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.0...2.14.1

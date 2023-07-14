@@ -17,10 +17,6 @@
 		background-color: var( --jp-white-off );
 		color: var( --jp-black-80 );
 
-		&:hover {
-			background-color: var( --jp-white );
-		}
-
 		&:focus {
 			box-shadow: 0 0 0 1.5px var( --jp-black );
 			background-color: var( --jp-white );

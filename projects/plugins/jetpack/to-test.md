@@ -1,4 +1,4 @@
-## Jetpack 12.2
+## Jetpack 12.3
 
 ### Before you start:
 
@@ -6,39 +6,40 @@
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
 ### AI Assistant:
-Jetpack 12.2 brings a new AI Assistant block. Given Automattic's current focus on AI, this should be tested. See p1HpG7-mHr-p2 for details.
 
-### My Plan:
-- Check all images are loading.
-- "My Plan" card should no longer show on sites with a free plan but paid add-on features.
+Jetpack AI Assistant has received various feature enhancements and bug fixes this release. In addition to creating fresh content, you can now use the AI Assistant to revise and enhance existing blocks such as the Paragraph or List blocks.
 
-### Various block changes:
-- Donations, Paid Content and Payment Buttons blocks are now available with free plans. Check that it works. Information at PCYsg-8Ns-p2#testing-payments may be helpful.
-  - Subscriptions block also has a payment option, see pbNhbs-6Ju-p2#comment-15715
-- Related Posts block can now have a header configured, and there's an author toggle.
+- Make sure your Jetpack site is connected to WordPress.com
+- To test the AI Assistant block directly, simply add the AI Assistant block to any page or post, and tell Jetpack AI what to do. Pro-tip: type “/ai” to use the block shortcut.
+- Alternatively, try leveraging the AI Assistant features from the block toolbar of the paragraph, list, or heading blocks.
+- Read more about the Jetpack AI Assistant in our previous blog post: https://jetpack.com/blog/introducing-jetpack-ai-assistant/
 
-### Jetpack Forms:
-Jetpack Forms continues to improve with changes in this release. In particular,
+### Newsletters
 
-- Make sure things continue to work as expected.
-- Check that the emails sent on a form response look good.
+The Newsletter functionality has received various upgrades including a new email preview feature. To test:
 
-### Image CDN:
-Enable the feature (Jetpack > Settings > Performance > Speed up image load times) and check that image-based features (e.g. Tiled Gallery, Flickr widget, gallery widget, image widget) still work.
+- In `Jetpack > Settings > Discussion`, make sure that Subscriptions are enabled.
+- Create a new test post and click on Publish. In the publishing panel you will see the "Newsletter visibility" section which has been updated to clarify the audience reach of your post.
+- Try clicking on the Preview button in that section to send a test email preview to the current user.
 
-### Sharing to Mastodon:
-* Make sure you have a Mastodon account.
-* Make sure your test site has a Social Advanced or Complete subscription, and activate Social (from the My Jetpack section, for instance).
-* Create a new post.
-* Click on the Jetpack menu in the top bar.
-* In the _Share this post_ section, click _Connect an account_.
-* You should be redirected to wordpress.com.
-* You should now have the option to connect your Mastodon account. Connect it.
-* Go back to edit your post.
-* You should now see Mastodon in the list of available services. Reload the page if you don't.
+### Tock Block
+
+A new block is now available for the Tock reservations service:
+
+- While editing a post, search for and add the new Tock block.
+- The block will ask you to specify the business name, for testing purposes you can try `oquirrh`
+- Once your post is published, clicking on the Tock button on the frontend of your site will open a modal for booking.
+
+### Sharing Buttons
+
+We've added a new sharing button for the Nextdoor service:
+
+- In `Jetpack > Settings > Sharing`, make sure that the Sharing Buttons feature is enabled, then click on the "Configure your sharing buttons" link.
+- Try adding the Nextdoor sharing button and be sure to save the changes.
+- Open a post on the frontend of your site and make sure the Nextdoor sharing button is displayed.
 
 ### And More!
 
-You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/monthly/branch-2023-05-29/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
+You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/monthly/branch-2023-06-26/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
 
 **Thank you for all your help!**

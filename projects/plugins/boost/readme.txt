@@ -5,7 +5,7 @@ Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 6.2
 Requires PHP: 7.0
-Stable tag: 1.9.0
+Stable tag: 1.9.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,23 +187,15 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.9.1 - 2023-05-31
+### 2.0.0-beta - 2023-07-11
 #### Added
-- New Feature: Added JS and CSS file minification
+- Image Size Analyzer: A new premium feature which searches your site for images loaded at incorrect sizes.
 
 #### Changed
-- General: Improved the way modules are toggled internally
-- General: Updated package dependencies
-- Image CDN: Improved Image CDN description
-- User Experience: Removed back button from purchase success page
+- Jetpack Boost: Beta tags removed from Concatenate CSS/JS and Image CDN.
 
 #### Fixed
-- Cloud CSS: Don't run local regenerate automagically when using cloud css
-- Cloud CSS: Fixed a mismatch in cloud-css key
-- Critical CSS: Fixed Critical CSS from making redundant requests on page load
-- Deferred JS: Fixed some extremely short pages (such as WooCommerce Box Office tickets being printed) from resulting in a blank page
-- General: Fixed some PHP 8.2 Warnings
-- User Experience: Fixed some language choices around Boost popups
+- General: Fixed error snackbar from showing under UI separators on the Getting Started page.
 
 --------
 

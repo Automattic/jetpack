@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { getBlockContent } from '@wordpress/blocks';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
@@ -52,41 +51,16 @@ export function getContentFromBlocks(): string {
 	return turndownService.turndown( serialize( blocks ) );
 }
 
-type GetTextContentFromBlocksProps = {
-	count: number;
-	clientIds: string[];
-	content: string;
-};
-
-/**
- * Returns the text content from all selected blocks.
- *
- * @returns {GetTextContentFromBlocksProps} The text content.
- */
-export function getTextContentFromBlocks(): GetTextContentFromBlocksProps {
-	const clientIds = select( blockEditorStore ).getSelectedBlockClientIds();
-	const defaultContent = {
-		count: 0,
-		clientIds: [],
-		content: '',
-	};
-
-	if ( ! clientIds?.length ) {
-		return defaultContent;
+export function getTextContentFromInnerBlocks( clientId: string ) {
+	const block = select( 'core/block-editor' ).getBlock( clientId );
+	if ( ! block?.innerBlocks?.length ) {
+		return '';
 	}
 
-	const blocks = select( blockEditorStore ).getBlocksByClientId( clientIds );
-	if ( ! blocks?.length ) {
-		return defaultContent;
-	}
-
-	return {
-		count: blocks.length,
-		clientIds,
-		content: blocks
-			.map( block => getBlockTextContent( block.clientId ) )
-			.join( HTML_JOIN_CHARACTERS ),
-	};
+	return block.innerBlocks
+		.filter( blq => blq !== null && blq !== undefined ) // Safeguard against null or undefined blocks
+		.map( blq => getBlockTextContent( blq.clientId ) )
+		.join( HTML_JOIN_CHARACTERS );
 }
 
 /**
@@ -104,7 +78,7 @@ export function getBlockTextContent( clientId: string ): string {
 		return '';
 	}
 
-	const editor = select( blockEditorStore );
+	const editor = select( 'core/block-editor' );
 	const block = editor.getBlock( clientId );
 
 	/*
@@ -121,4 +95,20 @@ export function getBlockTextContent( clientId: string ): string {
 	}
 
 	return getBlockContent( block );
+}
+
+/**
+ * Extract raw text from HTML content
+ *
+ * @param {string} htmlString - The HTML content.
+ * @returns {string}            The raw text.
+ */
+export function getRawTextFromHTML( htmlString: string ): string {
+	if ( ! htmlString?.length ) {
+		return '';
+	}
+
+	const tempDomContainer = document.createElement( 'div' );
+	tempDomContainer.innerHTML = htmlString;
+	return tempDomContainer.textContent || tempDomContainer.innerText || '';
 }
