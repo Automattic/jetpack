@@ -481,7 +481,7 @@ export default connect(
 			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
 			searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
-			simplePaymentsUpgradeUrl: getProductDescriptionUrl( state, 'simple-payments' ),
+			simplePaymentsUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
 			spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			multisite: isMultisite( state ),
 			inOfflineMode: isOfflineMode( state ),
