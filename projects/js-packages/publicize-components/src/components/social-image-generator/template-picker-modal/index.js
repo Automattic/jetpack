@@ -33,7 +33,7 @@ const TemplatePickerModal = ( { onSelect, render, value = null } ) => {
 			{ render( { open: openPicker } ) }
 			{ isOpen && (
 				<Modal onRequestClose={ closePicker } title={ __( 'Pick a Template', 'jetpack' ) }>
-					<TemplatePicker value={ value } onTemplateSelected={ setSelectedTemplate } />
+					<TemplatePicker value={ selectedTemplate } onTemplateSelected={ setSelectedTemplate } />
 					<div className={ styles.footer }>
 						<Button variant="tertiary" onClick={ closePicker }>
 							{ __( 'Cancel', 'jetpack' ) }

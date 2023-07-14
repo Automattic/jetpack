@@ -1,7 +1,6 @@
-import { useState, useMemo } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import React from 'react';
+import React, { useCallback } from 'react';
 import styles from './styles.module.scss';
 import TEMPLATES_DATA from './templates.js';
 
@@ -16,31 +15,23 @@ import TEMPLATES_DATA from './templates.js';
  * @returns {React.ReactNode} - The component's rendered output.
  */
 const TemplatePicker = ( { value = null, onTemplateSelected = null } ) => {
-	const [ selectedTemplate, setSelectedTemplate ] = useState( value );
-
-	// Add memoized callback function for each template.
-	const TEMPLATES = useMemo(
-		() =>
-			TEMPLATES_DATA.map( template => ( {
-				...template,
-				onSelect: () => {
-					setSelectedTemplate( template.name );
-					if ( onTemplateSelected ) {
-						onTemplateSelected( template.name );
-					}
-				},
-			} ) ),
-		[ setSelectedTemplate, onTemplateSelected ]
+	const onTemplateClicked = useCallback(
+		event => {
+			const templateName = event.target.id;
+			onTemplateSelected?.( templateName );
+		},
+		[ onTemplateSelected ]
 	);
 
 	return (
 		<div className={ styles.templates }>
-			{ TEMPLATES.map( template => (
+			{ TEMPLATES_DATA.map( template => (
 				<button
-					onClick={ template.onSelect }
+					onClick={ onTemplateClicked }
+					id={ template.name }
 					key={ template.name }
 					className={ classnames( styles.template, {
-						[ styles[ 'template--active' ] ]: template.name === selectedTemplate,
+						[ styles[ 'template--active' ] ]: template.name === value,
 					} ) }
 				>
 					<img src={ template.image } alt={ template.label } />
