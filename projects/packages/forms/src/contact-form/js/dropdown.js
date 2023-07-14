@@ -19,5 +19,8 @@ jQuery( function ( $ ) {
 				'ui-selectmenu-menu': 'contact-form-dropdown__menu',
 			},
 		} );
+
+		$( '.contact-form .contact-form-dropdown' ).attr( 'aria-hidden', true );
+		$( '.contact-form .contact-form-dropdown' ).prop( 'tabindex', -1 );
 	}
 } );

@@ -204,7 +204,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * Validates the form input
 	 */
 	public function validate() {
-		error_log( print_r( $this, true ) );
 		// If it's not required, there's nothing to validate
 		if ( ! $this->get_attribute( 'required' ) ) {
 			return;
@@ -717,7 +716,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
-		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . "aria-hidden='true' tabindex='-1'>\n";
+		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
 			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
