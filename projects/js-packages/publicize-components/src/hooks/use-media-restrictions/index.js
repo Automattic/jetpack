@@ -100,8 +100,8 @@ const getValidationError = ( metaData, mediaData, serviceName, shouldUploadAttac
 		? getVideoValidationError(
 				sizeInMb,
 				metaData.length,
-				mediaData.width,
-				mediaData.height,
+				mediaData?.width,
+				mediaData?.height,
 				restrictions.video
 		  )
 		: getImageValidationError( sizeInMb, restrictions.image.maxSize );
