@@ -7,6 +7,9 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const webpack = jetpackWebpackConfig.webpack;
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const {
+	defaultRequestToExternal,
+} = require( '@wordpress/dependency-extraction-webpack-plugin/lib/util' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const jsdom = require( 'jsdom' );
 const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
@@ -40,6 +43,7 @@ const presetPath = path.join( __dirname, '../extensions', 'index.json' );
 const presetIndex = require( presetPath );
 const presetProductionBlocks = presetIndex.production || [];
 const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
+const presetSingleBlocks = presetIndex.single || [];
 
 const presetExperimentalBlocks = [
 	...presetProductionBlocks,
@@ -95,6 +99,22 @@ const editorNoPostEditorScript = [
 		presetNoPostEditorBlocks
 	),
 ];
+
+const editorSingleBlocksScripts = presetSingleBlocks.reduce( ( editorBlocks, block ) => {
+	const editorScriptPath = path.join( __dirname, '../extensions/blocks', block, 'editor.js' );
+	if ( fs.existsSync( editorScriptPath ) ) {
+		editorBlocks[ block + '/editor' ] = [ editorScriptPath ];
+	}
+	return editorBlocks;
+}, {} );
+
+const viewSingleBlocksScripts = presetSingleBlocks.reduce( ( viewBlocks, block ) => {
+	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
+	if ( fs.existsSync( viewScriptPath ) ) {
+		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
+	}
+	return viewBlocks;
+}, {} );
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -267,5 +287,40 @@ module.exports = [
 				assets: [ 'components.js', 'components.js.map' ],
 			} ),
 		],
+	},
+	{
+		...sharedWebpackConfig,
+		entry: {
+			...editorSingleBlocksScripts,
+			...viewSingleBlocksScripts,
+		},
+		plugins: [
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: '**/block.json',
+						to: '[path][name][ext]',
+						context: path.join( __dirname, '../extensions/blocks' ),
+					},
+				],
+			} ),
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: {
+					injectPolyfill: true,
+					requestToExternal( request ) {
+						if ( request === 'editor-core' ) {
+							return 'editor-core';
+						}
+						return defaultRequestToExternal( request );
+					},
+				},
+			} ),
+		],
+	},
+	{
+		...sharedWebpackConfig,
+		entry: {
+			'editor-core': path.join( __dirname, '../extensions/editor.js' ),
+		},
 	},
 ];

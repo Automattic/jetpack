@@ -273,13 +273,15 @@ class Jetpack_Gutenberg {
 	 * Decodes JSON loaded from a preset file in the blocks folder
 	 *
 	 * @param string $preset The name of the .json file to load.
+	 * @param object $associative TODO: define.
 	 *
 	 * @return mixed Returns an object if the file is present, or false if a valid .json file is not present.
 	 */
-	public static function get_preset( $preset ) {
+	public static function get_preset( $preset, $associative = null ) {
 		return json_decode(
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' )
+			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $preset . '.json' ),
+			$associative
 		);
 	}
 
@@ -295,6 +297,47 @@ class Jetpack_Gutenberg {
 		$blocks_variation           = self::blocks_variation();
 
 		return self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
+	}
+
+	/**
+	 * Returns a list of Jetpack Gutenberg extensions loading seaparately (blocks and plugins), based on index.json
+	 *
+	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
+	 */
+	public static function get_jetpack_gutenberg_single_extensions() {
+		$preset_extensions_manifest = self::preset_exists( 'index' )
+			? self::get_preset( 'index' )
+			: (object) array();
+
+		return isset( $preset_extensions_manifest->single )
+				? (array) $preset_extensions_manifest->single
+				: array();
+	}
+
+	/**
+	 * Check for bundled extensions
+	 *
+	 * @return boolean true if has bundled extensions
+	 */
+	public static function has_bundled_extension() {
+		$preset_extensions_manifest = self::preset_exists( 'index' )
+			? self::get_preset( 'index', true )
+			: array();
+
+		$production   = isset( $preset_extensions_manifest['production'] )
+			? $preset_extensions_manifest['production']
+			: array();
+		$beta         = isset( $preset_extensions_manifest['beta'] )
+			? $preset_extensions_manifest['beta']
+			: array();
+		$experimental = isset( $preset_extensions_manifest['experimental'] )
+			? $preset_extensions_manifest['experimental']
+			: array();
+		$no_post      = isset( $preset_extensions_manifest['no-post-editor'] )
+			? $preset_extensions_manifest['no-post-editor']
+			: array();
+
+		return count( $production ) > 0 || count( $beta ) > 0 || count( $experimental ) > 0 || count( $no_post ) > 0;
 	}
 
 	/**
@@ -621,6 +664,9 @@ class Jetpack_Gutenberg {
 
 		$blocks_dir       = self::get_blocks_directory();
 		$blocks_variation = self::blocks_variation();
+		$has_bundle       = self::has_bundled_extension();
+		$single_blocks    = self::get_jetpack_gutenberg_single_extensions();
+		$has_single       = count( $single_blocks ) > 0;
 
 		if ( 'production' !== $blocks_variation ) {
 			$blocks_env = '-' . esc_attr( $blocks_variation );
@@ -628,28 +674,49 @@ class Jetpack_Gutenberg {
 			$blocks_env = '';
 		}
 
-		Assets::register_script(
-			'jetpack-blocks-editor',
-			"{$blocks_dir}editor{$blocks_env}.js",
-			JETPACK__PLUGIN_FILE,
-			array( 'textdomain' => 'jetpack' )
-		);
+		if ( $has_single ) {
+			Assets::register_script(
+				'editor-core',
+				"{$blocks_dir}editor-core.js",
+				JETPACK__PLUGIN_FILE,
+				array( 'textdomain' => 'jetpack' )
+			);
 
-		// Hack around #20357 (specifically, that the editor bundle depends on
-		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
-		// Site Editor) until a real fix gets unblocked.
-		// @todo Remove this once #20357 is properly fixed.
-		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
+			wp_enqueue_style( 'editor-core' );
 
-		Assets::enqueue_script( 'jetpack-blocks-editor' );
+			wp_localize_script(
+				'editor-core',
+				'Jetpack_Block_Assets_Base_Url',
+				array(
+					'url' => plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE ),
+				)
+			);
+		}
 
-		wp_localize_script(
-			'jetpack-blocks-editor',
-			'Jetpack_Block_Assets_Base_Url',
-			array(
-				'url' => plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE ),
-			)
-		);
+		if ( $has_bundle ) {
+			Assets::register_script(
+				'jetpack-blocks-editor',
+				"{$blocks_dir}editor{$blocks_env}.js",
+				JETPACK__PLUGIN_FILE,
+				array( 'textdomain' => 'jetpack' )
+			);
+
+			// Hack around #20357 (specifically, that the editor bundle depends on
+			// wp-edit-post but wp-edit-post's styles break the Widget Editor and
+			// Site Editor) until a real fix gets unblocked.
+			// @todo Remove this once #20357 is properly fixed.
+			wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
+
+			Assets::enqueue_script( 'jetpack-blocks-editor' );
+
+			wp_localize_script(
+				'jetpack-blocks-editor',
+				'Jetpack_Block_Assets_Base_Url',
+				array(
+					'url' => plugins_url( $blocks_dir . '/', JETPACK__PLUGIN_FILE ),
+				)
+			);
+		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$user                      = wp_get_current_user();
@@ -747,14 +814,27 @@ class Jetpack_Gutenberg {
 			);
 		}
 
-		wp_localize_script(
-			'jetpack-blocks-editor',
-			'Jetpack_Editor_Initial_State',
-			$initial_state
-		);
+		if ( $has_bundle ) {
+			wp_localize_script(
+				'jetpack-blocks-editor',
+				'Jetpack_Editor_Initial_State',
+				$initial_state
+			);
 
-		// Adds Connection package initial state.
-		wp_add_inline_script( 'jetpack-blocks-editor', Connection_Initial_State::render(), 'before' );
+			// Adds Connection package initial state.
+			wp_add_inline_script( 'jetpack-blocks-editor', Connection_Initial_State::render(), 'before' );
+		}
+
+		if ( $has_single && ! $has_bundle ) {
+			wp_localize_script(
+				'editor-core',
+				'Jetpack_Editor_Initial_State',
+				$initial_state
+			);
+
+			// Adds Connection package initial state.
+			wp_add_inline_script( 'editor-core', Connection_Initial_State::render(), 'before' );
+		}
 	}
 
 	/**
@@ -1029,6 +1109,8 @@ class Jetpack_Gutenberg {
 
 			$preset_extensions = array_unique( array_merge( $preset_extensions, $production_extensions ) );
 		}
+
+		$preset_extensions = array_unique( array_merge( $preset_extensions, self::get_jetpack_gutenberg_single_extensions() ) );
 
 		return $preset_extensions;
 	}

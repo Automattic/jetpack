@@ -1,0 +1,29 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/business-hours-single",
+	"title": "Business Hours Single",
+	"description": "Display opening hours for your business.",
+	"keywords": [ "opening hours", "closing time", "schedule", "working day" ],
+	"version": "1.0.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"supports": {
+		"html": true,
+		"color": {
+			"gradients": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		},
+		"align": [ "wide", "full" ]
+	},
+	"editorScript": "file:./editor.js",
+	"editorStyle": "file:./editor.css",
+	"style": "file:./view.css"
+}

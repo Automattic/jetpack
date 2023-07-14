@@ -2805,6 +2805,9 @@ importers:
       '@wordpress/date':
         specifier: 4.37.0
         version: 4.37.0
+      '@wordpress/dependency-extraction-webpack-plugin':
+        specifier: 4.17.0
+        version: 4.17.0(webpack@5.76.0)
       '@wordpress/edit-post':
         specifier: 7.14.0
         version: 7.14.0(@types/react@18.2.14)(react-dom@18.2.0)(react@18.2.0)

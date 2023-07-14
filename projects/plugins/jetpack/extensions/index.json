@@ -91,5 +91,6 @@
 		"tock",
 		"videopress",
 		"wordads"
-	]
+	],
+	"single": [ "business-hours-single" ]
 }
