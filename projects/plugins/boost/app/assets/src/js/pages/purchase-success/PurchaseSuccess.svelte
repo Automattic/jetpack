@@ -5,6 +5,7 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
+	import { requestImageAnalysis } from '../../modules/image-size-analysis/store/isa-summary';
 	import { regenerateCriticalCss } from '../../stores/critical-css-state';
 	import { modulesState } from '../../stores/modules';
 	import Logo from '../../svg/jetpack-green.svg';
@@ -18,6 +19,14 @@
 	onMount( async () => {
 		$modulesState.cloud_css.active = true;
 		await regenerateCriticalCss();
+
+		// If image guide is enabled, request a new ISA report.
+		if ( $modulesState.image_guide.active ) {
+			// Check if images can be resized.
+			if ( false !== Jetpack_Boost.site.canResizeImages ) {
+				await requestImageAnalysis();
+			}
+		}
 	} );
 </script>
 
