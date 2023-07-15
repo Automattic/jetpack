@@ -12,16 +12,16 @@ body.jpcrm-admin {
 			align-items: center;
 			max-width: 1551px;
 			margin: 0 auto;
-
-			&.jpcrm-full-width {
-				max-width: none;
-			}
 		}
 	}
 
 	.alternating-colors tr:nth-child(even) {
 		background-color: var(--jp-gray-0);
 	}
+}
+
+body.jpcrm-admin.jpcrm-full-width #wpcontent #wpbody {
+	max-width: none;
 }
 
 @media screen and (max-width: 600px) {
