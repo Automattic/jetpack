@@ -1,6 +1,7 @@
+import { useCallback } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import React, { useCallback } from 'react';
+import React from 'react';
 import styles from './styles.module.scss';
 import TEMPLATES_DATA from './templates.js';
 
