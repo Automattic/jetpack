@@ -5,7 +5,6 @@
 ## 0.10.43 - 2023-07-17
 ### Changed
 - Updated package dependencies. [#31785]
-- Updated package dependencies. [#31872]
 
 ## 0.10.42 - 2023-07-05
 ### Changed
