@@ -34,6 +34,7 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@microsoft/fetch-event-source": "2.0.1",
 		"@wordpress/api-fetch": "6.34.0",
 		"debug": "4.3.4"
