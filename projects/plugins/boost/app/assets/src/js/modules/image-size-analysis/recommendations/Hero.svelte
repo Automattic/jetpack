@@ -4,6 +4,7 @@
 	import { __ } from '@wordpress/i18n';
 	import RecommendationContext from '../../../elements/RecommendationContext.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
+	import { modulesState } from '../../../stores/modules';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import { isaData } from '../store/isa-data';
 	import { imageDataActiveGroup } from '../store/isa-summary';
@@ -30,7 +31,9 @@
 				{$imageDataActiveGroup.issue_count}
 				Image Recommendations
 
-				<RecommendationContext />
+				{#if ! $modulesState.image_cdn.active}
+					<RecommendationContext />
+				{/if}
 			</h1>
 		{/if}
 
