@@ -13,7 +13,7 @@ if ( ! function_exists( 'has_blog_sticker' ) ) {
 	 * "Mock" WPCOM sticker function with 'get_site_option'
 	 */
 	function has_blog_sticker( $sticker ) {
-		return get_option( $sticker );
+		return false;
 	}
 }
 
