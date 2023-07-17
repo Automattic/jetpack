@@ -1,27 +1,11 @@
 <script lang="ts">
-	import { __, sprintf } from '@wordpress/i18n';
-	import TemplatedString from './TemplatedString.svelte';
+	import ImageCDNRecommendation from './ImageCDNRecommendation.svelte';
 </script>
 
 <div class="jb-score-context">
 	<span class="jb-score-context__info-icon">i</span>
 	<div class="jb-score-context__info-container">
-		<p>
-			<TemplatedString
-				template={sprintf(
-					// translators: %s is Image CDN.
-					__(
-						'A lot of the reported issues can be easily fixed by enabling the %s feature.',
-						'jetpack-boost'
-					),
-					'<b>' + __( 'Image CDN', 'jetpack-boost' ) + '</b>'
-				)}
-				vars={{
-					b: [ 'strong', {}, '' ],
-				}}
-			/>
-		</p>
-		<p><small>{__( 'You`ll need to analyze again if you enable it.', 'jetpack-boost' )}</small></p>
+		<ImageCDNRecommendation />
 		<i />
 	</div>
 </div>
@@ -44,9 +28,5 @@
 
 	.jb-score-context__info-icon {
 		margin-left: 0;
-	}
-
-	p:last-of-type {
-		margin-bottom: 0;
 	}
 </style>

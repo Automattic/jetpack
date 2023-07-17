@@ -3,6 +3,7 @@
 	import { __, sprintf } from '@wordpress/i18n';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
+	import ImageCDNRecommendation from '../../elements/ImageCDNRecommendation.svelte';
 	import { modulesState } from '../../stores/modules';
 	import NoticeIcon from '../../svg/notice-outline.svg';
 	import RefreshIcon from '../../svg/refresh.svg';
@@ -124,11 +125,7 @@
 	{#if ! $modulesState.image_cdn.active}
 		<div class="jb-notice">
 			<div class="jb-notice__content">
-				<p>
-					A lot of the reported issues can be easily fixed by enabling the <strong>Image CDN</strong
-					> feature.
-				</p>
-				<p>Please note, that you'll need to analyze again if you enable it.</p>
+				<ImageCDNRecommendation />
 			</div>
 		</div>
 	{/if}
