@@ -2914,8 +2914,8 @@ importers:
         specifier: 7.5.2
         version: 7.5.2
       social-logos:
-        specifier: 2.5.3
-        version: 2.5.3(react@18.2.0)
+        specifier: 2.5.4
+        version: 2.5.4(react@18.2.0)
       swiper:
         specifier: 6.7.0
         version: 6.7.0
@@ -21889,8 +21889,8 @@ packages:
       dot-case: 3.0.4
       tslib: 2.5.0
 
-  /social-logos@2.5.3(react@18.2.0):
-    resolution: {integrity: sha512-b5GmwhsYD6eIukV7Q2LkAHjulG7y1mqNeBkinOuhKXGPjWlGFTPe+xQMB2vNqDN0IK4u7TtlOg/baviT7TOIXg==}
+  /social-logos@2.5.4(react@18.2.0):
+    resolution: {integrity: sha512-OKMNdCGMWSRQkoSITbhpiVbQ7TRQsXA0pJ231RsgM0VQKhcajJ/vBjX4H4u1FcaWAUaFFGCkY7/GwwK/++s+Mw==}
     peerDependencies:
       react: 15 - 18
     dependencies:
