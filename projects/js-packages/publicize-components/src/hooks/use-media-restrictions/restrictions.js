@@ -124,7 +124,7 @@ export const RESTRICTIONS = {
 		requiresMedia: true,
 		allowedMediaTypes: [ 'image/jpg', 'image/jpeg', MP4, MOV, VIDEOPRESS ],
 		image: {
-			maxSize: 4,
+			maxSize: 8,
 		},
 		video: {
 			maxLength: 90,
