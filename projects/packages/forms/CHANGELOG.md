@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.19.7] - 2023-07-17
 ### Changed
 - Updated package dependencies. [#31785]
-- Updated package dependencies. [#31872]
 
 ### Fixed
 - Avoid Fatal errors when exporting fields that were not saved with the correct value. [#31858]

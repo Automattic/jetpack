@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.29.1] - 2023-07-17
 ### Changed
 - Updated package dependencies. [#31785]
-- Updated package dependencies. [#31872]
 
 ### Fixed
 - Fix Instagram Max size [#31912]

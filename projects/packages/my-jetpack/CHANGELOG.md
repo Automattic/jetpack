@@ -8,11 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.1.3] - 2023-07-17
 ### Changed
 - Updated package dependencies. [#31872]
-- Updated package dependencies. [#31874]
 
 ### Fixed
-- - hide connection owner information if the data is invalid
-  - don't suggest user connection if user is already connected, but connection owner is invalid [#31618]
+- Hide connection owner information if the data is invalid
+  - Don't suggest user connection if user is already connected, but connection owner is invalid [#31618]
 
 ## [3.1.2] - 2023-07-11
 ### Changed
