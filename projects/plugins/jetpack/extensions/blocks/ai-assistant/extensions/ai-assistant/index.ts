@@ -17,7 +17,7 @@ import { isUserConnected } from '../../lib/connection';
 export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
 
 // List of blocks that can be extended.
-export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading' ] as const;
+export const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading', 'core/list' ] as const;
 
 export type ExtendedBlockProp = ( typeof EXTENDED_BLOCKS )[ number ];
 

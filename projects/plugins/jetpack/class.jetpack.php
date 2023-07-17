@@ -491,14 +491,18 @@ class Jetpack {
 		if ( self::is_connection_ready() ) {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION !== $version ) {
-				// Prevent multiple upgrades at once - only a single process should trigger
-				// an upgrade to avoid stampedes.
-				if ( false !== get_transient( self::$plugin_upgrade_lock_key ) ) {
-					return;
-				}
+				// Prevent multiple upgrades at once - only a single process should trigger an upgrade to avoid stampedes.
+				if ( wp_using_ext_object_cache() ) {
+					if ( true !== wp_cache_add( self::$plugin_upgrade_lock_key, 1, 'transient', 10 ) ) {
+						return;
+					}
+				} else {
+					if ( false !== get_transient( self::$plugin_upgrade_lock_key ) ) {
+						return;
+					}
 
-				// Set a short lock to prevent multiple instances of the upgrade.
-				set_transient( self::$plugin_upgrade_lock_key, 1, 10 );
+					set_transient( self::$plugin_upgrade_lock_key, 1, 10 );
+				}
 
 				// check which active modules actually exist and remove others from active_modules list.
 				$unfiltered_modules = self::get_active_modules();
