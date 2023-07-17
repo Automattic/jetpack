@@ -3,6 +3,7 @@
 	import { __, sprintf } from '@wordpress/i18n';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
+	import { modulesState } from '../../stores/modules';
 	import NoticeIcon from '../../svg/notice-outline.svg';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import MultiProgress from './MultiProgress.svelte';
@@ -119,6 +120,19 @@
 		<MultiProgress />
 	{/if}
 
+	<!-- Show CTA to enable Image CDN. -->
+	{#if ! $modulesState.image_cdn.active}
+		<div class="jb-notice">
+			<div class="jb-notice__content">
+				<p>
+					A lot of the reported issues can be easily fixed by enabling the <strong>Image CDN</strong
+					> feature.
+				</p>
+				<p>Please note, that you'll need to analyze again if you enable it.</p>
+			</div>
+		</div>
+	{/if}
+
 	<!-- Show a button to view the report if it's in progress or completed. -->
 	{#if [ ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status ) && ! requestingReport}
 		<div class="button-area">
@@ -197,5 +211,22 @@
 
 	.button-area {
 		margin-top: 32px;
+	}
+
+	.jb-notice {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 16px 24px;
+		margin: 32px 0;
+		border: 2px solid $jetpack-green;
+		border-radius: $border-radius;
+		background-color: #ffffff;
+		text-align: left;
+
+		p {
+			margin: 0;
+		}
 	}
 </style>
