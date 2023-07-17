@@ -2,9 +2,10 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { Button, Modal } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import TemplatePicker from '../template-picker';
 import styles from './styles.module.scss';
+
+/** @typedef {import('react').ReactNode} ReactNode */
 
 /**
  * Wraps the template picker component in a modal, and saves the selected template on modal save.
@@ -13,7 +14,7 @@ import styles from './styles.module.scss';
  * @param {Function} props.onSelect - A function that will be called when a template is selected. Receives the name of the selected template as an argument.
  * @param {Function} props.render - A function that will be called with an object containing an "open" function, which can be called to open the template picker.
  * @param {string|null} [props.value=null] - The name of the currently selected template.
- * @returns {React.ReactNode} - The component's rendered output.
+ * @returns {ReactNode} - The component's rendered output.
  */
 const TemplatePickerModal = ( { onSelect, render, value = null } ) => {
 	const [ isOpen, setIsOpen ] = useState( false );
