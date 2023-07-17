@@ -7,6 +7,16 @@
 
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+if ( ! function_exists( 'has_blog_sticker' ) ) {
+	/**
+	 * "Mock" WPCOM sticker function with 'get_site_option'
+	 */
+	function has_blog_sticker( $sticker ) {
+		return get_option( $sticker );
+	}
+}
+
 /**
  * Jetpack `site/%s` endpoint unit tests.
  */
@@ -53,7 +63,58 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 
 		wp_set_current_user( $admin->ID );
 
-		$endpoint = new WPCOM_JSON_API_GET_Site_Endpoint(
+		$endpoint = $this->create_get_site_endpoint();
+
+		$response = $endpoint->callback( '', $blog_id );
+
+		$this->assertTrue( $response['jetpack'] );
+		$this->assertTrue( $response['jetpack_connection'] );
+
+		$options = (array) $response['options'];
+		$this->assertArrayHasKey( 'jetpack_connection_active_plugins', $options );
+	}
+
+	/**
+	 * Unit test for the `/sites/%s` endpoint.
+	 */
+	public function test_get_site_trials_list() {
+		global $blog_id;
+
+		// Current trials.
+		$trials   = WPCOM_JSON_API_GET_Site_Endpoint::$jetpack_enabled_trials;
+		$stickers = array();
+
+		// Create a list of stickers to test.
+		foreach ( $trials as $trial ) {
+			$stickers[] = 'had-' . $trial . '-trial';
+		}
+
+		$admin = self::factory()->user->create_and_get(
+			array(
+				'role' => 'administrator',
+			)
+		);
+
+		wp_set_current_user( $admin->ID );
+
+		foreach ( $stickers as $sticker ) {
+			update_option( $sticker, true );
+		}
+
+		$endpoint = $this->create_get_site_endpoint();
+		$response = $endpoint->callback( '', $blog_id );
+
+		foreach ( $trials as $trial ) {
+			$this->assertTrue( $response[ 'was_' . $trial . '_trial' ] );
+		}
+
+		foreach ( $stickers as $sticker ) {
+			delete_option( $sticker );
+		}
+	}
+
+	public function create_get_site_endpoint() {
+		return new WPCOM_JSON_API_GET_Site_Endpoint(
 			array(
 				'description'             => 'Get information about a site.',
 				'group'                   => 'sites',
@@ -75,13 +136,5 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 				'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/',
 			)
 		);
-
-		$response = $endpoint->callback( '', $blog_id );
-
-		$this->assertTrue( $response['jetpack'] );
-		$this->assertTrue( $response['jetpack_connection'] );
-
-		$options = (array) $response['options'];
-		$this->assertArrayHasKey( 'jetpack_connection_active_plugins', $options );
 	}
 }
