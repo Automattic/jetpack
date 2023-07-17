@@ -5,7 +5,6 @@
 ## 0.29.4 - 2023-07-17
 ### Changed
 - Updated package dependencies. [#31872]
-- Updated package dependencies. [#31874]
 
 ### Fixed
 - Reset connection errors upon successful Restore request. [#31618]
