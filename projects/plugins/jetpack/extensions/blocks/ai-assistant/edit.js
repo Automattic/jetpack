@@ -267,9 +267,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			 * - Get HTML code from markdown content
 			 * - Create blocks from HTML code
 			 */
-			newGeneratedBlocks = rawHandler( {
-				HTML: markdownConverter.render( attributes.content ),
-			} );
+			const HTML = markdownConverter
+				.render( attributes.content )
+				// Fix list indentation
+				.replace( /<li>\s+<p>/g, '<li>' )
+				.replace( /<\/p>\s+<\/li>/g, '</li>' );
+			newGeneratedBlocks = rawHandler( { HTML: HTML } );
 		} else {
 			/*
 			 * Gutenberg-syntax content

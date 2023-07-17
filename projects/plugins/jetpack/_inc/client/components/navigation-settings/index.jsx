@@ -183,7 +183,6 @@ export class NavigationSettings extends React.Component {
 					) }
 					{ this.props.hasAnyOfTheseModules( [
 						'seo-tools',
-						'wordads',
 						'stats',
 						'related-posts',
 						'verification-tools',
@@ -196,6 +195,15 @@ export class NavigationSettings extends React.Component {
 							selected={ this.props.location.pathname === '/traffic' }
 						>
 							{ _x( 'Traffic', 'Navigation item.', 'jetpack' ) }
+						</NavItem>
+					) }
+					{ this.props.hasAnyOfTheseModules( [ 'wordads' ] ) && (
+						<NavItem
+							path="#earn"
+							onClick={ this.handleClickForTracking( 'earn' ) }
+							selected={ this.props.location.pathname === '/earn' }
+						>
+							{ _x( 'Earn', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 				</NavTabs>
