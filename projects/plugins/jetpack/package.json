@@ -43,7 +43,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/calypso-color-schemes": "3.0.0",
+		"@automattic/calypso-color-schemes": "3.1.1",
 		"@automattic/components": "2.0.1",
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-analytics": "workspace:*",
