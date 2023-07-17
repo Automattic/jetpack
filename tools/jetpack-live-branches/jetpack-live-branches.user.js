@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.29
+// @version      1.30
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      jurassic.ninja
@@ -101,11 +101,6 @@
 				</a></p>
 			`;
 			appendHtml( markdownBody, contents );
-		} else if ( branchStatus === 'Draft' ) {
-			appendHtml(
-				markdownBody,
-				'<p><strong>This branch is a draft. You can open live branches only from open pull requests.</strong></p>'
-			);
 		} else if ( branchIsForked ) {
 			appendHtml(
 				markdownBody,
