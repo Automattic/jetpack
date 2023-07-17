@@ -5,11 +5,11 @@
 
 	export let isLink = true;
 	export let trackEvent = '';
-	export let trackEventProps = {};
+	export let trackEventProps = '';
 
 	function handleClick() {
 		if ( '' !== trackEvent ) {
-			recordBoostEvent( trackEvent, trackEventProps );
+			recordBoostEvent( trackEvent, { group: trackEventProps } );
 		}
 	}
 </script>
