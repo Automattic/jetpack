@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-WordPress.com REST API: avoid PHP notice when using PHP 8.2
