@@ -6,6 +6,10 @@
 	import Spinner from '../../elements/Spinner.svelte';
 	import { isaGroupLabels, isaSummary } from './store/isa-summary';
 
+	function getGroupProps( group ) {
+		return { group };
+	}
+
 	function safePercent( value: number, outOf: number ): number {
 		if ( ! outOf ) {
 			return 100;
@@ -33,6 +37,8 @@
 					isLink={hasIssues}
 					class="jb-navigator-link"
 					to="/image-size-analysis/{group}/1"
+					trackEvent="clicked_isa_settings_group"
+					trackEventProps={getGroupProps( group )}
 				>
 					<span class="jb-bubble" class:done={isDone}>
 						{isDone ? '✓' : index + 1}
@@ -45,6 +51,8 @@
 					isLink={hasIssues}
 					class="jb-navigator-link"
 					to="/image-size-analysis/{group}/1"
+					trackEvent="clicked_isa_settings_group"
+					trackEventProps={getGroupProps( group )}
 				>
 					{isaGroupLabels[ group ] || group}
 				</ConditionalLink>
@@ -59,6 +67,8 @@
 						isLink={hasIssues}
 						class="jb-navigator-link"
 						to="/image-size-analysis/{group}/1"
+						trackEvent="clicked_isa_settings_group"
+						trackEventProps={getGroupProps( group )}
 					>
 						{#if hasIssues}
 							{sprintf(
