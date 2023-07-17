@@ -81,13 +81,7 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 		global $blog_id;
 
 		// Current trials.
-		$trials   = WPCOM_JSON_API_GET_Site_Endpoint::$jetpack_enabled_trials;
-		$stickers = array();
-
-		// Create a list of stickers to test.
-		foreach ( $trials as $trial ) {
-			$stickers[] = 'had-' . $trial . '-trial';
-		}
+		$trials = WPCOM_JSON_API_GET_Site_Endpoint::$jetpack_enabled_trials;
 
 		$admin = self::factory()->user->create_and_get(
 			array(
@@ -97,19 +91,11 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 
 		wp_set_current_user( $admin->ID );
 
-		foreach ( $stickers as $sticker ) {
-			update_option( $sticker, true );
-		}
-
 		$endpoint = $this->create_get_site_endpoint();
 		$response = $endpoint->callback( '', $blog_id );
 
 		foreach ( $trials as $trial ) {
-			$this->assertTrue( $response[ 'was_' . $trial . '_trial' ] );
-		}
-
-		foreach ( $stickers as $sticker ) {
-			delete_option( $sticker );
+			$this->assertFalse( $response[ 'was_' . $trial . '_trial' ] );
 		}
 	}
 
