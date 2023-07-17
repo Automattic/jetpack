@@ -38,9 +38,9 @@ export default function getRedirectUrl( source: string, args: GetRedirectUrlArgs
 		queryVars.source = encodeURIComponent( source );
 	}
 
-	Object.keys( args ).map( argName => {
+	for ( const argName in args ) {
 		queryVars[ argName ] = encodeURIComponent( args[ argName ] );
-	} );
+	}
 
 	if (
 		! Object.keys( queryVars ).includes( 'site' ) &&
