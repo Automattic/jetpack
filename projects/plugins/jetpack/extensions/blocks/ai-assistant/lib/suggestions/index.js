@@ -61,25 +61,13 @@ export async function askQuestion(
 	const { token } = await requestToken();
 
 	const url = new URL( 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query' );
-	if ( Array.isArray( question ) ) {
-		url.searchParams.append( 'messages', JSON.stringify( question ) );
-	} else {
-		url.searchParams.append( 'question', question );
-	}
-	if ( useGpt4 ) {
-		url.searchParams.append( 'feature', 'ai-assistant-experimental' );
-	}
-	url.searchParams.append( 'token', token );
+	const options = { postId, useGpt4 };
 
 	if ( fromCache ) {
 		url.searchParams.append( 'stream_cache', 'true' );
 	}
 
-	if ( postId ) {
-		url.searchParams.append( 'post_id', postId );
-	}
-
-	return new SuggestionsEventSource( url.toString() );
+	return new SuggestionsEventSource( { url: url.toString(), question, token, options } );
 }
 
 /**
@@ -97,19 +85,36 @@ export async function askQuestion(
  * @fires error_network - The EventSource connection to the server returned some error
  */
 export class SuggestionsEventSource extends EventTarget {
-	constructor( url ) {
+	constructor( data ) {
 		super();
 		this.fullMessage = '';
 		this.isPromptClear = false;
 		// The AbortController is used to close the fetchEventSource connection
 		this.controller = new AbortController();
-		this.initEventSource( url );
+		this.initEventSource( data );
 	}
 
-	async initEventSource( url ) {
+	async initEventSource( { url, question, token, options = {} } = {} ) {
 		const self = this;
+		const bodyData = { post_id: options?.postId };
+
+		if ( Array.isArray( question ) ) {
+			bodyData.messages = question;
+		} else {
+			bodyData.question = question;
+		}
+
+		if ( options?.useGpt4 ) {
+			bodyData.feature = 'ai-assistant-experimental';
+		}
 
 		this.source = await fetchEventSource( url.toString(), {
+			method: 'POST',
+			headers: {
+				'Content-type': 'application/json',
+				Authorization: 'Bearer ' + token,
+			},
+			body: JSON.stringify( bodyData ),
 			onclose() {
 				debug( 'Stream closed unexpectedly' );
 			},
