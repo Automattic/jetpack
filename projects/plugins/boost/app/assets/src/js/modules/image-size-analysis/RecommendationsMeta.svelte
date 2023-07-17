@@ -221,9 +221,5 @@
 		border-radius: $border-radius;
 		background-color: #ffffff;
 		text-align: left;
-
-		p {
-			margin: 0;
-		}
 	}
 </style>
