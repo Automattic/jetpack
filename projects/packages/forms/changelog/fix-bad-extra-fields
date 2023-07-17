@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid Fatal errors when exporting fields that were not saved with the correct value.

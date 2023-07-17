@@ -119,7 +119,7 @@ export const RESTRICTIONS = {
 		requiresMedia: true,
 		allowedMediaTypes: [ 'image/jpg', 'image/jpeg' ],
 		image: {
-			maxSize: 4,
+			maxSize: 8,
 		},
 	},
 	mastodon: {
