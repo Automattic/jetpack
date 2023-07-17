@@ -43,8 +43,6 @@
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Follow-up fix for Automattic/jetpack/pull/31861 [#31871]
 - Updated package dependencies. [#31769]
-- Updated package dependencies. [#31785]
-- Updated package dependencies. [#31872]
 
 ## 12.4-a.3 - 2023-07-10
 ### Enhancements

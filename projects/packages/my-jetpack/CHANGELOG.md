@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Hide connection owner information if the data is invalid
-  - Don't suggest user connection if user is already connected, but connection owner is invalid [#31618]
+- Don't suggest user connection if user is already connected, but connection owner is invalid [#31618]
 
 ## [3.1.2] - 2023-07-11
 ### Changed
