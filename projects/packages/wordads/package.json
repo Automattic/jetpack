@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-wordads",
-	"version": "0.2.46",
+	"version": "0.2.47-alpha",
 	"description": "Earn income by allowing Jetpack to display high quality ads.",
 	"main": "main.js",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wordads/#readme",
@@ -30,7 +30,7 @@
 		"watch": "concurrently 'pnpm:build-dashboard --watch'"
 	},
 	"dependencies": {
-		"@automattic/calypso-color-schemes": "3.0.0",
+		"@automattic/calypso-color-schemes": "3.1.1",
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",

@@ -1894,8 +1894,8 @@ importers:
   projects/packages/search:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.0.0
-        version: 3.0.0
+        specifier: 3.1.1
+        version: 3.1.1
       '@automattic/color-studio':
         specifier: 2.5.0
         version: 2.5.0
@@ -2167,8 +2167,8 @@ importers:
         version: 2.3.0
     devDependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.0.0
-        version: 3.0.0
+        specifier: 3.1.1
+        version: 3.1.1
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
@@ -2257,8 +2257,8 @@ importers:
   projects/packages/wordads:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.0.0
-        version: 3.0.0
+        specifier: 3.1.1
+        version: 3.1.1
       '@automattic/color-studio':
         specifier: 2.5.0
         version: 2.5.0
@@ -2734,8 +2734,8 @@ importers:
   projects/plugins/jetpack:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.0.0
-        version: 3.0.0
+        specifier: 3.1.1
+        version: 3.1.1
       '@automattic/components':
         specifier: 2.0.1
         version: 2.0.1(@wordpress/data@9.7.0)(react-dom@18.2.0)(react@18.2.0)
@@ -3346,8 +3346,8 @@ importers:
         version: 18.2.0(react@18.2.0)
     devDependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 3.0.0
-        version: 3.0.0
+        specifier: 3.1.1
+        version: 3.1.1
       '@automattic/color-studio':
         specifier: 2.5.0
         version: 2.5.0
@@ -3962,8 +3962,8 @@ packages:
     resolution: {integrity: sha512-dRmLP0Ytf2oDNbUbO8MXLKYnPZfqhtFQ8v1hgDo2Fde1Y0bUz2Ll1UmUOHdyZudnrN/8Zt95cG/fIOJ0dxHi8Q==}
     dev: false
 
-  /@automattic/calypso-color-schemes@3.0.0:
-    resolution: {integrity: sha512-nebu4pXXN1BrUhTAZZmrHhjubsHcQF81CEx/c29MSQHeamgnRrhlgiqREsU26KwwXQkcDPB6x84Dhtv90vQifQ==}
+  /@automattic/calypso-color-schemes@3.1.1:
+    resolution: {integrity: sha512-jPSMyaYn79MZRvBokkfmL/yeqYQJZEVXpKyzY/aoo/oCW5EjAQsERsQY+aQKsOrMrd5Es+Gf9tbq9OMrzzCb8g==}
 
   /@automattic/calypso-url@1.0.0:
     resolution: {integrity: sha512-d2odYhxkIFlpCcJ7r+FDI7yBAcm86gtDHteYLcijkOu/2cM+u5D47x/ttYR1+dux9RtT12usBTNc0gGHb89hkA==}
