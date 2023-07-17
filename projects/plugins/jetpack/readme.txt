@@ -293,20 +293,28 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.4-a.1 - 2023-07-05
+### 12.4-a.5 - 2023-07-17
 #### Enhancements
-- AI Assistant: Keep original content when trying again after transforming a paragraph using the "Ask AI Assistant" button.
-- Contact Forms: remove the default title ("You got a new response!") added to emails sent for new feedback received.
-- Cookie Consent Block: Persist markup and ensure it is rendered in the footer.
-- Custom CSS: Display a notice to recommend the use of Global Styles when you use a Block theme on your site.
-- Subscribers page: Add subscribers page to menu.
+- AI Assistant: various improvements to syntax parsing, formatting, and other backend enhancements.
+- AI Extension: transform block to AI Assistant when using an AI Extension suggestion.
+- Akismet: show correct logo for all Jetpack plans that include Akismet
+- Dashboard: add a new "Earn" section to the settings.
+- Newsletters: add frontend subscriber modal.
+- Social Menu & Social Media Icons: add support for the Threads service.
+- Stats: show stats products in My Plan
+- Subscriptions: link to new Subscription management page from the Jetpack dashboard.
 
 #### Improved compatibility
-- Tiled Galleries: Fix deprecation notices that may appear in logs when using PHP 8.2.
+- Customizer: make the testimonial, featured content, portfolio, and related post customizer sections be shown only if current theme is not a block theme [#31730] [#31779] [#31754]
+- Social Links: prevent social links foom being used in block themes
+- WordPress.com REST API: avoid PHP notice when using PHP 8.2
 
 #### Bug fixes
-- Dashboard: Fix Jetpack footer accessibility issues.
-- Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard.
+- AI Assistant: fix crash when transforming to AI Assistant
+- API: fix PHP warning in list posts endpoint.
+- Contact Form: avoid fatal errors when exporting form data to CSV.
+- Forms: fix Forms dropdown required validation
+- Related Posts: do not display related posts in emails and outside of WordPress context.
 
 --------
 
