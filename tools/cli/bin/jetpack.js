@@ -55,6 +55,11 @@ try {
 }
 
 /**
+ * Standardizes the cwd for the process. Allows `jetpack` cli to run correctly from any location in the repo.
+ */
+process.chdir( fileURLToPath( new URL( '../../..', import.meta.url ) ) );
+
+/**
  * Checks to make sure we're on the right version of various tools.
  */
 try {
@@ -67,12 +72,6 @@ try {
 	console.error( 'Something unexpected happened. See error above.' );
 	process.exit( 1 );
 }
-
-/**
- * Standardizes the cwd for the process. Allows `jetpack` cli to run correctly from any location in the repo.
- */
-
-process.chdir( fileURLToPath( new URL( '../../..', import.meta.url ) ) );
 
 const cliRouter = await guardedImport( '../cliRouter.js' );
 cliRouter.cli();
