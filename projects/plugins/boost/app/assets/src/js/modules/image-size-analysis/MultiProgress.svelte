@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { sprintf, __ } from '@wordpress/i18n';
 	import ConditionalLink from '../../elements/ConditionalLink.svelte';
+	import OtherGroupContext from '../../elements/OtherGroupContext.svelte';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
 	import { isaGroupLabels, isaSummary } from './store/isa-summary';
@@ -47,6 +48,9 @@
 				>
 					{isaGroupLabels[ group ] || group}
 				</ConditionalLink>
+				{#if 'other' === group}
+					<OtherGroupContext />
+				{/if}
 			</div>
 
 			{#if isDone || hasIssues}
@@ -77,6 +81,10 @@
 		width: 100%;
 		display: flex;
 		gap: 8px;
+
+		@media ( max-width: 782px ) {
+			flex-direction: column;
+		}
 	}
 	.jb-progress {
 		grid-area: progress;
@@ -113,6 +121,7 @@
 	.jb-status {
 		grid-area: status;
 		font-size: 0.875rem;
+		color: var( --gray-50 );
 		:global( a ),
 		&.has-issues {
 			color: var( --color_warning );
@@ -121,5 +130,31 @@
 	.jb-category-name {
 		grid-area: category;
 		display: flex;
+
+		:global( .jb-score-context ) {
+			top: 2px;
+		}
+
+		:global( .jb-score-context__info-icon ) {
+			width: 14px;
+			height: 14px;
+			font-size: 10px;
+		}
+
+		:global( .jb-score-context__info-container ) {
+			top: 24px;
+			@media ( min-width: 782px ) {
+				left: -112px;
+			}
+			@media ( max-width: 782px ) {
+				left: 112px;
+			}
+		}
+
+		:global( .jb-score-context__info-container i ) {
+			@media ( max-width: 782px ) {
+				left: 41px;
+			}
+		}
 	}
 </style>

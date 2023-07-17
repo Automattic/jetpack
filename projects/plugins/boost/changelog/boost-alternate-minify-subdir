@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Minify CSS/JS: Added a new way for site owners to override the default _jb_static/ path prefix for Boost's Minified CSS and JS URLs

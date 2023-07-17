@@ -323,15 +323,8 @@ class Jetpack_AI_Helper {
 
 			/*
 			 * Check if the site requires an upgrade.
-			 * Ideally, the feature availability
-			 * should support site-type handling.
-			 * @todo: research how to do it.
 			 */
-			$blogs_details   = get_blog_details( $blog_id );
-			$is_jetpack_site = is_blog_jetpack( $blogs_details ) && ! is_blog_atomic( $blogs_details );
-			$require_upgrade = $is_jetpack_site ?
-				$is_over_limit && ! $has_ai_assistant_feature :
-				false;
+			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
 
 			return array(
 				'has-feature'          => $has_ai_assistant_feature,
