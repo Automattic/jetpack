@@ -121,7 +121,7 @@
 		<MultiProgress />
 	{/if}
 
-	<!-- Show CTA to enable Image CDN. -->
+	<!-- Show recommendation to enable Image CDN if it was inactive. -->
 	{#if ! $modulesState.image_cdn.active}
 		<div class="jb-notice">
 			<div class="jb-notice__content">
