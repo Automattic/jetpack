@@ -1,7 +1,10 @@
 import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
+import { useDispatch } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
+import { useEffect, useState } from 'react';
 import MediaButton from './media-button';
+import { getGooglePhotosMediaCategory, getPexelsMediaCategory } from './media-category';
 import { mediaSources } from './sources';
 import './editor.scss';
 
@@ -43,7 +46,17 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 		'external-media/replace-media-upload',
 		OriginalComponent => props => {
 			const { name } = useBlockEditContext();
+			const { registerInserterMediaCategory } = useDispatch( 'core/block-editor' );
+			const [ mediaCategoriesInitialized, setMediaCategoriesInitialized ] = useState( false );
 			let { render } = props;
+
+			useEffect( () => {
+				if ( ! mediaCategoriesInitialized ) {
+					setMediaCategoriesInitialized( true );
+					registerInserterMediaCategory( getPexelsMediaCategory() );
+					registerInserterMediaCategory( getGooglePhotosMediaCategory() );
+				}
+			}, [ mediaCategoriesInitialized, registerInserterMediaCategory ] );
 
 			if ( isAllowedBlock( name, render ) || isFeaturedImage( props ) ) {
 				const { allowedTypes, gallery = false, value = [] } = props;
