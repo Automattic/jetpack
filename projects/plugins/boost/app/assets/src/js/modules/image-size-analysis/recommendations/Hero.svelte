@@ -2,6 +2,7 @@
 	import { quadOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
+	import RecommendationContext from '../../../elements/RecommendationContext.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import { isaData } from '../store/isa-data';
@@ -28,6 +29,8 @@
 			<h1>
 				{$imageDataActiveGroup.issue_count}
 				Image Recommendations
+
+				<RecommendationContext />
 			</h1>
 		{/if}
 
