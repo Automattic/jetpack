@@ -166,7 +166,10 @@ export default function PublicizeForm( {
 	const renderInstagramNotice = () => {
 		return isEnhancedPublishingEnabled ? (
 			<Notice type={ 'warning' }>
-				{ __( 'You need a valid image or video in your post to share to Instagram.', 'jetpack' ) }
+				{ __(
+					'To share to Instagram, add an image/video, or enable Social Image Generator.',
+					'jetpack'
+				) }
 				<br />
 				<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
 					{ __( 'Learn more', 'jetpack' ) }
