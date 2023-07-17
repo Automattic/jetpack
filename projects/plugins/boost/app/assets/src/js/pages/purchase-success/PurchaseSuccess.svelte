@@ -5,8 +5,7 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
-	import { regenerateCriticalCss } from '../../stores/critical-css-state';
-	import { modulesState, modulesStatePending } from '../../stores/modules';
+	import { modulesState } from '../../stores/modules';
 	import Logo from '../../svg/jetpack-green.svg';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 
@@ -18,14 +17,6 @@
 	onMount( () => {
 		// Enable cloud css module on upgrade.
 		$modulesState.cloud_css.active = true;
-
-		// Ones the module is enabled and synced, regenerate critical css.
-		const unsubscribe = modulesStatePending.subscribe( pending => {
-			if ( ! pending ) {
-				regenerateCriticalCss();
-				unsubscribe();
-			}
-		} );
 	} );
 </script>
 
