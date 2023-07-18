@@ -217,9 +217,9 @@ const FirewallPage = () => {
 					type: 'success',
 					duration: SUCCESS_NOTICE_DURATION,
 					message: newValue
-						? __( `Automatic rules are enabled.`, 'jetpack-protect' )
+						? __( `Automatic firewall protection is enabled.`, 'jetpack-protect' )
 						: __(
-								`Automatic rules are disabled.`,
+								`Automatic firewall protection is disabled.`,
 								'jetpack-protect',
 								/* dummy arg to avoid bad minification */ 0
 						  ),
@@ -467,7 +467,7 @@ const FirewallPage = () => {
 				<div className={ styles[ 'toggle-section__content' ] }>
 					<div className={ styles[ 'toggle-section__title' ] }>
 						<Text variant="title-medium" mb={ 2 }>
-							{ __( 'Enable automatic rules', 'jetpack-protect' ) }
+							{ __( 'Enable automatic firewall protection', 'jetpack-protect' ) }
 						</Text>
 						{ ! isSmall && hasRequiredPlan && displayUpgradeBadge && (
 							<span className={ styles.badge }>{ __( 'NOW AVAILABLE', 'jetpack-protect' ) }</span>
@@ -475,7 +475,7 @@ const FirewallPage = () => {
 					</div>
 					<Text>
 						{ __(
-							'Protect your site against untrusted traffic sources with automatic security rules.',
+							'Block untrusted traffic sources by scanning every request made to your site. Jetpack’s advanced security rules are updated in real-time to protect your site from the latest threats.',
 							'jetpack-protect'
 						) }
 					</Text>
@@ -515,7 +515,7 @@ const FirewallPage = () => {
 									variant={ 'body-small' }
 									mt={ 2 }
 								>
-									{ __( 'Failed to update automatic rules.', 'jetpack-protect' ) }{ ' ' }
+									{ __( 'Failed to update automatic firewall rules.', 'jetpack-protect' ) }{ ' ' }
 									{ getCustomErrorMessage( automaticRulesInstallationError ) }
 								</Text>
 								<Button variant={ 'link' } href={ PLUGIN_SUPPORT_URL }>
@@ -534,7 +534,7 @@ const FirewallPage = () => {
 						className={ styles[ 'upgrade-trigger' ] }
 						description={
 							! canToggleAutomaticRules
-								? __( 'Setup automatic rules with one click', 'jetpack-protect' )
+								? __( 'Set up automatic rules with one click', 'jetpack-protect' )
 								: __(
 										'Your site is not receiving the latest updates to automatic rules',
 										'jetpack-protect',
@@ -543,7 +543,7 @@ const FirewallPage = () => {
 						}
 						cta={
 							! canToggleAutomaticRules
-								? __( 'Upgrade to enable automatic rules', 'jetpack-protect' )
+								? __( 'Upgrade to enable automatic firewall protection', 'jetpack-protect' )
 								: __(
 										'Upgrade to keep your site secure with up-to-date firewall rules',
 										'jetpack-protect',
@@ -590,11 +590,11 @@ const FirewallPage = () => {
 				</div>
 				<div className={ styles[ 'toggle-section__content' ] }>
 					<Text variant="title-medium" mb={ 2 }>
-						{ __( 'Enable manual rules', 'jetpack-protect' ) }
+						{ __( 'Enable manual block and allow lists', 'jetpack-protect' ) }
 					</Text>
 					<Text>
 						{ __(
-							'Allows you to add manual rules to block or allow traffic from specific IPs.',
+							'Manually block or allow traffic from specific IP addresses.',
 							'jetpack-protect'
 						) }
 					</Text>
