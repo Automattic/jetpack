@@ -7,7 +7,7 @@ This JavaScript library provides a convenient way to acquire and handle JWT toke
 - Acquires JWT tokens from either Jetpack or WP.com sites.
 - Caches tokens in the browser's `localStorage`.
 - Automatically handles token expiration by setting a default expiration time.
-- Allows customization of request options such as `apiNonce` and `siteId`.
+- Allows customization of request options such as `apiNonce`, `siteId` and `expirationTime`.
 
 ## Installation
 

@@ -11,6 +11,7 @@ type RequestTokenOptions = {
 	apiNonce?: string;
 	siteId?: string;
 	isJetpackSite?: boolean;
+	expirationTime?: number;
 };
 
 type TokenDataProps = {
@@ -39,11 +40,13 @@ export default async function requestJwt( {
 	apiNonce,
 	siteId,
 	isJetpackSite,
+	expirationTime,
 }: RequestTokenOptions = {} ): Promise< TokenDataProps > {
 	// Default values
 	apiNonce = apiNonce || window.JP_CONNECTION_INITIAL_STATE.apiNonce;
 	siteId = siteId || window.JP_CONNECTION_INITIAL_STATE.siteSuffix;
 	isJetpackSite = ! ( isSimpleSite() || isAtomicSite() );
+	expirationTime = expirationTime || JWT_TOKEN_EXPIRATION_TIME;
 
 	// Trying to pick the token from localStorage
 	const token = localStorage.getItem( JWT_TOKEN_ID );
@@ -94,7 +97,7 @@ export default async function requestJwt( {
 		/**
 		 * Let's expire the token in 2 minutes
 		 */
-		expire: Date.now() + JWT_TOKEN_EXPIRATION_TIME,
+		expire: Date.now() + expirationTime,
 	};
 
 	// Store the token in localStorage
