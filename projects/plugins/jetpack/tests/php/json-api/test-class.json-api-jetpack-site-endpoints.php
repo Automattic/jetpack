@@ -122,7 +122,7 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 
 		// Remove all the options used.
 		foreach ( $trials as $trial ) {
-			delete_option( $response[ $trial ] );
+			delete_option( $trial );
 			++$i;
 		}
 	}
