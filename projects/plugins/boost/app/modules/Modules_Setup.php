@@ -85,7 +85,7 @@ class Modules_Setup implements Has_Setup {
 		$status = new Status( $module_slug );
 		$status->on_update( $is_activated );
 
-		if ( $module_slug == Cloud_CSS::get_slug() && $is_activated ) {
+		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {
 			( new Regenerate() )->start();
 		}
 	}
