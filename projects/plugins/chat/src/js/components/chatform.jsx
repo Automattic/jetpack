@@ -10,24 +10,10 @@ import { client } from '@xmpp/client';
 import React, { useState, useEffect } from 'react';
 
 const xmpp = client( {
-	service: 'wss://localhost:5443/ws',
+	service: 'wss://localhost:5443/ws', // TODO: Replace with actual XMPP server (use ws instead of wss for local testing if your server doesn't have TLS enabled)
 	domain: 'localhost',
-	username: 'admin',
+	username: 'admin', // TODO: Replace with actual username
 	password: 'password',
-	resource: 'example',
-} );
-
-xmpp.on( 'error', err => {
-	console.error( err );
-} );
-xmpp.on( 'online', jid => {
-	console.log( 'online as', jid.toString() );
-} );
-xmpp.on( 'stanza', stanza => {
-	console.log( 'stanza', stanza.toString() );
-} );
-xmpp.on( 'offline', () => {
-	console.log( 'offline' );
 } );
 
 const ChatForm = () => {
@@ -47,6 +33,35 @@ const ChatForm = () => {
 
 	const handleConnect = () => {
 		xmpp.start().catch( err => console.error( err ) );
+
+		xmpp.on( 'error', err => {
+			console.error( err );
+		} );
+		xmpp.on( 'online', async jid => {
+			console.log( 'online as', jid.toString() );
+
+			const chat_request = { jid: jid.toString() };
+			const response = await fetch(
+				'https://public-api.wordpress.com/wpcom/v2/odysseus/start_chat',
+				{
+					method: 'POST',
+					body: JSON.stringify( chat_request ),
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				}
+			);
+			console.log( 'response', response );
+		} );
+		xmpp.on( 'stanza', stanza => {
+			if ( stanza.is( 'message' ) && stanza.getChild( 'body' ) ) {
+				const message = stanza.getChild( 'body' ).getText();
+				setMessages( [ ...messages, { text: message, isOwn: false } ] );
+			}
+		} );
+		xmpp.on( 'offline', () => {
+			console.log( 'offline' );
+		} );
 	};
 
 	useEffect( () => {
