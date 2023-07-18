@@ -10,10 +10,10 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
 if ( ! function_exists( 'has_blog_sticker' ) ) {
 	/**
-	 * "Mock" WPCOM sticker function with 'get_site_option'
+	 * "Mock" WPCOM sticker function with 'get_option'
 	 */
 	function has_blog_sticker( $sticker ) {
-		return false;
+		return get_option( $sticker );
 	}
 }
 
@@ -95,10 +95,35 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $admin->ID );
 
 		$endpoint = $this->create_get_site_endpoint();
+
+		/**
+		 * The `has_blog_sticker` is a mock function that reads the options database
+		 * and returns the value of the option passed to it.
+		 *
+		 * We add the trial flags to the options database and then check them later.
+		 * All even flags are set to true and all odd flags are set to false.
+		 */
+		$i = 0;
+		foreach ( $trials as $value ) {
+			update_option( $value, (bool) ( $i & 2 ) );
+			++$i;
+		}
+
 		$response = $endpoint->callback( '', $blog_id );
 
+		$i = 0;
 		foreach ( $trials as $value ) {
-			$this->assertFalse( $response[ $value ] );
+			if ( (bool) ( $i & 2 ) ) {
+				$this->assertTrue( $response[ $value ] );
+			} else {
+				$this->assertFalse( $response[ $value ] );
+			}
+		}
+
+		// Remove all the options used.
+		foreach ( $trials as $value ) {
+			delete_option( $response[ $value ] );
+			++$i;
 		}
 	}
 
