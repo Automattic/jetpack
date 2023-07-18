@@ -4,7 +4,11 @@ import { useDispatch } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
 import { useEffect, useState } from 'react';
 import MediaButton from './media-button';
-import { getGooglePhotosMediaCategory, getPexelsMediaCategory } from './media-category';
+import {
+	getGooglePhotosMediaCategory,
+	getPexelsMediaCategory,
+	isGooglePhotosConnected,
+} from './media-category';
 import { mediaSources } from './sources';
 import './editor.scss';
 
@@ -53,8 +57,12 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 			useEffect( () => {
 				if ( ! mediaCategoriesInitialized ) {
 					setMediaCategoriesInitialized( true );
+
+					isGooglePhotosConnected( () =>
+						registerInserterMediaCategory( getGooglePhotosMediaCategory() )
+					);
+
 					registerInserterMediaCategory( getPexelsMediaCategory() );
-					registerInserterMediaCategory( getGooglePhotosMediaCategory() );
 				}
 			}, [ mediaCategoriesInitialized, registerInserterMediaCategory ] );
 
