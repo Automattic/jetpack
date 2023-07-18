@@ -18,7 +18,7 @@ const GOOGLE_PHOTOS_SEARCH_PLACEHOLDER = `Search ${ GOOGLE_PHOTOS_NAME }`;
  * External media endpoints.
  */
 // eslint-disable-next-line no-shadow
-enum WpcomMedia {
+enum WpcomMediaEndpoints {
 	List = '/wpcom/v2/external-media/list/',
 }
 
@@ -34,15 +34,25 @@ enum MediaSource {
 /**
  * Gutenberg media category search DTO.
  */
-type MediaCategorySearch = {
+type MediaSearch = {
 	per_page: number;
 	search: string;
 };
 
 /**
+ * Gutenberg media item DTO.
+ */
+type MediaItem = {
+	sourceId: string;
+	id: string;
+	caption: string;
+	previewUrl: string;
+};
+
+/**
  * WPCOM media list item DTO.
  */
-type WpcomMediaListItem = {
+type WpcomMediaItem = {
 	ID: string;
 	URL: string;
 	caption: string;
@@ -56,28 +66,18 @@ type WpcomMediaListItem = {
  */
 type WpcomMediaListResponse = {
 	found: number;
-	media: WpcomMediaListItem[];
-};
-
-/**
- * Gutenberg media category item DTO.
- */
-type MediaCategoryItem = {
-	sourceId: string;
-	id: string;
-	caption: string;
-	previewUrl: string;
+	media: WpcomMediaItem[];
 };
 
 /**
  * Get media URL for a given MediaSource.
  *
  * @param {MediaSource} source - MediaSource to get URL for.
- * @param {MediaCategorySearch} mediaCategorySearch - MediaCategorySearch to filter for.
+ * @param {MediaSearch} mediaCategorySearch - MediaCategorySearch to filter for.
  * @returns {string} Media URL.
  */
-const getMediaUrl = ( source: MediaSource, mediaCategorySearch: MediaCategorySearch ) =>
-	addQueryArgs( `${ WpcomMedia.List }${ source }`, {
+const getMediaApiUrl = ( source: MediaSource, mediaCategorySearch: MediaSearch ) =>
+	addQueryArgs( `${ WpcomMediaEndpoints.List }${ source }`, {
 		number: mediaCategorySearch.per_page || 25,
 		path: 'recent',
 		search: mediaCategorySearch.search || DEFAULT_QUERY,
@@ -86,10 +86,10 @@ const getMediaUrl = ( source: MediaSource, mediaCategorySearch: MediaCategorySea
 /**
  * Maps a WPCOM media list item to a Gutenberg media category item.
  *
- * @param {WpcomMediaListItem} item - WPCOM media list item to map.
- * @returns {MediaCategoryItem} Mapped media category item.
+ * @param {WpcomMediaItem} item - WPCOM media list item to map.
+ * @returns {MediaItem} Mapped media category item.
  */
-const wpcomMediaItemToMediaCategory = ( item: WpcomMediaListItem ): MediaCategoryItem => ( {
+const wpcomMediaToGutenbergMedia = ( item: WpcomMediaItem ): MediaItem => ( {
 	...item,
 	sourceId: item.ID,
 	id: item.ID,
@@ -118,13 +118,13 @@ const buildMediaCategory = (
 		search_items: searchPlaceholder,
 	},
 	mediaType: 'image',
-	fetch: async ( mediaCategorySearch: MediaCategorySearch ) =>
+	fetch: async ( mediaCategorySearch: MediaSearch ) =>
 		await apiFetch( {
-			path: getMediaUrl( source, mediaCategorySearch ),
+			path: getMediaApiUrl( source, mediaCategorySearch ),
 			method: 'GET',
 		} )
 			.then( ( response: WpcomMediaListResponse ) =>
-				response.media.map( wpcomMediaItemToMediaCategory )
+				response.media.map( wpcomMediaToGutenbergMedia )
 			)
 			// Null object pattern, we don't want to break if the API fails.
 			.catch( () => [] ),
