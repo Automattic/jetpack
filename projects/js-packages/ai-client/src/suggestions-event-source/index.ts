@@ -130,7 +130,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * service unavailable
 				 */
 				if ( response.status === 503 ) {
-					self.dispatchEvent( new CustomEvent( 'error_service_unavailable' ) );
+					this.dispatchEvent( new CustomEvent( 'error_service_unavailable' ) );
 				}
 
 				/*
@@ -138,7 +138,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * you exceeded your current quota please check your plan and billing details
 				 */
 				if ( response.status === 429 ) {
-					self.dispatchEvent( new CustomEvent( 'error_quota_exceeded' ) );
+					this.dispatchEvent( new CustomEvent( 'error_quota_exceeded' ) );
 				}
 
 				/*
@@ -146,7 +146,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * request flagged by moderation system
 				 */
 				if ( response.status === 422 ) {
-					self.dispatchEvent( new CustomEvent( 'error_moderation' ) );
+					this.dispatchEvent( new CustomEvent( 'error_moderation' ) );
 				}
 
 				throw new Error();
