@@ -12,19 +12,21 @@
 	$: isModuleAvailable = $modulesState[ slug ].available;
 
 	async function handleToggle() {
-		const toggledState = ! isModuleActive;
-		const eventName = toggledState === true ? 'enabled' : 'disabled';
+		$modulesState[ slug ].active = ! isModuleActive;
+	}
 
-		// Toggle the module.
-		$modulesState[ slug ].active = toggledState;
-
-		// Attach a listener to the modulesStatePending store to dispatch an event after the pending state is resolved.
-		const unsubscribe = modulesStatePending.subscribe( isPending => {
-			if ( ! isPending ) {
-				dispatch( eventName );
-				unsubscribe();
+	/**
+	 * Watch for changes in state and dispatch an event when the state is no longer pending.
+	 */
+	let lastToggledState = $modulesState[ slug ].active;
+	$: {
+		if ( ! $modulesStatePending ) {
+			const newState = $modulesState[ slug ].active;
+			if ( lastToggledState !== newState ) {
+				lastToggledState = newState;
+				dispatch( newState ? 'enabled' : 'disabled' );
 			}
-		} );
+		}
 	}
 
 	onMount( async () => {
