@@ -10,12 +10,12 @@
 
 namespace Automattic\Jetpack_CRM\Automations;
 
-if ( ! apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {
-	return;
-}
-
 if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit;
+}
+
+if ( ! apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {
+	return;
 }
 
 /**

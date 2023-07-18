@@ -59,7 +59,7 @@ function render_initial_state() {
 	/**
 	 * Allow external plugins to modify Automations UI hydration data.
 	 *
-	 * @since TBD
+	 * @since $$next-version$$
 	 *
 	 * @param array {
 	 *     Array of default data we need to render our React UI.
@@ -76,5 +76,5 @@ function render_initial_state() {
 		)
 	);
 
-	return 'var jpcrmAutomationsInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $initial_state ) ) . '"));';
+	return 'var jpcrmAutomationsInitialState=JSON.parse(decodeURIComponent( "' . rawurlencode( wp_json_encode( $initial_state ) ) . '" ) );';
 }
