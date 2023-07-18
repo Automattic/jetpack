@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Cloud CSS: Fixed automatic start of cloud CSS regeneration when module is toggled on

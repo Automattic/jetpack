@@ -105,7 +105,7 @@
 
 	<Module
 		slug="cloud_css"
-		on:enabled={regenerateCriticalCss}
+		on:enabled={startPollingCloudStatus}
 		on:disabled={stopPollingCloudCssStatus}
 		on:mountEnabled={startPollingCloudStatus}
 	>
