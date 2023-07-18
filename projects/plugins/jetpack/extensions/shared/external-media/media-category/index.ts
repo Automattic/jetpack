@@ -161,9 +161,9 @@ const isMediaSourceConnected = (
 	apiFetch( {
 		path: getMediaApiUrl( source, DEFAULT_PEXELS_SEARCH ),
 		method: 'GET',
-	} ).then( ( wpcomMediaResponse: WpcomMediaResponse ) =>
-		isConnectedCallback( wpcomMediaResponse )
-	);
+	} )
+		.then( ( wpcomMediaResponse: WpcomMediaResponse ) => isConnectedCallback( wpcomMediaResponse ) )
+		.catch( () => null );
 
 /**
  * Get Pexels media category.
