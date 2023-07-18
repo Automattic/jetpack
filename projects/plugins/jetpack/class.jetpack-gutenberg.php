@@ -826,7 +826,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function show_homepage_on_block_theme_previews() {
 		add_filter(
-			'pre_option_show_on_front',
+			'option_show_on_front',
 			function ( $value ) {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				if ( ! empty( $_GET['wp_theme_preview'] ) ) {
@@ -1365,7 +1365,7 @@ if ( ( new Host() )->is_woa_site() ) {
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 
 	/**
-	 * Block Theme Previews
+	 * Show the correct homepage when previewing a theme.
 	 */
 	add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'show_homepage_on_block_theme_previews' ) );
 
