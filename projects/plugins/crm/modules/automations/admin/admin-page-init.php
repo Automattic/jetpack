@@ -18,7 +18,7 @@ use Automattic\Jetpack\Assets;
  * @return void
  */
 function initialize_admin_page() {
-	add_action( 'load-admin_page_jpcrm-automations', 'Automattic\Jetpack_CRM\Automations\admin_init' );
+	add_action( 'load-jetpack-crm_page_jpcrm-automations', 'Automattic\Jetpack_CRM\Automations\admin_init' );
 }
 
 /**
