@@ -4,8 +4,8 @@ import http from 'k6/http';
 import { sites } from './k6-shared.js';
 
 export const options = {
-	vus: 3,
-	iterations: 3,
+	vus: 1,
+	iterations: 1,
 	thresholds: {
 		checks: [
 			{

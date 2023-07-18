@@ -30,9 +30,9 @@ const UpgradePrompt = () => {
 	return (
 		<Button className={ styles[ 'upgrade-button' ] } onClick={ getScan }>
 			{ ! automaticRulesAvailable
-				? __( 'Upgrade to enable automatic rules', 'jetpack-protect' )
+				? __( 'Upgrade to enable automatic firewall protection', 'jetpack-protect' )
 				: __(
-						'Upgrade to update automatic rules',
+						'Upgrade to update automatic security rules',
 						'jetpack-protect',
 						/* dummy arg to avoid bad minification */ 0
 				  ) }
@@ -42,7 +42,7 @@ const UpgradePrompt = () => {
 
 const FirewallSubheadingPopover = ( {
 	children = __(
-		'The free version of the firewall does not receive updates to automatic firewall rules.',
+		'The free version of the firewall does not receive updates to automatic security rules.',
 		'jetpack-protect'
 	),
 } ) => {
@@ -117,13 +117,13 @@ const FirewallSubheading = ( {
 				) }
 				{ automaticRules && (
 					<FirewallSubheadingContent
-						text={ __( 'Only automatic rules apply.', 'jetpack-protect' ) }
+						text={ __( 'Automatic firewall protection is enabled.', 'jetpack-protect' ) }
 						popover={ ! hasRequiredPlan }
 					/>
 				) }
 				{ manualRules && (
 					<FirewallSubheadingContent
-						text={ __( 'Only manual rules apply.', 'jetpack-protect' ) }
+						text={ __( 'Only manual IP list rules apply.', 'jetpack-protect' ) }
 						popover={ ! hasRequiredPlan && ! automaticRulesAvailable }
 						children={ __(
 							'The free version of the firewall only allows for use of manual rules.',
