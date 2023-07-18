@@ -47,7 +47,7 @@ class Tokens_Locks {
 	 *
 	 * @return array
 	 */
-	private function aiowpm_set_lock( $params ) {
+	public function aiowpm_set_lock( $params ) {
 		( new Tokens() )->set_lock();
 		return $params;
 	}
@@ -59,7 +59,7 @@ class Tokens_Locks {
 	 *
 	 * @return array
 	 */
-	private function aiowpm_remove_lock( $params ) {
+	public function aiowpm_remove_lock( $params ) {
 		( new Tokens() )->remove_lock();
 		return $params;
 	}
