@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.4-a.5.1 - 2023-07-18
+## 12.4-a.7 - 2023-07-18
 ### Bug fixes
 - Sharing: fix icon font display following the addition of the Threads icon. [#31932]
 
