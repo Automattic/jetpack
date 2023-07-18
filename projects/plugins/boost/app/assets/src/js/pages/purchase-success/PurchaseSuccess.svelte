@@ -29,7 +29,7 @@
 				<h1 class="my-2">{__( 'Your Jetpack Boost has been upgraded!', 'jetpack-boost' )}</h1>
 				<p class="jb-card__summary my-2">
 					{__(
-						'When you update your site, it will now be optimized automatically with automated critical CSS',
+						'Your site now auto-generates Critical CSS and can analyze image sizes for efficient display.',
 						'jetpack-boost'
 					)}
 				</p>
