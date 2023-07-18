@@ -1,14 +1,16 @@
+import { AdminSection } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
+import AdminPage from '../admin-page';
 
 import './styles.scss';
 
 export const AutomationsAdmin = () => {
 	return (
-		<div className="jpcrm-automations-admin__container">
-			<h1>{ __( 'Automations', 'zero-bs-crm' ) }</h1>
-			<div className="jpcrm-automations-admin__subheader">
-				{ __( 'Streamline your workflows with CRM Automations', 'zero-bs-crm' ) }
-			</div>
-		</div>
+		<AdminPage
+			headline={ __( 'Automations', 'zero-bs-crm' ) }
+			subHeadline={ __( 'Streamline your workflows with CRM Automations', 'zero-bs-crm' ) }
+			children={ <AdminSection>{ /* Page content goes here in the future. */ }</AdminSection> }
+		/>
 	);
 };
