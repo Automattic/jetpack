@@ -98,6 +98,12 @@ importers:
 
   projects/js-packages/ai-client:
     dependencies:
+      '@automattic/jetpack-connection':
+        specifier: workspace:*
+        version: link:../connection
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../shared-extension-utils
       '@microsoft/fetch-event-source':
         specifier: 2.0.1
         version: 2.0.1
@@ -114,6 +120,9 @@ importers:
       jest-environment-jsdom:
         specifier: 29.5.0
         version: 29.5.0
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
 
   projects/js-packages/analytics:
     devDependencies:
@@ -2742,6 +2751,9 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
+      '@automattic/jetpack-ai-client':
+        specifier: workspace:*
+        version: link:../../js-packages/ai-client
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
