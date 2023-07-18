@@ -84,7 +84,7 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 		global $blog_id;
 
 		// Current trials.
-		$trials = WPCOM_JSON_API_GET_Site_Endpoint::$jetpack_enabled_trials;
+		$trials = array_keys( WPCOM_JSON_API_GET_Site_Endpoint::$jetpack_enabled_trials );
 
 		$admin = self::factory()->user->create_and_get(
 			array(
@@ -104,25 +104,25 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 		 * All even flags are set to true and all odd flags are set to false.
 		 */
 		$i = 0;
-		foreach ( $trials as $value ) {
-			update_option( $value, (bool) ( $i & 2 ) );
+		foreach ( $trials as $trial ) {
+			update_option( $trial, (bool) ( $i & 2 ) );
 			++$i;
 		}
 
 		$response = $endpoint->callback( '', $blog_id );
 
 		$i = 0;
-		foreach ( $trials as $value ) {
+		foreach ( $trials as $trial ) {
 			if ( (bool) ( $i & 2 ) ) {
-				$this->assertTrue( $response[ $value ] );
+				$this->assertTrue( $response[ $trial ] );
 			} else {
-				$this->assertFalse( $response[ $value ] );
+				$this->assertFalse( $response[ $trial ] );
 			}
 		}
 
 		// Remove all the options used.
-		foreach ( $trials as $value ) {
-			delete_option( $response[ $value ] );
+		foreach ( $trials as $trial ) {
+			delete_option( $response[ $trial ] );
 			++$i;
 		}
 	}

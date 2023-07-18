@@ -279,8 +279,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @var array $jetpack_enabled_trials
 	 */
 	public static $jetpack_enabled_trials = array(
-		'ecommerce' => 'was_ecommerce_trial',
-		'migration' => 'was_migration_trial',
+		'was_ecommerce_trial' => 'ecommerce',
+		'was_migration_trial' => 'migration',
 	);
 
 	/**
@@ -591,10 +591,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->get_p2_thumbnail_elements();
 				break;
 			case 'was_ecommerce_trial':
-				$response[ $key ] = $this->site->was_trial( self::$jetpack_enabled_trials['ecommerce'] );
+				$response[ $key ] = $this->site->was_trial( self::$jetpack_enabled_trials['was_ecommerce_trial'] );
 				break;
 			case 'was_migration_trial':
-				$response[ $key ] = $this->site->was_trial( self::$jetpack_enabled_trials['migration'] );
+				$response[ $key ] = $this->site->was_trial( self::$jetpack_enabled_trials['was_migration_trial'] );
 				break;
 		}
 
