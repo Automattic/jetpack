@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Super Cache Measurement Tool: Fixed the use of the donotcachepage option during tests, which may have produced understated results

@@ -27,6 +27,7 @@ import { useEffect, useRef } from 'react';
  */
 import AIControl from './components/ai-control';
 import ImageWithSelect from './components/image-with-select';
+import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
 import useAIFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { getImagesFromOpenAI } from './lib/image';
@@ -109,6 +110,30 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		refreshFeatureData,
 		requireUpgrade,
 	} );
+
+	/*
+	 * Auto request the prompt if we detect
+	 * it was previously defined in the local storage.
+	 */
+	const storeBlockId = getStoreBlockId( clientId );
+	useEffect( () => {
+		if ( ! storeBlockId ) {
+			return;
+		}
+
+		// Get the parsed data from the local storage.
+		const data = JSON.parse( localStorage.getItem( storeBlockId ) );
+		if ( ! data ) {
+			return;
+		}
+
+		const { type, options } = data;
+
+		// Clean up the local storage asap.
+		localStorage.removeItem( storeBlockId );
+
+		getSuggestionFromOpenAI( type, options );
+	}, [ storeBlockId, getSuggestionFromOpenAI ] );
 
 	useEffect( () => {
 		if ( errorData ) {
@@ -242,9 +267,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			 * - Get HTML code from markdown content
 			 * - Create blocks from HTML code
 			 */
-			newGeneratedBlocks = rawHandler( {
-				HTML: markdownConverter.render( attributes.content ),
-			} );
+			const HTML = markdownConverter
+				.render( attributes.content )
+				// Fix list indentation
+				.replace( /<li>\s+<p>/g, '<li>' )
+				.replace( /<\/p>\s+<\/li>/g, '</li>' );
+			newGeneratedBlocks = rawHandler( { HTML: HTML } );
 		} else {
 			/*
 			 * Gutenberg-syntax content

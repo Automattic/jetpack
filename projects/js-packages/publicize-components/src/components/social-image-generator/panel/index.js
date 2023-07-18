@@ -11,7 +11,7 @@ import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 import useMediaDetails from '../../../hooks/use-media-details';
 import GeneratedImagePreview from '../../generated-image-preview';
 import MediaPicker from '../../media-picker';
-import TemplatePicker from '../template-picker';
+import TemplatePickerModal from '../template-picker-modal';
 
 const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
 const ADD_MEDIA_LABEL = __( 'Choose Image', 'jetpack' );
@@ -41,7 +41,7 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 		[ setImageId ]
 	);
 
-	const renderTemplatePicker = useCallback(
+	const renderTemplatePickerModal = useCallback(
 		( { open } ) => (
 			<Button variant="primary" onClick={ open }>
 				{ __( 'Change Template', 'jetpack' ) }
@@ -106,10 +106,10 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 					<hr />
 					<ImageOptions />
 					<hr />
-					<TemplatePicker
+					<TemplatePickerModal
 						onSelect={ setTemplate }
 						value={ template }
-						render={ renderTemplatePicker }
+						render={ renderTemplatePickerModal }
 					/>
 				</>
 			) }
