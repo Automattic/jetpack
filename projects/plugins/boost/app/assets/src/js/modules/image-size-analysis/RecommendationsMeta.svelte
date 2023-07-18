@@ -66,6 +66,13 @@
 			requestingReport = false;
 		}
 	}
+
+	/**
+	 * Work out whether to recommend the Image CDN. It should show if the CDN is off and no report has been run, or a report has found issues.
+	 */
+	$: showCDNRecommendation =
+		! $modulesState.image_cdn.active &&
+		( totalIssues > 0 || $isaSummary?.status === ISAStatus.NotFound );
 </script>
 
 {#if ! $isaSummary}
@@ -121,8 +128,8 @@
 		<MultiProgress />
 	{/if}
 
-	<!-- Show recommendation to enable Image CDN if it was inactive. -->
-	{#if ! $modulesState.image_cdn.active}
+	<!-- Show recommendation to enable Image CDN if it was inactive and issues have been found -->
+	{#if showCDNRecommendation}
 		<div class="jb-notice">
 			<div class="jb-notice__content">
 				<ImageCDNRecommendation />

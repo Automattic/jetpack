@@ -31,7 +31,7 @@
 				{$imageDataActiveGroup.issue_count}
 				Image Recommendations
 
-				{#if ! $modulesState.image_cdn.active}
+				{#if ! $modulesState.image_cdn.active && $imageDataActiveGroup.issue_count > 0}
 					<RecommendationContext />
 				{/if}
 			</h1>
