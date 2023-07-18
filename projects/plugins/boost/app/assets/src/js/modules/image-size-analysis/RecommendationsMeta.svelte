@@ -68,7 +68,9 @@
 
 	function handleAnalyzeClick() {
 		const $event_name =
-			$isaSummary.status === ISAStatus.Completed ? 'clicked_restart_isa' : 'clicked_start_isa';
+			$isaSummary.status === ISAStatus.Completed
+				? 'clicked_restart_isa_on_summary_page'
+				: 'clicked_start_isa_on_summary_page';
 		recordBoostEvent( $event_name, {} );
 		return onStartAnalysis();
 	}
