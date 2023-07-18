@@ -135,7 +135,7 @@
 				on:click={() =>
 					recordBoostEventAndRedirect(
 						'#image-size-analysis/all/1',
-						'clicked_view_isa_report',
+						'clicked_view_isa_report_on_summary_page',
 						{}
 					)}
 			>
