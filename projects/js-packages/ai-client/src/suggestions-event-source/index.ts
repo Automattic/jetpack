@@ -186,7 +186,7 @@ export default class SuggestionsEventSource extends EventTarget {
 		if ( e.data === '[DONE]' ) {
 			// Dispatch an event with the full content
 			this.dispatchEvent( new CustomEvent( 'done', { detail: this.fullMessage } ) );
-			debug( 'Done. Full message: ' + this.fullMessage );
+			debug( 'Done: %o', this.fullMessage );
 			return;
 		}
 
