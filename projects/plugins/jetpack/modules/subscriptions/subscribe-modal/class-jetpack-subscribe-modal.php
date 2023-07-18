@@ -3,7 +3,7 @@
  * Adds support for Jetpack Subscribe Modal feature
  *
  * @package automattic/jetpack-mu-wpcom
- * @since $$next-version$$
+ * @since 12.4
  */
 
 /**
@@ -247,7 +247,7 @@ add_filter( 'jetpack_subscriptions_modal_enabled', '__return_false', 11 );
  * to conditionally load options and functionality related to
  * this feature.
  *
- * @since $$next-version$$
+ * @since 12.4
  *
  * @param bool Defaults to false.
  */
