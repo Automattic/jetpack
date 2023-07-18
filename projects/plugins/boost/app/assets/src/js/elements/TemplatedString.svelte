@@ -14,7 +14,7 @@
 	 * <pseudo-html /> tag name to replace, each value should be an array with
 	 * two entries; the HTML tag type, and an object full of attributes.
 	 */
-	export let vars: TemplateVars;
+	export let vars: TemplateVars = {};
 
 	let span: Node;
 
