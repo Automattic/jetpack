@@ -64,8 +64,24 @@ class Jetpack_Chat {
 
 		My_Jetpack_Initializer::init();
 
-		// Enqueue XMPP scripts
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_xmpp_scripts' ) );
+		// Inject div element with id jetpack-chat-root on every page, front end and back end. 
+		add_action( 'wp_footer', array( $this, 'inject_jetpack_odysseus_root' ) );
+		add_action( 'admin_notices', array( $this, 'inject_jetpack_odysseus_root' ) );
+
+		// Enqueue Chat app on every page, front end and back end.
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_jetpack_odysseus_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_jetpack_odysseus_scripts' ) );
+	}
+
+	public function inject_jetpack_odysseus_root() {
+		// Don't show it on the Jetpack Chat settings page. It's rednered on the page already.
+		global $current_screen;
+		if ( isset( $current_screen->id ) && $current_screen->id === 'jetpack_page_jetpack-chat' ) {
+			return;
+		}
+		?>
+			<div id="jetpack-odysseus-root"></div>
+		<?php
 	}
 
 	/**
@@ -75,18 +91,17 @@ class Jetpack_Chat {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 	}
 
-	public function enqueue_xmpp_scripts() {
-		// XMPP stuff
+	public function enqueue_jetpack_odysseus_scripts() {
 		Assets::register_script(
-			'xmpp-js',
-			'build/xmpp.js',
+			'jetpack-odysseus-js',
+			'build/odysseus.js',
 			JETPACK_CHAT_ROOT_FILE,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'xmpp-js',
+				'textdomain' => 'jetpack-odysseus',
 			)
 		);
-		Assets::enqueue_script( 'xmpp-js' );
+		Assets::enqueue_script( 'jetpack-odysseus-js' );
 	}
 
 	/**

@@ -5,7 +5,7 @@ module.exports = [
 	{
 		entry: {
 			index: './src/js/index.js',
-			xmpp: './src/js/xmpp.js',
+			odysseus: './src/js/odysseus.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
