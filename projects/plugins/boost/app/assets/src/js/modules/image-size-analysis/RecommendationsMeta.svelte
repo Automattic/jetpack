@@ -4,8 +4,8 @@
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import RefreshIcon from '../../svg/refresh.svg';
-	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../utils/analytics';
 	import WarningIcon from '../../svg/warning-outline.svg';
+	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../utils/analytics';
 	import MultiProgress from './MultiProgress.svelte';
 	import { resetIsaQuery } from './store/isa-data';
 	import {
