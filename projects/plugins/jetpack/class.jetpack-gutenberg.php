@@ -817,6 +817,26 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Always show the correct homepage when previewing a theme in the Site Editor
+	 * This is currently used by WordPress.com Simple and Atomic sites.
+	 *
+	 * @see https://github.com/Automattic/wp-calypso/issues/79221
+	 * @since 12.4
+	 * @return void
+	 */
+	public static function show_homepage_on_block_theme_previews() {
+		add_filter(
+			'pre_option_show_on_front',
+			function ( $value ) {
+				if ( ! empty( $_GET['wp_theme_preview'] ) ) {
+						return 'posts';
+				}
+					return $value;
+			}
+		);
+	}
+
+	/**
 	 * Some blocks do not depend on a specific module,
 	 * and can consequently be loaded outside of the usual modules.
 	 * We will look for such modules in the extensions/ directory.
@@ -1342,6 +1362,11 @@ if ( ( new Host() )->is_woa_site() ) {
 	 * More doc: https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#upgrades-for-blocks
 	 */
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
+
+	/**
+	 * Block Theme Previews
+	 */
+	add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'show_homepage_on_block_theme_previews' ) );
 
 	/**
 	 * Load block editor styles inline for iframed editors.
