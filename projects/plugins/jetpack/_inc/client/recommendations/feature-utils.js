@@ -326,7 +326,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				descriptionLink: 'https://jetpack.com/newsletter/',
-				ctaText: __( 'Activate Newsletter', 'jetpack' ),
+				ctaText: __( 'Enable Newsletter', 'jetpack' ),
 				illustration: 'assistant-creative-mail',
 			};
 		case 'monitor':
