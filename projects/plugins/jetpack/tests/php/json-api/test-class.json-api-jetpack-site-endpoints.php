@@ -75,7 +75,10 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Unit test for the `/sites/%s` endpoint.
+	 * Test that trial flags are returned for sites that have them.
+	 *
+	 * @author zaerl
+	 * @covers WPCOM_JSON_API_GET_Site_Endpoint::build_current_site_response
 	 */
 	public function test_get_site_trials_list() {
 		global $blog_id;
@@ -94,8 +97,8 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 		$endpoint = $this->create_get_site_endpoint();
 		$response = $endpoint->callback( '', $blog_id );
 
-		foreach ( $trials as $trial ) {
-			$this->assertFalse( $response[ 'was_' . $trial . '_trial' ] );
+		foreach ( $trials as $key => $value ) {
+			$this->assertFalse( $response[ $value ] );
 		}
 	}
 
