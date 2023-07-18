@@ -184,7 +184,7 @@ class Jetpack_Widget_Conditions {
 			return $settings;
 		};
 
-		add_filter('register_block_type_args', $filter_metadata_registration, 10, 2 );
+		add_filter( 'register_block_type_args', $filter_metadata_registration, 10, 2 );
 	}
 
 	/**
