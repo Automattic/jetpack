@@ -3,8 +3,6 @@ import { __ } from '@wordpress/i18n';
 import React from 'react';
 import AdminPage from '../admin-page';
 
-import './styles.scss';
-
 export const AutomationsAdmin = () => {
 	return (
 		<AdminPage
