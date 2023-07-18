@@ -165,9 +165,9 @@ class Jetpack_Widget_Conditions {
 			'woocommerce/product-categories',
 		);
 		/**
-		 * Filters the list of blocks using `<ServerSideRender>`.
+		 * Filters the list of widget visibility blocks using <ServerSideRender>.
 		 *
-		 * @since  12.4.0
+		 * @since $$next-version$$
 		 *
 		 * @module widget-visibility
 		 *
