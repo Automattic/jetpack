@@ -9,8 +9,6 @@ import TurndownService from 'turndown';
 // Turndown instance
 const turndownService = new TurndownService();
 
-const HTML_JOIN_CHARACTERS = '<br />';
-
 /**
  * Returns partial content from the beginning of the post
  * to the current block, based on the given block clientId.
@@ -58,17 +56,13 @@ export function getTextContentFromInnerBlocks( clientId: string ) {
 	}
 
 	return block.innerBlocks
-		.filter( blq => blq !== null && blq !== undefined ) // Safeguard against null or undefined blocks
+		.filter( blq => blq != null ) // Safeguard against null or undefined blocks
 		.map( blq => getBlockTextContent( blq.clientId ) )
-		.join( HTML_JOIN_CHARACTERS );
+		.join( '\n\n' );
 }
 
 /**
- * Return the block content from the given block clientId.
- *
- * It will try to get the content from the block `content` attribute.
- * Otherwise, it will try to get the content
- * by using the `getBlockContent` function.
+ * Return the block content from the given block clientId using the `getBlockContent` function.
  *
  * @param {string} clientId   - The block clientId.
  * @returns {string}            The block content.
@@ -89,11 +83,6 @@ export function getBlockTextContent( clientId: string ): string {
 		return '';
 	}
 
-	// Attempt to pick the content from the block `content` attribute.
-	if ( block?.attributes?.content ) {
-		return block.attributes.content;
-	}
-
 	return getBlockContent( block );
 }
 
@@ -104,11 +93,23 @@ export function getBlockTextContent( clientId: string ): string {
  * @returns {string}            The raw text.
  */
 export function getRawTextFromHTML( htmlString: string ): string {
-	if ( ! htmlString?.length ) {
+	// Removes all continuous whitespace from the start to check if the string is empty
+	if ( ! htmlString?.replace( /\s+/, '' ).length ) {
 		return '';
 	}
 
 	const tempDomContainer = document.createElement( 'div' );
 	tempDomContainer.innerHTML = htmlString;
+
+	const { textContent, innerText } = tempDomContainer;
+
+	if ( !! textContent && ! textContent.replace( /\s+/, '' ).length ) {
+		return '';
+	}
+
+	if ( !! innerText && ! innerText.replace( /\s+/, '' ).length ) {
+		return '';
+	}
+
 	return tempDomContainer.textContent || tempDomContainer.innerText || '';
 }

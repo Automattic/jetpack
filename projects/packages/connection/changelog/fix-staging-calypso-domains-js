@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Pass Calypso environment during connection to redirect users to proper Calypso URL.
