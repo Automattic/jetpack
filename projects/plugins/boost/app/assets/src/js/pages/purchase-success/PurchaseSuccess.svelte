@@ -5,7 +5,6 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
-	import { regenerateCriticalCss } from '../../stores/critical-css-state';
 	import { modulesState } from '../../stores/modules';
 	import Logo from '../../svg/jetpack-green.svg';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
@@ -15,9 +14,9 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
 
-	onMount( async () => {
+	onMount( () => {
+		// Enable cloud css module on upgrade.
 		$modulesState.cloud_css.active = true;
-		await regenerateCriticalCss();
 	} );
 </script>
 
