@@ -35,10 +35,9 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
-		"@babel/core": "7.21.5",
-		"@babel/preset-env": "7.21.5",
-		"@babel/register": "7.21.0",
-		"@babel/runtime": "7.21.5",
+		"@babel/core": "7.22.9",
+		"@babel/preset-env": "7.22.9",
+		"@babel/runtime": "7.22.6",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "13.4.0",
 		"@types/jest": "29.2.5",

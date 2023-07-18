@@ -4,6 +4,7 @@
 	import OtherGroupContext from '../../elements/OtherGroupContext.svelte';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
+	import WarningIcon from '../../svg/warning-outline.svg';
 	import { isaGroupLabels, isaSummary } from './store/isa-summary';
 
 	function safePercent( value: number, outOf: number ): number {
@@ -36,8 +37,12 @@
 					trackEvent="clicked_isa_settings_group"
 					trackEventProps="group"
 				>
-					<span class="jb-bubble" class:done={isDone}>
-						{isDone ? '✓' : index + 1}
+					<span class="jb-bubble" class:done={isDone} class:has-issues={hasIssues}>
+						{#if hasIssues}
+							<WarningIcon class="icon" />
+						{:else}
+							{isDone ? '✓' : index + 1}
+						{/if}
 					</span>
 				</ConditionalLink>
 			{/if}
@@ -123,15 +128,14 @@
 		&.done {
 			background-color: var( --jetpack-green-50 );
 		}
+		&.has-issues {
+			background: transparent;
+		}
 	}
 	.jb-status {
 		grid-area: status;
 		font-size: 0.875rem;
 		color: var( --gray-50 );
-		:global( a ),
-		&.has-issues {
-			color: var( --color_warning );
-		}
 	}
 	.jb-category-name {
 		grid-area: category;
