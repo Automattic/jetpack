@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import debugFactory from 'debug';
 /*
@@ -39,14 +39,14 @@ const JWT_TOKEN_EXPIRATION_TIME = 2 * 60 * 1000; // 2 minutes
 export default async function requestJwt( {
 	apiNonce,
 	siteId,
-	isJetpackSite,
 	expirationTime,
 }: RequestTokenOptions = {} ): Promise< TokenDataProps > {
 	// Default values
 	apiNonce = apiNonce || window.JP_CONNECTION_INITIAL_STATE.apiNonce;
 	siteId = siteId || window.JP_CONNECTION_INITIAL_STATE.siteSuffix;
-	isJetpackSite = ! ( isSimpleSite() || isAtomicSite() );
 	expirationTime = expirationTime || JWT_TOKEN_EXPIRATION_TIME;
+
+	const isSimple = isSimpleSite();
 
 	// Trying to pick the token from localStorage
 	const token = localStorage.getItem( JWT_TOKEN_ID );
@@ -67,11 +67,12 @@ export default async function requestJwt( {
 
 	let data: TokenDataEndpointResponseProps;
 
-	if ( isJetpackSite ) {
+	if ( ! isSimple ) {
 		data = await apiFetch( {
 			/*
 			 * This endpoint is registered in the Jetpack plugin.
 			 * Provably we should move it to another package, but for now it's here.
+			 * issue: https://github.com/Automattic/jetpack/issues/31938
 			 */
 			path: '/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
 			credentials: 'same-origin',
@@ -92,7 +93,7 @@ export default async function requestJwt( {
 		/**
 		 * TODO: make sure we return id from the .com token acquisition endpoint too
 		 */
-		blogId: isJetpackSite ? data.blog_id : siteId,
+		blogId: ! isSimple ? data.blog_id : siteId,
 
 		/**
 		 * Let's expire the token in 2 minutes
