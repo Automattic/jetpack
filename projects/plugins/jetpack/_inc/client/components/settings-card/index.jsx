@@ -12,6 +12,7 @@ import {
 	FEATURE_WORDADS_JETPACK,
 	FEATURE_SPAM_AKISMET_PLUS,
 	FEATURE_SEARCH_JETPACK,
+	FEATURE_SIMPLE_PAYMENTS_JETPACK,
 	getJetpackProductUpsellByFeature,
 } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
@@ -302,6 +303,36 @@ export const SettingsCard = props => {
 					/>
 				);
 
+			case FEATURE_SIMPLE_PAYMENTS_JETPACK:
+				if ( props.hasSimplePayments ) {
+					return '';
+				}
+
+				return props.hasConnectedOwner ? (
+					<JetpackBanner
+						callToAction={ upgradeLabel }
+						title={ __(
+							'Start accepting PayPal payments for physical products, digital goods, or donations.',
+							'jetpack'
+						) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SIMPLE_PAYMENTS_JETPACK ) }
+						feature={ feature }
+						href={ props.simplePaymentsUpgradeUrl }
+						rna
+					/>
+				) : (
+					<JetpackBanner
+						callToAction={ connectLabel }
+						title={ __(
+							'Connect your WordPress.com account to upgrade and access PayPal features in your editor.',
+							'jetpack'
+						) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SIMPLE_PAYMENTS_JETPACK ) }
+						feature={ feature }
+						onclick={ props.doConnectUser }
+						rna
+					/>
+				);
 			default:
 				return '';
 		}
@@ -450,6 +481,7 @@ export default connect(
 			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
 			searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
+			simplePaymentsUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
 			spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			multisite: isMultisite( state ),
 			inOfflineMode: isOfflineMode( state ),
@@ -459,6 +491,7 @@ export default connect(
 			hasGoogleAnalytics: siteHasFeature( state, 'google-analytics' ),
 			hasInstantSearch: siteHasFeature( state, 'instant-search' ),
 			hasScan: siteHasFeature( state, 'scan' ),
+			hasSimplePayments: siteHasFeature( state, 'simple-payments' ),
 			hasVideoPress: siteHasFeature( state, 'videopress' ),
 			hasWordAds: siteHasFeature( state, 'wordads' ),
 		};

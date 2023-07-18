@@ -142,8 +142,8 @@ export const withAIAssistant = createHigherOrderComponent(
 				};
 
 				const newAIAssistantBlock = transformToAIAssistantBlock(
-					extendedBlockAttributes,
-					blockType
+					blockType,
+					extendedBlockAttributes
 				);
 
 				/*
@@ -189,19 +189,22 @@ export const withAIAssistant = createHigherOrderComponent(
 
 			replaceBlock(
 				firstClientId,
-				transformToAIAssistantBlock( extendedBlockAttributes, blockType )
+				transformToAIAssistantBlock( blockType, extendedBlockAttributes )
 			);
 
 			removeBlocks( otherBlocksIds );
 		}, [ blocks, blockType, content, replaceBlock, clientIds, removeBlocks ] );
 
-		const rawContent = getRawTextFromHTML( props.attributes.content );
+		const blockControlProps = {
+			group: 'block',
+		};
+		const rawContent = getRawTextFromHTML( content );
 
 		return (
 			<>
 				<BlockEdit { ...props } />
 
-				<BlockControls group="block">
+				<BlockControls { ...blockControlProps }>
 					<AiAssistantDropdown
 						requestingState={ requestingState }
 						disabled={ ! rawContent?.length }

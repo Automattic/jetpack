@@ -807,16 +807,16 @@
         },
         {
             "name": "phpcsstandards/phpcsutils",
-            "version": "1.0.7",
+            "version": "1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHPCSUtils.git",
-                "reference": "886a728571ab2faca3642c96954886b078b32195"
+                "reference": "69465cab9d12454e5e7767b9041af0cd8cd13be7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSUtils/zipball/886a728571ab2faca3642c96954886b078b32195",
-                "reference": "886a728571ab2faca3642c96954886b078b32195",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSUtils/zipball/69465cab9d12454e5e7767b9041af0cd8cd13be7",
+                "reference": "69465cab9d12454e5e7767b9041af0cd8cd13be7",
                 "shasum": ""
             },
             "require": {
@@ -876,7 +876,7 @@
                 "issues": "https://github.com/PHPCSStandards/PHPCSUtils/issues",
                 "source": "https://github.com/PHPCSStandards/PHPCSUtils"
             },
-            "time": "2023-07-10T13:56:07+00:00"
+            "time": "2023-07-16T21:39:41+00:00"
         },
         {
             "name": "sirbrillig/phpcs-changed",
