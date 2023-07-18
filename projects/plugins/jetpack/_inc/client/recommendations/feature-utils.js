@@ -47,6 +47,13 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=monitor',
 			};
+		case 'newsletter':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Newsletter', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
+				configLink: '#/settings?term=subscriptions',
+			};
 		case 'related-posts':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
@@ -197,6 +204,12 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 					return dispatch( updateSettings( { monitor: true } ) );
 				},
 			};
+		case 'newsletter':
+			return {
+				activateFeature: () => {
+					return dispatch( updateSettings( { subscriptions: true } ) );
+				},
+			};
 		case 'related-posts':
 			return {
 				activateFeature: () => {
@@ -302,6 +315,18 @@ export const getStepContent = ( state, stepSlug ) => {
 				descriptionLink:
 					'https://jetpack.com/support/jetpack-blocks/form-block/newsletter-sign-up-form/',
 				ctaText: __( 'Install Creative Mail', 'jetpack' ),
+				illustration: 'assistant-creative-mail',
+			};
+		case 'newsletter':
+			return {
+				progressValue: '70',
+				question: __( 'Send subscribers your latest blog posts via email?', 'jetpack' ),
+				description: __(
+					'With Jetpack Newsletter you can keep your audience engaged by automatically sending your content via email. <ExternalLink>Learn more</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: 'https://jetpack.com/newsletter/',
+				ctaText: __( 'Activate Newsletter', 'jetpack' ),
 				illustration: 'assistant-creative-mail',
 			};
 		case 'monitor':
