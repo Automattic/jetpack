@@ -475,7 +475,7 @@ const FirewallPage = () => {
 					</div>
 					<Text>
 						{ __(
-							'Block untrusted traffic sources by scanning every request made to your site. Jetpack’s advanced security rules are updated in real-time to protect your site from the latest threats.',
+							'Block untrusted traffic sources by scanning every request made to your site. Jetpack’s advanced security rules are automatically kept up-to-date to protect your site from the latest threats.',
 							'jetpack-protect'
 						) }
 					</Text>
