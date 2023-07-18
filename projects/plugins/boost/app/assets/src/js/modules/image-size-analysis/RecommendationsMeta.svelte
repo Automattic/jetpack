@@ -3,6 +3,8 @@
 	import { __, sprintf } from '@wordpress/i18n';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
+	import ImageCDNRecommendation from '../../elements/ImageCDNRecommendation.svelte';
+	import { modulesState } from '../../stores/modules';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import WarningIcon from '../../svg/warning-outline.svg';
 	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../utils/analytics';
@@ -74,6 +76,13 @@
 		recordBoostEvent( $event_name, {} );
 		return onStartAnalysis();
 	}
+
+	/**
+	 * Work out whether to recommend the Image CDN. It should show if the CDN is off and no report has been run, or a report has found issues.
+	 */
+	$: showCDNRecommendation =
+		! $modulesState.image_cdn.active &&
+		( totalIssues > 0 || $isaSummary?.status === ISAStatus.NotFound );
 </script>
 
 {#if ! $isaSummary}
@@ -127,6 +136,15 @@
 	<!-- Show progress if a job is rolling. -->
 	{#if ! requestingReport && [ ISAStatus.Completed, ISAStatus.Queued ].includes( $isaSummary.status )}
 		<MultiProgress />
+	{/if}
+
+	<!-- Show recommendation to enable Image CDN if it was inactive and issues have been found -->
+	{#if showCDNRecommendation}
+		<div class="jb-notice">
+			<div class="jb-notice__content">
+				<ImageCDNRecommendation />
+			</div>
+		</div>
 	{/if}
 
 	<!-- Show a button to view the report if it's in progress or completed. -->
@@ -215,5 +233,18 @@
 
 	.button-area {
 		margin-top: 32px;
+	}
+
+	.jb-notice {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 16px 24px;
+		margin: 32px 0;
+		border: 2px solid $jetpack-green;
+		border-radius: $border-radius;
+		background-color: #ffffff;
+		text-align: left;
 	}
 </style>
