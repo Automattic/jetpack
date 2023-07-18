@@ -52,7 +52,7 @@
 			__( 'Give us a few minutes while we go through your images…', 'jetpack-boost' ) );
 
 	$: foundIssuesMessage =
-		$totalPagesCount > 100
+		$totalPagesCount === 100
 			? sprintf(
 					// translators: 1: Number of scanned issues found 2: Number of scanned pages
 					__( 'Found a total of %1$d issues from %2$d latest pages scanned.', 'jetpack-boost' ),
@@ -66,7 +66,7 @@
 			  );
 
 	$: noIssuesMessage =
-		$totalPagesCount > 100
+		$totalPagesCount === 100
 			? sprintf(
 					// translators: %d: Number of pages scanned
 					__( 'Congratulations; no issues found from %d latest pages scanned.', 'jetpack-boost' ),
