@@ -54,10 +54,6 @@
 	 * Start a new image analysis job.
 	 */
 	async function onStartAnalysis() {
-		const $event_name =
-			$isaSummary.status === ISAStatus.Completed ? 'clicked_restart_isa' : 'clicked_start_isa';
-		recordBoostEvent( $event_name, {} );
-
 		try {
 			errorMessage = undefined;
 			requestingReport = true;
@@ -68,6 +64,13 @@
 		} finally {
 			requestingReport = false;
 		}
+	}
+
+	function handleAnalyzeClick() {
+		const $event_name =
+			$isaSummary.status === ISAStatus.Completed ? 'clicked_restart_isa' : 'clicked_start_isa';
+		recordBoostEvent( $event_name, {} );
+		return onStartAnalysis();
 	}
 </script>
 
@@ -110,7 +113,7 @@
 			<button
 				type="button"
 				class="components-button is-link"
-				on:click={onStartAnalysis}
+				on:click={handleAnalyzeClick}
 				disabled={requestingReport}
 			>
 				<RefreshIcon />
@@ -146,7 +149,7 @@
 	<!-- Show a button to kick off a report -->
 	{#if ! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status )}
 		<div class="button-area">
-			<Button disabled={requestingReport} on:click={onStartAnalysis}>
+			<Button disabled={requestingReport} on:click={handleAnalyzeClick}>
 				{$isaSummary.status === ISAStatus.Completed
 					? __( 'Analyze again', 'jetpack-boost' )
 					: __( 'Start image analysis', 'jetpack-boost' )}
