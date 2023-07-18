@@ -176,8 +176,8 @@ class Jetpack_Subscribe_Modal {
     <div class='wp-block-group' style='padding-top:50px;padding-right:20px;padding-bottom:50px;padding-left:20px'>
         <!-- wp:group {"style":{"dimensions":{"minHeight":"0px"},"spacing":{"blockGap":"8px"}},"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"center"}} -->
         <div class='wp-block-group' style='min-height:0px'>
-            <!-- wp:heading {"style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null}}} -->
-            <h2 class='wp-block-heading' style='font-size:26px;font-style:normal;font-weight:600'>$discover_more_from</h2>
+            <!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"4px"}}}} -->
+            <h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:4px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from</h2>
             <!-- /wp:heading -->
             </div>
         <!-- /wp:group -->
