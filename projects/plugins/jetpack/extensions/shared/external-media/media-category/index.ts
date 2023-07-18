@@ -5,17 +5,18 @@ import { addQueryArgs } from '@wordpress/url';
 const PEXELS_ID = 'pexels';
 const PEXELS_NAME = 'Pexels Free Photos';
 const PEXELS_SEARCH_PLACEHOLDER = `Search ${ PEXELS_NAME }`;
+const DEFAULT_PEXELS_SEARCH: MediaSearch = {
+	per_page: 25,
+	search: 'mountain',
+};
 
 // Google Photos constants
 const GOOGLE_PHOTOS_ID = 'google_photos';
 const GOOGLE_PHOTOS_NAME = 'Google Photos';
 const GOOGLE_PHOTOS_SEARCH_PLACEHOLDER = `Search ${ GOOGLE_PHOTOS_NAME }`;
-
-// Search constants
-const DEFAULT_QUERY = 'mountain';
-const DEFAULT_SEARCH: MediaSearch = {
+const DEFAULT_GOOGLE_PHOTOS_SEARCH: MediaSearch = {
 	per_page: 25,
-	search: DEFAULT_QUERY,
+	search: '',
 };
 
 /**
@@ -51,6 +52,8 @@ type MediaItem = {
 	id: string;
 	caption: string;
 	previewUrl: string;
+	title: string;
+	url: string;
 };
 
 /**
@@ -60,6 +63,8 @@ type WpcomMediaItem = {
 	ID: string;
 	URL: string;
 	caption: string;
+	// Sometimes the title is null, so we need to handle that case.
+	title: string | null;
 	thumbnails: {
 		thumbnail: string;
 	};
@@ -79,28 +84,29 @@ type ConnectedMediaSourceCallback = ( response: WpcomMediaResponse ) => void;
  * Get media URL for a given MediaSource.
  *
  * @param {MediaSource} source - MediaSource to get URL for.
- * @param {MediaSearch} mediaCategorySearch - MediaCategorySearch to filter for.
+ * @param {MediaSearch} mediaSearch - MediaCategorySearch to filter for.
  * @returns {string} Media URL.
  */
-const getMediaApiUrl = ( source: MediaSource, mediaCategorySearch: MediaSearch ) =>
+const getMediaApiUrl = ( source: MediaSource, mediaSearch: MediaSearch ) =>
 	addQueryArgs( `${ WpcomMediaEndpoints.List }${ source }`, {
-		number: mediaCategorySearch.per_page || 25,
+		...( mediaSearch.search && { search: mediaSearch.search } ),
+		number: mediaSearch.per_page || 25,
 		path: 'recent',
-		search: mediaCategorySearch.search || DEFAULT_QUERY,
 	} );
 
 /**
- * Maps a WPCOM media list item to a Gutenberg media category item.
+ * Maps a WPCOM media item to a Gutenberg media item.
  *
  * @param {WpcomMediaItem} item - WPCOM media list item to map.
  * @returns {MediaItem} Mapped media category item.
  */
-const wpcomMediaToGutenbergMedia = ( item: WpcomMediaItem ): MediaItem => ( {
-	...item,
+const mapWpcomMediaToMedia = ( item: WpcomMediaItem ): MediaItem => ( {
 	sourceId: item.ID,
 	id: item.ID,
-	caption: item.caption,
+	caption: item?.caption ?? '',
 	previewUrl: item.thumbnails.thumbnail,
+	title: item?.title ?? '',
+	url: item.URL,
 } );
 
 /**
@@ -110,13 +116,15 @@ const wpcomMediaToGutenbergMedia = ( item: WpcomMediaItem ): MediaItem => ( {
  * @param {string} label - Label of the media category.
  * @param {string} searchPlaceholder - Search placeholder of the media category.
  * @param {MediaSource} source - MediaSource of the media category.
+ * @param {MediaSearch} defaultSearch - Default search of the media category.
  * @returns {object} Media category object.
  */
 const buildMediaCategory = (
 	name: string,
 	label: string,
 	searchPlaceholder: string,
-	source: MediaSource
+	source: MediaSource,
+	defaultSearch: MediaSearch
 ) => ( {
 	name: name,
 	labels: {
@@ -126,14 +134,17 @@ const buildMediaCategory = (
 	mediaType: 'image',
 	fetch: async ( mediaCategorySearch: MediaSearch ) =>
 		await apiFetch( {
-			path: getMediaApiUrl( source, mediaCategorySearch ),
+			path: getMediaApiUrl( source, {
+				...mediaCategorySearch,
+				...defaultSearch,
+			} ),
 			method: 'GET',
 		} )
-			.then( ( response: WpcomMediaResponse ) => response.media.map( wpcomMediaToGutenbergMedia ) )
+			.then( ( response: WpcomMediaResponse ) => response.media.map( mapWpcomMediaToMedia ) )
 			// Null object pattern, we don't want to break if the API fails.
 			.catch( () => [] ),
 	getReportUrl: null,
-	isExternalResource: true,
+	isExternalResource: false,
 } );
 
 /**
@@ -148,7 +159,7 @@ const isMediaSourceConnected = (
 	isConnectedCallback: ConnectedMediaSourceCallback
 ) =>
 	apiFetch( {
-		path: getMediaApiUrl( source, DEFAULT_SEARCH ),
+		path: getMediaApiUrl( source, DEFAULT_PEXELS_SEARCH ),
 		method: 'GET',
 	} ).then( ( wpcomMediaResponse: WpcomMediaResponse ) =>
 		isConnectedCallback( wpcomMediaResponse )
@@ -160,7 +171,13 @@ const isMediaSourceConnected = (
  * @returns {object} Pexels media category.
  */
 export const getPexelsMediaCategory = () =>
-	buildMediaCategory( PEXELS_ID, PEXELS_NAME, PEXELS_SEARCH_PLACEHOLDER, MediaSource.Pexels );
+	buildMediaCategory(
+		PEXELS_ID,
+		PEXELS_NAME,
+		PEXELS_SEARCH_PLACEHOLDER,
+		MediaSource.Pexels,
+		DEFAULT_PEXELS_SEARCH
+	);
 
 /**
  * Checks if GooglePhotos is connected and calls the callback with the response.
@@ -181,5 +198,6 @@ export const getGooglePhotosMediaCategory = () =>
 		GOOGLE_PHOTOS_ID,
 		GOOGLE_PHOTOS_NAME,
 		GOOGLE_PHOTOS_SEARCH_PLACEHOLDER,
-		MediaSource.GooglePhotos
+		MediaSource.GooglePhotos,
+		DEFAULT_GOOGLE_PHOTOS_SEARCH
 	);

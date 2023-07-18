@@ -2,7 +2,7 @@ import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-uti
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { useDispatch } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import MediaButton from './media-button';
 import {
 	getGooglePhotosMediaCategory,
@@ -51,20 +51,15 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 		OriginalComponent => props => {
 			const { name } = useBlockEditContext();
 			const { registerInserterMediaCategory } = useDispatch( 'core/block-editor' );
-			const [ mediaCategoriesInitialized, setMediaCategoriesInitialized ] = useState( false );
 			let { render } = props;
 
 			useEffect( () => {
-				if ( ! mediaCategoriesInitialized ) {
-					setMediaCategoriesInitialized( true );
+				isGooglePhotosConnected( () =>
+					registerInserterMediaCategory( getGooglePhotosMediaCategory() )
+				);
 
-					isGooglePhotosConnected( () =>
-						registerInserterMediaCategory( getGooglePhotosMediaCategory() )
-					);
-
-					registerInserterMediaCategory( getPexelsMediaCategory() );
-				}
-			}, [ mediaCategoriesInitialized, registerInserterMediaCategory ] );
+				registerInserterMediaCategory( getPexelsMediaCategory() );
+			}, [ registerInserterMediaCategory ] );
 
 			if ( isAllowedBlock( name, render ) || isFeaturedImage( props ) ) {
 				const { allowedTypes, gallery = false, value = [] } = props;
