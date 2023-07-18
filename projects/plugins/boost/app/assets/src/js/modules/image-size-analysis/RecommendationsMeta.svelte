@@ -12,6 +12,8 @@
 		initializeIsaSummary,
 		isaSummary,
 		ISAStatus,
+		totalPagesCount,
+		scannedPagesCount,
 	} from './store/isa-summary';
 
 	onMount( () => {
@@ -48,6 +50,29 @@
 		( $isaSummary?.status === ISAStatus.New && __( 'Warming up the engine…', 'jetpack-boost' ) ) ||
 		( $isaSummary?.status === ISAStatus.Queued &&
 			__( 'Give us a few minutes while we go through your images…', 'jetpack-boost' ) );
+
+	$: foundIssuesMessage =
+		$totalPagesCount > 100
+			? sprintf(
+					// translators: 1: Number of scanned issues found 2: Number of scanned pages
+					__( 'Found a total of %1$d issues from %2$d latest pages scanned.', 'jetpack-boost' ),
+					totalIssues,
+					$scannedPagesCount
+			  )
+			: sprintf(
+					// translators: %d: Number of scanned issues found
+					__( 'Found a total of %d issues.', 'jetpack-boost' ),
+					$scannedPagesCount
+			  );
+
+	$: noIssuesMessage =
+		$totalPagesCount > 100
+			? sprintf(
+					// translators: %d: Number of pages scanned
+					__( 'Congratulations; no issues found from %d latest pages scanned.', 'jetpack-boost' ),
+					$scannedPagesCount
+			  )
+			: __( 'Congratulations; no issues found.', 'jetpack-boost' );
 
 	/**
 	 * Start a new image analysis job.
@@ -90,15 +115,11 @@
 			{#if totalIssues > 0}
 				<div class="has-issues summary">
 					<WarningIcon class="icon" />
-					{sprintf(
-						/* translators: %d is the number of issues that were found */
-						__( 'Found a total of %d issues', 'jetpack-boost' ),
-						totalIssues
-					)}
+					{foundIssuesMessage}
 				</div>
 			{:else}
 				<div class="summary">
-					{__( 'Congratulations; no issues found.', 'jetpack-boost' )}
+					{noIssuesMessage}
 				</div>
 			{/if}
 
