@@ -97,7 +97,7 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 		$endpoint = $this->create_get_site_endpoint();
 		$response = $endpoint->callback( '', $blog_id );
 
-		foreach ( $trials as $key => $value ) {
+		foreach ( $trials as $value ) {
 			$this->assertFalse( $response[ $value ] );
 		}
 	}
