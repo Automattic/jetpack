@@ -4,6 +4,7 @@
 	import { recordBoostEventAndRedirect } from '../../../../utils/analytics';
 	export let edit_url: string | null;
 	export let instructions: string;
+	export let device_type: string;
 </script>
 
 <div class="hover">
@@ -15,7 +16,9 @@
 				small
 				fill
 				on:click={() =>
-					recordBoostEventAndRedirect( edit_url, 'clicked_edit_page_on_isa_report', {} )}
+					recordBoostEventAndRedirect( edit_url, 'clicked_edit_page_on_isa_report', {
+						device_type,
+					} )}
 			>
 				{__( 'Edit Page', 'jetpack-boost' )}
 			</Button>

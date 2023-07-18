@@ -48,7 +48,11 @@
 		</div>
 
 		<div class="jb-table-row__hover-content">
-			<TableRowHover edit_url={details.page.edit_url} instructions={details.instructions} />
+			<TableRowHover
+				device_type={details.device_type}
+				edit_url={details.page.edit_url}
+				instructions={details.instructions}
+			/>
 		</div>
 
 		<div class="jb-table-row__device">
@@ -145,7 +149,7 @@
 							recordBoostEventAndRedirect(
 								details.page.edit_url,
 								'clicked_fix_on_page_on_isa_report',
-								{}
+								{ device_type: details.device_type }
 							)}
 					>
 						{__( 'Fix on page', 'jetpack-boost' )}
