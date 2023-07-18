@@ -76,6 +76,7 @@ export default class SuggestionsEventSource extends EventTarget {
 			}
 
 			url = urlHandler.toString();
+			debug( 'URL not provided, using default: %o', url );
 		}
 
 		// question can be a string or an array of PromptItemProps
@@ -86,7 +87,8 @@ export default class SuggestionsEventSource extends EventTarget {
 		}
 
 		// Propagate the feature option
-		if ( options?.feature ) {
+		if ( options?.feature?.length ) {
+			debug( 'Feature: %o', options.feature );
 			bodyData.feature = options.feature;
 		}
 
