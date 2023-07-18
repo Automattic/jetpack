@@ -3,8 +3,8 @@
 	import { __, sprintf } from '@wordpress/i18n';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
-	import NoticeIcon from '../../svg/notice-outline.svg';
 	import RefreshIcon from '../../svg/refresh.svg';
+	import WarningIcon from '../../svg/warning-outline.svg';
 	import MultiProgress from './MultiProgress.svelte';
 	import { resetIsaQuery } from './store/isa-data';
 	import {
@@ -89,7 +89,7 @@
 		<div class="summary-line">
 			{#if totalIssues > 0}
 				<div class="has-issues summary">
-					<NoticeIcon class="icon" />
+					<WarningIcon class="icon" />
 					{sprintf(
 						/* translators: %d is the number of issues that were found */
 						__( 'Found a total of %d issues', 'jetpack-boost' ),
@@ -177,7 +177,7 @@
 	}
 
 	.has-issues {
-		color: $red_50;
+		color: var( --jp-orange-20 );
 	}
 
 	.has-issues :global( svg ) {
