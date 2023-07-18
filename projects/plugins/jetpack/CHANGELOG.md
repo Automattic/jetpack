@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.4-a.5.1 - 2023-07-18
+### Bug fixes
+- Sharing: fix icon font display following the addition of the Threads icon. [#31932]
+
 ## 12.4-a.5 - 2023-07-17
 ### Enhancements
 - AI Assistant: various improvements to syntax parsing, formatting, and other backend enhancements.
