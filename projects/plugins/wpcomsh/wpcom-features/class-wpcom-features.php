@@ -12,6 +12,12 @@
  * Map features to purchases.
  */
 class WPCOM_Features {
+
+	/**
+	 * Key used to exclude plans from features.
+	 */
+	public const EXCLUDE_PLANS = 'exclude_plans';
+
 	/*
 	 * Private const for every mapped purchase, sorted by product_id.
 	 */
@@ -66,6 +72,7 @@ class WPCOM_Features {
 	private const WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY       = 'wooexpress-medium-bundle-yearly'; // 1055
 	private const WPCOM_WOOEXPRESS_SMALL_BUNDLE_MONTHLY       = 'wooexpress-small-bundle-monthly'; // 1054
 	private const WPCOM_WOOEXPRESS_SMALL_BUNDLE_YEARLY        = 'wooexpress-small-bundle-yearly'; // 1056
+	private const WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY        = 'wp_bundle_migration_trial_monthly'; // 1057
 	private const WPCOM_STAGING_PRODUCT                       = 'wp_staging_site_lifetime'; // 1060
 	private const JETPACK_PREMIUM                             = 'jetpack_premium'; // 2000
 	private const JETPACK_BUSINESS                            = 'jetpack_business'; // 2001
@@ -80,6 +87,7 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_REALTIME_MONTHLY           = 'jetpack_security_realtime_monthly'; // 2013
 	private const JETPACK_COMPLETE                            = 'jetpack_complete'; // 2014
 	private const JETPACK_COMPLETE_MONTHLY                    = 'jetpack_complete_monthly'; // 2015
+	private const JETPACK_SECURITY_T1_BI_YEARLY               = 'jetpack_security_t1_bi_yearly'; // 2034
 	private const JETPACK_SECURITY_T1_YEARLY                  = 'jetpack_security_t1_yearly'; // 2016
 	private const JETPACK_SECURITY_T1_MONTHLY                 = 'jetpack_security_t1_monthly'; // 2017
 	private const JETPACK_SECURITY_T2_YEARLY                  = 'jetpack_security_t2_yearly'; // 2019
@@ -98,6 +106,7 @@ class WPCOM_Features {
 	private const JETPACK_SCAN_REALTIME_MONTHLY               = 'jetpack_scan_realtime_monthly'; // 2109
 	private const JETPACK_ANTI_SPAM                           = 'jetpack_anti_spam'; // 2110
 	private const JETPACK_ANTI_SPAM_MONTHLY                   = 'jetpack_anti_spam_monthly'; // 2111
+	private const JETPACK_BACKUP_T1_BI_YEARLY                 = 'jetpack_backup_t1_bi_yearly'; // 2123
 	private const JETPACK_BACKUP_T1_YEARLY                    = 'jetpack_backup_t1_yearly'; // 2112
 	private const JETPACK_BACKUP_T1_MONTHLY                   = 'jetpack_backup_t1_monthly'; // 2113
 	private const JETPACK_BACKUP_T2_YEARLY                    = 'jetpack_backup_t2_yearly'; // 2114
@@ -143,6 +152,7 @@ class WPCOM_Features {
 	private const JETPACK_SOCIAL_BASIC_MONTHLY                = 'jetpack_social_basic_monthly'; // 2504
 	private const JETPACK_SOCIAL_ADVANCED                     = 'jetpack_social_advanced_yearly'; // 2602
 	private const JETPACK_SOCIAL_ADVANCED_MONTHLY             = 'jetpack_social_advanced_monthly'; // 2603
+	private const JETPACK_GOLDEN_TOKEN                        = 'jetpack_golden_token_lifetime'; // 2900
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS           = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
@@ -150,7 +160,8 @@ class WPCOM_Features {
 	private const WPCOM_STARTER_PLANS           = array( self::STARTER_PLAN );
 	private const WPCOM_PREMIUM_PLANS           = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y, self::VALUE_BUNDLE_3Y );
 	private const WPCOM_PRO_PLANS               = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
-	private const WPCOM_BUSINESS_PLANS          = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y );
+	private const WPCOM_MIGRATION_TRIAL_PLANS   = array( self::WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY );
+	private const WPCOM_BUSINESS_PLANS          = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y, self::WPCOM_MIGRATION_TRIAL_PLANS );
 	private const WPCOM_ECOMMERCE_PLANS         = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y, self::ECOMMERCE_BUNDLE_3Y );
 	private const WPCOM_ECOMMERCE_TRIAL_PLANS   = array( self::ECOMMERCE_TRIAL_BUNDLE_MONTHLY );
 	private const WPCOM_WOOEXPRESS_MEDIUM_PLANS = array( self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_MONTHLY, self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY );
@@ -167,13 +178,6 @@ class WPCOM_Features {
 	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = array( self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
 	private const WPCOM_WOOEXPRESS_PLANS          = array( self::WPCOM_WOOEXPRESS_MEDIUM_PLANS, self::WPCOM_WOOEXPRESS_SMALL_PLANS );
 
-	// WPCOM "Level 3" B: Variations of the above groups where the feature is not allowed in free trial plans.
-	private const WPCOM_BLOGGER_AND_HIGHER_PLANS_NO_TRIAL  = array( self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
-	private const WPCOM_PERSONAL_AND_HIGHER_PLANS_NO_TRIAL = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
-	private const WPCOM_STARTER_AND_HIGHER_PLANS_NO_TRIAL  = array( self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
-	private const WPCOM_PREMIUM_AND_HIGHER_PLANS_NO_TRIAL  = array( self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
-	private const WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL = array( self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
-
 	// WPCOM "Level 3" C: Misc product groupings unrelated to free plan trials.
 	private const WPCOM_EMAIL_PRODUCTS = array( self::GOOGLE_WORKSPACE_PRODUCTS, self::GSUITE_PRODUCTS, self::WPCOM_TITAN_MAIL_PRODUCTS );
 
@@ -186,7 +190,7 @@ class WPCOM_Features {
 
 	private const JETPACK_SECURITY_DAILY_PLANS    = array( self::JETPACK_SECURITY_DAILY, self::JETPACK_SECURITY_DAILY_MONTHLY );
 	private const JETPACK_SECURITY_REALTIME_PLANS = array( self::JETPACK_SECURITY_REALTIME, self::JETPACK_SECURITY_REALTIME_MONTHLY );
-	private const JETPACK_SECURITY_T1_PLANS       = array( self::JETPACK_SECURITY_T1_MONTHLY, self::JETPACK_SECURITY_T1_YEARLY );
+	private const JETPACK_SECURITY_T1_PLANS       = array( self::JETPACK_SECURITY_T1_MONTHLY, self::JETPACK_SECURITY_T1_YEARLY, self::JETPACK_SECURITY_T1_BI_YEARLY );
 	private const JETPACK_SECURITY_T2_PLANS       = array( self::JETPACK_SECURITY_T2_MONTHLY, self::JETPACK_SECURITY_T2_YEARLY );
 
 	private const JETPACK_SCAN_PLANS = array( self::JETPACK_SCAN, self::JETPACK_SCAN_MONTHLY, self::JETPACK_SCAN_REALTIME, self::JETPACK_SCAN_REALTIME_MONTHLY );
@@ -199,7 +203,7 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_DAILY_PLANS    = array( self::JETPACK_BACKUP_DAILY, self::JETPACK_BACKUP_DAILY_MONTHLY );
 	private const JETPACK_BACKUP_REALTIME_PLANS = array( self::JETPACK_BACKUP_REALTIME, self::JETPACK_BACKUP_REALTIME_MONTHLY );
 	private const JETPACK_BACKUP_T0_PLANS       = array( self::JETPACK_BACKUP_T0_MONTHLY, self::JETPACK_BACKUP_T0_YEARLY );
-	private const JETPACK_BACKUP_T1_PLANS       = array( self::JETPACK_BACKUP_T1_MONTHLY, self::JETPACK_BACKUP_T1_YEARLY );
+	private const JETPACK_BACKUP_T1_PLANS       = array( self::JETPACK_BACKUP_T1_MONTHLY, self::JETPACK_BACKUP_T1_YEARLY, self::JETPACK_BACKUP_T1_BI_YEARLY );
 	private const JETPACK_BACKUP_T2_PLANS       = array( self::JETPACK_BACKUP_T2_MONTHLY, self::JETPACK_BACKUP_T2_YEARLY );
 
 	// Jetpack "Level 3": Groups of level 2.
@@ -288,6 +292,7 @@ class WPCOM_Features {
 	public const GLOBAL_STYLES                    = 'global-styles';
 	public const GOOGLE_ANALYTICS                 = 'google-analytics';
 	public const GOOGLE_MY_BUSINESS               = 'google-my-business';
+	public const IMAGE_SIZE_ANALYSIS              = 'image-size-analysis';
 	public const INSTALL_PLUGINS                  = 'install-plugins';
 	public const INSTALL_PURCHASED_PLUGINS        = 'install-purchased-plugins';
 	public const INSTALL_THEMES                   = 'install-themes';
@@ -296,6 +301,7 @@ class WPCOM_Features {
 	public const JETPACK_DASHBOARD                = 'jetpack-dashboard';
 	public const LIST_INSTALLED_PLUGINS           = 'list-installed-plugins';
 	public const LIVE_SUPPORT                     = 'live_support';
+	public const MAILPOET_BUSINESS                = 'mailpoet-business';
 	public const MANAGE_PLUGINS                   = 'manage-plugins';
 	public const NO_ADVERTS_NO_ADVERTS_PHP        = 'no-adverts/no-adverts.php';
 	public const NO_WPCOM_BRANDING                = 'no-wpcom-branding';
@@ -326,6 +332,7 @@ class WPCOM_Features {
 	public const SOCIAL_ENHANCED_PUBLISHING       = 'social-enhanced-publishing';
 	public const SOCIAL_MASTODON_CONNECTION       = 'social-mastodon-connection';
 	public const SOCIAL_INSTAGRAM_CONNECTION      = 'social-instagram-connection';
+	public const SOCIAL_MULTI_CONNECTIONS         = 'social-multi-connections';
 	public const SPACE                            = 'space';
 	public const SPACE_UPGRADED_STORAGE           = 'space-upgraded-storage';
 	public const SSH                              = 'ssh';
@@ -369,6 +376,7 @@ class WPCOM_Features {
 	private const FEATURES_MAP = array(
 		self::AI_ASSISTANT                     => array(
 			self::JETPACK_AI_MONTHLY,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS               => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -423,6 +431,7 @@ class WPCOM_Features {
 			self::JETPACK_BACKUP_T1_PLANS,
 			self::JETPACK_BACKUP_T2_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
@@ -559,13 +568,19 @@ class WPCOM_Features {
 		),
 		// EDIT_PLUGINS - Provides the edit_plugins capability on atomic sites, does nothing on simple sites.
 		self::EDIT_PLUGINS                     => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		// EDIT_THEMES - Provides the edit_themes capability on atomic sites, does nothing on simple sites.
 		self::EDIT_THEMES                      => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		// EMAIL_PROFESSIONAL - Access to Titan email hosting, often referred to as WordPress.com "Professional Email".
 		self::EMAIL_PROFESSIONAL               => array(
@@ -590,6 +605,7 @@ class WPCOM_Features {
 			self::JETPACK_BACKUP_T1_PLANS,
 			self::JETPACK_BACKUP_T2_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
@@ -609,18 +625,32 @@ class WPCOM_Features {
 			self::JETPACK_SECURITY_T1_PLANS,
 			self::JETPACK_SECURITY_T2_PLANS,
 		),
+		self::IMAGE_SIZE_ANALYSIS              => array(
+			self::JETPACK_BOOST,
+			self::JETPACK_BOOST_MONTHLY,
+			self::JETPACK_COMPLETE_PLANS,
+		),
 		self::INSTALL_PLUGINS                  => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		self::INSTALL_PURCHASED_PLUGINS        => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STARTER_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		self::INSTALL_THEMES                   => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		self::INSTALL_WOO_ONBOARDING_PLUGINS   => array(
 			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
@@ -666,10 +696,16 @@ class WPCOM_Features {
 			self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY,
 			self::WPCOM_WOOEXPRESS_SMALL_BUNDLE_YEARLY,
 		),
+		self::MAILPOET_BUSINESS                => array(
+			self::WPCOM_ECOMMERCE_PLANS,
+		),
 		// MANAGE_PLUGINS - Atomic only feature. Can upload, install, and activate any 3rd party plugin.
 		self::MANAGE_PLUGINS                   => array(
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		self::NO_ADVERTS_NO_ADVERTS_PHP        => array(
 			self::NO_ADS,
@@ -715,6 +751,7 @@ class WPCOM_Features {
 			self::JETPACK_BACKUP_T1_PLANS,
 			self::JETPACK_BACKUP_T2_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
@@ -732,6 +769,7 @@ class WPCOM_Features {
 			self::JETPACK_SECURITY_T1_PLANS,
 			self::JETPACK_SECURITY_T2_PLANS,
 			self::JETPACK_STARTER_PLANS,
+			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
@@ -745,6 +783,7 @@ class WPCOM_Features {
 		 */
 		self::REDUCED_ATOMIC_EMAIL_PRIORITY    => array(
 			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			self::WPCOM_MIGRATION_TRIAL_PLANS,
 		),
 
 		/*
@@ -762,6 +801,7 @@ class WPCOM_Features {
 		self::SCAN                             => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::JETPACK_SCAN_PLANS,
+			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
@@ -812,12 +852,20 @@ class WPCOM_Features {
 		),
 		// Hosting Configuration.
 		self::SFTP                             => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 
 		self::SSH                              => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		self::SIMPLE_PAYMENTS                  => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -850,6 +898,15 @@ class WPCOM_Features {
 			self::JETPACK_COMPLETE_PLANS,
 			self::BUNDLE_ENTERPRISE,
 		),
+		self::SOCIAL_IMAGE_GENERATOR           => array(
+			array(
+				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
+				'before' => '1900-01-01',
+				self::JETPACK_SOCIAL_ADVANCED_PLANS,
+				self::JETPACK_COMPLETE_PLANS,
+				self::BUNDLE_ENTERPRISE,
+			),
+		),
 		self::SOCIAL_MASTODON_CONNECTION       => array(
 			array(
 				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
@@ -866,13 +923,12 @@ class WPCOM_Features {
 				self::JETPACK_ALL_SITES,
 			),
 		),
-		self::SOCIAL_IMAGE_GENERATOR           => array(
+		self::SOCIAL_MULTI_CONNECTIONS         => array(
 			array(
 				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
 				'before' => '1900-01-01',
-				self::JETPACK_SOCIAL_ADVANCED_PLANS,
-				self::JETPACK_COMPLETE_PLANS,
-				self::BUNDLE_ENTERPRISE,
+				self::WPCOM_ALL_SITES,
+				self::JETPACK_ALL_SITES,
 			),
 		),
 		self::SPACE                            => array(
@@ -898,7 +954,10 @@ class WPCOM_Features {
 			self::SPACE_200GB,
 		),
 		self::STAGING_SITES                    => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		self::STATS_FREE                       => array(
 			self::JETPACK_STATS_PLANS,
@@ -925,6 +984,7 @@ class WPCOM_Features {
 		self::SUPPORT                          => array(
 			self::WPCOM_ALL_SITES,
 			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::JETPACK_GOLDEN_TOKEN,
 		),
 		self::UPGRADED_UPLOAD_FILETYPES        => array(
 			self::SPACE_1GB,
@@ -942,8 +1002,11 @@ class WPCOM_Features {
 			self::JETPACK_ALL_SITES,
 		),
 		self::UPLOAD_PLUGINS                   => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		self::UPLOAD_SPACE_1GB                 => array(
 			self::SPACE_1GB,
@@ -979,8 +1042,11 @@ class WPCOM_Features {
 			),
 		),
 		self::UPLOAD_THEMES                    => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 
 		/*
@@ -1024,8 +1090,11 @@ class WPCOM_Features {
 		 * - Jetpack sites with Premium or up plan.
 		 */
 		self::VIDEO_HOSTING                    => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		self::VIDEOPRESS                       => array(
 			self::JETPACK_BUSINESS_PLANS,
@@ -1034,7 +1103,7 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_PLANS,
 			self::JETPACK_VIDEOPRESS,
 			self::JETPACK_VIDEOPRESS_MONTHLY,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::WPCOM_VIDEOPRESS,
 			self::WPCOM_VIDEOPRESS_PRO,
 			self::WP_P2_PLUS_MONTHLY,
@@ -1044,6 +1113,9 @@ class WPCOM_Features {
 				self::JETPACK_SECURITY_REALTIME_PLANS,
 				self::JETPACK_SECURITY_T1_PLANS,
 				self::JETPACK_SECURITY_T2_PLANS,
+			),
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
 		),
 
@@ -1066,9 +1138,12 @@ class WPCOM_Features {
 		// VIDEOPRESS_VIDEO - videopress/video requires a paid plan.
 		self::VIDEOPRESS_VIDEO                 => array(
 			self::WP_P2_PLUS_MONTHLY,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS_NO_TRIAL,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_PREMIUM_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		self::VIDEOPRESS_UNLIMITED_STORAGE     => array(
 			array(
@@ -1099,6 +1174,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::WORDADS                          => array(
+			self::JETPACK_STARTER_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
@@ -1230,14 +1306,29 @@ class WPCOM_Features {
 	 * used to restrict access to a feature based on when the purchase was made. If the $purchase is included in
 	 * $products_map, and it was purchased within the defined date range (if a date range is defined), return true.
 	 *
+	 * Additionally, the 1st level of the array may contain the key 'excluded_plans' which is an array of plans that
+	 * should be excluded from the feature. This is useful for when there are very specific exceptions that would
+	 * otherwise require a lot of configuration to be added. If a plan is excluded, no further checks will be done.
+	 *
 	 * @param object $purchase A single purchase.
 	 * @param array  $products_map A feature map definition array.
 	 *
 	 * @return bool If the purchase is included in $products_map and meets any purchase date-range rules.
 	 */
 	public static function purchase_in_products_map( $purchase, $products_map ) {
+
+		// First check if the current purchase is excluded in the product definition.
+		if ( isset( $products_map[ self::EXCLUDE_PLANS ] ) ) {
+			$excluded_plans = $products_map[ self::EXCLUDE_PLANS ] ?? array();
+			if ( ! empty( $excluded_plans ) && self::in_array_recursive( $purchase->product_slug, array( $excluded_plans ) ) ) {
+				return false;
+			}
+			unset( $products_map[ self::EXCLUDE_PLANS ] );
+		}
+
 		// Loop through the first level of the $products_map array to identify potential legacy feature date ranges.
 		foreach ( $products_map as $product_definition ) {
+
 			if ( ! empty( $product_definition['product_type'] ) ) {
 				if ( in_array( $purchase->product_type, $product_definition['product_type'], true ) ) {
 					return true;
