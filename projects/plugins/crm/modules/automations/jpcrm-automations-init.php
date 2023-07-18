@@ -24,7 +24,7 @@ if ( ! apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {
  * @return void
  */
 function init() {
-	require_once JPCRM_MODULES_PATH . 'automations/admin-page-init.php';
+	require_once JPCRM_MODULES_PATH . 'automations/admin/admin-page-init.php';
 	initialize_admin_page();
 }
 
