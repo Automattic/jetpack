@@ -35,7 +35,7 @@
 					class="jb-navigator-link"
 					to="/image-size-analysis/{group}/1"
 					trackEvent="clicked_isa_settings_group"
-					trackEventProps="group"
+					trackEventProps={group}
 				>
 					<span class="jb-bubble" class:done={isDone} class:has-issues={hasIssues}>
 						{#if hasIssues}
@@ -53,7 +53,7 @@
 					class="jb-navigator-link"
 					to="/image-size-analysis/{group}/1"
 					trackEvent="clicked_isa_settings_group"
-					trackEventProps="group"
+					trackEventProps={group}
 				>
 					{isaGroupLabels[ group ] || group}
 				</ConditionalLink>
@@ -69,7 +69,7 @@
 						class="jb-navigator-link"
 						to="/image-size-analysis/{group}/1"
 						trackEvent="clicked_isa_settings_group"
-						trackEventProps="group"
+						trackEventProps={group}
 					>
 						{#if hasIssues}
 							{sprintf(
