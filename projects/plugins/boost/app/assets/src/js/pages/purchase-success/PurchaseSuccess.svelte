@@ -5,7 +5,6 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
-	import { regenerateCriticalCss } from '../../stores/critical-css-state';
 	import { modulesState } from '../../stores/modules';
 	import Logo from '../../svg/jetpack-green.svg';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
@@ -15,9 +14,9 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
 
-	onMount( async () => {
+	onMount( () => {
+		// Enable cloud css module on upgrade.
 		$modulesState.cloud_css.active = true;
-		await regenerateCriticalCss();
 	} );
 </script>
 
@@ -29,7 +28,7 @@
 				<h1 class="my-2">{__( 'Your Jetpack Boost has been upgraded!', 'jetpack-boost' )}</h1>
 				<p class="jb-card__summary my-2">
 					{__(
-						'When you update your site, it will now be optimized automatically with automated critical CSS',
+						'Your site now auto-generates Critical CSS and can analyze image sizes for efficient display.',
 						'jetpack-boost'
 					)}
 				</p>

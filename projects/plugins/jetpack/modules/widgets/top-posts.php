@@ -12,7 +12,6 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
-use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
@@ -428,10 +427,20 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 					);
 
 					if ( $image ) {
+						$post['image'] = Jetpack_PostImages::fit_image_url(
+							$image['src'],
+							$width,
+							$height
+						);
 
-						$post['image'] = $image['src'];
-						if ( 'blavatar' !== $image['from'] && 'gravatar' !== $image['from'] ) {
-							$post['image'] = Image_CDN_Core::cdn_url( $post['image'], array( 'resize' => "$width,$height" ) );
+						$post['image_srcset'] = Jetpack_PostImages::generate_cropped_srcset(
+							$image,
+							$width,
+							$height
+						);
+
+						if ( empty( $post['image_srcset'] ) ) {
+							$post['image_srcset'] = "{$post['image']} 1x";
 						}
 					}
 				}
@@ -467,13 +476,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 						if ( $post['image'] ) {
 							printf(
-								'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s><img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true"/></a>',
+								'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s><img loading="lazy" width="%4$d" height="%5$d" src="%6$s" srcset="%7$s" alt="%2$s" data-pin-nopin="true"/></a>',
 								esc_url( $filtered_permalink ),
 								esc_attr( wp_kses( $post['title'], array() ) ),
 								( get_queried_object_id() === $post['post_id'] ? ' aria-current="page"' : '' ),
 								absint( $width ),
 								absint( $height ),
-								esc_url( $post['image'] )
+								esc_url( $post['image'] ),
+								esc_attr( $post['image_srcset'] )
 							);
 						}
 
@@ -504,13 +514,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 						if ( $post['image'] ) {
 							printf(
-								'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s><img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true" class="widgets-list-layout-blavatar" /></a>',
+								'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s><img loading="lazy" width="%4$d" height="%5$d" src="%6$s" srcset="%7$s" alt="%2$s" data-pin-nopin="true" class="widgets-list-layout-blavatar" /></a>',
 								esc_url( $filtered_permalink ),
 								esc_attr( wp_kses( $post['title'], array() ) ),
 								( get_queried_object_id() === $post['post_id'] ? ' aria-current="page"' : '' ),
 								absint( $width ),
 								absint( $height ),
-								esc_url( $post['image'] )
+								esc_url( $post['image'] ),
+								esc_attr( $post['image_srcset'] )
 							);
 						}
 
