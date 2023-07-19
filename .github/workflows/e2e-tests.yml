@@ -133,7 +133,7 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Create tunnel"
-          pnpm run tunnel:up
+          nohup pnpm run tunnel:up "$HOME/tunnel.log"
           echo "::endgroup::"
         fi
 
@@ -183,6 +183,10 @@ jobs:
       continue-on-error: true
       run: |
         pnpm run tunnel:down
+        echo "::group::Tunnel logs"
+        cat "$HOME/tunnel.log"
+        echo "::endgroup::"
+
         # Update permissions to workaround https://github.com/actions/cache/issues/753
         sudo chown -R runner:docker "$GITHUB_WORKSPACE/tools/docker"
 
