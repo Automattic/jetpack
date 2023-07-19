@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ReactElement } from 'react';
-import TemplatePicker from '..';
+import TemplatePickerModal from '..';
 
 /**
  * Helper method to set up the user event.
@@ -14,9 +14,9 @@ const setup = jsx => ( {
 	...render( jsx ),
 } );
 
-const openTemplatePicker = async ( { onSelect = () => {} } = {} ) => {
+const openTemplatePickerModal = async ( { onSelect = () => {} } = {} ) => {
 	const { user } = setup(
-		<TemplatePicker
+		<TemplatePickerModal
 			onSelect={ onSelect }
 			render={ ( { open } ) => <button onClick={ open }>Open Template Picker</button> } // eslint-disable-line
 		/>
@@ -27,15 +27,15 @@ const openTemplatePicker = async ( { onSelect = () => {} } = {} ) => {
 	return { user };
 };
 
-describe( 'TemplatePicker', () => {
+describe( 'TemplatePickerModal', () => {
 	it( 'should open the template picker', async () => {
-		await openTemplatePicker();
+		await openTemplatePickerModal();
 
 		expect( screen.getByText( /Pick a Template/i ) ).toBeInTheDocument();
 	} );
 
 	it( 'should close the template picker', async () => {
-		const { user } = await openTemplatePicker();
+		const { user } = await openTemplatePickerModal();
 
 		const cancelButton = screen.getByRole( 'button', {
 			name: /Cancel/i,
@@ -47,7 +47,7 @@ describe( 'TemplatePicker', () => {
 
 	it( 'should render the template picker and pick a template', async () => {
 		const handleSelect = jest.fn();
-		const { user } = await openTemplatePicker( { onSelect: handleSelect } );
+		const { user } = await openTemplatePickerModal( { onSelect: handleSelect } );
 
 		const edgeTemplateButton = screen.getByRole( 'button', {
 			name: /Pick the Edge template/i,
@@ -65,7 +65,7 @@ describe( 'TemplatePicker', () => {
 
 	it( 'should not select a template if user presses cancel', async () => {
 		const handleSelect = jest.fn();
-		const { user } = await openTemplatePicker( { onSelect: handleSelect } );
+		const { user } = await openTemplatePickerModal( { onSelect: handleSelect } );
 
 		const edgeTemplateButton = screen.getByRole( 'button', {
 			name: /Pick the Edge template/i,
