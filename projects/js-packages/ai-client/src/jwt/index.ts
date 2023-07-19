@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite, isAtomicSite } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import debugFactory from 'debug';
 /*
@@ -47,6 +47,7 @@ export default async function requestJwt( {
 	expirationTime = expirationTime || JWT_TOKEN_EXPIRATION_TIME;
 
 	const isSimple = isSimpleSite();
+	const isAtomic = isAtomicSite();
 
 	// Trying to pick the token from localStorage
 	const token = localStorage.getItem( JWT_TOKEN_ID );
@@ -68,13 +69,14 @@ export default async function requestJwt( {
 	let data: TokenDataEndpointResponseProps;
 
 	if ( ! isSimple ) {
+		const endpoint = isAtomic ? '/jetpack/v4/jetpack-ai-jwt' : '/my-jetpack/v1/jetpack-ai-jwt';
 		data = await apiFetch( {
 			/*
 			 * This endpoint is registered in the Jetpack plugin.
 			 * Provably we should move it to another package, but for now it's here.
 			 * issue: https://github.com/Automattic/jetpack/issues/31938
 			 */
-			path: '/my-jetpack/v1/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
+			path: `${ endpoint }?_cacheBuster=${ Date.now() }`,
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
