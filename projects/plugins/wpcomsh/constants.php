@@ -32,4 +32,4 @@ define( 'WPCOMSH__PLUGIN_FILE', WPCOMSH__PLUGIN_DIR_PATH . '/wpcomsh.php' );
 define( 'JETPACK_BLOCKS_VARIATION', 'experimental' );
 
 // Date for lowering storage from 200 GB to 50 GB for business and higher plans. Ref: D108151-code.
-define( 'LEGACY_200GB_CUTOFF_DATE', '2023-07-30' );
+define( 'LEGACY_200GB_CUTOFF_DATE', '2023-07-20' );
