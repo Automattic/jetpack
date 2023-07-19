@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove composer `.config.platform.php` setting. No change to the plugin itself, and apparently no change to the non-dev deps either.
+
+
