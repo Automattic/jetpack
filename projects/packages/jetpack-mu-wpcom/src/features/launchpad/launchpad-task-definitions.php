@@ -784,7 +784,7 @@ add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
  * We do this by loading the `en` annotation for the site and theme.
  * We then check if there is a post with the title 'About'. If there is, we get the `hs_old_id` and check to make sure a corresponding post exists in the user's locale.
  *
- * @return int|null The post ID of the 'About' page if it exists, null otherwise.
+ * @return int|null The page ID of the 'About' page if it exists, null otherwise.
  */
 function wpcom_get_site_about_page_id() {
 	$annotation = wpcom_get_theme_annotation( get_stylesheet() );
@@ -797,12 +797,12 @@ function wpcom_get_site_about_page_id() {
 	// Use the annotation to build up a list of 'About' pages.
 	$headstart_about_pages = array_filter(
 		$annotation['content'],
-		function ( $post ) {
-			if ( 'page' !== $post['post_type'] ) {
+		function ( $page ) {
+			if ( 'page' !== $page['post_type'] ) {
 				return false;
 			}
 
-			if ( 'about' === $post['post_name'] || false !== strpos( $post['post_title'], 'About' ) ) {
+			if ( 'about' === $page['post_name'] || false !== strpos( $page['post_title'], 'About' ) ) {
 				return true;
 			}
 		}
