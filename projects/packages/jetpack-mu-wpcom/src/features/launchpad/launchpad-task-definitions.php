@@ -828,6 +828,8 @@ function wpcom_get_site_about_page_id() {
 
 	$filters     = array(
 		'post_type'    => 'page',
+		'numberposts'  => 1,
+		'orderby'      => 'meta_value',
 		'meta_key'     => '_hs_old_id',
 		'meta_compare' => 'IN',
 		'meta_value'   => $headstart_about_page_hs_old_ids,
