@@ -15,6 +15,9 @@
 	<exclude-pattern>/widgets</exclude-pattern>
 	<exclude-pattern>/support-session.php</exclude-pattern>
 
+	<!-- Exclude wpcom-features folder because it contains copies of wpcom files -->
+	<exclude-pattern>/wpcom-features</exclude-pattern>
+
 	<arg value="ps"/>
 	<arg name="basepath" value="."/><!-- Strip the file paths down to the relevant bit -->
 	<arg name="colors"/>
