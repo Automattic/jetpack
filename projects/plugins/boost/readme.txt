@@ -187,15 +187,20 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 2.0.0-beta - 2023-07-11
+### 2.0.0-beta.2 - 2023-07-19
 #### Added
-- Image Size Analyzer: A new premium feature which searches your site for images loaded at incorrect sizes.
+- Image Size Analyzer: New feature for Premium users which scans their site for image issues
+- Image Guide: Added an upgrade CTA
 
 #### Changed
 - Jetpack Boost: Beta tags removed from Concatenate CSS/JS and Image CDN.
+- General: indicate full compatibility with the latest version of WordPress, 6.3.
 
 #### Fixed
+- Cloud CSS: Fixed automatic start of cloud CSS regeneration when module is toggled on
 - General: Fixed error snackbar from showing under UI separators on the Getting Started page.
+- Speed Score: Prevented page speed scores from auto refreshing on page load.
+- Super Cache Measurement Tool: Fixed the use of the donotcachepage option during tests, which may have produced understated results
 
 --------
 
