@@ -5,7 +5,7 @@ import { Modal, Button } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-export function Proofread() {
+export default function Proofread() {
 	const [ isProofreadModalVisible, setIsProofreadModalVisible ] = useState( false );
 	const toogleProofreadModal = () => {
 		setIsProofreadModalVisible( ! isProofreadModalVisible );

@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
-import { Proofread } from '../proofread';
+import Proofread from '../proofread';
 
 const isPluginSidebarVisible =
 	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-plugin-sidebar-visible' ];
