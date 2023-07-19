@@ -800,7 +800,7 @@ function wpcom_get_site_about_page_id() {
 				return false;
 			}
 
-			if ( 'about' === $post['post_name'] || str_starts_with( $post['post_title'], 'About' ) ) {
+			if ( 'about' === $post['post_name'] || false !== strpos( $post['post_title'], 'About' ) ) {
 				return true;
 			}
 		}
