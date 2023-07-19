@@ -12,6 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_IXR_Client;
@@ -782,6 +783,25 @@ class Manager {
 
 		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
 			$connection_owner = get_userdata( $user_token->external_user_id );
+		}
+
+		if ( $connection_owner === false ) {
+			Error_Handler::get_instance()->report_error(
+				new WP_Error(
+					'invalid_connection_owner',
+					'Invalid connection owner',
+					array(
+						'user_id'           => $user_id,
+						'has_user_token'    => (bool) $user_token,
+						'error_type'        => 'connection',
+						'signature_details' => array(
+							'token' => '',
+						),
+					)
+				),
+				false,
+				true
+			);
 		}
 
 		return $connection_owner;
@@ -1892,6 +1912,7 @@ class Manager {
 				'site_lang'             => get_locale(),
 				'site_created'          => $this->get_assumed_site_creation_date(),
 				'allow_site_connection' => ! $this->has_connected_owner(),
+				'calypso_env'           => ( new Host() )->get_calypso_env(),
 			)
 		);
 

@@ -60,7 +60,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.11.x-dev"
+			"dev-trunk": "0.12.x-dev"
 		}
 	},
 	"config": {

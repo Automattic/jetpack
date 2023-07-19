@@ -2,7 +2,89 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.3-beta - 2023-06-26
+## 12.4-a.7 - 2023-07-18
+### Bug fixes
+- Sharing: fix icon font display following the addition of the Threads icon. [#31932]
+
+## 12.4-a.5 - 2023-07-17
+### Enhancements
+- AI Assistant: various improvements to syntax parsing, formatting, and other backend enhancements.
+- AI Extension: transform block to AI Assistant when using an AI Extension suggestion. [#31603]
+- Akismet: show correct logo for all Jetpack plans that include Akismet. [#31826]
+- Dashboard: add a new "Earn" section to the settings. [#31696]
+- Newsletters: add frontend subscriber modal. [#31393]
+- Social Menu & Social Media Icons: add support for the Threads service. [#31873]
+- Stats: show stats products in My Plan. [#31732]
+- Subscriptions: link to new Subscription management page from the Jetpack dashboard. [#31720]
+
+### Improved compatibility
+- Customizer: make the testimonial, featured content, portfolio, and related post customizer sections be shown only if current theme is not a block theme. [#31730] [#31779] [#31754] [#31755]
+- Social Links: prevent social links foom being used in block themes. [#31838]
+- WordPress.com REST API: avoid PHP notice when using PHP 8.2. [#31909]
+
+### Bug fixes
+- AI Assistant: fix crash when transforming to AI Assistant. [#31813]
+- API: fix PHP warning in list posts endpoint. [#31837]
+- Contact Form: avoid fatal errors when exporting form data to CSV. [#31858]
+- Forms: fix Forms dropdown required validation. [#31894]
+- Related Posts: do not display related posts in emails and outside of WordPress context. [#31861]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Follow-up fix for Automattic/jetpack/pull/31861. [#31871]
+- Updated package dependencies. [#31769]
+- Top posts widget: add srcset to thumbnails. [#31869]
+- AI Assistant: add Gutenberg syntax parsing. [#31766]
+- AI Assistant: display upgrade prompt for Simple and Atomic sites. [#31643]
+- AI Assistant: do not pre-populate inner blocks if Gutenberg syntax is not enabled. [#31822]
+- AI Assistant: extend blocks when upgrade is required. [#31814]
+- AI Assistant: extend list block and enhance content parsing. [#31901]
+- AI Assistant: fix transform issue when content has formatted text. [#31790]
+- AI Assistant: update AI Assistant request to be POST based. [#31128]
+- AI Assistant: introduce `ghostwriter` into AI Assistant block prompt. [#31806]
+- AI Extension: fix transform issue when Ask AI Assistant option. [#31842]
+- Sync: add cache check when trying to spawn dedicated sync or update JETPACK__VERSION to avoid additional requests to the DB. [#31645]
+
+## 12.4-a.3 - 2023-07-10
+### Enhancements
+- AI Assistant: add dev playground panel [#31762]
+- AI Assistant: Add GPT4 endpoint parameter [#31763]
+- AI Assistant: Enable custom prompt if provided [#31764]
+- Akismet: use Akismet logo instead of Jetpack logo in masthead [#31464]
+
+### Improved compatibility
+- Sharing: deprecate the Skype sharing button, as Skype ddoes not support those buttons anymore. [#31636]
+
+### Bug fixes
+- AI Assistant: Only append flag if no error [#31767]
+- Fixed users menu item pointing to wp-admin on Atomic sites. [#31699]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add playground flag in initial state [#31757]
+
+## 12.4-a.1 - 2023-07-05
+### Enhancements
+- AI Assistant: Keep original content when trying again after transforming a paragraph using the "Ask AI Assistant" button. [#31597]
+- Contact Forms: remove the default title ("You got a new response!") added to emails sent for new feedback received. [#31667]
+- Cookie Consent Block: Persist markup and ensure it is rendered in the footer. [#31511]
+- Custom CSS: Display a notice to recommend the use of Global Styles when you use a Block theme on your site. [#31413]
+- Subscribers page: Add subscribers page to menu. [#31567]
+
+### Improved compatibility
+- Tiled Galleries: Fix deprecation notices that may appear in logs when using PHP 8.2. [#31640]
+
+### Bug fixes
+- Dashboard: Fix Jetpack footer accessibility issues. [#31417]
+- Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard. [#31614]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add wpcom_site_setup property to /sites/{siteId} endpoint [#31664]
+- Dashboard: update wording for Custom CSS section when using a Block theme. [#31634]
+- Sync wpcom_site_setup site option [#31662]
+- Updated package dependencies. [#31659]
+- Updated package dependencies. [#31661]
+- WordPress.com Toolbar: only add Blaze Dashboard link once. [#31617]
+
+## [12.3] - 2023-07-05
 ### Enhancements
 - AI Assistant: extend AI features to select core blocks.
 - AI Extension: add ask assistant menu option. [#31568]
@@ -21,24 +103,27 @@
 - AI Extension: use ID on error notices to prevent stacking multiple notices. [#31584]
 - Customizer: fix an issue which was preventing the Customize menu from appearing for plugins that still require it to be present. [#31452]
 - Newsletters: properly gate newsletters based on the correct subscription product. [#31450]
+- Sharing Buttons: remove Reddit's official iframe sharing button, it is no longer working. Use icon+text sharing button instead. [#31666]
 - Social Review Prompt: fix the state so it is shown when Jetpack is also active. [#31456]
+- Subscriptions: avoid fatal error when site is connected to WordPress.com, but user account is not. [#31635]
 - Subscriptions: fix visibility misalignment. [#31544]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Assistant: replace imported store constants with strings. [#31585]
 - AI Assistant: add a specific delimiter for content in the prompts. [#31515]
 - AI Assistant: add transform from core to AI Assistant block. [#31442]
 - AI Assistant: change delimiter and remove it from responses. [#31518]
 - AI Assistant: disable toolbar tooltip when streaming suggestion. [#31581]
 - AI Assistant: remove page content from prompt. [#31465]
+- AI Assistant: replace imported store constants with strings. [#31585]
 - AI Extension: disable the AI toolbar button when the block doesn't have content. [#31559]
 - AI Extension: dispatch action to update extended block attributes. [#31437]
+- AI Extension: do not extend block sidebar. [#31476]
 - AI Extension: do not extend core blocks when the user decided to hide the AI Assistant block. [#31557]
 - AI Extension: extend core list item core block. [#31496]
 - AI Extension: handle errors from extended blocks actions. [#31497]
 - AI Extension: handle multiple blocks editing. [#31491]
-- AI Extension: improve block transform process for Heading core block type. [#31571]
 - AI Extension: improve block transform process. [#31481]
+- AI Extension: improve block transform process for Heading core block type. [#31571]
 - AI Extension: improve prompt when using the AI Assistant in extended blocks. [#31449]
 - AI Extension: iterate over prompt to try to keep the lang of the content. [#31482]
 - AI Extension: iterate over spelling and grammar prompt item. [#31509]
@@ -47,7 +132,6 @@
 - AI Extension: reorganize prompt items for the AI extension. [#31514]
 - AI Extension: tweak the tone prompt. [#31466]
 - AI Extension: winking toolbar color when requesting. [#31474]
-- AI Extension: do not extend block sidebar. [#31476]
 - Blaze: introduce module, instead of automatically initializing the feature. [#31479]
 - Connection: update visual used in banner. [#31440]
 - Dependency update. [#31394]
@@ -56,6 +140,7 @@
 - Newsletters: add tracks to email preview feature. [#31566]
 - Tock Block: avoid PHP warning when restaurant name isn't set. [#31577]
 - Updated package dependencies.
+- Upudate to-test.md for 12.3 [#31586]
 - Zendesk Chat Widget: add authentication to the widget. [#31339]
 
 ## 12.3-a.7 - 2023-06-19
@@ -8331,6 +8416,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 - Initial release
 
 [11.6]: https://wp.me/p1moTy-PLI
+[12.3]: https://wp.me/p1moTy-Uk3
 [12.2]: https://wp.me/p1moTy-Tzw
 [12.1]: https://wp.me/p1moTy-TA2
 [12.0]: https://wp.me/p1moTy-RGw

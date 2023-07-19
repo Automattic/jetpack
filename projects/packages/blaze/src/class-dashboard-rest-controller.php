@@ -48,7 +48,29 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_blaze_posts' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		// WordAds DSP API Posts routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/sites/%1$d/blaze/posts(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_blaze_posts' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		// WordAds DSP API Checkout route
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/wpcom/checkout', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'edit_wpcom_checkout' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 
@@ -59,7 +81,7 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_credits' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 
@@ -70,7 +92,7 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_campaigns' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 		register_rest_route(
@@ -86,11 +108,11 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Site Campaigns routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/sites/%d/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id, $site_id ),
+			sprintf( '/sites/%1$d/wordads/dsp/api/v1/sites/%1$d/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_site_campaigns' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 
@@ -101,7 +123,7 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_search' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 
@@ -112,7 +134,7 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_user' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 
@@ -123,7 +145,7 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_templates' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 
@@ -134,7 +156,7 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_subscriptions' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 
@@ -145,7 +167,7 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_smart' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 		register_rest_route(
@@ -165,7 +187,7 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_locations' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 
@@ -176,7 +198,7 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_countries' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 
@@ -187,7 +209,18 @@ class Dashboard_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_image' ),
-				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
+		// WordAds DSP API Logs routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/logs', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'edit_dsp_logs' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
 	}
@@ -197,7 +230,7 @@ class Dashboard_REST_Controller {
 	 *
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
-	public function can_user_view_blaze_posts_callback() {
+	public function can_user_view_dsp_callback() {
 		if (
 			$this->is_user_connected()
 			&& current_user_can( 'manage_options' )
@@ -233,18 +266,6 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
-	 * Only administrators can access the API.
-	 */
-	public function can_user_view_dsp_callback() {
-		// phpcs:ignore WordPress.WP.Capabilities.Unknown
-		if ( current_user_can( 'manage_options' ) ) {
-			return true;
-		}
-
-		return $this->get_forbidden_error();
-	}
-
-	/**
 	 * Builds the subpath including the query string to be used in the DSP call
 	 *
 	 * @param array $params The request object parameters.
@@ -266,6 +287,26 @@ class Dashboard_REST_Controller {
 		}
 
 		return $sub_path;
+	}
+
+	/**
+	 * Redirect GET requests to WordAds DSP Blaze Posts endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_blaze_posts( $req ) {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
+		// We don't use sub_path in the blaze posts, only query strings
+		if ( isset( $params['sub_path'] ) ) {
+			unset( $req->get_params()['sub_path'] );
+		}
+
+		return $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/blaze/posts', $site_id ), $req );
 	}
 
 	/**
@@ -370,7 +411,7 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function get_dsp_countries( $req ) {
-		return $this->get_dsp_generic( 'v1/countries', $req );
+		return $this->get_dsp_generic( 'v1/woo/countries', $req );
 	}
 
 	/**
@@ -388,9 +429,10 @@ class Dashboard_REST_Controller {
 	 *
 	 * @param String          $path The Root API endpoint.
 	 * @param WP_REST_Request $req The request object.
+	 * @param array           $args Request arguments.
 	 * @return array|WP_Error
 	 */
-	public function get_dsp_generic( $path, $req ) {
+	public function get_dsp_generic( $path, $req, $args = array() ) {
 		$site_id = $this->get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
@@ -399,8 +441,21 @@ class Dashboard_REST_Controller {
 		return $this->request_as_user(
 			sprintf( '/sites/%d/wordads/dsp/api/%s%s', $site_id, $path, $this->build_subpath_with_query_strings( $req->get_params() ) ),
 			'v2',
-			array( 'method' => 'GET' )
+			array_merge(
+				$args,
+				array( 'method' => 'GET' )
+			)
 		);
+	}
+
+	/**
+	 * Redirect POST/PUT/PATCH requests to WordAds DSP WPCOM Checkout endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function edit_wpcom_checkout( $req ) {
+		return $this->edit_dsp_generic( 'v1/wpcom/checkout', $req, array( 'timeout' => 20 ) );
 	}
 
 	/**
@@ -410,7 +465,17 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function edit_dsp_campaigns( $req ) {
-		return $this->edit_dsp_generic( 'v1/campaigns', $req );
+		return $this->edit_dsp_generic( 'v1/campaigns', $req, array( 'timeout' => 20 ) );
+	}
+
+	/**
+	 * Redirect POST/PUT/PATCH requests to WordAds DSP Logs endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function edit_dsp_logs( $req ) {
+		return $this->edit_dsp_generic( 'v1/logs', $req );
 	}
 
 	/**
@@ -428,9 +493,10 @@ class Dashboard_REST_Controller {
 	 *
 	 * @param String          $path The Root API endpoint.
 	 * @param WP_REST_Request $req The request object.
+	 * @param array           $args Request arguments.
 	 * @return array|WP_Error
 	 */
-	public function edit_dsp_generic( $path, $req ) {
+	public function edit_dsp_generic( $path, $req, $args = array() ) {
 		$site_id = $this->get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
@@ -439,7 +505,10 @@ class Dashboard_REST_Controller {
 		return $this->request_as_user(
 			sprintf( '/sites/%d/wordads/dsp/api/%s%s', $site_id, $path, $req->get_param( 'sub_path' ) ),
 			'v2',
-			array( 'method' => $req->get_method() ),
+			array_merge(
+				$args,
+				array( 'method' => $req->get_method() )
+			),
 			$req->get_body()
 		);
 	}

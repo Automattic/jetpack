@@ -142,6 +142,7 @@ class Defaults {
 		'stats_options',
 		'stb_enabled',
 		'stc_enabled',
+		'sm_enabled',
 		'sticky_posts',
 		'stylesheet',
 		'subscription_options',
@@ -180,6 +181,7 @@ class Defaults {
 		'wpcom_subscription_emails_use_excerpt',
 		'videopress_private_enabled_for_site',
 		'wpcom_gifting_subscription',
+		'wpcom_site_setup',
 	);
 
 	/**

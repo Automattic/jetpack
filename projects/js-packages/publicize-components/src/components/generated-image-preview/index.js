@@ -48,7 +48,6 @@ export default function GeneratedImagePreview( {
 		...useImageGeneratorConfig(),
 		...generatorConfigProps,
 	};
-
 	const { title, imageUrl } = useSelect( select => {
 		const featuredImage = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 		return {
