@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { quadOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
-	import { __, sprintf } from '@wordpress/i18n';
+	import { __, _n, sprintf } from '@wordpress/i18n';
 	import RecommendationContext from '../../../elements/RecommendationContext.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import { modulesState } from '../../../stores/modules';
@@ -30,7 +30,12 @@
 			<h1>
 				{sprintf(
 					/* translators: %d: number of image recommendations */
-					_n( '%d Image Recommendation', '%d Image Recommendations', $imageDataActiveGroup.issue_count, 'jetpack-boost' ),
+					_n(
+						'%d Image Recommendation',
+						'%d Image Recommendations',
+						$imageDataActiveGroup.issue_count,
+						'jetpack-boost'
+					),
 					$imageDataActiveGroup.issue_count
 				)}
 
