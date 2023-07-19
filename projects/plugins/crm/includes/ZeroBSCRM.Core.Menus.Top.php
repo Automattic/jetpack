@@ -81,6 +81,10 @@ function zeroBSCRM_bodyClassMods( $classes = '' ) {
 		if ( $hiding_wp ) {
 			$classes .= ' zbs-fullscreen ';
 		}
+
+		if ( isset( $_GET['page'] ) && jpcrm_is_full_width_page( $_GET['page'] ) ) { //phpcs:ignore
+			$classes .= ' jpcrm-full-width ';
+		}
 	}
 
 	return $classes;
