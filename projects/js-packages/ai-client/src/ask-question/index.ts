@@ -9,17 +9,39 @@ import SuggestionsEventSource from '../suggestions-event-source';
 import type { PromptItemProps } from '../types';
 
 type AskQuestionOptionsArgProps = {
+	/*
+	 * ID of the post where the question is asked.
+	 */
 	postId?: number;
+
+	/*
+	 * If set to true, the answer will be fetched from the cache. Default value is false.
+	 */
 	fromCache?: boolean;
+
+	/*
+	 * Allows to use a specific AI assistant feature. Default value is undefined.
+	 */
 	feature?: 'ai-assistant-experimental' | string | undefined;
 };
 
 /**
- * Leaving this here to make it easier to debug the streaming API calls for now
+ * An asynchronous function that asks a question
+ * and returns an event source with suggestions.
  *
- * @param {string|PromptItemProps[]} question  - The question to ask
- * @param {AskQuestionOptionsArgProps} options - Options
- * @returns {Promise<SuggestionsEventSource>}    The event source
+ * @param {string|PromptItemProps[]} question - The question to ask. It can be a simple string or an array of PromptItemProps objects.
+ * @param {AskQuestionOptionsArgProps} options - An optional object for additional configuration:
+ * @returns {Promise<SuggestionsEventSource>}    A promise that resolves to an instance of the SuggestionsEventSource
+ * @example
+ *  const question = "What is the meaning of life?";
+ *  const options = {
+ *      postId: 1,
+ *      fromCache: true,
+ *      feature: 'ai-assistant-experimental'
+ *  }
+ *  askQuestion( question, options ).then( suggestionsEventSource => {
+ *      // handle suggestionsEventSource
+ *  } );
  */
 export async function askQuestion(
 	question: string | PromptItemProps[],
