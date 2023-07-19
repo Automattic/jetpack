@@ -270,7 +270,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		})
 		</script>
 		<!---  // mobile only menu -->
-	<jpcrm-top-menu id="jpcrm-top-menu">
+	<div id="jpcrm-top-menu">
 		<div class="logo-cube <?php echo esc_attr( $admin_menu_state ); ?>">
 			<div class="cube-side side1">
 				<img alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>">
@@ -720,7 +720,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		</menu-section>
 		</menu-bar><!-- end .menu-bar -->
 
-	</jpcrm-top-menu>
+	</div>
 		<?php
 
 	}
