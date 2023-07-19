@@ -13,27 +13,23 @@ async function guardedImport( path ) {
 	try {
 		return await import( path );
 	} catch ( error ) {
-		const identity = v => v;
-		const chalk = await import( 'chalk' ).then(
-			m => m.default,
-			() => ( {} )
-		);
+		const bold =
+			( await import( 'chalk' ).then(
+				m => m.default?.stderr?.bold,
+				() => null
+			) ) || ( v => v );
 
+		console.error( error );
+		console.error( '' );
 		if ( error.code === 'ERR_MODULE_NOT_FOUND' ) {
 			// if pnpm install hasn't been run, the import() will fail here.
 			console.error(
-				'Something is missing from your install. Please run `pnpm install` and try again.'
-			);
-
-			// Print the original error's message too, as sometimes the error isn't fixed by `pnpm install`.
-			console.error(
-				( chalk.grey || identity )( `The original error message was ${ error.message }` )
+				bold(
+					'*** Something is missing from your install. Please run `pnpm install` and try again. ***'
+				)
 			);
 		} else {
-			console.error( error );
-			console.error(
-				( chalk.bold || identity )( 'Something unexpected happened. See error above.' )
-			);
+			console.error( bold( '*** Something unexpected happened. See error above. ***' ) );
 		}
 		process.exit( 1 );
 	}
@@ -63,8 +59,10 @@ process.chdir( fileURLToPath( new URL( '../../..', import.meta.url ) ) );
  * Checks to make sure we're on the right version of various tools.
  */
 try {
-	if ( ! ( await compareToolVersions() ) && ! process.env.JETPACK_CLI_IGNORE_VERSION_CHECKS ) {
-		console.error( '(Ignore the above errors by setting JETPACK_CLI_IGNORE_VERSION_CHECKS=1)' );
+	if ( ! ( await compareToolVersions() ) && ! process.env.JETPACK_CLI_NONFATAL_VERSION_CHECKS ) {
+		console.error(
+			'(Continue despite the above errors by setting JETPACK_CLI_NONFATAL_VERSION_CHECKS=1)'
+		);
 		process.exit( 1 );
 	}
 } catch ( error ) {
