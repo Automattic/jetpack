@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Fixed issues introduced by the Emerald design: margins of export pages, 'Invoicing Pro:' upsell misplaced header, removed the html custom element jpcrm-top-menu
