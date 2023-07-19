@@ -39,22 +39,13 @@ export async function askJetpack( question ) {
  * @param {object} options                    - Options
  * @param {number} options.postId             - The post where this completion is being requested, if available
  * @param {boolean} options.fromCache         - Get a cached response. False by default.
- * @param {boolean} options.requireUpgrade    - If the site requires an upgrade to use the feature
  * @param {boolean} options.useGpt4           - If the request should use GPT-4
  * @returns {Promise<SuggestionsEventSource>} The event source
  */
 export async function askQuestion(
 	question,
-	{ postId = null, fromCache = false, requireUpgrade, useGpt4 = false }
+	{ postId = null, fromCache = false, useGpt4 = false }
 ) {
-	if ( requireUpgrade ) {
-		/*
-		 * Return an empty event source
-		 * @todo: ideally, business part shouln't be here
-		 */
-		return new SuggestionsEventSource( '' );
-	}
-
 	const { token } = await requestJwt();
 
 	const url = new URL( 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query' );
