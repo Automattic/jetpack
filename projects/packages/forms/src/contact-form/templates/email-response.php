@@ -4,7 +4,7 @@
  * The template contains several placeholders:
  * %1$s is the hero text to display above the response
  * %2$s is the response itself.
- * %3$s is a link to the respone page in wp-admin
+ * %3$s is a link to the response page in wp-admin
  * %4$s is a link to the embedded form to allow the site owner to edit it to change their email address.
  * %5$s is the footer HTML.
  *
