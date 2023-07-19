@@ -2,6 +2,7 @@
 # Remember to end all directories with `/**` to properly tag every file.
 /_inc/blocks/**                                          production-include
 /_inc/build/**                                           production-include
+/_inc/social-logos/social-logos.min.*                    production-include
 /css/**                                                  production-include
 /jetpack_vendor/**                                       production-include
 /modules/**/*-rtl.css                                    production-include

@@ -27,7 +27,7 @@
 		"build-production-widget-visibility": "NODE_ENV=production BABEL_ENV=production pnpm run build-widget-visibility && pnpm exec validate-es ./_inc/build/widget-visibility/editor",
 		"build-widget-visibility": "webpack --config ./tools/webpack.config.widget-visibility.js",
 		"clean": "pnpm run clean-client && pnpm run clean-extensions",
-		"clean-client": "rm -rf _inc/build/ css/",
+		"clean-client": "rm -rf _inc/build/ _inc/social-logos/social-logos.min.* css/",
 		"clean-extensions": "rm -rf _inc/blocks/ ",
 		"compile-ts": "tsc --pretty",
 		"fixtures:regenerate": "REGENERATE_FIXTURES=y GENERATE_MISSING_FIXTURES=y pnpm test-extensions",

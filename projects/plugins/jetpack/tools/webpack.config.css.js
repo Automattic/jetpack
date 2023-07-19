@@ -64,12 +64,27 @@ const sharedWebpackConfig = {
 
 			// Leave fonts and images in place.
 			{
-				test: /\.(eot|ttf|woff|png|svg)$/i,
-				type: 'asset/resource',
-				generator: {
-					emit: false,
-					filename: '[file]',
-				},
+				test: /\.(eot|ttf|woff2?|png|svg)$/i,
+				oneOf: [
+					{
+						resourceQuery: /inline/,
+						type: 'asset/inline',
+						/* If we need to force application/octet-stream, add this:
+						generator: {
+							dataUrl: {
+								mimetype: 'application/octet-stream',
+							},
+						},
+						*/
+					},
+					{
+						type: 'asset/resource',
+						generator: {
+							emit: false,
+							filename: '[file]',
+						},
+					},
+				],
 			},
 		],
 	},
@@ -115,6 +130,10 @@ const RenamerPlugin = {
 // CSS that's built in almost a normal way.
 const entries = {
 	'_inc/build/style.min': path.join( __dirname, '../_inc/client', 'scss/style.scss' ),
+	'_inc/social-logos/social-logos.min': path.join(
+		__dirname,
+		'../_inc/social-logos/social-logos.css'
+	),
 };
 
 // CSS that needs to have the rtl files renamed using the above RenamerPlugin.

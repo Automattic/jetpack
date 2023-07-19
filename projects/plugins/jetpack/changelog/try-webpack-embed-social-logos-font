@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Have Webpack embed social-logos.woff2 in the CSS file to simplify updates.
