@@ -223,6 +223,7 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
+		new REST_AI();
 
 		register_rest_route(
 			'my-jetpack/v1',
