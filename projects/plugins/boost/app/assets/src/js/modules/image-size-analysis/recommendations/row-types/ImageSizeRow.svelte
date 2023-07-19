@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import Button from '../../../../elements/Button.svelte';
+	import { recordBoostEventAndRedirect } from '../../../../utils/analytics';
 	import Device from '../components/Device.svelte';
 	import Pill from '../components/Pill.svelte';
 	import RowTitle from '../components/RowTitle.svelte';
@@ -47,7 +48,11 @@
 		</div>
 
 		<div class="jb-table-row__hover-content">
-			<TableRowHover edit_url={details.page.edit_url} instructions={details.instructions} />
+			<TableRowHover
+				device_type={details.device_type}
+				edit_url={details.page.edit_url}
+				instructions={details.instructions}
+			/>
 		</div>
 
 		<div class="jb-table-row__device">
@@ -137,7 +142,16 @@
 			<p>{details.instructions}</p>
 			{#if details.page.edit_url}
 				<div class="jb-actions">
-					<Button width="auto" href={details.page.edit_url} fill>
+					<Button
+						width="auto"
+						fill
+						on:click={() =>
+							recordBoostEventAndRedirect(
+								details.page.edit_url,
+								'clicked_fix_on_page_on_isa_report',
+								{ device_type: details.device_type }
+							)}
+					>
 						{__( 'Fix on page', 'jetpack-boost' )}
 					</Button>
 				</div>
