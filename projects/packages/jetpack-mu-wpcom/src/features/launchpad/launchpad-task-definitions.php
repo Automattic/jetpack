@@ -861,8 +861,8 @@ function wpcom_is_update_about_page_task_visible() {
  * @param WP_Post $post The post object.
  */
 function wpcom_update_about_page_check( $post_id, $post ) {
-	// Don't do anything if the task is already complete.
-	if ( wpcom_is_task_option_completed( array( 'id' => 'update_about_page' ) ) ) {
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return;
 	}
 
@@ -871,13 +871,13 @@ function wpcom_update_about_page_check( $post_id, $post ) {
 		return;
 	}
 
-	// Ensure that Headstart posts don't mark this as complete
-	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+	// We only care about published pages. Pages added via the API are not published by default.
+	if ( $post->post_status !== 'publish' ) {
 		return;
 	}
 
-	// We only care about published pages. Pages added via the API are not published by default.
-	if ( $post->post_status !== 'publish' ) {
+	// Don't do anything if the task is already complete.
+	if ( wpcom_is_task_option_completed( array( 'id' => 'update_about_page' ) ) ) {
 		return;
 	}
 
