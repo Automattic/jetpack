@@ -93,7 +93,10 @@
 					<WarningIcon class="icon" />
 					{sprintf(
 						// translators: 1: Number of scanned issues found 2: Number of scanned pages
-						__( 'Found a total of %1$d issues from %2$d latest pages scanned.', 'jetpack-boost' ),
+						__(
+							'Found a total of %1$d issues after scanning your %2$d most recent pages.',
+							'jetpack-boost'
+						),
 						totalIssues,
 						$scannedPagesCount
 					)}
@@ -102,7 +105,10 @@
 				<div class="summary">
 					{sprintf(
 						// translators: %d: Number of pages scanned
-						__( 'Congratulations; no issues found from %d latest pages scanned.', 'jetpack-boost' ),
+						__(
+							'Congratulations; no issues found after scanning your %d most recent pages.',
+							'jetpack-boost'
+						),
 						$scannedPagesCount
 					)}
 				</div>
