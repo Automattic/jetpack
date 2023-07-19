@@ -780,7 +780,9 @@ function wpcom_add_new_page_check( $post_id, $post ) {
 add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
 
 /**
- * Determine if the site has an 'About' page. We do this by loading the `en` annotation for the site and theme. We then check if there is a post with the title 'About'. If there is, we get the `hs_old_id` and check to make sure a corresponding post exists in the user's locale.
+ * Determine if the site has an 'About' page.
+ * We do this by loading the `en` annotation for the site and theme.
+ * We then check if there is a post with the title 'About'. If there is, we get the `hs_old_id` and check to make sure a corresponding post exists in the user's locale.
  *
  * @return int|null The post ID of the 'About' page if it exists, null otherwise.
  */
