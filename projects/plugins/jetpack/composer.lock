@@ -2073,7 +2073,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "1ae0c5ef9dbf511c3f1575f49d476a43d76c98c2"
+                "reference": "226cbe2fb792b680194c58917f54a8a8000a4440"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2100,7 +2100,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.30.x-dev"
+                    "dev-trunk": "0.31.x-dev"
                 }
             },
             "autoload": {
@@ -2461,7 +2461,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "8254f98df9bf989973d102a2901b2328e51775c0"
+                "reference": "fbf046fbd7b00d1ac7a0c4d949e06603ac565508"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -2483,7 +2483,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.17.x-dev"
+                    "dev-trunk": "1.18.x-dev"
                 }
             },
             "autoload": {
@@ -2658,7 +2658,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "278b09f381778a035f26eeb7a0905e3e87533114"
+                "reference": "233fe943efc72d8b0fcdd036a2467bb9c9710676"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2684,7 +2684,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 }
             },
             "autoload": {

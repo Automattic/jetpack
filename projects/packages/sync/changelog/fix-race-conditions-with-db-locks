@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Jetpack & Jetpack Sync: Added cache check when trying to spawn dedicated sync or update JETPACK__VERSION to avoid additional requests to the DB if external cache is available.
