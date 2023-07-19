@@ -10,7 +10,7 @@ import Tabs from './tabs';
 
 const Edit = props => {
 	const { attributes, className, setAttributes } = props;
-	const { currency } = attributes;
+	const { currency, hasCurrencyBeenUpdatedByUser } = attributes;
 
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
@@ -23,9 +23,7 @@ const Edit = props => {
 	);
 
 	useEffect( () => {
-		setAttributes( {
-			fallbackLinkUrl: post.link,
-		} );
+		setAttributes( { fallbackLinkUrl: post.link } );
 	}, [ post.link, setAttributes ] );
 
 	const stripeCurrency = useSelect( select => {
@@ -33,12 +31,14 @@ const Edit = props => {
 			MEMBERSHIPS_PRODUCTS_STORE
 		).getConnectedAccountDefaultCurrency();
 
-		return defaultStripeCurrency ? defaultStripeCurrency : 'USD';
+		return defaultStripeCurrency ? defaultStripeCurrency : currency;
 	} );
 
-	if ( ! currency ) {
-		setAttributes( { currency: stripeCurrency } );
-	}
+	useEffect( () => {
+		if ( ! hasCurrencyBeenUpdatedByUser ) {
+			setAttributes( { currency: stripeCurrency } );
+		}
+	}, [ stripeCurrency, setAttributes, hasCurrencyBeenUpdatedByUser ] );
 
 	const apiError = message => {
 		setLoadingError( message );

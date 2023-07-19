@@ -46,6 +46,7 @@ const Controls = props => {
 
 		setAttributes( {
 			currency: ccy,
+			hasCurrencyBeenUpdatedByUser: true,
 			oneTimeDonation: { ...oneTimeDonation, amounts: defaultAmounts },
 			monthlyDonation: { ...monthlyDonation, amounts: defaultAmounts },
 			annualDonation: { ...annualDonation, amounts: defaultAmounts },
