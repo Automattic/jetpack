@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: This PR adds a script to composer.json for our internal tooling which users won't benefit from learning about
+
+

@@ -1,5 +1,5 @@
 import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
-import { SocialImageGeneratorTemplatePicker as TemplatePicker } from '@automattic/jetpack-publicize-components';
+import { SocialImageGeneratorTemplatePickerModal as TemplatePickerModal } from '@automattic/jetpack-publicize-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -38,7 +38,7 @@ const SocialImageGeneratorToggle: React.FC = () => {
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const renderTemplatePicker = useCallback(
+	const renderTemplatePickerModal = useCallback(
 		( { open } ) => (
 			<Button
 				fullWidth={ isSmall }
@@ -66,10 +66,10 @@ const SocialImageGeneratorToggle: React.FC = () => {
 					'jetpack-social'
 				) }
 			</Text>
-			<TemplatePicker
+			<TemplatePickerModal
 				value={ currentTemplate || defaultTemplate }
 				onSelect={ setCurrentTemplate }
-				render={ renderTemplatePicker }
+				render={ renderTemplatePickerModal }
 			/>
 		</ToggleSection>
 	);
