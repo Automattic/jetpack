@@ -3,8 +3,10 @@
 	import { __, sprintf } from '@wordpress/i18n';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
-	import NoticeIcon from '../../svg/notice-outline.svg';
+	import ImageCDNRecommendation from '../../elements/ImageCDNRecommendation.svelte';
+	import { modulesState } from '../../stores/modules';
 	import RefreshIcon from '../../svg/refresh.svg';
+	import WarningIcon from '../../svg/warning-outline.svg';
 	import MultiProgress from './MultiProgress.svelte';
 	import { resetIsaQuery } from './store/isa-data';
 	import {
@@ -12,6 +14,7 @@
 		initializeIsaSummary,
 		isaSummary,
 		ISAStatus,
+		scannedPagesCount,
 	} from './store/isa-summary';
 
 	onMount( () => {
@@ -64,6 +67,13 @@
 			requestingReport = false;
 		}
 	}
+
+	/**
+	 * Work out whether to recommend the Image CDN. It should show if the CDN is off and no report has been run, or a report has found issues.
+	 */
+	$: showCDNRecommendation =
+		! $modulesState.image_cdn.active &&
+		( totalIssues > 0 || $isaSummary?.status === ISAStatus.NotFound );
 </script>
 
 {#if ! $isaSummary}
@@ -89,16 +99,27 @@
 		<div class="summary-line">
 			{#if totalIssues > 0}
 				<div class="has-issues summary">
-					<NoticeIcon class="icon" />
+					<WarningIcon class="icon" />
 					{sprintf(
-						/* translators: %d is the number of issues that were found */
-						__( 'Found a total of %d issues', 'jetpack-boost' ),
-						totalIssues
+						// translators: 1: Number of scanned issues found 2: Number of scanned pages
+						__(
+							'Found a total of %1$d issues after scanning your %2$d most recent pages.',
+							'jetpack-boost'
+						),
+						totalIssues,
+						$scannedPagesCount
 					)}
 				</div>
 			{:else}
 				<div class="summary">
-					{__( 'Congratulations; no issues found.', 'jetpack-boost' )}
+					{sprintf(
+						// translators: %d: Number of pages scanned
+						__(
+							'Congratulations; no issues found after scanning your %d most recent pages.',
+							'jetpack-boost'
+						),
+						$scannedPagesCount
+					)}
 				</div>
 			{/if}
 
@@ -117,6 +138,15 @@
 	<!-- Show progress if a job is rolling. -->
 	{#if ! requestingReport && [ ISAStatus.Completed, ISAStatus.Queued ].includes( $isaSummary.status )}
 		<MultiProgress />
+	{/if}
+
+	<!-- Show recommendation to enable Image CDN if it was inactive and issues have been found -->
+	{#if showCDNRecommendation}
+		<div class="jb-notice">
+			<div class="jb-notice__content">
+				<ImageCDNRecommendation />
+			</div>
+		</div>
 	{/if}
 
 	<!-- Show a button to view the report if it's in progress or completed. -->
@@ -177,7 +207,7 @@
 	}
 
 	.has-issues {
-		color: $red_50;
+		color: var( --jp-orange-20 );
 	}
 
 	.has-issues :global( svg ) {
@@ -197,5 +227,18 @@
 
 	.button-area {
 		margin-top: 32px;
+	}
+
+	.jb-notice {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 16px 24px;
+		margin: 32px 0;
+		border: 2px solid $jetpack-green;
+		border-radius: $border-radius;
+		background-color: #ffffff;
+		text-align: left;
 	}
 </style>

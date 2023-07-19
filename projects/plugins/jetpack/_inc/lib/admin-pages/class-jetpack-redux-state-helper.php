@@ -216,7 +216,7 @@ class Jetpack_Redux_State_Helper {
 			'currentIp'                   => IP_Utils::get_ip(),
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => self::get_external_services_connect_urls(),
-			'calypsoEnv'                  => Jetpack::get_calypso_env(),
+			'calypsoEnv'                  => ( new Host() )->get_calypso_env(),
 			'products'                    => Jetpack::get_products_for_purchase(),
 			'recommendationsStep'         => Jetpack_Core_Json_Api_Endpoints::get_recommendations_step()['step'],
 			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.

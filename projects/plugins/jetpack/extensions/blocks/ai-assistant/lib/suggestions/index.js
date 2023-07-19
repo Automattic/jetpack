@@ -1,12 +1,9 @@
 /**
  * External dependencies
  */
+import { requestJwt } from '@automattic/jetpack-ai-client';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import debugFactory from 'debug';
-/**
- * Internal dependencies
- */
-import { requestToken } from './token';
 
 const debug = debugFactory( 'jetpack-ai-assistant' );
 
@@ -58,7 +55,7 @@ export async function askQuestion(
 		return new SuggestionsEventSource( '' );
 	}
 
-	const { token } = await requestToken();
+	const { token } = await requestJwt();
 
 	const url = new URL( 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query' );
 	const options = { postId, useGpt4 };

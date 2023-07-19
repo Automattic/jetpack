@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Transferred 'get_calypso_env()' method from Jetpack plugin.
