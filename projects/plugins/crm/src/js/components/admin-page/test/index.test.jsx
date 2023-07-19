@@ -10,8 +10,8 @@ describe( 'AdminPage', () => {
 			</AdminPage>
 		);
 
-		expect( screen.getByText( 'This is a child element.' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Headline is present' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Headline is present' } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Sub-headline is present' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'This is a child element.' ) ).toBeInTheDocument();
 	} );
 } );
