@@ -6,7 +6,7 @@
  */
 
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { Modal, SelectControl, Button, TextControl } from '@wordpress/components';
+import { Modal, SelectControl, Button, TextControl, BaseControl } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
@@ -27,15 +27,16 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 	const [ localCustomText, setEditedCustomText ] = useState( customText );
 	const [ localTemplate, setEditedTemplate ] = useState( template );
 
-	const [ mediaDetails ] = useMediaDetails( imageId );
+	const [ mediaDetails ] = useMediaDetails( localImageId );
 
 	const saveSettings = useCallback( () => {
 		//TODO: Commit the settings
 		updateSettings( {
 			template: localTemplate,
 			image_type: localImageType,
-			image_id: localImageId,
-			custom_text: localCustomText,
+			custom_text: localCustomText || '',
+			// Only set image_id if it's a custom image
+			...( localImageType === 'custom' && { image_id: localImageId } ),
 		} );
 		onClose();
 	}, [ updateSettings, localTemplate, localImageType, localImageId, localCustomText, onClose ] );
@@ -72,6 +73,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 						mediaDetails={ mediaDetails }
 						onChange={ onCustomImageChange }
 						allowedMediaTypes={ ALLOWED_MEDIA_TYPES }
+						imageClassName={ styles.customImage }
 					/>
 				) }
 			</>
@@ -80,7 +82,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 
 	return (
 		<ThemeProvider targetDom={ document.body }>
-			<Modal className={ styles.container } onRequestClose={ onClose }>
+			<Modal onRequestClose={ onClose }>
 				<GeneratedImagePreview
 					className={ styles.preview }
 					{ ...{
@@ -90,21 +92,20 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 						template: localTemplate,
 					} }
 				/>
-				<div className={ styles.controls }>
-					<ImageOptions />
-					<hr />
-					<TextControl
-						value={ localCustomText || '' }
-						onChange={ setEditedCustomText }
-						label={ __( 'Custom Header', 'jetpack' ) }
-						help={ __(
-							'By default the post title is used for the image. You can use this field to set your own text.',
-							'jetpack'
-						) }
-					/>
-					<hr />
+				<ImageOptions />
+				<TextControl
+					className={ styles.customText }
+					value={ localCustomText || '' }
+					onChange={ setEditedCustomText }
+					label={ __( 'Custom Header', 'jetpack' ) }
+					help={ __(
+						'By default the post title is used for the image. You can use this field to set your own text.',
+						'jetpack'
+					) }
+				/>
+				<BaseControl label={ __( 'Templates', 'jetpack' ) } className={ styles.templateControl }>
 					<TemplatePicker value={ localTemplate } onTemplateSelected={ setEditedTemplate } />
-				</div>
+				</BaseControl>
 				<Button onClick={ onClose } variant="tertiary">
 					{ __( 'Cancel', 'jetpack' ) }
 				</Button>

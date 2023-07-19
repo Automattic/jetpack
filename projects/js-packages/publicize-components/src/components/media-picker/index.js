@@ -4,6 +4,7 @@ import { ResponsiveWrapper, Spinner, VisuallyHidden } from '@wordpress/component
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
+import classNames from 'classnames';
 import { isVideo } from '../../hooks/use-media-restrictions';
 import VideoPreview from '../video-preview';
 import styles from './styles.module.scss';
@@ -17,6 +18,7 @@ import styles from './styles.module.scss';
  * @param {number} props.mediaId - The ID of the currently selected media
  * @param {object} props.mediaDetails - The details of the media for preview
  * @param {Function} props.onChange - A callback that can be passed to parent for validation
+ * @param {string} props.imageClassName - A class name to be added to the image
  * @returns {object} The media section.
  */
 export default function MediaPicker( {
@@ -25,6 +27,7 @@ export default function MediaPicker( {
 	mediaId = null,
 	mediaDetails = {},
 	onChange,
+	imageClassName,
 } ) {
 	const { mediaData: { width, height, sourceUrl } = {}, metaData: { mime, length = null } = {} } =
 		mediaDetails;
@@ -65,14 +68,18 @@ export default function MediaPicker( {
 							></VideoPreview>
 						) : (
 							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
-								<img src={ sourceUrl } alt="" className={ styles[ 'preview-image' ] } />
+								<img
+									src={ sourceUrl }
+									alt=""
+									className={ classNames( styles[ 'preview-image' ], imageClassName ) }
+								/>
 							</ResponsiveWrapper>
 						) }
 					</button>
 				</div>
 			);
 		},
-		[ height, length, mime, onRemoveMedia, sourceUrl, width ]
+		[ height, length, mime, onRemoveMedia, sourceUrl, width, imageClassName ]
 	);
 
 	const renderPicker = useCallback(
