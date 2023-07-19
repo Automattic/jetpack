@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { PanelBody } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 
 const isPluginSidebarVisible =

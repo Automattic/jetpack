@@ -10,7 +10,6 @@ import { getIconColor } from '../../shared/block-icons';
  * Internal dependencies
  */
 import attributes from './attributes';
-import AiAssistantPluginSidebar from './components/ai-assistant-plugin-sidebar';
 import edit from './edit';
 import Icon from './icons/ai-assistant';
 import transforms from './transforms';
@@ -88,9 +87,4 @@ export const settings = {
 			originalContent: __( "I'm afraid I can't do that, Dave.", 'jetpack' ),
 		},
 	},
-};
-
-// plugin settings
-export const pluginSettings = {
-	render: () => <AiAssistantPluginSidebar />,
 };
