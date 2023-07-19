@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
+import { HashRouter } from 'react-router-dom';
 import { AutomationsAdmin } from '.';
 
 /**
@@ -14,9 +15,11 @@ const render = () => {
 
 	// @todo: Remove fallback when we drop support for WP 6.1
 	const component = (
-		<ThemeProvider>
-			<AutomationsAdmin />
-		</ThemeProvider>
+		<HashRouter>
+			<ThemeProvider>
+				<AutomationsAdmin />
+			</ThemeProvider>
+		</HashRouter>
 	);
 
 	if ( WPElement.createRoot ) {
