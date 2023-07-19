@@ -55,7 +55,7 @@
 	/**
 	 * Start a new image analysis job.
 	 */
-	async function onStartAnalysis() {
+	async function startAnalysis() {
 		try {
 			errorMessage = undefined;
 			requestingReport = true;
@@ -74,7 +74,7 @@
 				? 'clicked_restart_isa_on_summary_page'
 				: 'clicked_start_isa_on_summary_page';
 		recordBoostEvent( $event_name, {} );
-		return onStartAnalysis();
+		return startAnalysis();
 	}
 
 	/**
