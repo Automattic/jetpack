@@ -55,6 +55,12 @@ $image_data = Schema::as_assoc_array(
 		),
 
 	)
+)->fallback(
+	array(
+		'id'     => '',
+		'type'   => 'bad_entry',
+		'status' => 'active',
+	)
 );
 
 $image_size_analysis = Schema::as_assoc_array(
