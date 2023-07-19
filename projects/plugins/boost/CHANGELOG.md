@@ -5,15 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0-beta] - 2023-07-11
+## [2.0.0-beta.2] - 2023-07-19
 ### Added
-- Image Size Analyzer: A new premium feature which searches your site for images loaded at incorrect sizes.
+- Image Size Analyzer: New feature for Premium users which scans their site for image issues [#31794]
+- Image Guide: Added an upgrade CTA [#31829]
 
 ### Changed
 - Jetpack Boost: Beta tags removed from Concatenate CSS/JS and Image CDN. [#31777]
+- General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
 
 ### Fixed
+- Cloud CSS: Fixed automatic start of cloud CSS regeneration when module is toggled on [#31887]
 - General: Fixed error snackbar from showing under UI separators on the Getting Started page. [#31706]
+- Speed Score: Prevented page speed scores from auto refreshing on page load. [#31863]
+- Super Cache Measurement Tool: Fixed the use of the donotcachepage option during tests, which may have produced understated results [#31828]
 
 ## [1.9.2-beta] - 2023-06-23
 ### Added
@@ -274,7 +279,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[2.0.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/1.9.2-beta...2.0.0-beta
+[2.0.0-beta.2]: https://github.com/Automattic/jetpack-boost-production/compare/1.9.2-beta...2.0.0-beta
 [1.9.2-beta]: https://github.com/Automattic/jetpack-boost-production/compare/1.9.1...1.9.2-beta
 [1.9.1]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.8.0...boost/branch-1.9.1
 [1.8.0]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.7.0...boost/branch-1.8.0
