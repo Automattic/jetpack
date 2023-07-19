@@ -101,7 +101,7 @@ export default class SuggestionsEventSource extends EventTarget {
 			body: JSON.stringify( bodyData ),
 
 			onclose: () => {
-				debug( 'Stream closed unexpectedly' );
+				debug( 'Stream closed' );
 			},
 
 			onerror: err => {
@@ -157,24 +157,26 @@ export default class SuggestionsEventSource extends EventTarget {
 	}
 
 	checkForUnclearPrompt() {
-		if ( ! this.isPromptClear ) {
-			/*
-			 * Sometimes the first token of the message is not received,
-			 * so we check only for JETPACK_AI_ERROR, ignoring:
-			 * - the double underscores (italic markdown)
-			 * - the doouble asterisks (bold markdown)
-			 */
-			const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
-			if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {
-				// The unclear prompt marker was found, so we dispatch an error event
-				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
-			} else if ( 'JETPACK_AI_ERROR'.startsWith( replacedMessage ) ) {
-				// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
-				debug( this.fullMessage );
-			} else {
-				// Mark the prompt as clear
-				this.isPromptClear = true;
-			}
+		if ( this.isPromptClear ) {
+			return;
+		}
+
+		/*
+		 * Sometimes the first token of the message is not received,
+		 * so we check only for JETPACK_AI_ERROR, ignoring:
+		 * - the double underscores (italic markdown)
+		 * - the doouble asterisks (bold markdown)
+		 */
+		const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
+		if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {
+			// The unclear prompt marker was found, so we dispatch an error event
+			this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
+		} else if ( 'JETPACK_AI_ERROR'.startsWith( replacedMessage ) ) {
+			// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
+			debug( this.fullMessage );
+		} else {
+			// Mark the prompt as clear
+			this.isPromptClear = true;
 		}
 	}
 
@@ -206,13 +208,12 @@ export default class SuggestionsEventSource extends EventTarget {
 	}
 
 	processConnectionError( response ) {
-		debug( 'Connection error' );
-		debug( response );
+		debug( 'Connection error: %o', response );
 		this.dispatchEvent( new CustomEvent( 'error_network', { detail: response } ) );
 	}
 
 	processErrorEvent( e ) {
-		debug( e );
+		debug( 'onerror: %o', e );
 
 		// Dispatch a generic network error event
 		this.dispatchEvent( new CustomEvent( 'error_network', { detail: e } ) );
