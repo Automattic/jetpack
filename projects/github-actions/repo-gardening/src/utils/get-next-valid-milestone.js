@@ -59,11 +59,7 @@ async function getNextValidMilestone( octokit, owner, repo, plugin = 'jetpack' )
 			 * automatically added to milestones that have entered a code freeze.
 			 */
 			const match = m.description.match( /(?:Code Freeze|Branch Cut): (\d{4}-\d{2}-\d{2})/ );
-			if ( match && moment( match[ 1 ] ).isBefore( moment() ) ) {
-				return false;
-			}
-
-			return m;
+			return ! ( match && moment( match[ 1 ] ) < moment() );
 		} )
 		.sort( ( m1, m2 ) =>
 			compareVersions( m1.title.split( '/' )[ 1 ], m2.title.split( '/' )[ 1 ] )
