@@ -97,7 +97,13 @@ function register_block() {
 	add_filter(
 		'jetpack_sync_post_meta_whitelist',
 		function ( $allowed_meta ) {
-			return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+			return array_merge(
+				$allowed_meta,
+				array(
+					'jetpack_memberships_site_subscriber',
+					META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+				)
+			);
 		}
 	);
 
