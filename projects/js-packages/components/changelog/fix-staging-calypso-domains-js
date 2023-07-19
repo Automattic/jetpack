@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use Connection initial state for fetching Calypso Env.

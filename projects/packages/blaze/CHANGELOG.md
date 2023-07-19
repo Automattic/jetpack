@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+### Fixed
+- Dashboard: Fixed compatibility with the checkout endpoint [#31756]
+
+## [0.8.0] - 2023-07-10
+### Added
+- Added compatibility to new logs endpoint in DSP [#31694]
+
 ## [0.7.2] - 2023-07-05
 ### Changed
 - Change Dashboard: Change to return connected user information to use for analytics [#31654]
@@ -159,6 +170,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.8.1]: https://github.com/automattic/jetpack-blaze/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/automattic/jetpack-blaze/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/automattic/jetpack-blaze/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/automattic/jetpack-blaze/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/automattic/jetpack-blaze/compare/v0.6.0...v0.7.0

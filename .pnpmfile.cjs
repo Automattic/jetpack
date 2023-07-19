@@ -64,6 +64,16 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Missing dep on @emotion/react.
+	// https://github.com/WordPress/gutenberg/issues/52474
+	if (
+		pkg.name === '@wordpress/block-editor' &&
+		pkg.dependencies?.[ '@emotion/styled' ] &&
+		! pkg.dependencies?.[ '@emotion/react' ]
+	) {
+		pkg.dependencies[ '@emotion/react' ] = '^11.7.1';
+	}
+
 	// Avoid annoying flip-flopping of sub-dep peer deps.
 	// https://github.com/localtunnel/localtunnel/issues/481
 	if ( pkg.name === 'localtunnel' ) {
@@ -114,6 +124,15 @@ function fixDeps( pkg ) {
 		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+	}
+
+	// Annoying tilde dep, already fixed in storybook 7.1
+	if ( pkg.name === '@storybook/codemod' || pkg.name === '@storybook/csf-tools' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@babel/' ) && ver.startsWith( '~' ) ) {
+				pkg.dependencies[ dep ] = '^' + ver.substring( 1 );
+			}
+		}
 	}
 
 	return pkg;

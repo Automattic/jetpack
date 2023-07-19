@@ -10,6 +10,7 @@ test.describe( 'Starter plugin!', () => {
 		await page.close();
 	} );
 
+	// eslint-disable-next-line playwright/expect-expect -- TODO: Fix/justify this.
 	test( 'Visit Jetpack page', async ( { page } ) => {
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectJetpack();

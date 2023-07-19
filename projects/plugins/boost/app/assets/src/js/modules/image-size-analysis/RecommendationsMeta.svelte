@@ -3,7 +3,11 @@
 	import { __, sprintf } from '@wordpress/i18n';
 	import Button from '../../elements/Button.svelte';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
+	import ImageCDNRecommendation from '../../elements/ImageCDNRecommendation.svelte';
+	import { modulesState } from '../../stores/modules';
 	import RefreshIcon from '../../svg/refresh.svg';
+	import WarningIcon from '../../svg/warning-outline.svg';
+	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../utils/analytics';
 	import MultiProgress from './MultiProgress.svelte';
 	import { resetIsaQuery } from './store/isa-data';
 	import {
@@ -11,6 +15,7 @@
 		initializeIsaSummary,
 		isaSummary,
 		ISAStatus,
+		scannedPagesCount,
 	} from './store/isa-summary';
 
 	onMount( () => {
@@ -51,7 +56,7 @@
 	/**
 	 * Start a new image analysis job.
 	 */
-	async function onStartAnalysis() {
+	async function startAnalysis() {
 		try {
 			errorMessage = undefined;
 			requestingReport = true;
@@ -63,6 +68,22 @@
 			requestingReport = false;
 		}
 	}
+
+	function handleAnalyzeClick() {
+		const $event_name =
+			$isaSummary.status === ISAStatus.Completed
+				? 'clicked_restart_isa_on_summary_page'
+				: 'clicked_start_isa_on_summary_page';
+		recordBoostEvent( $event_name, {} );
+		return startAnalysis();
+	}
+
+	/**
+	 * Work out whether to recommend the Image CDN. It should show if the CDN is off and no report has been run, or a report has found issues.
+	 */
+	$: showCDNRecommendation =
+		! $modulesState.image_cdn.active &&
+		( totalIssues > 0 || $isaSummary?.status === ISAStatus.NotFound );
 </script>
 
 {#if ! $isaSummary}
@@ -88,22 +109,34 @@
 		<div class="summary-line">
 			{#if totalIssues > 0}
 				<div class="has-issues summary">
+					<WarningIcon class="icon" />
 					{sprintf(
-						/* translators: %d is the number of issues that were found */
-						__( 'Found a total of %d issues', 'jetpack-boost' ),
-						totalIssues
+						// translators: 1: Number of scanned issues found 2: Number of scanned pages
+						__(
+							'Found a total of %1$d issues after scanning your %2$d most recent pages.',
+							'jetpack-boost'
+						),
+						totalIssues,
+						$scannedPagesCount
 					)}
 				</div>
 			{:else}
 				<div class="summary">
-					{__( 'Congratulations; no issues found.', 'jetpack-boost' )}
+					{sprintf(
+						// translators: %d: Number of pages scanned
+						__(
+							'Congratulations; no issues found after scanning your %d most recent pages.',
+							'jetpack-boost'
+						),
+						$scannedPagesCount
+					)}
 				</div>
 			{/if}
 
 			<button
 				type="button"
 				class="components-button is-link"
-				on:click={onStartAnalysis}
+				on:click={handleAnalyzeClick}
 				disabled={requestingReport}
 			>
 				<RefreshIcon />
@@ -117,10 +150,27 @@
 		<MultiProgress />
 	{/if}
 
+	<!-- Show recommendation to enable Image CDN if it was inactive and issues have been found -->
+	{#if showCDNRecommendation}
+		<div class="jb-notice">
+			<div class="jb-notice__content">
+				<ImageCDNRecommendation />
+			</div>
+		</div>
+	{/if}
+
 	<!-- Show a button to view the report if it's in progress or completed. -->
 	{#if [ ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status ) && ! requestingReport}
 		<div class="button-area">
-			<Button href="#image-size-analysis/all/1" disabled={requestingReport}>
+			<Button
+				disabled={requestingReport}
+				on:click={() =>
+					recordBoostEventAndRedirect(
+						'#image-size-analysis/all/1',
+						'clicked_view_isa_report_on_summary_page',
+						{}
+					)}
+			>
 				{$isaSummary.status === ISAStatus.Completed
 					? __( 'See full report', 'jetpack-boost' )
 					: __( 'View report in progress', 'jetpack-boost' )}
@@ -131,7 +181,7 @@
 	<!-- Show a button to kick off a report -->
 	{#if ! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status )}
 		<div class="button-area">
-			<Button disabled={requestingReport} on:click={onStartAnalysis}>
+			<Button disabled={requestingReport} on:click={handleAnalyzeClick}>
 				{$isaSummary.status === ISAStatus.Completed
 					? __( 'Analyze again', 'jetpack-boost' )
 					: __( 'Start image analysis', 'jetpack-boost' )}
@@ -140,7 +190,9 @@
 	{/if}
 {/if}
 
-<style>
+<style lang="scss">
+	@use '../../../css/main/variables.scss' as *;
+
 	.summary-line {
 		font-size: 14px;
 		line-height: 22px;
@@ -148,16 +200,39 @@
 		flex-direction: row;
 		align-items: flex-start;
 		margin-bottom: 17px;
+
+		@media ( max-width: 600px ) {
+			flex-direction: column;
+		}
+	}
+
+	.summary-line button {
+		:global( svg ) {
+			margin: 4px 4px 2px 0;
+			fill: $jetpack-green;
+		}
+
+		@media ( max-width: 600px ) {
+			margin-top: 15px;
+		}
 	}
 
 	.summary {
 		margin-right: 5px;
 		flex-grow: 1;
 		position: relative;
+		color: $jetpack-green;
 	}
 
 	.has-issues {
-		color: var( --red_50 );
+		color: var( --jp-orange-20 );
+	}
+
+	.has-issues :global( svg ) {
+		width: 22px;
+		height: 22px;
+		top: 4px;
+		position: relative;
 	}
 
 	.wait-notice {
@@ -170,5 +245,18 @@
 
 	.button-area {
 		margin-top: 32px;
+	}
+
+	.jb-notice {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 16px 24px;
+		margin: 32px 0;
+		border: 2px solid $jetpack-green;
+		border-radius: $border-radius;
+		background-color: #ffffff;
+		text-align: left;
 	}
 </style>

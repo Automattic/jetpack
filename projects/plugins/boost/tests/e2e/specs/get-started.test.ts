@@ -41,7 +41,7 @@ test.describe( 'Getting started page', () => {
 		await navigation;
 
 		expect(
-			expectedUrlPattern.test( await jetpackBoostPage.page.url() ),
+			expectedUrlPattern.test( jetpackBoostPage.page.url() ),
 			'User should be redirected to checkout page'
 		).toBeTruthy();
 	} );

@@ -117,6 +117,7 @@ const settingsRoutes = [
 	'/writing',
 	'/sharing',
 	'/discussion',
+	'/earn',
 	'/traffic',
 	'/privacy',
 ];
@@ -297,6 +298,7 @@ class Main extends React.Component {
 			case '/writing':
 			case '/sharing':
 			case '/discussion':
+			case '/earn':
 			case '/traffic':
 			case '/privacy':
 				return (
@@ -539,6 +541,7 @@ class Main extends React.Component {
 			case '/writing':
 			case '/sharing':
 			case '/discussion':
+			case '/earn':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (

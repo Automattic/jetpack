@@ -140,6 +140,15 @@ function zeroBSCRM_pages_admin_view_page_company( $id = -1 ) {
 	jpcrm_render_company_view_page( $id );
 }
 
+/**
+ * Load the Automations admin page
+ *
+ * @return void
+ */
+function jpcrm_pages_automations() {
+	jpcrm_load_admin_page( 'automations/main' );
+}
+
 /*
 ======================================================
 	/ Page loading
