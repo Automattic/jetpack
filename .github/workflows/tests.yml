@@ -112,7 +112,7 @@ jobs:
 
             if [[ "${SLUG%%/*}" == "plugins" ]]; then
               # Plugins run from the WordPress checkout, not the monorepo checkout.
-              if [[ "$WP_BRANCH" != 'none' ]]; then
+              if [[ -d "/tmp/wordpress-$WP_BRANCH/src/wp-content/$SLUG" ]]; then
                 DIR="/tmp/wordpress-$WP_BRANCH/src/wp-content/$SLUG"
               fi
             elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$FORCE_PACKAGE_TESTS" != "true" ]]; then

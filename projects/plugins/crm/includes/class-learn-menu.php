@@ -432,7 +432,7 @@ class Learn_Menu {
 				<?php echo $extra_js . "\n"; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
 			});
 		</script>
-		<div class="jpcrm-learn-menu-container">
+		<div class="<?php echo esc_attr( $this->get_learn_menu_container_css_classes() ); ?>">
 			<?php
 			if ( $back_slug ) {
 				?>
@@ -440,7 +440,7 @@ class Learn_Menu {
 				<?php
 			}
 			?>
-			<div class="jpcrm-learn-menu">
+			<div class="<?php echo esc_attr( $this->get_learn_menu_css_classes() ); ?>">
 				<div class="jpcrm-learn-menu-subdiv-75">
 					<div class="jpcrm-learn-menu-subdiv-75">
 						<div class="jpcrm-learn-page-title">
@@ -1214,4 +1214,35 @@ class Learn_Menu {
 		return $learn_menu_array;
 	}
 
+	/**
+	 * Retrieves the CSS classes for the Learn menu container.
+	 *
+	 * @return string The CSS classes for the Learn menu container.
+	 */
+	private function get_learn_menu_container_css_classes() {
+		$classes = 'jpcrm-learn-menu-container';
+
+		if ( isset( $_GET['page'] ) && jpcrm_is_full_width_page( wp_unslash( $_GET['page'] ) ) ) { // phpcs:ignore
+			$classes .= ' jpcrm-full-width';
+		}
+
+		$classes = apply_filters( 'jetpack_crm_learn_menu_container_css_classes', $classes );
+		return $classes;
+	}
+
+	/**
+	 * Retrieves the CSS classes for the Learn menu.
+	 *
+	 * @return string The CSS classes for the Learn menu.
+	 */
+	private function get_learn_menu_css_classes() {
+		$classes = 'jpcrm-learn-menu';
+
+		if ( isset( $_GET['page'] ) && jpcrm_is_full_width_page( wp_unslash( $_GET['page'] ) ) ) { // phpcs:ignore
+			$classes .= ' jpcrm-full-width';
+		}
+
+		$classes = apply_filters( 'jetpack_crm_learn_menu_css_classes', $classes );
+		return $classes;
+	}
 }

@@ -489,13 +489,15 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Indicate whether this site was ever an eCommerce trial.
+	 * Indicate whether this site was ever a specific trial.
+	 *
+	 * @param string $trial The trial type to check for.
 	 *
 	 * @return bool
 	 */
-	public function was_ecommerce_trial() {
+	public function was_trial( $trial ) {
 		if ( function_exists( 'has_blog_sticker' ) ) {
-			return has_blog_sticker( 'had-ecommerce-trial' );
+			return has_blog_sticker( "had-{$trial}-trial" );
 		}
 		return false;
 	}

@@ -719,7 +719,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
-			$field .= "\t\t<option>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
+			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
 		}
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {

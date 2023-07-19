@@ -1,0 +1,3 @@
+Significance: patch
+Type: added
+Comment: This PR is establishing the base of a React app. The changelog should only announce when the app is released.
