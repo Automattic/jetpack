@@ -43,7 +43,7 @@ type AskQuestionOptionsArgProps = {
  *      // handle suggestionsEventSource
  *  } );
  */
-export async function askQuestion(
+export default async function askQuestion(
 	question: string | PromptItemProps[],
 	{ postId = null, fromCache = false, feature }: AskQuestionOptionsArgProps = {}
 ): Promise< SuggestionsEventSource > {
