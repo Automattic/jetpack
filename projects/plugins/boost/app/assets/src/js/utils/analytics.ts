@@ -77,7 +77,7 @@ function addBoostProps( props: TracksEventProperties ): TracksEventProperties {
 export async function recordBoostEventAndRedirect(
 	url: string,
 	eventName: string,
-	eventProp: TracksEventProperties
+	eventProp: TracksEventProperties = {}
 ) {
 	await recordBoostEvent( eventName, eventProp );
 	window.location.href = url;
