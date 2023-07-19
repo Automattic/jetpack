@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { quadOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
-	import { __ } from '@wordpress/i18n';
+	import { __, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import { isaData } from '../store/isa-data';
@@ -26,8 +26,11 @@
 		<span>Latest report as of {lastUpdated}</span>
 		{#if $imageDataActiveGroup.issue_count}
 			<h1>
-				{$imageDataActiveGroup.issue_count}
-				Image Recommendations
+				{sprintf(
+					/* translators: %d: number of image recommendations */
+					__( '%d Image Recommendations', 'jetpack-boost' ),
+					$imageDataActiveGroup.issue_count
+				)}
 			</h1>
 		{/if}
 
