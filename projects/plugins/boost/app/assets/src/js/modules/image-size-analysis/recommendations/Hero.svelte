@@ -30,7 +30,7 @@
 			<h1>
 				{sprintf(
 					/* translators: %d: number of image recommendations */
-					__( '%d Image Recommendations', 'jetpack-boost' ),
+					_n( '%d Image Recommendation', '%d Image Recommendations', $imageDataActiveGroup.issue_count, 'jetpack-boost' ),
 					$imageDataActiveGroup.issue_count
 				)}
 
