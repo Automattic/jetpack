@@ -144,7 +144,7 @@ describe( 'useMediaRestrictions hook', () => {
 		[
 			{ media: { metaData: { mime: 'image/jpg', fileSize: 10000000 } }, error: FILE_SIZE_ERROR }, // Too big image
 			{ media: { metaData: { mime: 'image/png', fileSize: 10000000 } }, error: FILE_TYPE_ERROR }, // Png
-			{ media: { metaData: { mime: 'video/mp4', fileSize: 10 } }, error: FILE_TYPE_ERROR }, // Video
+			{ media: { metaData: { mime: 'video/mp5', fileSize: 10 } }, error: FILE_TYPE_ERROR }, // Bad Video
 		].forEach( testData => {
 			const { result } = renderHook( () =>
 				useMediaRestrictions(

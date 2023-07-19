@@ -2,7 +2,9 @@
 	import { quadOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
 	import { __, sprintf } from '@wordpress/i18n';
+	import RecommendationContext from '../../../elements/RecommendationContext.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
+	import { modulesState } from '../../../stores/modules';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import { isaData } from '../store/isa-data';
 	import { imageDataActiveGroup } from '../store/isa-summary';
@@ -31,6 +33,10 @@
 					__( '%d Image Recommendations', 'jetpack-boost' ),
 					$imageDataActiveGroup.issue_count
 				)}
+
+        {#if ! $modulesState.image_cdn.active && $imageDataActiveGroup.issue_count > 0}
+					<RecommendationContext />
+				{/if}
 			</h1>
 		{/if}
 

@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: changed
 
-Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now
+Updated composer.lock
