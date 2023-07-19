@@ -1,29 +1,16 @@
 /**
- * External dependencies
- */
-import { useSelect } from '@wordpress/data';
-/**
  * Internal dependencies
  */
 import { getBlockTextContent } from '../../lib/utils/block-content';
+import useSelectedBlocks from '../use-selected-blocks';
 /*
  * Types
  */
-import type { BlockEditorStore } from '../../types';
+import type { GetSelectedBlocksProps } from '../use-selected-blocks';
 
-type ExtendedBlockProps = {
-	clientId: string;
-	attributes: object;
-};
-
-type GetTextContentFromBlocksProps = {
-	count: number;
-	clientIds: string[];
+type GetTextContentFromBlocksProps = GetSelectedBlocksProps & {
 	content: string;
-	blocks: Array< ExtendedBlockProps >;
 };
-
-const HTML_JOIN_CHARACTERS = '<br />';
 
 /**
  * Returns the text content from all selected blocks.
@@ -32,46 +19,15 @@ const HTML_JOIN_CHARACTERS = '<br />';
  */
 
 export default function useTextContentFromSelectedBlocks(): GetTextContentFromBlocksProps {
-	const clientIds = useSelect(
-		selectFromHook =>
-			(
-				selectFromHook( 'core/block-editor' ) as BlockEditorStore[ 'selectors' ]
-			 ).getSelectedBlockClientIds(),
-		[]
-	);
-
-	const blocks = useSelect(
-		selectFromHook =>
-			(
-				selectFromHook( 'core/block-editor' ) as BlockEditorStore[ 'selectors' ]
-			 ).getBlocksByClientId( clientIds ),
-		[ clientIds ]
-	);
-
-	const defaultContent = {
-		count: 0,
-		clientIds: [],
-		content: '',
-		blocks: [],
-	};
-
-	if ( ! clientIds?.length ) {
-		return defaultContent;
-	}
-
-	if ( ! blocks?.length ) {
-		return defaultContent;
-	}
+	const selected = useSelectedBlocks();
 
 	return {
-		count: blocks.length,
-		clientIds,
-		blocks,
-		content: blocks
-			? blocks
-					.filter( block => block !== null && block !== undefined ) // Safeguard against null or undefined blocks
+		...selected,
+		content: selected.blocks
+			? selected.blocks
+					.filter( block => block != null ) // Safeguard against null or undefined blocks
 					.map( block => getBlockTextContent( block.clientId ) )
-					.join( HTML_JOIN_CHARACTERS )
+					.join( '\n\n' )
 			: '',
 	};
 }

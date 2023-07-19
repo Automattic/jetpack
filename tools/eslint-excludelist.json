@@ -45,7 +45,6 @@
 	"projects/plugins/jetpack/_inc/client/state/settings/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/site-verify/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/tracking/reducer.js",
-	"projects/plugins/jetpack/_inc/client/traffic/related-posts.jsx",
 	"projects/plugins/jetpack/_inc/client/utils/onkeydown-callback.js",
 	"projects/plugins/jetpack/_inc/client/writing/composing.jsx",
 	"projects/plugins/jetpack/_inc/jetpack-deactivate-dialog.js",

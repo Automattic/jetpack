@@ -10,6 +10,8 @@
 
 namespace Automattic\Jetpack_CRM\Automations;
 
+defined( 'ZEROBSCRM_PATH' ) || exit;
+
 if ( ! apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {
 	return;
 }

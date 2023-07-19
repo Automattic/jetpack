@@ -45,7 +45,6 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.22.9",
 		"@babel/preset-env": "7.22.9",
-		"@babel/register": "7.22.5",
 		"@babel/runtime": "7.22.6",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "13.4.0",

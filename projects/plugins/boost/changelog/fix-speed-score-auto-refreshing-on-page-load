@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevented page speed scores from auto refreshing on page load.

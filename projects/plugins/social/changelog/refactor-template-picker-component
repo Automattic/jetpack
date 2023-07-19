@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Refactor TemplatePicker component, so inner part can be use in it's own without a modal.

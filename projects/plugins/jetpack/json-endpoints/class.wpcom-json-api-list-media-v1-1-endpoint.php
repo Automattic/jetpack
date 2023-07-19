@@ -72,6 +72,13 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint { 
 	public $page_handle = array();
 
 	/**
+	 * Performed query
+	 *
+	 * @var array
+	 */
+	public $performed_query = array();
+
+	/**
 	 * API callback.
 	 *
 	 * @param string $path - the path.
