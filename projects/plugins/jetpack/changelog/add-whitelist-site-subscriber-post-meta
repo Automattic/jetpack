@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Whitelist jetpack_memberships_site_subscriber post meta to allow for syncing to WordPress.com
