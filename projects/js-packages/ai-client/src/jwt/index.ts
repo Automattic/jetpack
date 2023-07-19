@@ -74,7 +74,7 @@ export default async function requestJwt( {
 			 * Provably we should move it to another package, but for now it's here.
 			 * issue: https://github.com/Automattic/jetpack/issues/31938
 			 */
-			path: '/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
+			path: '/my-jetpack/v1/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
