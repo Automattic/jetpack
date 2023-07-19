@@ -100,7 +100,7 @@ function register_block() {
 			return array_merge(
 				$allowed_meta,
 				array(
-					'jetpack_memberships_site_subscriber',
+					META_NAME_FOR_MEMBERSHIP_SITE_SUBSCRIBER,
 					META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 				)
 			);
