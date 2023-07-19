@@ -14,6 +14,7 @@
 		initializeIsaSummary,
 		isaSummary,
 		ISAStatus,
+		scannedPagesCount,
 	} from './store/isa-summary';
 
 	onMount( () => {
@@ -100,14 +101,25 @@
 				<div class="has-issues summary">
 					<WarningIcon class="icon" />
 					{sprintf(
-						/* translators: %d is the number of issues that were found */
-						__( 'Found a total of %d issues', 'jetpack-boost' ),
-						totalIssues
+						// translators: 1: Number of scanned issues found 2: Number of scanned pages
+						__(
+							'Found a total of %1$d issues after scanning your %2$d most recent pages.',
+							'jetpack-boost'
+						),
+						totalIssues,
+						$scannedPagesCount
 					)}
 				</div>
 			{:else}
 				<div class="summary">
-					{__( 'Congratulations; no issues found.', 'jetpack-boost' )}
+					{sprintf(
+						// translators: %d: Number of pages scanned
+						__(
+							'Congratulations; no issues found after scanning your %d most recent pages.',
+							'jetpack-boost'
+						),
+						$scannedPagesCount
+					)}
 				</div>
 			{/if}
 
