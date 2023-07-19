@@ -787,6 +787,15 @@ add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
  * @return int|null The page ID of the 'About' page if it exists, null otherwise.
  */
 function wpcom_get_site_about_page_id() {
+	// First, attempt to get the page ID from the cache.
+	$blog_id                 = get_current_blog_id();
+	$about_page_id_cache_key = "wpcom_get_site_about_page_id_{$blog_id}";
+	$about_page_id           = wp_cache_get( $about_page_id_cache_key, 'wpcom' );
+	if ( false !== $about_page_id ) {
+		return $about_page_id;
+	}
+
+	// If we don't have a cached page id yet, go through the process of looking it up.
 	$annotation = wpcom_get_theme_annotation( get_stylesheet() );
 
 	// Return null if there is no annotation or the annotation doesn't have any content.
@@ -841,6 +850,12 @@ function wpcom_get_site_about_page_id() {
 		return null;
 	}
 
+	// Cache to hs_old_ids so we can validate the post being updated later.
+	wp_cache_set( "headstart_about_page_hs_old_ids_{$blog_id}", $headstart_about_page_hs_old_ids, 'wpcom' );
+
+	// Cache the about page id so we don't have to look it up from scratch every time.
+	wp_cache_set( $about_page_id_cache_key, $about_pages[0]->ID, 'wpcom' );
+
 	// Return the id of the first About page.
 	return $about_pages[0]->ID;
 }
@@ -881,8 +896,10 @@ function wpcom_update_about_page_check( $post_id, $post ) {
 		return;
 	}
 
-	// If the page is not the about page, ignore it.
-	if ( $post->post_title !== 'About' ) {
+	// If the page is not the previously located About page, ignore it.
+	$blog_id       = get_current_blog_id();
+	$about_page_id = wp_cache_get( "wpcom_get_site_about_page_id_{$blog_id}", 'wpcom' );
+	if ( $post->ID !== $about_page_id ) {
 		return;
 	}
 
