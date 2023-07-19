@@ -7,14 +7,14 @@ import { __ } from '@wordpress/i18n';
 
 export default function Proofread() {
 	const [ isProofreadModalVisible, setIsProofreadModalVisible ] = useState( false );
-	const toogleProofreadModal = () => {
+	const toggleProofreadModal = () => {
 		setIsProofreadModalVisible( ! isProofreadModalVisible );
 	};
 
 	return (
 		<div>
 			{ isProofreadModalVisible && (
-				<Modal title={ __( 'AI Assistant', 'jetpack' ) } onRequestClose={ toogleProofreadModal }>
+				<Modal title={ __( 'AI Assistant', 'jetpack' ) } onRequestClose={ toggleProofreadModal }>
 					<p>{ __( 'AI Assistant', 'jetpack' ) }</p>
 				</Modal>
 			) }
@@ -24,7 +24,7 @@ export default function Proofread() {
 					'jetpack'
 				) }
 			</p>
-			<Button onClick={ toogleProofreadModal } variant="secondary">
+			<Button onClick={ toggleProofreadModal } variant="secondary">
 				{ __( 'Proofread post', 'jetpack' ) }
 			</Button>
 		</div>
