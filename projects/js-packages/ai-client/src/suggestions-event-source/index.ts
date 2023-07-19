@@ -6,10 +6,7 @@ import debugFactory from 'debug';
 /*
  * Types & constants
  */
-export type PromptItemProps = {
-	role: 'system' | 'user' | 'assistant';
-	content: string;
-};
+import type { PromptItemProps } from '../types';
 
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;
