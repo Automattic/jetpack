@@ -1,16 +1,13 @@
 import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
 import { useEffect } from 'react';
 import MediaButton from './media-button';
-import {
-	getGooglePhotosMediaCategory,
-	getPexelsMediaCategory,
-	isGooglePhotosConnected,
-} from './media-category';
+import { getGooglePhotosMediaCategory, getPexelsMediaCategory } from './media-category';
 import { mediaSources } from './sources';
 import './editor.scss';
+import { JETPACK_MEDIA_STORE } from './store';
 
 function insertExternalMediaBlocks( settings, name ) {
 	if ( name !== 'core/image' ) {
@@ -53,11 +50,15 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 			const { registerInserterMediaCategory } = useDispatch( 'core/block-editor' );
 			let { render } = props;
 
-			useEffect( () => {
-				isGooglePhotosConnected( () =>
-					registerInserterMediaCategory( getGooglePhotosMediaCategory() )
-				);
+			const isAuthorized = useSelect( select => select( JETPACK_MEDIA_STORE ).isAuthorized(), [] );
 
+			useEffect( () => {
+				if ( isAuthorized ) {
+					registerInserterMediaCategory( getGooglePhotosMediaCategory() );
+				}
+			}, [ isAuthorized, registerInserterMediaCategory ] );
+
+			useEffect( () => {
 				registerInserterMediaCategory( getPexelsMediaCategory() );
 			}, [ registerInserterMediaCategory ] );
 

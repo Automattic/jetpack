@@ -1,13 +1,14 @@
 import apiFetch from '@wordpress/api-fetch';
 import { withNotices, Modal } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { useDispatch, withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import classnames from 'classnames';
 import { uniqBy } from 'lodash';
 import { PATH_RECENT } from '../constants';
+import { JETPACK_MEDIA_STORE } from '../store';
 
 export default function withMedia() {
 	return createHigherOrderComponent( OriginalComponent => {
@@ -74,7 +75,10 @@ export default function withMedia() {
 				}
 			};
 
-			setAuthenticated = isAuthenticated => this.setState( { isAuthenticated } );
+			setAuthenticated = isAuthenticated => {
+				this.setState( { isAuthenticated } );
+				useDispatch( JETPACK_MEDIA_STORE ).setAuthorized( isAuthenticated );
+			};
 
 			mergeMedia( initial, media ) {
 				return uniqBy( initial.concat( media ), 'ID' );
