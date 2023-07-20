@@ -176,7 +176,7 @@ function wpcom_better_footer_links( $footer ) {
 
 // Enable filters for footer content for all themes, except VIP sites.
 function better_wpcom_link_init() {
-	if ( apply_filters( 'wpcom_better_footer_credit_apply', true ) ) {
+	if ( apply_filters( 'wpcom_better_footer_credit_apply', true ) && ! wp_is_json_request() ) {
 		ob_start( 'wpcom_better_footer_links_buffer' );
 	}
 }
