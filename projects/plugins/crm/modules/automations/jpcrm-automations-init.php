@@ -24,13 +24,10 @@ if ( ! apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {
  * This is a core module that will always be loaded so we do not allow it to be enabled/deactivated.
  *
  * @since $$next-version$$
- * @global \ZeroBSCRM $zbs
  *
  * @return void
  */
 function load_module() {
-	global $zbs;
-
 	define_constants();
 
 	require_once JPCRM_AUTOMATION_MODULE_PATH . 'automations/admin/admin-page-init.php';
