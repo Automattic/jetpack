@@ -42,6 +42,10 @@ export const StripeNudge = ( { blockName } ) => {
 			readMoreUrl = isWpcom
 				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-premium-content-block' )
 				: getRedirectUrl( 'jetpack-support-jetpack-blocks-premium-content-block' );
+		default:
+			readMoreUrl = isWpcom
+				? getRedirectUrl( 'wpcom-support-payments-button-block' )
+				: getRedirectUrl( 'jetpack-support-jetpack-blocks-payments-block' );
 	}
 
 	return (
