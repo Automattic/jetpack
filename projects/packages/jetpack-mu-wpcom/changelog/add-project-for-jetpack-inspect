@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: added
+Comment: Prettier reformatted some code. No change to the code itself.
 
-Added a new project for Jetpack Inspect.
