@@ -142,6 +142,7 @@ class Defaults {
 		'stats_options',
 		'stb_enabled',
 		'stc_enabled',
+		'sm_enabled',
 		'sticky_posts',
 		'stylesheet',
 		'subscription_options',

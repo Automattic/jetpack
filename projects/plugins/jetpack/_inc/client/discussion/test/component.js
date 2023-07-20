@@ -29,7 +29,7 @@ describe( 'SubscriptionsComponent', () => {
 	describe( 'initial state', () => {
 		it( 'queries getOptionValue', () => {
 			render( <SubscriptionsComponent { ...props } /> );
-			expect( theSpy ).toHaveBeenCalledTimes( 3 );
+			expect( theSpy ).toHaveBeenCalledTimes( 5 );
 		} );
 
 		it( 'does not pass the second argument to getOptionValue', () => {
@@ -42,6 +42,7 @@ describe( 'SubscriptionsComponent', () => {
 			render( <SubscriptionsComponent { ...props } /> );
 			expect( theSpy ).toHaveBeenCalledWith( 'stb_enabled' );
 			expect( theSpy ).toHaveBeenCalledWith( 'stc_enabled' );
+			expect( theSpy ).toHaveBeenCalledWith( 'sm_enabled' );
 		} );
 	} );
 } );

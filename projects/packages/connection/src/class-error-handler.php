@@ -490,7 +490,7 @@ class Error_Handler {
 	/**
 	 * Delete all stored and verified API errors from the database, leave the non-API errors intact.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.54.0
 	 *
 	 * @return void
 	 */

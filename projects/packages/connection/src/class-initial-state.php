@@ -42,6 +42,7 @@ class Initial_State {
 			'siteSuffix'         => $status->get_site_suffix(),
 			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
 			'isOfflineMode'      => $status->is_offline_mode(),
+			'calypsoEnv'         => ( new Status\Host() )->get_calypso_env(),
 		);
 	}
 

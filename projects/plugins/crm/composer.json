@@ -38,16 +38,14 @@
 			"@composer phpunit",
 			"tests/action-test-php.sh"
 		],
+		"test-js": "pnpm run test",
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		]
 	},
 	"config": {
-		"platform": {
-			"php": "7.2"
-		},
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_0_1_alpha",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_1_0_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,

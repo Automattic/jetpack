@@ -726,6 +726,47 @@ class Jetpack_PostImages {
 	}
 
 	/**
+	 * Takes an image and base pixel dimensions and returns a srcset for the
+	 * resized and cropped images, based on a fixed set of multipliers.
+	 *
+	 * @param  array $image Array containing details of the image.
+	 * @param  int   $base_width Base image width (i.e., the width at 1x).
+	 * @param  int   $base_height Base image height (i.e., the height at 1x).
+	 * @return string The srcset for the image.
+	 */
+	public static function generate_cropped_srcset( $image, $base_width, $base_height ) {
+		$srcset = '';
+
+		if ( ! is_array( $image ) || empty( $image['src'] ) || empty( $image['src_width'] ) ) {
+			return $srcset;
+		}
+
+		$multipliers   = array( 1, 2, 3, 4 );
+		$srcset_values = array();
+		foreach ( $multipliers as $multiplier ) {
+			// Forcefully cast to int, in case we ever add decimal multipliers.
+			$srcset_width  = (int) ( $base_width * $multiplier );
+			$srcset_height = (int) ( $base_height * $multiplier );
+			if ( $srcset_width < 1 || $srcset_width > $image['src_width'] ) {
+				break;
+			}
+
+			$srcset_url      = self::fit_image_url(
+				$image['src'],
+				$srcset_width,
+				$srcset_height
+			);
+			$srcset_values[] = "{$srcset_url} {$multiplier}x";
+		}
+
+		if ( count( $srcset_values ) > 1 ) {
+			$srcset = implode( ', ', $srcset_values );
+		}
+
+		return $srcset;
+	}
+
+	/**
 	 * Takes an image URL and pixel dimensions then returns a URL for the
 	 * resized and cropped image.
 	 *
