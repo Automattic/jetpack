@@ -452,12 +452,6 @@ class Launchpad_Task_Lists {
 			$error_messages[] = $msg;
 		}
 
-		if ( isset( $task_list['visible_tasks_callback'] ) && ! is_callable( $task_list['visible_tasks_callback'] ) ) {
-			$msg = 'The visible_tasks_callback attribute must be callable';
-			_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
-			$error_messages[] = $msg;
-		}
-
 		if ( isset( $task_list['require_last_task_completion'] ) && ! is_bool( $task_list['require_last_task_completion'] ) ) {
 			$msg = 'The require_last_task_completion attribute must be a boolean';
 			_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
