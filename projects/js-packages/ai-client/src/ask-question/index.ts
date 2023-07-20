@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import debugFactory from 'debug';
 import requestJwt from '../jwt';
 import SuggestionsEventSource from '../suggestions-event-source';
 /*
@@ -25,6 +26,8 @@ type AskQuestionOptionsArgProps = {
 	feature?: 'ai-assistant-experimental' | string | undefined;
 };
 
+const debug = debugFactory( 'jetpack-ai-client:ask-question' );
+
 /**
  * An asynchronous function that asks a question
  * and returns an event source with suggestions.
@@ -47,6 +50,9 @@ export default async function askQuestion(
 	question: string | PromptItemProps[],
 	{ postId = null, fromCache = false, feature }: AskQuestionOptionsArgProps = {}
 ): Promise< SuggestionsEventSource > {
+	debug( 'Asking question: %o. options: %o', question, { postId, fromCache, feature } );
+
 	const { token } = await requestJwt();
+
 	return new SuggestionsEventSource( { question, token, options: { postId, feature, fromCache } } );
 }
