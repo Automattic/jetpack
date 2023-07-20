@@ -118,6 +118,23 @@ const useSuggestionsFromOpenAI = ( {
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
 	const getStreamedSuggestionFromOpenAI = async ( type, options = {} ) => {
+		/*
+		 * If the site requires an upgrade to use the feature,
+		 * let's set the error and return an `undefined` event source.
+		 */
+		if ( requireUpgrade ) {
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( false );
+			setError( {
+				code: 'error_quota_exceeded',
+				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
+				status: 'info',
+			} );
+
+			return;
+		}
+
 		options = {
 			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,

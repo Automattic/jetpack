@@ -68,6 +68,24 @@ export const totalIssueCount = derived( isaSummary, $isaSummary => {
 } );
 
 /**
+ * Derived store tracking the number of scanned pages.
+ */
+export const scannedPagesCount = derived( isaSummary, $isaSummary => {
+	return Object.values( $isaSummary?.groups || {} )
+		.map( group => group.scanned_pages )
+		.reduce( ( a, b ) => a + b, 0 );
+} );
+
+/**
+ * Derived store tracking the number of total pages being scanned.
+ */
+export const totalPagesCount = derived( isaSummary, $isaSummary => {
+	return Object.values( $isaSummary?.groups || {} )
+		.map( group => group.total_pages )
+		.reduce( ( a, b ) => a + b, 0 );
+} );
+
+/**
  * Derived store which describes tabs to display in the UI.
  */
 export const imageDataGroupTabs = derived(
