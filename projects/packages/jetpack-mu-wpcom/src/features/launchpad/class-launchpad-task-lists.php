@@ -414,50 +414,54 @@ class Launchpad_Task_Lists {
 		$error_messages = array();
 
 		if ( ! is_array( $task_list ) ) {
-			// If we don't have an array, skip later validation.
-			return new WP_Error( $error_code, 'Invalid task list' );
+			// Ensure we have a valid task list array.
+			$msg = 'Invalid task list';
+			_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
+			return new WP_Error( $error_code, $msg );
 		}
 
 		if ( ! isset( $task_list['id'] ) ) {
+			// Ensure we have an id.
 			$msg = 'The Launchpad task list being registered requires a "id" attribute';
 			_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
 			$error_messages[] = $msg;
-		} elseif ( ! isset( $task_list['task_ids'] ) ) {
+		}
+
+		if ( ! isset( $task_list['task_ids'] ) ) {
+			// Ensure we have task_ids.
 			$msg = 'The Launchpad task list being registered requires a "task_ids" attribute';
 			_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
 			$error_messages[] = $msg;
-		} else {
-			if ( isset( $task_list['required_task_ids'] ) ) {
+		} elseif ( isset( $task_list['required_task_ids'] ) ) {
 				// Ensure we have a valid array.
-				if ( ! is_array( $task_list['required_task_ids'] ) ) {
-					$msg = 'The required_task_ids attribute must be an array';
-					_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
-					$error_messages[] = $msg;
-					// Ensure all required tasks actually exist in the task list - we need the value to be an array for this to work.
-				} elseif ( array_intersect( $task_list['required_task_ids'], $task_list['task_ids'] ) !== $task_list['required_task_ids'] ) {
-					$msg = 'The required_task_ids must be a subset of the task_ids';
-					_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
-					$error_messages[] = $msg;
-				}
-			}
-
-			if ( isset( $task_list['visible_tasks_callback'] ) && ! is_callable( $task_list['visible_tasks_callback'] ) ) {
-				$msg = 'The visible_tasks_callback attribute must be callable';
+			if ( ! is_array( $task_list['required_task_ids'] ) ) {
+				$msg = 'The required_task_ids attribute must be an array';
+				_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
+				$error_messages[] = $msg;
+				// Ensure all required tasks actually exist in the task list - we need the value to be an array for this to work.
+			} elseif ( array_intersect( $task_list['required_task_ids'], $task_list['task_ids'] ) !== $task_list['required_task_ids'] ) {
+				$msg = 'The required_task_ids must be a subset of the task_ids';
 				_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
 				$error_messages[] = $msg;
 			}
+		}
 
-			if ( isset( $task_list['visible_tasks_callback'] ) && ! is_callable( $task_list['visible_tasks_callback'] ) ) {
-				$msg = 'The visible_tasks_callback attribute must be callable';
-				_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
-				$error_messages[] = $msg;
-			}
+		if ( isset( $task_list['visible_tasks_callback'] ) && ! is_callable( $task_list['visible_tasks_callback'] ) ) {
+			$msg = 'The visible_tasks_callback attribute must be callable';
+			_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
+			$error_messages[] = $msg;
+		}
 
-			if ( isset( $task_list['require_last_task_completion'] ) && ! is_bool( $task_list['require_last_task_completion'] ) ) {
-				$msg = 'The require_last_task_completion attribute must be a boolean';
-				_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
-				$error_messages[] = $msg;
-			}
+		if ( isset( $task_list['visible_tasks_callback'] ) && ! is_callable( $task_list['visible_tasks_callback'] ) ) {
+			$msg = 'The visible_tasks_callback attribute must be callable';
+			_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
+			$error_messages[] = $msg;
+		}
+
+		if ( isset( $task_list['require_last_task_completion'] ) && ! is_bool( $task_list['require_last_task_completion'] ) ) {
+			$msg = 'The require_last_task_completion attribute must be a boolean';
+			_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
+			$error_messages[] = $msg;
 		}
 
 		if ( array() !== $error_messages ) {
