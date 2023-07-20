@@ -52,11 +52,11 @@
 		initiatingFreePlan = true;
 
 		try {
-			// Make sure there is a Jetpack connection and record this selection.
-			await Promise.all( [
-				connection.initialize(),
-				recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} ),
-			] );
+			// Make sure there is a Jetpack connection
+			await connection.initialize();
+
+			// Record this selection. This must be done after the connection is initialized.
+			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
 
 			// Head to the settings page.
 			finishGettingStarted();
@@ -75,11 +75,11 @@
 		initiatingPaidPlan = true;
 
 		try {
-			// Make sure there is a Jetpack connection and record this selection.
-			await Promise.all( [
-				connection.initialize(),
-				recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} ),
-			] );
+			// Make sure there is a Jetpack connection
+			await connection.initialize();
+
+			// Record this selection. This must be done after the connection is initialized.
+			recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
 
 			// Check if the site is already on a premium plan and go directly to settings if so.
 			if ( $config.isPremium ) {
