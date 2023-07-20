@@ -30,7 +30,7 @@ if ( ! apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {
 function load_module() {
 	define_constants();
 
-	require_once JPCRM_AUTOMATION_MODULE_PATH . 'automations/admin/admin-page-init.php';
+	require_once JPCRM_AUTOMATION_MODULE_PATH . '/admin/admin-page-init.php';
 	initialize_admin_page();
 }
 
