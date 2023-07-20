@@ -5,6 +5,7 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
+	import { requestImageAnalysis } from '../../modules/image-size-analysis/store/isa-summary';
 	import { modulesState } from '../../stores/modules';
 	import Logo from '../../svg/jetpack-green.svg';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
@@ -14,9 +15,17 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
 
-	onMount( () => {
+	onMount( async () => {
 		// Enable cloud css module on upgrade.
 		$modulesState.cloud_css.active = true;
+
+		// If image guide is enabled, request a new ISA report.
+		if ( $modulesState.image_guide.active ) {
+			// Check if images can be resized.
+			if ( false !== Jetpack_Boost.site.canResizeImages ) {
+				await requestImageAnalysis();
+			}
+		}
 	} );
 </script>
 

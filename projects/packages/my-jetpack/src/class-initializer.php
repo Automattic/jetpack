@@ -31,7 +31,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '3.1.3';
+	const PACKAGE_VERSION = '3.2.0-alpha';
 
 	/**
 	 * Initialize My Jetpack
@@ -223,6 +223,7 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
+		new REST_AI();
 
 		register_rest_route(
 			'my-jetpack/v1',
