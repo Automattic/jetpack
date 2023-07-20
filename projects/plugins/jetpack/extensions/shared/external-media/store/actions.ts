@@ -1,15 +1,15 @@
-export const SET_AUTHORIZED = 'SET_AUTHORIZED';
+export const SET_AUTHENTICATED = 'SET_AUTHENTICATED';
 
-export type SetAuthorizedAction = {
-	type: typeof SET_AUTHORIZED;
+export type SetAuthenticatedAction = {
+	type: typeof SET_AUTHENTICATED;
 	payload: boolean;
 };
 
 export default {
-	setAuthorized: ( isAuthorized: boolean ) => {
+	setAuthenticated: ( isAuthenticated: boolean ) => {
 		return {
-			type: SET_AUTHORIZED,
-			payload: isAuthorized,
+			type: SET_AUTHENTICATED,
+			payload: isAuthenticated,
 		};
 	},
 };

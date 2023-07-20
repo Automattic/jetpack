@@ -1,10 +1,13 @@
-import { SET_AUTHORIZED, SetAuthorizedAction } from './actions';
+import { SET_AUTHENTICATED, SetAuthenticatedAction } from './actions';
 import { AuthState, initialAuthState } from './types';
 
-export default ( state: AuthState = initialAuthState, action: SetAuthorizedAction ): AuthState => {
+export default (
+	state: AuthState = initialAuthState,
+	action: SetAuthenticatedAction
+): AuthState => {
 	switch ( action.type ) {
-		case SET_AUTHORIZED:
-			return { ...state, isAuthorized: action.payload };
+		case SET_AUTHENTICATED:
+			return { ...state, isAuthenticated: action.payload };
 		default:
 			return state;
 	}

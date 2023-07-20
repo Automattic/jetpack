@@ -1,3 +1,3 @@
-const isAuthorized = state => state.isAuthorized;
+const isAuthenticated = state => state.isAuthenticated;
 
-export default { isAuthorized };
+export default { isAuthenticated };

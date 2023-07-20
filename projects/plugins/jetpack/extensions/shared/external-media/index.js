@@ -50,16 +50,16 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 			const { registerInserterMediaCategory } = useDispatch( 'core/block-editor' );
 			let { render } = props;
 
-			const isAuthorized = useSelect( select => select( JETPACK_MEDIA_STORE ).isAuthorized(), [] );
+			const isAuthorized = useSelect( select => select( JETPACK_MEDIA_STORE ).isAuthorized, [] );
 
 			useEffect( () => {
 				if ( isAuthorized ) {
-					registerInserterMediaCategory( getGooglePhotosMediaCategory() );
+					registerInserterMediaCategory?.( getGooglePhotosMediaCategory() );
 				}
 			}, [ isAuthorized, registerInserterMediaCategory ] );
 
 			useEffect( () => {
-				registerInserterMediaCategory( getPexelsMediaCategory() );
+				registerInserterMediaCategory?.( getPexelsMediaCategory() );
 			}, [ registerInserterMediaCategory ] );
 
 			if ( isAllowedBlock( name, render ) || isFeaturedImage( props ) ) {

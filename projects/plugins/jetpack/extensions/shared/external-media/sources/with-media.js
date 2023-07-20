@@ -77,7 +77,7 @@ export default function withMedia() {
 
 			setAuthenticated = isAuthenticated => {
 				this.setState( { isAuthenticated } );
-				useDispatch( JETPACK_MEDIA_STORE ).setAuthorized( isAuthenticated );
+				this.props.setAuthenticated( isAuthenticated );
 			};
 
 			mergeMedia( initial, media ) {
@@ -117,6 +117,7 @@ export default function withMedia() {
 			handleApiError = error => {
 				if ( error.code === 'authorization_required' ) {
 					this.setState( { isAuthenticated: false, isLoading: false, isCopying: false } );
+					this.props.setAuthenticated( false );
 					return;
 				}
 
@@ -300,6 +301,7 @@ export default function withMedia() {
 		return withSelect( select => {
 			return {
 				postId: select( 'core/editor' ).getCurrentPostId(),
+				setAuthenticated: useDispatch( JETPACK_MEDIA_STORE ).setAuthenticated,
 			};
 		} )( withNotices( WithMediaComponent ) );
 	} );
