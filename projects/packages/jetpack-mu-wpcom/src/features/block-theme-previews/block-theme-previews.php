@@ -13,11 +13,7 @@
  */
 add_filter(
 	'option_show_on_front',
-	function ( $value ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! empty( $_GET['wp_theme_preview'] ) ) {
-				return 'posts';
-		}
-		return $value;
+	function () {
+		return 'posts';
 	}
 );

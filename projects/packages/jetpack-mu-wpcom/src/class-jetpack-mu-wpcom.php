@@ -129,7 +129,10 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_block_theme_previews() {
 		if ( defined( 'IS_GUTENBERG_PLUGIN' ) && IS_GUTENBERG_PLUGIN ) {
-			require_once __DIR__ . '/features/block-theme-previews/block-theme-previews.php';
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( ! empty( $_GET['wp_theme_preview'] ) ) {
+				require_once __DIR__ . '/features/block-theme-previews/block-theme-previews.php';
+			}
 		}
 	}
 
