@@ -55,10 +55,10 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 
 			useEffect( () => {
 				isGooglePhotosConnected( () =>
-					registerInserterMediaCategory( getGooglePhotosMediaCategory() )
+					registerInserterMediaCategory?.( getGooglePhotosMediaCategory() )
 				);
 
-				registerInserterMediaCategory( getPexelsMediaCategory() );
+				registerInserterMediaCategory?.( getPexelsMediaCategory() );
 			}, [ registerInserterMediaCategory ] );
 
 			if ( isAllowedBlock( name, render ) || isFeaturedImage( props ) ) {
