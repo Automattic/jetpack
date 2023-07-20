@@ -51,28 +51,3 @@ function define_constants() {
 		define( 'JPCRM_AUTOMATION_MODULE_PATH', __DIR__ );
 	}
 }
-
-/**
- * Sniff features for Automation
- */
-function jpcrm_sniff_feature_for_automations() {
-	/*
-	Example of sniff for features
-	global $zbs;
-
-	if ( !zeroBSCRM_isExtensionInstalled( 'automations' ) ) {
-
-	// check if Automation _is_ active & prompt
-	$zbs->feature_sniffer->sniff_for_plugin(
-		array(
-		'feature_slug'    => 'automations',
-		'plugin_slug'     => 'automations/jetpackcrm-ext-automations.php',
-		'more_info_link'  => $zbs->urls['kb-automations'],
-		)
-	);
-
-	}
-	*/
-}
-
-//add_action( 'jpcrm_sniff_features', 'jpcrm_sniff_feature_for_automations' );
