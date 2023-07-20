@@ -407,7 +407,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			if ( true === $show_greeting ) :
 				printf(
 					'<%1$s id="reply-title" class="comment-reply-title">',
-					esc_attr( $comment_reply_title_tag )
+					esc_html( $comment_reply_title_tag )
 				);
 
 				comment_form_title(
@@ -420,7 +420,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 				printf(
 					'</%1$s>',
-					esc_attr( $comment_reply_title_tag )
+					esc_html( $comment_reply_title_tag )
 				);
 			endif;
 			?>
