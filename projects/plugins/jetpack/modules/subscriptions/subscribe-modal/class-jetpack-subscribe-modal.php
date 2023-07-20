@@ -188,8 +188,8 @@ class Jetpack_Subscribe_Modal {
 
         <!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
         
-        <!-- wp:paragraph {"align":"center","style":{"color":{"text":"#666666"},"typography":{"fontSize":"14px","textDecoration":"underline"}},"className":"jetpack-subscribe-modal__close"} -->
-        <p class='has-text-align-center jetpack-subscribe-modal__close has-text-color' style='color:#666666;font-size:14px;text-decoration:underline'><a href='#'>$continue_reading</a></p>
+        <!-- wp:paragraph {"align":"center","style":{"color":{"text":"#666666"},"typography":{"fontSize":"14px","textDecoration":"none"}},"className":"jetpack-subscribe-modal__close"} -->
+        <p class='has-text-align-center jetpack-subscribe-modal__close has-text-color' style='color:#666666;font-size:14px;text-decoration:none'><a href='#'>$continue_reading</a></p>
         <!-- /wp:paragraph -->
     </div>
     <!-- /wp:group -->

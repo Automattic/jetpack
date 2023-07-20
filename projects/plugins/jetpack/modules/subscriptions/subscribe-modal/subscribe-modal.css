@@ -34,6 +34,10 @@
 	margin: 0 auto;
 }
 
+.jetpack-subscribe-modal__modal-content > .wp-block-group a {
+    text-decoration: none;
+}
+
 .jetpack-subscribe-modal.open .jetpack-subscribe-modal__modal-content {
 	top: 0;
 	visibility: visible;
