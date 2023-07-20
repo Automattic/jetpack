@@ -46,11 +46,15 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autorelease": true,
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-inspect",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-inspect/compare/v${old}...v${new}",
 			"versioning": "semver"
 		},
-		"release-branch-prefix": "inspect"
+		"release-branch-prefix": "inspect",
+		"beta-plugin-slug": "jetpack-inspect",
+		"wp-svn-autopublish": true
 	}
 }
