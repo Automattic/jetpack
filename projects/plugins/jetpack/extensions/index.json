@@ -52,6 +52,7 @@
 		"ai-assistant-support"
 	],
 	"beta": [
+		"ai-assistant-plugin",
 		"ai-chat",
 		"amazon",
 		"author-recommendation",
@@ -64,7 +65,7 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters"
 	],
-	"experimental": [ "ai-image", "ai-paragraph", "ai-assistant-plugin" ],
+	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
 		"ai-assistant",
 		"business-hours",
