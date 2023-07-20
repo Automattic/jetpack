@@ -123,6 +123,15 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Load Gutenberg's Block Theme Previews feature.
+	 */
+	public static function load_block_theme_previews() {
+		if ( defined( 'IS_GUTENBERG_PLUGIN' ) && IS_GUTENBERG_PLUGIN ) {
+			require_once __DIR__ . '/features/block-theme-previews/block-theme-previews.php';
+		}
+	}
+
+	/**
 	 * Unbinds focusout event handler on #wp-admin-bar-menu-toggle introduced in WordPress 6.2.
 	 *
 	 * The focusout event handler is preventing the unified navigation from being closed on mobile.
