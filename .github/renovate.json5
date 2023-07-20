@@ -1,5 +1,5 @@
 {
-	extends: [ 'config:base', 'group:definitelyTyped' ],
+	extends: [ 'config:recommended', 'group:definitelyTyped' ],
 	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
 	prHourlyLimit: 1,
 	timezone: 'UTC',
@@ -100,7 +100,6 @@
 		enabled: true,
 		schedule: [ 'before 3:00 am on Monday on the 7th through 13th day of the month' ],
 	},
-	dependencyDashboard: true,
 	dependencyDashboardTitle: 'Renovate Dependency Updates',
 	dependencyDashboardLabels: [ 'Primary Issue', '[Type] Janitorial' ],
 	dependencyDashboardFooter: 'The bot runs every two hours, and may be monitored or triggered ahead of schedule [here](https://github.com/Automattic/jetpack/actions/workflows/renovate.yml).',

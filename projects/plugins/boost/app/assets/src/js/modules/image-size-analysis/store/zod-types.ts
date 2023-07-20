@@ -37,6 +37,7 @@ export const ImageData = z
 	.catch( {
 		id: '',
 		type: 'bad_entry',
+		status: 'active', // We still want to show the UI for this.
 	} );
 
 export type ImageDataType = z.infer< typeof ImageData >;
