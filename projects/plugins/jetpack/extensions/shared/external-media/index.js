@@ -1,14 +1,10 @@
 import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
-import { useDispatch } from '@wordpress/data';
+import { select, dispatch } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
-import { useEffect } from 'react';
+import { waitFor } from '../wait-for';
 import MediaButton from './media-button';
-import {
-	getGooglePhotosMediaCategory,
-	getPexelsMediaCategory,
-	isGooglePhotosConnected,
-} from './media-category';
+import { getPexelsMediaCategory } from './media-category';
 import { mediaSources } from './sources';
 import './editor.scss';
 
@@ -24,6 +20,15 @@ function insertExternalMediaBlocks( settings, name ) {
 }
 
 if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
+	const isInserterOpened = () =>
+		select( 'core/edit-post' )?.isInserterOpened() ||
+		select( 'core/edit-site' )?.isInserterOpened() ||
+		select( 'core/edit-widgets' )?.isInserterOpened?.();
+
+	waitFor( isInserterOpened ).then( () =>
+		dispatch( 'core/block-editor' )?.registerInserterMediaCategory( getPexelsMediaCategory() )
+	);
+
 	const isFeaturedImage = props =>
 		props.unstableFeaturedImageFlow ||
 		( props.modalClass && props.modalClass.indexOf( 'featured-image' ) > -1 );
@@ -50,16 +55,7 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 		'external-media/replace-media-upload',
 		OriginalComponent => props => {
 			const { name } = useBlockEditContext();
-			const { registerInserterMediaCategory } = useDispatch( 'core/block-editor' );
 			let { render } = props;
-
-			useEffect( () => {
-				isGooglePhotosConnected( () =>
-					registerInserterMediaCategory?.( getGooglePhotosMediaCategory() )
-				);
-
-				registerInserterMediaCategory?.( getPexelsMediaCategory() );
-			}, [ registerInserterMediaCategory ] );
 
 			if ( isAllowedBlock( name, render ) || isFeaturedImage( props ) ) {
 				const { allowedTypes, gallery = false, value = [] } = props;
