@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-02-22 09:54:03+0000\n"
+"PO-Revision-Date: 2023-07-11 14:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,40 +11,597 @@ msgstr ""
 "Language: ja_JP\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:504
+msgid "Your site contains custom styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "サイトにはカスタムスタイルが含まれています。 今すぐアップグレードすると、それらのスタイルを公開し、他のさまざまな機能を利用できます。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:243
+msgid "Customize your domain"
+msgstr "ドメインをカスタマイズ"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:235
+msgid "Add a new page"
+msgstr "新規固定ページを追加"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:228
+msgid "Drive traffic to your site"
+msgstr "サイトのトラフィックを増やす"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:221
+msgid "Give your site a name"
+msgstr "サイトに名前を付けてください。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
+msgid "Claim your free one-year domain"
+msgstr "1年間無料のドメインを取得する"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:118
+#: frontend-notices/gifting-banner/gifting-banner.php:144
+msgctxt "verb"
+msgid "Gift"
+msgstr "おくる"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
+msgid "Thumbnail"
+msgstr "サムネイル"
+
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
+msgid "Share &#8220;%s&#8221; via Publicize"
+msgstr "パブリサイズ経由で「%s」を共有"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
+msgctxt "Share the post on social networks"
+msgid "Share"
+msgstr "共有"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:438
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:519
+msgid "Upgrade plan"
+msgstr "プランをアップグレード"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:111
+msgid "Create paid Newsletter"
+msgstr "有料ニュースレターを作成"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:124
+msgid "Set up payment method"
+msgstr "支払い方法を設定"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:94
+msgid "Confirm email (check your inbox)"
+msgstr "メールを確認 (受信トレイをチェックしてください)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:49
+msgid "Choose a domain"
+msgstr "ドメインを選択"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:189
+msgid "Launch your blog"
+msgstr "ブログを開始"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:18
+msgid "Edit site design"
+msgstr "サイトの設計を編集"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:80
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:212
+msgid "Set up your site"
+msgstr "サイトを設定"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:196
+msgid "Name your blog"
+msgstr "ブログのタイトルを選択"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
+msgid "Personalize your site"
+msgstr "サイトをカスタマイズする"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:178
+msgid "Upload your first video"
+msgstr "最初の動画をアップロード"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:171
+msgid "Set up your video site"
+msgstr "動画サイトを設定"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:138
+msgid "Launch your site"
+msgstr "サイトを公開"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
+msgid "Add links"
+msgstr "リンクを追加"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:155
+msgid "Personalize Link in Bio"
+msgstr "プロフィールのリンクをカスタマイズ"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:28
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:34
+msgid "Select a design"
+msgstr "デザインを選択"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
+msgid "Start writing"
+msgstr "執筆を開始"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+msgid "Write your first post"
+msgstr "最初の投稿を書く"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:130
+msgid "Add subscribers"
+msgstr "購読者を追加"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:72
+msgid "Choose a plan"
+msgstr "プランを選択"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
+msgid "Personalize newsletter"
+msgstr "ニュースレターをカスタマイズ"
+
+#: vendor/automattic/jetpack-config/src/class-config.php:135
+msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
+msgstr "クラス %1$s を読み込めません。Composer を使用してそれを含むパッケージを追加し、Jetpack autoloader が必要であることを確認してください"
+
+#. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:553
+msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
+msgstr "textdomain のエイリアスは %1$s フックの前に登録する必要があります。この通知は %2$s ドメインによってトリガーされました。"
+
+#. translators: %s is the script handle.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:388
+msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
+msgstr "スクリプト \"%s\" には wp-i18n が必要ですが、\"textdomain\" を指定しません"
+
+#: vendor/automattic/custom-fonts/providers/google.php:280
+msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
+msgid "no-subset"
+msgstr "japanese"
+
+#: vendor/automattic/custom-fonts/providers/base.php:302
+msgctxt "font-style"
+msgid "Ultra Bold Oblique"
+msgstr "極太斜体"
+
+#: vendor/automattic/custom-fonts/providers/base.php:301
+msgctxt "font-style"
+msgid "Ultra Bold Italic"
+msgstr "極太イタリック"
+
+#: vendor/automattic/custom-fonts/providers/base.php:300
+msgctxt "font-style"
+msgid "Ultra Bold"
+msgstr "極太"
+
+#: vendor/automattic/custom-fonts/providers/base.php:299
+msgctxt "font-style"
+msgid "Extra Bold Oblique"
+msgstr "極太斜体"
+
+#: vendor/automattic/custom-fonts/providers/base.php:298
+msgctxt "font-style"
+msgid "Extra Bold Italic"
+msgstr "極太イタリック"
+
+#: vendor/automattic/custom-fonts/providers/base.php:297
+msgctxt "font-style"
+msgid "Extra Bold"
+msgstr "極太"
+
+#: vendor/automattic/custom-fonts/providers/base.php:296
+msgctxt "font-style"
+msgid "Bold Oblique"
+msgstr "太斜体"
+
+#: vendor/automattic/custom-fonts/providers/base.php:295
+msgctxt "font-style"
+msgid "Bold Italic"
+msgstr "太イタリック"
+
+#: vendor/automattic/custom-fonts/providers/base.php:294
+msgctxt "font-style"
+msgid "Bold"
+msgstr "太字"
+
+#: vendor/automattic/custom-fonts/providers/base.php:293
+msgctxt "font-style"
+msgid "Semibold Oblique"
+msgstr "中太斜体"
+
+#: vendor/automattic/custom-fonts/providers/base.php:292
+msgctxt "font-style"
+msgid "Semibold Italic"
+msgstr "中太イタリック"
+
+#: vendor/automattic/custom-fonts/providers/base.php:291
+msgctxt "font-style"
+msgid "Semibold"
+msgstr "中太"
+
+#: vendor/automattic/custom-fonts/providers/base.php:290
+msgctxt "font-style"
+msgid "Medium Oblique"
+msgstr "中斜体"
+
+#: vendor/automattic/custom-fonts/providers/base.php:289
+msgctxt "font-style"
+msgid "Medium Italic"
+msgstr "中斜体"
+
+#: vendor/automattic/custom-fonts/providers/base.php:288
+msgctxt "font-style"
+msgid "Medium"
+msgstr "中"
+
+#: vendor/automattic/custom-fonts/providers/base.php:287
+msgctxt "font-style"
+msgid "Oblique"
+msgstr "斜体"
+
+#: vendor/automattic/custom-fonts/providers/base.php:286
+msgctxt "font-style"
+msgid "Italic"
+msgstr "イタリック"
+
+#: vendor/automattic/custom-fonts/providers/base.php:285
+msgctxt "font-style"
+msgid "Regular"
+msgstr "普通"
+
+#: vendor/automattic/custom-fonts/providers/base.php:284
+msgctxt "font-style"
+msgid "Light Oblique"
+msgstr "軽斜体"
+
+#: vendor/automattic/custom-fonts/providers/base.php:283
+msgctxt "font-style"
+msgid "Light Italic"
+msgstr "軽イタリック"
+
+#: vendor/automattic/custom-fonts/providers/base.php:282
+msgctxt "font-style"
+msgid "Light"
+msgstr "軽"
+
+#: vendor/automattic/custom-fonts/providers/base.php:281
+msgctxt "font-style"
+msgid "Extra Light Oblique"
+msgstr "特軽斜体"
+
+#: vendor/automattic/custom-fonts/providers/base.php:280
+msgctxt "font-style"
+msgid "Extra Light Italic"
+msgstr "特軽イタリック"
+
+#: vendor/automattic/custom-fonts/providers/base.php:279
+msgctxt "font-style"
+msgid "Extra Light"
+msgstr "特軽"
+
+#: vendor/automattic/custom-fonts/providers/base.php:278
+msgctxt "font-style"
+msgid "Thin Oblique"
+msgstr "細斜体"
+
+#: vendor/automattic/custom-fonts/providers/base.php:277
+msgctxt "font-style"
+msgid "Thin Italic"
+msgstr "細イタリック"
+
+#: vendor/automattic/custom-fonts/providers/base.php:276
+msgctxt "font-style"
+msgid "Thin"
+msgstr "細字"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:41
+msgid "Huge"
+msgstr "特大"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:40
+msgid "Large"
+msgstr "大"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:39
+msgid "Normal Size"
+msgstr "通常サイズ"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:38
+msgid "Normal"
+msgstr "通常"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:37
+msgid "Small"
+msgstr "小さい"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:36
+msgid "Tiny"
+msgstr "最小"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:35
+msgid "Default Theme Font"
+msgstr "デフォルトテーマフォント"
+
+#: vendor/automattic/custom-fonts/custom-fonts.php:146
+#: vendor/automattic/custom-fonts/custom-fonts.php:162
+msgid "Fonts"
+msgstr "フォント"
+
+#: vendor/automattic/custom-fonts/css-generator.php:63
+msgid "Headings"
+msgstr "見出し"
+
+#: vendor/automattic/custom-fonts/css-generator.php:56
+msgid "Base Font"
+msgstr "ベースフォント"
+
+#: vendor/automattic/custom-fonts/css-generator.php:49
+msgid "Site Title"
+msgstr "サイトのタイトル"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
+msgid "You added a Typekit kit ID through our legacy interface, which is no longer supported. Uncheck the checkbox below and click \"Save\" to remove your kit from this blog and use our easy new interface for choosing fonts."
+msgstr "過去に、対応が終了した旧画面から Typekit キット ID が追加されています。以下のチェックボックスを外して「保存」をクリックし、このブログからキットを削除してください。簡単にフォントが選択できる新インターフェースが使えるようになります。"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
+msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
+msgstr "お使いのテーマのデザイナーが、他のテーマでは使用できないテーマを選択してくれています。これらのフォントが気に入らない場合は以下のチェックボックスを外して「保存」をクリックしましょう。他のフォントが選択できるようになります。"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
+msgid "Uncheck to disable"
+msgstr "チェックを外して無効化"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
+msgid "Spotify Feed ID"
+msgstr "Spotify フィード ID"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
+msgid "Apple Podcasts Feed ID"
+msgstr "Apple Podcasts フィード ID"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
+msgid "Title"
+msgstr "タイトル:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
+msgid "Podcast RSS Feed"
+msgstr "ポッドキャスト RSS フィード"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
+msgid "Listen on Spotify"
+msgstr "Spotify で視聴する"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+msgid "Listen on Apple Podcasts"
+msgstr "Apple Podcasts で聴く"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
+msgid "Display information about your Podcast and allow visitors to follow via iTunes"
+msgstr "ポッドキャストについての情報を表示し、訪問者が iTunes からフォローできるようにする"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:13
+msgid "Podcast"
+msgstr "ポッドキャスト"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
+msgid "Select iTunes category:"
+msgstr "iTunes カテゴリーを選択:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
+msgid "Set podcast category"
+msgstr "ポッドキャスト用のカテゴリーを設定"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
+msgid "Set podcast keywords"
+msgstr "ポッドキャストのキーワードを設定"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
+msgid "Set podcast image"
+msgstr "ポッドキャストの画像を設定"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
+msgid "Clean"
+msgstr "クリーン"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
+msgid "Yes"
+msgstr "はい"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
+msgid "No"
+msgstr "いいえ"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
+msgid "Set podcast as explicit"
+msgstr "ポッドキャストを成人向けとして設定"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
+msgid "Set podcast copyright"
+msgstr "ポッドキャストの著作権表示を設定"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
+msgid "Set podcast summary"
+msgstr "ポッドキャストの概要文を設定"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
+msgid "Set podcast author"
+msgstr "ポッドキャスト作者を設定"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
+msgid "Set podcast subtitle"
+msgstr "ポッドキャストのサブタイトルを設定"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
+msgid "Set podcast title"
+msgstr "ポッドキャストのタイトルを設定"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
+msgid "This is the URL you submit to iTunes or podcasting service."
+msgstr "これは iTunes またはポッドキャストサービスに送信する URL です。"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
+msgid "Your podcast feed: %1$s"
+msgstr "Podcast フィード: %1$s"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
+msgid "Select podcast category:"
+msgstr "ポッドキャストカテゴリーを選択:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
+msgid "Blog category for podcasts"
+msgstr "ポッドキャスト用ブログカテゴリー"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
+msgid "Podcast category 3"
+msgstr "ポッドキャストカテゴリー 3"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
+msgid "Podcast category 2"
+msgstr "ポッドキャストカテゴリー 2"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+msgid "Podcast category 1"
+msgstr "ポッドキャストカテゴリー 1"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast keywords"
+msgstr "ポッドキャストキーワード"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
+msgid "Podcast image"
+msgstr "ポッドキャスト画像"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+msgid "Mark as explicit"
+msgstr "露骨な表現を含むとしてマーク"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+msgid "Podcast copyright"
+msgstr "ポッドキャスト著作権"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+msgid "Podcast summary"
+msgstr "ポッドキャストの概要"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+msgid "Podcast talent name"
+msgstr "ポッドキャスト出演者名"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast subtitle"
+msgstr "ポッドキャストサブタイトル"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
+msgid "Podcast title"
+msgstr "ポッドキャストタイトル"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:18
+msgid "Category to set as feed"
+msgstr "フィードとして設定するカテゴリー"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:16
+msgid "Podcasting"
+msgstr "ポッドキャスト"
+
+#. translators: %s is the Twitter account name
+#: widgets/class-jetpack-widget-twitter.php:74
+msgid "Tweets by %s"
+msgstr "%s のツイート "
+
+#: private-site/logged-in-banner.php:163
+msgid "Next steps"
+msgstr "次のステップ"
+
+#: notices/anyone-can-register-notice.php:70
+msgid "This may pose a security risk to your site."
+msgstr "これはサイトにセキュリティリスクをもたらす可能性があります。"
+
+#: notices/anyone-can-register-notice.php:65
+msgid "It could result in spam users."
+msgstr "スパムユーザーを招く原因になります。"
+
+#: notices/anyone-can-register-notice.php:60
+msgid "It allows a user to create but not post content."
+msgstr "ユーザーはコンテンツの作成はできますが、投稿はできません。"
+
+#: notices/anyone-can-register-notice.php:55
+msgid "It allows a user to post content."
+msgstr "ユーザーはコンテンツの投稿ができます。"
+
+#: notices/anyone-can-register-notice.php:50
+msgid "It allows a user to post/modify/delete all content."
+msgstr "ユーザーはすべてのコンテンツの投稿 / 修正 / 削除ができます。"
+
+#: notices/anyone-can-register-notice.php:45
+msgid "It allows a user control over your orders and products."
+msgstr "ユーザーは注文と商品の管理ができます。"
+
+#: notices/anyone-can-register-notice.php:40
+msgid "It allows a user full control over your site and its contents."
+msgstr "ユーザーはサイトとそのコンテンツを自由に管理できます。"
+
+#: notices/anyone-can-register-notice.php:32
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s Please consider disabling this option."
+msgstr "現在、<a href=\"%2$s\">「誰でも登録可能」オプション</a>が有効になっています。 現在のデフォルト権限グループは%1$sです。 %4$sこのオプションの無効化をご検討ください。"
+
+#: notices/anyone-can-register-notice.php:28
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\">Please consider disabling this option</a>."
+msgstr "現在、<a href=\"%2$s\">「誰でも登録可能」オプション</a>が有効になっています。 現在のデフォルト権限グループは%1$sです。 %4$s<a href=\"%3$s\">このオプションの無効化をご検討ください</a>。"
+
+#: feature-plugins/site-logs.php:41
+msgid "Site Logs"
+msgstr "サイトログ"
+
+#: endpoints/class-github-hosting-webhook-response.php:387
+msgid "The ZIP file could not be extracted."
+msgstr "ZIP ファイルを展開できませんでした。"
+
+#: endpoints/class-github-hosting-webhook-response.php:378
+msgid "The ZIP file could not be opened."
+msgstr "ZIP ファイルを開けませんでした。"
+
+#: endpoints/class-github-hosting-webhook-response.php:354
+msgid "Failed to save zipball in tmp folder."
+msgstr "tmp フォルダーに zipball を保存できませんでした。"
+
 #: notices/media-library-private-site-cdn-notice.php:20
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "サイトが「非公開」として設定されているため、画像 CDN が無効になっています。 メディアライブラリにポスター画像が表示されない場合は、「まもなく公開予定」モードに切り替えられます。  <a href=\"%1$s\" target=_blank>さらに詳しく</a>。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:232
+#: frontend-notices/gifting-banner/gifting-banner.php:234
 msgid "Gift the author a WordPress.com plan."
 msgstr "投稿者に WordPress.com プランをプレゼントします。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:220
+#: frontend-notices/gifting-banner/gifting-banner.php:222
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "%d日以内に期限が切れる前に投稿者に WordPress.com プランをプレゼントします。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:209
+#: frontend-notices/gifting-banner/gifting-banner.php:211
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "投稿者に WordPress.com のアップグレードをプレゼントします。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:182
+#: frontend-notices/gifting-banner/gifting-banner.php:184
 msgid "This site's plan has expired."
 msgstr "このサイトのプランは終了しました。"
 
-#: notices/plan-notices.php:131
+#: notices/plan-notices.php:134
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> の eコマースプランは%2$sに期限が切れました。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどの eコマースプランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
 
-#: notices/plan-notices.php:105
+#: notices/plan-notices.php:108
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> の Pro プランは%2$sに期限が切れます。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどの Pro プランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
 
-#: notices/plan-notices.php:100
+#: notices/plan-notices.php:103
 msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> の eコマースプランは%2$sに期限が切れます。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどの eコマースプランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
 
-#: notices/plan-notices.php:95
+#: notices/plan-notices.php:98
 msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> のビジネスプランは%2$sに期限が切れます。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどのビジネスプランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
 
@@ -52,51 +609,51 @@ msgstr "<strong>%3$s</strong> のビジネスプランは%2$sに期限が切れ�
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "容量の割り当て上限に達しました。アップロードする前にファイルを削除してください。"
 
-#: private-site/logged-in-banner.php:110
+#: private-site/logged-in-banner.php:127
 msgid "Change theme"
 msgstr "テーマを変更"
 
-#: private-site/logged-in-banner.php:109
+#: private-site/logged-in-banner.php:126
 msgid "Change"
 msgstr "変更"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:113
 msgid "Edit page"
 msgstr "ページを編集"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:113
 msgid "Edit post"
 msgstr "投稿の編集"
 
-#: private-site/logged-in-banner.php:95
+#: private-site/logged-in-banner.php:112
 msgid "Edit"
 msgstr "編集する"
 
-#: private-site/logged-in-banner.php:146
+#: private-site/logged-in-banner.php:163
 msgid "My Home"
 msgstr "ホーム"
 
-#: private-site/logged-in-banner.php:69
+#: private-site/logged-in-banner.php:86
 msgid "Launch"
 msgstr "サイトを公開"
 
-#: private-site/logged-in-banner.php:65
+#: private-site/logged-in-banner.php:82
 msgid "Update"
 msgstr "更新"
 
-#: notices/plan-notices.php:121
+#: notices/plan-notices.php:124
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "<strong>%3$s</strong> のプレミアムプランは%2$sに期限が切れました。 サイトの収益化、VideoPress、Google アナリティクスのサポートなどのプレミアムプランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
 
-#: notices/plan-notices.php:116
+#: notices/plan-notices.php:119
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "<strong>%3$s</strong> のパーソナルプランは%2$sに期限が切れました。 6GB の保存スペース、WordPress.com の広告非表示、購読者限定コンテンツなどのパーソナルプランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
 
-#: notices/plan-notices.php:90
+#: notices/plan-notices.php:93
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "<strong>%3$s</strong> のプレミアムプランは%2$sに期限が切れます。 サイトの収益化、VideoPress、Google アナリティクスのサポートなどのプレミアムプランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
 
-#: notices/plan-notices.php:85
+#: notices/plan-notices.php:88
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "<strong>%3$s</strong> のパーソナルプランは%2$sに期限が切れます。 6GB の保存スペース、WordPress.com の広告非表示、購読者限定コンテンツなどのパーソナルプランの機能を保持するには、<a href=\"%1$s\">プランを更新</a>します。"
 
@@ -104,12 +661,7 @@ msgstr "<strong>%3$s</strong> のパーソナルプランは%2$sに期限が切�
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "現在使用している PHP <strong>%1$s</strong> は、%2$s以降、セキュリティ更新情報を受信できなくなります。 <a href=\"%4$s\">ホスティングの設定</a>を変更して、PHP %3$s以上に更新してください。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:143
-msgid "Gift"
-msgstr "ギフト"
-
-#: frontend-notices/gifting-banner/gifting-banner.php:188
+#: frontend-notices/gifting-banner/gifting-banner.php:190
 msgid "Enjoy this site?"
 msgstr "このサイトを楽しめましたか ?"
 
@@ -143,11 +695,11 @@ msgstr "ホーム"
 msgid "Blog"
 msgstr "ブログ"
 
-#: feature-plugins/hooks.php:182
+#: feature-plugins/hooks.php:244
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "プロキシ経由のみ: プロキシを経由している場合に、これが表示されます。 このページが表示されている理由がわからない場合は使用しないでください。"
 
-#: feature-plugins/hooks.php:171
+#: feature-plugins/hooks.php:233
 msgid "You do not have permission to access this page."
 msgstr "このページへのアクセス権がありません。"
 
@@ -155,11 +707,11 @@ msgstr "このページへのアクセス権がありません。"
 msgid "Set your color scheme on WordPress.com."
 msgstr "WordPress.com の配色を設定します。"
 
-#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
 msgid "Additional CSS"
 msgstr "追加 CSS"
 
-#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
 msgid "CSS"
 msgstr "CSS"
 
@@ -172,17 +724,17 @@ msgstr "すべてのアトミックサイトにプレインストールおよび
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: feature-plugins/managed-plugins.php:499
-#: feature-plugins/managed-plugins.php:510
-#: feature-plugins/managed-plugins.php:521
+#: feature-plugins/managed-plugins.php:505
+#: feature-plugins/managed-plugins.php:516
+#: feature-plugins/managed-plugins.php:527
 msgid "Updates managed by WordPress.com"
 msgstr "WordPress.com が管理する更新"
 
-#: notices/plan-notices.php:126
+#: notices/plan-notices.php:129
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> のビジネスプランは%2$sに期限が切れました。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどのビジネスプランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
 
-#: notices/plan-notices.php:136
+#: notices/plan-notices.php:139
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> の Pro プランは%2$sに期限が切れました。 カスタムプラグインとテーマ、SFTP、phpMyAdmin アクセスなどの Pro プランの機能を保持するには、<a href=\"%1$s\">プランを再度有効化</a>します。"
 
@@ -195,14 +747,17 @@ msgid "This site is private. You need to log in as a user with permissions befor
 msgstr "このサイトは非公開です。プレビューを表示するには、権限を持つユーザーとしてログインする必要があります。"
 
 #: private-site/access-denied-coming-soon-template.php:56
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:294
 msgid "Start your website"
 msgstr "サイトをはじめよう"
 
 #: private-site/access-denied-coming-soon-template.php:52
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:290
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "サイトの構築。作品の販売。ブログの投稿。この他にもさまざまな機能があります。"
 
 #: private-site/access-denied-coming-soon-template.php:46
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:273
 msgid "Coming Soon"
 msgstr "サポート予定"
 
@@ -259,41 +814,18 @@ msgstr "カテゴリークラウド"
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "Jetpack の連携が解除されており、サイトが非公開です。Jetpack を再度連携すると、サイトの公開方法を管理できます。"
 
-#: private-site/logged-in-banner.php:64
+#: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr "公開状態を更新"
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:85
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:164
 msgid "Launch site"
 msgstr "サイトの立ち上げ"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
 msgstr "現在 <strong>%1$s</strong> (容量上限 <strong>%2$s</strong> の %3$s%%) を利用中です。"
-
-#: widgets/twitter.php:412
-msgid "Text to display between Tweet and timestamp:"
-msgstr "ツイートとタイムスタンプの間に表示するテキスト:"
-
-#: widgets/twitter.php:406
-msgid "Display Follow Button"
-msgstr "フォローボタンを表示"
-
-#: widgets/twitter.php:399
-msgid "Include retweets"
-msgstr "リツィートを含める"
-
-#: widgets/twitter.php:392
-msgid "Hide Tweets pushed by Publicize"
-msgstr "パブリサイズ共有で送信されたツイートを表示しない"
-
-#: widgets/twitter.php:385
-msgid "Hide replies"
-msgstr "返信を隠す"
-
-#: widgets/twitter.php:371
-msgid "Maximum number of Tweets to show:"
-msgstr "表示するツイートの上限:"
 
 #: widgets/twitter.php:364
 msgid "Twitter username:"
@@ -302,14 +834,6 @@ msgstr "Twitter ユーザー名:"
 #: widgets/twitter.php:353
 msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
 msgstr "お手数ですが、「Twitter タイムライン」ウィジェットへの変更をお願いします。より高度なカスタマイズができる新しいウィジェットへの移行につき、このウィジェットは将来使えなくなる予定です。"
-
-#: widgets/twitter.php:289
-msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
-msgstr "エラー: Twitter アカウントが%1$s公開%2$sされているか確認してください。"
-
-#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
-msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr "エラー: Twitter からの反応がありません。数分待ってページを再読み込みしてください。"
 
 #: widgets/twitter.php:61
 msgid "Twitter Updates"
@@ -358,6 +882,38 @@ msgstr "タグクラウド"
 #: widgets/tag-cloud-widget.php:18
 msgid "A cloud of your most used tags."
 msgstr "タグクラウド"
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "ツイートとタイムスタンプの間に表示するテキスト:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "フォローボタンを表示"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "リツィートを含める"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "パブリサイズ共有で送信されたツイートを表示しない"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "返信を隠す"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "表示するツイートの上限:"
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "エラー: Twitter アカウントが%1$s公開%2$sされているか確認してください。"
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "エラー: Twitter からの反応がありません。数分待ってページを再読み込みしてください。"
 
 #: widgets/aboutme.php:148
 msgid "Apps"
@@ -837,6 +1393,8 @@ msgstr "右"
 msgid "Left"
 msgstr "左"
 
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
 #: widgets/class-gravatar-widget.php:151
 #: widgets/class-widget-top-clicks.php:125
 msgid "None"
@@ -894,7 +1452,7 @@ msgstr "すべての投稿者を表示 (まだ投稿がない人も含む)"
 #: widgets/class-gravatar-widget.php:157
 #: widgets/class-jetpack-i-voted-widget.php:69
 #: widgets/class-jetpack-posts-i-like-widget.php:85
-#: widgets/class-jetpack-widget-twitter.php:387
+#: widgets/class-jetpack-widget-twitter.php:145
 #: widgets/class-music-player-widget.php:82 widgets/class-pd-top-rated.php:134
 #: widgets/class-widget-authors-grid.php:115
 #: widgets/class-widget-top-clicks.php:47
@@ -930,6 +1488,7 @@ msgstr "このサイトはプライベート設定です。"
 
 #: private-site/access-denied-coming-soon-template.php:55
 #: private-site/access-denied-private-site-template.php:47
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:293
 msgid "Log in"
 msgstr "ログイン"
 

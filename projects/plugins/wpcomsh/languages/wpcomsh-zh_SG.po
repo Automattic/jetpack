@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:04:10+0000\n"
+"PO-Revision-Date: 2023-06-08 13:03:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,40 +11,597 @@ msgstr ""
 "Language: zh_SG\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:504
+msgid "Your site contains custom styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "您的站点包含自定义样式。 立即升级以发布并解锁大量其他功能。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:243
+msgid "Customize your domain"
+msgstr "自定义您的域名"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:235
+msgid "Add a new page"
+msgstr "添加新页面"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:228
+msgid "Drive traffic to your site"
+msgstr "提高您站点的流量"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:221
+msgid "Give your site a name"
+msgstr "为您的站点命名"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
+msgid "Claim your free one-year domain"
+msgstr "认领您的免费一年期域名"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:118
+#: frontend-notices/gifting-banner/gifting-banner.php:144
+msgctxt "verb"
+msgid "Gift"
+msgstr " 送礼"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
+msgid "Thumbnail"
+msgstr "缩略图"
+
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
+msgid "Share &#8220;%s&#8221; via Publicize"
+msgstr "通过 Publicize 共享“%s”"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
+msgctxt "Share the post on social networks"
+msgid "Share"
+msgstr "共享"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:438
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:519
+msgid "Upgrade plan"
+msgstr "升级套餐"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:111
+msgid "Create paid Newsletter"
+msgstr "创建付费新闻稿"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:124
+msgid "Set up payment method"
+msgstr "设置付款方式"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:94
+msgid "Confirm email (check your inbox)"
+msgstr "确认信（检查您的信箱）"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:49
+msgid "Choose a domain"
+msgstr "选择域"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:189
+msgid "Launch your blog"
+msgstr "发布博客"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:18
+msgid "Edit site design"
+msgstr "编辑站点设计"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:80
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:212
+msgid "Set up your site"
+msgstr "设置您的站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:196
+msgid "Name your blog"
+msgstr "为您的博客取名"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
+msgid "Personalize your site"
+msgstr "站点个人化"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:178
+msgid "Upload your first video"
+msgstr "上传您的第一个视频"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:171
+msgid "Set up your video site"
+msgstr "设置您的视频站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:138
+msgid "Launch your site"
+msgstr "启动您的站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
+msgid "Add links"
+msgstr "添加链接"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:155
+msgid "Personalize Link in Bio"
+msgstr "个人化自介链接"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:28
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:34
+msgid "Select a design"
+msgstr "选择设计"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
+msgid "Start writing"
+msgstr "开始撰写"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+msgid "Write your first post"
+msgstr "撰写您的第一篇文章"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:130
+msgid "Add subscribers"
+msgstr "新增订户"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:72
+msgid "Choose a plan"
+msgstr "选择套餐"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
+msgid "Personalize newsletter"
+msgstr "个人化电子报"
+
+#: vendor/automattic/jetpack-config/src/class-config.php:135
+msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
+msgstr "无法加载类 %1$s。请使用创建器添加包含该类的包，并确保您需要使用 Jetpack 自动加载器"
+
+#. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:553
+msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
+msgstr "应先注册 textdomain 别名，然后再使用 %1$s 钩子。此通知由 %2$s 域触发。"
+
+#. translators: %s is the script handle.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:388
+msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
+msgstr "脚本“%s”取决于 wp-i18n，但不指定“textdomain”"
+
+#: vendor/automattic/custom-fonts/providers/google.php:280
+msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
+msgid "no-subset"
+msgstr "chinese-simplified"
+
+#: vendor/automattic/custom-fonts/providers/base.php:302
+msgctxt "font-style"
+msgid "Ultra Bold Oblique"
+msgstr "Ultra Bold Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:301
+msgctxt "font-style"
+msgid "Ultra Bold Italic"
+msgstr "Ultra Bold Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:300
+msgctxt "font-style"
+msgid "Ultra Bold"
+msgstr "Ultra Bold"
+
+#: vendor/automattic/custom-fonts/providers/base.php:299
+msgctxt "font-style"
+msgid "Extra Bold Oblique"
+msgstr "Extra Bold Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:298
+msgctxt "font-style"
+msgid "Extra Bold Italic"
+msgstr "Extra Bold Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:297
+msgctxt "font-style"
+msgid "Extra Bold"
+msgstr "Extra Bold"
+
+#: vendor/automattic/custom-fonts/providers/base.php:296
+msgctxt "font-style"
+msgid "Bold Oblique"
+msgstr "Bold Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:295
+msgctxt "font-style"
+msgid "Bold Italic"
+msgstr "Bold Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:294
+msgctxt "font-style"
+msgid "Bold"
+msgstr "Bold"
+
+#: vendor/automattic/custom-fonts/providers/base.php:293
+msgctxt "font-style"
+msgid "Semibold Oblique"
+msgstr "Semibold Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:292
+msgctxt "font-style"
+msgid "Semibold Italic"
+msgstr "Semibold Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:291
+msgctxt "font-style"
+msgid "Semibold"
+msgstr "Semibold"
+
+#: vendor/automattic/custom-fonts/providers/base.php:290
+msgctxt "font-style"
+msgid "Medium Oblique"
+msgstr "Medium Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:289
+msgctxt "font-style"
+msgid "Medium Italic"
+msgstr "Medium Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:288
+msgctxt "font-style"
+msgid "Medium"
+msgstr "Medium"
+
+#: vendor/automattic/custom-fonts/providers/base.php:287
+msgctxt "font-style"
+msgid "Oblique"
+msgstr "Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:286
+msgctxt "font-style"
+msgid "Italic"
+msgstr "Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:285
+msgctxt "font-style"
+msgid "Regular"
+msgstr "Regular"
+
+#: vendor/automattic/custom-fonts/providers/base.php:284
+msgctxt "font-style"
+msgid "Light Oblique"
+msgstr "Light Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:283
+msgctxt "font-style"
+msgid "Light Italic"
+msgstr "Light Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:282
+msgctxt "font-style"
+msgid "Light"
+msgstr "Light"
+
+#: vendor/automattic/custom-fonts/providers/base.php:281
+msgctxt "font-style"
+msgid "Extra Light Oblique"
+msgstr "Extra Light Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:280
+msgctxt "font-style"
+msgid "Extra Light Italic"
+msgstr "Extra Light Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:279
+msgctxt "font-style"
+msgid "Extra Light"
+msgstr "Extra Light"
+
+#: vendor/automattic/custom-fonts/providers/base.php:278
+msgctxt "font-style"
+msgid "Thin Oblique"
+msgstr "Thin Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:277
+msgctxt "font-style"
+msgid "Thin Italic"
+msgstr "Thin Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:276
+msgctxt "font-style"
+msgid "Thin"
+msgstr "Thin"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:41
+msgid "Huge"
+msgstr "特大"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:40
+msgid "Large"
+msgstr "大"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:39
+msgid "Normal Size"
+msgstr "正常大小"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:38
+msgid "Normal"
+msgstr "常规"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:37
+msgid "Small"
+msgstr "小"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:36
+msgid "Tiny"
+msgstr "极小"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:35
+msgid "Default Theme Font"
+msgstr "默认主题字体"
+
+#: vendor/automattic/custom-fonts/custom-fonts.php:146
+#: vendor/automattic/custom-fonts/custom-fonts.php:162
+msgid "Fonts"
+msgstr "字体"
+
+#: vendor/automattic/custom-fonts/css-generator.php:63
+msgid "Headings"
+msgstr "标题"
+
+#: vendor/automattic/custom-fonts/css-generator.php:56
+msgid "Base Font"
+msgstr "基本字体"
+
+#: vendor/automattic/custom-fonts/css-generator.php:49
+msgid "Site Title"
+msgstr "站点标题"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
+msgid "You added a Typekit kit ID through our legacy interface, which is no longer supported. Uncheck the checkbox below and click \"Save\" to remove your kit from this blog and use our easy new interface for choosing fonts."
+msgstr "您通过我们的旧版界面添加了一个 Typekit 套件 ID，但我们已不再为该界面提供支持。 取消勾选下面的复选框，然后点击“保存”，即可从该博客上删除您的套件并使用我们简洁的新界面来选择字体。"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
+msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
+msgstr "您真幸运！您的主题设计师会为您选择特殊字体，而您自己无法选择。如果您对这些字体不满意，请取消选中以下复选框，然后点击“保存”以选择其他字体。"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
+msgid "Uncheck to disable"
+msgstr "取消选中以禁用"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
+msgid "Spotify Feed ID"
+msgstr "Spotify Feed ID"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
+msgid "Apple Podcasts Feed ID"
+msgstr "Apple Podcasts Feed ID"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
+msgid "Title"
+msgstr "标题:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
+msgid "Podcast RSS Feed"
+msgstr "播客 RSS Feed"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
+msgid "Listen on Spotify"
+msgstr "使用 Spotify 收听"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+msgid "Listen on Apple Podcasts"
+msgstr "收听 Apple Podcasts"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
+msgid "Display information about your Podcast and allow visitors to follow via iTunes"
+msgstr "显示关于您播客的信息，并允许访客通过 iTunes 关注"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:13
+msgid "Podcast"
+msgstr "博客"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
+msgid "Select iTunes category:"
+msgstr "选择 iTunes 分类："
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
+msgid "Set podcast category"
+msgstr "设置播客分类"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
+msgid "Set podcast keywords"
+msgstr "设置播客关键字"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
+msgid "Set podcast image"
+msgstr "设置播客图像"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
+msgid "Clean"
+msgstr "不含成人内容"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
+msgid "Yes"
+msgstr "是"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
+msgid "No"
+msgstr "不"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
+msgid "Set podcast as explicit"
+msgstr "将播客设置为含成人内容"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
+msgid "Set podcast copyright"
+msgstr "设置播客版权"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
+msgid "Set podcast summary"
+msgstr "设置播客摘要"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
+msgid "Set podcast author"
+msgstr "设置播客作者"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
+msgid "Set podcast subtitle"
+msgstr "设置播客副标题"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
+msgid "Set podcast title"
+msgstr "设置播客标题"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
+msgid "This is the URL you submit to iTunes or podcasting service."
+msgstr "这是您提交给 iTunes 或播客服务的 URL。"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
+msgid "Your podcast feed: %1$s"
+msgstr "您的播客 Feed：%1$s"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
+msgid "Select podcast category:"
+msgstr "选择播客分类："
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
+msgid "Blog category for podcasts"
+msgstr "播客的博客分类"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
+msgid "Podcast category 3"
+msgstr "播客分类 3"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
+msgid "Podcast category 2"
+msgstr "播客分类 2"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+msgid "Podcast category 1"
+msgstr "播客分类 1"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast keywords"
+msgstr "播客关键字"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
+msgid "Podcast image"
+msgstr "“播客”图像"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+msgid "Mark as explicit"
+msgstr "标记为含成人内容"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+msgid "Podcast copyright"
+msgstr "播客版权"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+msgid "Podcast summary"
+msgstr "播客摘要"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+msgid "Podcast talent name"
+msgstr "播客主持人名称"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast subtitle"
+msgstr "播客副标题"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
+msgid "Podcast title"
+msgstr "播客标题"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:18
+msgid "Category to set as feed"
+msgstr "要设置为 Feed 的分类"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:16
+msgid "Podcasting"
+msgstr "播客"
+
+#. translators: %s is the Twitter account name
+#: widgets/class-jetpack-widget-twitter.php:74
+msgid "Tweets by %s"
+msgstr "由 %s 发表推文"
+
+#: private-site/logged-in-banner.php:163
+msgid "Next steps"
+msgstr "下一步"
+
+#: notices/anyone-can-register-notice.php:70
+msgid "This may pose a security risk to your site."
+msgstr "这可能会给您的站点带来安全风险。"
+
+#: notices/anyone-can-register-notice.php:65
+msgid "It could result in spam users."
+msgstr "这可能会导致垃圾邮件用户。"
+
+#: notices/anyone-can-register-notice.php:60
+msgid "It allows a user to create but not post content."
+msgstr "允许用户创建内容，但不能发布。"
+
+#: notices/anyone-can-register-notice.php:55
+msgid "It allows a user to post content."
+msgstr "允许用户发布内容。"
+
+#: notices/anyone-can-register-notice.php:50
+msgid "It allows a user to post/modify/delete all content."
+msgstr "允许用户发布/修改/删除所有内容。"
+
+#: notices/anyone-can-register-notice.php:45
+msgid "It allows a user control over your orders and products."
+msgstr "允许用户控制您的订单和产品。"
+
+#: notices/anyone-can-register-notice.php:40
+msgid "It allows a user full control over your site and its contents."
+msgstr "允许用户完全控制您的站点及其内容。"
+
+#: notices/anyone-can-register-notice.php:32
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s Please consider disabling this option."
+msgstr "<a href=\"%2$s\">“任何人都可以注册”选项</a>当前处于活动状态。 当前默认角色为 %1$s。 %4$s请考虑禁用此选项。"
+
+#: notices/anyone-can-register-notice.php:28
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\">Please consider disabling this option</a>."
+msgstr "<a href=\"%2$s\">“任何人都可以注册”选项</a>当前处于活动状态。 当前默认角色为 %1$s。 %4$s<a href=\"%3$s\">请考虑禁用此选项</a>。"
+
+#: feature-plugins/site-logs.php:41
+msgid "Site Logs"
+msgstr "网站记录"
+
+#: endpoints/class-github-hosting-webhook-response.php:387
+msgid "The ZIP file could not be extracted."
+msgstr "无法提取 ZIP 文件。"
+
+#: endpoints/class-github-hosting-webhook-response.php:378
+msgid "The ZIP file could not be opened."
+msgstr "无法打开 ZIP 文件。"
+
+#: endpoints/class-github-hosting-webhook-response.php:354
+msgid "Failed to save zipball in tmp folder."
+msgstr "无法将 zipball 保存到 tmp 文件夹中。"
+
 #: notices/media-library-private-site-cdn-notice.php:20
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "图像 CDN 已被禁用，因为您的站点已标记为“私密”。 如果您的“媒体库”中不显示图像缩略图，则可以切换至“即将推出”模式。  <a href=\"%1$s\" target=_blank>了解更多</a>。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:232
+#: frontend-notices/gifting-banner/gifting-banner.php:234
 msgid "Gift the author a WordPress.com plan."
 msgstr "向作者赠送 WordPress.com 套餐。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:220
+#: frontend-notices/gifting-banner/gifting-banner.php:222
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "在 WordPress.com 套餐到期前 %d 天向作者赠送套餐。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:209
+#: frontend-notices/gifting-banner/gifting-banner.php:211
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "向作者赠送 WordPress.com 升级。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:182
+#: frontend-notices/gifting-banner/gifting-banner.php:184
 msgid "This site's plan has expired."
 msgstr "此站点的套餐已到期。"
 
-#: notices/plan-notices.php:131
+#: notices/plan-notices.php:134
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> 的电子商务套餐已于 %2$s到期。 <a href=\"%1$s\">重新激活您的套餐</a>以保留电子商务套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
 
-#: notices/plan-notices.php:105
+#: notices/plan-notices.php:108
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> 的专业版套餐将于 %2$s到期。 <a href=\"%1$s\">续订您的套餐</a>以保留专业版套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
 
-#: notices/plan-notices.php:100
+#: notices/plan-notices.php:103
 msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> 的电子商务套餐将于 %2$s到期。 <a href=\"%1$s\">续订您的套餐</a>以保留电子商务套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
 
-#: notices/plan-notices.php:95
+#: notices/plan-notices.php:98
 msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> 的商务版套餐将于 %2$s到期。 <a href=\"%1$s\">续订您的套餐</a> 以保留商务版套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
 
@@ -52,51 +609,51 @@ msgstr "<strong>%3$s</strong> 的商务版套餐将于 %2$s到期。 <a href=\"%
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "您已经用尽了您的空间配额，请在上传前删除一些文件。"
 
-#: private-site/logged-in-banner.php:110
+#: private-site/logged-in-banner.php:127
 msgid "Change theme"
 msgstr "更改主题"
 
-#: private-site/logged-in-banner.php:109
+#: private-site/logged-in-banner.php:126
 msgid "Change"
 msgstr "更改"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:113
 msgid "Edit page"
 msgstr "编辑页面"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:113
 msgid "Edit post"
 msgstr "编辑文章"
 
-#: private-site/logged-in-banner.php:95
+#: private-site/logged-in-banner.php:112
 msgid "Edit"
 msgstr "编辑"
 
-#: private-site/logged-in-banner.php:146
+#: private-site/logged-in-banner.php:163
 msgid "My Home"
 msgstr "我的主页"
 
-#: private-site/logged-in-banner.php:69
+#: private-site/logged-in-banner.php:86
 msgid "Launch"
 msgstr "启动"
 
-#: private-site/logged-in-banner.php:65
+#: private-site/logged-in-banner.php:82
 msgid "Update"
 msgstr "更新"
 
-#: notices/plan-notices.php:121
+#: notices/plan-notices.php:124
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "<strong>%3$s</strong> 的高级套餐已于 %2$s到期。 <a href=\"%1$s\">重新激活您的套餐</a>以保留高级套餐功能，如站点盈利、VideoPress 和 Google Analytics（分析）支持。"
 
-#: notices/plan-notices.php:116
+#: notices/plan-notices.php:119
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "<strong>%3$s</strong> 的个人套餐已于 %2$s到期。 <a href=\"%1$s\">重新激活您的套餐</a>以保留个人套餐功能，例如 6 GB 存储空间、无 WordPress.com 广告和订阅者专享内容。"
 
-#: notices/plan-notices.php:90
+#: notices/plan-notices.php:93
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "<strong>%3$s</strong> 的高级套餐将于 %2$s到期。 <a href=\"%1$s\">续订您的套餐</a>以保留高级套餐功能，如站点盈利、VideoPress 和 Google Analytics（分析）支持。"
 
-#: notices/plan-notices.php:85
+#: notices/plan-notices.php:88
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "<strong>%3$s</strong> 的个人套餐将于 %2$s到期。 <a href=\"%1$s\">续订您的套餐</a>以保留个人套餐功能，例如 6 GB 存储空间、无 WordPress.com 广告和订阅者专享内容。"
 
@@ -104,12 +661,7 @@ msgstr "<strong>%3$s</strong> 的个人套餐将于 %2$s到期。 <a href=\"%1$s
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "您当前使用的是 PHP <strong>%1$s</strong>，自 %2$s起将不再接收安全更新。 请通过更改<a href=\"%4$s\">托管服务配置</a>，更新到 PHP %3$s 或更高版本。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:143
-msgid "Gift"
-msgstr "礼品"
-
-#: frontend-notices/gifting-banner/gifting-banner.php:188
+#: frontend-notices/gifting-banner/gifting-banner.php:190
 msgid "Enjoy this site?"
 msgstr "喜欢这个站点？"
 
@@ -143,11 +695,11 @@ msgstr "首页"
 msgid "Blog"
 msgstr "博客"
 
-#: feature-plugins/hooks.php:182
+#: feature-plugins/hooks.php:244
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "仅限代理：您可以看到此选项是因为您使用了代理。 如果您不知道自己为什么会到此，请不要使用。"
 
-#: feature-plugins/hooks.php:171
+#: feature-plugins/hooks.php:233
 msgid "You do not have permission to access this page."
 msgstr "您无权查看此页面。"
 
@@ -155,11 +707,11 @@ msgstr "您无权查看此页面。"
 msgid "Set your color scheme on WordPress.com."
 msgstr "在 WordPress.com 上设置您的配色方案。"
 
-#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
 msgid "Additional CSS"
 msgstr "额外CSS"
 
-#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
 msgid "CSS"
 msgstr "CSS"
 
@@ -172,17 +724,17 @@ msgstr "WordPress.com 在所有 Atomic 站点上均提供已进行预安装并�
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: feature-plugins/managed-plugins.php:499
-#: feature-plugins/managed-plugins.php:510
-#: feature-plugins/managed-plugins.php:521
+#: feature-plugins/managed-plugins.php:505
+#: feature-plugins/managed-plugins.php:516
+#: feature-plugins/managed-plugins.php:527
 msgid "Updates managed by WordPress.com"
 msgstr "更新由 WordPress.com 进行管理"
 
-#: notices/plan-notices.php:126
+#: notices/plan-notices.php:129
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> 的商务版套餐已于 %2$s到期。 <a href=\"%1$s\">重新激活您的套餐</a>以保留商务版套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
 
-#: notices/plan-notices.php:136
+#: notices/plan-notices.php:139
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "<strong>%3$s</strong> 的专业版套餐已于 %2$s到期。 <a href=\"%1$s\">重新激活您的套餐</a>以保留专业版套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
 
@@ -195,14 +747,17 @@ msgid "This site is private. You need to log in as a user with permissions befor
 msgstr "此站点是私人站点。您需要以拥有相应权限的用户身份登录才能预览。"
 
 #: private-site/access-denied-coming-soon-template.php:56
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:294
 msgid "Start your website"
 msgstr "开始打造您的网站"
 
 #: private-site/access-denied-coming-soon-template.php:52
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:290
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "创建网站。销售商品。撰写博客。还有更多用途待您发掘。"
 
 #: private-site/access-denied-coming-soon-template.php:46
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:273
 msgid "Coming Soon"
 msgstr "快来了"
 
@@ -259,41 +814,18 @@ msgstr "分类"
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "已断开与 Jetpack 的连接，且站点为私人站点。重新连接 Jetpack 以管理站点可见性设置。"
 
-#: private-site/logged-in-banner.php:64
+#: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr "更新可见性"
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:85
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:164
 msgid "Launch site"
 msgstr "发布站点"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
 msgstr "您目前使用了 <strong>%1$s</strong>，上传限制为 <strong>%2$s</strong>，即占上传限制的 %3$s%%。"
-
-#: widgets/twitter.php:412
-msgid "Text to display between Tweet and timestamp:"
-msgstr "要在推文和时间戳之间显示的文本："
-
-#: widgets/twitter.php:406
-msgid "Display Follow Button"
-msgstr "显示“关注”按钮"
-
-#: widgets/twitter.php:399
-msgid "Include retweets"
-msgstr "包括转发推文"
-
-#: widgets/twitter.php:392
-msgid "Hide Tweets pushed by Publicize"
-msgstr "隐藏 Publicize 推送的推文"
-
-#: widgets/twitter.php:385
-msgid "Hide replies"
-msgstr "隐藏回复"
-
-#: widgets/twitter.php:371
-msgid "Maximum number of Tweets to show:"
-msgstr "待显示的推文的最大数量："
 
 #: widgets/twitter.php:364
 msgid "Twitter username:"
@@ -302,14 +834,6 @@ msgstr "Twitter 用户名："
 #: widgets/twitter.php:353
 msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
 msgstr "请切换到“Twitter 时间轴”小工具。此小工具以后将弃用，我们会提供新的小工具，以实现更多的自定义功能。"
-
-#: widgets/twitter.php:289
-msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
-msgstr "错误：请确保 Twitter 帐户为%1$s公共%2$s帐户。"
-
-#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
-msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr "错误：Twitter 未响应。请稍等几分钟并刷新此页面。"
 
 #: widgets/twitter.php:61
 msgid "Twitter Updates"
@@ -358,6 +882,38 @@ msgstr "标签云"
 #: widgets/tag-cloud-widget.php:18
 msgid "A cloud of your most used tags."
 msgstr "您最常使用的标签云。"
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "要在推文和时间戳之间显示的文本："
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "显示“关注”按钮"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "包括转发推文"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "隐藏 Publicize 推送的推文"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "隐藏回复"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "待显示的推文的最大数量："
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "错误：请确保 Twitter 帐户为%1$s公共%2$s帐户。"
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "错误：Twitter 未响应。请稍等几分钟并刷新此页面。"
 
 #: widgets/aboutme.php:148
 msgid "Apps"
@@ -843,6 +1399,8 @@ msgstr "右"
 msgid "Left"
 msgstr "左"
 
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
 #: widgets/class-gravatar-widget.php:151
 #: widgets/class-widget-top-clicks.php:125
 msgid "None"
@@ -900,7 +1458,7 @@ msgstr "显示所有作者（包括未写过任何文章的作者）"
 #: widgets/class-gravatar-widget.php:157
 #: widgets/class-jetpack-i-voted-widget.php:69
 #: widgets/class-jetpack-posts-i-like-widget.php:85
-#: widgets/class-jetpack-widget-twitter.php:387
+#: widgets/class-jetpack-widget-twitter.php:145
 #: widgets/class-music-player-widget.php:82 widgets/class-pd-top-rated.php:134
 #: widgets/class-widget-authors-grid.php:115
 #: widgets/class-widget-top-clicks.php:47
@@ -936,6 +1494,7 @@ msgstr "此站点是私人站点。"
 
 #: private-site/access-denied-coming-soon-template.php:55
 #: private-site/access-denied-private-site-template.php:47
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:293
 msgid "Log in"
 msgstr "登录"
 

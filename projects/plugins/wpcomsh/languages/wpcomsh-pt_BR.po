@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-03-01 13:04:51+0000\n"
+"PO-Revision-Date: 2023-07-20 11:26:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,41 +11,598 @@ msgstr ""
 "Language: pt_BR\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:504
+msgid "Your site contains custom styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "Seu site contém estilos personalizados. Faça upgrade agora para publicá-los e desbloquear várias outras funcionalidades."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:243
+msgid "Customize your domain"
+msgstr "Personalize seu domínio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:235
+msgid "Add a new page"
+msgstr "Adicione uma nova página"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:228
+msgid "Drive traffic to your site"
+msgstr "Atraia tráfego para seu site"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:221
+msgid "Give your site a name"
+msgstr "Dê um nome ao seu site"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
+msgid "Claim your free one-year domain"
+msgstr "Resgate seu domínio de um ano gratuito"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:118
+#: frontend-notices/gifting-banner/gifting-banner.php:144
+msgctxt "verb"
+msgid "Gift"
+msgstr "Presentear"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
+msgid "Thumbnail"
+msgstr "Miniatura"
+
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
+msgid "Share &#8220;%s&#8221; via Publicize"
+msgstr "Compartilhe “%s” pelo Publicize"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
+msgctxt "Share the post on social networks"
+msgid "Share"
+msgstr "Compartilhar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:438
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:519
+msgid "Upgrade plan"
+msgstr "Plano de atualização"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:111
+msgid "Create paid Newsletter"
+msgstr "Crie uma newsletter paga"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:124
+msgid "Set up payment method"
+msgstr "Configurar forma de pagamento"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:94
+msgid "Confirm email (check your inbox)"
+msgstr "Confirme o e-mail (verifique sua caixa de entrada)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:49
+msgid "Choose a domain"
+msgstr "Escolha um domínio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:189
+msgid "Launch your blog"
+msgstr "Lance seu blog"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:18
+msgid "Edit site design"
+msgstr "Editar design do site"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:80
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:212
+msgid "Set up your site"
+msgstr "Configure seu site"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:196
+msgid "Name your blog"
+msgstr "Dê um Nome Para o Seu Blog"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
+msgid "Personalize your site"
+msgstr "Personalize seu site"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:178
+msgid "Upload your first video"
+msgstr "Faça upload do seu primeiro vídeo"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:171
+msgid "Set up your video site"
+msgstr "Configure seu site de vídeos"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:138
+msgid "Launch your site"
+msgstr "Iniciar seu site"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
+msgid "Add links"
+msgstr "Adicionar links"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:155
+msgid "Personalize Link in Bio"
+msgstr "Personalizar link na bio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:28
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:34
+msgid "Select a design"
+msgstr "Selecionar um design"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
+msgid "Start writing"
+msgstr "Comece a escrever"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+msgid "Write your first post"
+msgstr "Escreva seu primeiro post"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:130
+msgid "Add subscribers"
+msgstr "Adicionar assinantes"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:72
+msgid "Choose a plan"
+msgstr "Selecione um plano"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
+msgid "Personalize newsletter"
+msgstr "Personalizar newsletter"
+
+#: vendor/automattic/jetpack-config/src/class-config.php:135
+msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
+msgstr "Não foi possível carregar a classe %1$s. Adicione o pacote em que a classe está localizada usando o composer e certifique-se de que está pedindo o Jetpack autoloader."
+
+#. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:553
+msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
+msgstr "Aliases Textdomain devem ser registrados antes do hook %1$s. Esse aviso foi acionado pelo domínio %2$s."
+
+#. translators: %s is the script handle.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:388
+msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
+msgstr "O script \"%s\" depende do wp-i18n, mas não especifica \"textdomain\""
+
+#: vendor/automattic/custom-fonts/providers/google.php:280
+msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
+msgid "no-subset"
+msgstr "latin"
+
+#: vendor/automattic/custom-fonts/providers/base.php:302
+msgctxt "font-style"
+msgid "Ultra Bold Oblique"
+msgstr "Oblíquo com ultranegrito"
+
+#: vendor/automattic/custom-fonts/providers/base.php:301
+msgctxt "font-style"
+msgid "Ultra Bold Italic"
+msgstr "Itálico com ultranegrito"
+
+#: vendor/automattic/custom-fonts/providers/base.php:300
+msgctxt "font-style"
+msgid "Ultra Bold"
+msgstr "Ultranegrito"
+
+#: vendor/automattic/custom-fonts/providers/base.php:299
+msgctxt "font-style"
+msgid "Extra Bold Oblique"
+msgstr "Oblíquo com negrito extra"
+
+#: vendor/automattic/custom-fonts/providers/base.php:298
+msgctxt "font-style"
+msgid "Extra Bold Italic"
+msgstr "Itálico com negrito extra"
+
+#: vendor/automattic/custom-fonts/providers/base.php:297
+msgctxt "font-style"
+msgid "Extra Bold"
+msgstr "Negrito extra"
+
+#: vendor/automattic/custom-fonts/providers/base.php:296
+msgctxt "font-style"
+msgid "Bold Oblique"
+msgstr "Oblíquo com negrito"
+
+#: vendor/automattic/custom-fonts/providers/base.php:295
+msgctxt "font-style"
+msgid "Bold Italic"
+msgstr "Itálico com negrito"
+
+#: vendor/automattic/custom-fonts/providers/base.php:294
+msgctxt "font-style"
+msgid "Bold"
+msgstr "Negrito"
+
+#: vendor/automattic/custom-fonts/providers/base.php:293
+msgctxt "font-style"
+msgid "Semibold Oblique"
+msgstr "Oblíquo com seminegrito"
+
+#: vendor/automattic/custom-fonts/providers/base.php:292
+msgctxt "font-style"
+msgid "Semibold Italic"
+msgstr "Itálico com seminegrito"
+
+#: vendor/automattic/custom-fonts/providers/base.php:291
+msgctxt "font-style"
+msgid "Semibold"
+msgstr "Seminegrito"
+
+#: vendor/automattic/custom-fonts/providers/base.php:290
+msgctxt "font-style"
+msgid "Medium Oblique"
+msgstr "Oblíquo médio"
+
+#: vendor/automattic/custom-fonts/providers/base.php:289
+msgctxt "font-style"
+msgid "Medium Italic"
+msgstr "Itálico Médio"
+
+#: vendor/automattic/custom-fonts/providers/base.php:288
+msgctxt "font-style"
+msgid "Medium"
+msgstr "Médio"
+
+#: vendor/automattic/custom-fonts/providers/base.php:287
+msgctxt "font-style"
+msgid "Oblique"
+msgstr "Oblíquo"
+
+#: vendor/automattic/custom-fonts/providers/base.php:286
+msgctxt "font-style"
+msgid "Italic"
+msgstr "Itálico"
+
+#: vendor/automattic/custom-fonts/providers/base.php:285
+msgctxt "font-style"
+msgid "Regular"
+msgstr "Normal"
+
+#: vendor/automattic/custom-fonts/providers/base.php:284
+msgctxt "font-style"
+msgid "Light Oblique"
+msgstr "Oblíquo Light"
+
+#: vendor/automattic/custom-fonts/providers/base.php:283
+msgctxt "font-style"
+msgid "Light Italic"
+msgstr "Itálico Light"
+
+#: vendor/automattic/custom-fonts/providers/base.php:282
+msgctxt "font-style"
+msgid "Light"
+msgstr "Light"
+
+#: vendor/automattic/custom-fonts/providers/base.php:281
+msgctxt "font-style"
+msgid "Extra Light Oblique"
+msgstr "Oblíquo extra light"
+
+#: vendor/automattic/custom-fonts/providers/base.php:280
+msgctxt "font-style"
+msgid "Extra Light Italic"
+msgstr "Itálico light extra"
+
+#: vendor/automattic/custom-fonts/providers/base.php:279
+msgctxt "font-style"
+msgid "Extra Light"
+msgstr "Light extra"
+
+#: vendor/automattic/custom-fonts/providers/base.php:278
+msgctxt "font-style"
+msgid "Thin Oblique"
+msgstr "Oblíquo fino"
+
+#: vendor/automattic/custom-fonts/providers/base.php:277
+msgctxt "font-style"
+msgid "Thin Italic"
+msgstr "Itálico fino"
+
+#: vendor/automattic/custom-fonts/providers/base.php:276
+msgctxt "font-style"
+msgid "Thin"
+msgstr "Fino"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:41
+msgid "Huge"
+msgstr "Enorme"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:40
+msgid "Large"
+msgstr "Grande"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:39
+msgid "Normal Size"
+msgstr "Tamanho Normal"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:38
+msgid "Normal"
+msgstr "Normal"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:37
+msgid "Small"
+msgstr "Pequeno"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:36
+msgid "Tiny"
+msgstr "Minúsculo"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:35
+msgid "Default Theme Font"
+msgstr "Fonte padrão do tema"
+
+#: vendor/automattic/custom-fonts/custom-fonts.php:146
+#: vendor/automattic/custom-fonts/custom-fonts.php:162
+msgid "Fonts"
+msgstr "Fontes"
+
+#: vendor/automattic/custom-fonts/css-generator.php:63
+msgid "Headings"
+msgstr "Títulos"
+
+#: vendor/automattic/custom-fonts/css-generator.php:56
+msgid "Base Font"
+msgstr "Fonte base"
+
+#: vendor/automattic/custom-fonts/css-generator.php:49
+msgid "Site Title"
+msgstr "Título do site"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
+msgid "You added a Typekit kit ID through our legacy interface, which is no longer supported. Uncheck the checkbox below and click \"Save\" to remove your kit from this blog and use our easy new interface for choosing fonts."
+msgstr "Você adicionou um ID do Typekit através de nossa interface legado, que não é mais suportada. Desmarque a caixa de seleção abaixo e clique em \"Salvar\" para remover seu kit deste blog e use nossa nova interface para escolher fontes."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
+msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
+msgstr "Os criadores do seu tema escolheram fontes específicas que você não poderia utilizar normalmente. Se você não estiver feliz com estas fontes, desmarque a caixa de seleção abaixo e clique em \"Salvar\" para escolher outra fonte."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
+msgid "Uncheck to disable"
+msgstr "Desmarque para desativar"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
+msgid "Spotify Feed ID"
+msgstr "ID do feed do Spotify"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
+msgid "Apple Podcasts Feed ID"
+msgstr "ID de feed do podcasts da Apple"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
+msgid "Title"
+msgstr "Título"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
+msgid "Podcast RSS Feed"
+msgstr "Feed RSS do podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
+msgid "Listen on Spotify"
+msgstr "Ouça no Spotify"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+msgid "Listen on Apple Podcasts"
+msgstr "Ouça em podcasts da Apple"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
+msgid "Display information about your Podcast and allow visitors to follow via iTunes"
+msgstr "Exibe informações sobre seu podcast e permite que os visitantes o acompanhem via iTunes"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:13
+msgid "Podcast"
+msgstr "Podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
+msgid "Select iTunes category:"
+msgstr "Selecione a categoria iTunes:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
+msgid "Set podcast category"
+msgstr "Definir categoria de podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
+msgid "Set podcast keywords"
+msgstr "Definir palavras-chave de podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
+msgid "Set podcast image"
+msgstr "Configurar imagem do podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
+msgid "Clean"
+msgstr "Limpar"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
+msgid "Yes"
+msgstr "Sim"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
+msgid "No"
+msgstr "Não"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
+msgid "Set podcast as explicit"
+msgstr "Definir podcast como explícito"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
+msgid "Set podcast copyright"
+msgstr "Determinar copyright do podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
+msgid "Set podcast summary"
+msgstr "Definir resumo do podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
+msgid "Set podcast author"
+msgstr "Definir autor do podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
+msgid "Set podcast subtitle"
+msgstr "Definir legenda de podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
+msgid "Set podcast title"
+msgstr "Definir título de podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
+msgid "This is the URL you submit to iTunes or podcasting service."
+msgstr "Esta é a URL que você insere no iTunes ou serviço de podcast."
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
+msgid "Your podcast feed: %1$s"
+msgstr "Seu feed de podcast: %1$s"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
+msgid "Select podcast category:"
+msgstr "Selecionar categoria de podcast:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
+msgid "Blog category for podcasts"
+msgstr "Categoria do blog para podcasts"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
+msgid "Podcast category 3"
+msgstr "Categoria de Podcast 3"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
+msgid "Podcast category 2"
+msgstr "Categoria de Podcast 2"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+msgid "Podcast category 1"
+msgstr "Categoria de Podcast 1"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast keywords"
+msgstr "Palavras-chave do podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
+msgid "Podcast image"
+msgstr "Imagem do podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+msgid "Mark as explicit"
+msgstr "Marcar como explícito"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+msgid "Podcast copyright"
+msgstr "Copyright do podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+msgid "Podcast summary"
+msgstr "Resumo de podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+msgid "Podcast talent name"
+msgstr "Nome do talento podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast subtitle"
+msgstr "Legenda do podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
+msgid "Podcast title"
+msgstr "Título do Podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:18
+msgid "Category to set as feed"
+msgstr "Categoria para definir como feed"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:16
+msgid "Podcasting"
+msgstr "Podcasting"
+
+#. translators: %s is the Twitter account name
+#: widgets/class-jetpack-widget-twitter.php:74
+msgid "Tweets by %s"
+msgstr "Tweets de %s"
+
+#: private-site/logged-in-banner.php:163
+msgid "Next steps"
+msgstr "Próximos passos"
+
+#: notices/anyone-can-register-notice.php:70
+msgid "This may pose a security risk to your site."
+msgstr "Isto pode representar um risco à segurança do seu site."
+
+#: notices/anyone-can-register-notice.php:65
+msgid "It could result in spam users."
+msgstr "Pode resultar em usuários de spam."
+
+#: notices/anyone-can-register-notice.php:60
+msgid "It allows a user to create but not post content."
+msgstr "Permite ao usuário criar conteúdo, mas sem poder publicá-lo."
+
+#: notices/anyone-can-register-notice.php:55
+msgid "It allows a user to post content."
+msgstr "Permite ao usuário publicar conteúdo."
+
+#: notices/anyone-can-register-notice.php:50
+msgid "It allows a user to post/modify/delete all content."
+msgstr "Permite que o usuário publique, modifique ou exclua todo o conteúdo."
+
+#: notices/anyone-can-register-notice.php:45
+msgid "It allows a user control over your orders and products."
+msgstr "Dá ao usuário o controle sobre seus pedidos e produtos."
+
+#: notices/anyone-can-register-notice.php:40
+msgid "It allows a user full control over your site and its contents."
+msgstr "Dá ao usuário o controle total sobre seu site e conteúdo."
+
+#: notices/anyone-can-register-notice.php:32
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s Please consider disabling this option."
+msgstr "A <a href=\"%2$s\">opção ''Qualquer pessoa pode se registrar''</a> está ativa. A função padrão atual é %1$s. %4$s Considere desativar essa opção."
+
+#: notices/anyone-can-register-notice.php:28
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\">Please consider disabling this option</a>."
+msgstr "A <a href=\"%2$s\">opção ''Qualquer pessoa pode se registrar''</a> está ativa. A função padrão atual é %1$s. %4$s <a href=\"%3$s\">Considere desativar essa opção</a>."
+
+#: feature-plugins/site-logs.php:41
+msgid "Site Logs"
+msgstr "Registros do site"
+
+#: endpoints/class-github-hosting-webhook-response.php:387
+msgid "The ZIP file could not be extracted."
+msgstr "Não foi possível extrair o arquivo .zip."
+
+#: endpoints/class-github-hosting-webhook-response.php:378
+msgid "The ZIP file could not be opened."
+msgstr "Não foi possível abrir o arquivo .zip."
+
+#: endpoints/class-github-hosting-webhook-response.php:354
+msgid "Failed to save zipball in tmp folder."
+msgstr "Falha ao salvar zipball na pasta tmp."
+
 #: notices/media-library-private-site-cdn-notice.php:20
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "O CDN da imagem está desativado pois o site está marcado como privado. Se as miniaturas das imagens não forem exibidas na biblioteca de mídia, você poderá trocar para o modo Em breve.  <a href=\"%1$s\" target=_blank>Saiba mais</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:232
+#: frontend-notices/gifting-banner/gifting-banner.php:234
 msgid "Gift the author a WordPress.com plan."
 msgstr "Presenteie o autor com um plano do WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:220
+#: frontend-notices/gifting-banner/gifting-banner.php:222
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "Presenteie o autor com um plano do WordPress.com antes que ele expire em %d dia."
 msgstr[1] "Presenteie o autor com um plano do WordPress.com antes que ele expire em %d dias."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:209
+#: frontend-notices/gifting-banner/gifting-banner.php:211
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "Presenteie o autor com um upgrade do WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:182
+#: frontend-notices/gifting-banner/gifting-banner.php:184
 msgid "This site's plan has expired."
 msgstr "O plano deste site expirou."
 
-#: notices/plan-notices.php:131
+#: notices/plan-notices.php:134
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "O plano eCommerce para <strong>%3$s</strong> expirou em %2$s. <a href=\"%1$s\">Reative seu plano</a> para manter os recursos do plano eCommerce, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
 
-#: notices/plan-notices.php:105
+#: notices/plan-notices.php:108
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "O plano Pro para <strong>%3$s</strong> expira em %2$s. <a href=\"%1$s\">Renove seu plano</a> para manter os recursos do plano Pro, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
 
-#: notices/plan-notices.php:100
+#: notices/plan-notices.php:103
 msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "O plano eCommerce para <strong>%3$s</strong> expira em %2$s. <a href=\"%1$s\">Renove seu plano</a> para manter os recursos do plano eCommerce, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
 
-#: notices/plan-notices.php:95
+#: notices/plan-notices.php:98
 msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "O plano Negócios para <strong>%3$s</strong> expira em %2$s. <a href=\"%1$s\">Renove seu plano</a> para manter os recursos do plano Negócios, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
 
@@ -53,51 +610,51 @@ msgstr "O plano Negócios para <strong>%3$s</strong> expira em %2$s. <a href=\"%
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "Você usou sua cota de espaço. Exclua alguns arquivos antes de enviar outros."
 
-#: private-site/logged-in-banner.php:110
+#: private-site/logged-in-banner.php:127
 msgid "Change theme"
 msgstr "Mudar tema"
 
-#: private-site/logged-in-banner.php:109
+#: private-site/logged-in-banner.php:126
 msgid "Change"
 msgstr "Alterar"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:113
 msgid "Edit page"
 msgstr "Editar página"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:113
 msgid "Edit post"
 msgstr "Editar post"
 
-#: private-site/logged-in-banner.php:95
+#: private-site/logged-in-banner.php:112
 msgid "Edit"
 msgstr "Editar"
 
-#: private-site/logged-in-banner.php:146
+#: private-site/logged-in-banner.php:163
 msgid "My Home"
 msgstr "Minha página inicial"
 
-#: private-site/logged-in-banner.php:69
+#: private-site/logged-in-banner.php:86
 msgid "Launch"
 msgstr "Lançamento"
 
-#: private-site/logged-in-banner.php:65
+#: private-site/logged-in-banner.php:82
 msgid "Update"
 msgstr "Atualizar"
 
-#: notices/plan-notices.php:121
+#: notices/plan-notices.php:124
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "O plano Premium para <strong>%3$s</strong> expirou em %2$s. <a href=\"%1$s\">Reative seu plano</a> para manter os recursos do plano Premium, como monetização do site, VideoPress e suporte para Google Analytics."
 
-#: notices/plan-notices.php:116
+#: notices/plan-notices.php:119
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "O plano Pessoal para <strong>%3$s</strong> expirou em %2$s. <a href=\"%1$s\">Reative seu plano</a> para manter os recursos do plano Pessoal, como espaço de armazenamento de 6 GB, sem publicidade no WordPress.com e conteúdo exclusivo do assinante."
 
-#: notices/plan-notices.php:90
+#: notices/plan-notices.php:93
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "O plano Premium para <strong>%3$s</strong> expira em %2$s. <a href=\"%1$s\">Renove seu plano</a> para manter os recursos do plano Premium, como monetização do site, VideoPress e suporte para Google Analytics."
 
-#: notices/plan-notices.php:85
+#: notices/plan-notices.php:88
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "O plano Pessoal para <strong>%3$s</strong> expira em %2$s. <a href=\"%1$s\">Renove seu plano</a> para manter os recursos do plano Pessoal, como espaço de armazenamento de 6 GB, sem publicidade no WordPress.com e conteúdo exclusivo do assinante."
 
@@ -105,12 +662,7 @@ msgstr "O plano Pessoal para <strong>%3$s</strong> expira em %2$s. <a href=\"%1$
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "Você está usando o PHP <strong>%1$s</strong>, que deixará de receber atualizações de segurança a partir de %2$s. Atualize para o PHP %3$s ou uma versão superior alterando sua <a href=\"%4$s\">configuração de hospedagem</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:143
-msgid "Gift"
-msgstr "Presente"
-
-#: frontend-notices/gifting-banner/gifting-banner.php:188
+#: frontend-notices/gifting-banner/gifting-banner.php:190
 msgid "Enjoy this site?"
 msgstr "Gostou desse site?"
 
@@ -144,11 +696,11 @@ msgstr "Inicial"
 msgid "Blog"
 msgstr "Blog"
 
-#: feature-plugins/hooks.php:182
+#: feature-plugins/hooks.php:244
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "Somente proxy: você consegue ver isto porque tem um proxy. Não use se não souber por que está aqui."
 
-#: feature-plugins/hooks.php:171
+#: feature-plugins/hooks.php:233
 msgid "You do not have permission to access this page."
 msgstr "Você não tem permissão para acessar esta página."
 
@@ -156,11 +708,11 @@ msgstr "Você não tem permissão para acessar esta página."
 msgid "Set your color scheme on WordPress.com."
 msgstr "Defina seu esquema de cores no WordPress.com."
 
-#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
 msgid "Additional CSS"
 msgstr "CSS adicional"
 
-#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
 msgid "CSS"
 msgstr "CSS"
 
@@ -173,17 +725,17 @@ msgstr "WordPress.com oferece recursos e ferramentas pré-instalados e ativos em
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: feature-plugins/managed-plugins.php:499
-#: feature-plugins/managed-plugins.php:510
-#: feature-plugins/managed-plugins.php:521
+#: feature-plugins/managed-plugins.php:505
+#: feature-plugins/managed-plugins.php:516
+#: feature-plugins/managed-plugins.php:527
 msgid "Updates managed by WordPress.com"
 msgstr "Atualizações gerenciadas pelo WordPress.com"
 
-#: notices/plan-notices.php:126
+#: notices/plan-notices.php:129
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "O plano Negócios para <strong>%3$s</strong> expirou em %2$s. <a href=\"%1$s\">Reative seu plano</a> para manter os recursos do plano Negócios, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
 
-#: notices/plan-notices.php:136
+#: notices/plan-notices.php:139
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "O plano Pro para <strong>%3$s</strong> expirou em %2$s. <a href=\"%1$s\">Reative seu plano</a> para manter os recursos do plano Pro, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
 
@@ -196,14 +748,17 @@ msgid "This site is private. You need to log in as a user with permissions befor
 msgstr "Este site é privado. Você precisa de um login com permissões para visualizá-lo."
 
 #: private-site/access-denied-coming-soon-template.php:56
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:294
 msgid "Start your website"
 msgstr "Crie seu site"
 
 #: private-site/access-denied-coming-soon-template.php:52
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:290
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "Crie um site. Venda suas coisas. Escreva um blog. E muito mais."
 
 #: private-site/access-denied-coming-soon-template.php:46
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:273
 msgid "Coming Soon"
 msgstr "Em breve"
 
@@ -260,41 +815,18 @@ msgstr "Categorias"
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "O Jetpack está desconectado e o site é privado. Reconecte o Jetpack para gerenciar as configurações de visibilidade do site."
 
-#: private-site/logged-in-banner.php:64
+#: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr "Atualizar visibilidade"
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:85
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:164
 msgid "Launch site"
 msgstr "Lançar site"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
 msgstr "Você está atualmente utilizando <strong>%1$s</strong> de <strong>%2$s</strong> do limite de upload (%3$s%%)."
-
-#: widgets/twitter.php:412
-msgid "Text to display between Tweet and timestamp:"
-msgstr "Texto a exibir entre o Tweet e carimbo de data/hora:"
-
-#: widgets/twitter.php:406
-msgid "Display Follow Button"
-msgstr "Exibir botão Seguir"
-
-#: widgets/twitter.php:399
-msgid "Include retweets"
-msgstr "Incluir retweets"
-
-#: widgets/twitter.php:392
-msgid "Hide Tweets pushed by Publicize"
-msgstr "Ocultar Tweets enviados pelo Publicize"
-
-#: widgets/twitter.php:385
-msgid "Hide replies"
-msgstr "Esconder respostas"
-
-#: widgets/twitter.php:371
-msgid "Maximum number of Tweets to show:"
-msgstr "Número máximo de Tweets a mostrar:"
 
 #: widgets/twitter.php:364
 msgid "Twitter username:"
@@ -303,14 +835,6 @@ msgstr "Nome de usuários no Twitter:"
 #: widgets/twitter.php:353
 msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
 msgstr "Troque para o widget da \"linha do tempo do Twitter\". Esse widget não estará mais disponível futuramente e o novo widget tem mais opções de personalização."
-
-#: widgets/twitter.php:289
-msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
-msgstr "Erro: Assegure-se de que a conta Twitter é %1$spública%2$s."
-
-#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
-msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr "Erro: o Twitter não respondeu. Por favor, aguarde alguns minutos e atualize esta página."
 
 #: widgets/twitter.php:61
 msgid "Twitter Updates"
@@ -359,6 +883,38 @@ msgstr "Nuvem de tags"
 #: widgets/tag-cloud-widget.php:18
 msgid "A cloud of your most used tags."
 msgstr "Uma nuvem com as tags mais usadas."
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "Texto a exibir entre o Tweet e carimbo de data/hora:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "Exibir botão Seguir"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "Incluir retweets"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "Ocultar Tweets enviados pelo Publicize"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "Esconder respostas"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "Número máximo de Tweets a mostrar:"
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "Erro: Assegure-se de que a conta Twitter é %1$spública%2$s."
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Erro: o Twitter não respondeu. Por favor, aguarde alguns minutos e atualize esta página."
 
 #: widgets/aboutme.php:148
 msgid "Apps"
@@ -838,6 +1394,8 @@ msgstr "Direita"
 msgid "Left"
 msgstr "Esquerda"
 
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
 #: widgets/class-gravatar-widget.php:151
 #: widgets/class-widget-top-clicks.php:125
 msgid "None"
@@ -895,7 +1453,7 @@ msgstr "Mostra todos os autores (incluindo aqueles que ainda não escreveram nen
 #: widgets/class-gravatar-widget.php:157
 #: widgets/class-jetpack-i-voted-widget.php:69
 #: widgets/class-jetpack-posts-i-like-widget.php:85
-#: widgets/class-jetpack-widget-twitter.php:387
+#: widgets/class-jetpack-widget-twitter.php:145
 #: widgets/class-music-player-widget.php:82 widgets/class-pd-top-rated.php:134
 #: widgets/class-widget-authors-grid.php:115
 #: widgets/class-widget-top-clicks.php:47
@@ -931,6 +1489,7 @@ msgstr "Este site é privado."
 
 #: private-site/access-denied-coming-soon-template.php:55
 #: private-site/access-denied-private-site-template.php:47
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:293
 msgid "Log in"
 msgstr "Fazer login"
 

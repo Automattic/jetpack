@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-02-22 11:54:19+0000\n"
+"PO-Revision-Date: 2023-07-20 11:57:18+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,41 +11,598 @@ msgstr ""
 "Language: sv_SE\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:504
+msgid "Your site contains custom styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "Din webbplats innehåller anpassade stilar. Uppgradera nu för att publicera dem och låsa upp massor av andra funktioner."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:243
+msgid "Customize your domain"
+msgstr "Anpassa din domän"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:235
+msgid "Add a new page"
+msgstr "Lägg till en ny sida"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:228
+msgid "Drive traffic to your site"
+msgstr "Styr trafik till din webbplats"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:221
+msgid "Give your site a name"
+msgstr "Ge din webbplats ett namn"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:41
+msgid "Claim your free one-year domain"
+msgstr "Hävda din gratis domän i ett år."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:118
+#: frontend-notices/gifting-banner/gifting-banner.php:144
+msgctxt "verb"
+msgid "Gift"
+msgstr "Ge en gåva"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
+msgid "Thumbnail"
+msgstr "Miniatyr"
+
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
+msgid "Share &#8220;%s&#8221; via Publicize"
+msgstr "Dela ”%s” via Offentliggör"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
+msgctxt "Share the post on social networks"
+msgid "Share"
+msgstr "Dela"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:438
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:519
+msgid "Upgrade plan"
+msgstr "Uppgradera paket"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:111
+msgid "Create paid Newsletter"
+msgstr "Skapa betalt nyhetsbrev"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:124
+msgid "Set up payment method"
+msgstr "Ställ in betalningsmetod"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:94
+msgid "Confirm email (check your inbox)"
+msgstr "Bekräfta e-post (kolla din inkorg)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:49
+msgid "Choose a domain"
+msgstr "Välj en domän"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:189
+msgid "Launch your blog"
+msgstr "Lansera din blogg"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:18
+msgid "Edit site design"
+msgstr "Redigera webbplatsdesign"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:80
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:212
+msgid "Set up your site"
+msgstr "Ställ in din webbplats"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:196
+msgid "Name your blog"
+msgstr "Ge din blogg ett namn"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
+msgid "Personalize your site"
+msgstr "Personifiera din webbplats"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:178
+msgid "Upload your first video"
+msgstr "Ladda upp ditt första videoklipp"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:171
+msgid "Set up your video site"
+msgstr "Ställ in din video-webbplats"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:138
+msgid "Launch your site"
+msgstr "Lansera din webbplats."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
+msgid "Add links"
+msgstr "Lägg till länkar"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:155
+msgid "Personalize Link in Bio"
+msgstr "Personifiera Link in Bio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:28
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:34
+msgid "Select a design"
+msgstr "Välj en design"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
+msgid "Start writing"
+msgstr "Börja skriva"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+msgid "Write your first post"
+msgstr "Skriv ditt första inlägg"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:130
+msgid "Add subscribers"
+msgstr "Lägg till prenumeranter"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:72
+msgid "Choose a plan"
+msgstr "Välj ett paket"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:118
+msgid "Personalize newsletter"
+msgstr "Personifiera nyhetsbrev"
+
+#: vendor/automattic/jetpack-config/src/class-config.php:135
+msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
+msgstr "Det gick inte att läsa in klass %1$s. Lägg till paketet som innehåller det med hjälp av Composer och se till att be om en Jetpack-autoloader"
+
+#. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:553
+msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
+msgstr "Textdomänsalias bör registreras före %1$s-hooken. Denna notis utlöstes av domänen %2$s."
+
+#. translators: %s is the script handle.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:388
+msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
+msgstr "Skriptet \"%s\" är beroende av wp-i18n, men anger inte \"textdomain\""
+
+#: vendor/automattic/custom-fonts/providers/google.php:280
+msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
+msgid "no-subset"
+msgstr "latin"
+
+#: vendor/automattic/custom-fonts/providers/base.php:302
+msgctxt "font-style"
+msgid "Ultra Bold Oblique"
+msgstr "Ultrafet sned"
+
+#: vendor/automattic/custom-fonts/providers/base.php:301
+msgctxt "font-style"
+msgid "Ultra Bold Italic"
+msgstr "Ultrafet kursiv"
+
+#: vendor/automattic/custom-fonts/providers/base.php:300
+msgctxt "font-style"
+msgid "Ultra Bold"
+msgstr "Ultrafet"
+
+#: vendor/automattic/custom-fonts/providers/base.php:299
+msgctxt "font-style"
+msgid "Extra Bold Oblique"
+msgstr "Extra fet sned"
+
+#: vendor/automattic/custom-fonts/providers/base.php:298
+msgctxt "font-style"
+msgid "Extra Bold Italic"
+msgstr "Extra fet kursiv"
+
+#: vendor/automattic/custom-fonts/providers/base.php:297
+msgctxt "font-style"
+msgid "Extra Bold"
+msgstr "Extra fet"
+
+#: vendor/automattic/custom-fonts/providers/base.php:296
+msgctxt "font-style"
+msgid "Bold Oblique"
+msgstr "Fet sned"
+
+#: vendor/automattic/custom-fonts/providers/base.php:295
+msgctxt "font-style"
+msgid "Bold Italic"
+msgstr "Fet kursiv"
+
+#: vendor/automattic/custom-fonts/providers/base.php:294
+msgctxt "font-style"
+msgid "Bold"
+msgstr "Fet"
+
+#: vendor/automattic/custom-fonts/providers/base.php:293
+msgctxt "font-style"
+msgid "Semibold Oblique"
+msgstr "Halvfet sned"
+
+#: vendor/automattic/custom-fonts/providers/base.php:292
+msgctxt "font-style"
+msgid "Semibold Italic"
+msgstr "Halvfet kursiv"
+
+#: vendor/automattic/custom-fonts/providers/base.php:291
+msgctxt "font-style"
+msgid "Semibold"
+msgstr "Halvfet"
+
+#: vendor/automattic/custom-fonts/providers/base.php:290
+msgctxt "font-style"
+msgid "Medium Oblique"
+msgstr "Medium sned"
+
+#: vendor/automattic/custom-fonts/providers/base.php:289
+msgctxt "font-style"
+msgid "Medium Italic"
+msgstr "Medium kursiv"
+
+#: vendor/automattic/custom-fonts/providers/base.php:288
+msgctxt "font-style"
+msgid "Medium"
+msgstr "Medium"
+
+#: vendor/automattic/custom-fonts/providers/base.php:287
+msgctxt "font-style"
+msgid "Oblique"
+msgstr "Sned"
+
+#: vendor/automattic/custom-fonts/providers/base.php:286
+msgctxt "font-style"
+msgid "Italic"
+msgstr "Kursiv"
+
+#: vendor/automattic/custom-fonts/providers/base.php:285
+msgctxt "font-style"
+msgid "Regular"
+msgstr "Vanlig"
+
+#: vendor/automattic/custom-fonts/providers/base.php:284
+msgctxt "font-style"
+msgid "Light Oblique"
+msgstr "Tunn sned"
+
+#: vendor/automattic/custom-fonts/providers/base.php:283
+msgctxt "font-style"
+msgid "Light Italic"
+msgstr "Tunn kursiv"
+
+#: vendor/automattic/custom-fonts/providers/base.php:282
+msgctxt "font-style"
+msgid "Light"
+msgstr "Tunn"
+
+#: vendor/automattic/custom-fonts/providers/base.php:281
+msgctxt "font-style"
+msgid "Extra Light Oblique"
+msgstr "Extra lätt sned"
+
+#: vendor/automattic/custom-fonts/providers/base.php:280
+msgctxt "font-style"
+msgid "Extra Light Italic"
+msgstr "Extra tunn kursiv"
+
+#: vendor/automattic/custom-fonts/providers/base.php:279
+msgctxt "font-style"
+msgid "Extra Light"
+msgstr "Extra tunn"
+
+#: vendor/automattic/custom-fonts/providers/base.php:278
+msgctxt "font-style"
+msgid "Thin Oblique"
+msgstr "Tunn sned"
+
+#: vendor/automattic/custom-fonts/providers/base.php:277
+msgctxt "font-style"
+msgid "Thin Italic"
+msgstr "Tunn kursiv"
+
+#: vendor/automattic/custom-fonts/providers/base.php:276
+msgctxt "font-style"
+msgid "Thin"
+msgstr "Tunn"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:41
+msgid "Huge"
+msgstr "Enorm"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:40
+msgid "Large"
+msgstr "Stor"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:39
+msgid "Normal Size"
+msgstr "Normal storlek"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:38
+msgid "Normal"
+msgstr "Normal"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:37
+msgid "Small"
+msgstr "Liten"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:36
+msgid "Tiny"
+msgstr "Pytteliten"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:35
+msgid "Default Theme Font"
+msgstr "Standardtypsnitt för tema"
+
+#: vendor/automattic/custom-fonts/custom-fonts.php:146
+#: vendor/automattic/custom-fonts/custom-fonts.php:162
+msgid "Fonts"
+msgstr "Typsnitt"
+
+#: vendor/automattic/custom-fonts/css-generator.php:63
+msgid "Headings"
+msgstr "Rubriker"
+
+#: vendor/automattic/custom-fonts/css-generator.php:56
+msgid "Base Font"
+msgstr "Grundtypsnitt"
+
+#: vendor/automattic/custom-fonts/css-generator.php:49
+msgid "Site Title"
+msgstr "Webbplatsrubrik"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
+msgid "You added a Typekit kit ID through our legacy interface, which is no longer supported. Uncheck the checkbox below and click \"Save\" to remove your kit from this blog and use our easy new interface for choosing fonts."
+msgstr "Du har lagt till ett Typekit-ID via vårt äldre gränssnitt, vilket inte längre stöds. Avmarkera kryssrutan nedan och klicka på \"Spara\" för att ta bort ditt kit från den här bloggen och använda vårt enkla nya gränssnitt för att välja typsnitt."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
+msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
+msgstr "Lyckost! Dina temaformgivare väljer specifika typsnitt åt dig som du annars inte kan välja. Om du inte är nöjd med dessa typsnitt kan du avmarkera kryssrutan nedan och klicka på \"Spara\" för att välja andra typsnitt."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
+msgid "Uncheck to disable"
+msgstr "Avmarkera för att inaktivera"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
+msgid "Spotify Feed ID"
+msgstr "Spotify flödes-ID"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
+msgid "Apple Podcasts Feed ID"
+msgstr "Flödes-ID för Apple Podcasts"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
+msgid "Title"
+msgstr "Rubrik"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
+msgid "Podcast RSS Feed"
+msgstr "Podcast RSS-flöde"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
+msgid "Listen on Spotify"
+msgstr "Lyssna på Spotify"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+msgid "Listen on Apple Podcasts"
+msgstr "Lyssna på Apple Podcasts"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
+msgid "Display information about your Podcast and allow visitors to follow via iTunes"
+msgstr "Visa information om din Podcast och tillåt besökare att följa via iTunes"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:13
+msgid "Podcast"
+msgstr "Podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
+msgid "Select iTunes category:"
+msgstr "Välj kategori i iTunes:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
+msgid "Set podcast category"
+msgstr "Kategori för podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
+msgid "Set podcast keywords"
+msgstr "Nyckelord för podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
+msgid "Set podcast image"
+msgstr "Bild för podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
+msgid "Clean"
+msgstr "Rensa"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
+msgid "Yes"
+msgstr "Ja"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
+msgid "No"
+msgstr "Nej"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
+msgid "Set podcast as explicit"
+msgstr "Markera podcast för vuxeninnehåll"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
+msgid "Set podcast copyright"
+msgstr "Copyright för podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
+msgid "Set podcast summary"
+msgstr "Beskrivning av podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
+msgid "Set podcast author"
+msgstr "Författare för podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
+msgid "Set podcast subtitle"
+msgstr "Undertitel för podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
+msgid "Set podcast title"
+msgstr "Titel för podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
+msgid "This is the URL you submit to iTunes or podcasting service."
+msgstr "Detta är URL:en du ger till iTunes eller annan podcasting-tjänst."
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
+msgid "Your podcast feed: %1$s"
+msgstr "Podcastens webbflöde: %1$s"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
+msgid "Select podcast category:"
+msgstr "Välj podcast-kategori:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
+msgid "Blog category for podcasts"
+msgstr "Bloggkategori för podcasts"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
+msgid "Podcast category 3"
+msgstr "Podcast-kategori 3"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
+msgid "Podcast category 2"
+msgstr "Podcast-kategori 2"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+msgid "Podcast category 1"
+msgstr "Podcast-kategori 1"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast keywords"
+msgstr "Podcast-nyckelord"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
+msgid "Podcast image"
+msgstr "Podcast-bild"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+msgid "Mark as explicit"
+msgstr "Rapportera vuxeninnehåll"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+msgid "Podcast copyright"
+msgstr "Podcast-rättigheter"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+msgid "Podcast summary"
+msgstr "Podcast-beskrivning"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+msgid "Podcast talent name"
+msgstr "Podcast-talangnamn"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast subtitle"
+msgstr "Podcast-undertitel"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
+msgid "Podcast title"
+msgstr "Podcast-titel"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:18
+msgid "Category to set as feed"
+msgstr "Kategori att ställa in som webbflöde"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:16
+msgid "Podcasting"
+msgstr "Podcasting"
+
+#. translators: %s is the Twitter account name
+#: widgets/class-jetpack-widget-twitter.php:74
+msgid "Tweets by %s"
+msgstr "Tweets av %s"
+
+#: private-site/logged-in-banner.php:163
+msgid "Next steps"
+msgstr "Nästa steg"
+
+#: notices/anyone-can-register-notice.php:70
+msgid "This may pose a security risk to your site."
+msgstr "Detta kan utgöra en säkerhetsrisk för din webbplats."
+
+#: notices/anyone-can-register-notice.php:65
+msgid "It could result in spam users."
+msgstr "Det kan resultera till skräppostanvändare."
+
+#: notices/anyone-can-register-notice.php:60
+msgid "It allows a user to create but not post content."
+msgstr "Det tillåter en användare att skapa men inte publicera innehåll."
+
+#: notices/anyone-can-register-notice.php:55
+msgid "It allows a user to post content."
+msgstr "Det tillåter en användare att publicera innehåll."
+
+#: notices/anyone-can-register-notice.php:50
+msgid "It allows a user to post/modify/delete all content."
+msgstr "Det tillåter en användare att publicera/ändra/ta bort allt innehåll."
+
+#: notices/anyone-can-register-notice.php:45
+msgid "It allows a user control over your orders and products."
+msgstr "Det tillåter en användare kontroll över dina beställningar och produkter."
+
+#: notices/anyone-can-register-notice.php:40
+msgid "It allows a user full control over your site and its contents."
+msgstr "Det tillåter en användare full kontroll över din webbplats och dess innehåll."
+
+#: notices/anyone-can-register-notice.php:32
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s Please consider disabling this option."
+msgstr "Alternativet <a href=\"%2$s\">”Vem som helst kan registrera sig”</a> är för närvarande aktivt. Den nuvarande standardrollen är %1$s. %4$s Överväg att inaktivera detta alternativ."
+
+#: notices/anyone-can-register-notice.php:28
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\">Please consider disabling this option</a>."
+msgstr "Alternativet <a href=\"%2$s\">”Vem som helst kan registrera sig”</a> är för närvarande aktivt. Den nuvarande standardrollen är %1$s. %4$s <a href=\"%3$s\">Överväg att inaktivera detta alternativ</a>."
+
+#: feature-plugins/site-logs.php:41
+msgid "Site Logs"
+msgstr "Webbplatsloggar"
+
+#: endpoints/class-github-hosting-webhook-response.php:387
+msgid "The ZIP file could not be extracted."
+msgstr "ZIP-filen kunde inte packas upp."
+
+#: endpoints/class-github-hosting-webhook-response.php:378
+msgid "The ZIP file could not be opened."
+msgstr "ZIP-filen kunde inte öppnas."
+
+#: endpoints/class-github-hosting-webhook-response.php:354
+msgid "Failed to save zipball in tmp folder."
+msgstr "Misslyckades med att spara zipball i tmp-mapp."
+
 #: notices/media-library-private-site-cdn-notice.php:20
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "Bild-CDN är inaktiverat, eftersom din webbplats är satt som Privat. Om miniatyrbilder inte visas i ditt mediabibliotek kan du växla till läget Kommer snart.  <a href=\"%1$s\" target=_blank>Läs mer</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:232
+#: frontend-notices/gifting-banner/gifting-banner.php:234
 msgid "Gift the author a WordPress.com plan."
 msgstr "Ge författaren ett WordPress.com-paket i gåva."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:220
+#: frontend-notices/gifting-banner/gifting-banner.php:222
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
-msgstr[0] "Fă-i cadou autorului un plan WordPress.com înainte de a expira peste o zi."
-msgstr[1] "Ge författaren ett WordPress.com-paket i gåva innan den löper ut om %d dagar."
+msgstr[0] "Ge författaren ett WordPress.com-paket i gåva innan det löper ut om %d dag."
+msgstr[1] "Ge författaren ett WordPress.com-paket i gåva innan det löper ut om %d dagar."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:209
+#: frontend-notices/gifting-banner/gifting-banner.php:211
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "Ge författaren en gåva för en WordPress.com-uppgradering."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:182
+#: frontend-notices/gifting-banner/gifting-banner.php:184
 msgid "This site's plan has expired."
 msgstr "Detta webbplatspaket har löpt ut."
 
-#: notices/plan-notices.php:131
+#: notices/plan-notices.php:134
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt eCommerce-paket för <strong>%3$s</strong> löpte ut den %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i eCommerce-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
-#: notices/plan-notices.php:105
+#: notices/plan-notices.php:108
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt Pro-paket för <strong>%3$s</strong> löper ut den %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i Pro-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
-#: notices/plan-notices.php:100
+#: notices/plan-notices.php:103
 msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt eCommerce-paket för <strong>%3$s</strong> löper ut den %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i eCommerce-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
-#: notices/plan-notices.php:95
+#: notices/plan-notices.php:98
 msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt Business-paket för <strong>%3$s</strong> löper ut den %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i Business-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
@@ -53,51 +610,51 @@ msgstr "Ditt Business-paket för <strong>%3$s</strong> löper ut den %2$s. <a hr
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "Du har utnyttjat hela ditt tilldelade filutrymme. Radera några filer innan du försöker ladda upp."
 
-#: private-site/logged-in-banner.php:110
+#: private-site/logged-in-banner.php:127
 msgid "Change theme"
 msgstr "Byt tema"
 
-#: private-site/logged-in-banner.php:109
+#: private-site/logged-in-banner.php:126
 msgid "Change"
 msgstr "Ändra"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:113
 msgid "Edit page"
 msgstr "Redigera sida"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:113
 msgid "Edit post"
 msgstr "Redigera inlägg"
 
-#: private-site/logged-in-banner.php:95
+#: private-site/logged-in-banner.php:112
 msgid "Edit"
 msgstr "Redigera"
 
-#: private-site/logged-in-banner.php:146
+#: private-site/logged-in-banner.php:163
 msgid "My Home"
 msgstr "Min startsida"
 
-#: private-site/logged-in-banner.php:69
+#: private-site/logged-in-banner.php:86
 msgid "Launch"
-msgstr "Starta"
+msgstr "Lansera"
 
-#: private-site/logged-in-banner.php:65
+#: private-site/logged-in-banner.php:82
 msgid "Update"
 msgstr "Uppdatera"
 
-#: notices/plan-notices.php:121
+#: notices/plan-notices.php:124
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "Ditt Premium-paket för <strong>%3$s</strong> löpte ut den %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i Premium-paketet, exempelvis intäktsgenerering, VideoPress och Google Analytics-stöd."
 
-#: notices/plan-notices.php:116
+#: notices/plan-notices.php:119
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "Ditt Personal-paket för <strong>%3$s</strong> löpte ut den %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i Personal-paketet, exempelvis 6 GB lagringsutrymme, inga WordPress.com-annonser och prenumerantexklusivt innehåll."
 
-#: notices/plan-notices.php:90
+#: notices/plan-notices.php:93
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
 msgstr "Ditt Premium-paket för <strong>%3$s</strong> löper ut den %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i Premium-paketet, exempelvis intäktsgenerering, VideoPress och Google Analytics-stöd."
 
-#: notices/plan-notices.php:85
+#: notices/plan-notices.php:88
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr "Ditt Personal-paket för <strong>%3$s</strong> löper ut den %2$s. <a href=\"%1$s\">Förnya ditt paket</a> för att behålla funktionerna i Personal-paketet, exempelvis 6 GB lagringsutrymme, inga WordPress.com-annonser och prenumerantexklusivt innehåll."
 
@@ -105,12 +662,7 @@ msgstr "Ditt Personal-paket för <strong>%3$s</strong> löper ut den %2$s. <a hr
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "Du använder för närvarande PHP <strong>%1$s</strong>, som från och med %2$s inte längre kommer att få några säkerhetsuppdateringar. Uppdatera till PHP %3$s eller högre genom att ändra din <a href=\"%4$s\">värdkonfiguration</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:118
-#: frontend-notices/gifting-banner/gifting-banner.php:143
-msgid "Gift"
-msgstr "Gåva"
-
-#: frontend-notices/gifting-banner/gifting-banner.php:188
+#: frontend-notices/gifting-banner/gifting-banner.php:190
 msgid "Enjoy this site?"
 msgstr "Gillar du denna webbplats?"
 
@@ -144,11 +696,11 @@ msgstr "Hem"
 msgid "Blog"
 msgstr "Blogg"
 
-#: feature-plugins/hooks.php:182
+#: feature-plugins/hooks.php:244
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "Endast via proxy: Du kan se detta eftersom ditt besök sker via proxy. Använd inte detta om du inte vet varför du är här."
 
-#: feature-plugins/hooks.php:171
+#: feature-plugins/hooks.php:233
 msgid "You do not have permission to access this page."
 msgstr "Du har inte behörighet att komma åt denna sida."
 
@@ -156,34 +708,34 @@ msgstr "Du har inte behörighet att komma åt denna sida."
 msgid "Set your color scheme on WordPress.com."
 msgstr "Ställ in ditt färgschema på WordPress.com."
 
-#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
 msgid "Additional CSS"
 msgstr "Ytterligare CSS"
 
-#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
 msgid "CSS"
 msgstr "CSS"
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
-msgstr "WordPress.com ger dig funktioner och verktyg som är förinstallerade på alla Atomic-webbplatser"
+msgstr "WordPress.com tillhandahåller funktionalitet och verktyg förinstallerade och aktiverade på alla Atomic-webbplatser"
 
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: feature-plugins/managed-plugins.php:499
-#: feature-plugins/managed-plugins.php:510
-#: feature-plugins/managed-plugins.php:521
+#: feature-plugins/managed-plugins.php:505
+#: feature-plugins/managed-plugins.php:516
+#: feature-plugins/managed-plugins.php:527
 msgid "Updates managed by WordPress.com"
 msgstr "Uppdateringar hanteras av WordPress.com"
 
-#: notices/plan-notices.php:126
+#: notices/plan-notices.php:129
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt Business-paket för <strong>%3$s</strong> löpte ut den %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i Business-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
-#: notices/plan-notices.php:136
+#: notices/plan-notices.php:139
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Ditt Pro-paket för <strong>%3$s</strong> löpte ut den %2$s. <a href=\"%1$s\">Återaktivera ditt paket</a> för att behålla funktionerna i Pro-paketet, exempelvis anpassade tillägg och teman, SFTP och phpMyAdmin-åtkomst."
 
@@ -196,14 +748,17 @@ msgid "This site is private. You need to log in as a user with permissions befor
 msgstr "Denna webbplats är privat. Du måste logga in som användare med behörighet innan du kan förhandsgranska den."
 
 #: private-site/access-denied-coming-soon-template.php:56
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:294
 msgid "Start your website"
 msgstr "Starta din webbplats"
 
 #: private-site/access-denied-coming-soon-template.php:52
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:290
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr "Skapa en webbplats. Sälj dina grejer. Skriv en blogg. Och mycket mer."
 
 #: private-site/access-denied-coming-soon-template.php:46
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:273
 msgid "Coming Soon"
 msgstr "Kommer snart"
 
@@ -260,41 +815,18 @@ msgstr "Kategorimoln"
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "Jetpack är frånkopplat och webbplatsen är privat. Anslut Jetpack igen för att hantera webbplatsens synlighetsinställningar."
 
-#: private-site/logged-in-banner.php:64
+#: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr "Uppdatera synlighet"
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:85
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:164
 msgid "Launch site"
 msgstr "Lansera webbplatsen"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
 msgstr "Du använder för tillfället <strong>%1$s</strong> av <strong>%2$s</strong>. Uppladdningsgräns (%3$s%%)."
-
-#: widgets/twitter.php:412
-msgid "Text to display between Tweet and timestamp:"
-msgstr "Text som ska visas mellan Tweet och tidsstämpel:"
-
-#: widgets/twitter.php:406
-msgid "Display Follow Button"
-msgstr "Visa följ-knapp"
-
-#: widgets/twitter.php:399
-msgid "Include retweets"
-msgstr "Inkludera retweets"
-
-#: widgets/twitter.php:392
-msgid "Hide Tweets pushed by Publicize"
-msgstr "Dölj Tweets från Offentliggör"
-
-#: widgets/twitter.php:385
-msgid "Hide replies"
-msgstr "Dölj svar"
-
-#: widgets/twitter.php:371
-msgid "Maximum number of Tweets to show:"
-msgstr "Maximalt antal Tweets att visa:"
 
 #: widgets/twitter.php:364
 msgid "Twitter username:"
@@ -303,14 +835,6 @@ msgstr "Twitter-användarnamn:"
 #: widgets/twitter.php:353
 msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
 msgstr "Byt till \"Twitter Timeline\"-widgeten. Denna widget kommer att försvinna i framtiden och den nya widgeten tillåter mer anpassning."
-
-#: widgets/twitter.php:289
-msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
-msgstr "Fel: Vänligen se till att Twitter-kontot är %1$soffentligt%2$s."
-
-#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
-msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr "Fel: Twitter svarade inte. Vänta några minuter och uppdatera den här sidan."
 
 #: widgets/twitter.php:61
 msgid "Twitter Updates"
@@ -359,6 +883,38 @@ msgstr "Etikettmoln"
 #: widgets/tag-cloud-widget.php:18
 msgid "A cloud of your most used tags."
 msgstr "Ett moln av dina mest använda etiketter."
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "Text som ska visas mellan Tweet och tidsstämpel:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "Visa följ-knapp"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "Inkludera retweets"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "Dölj Tweets från Offentliggör"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "Dölj svar"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "Maximalt antal Tweets att visa:"
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "Fel: Se till att Twitter-kontot är %1$soffentligt%2$s."
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Fel: Twitter svarade inte. Vänta några minuter och uppdatera den här sidan."
 
 #: widgets/aboutme.php:148
 msgid "Apps"
@@ -720,7 +1276,7 @@ msgstr "Det finns inga offentliga kommentarer tillgängliga att visa."
 #: widgets/class-wpcom-widget-recent-comments.php:330
 msgctxt "widgets"
 msgid "%1$s on %2$s"
-msgstr "%1$s om %2$s"
+msgstr "%1$s på %2$s"
 
 #: widgets/class-wpcom-widget-recent-comments.php:269
 msgid "Anonymous"
@@ -838,6 +1394,8 @@ msgstr "Höger"
 msgid "Left"
 msgstr "Vänster"
 
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
 #: widgets/class-gravatar-widget.php:151
 #: widgets/class-widget-top-clicks.php:125
 msgid "None"
@@ -869,11 +1427,11 @@ msgstr "Gravatar"
 
 #: widgets/class-gravatar-widget.php:22
 msgid "Insert a Gravatar image"
-msgstr "Infoga en Gravatar bild"
+msgstr "Infoga en Gravatar-bild"
 
 #: widgets/class-wpcom-freshly-pressed-widget.php:64
 msgid "Choose an image to display in your sidebar:"
-msgstr "Välj en bild att visa på din sidopanel:"
+msgstr "Välj en bild att visa i din sidopanel:"
 
 #: widgets/class-wpcom-freshly-pressed-widget.php:13
 msgid "Freshly Pressed"
@@ -895,7 +1453,7 @@ msgstr "Visa alla författare (inklusive de som inte har skrivit några inlägg)
 #: widgets/class-gravatar-widget.php:157
 #: widgets/class-jetpack-i-voted-widget.php:69
 #: widgets/class-jetpack-posts-i-like-widget.php:85
-#: widgets/class-jetpack-widget-twitter.php:387
+#: widgets/class-jetpack-widget-twitter.php:145
 #: widgets/class-music-player-widget.php:82 widgets/class-pd-top-rated.php:134
 #: widgets/class-widget-authors-grid.php:115
 #: widgets/class-widget-top-clicks.php:47
@@ -931,6 +1489,7 @@ msgstr "Denna webbplats är privat."
 
 #: private-site/access-denied-coming-soon-template.php:55
 #: private-site/access-denied-private-site-template.php:47
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:293
 msgid "Log in"
 msgstr "Logga in"
 
