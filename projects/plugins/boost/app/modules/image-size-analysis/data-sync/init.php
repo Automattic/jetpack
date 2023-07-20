@@ -11,6 +11,7 @@ $image_data = Schema::as_assoc_array(
 		'device_type'  => Schema::enum( array( 'phone', 'desktop' ) ),
 		'status'       => Schema::enum( array( 'active', 'ignored' ) )->fallback( 'active' ),
 		'instructions' => Schema::as_string(),
+		'type'         => Schema::enum( array( 'image_size', 'bad_entry', 'image_missing' ) )->fallback( 'bad_entry' ),
 		'page'         => Schema::as_assoc_array(
 			array(
 				'id'       => Schema::as_number(),
@@ -54,6 +55,12 @@ $image_data = Schema::as_assoc_array(
 		),
 
 	)
+)->fallback(
+	array(
+		'id'     => '',
+		'type'   => 'bad_entry',
+		'status' => 'active',
+	)
 );
 
 $image_size_analysis = Schema::as_assoc_array(
@@ -95,22 +102,23 @@ $summary_schema = Schema::as_assoc_array(
 				'queued',
 				'completed',
 				'error',
+				'error_stuck',
 			)
 		),
 		'report_id' => Schema::as_number()->nullable(),
 		'groups'    => Schema::as_assoc_array(
 			array(
-				'front_page' => $group_schema,
-				'page'       => $group_schema,
-				'post'       => $group_schema,
-				'other'      => $group_schema,
+				'core_front_page' => $group_schema,
+				'singular_page'   => $group_schema,
+				'singular_post'   => $group_schema,
+				'other'           => $group_schema,
 			)
 		)->nullable(),
 	)
 )->fallback(
 	array(
-		'status'  => 'not-found',
-		'summary' => null,
+		'status' => 'not-found',
+		'groups' => null,
 	)
 );
 

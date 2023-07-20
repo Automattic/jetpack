@@ -6,5 +6,6 @@ phpunit.xml.dist export-ignore
 tests/           export-ignore
 
 # Files not needed in the production build.
-.phpcs.dir.xml   production-exclude
-/changelog/**    production-exclude
+.phpcs.dir.xml             production-exclude
+/changelog/**              production-exclude
+/build-compat-rulesets.sh  production-exclude

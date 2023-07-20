@@ -10,14 +10,16 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
+import { Fragment, createInterpolateElement, useMemo, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useDismissNotice from '../../hooks/use-dismiss-notice';
+import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
+import useMediaDetails from '../../hooks/use-media-details';
+import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
-import useValidateFeaturedImage from '../../hooks/use-validate-featured-image';
 import PublicizeConnection from '../connection';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
@@ -25,13 +27,11 @@ import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
-const CONNECTIONS_NEED_MEDIA = [ 'instagram-business' ];
 const PUBLICIZE_STORE_ID = 'jetpack/publicize';
 
 const checkConnectionCode = ( connection, code ) =>
 	false === connection.is_healthy && code === ( connection.error_code ?? 'broken' );
 
-const isConnectionNeedMedia = connectionName => CONNECTIONS_NEED_MEDIA.includes( connectionName );
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
@@ -87,13 +87,6 @@ export default function PublicizeForm( {
 		checkConnectionCode( connection, 'unsupported' )
 	);
 
-	const { attachedMedia } = useAttachedMedia();
-	const { isFeaturedImageValid } = useValidateFeaturedImage(
-		CONNECTIONS_NEED_MEDIA.map( conn => ( { service_name: conn } ) )
-	);
-	const postHasValidImage =
-		isFeaturedImageValid || attachedMedia.length > 0 || isSocialImageGeneratorEnabledForPost;
-
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
 
@@ -148,10 +141,50 @@ export default function PublicizeForm( {
 		</>
 	);
 
-	const showNoMediaMessage =
-		! postHasValidImage &&
-		numberOfSharesRemaining !== 0 &&
-		connections.some( ( { service_name } ) => isConnectionNeedMedia( service_name ) );
+	const { attachedMedia, shouldUploadAttachedMedia } = useAttachedMedia();
+	const featuredImageId = useFeaturedImage();
+	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
+
+	const validationErrors = useMediaRestrictions( connections, useMediaDetails( mediaId )[ 0 ], {
+		isSocialImageGeneratorEnabledForPost,
+		shouldUploadAttachedMedia,
+	} );
+
+	const invalidIds = useMemo( () => Object.keys( validationErrors ), [ validationErrors ] );
+
+	const showValidationNotice = numberOfSharesRemaining !== 0 && invalidIds.length > 0;
+
+	const isConnectionEnabled = useCallback(
+		( { enabled, is_healthy = true, connection_id } ) =>
+			enabled &&
+			! isPublicizeDisabledBySitePlan &&
+			false !== is_healthy &&
+			! validationErrors[ connection_id ],
+		[ isPublicizeDisabledBySitePlan, validationErrors ]
+	);
+
+	const renderInstagramNotice = () => {
+		return isEnhancedPublishingEnabled ? (
+			<Notice type={ 'warning' }>
+				{ __(
+					'To share to Instagram, add an image/video, or enable Social Image Generator.',
+					'jetpack'
+				) }
+				<br />
+				<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+					{ __( 'Learn more', 'jetpack' ) }
+				</ExternalLink>
+			</Notice>
+		) : (
+			<Notice type={ 'warning' }>
+				{ __( 'You need a featured image to share to Instagram.', 'jetpack' ) }
+				<br />
+				<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+					{ __( 'Learn more', 'jetpack' ) }
+				</ExternalLink>
+			</Notice>
+		);
+	};
 
 	return (
 		<Wrapper>
@@ -207,8 +240,8 @@ export default function PublicizeForm( {
 					{ renderNotices() }
 					<PanelRow>
 						<ul className={ styles[ 'connections-list' ] }>
-							{ connections.map(
-								( {
+							{ connections.map( conn => {
+								const {
 									display_name,
 									enabled,
 									id,
@@ -217,20 +250,16 @@ export default function PublicizeForm( {
 									profile_picture,
 									is_healthy,
 									connection_id,
-								} ) => (
+								} = conn;
+								return (
 									<PublicizeConnection
 										disabled={
 											! isPublicizeEnabled ||
 											( ! enabled && toggleable && outOfConnections ) ||
 											false === is_healthy ||
-											( isConnectionNeedMedia( service_name ) && ! postHasValidImage )
+											validationErrors[ connection_id ? connection_id : id ] !== undefined
 										}
-										enabled={
-											enabled &&
-											! isPublicizeDisabledBySitePlan &&
-											false !== is_healthy &&
-											( postHasValidImage || ! isConnectionNeedMedia( service_name ) )
-										}
+										enabled={ isConnectionEnabled( conn ) }
 										key={ connection_id ? connection_id : id }
 										id={ connection_id ? connection_id : id }
 										label={ display_name }
@@ -238,19 +267,35 @@ export default function PublicizeForm( {
 										toggleConnection={ toggleById }
 										profilePicture={ profile_picture }
 									/>
-								)
-							) }
+								);
+							} ) }
 						</ul>
 					</PanelRow>
-					{ showNoMediaMessage && (
-						<Notice type={ 'warning' }>
-							{ __( 'You need a valid image in your post to share to Instagram.', 'jetpack' ) }
-							<br />
-							<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
-								{ __( 'Learn more', 'jetpack' ) }
-							</ExternalLink>
-						</Notice>
-					) }
+					{ showValidationNotice &&
+						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR ) ? (
+							renderInstagramNotice()
+						) : (
+							<Notice type={ 'warning' }>
+								<p>
+									{ invalidIds.length === connections.length
+										? _n(
+												'The selected media cannot be shared to this platform.',
+												'The selected media cannot be shared to any of these platforms.',
+												connections.length,
+												'jetpack'
+										  )
+										: _n(
+												'The selected media cannot be shared to one of these platforms.',
+												'The selected media cannot be shared to some of these platforms.',
+												invalidIds.length,
+												'jetpack'
+										  ) }
+								</p>
+								<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+									{ __( 'Troubleshooting tips', 'jetpack' ) }
+								</ExternalLink>
+							</Notice>
+						) ) }
 				</>
 			) }
 			{ ! isPublicizeDisabledBySitePlan && (
@@ -296,6 +341,7 @@ export default function PublicizeForm( {
 					{ isEnhancedPublishingEnabled && (
 						<MediaSection
 							disabled={ shouldDisableMediaPicker }
+							connections={ connections }
 							notice={
 								shouldDisableMediaPicker
 									? __(

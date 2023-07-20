@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Transferred 'get_calypso_env()' method from Jetpack class to the Status package.

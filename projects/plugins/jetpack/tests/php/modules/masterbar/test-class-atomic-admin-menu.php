@@ -311,28 +311,12 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		global $submenu;
 
 		static::$admin_menu->add_users_menu();
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][16][2] );
-	}
-
-	/**
-	 * Tests subscribers not being shown when locale is not English.
-	 *
-	 * @covers ::add_users_menu
-	 */
-	public function test_add_users_menu_not_english() {
-		global $submenu;
-
-		add_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
-
-		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
-		static::$admin_menu->add_users_menu();
-		if ( isset( $submenu['users.php'][16][2] ) ) {
-			$this->assertNotSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][16][2] );
-		} else {
-			$this->assertTrue( true );
+		$menu_position = 6;
+		if ( is_multisite() ) {
+			$menu_position = 5;
 		}
 
-		remove_filter( 'locale', array( $this, 'set_test_locale_to_not_english' ) );
+		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][ $menu_position ][2] );
 	}
 
 	/**
@@ -393,12 +377,5 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
 
 		$this->assertContains( 'https://wordpress.com/site-logs/' . static::$domain, $links );
-	}
-
-	/**
-	 * Override the user's locale to be not English.
-	 */
-	public function set_test_locale_to_not_english() {
-		return 'nl_BE';
 	}
 }

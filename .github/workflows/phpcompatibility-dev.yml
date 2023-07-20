@@ -72,6 +72,8 @@ jobs:
           composer require --dev --no-update phpcompatibility/php-compatibility=dev-develop
           # Update any other packages needing update now too.
           composer update
+          # Even though we uninstalled our codesniffer package, we need the compat rulesets to be found.
+          vendor/bin/phpcs --config-set installed_paths "$(vendor/bin/phpcs --config-show | sed -n 's/^installed_paths: //p'),../../../projects/packages/codesniffer"
 
       - name: Run phpcs for PHPCompatibility
         run: |

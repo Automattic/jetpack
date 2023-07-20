@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Image Size Analysis: Included the number of scanned pages in the summary message

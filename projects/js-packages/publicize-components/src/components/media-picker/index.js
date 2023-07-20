@@ -17,7 +17,6 @@ import styles from './styles.module.scss';
  * @param {number} props.mediaId - The ID of the currently selected media
  * @param {object} props.mediaDetails - The details of the media for preview
  * @param {Function} props.onChange - A callback that can be passed to parent for validation
- * @param {Array} props.allowedMediaTypes - Array that contains the allowed MIME types.
  * @returns {object} The media section.
  */
 export default function MediaPicker( {
@@ -26,7 +25,6 @@ export default function MediaPicker( {
 	mediaId = null,
 	mediaDetails = {},
 	onChange,
-	allowedMediaTypes,
 } ) {
 	const { mediaData: { width, height, sourceUrl } = {}, metaData: { mime, length = null } = {} } =
 		mediaDetails;
@@ -63,7 +61,7 @@ export default function MediaPicker( {
 							></VideoPreview>
 						) : (
 							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
-								<img src={ sourceUrl } alt="" />
+								<img src={ sourceUrl } alt="" className={ styles[ 'preview-image' ] } />
 							</ResponsiveWrapper>
 						) }
 					</button>
@@ -108,7 +106,6 @@ export default function MediaPicker( {
 				<MediaUpload
 					title={ buttonLabel }
 					onSelect={ onUpdateMedia }
-					allowedTypes={ allowedMediaTypes }
 					render={ setMediaRender }
 					value={ mediaId }
 				/>

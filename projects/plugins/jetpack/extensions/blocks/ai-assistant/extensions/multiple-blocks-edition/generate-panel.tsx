@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { store as blockEditorStore, BlockIcon } from '@wordpress/block-editor';
+import { BlockIcon } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
 	PanelBody,
@@ -69,11 +69,11 @@ export default function GenerateContentPanel( { blocksIds } ) {
 
 	const [ combineBlocks, setCombineBlocks ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( '' );
-	const { replaceBlocks, updateBlockAttributes, insertBlock } = useDispatch( blockEditorStore );
+	const { replaceBlocks, updateBlockAttributes, insertBlock } = useDispatch( 'core/block-editor' );
 
 	const blocks = useSelect(
 		select => {
-			const { getBlocksByClientId } = select( blockEditorStore );
+			const { getBlocksByClientId } = select( 'core/block-editor' );
 			return getBlocksByClientId( blocksIds );
 		},
 		[ blocksIds ]
@@ -81,7 +81,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 
 	const lastBlockIndex = useSelect(
 		select => {
-			const { getBlockIndex } = select( blockEditorStore );
+			const { getBlockIndex } = select( 'core/block-editor' );
 			return getBlockIndex( blocksIds[ blocksIds.length - 1 ] );
 		},
 		[ blocksIds ]

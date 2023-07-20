@@ -5,7 +5,7 @@ type JetpackFooterMenuItem = {
 	onKeyDown?: () => void;
 	target?: string;
 	title?: string;
-	role?: 'button';
+	role?: string;
 };
 
 export type JetpackFooterProps = {

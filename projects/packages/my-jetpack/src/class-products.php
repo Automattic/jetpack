@@ -34,6 +34,7 @@ class Products {
 			'security'   => Products\Security::class,
 			'protect'    => Products\Protect::class,
 			'videopress' => Products\Videopress::class,
+			'stats'      => Products\Stats::class,
 		);
 
 		/**

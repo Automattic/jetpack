@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache: simplify the preload loop and improve stopping procedures.

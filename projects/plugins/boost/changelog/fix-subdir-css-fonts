@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fixed relative-paths used when minifying CSS url() values
-
-

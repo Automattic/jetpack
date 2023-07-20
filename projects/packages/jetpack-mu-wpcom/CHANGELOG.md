@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.0] - 2023-07-17
+### Added
+- Launchpad: Filter tasks by newsletter import goal. [#31825]
+- Launchpad task for editing a page [#31789]
+
+## [3.6.0] - 2023-07-10
+### Added
+- While in the design_first flow, if the user creates a post, deletes the default hello-world. [#31702]
+
+## [3.5.0] - 2023-07-05
+### Added
+- Added a new email campaign trigger for blog-onboarding [#31612]
+- Add validation for required tasks. [#31626]
+- Launchpad task for adding a new page [#31578]
+
+### Changed
+- Update keep building task list visibility logic to check if a site is launched [#31623]
+
+### Fixed
+- Don't hide design_edited task if complete [#31620]
+
+## [3.4.0] - 2023-06-27
+### Added
+- Check that the function jetpack_is_atomic_site exists before using it. [#31602]
+
+## [3.3.0] - 2023-06-26
+### Added
+- Launchpad task for domain customization [#31493]
+
+### Changed
+- Remove use of the is_launchpad_keep_building_enabled feature. [#31519]
+
+## [3.2.0] - 2023-06-26
+### Added
+- Add a function to fire off a Tracks event when a task is completed and update existing mark task complete functions to use it. [#31444]
+- Adding site_intent and launchpad_checklist_tasks_statuses to JP Sync. [#31558]
+- Update visibility for design_edited task for post-launch sites. [#31191]
+
+### Changed
+- Using design_completed instead of design_selected for design-first flow [#31513]
+
 ## [3.1.0] - 2023-06-19
 ### Added
 - Add new claim free domain task to Keep Building task list. [#31275]
@@ -188,6 +229,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[3.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.6.0...v3.7.0
+[3.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.5.0...v3.6.0
+[3.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.4.0...v3.5.0
+[3.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.3.0...v3.4.0
+[3.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.2.0...v3.3.0
+[3.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v2.4.0...v3.0.0
 [2.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v2.3.0...v2.4.0

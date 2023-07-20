@@ -119,7 +119,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 		'design-first'    => array(
 			'title'               => 'Pick a Design',
 			'task_ids'            => array(
-				'design_selected',
+				'design_completed',
 				'setup_blog',
 				'domain_upsell',
 				'plan_completed',
@@ -132,13 +132,27 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'title'               => 'Keep Building',
 			'task_ids'            => array(
 				'site_title',
+				'domain_claim',
+				'verify_email',
+				'domain_customize',
+				'add_new_page',
+				'drive_traffic',
+				'edit_page',
+				'share_site',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
+		),
+		'intent-write'    => array(
+			'title'               => 'Blog',
+			'task_ids'            => array(
+				'site_title',
 				'design_edited',
 				'domain_claim',
 				'verify_email',
-				'domain_upsell',
+				'domain_customize',
 				'drive_traffic',
 			),
-			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_is_intent_write_enabled',
 		),
 	);
 
@@ -558,16 +572,61 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
 /**
  * Checks if the Keep building task list is enabled.
  *
- * This function uses the `is_launchpad_keep_building_enabled` filter to allow for overriding the
- * default value.
- *
  * @return bool True if the task list is enabled, false otherwise.
  */
 function wpcom_launchpad_is_keep_building_enabled() {
-	return apply_filters( 'is_launchpad_keep_building_enabled', false );
+	$intent                  = get_option( 'site_intent', false );
+	$launchpad_task_statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
+
+	// We don't care about the other *_launched tasks, since this is specific to the Build flow.
+	$launched = isset( $launchpad_task_statuses['site_launched'] ) && $launchpad_task_statuses['site_launched'];
+	$blog_id  = get_current_blog_id();
+
+	if ( 'build' === $intent && $blog_id > 220443356 && $launched ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Checks if the Blog flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_intent_write_enabled() {
+	return apply_filters( 'is_launchpad_intent_write_enabled', false );
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
 if ( class_exists( 'WPCOM_Launchpad' ) ) {
 	remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
 }
+
+/**
+ * Add launchpad options to Jetpack Sync.
+ *
+ * @param array $allowed_options The allowed options.
+ */
+function add_launchpad_options_to_jetpack_sync( $allowed_options ) {
+	// We are not either in Simple or Atomic
+	if ( ! class_exists( 'Automattic\Jetpack\Status\Host' ) ) {
+		return $allowed_options;
+	}
+
+	if ( ! ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
+		return $allowed_options;
+	}
+
+	if ( ! is_array( $allowed_options ) ) {
+		return $allowed_options;
+	}
+
+	$launchpad_options = array(
+		'site_intent',
+		'launchpad_checklist_tasks_statuses',
+	);
+
+	return array_merge( $allowed_options, $launchpad_options );
+}
+add_filter( 'jetpack_sync_options_whitelist', 'add_launchpad_options_to_jetpack_sync', 10, 1 );

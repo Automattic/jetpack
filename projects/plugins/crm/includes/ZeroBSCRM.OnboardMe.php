@@ -1,4 +1,4 @@
-<?php 
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /*!
  * Jetpack CRM - Onboard Me
  * https://jetpackcrm.com
@@ -59,15 +59,15 @@ function zeroBS_onboardme_scripts(){
 			),
 			'step4'  => array(
 				'title'   => __( 'Notification Alert', 'zero-bs-crm' ),
-				'content' => __( 'When you have a notification, the icon will change. Next, we will look at what notifcations are available.', 'zero-bs-crm' ),
+				'content' => __( 'When you have a notification, the icon will change. Next, we will look at what notifications are available.', 'zero-bs-crm' ),
 			),
 			'step5'  => array(
 				'title'   => __( 'Example Notification', 'zero-bs-crm' ),
 				'content' => __( 'Notifications are customised for your specific user. It\'s a great way to keep up-to-date (especially in teams!)', 'zero-bs-crm' ),
 			),
 			'step6'  => array(
-				'title'   => __( 'Hi from Mike', 'zero-bs-crm' ),
-				'content' => __( 'Here is another example of a notification. This time from one of our founders, Mike.', 'zero-bs-crm' ),
+				'title'   => __( 'Hi from Jetpack', 'zero-bs-crm' ),
+				'content' => __( 'Here is another example of a notification. This time it\'s a greeting from all of us at Jetpack CRM.', 'zero-bs-crm' ),
 			),
 			'step7'  => array(
 				'title'   => __( 'Tools (Extensions)', 'zero-bs-crm' ),
