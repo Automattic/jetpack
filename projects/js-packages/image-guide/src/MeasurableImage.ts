@@ -12,6 +12,7 @@ export type FetchFn = ( input: URL | RequestInfo, init?: RequestInit ) => Promis
 export class MeasurableImage {
 	readonly node: HTMLElement | HTMLImageElement;
 	private getURLCallback: SourceCallbackFn;
+	private fetchPromises: { [ url: string ]: Promise< Response > } = {};
 
 	public fetch: FetchFn;
 
@@ -45,6 +46,37 @@ export class MeasurableImage {
 		};
 	}
 
+	/**
+	 * Returns the mimetype of the image file. Guesses from URL if header is unavailable.
+	 *
+	 * @param {string} url -  The URL of the image.
+	 * @returns {string} - The mimetype of the image.
+	 */
+	public async getMimeType( url: string ): Promise< string > {
+		const response = await this.cachedFetch( url );
+		if ( ! response.ok ) {
+			// Guess from URL.
+			const guesses = {
+				'.png': 'image/png',
+				'.jpg': 'image/jpeg',
+				'.jpeg': 'image/jpeg',
+				'.gif': 'image/gif',
+				'.webp': 'image/webp',
+			};
+
+			for ( const [ extension, guess ] of Object.entries( guesses ) ) {
+				if ( url.includes( extension ) ) {
+					return guess;
+				}
+			}
+
+			// Can't figure it out.
+			return 'unknown';
+		}
+
+		return response.headers.get( 'content-type' );
+	}
+
 	public async getFileSize( url: string ) {
 		const [ weight, { width, height } ] = await Promise.all( [
 			this.fetchFileWeight( url ),
@@ -58,12 +90,73 @@ export class MeasurableImage {
 		};
 	}
 
-	public getPotentialSavings( fileSize: Dimensions & Weight, sizeOnPage: Dimensions ) {
-		const oversizedRatio = this.getOversizedRatio( fileSize, sizeOnPage );
-		if ( oversizedRatio <= 1 ) {
-			return null;
+	/**
+	 * Guess the size (in kilobytes) of a file using the given mimetype at the given dimensions.
+	 * If the mimetype is unrecognized, assume it is akin to jpeg/png (1:10 ratio).
+	 *
+	 * Cited sources for ratios:
+	 * - GIF and JPEG: http://ist.uwaterloo.ca/~anderson/images/GIFvsJPEG/compression_rates.html
+	 * - WebP: https://developers.google.com/speed/webp/docs/webp_study
+	 *
+	 * @param {string}     mimeType   - The mimetype of the image.
+	 * @param {Dimensions} dimensions - The dimensions of the file to estimate.
+	 * @returns {number} - The estimated size of the file in kilobytes.
+	 */
+	public guessFileSize( mimeType: string, dimensions: Dimensions ) {
+		const kilobyte = 1024;
+		let estimatedCompressionRatio = 1 / 10;
+		let bytesPerPixel = 3;
+
+		switch ( mimeType.toLowerCase() ) {
+			case 'image/gif':
+				estimatedCompressionRatio = 1 / 4;
+				bytesPerPixel = 1;
+				break;
+
+			case 'image/webp':
+				estimatedCompressionRatio = ( 1 / 10 ) * 0.75;
+				break;
+
+			case 'image/png':
+				estimatedCompressionRatio = 1 / 10;
+				bytesPerPixel = 4; // Transparency layer +1 byte per pixel.
+				break;
+
+			case 'image/jpeg':
+			default:
+				estimatedCompressionRatio = 1 / 10;
+				break;
 		}
-		return Math.round( fileSize.weight - fileSize.weight / oversizedRatio );
+
+		return (
+			( dimensions.height * dimensions.width * bytesPerPixel * estimatedCompressionRatio ) /
+			kilobyte
+		);
+	}
+
+	/**
+	 * Guess at the potential savings of an image if it was reduced to sizeOnPage dimensions.
+	 *
+	 * @param {string} mimeType - Mimetype to use during guessing potential savings. Use 'unknonwn' if unknown.
+	 * @param {Dimensions & Weight} fileSize - The size of the image file - both in disk space and dimensions.
+	 * @param {Dimensions} sizeOnPage - The size of the image on the page.
+	 * @returns {number} - The potential savings of the image, if reduced the sizeOnPage dimensions.
+	 */
+	public getPotentialSavings(
+		mimeType: string,
+		fileSize: Dimensions & Weight,
+		sizeOnPage: Dimensions
+	) {
+		// Make a file-size guess based on size and mimetype.
+		const mimeTypeGuess = this.guessFileSize( mimeType, sizeOnPage );
+
+		// Make a file-size guess based on an optimistic ratio reduction.
+		const oversizedRatio = this.getOversizedRatio( fileSize, sizeOnPage );
+		const ratioGuess = oversizedRatio <= 1 ? 0 : fileSize.weight / oversizedRatio;
+
+		// Take the more pessimistic number.
+		const expectedSize = Math.max( mimeTypeGuess, ratioGuess );
+		return Math.max( 0, Math.round( fileSize.weight - expectedSize ) );
 	}
 
 	/**
@@ -87,13 +180,26 @@ export class MeasurableImage {
 	}
 
 	/**
+	 * Wrapper for fetch which caches the result.
+	 *
+	 * @param {string} url - The URL to fetch.
+	 */
+	private async cachedFetch( url: string ): Promise< Response > {
+		if ( ! this.fetchPromises[ url ] ) {
+			this.fetchPromises[ url ] = this.fetch( url );
+		}
+
+		return this.fetchPromises[ url ];
+	}
+
+	/**
 	 * Fetches the weight of the image at the given URL,
 	 * by reading the Content-Length header.
 	 *
 	 * @param {string} url -  string The URL of the image.
 	 */
 	private async fetchFileWeight( url: string ) {
-		const response = await this.fetch( url );
+		const response = await this.cachedFetch( url );
 		if ( ! response.ok ) {
 			// eslint-disable-next-line no-console
 			console.log( `Can't get image size for ${ url } likely due to a CORS error.` );

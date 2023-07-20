@@ -13,6 +13,7 @@ import type { Dimensions, Weight } from '@automattic/jetpack-image-guide';
 export class MeasurableImageStore {
 	readonly fileSize: Writable< Dimensions & Weight >;
 	readonly sizeOnPage: Writable< Dimensions >;
+	readonly mimeType: Writable< string >;
 	readonly potentialSavings: Readable< number | null >;
 	readonly expectedSize: Readable< Dimensions >;
 	readonly oversizedRatio: Readable< number >;
@@ -39,9 +40,12 @@ export class MeasurableImageStore {
 			height: 0,
 		};
 
+		const initialMimeType = 'unknown';
+
 		this.url = writable( measurableImage.getURL() );
 		this.fileSize = writable( initialFileSize );
 		this.sizeOnPage = writable( initialSizeOnPage );
+		this.mimeType = writable( initialMimeType );
 		this.potentialSavings = this.derivePotentialSavings();
 		this.oversizedRatio = this.deriveOversizedRatio();
 		this.expectedSize = this.deriveExpectedSize();
@@ -60,9 +64,12 @@ export class MeasurableImageStore {
 	}
 
 	private derivePotentialSavings() {
-		return derived( [ this.fileSize, this.sizeOnPage ], ( [ fileSize, sizeOnPage ] ) => {
-			return this.image.getPotentialSavings( fileSize, sizeOnPage );
-		} );
+		return derived(
+			[ this.mimeType, this.fileSize, this.sizeOnPage ],
+			( [ mimeType, fileSize, sizeOnPage ] ) => {
+				return this.image.getPotentialSavings( mimeType, fileSize, sizeOnPage );
+			}
+		);
 	}
 
 	public async updateDimensions() {
@@ -84,10 +91,13 @@ export class MeasurableImageStore {
 
 		this.currentSrc = this.image.getURL();
 		let fileSize;
+		let mimeType;
 
 		try {
 			fileSize = await this.image.getFileSize( this.currentSrc );
+			mimeType = await this.image.getMimeType( this.currentSrc );
 		} catch ( error ) {
+			mimeType = 'unknown';
 			fileSize = {
 				weight: -1,
 				height: -1,
@@ -96,6 +106,7 @@ export class MeasurableImageStore {
 		}
 
 		this.url.set( this.currentSrc );
+		this.mimeType.set( mimeType );
 		this.fileSize.set( fileSize );
 		this.loading.set( false );
 	}
