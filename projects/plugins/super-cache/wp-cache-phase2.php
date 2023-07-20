@@ -1040,45 +1040,17 @@ function supercache_filename() {
 }
 
 function get_oc_version() {
-	$wp_cache_oc_key = wp_cache_get( 'wp_cache_oc_key' );
-	if ( ! $wp_cache_oc_key ) {
-		$wp_cache_oc_key['key'] = reset_oc_version();
-	} elseif ( $wp_cache_oc_key['ts'] < time() - 600 ) {
-		wp_cache_set(
-			'wp_cache_oc_key',
-			array(
-				'ts'  => time(),
-				'key' => $wp_cache_oc_key['key'],
-			)
-		);
-	}
-	return $wp_cache_oc_key['key'];
+	_deprecated_function( __FUNCTION__, '1.10.0' );
 }
 
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 function reset_oc_version( $version = 1 ) {
-	if ( $version == 1 ) {
-		$version = mt_rand();
-	}
-	wp_cache_set(
-		'wp_cache_oc_key',
-		array(
-			'ts'  => time(),
-			'key' => $version,
-		)
-	);
-
-	return $version;
+	_deprecated_function( __FUNCTION__, '1.10.0' );
 }
 
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 function get_oc_key( $url = false ) {
-	global $wp_cache_gzip_encoding, $WPSC_HTTP_HOST;
-
-	if ( $url ) {
-		$key = intval( $_SERVER['SERVER_PORT'] ) . preg_replace( '/:.*$/', '', $WPSC_HTTP_HOST ) . $url;
-	} else {
-		$key = get_current_url_supercache_dir();
-	}
-	return $key . $wp_cache_gzip_encoding . get_oc_version();
+	_deprecated_function( __FUNCTION__, '1.10.0' );
 }
 
 function wp_supercache_cache_for_admins() {
@@ -1825,6 +1797,10 @@ function wpsc_is_rejected_cookie() {
 function wp_cache_is_rejected( $uri ) {
 	global $cache_rejected_uri;
 
+	if ( empty( $uri ) ) {
+		return true; // do not cache if we don't know the URI.
+	}
+
 	$auto_rejected = array( '/wp-admin/', 'xmlrpc.php', 'wp-app.php' );
 	foreach ( $auto_rejected as $u ) {
 		if ( strstr( $uri, $u ) ) {
@@ -2385,7 +2361,6 @@ function wp_cache_get_ob( &$buffer ) {
 	}
 
 	$added_cache = 0;
-	$oc_key      = get_oc_key();
 	$buffer      = apply_filters( 'wpsupercache_buffer', $buffer );
 	wp_cache_append_tag( $buffer );
 
@@ -3370,7 +3345,7 @@ function wp_cache_post_id() {
 	if ( $comment_post_ID > 0 ) {
 		return $comment_post_ID;
 	}
-	if ( is_singular() && ! empty( $posts ) ) {
+	if ( is_singular() && ! empty( $posts ) && is_array( $posts ) ) {
 		return $posts[0]->ID;
 	}
 	if ( isset( $_GET['p'] ) && $_GET['p'] > 0 ) {

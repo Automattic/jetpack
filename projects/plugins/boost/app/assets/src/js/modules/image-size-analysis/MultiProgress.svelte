@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { sprintf, __ } from '@wordpress/i18n';
+	import ConditionalLink from '../../elements/ConditionalLink.svelte';
+	import OtherGroupContext from '../../elements/OtherGroupContext.svelte';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
+	import WarningIcon from '../../svg/warning-outline.svg';
 	import { isaGroupLabels, isaSummary } from './store/isa-summary';
 
 	function safePercent( value: number, outOf: number ): number {
@@ -27,26 +30,57 @@
 			{#if progress > 0 && progress < 100}
 				<Spinner />
 			{:else}
-				<span class="jb-bubble" class:done={isDone}>
-					{isDone ? '✓' : index + 1}
-				</span>
+				<ConditionalLink
+					isLink={hasIssues}
+					class="jb-navigator-link"
+					to="/image-size-analysis/{group}/1"
+					trackEvent="clicked_isa_group_on_summary_page"
+					trackEventProps={group}
+				>
+					<span class="jb-bubble" class:done={isDone} class:has-issues={hasIssues}>
+						{#if hasIssues}
+							<WarningIcon class="icon" />
+						{:else}
+							{isDone ? '✓' : index + 1}
+						{/if}
+					</span>
+				</ConditionalLink>
 			{/if}
 
 			<div class="jb-category-name">
-				{isaGroupLabels[ group ] || group}
+				<ConditionalLink
+					isLink={hasIssues}
+					class="jb-navigator-link"
+					to="/image-size-analysis/{group}/1"
+					trackEvent="clicked_isa_group_on_summary_page"
+					trackEventProps={group}
+				>
+					{isaGroupLabels[ group ] || group}
+				</ConditionalLink>
+				{#if 'other' === group}
+					<OtherGroupContext />
+				{/if}
 			</div>
 
 			{#if isDone || hasIssues}
 				<div class="jb-status" class:has-issues={hasIssues}>
-					{#if hasIssues}
-						{sprintf(
-							/* translators: %d is the number of items in this list hidden behind this link */
-							__( '%d issues', 'jetpack-boost' ),
-							summary.issue_count
-						)}
-					{:else}
-						{__( 'No issues', 'jetpack-boost' )}
-					{/if}
+					<ConditionalLink
+						isLink={hasIssues}
+						class="jb-navigator-link"
+						to="/image-size-analysis/{group}/1"
+						trackEvent="clicked_isa_group_on_summary_page"
+						trackEventProps={group}
+					>
+						{#if hasIssues}
+							{sprintf(
+								/* translators: %d is the number of items in this list hidden behind this link */
+								__( '%d issues', 'jetpack-boost' ),
+								summary.issue_count
+							)}
+						{:else}
+							{__( 'No issues', 'jetpack-boost' )}
+						{/if}
+					</ConditionalLink>
 				</div>
 			{/if}
 		</div>
@@ -58,6 +92,10 @@
 		width: 100%;
 		display: flex;
 		gap: 8px;
+
+		@media ( max-width: 782px ) {
+			flex-direction: column;
+		}
 	}
 	.jb-progress {
 		grid-area: progress;
@@ -72,6 +110,9 @@
 			'progress progress progress'
 			'bubble category category'
 			'bubble status status';
+		:global( a ) {
+			text-decoration: none;
+		}
 	}
 	.jb-bubble {
 		grid-area: bubble;
@@ -87,16 +128,43 @@
 		&.done {
 			background-color: var( --jetpack-green-50 );
 		}
+		&.has-issues {
+			background: transparent;
+		}
 	}
 	.jb-status {
 		grid-area: status;
 		font-size: 0.875rem;
-		&.has-issues {
-			color: var( --color_warning );
-		}
+		color: var( --gray-50 );
 	}
 	.jb-category-name {
 		grid-area: category;
 		display: flex;
+
+		:global( .jb-score-context ) {
+			top: 2px;
+		}
+
+		:global( .jb-score-context__info-icon ) {
+			width: 14px;
+			height: 14px;
+			font-size: 10px;
+		}
+
+		:global( .jb-score-context__info-container ) {
+			top: 24px;
+			@media ( min-width: 782px ) {
+				left: -112px;
+			}
+			@media ( max-width: 782px ) {
+				left: 112px;
+			}
+		}
+
+		:global( .jb-score-context__info-container i ) {
+			@media ( max-width: 782px ) {
+				left: 41px;
+			}
+		}
 	}
 </style>

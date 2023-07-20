@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a function to fire off a Tracks event when a task is completed and update existing mark task complete functions to use it.

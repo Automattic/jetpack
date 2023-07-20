@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.0 - 2023-07-05
+### Added
+- Add authentication to Zendesk chat widget. [#31339]
+
+### Changed
+- Social: change the admin page plan redirect link. [#31195]
+- Social: update the Readme to better reflect new features. [#31686]
+- Updated package dependencies.
+
+### Fixed
+- Social: fix the connection state to ensure that new connections are disabled by default when there are no shares left. [#31168]
+- Social Review Prompt: fix the state so it is shown when Jetpack is also active. [#31456]
+
 ## 1.11.0 - 2023-06-06
 ### Added
 - Added feature flag for Mastodon preview [#30919]

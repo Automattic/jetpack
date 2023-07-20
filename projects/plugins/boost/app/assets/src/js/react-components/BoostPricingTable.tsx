@@ -102,6 +102,11 @@ const concatenateContext = __(
 	'jetpack-boost'
 );
 
+const isaContext = __(
+	"Scan your site for images that aren't properly sized for the device they're being viewed on.",
+	'jetpack-boost'
+);
+
 export const BoostPricingTable = ( {
 	pricing,
 	onPremiumCTA,
@@ -109,6 +114,11 @@ export const BoostPricingTable = ( {
 	chosenFreePlan,
 	chosenPaidPlan,
 } ) => {
+	// If no pricing info is available, set up a fake object to avoid errors.
+	if ( ! pricing || ! pricing.yearly ) {
+		pricing = { yearly: {} };
+	}
+
 	// If the first year discount ends, we want to remove the label without updating the plugin.
 	const promoLabel = pricing.yearly.isIntroductoryOffer
 		? __( 'First Year Discount', 'jetpack-boost' )
@@ -151,6 +161,11 @@ export const BoostPricingTable = ( {
 					tooltipPlacement: 'bottom-start',
 				},
 				{
+					name: __( 'Automatic image size analysis', 'jetpack-boost' ),
+					tooltipInfo: isaContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
 					name: __( 'Dedicated email support', 'jetpack-boost' ),
 					tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
 					tooltipPlacement: 'bottom-start',
@@ -188,6 +203,7 @@ export const BoostPricingTable = ( {
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
@@ -219,6 +235,7 @@ export const BoostPricingTable = ( {
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
 				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
 			</PricingTableColumn>
 		</PricingTable>

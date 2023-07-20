@@ -13,11 +13,14 @@ jQuery( function ( $ ) {
 	} );
 
 	function initializeSelectMenu() {
-		$( '.contact-form .contact-form-dropdown' ).selectmenu( {
-			classes: {
-				'ui-selectmenu-button': 'contact-form-dropdown__button',
-				'ui-selectmenu-menu': 'contact-form-dropdown__menu',
-			},
-		} );
+		$( '.contact-form .contact-form-dropdown' )
+			.selectmenu( {
+				classes: {
+					'ui-selectmenu-button': 'contact-form-dropdown__button',
+					'ui-selectmenu-menu': 'contact-form-dropdown__menu',
+				},
+			} )
+			.attr( 'aria-hidden', true )
+			.prop( 'tabindex', -1 );
 	}
 } );

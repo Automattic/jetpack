@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Adjust build to remove no-longer-needed use of `react-redux/lib/alternate-renderers`. Should be no change to the plugin itself.
-
-

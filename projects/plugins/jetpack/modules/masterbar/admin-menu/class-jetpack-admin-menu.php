@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -180,7 +179,6 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function add_jetpack_menu() {
 		parent::add_jetpack_menu();
 
-		$current_locale = get_user_locale();
 		/* translators: Jetpack sidebar menu item. */
 		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'manage_options', 'jetpack-search', admin_url( 'admin.php?page=jetpack-search' ), 4 );
 
@@ -194,9 +192,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 			}
 		}
 		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $position );
-		if ( substr( $current_locale, 0, 2 ) === 'en' ) {
-			add_submenu_page( 'jetpack', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
-		}
+		add_submenu_page( 'jetpack', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
 	}
 
 	/**
@@ -244,9 +240,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_tools_menu() {
 		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'publish_posts', 'tools.php', null, 'dashicons-admin-tools', 75 );
-		if ( Blaze::should_initialize() ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
-		}
+
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain );
 		add_submenu_page( 'tools.php', esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain );
 

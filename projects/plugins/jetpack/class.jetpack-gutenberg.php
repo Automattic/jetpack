@@ -668,11 +668,14 @@ class Jetpack_Gutenberg {
 
 		// AI Assistant
 		$ai_assistant_state = Jetpack_AI_Helper::get_ai_assistance_feature();
+
 		if ( is_wp_error( $ai_assistant_state ) ) {
 			$ai_assistant_state = array(
 				'error-message' => $ai_assistant_state->get_error_message(),
 				'error-code'    => $ai_assistant_state->get_error_code(),
 			);
+		} else {
+			$ai_assistant_state['is-playground-visible'] = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' );
 		}
 
 		$screen_base = null;
@@ -1306,7 +1309,7 @@ class Jetpack_Gutenberg {
 	 * Display a message to site editors and roles above when a block is no longer supported.
 	 * This is only displayed on the frontend.
 	 *
-	 * @since $$next-version$$
+	 * @since 12.3
 	 *
 	 * @param string $block_content The block content.
 	 * @param array  $block         The full block, including name and attributes.

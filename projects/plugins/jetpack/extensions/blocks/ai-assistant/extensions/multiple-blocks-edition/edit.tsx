@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { store as blockEditorStore, InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
 /**
@@ -17,7 +17,7 @@ import './style.scss';
 export const withMultipleBlocksEdition = BlockEdit => props => {
 	// Check whether there are multiple blocks selected
 	const { selectedBlocks } = useSelect( select => {
-		const { getSelectedBlockClientIds, __unstableGetVisibleBlocks } = select( blockEditorStore );
+		const { getSelectedBlockClientIds, __unstableGetVisibleBlocks } = select( 'core/block-editor' );
 		return {
 			selectedBlocks: getSelectedBlockClientIds(),
 			visibleBlocks: __unstableGetVisibleBlocks(),

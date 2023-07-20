@@ -33,39 +33,8 @@
 
 	<!-- Ideally we'd just configure PHPCompatibility with the right PHP version, but it uses <config> rather than <properties>. Sigh. -->
 	<!-- So instead we have to manually disable certain sniffs. -->
-	<rule ref="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.FunctionDeclarations.NewParamTypeDeclarations">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.FunctionUse.NewFunctionParameters.openssl_decrypt_tagFound">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.FunctionUse.NewFunctionParameters.openssl_encrypt_aadFound">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.FunctionUse.NewFunctionParameters.openssl_encrypt_tagFound">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.FunctionUse.NewFunctionParameters.openssl_encrypt_tag_lengthFound">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.FunctionUse.NewFunctions.array_key_lastFound">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.Interfaces.NewInterfaces.throwableFound">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.FunctionDeclarations.NewNullableTypes.returnTypeFound">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.FunctionDeclarations.NewParamTypeDeclarations.InvalidTypeHintFound">
-		<severity>0</severity>
-	</rule>
-	<rule ref="PHPCompatibility.Operators.NewOperators.t_coalesceFound">
-		<severity>0</severity>
-	</rule>
+	<rule ref="./.phpcs.dir.phpcompatibility.xml" />
+
 	<rule ref="Generic.Commenting.DocComment.MissingShort">
 		<severity>0</severity>
 	</rule>

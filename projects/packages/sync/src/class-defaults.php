@@ -142,6 +142,7 @@ class Defaults {
 		'stats_options',
 		'stb_enabled',
 		'stc_enabled',
+		'sm_enabled',
 		'sticky_posts',
 		'stylesheet',
 		'subscription_options',
@@ -180,6 +181,7 @@ class Defaults {
 		'wpcom_subscription_emails_use_excerpt',
 		'videopress_private_enabled_for_site',
 		'wpcom_gifting_subscription',
+		'wpcom_site_setup',
 	);
 
 	/**
@@ -290,6 +292,7 @@ class Defaults {
 	 * @var array Default whitelist of callables.
 	 */
 	public static $default_callable_whitelist = array(
+		'get_loaded_extensions'            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_loaded_extensions' ),
 		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
 		'get_themes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),

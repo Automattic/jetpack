@@ -489,13 +489,15 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Indicate whether this site was ever an eCommerce trial.
+	 * Indicate whether this site was ever a specific trial.
+	 *
+	 * @param string $trial The trial type to check for.
 	 *
 	 * @return bool
 	 */
-	public function was_ecommerce_trial() {
+	public function was_trial( $trial ) {
 		if ( function_exists( 'has_blog_sticker' ) ) {
-			return has_blog_sticker( 'had-ecommerce-trial' );
+			return has_blog_sticker( "had-{$trial}-trial" );
 		}
 		return false;
 	}
@@ -1500,5 +1502,14 @@ abstract class SAL_Site {
 	 */
 	public function can_blaze() {
 		return (bool) Blaze::site_supports_blaze( $this->blog_id );
+	}
+
+	/**
+	 * Return site's setup identifier.
+	 *
+	 * @return string
+	 */
+	public function get_wpcom_site_setup() {
+		return get_option( 'wpcom_site_setup' );
 	}
 }

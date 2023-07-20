@@ -46,6 +46,9 @@ const QUICK_EDIT_KEY_SUMMARIZE = 'summarize' as const;
 // Quick edits option: "Make longer"
 const QUICK_EDIT_KEY_MAKE_LONGER = 'make-longer' as const;
 
+// Ask AI Assistant option
+export const KEY_ASK_AI_ASSISTANT = 'ask-ai-assistant' as const;
+
 const QUICK_EDIT_KEY_LIST = [
 	QUICK_EDIT_KEY_CORRECT_SPELLING,
 	QUICK_EDIT_KEY_SIMPLIFY,
@@ -53,7 +56,7 @@ const QUICK_EDIT_KEY_LIST = [
 	QUICK_EDIT_KEY_MAKE_LONGER,
 ] as const;
 
-type QuickEditsKeyProp = ( typeof QUICK_EDIT_KEY_LIST )[ number ];
+type AiAssistantKeyProp = ( typeof QUICK_EDIT_KEY_LIST )[ number ] | typeof KEY_ASK_AI_ASSISTANT;
 
 const quickActionsList = [
 	{
@@ -91,7 +94,7 @@ type AiAssistantControlComponentProps = {
 	/*
 	 * Can be used to externally control the value of the control. Optional.
 	 */
-	key?: QuickEditsKeyProp | string;
+	key?: AiAssistantKeyProp | string;
 
 	/*
 	 * The label to use for the dropdown. Optional.
@@ -101,14 +104,21 @@ type AiAssistantControlComponentProps = {
 	/*
 	 * A list of quick edits to exclude from the dropdown.
 	 */
-	exclude?: QuickEditsKeyProp[];
+	exclude?: AiAssistantKeyProp[];
 
 	/*
 	 * Whether the dropdown is requesting suggestions from AI.
 	 */
 	requestingState?: RequestingStateProp;
 
+	/*
+	 * Whether the dropdown is disabled.
+	 */
+	disabled?: boolean;
+
 	onChange: ( item: PromptTypeProp, options?: AiAssistantDropdownOnChangeOptionsArgProps ) => void;
+
+	onReplace: () => void;
 };
 
 export default function AiAssistantDropdown( {
@@ -116,11 +126,15 @@ export default function AiAssistantDropdown( {
 	label,
 	exclude = [],
 	requestingState,
+	disabled,
 	onChange,
+	onReplace,
 }: AiAssistantControlComponentProps ) {
 	const quickActionsListFiltered = quickActionsList.filter(
 		quickAction => ! exclude.includes( quickAction.key )
 	);
+	const toolbarLabel =
+		requestingState === 'suggesting' ? null : label || __( 'AI Assistant', 'jetpack' );
 
 	return (
 		<Dropdown
@@ -137,13 +151,28 @@ export default function AiAssistantDropdown( {
 						onClick={ onToggle }
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
-						label={ label || __( 'AI Assistant', 'jetpack' ) }
+						label={ toolbarLabel }
 						icon={ aiAssistant }
+						disabled={ disabled }
 					/>
 				);
 			} }
 			renderContent={ ( { onClose: closeDropdown } ) => (
 				<MenuGroup label={ label }>
+					{ ! exclude.includes( KEY_ASK_AI_ASSISTANT ) && (
+						<MenuItem
+							icon={ aiAssistant }
+							iconPosition="left"
+							key="key-ai-assistant"
+							onClick={ onReplace }
+							isSelected={ key === 'key-ai-assistant' }
+						>
+							<div className="jetpack-ai-assistant__menu-item">
+								{ __( 'Ask AI Assistant', 'jetpack' ) }
+							</div>
+						</MenuItem>
+					) }
+
 					{ quickActionsListFiltered.map( quickAction => (
 						<MenuItem
 							icon={ quickAction?.icon }

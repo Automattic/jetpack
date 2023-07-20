@@ -1,4 +1,5 @@
 import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
@@ -23,8 +24,13 @@ export default function EmailPreview( { isModalOpen, closeModal } ) {
 	const [ errorMessage, setErrorMessage ] = useState( false );
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const { tracks } = useAnalytics();
 
 	const sendEmailPreview = () => {
+		tracks.recordEvent( 'jetpack_send_email_preview', {
+			post_id: postId,
+		} );
+
 		setEmailSending( true );
 		apiFetch( {
 			path: '/wpcom/v2/send-email-preview/',
