@@ -6156,20 +6156,18 @@ class zbsDAL {
      */
     public function getCronLogs($args=array()){
 
-        #} ============ LOAD ARGS =============
-        $defaultArgs = array(
+		// ============ LOAD ARGS =============
+		$with_notes = true;
 
-
-            'job'  => '', 
-
-
-            'sortByField'   => 'ID',
-            'sortOrder'     => 'DESC',
-            'page'          => 0,
-            'perPage'       => 100,
-
-            // permissions
-            'ignoreowner'   => false // this'll let you not-check the owner of obj
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$defaultArgs = array(
+			'job'         => '',
+			'sortByField' => 'ID', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'sortOrder'   => 'DESC', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'page'        => 0,
+			'perPage'     => 100, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			'with_notes'  => true,
+			'ignoreowner' => false, // this'll let you not-check the owner of obj
 
         ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
@@ -6182,8 +6180,10 @@ class zbsDAL {
         global $ZBSCRM_t,$wpdb; 
         $wheres = array('direct'=>array()); $whereStr = ''; $additionalWhere = ''; $params = array(); $res = array();
 
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$whereStr .= "WHERE jobnotes <> ''";
+		if ( $with_notes ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$whereStr .= "WHERE jobnotes <> ''";
+		}
 
         #} Build query
         $query = "SELECT * FROM ".$ZBSCRM_t['cronmanagerlogs'];
