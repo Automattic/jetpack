@@ -81,6 +81,10 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 		$updatedSettings['menulayout'] = (int) sanitize_text_field( $_POST['wpzbscrm_menulayout'] );
 	}
 
+	$updatedSettings['showfullwidthforlisting'] = 0; // phpcs:ignore
+	if ( isset( $_POST['wpzbscrm_showfullwidthforlisting'] ) && ! empty( $_POST['wpzbscrm_showfullwidthforlisting'] ) ) { // phpcs:ignore
+		$updatedSettings['showfullwidthforlisting'] = 1; // phpcs:ignore
+	}
 	$updatedSettings['showprefix'] = 0;
 	if ( isset( $_POST['wpzbscrm_showprefix'] ) && ! empty( $_POST['wpzbscrm_showprefix'] ) ) {
 		$updatedSettings['showprefix'] = 1;
@@ -318,6 +322,16 @@ if ( ! $confirmAct ) {
 			</thead>
 
 			<tbody>
+
+				<tr>
+					<td class="wfieldname"><label for="wpzbscrm_showfullwidthforlisting"><?php esc_html_e( 'Show listing pages in full width', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to limit the width of the listing pages', 'zero-bs-crm' ); ?></td>
+					<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_showfullwidthforlisting" id="wpzbscrm_showfullwidthforlisting" value="1"
+					<?php
+					if ( isset( $settings['showfullwidthforlisting'] ) && $settings['showfullwidthforlisting'] === 1 ) {
+						echo ' checked="checked"';}
+					?>
+					/></td>
+				</tr>
 
 				<tr>
 					<td class="wfieldname"><label for="wpzbscrm_showprefix"><?php esc_html_e( 'Show Prefix', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to hide the prefix (mr, mrs, etc)', 'zero-bs-crm' ); ?></td>

@@ -950,7 +950,7 @@ class Jetpack_SSO {
 						array(
 							'redirect_to'               => $redirect_to,
 							'request_redirect_to'       => $_request_redirect_to,
-							'calypso_env'               => Jetpack::get_calypso_env(),
+							'calypso_env'               => ( new Host() )->get_calypso_env(),
 							'jetpack-sso-auth-redirect' => '1',
 						),
 						admin_url()
