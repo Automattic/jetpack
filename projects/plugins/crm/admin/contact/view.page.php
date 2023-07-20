@@ -41,7 +41,6 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 				'withOwner'                  => true,
 				'withValues'                 => true,
 				'withExternalSourcesGrouped' => true,
-				'withDND'                    => true,
 
 				// but we limit to the top 20 (quotes, invs, trans etc.)
 				// note that this means we have to add calls to specific_obj_type_count_for_assignee, but it protects against contacts with 1000 objs etc.
