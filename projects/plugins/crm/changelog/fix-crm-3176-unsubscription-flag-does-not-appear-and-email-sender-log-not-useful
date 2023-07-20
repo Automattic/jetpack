@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: added
 
-Now, unsubscriber contacts are showed in their page as a flag
+Allow to retrieve only logs with notes from the Cron Log System. 
