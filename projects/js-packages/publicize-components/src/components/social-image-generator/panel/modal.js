@@ -48,9 +48,16 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 		[ setEditedImageId ]
 	);
 
-	const ImageOptions = () => {
-		return (
-			<>
+	return (
+		<ThemeProvider targetDom={ document.body }>
+			<Modal onRequestClose={ onClose }>
+				<GeneratedImagePreview
+					className={ styles.preview }
+					imageId={ localImageId }
+					customText={ localCustomText }
+					imageType={ localImageType }
+					template={ localTemplate }
+				/>
 				<SelectControl
 					label={ __( 'Image Type', 'jetpack' ) }
 					value={ localImageType || 'featured' }
@@ -76,23 +83,6 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 						imageClassName={ styles.customImage }
 					/>
 				) }
-			</>
-		);
-	};
-
-	return (
-		<ThemeProvider targetDom={ document.body }>
-			<Modal onRequestClose={ onClose }>
-				<GeneratedImagePreview
-					className={ styles.preview }
-					{ ...{
-						imageId: localImageId,
-						customText: localCustomText,
-						imageType: localImageType,
-						template: localTemplate,
-					} }
-				/>
-				<ImageOptions />
 				<TextControl
 					className={ styles.customText }
 					value={ localCustomText || '' }
