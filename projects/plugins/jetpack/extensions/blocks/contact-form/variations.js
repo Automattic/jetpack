@@ -61,7 +61,7 @@ const variations = compact( [
 	},
 	! isSimpleSite() && {
 		name: 'newsletter-form',
-		title: __( 'Newsletter Sign-up', 'jetpack' ),
+		title: __( 'Sign-up', 'jetpack' ),
 		description: __(
 			'A simple way to collect information from folks visiting your site',
 			'jetpack'
