@@ -155,9 +155,8 @@ class Stats extends Module_Product {
 	 */
 	public static function get_purchase_url() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
-		// The returning URL could be customized by adding a `redirect_uri` param with relative path e.g. admin.php?page=stats.
-		// We omitted the param here. As a result, it'd return to the default location - the Stats Dashboard.
-		return sprintf( 'https://wordpress.com/stats/purchase/%d?from=jetpack-my-jetpack', $blog_id );
+		// The returning URL could be customized by changing the `redirect_uri` param with relative path.
+		return sprintf( 'https://wordpress.com/stats/purchase/%d?from=jetpack-my-jetpack&redirect_uri=%s', $blog_id, rawurldecode( 'admin.php?page=stats' ) );
 	}
 
 	/**
