@@ -54,7 +54,6 @@
 			"versioning": "semver"
 		},
 		"release-branch-prefix": "inspect",
-		"beta-plugin-slug": "jetpack-inspect",
-		"wp-svn-autopublish": true
+		"beta-plugin-slug": "jetpack-inspect"
 	}
 }
