@@ -7,6 +7,7 @@
 	import { modulesState } from '../../stores/modules';
 	import RefreshIcon from '../../svg/refresh.svg';
 	import WarningIcon from '../../svg/warning-outline.svg';
+	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../utils/analytics';
 	import MultiProgress from './MultiProgress.svelte';
 	import { resetIsaQuery } from './store/isa-data';
 	import {
@@ -14,6 +15,7 @@
 		initializeIsaSummary,
 		isaSummary,
 		ISAStatus,
+		scannedPagesCount,
 	} from './store/isa-summary';
 
 	onMount( () => {
@@ -54,7 +56,7 @@
 	/**
 	 * Start a new image analysis job.
 	 */
-	async function onStartAnalysis() {
+	async function startAnalysis() {
 		try {
 			errorMessage = undefined;
 			requestingReport = true;
@@ -65,6 +67,15 @@
 		} finally {
 			requestingReport = false;
 		}
+	}
+
+	function handleAnalyzeClick() {
+		const $event_name =
+			$isaSummary.status === ISAStatus.Completed
+				? 'clicked_restart_isa_on_summary_page'
+				: 'clicked_start_isa_on_summary_page';
+		recordBoostEvent( $event_name, {} );
+		return startAnalysis();
 	}
 
 	/**
@@ -100,21 +111,32 @@
 				<div class="has-issues summary">
 					<WarningIcon class="icon" />
 					{sprintf(
-						/* translators: %d is the number of issues that were found */
-						__( 'Found a total of %d issues', 'jetpack-boost' ),
-						totalIssues
+						// translators: 1: Number of scanned issues found 2: Number of scanned pages
+						__(
+							'Found a total of %1$d issues after scanning your %2$d most recent pages.',
+							'jetpack-boost'
+						),
+						totalIssues,
+						$scannedPagesCount
 					)}
 				</div>
 			{:else}
 				<div class="summary">
-					{__( 'Congratulations; no issues found.', 'jetpack-boost' )}
+					{sprintf(
+						// translators: %d: Number of pages scanned
+						__(
+							'Congratulations; no issues found after scanning your %d most recent pages.',
+							'jetpack-boost'
+						),
+						$scannedPagesCount
+					)}
 				</div>
 			{/if}
 
 			<button
 				type="button"
 				class="components-button is-link"
-				on:click={onStartAnalysis}
+				on:click={handleAnalyzeClick}
 				disabled={requestingReport}
 			>
 				<RefreshIcon />
@@ -140,7 +162,15 @@
 	<!-- Show a button to view the report if it's in progress or completed. -->
 	{#if [ ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status ) && ! requestingReport}
 		<div class="button-area">
-			<Button href="#image-size-analysis/all/1" disabled={requestingReport}>
+			<Button
+				disabled={requestingReport}
+				on:click={() =>
+					recordBoostEventAndRedirect(
+						'#image-size-analysis/all/1',
+						'clicked_view_isa_report_on_summary_page',
+						{}
+					)}
+			>
 				{$isaSummary.status === ISAStatus.Completed
 					? __( 'See full report', 'jetpack-boost' )
 					: __( 'View report in progress', 'jetpack-boost' )}
@@ -151,7 +181,7 @@
 	<!-- Show a button to kick off a report -->
 	{#if ! [ ISAStatus.New, ISAStatus.Queued, ISAStatus.Completed ].includes( $isaSummary.status )}
 		<div class="button-area">
-			<Button disabled={requestingReport} on:click={onStartAnalysis}>
+			<Button disabled={requestingReport} on:click={handleAnalyzeClick}>
 				{$isaSummary.status === ISAStatus.Completed
 					? __( 'Analyze again', 'jetpack-boost' )
 					: __( 'Start image analysis', 'jetpack-boost' )}

@@ -98,7 +98,7 @@ class Host {
 	 * Return Calypso environment value; used for developing Jetpack and pairing
 	 * it with different Calypso environments, such as localhost.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.18.0
 	 *
 	 * @return string Calypso environment
 	 */
