@@ -37,9 +37,23 @@ export const ImageData = z
 	.catch( {
 		id: '',
 		type: 'bad_entry',
+		status: 'active', // We still want to show the UI for this.
 	} );
 
 export type ImageDataType = z.infer< typeof ImageData >;
+
+export const emptyImageSizeAnalysisData = {
+	query: {
+		page: 0,
+		group: '',
+		search: '',
+	},
+	data: {
+		last_updated: 0,
+		total_pages: 0,
+		images: [],
+	},
+};
 
 export const ImageSizeAnalysis = z
 	.object( {
@@ -55,15 +69,4 @@ export const ImageSizeAnalysis = z
 		} ),
 	} )
 	// Prevent fatal error when this module isn't available.
-	.catch( {
-		query: {
-			page: 0,
-			group: '',
-			search: '',
-		},
-		data: {
-			last_updated: 0,
-			total_pages: 0,
-			images: [],
-		},
-	} );
+	.catch( emptyImageSizeAnalysisData );

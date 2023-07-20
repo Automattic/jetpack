@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.0] - 2023-07-17
+### Added
+- Launchpad: Filter tasks by newsletter import goal. [#31825]
+- Launchpad task for editing a page [#31789]
+
+## [3.6.0] - 2023-07-10
+### Added
+- While in the design_first flow, if the user creates a post, deletes the default hello-world. [#31702]
+
 ## [3.5.0] - 2023-07-05
 ### Added
 - Added a new email campaign trigger for blog-onboarding [#31612]
@@ -220,6 +229,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[3.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.6.0...v3.7.0
+[3.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.5.0...v3.6.0
 [3.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.2.0...v3.3.0

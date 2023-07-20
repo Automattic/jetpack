@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fixed users menu item pointing to wp-admin on Atomic sites.

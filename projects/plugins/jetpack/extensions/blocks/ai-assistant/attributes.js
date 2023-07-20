@@ -20,4 +20,19 @@ export default {
 		type: 'array',
 		default: [],
 	},
+
+	useGutenbergSyntax: {
+		type: 'boolean',
+		default: false,
+	},
+
+	useGpt4: {
+		type: 'boolean',
+		default: false,
+	},
+
+	customSystemPrompt: {
+		type: 'string',
+		default: '',
+	},
 };

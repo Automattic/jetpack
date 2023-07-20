@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.3] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+### Fixed
+- Hide connection owner information if the data is invalid
+- Don't suggest user connection if user is already connected, but connection owner is invalid [#31618]
+
+## [3.1.2] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [3.1.1] - 2023-07-10
+### Fixed
+- Make product card primary buttons links when applicable [#31611]
+
 ## [3.1.0] - 2023-07-05
 ### Added
 - Added Jetpack Stats card to My Jetpack [#31589]
@@ -925,6 +941,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[3.1.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.2...3.1.3
+[3.1.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.1...3.1.2
+[3.1.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.0...3.1.1
 [3.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.0.0...3.1.0
 [3.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.15.0...3.0.0
 [2.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.3...2.15.0

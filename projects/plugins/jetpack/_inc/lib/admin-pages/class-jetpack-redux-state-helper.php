@@ -216,7 +216,7 @@ class Jetpack_Redux_State_Helper {
 			'currentIp'                   => IP_Utils::get_ip(),
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => self::get_external_services_connect_urls(),
-			'calypsoEnv'                  => Jetpack::get_calypso_env(),
+			'calypsoEnv'                  => ( new Host() )->get_calypso_env(),
 			'products'                    => Jetpack::get_products_for_purchase(),
 			'recommendationsStep'         => Jetpack_Core_Json_Api_Endpoints::get_recommendations_step()['step'],
 			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
@@ -235,6 +235,8 @@ class Jetpack_Redux_State_Helper {
 			'isOdysseyStatsEnabled'       => Stats_Options::get_option( 'enable_odyssey_stats' ),
 			'shouldInitializeBlaze'       => Blaze::should_initialize(),
 			'isBlazeDashboardEnabled'     => Blaze::is_dashboard_enabled(),
+			/** This filter is documented in plugins/jetpack/modules/subscriptions/subscribe-module/class-jetpack-subscribe-module.php */
+			'isSubscriptionModalEnabled'  => apply_filters( 'jetpack_subscriptions_modal_enabled', false ),
 		);
 	}
 

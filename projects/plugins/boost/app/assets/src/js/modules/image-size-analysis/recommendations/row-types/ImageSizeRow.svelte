@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import Button from '../../../../elements/Button.svelte';
+	import { recordBoostEventAndRedirect } from '../../../../utils/analytics';
 	import Device from '../components/Device.svelte';
 	import Pill from '../components/Pill.svelte';
 	import RowTitle from '../components/RowTitle.svelte';
@@ -13,6 +14,15 @@
 	export let details: ImageDataType;
 
 	const title = details.image.url.split( '/' ).pop();
+	const currentSize = details.image.weight.current;
+	const potentialSavings = Math.max(
+		0,
+		Math.min( currentSize - 2, details.image.weight.potential )
+	);
+	const potentialSize = potentialSavings > 0 ? Math.round( currentSize - potentialSavings ) : '?';
+
+	const sizeDifference = ( potentialSavings / currentSize ) * 100;
+	const pillColor = sizeDifference <= 30 ? '#f5e5b3' : '#facfd2';
 </script>
 
 <TableRow {enableTransition} expandable={true}>
@@ -26,19 +36,23 @@
 		</div>
 
 		<div class="jb-table-row__potential-size">
-			<Pill color="#facfd2">
+			<Pill color={pillColor}>
 				{Math.round( details.image.weight.current )} KB
 			</Pill>
 
 			<div class="jb-arrow">→</div>
 
 			<Pill color="#d0e6b8">
-				{Math.round( details.image.weight.potential )} KB
+				{potentialSize} KB
 			</Pill>
 		</div>
 
 		<div class="jb-table-row__hover-content">
-			<TableRowHover edit_url={details.page.edit_url} instructions={details.instructions} />
+			<TableRowHover
+				device_type={details.device_type}
+				edit_url={details.page.edit_url}
+				instructions={details.instructions}
+			/>
 		</div>
 
 		<div class="jb-table-row__device">
@@ -51,8 +65,38 @@
 	</svelte:fragment>
 
 	<svelte:fragment slot="expanded">
-		<div class="image-details">
-			<h4>Image Details</h4>
+		<div class="expanded-info mobile-only">
+			<h4>{__( 'Potential Size', 'jetpack-boost' )}</h4>
+
+			<div class="pills">
+				<Pill color={pillColor}>
+					{Math.round( details.image.weight.current )} KB
+				</Pill>
+
+				<div class="jb-arrow">→</div>
+
+				<Pill color="#d0e6b8">
+					{potentialSize} KB
+				</Pill>
+			</div>
+		</div>
+
+		<div class="expanded-info mobile-only">
+			<h4>{__( 'Device', 'jetpack-boost' )}</h4>
+
+			<div class="icon">
+				<Device device={details.device_type} />
+			</div>
+
+			<span>
+				{details.device_type === 'desktop'
+					? __( 'This issue affects large screens', 'jetpack-boost' )
+					: __( 'This issue affects small screens', 'jetpack-boost' )}
+			</span>
+		</div>
+
+		<div class="expanded-info image-details">
+			<h4>{__( 'Image Details', 'jetpack-boost' )}</h4>
 
 			<div class="row">
 				<div class="label">
@@ -91,50 +135,65 @@
 			</div>
 		</div>
 
-		<div class="fix-options">
+		<div class="expanded-info fix-options">
 			<h4>
 				{__( 'How to fix', 'jetpack-boost' )}
 			</h4>
 			<p>{details.instructions}</p>
-			<div class="jb-actions">
-				<Button width="auto" href={details.page.edit_url} fill>
-					{__( 'Fix on page', 'jetpack-boost' )}
-				</Button>
-			</div>
+			{#if details.page.edit_url}
+				<div class="jb-actions">
+					<Button
+						width="auto"
+						fill
+						on:click={() =>
+							recordBoostEventAndRedirect(
+								details.page.edit_url,
+								'clicked_fix_on_page_on_isa_report',
+								{ device_type: details.device_type }
+							)}
+					>
+						{__( 'Fix on page', 'jetpack-boost' )}
+					</Button>
+				</div>
+			{/if}
 		</div>
 	</svelte:fragment>
 </TableRow>
 
 <style lang="scss">
-	.jb-table-row__thumbnail {
-		grid-column: thumbnail;
+	.mobile-only {
+		display: none;
+
+		@media ( max-width: 782px ) {
+			display: block;
+		}
 	}
 
-	.jb-table-row__title {
-		grid-column: title;
-	}
-
-	.jb-table-row__hover-content {
-		grid-column: device / expand;
-	}
-
-	.jb-table-row__potential-size {
+	.pills {
 		grid-column: potential-size;
 		display: flex;
 		align-items: center;
 		gap: calc( var( --gap ) / 2 );
 	}
 
-	.jb-table-row__device {
-		grid-column: device;
-		text-align: center;
+	h4 {
+		font-size: 16px;
+		font-weight: 600;
 	}
 
-	.jb-table-row__page {
-		grid-column: page;
-		a {
-			text-decoration: none;
-			color: var( --gray-60 );
+	.expanded-info {
+		@media ( max-width: 782px ) {
+			margin-bottom: 16px;
+
+			h4 {
+				margin-bottom: 12px;
+			}
+
+			.icon {
+				margin-right: 12px;
+				display: inline-block;
+				aspect-ratio: 1;
+			}
 		}
 	}
 
@@ -145,9 +204,6 @@
 		flex-direction: column;
 		font-size: 0.875rem;
 		gap: calc( var( --gap ) / 2 );
-		h4 {
-			font-weight: 600;
-		}
 		.row {
 			display: flex;
 			gap: 10px;
@@ -162,8 +218,13 @@
 		display: flex;
 		gap: var( --gap );
 	}
+
 	.fix-options {
 		flex: 1;
 		margin-left: calc( var( --table-header-potential-size ) - var( --gap ) * 2 );
+
+		@media ( max-width: 782px ) {
+			margin-left: 0;
+		}
 	}
 </style>

@@ -55,6 +55,12 @@ $image_data = Schema::as_assoc_array(
 		),
 
 	)
+)->fallback(
+	array(
+		'id'     => '',
+		'type'   => 'bad_entry',
+		'status' => 'active',
+	)
 );
 
 $image_size_analysis = Schema::as_assoc_array(
@@ -102,10 +108,10 @@ $summary_schema = Schema::as_assoc_array(
 		'report_id' => Schema::as_number()->nullable(),
 		'groups'    => Schema::as_assoc_array(
 			array(
-				'front_page' => $group_schema,
-				'page'       => $group_schema,
-				'post'       => $group_schema,
-				'other'      => $group_schema,
+				'core_front_page' => $group_schema,
+				'singular_page'   => $group_schema,
+				'singular_post'   => $group_schema,
+				'other'           => $group_schema,
 			)
 		)->nullable(),
 	)

@@ -378,16 +378,16 @@ function zeroBSCRM_segments_filterConditions($conditions=array(),$processCharact
                             $dates = explode(' - ', $val);
                             if (count($dates) == 2){
 
-                                $val = $dates[0];
-                                $addition['value'] = zeroBSCRM_locale_dateToUTS( $dates[0] );
-                                $addition['value2'] = zeroBSCRM_locale_dateToUTS( $dates[1] );
+								$local_date_time = new DateTime( $dates[0], new DateTimeZone( get_option( 'timezone_string' ) ) );
+								$local_date_time->setTimezone( new DateTimeZone( 'UTC' ) );
+								$value = $local_date_time->format( 'Y-m-d H:i' );
 
-                                // for those dates used in 'AFTER' this needs to effectively be midnight on the day (start of next day)
-                                if ( $c['operator'] == 'daterange' && !empty( $addition['value2'] ) ) {
-
-                                    $addition['value2'] += (60*60*24);
-
-                                }
+								$local_date_time_2 = new DateTime( $dates[1], new DateTimeZone( get_option( 'timezone_string' ) ) );
+								$local_date_time_2->setTimezone( new DateTimeZone( 'UTC' ) );
+								$value_2 = $local_date_time_2->format( 'Y-m-d H:i' );
+								// Set the converted dates to UTC.
+								$addition['value']  = zeroBSCRM_locale_dateToUTS( $value );
+								$addition['value2'] = zeroBSCRM_locale_dateToUTS( $value_2 );
                             }
 
                         }

@@ -207,14 +207,14 @@ function zbscrm_JS_adminMenuDropdown() {
 
 		// if calypso, loading on an embed page, already full screen, need to run this to re-adjust/hide:
 		setTimeout( function () {
-			if ( ! jQuery( 'jpcrm-top-menu .logo-cube' ).hasClass( 'menu-open' ) ) {
-				zbscrm_JS_fullscreenModeOn( jQuery( 'jpcrm-top-menu .logo-cube' ) );
+			if ( ! jQuery( '#jpcrm-top-menu .logo-cube' ).hasClass( 'menu-open' ) ) {
+				zbscrm_JS_fullscreenModeOn( jQuery( '#jpcrm-top-menu .logo-cube' ) );
 			}
 		}, 0 );
 	}
 
 	// bind the toggle
-	jQuery( 'jpcrm-top-menu .logo-cube' )
+	jQuery( '#jpcrm-top-menu .logo-cube' )
 		.off( 'click' )
 		.on( 'click', function ( e ) {
 			if ( ! window.zbscrmjs_adminMenuBlocker ) {
