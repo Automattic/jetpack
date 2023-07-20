@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
+
 // Feature name.
 const FEATURE_NAME = 'ai-assistant-plugin';
 
