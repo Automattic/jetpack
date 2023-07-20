@@ -1,11 +1,16 @@
-import { AdminPage as JetpackAdminPage, JetpackLogo } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import {
+	AdminPage as JetpackAdminPage,
+	AdminSectionHero,
+	Col,
+	Container,
+	Text,
+} from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
-import type { AdminPageProps } from '@automattic/jetpack-components/components/admin-page/types';
+import type { AdminPageProps } from './types';
 import type React from 'react';
 
 /**
- * This is the base structure for any Jetpack CRM admin page. It comes with Header and Footer.
+ * This is the base structure for any Jetpack CRM admin page.
  *
  * All content must be passed as children wrapped in as many <AdminSection> elements as needed.
  *
@@ -13,23 +18,35 @@ import type React from 'react';
  * @returns {React.ReactNode} AdminPage component.
  */
 const AdminPage: React.FC< AdminPageProps > = props => {
-	const { children } = props;
+	const { children, headline, subHeadline } = props;
 
-	return <JetpackAdminPage { ...props }>{ children }</JetpackAdminPage>;
+	return (
+		<JetpackAdminPage { ...props }>
+			<AdminSectionHero>
+				{ ( headline || subHeadline ) && (
+					<Container horizontalSpacing={ 2 }>
+						<Col>
+							{ headline && <Text variant="headline-small">{ headline }</Text> }
+							{ subHeadline && (
+								<Text className={ styles[ 'sub-headline' ] } variant="body-small">
+									{ subHeadline }
+								</Text>
+							) }
+						</Col>
+					</Container>
+				) }
+			</AdminSectionHero>
+			{ children }
+		</JetpackAdminPage>
+	);
 };
 
-/* @todo Replace this when we have a JetpackSearchLogo in the Components library. */
-const crmLogo = (
-	<div className={ styles[ 'custom-header' ] }>
-		<JetpackLogo height={ 40 } />
-		<div className={ styles[ 'logo-title' ] }>CRM</div>
-	</div>
-);
-
 AdminPage.defaultProps = {
-	moduleName: __( 'Jetpack CRM', 'zero-bs-crm' ),
-	moduleNameHref: 'https://jetpackcrm.com/',
-	header: crmLogo,
+	/*
+	 * Hide footer and header since we output them with PHP.
+	 */
+	showHeader: false,
+	showFooter: false,
 };
 
 export default AdminPage;
