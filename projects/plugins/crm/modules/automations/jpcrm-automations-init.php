@@ -19,6 +19,20 @@ if ( ! apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {
 }
 
 /**
+ * This is a temporary filter to disable the UI until we have completed building it
+ *
+ * @todo Remove this filter when the core Automation UI is ready to be released.
+ *
+ * @param bool $load_ui Whether to load the UI or not.
+ * @return bool Whether to load the UI or not.
+ */
+function disable_ui_if_feature_flag_is_disabled( $load_ui ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	return apply_filters( 'jetpack_crm_feature_flag_automations', false );
+}
+
+add_filter( 'jetpack_crm_automations_load_ui', __NAMESPACE__ . '\disable_ui_if_feature_flag_is_disabled', 99 );
+
+/**
  * Load the Automation module.
  *
  * This is a core module that will always be loaded, so we do not allow it to be enabled/deactivated.
