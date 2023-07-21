@@ -291,7 +291,11 @@ class Launchpad_Task_Lists {
 		$built_task['subtitle']     = $this->load_subtitle( $task );
 		$built_task['badge_text']   = $this->load_value_from_callback( $task, 'badge_text_callback' );
 		$built_task['isLaunchTask'] = isset( $task['isLaunchTask'] ) ? $task['isLaunchTask'] : false;
-		$built_task['extra_data']   = $this->load_extra_data( $task );
+		$extra_data                 = $this->load_extra_data( $task );
+
+		if ( is_array( $extra_data ) && array() !== $extra_data ) {
+			$built_task['extra_data'] = $extra_data;
+		}
 
 		if ( isset( $task['target_repetitions'] ) ) {
 			$built_task['target_repetitions'] = $task['target_repetitions'];
