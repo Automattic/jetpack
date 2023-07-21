@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+API: Fixed error 200 while saving new api connections
