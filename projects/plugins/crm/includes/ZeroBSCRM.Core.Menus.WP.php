@@ -125,7 +125,7 @@ function zeroBSCRM_menu_buildMenu() {
 			$menu['jpcrm']['subitems']['core-automations'] = array(
 				'title'      => __( 'Automations', 'zero-bs-crm' ),
 				'url'        => $zbs->slugs['core-automations'],
-				'perms'      => 'manage_options',
+				'perms'      => 'admin_zerobs_manage_options',
 				'order'      => 2,
 				'wpposition' => 2,
 				'callback'   => 'jpcrm_pages_automations',
@@ -362,7 +362,7 @@ function zeroBSCRM_menu_buildMenu() {
 			$menu['jpcrm']['subitems']['core-automations'] = array(
 				'title'      => __( 'Automations', 'zero-bs-crm' ),
 				'url'        => $zbs->slugs['core-automations'],
-				'perms'      => 'manage_options',
+				'perms'      => 'admin_zerobs_manage_options',
 				'order'      => 2,
 				'wpposition' => 2,
 				'callback'   => 'jpcrm_pages_automations',
