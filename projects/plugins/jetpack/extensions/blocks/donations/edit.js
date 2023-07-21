@@ -1,6 +1,7 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
 import fetchDefaultProducts from './fetch-default-products';
@@ -32,8 +33,15 @@ const Edit = props => {
 		).getConnectedAccountDefaultCurrency();
 
 		if ( ! currency && stripeDefaultCurrency ) {
-			// If no currency is available, default to the stripe one, or 'USD'
-			setAttributes( { currency: stripeDefaultCurrency.toUpperCase() } );
+			const uppercasedStripeCurrency = stripeDefaultCurrency.toUpperCase();
+			const isCurrencySupported = !! SUPPORTED_CURRENCIES[ uppercasedStripeCurrency ];
+			if ( isCurrencySupported ) {
+				// If no currency is available, default to the stripe one
+				setAttributes( { currency: uppercasedStripeCurrency } );
+			} else {
+				// We default o USD
+				setAttributes( { currency: 'USD' } );
+			}
 		}
 	} );
 
