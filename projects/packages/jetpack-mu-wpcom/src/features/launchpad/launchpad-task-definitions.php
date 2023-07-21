@@ -838,6 +838,7 @@ function wpcom_get_site_about_page_id() {
 	$filters     = array(
 		'post_type'    => 'page',
 		'numberposts'  => 1,
+		'fields'       => 'ids',
 		'orderby'      => 'meta_value',
 		'meta_key'     => '_hs_old_id',
 		'meta_compare' => 'IN',
@@ -854,10 +855,10 @@ function wpcom_get_site_about_page_id() {
 	wp_cache_set( "headstart_about_page_hs_old_ids_{$blog_id}", $headstart_about_page_hs_old_ids, 'wpcom' );
 
 	// Cache the about page id so we don't have to look it up from scratch every time.
-	wp_cache_set( $about_page_id_cache_key, $about_pages[0]->ID, 'wpcom' );
+	wp_cache_set( $about_page_id_cache_key, $about_pages[0], 'wpcom' );
 
 	// Return the id of the first About page.
-	return $about_pages[0]->ID;
+	return $about_pages[0];
 }
 
 /**
