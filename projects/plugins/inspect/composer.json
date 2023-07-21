@@ -25,7 +25,7 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "2662d159b2161b86f56c5059a9d397af_inspectⓥversion"
+		"autoloader-suffix": "2662d159b2161b86f56c5059a9d397af_inspectⓥ0_1_0_alpha"
 	},
 	"scripts": {
 		"phpunit": [
