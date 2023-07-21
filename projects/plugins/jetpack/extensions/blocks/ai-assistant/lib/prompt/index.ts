@@ -129,7 +129,7 @@ type PromptOptionsProps = {
 	prevMessages?: Array< PromptItemProps >;
 };
 
-function getDelimitedContent( content: string ): string {
+export function getDelimitedContent( content: string ): string {
 	return `${ delimiter }${ content.replaceAll( delimiter, '' ) }${ delimiter }`;
 }
 

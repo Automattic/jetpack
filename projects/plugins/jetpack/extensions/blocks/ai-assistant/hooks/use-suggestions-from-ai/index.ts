@@ -34,7 +34,7 @@ type UseSuggestionsFromAIOptions = {
 	/*
 	 * Request prompt.
 	 */
-	prompt: Array< PromptItemProps >;
+	prompt?: Array< PromptItemProps >;
 
 	/*
 	 * Whether to request suggestions automatically.
