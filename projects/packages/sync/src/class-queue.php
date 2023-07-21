@@ -268,6 +268,92 @@ class Queue {
 	}
 
 	/**
+	 * Migrates the existing Sync events from the options table to the Custom table
+	 *
+	 * @return void
+	 */
+	public static function migrate_from_options_table_to_custom_table() {
+		global $wpdb;
+
+		// get all the records from the options table
+		$query = "
+			SELECT
+				option_name as event_id,
+				option_value as event_payload
+			FROM
+			    {$wpdb->options}
+			WHERE
+			    option_name LIKE 'jpsq_%'
+			ORDER BY
+			    option_name ASC
+		";
+		// TODO add limit and paging so we don't overflow the DB
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$rows = $wpdb->get_results( $query );
+
+		$insert_rows = array();
+
+		foreach ( $rows as $event ) {
+			$event_id = $event->event_id;
+
+			// Parse the event
+			if (
+				preg_match(
+					'!jpsq_(?P<queue_id>[^-]+)-(?P<timestamp>[^-]+)-.+!',
+					$event_id,
+					$events_matches
+				)
+			) {
+				$queue_id  = $events_matches['queue_id'];
+				$timestamp = $events_matches['timestamp'];
+
+				$insert_rows[] = $wpdb->prepare(
+					'(%s, %s, %s, %s)',
+					array(
+						$queue_id,
+						$event_id,
+						$event->event_payload,
+						(int) $timestamp,
+					)
+				);
+			}
+		}
+
+		// Instantiate table storage, so we can get the table name. Queue ID is just a placeholder here.
+		$queue_table_storage = new Queue_Storage_Table( 'test_queue' );
+
+		if ( ! empty( $insert_rows ) ) {
+			$insert_query = 'INSERT INTO ' . $queue_table_storage->table_name . ' (queue_id, event_id, event_payload, timestamp) VALUES ';
+
+			$insert_query .= implode( ',', $insert_rows );
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( $insert_query );
+
+		// Clear out the options queue
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+				'jpsq_%-%'
+			)
+		);
+	}
+
+	/**
+	 * Migrates the existing Sync events from the Custom table to the Options table
+	 *
+	 * @return void
+	 */
+	public function migrate_from_custom_table_to_options_table() {
+		// get all from the custom table
+
+		// convert them in the specific format
+
+		// insert them in the options table
+	}
+	/**
 	 * Add a single item to the queue.
 	 *
 	 * @param object $item Event object to add to queue.
@@ -367,16 +453,7 @@ class Queue {
 	public function reset() {
 		$this->delete_checkout_id();
 
-		/**
-		 * Need to clear out both the options table and the custom table.
-		 */
-		if ( ! self::dedicated_table_disabled() ) {
-			$dedicated_table_storage = new Queue_Storage_Table( $this->id );
-			$dedicated_table_storage->clear_queue();
-		}
-
-		$options_table_storage = new Queue_Storage_Options( $this->id );
-		$options_table_storage->clear_queue();
+		$this->queue_storage->clear_queue();
 	}
 
 	/**
@@ -385,22 +462,7 @@ class Queue {
 	 * @return int
 	 */
 	public function size() {
-		$total_size = 0;
-
-		/**
-		 * Need to check both queues to see if there are items in them.
-		 *
-		 * The dedicated table will be checked in any case if it's not disabled.
-		 */
-		if ( ! self::dedicated_table_disabled() ) {
-			$dedicated_table_storage = new Queue_Storage_Table( $this->id );
-			$total_size             += $dedicated_table_storage->get_item_count();
-		}
-
-		$options_table_storage = new Queue_Storage_Options( $this->id );
-		$total_size           += $options_table_storage->get_item_count();
-
-		return $total_size;
+		return $this->queue_storage->get_item_count();
 	}
 
 	/**
@@ -508,75 +570,51 @@ class Queue {
 			return $result;
 		}
 
-		// TODO add proper documentation here
-		$storage_with_priority = array();
-
-		/**
-		 * If we're using the Dedicated table, let's empty out the options queue first.
-		 * If the options are empty, then we can move over to the dedicated table.
-		 */
-
-		if ( ! self::dedicated_table_disabled() ) {
-			if ( $this->should_use_dedicated_table() ) {
-				$storage_with_priority[] = new Queue_Storage_Options( $this->id );
-				$storage_with_priority[] = new Queue_Storage_Table( $this->id );
-
-			} else {
-				$storage_with_priority[] = new Queue_Storage_Options( $this->id );
-				$storage_with_priority[] = new Queue_Storage_Table( $this->id );
-			}
-		} else {
-			// If the dedicated table is disabled, use only the options table
-			$storage_with_priority[] = new Queue_Storage_Options( $this->id );
-		}
-
 		// How much memory is currently being used by the items.
 		$total_memory = 0;
 
 		// Store the items to return
 		$items = array();
 
-		foreach ( $storage_with_priority as $storage_backend ) {
-			$current_items_ids = $storage_backend->get_items_ids_with_size( $max_buffer_size - count( $items ) );
+		$current_items_ids = $this->queue_storage->get_items_ids_with_size( $max_buffer_size - count( $items ) );
 
-			// If no valid items are returned or no items are returned, continue.
-			if ( ! is_countable( $current_items_ids ) || count( $current_items_ids ) === 0 ) {
-				continue;
+		// If no valid items are returned or no items are returned, continue.
+		if ( ! is_countable( $current_items_ids ) || count( $current_items_ids ) === 0 ) {
+			return false;
+		}
+
+		$item_ids_to_fetch = array();
+
+		foreach ( $current_items_ids as $id => $item_with_size ) {
+			$total_memory += $item_with_size->value_size;
+
+			// If this is the first item and it exceeds memory, allow loop to continue
+			// we will exit on the next iteration instead.
+			if ( $total_memory > $max_memory && $id > 0 ) {
+				break;
 			}
 
-			$item_ids_to_fetch = array();
+			$item_ids_to_fetch[] = $item_with_size->id;
+		}
 
-			foreach ( $current_items_ids as $id => $item_with_size ) {
-				$total_memory += $item_with_size->value_size;
+		$current_items = $this->queue_storage->fetch_items_by_ids( $item_ids_to_fetch );
 
-				// If this is the first item and it exceeds memory, allow loop to continue
-				// we will exit on the next iteration instead.
-				if ( $total_memory > $max_memory && $id > 0 ) {
-					break;
-				}
+		$items_count = is_countable( $current_items ) ? count( $current_items ) : 0;
 
-				$item_ids_to_fetch[] = $item_with_size->id;
-			}
+		if ( $items_count > 0 ) {
+			/**
+			 * Save some memory by moving things one by one to the array of items being returned, instead of
+			 * unserializing all and then merging them with other items.
+			 *
+			 * PHPCS ignore is because this is the expected behavior - we're assigning a variable in the condition part of the loop.
+			 */
+			// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+			while ( ( $current_item = array_shift( $current_items ) ) !== null ) {
+				// @codingStandardsIgnoreStart
+				$current_item->value = unserialize( $current_item->value );
+				// @codingStandardsIgnoreEnd
 
-			$current_items = $storage_backend->fetch_items_by_ids( $item_ids_to_fetch );
-
-			$items_count = is_countable( $current_items ) ? count( $current_items ) : 0;
-
-			if ( $items_count > 0 ) {
-				/**
-				 * Save some memory by moving things one by one to the array of items being returned, instead of
-				 * unserializing all and then merging them with other items.
-				 *
-				 * PHPCS ignore is because this is the expected behavior - we're assigning a variable in the condition part of the loop.
-				 */
-				// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-				while ( ( $current_item = array_shift( $current_items ) ) !== null ) {
-					// @codingStandardsIgnoreStart
-					$current_item->value = unserialize( $current_item->value );
-					// @codingStandardsIgnoreEnd
-
-					$items[] = $current_item;
-				}
+				$items[] = $current_item;
 			}
 		}
 
@@ -652,14 +690,7 @@ class Queue {
 			return 0;
 		}
 
-		// Options table delete
-		$options_storage = new Queue_Storage_Options( $this->id );
-		$options_storage->delete_items_by_ids( $ids );
-
-		if ( ! self::dedicated_table_disabled() ) {
-			$table_storage = new Queue_Storage_Table( $this->id );
-			$table_storage->delete_items_by_ids( $ids );
-		}
+		$this->queue_storage->delete_items_by_ids( $ids );
 
 		return true;
 	}

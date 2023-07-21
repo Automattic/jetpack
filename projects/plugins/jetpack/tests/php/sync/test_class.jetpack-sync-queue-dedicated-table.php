@@ -330,4 +330,46 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 		$this->assertEquals( get_option( Queue::$use_dedicated_table_option_name, null ), '0' );
 		$this->assertGreaterThanOrEqual( get_transient( Queue::$dedicated_table_last_check_time_transient ), time() );
 	}
+
+	public function test_migration_to_dedicated_table() {
+		parent::setUp();
+
+		$test_queue_id = 'mytestqueue';
+
+		// Set the option to `1` so we know that we'll be using a dedicated table.
+		update_option( Queue::$use_dedicated_table_option_name, '0' );
+
+		$test_queue = new Queue( $test_queue_id );
+
+		$test_queue->add( 'foo' );
+		$test_queue->add( 'bar' );
+		$test_queue->add( 'baz' );
+
+		$this->assertEquals( array( 'foo' ), $test_queue->peek( 1 ) );
+		$this->assertEquals( array( 'foo', 'bar' ), $test_queue->peek( 2 ) );
+
+		$items_in_table_before_migration = $test_queue->get_all();
+
+		// Reset the table
+		$table_storage = new Queue_Storage_Table( $test_queue_id );
+		$table_storage->drop_table();
+		$table_storage->create_table();
+
+		Queue::migrate_from_options_table_to_custom_table();
+
+		$this->assertEquals( $table_storage->get_item_count(), 3 );
+
+		$items_in_table = $table_storage->get_items_ids_with_size( 3 );
+
+		$keys_before_migration = array_column( $items_in_table_before_migration, 'id' );
+		$keys_after_migration  = array_column( $items_in_table, 'id' );
+
+		$this->assertEquals( $keys_before_migration, $keys_after_migration );
+
+		// check the options queue is empty
+		$options_storage = new Queue\Queue_Storage_Options( $test_queue_id );
+		$options_counts  = $options_storage->get_item_count();
+
+		$this->assertEquals( $options_counts, 0 );
+	}
 }
