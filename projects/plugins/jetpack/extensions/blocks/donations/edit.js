@@ -1,3 +1,4 @@
+import { Spinner } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -110,7 +111,12 @@ const Edit = props => {
 		return <LoadingError className={ className } error={ loadingError } />;
 	}
 
-	return currency && <Tabs { ...props } products={ products } />;
+	if ( ! currency ) {
+		// Memberships settings are still loading
+		return <Spinner />;
+	}
+
+	return <Tabs { ...props } products={ products } />;
 };
 
 export default Edit;
