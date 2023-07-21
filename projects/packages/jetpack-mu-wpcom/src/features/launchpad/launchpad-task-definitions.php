@@ -780,21 +780,50 @@ function wpcom_add_new_page_check( $post_id, $post ) {
 add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
 
 /**
+ * Return the about page id, if any.
+ *
+ * This fucntion will retrieve the page from the cache whenever possible.
+ *
+ * @return int The page ID of the 'About' page if it exists, null otherwise.
+ */
+function wpcom_get_site_about_page_id() {
+	// First, attempt to get the page ID from the cache.
+	$about_page_id_cache_key = 'wpcom_about_page_id';
+	$about_page_id           = wp_cache_get( $about_page_id_cache_key, 'jetpack_mu_wpcom' );
+
+	if ( false !== $about_page_id ) {
+		$about_page_id = (int) $about_page_id;
+		if ( $about_page_id > 0 ) {
+			return $about_page_id;
+		}
+
+		return null;
+	}
+
+	// Call the current function implementation without any caching logic.
+	$about_page_id = wpcom_find_site_about_page_id(); // could also be wpcom_identify_site_about_page_id() or similar
+
+	if ( null === $about_page_id ) {
+		// In the event that we don't have a page id, cache -1 to avoid caching null
+		$value_to_cache = -1;
+	} else {
+		$value_to_cache = $about_page_id;
+	}
+
+	// Use wp_cache_add() to avoid cache stampedes, and specify an expiration time
+	wp_cache_add( $about_page_id_cache_key, $value_to_cache, 'jetpack_mu_wpcom', 3600 );
+
+	return $about_page_id;
+}
+
+/**
  * Determine if the site has an 'About' page.
  * We do this by loading the `en` annotation for the site and theme.
  * We then check if there is a post with the title 'About'. If there is, we get the `hs_old_id` and check to make sure a corresponding post exists in the user's locale.
  *
  * @return int|null The page ID of the 'About' page if it exists, null otherwise.
  */
-function wpcom_get_site_about_page_id() {
-	// First, attempt to get the page ID from the cache.
-	$about_page_id_cache_key = 'wpcom_about_page_id';
-	$about_page_id           = wp_cache_get( $about_page_id_cache_key, 'jetpack_mu_wpcom' );
-	if ( false !== $about_page_id ) {
-		return $about_page_id;
-	}
-
-	// If we don't have a cached page id yet, go through the process of looking it up.
+function wpcom_find_site_about_page_id() {
 	$annotation = wpcom_get_theme_annotation( get_stylesheet() );
 
 	// Return null if there is no annotation or the annotation doesn't have any content.
@@ -853,9 +882,6 @@ function wpcom_get_site_about_page_id() {
 	// Cache to hs_old_ids so we can validate the post being updated later.
 	wp_cache_set( 'headstart_about_page_hs_old_ids', $headstart_about_page_hs_old_ids, 'jetpack_mu_wpcom' );
 
-	// Cache the about page id so we don't have to look it up from scratch every time.
-	wp_cache_set( $about_page_id_cache_key, $about_pages[0], 'wpcom' );
-
 	// Return the id of the first About page.
 	return $about_pages[0];
 }
@@ -897,9 +923,8 @@ function wpcom_update_about_page_check( $post_id, $post ) {
 	}
 
 	// If the page is not the previously located About page, ignore it.
-	$blog_id       = get_current_blog_id();
-	$about_page_id = wp_cache_get( "wpcom_get_site_about_page_id_{$blog_id}", 'wpcom' );
-	if ( $post->ID !== $about_page_id ) {
+	$about_page_id = wpcom_get_site_about_page_id();
+	if ( null === $about_page_id || $post->ID !== $about_page_id ) {
 		return;
 	}
 
