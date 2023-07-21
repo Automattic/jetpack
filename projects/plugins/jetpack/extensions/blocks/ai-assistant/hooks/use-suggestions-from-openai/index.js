@@ -11,7 +11,7 @@ import debugFactory from 'debug';
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
 import { buildPromptForBlock, delimiter } from '../../lib/prompt';
-import { askJetpack, askQuestion } from '../../lib/suggestions';
+import { askQuestion } from '../../lib/suggestions';
 import {
 	getContentFromBlocks,
 	getPartialContentToBlock,
@@ -435,8 +435,3 @@ const useSuggestionsFromOpenAI = ( {
 };
 
 export default useSuggestionsFromOpenAI;
-
-/**
- * askJetpack is exposed just for debugging purposes
- */
-window.askJetpack = askJetpack;

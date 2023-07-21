@@ -94,7 +94,15 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 		);
 
 		return array(
-			// tasks, expected, task_list_options
+			/**
+			 * Test data is in the format of:
+			 *
+			 * 'test name' => array(
+			 *   array( $task1, $task2, ... ),
+			 *   $expected,
+			 *   array( $task_list_options ) (optional)
+			 * )
+			 */
 			'all tasks incomplete should be incomplete using default options'
 				=> array( array( $incomplete_task, $incomplete_task ), false ),
 			'all tasks complete should be complete using default options'

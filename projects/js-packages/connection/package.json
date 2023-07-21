@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.29.5-alpha",
+	"version": "0.29.6-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -24,7 +24,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@babel/core": "7.22.9",
 		"@babel/preset-react": "7.22.5",
-		"@storybook/addon-actions": "7.0.27",
+		"@storybook/addon-actions": "7.1.0",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "13.4.0",
 		"@testing-library/user-event": "14.4.3",
