@@ -94,11 +94,13 @@ const Edit = props => {
 			return;
 		}
 
-		// Only create products if we have the correct plan and stripe connection.
-		fetchDefaultProducts( currency ).then( defaultProducts => {
-			setProducts( filterProducts( defaultProducts ) );
-			unlockPostSaving( 'donations' );
-		}, apiError );
+		if ( currency ) {
+			// Only create products if we have the correct plan and stripe connection.
+			fetchDefaultProducts( currency ).then( defaultProducts => {
+				setProducts( filterProducts( defaultProducts ) );
+				unlockPostSaving( 'donations' );
+			}, apiError );
+		}
 	};
 
 	useEffect( () => {
