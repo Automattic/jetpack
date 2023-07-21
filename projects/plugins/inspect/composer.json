@@ -10,7 +10,9 @@
 		}
 	],
 	"require": {
+		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-config": "@dev"
 	},
@@ -20,7 +22,8 @@
 	},
 	"config": {
 		"allow-plugins": {
-			"automattic/jetpack-autoloader": true
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
 		}
 	},
 	"scripts": {

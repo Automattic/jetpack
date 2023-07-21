@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "35bacf53992adebc0b5ff835f12e6087",
+    "content-hash": "60db4b7efa15d37743734205dc344fc1",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -113,6 +113,71 @@
             }
         },
         {
+            "name": "automattic/jetpack-assets",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/assets",
+                "reference": "9a0cc21a8632fafd5ef09442a1fb11a6f65c0cb7"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "brain/monkey": "2.6.1",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-assets",
+                "textdomain": "jetpack-assets",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "1.18.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Asset management utilities for Jetpack ecosystem packages",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-autoloader",
             "version": "dev-trunk",
             "dist": {
@@ -166,6 +231,62 @@
                 "jetpack",
                 "plugin",
                 "wordpress"
+            ],
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-composer-plugin",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/composer-plugin",
+                "reference": "3774f7f0a289b29d5d6c88212aed5c634fbc56ac"
+            },
+            "require": {
+                "composer-plugin-api": "^2.1.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "composer/composer": "^2.2 || ^2.4",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "plugin-modifies-install-path": true,
+                "class": "Automattic\\Jetpack\\Composer\\Plugin",
+                "mirror-repo": "Automattic/jetpack-composer-plugin",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-composer-plugin/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "1.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
+            "keywords": [
+                "composer",
+                "i18n",
+                "jetpack",
+                "plugin"
             ],
             "transport-options": {
                 "relative": true
@@ -3181,7 +3302,9 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-changelogger": 20
