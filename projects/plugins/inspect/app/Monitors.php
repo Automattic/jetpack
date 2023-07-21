@@ -19,7 +19,7 @@ class Monitors {
 	 *
 	 * @var array
 	 */
-	protected $instances = array();
+	protected static $instances = array();
 
 	/**
 	 * Returns an instance that observer with a specific name.
