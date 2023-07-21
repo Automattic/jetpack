@@ -69,7 +69,7 @@ abstract class Async_Option_Template {
 	 *
 	 * @return bool - Return true on success, false on failure.
 	 */
-	public function validate() {
+	public function validate( $value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Used in subclasses.
 		return ! $this->has_errors();
 	}
 
