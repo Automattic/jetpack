@@ -35,10 +35,11 @@ const Edit = props => {
 	} );
 
 	useEffect( () => {
-		if ( ! hasCurrencyBeenUpdatedByUser ) {
 			setAttributes( { currency: stripeCurrency } );
+		if ( !currency && stripeDefaultCurrency ) {
 		}
-	}, [ stripeCurrency, setAttributes, hasCurrencyBeenUpdatedByUser ] );
+
+	} );
 
 	const apiError = message => {
 		setLoadingError( message );

@@ -78,10 +78,6 @@ function register_block() {
 				'fallbackLinkUrl'              => array(
 					'type' => 'string',
 				),
-				'hasCurrencyBeenUpdatedByUser' => array(
-					'type'    => 'boolean',
-					'default' => false,
-				),
 			),
 		)
 	);
