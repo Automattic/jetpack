@@ -27,23 +27,21 @@ const Edit = props => {
 		setAttributes( { fallbackLinkUrl: post.link } );
 	}, [ post.link, setAttributes ] );
 
-	useSelect( select => {
-		const stripeDefaultCurrency = select(
-			MEMBERSHIPS_PRODUCTS_STORE
-		).getConnectedAccountDefaultCurrency();
+	const stripeDefaultCurrency = useSelect( select =>
+		select( MEMBERSHIPS_PRODUCTS_STORE ).getConnectedAccountDefaultCurrency()
+	);
 
-		if ( ! currency && stripeDefaultCurrency ) {
-			const uppercasedStripeCurrency = stripeDefaultCurrency.toUpperCase();
-			const isCurrencySupported = !! SUPPORTED_CURRENCIES[ uppercasedStripeCurrency ];
-			if ( isCurrencySupported ) {
-				// If no currency is available, default to the stripe one
-				setAttributes( { currency: uppercasedStripeCurrency } );
-			} else {
-				// We default o USD
-				setAttributes( { currency: 'USD' } );
-			}
+	if ( ! currency && stripeDefaultCurrency ) {
+		const uppercasedStripeCurrency = stripeDefaultCurrency.toUpperCase();
+		const isCurrencySupported = !! SUPPORTED_CURRENCIES[ uppercasedStripeCurrency ];
+		if ( isCurrencySupported ) {
+			// If no currency is available, default to the stripe one
+			setAttributes( { currency: uppercasedStripeCurrency } );
+		} else {
+			// We default o USD
+			setAttributes( { currency: 'USD' } );
 		}
-	} );
+	}
 
 	const apiError = message => {
 		setLoadingError( message );
