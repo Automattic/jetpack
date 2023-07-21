@@ -90,6 +90,15 @@ class Launchpad_Task_List_Validation_Test extends \WorDBless\BaseTestCase {
 				),
 				new WP_Error( 'invalid-task-list', 'The require_last_task_completion attribute must be a boolean' ),
 			),
+			'required_task_ids are not a subset of task_ids' => array(
+				array(
+					'id'                           => 'task_list_1',
+					'task_ids'                     => array( 'task_1', 'task_2' ),
+					'required_task_ids'            => array( 'task_3' ),
+					'require_last_task_completion' => 'true',
+				),
+				new WP_Error( 'invalid-task-list', 'The required_task_ids must be a subset of the task_ids' ),
+			),
 		);
 	}
 
