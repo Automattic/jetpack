@@ -93,6 +93,7 @@ export default class SuggestionsEventSource extends EventTarget {
 		}
 
 		await fetchEventSource( url, {
+			openWhenHidden: true,
 			method: 'POST',
 			headers: {
 				'Content-type': 'application/json',
