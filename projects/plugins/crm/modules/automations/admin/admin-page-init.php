@@ -20,7 +20,7 @@ use Automattic\Jetpack\Assets;
  * @return void
  */
 function initialize_admin_page() {
-	add_action( 'load-jetpack-crm_page_jpcrm-automations', 'Automattic\Jetpack_CRM\Modules\Automations\admin_init' );
+	add_action( 'load-jetpack-crm_page_jpcrm-automations', __NAMESPACE__ . '\admin_init' );
 }
 
 /**
@@ -31,7 +31,7 @@ function initialize_admin_page() {
  * @return void
  */
 function admin_init() {
-	add_action( 'admin_enqueue_scripts', 'Automattic\Jetpack_CRM\Modules\Automations\enqueue_admin_scripts' );
+	add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_admin_scripts' );
 }
 
 /**

@@ -34,7 +34,7 @@ function load_module() {
 	initialize_admin_page();
 }
 
-add_action( 'jpcrm_load_modules', 'Automattic\Jetpack_CRM\Modules\Automations\load_module' );
+add_action( 'jpcrm_load_modules', __NAMESPACE__ . '\load_module' );
 
 /**
  * Defines constants
