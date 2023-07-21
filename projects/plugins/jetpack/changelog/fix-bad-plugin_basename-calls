@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix some `require` paths to not uselessly call `plugin_basename()`.

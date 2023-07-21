@@ -450,7 +450,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "61bdf87b6dd1026412ad386f24887cfb97fe14e6"
+                "reference": "b784769c2365a1e9597edd29239d455196a3a1b2"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -476,7 +476,7 @@
                     "link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "textdomain": "jetpack-blaze",
                 "version-constants": {
@@ -1696,7 +1696,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "ef8035e8d192d699d0680374eef9636596885a0f"
+                "reference": "d5b04f8d45d0f213dbb195f443687183eea9ba7e"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1726,7 +1726,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.1.x-dev"
+                    "dev-trunk": "3.2.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2658,7 +2658,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "233fe943efc72d8b0fcdd036a2467bb9c9710676"
+                "reference": "278b09f381778a035f26eeb7a0905e3e87533114"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2684,7 +2684,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.12.x-dev"
+                    "dev-trunk": "0.11.x-dev"
                 }
             },
             "autoload": {

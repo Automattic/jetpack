@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Allow `beta-plugin-slug` for cases when a `wp-plugin-slug` doesn't exist yet but is planned to.
