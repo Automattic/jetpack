@@ -325,15 +325,15 @@ class Launchpad_Task_Lists {
 	 * or an empty array if there is no callback.
 	 *
 	 * @param Task $task A task definition.
-	 * @return array The extra data for the task.
+	 * @return array|null The extra data for the task.
 	 */
 	private function load_extra_data( $task ) {
 		$extra_data = $this->load_value_from_callback( $task, 'extra_data_callback' );
-		if ( ! empty( $extra_data ) ) {
+		if ( is_array( $extra_data ) && array() !== $extra_data ) {
 			return $extra_data;
 		}
 
-		return array();
+		return null;
 	}
 
 	/**
