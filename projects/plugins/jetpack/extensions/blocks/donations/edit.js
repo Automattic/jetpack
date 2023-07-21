@@ -103,8 +103,7 @@ const Edit = props => {
 
 	useEffect( () => {
 		lockPostSaving( 'donations' );
-		const updateData = () => fetchStatus( 'donation' ).then( mapStatusToState, apiError );
-		updateData();
+		fetchStatus( 'donation' ).then( mapStatusToState, apiError );
 	}, [ lockPostSaving ] );
 
 	if ( loadingError ) {
