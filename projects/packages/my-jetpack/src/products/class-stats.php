@@ -162,11 +162,8 @@ class Stats extends Module_Product {
 	 */
 	public static function get_purchase_url() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
-		// TODO: Handle unconnected sites without a defined blog_id. (Or check if we need to.)
-		// TODO: Remove the "stats/paid-stats" feature flag from the URL once paid stats has rolled out to the public.
-		// TODO: Consider adding a post-purchase redirect URL as a query string to the purchase URL.
-		// Appending get_manage_url() to the purchase URL would be a good option.
-		return sprintf( 'https://wordpress.com/stats/purchase/%d', $blog_id ) . '?flags=stats/paid-stats';
+		// The returning URL could be customized by changing the `redirect_uri` param with relative path.
+		return sprintf( 'https://wordpress.com/stats/purchase/%d?from=jetpack-my-jetpack&redirect_uri=%s', $blog_id, rawurldecode( 'admin.php?page=stats' ) );
 	}
 
 	/**
