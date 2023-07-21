@@ -9,6 +9,12 @@
 			"email": "hi@pyronaur.com"
 		}
 	],
+	"autoload": {
+		"psr-4": {
+			"Automattic\\Jetpack_Inspect\\": "app/",
+			"Automattic\\Jetpack\\Packages\\": "packages/"
+		}
+	},
 	"require": {
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
