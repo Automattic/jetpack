@@ -21,7 +21,7 @@ if ( ! apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {
 /**
  * Load the Automation module.
  *
- * This is a core module that will always be loaded so we do not allow it to be enabled/deactivated.
+ * This is a core module that will always be loaded, so we do not allow it to be enabled/deactivated.
  *
  * @since $$next-version$$
  *
@@ -30,7 +30,7 @@ if ( ! apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {
 function load_module() {
 	define_constants();
 
-	require_once JPCRM_AUTOMATION_MODULE_PATH . '/admin/admin-page-init.php';
+	require_once JPCRM_AUTOMATIONS_MODULE_PATH . '/admin/admin-page-init.php';
 	initialize_admin_page();
 }
 
@@ -44,10 +44,10 @@ add_action( 'jpcrm_load_modules', __NAMESPACE__ . '\load_module' );
  * @return void
  */
 function define_constants() {
-	if ( ! defined( 'JPCRM_AUTOMATION_MODULE_ROOT_FILE' ) ) {
-		define( 'JPCRM_AUTOMATION_MODULE_ROOT_FILE', __FILE__ );
+	if ( ! defined( 'JPCRM_AUTOMATIONS_MODULE_ROOT_FILE' ) ) {
+		define( 'JPCRM_AUTOMATIONS_MODULE_ROOT_FILE', __FILE__ );
 	}
-	if ( ! defined( 'JPCRM_AUTOMATION_MODULE_PATH' ) ) {
-		define( 'JPCRM_AUTOMATION_MODULE_PATH', __DIR__ );
+	if ( ! defined( 'JPCRM_AUTOMATIONS_MODULE_PATH' ) ) {
+		define( 'JPCRM_AUTOMATIONS_MODULE_PATH', __DIR__ );
 	}
 }
