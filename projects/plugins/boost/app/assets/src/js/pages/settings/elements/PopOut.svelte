@@ -5,12 +5,16 @@
 	import { createEventDispatcher } from 'svelte';
 	import { __ } from '@wordpress/i18n/';
 	import CloseButton from '../../../elements/CloseButton.svelte';
+	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import { dismissedPopOuts } from '../../../stores/config';
 	import slideRightTransition from '../../../utils/slide-right-transition';
 
 	export let id = '';
 	export let title = '';
-	export let message = '';
+	export let message = {
+		text: '',
+		vars: {},
+	};
 	export let ctaLink = '';
 	export let cta = '';
 
@@ -30,7 +34,7 @@
 				{title}
 			</h3>
 			<p class="jb-rating-card__paragraph">
-				{message}
+				<TemplatedString template={message.text} vars={message.vars} />
 			</p>
 			<a
 				class="jb-button--primary"
