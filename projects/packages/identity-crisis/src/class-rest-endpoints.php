@@ -214,38 +214,13 @@ class REST_Endpoints {
 	 */
 	public static function fetch_url_secret() {
 		try {
-			$secret = new Url_Secret();
+			$secret = new URL_Secret();
 		} catch ( Exception $e ) {
 			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}
 
 		if ( ! $secret->exists() ) {
 			return new WP_Error( 'missing_url_secret', esc_html__( 'URL secret does not exist, send the generate API request to create one.', 'jetpack-idc' ) );
-		}
-
-		return rest_ensure_response(
-			array(
-				'secret'     => $secret->get_secret(),
-				'expires_at' => $secret->get_expires_at(),
-			)
-		);
-	}
-
-	/**
-	 * Endpoint for creating new URL secret.
-	 *
-	 * @return WP_Error|\WP_REST_Response
-	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
-	 */
-	public static function create_url_secret() {
-		try {
-			$secret = new Url_Secret();
-
-			if ( ! $secret->create() ) {
-				throw new Exception( esc_html__( 'Unable to create an URL secret.', 'jetpack-idc' ), 'unable_to_create_url_secret' );
-			}
-		} catch ( Exception $e ) {
-			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}
 
 		return rest_ensure_response(

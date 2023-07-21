@@ -8,11 +8,12 @@
 namespace Automattic\Jetpack\IdentityCrisis;
 
 use Jetpack_Options;
+use WP_Error;
 
 /**
  * IDC URL secret functionality.
  */
-class Url_Secret {
+class URL_Secret {
 
 	/**
 	 * The options key used to store the secret.
@@ -120,6 +121,33 @@ class Url_Secret {
 	 */
 	public function exists() {
 		return $this->secret && $this->expires_at;
+	}
+
+	/**
+	 * Adds `url_secret` to the `jetpack.idcUrlValidation` URL validation endpoint.
+	 * Adds `url_secret_error` in case of an error.
+	 *
+	 * @param array $response The endpoint response that we're modifying.
+	 *
+	 * @return array
+	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
+	 */
+	public static function add_secret_to_url_validation_response( array $response ) {
+		try {
+			$secret = new URL_Secret();
+
+			if ( ! $secret->create() ) {
+				throw new Exception( esc_html__( 'Unable to create an URL secret.', 'jetpack-idc' ), 'unable_to_create_url_secret' );
+			}
+		} catch ( Exception $e ) {
+			$response['url_secret_error'] = new WP_Error( $e->getCode(), $e->getMessage() );
+		}
+
+		if ( $secret->exists() ) {
+			$response['url_secret'] = $secret->get_secret();
+		}
+
+		return $response;
 	}
 
 	/**

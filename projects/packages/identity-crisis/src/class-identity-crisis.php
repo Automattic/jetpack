@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants as Constants;
 use Automattic\Jetpack\IdentityCrisis\UI;
+use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Tracking as Tracking;
 use Jetpack_Options;
@@ -86,6 +87,8 @@ class Identity_Crisis {
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
 
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
+
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( URL_Secret::class, 'add_secret_to_url_validation_response' ) );
 
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
