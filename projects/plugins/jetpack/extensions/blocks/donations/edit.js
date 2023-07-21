@@ -39,7 +39,7 @@ const Edit = props => {
 			// If no currency is available, default to the stripe one
 			setAttributes( { currency: uppercasedStripeCurrency } );
 		} else {
-			// We default o USD
+			// We default to USD
 			setAttributes( { currency: 'USD' } );
 		}
 	}
