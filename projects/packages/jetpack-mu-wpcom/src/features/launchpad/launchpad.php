@@ -639,7 +639,7 @@ function wpcom_launchpad_is_intent_write_enabled() {
  * @return bool True if the task list is enabled, false otherwise.
  */
 function wpcom_launchpad_is_free_newsletter_enabled() {
-	return apply_filters( 'is_launchpad_intent_free_newsletter_enabled', false );
+	return apply_filters( 'wpcom_launchpad_intent_free_newsletter_enabled', false );
 }
 
 /**
@@ -648,7 +648,7 @@ function wpcom_launchpad_is_free_newsletter_enabled() {
  * @return bool True if the task list is enabled, false otherwise.
  */
 function wpcom_launchpad_is_paid_newsletter_enabled() {
-	return apply_filters( 'is_launchpad_intent_paid_newsletter_enabled', false );
+	return apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
