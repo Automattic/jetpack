@@ -1,11 +1,22 @@
 <?php
+/**
+ * IDC URL secret functionality.
+ *
+ * @package  automattic/jetpack-identity-crisis
+ */
 
 namespace Automattic\Jetpack\IdentityCrisis;
 
 use Jetpack_Options;
 
-class UrlSecret {
+/**
+ * IDC URL secret functionality.
+ */
+class Url_Secret {
 
+	/**
+	 * The options key used to store the secret.
+	 */
 	const OPTION_KEY = 'identity_crisis_url_secret';
 
 	/**
@@ -13,10 +24,23 @@ class UrlSecret {
 	 */
 	const LIFESPAN = 300;
 
-	private $secret;
+	/**
+	 * The URL secret string.
+	 *
+	 * @var string|null
+	 */
+	private $secret = null;
 
-	private $expires_at;
+	/**
+	 * The URL secret expiration date in unix timestamp.
+	 *
+	 * @var string|null
+	 */
+	private $expires_at = null;
 
+	/**
+	 * Initialize the class.
+	 */
 	public function __construct() {
 		$secret_data = $this->fetch();
 
@@ -26,6 +50,11 @@ class UrlSecret {
 		}
 	}
 
+	/**
+	 * Fetch the URL secret from the database.
+	 *
+	 * @return array|null
+	 */
 	public function fetch() {
 		$data = Jetpack_Options::get_option( static::OPTION_KEY );
 
@@ -44,7 +73,7 @@ class UrlSecret {
 	/**
 	 * Create new secret and save it in the options.
 	 *
-	 * @throws Exception
+	 * @throws Exception Thrown if unable to save the new secret.
 	 *
 	 * @return bool
 	 */
@@ -66,21 +95,40 @@ class UrlSecret {
 		return true;
 	}
 
+	/**
+	 * Get the URL secret.
+	 *
+	 * @return string|null
+	 */
 	public function get_secret() {
 		return $this->secret;
 	}
 
+	/**
+	 * Get the URL secret expiration date.
+	 *
+	 * @return string|null
+	 */
 	public function get_expires_at() {
 		return $this->expires_at;
 	}
 
+	/**
+	 * Check if the secret exists.
+	 *
+	 * @return bool
+	 */
 	public function exists() {
 		return $this->secret && $this->expires_at;
 	}
 
+	/**
+	 * Generate the secret string.
+	 *
+	 * @return string
+	 */
 	private function generate_secret() {
-		// TODO: replace with proper string generator.
-		return sha1( rand( 0, 999 ) );
+		return wp_generate_password( 12, false );
 	}
 
 }

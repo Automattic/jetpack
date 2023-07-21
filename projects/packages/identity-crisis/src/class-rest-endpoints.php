@@ -207,9 +207,14 @@ class REST_Endpoints {
 		return new WP_Error( 'invalid_user_permission_identity_crisis', $error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
+	/**
+	 * Endpoint for fetching the existing secret.
+	 *
+	 * @return WP_Error|\WP_REST_Response
+	 */
 	public static function fetch_url_secret() {
 		try {
-			$secret = new UrlSecret();
+			$secret = new Url_Secret();
 		} catch ( Exception $e ) {
 			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}
@@ -226,9 +231,15 @@ class REST_Endpoints {
 		);
 	}
 
+	/**
+	 * Endpoint for creating new URL secret.
+	 *
+	 * @return WP_Error|\WP_REST_Response
+	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
+	 */
 	public static function create_url_secret() {
 		try {
-			$secret = new UrlSecret();
+			$secret = new Url_Secret();
 
 			if ( ! $secret->create() ) {
 				throw new Exception( esc_html__( 'Unable to create an URL secret.', 'jetpack-idc' ), 'unable_to_create_url_secret' );
