@@ -121,7 +121,7 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_chartjs', 'zeroBSCRM_admin_styles_homedash' ),
 		);
 
-		if ( apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {
+		if ( apply_filters( 'jetpack_crm_automations_load_ui', false ) ) {
 			$menu['jpcrm']['subitems']['core-automations'] = array(
 				'title'      => __( 'Automations', 'zero-bs-crm' ),
 				'url'        => $zbs->slugs['core-automations'],
@@ -358,7 +358,7 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_chartjs', 'zeroBSCRM_admin_styles_homedash' ),
 		);
 
-		if ( apply_filters( 'jetpack_crm_feature_flag_automations', false ) ) {
+		if ( apply_filters( 'jetpack_crm_automations_load_ui', false ) ) {
 			$menu['jpcrm']['subitems']['core-automations'] = array(
 				'title'      => __( 'Automations', 'zero-bs-crm' ),
 				'url'        => $zbs->slugs['core-automations'],
