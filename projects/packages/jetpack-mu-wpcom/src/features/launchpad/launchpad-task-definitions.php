@@ -295,6 +295,16 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_is_enable_subscribers_modal_visible',
 		),
+		'write_posts'                     => array(
+			'get_title'                 => function () {
+				return __( 'Write 3 posts', 'jetpack-mu-wpcom' );
+			},
+			'add_listener_callback'     => function () {
+				add_action( 'publish_post', 'wpcom_track_write_posts_task' );
+			},
+			'repetition_count_callback' => 'wpcom_get_write_posts_repetition_count',
+			'target_repetitions'        => 3,
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -523,6 +533,37 @@ function wpcom_track_publish_first_post_task() {
 	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
 	wpcom_mark_launchpad_task_complete_if_active( 'first_post_published' );
 	wpcom_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
+}
+
+/**
+ * Callback for completing the Write posts task.
+ *
+ * @return void
+ */
+function wpcom_track_write_posts_task() {
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	$posts_count = wp_count_posts( 'post' );
+	if ( $posts_count->publish >= 3 ) {
+		wpcom_mark_launchpad_task_complete_if_active( 'write_posts' );
+	}
+}
+
+/**
+ * Callback for getting the number of posts published.
+ *
+ * @param array $task The Task definition.
+ * @return int
+ */
+function wpcom_get_write_posts_repetition_count( $task ) {
+	$published_posts_count = wp_count_posts( 'post' )->publish;
+	if ( $published_posts_count > $task['target_repetitions'] ) {
+		return $task['target_repetitions'];
+	}
+	return (int) $published_posts_count;
 }
 
 /**
