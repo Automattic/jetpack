@@ -46,7 +46,7 @@ class UrlSecret {
 	 *
 	 * @throws Exception
 	 *
-	 * @return array
+	 * @return bool
 	 */
 	public function create() {
 		$secret_data = array(
@@ -60,7 +60,10 @@ class UrlSecret {
 			throw new Exception( esc_html__( 'Unable to save new URL secret', 'jetpack-idc' ), 'unable_to_save_url_secret' );
 		}
 
-		return $secret_data;
+		$this->secret     = $secret_data['secret'];
+		$this->expires_at = $secret_data['expires_at'];
+
+		return true;
 	}
 
 	public function get_secret() {
