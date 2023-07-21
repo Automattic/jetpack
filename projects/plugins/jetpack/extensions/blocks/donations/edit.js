@@ -10,7 +10,7 @@ import Tabs from './tabs';
 
 const Edit = props => {
 	const { attributes, className, setAttributes } = props;
-	const { currency, hasCurrencyBeenUpdatedByUser } = attributes;
+	const { currency } = attributes;
 
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
@@ -26,19 +26,15 @@ const Edit = props => {
 		setAttributes( { fallbackLinkUrl: post.link } );
 	}, [ post.link, setAttributes ] );
 
-	const stripeCurrency = useSelect( select => {
-		const defaultStripeCurrency = select(
+	useSelect( select => {
+		const stripeDefaultCurrency = select(
 			MEMBERSHIPS_PRODUCTS_STORE
 		).getConnectedAccountDefaultCurrency();
 
-		return defaultStripeCurrency ? defaultStripeCurrency : currency;
-	} );
-
-	useEffect( () => {
-			setAttributes( { currency: stripeCurrency } );
-		if ( !currency && stripeDefaultCurrency ) {
+		if ( ! currency && stripeDefaultCurrency ) {
+			// If no currency is available, default to the stripe one, or 'USD'
+			setAttributes( { currency: stripeDefaultCurrency.toUpperCase() } );
 		}
-
 	} );
 
 	const apiError = message => {
@@ -102,13 +98,13 @@ const Edit = props => {
 		lockPostSaving( 'donations' );
 		const updateData = () => fetchStatus( 'donation' ).then( mapStatusToState, apiError );
 		updateData();
-	}, [ currency, lockPostSaving ] );
+	}, [ lockPostSaving ] );
 
 	if ( loadingError ) {
 		return <LoadingError className={ className } error={ loadingError } />;
 	}
 
-	return <Tabs { ...props } products={ products } />;
+	return currency && <Tabs { ...props } products={ products } />;
 };
 
 export default Edit;

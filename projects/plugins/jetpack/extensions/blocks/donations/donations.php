@@ -26,11 +26,11 @@ function register_block() {
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			'attributes'      => array(
-				'currency'                     => array(
+				'currency'         => array(
 					'type'    => 'string',
-					'default' => 'USD',
+					'default' => '',
 				),
-				'oneTimeDonation'              => array(
+				'oneTimeDonation'  => array(
 					'type'    => 'object',
 					'default' => array(
 						'show'       => true,
@@ -41,7 +41,7 @@ function register_block() {
 						'buttonText' => __( 'Donate', 'jetpack' ),
 					),
 				),
-				'monthlyDonation'              => array(
+				'monthlyDonation'  => array(
 					'type'    => 'object',
 					'default' => array(
 						'show'       => true,
@@ -52,7 +52,7 @@ function register_block() {
 						'buttonText' => __( 'Donate monthly', 'jetpack' ),
 					),
 				),
-				'annualDonation'               => array(
+				'annualDonation'   => array(
 					'type'    => 'object',
 					'default' => array(
 						'show'       => true,
@@ -63,19 +63,19 @@ function register_block() {
 						'buttonText' => __( 'Donate yearly', 'jetpack' ),
 					),
 				),
-				'showCustomAmount'             => array(
+				'showCustomAmount' => array(
 					'type'    => 'boolean',
 					'default' => true,
 				),
-				'chooseAmountText'             => array(
+				'chooseAmountText' => array(
 					'type'    => 'string',
 					'default' => __( 'Choose an amount', 'jetpack' ),
 				),
-				'customAmountText'             => array(
+				'customAmountText' => array(
 					'type'    => 'string',
 					'default' => __( 'Or enter a custom amount', 'jetpack' ),
 				),
-				'fallbackLinkUrl'              => array(
+				'fallbackLinkUrl'  => array(
 					'type' => 'string',
 				),
 			),
