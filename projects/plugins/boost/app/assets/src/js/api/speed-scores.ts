@@ -57,7 +57,7 @@ export function scoreChangeModal( scores: SpeedScoresSet ): ScoreChangeMessage |
 			cta: __( 'Rate the Plugin', 'jetpack-boost' ),
 			ctaLink: 'https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post',
 		};
-	} else if ( changePercentage < -5 && Jetpack_Boost.preferences.prioritySupport ) {
+	} else if ( changePercentage < -5 ) {
 		return {
 			id: 'score-decrease',
 			title: __( 'Speed score has fallen', 'jetpack-boost' ),
