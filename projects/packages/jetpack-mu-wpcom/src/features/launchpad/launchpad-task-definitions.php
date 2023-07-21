@@ -788,9 +788,8 @@ add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
  */
 function wpcom_get_site_about_page_id() {
 	// First, attempt to get the page ID from the cache.
-	$blog_id                 = get_current_blog_id();
-	$about_page_id_cache_key = "wpcom_get_site_about_page_id_{$blog_id}";
-	$about_page_id           = wp_cache_get( $about_page_id_cache_key, 'wpcom' );
+	$about_page_id_cache_key = 'wpcom_about_page_id';
+	$about_page_id           = wp_cache_get( $about_page_id_cache_key, 'jetpack_mu_wpcom' );
 	if ( false !== $about_page_id ) {
 		return $about_page_id;
 	}
@@ -852,7 +851,7 @@ function wpcom_get_site_about_page_id() {
 	}
 
 	// Cache to hs_old_ids so we can validate the post being updated later.
-	wp_cache_set( "headstart_about_page_hs_old_ids_{$blog_id}", $headstart_about_page_hs_old_ids, 'wpcom' );
+	wp_cache_set( 'headstart_about_page_hs_old_ids', $headstart_about_page_hs_old_ids, 'jetpack_mu_wpcom' );
 
 	// Cache the about page id so we don't have to look it up from scratch every time.
 	wp_cache_set( $about_page_id_cache_key, $about_pages[0], 'wpcom' );
