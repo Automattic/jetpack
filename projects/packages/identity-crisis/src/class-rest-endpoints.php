@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\IdentityCrisis;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Server;
@@ -60,6 +61,28 @@ class REST_Endpoints {
 						'type'        => 'string',
 					),
 				),
+			)
+		);
+
+		// Generate URL verification secret.
+		register_rest_route(
+			'jetpack/v4',
+			'/identity-crisis/create-url-secret',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'generate_url_secret' ),
+				'permission_callback' => array( static::class, 'url_secret_permission_check' ),
+			)
+		);
+
+		// Fetch URL verification secret.
+		register_rest_route(
+			'jetpack/v4',
+			'/identity-crisis/fetch-url-secret',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( static::class, 'fetch_url_secret' ),
+				'permission_callback' => array( static::class, 'url_secret_permission_check' ),
 			)
 		);
 	}
@@ -182,6 +205,59 @@ class REST_Endpoints {
 		);
 
 		return new WP_Error( 'invalid_user_permission_identity_crisis', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	public static function fetch_url_secret() {
+		try {
+			$secret = new UrlSecret();
+		} catch ( Exception $e ) {
+			return new WP_Error( $e->getCode(), $e->getMessage() );
+		}
+
+		if ( ! $secret->exists() ) {
+			return new WP_Error( 'missing_url_secret', esc_html__( 'URL secret does not exist, send the generate API request to create one.', 'jetpack-idc' ) );
+		}
+
+		return rest_ensure_response(
+			array(
+				'secret'     => $secret->get_secret(),
+				'expires_at' => $secret->get_expires_at(),
+			)
+		);
+	}
+
+	public static function create_url_secret() {
+		try {
+			$secret = new UrlSecret();
+
+			if ( ! $secret->create() ) {
+				throw new Exception( esc_html__( 'Unable to create an URL secret.', 'jetpack-idc' ), 'unable_to_create_url_secret' );
+			}
+		} catch ( Exception $e ) {
+			return new WP_Error( $e->getCode(), $e->getMessage() );
+		}
+
+		return rest_ensure_response(
+			array(
+				'secret'     => $secret->get_secret(),
+				'expires_at' => $secret->get_expires_at(),
+			)
+		);
+	}
+
+	/**
+	 * Verify url_secret create/fetch permissions (valid blog token authentication).
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function url_secret_permission_check() {
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error(
+				'invalid_user_permission_identity_crisis',
+				esc_html__( 'You do not have the correct user permissions to perform this action.', 'jetpack-idc' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 	}
 
 }
