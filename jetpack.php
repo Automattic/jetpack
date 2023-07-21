@@ -33,6 +33,7 @@
  * if they tried to install it as one.
  */
 function jetpack_monorepo_is_not_a_plugin() {
+	$foobar = 42;
 	echo '<div class="notice notice-error"><p>';
 	printf(
 		wp_kses(
