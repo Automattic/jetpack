@@ -275,62 +275,84 @@ class Queue {
 	public static function migrate_from_options_table_to_custom_table() {
 		global $wpdb;
 
-		// get all the records from the options table
-		$query = "
-			SELECT
-				option_name as event_id,
-				option_value as event_payload
-			FROM
-			    {$wpdb->options}
-			WHERE
-			    option_name LIKE 'jpsq_%'
-			ORDER BY
-			    option_name ASC
-		";
-		// TODO add limit and paging so we don't overflow the DB
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count_result = $wpdb->get_row(
+			"
+				SELECT
+					COUNT(*) as item_count
+				FROM
+				    {$wpdb->options}
+				WHERE
+				    option_name LIKE 'jpsq_%'
+			"
+		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$rows = $wpdb->get_results( $query );
+		$item_count = $count_result->item_count;
 
-		$insert_rows = array();
+		$limit  = 100;
+		$offset = 0;
 
-		foreach ( $rows as $event ) {
-			$event_id = $event->event_id;
+		do {
+			// get all the records from the options table
+			$query = "
+				SELECT
+					option_name as event_id,
+					option_value as event_payload
+				FROM
+				    {$wpdb->options}
+				WHERE
+				    option_name LIKE 'jpsq_%'
+				ORDER BY
+				    option_name ASC
+				LIMIT $offset, $limit
+			";
+			// TODO add limit and paging so we don't overflow the DB
 
-			// Parse the event
-			if (
-				preg_match(
-					'!jpsq_(?P<queue_id>[^-]+)-(?P<timestamp>[^-]+)-.+!',
-					$event_id,
-					$events_matches
-				)
-			) {
-				$queue_id  = $events_matches['queue_id'];
-				$timestamp = $events_matches['timestamp'];
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+			$rows = $wpdb->get_results( $query );
 
-				$insert_rows[] = $wpdb->prepare(
-					'(%s, %s, %s, %s)',
-					array(
-						$queue_id,
+			$insert_rows = array();
+
+			foreach ( $rows as $event ) {
+				$event_id = $event->event_id;
+
+				// Parse the event
+				if (
+					preg_match(
+						'!jpsq_(?P<queue_id>[^-]+)-(?P<timestamp>[^-]+)-.+!',
 						$event_id,
-						$event->event_payload,
-						(int) $timestamp,
+						$events_matches
 					)
-				);
+				) {
+					$queue_id  = $events_matches['queue_id'];
+					$timestamp = $events_matches['timestamp'];
+
+					$insert_rows[] = $wpdb->prepare(
+						'(%s, %s, %s, %s)',
+						array(
+							$queue_id,
+							$event_id,
+							$event->event_payload,
+							(int) $timestamp,
+						)
+					);
+				}
 			}
-		}
 
-		// Instantiate table storage, so we can get the table name. Queue ID is just a placeholder here.
-		$queue_table_storage = new Queue_Storage_Table( 'test_queue' );
+			// Instantiate table storage, so we can get the table name. Queue ID is just a placeholder here.
+			$queue_table_storage = new Queue_Storage_Table( 'test_queue' );
 
-		if ( ! empty( $insert_rows ) ) {
-			$insert_query = 'INSERT INTO ' . $queue_table_storage->table_name . ' (queue_id, event_id, event_payload, timestamp) VALUES ';
+			if ( ! empty( $insert_rows ) ) {
+				$insert_query = 'INSERT INTO ' . $queue_table_storage->table_name . ' (queue_id, event_id, event_payload, timestamp) VALUES ';
 
-			$insert_query .= implode( ',', $insert_rows );
-		}
+				$insert_query .= implode( ',', $insert_rows );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$wpdb->query( $insert_query );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+				$wpdb->query( $insert_query );
+			}
+
+			$offset += $limit;
+		} while ( $offset < $item_count );
 
 		// Clear out the options queue
 		$wpdb->query(

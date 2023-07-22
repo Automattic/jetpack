@@ -339,14 +339,16 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 		// Set the option to `1` so we know that we'll be using a dedicated table.
 		update_option( Queue::$use_dedicated_table_option_name, '0' );
 
-		$test_queue = new Queue( $test_queue_id );
+		$test_queue                = new Queue( $test_queue_id );
+		$test_queue->queue_storage = new Queue\Queue_Storage_Options( $test_queue_id );
 
-		$test_queue->add( 'foo' );
-		$test_queue->add( 'bar' );
-		$test_queue->add( 'baz' );
+		// Empty out the queue
+		$test_queue->queue_storage->clear_queue();
 
-		$this->assertEquals( array( 'foo' ), $test_queue->peek( 1 ) );
-		$this->assertEquals( array( 'foo', 'bar' ), $test_queue->peek( 2 ) );
+		// Add more items, so we can also test the pagination.
+		for ( $i = 0; $i < 300; $i++ ) {
+			$test_queue->add( 'baz' . $i );
+		}
 
 		$items_in_table_before_migration = $test_queue->get_all();
 
@@ -357,9 +359,9 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 
 		Queue::migrate_from_options_table_to_custom_table();
 
-		$this->assertEquals( $table_storage->get_item_count(), 3 );
+		$this->assertEquals( 300, $table_storage->get_item_count() );
 
-		$items_in_table = $table_storage->get_items_ids_with_size( 3 );
+		$items_in_table = $table_storage->get_items_ids_with_size( 500 );
 
 		$keys_before_migration = array_column( $items_in_table_before_migration, 'id' );
 		$keys_after_migration  = array_column( $items_in_table, 'id' );
