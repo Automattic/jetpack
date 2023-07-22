@@ -306,7 +306,6 @@ class Queue {
 				    option_name ASC
 				LIMIT $offset, $limit
 			";
-			// TODO add limit and paging so we don't overflow the DB
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
 			$rows = $wpdb->get_results( $query );
