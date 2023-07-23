@@ -8,7 +8,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import askQuestion from '../../ask-question';
+import askQuestion, { AskQuestionOptionsArgProps } from '../../ask-question';
 /**
  * Types & constants
  */
@@ -50,6 +50,11 @@ type useSuggestionsOptions = {
 	 * Whether to request suggestions automatically.
 	 */
 	autoRequest?: boolean;
+
+	/**
+	 * AskQuestion options.
+	 */
+	askQuestionOptions?: AskQuestionOptionsArgProps;
 
 	/*
 	 * onSuggestion callback.
@@ -172,6 +177,7 @@ function getErrorData( errorCode: SuggestionErrorCode ): SuggestionErrorProps {
 export default function useSuggestions( {
 	prompt,
 	autoRequest = true,
+	askQuestionOptions = {},
 	onSuggestion,
 	onDone,
 	onError,
@@ -256,8 +262,7 @@ export default function useSuggestions( {
 			try {
 				eventSourceRef.current = await askQuestion( promptArg, {
 					postId,
-					fromCache: false,
-					feature: 'ai-assistant-experimental',
+					...askQuestionOptions,
 				} );
 
 				if ( ! eventSourceRef?.current ) {
