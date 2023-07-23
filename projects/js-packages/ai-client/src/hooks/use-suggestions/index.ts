@@ -44,7 +44,7 @@ type useSuggestionsOptions = {
 	/*
 	 * Request prompt.
 	 */
-	prompt: PromptItemProps[];
+	prompt?: PromptItemProps[];
 
 	/*
 	 * Whether to request suggestions automatically.
@@ -104,6 +104,65 @@ type useSuggestionsProps = {
 const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
 
 /**
+ * Get the error data for a given error code.
+ *
+ * @param {SuggestionErrorCode} errorCode - The error code.
+ * @returns {SuggestionErrorProps}          The error data.
+ */
+function getErrorData( errorCode: SuggestionErrorCode ): SuggestionErrorProps {
+	switch ( errorCode ) {
+		case ERROR_QUOTA_EXCEEDED:
+			return {
+				code: ERROR_QUOTA_EXCEEDED,
+				message: __( 'You have reached the limit of requests for this site.', 'jetpack-ai-client' ),
+				severity: 'info',
+			};
+		case ERROR_UNCLEAR_PROMPT:
+			return {
+				code: ERROR_UNCLEAR_PROMPT,
+				message: __( 'Your request was unclear. Mind trying again?', 'jetpack-ai-client' ),
+				severity: 'info',
+			};
+		case ERROR_SERVICE_UNAVAILABLE:
+			return {
+				code: ERROR_SERVICE_UNAVAILABLE,
+				message: __(
+					'Jetpack AI services are currently unavailable. Sorry for the inconvenience.',
+					'jetpack-ai-client'
+				),
+				severity: 'info',
+			};
+		case ERROR_MODERATION:
+			return {
+				code: ERROR_MODERATION,
+				message: __(
+					'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
+					'jetpack-ai-client'
+				),
+				severity: 'info',
+			};
+		case ERROR_NETWORK:
+			return {
+				code: ERROR_NETWORK,
+				message: __(
+					'It was not possible to process your request. Mind trying again?',
+					'jetpack-ai-client'
+				),
+				severity: 'info',
+			};
+		default:
+			return {
+				code: ERROR_NETWORK,
+				message: __(
+					'It was not possible to process your request. Mind trying again?',
+					'jetpack-ai-client'
+				),
+				severity: 'info',
+			};
+	}
+}
+
+/**
  * React custom hook to get suggestions from AI,
  * by hitting the query endpoint.
  *
@@ -116,7 +175,7 @@ export default function useSuggestions( {
 	onSuggestion,
 	onDone,
 	onError,
-}: useSuggestionsOptions ): useSuggestionsProps {
+}: useSuggestionsOptions = {} ): useSuggestionsProps {
 	const [ requestingState, setRequestingState ] = useState< RequestingStateProp >( 'init' );
 	const [ suggestion, setSuggestion ] = useState< string >( '' );
 	const [ error, setError ] = useState< SuggestionErrorProps >();
@@ -149,107 +208,37 @@ export default function useSuggestions( {
 	 */
 	const handleDone = useCallback(
 		( event: CustomEvent ) => {
-			onDone( event?.detail );
+			onDone?.( event?.detail );
 			setRequestingState( 'done' );
 		},
 		[ onDone ]
 	);
 
-	/**
-	 * handleErrorQuotaExceededError function handler.
-	 *
-	 * @returns {void}
-	 */
-	const handleErrorQuotaExceededError = useCallback( () => {
-		eventSourceRef?.current?.close();
-		setRequestingState( 'error' );
-
-		const quotaExceededError: SuggestionErrorProps = {
-			code: ERROR_QUOTA_EXCEEDED,
-			message: __( 'You have reached the limit of requests for this site.', 'jetpack-client-id' ),
-			severity: 'info',
-		};
-
-		setError( quotaExceededError );
-		onError?.( quotaExceededError );
-	}, [ onError ] );
-
-	/**
-	 * handleUnclearPromptError function handler.
-	 *
-	 * @returns {void}
-	 */
-	const handleUnclearPromptError = useCallback( () => {
-		() => {
+	const handleError = useCallback(
+		( errorCode: SuggestionErrorCode ) => {
 			eventSourceRef?.current?.close();
 			setRequestingState( 'error' );
-			onError?.( {
-				code: ERROR_UNCLEAR_PROMPT,
-				message: __( 'Your request was unclear. Mind trying again?', 'jetpack-client-id' ),
-				severity: 'info',
-			} );
-		};
-	}, [ onError ] );
+			setError( getErrorData( errorCode ) );
+			onError?.( getErrorData( errorCode ) );
+		},
+		[ onError ]
+	);
 
-	/**
-	 * handleServiceUnavailableError function handler.
-	 *
-	 * @returns {void}
-	 */
-	const handleServiceUnavailableError = useCallback( () => {
-		() => {
-			eventSourceRef?.current?.close();
-			setRequestingState( 'error' );
-			onError?.( {
-				code: ERROR_SERVICE_UNAVAILABLE,
-				message: __(
-					'Jetpack AI services are currently unavailable. Sorry for the inconvenience.',
-					'jetpack-client-id'
-				),
-				severity: 'info',
-			} );
-		};
-	}, [ onError ] );
+	const handleErrorQuotaExceededError = useCallback(
+		() => handleError( ERROR_QUOTA_EXCEEDED ),
+		[]
+	);
 
-	/**
-	 * handleModerationError function handler.
-	 *
-	 * @returns {void}
-	 */
-	const handleModerationError = useCallback( () => {
-		() => {
-			eventSourceRef?.current?.close();
-			setRequestingState( 'error' );
-			onError?.( {
-				code: ERROR_MODERATION,
-				message: __(
-					'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
-					'jetpack-client-id'
-				),
-				severity: 'info',
-			} );
-		};
-	}, [ onError ] );
+	const handleUnclearPromptError = useCallback( () => handleError( ERROR_UNCLEAR_PROMPT ), [] );
 
-	/**
-	 * handleNetwotkError function handler.
-	 *
-	 * @returns {void}
-	 */
-	const handleNetwotkError = useCallback( () => {
-		() => {
-			eventSourceRef?.current?.close();
-			setRequestingState( 'error' );
-			onError?.( {
-				code: ERROR_NETWORK,
-				message: __(
-					'It was not possible to process your request. Mind trying again?',
-					'jetpack-client-id'
-				),
-				severity: 'info',
-			} );
-		};
-	}, [ onError ] );
+	const handleServiceUnavailableError = useCallback(
+		() => handleError( ERROR_SERVICE_UNAVAILABLE ),
+		[]
+	);
+
+	const handleModerationError = useCallback( () => handleError( ERROR_MODERATION ), [] );
+
+	const handleNetwotkError = useCallback( () => handleError( ERROR_NETWORK ), [] );
 
 	/**
 	 * Request handler.
@@ -268,6 +257,7 @@ export default function useSuggestions( {
 				eventSourceRef.current = await askQuestion( promptArg, {
 					postId,
 					fromCache: false,
+					feature: 'ai-assistant-experimental',
 				} );
 
 				// Set the request status.
@@ -324,7 +314,6 @@ export default function useSuggestions( {
 			request( prompt );
 		}
 
-		// Close the connection when unmounting.
 		return () => {
 			if ( ! eventSourceRef?.current ) {
 				return;
@@ -366,15 +355,13 @@ export default function useSuggestions( {
 		// Data
 		suggestion,
 		error,
+		requestingState,
 
 		// Request handler
 		request,
 
 		// SuggestionsEventSource
 		eventSource: eventSourceRef.current,
-
-		// Process statuses: 'init', 'requesting', 'suggesting', 'done', 'error'
-		requestingState,
 
 		// Expose adiditonal props.
 		postId,
