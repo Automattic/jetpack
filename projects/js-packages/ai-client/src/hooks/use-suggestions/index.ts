@@ -260,31 +260,25 @@ export default function useSuggestions( {
 					feature: 'ai-assistant-experimental',
 				} );
 
+				if ( ! eventSourceRef?.current ) {
+					return;
+				}
+
+				// Alias
+				const eventSource = eventSourceRef.current;
+
 				// Set the request status.
 				setRequestingState( 'suggesting' );
 
-				eventSourceRef?.current?.addEventListener( 'suggestion', handleSuggestion );
+				eventSource.addEventListener( 'suggestion', handleSuggestion );
 
-				eventSourceRef?.current?.addEventListener(
-					'error_quota_exceeded',
-					handleErrorQuotaExceededError
-				);
+				eventSource.addEventListener( 'error_quota_exceeded', handleErrorQuotaExceededError );
+				eventSource.addEventListener( 'error_unclear_prompt', handleUnclearPromptError );
+				eventSource.addEventListener( 'error_service_unavailable', handleServiceUnavailableError );
+				eventSource.addEventListener( 'error_moderation', handleModerationError );
+				eventSource.addEventListener( 'error_network', handleNetwotkError );
 
-				eventSourceRef?.current?.addEventListener(
-					'error_unclear_prompt',
-					handleUnclearPromptError
-				);
-
-				eventSourceRef?.current?.addEventListener(
-					'error_service_unavailable',
-					handleServiceUnavailableError
-				);
-
-				eventSourceRef?.current?.addEventListener( 'error_moderation', handleModerationError );
-
-				eventSourceRef?.current?.addEventListener( 'error_network', handleNetwotkError );
-
-				eventSourceRef?.current?.addEventListener( 'done', handleDone );
+				eventSource.addEventListener( 'done', handleDone );
 			} catch ( e ) {
 				// eslint-disable-next-line no-console
 				console.error( e );
@@ -319,25 +313,22 @@ export default function useSuggestions( {
 				return;
 			}
 
+			// Alias
+			const eventSource = eventSourceRef.current;
+
 			// Close the connection.
-			eventSourceRef.current?.close();
+			eventSource.close();
 
 			// Clean up the event listeners.
-			eventSourceRef.current?.removeEventListener( 'suggestion', handleSuggestion );
-			eventSourceRef.current?.removeEventListener( 'done', handleDone );
-			eventSourceRef.current?.removeEventListener(
-				'error_quota_exceeded',
-				handleErrorQuotaExceededError
-			);
-			eventSourceRef.current?.removeEventListener(
-				'error_unclear_prompt',
-				handleUnclearPromptError
-			);
-			eventSourceRef.current?.removeEventListener(
-				'error_service_unavailable',
-				handleServiceUnavailableError
-			);
-			eventSourceRef.current?.removeEventListener( 'error_moderation', handleModerationError );
+			eventSource.removeEventListener( 'suggestion', handleSuggestion );
+
+			eventSource.removeEventListener( 'error_quota_exceeded', handleErrorQuotaExceededError );
+			eventSource.removeEventListener( 'error_unclear_prompt', handleUnclearPromptError );
+			eventSource.removeEventListener( 'error_service_unavailable', handleServiceUnavailableError );
+			eventSource.removeEventListener( 'error_moderation', handleModerationError );
+			eventSource.removeEventListener( 'error_network', handleNetwotkError );
+
+			eventSource.removeEventListener( 'done', handleDone );
 		};
 	}, [
 		autoRequest,
