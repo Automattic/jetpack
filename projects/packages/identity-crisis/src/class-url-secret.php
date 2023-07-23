@@ -56,7 +56,7 @@ class URL_Secret {
 	 *
 	 * @return array|null
 	 */
-	public function fetch() {
+	private function fetch() {
 		$data = Jetpack_Options::get_option( static::OPTION_KEY );
 
 		if ( $data === false || empty( $data['secret'] ) || empty( $data['expires_at'] ) ) {
