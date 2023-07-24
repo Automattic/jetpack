@@ -27,7 +27,6 @@ import Header from './header';
 
 import './styles.scss';
 
-const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
 const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
 
 /**
@@ -90,7 +89,6 @@ export default function UpsellPage( { isLoading = false } ) {
 				<div className="jp-search-dashboard-upsell-page">
 					<AdminPage
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
-						a8cLogoHref={ AUTOMATTIC_WEBSITE }
 						header={ <Header /> }
 						moduleNameHref={ JETPACK_SEARCH__LINK }
 					>

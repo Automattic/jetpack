@@ -73,8 +73,7 @@ class Blaze {
 	 * @return bool
 	 */
 	public static function is_dashboard_enabled() {
-		// Right now the dashboard is disabled by default.
-		$is_dashboard_enabled = false;
+		$is_dashboard_enabled = true;
 
 		// On WordPress.com sites, the dashboard is not needed.
 		if ( ( new Host() )->is_wpcom_platform() ) {

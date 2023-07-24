@@ -9,7 +9,7 @@ import debugFactory from 'debug';
  * Types
  */
 import { PromptItemProps, delimiter } from '../../lib/prompt';
-import { SuggestionsEventSource, askQuestion } from '../../lib/suggestions';
+import { askQuestion } from '../../lib/suggestions';
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
@@ -168,6 +168,7 @@ export default function useSuggestionsFromAI( {
 					postId,
 					requireUpgrade: false, // It shouldn't be part of the askQuestion API.
 					fromCache: false,
+					useGpt4: false,
 				} );
 
 				// Set the request status.
