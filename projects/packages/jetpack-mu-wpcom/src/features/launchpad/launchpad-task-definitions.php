@@ -880,7 +880,7 @@ function wpcom_find_site_about_page_id() {
 	}
 
 	// Return the id of the first About page.
-	return $about_pages[0];
+	return (int) $about_pages[0];
 }
 
 /**
