@@ -775,6 +775,11 @@ function wpcom_add_new_page_check( $post_id, $post ) {
 		return;
 	}
 
+	// This is necessary to avoid marking the task as complete when the about page is updated.
+	if ( $post_id === wpcom_get_site_about_page_id() ) {
+		return;
+	}
+
 	wpcom_mark_launchpad_task_complete( 'add_new_page' );
 }
 add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
