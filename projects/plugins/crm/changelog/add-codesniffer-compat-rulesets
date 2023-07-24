@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Update `.phpcs.dir.phpcompatibility.xml` to use the new `Jetpack-Compat-72` ruleset. No change to the plugin itself.
-
-
