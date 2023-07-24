@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
@@ -24,7 +25,18 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isOfflineMode = this.props.isOfflineMode,
 				siteRawUrl = this.props.siteRawUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
+				hasSocialBasicFeatures = this.props.hasSocialBasicFeatures,
+				hasSocialAdvancedFeatures = this.props.hasSocialAdvancedFeatures,
+				activeFeatures = this.props.activeFeatures,
 				userCanManageModules = this.props.userCanManageModules;
+
+			const showUpgradeLink =
+				activeFeatures && activeFeatures.length > 0 && isActive && ! hasSocialAdvancedFeatures;
+
+			const jetpackSocialText = __(
+				'Connect your website to the social media networks you use and share your content across all your social accounts with a single click. When you publish a post, it will appear on all connected accounts.',
+				'jetpack'
+			);
 
 			const configCard = () => {
 				if ( unavailableInOfflineMode ) {
@@ -71,12 +83,30 @@ export const Publicize = withModuleSettingsFormHelpers(
 								link: getRedirectUrl( 'jetpack-support-publicize' ),
 							} }
 						>
-							<p>
-								{ __(
-									'Connect your website to the social media networks you use and share your content across all your social accounts with a single click. When you publish a post, it will appear on all connected accounts.',
-									'jetpack'
-								) }
-							</p>
+							<p>{ jetpackSocialText }</p>
+							{ showUpgradeLink && (
+								<React.Fragment>
+									<p>
+										<a
+											href={ getRedirectUrl( 'jetpack-connections-sharing-screen', {
+												site: getSiteFragment(),
+												query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+											} ) }
+										>
+											{ showUpgradeLink && ! hasSocialBasicFeatures
+												? __( 'Upgrade to a Jetpack Social plan', 'jetpack' )
+												: __( 'Upgrade to the Jetpack Social Advanced plan', 'jetpack' ) }
+										</a>
+										&nbsp;
+										{ showUpgradeLink && ! hasSocialBasicFeatures
+											? __(
+													'to get unlimited shares and advanced media sharing options.',
+													'jetpack'
+											  )
+											: __( 'to get advanced media sharing options.', 'jetpack' ) }
+									</p>
+								</React.Fragment>
+							) }
 							<ModuleToggle
 								slug="publicize"
 								disabled={ unavailableInOfflineMode || ! this.props.isLinked }

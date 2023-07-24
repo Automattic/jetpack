@@ -12,10 +12,10 @@ import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/init
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
+import { siteHasFeature, getActiveFeatures } from 'state/site';
 import { Likes } from './likes';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
-
 class Sharing extends Component {
 	render() {
 		const commonProps = {
@@ -28,6 +28,9 @@ class Sharing extends Component {
 			siteRawUrl: this.props.siteRawUrl,
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
+			activeFeatures: this.props.hasSocialBasicFeatures,
+			hasSocialBasicFeatures: this.props.hasSocialBasicFeatures,
+			hasSocialAdvancedFeatures: this.props.hasSocialAdvancedFeatures,
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
@@ -73,6 +76,9 @@ export default connect( state => {
 		connectUrl: getConnectUrl( state ),
 		siteRawUrl: getSiteRawUrl( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
+		hasSocialBasicFeatures: siteHasFeature( state, 'social-shares-1000' ),
+		activeFeature: getActiveFeatures( state ),
+		hasSocialAdvancedFeatures: siteHasFeature( state, 'social-enhanced-publishing' ),
 		userCanManageModules: userCanManageModules( state ),
 	};
 } )( Sharing );
