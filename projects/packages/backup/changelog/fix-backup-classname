@@ -1,5 +1,5 @@
 Significance: patch
 Type: fixed
-Comment: Replace class with className to remove a console error
+Comment: Replace class with className to dismiss a console warning
 
 
