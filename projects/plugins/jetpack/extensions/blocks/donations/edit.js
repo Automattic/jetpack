@@ -66,46 +66,46 @@ const Edit = props => {
 		);
 	};
 
-	const mapStatusToState = result => {
-		if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
-			unlockPostSaving( 'donations' );
-			setLoadingError( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
-			return;
-		}
-		setConnectUrl( getConnectUrl( post.id, result.connect_url ) );
-		setConnectedAccountDefaultCurrency( result?.connected_account_default_currency?.toUpperCase() );
-
-		const filteredProducts = filterProducts( result.products );
-
-		if ( hasRequiredProducts( filteredProducts ) ) {
-			setProducts( filteredProducts );
-			unlockPostSaving( 'donations' );
-			return;
-		}
-
-		// Set fake products when there is no connection to Stripe so users can still try the block in the editor.
-		if ( result.connect_url ) {
-			setProducts( {
-				'one-time': -1,
-				'1 month': -1,
-				'1 year': -1,
-			} );
-			unlockPostSaving( 'donations' );
-			return;
-		}
-
-		if ( currency ) {
-			// Only create products if we have the correct plan and stripe connection.
-			fetchDefaultProducts( currency ).then( defaultProducts => {
-				setProducts( filterProducts( defaultProducts ) );
-				unlockPostSaving( 'donations' );
-			}, apiError );
-		}
-	};
-
 	useEffect( () => {
 		lockPostSaving( 'donations' );
-		fetchStatus( 'donation' ).then( mapStatusToState, apiError );
+		fetchStatus( 'donation' ).then( result => {
+			if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
+				unlockPostSaving( 'donations' );
+				setLoadingError( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
+				return;
+			}
+			setConnectUrl( getConnectUrl( post.id, result.connect_url ) );
+			setConnectedAccountDefaultCurrency(
+				result?.connected_account_default_currency?.toUpperCase()
+			);
+
+			const filteredProducts = filterProducts( result.products );
+
+			if ( hasRequiredProducts( filteredProducts ) ) {
+				setProducts( filteredProducts );
+				unlockPostSaving( 'donations' );
+				return;
+			}
+
+			// Set fake products when there is no connection to Stripe so users can still try the block in the editor.
+			if ( result.connect_url ) {
+				setProducts( {
+					'one-time': -1,
+					'1 month': -1,
+					'1 year': -1,
+				} );
+				unlockPostSaving( 'donations' );
+				return;
+			}
+
+			if ( currency ) {
+				// Only create products if we have the correct plan and stripe connection.
+				fetchDefaultProducts( currency ).then( defaultProducts => {
+					setProducts( filterProducts( defaultProducts ) );
+					unlockPostSaving( 'donations' );
+				}, apiError );
+			}
+		}, apiError );
 	}, [ lockPostSaving ] );
 
 	if ( loadingError ) {
