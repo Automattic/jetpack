@@ -11,6 +11,7 @@ jetpack_vendor/
 ## FILES
 .DS_Store
 *.code-workspace
+*.swp
 # Custom environment for docker-compose (used by docker-compose.yml)
 /.env
 /tools/docker/compose-extras.yml

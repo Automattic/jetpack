@@ -52,6 +52,7 @@
 		"ai-assistant-support"
 	],
 	"beta": [
+		"ai-assistant-plugin",
 		"ai-chat",
 		"amazon",
 		"author-recommendation",
