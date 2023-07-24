@@ -136,8 +136,9 @@ const buildMediaCategory = (
 	fetch: async ( mediaCategorySearch: MediaSearch ) =>
 		await apiFetch( {
 			path: getMediaApiUrl( source, {
-				...mediaCategorySearch,
-				...defaultSearch,
+				per_page: mediaCategorySearch?.per_page || defaultSearch.per_page,
+				search:
+					mediaCategorySearch?.search === '' ? defaultSearch.search : mediaCategorySearch.search,
 			} ),
 			method: 'GET',
 		} )
