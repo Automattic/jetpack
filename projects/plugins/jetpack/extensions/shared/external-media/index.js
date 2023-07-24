@@ -26,7 +26,7 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 		select( 'core/edit-widgets' )?.isInserterOpened?.();
 
 	waitFor( isInserterOpened ).then( () =>
-		dispatch( 'core/block-editor' )?.registerInserterMediaCategory( getPexelsMediaCategory() )
+		dispatch( 'core/block-editor' )?.registerInserterMediaCategory?.( getPexelsMediaCategory() )
 	);
 
 	const isFeaturedImage = props =>
