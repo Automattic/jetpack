@@ -890,7 +890,7 @@ function wpcom_find_site_about_page_id() {
  * @param string $domain The text domain to use.
  * @return bool True if the string has been translated, false otherwise.
  */
-function wpcom_launchpad_has_translation( $string, $domain = 'jetpack_mu_wpcom' ) {
+function wpcom_launchpad_has_translation( $string, $domain = 'jetpack-mu-wpcom' ) {
 	if ( empty( $string ) ) {
 		return false;
 	}
