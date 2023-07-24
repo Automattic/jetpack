@@ -4,7 +4,11 @@ import { select, dispatch } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
 import { waitFor } from '../wait-for';
 import MediaButton from './media-button';
-import { getPexelsMediaCategory } from './media-category';
+import {
+	getPexelsMediaCategory,
+	getGooglePhotosMediaCategory,
+	isGooglePhotosConnected,
+} from './media-category';
 import { mediaSources } from './sources';
 import './editor.scss';
 
@@ -25,9 +29,14 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 		select( 'core/edit-site' )?.isInserterOpened() ||
 		select( 'core/edit-widgets' )?.isInserterOpened?.();
 
-	waitFor( isInserterOpened ).then( () =>
-		dispatch( 'core/block-editor' )?.registerInserterMediaCategory( getPexelsMediaCategory() )
-	);
+	waitFor( isInserterOpened ).then( () => {
+		dispatch( 'core/block-editor' )?.registerInserterMediaCategory( getPexelsMediaCategory() );
+		isGooglePhotosConnected( () =>
+			dispatch( 'core/block-editor' )?.registerInserterMediaCategory(
+				getGooglePhotosMediaCategory()
+			)
+		);
+	} );
 
 	const isFeaturedImage = props =>
 		props.unstableFeaturedImageFlow ||
