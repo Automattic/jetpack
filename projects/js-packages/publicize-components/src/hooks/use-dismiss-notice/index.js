@@ -2,6 +2,13 @@ import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useMemo, useState } from 'react';
 
+const calculateReappearanceTime = minutes => {
+	if ( minutes === -1 ) {
+		return 0;
+	}
+	return new Date( Date.now() + minutes * 60 * 1000 ).getTime();
+};
+
 /**
  * @typedef {object} DismissNoticeHook
  * @property {Array} dismissedNotices - Array of names of dismissed notices.
@@ -18,23 +25,50 @@ export default function useDismissNotice() {
 		return (
 			getJetpackData()?.social?.dismissedNotices ??
 			window?.jetpackSocialInitialState?.jetpackSettings?.dismissedNotices ??
-			[]
+			{}
 		);
 	} );
 
-	const dismissNotice = useCallback( notice => {
+	/**
+	 * Dismiss a notice for a given time.
+	 *
+	 * @param {string} notice - The name of the notice to dismiss.
+	 * @param {number} [dismissedMinutes=-1] - The number of minutes to dismiss the notice for. -1 means forever.
+	 */
+	const dismissNotice = useCallback( ( notice, dismissedMinutes = -1 ) => {
+		const reappearance_time = calculateReappearanceTime( dismissedMinutes );
 		// Optimistically update the dismissed notices.
-		setDismissedNotices( notices => [ ...notices, notice ] );
+		setDismissedNotices( notices => ( { ...notices, ...{ [ notice ]: reappearance_time } } ) );
 
 		apiFetch( {
 			path: `jetpack/v4/social/dismiss-notice`,
 			method: 'POST',
-			data: { notice },
+			data: { notice, reappearance_time },
 		} );
 	}, [] );
 
+	/**
+	 * Check if a notice should be shown.
+	 *
+	 * @param {string} notice - The name of the notice to check.
+	 * @returns {boolean} - Whether the notice should be shown.
+	 */
+	const shouldShowNotice = useCallback(
+		notice => {
+			const noticeReappearanceTime = dismissedNotices[ notice ];
+
+			// We do not show the notice if it has been dismissed forever, or the reappearance time is in the future.
+			if ( noticeReappearanceTime === 0 || noticeReappearanceTime > Date.now() ) {
+				return false;
+			}
+
+			return true;
+		},
+		[ dismissedNotices ]
+	);
+
 	return useMemo(
-		() => ( { dismissedNotices, dismissNotice } ),
-		[ dismissedNotices, dismissNotice ]
+		() => ( { dismissedNotices, shouldShowNotice, dismissNotice } ),
+		[ dismissedNotices, shouldShowNotice, dismissNotice ]
 	);
 }

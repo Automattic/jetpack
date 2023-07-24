@@ -58,7 +58,7 @@ export default function PublicizeForm( {
 		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
-	const { dismissedNotices, dismissNotice } = useDismissNotice();
+	const { dismissNotice, shouldShowNotice } = useDismissNotice();
 
 	const { isInstagramConnectionSupported } = useSelect( select => ( {
 		isInstagramConnectionSupported: select( PUBLICIZE_STORE_ID ).isInstagramConnectionSupported(),
@@ -69,9 +69,7 @@ export default function PublicizeForm( {
 	);
 
 	const shouldShowInstagramNotice =
-		! hasInstagramConnection &&
-		isInstagramConnectionSupported &&
-		! dismissedNotices.includes( 'instagram' );
+		! hasInstagramConnection && isInstagramConnectionSupported && shouldShowNotice( 'instagram' );
 
 	const onDismissInstagramNotice = useCallback( () => {
 		dismissNotice( 'instagram' );

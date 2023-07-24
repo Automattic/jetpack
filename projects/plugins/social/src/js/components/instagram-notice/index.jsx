@@ -21,8 +21,7 @@ const paidPlanNoticeText = __(
 );
 
 const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
-	const { dismissedNotices, dismissNotice } = useDismissNotice();
-	const showNotice = ! dismissedNotices.includes( 'instagram' );
+	const { shouldShowNotice, dismissNotice } = useDismissNotice();
 
 	const { connectionsAdminUrl, isInstagramConnectionSupported, isEnhancedPublishingEnabled } =
 		useSelect( select => {
@@ -38,7 +37,7 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 		dismissNotice( 'instagram' );
 	}, [ dismissNotice ] );
 
-	if ( ! showNotice || ! isInstagramConnectionSupported ) {
+	if ( ! shouldShowNotice( 'instagram' ) || ! isInstagramConnectionSupported ) {
 		return null;
 	}
 
