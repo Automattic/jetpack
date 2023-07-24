@@ -14,8 +14,9 @@ import MarkdownIt from 'markdown-it';
  */
 import { AiAssistantPopover } from '../../components/ai-assistant-dialog';
 import AiAssistantToobarButton from '../../components/ai-assistant-toolbar-control';
+import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-selected-blocks';
+//import { getTextContentFromSelectedBlocks } from '../../lib/utils/block-content';
 import { PROMPT_TYPE_USER_PROMPT, getPrompt } from '../../lib/prompt';
-import { getTextContentFromSelectedBlocks } from '../../lib/utils/block-content';
 import { AiAssistantContextProvider } from './context';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '.';
 
@@ -41,7 +42,7 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		const [ generatedContent, setGeneratedContentValue ] = useState( '' );
 
 		// Get the selected block client IDs.
-		const { content, clientIds } = getTextContentFromSelectedBlocks();
+		const { content, clientIds, blocks } = useTextContentFromSelectedBlocks();
 
 		const { updateBlockAttributes, removeBlocks, replaceBlock, insertBlock, replaceInnerBlocks } =
 			useDispatch( 'core/block-editor' );
