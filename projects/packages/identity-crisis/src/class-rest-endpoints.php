@@ -220,13 +220,16 @@ class REST_Endpoints {
 		}
 
 		if ( ! $secret->exists() ) {
-			return new WP_Error( 'missing_url_secret', esc_html__( 'URL secret does not exist, send the generate API request to create one.', 'jetpack-idc' ) );
+			return new WP_Error( 'missing_url_secret', esc_html__( 'URL secret does not exist.', 'jetpack-idc' ) );
 		}
 
 		return rest_ensure_response(
 			array(
-				'secret'     => $secret->get_secret(),
-				'expires_at' => $secret->get_expires_at(),
+				'code' => 'success',
+				'data' => array(
+					'secret'     => $secret->get_secret(),
+					'expires_at' => $secret->get_expires_at(),
+				),
 			)
 		);
 	}
