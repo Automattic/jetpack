@@ -96,7 +96,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
 		),
 
-		// Newsletter tasks.
+		// Newsletter pre-launch tasks.
 		'first_post_published_newsletter' => array(
 			'id_map'                => 'first_post_published',
 			'get_title'             => function () {
@@ -262,9 +262,16 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
 
+		// Newsletter post-launch tasks.
 		'earn_money'                      => array(
 			'get_title'            => function () {
 				return __( 'Earn money with your newsletter', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		),
+		'customize_welcome_message'       => array(
+			'get_title'            => function () {
+				return __( 'Customize welcome message', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
@@ -778,6 +785,23 @@ function wpcom_is_edit_page_task_visible() {
 		)
 	);
 }
+
+/**
+ * Mark the customize_welcome_message task complete
+ * if the subscription_options['invitation'] value
+ * for the welcome message has changed.
+ *
+ * @param string $old_value The old value of the welcome message.
+ * @param string $value The new value of the welcome message.
+ *
+ * @return void
+ */
+function wpcom_mark_customize_welcome_message_complete( $old_value, $value ) {
+	if ( $value['invitation'] !== $old_value['invitation'] ) {
+		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
+	}
+}
+add_action( 'update_option_subscription_options', 'wpcom_mark_customize_welcome_message_complete', 10, 3 );
 
 /**
  * When a page is updated, check to see if we've already completed the `add_new_page` task and mark the `edit_page` task complete accordingly.
