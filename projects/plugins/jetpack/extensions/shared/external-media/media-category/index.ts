@@ -49,7 +49,6 @@ type MediaSearch = {
  * Gutenberg media item DTO.
  */
 type MediaItem = {
-	sourceId: string;
 	caption: string;
 	previewUrl: string;
 	title: string;
@@ -60,7 +59,6 @@ type MediaItem = {
  * WPCOM media list item DTO.
  */
 type WpcomMediaItem = {
-	id: string;
 	URL: string;
 	caption: string;
 	// Sometimes the title is null, so we need to handle that case.
@@ -101,7 +99,6 @@ const getMediaApiUrl = ( source: MediaSource, mediaSearch: MediaSearch ) =>
  * @returns {MediaItem} Mapped media category item.
  */
 const mapWpcomMediaToMedia = ( item: WpcomMediaItem ): MediaItem => ( {
-	sourceId: item.id,
 	caption: item?.caption ?? '',
 	previewUrl: item.thumbnails.thumbnail,
 	title: item?.title ?? '',
