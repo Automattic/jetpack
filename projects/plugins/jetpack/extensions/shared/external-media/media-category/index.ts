@@ -50,7 +50,6 @@ type MediaSearch = {
  */
 type MediaItem = {
 	sourceId: string;
-	id: string;
 	caption: string;
 	previewUrl: string;
 	title: string;
@@ -61,7 +60,7 @@ type MediaItem = {
  * WPCOM media list item DTO.
  */
 type WpcomMediaItem = {
-	ID: string;
+	id: string;
 	URL: string;
 	caption: string;
 	// Sometimes the title is null, so we need to handle that case.
@@ -102,8 +101,7 @@ const getMediaApiUrl = ( source: MediaSource, mediaSearch: MediaSearch ) =>
  * @returns {MediaItem} Mapped media category item.
  */
 const mapWpcomMediaToMedia = ( item: WpcomMediaItem ): MediaItem => ( {
-	sourceId: item.ID,
-	id: item.ID,
+	sourceId: item.id,
 	caption: item?.caption ?? '',
 	previewUrl: item.thumbnails.thumbnail,
 	title: item?.title ?? '',
