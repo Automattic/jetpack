@@ -187,7 +187,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 2.0.0-beta.2 - 2023-07-24
+### 2.0.0 - 2023-07-24
 #### Added
 - Image Size Analyzer: New feature for Premium users which scans their site for image issues
 
