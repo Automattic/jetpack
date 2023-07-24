@@ -728,7 +728,7 @@ add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
  * @return void
  */
 function wpcom_mark_enable_subscribers_modal_complete( $old_value, $value ) {
-	if ( true === $value ) {
+	if ( $value ) {
 		wpcom_mark_launchpad_task_complete( 'enable_subscribers_modal' );
 	}
 }
