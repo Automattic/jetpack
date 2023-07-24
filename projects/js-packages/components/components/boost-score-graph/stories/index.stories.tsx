@@ -12,6 +12,7 @@ const meta: Meta< typeof BoostScoreGraph > = {
 	component: BoostScoreGraph,
 	argTypes: {
 		data: { control: 'object' },
+		title: { control: 'string', defaultValue: 'Title' },
 		isLoading: { control: 'boolean', defaultValue: false },
 	},
 	decorators: [

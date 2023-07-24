@@ -8,6 +8,7 @@ import './style.scss';
 
 export interface BoostScoreGraphProps {
 	data: uPlot.AlignedData;
+	title?: string;
 	isLoading?: boolean;
 }
 
@@ -33,11 +34,13 @@ function LegendCell( { label, value } ) {
  *
  * @param {BoostScoreGraphProps} props - The props object for the BoostScoreGraph component.
  * @param {uPlot.AlignedData} props.data - The data used to render the uPlotLineChart.
+ * @param {string} props.title - Title for the chart.
  * @param {boolean} [props.isLoading=false] - Whether the component is in a loading state.
  * @returns {React.ReactElement} The JSX element representing the BoostScoreGraph component, or null if loading.
  */
 export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	data,
+	title,
 	isLoading = false,
 } ) => {
 	if ( isLoading ) {
@@ -46,7 +49,7 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 
 	return (
 		<div className="jb-score-graph">
-			<Text variant="title-medium">{ __( 'Performance & Speed', 'jetpack' ) }</Text>
+			{ title && <Text variant="title-medium">{ title }</Text> }
 			<UplotLineChart data={ data } />
 			<div className="jb-score-graph__table">
 				<div className="jb-score-graph__table-row">
