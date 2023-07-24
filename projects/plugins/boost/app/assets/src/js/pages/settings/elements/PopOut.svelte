@@ -62,3 +62,9 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	.jb-link {
+		float: right;
+	}
+</style>
