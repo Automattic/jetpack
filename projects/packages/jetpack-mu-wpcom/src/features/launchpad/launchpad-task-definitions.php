@@ -884,11 +884,52 @@ function wpcom_find_site_about_page_id() {
 }
 
 /**
+ * Check to see if a string has been translated.
+ *
+ * @param string $string The string to check.
+ * @param string $domain The text domain to use.
+ * @return bool True if the string has been translated, false otherwise.
+ */
+function wpcom_launchpad_has_translation( $string, $domain = 'jetpack_mu_wpcom' ) {
+	if ( empty( $string ) ) {
+		return false;
+	}
+
+	$current_locale = get_user_locale();
+	if ( is_string( $current_locale ) && 0 === strpos( $current_locale, 'en' ) ) {
+		return true;
+	}
+
+	// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.NonSingularStringLiteralDomain
+	$translated_string = __( $string, $domain );
+
+	return $translated_string !== $string;
+}
+
+/**
  * Determine `update_about_page` task visibility. The task is visible if there is an 'About' page on the site.
  *
  * @return bool True if we should show the task, false otherwise.
  */
 function wpcom_is_update_about_page_task_visible() {
+	$task_definitions = wpcom_launchpad_get_task_definitions();
+
+	// The task isn't visible if it isn't defined.
+	if ( ! isset( $task_definitions['update_about_page'] ) ) {
+		return false;
+	}
+
+	// The task isn't visible if the get_title callback isn't defined or isn't callable.
+	if ( ! isset( $task_definitions['update_about_page']['get_title'] ) || ! is_callable( $task_definitions['update_about_page']['get_title'] ) ) {
+		return false;
+	}
+
+	// The task isn't visible if we're in a non-English locale and the task title hasn't been translated.
+	$update_about_page_title = $task_definitions['update_about_page']['get_title']();
+	if ( ! wpcom_launchpad_has_translation( $update_about_page_title ) ) {
+		return false;
+	}
+
 	return wpcom_get_site_about_page_id() !== null;
 }
 
