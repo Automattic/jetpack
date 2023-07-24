@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix endpoint returning report data erroring with 500 if an image was missing a required property.
-
-
