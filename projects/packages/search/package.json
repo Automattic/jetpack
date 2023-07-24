@@ -92,7 +92,7 @@
 		"postcss-custom-properties": "12.1.7",
 		"postcss-loader": "6.2.0",
 		"prettier": "npm:wp-prettier@2.8.5",
-		"sass": "1.43.3",
+		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
 		"size-limit": "8.2.6",
 		"webpack": "5.76.0",
