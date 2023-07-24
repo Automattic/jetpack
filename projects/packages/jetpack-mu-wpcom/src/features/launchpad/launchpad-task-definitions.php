@@ -879,9 +879,6 @@ function wpcom_find_site_about_page_id() {
 		return null;
 	}
 
-	// Cache to hs_old_ids so we can validate the post being updated later.
-	wp_cache_set( 'headstart_about_page_hs_old_ids', $headstart_about_page_hs_old_ids, 'jetpack_mu_wpcom' );
-
 	// Return the id of the first About page.
 	return $about_pages[0];
 }
