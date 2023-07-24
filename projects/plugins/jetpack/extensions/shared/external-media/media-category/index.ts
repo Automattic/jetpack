@@ -1,10 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 // Pexels constants
 const PEXELS_ID = 'pexels';
-const PEXELS_NAME = 'Pexels Free Photos';
-const PEXELS_SEARCH_PLACEHOLDER = `Search ${ PEXELS_NAME }`;
+const PEXELS_NAME = __( 'Pexels Free Photos', 'jetpack' );
+const PEXELS_SEARCH_PLACEHOLDER = __( 'Search Pexels Free Photos', 'jetpack' );
 const DEFAULT_PEXELS_SEARCH: MediaSearch = {
 	per_page: 25,
 	search: 'mountain',
@@ -12,8 +13,8 @@ const DEFAULT_PEXELS_SEARCH: MediaSearch = {
 
 // Google Photos constants
 const GOOGLE_PHOTOS_ID = 'google_photos';
-const GOOGLE_PHOTOS_NAME = 'Google Photos';
-const GOOGLE_PHOTOS_SEARCH_PLACEHOLDER = `Search ${ GOOGLE_PHOTOS_NAME }`;
+const GOOGLE_PHOTOS_NAME = __( 'Google Photos', 'jetpack' );
+const GOOGLE_PHOTOS_SEARCH_PLACEHOLDER = __( 'Search Google Photos', 'jetpack' );
 const DEFAULT_GOOGLE_PHOTOS_SEARCH: MediaSearch = {
 	per_page: 25,
 	search: '',
@@ -144,7 +145,7 @@ const buildMediaCategory = (
 			// Null object pattern, we don't want to break if the API fails.
 			.catch( () => [] ),
 	getReportUrl: null,
-	isExternalResource: false,
+	isExternalResource: true,
 } );
 
 /**
