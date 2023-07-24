@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Replace class with className to remove a console error
+
+
