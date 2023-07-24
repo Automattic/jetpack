@@ -83,9 +83,14 @@ function EarnFeatureButton( props ) {
 function Earn( props ) {
 	const { active, hasConnectedOwner, isModuleFound, isOffline, searchTerm, siteRawUrl } = props;
 
-	const foundAds = isModuleFound( 'wordads' );
+	const foundAds = isModuleFound( 'wordads' ),
+		foundEarnBlocks = isModuleFound( 'earn' );
 
 	if ( ! searchTerm && ! active ) {
+		return null;
+	}
+
+	if ( ! foundAds && ! foundEarnBlocks ) {
 		return null;
 	}
 
@@ -184,7 +189,7 @@ function Earn( props ) {
 					} ) }
 				/>
 			) }
-			{ paymentBlocks() }
+			{ foundEarnBlocks && paymentBlocks() }
 		</div>
 	);
 }

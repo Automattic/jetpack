@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-OAuth/Gmail fix to allow send links and images in the email content, supporting text/plain.
