@@ -719,6 +719,22 @@ function wpcom_mark_site_title_complete( $old_value, $value ) {
 add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
 
 /**
+ * Mark the enable_subscribers_modal task complete
+ * if its option is updated to `true`.
+ *
+ * @param string $old_value The old value of the option.
+ * @param string $value The new value of the option.
+ *
+ * @return void
+ */
+function wpcom_mark_enable_subscribers_modal_complete( $old_value, $value ) {
+	if ( true === $value ) {
+		wpcom_mark_launchpad_task_complete( 'enable_subscribers_modal' );
+	}
+}
+add_action( 'update_option_sm_enabled', 'wpcom_mark_enable_subscribers_modal_complete', 10, 3 );
+
+/**
  * Determine `domain_claim` task visibility.
  *
  * @return bool True if we should show the task, false otherwise.
