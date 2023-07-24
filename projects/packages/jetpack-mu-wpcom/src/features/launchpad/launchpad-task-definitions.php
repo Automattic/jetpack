@@ -787,6 +787,23 @@ function wpcom_is_edit_page_task_visible() {
 }
 
 /**
+ * Mark the customize_welcome_message task complete
+ * if the subscription_options['invitation'] value
+ * for the welcome message has changed.
+ *
+ * @param string $old_value The old value of the welcome message.
+ * @param string $value The new value of the welcome message.
+ *
+ * @return void
+ */
+function wpcom_mark_customize_welcome_message_complete( $old_value, $value ) {
+	if ( $value['invitation'] !== $old_value['invitation'] ) {
+		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
+	}
+}
+add_action( 'update_option_subscription_options', 'wpcom_mark_customize_welcome_message_complete', 10, 3 );
+
+/**
  * When a page is updated, check to see if we've already completed the `add_new_page` task and mark the `edit_page` task complete accordingly.
  *
  * @param int     $post_id The ID of the post being updated.
