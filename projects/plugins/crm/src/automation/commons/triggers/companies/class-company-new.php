@@ -18,7 +18,7 @@ class Company_New extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/company_new';
+		return 'jpcrm/company_created';
 	}
 
 	/** Get the title of the trigger
@@ -47,7 +47,7 @@ class Company_New extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_company_new',
+			'jpcrm_company_created',
 			array( $this, 'execute_workflow' )
 		);
 	}

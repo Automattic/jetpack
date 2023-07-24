@@ -95,9 +95,9 @@ class Company_Trigger_Test extends BaseTestCase {
 	/**
 	 * @testdox Test the company new trigger executes the workflow with an action
 	 */
-	public function test_company_new_trigger() {
+	public function test_company_created_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/company_new' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/company_created' );
 
 		$trigger = new Company_New();
 
@@ -113,7 +113,7 @@ class Company_Trigger_Test extends BaseTestCase {
 		// Fake event data.
 		$company_data = $this->automation_faker->company_data();
 
-		// We expect the workflow to be executed on company_new event with the company data
+		// We expect the workflow to be executed on company_created event with the company data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
@@ -121,8 +121,8 @@ class Company_Trigger_Test extends BaseTestCase {
 			$this->equalTo( $company_data )
 		);
 
-		// Run the company_new action.
-		do_action( 'jpcrm_automation_company_new', $company_data );
+		// Run the company_created action.
+		do_action( 'jpcrm_company_created', $company_data );
 	}
 
 	/**

@@ -98,9 +98,9 @@ class Contact_Trigger_Test extends BaseTestCase {
 	/**
 	 * @testdox Test the contact new trigger executes the workflow with an action
 	 */
-	public function test_contact_new_trigger() {
+	public function test_contact_created_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_new' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_created' );
 
 		$trigger = new Contact_New();
 
@@ -116,7 +116,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 		// Fake event data.
 		$contact_data = $this->automation_faker->contact_data();
 
-		// We expect the workflow to be executed on contact_new event with the contact data
+		// We expect the workflow to be executed on contact_created event with the contact data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
@@ -124,8 +124,8 @@ class Contact_Trigger_Test extends BaseTestCase {
 			$this->equalTo( $contact_data )
 		);
 
-		// Run the contact_new action.
-		do_action( 'jpcrm_automation_contact_new', $contact_data );
+		// Run the contact_created action.
+		do_action( 'jpcrm_contact_created', $contact_data );
 	}
 
 	/**

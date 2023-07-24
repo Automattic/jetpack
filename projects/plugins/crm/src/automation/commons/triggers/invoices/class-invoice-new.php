@@ -18,7 +18,7 @@ class Invoice_New extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/invoice_new';
+		return 'jpcrm/invoice_created';
 	}
 
 	/** Get the title of the trigger
@@ -47,7 +47,7 @@ class Invoice_New extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_invoice_new',
+			'jpcrm_invoice_created',
 			array( $this, 'execute_workflow' )
 		);
 	}

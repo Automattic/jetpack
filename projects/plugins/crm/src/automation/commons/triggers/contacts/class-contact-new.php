@@ -24,7 +24,7 @@ class Contact_New extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/contact_new';
+		return 'jpcrm/contact_created';
 	}
 
 	/** Get the title of the trigger
@@ -53,7 +53,7 @@ class Contact_New extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_contact_new',
+			'jpcrm_contact_created',
 			array( $this, 'execute_workflow' )
 		);
 	}
