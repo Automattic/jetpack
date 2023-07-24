@@ -2613,8 +2613,8 @@ importers:
         specifier: 3.58.0
         version: 3.58.0
       svelte-preprocess:
-        specifier: 5.0.3
-        version: 5.0.3(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.43.3)(svelte@3.58.0)(typescript@5.0.4)
+        specifier: 5.0.4
+        version: 5.0.4(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.43.3)(svelte@3.58.0)(typescript@5.0.4)
       tslib:
         specifier: 2.5.0
         version: 2.5.0
@@ -2795,8 +2795,8 @@ importers:
         specifier: 3.58.0
         version: 3.58.0
       svelte-preprocess:
-        specifier: 5.0.3
-        version: 5.0.3(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.63.6)(svelte@3.58.0)(typescript@5.0.4)
+        specifier: 5.0.4
+        version: 5.0.4(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.63.6)(svelte@3.58.0)(typescript@5.0.4)
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -5554,6 +5554,7 @@ packages:
 
   /@emotion/memoize@0.7.4:
     resolution: {integrity: sha512-Ja/Vfqe3HpuzRsG1oBtWTHk2PGZ7GR+2Vz5iYGelAw8dx32K0y7PjVuxK6z1nMpZOqAFsRUPCkK1YjJ56qJlgw==}
+    requiresBuild: true
     optional: true
 
   /@emotion/memoize@0.8.1:
@@ -22562,8 +22563,8 @@ packages:
       - typescript
     dev: false
 
-  /svelte-preprocess@5.0.3(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.43.3)(svelte@3.58.0)(typescript@5.0.4):
-    resolution: {integrity: sha512-GrHF1rusdJVbOZOwgPWtpqmaexkydznKzy5qIC2FabgpFyKN57bjMUUUqPRfbBXK5igiEWn1uO/DXsa2vJ5VHA==}
+  /svelte-preprocess@5.0.4(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.43.3)(svelte@3.58.0)(typescript@5.0.4):
+    resolution: {integrity: sha512-ABia2QegosxOGsVlsSBJvoWeXy1wUKSfF7SWJdTjLAbx/Y3SrVevvvbFNQqrSJw89+lNSsM58SipmZJ5SRi5iw==}
     engines: {node: '>= 14.10.0'}
     requiresBuild: true
     peerDependencies:
@@ -22576,7 +22577,7 @@ packages:
       sass: ^1.26.8
       stylus: ^0.55.0
       sugarss: ^2.0.0 || ^3.0.0 || ^4.0.0
-      svelte: ^3.23.0
+      svelte: ^3.23.0 || ^4.0.0-next.0 || ^4.0.0
       typescript: '>=3.9.5 || ^4.0.0 || ^5.0.0'
     peerDependenciesMeta:
       '@babel/core':
@@ -22612,8 +22613,8 @@ packages:
       typescript: 5.0.4
     dev: true
 
-  /svelte-preprocess@5.0.3(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.63.6)(svelte@3.58.0)(typescript@5.0.4):
-    resolution: {integrity: sha512-GrHF1rusdJVbOZOwgPWtpqmaexkydznKzy5qIC2FabgpFyKN57bjMUUUqPRfbBXK5igiEWn1uO/DXsa2vJ5VHA==}
+  /svelte-preprocess@5.0.4(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.63.6)(svelte@3.58.0)(typescript@5.0.4):
+    resolution: {integrity: sha512-ABia2QegosxOGsVlsSBJvoWeXy1wUKSfF7SWJdTjLAbx/Y3SrVevvvbFNQqrSJw89+lNSsM58SipmZJ5SRi5iw==}
     engines: {node: '>= 14.10.0'}
     requiresBuild: true
     peerDependencies:
@@ -22626,7 +22627,7 @@ packages:
       sass: ^1.26.8
       stylus: ^0.55.0
       sugarss: ^2.0.0 || ^3.0.0 || ^4.0.0
-      svelte: ^3.23.0
+      svelte: ^3.23.0 || ^4.0.0-next.0 || ^4.0.0
       typescript: '>=3.9.5 || ^4.0.0 || ^5.0.0'
     peerDependenciesMeta:
       '@babel/core':
