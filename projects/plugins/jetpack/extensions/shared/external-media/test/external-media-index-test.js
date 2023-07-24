@@ -19,7 +19,6 @@ const ANY_VALID_SEARCH = { per_page: 25, search: 'test' };
 const ANY_CONNECTION_ERROR = Promise.reject( 'Any connection error' );
 
 const ANY_VALID_WPCOM_MEDIA_ITEM = {
-	ID: 'ANY_VALID_ID',
 	URL: 'ANY_VALID_URL',
 	caption: 'ANY_VALID_CAPTION',
 	title: 'ANY_VALID_TITLE',
@@ -33,8 +32,6 @@ const ANY_VALID_WPCOM_RESPONSE = Promise.resolve( {
 } );
 
 const MAPPED_VALID_WPCOM_MEDIA_ITEM = {
-	sourceId: ANY_VALID_WPCOM_MEDIA_ITEM.ID,
-	id: ANY_VALID_WPCOM_MEDIA_ITEM.ID,
 	caption: ANY_VALID_WPCOM_MEDIA_ITEM.caption,
 	previewUrl: ANY_VALID_WPCOM_MEDIA_ITEM.thumbnails.thumbnail,
 	title: ANY_VALID_WPCOM_MEDIA_ITEM.title,
