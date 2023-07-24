@@ -240,7 +240,7 @@ function wpcom_launchpad_get_task_definitions() {
 
 		'update_about_page'               => array(
 			'get_title'            => function () {
-				return __( 'Update About page', 'jetpack-mu-wpcom' );
+				return __( 'Update your About page', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_is_update_about_page_task_visible',
