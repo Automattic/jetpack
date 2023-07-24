@@ -96,9 +96,12 @@ class PostByEmail extends React.Component {
 									'Highlight and copy the following text to your clipboard:',
 									'jetpack'
 								) }
+								rna
 							/>
 						</FormLabel>
 						<Button
+							rna
+							compact
 							disabled={ ! isPbeActive || disabledControls }
 							onClick={ this.regeneratePostByEmailAddress }
 						>

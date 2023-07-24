@@ -1,3 +1,5 @@
+import type { Placement } from '../icon-tooltip/types';
+
 export type PricingTableProps = {
 	/**
 	 * Title of the pricing table.
@@ -11,6 +13,7 @@ export type PricingTableProps = {
 		name: string;
 		tooltipInfo?: React.ReactNode;
 		tooltipTitle?: string;
+		tooltipPlacement?: Placement;
 	}[];
 
 	/**
@@ -73,4 +76,9 @@ export type PricingTableItemProps = {
 	 * Title for the popover, not required.
 	 */
 	tooltipTitle?: string;
+
+	/**
+	 * Class name for the popover, not required.
+	 */
+	tooltipClassName?: string;
 };

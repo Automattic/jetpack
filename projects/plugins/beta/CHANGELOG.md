@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.5 - 2023-04-27
+### Security
+- Disable HTML-style tags in the markdown renderer, the library used doesn't always handle them properly. [#30339]
+
+### Changed
+- Updated package dependencies. [#28910]
+
 ## 3.1.4 - 2023-01-11
 ### Changed
 - Admin menu: ensure that the Jetpack Beta menu always lives under the main Jetpack menu.

@@ -7,7 +7,7 @@ import {
 	PricingTableItem,
 	ProductPrice,
 } from '@automattic/jetpack-components';
-import { createInterpolateElement, useState } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const cssOptimizationContext = __(
@@ -33,24 +33,91 @@ const lazyLoadingContext = createInterpolateElement( lazyLoadingContextTemplate,
 	link: <a href={ getRedirectUrl( 'jetpack-boost-lazy-load' ) } target="_blank" rel="noreferrer" />,
 } );
 
+const imageGuideContext = __(
+	'Discover and fix images with a suboptimal resolution, aspect ratio, or file size, improving user experience and page speed.',
+	'jetpack-boost'
+);
+
 const supportContext = __(
 	`Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue.<br><br>All other questions are handled by our team as quickly as we are able to go through the WordPress support forum.`,
 	'jetpack-boost'
 );
 
-export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
-	const [ choosePremiumPlan, setChoosePremiumPlan ] = useState( false );
-	const [ chooseFreePlan, setChooseFreePlan ] = useState( false );
+const automaticallyUpdatedContext = (
+	<span>
+		{ __(
+			'It’s essential to regenerate Critical CSS to optimize your site speed whenever your HTML or CSS structure changes. Being on top of this can be tedious and time-consuming.',
+			'jetpack-boost'
+		) }
+		<br />
+		<br />
+		{ __(
+			'Boost’s cloud service can automatically detect when your site needs the Critical CSS regenerated, and perform this function behind the scenes without requiring you to monitor it manually.',
+			'jetpack-boost'
+		) }
+	</span>
+);
 
-	const handlePremiumCTA = () => {
-		setChoosePremiumPlan( true );
-		onPremiumCTA();
-	};
+const imageCdnContext = __(
+	`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
+	'jetpack-boost'
+);
 
-	const handleFreeCTA = () => {
-		setChooseFreePlan( true );
-		onFreeCTA();
-	};
+const manuallyUpdatedContext = (
+	<span>
+		{ __(
+			'To enhance the speed of your site, with this plan you will need to optimize CSS by using the Manual Critical CSS generation feature whenever you:',
+			'jetpack-boost'
+		) }
+		<br />
+		<br />
+		<ul>
+			<li>{ __( 'Make theme changes.', 'jetpack-boost' ) }</li>
+			<li>{ __( 'Write a new post/page.', 'jetpack-boost' ) }</li>
+			<li>{ __( 'Edit a post/page.', 'jetpack-boost' ) }</li>
+			<li>
+				{ __(
+					'Activate, deactivate, or update plugins that impact your site layout or HTML structure.',
+					'jetpack-boost'
+				) }
+			</li>
+			<li>
+				{ __(
+					'Change settings of plugins that impact your site layout or HTML structure.',
+					'jetpack-boost'
+				) }
+			</li>
+			<li>
+				{ __(
+					'Upgrade your WordPress version if the new release includes core CSS changes.',
+					'jetpack-boost'
+				) }
+			</li>
+		</ul>
+	</span>
+);
+
+const concatenateContext = __(
+	'Boost your website performance by merging and compressing JavaScript and CSS files, reducing site loading time and number of requests.',
+	'jetpack-boost'
+);
+
+const isaContext = __(
+	"Scan your site for images that aren't properly sized for the device they're being viewed on.",
+	'jetpack-boost'
+);
+
+export const BoostPricingTable = ( {
+	pricing,
+	onPremiumCTA,
+	onFreeCTA,
+	chosenFreePlan,
+	chosenPaidPlan,
+} ) => {
+	// If no pricing info is available, set up a fake object to avoid errors.
+	if ( ! pricing || ! pricing.yearly ) {
+		pricing = { yearly: {} };
+	}
 
 	// If the first year discount ends, we want to remove the label without updating the plugin.
 	const promoLabel = pricing.yearly.isIntroductoryOffer
@@ -66,18 +133,42 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 				{
 					name: __( 'Optimize CSS Loading', 'jetpack-boost' ),
 					tooltipInfo: cssOptimizationContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Defer non-essential JavaScript', 'jetpack-boost' ),
 					tooltipInfo: deferJSContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Lazy image loading', 'jetpack-boost' ),
 					tooltipInfo: lazyLoadingContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
-					name: __( 'Dedicated support', 'jetpack-boost' ),
+					name: __( 'Image guide', 'jetpack-boost' ),
+					tooltipInfo: imageGuideContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Image CDN', 'jetpack-boost' ),
+					tooltipInfo: imageCdnContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Concatenate JS and CSS', 'jetpack-boost' ),
+					tooltipInfo: concatenateContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Automatic image size analysis', 'jetpack-boost' ),
+					tooltipInfo: isaContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Dedicated email support', 'jetpack-boost' ),
 					tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
+					tooltipPlacement: 'bottom-start',
 				},
 			] }
 		>
@@ -91,9 +182,9 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 						promoLabel={ promoLabel }
 					/>
 					<Button
-						onClick={ handlePremiumCTA }
-						isLoading={ choosePremiumPlan }
-						disabled={ chooseFreePlan || choosePremiumPlan }
+						onClick={ onPremiumCTA }
+						isLoading={ chosenPaidPlan }
+						disabled={ chosenFreePlan || chosenPaidPlan }
 						fullWidth
 					>
 						{ __( 'Get Boost', 'jetpack-boost' ) }
@@ -101,8 +192,15 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 				</PricingTableHeader>
 				<PricingTableItem
 					isIncluded={ true }
-					label={ __( 'Automatic Critical CSS Generation', 'jetpack-boost' ) }
+					label={ <strong>{ __( 'Automatically updated', 'jetpack-boost' ) }</strong> }
+					tooltipTitle={ __( 'Automatic Critical CSS regeneration', 'jetpack-boost' ) }
+					tooltipInfo={ automaticallyUpdatedContext }
+					tooltipClassName="wide-tooltip"
 				/>
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
@@ -116,9 +214,9 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 						hidePriceFraction
 					/>
 					<Button
-						onClick={ handleFreeCTA }
-						isLoading={ chooseFreePlan }
-						disabled={ chooseFreePlan || choosePremiumPlan }
+						onClick={ onFreeCTA }
+						isLoading={ chosenFreePlan }
+						disabled={ chosenFreePlan || chosenPaidPlan }
 						fullWidth
 						variant="secondary"
 					>
@@ -126,15 +224,19 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 					</Button>
 				</PricingTableHeader>
 				<PricingTableItem
-					isIncluded={ false }
-					label={ __( 'Manual Critical CSS Generation', 'jetpack-boost' ) }
+					isIncluded={ true }
+					label={ __( 'Must be done manually', 'jetpack-boost' ) }
+					tooltipTitle={ __( 'Manual Critical CSS regeneration', 'jetpack-boost' ) }
+					tooltipInfo={ manuallyUpdatedContext }
+					tooltipClassName="wide-tooltip"
 				/>
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem
-					isIncluded={ false }
-					label={ __( 'No dedicated support', 'jetpack-boost' ) }
-				/>
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
+				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
 			</PricingTableColumn>
 		</PricingTable>
 	);

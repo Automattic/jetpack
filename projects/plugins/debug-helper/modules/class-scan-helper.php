@@ -316,10 +316,30 @@ class Scan_Helper {
 	/**
 	 * Checks whether the Post DB threat currently exists on the site.
 	 *
-	 * @return bool
+	 * @since 1.6.0 -- Return a WP_Post object when the post exists.
+	 *
+	 * @return WP_Post|bool
 	 */
 	private function post_db_threat_exists() {
-		return (bool) get_page_by_title( 'Scan Tester Post', OBJECT, 'post' );
+		$query = new WP_Query(
+			array(
+				'post_type'              => 'post',
+				'title'                  => 'Scan Tester Post',
+				'post_status'            => 'all',
+				'posts_per_page'         => 1,
+				'no_found_rows'          => true,
+				'ignore_sticky_posts'    => true,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false,
+				'orderby'                => 'post_date ID',
+				'order'                  => 'ASC',
+			)
+		);
+		if ( ! empty( $query->post ) ) {
+			return $query->post;
+		}
+
+		return false;
 	}
 
 	/**
@@ -354,7 +374,7 @@ class Scan_Helper {
 	 * @return string|WP_Error Success message on success, WP_Error object on failure.
 	 */
 	private function remove_post_db_threat() {
-		$post = get_page_by_title( 'Scan Tester Post', OBJECT, 'post' );
+		$post = $this->post_db_threat_exists();
 
 		if ( ! $post ) {
 			return 'Scan tester post does not exist.';
@@ -559,7 +579,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-eicar">
-					<input type="checkbox" name="threat-eicar" id="threat-eicar" <?php echo esc_attr( $eicar ); ?>> 
+					<input type="checkbox" name="threat-eicar" id="threat-eicar" <?php echo esc_attr( $eicar ); ?>>
 					<strong>EICAR Threat</strong>
 					<br>
 					Add/Remove five EICAR threats (one for every severity) to a new file in the WordPress <code>uploads</code> folder.
@@ -568,7 +588,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-suspicious-link">
-					<input type="checkbox" name="threat-suspicious-link" id="threat-suspicious-link" <?php echo esc_attr( $suspicious_link ); ?>> 
+					<input type="checkbox" name="threat-suspicious-link" id="threat-suspicious-link" <?php echo esc_attr( $suspicious_link ); ?>>
 					<strong>Suspicious Link</strong>
 					<br>
 					Add/Remove a link that will be flagged by Akismet to a new file in the WordPress <code>uploads</code> folder.
@@ -577,7 +597,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-core">
-					<input type="checkbox" name="threat-core" id="threat-core" <?php echo esc_attr( $core_mod ); ?>> 
+					<input type="checkbox" name="threat-core" id="threat-core" <?php echo esc_attr( $core_mod ); ?>>
 					<strong>Core File Modification Threat</strong>
 					<br>
 					Add/Remove a Core File Modification threat in the WordPress <code>wp-admin</code> folder.
@@ -586,7 +606,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-core-add">
-					<input type="checkbox" name="threat-core-add" id="threat-core-add" <?php echo esc_attr( $core_add ); ?>> 
+					<input type="checkbox" name="threat-core-add" id="threat-core-add" <?php echo esc_attr( $core_add ); ?>>
 					<strong>Add a Non-Core File to Core Directory</strong>
 					<br>
 					Add/Remove a file to the <code>wp-admin</code> core directory.
@@ -595,7 +615,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-post">
-					<input type="checkbox" name="threat-post" id="threat-post" <?php echo esc_attr( $post_db ); ?>> 
+					<input type="checkbox" name="threat-post" id="threat-post" <?php echo esc_attr( $post_db ); ?>>
 					<strong>Post DB Threat</strong>
 					<br>
 					Add/Remove a blog post containing data that will trigger a DB scan.
@@ -604,7 +624,7 @@ class Scan_Helper {
 
 			<div>
 				<label for="threat-infect">
-					<input type="checkbox" name="threat-infect" id="threat-infect" <?php echo esc_attr( $infect ); ?>> 
+					<input type="checkbox" name="threat-infect" id="threat-infect" <?php echo esc_attr( $infect ); ?>>
 					<strong>Infect a File Threat</strong>
 					<br>
 					Add/Remove an EICAR threat to an existing file in the WordPress <code>contents</code> folder.

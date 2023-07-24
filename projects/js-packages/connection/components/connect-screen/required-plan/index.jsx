@@ -30,15 +30,15 @@ const ConnectScreenRequiredPlan = props => {
 		wpcomProductSlug,
 		siteProductAvailabilityHandler,
 		logo,
+		rna = false,
 	} = props;
 
 	const {
 		handleRegisterSite,
-		isRegistered,
-		isUserConnected,
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		isOfflineMode,
 	} = useConnection( {
 		registrationNonce,
 		redirectUri,
@@ -57,7 +57,6 @@ const ConnectScreenRequiredPlan = props => {
 		from,
 	} );
 
-	const showConnectButton = ! isRegistered || ! isUserConnected;
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting || hasCheckoutStarted;
 	const handleButtonClick = productSlug ? handleCheckoutWorkflow : handleRegisterSite;
@@ -72,10 +71,11 @@ const ConnectScreenRequiredPlan = props => {
 			pricingTitle={ pricingTitle }
 			pricingCurrencyCode={ pricingCurrencyCode }
 			handleButtonClick={ handleButtonClick }
-			showConnectButton={ showConnectButton }
 			displayButtonError={ displayButtonError }
 			buttonIsLoading={ buttonIsLoading }
 			logo={ logo }
+			isOfflineMode={ isOfflineMode }
+			rna={ rna }
 		>
 			{ children }
 		</ConnectScreenRequiredPlanVisual>

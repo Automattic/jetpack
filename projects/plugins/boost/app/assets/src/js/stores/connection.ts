@@ -1,3 +1,4 @@
+import { tick } from 'svelte';
 import { get, writable } from 'svelte/store';
 import api from '../api/api';
 import { onConnectionComplete } from '../utils/connection';
@@ -7,7 +8,7 @@ export type ConnectionStatus = {
 	isConnecting: boolean;
 	connected: boolean;
 	userConnected: boolean;
-	error: null | string;
+	error: null | Error;
 };
 
 const initialState = Jetpack_Boost.connection;
@@ -53,6 +54,9 @@ async function initialize(): Promise< void > {
 			isConnecting: false,
 			error: e,
 		} );
+	} finally {
+		// Wait for the next tick to ensure that the connection status is updated.
+		await tick();
 	}
 }
 

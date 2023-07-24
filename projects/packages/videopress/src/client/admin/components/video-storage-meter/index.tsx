@@ -9,10 +9,15 @@ import filesize from 'filesize';
  * Internal dependencies
  */
 import { usePlan } from '../../hooks/use-plan';
+import { useVideoPressSettings } from '../../hooks/use-videopress-settings';
 import useVideos from '../../hooks/use-videos';
 import ProgressBar from '../progress-bar';
+import { SITE_TYPE_ATOMIC } from '../site-settings-section/constants';
 import styles from './style.module.scss';
-import { VideoStorageMeterProps } from './types';
+/**
+ * Types
+ */
+import type { VideoStorageMeterProps } from './types';
 import type React from 'react';
 
 /**
@@ -55,9 +60,16 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
 
 export const ConnectVideoStorageMeter = props => {
 	const { storageUsed, uploadedVideoCount } = useVideos();
+	const { features } = usePlan();
+	const { settings } = useVideoPressSettings();
+	const { siteType } = settings;
+
 	const total = 1000 * 1000 * 1000 * 1000;
 
-	const { features } = usePlan();
+	// Do not show storage meter if the site is an Atomic site.
+	if ( siteType === SITE_TYPE_ATOMIC ) {
+		return null;
+	}
 
 	// Do not show storage meter for unlimited storage plans.
 	if ( features?.isVideoPressUnlimitedSupported ) {

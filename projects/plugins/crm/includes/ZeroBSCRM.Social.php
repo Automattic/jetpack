@@ -94,8 +94,24 @@
 
    }
 
-
-
+		/**
+		 * Shows business social links
+		 *
+		 * @returns {string} A string with all filled out Social links.
+		 */
+		function show_social_links() {
+			$social_links_string = '';
+			if ( '' !== zeroBSCRM_getSetting( 'facebook' ) ) {
+				$social_links_string = 'Facebook: ' . zeroBSCRM_getSetting( 'facebook' ) . '<br/>';
+			}
+			if ( '' !== zeroBSCRM_getSetting( 'twitter' ) ) {
+				$social_links_string .= 'Twitter: ' . zeroBSCRM_getSetting( 'twitter' ) . '<br/>';
+			}
+			if ( '' !== zeroBSCRM_getSetting( 'linkedin' ) ) {
+				$social_links_string .= 'LinkedIn: ' . zeroBSCRM_getSetting( 'linkedin' );
+			}
+			return $social_links_string;
+		}
 
 /* ======================================================
   / Social helper funcs

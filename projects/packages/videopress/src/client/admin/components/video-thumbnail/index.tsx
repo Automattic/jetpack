@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import {
+	Text,
+	Button,
+	useBreakpointMatch,
+	LoadingPlaceholder,
+} from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
@@ -11,13 +16,12 @@ import { forwardRef } from 'react';
 /**
  * Internal dependencies
  */
-import Placeholder from '../placeholder';
 import ProgressBar from '../progress-bar';
 import styles from './style.module.scss';
 /**
  * Types
  */
-import { VideoThumbnailDropdownProps, VideoThumbnailProps } from './types';
+import type { VideoThumbnailDropdownProps, VideoThumbnailProps } from './types';
 import type React from 'react';
 
 export const VideoThumbnailDropdownButtons = ( {
@@ -76,16 +80,18 @@ export const VideoThumbnailDropdown = ( {
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
+	busy = false,
 }: VideoThumbnailDropdownProps ) => {
 	return (
 		<div className={ styles[ 'video-thumbnail-edit' ] }>
 			<Dropdown
-				position="bottom left"
+				placement="bottom left"
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
 						variant="secondary"
 						className={ styles[ 'thumbnail__edit-button' ] }
 						icon={ edit }
+						disabled={ busy }
 						onClick={ onToggle }
 						aria-expanded={ isOpen }
 					/>
@@ -163,6 +169,8 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 			loading = false,
 			uploading = false,
 			processing = false,
+			deleting = false,
+			updating = false,
 			onUseDefaultThumbnail,
 			onSelectFromVideo,
 			onUploadImage,
@@ -172,10 +180,11 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 		ref
 	) => {
 		const [ isSmall ] = useBreakpointMatch( 'sm' );
+		const busy = loading || uploading || deleting || updating;
 
 		// Mapping thumbnail (Ordered by priority)
 		let thumbnail = defaultThumbnail;
-		thumbnail = loading ? <Placeholder /> : thumbnail;
+		thumbnail = loading ? <LoadingPlaceholder /> : thumbnail;
 		thumbnail = uploading ? (
 			<UploadingThumbnail isRow={ isRow } uploadProgress={ uploadProgress } />
 		) : (
@@ -211,6 +220,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 						onUseDefaultThumbnail={ onUseDefaultThumbnail }
 						onSelectFromVideo={ onSelectFromVideo }
 						onUploadImage={ onUploadImage }
+						busy={ busy }
 					/>
 				) }
 				{ Number.isFinite( duration ) && (
@@ -228,5 +238,6 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 		);
 	}
 );
+VideoThumbnail.displayName = 'VideoThumbnail';
 
 export default VideoThumbnail;

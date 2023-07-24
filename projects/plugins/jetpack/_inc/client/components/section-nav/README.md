@@ -99,7 +99,7 @@ Count displayed in the header when rendered as dropdown.
 
 Text displayed above tabs group when:
 
-* Mobile (`<480px`)
+* Mobile (`<660px`)
 * `SectionNav` contains sibling level controls groups (more than one `NavTabs` or `NavSegmented`)
 
 ![label example](https://cldup.com/OeWSPtifYY.png)
@@ -120,7 +120,7 @@ The segmented sub component utilizes [`SegmentedControl`](/client/components/seg
 
 Text displayed above tabs group when:
 
-* Mobile (`<480px`)
+* Mobile (`<660px`)
 * `SectionNav` contains sibling level controls groups (more than one `NavTabs` or `NavSegmented`)
 
 ![label example](https://cldup.com/OeWSPtifYY.png)

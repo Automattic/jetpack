@@ -14,6 +14,12 @@ namespace Automattic\Jetpack_Boost\Lib;
  */
 class Environment_Change_Detector {
 
+	const ENV_CHANGE_LEGACY         = '1';
+	const ENV_CHANGE_PAGE_SAVED     = 'page_saved';
+	const ENV_CHANGE_POST_SAVED     = 'post_saved';
+	const ENV_CHANGE_SWITCHED_THEME = 'switched_theme';
+	const ENV_CHANGE_PLUGIN_CHANGE  = 'plugin_change';
+
 	/**
 	 * Initialize the change detection hooks.
 	 */
@@ -30,20 +36,31 @@ class Environment_Change_Detector {
 	}
 
 	public function handle_post_change( $post_id, $post ) {
-		$post_types = get_post_types( array( 'name' => $post->post_type ), 'objects' );
-		if ( empty( $post_types ) || ! isset( $post_types['post'] ) || $post_types['post']->public !== true ) {
+		// Ignore changes to any post which is not published.
+		if ( 'publish' !== $post->post_status ) {
 			return;
 		}
 
-		$this->do_action( false, 'post_saved' );
+		// Ignore changes to post types which do not affect the front-end UI
+		if ( ! $this->is_post_type_invalidating( $post->post_type ) ) {
+			return;
+		}
+
+		if ( 'page' === $post->post_type ) {
+			$change_type = $this::ENV_CHANGE_PAGE_SAVED;
+		} else {
+			$change_type = $this::ENV_CHANGE_POST_SAVED;
+		}
+
+		$this->do_action( false, $change_type );
 	}
 
 	public function handle_theme_change() {
-		$this->do_action( true, 'switched_theme' );
+		$this->do_action( true, $this::ENV_CHANGE_SWITCHED_THEME );
 	}
 
 	public function handle_plugin_change() {
-		$this->do_action( false, 'plugin_change' );
+		$this->do_action( false, $this::ENV_CHANGE_PLUGIN_CHANGE );
 	}
 
 	/**
@@ -54,5 +71,32 @@ class Environment_Change_Detector {
 	 */
 	public function do_action( $is_major_change, $change_type ) {
 		do_action( 'handle_environment_change', $is_major_change, $change_type );
+	}
+
+	public static function get_available_env_change_statuses() {
+		return array(
+			self::ENV_CHANGE_PAGE_SAVED,
+			self::ENV_CHANGE_POST_SAVED,
+			self::ENV_CHANGE_SWITCHED_THEME,
+			self::ENV_CHANGE_PLUGIN_CHANGE,
+		);
+	}
+
+	/**
+	 * Given a post_type, return true if this post type affects the front end of
+	 * the site - i.e.: should cause cached optimizations to be invalidated.
+	 *
+	 * @param string $post_type The post type to check
+	 * @return bool             True if this post type affects the front end of the site.
+	 */
+	private function is_post_type_invalidating( $post_type ) {
+		// Special cases: items which are not viewable, but affect the UI.
+		if ( in_array( $post_type, array( 'wp_template', 'wp_template_part' ), true ) ) {
+			return true;
+		}
+
+		if ( is_post_type_viewable( $post_type ) ) {
+			return true;
+		}
 	}
 }

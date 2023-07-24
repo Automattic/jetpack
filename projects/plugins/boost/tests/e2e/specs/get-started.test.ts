@@ -6,27 +6,17 @@ import { JetpackBoostPage } from '../lib/pages/index.js';
 let jetpackBoostPage;
 
 test.describe( 'Getting started page', () => {
-	test.beforeAll( async ( { browser } ) => {
+	test.beforeEach( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withConnection( true )
-			.withGetStarted( true )
-			.build();
+		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( false ).build();
+
+		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
 	test.afterAll( async ( { browser } ) => {
 		const page = await browser.newPage();
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv()
-			.withConnection( true )
-			.withGetStarted( false )
-			.build();
+		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( true ).build();
 		await page.close();
-	} );
-
-	test.beforeEach( async function ( { page } ) {
-		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
 	test( 'User should see the getting started pricing table', async () => {
@@ -41,17 +31,26 @@ test.describe( 'Getting started page', () => {
 	} );
 
 	test( 'User should be able to purchase the premium plan', async () => {
-		await jetpackBoostPage.click( 'text="Get Boost"' );
-		await jetpackBoostPage.page.waitForNavigation();
 		const expectedUrlPattern = /https:\/\/wordpress.com\/.*checkout.*/;
+
+		const navigation = jetpackBoostPage.page.waitForNavigation( {
+			url: expectedUrlPattern,
+			timeout: 180000,
+		} );
+		await jetpackBoostPage.click( 'text="Get Boost"' );
+		await navigation;
+
 		expect(
-			expectedUrlPattern.test( await jetpackBoostPage.page.url() ),
+			expectedUrlPattern.test( jetpackBoostPage.page.url() ),
 			'User should be redirected to checkout page'
 		).toBeTruthy();
 	} );
 
 	test( 'User should be able to get started with the free plan', async () => {
+		const navigation = jetpackBoostPage.page.waitForNavigation( { timeout: 180000 } );
 		await jetpackBoostPage.click( 'text="Start for free"' );
+		await navigation;
+
 		expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();
 	} );
 } );

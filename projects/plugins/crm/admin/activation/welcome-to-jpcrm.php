@@ -22,7 +22,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	/ Breaking Checks
 	====================================================== */
 
-	// WLREMOVE
+	##WLREMOVE
 
 	global $zbs;
 
@@ -86,7 +86,7 @@ $settings      = $zbs->settings->getAll();
 		</div>
 		<div class="stepwizard-step">
 			<a href="#step-2" class="btn btn-default btn-circle">2</a>
-			<p><?php esc_html_e( 'Your Customers', 'zero-bs-crm' ); ?></p>
+			<p><?php esc_html_e( 'Your Contacts', 'zero-bs-crm' ); ?></p>
 		</div>
 		<div class="stepwizard-step">
 			<a href="#step-3" class="btn btn-default btn-circle">3</a>
@@ -106,14 +106,10 @@ $settings      = $zbs->settings->getAll();
 				<div class="wizopt">
 
 					<label><?php esc_html_e( jpcrm_label_company() . ' Name / CRM Name:', 'zero-bs-crm' ); ?></label>
-					<p style="margin-bottom:0"><?php esc_html_e( "This name will be shown at the top left of your CRM (as shown below). E.g. 'Widget Co CRM'", 'zero-bs-crm' ); ?></p>
+					<p style="margin-bottom:0"><?php esc_html_e( "This name will be shown at the top left of your CRM. E.g. 'Widget Co CRM'", 'zero-bs-crm' ); ?></p>
 					<div style="width:90%;">
-						<div style="width:48%;float:left">
+						<div style="width:50%;float:left">
 							<input class='form-control' type="text" name="zbs_crm_name" id='zbs_crm_name' value="" placeholder="<?php esc_html_e( 'Name of your CRM (e.g Jetpack CRM)', 'zero-bs-crm' ); ?>" style="width:90%" onchange="zbs_crm_name_change();"/>
-						</div>
-						<div style="width:48%;float:right;overflow:hidden;border: 1px solid #ccc;" class='pos-rel'>
-							<img src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/welcome-to-zbs/crm-name.png" alt="Jetpack CRM" id="crm-name-img" style="border:0;margin-bottom: 0;" />
-							<div id='crm-name'>Jetpack CRM</div>
 						</div>
 					</div>
 
@@ -267,7 +263,7 @@ $settings      = $zbs->settings->getAll();
 
 					<div style="width:100%;">
 						<div style="width:25%;float:left;">
-							<div class='yesplsess'><p><?php esc_html_e( 'Usage Tracking', 'zero-bs-crm' ); ?> <input type="checkbox" id="zbs_ess" value="zbs_ess" checked='checked'/></p></div>
+							<div class='yesplsess'><p><?php esc_html_e( 'Track CRM Usage', 'zero-bs-crm' ); ?> <input type="checkbox" id="zbs_ess" value="zbs_ess"/></p></div>
 						</div>
 						<div style="width:75%;float:right;">
 							<div class="zbs-extrainfo">
@@ -293,13 +289,13 @@ $settings      = $zbs->settings->getAll();
 			<div class="col-md-12">
 
 				<!-- ingest -->
-				<h3 id="zbs-lead-header"><span class="zbs-nob2b-show"><?php esc_html_e( 'Getting Customers into your CRM', 'zero-bs-crm' ); ?></span><span class="zbs-b2b-show"><?php esc_html_e( 'Getting Contacts into your CRM', 'zero-bs-crm' ); ?></span></h3>
+				<h3 id="zbs-lead-header"><span class="zbs-nob2b-show"><?php esc_html_e( 'Getting Contacts into your CRM', 'zero-bs-crm' ); ?></span><span class="zbs-b2b-show"><?php esc_html_e( 'Getting Contacts into your CRM', 'zero-bs-crm' ); ?></span></h3>
 
 				<p class="lead zbs-freelancer-lead">
-					<?php echo wp_kses( __( "<strong>Freelancing is hard enough without having to manage a customer list as well!</strong><br />We feel your pain.<br /><br />To make life easier we've built extensions which automatically pulls through all of your customers who've ever paid you into your CRM. If you're using PayPal or Stripe for payments, this is a HUGE timesaver.", 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?>
+					<?php echo wp_kses( __( "<strong>Freelancing is hard enough without having to manage a contact list as well!</strong><br />We feel your pain.<br /><br />To make life easier we've built extensions which automatically pulls through all of your contacts who've ever paid you into your CRM. If you're using PayPal or Stripe for payments, this is a HUGE timesaver.", 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?>
 				</p>
 				<p class="lead zbs-smallbiz-lead">
-					<?php echo wp_kses( __( "<strong>Running a small business is hard work...</strong><br />It's busy. Time passes and you forget to add a customer detail... <em>Then when you need it, it's not there!</em>. We've run businesses for years, <strong>we feel your pain</strong>.<br /><br />To make life easier we've built a few extensions which take a lot of the pain out of this. PayPal Connect &amp; WooSync automatically pull through all customers into your CRM. If you're using PayPal for payments, or WooCommerce for sales, this is a HUGE timesaver.", 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?>
+					<?php echo wp_kses( __( "<strong>Running a small business is hard work...</strong><br />It's busy. Time passes and you forget to add a contact detail... <em>Then when you need it, it's not there!</em>. We've run businesses for years, <strong>we feel your pain</strong>.<br /><br />To make life easier we've built a few extensions which take a lot of the pain out of this. PayPal Connect &amp; WooSync automatically pull through all customers into your CRM. If you're using PayPal for payments, or WooCommerce for sales, this is a HUGE timesaver.", 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?>
 				</p>
 				<p class="lead zbs-ecomm-lead">
 					<?php echo wp_kses( __( "<strong>Running an ecommerce business is hard work...</strong><br />We feel your pain.<br /><br />To make life easier we've built extensions which take a lot of the pain out of this. PayPal Connect &amp; WooSync automatically pull through all customers and transactions, and then it keeps their details up to date. If you're using PayPal for payments, or WooCommerce for sales, this is a HUGE timesaver.", 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?>
@@ -387,7 +383,7 @@ $settings      = $zbs->settings->getAll();
 
 					<label><?php esc_html_e( 'Enable Invoices', 'zero-bs-crm' ); ?></label>
 					<p><?php esc_html_e( "You can run Jetpack CRM with or without Invoicing. We recommend you use this though, as it's very useful (you can invoice online!)", 'zero-bs-crm' ); ?></p>
-					<p class="zbs-extra"><?php esc_html_e( 'Accept online payments with', 'zero-bs-crm' ); ?> <a href="https://jetpackcrm.com/product/invoicing-pro/?utm_content=zbsplugin_welcomewiz" target="_blank">Invoicing Pro</a> <?php esc_html_e( '(Let your clients pay with Stripe or PayPal)', 'zero-bs-crm' ); ?></p>
+					<div class="zbs-extrainfo"><?php esc_html_e( 'Accept online payments with', 'zero-bs-crm' ); ?> <a href="https://jetpackcrm.com/product/invoicing-pro/?utm_content=zbsplugin_welcomewiz" target="_blank" style="color:#0073aa;">Invoicing Pro</a> <?php esc_html_e( '(Let your clients pay with Stripe or PayPal)', 'zero-bs-crm' ); ?></div>
 					
 				</div>
 
@@ -408,7 +404,7 @@ $settings      = $zbs->settings->getAll();
 
 					<label><?php esc_html_e( 'Enable WooSync', 'zero-bs-crm' ); ?></label>
 					<p><?php esc_html_e( 'Automatically import all your customers, transactions, and invoices from WooCommerce, a full-featured eCommerce solution for WordPress.', 'zero-bs-crm' ); ?></p>
-					<p class="zbs-extra"><?php esc_html_e( 'Note that you will also need a site that has the free WooCommerce plugin installed.', 'zero-bs-crm' ); ?></p>
+					<div class="zbs-extrainfo"><?php esc_html_e( 'Note that you will also need a site that has the free WooCommerce plugin installed.', 'zero-bs-crm' ); ?></div>
 					
 
 				</div>
@@ -446,7 +442,7 @@ $settings      = $zbs->settings->getAll();
 				$em    = $current_user->user_email;
 				?>
 				<h3><?php esc_html_e( 'Leverage your new CRM! (BONUSES)', 'zero-bs-crm' ); ?></h3>
-				<p style="font-size:16px;color:#e06d17"><strong><?php esc_html_e( 'Join the Jetpack CRM community today', 'zero-bs-crm' ); ?>:</strong><br />(<?php esc_html_e( 'Bonuses, Critical update notifications', 'zero-bs-crm' ); ?>.)</p>
+				<p style="font-size:16px;color:#000"><label><?php esc_html_e( 'Join the Jetpack CRM community today', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Gain access to exclusive bonuses and critical update notifications.', 'zero-bs-crm' ); ?></p>
 
 				<p style="text-align:center">
 					<input type="hidden" id="zbs_crm_subblogname" name="zbs_crm_subblogname" value="<?php bloginfo( 'name' ); ?>" />
@@ -457,7 +453,7 @@ $settings      = $zbs->settings->getAll();
 				</p>
 
 				<div class='clear'></div>
-				<div class='yespls'><p style="text-align: center;margin-top: 6px;"><?php esc_html_e( 'Get updates', 'zero-bs-crm' ); ?> <input type="checkbox" id="zbs_sub" value="zbs_sub" checked='checked'/></p></div>
+				<div class='yespls'><p style="text-align: center;margin-top: 6px;"><?php esc_html_e( 'Get updates', 'zero-bs-crm' ); ?> <input type="checkbox" id="zbs_sub" value="zbs_sub"/></p></div>
 
 
 
@@ -500,4 +496,4 @@ $settings      = $zbs->settings->getAll();
 	</div>
 </div>
 </div>			
-</body></html><?php // /WLREMOVE ?>
+</body></html><?php ##/WLREMOVE ?>

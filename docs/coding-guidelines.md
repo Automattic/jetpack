@@ -26,10 +26,30 @@ When deprecating code in Jetpack (removing / renaming files, classes, functions,
 For these reasons, here are a few guidelines you can follow:
 
 - Instead of deleting files, mark them as deprecated first with `_deprecated_file`.
-- Deprecate classes, functions, and methods in the same way, while still returning its replacement if there is one.
+- Deprecate classes, [functions](https://developer.wordpress.org/reference/functions/_deprecated_function/), and methods in the same way, while still returning its replacement if there is one.
 - Deprecated code should remain in Jetpack for 6 months, so third-parties have time to find out about the deprecations and update their codebase.
 - If possible, reach out to partners who rely on deprecated code to let them know when the code will be removed, and how they can update.
 - If necessary, you can publish an update guide on developer.jetpack.com to help people update.
+
+Example usage for deprecating a function:
+
+```
+/**
+ * This is an example function.
+ *
+ * @deprecated $$next-version$$ Give an explanation about what function to use instead.
+ *
+ * @return string
+ */
+function example_function( ) {
+ 
+    _deprecated_function( __FUNCTION__, '{plugin/package}-$$next-version$$' );
+ 
+   return 'example';
+}
+```
+
+For more information on how to use `$$next-version$$`, please see the [packages README](../projects/packages/README.md#package-version-annotations) (relevant for plugins as well).
 
 ## Widgets
 

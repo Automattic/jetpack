@@ -30,14 +30,7 @@
     max-width: 100%;
     margin: 0 auto;
 }
-#zerobscrm-owner {
-    position: absolute;
-    right: 50px;
-    width: 211px;
-    display: inline-block;
-}
-// <3.0
-.post-type-zerobs_event #zerobscrm-owner,
+
 // 3.0
 #zerobs-event-edit #zerobscrm-owner {
     //display:none !important;
@@ -128,11 +121,12 @@ background: white;
 
     width:80%;
     float:left;
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size: 22px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+    font-size: 14px;
     font-weight: 400;
     min-height: 0;
     padding: 0.2em 0.5em;
+    line-height: 1.4em;
 }
 .fc-event{
     border: 0px solid;
@@ -151,11 +145,11 @@ background: white;
     @extend .zbs-tasks-field;
 
     width: 100%;
-    font-size: 20px;
+    font-size: 14px;
     color: #cccccc;
     border: 1px solid #ccc;
     margin:0;
-    padding:9px;
+    padding:4px;
 }
 .show-on-calendar, .remind_task{
     color:black;
@@ -164,16 +158,18 @@ background: white;
         margin: 0.2em 0.5em !important;
     }
     label {
-        font-weight:400 !important;
+        font-size: 14px;
+		  line-height: 1.4em;
+        font-weight: 400 !important;
     }
 }
 .remind_task{
-    padding:10px;
+    padding: 10px 4px;
     position: relative;
 }
 
 .remind_task a{
-    font-size: 15px;
+    font-size: 14px;
     position: absolute;
     top: 5px;
     right: 5px;
@@ -185,7 +181,7 @@ background: white;
 #zbs_event_notes, 
 // 3.0
 #zbse_desc {
-    font-size:18px;
+    font-size:14px;
     padding:5px;
     padding: 0.5em;
 }

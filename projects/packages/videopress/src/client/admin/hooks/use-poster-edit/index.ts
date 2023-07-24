@@ -95,6 +95,7 @@ const usePosterEdit = ( { video } ) => {
 		selectAttachmentFromLibrary,
 		updatePosterImageFromLibrary,
 		selectAndUpdatePosterImageFromLibrary,
+		setVideoFrameMs,
 	};
 };
 

@@ -90,6 +90,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		} elseif ( isset( $extra['wp-theme-slug'] ) ) {
 			$todomain = $extra['wp-theme-slug'];
 			$totype   = 'themes';
+		} elseif ( isset( $extra['beta-plugin-slug'] ) ) {
+			$todomain = $extra['beta-plugin-slug'];
+			$totype   = 'plugins';
+		} elseif ( isset( $extra['beta-theme-slug'] ) ) {
+			$todomain = $extra['beta-theme-slug'];
+			$totype   = 'themes';
 		} else {
 			$io->warning( 'Skipping jetpack-library i18n map generation, .extra.wp-plugin-slug / .extra.wp-theme-slug is not set in composer.json' );
 			$filesystem->remove( 'jetpack_vendor/i18n-map.php' );

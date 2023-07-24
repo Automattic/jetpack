@@ -1,3 +1,13 @@
+:root {
+	--jetpack--contact-form--border: 1px solid #8c8f94;
+	--jetpack--contact-form--border-color: #8c8f94;
+	--jetpack--contact-form--border-size: 1px;
+	--jetpack--contact-form--border-style: solid;
+	--jetpack--contact-form--border-radius: 0px;
+	--jetpack--contact-form--input-padding: 16px;
+	--jetpack--contact-form--font-size: 16px;
+}
+
 .contact-form .clear-form {
 	clear: both;
 }
@@ -35,7 +45,7 @@
 	height: 200px;
 }
 
-.contact-form .grunion-field {
+.contact-form :where(.grunion-field[type="text"], .grunion-field.textarea) {
 	padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 	padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 }
@@ -50,11 +60,28 @@
 	min-width: 150px;
 }
 
-.contact-form input[type='radio'],
-.contact-form input[type='checkbox'] {
+/*
+	On Grunion Forms, the regular HTML select is replaced by a custom select by jQuery UI.
+ 	To keep the required validation working the select can't be 'display: none'
+ 	This solution will keep the select hidden without using 'display: none'
+ */
+.contact-form .contact-form-dropdown[aria-hidden="true"] {
+	position: absolute;
+	z-index: -1;
+	width: 100%;
+	display: block !important;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.contact-form :where(input[type='radio'], input[type='checkbox']) {
 	width: 1rem;
 	height: 1rem;
 	float: none;
+}
+
+.contact-form input[type='radio'],
+.contact-form input[type='checkbox'] {
 	margin: 0 0.75rem 0 0;
 }
 
@@ -90,14 +117,14 @@
 	font-weight: normal;
 	display: inline-flex;
 	align-items: center;
-	line-height: 1.5;
+	line-height: 1;
 }
 
 .contact-form .grunion-checkbox-multiple-options,
 .contact-form .grunion-radio-options {
 	display: flex;
 	flex-direction: column;
-	gap: 0.25em
+	gap: 12px;
 }
 
 .contact-form label span {
@@ -183,6 +210,7 @@
 
 .wp-block-jetpack-contact-form > * {
 	flex: 0 0 100%;
+	box-sizing: border-box;
 }
 
 /* Added circa Nov 2022: container class assigned to topmost block div */
@@ -197,6 +225,7 @@
 
 .wp-block-jetpack-contact-form .grunion-field-wrap {
 	box-sizing: border-box;
+	position: relative;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
@@ -322,7 +351,7 @@
 	border-style: var(--jetpack--contact-form--border-style);
 	border-width: var(--jetpack--contact-form--border-size);
 	border-radius: var(--jetpack--contact-form--border-radius);
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--input-background-fallback);
 	color: var(--jetpack--contact-form--text-color);
 	font-size: var(--jetpack--contact-form--font-size);
 	font-family: var(--jetpack--contact-form--font-family);
@@ -331,6 +360,12 @@
 	padding: 0;
 	line-height: normal;
 	box-shadow: 0 2px 6px rgb(0 0 0 / 5%);
+	list-style: none;
+	margin: 0;
+}
+
+.contact-form .contact-form-dropdown__menu .ui-menu-item {
+	margin: 0;
 }
 
 .contact-form .contact-form-dropdown__menu .ui-menu {
@@ -344,7 +379,7 @@
 .contact-form .contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper.ui-state-active {
 	position: relative;
 	border: none;
-	color: var(--jetpack--contact-form--input-background);
+	color: var(--jetpack--contact-form--input-background-fallback);
 	background-color: var(--jetpack--contact-form--text-color);
 }
 
@@ -363,23 +398,11 @@
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options
 {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
-	padding-top: calc(var(--jetpack--contact-form--input-padding, 16px) + 4px);
+	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
 	flex-grow: 1;
-}
-
-.contact-form :not(.is-style-outlined):not(.is-style-animated) .grunion-field-wrap .grunion-checkbox-multiple-options,
-.contact-form :not(.is-style-outlined):not(.is-style-animated) .grunion-field-wrap .grunion-radio-options {
-	background-color: var(--jetpack--contact-form--input-background);
-	border-radius: var(--jetpack--contact-form--border-radius);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
-	padding: var(--jetpack--contact-form--input-padding, 16px);
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label {
@@ -531,16 +554,13 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-animated .grunion-field-checkbox-multiple-wrap,
 .contact-form .is-style-animated .grunion-field-radio-wrap {
 	background-color: var(--jetpack--contact-form--input-background);
-	border-radius: var(--jetpack--contact-form--border-radius);
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
 }
 
 .contact-form .is-style-animated .grunion-field-checkbox-multiple-wrap .grunion-checkbox-multiple-options,
 .contact-form .is-style-animated .grunion-field-radio-wrap .grunion-radio-options {
-	padding-top: 1.7em;
+	padding-bottom: var(--jetpack--contact-form--input-padding, 16px);
+	padding-top: 1.8em;
+	flex-grow: 1
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
@@ -563,27 +583,20 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label,
 .contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options ~ .animated-label__label
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label
 {
 	font-size: 0.75em;
 	transform: translateY(0);
 	top: calc(2px + var(--jetpack--contact-form--border-size));
 }
 
+.contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options ~ .animated-label__label {
+	top: 0;
+	left: 0;
+	transform: translateY(0);
+}
+
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {
 	margin-left: var(--jetpack--contact-form--border-size);
-}
-
-.wp-block-jetpack-contact-form-container {
-	filter: blur(10px);
-}
-
-.contact-form-styles-loaded .wp-block-jetpack-contact-form-container,
-html[amp] body .wp-block-jetpack-contact-form-container,
-html[amp-version] body .wp-block-jetpack-contact-form-container,
-html[class*='amphtml'] body .wp-block-jetpack-contact-form-container
-{
-	filter: blur(0px);
 }

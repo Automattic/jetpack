@@ -18,12 +18,58 @@ import { ReactElement } from 'react';
 import { isVideoPressBlockBasedOnAttributes } from '../../../utils';
 import styles from './styles.module.scss';
 
+const videoPressVideoBlocks = { instances: [] };
+
+// eslint-disable-next-line jsdoc/require-returns-check
+/**
+ * Recursively get all core/video VideoPress (aka v5) block instances
+ *
+ * @param {Array} blocks - Array of blocks
+ * @param {boolean} root - Whether it is the root block
+ * @param {number} level - Nesting level in the block tree
+ * @returns {Array}        Array of VideoPress blocks
+ */
+const getAllCoreVideoVideoPressVideoBlocks = ( blocks = [], root = false, level = 0 ) => {
+	if ( root ) {
+		// Clear the instances when it's called from the root block.
+		videoPressVideoBlocks.instances = [];
+	}
+
+	blocks.forEach( block => {
+		if ( block.innerBlocks.length ) {
+			// Recursively call increasing the nesting level.
+			getAllCoreVideoVideoPressVideoBlocks( block.innerBlocks, false, level + 1 );
+			return;
+		}
+
+		const { clientId, name, attributes } = block;
+		if ( name === 'core/video' && isVideoPressBlockBasedOnAttributes( attributes ) ) {
+			videoPressVideoBlocks.instances.push( { clientId, name, attributes } );
+		}
+	} );
+
+	/*
+	 * Level zero is the first call,
+	 * but also is the last of the recursive calls.
+	 * Return the collected block instances when it's the last one.
+	 */
+	if ( level === 0 ) {
+		return videoPressVideoBlocks.instances;
+	}
+};
+
 /**
  * React component that renders a block conversion control
  *
- * @returns {ReactElement}          - Transform panel component.
+ * @param {object} props            - Component props
+ * @param {string} props.clientId   - Block client ID
+ * @param {object} props.attributes - Block attributes
+ * @returns {ReactElement} Transform panel component.
  */
-export default function TransformControl() {
+export default function TransformControl( {
+	clientId: currentBlockClientId,
+	attributes: currentBlockAttributes,
+} ) {
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId() );
 
 	const { getBlocks } = useSelect( blockEditorStore );
@@ -31,9 +77,21 @@ export default function TransformControl() {
 	const { tracks } = useAnalytics();
 
 	const handleTransformAll = () => {
-		const blocks = getBlocks();
+		const allV5Instances = getAllCoreVideoVideoPressVideoBlocks( getBlocks(), true );
+		if ( ! allV5Instances?.length ) {
+			return;
+		}
 
-		blocks.forEach( block => {
+		// Ensure the current block is included in the list.
+		if ( ! allV5Instances.find( block => block.clientId === currentBlockClientId ) ) {
+			allV5Instances.push( {
+				clientId: currentBlockClientId,
+				name: 'core/video',
+				currentBlockAttributes,
+			} );
+		}
+
+		allV5Instances.forEach( block => {
 			const { clientId, name, attributes } = block;
 			if ( name === 'core/video' && isVideoPressBlockBasedOnAttributes( attributes ) ) {
 				replaceBlock( clientId, createBlock( 'videopress/video', attributes ) );

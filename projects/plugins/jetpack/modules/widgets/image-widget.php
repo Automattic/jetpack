@@ -98,9 +98,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 			}
 			$output .= '/>';
 
-			if ( class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
-				$output = Jetpack_Photon::filter_the_content( $output );
-			}
+			$output = apply_filters( 'jetpack_image_cdn_content', $output );
 
 			if ( $instance['link'] ) {
 				$target = ! empty( $instance['link_target_blank'] )

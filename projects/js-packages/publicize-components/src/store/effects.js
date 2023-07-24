@@ -13,9 +13,9 @@ import { SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
  */
 export async function refreshConnectionTestResults() {
 	try {
+		const jetpackSocialData = getJetpackData()?.social || {};
 		const connectionRefreshPath =
-			getJetpackData()?.social?.connectionRefreshPath ??
-			'/wpcom/v2/publicize/connection-test-results';
+			jetpackSocialData.connectionRefreshPath ?? '/wpcom/v2/publicize/connection-test-results';
 		const results = await apiFetch( { path: connectionRefreshPath } );
 
 		// Combine current connections with new connections.
@@ -24,7 +24,7 @@ export async function refreshConnectionTestResults() {
 		const connections = [];
 		const defaults = {
 			done: false,
-			enabled: true,
+			enabled: Boolean( jetpackSocialData.sharesData?.shares_remaining ),
 			toggleable: true,
 		};
 
@@ -33,10 +33,15 @@ export async function refreshConnectionTestResults() {
 		 * in order to refresh or update current connections.
 		 */
 		for ( const freshConnection of freshConnections ) {
-			const prevConnection = prevConnections.find( conn => conn.id === freshConnection.id );
+			const prevConnection = prevConnections.find( conn =>
+				conn.connection_id
+					? conn.connection_id === freshConnection.connection_id
+					: conn.id === freshConnection.id
+			);
 			const { done, enabled, toggleable } = prevConnection ?? defaults;
 			const connection = {
 				display_name: freshConnection.display_name,
+				username: freshConnection.username,
 				service_name: freshConnection.service_name,
 				id: freshConnection.id,
 				profile_picture: freshConnection.profile_picture,
@@ -44,6 +49,8 @@ export async function refreshConnectionTestResults() {
 				enabled,
 				toggleable,
 				is_healthy: freshConnection.test_success,
+				error_code: freshConnection.error_code,
+				connection_id: freshConnection.connection_id,
 			};
 
 			connections.push( connection );
@@ -73,7 +80,13 @@ export async function toggleConnectionById( { connectionId } ) {
 	 */
 	const updatedConnections = connections.map( connection => ( {
 		...connection,
-		enabled: connection.id === connectionId ? ! connection.enabled : connection.enabled,
+		enabled: (
+			connection.connection_id
+				? connection.connection_id === connectionId
+				: connection.id === connectionId
+		)
+			? ! connection.enabled
+			: connection.enabled,
 	} ) );
 
 	// Update post metadata.
@@ -125,7 +138,7 @@ export const computeTweetBlocks = ( blocks = [] ) => {
  * @returns {object} Refresh tweets results action.
  */
 async function __refreshTweets() {
-	const topBlocks = select( 'core/editor' ).getBlocks();
+	const topBlocks = select( 'core/block-editor' ).getBlocks();
 
 	const tweetBlocks = computeTweetBlocks( topBlocks );
 

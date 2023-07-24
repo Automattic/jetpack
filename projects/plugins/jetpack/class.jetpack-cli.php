@@ -9,12 +9,14 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 if ( ! class_exists( 'WP_CLI_Command' ) ) {
 	return;
@@ -222,6 +224,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @param array $assoc_args Named args.
 	 */
 	public function disconnect( $args, $assoc_args ) {
+		$user = null;
 		if ( ! Jetpack::is_connection_ready() ) {
 			WP_CLI::success( __( 'The site is not currently connected, so nothing to do!', 'jetpack' ) );
 			return;
@@ -541,7 +544,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @param array $assoc_args Named args.
 	 */
 	public function module( $args, $assoc_args ) {
-		$action = isset( $args[0] ) ? $args[0] : 'list';
+		$module_slug = null;
+		$action      = isset( $args[0] ) ? $args[0] : 'list';
 
 		if ( isset( $args[1] ) ) {
 			$module_slug = $args[1];
@@ -658,15 +662,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$current_allow = get_site_option( 'jetpack_protect_whitelist', array() ); // @todo Update the option name.
 
 				// Build array of IPs that are already on the allowed list.
-				// Re-build manually instead of using jetpack_protect_format_whitelist() so we can easily get
-				// low & high range params for jetpack_protect_ip_address_is_in_range().
+				// Re-build manually instead of using jetpack_protect_format_allow_list() so we can easily get
+				// low & high range params for IP_Utils::ip_address_is_in_range().
 				foreach ( $current_allow as $allowed ) {
 
 					// IP ranges.
 					if ( $allowed->range ) {
 
 						// Is it already on the allowed list?
-						if ( jetpack_protect_ip_address_is_in_range( $new_ip, $allowed->range_low, $allowed->range_high ) ) {
+						if ( IP_Utils::ip_address_is_in_range( $new_ip, $allowed->range_low, $allowed->range_high ) ) {
 							/* translators: %s is an IP address */
 							WP_CLI::error( sprintf( __( '%s is already on the always allow list.', 'jetpack' ), $new_ip ) );
 							break;
@@ -708,7 +712,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				if ( isset( $args[1] ) && 'clear' === $args[1] ) {
 					if ( ! empty( $allow ) ) {
 						$allow = array();
-						jetpack_protect_save_whitelist( $allow ); // @todo Need to update function name in the Protect module.
+						Brute_Force_Protection_Shared_Functions::save_allow_list( $allow ); // @todo Need to update function name in the Protect module.
 						WP_CLI::success( __( 'Cleared all IPs from the always allow list.', 'jetpack' ) );
 					} else {
 						WP_CLI::line( __( 'Always allow list is empty.', 'jetpack' ) );
@@ -720,7 +724,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				array_push( $allow, $new_ip );
 
 				// Save allow list if there are no errors.
-				$result = jetpack_protect_save_whitelist( $allow ); // @todo Need to update function name in the Protect module.
+				$result = Brute_Force_Protection_Shared_Functions::save_allow_list( $allow ); // @todo Need to update function name in the Protect module.
 				if ( is_wp_error( $result ) ) {
 					WP_CLI::error( $result );
 				}
@@ -1019,7 +1023,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 						$modules['users'] = 'initial';
 					} elseif ( isset( $assoc_args[ $module_name ] ) ) {
 						$ids = explode( ',', $assoc_args[ $module_name ] );
-						if ( count( $ids ) > 0 ) {
+						if ( $ids !== array() ) {
 							$modules[ $module_name ] = $ids;
 						}
 					}
@@ -1033,7 +1037,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				if ( Actions::do_full_sync( $modules ) ) {
 					if ( $modules ) {
 						/* translators: %s is a comma separated list of Jetpack modules */
-						WP_CLI::log( sprintf( __( 'Initialized a new full sync with modules: %s', 'jetpack' ), join( ', ', array_keys( $modules ) ) ) );
+						WP_CLI::log( sprintf( __( 'Initialized a new full sync with modules: %s', 'jetpack' ), implode( ', ', array_keys( $modules ) ) ) );
 					} else {
 						WP_CLI::log( __( 'Initialized a new full sync', 'jetpack' ) );
 					}
@@ -1044,7 +1048,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 					if ( $modules ) {
 						/* translators: %s is a comma separated list of Jetpack modules */
-						WP_CLI::error( sprintf( __( 'Could not start a new full sync with modules: %s', 'jetpack' ), join( ', ', $modules ) ) );
+						WP_CLI::error( sprintf( __( 'Could not start a new full sync with modules: %s', 'jetpack' ), implode( ', ', $modules ) ) );
 					} else {
 						WP_CLI::error( __( 'Could not start a new full sync', 'jetpack' ) );
 					}
@@ -1686,13 +1690,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *     $ wp jetpack publicize list
 	 *
 	 *     # List publicize connections for a given service.
-	 *     $ wp jetpack publicize list twitter
+	 *     $ wp jetpack publicize list linkedin
 	 *
 	 *     # List all publicize connections for a given user.
 	 *     $ wp --user=1 jetpack publicize list
 	 *
 	 *     # List all publicize connections for a given user and service.
-	 *     $ wp --user=1 jetpack publicize list twitter
+	 *     $ wp --user=1 jetpack publicize list linkedin
 	 *
 	 *     # Display details for a given connection.
 	 *     $ wp jetpack publicize list 123456
@@ -1704,7 +1708,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *     $ wp jetpack publicize disconnect all
 	 *
 	 *     # Disconnect all connections for a given service.
-	 *     $ wp jetpack publicize disconnect twitter
+	 *     $ wp jetpack publicize disconnect linkedin
 	 *
 	 * @param array $args Positional args.
 	 * @param array $named_args Named args.
@@ -1843,7 +1847,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					}
 
 					if ( ! empty( $connections ) ) {
-						$count    = count( $connections );
+						$count    = is_countable( $connections ) ? count( $connections ) : 0;
 						$progress = \WP_CLI\Utils\make_progress_bar(
 							/* translators: %s is a lowercase string for a social network. */
 							sprintf( __( 'Disconnecting all connections to %s.', 'jetpack' ), $service ),
@@ -2003,17 +2007,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$has_keywords = isset( $assoc_args['keywords'] );
 
 		$files = array(
-			"$path/$slug.php"     => $this->render_block_file(
+			"$path/$slug.php"     => self::render_block_file(
 				'block-register-php',
 				array(
 					'slug'             => $slug,
 					'title'            => $title,
 					'underscoredSlug'  => str_replace( '-', '_', $slug ),
 					'underscoredTitle' => str_replace( ' ', '_', $title ),
-					'jetpackVersion'   => substr( JETPACK__VERSION, 0, strpos( JETPACK__VERSION, '.' ) ) . '.x',
 				)
 			),
-			"$path/index.js"      => $this->render_block_file(
+			"$path/index.js"      => self::render_block_file(
 				'block-index-js',
 				array(
 					'slug'        => $slug,
@@ -2033,23 +2036,23 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'hasKeywords' => $has_keywords,
 				)
 			),
-			"$path/editor.js"     => $this->render_block_file( 'block-editor-js' ),
-			"$path/editor.scss"   => $this->render_block_file(
+			"$path/editor.js"     => self::render_block_file( 'block-editor-js' ),
+			"$path/editor.scss"   => self::render_block_file(
 				'block-editor-scss',
 				array(
 					'slug'  => $slug,
 					'title' => $title,
 				)
 			),
-			"$path/edit.js"       => $this->render_block_file(
+			"$path/edit.js"       => self::render_block_file(
 				'block-edit-js',
 				array(
 					'title'     => $title,
 					'className' => str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) ),
 				)
 			),
-			"$path/icon.js"       => $this->render_block_file( 'block-icon-js' ),
-			"$path/attributes.js" => $this->render_block_file( 'block-attributes-js' ),
+			"$path/icon.js"       => self::render_block_file( 'block-icon-js' ),
+			"$path/attributes.js" => self::render_block_file( 'block-attributes-js' ),
 		);
 
 		$files_written = array();

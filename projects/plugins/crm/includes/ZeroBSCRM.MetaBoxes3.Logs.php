@@ -41,63 +41,65 @@
   Declare Globals
    ====================================================== */
 
-    global $zeroBSCRM_logTypes; 
-    $zeroBSCRM_logTypes = array(
+global $zeroBSCRM_logTypes; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+$zeroBSCRM_logTypes = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-        'zerobs_customer' => array(
-        
-                    'note'=> array("label" => __("Note","zero-bs-crm"), "ico" => "fa-sticky-note-o"),
-                    'call'=> array("label" => __("Call","zero-bs-crm"), "ico" => "fa-phone-square"),
-                    'email'=> array("label" => __("Email","zero-bs-crm"), "ico" => "fa-envelope-o"),
-                    'mail'=> array("label" => __("Mail","zero-bs-crm"), "ico" => "fa-envelope-o"),
-                    'meeting'=> array("label" => __("Meeting","zero-bs-crm"), "ico" => "fa-users"),
-                    'quote__sent'=> array("label" => __("Quote: Sent","zero-bs-crm"), "ico" => "fa-share-square-o"),
-                    'quote__accepted'=> array("label" => __("Quote: Accepted","zero-bs-crm"), "ico" => "fa-thumbs-o-up"),
-                    'quote__refused'=> array("label" => __("Quote: Refused","zero-bs-crm"), "ico" => "fa-ban"),
-                    'invoice__sent'=> array("label" => __("Invoice: Sent","zero-bs-crm"), "ico" => "fa-share-square-o"),
-                    'invoice__part_paid'=> array("label" => __("Invoice: Part Paid","zero-bs-crm"), "ico" => "fa-money"),
-                    'invoice__paid'=> array("label" => __("Invoice: Paid","zero-bs-crm"), "ico" => "fa-money"),
-                    'invoice__refunded'=> array("label" => __("Invoice: Refunded","zero-bs-crm"), "ico" => "fa-money"),
-                    'transaction'=> array("label" => __("Transaction","zero-bs-crm"), "ico" => "fa-credit-card"),
-                    'feedback'=> array("label" => __("Feedback","zero-bs-crm"), "ico" => "fa-commenting"),
-                    'tweet'=> array("label" => __("Tweet","zero-bs-crm"), "ico" => "fa-twitter"),
-                    'facebook_post'=> array("label" => __("Facebook Post","zero-bs-crm"), "ico" => "fa-facebook-official"),
-                    'created'=> array("locked" => true, "label" => __("Created","zero-bs-crm"), "ico" => "fa-plus-circle"),
-                    'updated'=> array("locked" => true,"label" => __("Updated","zero-bs-crm"), "ico" => "fa-pencil-square-o"),
-                    'quote_created'=> array("locked" => true,"label" => __("Quote Created","zero-bs-crm"), "ico" => "fa-plus-circle"),                    
-                    'invoice_created'=> array("locked" => true,"label" => __("Invoice Created","zero-bs-crm"), "ico" => "fa-plus-circle"),
-                    'event_created'=> array("locked" => true,"label" => __("Event Created","zero-bs-crm"), "ico" => "fa-calendar"),
-                    'task_created'=> array("locked" => true,"label" => __("Task Created","zero-bs-crm"), "ico" => "fa-calendar"),
-                    'transaction_created'=> array("locked" => true,"label" => __("Transaction Created","zero-bs-crm"), "ico" => "fa-credit-card"),
-                    'transaction_updated'=> array("locked" => true,"label" => __("Transaction Updated","zero-bs-crm"), "ico" => "fa-credit-card"),
-                    'transaction_deleted'=> array( "locked" => true, "label" => __( "Transaction Deleted", "zero-bs-crm" ), "ico" => "fa-credit-card" ),
-                    'form_filled'=> array("locked" => true,"label" => __("Form Filled","zero-bs-crm"), "ico" => "fa-wpforms"),
-                    'api_action'=> array("locked" => true,"label" => __("API Action","zero-bs-crm"), "ico" => "fa-random"),
-                    'bulk_action__merge'=> array("locked" => true,"label" => __("Bulk Action: Merge","zero-bs-crm"), "ico" => "fa-compress"),
-                    'client_portal_user_created'=> array("locked" => true,"label" => __("Client Portal User Created","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'client_portal_access_changed'=> array("locked" => true,"label" => __("Client Portal Access Changed","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'status_change'=> array("locked" => true,"label" => __("Status Change","zero-bs-crm"), "ico" => "fa-random"),
-                    'contact_changed_details_via_portal'=> array("locked" => true,"label" => __("Contact Changed via Portal","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'contact_changed_details_via_wpprofile'=> array("locked" => true,"label" => __("Contact Changed via WordPress Profile","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'contact_changed_details_via_woomyacc'=> array("locked" => true,"label" => __("Contact Changed via WooCommerce My Account","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'contact_changed_details_via_mailpoet'=> array("locked" => true,"label" => __("Contact Changed via MailPoet","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'subscriber_deleted_in_mailpoet'=> array("locked" => true,"label" => __("Subscriber deleted in MailPoet","zero-bs-crm"), "ico" => "fa-times"),
-                    'contact_change_details_attempt'=> array("locked" => true,"label" => __("Attempted Contact detail change","zero-bs-crm"), "ico" => "fa-id-card")
+	// // phpcs:disable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
+	'zerobs_customer' => array(
 
-        ),
+		'note'                                  => array( 'label' => __( 'Note', 'zero-bs-crm' ), 'ico' => 'fa-sticky-note-o' ),
+		'call'                                  => array( 'label' => __( 'Call', 'zero-bs-crm' ), 'ico' => 'fa-phone-square' ),
+		'email'                                 => array( 'label' => __( 'Email', 'zero-bs-crm' ), 'ico' => 'fa-envelope-o' ),
+		'mail'                                  => array( 'label' => __( 'Mail', 'zero-bs-crm' ), 'ico' => 'fa-envelope-o' ),
+		'meeting'                               => array( 'label' => __( 'Meeting', 'zero-bs-crm' ), 'ico' => 'fa-users' ),
+		'quote__sent'                           => array( 'label' => __( 'Quote: Sent', 'zero-bs-crm' ), 'ico' => 'fa-share-square-o' ),
+		'quote__accepted'                       => array( 'label' => __( 'Quote: Accepted', 'zero-bs-crm' ), 'ico' => 'fa-thumbs-o-up' ),
+		'quote__refused'                        => array( 'label' => __( 'Quote: Refused', 'zero-bs-crm' ), 'ico' => 'fa-ban' ),
+		'invoice__sent'                         => array( 'label' => __( 'Invoice: Sent', 'zero-bs-crm' ), 'ico' => 'fa-share-square-o' ),
+		'invoice__part_paid'                    => array( 'label' => __( 'Invoice: Part Paid', 'zero-bs-crm' ), 'ico' => 'fa-money' ),
+		'invoice__paid'                         => array( 'label' => __( 'Invoice: Paid', 'zero-bs-crm' ), 'ico' => 'fa-money' ),
+		'invoice__refunded'                     => array( 'label' => __( 'Invoice: Refunded', 'zero-bs-crm' ), 'ico' => 'fa-money' ),
+		'transaction'                           => array( 'label' => __( 'Transaction', 'zero-bs-crm' ), 'ico' => 'fa-credit-card' ),
+		'feedback'                              => array( 'label' => __( 'Feedback', 'zero-bs-crm' ), 'ico' => 'fa-commenting' ),
+		'tweet'                                 => array( 'label' => __( 'Tweet', 'zero-bs-crm' ), 'ico' => 'fa-twitter' ),
+		'facebook_post'                         => array( 'label' => __( 'Facebook Post', 'zero-bs-crm' ), 'ico' => 'fa-facebook-official' ),
+		'other_contact'                         => array( 'label' => __( 'Other contact', 'zero-bs-crm' ), 'ico' => 'fa-users' ),
+		'created'                               => array( 'locked' => true, 'label' => __( 'Created', 'zero-bs-crm' ), 'ico' => 'fa-plus-circle' ),
+		'updated'                               => array( 'locked' => true, 'label' => __( 'Updated', 'zero-bs-crm' ), 'ico' => 'fa-pencil-square-o' ),
+		'quote_created'                         => array( 'locked' => true, 'label' => __( 'Quote Created', 'zero-bs-crm' ), 'ico' => 'fa-plus-circle' ),
+		'invoice_created'                       => array( 'locked' => true, 'label' => __( 'Invoice Created', 'zero-bs-crm' ), 'ico' => 'fa-plus-circle' ),
+		'event_created'                         => array( 'locked' => true, 'label' => __( 'Task Created', 'zero-bs-crm' ), 'ico' => 'fa-calendar' ),
+		'task_created'                          => array( 'locked' => true, 'label' => __( 'Task Created', 'zero-bs-crm' ), 'ico' => 'fa-calendar' ),
+		'transaction_created'                   => array( 'locked' => true, 'label' => __( 'Transaction Created', 'zero-bs-crm' ), 'ico' => 'fa-credit-card' ),
+		'transaction_updated'                   => array( 'locked' => true, 'label' => __( 'Transaction Updated', 'zero-bs-crm' ), 'ico' => 'fa-credit-card' ),
+		'transaction_deleted'                   => array( 'locked' => true, 'label' => __( 'Transaction Deleted', 'zero-bs-crm' ), 'ico' => 'fa-credit-card' ),
+		'form_filled'                           => array( 'locked' => true, 'label' => __( 'Form Filled', 'zero-bs-crm' ), 'ico' => 'fa-wpforms' ),
+		'api_action'                            => array( 'locked' => true, 'label' => __( 'API Action', 'zero-bs-crm' ), 'ico' => 'fa-random' ),
+		'bulk_action__merge'                    => array( 'locked' => true, 'label' => __( 'Bulk Action: Merge', 'zero-bs-crm' ), 'ico' => 'fa-compress' ),
+		'client_portal_user_created'            => array( 'locked' => true, 'label' => __( 'Client Portal User Created', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'client_portal_access_changed'          => array( 'locked' => true, 'label' => __( 'Client Portal Access Changed', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'status_change'                         => array( 'locked' => true, 'label' => __( 'Status Change', 'zero-bs-crm' ), 'ico' => 'fa-random' ),
+		'contact_changed_details_via_portal'    => array( 'locked' => true, 'label' => __( 'Contact Changed via Portal', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'contact_changed_details_via_wpprofile' => array( 'locked' => true, 'label' => __( 'Contact Changed via WordPress Profile', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'contact_changed_details_via_woomyacc'  => array( 'locked' => true, 'label' => __( 'Contact Changed via WooCommerce My Account', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'contact_changed_details_via_mailpoet'  => array( 'locked' => true, 'label' => __( 'Contact Changed via MailPoet', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'subscriber_deleted_in_mailpoet'        => array( 'locked' => true, 'label' => __( 'Subscriber deleted in MailPoet', 'zero-bs-crm' ), 'ico' => 'fa-times' ),
+		'contact_change_details_attempt'        => array( 'locked' => true, 'label' => __( 'Attempted Contact detail change', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
 
-        'zerobs_company' => array(
-        
-                    'note'=> array("label" => __("Note","zero-bs-crm"), "ico" => "fa-sticky-note-o"),
-                    'call'=> array("label" => __("Call","zero-bs-crm"), "ico" => "fa-phone-square"),
-                    'email'=> array("label" => __("Email","zero-bs-crm"), "ico" => "fa-envelope-o"),
-                    'created'=> array("locked" => true,"label" => __("Created","zero-bs-crm"), "ico" => "fa-plus-circle"),
-                    'updated'=> array("locked" => true,"label" => __("Updated","zero-bs-crm"), "ico" => "fa-pencil-square-o")
+	),
 
-        ),
+	'zerobs_company'  => array(
 
-    );
-    
+		'note'    => array( 'label' => __( 'Note', 'zero-bs-crm' ), 'ico' => 'fa-sticky-note-o' ),
+		'call'    => array( 'label' => __( 'Call', 'zero-bs-crm' ), 'ico' => 'fa-phone-square' ),
+		'email'   => array( 'label' => __( 'Email', 'zero-bs-crm' ), 'ico' => 'fa-envelope-o' ),
+		'created' => array( 'locked' => true, 'label' => __( 'Created', 'zero-bs-crm' ), 'ico' => 'fa-plus-circle' ),
+		'updated' => array( 'locked' => true, 'label' => __( 'Updated', 'zero-bs-crm' ), 'ico' => 'fa-pencil-square-o' ),
+
+	),
+
+	// // phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
+);
 
     function zeroBSCRM_permifyLogType($logTypeStr=''){
 
@@ -211,8 +213,8 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                 <table class="form-table wh-metatab wptbp" id="wptbpMetaBoxLogs">
                     
                     <tr>
-                        <td><h2><span id="zbsActiveLogCount"><?php echo esc_html( zeroBSCRM_prettifyLongInts(count($zbsLogs)) ); ?></span> <?php esc_html_e("Logs","zero-bs-crm");?></h2></td>
-                        <td><button type="button" class="ui primary button button-primary button-large" id="zbscrmAddLog"><?php esc_html_e("Add Log","zero-bs-crm");?></button></td>
+								<td><h4><span id="zbsActiveLogCount"><?php echo esc_html( zeroBSCRM_prettifyLongInts( count( $zbsLogs ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></span> <?php esc_html_e( 'Logs', 'zero-bs-crm' ); ?></h4></td>
+								<td><button type="button" class="ui button black jpcrm-button" id="zbscrmAddLog"><?php esc_html_e( 'Add Log', 'zero-bs-crm' ); ?></button></td>
                     </tr>
 
                     <!-- this line will pop/close with "add log" button -->
@@ -239,56 +241,24 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                                     }
                                 } 
 
-                                /*
-
-                                <!-- hard coded for first fix -->
-                                <option disabled="disabled" value="">== General ==</option>
-                                <option selected="selected">Note</option>
-                                <option disabled="disabled" value="">== Contact ==</option>
-                                <option>Call</option>
-                                <option>Email</option>
-                                <option>Meeting</option>
-                                <option disabled="disabled" value="">== Quotes ==</option>
-                                <option>Quote: Sent</option>
-                                <option>Quote: Accepted</option>
-                                <option>Quote: Refused</option>
-                                <option disabled="disabled" value="">== Invoices ==</option>
-                                <option>Invoice: Sent</option>
-                                <option>Invoice: Part Paid</option>
-                                <option>Invoice: Paid</option>
-                                <option>Invoice: Refunded</option>
-                                <option disabled="disabled" value="">== Transaction ==</option>
-                                <option>Transaction</option>
-                                <option disabled="disabled" value="">== Social Media ==</option>
-                                <option>Tweet</option>
-                                <option>Facebook Post</option>
-                                <option disabled="disabled" value="">== CRM Actions ==</option>
-                                <option>Created</option>
-                                <option>Updated</option>
-                                <option>Quote Created</option>
-                                <option>Invoice Created</option>
-                                <option>Form Filled</option>
-
-                                */
-
                                 ?>
                             </select>
 
                             <br />
 
                             <label for="zbsAddLogMainDesc"><?php esc_html_e("Activity Description","zero-bs-crm")?>:</label>
-                            <input type="text" class="form-control" id="zbsAddLogMainDesc" placeholder="e.g. <?php esc_attr_e('Called and talked to Todd about service x, seemed keen',"zero-bs-crm");?>" autocomplete="zbslog-<?php echo esc_attr( time() ); ?>" />
+														<input type="text" class="form-control" id="zbsAddLogMainDesc" placeholder="e.g. <?php esc_attr_e( 'Called and talked to Todd about service x, seemed keen', 'zero-bs-crm' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 
                             <label for="zbsAddLogDetailedDesc"><?php esc_html_e("Activity Detailed Notes","zero-bs-crm");?>:</label>
-                            <textarea class="form-control" id="zbsAddLogDetailedDesc" autocomplete="zbslog-<?php echo esc_attr( time() ); ?>"></textarea>
+														<textarea class="form-control" id="zbsAddLogDetailedDesc" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>"></textarea>
 
                             <label for="zbsAddLogPinNote"><?php esc_html_e( 'Pin note', 'zero-bs-crm' ); ?>:</label>
                             <input type="checkbox" id="zbsAddLogPinNote" />
 
                             <div id="zbsAddLogActions">
                                 <div id="zbsAddLogUpdateMsg"></div>
-                                <button type="button" class="ui red button button-info button-large" id="zbscrmAddLogCancel"><?php esc_html_e("Cancel","zero-bs-crm");?></button>
-                                <button type="button" class="ui green button button-primary button-large" id="zbscrmAddLogSave"><?php esc_html_e("Save Log","zero-bs-crm");?></button>
+											<button type="button" class="jpcrm-button white-bg" id="zbscrmAddLogCancel"><?php esc_html_e( 'Cancel', 'zero-bs-crm' ); ?></button>
+											<button type="button" class="jpcrm-button" id="zbscrmAddLogSave"><?php esc_html_e( 'Save Log', 'zero-bs-crm' ); ?></button>
                             </div>
 
                         </div>
@@ -304,7 +274,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                             </div>
 
                             <label for="zbsEditLogType"><?php esc_html_e("Activity Type","zero-bs-crm");?>:</label>
-                            <select id="zbsEditLogType" class="form-control zbsUpdateTypeEdit" autocomplete="zbslog-<?php echo esc_attr( time() ); ?>">
+														<select id="zbsEditLogType" class="form-control zbsUpdateTypeEdit" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>">
                                 <?php global $zeroBSCRM_logTypes; 
                                 if (isset($zeroBSCRM_logTypes[$this->postType]) && count($zeroBSCRM_logTypes[$this->postType]) > 0) foreach ($zeroBSCRM_logTypes[$this->postType] as $logKey => $logType){
 
@@ -316,46 +286,16 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                                     }
                                 } 
 
-                                /*
-                                <!-- hard coded for first fix -->
-                                <option disabled="disabled" value="">== General ==</option>
-                                <option>Note</option>
-                                <option disabled="disabled" value="">== Contact ==</option>
-                                <option>Call</option>
-                                <option>Email</option>
-                                <option>Meeting</option>
-                                <option disabled="disabled" value="">== Quotes ==</option>
-                                <option>Quote: Sent</option>
-                                <option>Quote: Accepted</option>
-                                <option>Quote: Refused</option>
-                                <option disabled="disabled" value="">== Invoices ==</option>
-                                <option>Invoice: Sent</option>
-                                <option>Invoice: Part Paid</option>
-                                <option>Invoice: Paid</option>
-                                <option>Invoice: Refunded</option>
-                                <option disabled="disabled" value="">== Transaction ==</option>
-                                <option>Transaction</option>
-                                <option disabled="disabled" value="">== Social Media ==</option>
-                                <option>Tweet</option>
-                                <option>Facebook Post</option>
-                                <option disabled="disabled" value="">== CRM Actions ==</option>
-                                <option>Created</option>
-                                <option>Updated</option>
-                                <option>Quote Created</option>
-                                <option>Invoice Created</option>
-                                <option>Form Filled</option>
-                                */
-
                                 ?>
                             </select>
 
                             <br />
 
                             <label for="zbsEditLogMainDesc"><?php esc_html_e("Activity Description","zero-bs-crm");?>:</label>
-                            <input type="text" class="form-control" id="zbsEditLogMainDesc" placeholder="e.g. 'Called and talked to Todd about service x, seemed keen'" autocomplete="zbslog-<?php echo esc_attr( time() ); ?>" />
+														<input type="text" class="form-control" id="zbsEditLogMainDesc" placeholder="e.g. 'Called and talked to Todd about service x, seemed keen'" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 
                             <label for="zbsEditLogDetailedDesc"><?php esc_html_e("Activity Detailed Notes","zero-bs-crm");?>:</label>
-                            <textarea class="form-control" id="zbsEditLogDetailedDesc" autocomplete="zbslog-<?php echo esc_attr( time() ); ?>"></textarea>
+														<textarea class="form-control" id="zbsEditLogDetailedDesc" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>"></textarea>
 
                             <label for="zbsEditLogPinNote"><?php esc_html_e( 'Pin note', 'zero-bs-crm' ); ?>:</label>
                             <input type="checkbox" id="zbsEditLogPinNote" />
@@ -434,31 +374,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                     echo 'var zbsLogTypes = '.json_encode($zeroBSCRM_logTypes[$this->postType]).';';
 
                 } 
-
-                /*
-                var zbsLogTypes = {
-
-                    'note': { label: 'Note', ico: 'fa-sticky-note-o' },
-                    'call': { label: 'Call', ico: 'fa-phone-square' },
-                    'email': { label: 'Email', ico: 'fa-envelope-o' },
-                    'meeting': { label: 'Meeting', ico: 'fa-users' },
-                    'quote__sent': { label: 'Quote: Sent', ico: 'fa-share-square-o' },
-                    'quote__accepted': { label: 'Quote: Accepted', ico: 'fa-thumbs-o-up' },
-                    'quote__refused': { label: 'Quote: Refused', ico: 'fa-ban' },
-                    'invoice__sent': { label: 'Invoice: Sent', ico: 'fa-share-square-o' },
-                    'invoice__part_paid': { label: 'Invoice: Part Paid', ico: 'fa-money' },
-                    'invoice__paid': { label: 'Invoice: Paid', ico: 'fa-money' },
-                    'invoice__refunded': { label: 'Invoice: Refunded', ico: 'fa-money' },
-                    'transaction': { label: 'Transaction', ico: 'fa-credit-card' },
-                    'tweet': { label: 'Tweet', ico: 'fa-twitter' },
-                    'facebook_post': { label: 'Facebook Post', ico: 'fa-facebook-official' },
-                    'created': { label: 'Created', ico: 'fa-plus-circle' },
-                    'updated': { label: 'Updated', ico: 'fa-pencil-square-o' },
-                    'quote_created': { label: 'Quote Created', ico: 'fa-plus-circle' },
-                    'invoice_created': { label: 'Invoice Created', ico: 'fa-plus-circle' },
-                    'form_filled': { label: 'Form Filled', ico: 'fa-wpforms' }
-
-                }; */ ?>
+				?>
 
                 var zbsLogIndex = <?php
 
@@ -478,7 +394,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                         echo json_encode($zbsLogsExpose);
                     } else
                         echo json_encode(array());
-
+                // phpcs:disable Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed
                 ?>;
 
                 var zbsLogEditing = -1;
@@ -610,7 +526,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                                             // hide + clear form
                                             jQuery('#zbsAddLogFormTR').hide();
                                             jQuery('#zbscrmAddLog').show();
-                                            jQuery('#zbsAddLogType').val('Note');
+                                            jQuery('#zbsAddLogType').val('note');
                                             jQuery('#zbsAddLogMainDesc').val('');
                                             jQuery('#zbsAddLogDetailedDesc').val('');
                                             jQuery('#zbsAddLogPinNote').prop('checked', false);
@@ -1673,6 +1589,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                 }
                 
                 </script><?php
+                // phpcs:enable Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed
 
         } // / if post type
 

@@ -82,7 +82,7 @@ Every created Data Sync Client Store will also have an `.endpoints` property tha
 ```ts
 // favorites.ts
 const result = await favorites.enabled.endpoints.GET();
-const result = await favorites.enabled.endpoints.POST( true );;
+const result = await favorites.enabled.endpoints.POST(true);
 ```
 
 Note that the endpoint methods are type-safe too, so you can't pass a value that doesn't match the schema. If you do, errors will be thrown.
@@ -92,10 +92,10 @@ If you need to interact with the REST API endpoints directly, you can use the [A
 ```ts
 const api = new API();
 // API Must be initialized with a nonce, otherwise WordPress REST API will return a 403 error.
-api.initialize( 'jetpack_favorites', window.jetpack_favorites.rest_api.nonce );
+api.initialize('jetpack_favorites', window.jetpack_favorites.rest_api.nonce);
 
 // Send a request to any endpoint:
-const result = await api.request( 'GET', 'foobar', "<endpoint-nonce>");
+const result = await api.request('GET', 'foobar', '<endpoint-nonce>');
 ```
 
 To dive in deeper, have a look at [API](./src/API.ts) and [Endpoint](./src/Endpoint.ts) source files.
@@ -122,7 +122,7 @@ export const favorites = {
 };
 ```
 
-And use the stores in Svelte. 
+And use the stores in Svelte.
 
 ```svelte
 <div class="posts">
@@ -133,6 +133,57 @@ And use the stores in Svelte.
 </div>
 ```
 
+### Error Handling
+
+Values are synced with the REST API asynchronously and Synced Store is going to attempt to automatically retry 3 times before giving up and reverting the UI value to the last known value.
+
+After 3 attempts have failed, Synced Store will [add the error to the error store](https://github.com/Automattic/jetpack/blob/981d325c76ceaa4e46ee00751307850d8b0bb947/projects/js-packages/svelte-data-sync-client/src/SyncedStore.ts#L136-L146).
+
+The error store can be used to display an error message to the user.
+
+You can view the available properties of the error object in the [SyncedStoreError](./src/types.ts#L46) type.
+
+```svelte
+<script>
+	const posts = client.createAsyncStore('posts', z.array(favorite_post_schema));
+	const errors = posts.errors;
+</script>
+
+{#if $errors.length > 0}
+	{@const error = $errors[0]}
+	<div class="error">
+		<h1>Error</h1>
+		<p>{error.message}</p>
+	</div>
+{/if}
+```
+
+#### Global Error Store
+
+`initializeClient()` also returns a global error store that can be used to display errors from all stores.
+
+It uses `derived()` under the hood, so it will only update when the error store of any of the stores changes.
+
+For example, assuming
+
+```svelte
+<script>
+	// Import the client that was setup using `initializeClient()`
+	import { favoritesClient } from './favorites.ts'
+	const globalErrors = favoritesClient.globalErrorStore();
+</script>
+
+<div class="error-area">
+	{#if $globalErrors.length > 0}
+		{#each $globalErrors as error}
+			<div class="error">
+				<h1>Error</h1>
+				<p>{error.message}</p>
+			</div>
+		{/each}
+	{/if}
+</div>
+```
 
 ## Security
 

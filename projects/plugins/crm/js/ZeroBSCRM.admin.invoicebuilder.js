@@ -200,6 +200,9 @@ function zbscrm_JS_draw_invoice_html() {
 		// hide this to show msg properly, also
 		jQuery( '#zbs_loader, #zbs_invoice' ).hide();
 	}
+
+	zeroBSCRMJS_showContactLinkIf(jQuery( '#zbs_invoice_contact' ).val());
+	zeroBSCRMJS_showCompanyLinkIf(jQuery( '#zbs_invoice_company' ).val());
 }
 
 //draws the status line (and links that are present (download PDF, preview, send))
@@ -225,7 +228,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 			html +=
 				'<a href="' +
 				res.invoiceObj.preview_link +
-				'" target="_blank" class="ui button blue" id="zbs_invoice_preview">' +
+				'" target="_blank" class="ui button black" id="zbs_invoice_preview">' +
 				zbscrm_JS_invoice_lang( 'preview' ) +
 				'</a>';
 		}
@@ -233,7 +236,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 		//pdf download only displayed in PDF set.
 		if ( res.invoiceObj.pdf_installed ) {
 			html +=
-				'<button id="zbs_invoicing_download_pdf" type="button" class="ui button olive">' +
+				'<button id="zbs_invoicing_download_pdf" type="button" class="ui button black">' +
 				zbscrm_JS_invoice_lang( 'dl_pdf' ) +
 				'</button>';
 			Formhtml =
@@ -254,7 +257,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 				zbscrm_JS_validateEmail( potentialEmail )
 			) {
 				html +=
-					'<button type="button" id="zbs_invoicing_send_email" class="ui button yellow">' +
+					'<button type="button" id="zbs_invoicing_send_email" class="ui button black">' +
 					zbscrm_JS_invoice_lang( 'send_email' ) +
 					'</button>';
 			}
@@ -375,6 +378,15 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 			html += '</tr>';
 		}
 	}
+	// invoice status.
+	html +=
+	'<tr class="wh-large jpcrm-invoice-status"><th><label for="status">' +
+	zbscrm_JS_invoice_lang( 'invoice_status' ) +
+	':</label></th>';
+	html += '<td>';
+	html += generateInvoiceStatusHtml( res );
+	html += '</td>';
+	html += '</tr>';
 
 	//invoice date :-) date picker. Can we fix this for good in here now? formating etc?
 	html +=
@@ -391,7 +403,7 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 
 	//reference
 	html += '<tr class="wh-large">';
-	html += '<th><label for="ref">' + zbscrm_JS_invoice_lang( 'reference' ) + ':</label></th>';
+	html += '<th><label for="ref">' + zbscrm_JS_invoice_lang( 'reference' ) + '</label></th>';
 	html += '<td>';
 	if ( 'reftype' in res.invoiceObj.settings && res.invoiceObj.settings.reftype === 'autonumber' ) {
 		if ( res.invoiceObj.status === 'draft' ) {
@@ -426,7 +438,7 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 		html +=
 			'<input type="text" name="zbsi_ref" id="ref" class="form-control widetext" placeholder="" value="' +
 			jpcrm.esc_attr( res.invoiceObj.id_override ) +
-			'" autocomplete="zbsinv" />';
+			'" autocomplete="' + Math.random() + '" />';
 	}
 	html += '</td>';
 	html += '</tr>';
@@ -507,6 +519,32 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 	html += '</table></div>';
 	html += '<div class="clear"></div>';
 
+	return html;
+}
+
+/**
+ * Helper function to generate the HTML for the invoice status selection dropdown.
+ *
+ * @param res
+ */
+function generateInvoiceStatusHtml( res ) {
+	let html = '<select id="invoice-status" name="invoice_status">';
+	const currentStatus = res.invoiceObj.status;
+	const allStatuses = [ 
+		[ 'Draft', 'status_draft' ],
+		[ 'Unpaid', 'status_unpaid' ],
+		[ 'Paid', 'status_paid' ],
+		[ 'Overdue', 'status_overdue'],
+		[ 'Deleted', 'status_deleted']
+	];
+	for ( const statusItem of allStatuses ) {
+		html += '<option value=' + statusItem[0];
+		if ( currentStatus === statusItem[0] ) {
+			html += ' selected';
+		}
+		html += '>' + zbscrm_JS_invoice_lang( statusItem[1] ) + '</option>';
+	}
+	html += '</select>';
 	return html;
 }
 
@@ -650,7 +688,7 @@ function zbscrm_JS_draw_invoice_biz_info( res ) {
 	html += '<div id="zbs-business-info-wrapper">';
 	html += '<div class="business-info-toggle">';
 	html +=
-		'<i class="fa fa-chevron-circle-right" aria-hidden="true"></i> <span class="your-info-biz">' +
+		'<i class="fa fa-chevron-circle-right" aria-hidden="true" style="color:black;"></i> <span class="your-info-biz">' +
 		zbscrm_JS_invoice_lang( 'biz_info' ) +
 		'</span>';
 	html += '</div>';
@@ -830,6 +868,7 @@ function zbscrm_JS_draw_invoice_totals( res ) {
 	shipping = res.invoiceObj.totals;
 	//this will be the setting for what tax rate to apply to shipping (not stored (yet) in the data)
 	shipping.taxes = res.invoiceObj.shipping_taxes;
+	shipping.tax = res.invoiceObj.shipping_tax;
 
 	if ( res.invoiceObj.settings.invpandp == 1 && res.invoiceObj.settings.invtax == 1 ) {
 		//tax on shipping (select)
@@ -1052,7 +1091,7 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 
 	var tax_id;
 
-	if ( typeof v.taxes === 'undefined' || v.taxes == null ) {
+	if ( typeof v.taxes === 'undefined' || v.taxes == null || v.taxes == '' ) {
 		tax_id = 0;
 	} else {
 		tax_id = parseInt( v.taxes ); // fine while we have 1 tax, if multi-select on tax, this'll be a CSV, e.g. "130,132"
@@ -1073,7 +1112,7 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 			i +
 			'">';
 	}
-
+	
 	selected = '';
 	if ( tax_id == 0 ) {
 		selected = 'selected';
@@ -1095,6 +1134,7 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 		taxhtml +=
 			'<option value="' + t.id + '" ' + selected + '>' + t.name + ' : ' + t.rate + '%</option>';
 	} );
+	
 	taxhtml += '</optgroup>';
 	taxhtml += '</select>';
 
@@ -1322,8 +1362,16 @@ function zbscrm_JS_calculate_invoice_tax_table() {
 		total_amount = total_amount + this_row_amount[ index ];
 
 		if ( this_tax_id > 0 ) {
-			this_tax_line_data = zbscrm_JS_pickTaxRate( this_tax_id ); //tax_table_index[this_tax_id];
-			tax_percent[ index ] = this_tax_line_data.id;
+			const selectedOption = this.options[this.selectedIndex];
+
+			// Check if the tax is the absolute amount
+			if ( selectedOption.classList.contains( 'zbs-fixed-tax' ) ) {
+				this_tax_amount = this_tax_id;
+				tax_percent[ index ] = this_tax_amount / this_row_amount[ index ]; 
+			} else {
+				this_tax_line_data = zbscrm_JS_pickTaxRate( this_tax_id ); //tax_table_index[this_tax_id];
+				tax_percent[ index ] = this_tax_line_data.id;
+			}
 		} else {
 			tax_percent[ index ] = 0;
 		}
@@ -1827,85 +1875,22 @@ function zbscrm_JS_bindInitialLearnLinks() {
  * @param contactID
  */
 function zeroBSCRMJS_showContactLinkIf( contactID ) {
-	// remove old
-	// NOT USING this bit jQuery('#zbs-customer-title .zbs-view-contact').remove();
 	jQuery( '#zbs-invoice-learn-nav .zbs-invoice-quicknav-contact' ).remove();
 
 	if ( typeof contactID !== 'undefined' && contactID !== null && contactID !== '' ) {
 		contactID = parseInt( contactID );
 		if ( contactID > 0 ) {
-			// seems legit, add
-
-			/* not using (from trans originally) var html = '<div class="ui right floated mini animated button zbs-view-contact">';
-						html += '<div class="visible content">' + zbscrm_JS_invoice_lang('viewcontact') + '</div>';
-							html += '<div class="hidden content">';
-						    	html += '<i class="user icon"></i>';
-						  	html += '</div>';
-						html += '</div>';
-
-				jQuery('#zbs-customer-title').prepend(html);
-
-				// bind
-				zeroBSCRMJS_bindContactLinkIf();
-				*/
-
-			// ALSO show in header bar, if so
 			var navButton =
-				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-contact ui icon button blue mini labeled" href="' +
+				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-contact jpcrm-button" href="' +
 				window.zbs_invoice.invoiceObj.settings.contacturlprefix +
 				contactID +
-				'"><i class="user icon"></i> ' +
-				zbscrm_JS_invoice_lang( 'contact' ) +
+				'">' +
+				window.zbsMetaboxFilesLang.viewcontact +
 				'</a>';
 			jQuery( '#zbs-invoice-learn-nav' ).prepend( navButton );
 		}
 	}
 }
-
-/* Not using, (from trans editor originally)
-// click for quicknav :)
-function zeroBSCRMJS_bindContactLinkIf(){
-
-	jQuery('#zbs-customer-title .zbs-view-contact').off('click').on( 'click', function(){
-
-		// get from hidden input
-		var contactID = parseInt(jQuery("#customer").val());//jQuery(this).attr('data-invid');
-
-		if (typeof contactID != "undefined" && contactID !== null && contactID !== ''){
-			contactID = parseInt(contactID);
-			if (contactID > 0){
-
-				var url = '<?php echo jpcrm_esc_link('edit',-1,'zerobs_customer',true); ?>' + contactID;
-
-				// bla bla https://stackoverflow.com/questions/1574008/how-to-simulate-target-blank-in-javascript
-				window.open(url,'_parent');
-			}
-		}
-
-	});
-}
-
-// click for quicknav :)
-function zeroBSCRMJS_bindCompanyLinkIf(){
-
-	jQuery('#zbs-company-title .zbs-view-company').off('click').on( 'click', function(){
-
-		// get from hidden input
-		var companyID = parseInt(jQuery("#zbsct_company").val());//jQuery(this).attr('data-invid');
-
-		if (typeof companyID != "undefined" && companyID !== null && companyID !== ''){
-			companyID = parseInt(companyID);
-			if (companyID > 0){
-
-				var url = '<?php echo jpcrm_esc_link('edit',-1,'zerobs_company',true); ?>' + companyID;
-
-				// bla bla https://stackoverflow.com/questions/1574008/how-to-simulate-target-blank-in-javascript
-				window.open(url,'_parent');
-			}
-		}
-
-	});
-}*/
 
 // if an Company is selected (against a trans) can 'quick nav' to Company
 /**
@@ -1919,29 +1904,12 @@ function zeroBSCRMJS_showCompanyLinkIf( companyID ) {
 	if ( typeof companyID !== 'undefined' && companyID !== null && companyID !== '' ) {
 		companyID = parseInt( companyID );
 		if ( companyID > 0 ) {
-			// seems like a legit inv, add
-
-			/* not using here, (orig from trans)
-				var html = '<div class="ui right floated mini animated button zbs-view-company">';
-						html += '<div class="visible content"><?php  zeroBSCRM_slashOut(__('View','zero-bs-crm')); ?></div>';
-							html += '<div class="hidden content">';
-						    	html += '<i class="building icon"></i>';
-						  	html += '</div>';
-						html += '</div>';
-
-				jQuery('#zbs-company-title').prepend(html);
-
-				// bind
-				zeroBSCRMJS_bindCompanyLinkIf();
-				*/
-
-			// ALSO show in header bar, if so
 			var navButton =
-				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-company ui icon button blue mini labeled" href="' +
+				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-company jpcrm-button" href="' +
 				window.zbs_invoice.invoiceObj.settings.companyurlprefix +
 				companyID +
-				'"><i class="building icon"></i> ' +
-				zbscrm_JS_invoice_lang( 'company' ) +
+				'">' +
+				window.zbsMetaboxFilesLang.viewcompany +
 				'</a>';
 			jQuery( '#zbs-invoice-learn-nav' ).prepend( navButton );
 		}
@@ -1972,6 +1940,7 @@ function zbscrm_JS_bind_invoice_actions() {
 			jQuery( '#wh-logo-set-img' ).attr( 'src', '' ).hide();
 			jQuery( '#zbs_invoice_logo' ).val( '' );
 			jQuery( '.wh-logo' ).removeClass( 'hide' ).show();
+			jQuery( '.wh-logo-set input' ).val( '' );
 			jQuery( '.wh-logo-set' ).hide();
 		} );
 	jQuery( '.business-info-toggle' )
@@ -2163,8 +2132,9 @@ function zbscrmJS_sendInvoiceModal() {
 				'</div>',
 			type: 'question',
 			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
+			confirmButtonColor: '#000',
+			cancelButtonColor: '#fff',
+			cancelButtonText: '<span style="color: #000">Cancel</span>',
 			confirmButtonText: zbscrm_JS_invoice_lang( 'sendthemail' ),
 			//allowOutsideClick: false
 		} ).then( function ( result ) {

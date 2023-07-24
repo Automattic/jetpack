@@ -363,6 +363,14 @@ class Jetpack_WPCOM_Block_Editor {
 				$version,
 				true
 			);
+			wp_enqueue_style(
+				'wpcom-block-editor-wpcom-editor-styles',
+				$debug
+					? '//widgets.wp.com/wpcom-block-editor/wpcom.editor.css?minify=false'
+					: '//widgets.wp.com/wpcom-block-editor/wpcom.editor.min.css',
+				array(),
+				$version
+			);
 		}
 
 		if ( $this->is_iframed_block_editor() ) {

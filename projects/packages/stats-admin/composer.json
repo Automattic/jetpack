@@ -4,8 +4,9 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-stats": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-jitm": "@dev"
@@ -14,6 +15,9 @@
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "dev-master"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -47,7 +51,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-stats-admin",
 		"branch-alias": {
-			"dev-trunk": "0.6.x-dev"
+			"dev-trunk": "0.12.x-dev"
 		},
 		"textdomain": "jetpack-stats-admin",
 		"version-constants": {

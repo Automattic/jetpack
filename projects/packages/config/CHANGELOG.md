@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.3] - 2023-06-26
+### Changed
+- Blaze can now be loaded as a module, instead of relying on the Config package. [#31479]
+
+## [1.15.2] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.15.1] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [1.15.0] - 2023-03-27
+### Added
+- Initialize yoast promo package in jetpack plugin [#29641]
+
 ## [1.14.0] - 2023-02-20
 ### Added
 - Added the Import package. [#28824]
@@ -168,6 +184,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Trying to add deterministic initialization.
 
+[1.15.3]: https://github.com/Automattic/jetpack-config/compare/v1.15.2...v1.15.3
+[1.15.2]: https://github.com/Automattic/jetpack-config/compare/v1.15.1...v1.15.2
+[1.15.1]: https://github.com/Automattic/jetpack-config/compare/v1.15.0...v1.15.1
+[1.15.0]: https://github.com/Automattic/jetpack-config/compare/v1.14.0...v1.15.0
 [1.14.0]: https://github.com/Automattic/jetpack-config/compare/v1.13.0...v1.14.0
 [1.13.0]: https://github.com/Automattic/jetpack-config/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/Automattic/jetpack-config/compare/v1.11.1...v1.12.0

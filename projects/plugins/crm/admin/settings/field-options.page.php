@@ -194,7 +194,17 @@ if ( isset( $sbupdated ) ) {
 									echo ' checked="checked"';}
 								?>
 								class="form-control" />
-								<p style="margin-top:4px"><?php esc_html_e( 'Choose whether to show or hide Contact/' . jpcrm_label_company() . ' ID on customer record and manage pages', 'zero-bs-crm' ); ?></p>
+								<p style="margin-top:4px">
+								<?php
+								echo esc_html(
+									sprintf(
+										/* Translators: %s: is the company label */
+										__( 'Choose whether to show or hide Contact/%s ID on contact record and manage pages', 'zero-bs-crm' ),
+										jpcrm_label_company()
+									)
+								);
+								?>
+								</p>
 							</td>
 						</tr>
 
@@ -401,7 +411,7 @@ if ( isset( $sbupdated ) ) {
 								}
 
 								?>
-								<p style="margin-top:4px"><?php esc_html_e( 'This setting determines which status will automatically be assigned to new customer records where a status is not specified (e.g. via web form)', 'zero-bs-crm' ); ?></p>
+								<p style="margin-top:4px"><?php esc_html_e( 'This setting determines which status will automatically be assigned to new contact records where a status is not specified (e.g. via web form)', 'zero-bs-crm' ); ?></p>
 							</td>
 						</tr>
 						</tbody>
@@ -450,12 +460,12 @@ if ( isset( $sbupdated ) ) {
 
 								if ( empty( $zbsFunnelStr ) ) {
 									// } Defaults:
-									$zbsFunnelStr = 'Lead,Contacted,Customer,Upsell';
+									$zbsFunnelStr = 'Lead,Customer'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								}
 
 								?>
 								<input type="text" name="zbs-funnel" id="zbs-funnel" value="<?php echo esc_attr( $zbsFunnelStr ); ?>" class="form-control" />
-								<p style="margin-top:4px"><?php esc_html_e( 'Enter which statuses you want to display in the funnel. Starting at the top of the funnel', 'zero-bs-crm' ); ?>. e.g. Lead,Contacted,Customer,Upsell as a CSV value</p>
+								<p style="margin-top:4px"><?php esc_html_e( 'Enter which statuses you want to display in the funnel. Starting at the top of the funnel', 'zero-bs-crm' ); ?>. e.g. Lead,Customer as a CSV value</p>
 							</td>
 						</tr>
 

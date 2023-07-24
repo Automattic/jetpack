@@ -4,14 +4,16 @@ import {
 	Col,
 	Container,
 	Text,
-	Button,
 } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Logo from '../logo';
 import ConnectedPricingTable from '../pricing-table';
 import styles from './styles.module.scss';
+
+const ACTIVATE_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
 
 /**
  * Interstitial Page
@@ -21,13 +23,6 @@ import styles from './styles.module.scss';
  * @returns {React.Component}              Interstitial react component.
  */
 const InterstitialPage = ( { onScanAdd } ) => {
-	const [ getStartedButtonIsLoading, setGetStartedButtonIsLoading ] = useState( false );
-
-	const getStarted = useCallback( () => {
-		setGetStartedButtonIsLoading( true );
-		onScanAdd();
-	}, [ onScanAdd ] );
-
 	// Track view for Protect WAF page.
 	useAnalyticsTracks( {
 		pageViewEventName: 'protect_interstitial',
@@ -39,17 +34,16 @@ const InterstitialPage = ( { onScanAdd } ) => {
 			header={
 				<div className={ styles[ 'protect-header' ] }>
 					<Logo />
-					<Text>
-						{ __( 'Already have an existing plan or license key? ', 'jetpack-protect' ) }
-						<Button
-							className={ styles[ 'get-started-button' ] }
-							variant={ 'link' }
-							weight={ 'regular' }
-							onClick={ getStarted }
-							isLoading={ getStartedButtonIsLoading }
-						>
-							{ __( 'Click here to get started', 'jetpack-protect' ) }
-						</Button>
+					<Text variant="body-small">
+						{ createInterpolateElement(
+							__(
+								'Already have an existing plan or license key? <a>Click here to get started</a>',
+								'jetpack-protect'
+							),
+							{
+								a: <a href={ ACTIVATE_LICENSE_URL } />,
+							}
+						) }
 					</Text>
 				</div>
 			}

@@ -5,6 +5,7 @@
  * @package automattic/jetpack-waf
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Waf\Waf_Initializer;
 use Automattic\Jetpack\Waf\Waf_Runner;
 

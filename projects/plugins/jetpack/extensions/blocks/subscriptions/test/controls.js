@@ -27,6 +27,8 @@ jest.mock( '@wordpress/block-editor/build/components/use-setting', () => {
 	};
 } );
 
+jest.mock( '@wordpress/notices', () => {}, { virtual: true } );
+
 const setButtonBackgroundColor = jest.fn();
 const setGradient = jest.fn();
 const setTextColor = jest.fn();

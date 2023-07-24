@@ -21,7 +21,7 @@
 	.zbs-inv-no{
 		width: 80%;
 		float: left;
-		font-size: 18px;
+		font-size: 14px;
 	}
 	.zbs-inv-ref{
 		font-size: 22px;
@@ -80,7 +80,7 @@
 	#zbs-add-new-row{
 		padding: 8px;
 		background: #f5f5f5;
-		color: #238bd0;
+		color: black;
 		cursor: pointer;
 		text-align: center;
 		border: 1px solid #ddd;
@@ -234,7 +234,7 @@
 		.remove-row{
 			font-size:15px;
 			margin-top: 10px;
-			color: #238bd0;	
+			color: black;	
 		}
 		.third{
 			width: 200px !important;
@@ -295,13 +295,13 @@
 		.zbs-invoice-topper{
 			width:50%;
 			float:right;
+			min-width: 335px;
 			input, select{
 				// WH: changed for symmetry with rest of page width:80%;
 				width:100%;
 				float:left;
 			}
 			th{
-			    vertical-align: middle;
 			    text-align:right;
 			}
 		}
@@ -380,9 +380,9 @@
 		font-weight:100;
 		.fa{
 			color: #428bca;
-		    margin-right: 10px;
-		    font-size: 20px;
-		    font-weight: 100;
+		   margin-right: 10px;
+		   font-size: 20px;
+		   font-weight: 100;
 		}
 	}
 	#zbs-business-info-wrapper{
@@ -581,7 +581,6 @@
 	}
 	#zbs_invoice_actions{
 		padding: 15px 10px 15px 10px;
-	    background: #f5f5f5;
 	    margin-left: -12px;
 	    margin-right: -12px;
 	    margin-top: -6px;
@@ -751,24 +750,27 @@
 		margin-top: 20px;
 	    padding: 30px;
 	    width: 100%;
-	    background: aliceblue;
+	    background: var(--jp-gray-0);
 	    margin-bottom: 20px;
-	    border-radius: 11px;
-	    border: 1px solid #428bca;
+	    border-radius: 4px;
+	    border: 1px dashed var(--jp-gray-20);
 	    cursor:pointer;
 	    .fa{
-	    	color: #428bca;
+	    	color: black;
 	    	margin-right:5px;
+			margin-bottom:10px;
 	    	font-size:40px;
 	    	font-weight:100;
 	    }
 	    .wh-logo-text{
 		    font-weight: 300;
-		    color: #428bca;
+		    color: black;
 		    font-size: 18px;
 		    margin-left: 20px;
 		    position: absolute;
 		    top: 63px;
+		    display: contents;
+		    white-space: nowrap;
 	    }
 	}
 }
@@ -835,8 +837,6 @@
 
 //ZBS invoice actions
 .zbs-invoice-actions-bottom{
-	border-top: 1px solid #ddd;
-    background: #f5f5f5;
     margin-top: 20px;
     padding: 2px;
     margin-left: -12px;
@@ -911,5 +911,11 @@
 	}
 	label {
 		margin-bottom:0;
+	}
+}
+
+@media screen and (max-width: 782px) {
+	div.zbs-invoice-topper th {
+		text-align:left !important;
 	}
 }

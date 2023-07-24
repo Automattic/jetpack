@@ -40,7 +40,9 @@ const DiscountCard = ( {
 		} );
 	}, [ hasDiscount ] );
 
-	useEffect( () => markAsViewed( step ), [ markAsViewed, step ] );
+	useEffect( () => {
+		markAsViewed( step );
+	}, [ markAsViewed, step ] );
 
 	useEffect( () => {
 		if ( ! isLoading ) {

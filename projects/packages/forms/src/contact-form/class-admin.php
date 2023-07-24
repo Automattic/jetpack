@@ -1,6 +1,6 @@
 <?php
 /**
- * Contact_Form_Admin class.
+ * Admin class.
  *
  * @package automattic/jetpack-forms
  */
@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 
 /**
- * Class Grunion_Admin
+ * Class Admin
  *
  * Singleton for Grunion admin area support.
  */
@@ -222,6 +222,8 @@ class Admin {
 		}
 
 		$sheet = Google_Drive::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
+
+		$grunion->record_tracks_event( 'forms_export_responses', array( 'format' => 'gsheets' ) );
 
 		wp_send_json(
 			array(
@@ -663,12 +665,12 @@ class Admin {
 	public function grunion_manage_post_column_from( $post ) {
 		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post->ID );
 
-		if ( isset( $content_fields['_feedback_author'] ) ) {
+		if ( ! empty( $content_fields['_feedback_author'] ) ) {
 			echo esc_html( $content_fields['_feedback_author'] );
 			return;
 		}
 
-		if ( isset( $content_fields['_feedback_author_email'] ) ) {
+		if ( ! empty( $content_fields['_feedback_author_email'] ) ) {
 			printf(
 				"<a href='%1\$s' target='_blank'>%2\$s</a><br />",
 				esc_url( 'mailto:' . $content_fields['_feedback_author_email'] ),
@@ -677,8 +679,8 @@ class Admin {
 			return;
 		}
 
-		if ( isset( $content_fields['_feedback_ip'] ) ) {
-			echo esc_html( $content_fields['feedback_ip'] );
+		if ( ! empty( $content_fields['_feedback_ip'] ) ) {
+			echo esc_html( $content_fields['_feedback_ip'] );
 			return;
 		}
 
@@ -702,17 +704,30 @@ class Admin {
 		$post_content = get_post_field( 'post_content', $post->ID );
 		$content      = explode( '<!--more-->', $post_content );
 		$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-		$chunks       = explode( "\nArray", $content );
-		if ( $chunks[1] ) {
-			// re-construct the array string
-			$array = 'Array' . $chunks[1];
-			// re-construct the array
-			$rearray         = Contact_Form_Plugin::reverse_that_print( $array, true );
-			$response_fields = is_array( $rearray ) ? $rearray : array();
-		} else {
-			// couldn't reconstruct array, use the old method
-			$content_fields  = Contact_Form_Plugin::parse_fields_from_content( $post->ID );
-			$response_fields = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
+		$chunks       = explode( "\nJSON_DATA", $content );
+
+		$response_fields = array();
+
+		if ( is_array( $chunks ) && isset( $chunks[1] ) ) {
+			$rearray = json_decode( $chunks[1], true );
+			if ( is_array( $rearray ) && isset( $rearray['feedback_id'] ) ) {
+				$response_fields = $rearray;
+			}
+		}
+
+		if ( empty( $response_fields ) ) {
+			$chunks = explode( "\nArray", $content );
+			if ( ! empty( $chunks[1] ) ) {
+				// re-construct the array string
+				$array = 'Array' . $chunks[1];
+				// re-construct the array
+				$rearray         = Contact_Form_Plugin::reverse_that_print( $array, true );
+				$response_fields = is_array( $rearray ) ? $rearray : array();
+			} else {
+				// couldn't reconstruct array, use the old method
+				$content_fields  = Contact_Form_Plugin::parse_fields_from_content( $post->ID );
+				$response_fields = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
+			}
 		}
 
 		$response_fields = array_diff_key( $response_fields, array_flip( $non_printable_keys ) );
@@ -727,7 +742,7 @@ class Admin {
 			printf(
 				'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 				esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-				esc_html( $value )
+				nl2br( esc_html( $value ) )
 			);
 		}
 		echo '</div>';
@@ -873,9 +888,9 @@ class Admin {
 			);
 			$actions['trash'] = sprintf(
 				'<a class="submitdelete" title="%s" href="%s">%s</a>',
-				esc_attr__( 'Trash', 'jetpack-forms' ),
+				esc_attr_x( 'Trash', 'verb', 'jetpack-forms' ),
 				get_delete_post_link( $post->ID ),
-				esc_html__( 'Trash', 'jetpack-forms' )
+				esc_html_x( 'Trash', 'verb', 'jetpack-forms' )
 			);
 		} elseif ( $post->post_status === 'spam' ) {
 			$actions['unspam unapprove'] = sprintf(
@@ -1041,7 +1056,9 @@ class Admin {
 			wp_die( esc_html__( 'You are not allowed to manage this item.', 'jetpack-forms' ) );
 		}
 
-		require_once __DIR__ . '/grunion-contact-form.php';
+		// init will construct/get the instance and make sure all the filters and actions
+		// are in place for this process to go through
+		Contact_Form_Plugin::init();
 
 		$current_menu = '';
 		if ( isset( $_POST['sub_menu'] ) && preg_match( '|post_type=feedback|', sanitize_text_field( wp_unslash( $_POST['sub_menu'] ) ) ) ) {
@@ -1176,7 +1193,7 @@ class Admin {
 				$status_html .= ' class="current"';
 			}
 
-			$status_html .= '>' . __( 'Trash', 'jetpack-forms' ) . ' <span class="count">';
+			$status_html .= '>' . _x( 'Trash', 'noun', 'jetpack-forms' ) . ' <span class="count">';
 			$status_html .= '(' . number_format( $status['trash'] ) . ')';
 			$status_html .= '</span></a>';
 			if ( isset( $status['spam'] ) ) {
@@ -1370,7 +1387,7 @@ class Admin {
 
 		$query = 'post_type=feedback&post_status=publish';
 
-		if ( isset( $_POST['limit'], $_POST['offset'] ) ) {
+		if ( isset( $_POST['limit'] ) && isset( $_POST['offset'] ) ) {
 			$query .= '&posts_per_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
 		}
 

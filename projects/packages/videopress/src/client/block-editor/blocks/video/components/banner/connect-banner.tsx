@@ -15,6 +15,7 @@ import type React from 'react';
 type ConnectBannerProps = {
 	isConnected: boolean;
 	isConnecting: boolean;
+	isModuleActive: boolean;
 	onConnect: () => void;
 };
 
@@ -26,6 +27,7 @@ type ConnectBannerProps = {
  */
 export default function ConnectBanner( {
 	onConnect,
+	isModuleActive,
 	isConnected,
 	isConnecting,
 }: ConnectBannerProps ): React.ReactElement {
@@ -37,6 +39,15 @@ export default function ConnectBanner( {
 	if ( isConnecting ) {
 		connectButtonText = __( 'Redirecting…', 'jetpack-videopress-pkg' );
 	}
+
+	const connectYourAccountMessage = __(
+		'Connect your account to continue using VideoPress',
+		'jetpack-videopress-pkg'
+	);
+	const connectJetpackModuleMessage = __(
+		'Enable Jetpack module to continue using VideoPress',
+		'jetpack-videopress-pkg'
+	);
 
 	return (
 		<Banner
@@ -51,7 +62,7 @@ export default function ConnectBanner( {
 				</Button>
 			}
 		>
-			{ __( 'Connect your account to continue using VideoPress', 'jetpack-videopress-pkg' ) }
+			{ isModuleActive ? connectYourAccountMessage : connectJetpackModuleMessage }
 		</Banner>
 	);
 }

@@ -5,6 +5,86 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+### Fixed
+- Dashboard: Fixed compatibility with the checkout endpoint [#31756]
+
+## [0.8.0] - 2023-07-10
+### Added
+- Added compatibility to new logs endpoint in DSP [#31694]
+
+## [0.7.2] - 2023-07-05
+### Changed
+- Change Dashboard: Change to return connected user information to use for analytics [#31654]
+- Dashboard Menu: change priority. [#31617]
+- Updated package dependencies. [#31659]
+
+### Fixed
+- Fixes missing controller for DSP blaze/posts request [#31641]
+
+## [0.7.1] - 2023-06-27
+### Fixed
+- Avoid errors when the post type label is not defined. [#31595]
+
+## [0.7.0] - 2023-06-26
+### Added
+- Add new Blaze Dashboard menu item. [#30103]
+- Add new endpoints to access general Blaze site information via the API. [#31485]
+
+### Changed
+- Blaze can now be loaded as a module, instead of relying on the Config package. [#31479]
+- Updated package dependencies. [#31468]
+
+### Fixed
+- Ensure we use the translated post type name in Post-publish prompt. [#31399]
+
+## [0.6.0] - 2023-06-19
+### Fixed
+- Removed the extra margin in the Blaze panel [#31411]
+
+## [0.5.14] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## [0.5.13] - 2023-05-22
+### Changed
+- Internal updates.
+
+## [0.5.12] - 2023-05-02
+### Changed
+- Updated package dependencies.
+
+## [0.5.11] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [0.5.10] - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## [0.5.9] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [0.5.8] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## [0.5.7] - 2023-04-03
+### Changed
+- Internal updates.
+
+## [0.5.6] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [0.5.5] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
 ## [0.5.4] - 2023-02-20
 ### Changed
 - Minor internal updates.
@@ -90,6 +170,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.8.1]: https://github.com/automattic/jetpack-blaze/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/automattic/jetpack-blaze/compare/v0.7.2...v0.8.0
+[0.7.2]: https://github.com/automattic/jetpack-blaze/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/automattic/jetpack-blaze/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/automattic/jetpack-blaze/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/automattic/jetpack-blaze/compare/v0.5.14...v0.6.0
+[0.5.14]: https://github.com/automattic/jetpack-blaze/compare/v0.5.13...v0.5.14
+[0.5.13]: https://github.com/automattic/jetpack-blaze/compare/v0.5.12...v0.5.13
+[0.5.12]: https://github.com/automattic/jetpack-blaze/compare/v0.5.11...v0.5.12
+[0.5.11]: https://github.com/automattic/jetpack-blaze/compare/v0.5.10...v0.5.11
+[0.5.10]: https://github.com/automattic/jetpack-blaze/compare/v0.5.9...v0.5.10
+[0.5.9]: https://github.com/automattic/jetpack-blaze/compare/v0.5.8...v0.5.9
+[0.5.8]: https://github.com/automattic/jetpack-blaze/compare/v0.5.7...v0.5.8
+[0.5.7]: https://github.com/automattic/jetpack-blaze/compare/v0.5.6...v0.5.7
+[0.5.6]: https://github.com/automattic/jetpack-blaze/compare/v0.5.5...v0.5.6
+[0.5.5]: https://github.com/automattic/jetpack-blaze/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/automattic/jetpack-blaze/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/automattic/jetpack-blaze/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/automattic/jetpack-blaze/compare/v0.5.1...v0.5.2

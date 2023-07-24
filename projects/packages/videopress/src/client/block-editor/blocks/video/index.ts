@@ -8,18 +8,21 @@ import { registerBlockType } from '@wordpress/blocks';
 import editorImageURL from '../../utils/editor-image-url';
 import metadata from './block.json';
 import { VideoPressIcon as icon } from './components/icons';
+import deprecated from './deprecated';
 import Edit from './edit';
-import save from './save';
 import transforms from './transforms';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 import './style.scss';
+
+// Extend the core/embed block
+import '../../extend/core-embed';
 
 export const { name, title, description, attributes } = metadata;
 
 registerBlockType( name, {
 	edit: Edit,
 	title,
-	save,
+	save: () => null,
 	icon,
 	attributes,
 	example: {
@@ -29,4 +32,5 @@ registerBlockType( name, {
 		},
 	},
 	transforms,
+	deprecated,
 } );

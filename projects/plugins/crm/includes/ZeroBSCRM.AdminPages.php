@@ -76,6 +76,13 @@ function zeroBSCRM_pages_crmresources() {
 	jpcrm_load_admin_page( 'crm-resources/main' );
 }
 
+/**
+ * Load the Support Contact page
+ */
+function jpcrm_pages_support() {
+	jpcrm_load_admin_page( 'support/main' );
+}
+
 // Email Box
 function zeroBSCRM_pages_emailbox() {
 	// load
@@ -133,6 +140,15 @@ function zeroBSCRM_pages_admin_view_page_company( $id = -1 ) {
 	jpcrm_render_company_view_page( $id );
 }
 
+/**
+ * Load the Automations admin page
+ *
+ * @return void
+ */
+function jpcrm_pages_automations() {
+	jpcrm_load_admin_page( 'automations/main' );
+}
+
 /*
 ======================================================
 	/ Page loading
@@ -175,7 +191,7 @@ function zeroBSCRM_update_edit_form() {
 
 /*
 ======================================================
-	/ Edit Post Messages (i.e. "Post Updated => Event Updated")
+	/ Edit Post Messages (i.e. "Post Updated => Task Updated")
 	/ See: http://ryanwelcher.com/2014/10/change-wordpress-post-updated-messages/
 	====================================================== */
 
@@ -193,7 +209,7 @@ function zeroBSCRM_post_updated_messages( $messages ) {
 		3  => __( 'Custom field deleted.', 'zero-bs-crm' ),
 		4  => __( 'Task updated.', 'zero-bs-crm' ),
 		/* translators: %s: date and time of the revision */
-		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Event restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false,
+		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Task restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false, // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		6  => __( 'Task saved.', 'zero-bs-crm' ),
 		7  => __( 'Task saved.', 'zero-bs-crm' ),
 		8  => __( 'Task submitted.', 'zero-bs-crm' ),
@@ -303,7 +319,7 @@ function zeroBSCRM_pages_admin_team() {
 	</form>
 
 
-		<a style="margin-left:10px;" class="ui button right" href="<?php echo esc_url( admin_url( 'user-new.php?zbsslug=zbs-add-user' ) ); ?>">
+		<a style="margin-left:10px;" class="ui button black right" href="<?php echo esc_url( admin_url( 'user-new.php?zbsslug=zbs-add-user' ) ); ?>">
 		<i class="add icon"></i> 
 			<?php esc_html_e( 'Add New Team Member', 'zero-bs-crm' ); ?>
 		</a>
@@ -338,7 +354,7 @@ function zeroBSCRM_pages_admin_team() {
 
 			echo '<td>' . esc_html( zeroBSCRM_wpb_lastlogin( $ID ) . ' ' . __( 'ago', 'zero-bs-crm' ) ) . '</td>';
 
-			echo "<td><a href='" . esc_url( $edit_url ) . "'' data-uid='" . esc_attr( $ID ) . "' class='zbs-perm-edit ui button mini blue'>";
+			echo "<td><a href='" . esc_url( $edit_url ) . "'' data-uid='" . esc_attr( $ID ) . "' class='zbs-perm-edit ui button mini black'>"; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			esc_html_e( 'Manage permissions', 'zero-bs-crm' );
 
@@ -375,7 +391,7 @@ function zeroBSCRM_caps_to_nicename( $caps = '' ) {
 			break;
 
 		case 'zerobs_customermgr':
-			$nicename = __( 'Manage Customers Only', 'zero-bs-crm' );
+			$nicename = __( 'Manage Contacts Only', 'zero-bs-crm' );
 			break;
 
 		case 'zerobs_invoicemgr':
@@ -794,13 +810,13 @@ function zeroBSCRM_pages_admin_system_emails() {
 		<div class="ui segment">
 			<p class='lead'>
 			<?php
-			// WLREMOVE
+			##WLREMOVE
 			?>
 			<?php _e( 'It is strongly recommended to leave this template unchanged for maximum device support. If you still wish to modify it, you can copy the <code>emails/default-email.html</code> file from the <code>/templates</code> directory of your CRM plugin into a <code>/jetpack-crm</code> directory in your theme, and then edit the file.' ); ?>
 			<?php _e( 'You can modify this template by copying the /templates directory from your CRM plugin into your theme directory, then editing the file <code>emails/default-email.html</code>, though it is recommended to leave this template in tact for maximum device support.' ); ?>          
 			<br /><a href="<?php echo esc_url( $zbs->urls['kbtemplatefiles'] ); ?>" target="_blank" class="ui basic blue small button"><?php esc_html_e( 'Read more about templating', 'zero-bs-crm' ); ?></a>
 			<?php
-			// /WLREMOVE
+			##/WLREMOVE
 			?>
 			</p>
 			<div class="ui segment">
@@ -1175,15 +1191,14 @@ function zeroBSCRM_pages_admin_system_emails() {
 							// close column and grid
 								echo '</div></div>';
 
-							$content        = esc_html( $form->zbsmail_body );
-							$editorsettings = array(
+							$content         = esc_html( $form->zbsmail_body );
+							$editor_settings = array(
 								'media_buttons' => false,
 								'editor_height' => 350,
 								'quicktags'     => false,
 								'tinymce'       => false,
 							);
-							wp_editor( htmlspecialchars_decode( $content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), 'zbscontent', $editorsettings );
-
+							wp_editor( $content, 'zbscontent', $editor_settings );
 							echo '</div>';
 							?>
 
@@ -1323,7 +1338,7 @@ function zeroBSCRM_html_wlHome() {
 	global $zbs;
 
 	?>
-	<div class="wrap">
+	<div>
 	<h1 style="font-size: 34px;margin-left: 50px;color: #e06d17;margin-top: 1em;"><?php esc_html_e( 'Welcome to Jetpack CRM', 'zero-bs-crm' ); ?></h1>
 	<p style="font-size: 16px;margin-left: 50px;padding: 12px 20px 10px 20px;"><?php esc_html_e( 'This CRM Plugin is managed by Jetpack CRM', 'zero-bs-crm' ); ?>. <?php esc_html_e( 'If you have any questions, please', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( $zbs->urls['support'] ); ?>"><?php esc_html_e( 'email us', 'zero-bs-crm' ); ?></a>.</p>
 	<?php
@@ -1359,41 +1374,30 @@ function zeroBSCRM_html_home2() {
 	// this stops hopscotch ever loading on this page :)
 	?>
 	<script type="text/javascript">var zbscrmjs_hopscotch_squash = true;</script>
-  
-	<div class='top-bar-welcome'></div>
 
 	<div id="zbs-welcome">
 	<div class="container">
 
 		<div class="intro">
-
 			<div class="block" style="text-align:center;margin-top:-50px;">
 						<img src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>" alt="Jetpack CRMt" id="jetpack-crm-welcome" style="text-align:center;padding:30px;"> 
 						<h6><?php esc_html_e( 'Thank you for choosing Jetpack CRM - The Ultimate Entrepreneurs\' CRM for WordPress', 'zero-bs-crm' ); ?></h6>
-					</div>
-
-		</div>
-
-		<div id="first-customer">
-		<a href="https://jetpackcrm.com/learn/" target="_blank"><img src="<?php echo esc_url( plugins_url( '/i/first-customer-welcome-image.png', ZBS_ROOTFILE ) ); ?>" alt="<?php esc_attr_e( 'Adding your first customer', 'zero-bs-crm' ); ?>"></a>
+			</div>
 		</div>
 
 		<div id="action-buttons" class='block'>
 		<h6>
 		<?php
-		esc_html_e( 'Jetpack CRM makes it easy for you to manage your customers using WordPress. To get started, ', 'zero-bs-crm' );
-		echo '<a href="https://jetpackcrm.com/learn/" target="_blank">';
-		esc_html_e( 'watch the video tutorial', 'zero-bs-crm' );
-		echo '</a> ';
-		esc_html_e( 'or read our guide on how create your first customer', 'zero-bs-crm' );
+		esc_html_e( 'Jetpack CRM makes it easy for you to manage your contacts using WordPress. To get started, read our guide on how create your first contact', 'zero-bs-crm' );
+		echo ':';
 		?>
-		:</h6>
+		</h6>
 		<div class='zbs-button-wrap'>
 			<div class="left">
-			<a href="<?php echo esc_url( $add_new_customer_link ); ?>" class='add-first-customer btn btn-cta'><?php esc_html_e( 'Add Your First Customer', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo esc_url( $add_new_customer_link ); ?>" class="jpcrm-button font-14px"><?php esc_html_e( 'Add Your First Contact', 'zero-bs-crm' ); ?></a>
 			</div>
 			<div class="right">
-			<a href="<?php echo esc_url( $zbs->urls['kbfirstcontact'] ); ?>" target="_blank" class='read-full-guide btn btn-hta'><?php esc_html_e( 'Read the full guide', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo esc_url( $zbs->urls['kbfirstcontact'] ); ?>" target="_blank" class="jpcrm-button white-bg font-14px"><?php esc_html_e( 'Read the full guide', 'zero-bs-crm' ); ?></a>
 			</div>
 			<div class="clear"></div>
 		</div>
@@ -1413,7 +1417,7 @@ function zeroBSCRM_html_home2() {
 		<div id="action-buttons" class='block'>
 		<h6><?php esc_html_e( 'Connect today your WooCommerce Store and start importing your orders and customers into Jetpack CRM.', 'zero-bs-crm' ); ?></h6>
 		<div class='zbs-button-wrap'>
-			<a href="<?php echo esc_url( wp_nonce_url( '?page=' . $zbs->slugs['module-activate-redirect'] . '&jpcrm-module-name=woo-sync', 'jpcrmmoduleactivateredirectnonce' ) ); ?>" class='btn btn-cta'><?php esc_html_e( 'Connect your WooCommerce Store to Jetpack CRM', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo esc_url( wp_nonce_url( '?page=' . $zbs->slugs['module-activate-redirect'] . '&jpcrm-module-name=woo-sync', 'jpcrmmoduleactivateredirectnonce' ) ); ?>" class='jpcrm-button font-14px'><?php esc_html_e( 'Connect your WooCommerce Store to Jetpack CRM', 'zero-bs-crm' ); ?></a>
 		</div>
 		</div>
 
@@ -1426,7 +1430,7 @@ function zeroBSCRM_html_home2() {
 
 		<div class="block">
 				<h1><?php esc_html_e( 'Jetpack CRM Features and Extensions', 'zero-bs-crm' ); ?></h1>
-				<h6><?php esc_html_e( 'Made for you, from the ground up. Jetpack CRM is both easy-to-use, and extremely flexible. Whatever your business, Jetpack CRM is the no-nonsense way of keeping a customer database', 'zero-bs-crm' ); ?></h6>
+				<h6><?php esc_html_e( 'Made for you, from the ground up. Jetpack CRM is both easy-to-use, and extremely flexible. Whatever your business, Jetpack CRM is the no-nonsense way of keeping a contact database', 'zero-bs-crm' ); ?></h6>
 			</div>
 
 
@@ -1477,7 +1481,7 @@ function zeroBSCRM_html_home2() {
 					<div class="feature-block last">
 						<img alt="<?php esc_attr_e( 'Send SMS', 'zero-bs-crm' ); ?>" src="<?php echo esc_url( plugins_url( '/i/sms.png', ZBS_ROOTFILE ) ); ?>">
 						<h5><?php esc_html_e( 'Send SMS', 'zero-bs-crm' ); ?><span class='pro'>Entrepreneur</span></h5>
-						<p><?php esc_html_e( 'Want to get in front of your customers, wherever they are? Send SMS messages to your contacts from their CRM record.', 'zero-bs-crm' ); ?></p>
+						<p><?php esc_html_e( 'Want to get in front of your contacts, wherever they are? Send SMS messages to your contacts from their CRM record.', 'zero-bs-crm' ); ?></p>
 					</div>
 
 					<div class="feature-block first">
@@ -1501,7 +1505,7 @@ function zeroBSCRM_html_home2() {
 		<div class="clear"></div>
 
 		<div class='zbs-button-wrap'>
-			<a href="https://jetpackcrm.com/features/" target="_blank" class='add-first-customer btn btn-hta'><?php esc_html_e( 'See All Features', 'zero-bs-crm' ); ?></a>
+			<a href="https://jetpackcrm.com/features/" target="_blank" class="jpcrm-button white-bg font-14px"><?php esc_html_e( 'See All Features', 'zero-bs-crm' ); ?></a>
 		</div>
 
 		</div><!-- / .intro.zbs-features -->
@@ -1554,14 +1558,14 @@ function zeroBSCRM_html_home2() {
 			<div class="clear"></div>
 			</div> <!-- / .block -->
 			<div class="zbs-button-wrap">
-			<a href="<?php echo esc_url( $zbs->urls['upgrade'] ); ?>" rel="noopener noreferrer" target="_blank" class="upgrade-today btn btn-bta"><?php esc_html_e( 'Upgrade your CRM today', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo esc_url( $zbs->urls['upgrade'] ); ?>" rel="noopener noreferrer" target="_blank" class="jpcrm-button font-14px"><?php esc_html_e( 'Upgrade your CRM today', 'zero-bs-crm' ); ?></a>
 		</div>
 		</div> <!-- / .upgrade-cta -->
 	</div>
 
 			<?php
 		}
-		// WLREMOVE
+		##WLREMOVE
 		else {
 
 			// bundle owners:
@@ -1575,8 +1579,8 @@ function zeroBSCRM_html_home2() {
 
 			<h4><?php esc_html_e( 'Your Account:', 'zero-bs-crm' ); ?></h4>
 
-			<a href="<?php echo jpcrm_esc_link( $zbs->slugs['extensions'] ); ?>" class='btn btn-bta'><?php esc_html_e( 'Manage Extensions', 'zero-bs-crm' ); ?></a>
-			<a href="<?php echo esc_url( $zbs->urls['account'] ); ?>" target="_blank" class='btn btn-cta'><?php esc_html_e( 'Download Extensions', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo jpcrm_esc_link( $zbs->slugs['extensions'] ); ?>" class='jpcrm-button font-14px'><?php esc_html_e( 'Manage Extensions', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo esc_url( $zbs->urls['account'] ); ?>" target="_blank" class='jpcrm-button white-bg font-14px'><?php esc_html_e( 'Download Extensions', 'zero-bs-crm' ); ?></a>
 
 			<div class="clear"></div>
 		</div>
@@ -1586,7 +1590,7 @@ function zeroBSCRM_html_home2() {
 
 		}
 
-		// /WLREMOVE
+		##/WLREMOVE
 		?>
 
 	</div><!-- / zbs-welcome -->
@@ -1715,7 +1719,7 @@ function zeroBSCRM_html_datatools() {
 			<p class="sbhomep">
 			<strong><?php esc_html_e( 'Free Data Tools', 'zero-bs-crm' ); ?>:</strong><br />
 			<?php if ( ! zeroBSCRM_isExtensionInstalled( 'csvpro' ) ) { ?>
-			<a class="ui button green primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'Import from CSV', 'zero-bs-crm' ); ?></a>
+			<a class="ui button black primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'Import from CSV', 'zero-bs-crm' ); ?></a>
 		<?php } ?>
 		</p>
 			<p class="sbhomep">
@@ -1741,11 +1745,11 @@ function zeroBSCRM_html_datatools() {
 				}
 
 				if ( $zbsDataToolsInstalled == 0 ) {
-					// WLREMOVE
+					##WLREMOVE
 					?>
 					<?php esc_html_e( 'You do not have any Pro Data Tools installed as of yet', 'zero-bs-crm' ); ?>! <a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank"><?php esc_html_e( 'Get some now', 'zero-bs-crm' ); ?></a>
 					<?php
-					// /WLREMOVE
+					##/WLREMOVE
 				}
 
 				?>
@@ -1753,12 +1757,12 @@ function zeroBSCRM_html_datatools() {
 			</p><p class="sbhomep">
 				<!-- #datatoolsales -->
 			<strong><?php esc_html_e( 'Import Tools', 'zero-bs-crm' ); ?>:</strong><br /><br />
-				<a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank" class="ui button primary"><?php esc_html_e( 'View Available Import Tools', 'zero-bs-crm' ); ?></a>              
+				<a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank" class="ui button black primary"><?php esc_html_e( 'View Available Import Tools', 'zero-bs-crm' ); ?></a>              
 			</p>
 			<div class="sbhomep">
 				<strong><?php esc_html_e( 'Export Tools', 'zero-bs-crm' ); ?>:</strong><br/>
 				<p><?php esc_html_e( 'Want to use the refined object exporter? ', 'zero-bs-crm' ); ?></p>
-				<p><a class="ui button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] . '&zbswhat=contacts' ) ); ?>">Export Tools</a></p>
+				<p><a class="ui black button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] ) ); ?>">Export Tools</a></p>
 			</div>
 	</div>
 	<div class="ui grid">
@@ -1843,18 +1847,18 @@ function zeroBSCRM_html_installextensionshelper() {
 			</style>
 			<div class="ui segment zbs-admin-segment-center" style="margin-right:15px;">
 	<?php
-			// WLREMOVE
+			##WLREMOVE
 			zeroBSCRM_extension_installer_promo();
-			// /WLREMOVE
+			##/WLREMOVE
 	?>
 			<h2><?php esc_html_e( 'Installing Extensions for Jetpack CRM', 'zero-bs-crm' ); ?></h2>
 			<p class="intro"><?php echo wp_kses( sprintf( __( 'To control which modules are active, please go the <a href="%s">Core Module page</a>.', 'zero-bs-crm' ), esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['modules'] ) ) ), $zbs->acceptable_restricted_html ); ?></p>
 			<p class="intro"><?php echo wp_kses( sprintf( __( 'To install premium extensions, purchased in a bundle or individually please go to <a href="%s">Plugins</a> and add your new extensions there.', 'zero-bs-crm' ), esc_url( admin_url( 'plugins.php' ) ) ), $zbs->acceptable_restricted_html ); ?></p>
 			<p class="intro-buttons">
 			<a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>" class="ui button primary"><i class="fa fa-plug" aria-hidden="true"></i> <?php esc_html_e( 'Upload Purchased Extensions', 'zero-bs-crm' ); ?></a>
-			<?php // WLREMOVE ?>
+			<?php ##WLREMOVE ?>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['extensions'] ) ); ?>" class="ui button green"><i class="fa fa-search" aria-hidden="true"></i> <?php esc_html_e( 'Browse Extensions', 'zero-bs-crm' ); ?></a>
-			<?php // /WLREMOVE ?>
+			<?php ##/WLREMOVE ?>
 			</p>
 	</div>
 	
@@ -1991,12 +1995,12 @@ function zeroBSCRM_html_extensions() {
 		$bundle = true;
 	}
 
-	echo "<div class='zbs-extensions-manager' style='margin-top:1em'>";
+	echo '<div class="zbs-extensions-manager">';
 
 	// get the products, from our sites JSON custom REST endpoint - that way only need to manage there and not remember to update all the time
 	// each product has our extkey so can do the same as the built in array here ;) #progress #woop-da-woop
 	if ( isset( $_GET['extension_id'] ) && ! empty( $_GET['extension_id'] ) ) {
-		// WLREMOVE
+		##WLREMOVE
 			echo '<div class="zbs-page-wrap thinner" id="error-stuff">';
 			$id      = (int) sanitize_text_field( $_GET['extension_id'] );
 			$request = wp_safe_remote_get( 'https://jetpackcrm.com/wp-json/zbsextensions/v1/extensions/' . $id );
@@ -2114,10 +2118,10 @@ function zeroBSCRM_html_extensions() {
 			echo '</div>';
 			// id="single-ext-desc"
 
-		// /WLREMOVE
+		##/WLREMOVE
 	} else {
 
-		// WLREMOVE
+		##WLREMOVE
 			$showLinkButton = true;
 
 			// get the JSON response from woocommerce REST endpoint.
@@ -2153,7 +2157,7 @@ function zeroBSCRM_html_extensions() {
 			echo '</div>';
 			echo '<div class="clear"></div>';
 		}
-			echo '<div class="ui top attached header premium-box"><h3 class="box-title">' . esc_html__( 'Premium Extensions', 'zero-bs-crm' ) . '</h3>   <a class="guides ui button blue mini" href="' . esc_url( $zbs->urls['docs'] ) . '" target="_blank"><i class="book icon"></i> ' . esc_html__( 'Knowledge-base', 'zero-bs-crm' ) . '</a> <a class="guides ui button blue basic mini" href="' . esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) ) . '"><i class="puzzle piece icon"></i> ' . esc_html__( 'Core Modules', 'zero-bs-crm' ) . '</a>   </div>';
+			echo '<div class="ui top attached header premium-box"><h3 class="box-title">' . esc_html__( 'Premium Extensions', 'zero-bs-crm' ) . '</h3>   <a class="guides ui button black mini" href="' . esc_url( $zbs->urls['docs'] ) . '" target="_blank"><i class="book icon"></i> ' . esc_html__( 'Knowledge-base', 'zero-bs-crm' ) . '</a> <a style="color: black !important;box-shadow: 0px 0px 0px 1px black inset !important;" class="guides ui button blue basic mini" href="' . esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) ) . '"><i class="puzzle piece icon"></i> ' . esc_html__( 'Core Modules', 'zero-bs-crm' ) . '</a>   </div>';
 			echo '<div class="clear"></div>';
 			echo '<div class="ui segment attached">';
 				echo '<div class="ui internally celled grid">';
@@ -2162,8 +2166,46 @@ function zeroBSCRM_html_extensions() {
 		$count     = 0;
 		$idsToHide = array( 17121, 17119 );
 		if ( is_array( $extensions->paid ) ) {
-			foreach ( $extensions->paid as $extension ) {
 
+			$top_woo_extension_slugs = array( 'advanced-segments', 'sales-dashboard', 'automations', 'client-portal-pro', 'csv-importer-pro', 'wordpress-utilities' );
+			$extensions_to_display   = array();
+			$top_woo_extensions      = array();
+			$has_woosync             = zeroBSCRM_isExtensionInstalled( 'woo-sync' );
+
+			// We want to prioritize the top 5 Woo modules in the list if 'woosync' is active, but otherwise alphabetize everything.
+			foreach ( $extensions->paid as $extension ) {
+				if ( $has_woosync && ! empty( $extension->slug ) && in_array( $extension->slug, $top_woo_extension_slugs, true ) ) {
+					$top_woo_extensions[] = $extension;
+					continue;
+				}
+				$extensions_to_display[] = $extension;
+			}
+
+			if ( count( $top_woo_extensions ) !== 0 ) {
+				usort(
+					$top_woo_extensions,
+					function (
+					$str1,
+					$str2
+					) {
+						return strcasecmp( $str1->name, $str2->name );
+					}
+				);
+			}
+
+			usort(
+				$extensions_to_display,
+				function (
+				$str1,
+				$str2
+				) {
+					return strcasecmp( $str1->name, $str2->name );
+				}
+			);
+
+			$extensions_to_display = array_merge( $top_woo_extensions, $extensions_to_display );
+
+			foreach ( $extensions_to_display as $extension ) {
 				// hide bundles
 				if ( ! in_array( $extension->id, $idsToHide ) ) {
 
@@ -2282,7 +2324,7 @@ function zeroBSCRM_html_extensions() {
 			echo '</div>';
 			echo '</div>';  // end page wrap.
 
-			// /WLREMOVE
+			##/WLREMOVE
 
 	}
 
@@ -2365,7 +2407,7 @@ function jpcrm_html_modules() {
 
 	}
 
-	echo "<div class='zbs-extensions-manager' style='margin-top:1em'>";
+	echo '<div class="zbs-extensions-manager">';
 
 			// this block should be in here for rebranded people who want to turn on or off features.
 			echo '<div class="zbs-page-wrap free-block-wrap">';
@@ -2507,7 +2549,7 @@ function zeroBSCRM_html_deletion() {
 
 		// } Fill out
 		$delType = __( 'Task', 'zero-bs-crm' );
-		$delStr  = 'Event ID: ' . $delID;
+		$delStr  = 'Task ID: ' . $delID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	}
 

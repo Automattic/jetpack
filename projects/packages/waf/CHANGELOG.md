@@ -5,6 +5,66 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.8] - 2023-07-18
+### Changed
+- Add support for running brute force protection in environments that otherwise do not support the WAF. [#31761]
+- Minor performance improvements. [#31684]
+
+## [0.11.7] - 2023-07-17
+### Changed
+- Add support for non-empty server https values. [#31688]
+
+## [0.11.6] - 2023-05-22
+### Added
+- Add integration tests for unsupported environments [#30544]
+
+### Fixed
+- Fix Brute force protection activation when WAF unset [#30544]
+- Fix unavailable endpoint when WAF module is disabled [#30487]
+- Multisite: avoid errors when the package is used in the Protect plugin instead of the Jetpack plugin. [#30767]
+
+## [0.11.5] - 2023-05-15
+### Changed
+- Internal updates.
+
+## [0.11.4] - 2023-04-27
+### Added
+- Fix hardblock issue if user only has Protect installed [#30278]
+
+## [0.11.3] - 2023-04-17
+### Fixed
+- Fix brute force protection not initializing on atomic. [#30113]
+
+## [0.11.2] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [0.11.1] - 2023-04-03
+### Fixed
+- Return early if we detect the older BFP implementation from the main plugin [#29794]
+
+## [0.11.0] - 2023-03-28
+### Added
+- Added brute force protection to the WAF configuration REST API endpoints [#28401]
+- Move the brute force protection module into the package. [#28401]
+
+### Changed
+- Change "whitelist" to "allow list". [#28401]
+- Move the brute force protection transient cleanup and shared functions to dedicated namespaced classes. [#28401]
+- Use WAF IP allow list option in brute force protection feature. [#28401]
+
+## [0.10.2] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29480]
+
+## [0.10.1] - 2023-03-08
+### Changed
+- Minor internal updates.
+
+## [0.10.0] - 2023-02-28
+### Added
+- Added support for IP ranges in allow and block lists. [#29131]
+
 ## [0.9.3] - 2023-02-20
 ### Changed
 - Minor internal updates.
@@ -155,6 +215,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.11.8]: https://github.com/Automattic/jetpack-waf/compare/v0.11.7...v0.11.8
+[0.11.7]: https://github.com/Automattic/jetpack-waf/compare/v0.11.6...v0.11.7
+[0.11.6]: https://github.com/Automattic/jetpack-waf/compare/v0.11.5...v0.11.6
+[0.11.5]: https://github.com/Automattic/jetpack-waf/compare/v0.11.4...v0.11.5
+[0.11.4]: https://github.com/Automattic/jetpack-waf/compare/v0.11.3...v0.11.4
+[0.11.3]: https://github.com/Automattic/jetpack-waf/compare/v0.11.2...v0.11.3
+[0.11.2]: https://github.com/Automattic/jetpack-waf/compare/v0.11.1...v0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-waf/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-waf/compare/v0.10.2...v0.11.0
+[0.10.2]: https://github.com/Automattic/jetpack-waf/compare/v0.10.1...v0.10.2
+[0.10.1]: https://github.com/Automattic/jetpack-waf/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/Automattic/jetpack-waf/compare/v0.9.3...v0.10.0
 [0.9.3]: https://github.com/Automattic/jetpack-waf/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/Automattic/jetpack-waf/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/Automattic/jetpack-waf/compare/v0.9.0...v0.9.1

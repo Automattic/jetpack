@@ -321,7 +321,8 @@
 		height: 1rem;
 		border-color: currentColor;
 		opacity: 1;
-		margin: 0 0.75rem 0 0
+		margin: 0 0.75rem 0 0;
+		pointer-events: none;
 	}
 
 	&.jetpack-field-multiple {
@@ -350,6 +351,16 @@
 
 	.jetpack-field-consent__checkbox + .jetpack-field-label {
 		line-height: normal;
+	}
+
+	.jetpack-field-option {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+
+		> input {
+			margin: 0 5px 0 0;
+		}
 	}
 }
 
@@ -592,19 +603,6 @@
 		}
 	}
 
-	&:not(.is-style-outlined):not(.is-style-animated) {
-		.jetpack-field.jetpack-field-multiple {
-			.jetpack-field-multiple__list {
-				background-color: var(--jetpack--contact-form--input-background);
-				border-radius: var(--jetpack--contact-form--border-radius);
-				border-color: var(--jetpack--contact-form--border-color);
-				border-style: var(--jetpack--contact-form--border-style);
-				border-width: var(--jetpack--contact-form--border-size);
-				padding: var(--jetpack--contact-form--input-padding, 16px);
-			}
-		}
-	}
-
 	&.is-style-outlined {
 		.block-editor-block-list__block:not([contenteditable]):focus:after {
 			top: -10px;
@@ -733,6 +731,10 @@
 				}
 			}
 
+			&.jetpack-field-checkbox {
+				margin-top: 0;
+			}
+
 			.jetpack-field-dropdown {
 				&__popover .rich-text {
 					padding-left: calc(var(--notch-width) + 4px);
@@ -788,14 +790,16 @@
 			}
 
 			&.jetpack-field-multiple {
-				background-color: var(--jetpack--contact-form--input-background);
-				padding: var(--jetpack--contact-form--input-padding, 16px);
-				padding-top: 1.7em;
-				border-radius: var(--jetpack--contact-form--border-radius);
-				border: var(--jetpack--contact-form--border);
-				border-color: var(--jetpack--contact-form--border-color);
-				border-style: var(--jetpack--contact-form--border-style);
-				border-width: var(--jetpack--contact-form--border-size);
+				padding-bottom: var(--jetpack--contact-form--input-padding, 16px);
+				padding-top: 1.8em;
+
+				&.has-placeholder {
+					.animated-label__label {
+						font-size: 1em;
+						top: 0;
+						left: 0;
+					}
+				}
 			}
 
 			.animated-label__label {

@@ -125,6 +125,10 @@ The purpose of this plugin is to provide a way to `mock` a Jetpack plan, for cas
 
 Very similar to the one above, but it mocks waf rules data instead of Jetpack plans.
 
+#### e2e-wpcom-request-interceptor.php
+
+The purpose of this plugin is to track the number of total requests to the WPCOM REST API and store them in a transient. This transient is reset on every new test and added to the corresponding E2E reports. This is particularly useful in order to identify PRs that might introduce an excessive amount of requests to WPCOM.
+
 ## Writing tests
 
 As with any other testing types, E2E tests roughly follows the AAA pattern ([Arrange, Act, Assert](https://automationpanda.com/2020/07/07/arrange-act-assert-a-pattern-for-writing-good-tests/)).

@@ -145,16 +145,8 @@ class SimplePaymentsEdit extends Component {
 
 	toApi() {
 		const { attributes } = this.props;
-		const {
-			content,
-			currency,
-			email,
-			featuredMediaId,
-			multiple,
-			price,
-			productId,
-			title,
-		} = attributes;
+		const { content, currency, email, featuredMediaId, multiple, price, productId, title } =
+			attributes;
 
 		return {
 			id: productId,

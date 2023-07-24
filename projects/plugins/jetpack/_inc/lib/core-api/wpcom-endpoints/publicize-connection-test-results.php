@@ -58,6 +58,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 					'description' => __( 'Did the Jetpack Social connection test pass?', 'jetpack' ),
 					'type'        => 'boolean',
 				),
+				'error_code'   => array(
+					'description' => __( 'Jetpack Social connection error code', 'jetpack' ),
+					'type'        => 'string',
+				),
 				'test_message' => array(
 					'description' => __( 'Jetpack Social connection success or error message', 'jetpack' ),
 					'type'        => 'string',
@@ -97,26 +101,32 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		$test_results              = $publicize->get_publicize_conns_test_results();
 		$test_results_by_unique_id = array();
 		foreach ( $test_results as $test_result ) {
-			$test_results_by_unique_id[ $test_result['unique_id'] ] = $test_result;
+			$test_results_by_unique_id[ $test_result['connectionID'] ] = $test_result;
 		}
 
 		$mapping = array(
-			'test_success' => 'connectionTestPassed',
-			'test_message' => 'connectionTestMessage',
-			'can_refresh'  => 'userCanRefresh',
-			'refresh_text' => 'refreshText',
-			'refresh_url'  => 'refreshURL',
+			'test_success'  => 'connectionTestPassed',
+			'test_message'  => 'connectionTestMessage',
+			'error_code'    => 'connectionTestErrorCode',
+			'can_refresh'   => 'userCanRefresh',
+			'refresh_text'  => 'refreshText',
+			'refresh_url'   => 'refreshURL',
+			'connection_id' => 'connectionID',
 		);
 
 		foreach ( $items as &$item ) {
-			$test_result = $test_results_by_unique_id[ $item['id'] ];
+			$test_result = $test_results_by_unique_id[ $item['connection_id'] ];
 
 			foreach ( $mapping as $field => $test_result_field ) {
 				$item[ $field ] = $test_result[ $test_result_field ];
 			}
 		}
 
-		if ( 'linkedin' === $item['id'] && 'must_reauth' === $test_result['connectionTestPassed'] ) {
+		if (
+			isset( $item['id'] )
+			&& 'linkedin' === $item['id']
+			&& 'must_reauth' === $test_result['connectionTestPassed']
+		) {
 			$item['test_success'] = 'must_reauth';
 		}
 

@@ -47,7 +47,7 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: { autoprefixer: {} } },
+							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
 						},
 					},
 					{
@@ -151,6 +151,7 @@ const weirdRtlEntries = {
 		'modules/widgets/simple-payments/style.css',
 		'modules/widgets/social-icons/social-icons.css',
 		'modules/widgets/milestone/milestone-widget.css',
+		'modules/subscriptions/subscribe-modal/subscribe-modal.css',
 	].map( n => path.join( __dirname, '..', n ) ),
 };
 
@@ -170,7 +171,6 @@ for ( const name of [
 	'modules/custom-css/csstidy/cssparsed',
 	'modules/custom-css/custom-css/css/codemirror',
 	'modules/post-by-email/post-by-email',
-	'modules/protect/protect-dashboard-widget',
 	'modules/sharedaddy/admin-sharing',
 	'modules/videopress/videopress-admin',
 	'modules/videopress/css/editor',

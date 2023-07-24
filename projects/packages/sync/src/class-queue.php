@@ -114,7 +114,7 @@ class Queue {
 			}
 		}
 
-		$rows_added = $wpdb->query( $query . join( ',', $rows ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$rows_added = $wpdb->query( $query . implode( ',', $rows ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		if ( count( $items ) !== $rows_added ) {
 			return new WP_Error( 'row_count_mismatch', "The number of rows inserted didn't match the size of the input array" );
@@ -261,6 +261,10 @@ class Queue {
 
 		$items = $this->fetch_items( $buffer_size );
 
+		if ( ! is_countable( $items ) ) {
+			return false;
+		}
+
 		if ( count( $items ) === 0 ) {
 			return false;
 		}
@@ -342,6 +346,10 @@ class Queue {
 			OBJECT
 		);
 
+		if ( ! is_countable( $items_with_size ) ) {
+			return false;
+		}
+
 		if ( count( $items_with_size ) === 0 ) {
 			return false;
 		}
@@ -369,15 +377,18 @@ class Queue {
 		);
 
 		$items = $wpdb->get_results( $query, OBJECT ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		foreach ( $items as $item ) {
-			// @codingStandardsIgnoreStart
-			$item->value = @unserialize( $item->value );
-			// @codingStandardsIgnoreEnd
+		$items_count = is_countable( $items ) ? count( $items ) : 0;
+
+		if ( $items_count > 0 ) {
+			foreach ( $items as $item ) {
+				// @codingStandardsIgnoreStart
+				$item->value = @unserialize( $item->value );
+				// @codingStandardsIgnoreEnd
+			}
 		}
 
-		if ( count( $items ) === 0 ) {
+		if ( $items_count === 0 ) {
 			$this->delete_checkout_id();
-
 			return false;
 		}
 
@@ -445,7 +456,7 @@ class Queue {
 	 * @return bool|int
 	 */
 	private function delete( $ids ) {
-		if ( 0 === count( $ids ) ) {
+		if ( array() === $ids ) {
 			return 0;
 		}
 		global $wpdb;

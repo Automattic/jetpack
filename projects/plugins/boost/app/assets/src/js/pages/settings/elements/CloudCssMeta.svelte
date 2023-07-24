@@ -1,19 +1,14 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import { showError } from '../../../stores/critical-css-status';
-	import { requestCloudCss, retryCloudCss } from '../../../utils/cloud-css';
+	import { isFatalError } from '../../../stores/critical-css-state';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 </script>
 
-{#if $showError}
-	<CriticalCssShowStopperError
-		supportLink="https://jetpackme.wordpress.com/contact-support/"
-		on:retry={retryCloudCss}
-	/>
+{#if $isFatalError}
+	<CriticalCssShowStopperError supportLink="https://jetpackme.wordpress.com/contact-support/" />
 {:else}
 	<CriticalCssStatus
-		on:retry={requestCloudCss}
 		generateText={__(
 			'Jetpack Boost will generate Critical CSS for you automatically.',
 			'jetpack-boost'

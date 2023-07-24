@@ -2,6 +2,10 @@ import { combineReducers } from '@wordpress/data';
 import {
 	SET_PURCHASES,
 	SET_PURCHASES_IS_FETCHING,
+	SET_CHAT_AVAILABILITY,
+	SET_CHAT_AUTHENTICATION,
+	SET_CHAT_AVAILABILITY_IS_FETCHING,
+	SET_CHAT_AUTHENTICATION_IS_FETCHING,
 	SET_AVAILABLE_LICENSES,
 	SET_AVAILABLE_LICENSES_IS_FETCHING,
 	SET_PRODUCT,
@@ -10,6 +14,8 @@ import {
 	SET_PRODUCT_REQUEST_ERROR,
 	SET_GLOBAL_NOTICE,
 	CLEAN_GLOBAL_NOTICE,
+	SET_PRODUCT_STATS,
+	SET_IS_FETCHING_PRODUCT_STATS,
 } from './actions';
 
 const products = ( state = {}, action ) => {
@@ -90,6 +96,44 @@ const purchases = ( state = {}, action ) => {
 	}
 };
 
+const chatAvailability = ( state = { isFetching: false, isAvailable: false }, action ) => {
+	switch ( action.type ) {
+		case SET_CHAT_AVAILABILITY_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_CHAT_AVAILABILITY:
+			return {
+				...state,
+				isAvailable: action?.chatAvailability?.is_available,
+			};
+
+		default:
+			return state;
+	}
+};
+
+const chatAuthentication = ( state = { isFetching: false, jwt: false }, action ) => {
+	switch ( action.type ) {
+		case SET_CHAT_AUTHENTICATION_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_CHAT_AUTHENTICATION:
+			return {
+				...state,
+				jwt: action?.chatAuthentication?.user?.jwt,
+			};
+
+		default:
+			return state;
+	}
+};
+
 const availableLicenses = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_AVAILABLE_LICENSES_IS_FETCHING:
@@ -138,12 +182,44 @@ const plugins = ( state = {} ) => {
 	return state;
 };
 
+const stats = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_IS_FETCHING_PRODUCT_STATS: {
+			const { productId, isFetching } = action;
+			return {
+				...state,
+				isFetching: {
+					...state.isFetching,
+					[ productId ]: isFetching,
+				},
+			};
+		}
+
+		case SET_PRODUCT_STATS: {
+			const { productId, stats: productStats } = action;
+			return {
+				...state,
+				items: {
+					...state.items,
+					[ productId ]: productStats,
+				},
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	products,
 	purchases,
+	chatAvailability,
+	chatAuthentication,
 	availableLicenses,
 	notices,
 	plugins,
+	stats,
 } );
 
 export default reducers;

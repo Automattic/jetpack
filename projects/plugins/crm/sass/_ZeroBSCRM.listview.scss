@@ -8,25 +8,6 @@
  * Date: 29/07/2017
  */
 
-#zbs-list-top-bar {
-
-    color: white;
-    background: #3f4348;
-    padding-left: 25px;
-    padding-bottom: 11px;
-    margin-left: -25px;
-    padding-right: 25px;
-    margin-right: -25px;
-    margin-top: 0px;
-    margin-bottom:20px;
-
-}
-
-.zbs-add-new{
-	margin-left: 10px;
-    margin-right: -5px;
-}
-
 #zbs-list-col-editor {
 
     margin-bottom: 46px;
@@ -56,114 +37,7 @@
 
 }
 
-#zbs-list-tags, #zbs-list-filters {
-
-	a.button {
-		margin-bottom:3px;
-	}
-
-
-	// following added to provide a means to 'get at' long tag/filter lists
-	// (because we use auto-sticky for sidebar)
-    max-height: 200px;
-    overflow-y: auto;
-
-}
-
-#jpcrm-listview-totals-box table tfoot td {
-	border-top: 2px solid #a2a2a2;
-}
-
-// fix for overflowing tables (peeps adding many columns)
-#zbs-list-table-wrap {
-
-	// this squashes table:
-	// https://github.com/Semantic-Org/Semantic-UI/issues/1914
-  	// table { table-layout: fixed }
-
-	// or just show scroll bar ... 
-	overflow-x: auto;
-
-	padding-right: 30px;
-
-	table td a.ui.label {
-		margin-bottom:3px;
-	}
-
-	table td, table th {
-		vertical-align: middle;
-	}
-}
-
-.zbs-list-view-edit-button {
-
-    background: #FFF !important;
-    margin-top: -6px !important;
-}
-.zbs-list-view-edit-button.active {
-
-    background: #CCC !important;
-
-}
-
-.zbs-filter-manager-connected {
-
-	// needed to drop into empty list:
-	min-height:34px;
-
-		.ui.basic.button {
-			margin-top:4px;
-		}
-}
-
-
-// cap filters size to keep them on-screen
-#zbs-list-view-filter-options-current,
-#zbs-list-view-filter-options-available {
-
-    max-height: 200px;
-    overflow: auto;
-
-}
-
 // ==========  bulk actions bits
-
-// bulk checkbox
-.zbs-listview-bulk-hd, .zbs-listview-bulk {
-
-	//text-align:center !important;
-	padding-left: 0 !important;
-
-	.ui.fitted.checkbox {
-
-		padding-left: 13px;  //why !important?
-
-	}
-
-}
-
-.zbs-listview-bulk-hd {
-	max-width: 40px !important;
-	width: 40px !important;
-	min-width: 40px !important; // for compacted tables
-}
-
-#zbs-listview-footer-count {
-
-	padding-bottom: 0.5em;
-
-}
-
-/* div containing bulk actions and pagination above listview */
-.jpcrm-listview-actions {
-    padding: 0 11px 0 11px;
-    height: 40px;
-}
-
-.jpcrm-bulk-actions {
-    padding-top: 0.5em;
-    display: inline-block;
-}
 
 // this corrects a glitch in labels + checkboxes
 .zbs-select-tag.ui.label {
@@ -198,71 +72,6 @@
 // ==========  / bulk actions bits
 
 //ui header stuff
-
-.ui.header>.image:not(.icon), .ui.header>img {
-    display: inline-block;
-    margin-top: 0.14285714em;
-    // WH says Nope. - breaks company avatar imgs width: 12%;
-    height: auto;
-    vertical-align: middle;
-}
-
-.more-tags{
-	display:none;
-}
-
-#zbs-list-tags a{
-	max-width: 60%;
-  overflow: hidden;
-  white-space: normal;
-  text-overflow: ellipsis;
-}
-
-#zbs-list-sidebar-wrap{
-	padding-right:30px;
-}
-
-.ui.header > img + .content, .ui.header > .image + .content {
-    padding-left: 0.75rem;
-    vertical-align: middle;
-    max-width: 88%;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-.ui.menu .ui.dropdown .menu > .item:hover {
-    background: rgb(63, 67, 71) !important;
-    color: rgb(255, 255, 255) !important;
-}
-
-.clearfilters{
-    position: absolute;
-    top: 16px !important;
-    margin-left: 5px !important;
-}
-
-#learn {
-    margin-right: 0;
-}
-#zbs-listview-clearfilters {
-    margin-left: 6px !important;
-}
-#zbs-listview-biline{
-    display: inline-block;
-    margin-left: 10px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-// hide under 1080px
-@media (max-width: 1080px) {
-	#zbs-listview-biline{
-		display:none !important;
-	}
-}
-
-
 // company list contacts HTML..
 
 .zero-bs-crm_page_manage-companies-crm{
@@ -276,35 +85,32 @@
 		}
 	}
 
-
-
 }
 
 // avatar's fixed size 
-#zbs-list-wrap {
+.jpcrm-listview-table {
 
-	.zbs-co-img img, 
-	.name-and-avatar-list h4.ui.image.header img {
+	.jpcrm_name_and_avatar {
+		display: flex;
+		align-items: center;
 
-		max-width:40px !important;
+		img {
+			max-width: 40px;
+			border-radius: 50%;
+			margin-right: 5px;
+		}
 
-	}
+		div {
+			overflow-x: hidden;
+			text-overflow: ellipsis;
+		}
 
-	// stop the over-strong display of these
-	.name-and-avatar-list h4.ui.image.header,
-	.name-and-avatar-list h4.ui.header {
-		   font-weight: normal;
+		.icon {
+			font-size: 2em;
+			padding-top: .14285714em;
+		}
 	}
 }
-// trans specific
-#zbs-list-wrap.zbs-list-view-transaction {
-
-	.name-and-avatar-list {
-		padding-top:1em;
-	}
-	
-}
-
 
 // err msg fix
 #zbs-list-warnings-wrap .ui.message {
@@ -316,7 +122,6 @@
     margin-right: Auto;
     
 }
-
 
 // drop target for col manager
 .zbs-column-manager-droptarget {
@@ -330,22 +135,21 @@
 	min-height:2em;
 }
 
-
-
 /* 
 		INLINE Editing
 */
-#zbs-list-wrap td.zbs-inline-edit {
-
-}
-#zbs-list-wrap td.zbs-inline-edit:hover {
+.jpcrm-listview-table td.zbs-inline-edit:hover {
      border-bottom: 2px dashed #8bb7de;
      cursor:pointer;
 }
 // when editing:
-#zbs-list-wrap td.zbs-inline-editing {
+.jpcrm-listview-table td.zbs-inline-editing {
 	border-bottom: 2px dashed orange;
 	text-align: center;
 	padding-top: 0.6em;
-    
+}
+
+.jpcrm-listview-table-container .jpcrm-pagination-container {
+	text-align: right;
+	margin-bottom: 10px;
 }

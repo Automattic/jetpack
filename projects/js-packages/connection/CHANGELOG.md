@@ -2,6 +2,94 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.29.5 - 2023-07-18
+### Fixed
+- Minor internal updates. [#31684]
+
+## 0.29.4 - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+### Fixed
+- Reset connection errors upon successful Restore request. [#31618]
+
+## 0.29.3 - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## 0.29.2 - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## 0.29.1 - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## 0.29.0 - 2023-06-15
+### Changed
+- Connection: always display connection button on connection screen. [#31196]
+
+## 0.28.0 - 2023-06-06
+### Changed
+- Update connection module to have an RNA option that updates the design [#31201]
+- Updated package dependencies. [#31129]
+
+## 0.27.1 - 2023-05-29
+### Added
+- Add logo prop to `ConnectScreen` and `ConnectScreenVisual` so we could use produucts logos similar to `ConnectScreenRequiredPlan` component. [#30886]
+
+## 0.27.0 - 2023-05-22
+### Added
+- Offline Mode handling. [#30570]
+
+## 0.26.6 - 2023-05-02
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Bring back accidentally removed auto-trigger for connection screen. [#30373]
+
+## 0.26.5 - 2023-04-25
+### Changed
+- Updated package dependencies. [#30015]
+
+## 0.26.4 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## 0.26.3 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 0.26.2 - 2023-03-29
+### Changed
+- Minor internal updates.
+
+## 0.26.1 - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## 0.26.0 - 2023-03-27
+### Added
+- Clarified when license activation fails that a user connection is required, added a link to complete the connection, and added functionality to redirect back to license activation when the connection is done. [#29443]
+
+## 0.25.5 - 2023-03-23
+### Changed
+- Updated package dependencies.
+
+## 0.25.4 - 2023-03-20
+
+- Minor internal updates.
+
+## 0.25.3 - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## 0.25.2 - 2023-02-28
+### Fixed
+- Revise Jetpack connection agreement text to comply with our User Agreement [#28403]
+- Update React peer dependencies to match updated dev dependencies. [#28924]
+
 ## 0.25.1 - 2023-02-20
 ### Fixed
 - Add External link icon to links at the bottom of the disconnect modal. [#28922]

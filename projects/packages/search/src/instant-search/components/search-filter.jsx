@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
 import React, { createRef, Component } from 'react';
@@ -194,7 +195,7 @@ class SearchFilter extends Component {
 
 	renderGroup = group => {
 		return (
-			<div>
+			<div className="jetpack-instant-search__search-filter-group-item">
 				<input
 					checked={ this.isChecked( group.value ) }
 					id={ `${ this.idPrefix }-groups-${ group.value }` }
@@ -252,7 +253,13 @@ class SearchFilter extends Component {
 				</h3>
 
 				<div ref={ this.filtersList }>
-					<div className="jetpack-instant-search__search-filter-list jetpack-instant-search__search-static-filter-list">
+					<div
+						className={ classNames(
+							'jetpack-instant-search__search-filter-list',
+							'jetpack-instant-search__search-static-filter-list',
+							`jetpack-instant-search__search-static-filter-variation-${ this.props.configuration.variation }`
+						) }
+					>
 						{ this.props.type === 'group' && this.renderGroups() }
 					</div>
 

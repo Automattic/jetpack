@@ -77,8 +77,7 @@ export const settings = {
 	},
 	example: {
 		attributes: {
-			url:
-				'https://calendar.google.com/calendar/embed?src=jb4bu80jirp0u11a6niie21pp4%40group.calendar.google.com&ctz=America/New_York',
+			url: 'https://calendar.google.com/calendar/embed?src=jb4bu80jirp0u11a6niie21pp4%40group.calendar.google.com&ctz=America/New_York',
 		},
 	},
 };

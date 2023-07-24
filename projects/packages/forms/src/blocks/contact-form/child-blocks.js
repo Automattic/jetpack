@@ -1,12 +1,15 @@
+import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { filter, isEmpty, map, startsWith, trim } from 'lodash';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
 import JetpackDropdown from './components/jetpack-field-dropdown';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
+import { JetpackFieldOptionEdit } from './components/jetpack-field-option';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
@@ -32,7 +35,7 @@ const FieldDefaults = {
 		},
 		options: {
 			type: 'array',
-			default: [ '' ],
+			default: [],
 		},
 		defaultValue: {
 			type: 'string',
@@ -79,6 +82,17 @@ const FieldDefaults = {
 		fieldBackgroundColor: {
 			type: 'string',
 		},
+		buttonBackgroundColor: {
+			type: 'string',
+		},
+		buttonBorderRadius: {
+			type: 'number',
+			default: '',
+		},
+		buttonBorderWidth: {
+			type: 'number',
+			default: '',
+		},
 		borderColor: {
 			type: 'string',
 		},
@@ -92,74 +106,169 @@ const FieldDefaults = {
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-text' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-text', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-name' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-name', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-email' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-email', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-url' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-url', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-date' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-date', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-telephone' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-telephone', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-textarea' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-textarea', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-checkbox-multiple' ],
-				isMatch: ( { options } ) => 1 <= options.length,
-				transform: attributes => createBlock( 'jetpack/field-checkbox-multiple', attributes ),
+				transform: ( attributes, innerBlocks ) => {
+					let newInnerBlocks = [];
+
+					if ( ! isEmpty( innerBlocks ) ) {
+						const optionBlocks = filter( innerBlocks, ( { name } ) =>
+							startsWith( name, 'jetpack/field-option' )
+						);
+
+						newInnerBlocks = map( optionBlocks, block =>
+							createBlock( 'jetpack/field-option-checkbox', {
+								label: block.attributes.label,
+								fieldType: 'checkbox',
+							} )
+						);
+					} else if ( attributes.options?.length ) {
+						newInnerBlocks = map( attributes.options, option =>
+							createBlock( 'jetpack/field-option-checkbox', {
+								label: option,
+								fieldType: 'checkbox',
+							} )
+						);
+					}
+
+					return createBlock( 'jetpack/field-checkbox-multiple', attributes, newInnerBlocks );
+				},
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-radio' ],
-				isMatch: ( { options } ) => 1 <= options.length,
-				transform: attributes => createBlock( 'jetpack/field-radio', attributes ),
+				transform: ( attributes, innerBlocks ) => {
+					let newInnerBlocks = [];
+
+					if ( ! isEmpty( innerBlocks ) ) {
+						const optionBlocks = filter( innerBlocks, ( { name } ) =>
+							startsWith( name, 'jetpack/field-option' )
+						);
+
+						newInnerBlocks = map( optionBlocks, block =>
+							createBlock( 'jetpack/field-option-radio', {
+								label: block.attributes.label,
+								fieldType: 'radio',
+							} )
+						);
+					} else if ( attributes.options?.length ) {
+						newInnerBlocks = map( attributes.options, option =>
+							createBlock( 'jetpack/field-option-radio', {
+								label: option,
+								fieldType: 'radio',
+							} )
+						);
+					}
+
+					return createBlock( 'jetpack/field-radio', attributes, newInnerBlocks );
+				},
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-select' ],
-				isMatch: ( { options } ) => 1 <= options.length,
-				transform: attributes => createBlock( 'jetpack/field-select', attributes ),
+				transform: ( attributes, innerBlocks ) => {
+					if ( ! isEmpty( innerBlocks ) ) {
+						const optionBlocks = filter( innerBlocks, ( { name } ) =>
+							startsWith( name, 'jetpack/field-option' )
+						);
+						attributes.options = map( optionBlocks, b => b.attributes.label );
+					}
+
+					attributes.options = attributes.options?.length ? attributes.options : [ '' ];
+					return createBlock( 'jetpack/field-select', attributes );
+				},
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-consent' ],
-				isMatch: ( { options } ) => 1 <= options.length,
 				transform: attributes => createBlock( 'jetpack/field-consent', attributes ),
+			},
+			{
+				type: 'block',
+				blocks: [ 'jetpack/field-checkbox' ],
+				transform: attributes => createBlock( 'jetpack/field-checkbox', attributes ),
 			},
 		],
 	},
 	save: () => null,
 	example: {},
 };
+
+const OptionFieldDefaults = {
+	category: 'contact-form',
+	edit: JetpackFieldOptionEdit,
+	attributes: {
+		label: {
+			type: 'string',
+		},
+		fieldType: {
+			enum: [ 'checkbox', 'radio' ],
+			default: 'checkbox',
+		},
+	},
+	supports: {
+		reusable: false,
+		html: false,
+	},
+};
+
+const multiFieldV1 = fieldType => ( {
+	attributes: {
+		...FieldDefaults.attributes,
+		label: {
+			type: 'string',
+			default: fieldType === 'checkbox' ? 'Choose several options' : 'Choose one option',
+		},
+	},
+	migrate: attributes => {
+		const blockName = `jetpack/field-option-${ fieldType }`;
+		const nonEmptyOptions = filter( attributes.options, o => ! isEmpty( trim( o ) ) );
+		const newInnerBlocks = map( nonEmptyOptions, option =>
+			createBlock( blockName, {
+				label: option,
+			} )
+		);
+
+		attributes.options = [];
+
+		return [ attributes, newInnerBlocks ];
+	},
+	isEligible: attr => attr.options && filter( attr.options, o => ! isEmpty( trim( o ) ) ).length,
+	save: () => null,
+} );
 
 const getFieldLabel = ( { attributes, name: blockName } ) => {
 	return null === attributes.label ? getBlockType( blockName ).title : attributes.label;
@@ -191,6 +300,7 @@ const editMultiField = type => props => {
 
 	return (
 		<JetpackFieldMultiple
+			className={ props.className }
 			clientId={ props.clientId }
 			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
@@ -513,6 +623,36 @@ export const childBlocks = [
 		},
 	},
 	{
+		name: 'field-option-checkbox',
+		settings: {
+			...OptionFieldDefaults,
+			parent: [ 'jetpack/field-checkbox-multiple' ],
+			title: __( 'Multiple Choice Option', 'jetpack-forms' ),
+			icon: renderMaterialIcon(
+				<>
+					<Path
+						d="M5.5 10.5H8.5V13.5H5.5V10.5ZM8.5 9H5.5C4.67157 9 4 9.67157 4 10.5V13.5C4 14.3284 4.67157 15 5.5 15H8.5C9.32843 15 10 14.3284 10 13.5V10.5C10 9.67157 9.32843 9 8.5 9ZM12 12.75H20V11.25H12V12.75Z"
+						fill={ getIconColor() }
+					/>
+				</>
+			),
+		},
+	},
+	{
+		name: 'field-option-radio',
+		settings: {
+			...OptionFieldDefaults,
+			parent: [ 'jetpack/field-radio' ],
+			title: __( 'Single Choice Option', 'jetpack-forms' ),
+			icon: renderMaterialIcon(
+				<Path
+					d="M7.5 13.5C6.67157 13.5 6 12.8284 6 12C6 11.1716 6.67157 10.5 7.5 10.5C8.32843 10.5 9 11.1716 9 12C9 12.8284 8.32843 13.5 7.5 13.5ZM4.5 12C4.5 13.6569 5.84315 15 7.5 15C9.15685 15 10.5 13.6569 10.5 12C10.5 10.3431 9.15685 9 7.5 9C5.84315 9 4.5 10.3431 4.5 12ZM12.5 12.75H20.5V11.25H12.5V12.75Z"
+					fill={ getIconColor() }
+				/>
+			),
+		},
+	},
+	{
 		name: 'field-checkbox-multiple',
 		settings: {
 			...FieldDefaults,
@@ -529,6 +669,7 @@ export const childBlocks = [
 				/>
 			),
 			edit: editMultiField( 'checkbox' ),
+			save: () => <InnerBlocks.Content />,
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -536,6 +677,11 @@ export const childBlocks = [
 					default: 'Choose several options',
 				},
 			},
+			styles: [
+				{ name: 'list', label: 'List', isDefault: true },
+				{ name: 'button', label: 'Button' },
+			],
+			deprecated: [ multiFieldV1( 'checkbox' ) ],
 		},
 	},
 	{
@@ -561,6 +707,7 @@ export const childBlocks = [
 				</Fragment>
 			),
 			edit: editMultiField( 'radio' ),
+			save: () => <InnerBlocks.Content />,
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -568,6 +715,11 @@ export const childBlocks = [
 					default: 'Choose one option',
 				},
 			},
+			styles: [
+				{ name: 'list', label: 'List', isDefault: true },
+				{ name: 'button', label: 'Button' },
+			],
+			deprecated: [ multiFieldV1( 'radio' ) ],
 		},
 	},
 	{
@@ -596,6 +748,10 @@ export const childBlocks = [
 				toggleLabel: {
 					type: 'string',
 					default: null,
+				},
+				options: {
+					type: 'array',
+					default: [ '' ],
 				},
 			},
 		},

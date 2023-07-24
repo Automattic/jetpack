@@ -375,7 +375,7 @@ function zeroBSCRM_mailDelivery_sendMessage($mailDeliveryAccKey='',$mail=-1){
 					// NOTE: we can apply wpeditor here because the only part of zbs using this 'content' addition is mikes emails
 					//... but this does FORCE us to be using same wp_editor format unless we do a migration
 					//... for now living with that [WH 18/10/18]
-					$emailContent = zeroBSCRM_io_WPEditor_WPEditorToDB($mail['content']);
+					$emailContent = wp_kses( $mail['content'], $zbs->acceptable_html ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				}
 
@@ -515,33 +515,30 @@ function zeroBSCRM_mailDelivery_sendMessage($mailDeliveryAccKey='',$mail=-1){
 			// API (OAuth) as at 5.1, only google_mail
 			case 'api':
 
-            // Load OAuth
-            $zbs->load_oauth_handler();
+				$zbs->load_oauth_handler();
 
-						// send
-						// does not currently use textBody
-						$sent = jpcrm_mail_delivery_send_via_gmail_oauth( array(
+				$sent = jpcrm_mail_delivery_send_via_gmail_oauth(
+					array(
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						'connection_profile' => $mailSettings['oauth_provider'],
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						'send_from'          => $mailSettings['fromemail'],
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						'send_from_name'     => $mailSettings['fromname'],
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						'send_to'            => $sendToEmail,
+						'send_to_name'       => '',
+						'subject'            => $decoded_subject,
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						'msg_text'           => $textBody,
+						'msg_html'           => $body,
+						'attachments'        => $attachments,
+						'debug'              => false,
+						'return_debug'       => false,
+					)
+				);
 
-			          'connection_profile'  => $mailSettings['oauth_provider'],
-
-			          'send_from'           => $mailSettings['fromemail'],
-			          'send_from_name'      => $mailSettings['fromname'],
-
-			          'send_to'             => $sendToEmail,
-			          'send_to_name'        => '',
-
-			          'subject'             => $decoded_subject,
-			          //'msg_text'            => '',
-			          'msg_html'            => $body,
-			          'attachments'         => $attachments,
-
-			          'debug'               => false,
-			          'return_debug'        => false,
-
-			    ) );
-
-						break;
-
+				break;
 
 			default:
 
@@ -1539,30 +1536,6 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 	
 }
 
-
-	#} ===============================  Common SMTP Servers
-	# https://www.arclab.com/en/kb/email/list-of-smtp-and-pop3-servers-mailserver-list.html
-	/*
-			Default Ports:
-			Server:	Authentication:	Port:
-			SMTP Server (Outgoing Messages)	Non-Encrypted	AUTH	25 (or 587)
-				Secure (TLS)	StartTLS	587
-				Secure (SSL)	SSL	465
-
-				http://docs.aws.amazon.com/general/latest/gr/rande.html
-					US East (N. Virginia)	us-east-1	email.us-east-1.amazonaws.com	email-smtp.us-east-1.amazonaws.com	Email sending
-					US West (Oregon)	us-west-2	email.us-west-2.amazonaws.com	email-smtp.us-west-2.amazonaws.com	Email sending
-					EU (Ireland)	eu-west-1	email.eu-west-1.amazonaws.com	email-smtp.eu-west-1.amazonaws.com	Email sending
-					US East (N. Virginia)	us-east-1	N/A	inbound-smtp.us-east-1.amazonaws.com	Email receiving
-					US West (Oregon)	us-west-2	N/A	inbound-smtp.us-west-2.amazonaws.com	Email receiving
-					EU (Ireland)	eu-west-1	N/A	inbound-smtp.eu-west-1.amazonaws.com	Email rece
-	*/
-	
-	//global $commonSMTPSettings; $commonSMTPSettings = array(
-
-
-
-
 /* 
 *		Sends an email via Google Mail OAuth 2.0 connection
 */
@@ -1570,24 +1543,23 @@ function jpcrm_mail_delivery_send_via_gmail_oauth( $args ){
 
 		global $zbs;
 
-        // ============ LOAD ARGS =============
-        $default_args = array(
+		$attachments = false;
+		$msg_text    = '';
+		$msg_html    = '';
 
-        	'connection_profile'  => '',
-
-        	'send_from'           => '',
-        	'send_from_name'      => '',
-
-        	'send_to'             => '',
-        	'send_to_name'        => '',
-
-        	'subject'             => '',
-        	//'msg_text'            => '',
-        	'msg_html'            => '',
-        	'attachments'         => false,
-
-        	'debug'               => false,
-        	'return_debug'        => false,
+		// ============ LOAD ARGS =============
+		$default_args = array(
+			'connection_profile' => '',
+			'send_from'          => '',
+			'send_from_name'     => '',
+			'send_to'            => '',
+			'send_to_name'       => '',
+			'subject'            => '',
+			'msg_text'           => '',
+			'msg_html'           => '',
+			'attachments'        => false,
+			'debug'              => false,
+			'return_debug'       => false,
 
         ); foreach ($default_args as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
         // ============ / LOAD ARGS =============
@@ -1631,56 +1603,72 @@ function jpcrm_mail_delivery_send_via_gmail_oauth( $args ){
 				$raw_message .= 'Subject: =?utf-8?B?' . base64_encode( $subject ) . "?=\r\n";
 				$raw_message .= "MIME-Version: 1.0\r\n";
 
-				if ( !is_array( $attachments ) ){
+				// Set mixed boundary if the email has attachments
+				$mixed_boundary = '';
+				if ( is_array( $attachments ) && count( $attachments ) > 0 ) {
+					$mixed_boundary = '=-mixed-' . uniqid();
 
-					// simple send, no attachments
-					$raw_message .= "Content-Type: text/html; charset=utf-8\r\n";
-					$raw_message .= 'Content-Transfer-Encoding: quoted-printable' . "\r\n\r\n";
-					$raw_message .= $msg_html . "\r\n";
+					$raw_message .= 'Content-Type: multipart/mixed; boundary="' . $mixed_boundary . '"' . "\r\n";
+					$raw_message .= "\r\n--{$mixed_boundary}\r\n";
+				}
 
-				} else {
+				// Generate alternative boundary
+				$alt_boundary = '=-alt-' . uniqid(); // unique boundary for the alternative version
+				$raw_message .= 'Content-Type: multipart/alternative; boundary="' . $alt_boundary . '"' . "\r\n";
 
-					// has attachments, build them in
-    			$boundary = uniqid(rand(), true);
-			    $raw_message .= 'Content-type: Multipart/Mixed; boundary="' . $boundary . '"' . "\r\n";
-					$raw_message .= "\r\n--{$boundary}\r\n";
-					$raw_message .= 'Content-Type: text/html; charset=utf-8' . "\r\n";
-					$raw_message .= "Content-Transfer-Encoding: quoted-printable" . "\r\n\r\n";
-					$raw_message .= $msg_html . "\r\n";
-					$raw_message .= "--{$boundary}\r\n";
+				// First the PLAIN text version (RFC 2046)
+				if ( ! empty( $msg_text ) ) {
+					$raw_message .= "\r\n--{$alt_boundary}\r\n"; // start alt boundary
+					$raw_message .= "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
+					$raw_message .= $msg_text . "\r\n";
+				}
 
-					foreach ( $attachments as $filePath ) {
+				$raw_message .= "\r\n--{$alt_boundary}\r\n"; // start or next alt boundary
+				$raw_message .= "Content-Type: text/html; charset=UTF-8\r\n\r\n";
+				$raw_message .= $msg_html . "\r\n";
 
-					    // Process attachment
-                        if( is_array( $filePath ) ) {
-                            $filePath = ( count( $filePath ) > 0 ? $filePath[0] : '' );
-                        }
+				$raw_message .= "\r\n--{$alt_boundary}--\r\n"; // end alt boundary
 
-                        if ( !empty( $filePath ) ){
+				if ( is_array( $attachments ) && count( $attachments ) > 0 ) {
+					$raw_message .= "\r\n--{$mixed_boundary}\r\n"; // start mixed boundary
 
-                            $array = explode('/', $filePath);
-                            $finfo = finfo_open( FILEINFO_MIME_TYPE );
-                            $mimeType = finfo_file( $finfo, $filePath );
-                            $fileName = $array[ sizeof( $array ) - 1 ];
-                            $fileData = base64_encode( file_get_contents( $filePath ) );
+					foreach ( $attachments as $file_path ) {
 
-                            $raw_message .= "\r\n--{$boundary}\r\n";
-                            $raw_message .= 'Content-Type: '. $mimeType .'; name="'. $fileName .'";' . "\r\n";
-                            $raw_message .= 'Content-ID: <' . $fileName. '>' . "\r\n";
-                            $raw_message .= 'Content-Description: ' . $fileName . ';' . "\r\n";
-                            $raw_message .= 'Content-Disposition: attachment; filename="' . $fileName . '"; size=' . filesize($filePath). ';' . "\r\n";
-                            $raw_message .= 'Content-Transfer-Encoding: base64' . "\r\n\r\n";
-                            $raw_message .= chunk_split(base64_encode(file_get_contents($filePath)), 76, "\n") . "\r\n";
-                            $raw_message .= "--{$boundary}\r\n";
+						// Process attachment
+						if ( is_array( $file_path ) ) {
+							$file_path = ( count( $file_path ) > 0 ? $file_path[0] : '' );
+						}
 
-                        }
+						if ( ! empty( $file_path ) ) {
 
+							$array     = explode( '/', $file_path );
+							$mime_type = jpcrm_get_mimetype( $file_path );
+							$filename  = $array[ count( $array ) - 1 ];
+
+							$raw_message .= "\r\n--{$mixed_boundary}\r\n";
+							$raw_message .= 'Content-Type: ' . $mime_type . '; name="' . $filename . '";' . "\r\n";
+							$raw_message .= 'Content-ID: <' . $filename . '>' . "\r\n";
+							$raw_message .= 'Content-Description: ' . $filename . ';' . "\r\n";
+							$raw_message .= 'Content-Disposition: attachment; filename="' . $filename . '"; size=' . filesize( $file_path ) . ';' . "\r\n";
+							$raw_message .= 'Content-Transfer-Encoding: base64' . "\r\n\r\n";
+							// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+							$file_content = file_get_contents( $file_path );
+							// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+							$raw_message .= chunk_split( base64_encode( $file_content ), 76, "\n" ) . "\r\n";
+						}
 					}
-
+					$raw_message .= "\r\n--{$mixed_boundary}--\r\n"; // end mixed boundary
 				}
 
 				// The message needs to be encoded in Base64URL
-				$encoded_message = rtrim( strtr( base64_encode( $raw_message ), '+/', '-_'), '=' );
+				$encoded_message = strtr(
+					// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+					base64_encode( $raw_message ),
+					array(
+						'+' => '-',
+						'/' => '_',
+					)
+				);
 
 				// build message object
 				$msg = new Google_Service_Gmail_Message();

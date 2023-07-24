@@ -17,6 +17,7 @@ class SeoDescriptionPanel extends Component {
 				onChange={ this.onMessageChange }
 				label={ __( 'SEO Description', 'jetpack' ) }
 				placeholder={ __( 'Write a description…', 'jetpack' ) }
+				suggestedLimit={ 156 }
 				rows={ 4 }
 			/>
 		);

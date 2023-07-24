@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache: don't delete child taxonomies during preload

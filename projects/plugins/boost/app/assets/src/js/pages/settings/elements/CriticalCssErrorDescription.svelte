@@ -5,14 +5,14 @@
 	It can include a list of failed URLs, what a user can do, and extra information.
 -->
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
 	import MoreList from '../../../elements/MoreList.svelte';
 	import NumberedList from '../../../elements/NumberedList.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import { ErrorSet } from '../../../stores/critical-css-recommendations';
+	import { regenerateCriticalCss } from '../../../stores/critical-css-state';
+	import { ErrorSet } from '../../../stores/critical-css-state-errors';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import { TemplateVars } from '../../../utils/copy-dom-template';
 	import {
@@ -23,14 +23,12 @@
 	} from '../../../utils/describe-critical-css-recommendations';
 	import supportLinkTemplateVar from '../../../utils/support-link-template-var';
 
-	const dispatch = createEventDispatcher();
-
 	export let showSuggestion = true;
 	export let foldRawErrors = true;
 	export let showClosingParagraph = true;
 
 	/**
-	 * A set of errors to display recommendations from, from a Recommendation or CriticalCssStatus.
+	 * A set of errors to display recommendations from, from a Recommendation or CriticalCssState.
 	 */
 	export let errorSet: ErrorSet;
 
@@ -60,7 +58,7 @@
 	} );
 
 	const templateVars: TemplateVars = {
-		...actionLinkTemplateVar( () => dispatch( 'retry' ), 'retry' ),
+		...actionLinkTemplateVar( regenerateCriticalCss, 'retry' ),
 		...supportLinkTemplateVar(),
 	};
 </script>

@@ -31,9 +31,16 @@ export const useJetpackFieldStyles = attributes => {
 		lineHeight: attributes.lineHeight,
 	};
 
+	const optionStyle = {
+		color: fieldStyle.color,
+		fontSize: fieldStyle.fontSize,
+		lineHeight: fieldStyle.lineHeight,
+	};
+
 	return {
 		blockStyle,
 		fieldStyle,
 		labelStyle,
+		optionStyle,
 	};
 };

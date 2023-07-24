@@ -1,4 +1,8 @@
-import { getProductCheckoutUrl, getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	getProductCheckoutUrl,
+	getRedirectUrl,
+	LoadingPlaceholder,
+} from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { getDate, dateI18n } from '@wordpress/date';
@@ -23,7 +27,7 @@ import UploadsIcon from './icons/uploads.svg';
 import WarningIcon from './icons/warning.svg';
 
 /* eslint react/react-in-jsx-scope: 0 */
-const Backups = () => {
+export const Backups = () => {
 	const { backupState, latestTime, progress, stats } = useBackupsState();
 
 	return (
@@ -74,8 +78,27 @@ const NoGoodBackups = () => {
 	);
 };
 
-const Loading = () => {
-	return <div className="jp-row"></div>;
+export const Loading = () => {
+	return (
+		<div className="jp-row">
+			<div className="lg-col-span-4 md-col-span-4 sm-col-span-4">
+				<LoadingPlaceholder width={ 344 } height={ 182 } />
+			</div>
+			<div class="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
+			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+				<LoadingPlaceholder width={ 160 } height={ 152 } />
+			</div>
+			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+				<LoadingPlaceholder width={ 160 } height={ 152 } />
+			</div>
+			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+				<LoadingPlaceholder width={ 160 } height={ 152 } />
+			</div>
+			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+				<LoadingPlaceholder width={ 160 } height={ 152 } />
+			</div>
+		</div>
+	);
 };
 
 const formatDateString = dateString => {

@@ -136,8 +136,8 @@ function zeroBSCRM_pages_admin_tags() {
 				array(
 					'objTypeID'  => ZBS_TYPE_EVENT,
 					'objType'    => 'event',
-					'singular'   => __( 'Event', 'zero-bs-crm' ),
-					'plural'     => __( 'Events', 'zero-bs-crm' ),
+					'singular'   => __( 'Task', 'zero-bs-crm' ),
+					'plural'     => __( 'Tasks', 'zero-bs-crm' ),
 					'langLabels' => array(),
 					'extraBoxes' => '',
 				)

@@ -1,8 +1,4 @@
-import * as wpdate from '@wordpress/date';
-
-// @wordpress/date now provides getSettings in preference to __experimentalGetSettings,
-// but we still have to support WP 6.0 that doesn't have that yet.
-const getSettings = wpdate.getSettings || wpdate.__experimentalGetSettings;
+import { getSettings } from '@wordpress/date';
 
 /**
  * Clean up WP locale so it matches the format expected by browsers.

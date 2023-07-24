@@ -10,200 +10,9 @@
 
 
 
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-
-
-
-
-
-
-if ( ! class_exists( 'WP_List_Table' ) ) {
-    require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
+	exit;
 }
-
-
-class zeroBSCRM_Events_List extends WP_List_Table {
-
-    
-    public function __construct() {
-
-        parent::__construct( array(
-            'singular' => __( 'Task', 'zero-bs-crm' ),             'plural'   => __( 'Tasks', 'zero-bs-crm' ),             'ajax'     => false         ) );
-
-    }
-
-
-    
-    public static function get_transactions( $per_page = 10, $page_number = 1 ) {
-
-                return zeroBS_getTransactions(true,$per_page,$page_number,true); 
-    }
-
-
-    
-    public static function delete_transaction( $id ) {
-
-                
-    }
-
-
-    
-    public static function record_count() {
-      
-                return zeroBS_getTransactionCount();
-
-    }
-
-
-    
-    public function no_items() {
-        esc_html_e( 'No Tasks avaliable.', 'zero-bs-crm' );
-    }
-
-
-    
-    public function column_default( $item, $column_name ) {
-        switch ( $column_name ) {
-                                                default:
-                return print_r( $item, true );         }
-    }
-
-    
-    function column_cb( $item ) {
-        return sprintf(
-            '<input type="checkbox" name="bulk-delete[]" value="%s" />', $item['id']
-        );
-    }
-
-    
-    function column_customername( $item ) {
-        
-        $colStr = '';
-        if (isset($item['customer']) && isset($item['customer'])){
-            $colStr = '<strong>'.zeroBS_customerName($item['customerid'],$item['customer'],false,false).'</strong><br />';
-            if (isset($item['customer']['addr1']) && isset($item['customer']['city']))
-                                $colStr .= '<div>'.zeroBS_customerAddr($item['customer']['id'],$item['customer'],'short',', ').'</div>';
-        }
-        
-        return $colStr;
-
-    }
-
-
-    
-    function column_transactionno( $item ) {
-        
-        $qc = '';
-
-        if (isset($item['meta']) && isset($item['meta']['orderid'])) $qc = $item['meta']['orderid'];
-        return '<a href="post.php?post='.$item['id'].'&action=edit">'.$qc.'</a>';
-
-    }
-    function column_val( $item ) {
-        
-        $qc = 0;
-
-        if (isset($item['meta']) && isset($item['meta']['total'])) $qc = $item['meta']['total'];
-
-        return zeroBSCRM_getCurrencyChr().zeroBSCRM_prettifyLongInts($qc);
-
-    }
-    function column_date( $item ) {
-
-
-        $d = new DateTime($item['created']);
-        $d = $d->format(zeroBSCRM_getDateFormat());
-
-
-        
-        
-        
-        return $d;
-
-    }
-
-
-
-    
-    function column_name( $item ) {
-
-        $delete_nonce = wp_create_nonce( 'tbp_delete_customer' );
-
-        $title = '<strong>' . $item['name'] . '</strong>';
-
-        $actions = array(
-            'delete' => sprintf( '<a href="?page=%s&action=%s&booking=%s&_wpnonce=%s">Delete</a>', esc_attr( sanitize_text_field( $_REQUEST['page'] ) ), 'delete', absint( $item['id'] ), $delete_nonce )
-        );
-
-        return $title . $this->row_actions( $actions );
-    }
-
-
-    
-    function get_columns() {
-        $columns = array(
-                        'transactionno'    => __( 'Transaction No#', 'zero-bs-crm' ),
-            'val' => __( 'Value', 'zero-bs-crm' ),
-            'date' => __( 'Date', 'zero-bs-crm' )
-        );
-
-        return $columns;
-    }
-
-
-    
-    public function get_sortable_columns() {
-        $sortable_columns = array(
-            'transactionno' => array( 'transactionno', true ),
-            'val' => array( 'val', true ),
-            'date' => array( 'date', false )
-        );
-
-        return $sortable_columns;
-    }
-
-    
-    public function get_bulk_actions() {
-        $actions = array(
-                    );
-
-        return $actions;
-    }
-
-
-    
-    public function prepare_items() {
-
-                
-                $columns = $this->get_columns();
-        $hidden = array();
-        $sortable = $this->get_sortable_columns();
-        $this->_column_headers = array($columns, $hidden, $sortable);
-        
-        
-        $this->process_bulk_action();
-
-        $per_page     = $this->get_items_per_page( 'events_per_page', 10 );
-        $current_page = $this->get_pagenum();
-        $total_items  = self::record_count();
-
-        $this->set_pagination_args( array(
-            'total_items' => $total_items,             'per_page'    => $per_page         ) );
-
-        $this->items = self::get_transactions( $per_page, $current_page );
-
-    }
-
-    public function process_bulk_action() {
-
-        
-    }
-
-}
-
-
-
-
 
 function zeroBSCRM_render_eventscalendar_page(){
 
@@ -242,13 +51,13 @@ function zeroBSCRM_render_eventscalendar_page(){
     
     if ($normalLoad){ ?>
 
-<div class="wrap">
+<div>
 
     <div class="ui segment main-task-view">
 
             <?php if ($showEventsUsers){ ?><div style="clear:both;height: 0px;"></div><?php } ?>
 
-            <?php if ($zbs->isDAL3()){
+		<?php
 
                     // retrieve via DAL, just getting them ALL (pretty gross, but for now, at least more performant.)
                     $args = array(
@@ -283,16 +92,16 @@ function zeroBSCRM_render_eventscalendar_page(){
                                 && 
                                 isset($event['end']) && $event['end'] > 0){
 
-                                $newEvent = array(
-                                    'title' => zeroBSCRM_textExpose($event['title']),
-                                    'start' => zeroBSCRM_date_forceEN($event['start']),
-                                    'end' => zeroBSCRM_date_forceEN($event['end']),
-                                    'url' => jpcrm_esc_link('edit',$event['id'],ZBS_TYPE_EVENT),
-                                    'owner' => $event['owner'],
-                                    'avatar' => '', // default
-                                    'showonCal' => 'hide', // default
-                                    'complete' => "-1"
-                                );
+								$newEvent = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									'title'     => zeroBSCRM_textExpose( $event['title'] ),
+									'start'     => jpcrm_uts_to_datetime_str( $event['start'], 'Y-m-d H:i:s' ),
+									'end'       => jpcrm_uts_to_datetime_str( $event['end'], 'Y-m-d H:i:s' ),
+									'url'       => jpcrm_esc_link( 'edit', $event['id'], ZBS_TYPE_EVENT ),
+									'owner'     => $event['owner'],
+									'avatar'    => '', // default
+									'showonCal' => 'hide', // default
+									'complete'  => '-1',
+								);
 
                                 // avatar?
                                 if (isset($event['owner']) && $event['owner'] > 0) $newEvent['avatar'] = get_avatar_url($event['owner'], $avatar_args);
@@ -317,75 +126,6 @@ function zeroBSCRM_render_eventscalendar_page(){
 
                     // build json
                     $event_json = json_encode($events);
-
-                } else {
-
-                        global $wpdb;
-                        $query = "SELECT * FROM $wpdb->posts WHERE post_type = 'zerobs_event' AND post_status='publish'";
-
-                        if (!empty($currentEventUserID) && $currentEventUserID > 0){
-                                
-                        $query = "SELECT * FROM $wpdb->posts";
-                            $query .= " LEFT JOIN $wpdb->postmeta ON ($wpdb->posts.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key = 'zbs_owner')";
-                            $query .= " WHERE $wpdb->posts.post_type = 'zerobs_event' AND $wpdb->postmeta.meta_value = ".(int)$currentEventUserID;
-
-                        }
-                        $results = $wpdb->get_results($query);
-                        $event = array();
-                        $i=0;
-                        $avatar_args = array(
-                            'size' => 24
-                        );
-                        foreach($results as $result){
-
-                            $zbsEventMeta = get_post_meta($result->ID, 'zbs_event_meta', true);
-                            $zbsOwner = zeroBS_getOwner($result->ID);
-
-                            $zbsEventActions = get_post_meta($result->ID, 'zbs_event_actions', true);
-
-      
-    							if(isset($zbsEventMeta['from']) && isset($zbsEventMeta['to']) && $zbsEventMeta['from'] != '' && $zbsEventMeta['to'] != ''){
-                               
-                                if(!array_key_exists('title', $zbsEventMeta)){
-                                    $zbsEventMeta['title'] = esc_html($result->post_title);
-                                }
-                                
-                                $event[$i]['title'] = $zbsEventMeta['title'];
-                                $event[$i]['start'] = $zbsEventMeta['from'];
-                                $event[$i]['end'] =  $zbsEventMeta['to'];
-                                $event[$i]['url'] = admin_url('post.php?post='.$result->ID.'&action=edit');
-                                $event[$i]['owner'] = $zbsOwner['ID'];
-
-                                if($zbsOwner['ID'] == -1){
-                                    $event[$i]['avatar'] = '';
-                                }else{
-                                    $event[$i]['avatar'] = get_avatar_url($zbsOwner['ID'], $avatar_args);
-                                }
-                                //if showoncal is not set, then show it on cal (backwards compat)
-                                if(!array_key_exists('showoncal', $zbsEventMeta)){
-                                    $zbsEventMeta['showoncal'] = 'on';
-                                }
-
-
-                 
-
-                                if($zbsEventMeta['showoncal']){
-                                    $event[$i]['showonCal'] = 'show';
-                                }else{
-                                    $event[$i]['showonCal'] = 'hide';
-                                } 
-                                
-
-                                $event[$i]['complete'] =  $zbsEventActions['complete'];
-
-
-                                $i++;
-    							}
-                            
-                        }
-                        $event_json = json_encode($event);
-
-                    }
 
                 ?>
 

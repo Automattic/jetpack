@@ -65,7 +65,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 							module={ { module: 'publicize' } }
 							support={ {
 								text: __(
-									'Allows you to automatically share your newest content on social media sites, including Facebook and Twitter.',
+									'Allows you to automatically share your newest content on social media sites, including Facebook and LinkedIn.',
 									'jetpack'
 								),
 								link: getRedirectUrl( 'jetpack-support-publicize' ),

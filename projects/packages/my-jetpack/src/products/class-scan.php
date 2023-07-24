@@ -214,4 +214,18 @@ class Scan extends Module_Product {
 	public static function get_manage_url() {
 		return Redirect::get_url( 'my-jetpack-manage-scan' );
 	}
+
+	/**
+	 * Get the URL where the user should be redirected after checkout
+	 */
+	public static function get_post_checkout_url() {
+		if ( static::is_jetpack_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack#/recommendations' );
+		}
+
+		// If Jetpack is not active, it means that the user has another standalone plugin active
+		// and it follows the `Protect` plugin flow instead of `Scan` so for now it would be safe
+		// to return null and let the user go back to the My Jetpack page.
+		return null;
+	}
 }

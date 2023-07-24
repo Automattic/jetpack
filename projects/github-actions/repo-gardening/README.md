@@ -10,12 +10,12 @@ Here is the current list of tasks handled by this action:
 - Add Milestone (`addMilestone`): Adds a valid milestone to all PRs that get merged and don't already include a milestone.
 - Check Description (`checkDescription`): Checks the contents of a PR description, and ensure it matches our recommendations.
 - Add Labels (`addLabels`): Adds labels to PRs that touch specific features.
-- Clean Labels (`cleanLabels`): Removes Status labels once a PR has been merged.
+- Clean Labels (`cleanLabels`): Removes Status labels once a PR or issue has been closed or merged.
 - WordPress.com Commit Reminder (`wpcomCommitReminder`): Posts a comment on merged PRs to remind Automatticians to commit the matching WordPress.com change.
 - Notify Design (`notifyDesign`): Sends a Slack Notification to the Design team to request feedback, based on labels applied to a PR.
 - Notify Editorial (`notifyEditorial`): Sends a Slack Notification to the Editorial team to request feedback, based on labels applied to a PR.
 - Flag OSS (`flagOss`): flags entries by external contributors, adds an "OSS Citizen" label to the PR, and sends a Slack message.
-- Triage New Issues (`triageNewIssues`): Adds labels to new issues based on issue content.
+- Triage Issues (`triageIssues`): Adds labels to issues based on issue content, and send Slack notifications depending on Priority.
 - Gather support references (`gatherSupportReferences`): Adds a new comment with a list of all support references on the issue, and escalates that issue via a Slack message if needed.
 - Reply to customers Reminder ( `replyToCustomersReminder` ): sends a Slack message about closed issues to remind Automatticians to update customers.
 
@@ -36,6 +36,8 @@ on:
   # Refer to src/index.js to see a list of all events each task needs to be listen to.
   pull_request_target:
     types: ['closed', 'labeled']
+  issues:
+    types: ['closed']
 
 jobs:
   repo-gardening:
@@ -119,6 +121,10 @@ Then pass the path as environment variable to the repo-gardening action, like
           github_token: ${{ secrets.GITHUB_TOKEN }}
           ...
 ```
+
+### Deprecations
+
+The `notifyKitKat` and `triageNewIssues` tasks have been removed. The `triageIssues` task now handles both of those tasks.
 
 ## Credits
 

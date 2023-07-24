@@ -132,6 +132,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "<span>https://</span>github.com/Automattic/jetpack-_something_".
 * `.extra.npmjs-autopublish`: Set truthy to enable automatic publishing of tagged versions to npmjs.com. See [Mirror repositories > Npmjs Auto-publisher](#npmjs-auto-publisher) for details.
 * `.extra.release-branch-prefix`: Our mirroring and release tooling considers any branch named like "_prefix_/branch-_version_" to be a release branch, and this specifies which _prefix_ belongs to the project.
+  * This may also be an array of multiple prefixes. In that case the first element in the array should be a prefix used only by this plugin, with any additional prefixes shared by multiple plugins coming after.
 * `.extra.version-constants`: When `tools/project-version.sh` is checking or updating versions, this specifies PHP constants to check or update. The value is an object matching constants to the file (relative to the package root) in which the constant is defined.
   * Note that constant definitions must be on a single line and use single quotes to be detected by the script. Like this:
     ```php
@@ -253,12 +254,13 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
    1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror, for issue tracking and development head to: https://github.com/automattic/jetpack`.
    2. The default branch should be `trunk`, matching the monorepo.
+      * Note that you can't set the default branch until at least one branch is created in the repo.
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
    4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. You would do this here: `https://github.com/Automattic/example-reposiroty-name/settings/branches` - creating a new branch protection rule where only Matticbot (and whoever needs access to push, for example Ground Control) can push to that repository.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
    6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
-2. For a package you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it. 
-   1. Once the package is added to Packagist, it is best to add some maintainers. Currently these will be `automattic`, `kraft` and `dereksmart`.
+2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
+   1. Be sure that `automattic` is added as a maintainer.
 3. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
@@ -377,28 +379,56 @@ Within a single project, changlogger’s `version next` command can tell you the
 
 ## New Projects
 
+To begin,
+* For Automatticians, drop us a line in #jetpack-crew to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
+* Use the `jetpack generate` command to create a skeleton project.
+* Create your project based on the skeleton and submit a PR as usual.
+
+Once we're sure that the project will be created and what its name will be, someone (you or the Crew team) does the following:
+* Create a GitHub repo in the Automattic repo to be the mirror repo for this project. The new repo follows the [mirror repo guidelines](#mirror-repositories).
+
 ### Creating a new Composer Package
 
-To add a Composer package:
-* For Automatticians, drop us a line in #jetpack-crew to discuss your needs, just to be sure we don't have something already.
-* Use the `jetpack generate package` command to create a skeleton project.
-* Create your package and submit a PR as usual.
-
-Once reviewed and approved, the Crew team does the following:
-* Creates a GitHub repo in the Automattic repo to be the mirror repo for this project, if not done already. The new repo follows the [mirror repo guidelines](#mirror-repositories).
-* Adds a `composer.json` file to the repo, with some basic information about the package. This file is used by Packagist to generate the package page.
-* Creates a new Packagist package on packagist.org under the Automattic org. @jeherve, @dsmart, and @kraftbj are added as maintainers of all Jetpack monorepo packages.
+In addition to the above, after creating the mirror repo,
+* Add a `composer.json` file to the repo, with some basic information about the package. This file is used by Packagist to generate the package page.
+* Create a new Packagist package on packagist.org under the Automattic org. Add `automattic` as a maintainer.
 
 ### Creating a new plugin
 
-If you're thinking about developing a new plugin in the monorepo, come chat with us in #jetpack-crew. We'll help you get started.
-
-Once you are ready to start working on a first version of your plugin in the monorepo, use the `jetpack generate plugin` command to create the first files for your plugin. Then, open a new PR with that skeleton.
-
-Before you can merge your PR, the Crew team will do the following:
-
-* Create the mirror repo for the plugin following the [mirror repo guidelines](#mirror-repositories).
+In addition to the above, after creating the mirror repo,
 * Add a first version of a `composer.json` file to the mirror repo.
-* Add the plugin to Packagist, for folks who may be consuming it through Composer.
-* Add maintainers to the Packagist entry, just like for Composer packages above.
+* Add the plugin to Packagist, just like for Composer packages above, for folks who want to consume it through Composer.
 * Add an entry for the new plugin in the Beta server settings. Find extra details on this process in the Jetpack Beta Builder repository. More information: PCYsg-gDE-p2
+
+### Importing an existing repo
+
+To move development of an existing (public) repo into the Jetpack monorepo, you might do something like this.
+
+Preparation in the original repo:
+* Set up PHP_CodeSniffer with [our ruleset](https://packagist.org/packages/Automattic/jetpack-codesniffer) and fix any lints identified.
+* Merge any PRs that are ready to merge.
+
+In a checkout of the monorepo:
+* Use `git remote add` to add a new remote for the existing repo, e.g. `git remote add existing-source-repo git@github.com:Automattic/existing-source-repo`
+* `git fetch existing-source-repo`
+* Create a new (temporary) branch based on the existing source repo: `git checkout -b existing-repo/prepare-source existing-source-repo/trunk`
+* Move the files to where they should live in the monorepo, e.g. `git mv -k * .* projects/plugins/new-plugin`
+  * You may need to do something like `mkdir --parents ./projects/plugins/new-plugin` for the move to work.
+  * TODO: Consider whether `git filter-repo` might be better. See p9dueE-2on-p2#comment-5761
+* Commit `git add --all && git commit -m "Prepare XXX for monorepo"`
+* Create the branch for the actual import: `git fetch origin && git checkout -b add/import-from-existing-repo origin/trunk`
+* `git merge --allow-unrelated-histories existing-repo/prepare-source`. This will merge in the source plugin into the monorepo while maintaining all previous commits.
+* Create additional commits to clean up the new project: adjust tooling to use what the monorepo provides, remove unneeded tooling, set monorepo configuration in `composer.json`, etc.
+* Run linting and such. Commit anything necessary.
+* `git push origin HEAD` and create your PR. Add the "DO NOT MERGE" tag.
+* When it's time to merge the PR, go to the [GitHub settings page](https://href.li/?https://github.com/Automattic/jetpack/settings) and enable "Allow merge commits". Then go to the PR. There should be a caret dropdown next to "Squash and Merge" which you can use to select "Create a merge commit" instead.
+* Clean up:
+  * Go back to the settings and turn "Allow merge commits" back off.
+  * `git branch -D existing-repo/prepare-source` to delete the temporary branch.
+  * If you want to move any open PRs from the old repo, check out the branches, `git merge origin/trunk` (and resolve any conflicts), push to origin, and recreate.
+  * `git remote remove existing-source-repo` to remove the remote.
+* If you're going to reuse the old repo as the mirror, reconfigure it to match the [mirror repo guidelines](#mirror-repositories).
+
+See p9dueE-2on-p2 for past uses of this process.
+
+While a private repo could be imported similarly, you'd have a lot of auditing to do to make sure no old commit exposes any private information.

@@ -112,7 +112,7 @@ jobs:
 
             if [[ "${SLUG%%/*}" == "plugins" ]]; then
               # Plugins run from the WordPress checkout, not the monorepo checkout.
-              if [[ "$WP_BRANCH" != 'none' ]]; then
+              if [[ -d "/tmp/wordpress-$WP_BRANCH/src/wp-content/$SLUG" ]]; then
                 DIR="/tmp/wordpress-$WP_BRANCH/src/wp-content/$SLUG"
               fi
             elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$FORCE_PACKAGE_TESTS" != "true" ]]; then
@@ -227,7 +227,7 @@ jobs:
             ARGS=( --dev )
           elif [[ "$REF" == */branch-* ]]; then
             ARGS=( --release )
-            TMP="$(jq -r --arg P "${REF%%/branch-*}" 'if $P == .extra["release-branch-prefix"] then input_filename | match( "^projects/plugins/([^/]+)/composer.json$" ).captures[0].string else empty end' projects/plugins/*/composer.json)"
+            TMP="$(jq -r --arg P "${REF%%/branch-*}" '.extra["release-branch-prefix"] | if type == "array" then . else [ . ] end | if index( $P ) then input_filename | match( "^projects/plugins/([^/]+)/composer.json$" ).captures[0].string else empty end' projects/plugins/*/composer.json)"
             while IFS= read -r LINE; do
               ARGS+=( "$LINE" )
             done <<<"$TMP"

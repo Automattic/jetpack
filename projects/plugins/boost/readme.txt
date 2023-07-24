@@ -3,9 +3,9 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, ebin
 Donate link: https://automattic.com
 Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
-Tested up to: 6.1
+Tested up to: 6.3
 Requires PHP: 7.0
-Stable tag: 1.6.0
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,7 +35,7 @@ Optimize your website with the same techniques used on the world's most successf
 
 Each technique that is used to increase website performance is packaged up as a module that you can activate and try out.
 
-Currently, the plugin has 3 performance modules available:
+Currently, the plugin has 6 performance modules available:
 
 1. *Optimize CSS Loading* generates Critical CSS for your homepage, posts and pages. This can allow your content to show up on the screen much faster, particularly for viewers using mobile devices.
 
@@ -49,7 +49,15 @@ Currently, the plugin has 3 performance modules available:
 
    Read more about lazy image loading at [web.dev](https://jetpack.com/redirect/?source=jetpack-boost-lazy-load)
 
- Google PageSpeed API is used to measure the performance score of a site. It's important to look at the Page Speed score because Core Web Vitals are going to be used as a ranking factor in search engines which means improving your SERP listing and increase your website visitors.
+4. *Image Guide* is a must-have feature for anyone who wants to optimize the images on their website. With this guide, you can ensure that the images on your site are the right size and dimensions, which is critical for improving user experience, page speed, and site ranking. Following the tips and best practices outlined in the guide, you can reduce image file sizes and speed up your site. Check out our [support page](https://jetpack.com/support/jetpack-boost/image-performance-guide/) to learn more about this feature and how it can help you achieve a faster and smoother website experience for your users.
+
+5. *Image CDN* allows your site to serve automatically-resized images in modern web formats directly from Jetpack's worldwide Content Delivery Network.
+
+   Read more about Image CDNs at [web.dev](https://web.dev/image-cdns/)
+
+6. *Concatenate and Minify CSS and JS* combines and shrinks your JavaScript and CSS resources to reduce the number and size of requests to your server, ensuring your content loads faster.
+
+   Read more about minifying files at [web.dev](https://web.dev/minify-css/)
 
 Don’t want to have to manually generate your critical CSS each time you update your site? Let us do the heavy lifting for you with automated critical CSS – each time you update your site we will automatically regenerate your critical CSS and update your performance scores. Upgrading also gives you dedicated email support access.
 
@@ -67,11 +75,14 @@ We'd also like to give a special THANK YOU to the XWP team who provided help wit
 
 Jetpack Boost makes small changes to the way that data is sent from your WordPress site to your users’ browser, to enable the browser to display your site faster.
 
-Jetpack Boost includes a few separate features which can be turned on individually to improve your site’s performance. These include:
+Jetpack Boost includes a growing number of separate features which can be turned on individually to improve your site’s performance. These include:
 
 * **Optimize CSS Loading**: This feature determines the most important CSS that your site needs to display your site’s initial content as quickly as possible, and embeds it directly into your site header.
 * **Defer Non-Essential JavaScript**: This feature forces all of the JavaScript which is not deemed essential to displaying your site to load after your site’s main content has been loaded.
 * **Lazy Image Loading**: This feature delays loading images on your site until they are scrolled into view, allowing the browser to load the first content that the user will see first.
+* **Image CDN**: This feature automatically resizes images to a more appropriate size for your visitors' screens, converts them to modern image formats, and serves them from Jetpack's worldwide network of servers.
+* **Concatenate JS**: This feature reduces the size of your JavaScript resources, and automatically combines them into fewer files, allowing your site to load faster with fewer requests.
+* **Concatenate CSS**: As with concatenating JavaScript, this feature shrinks your CSS files and allows them to load with fewer requests.
 
 = What speed improvements can I expect when using Jetpack Boost? =
 
@@ -152,7 +163,7 @@ Jetpack Boost does not include any optimizations that target large databases at 
 
 Jetpack Boost can help sites with large images perform better through lazy-loading, preventing images from loading until they are scrolled into view.
 
-However, it currently does not have any Image Format Optimization features. We are always looking for ways to improve the plugin, so watch this space for more features in the near future.
+Additionally, its Image CDN feature automatically converts your images to more modern web formats, resulting in smaller image file sizes without a loss in quality.
 
 = Is Jetpack Boost compatible with other caching and speed optimization plugins? =
 
@@ -176,19 +187,20 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.7.0 - 2023-01-17
+### 2.0.0 - 2023-07-24
 #### Added
-- New Feature: Jetpack Boost Image Guide.
-- General: Add a notification bubble next to Boost in the WP-admin sidebar.
-- General: Added new tracks events.
-- User Experience: Add redirect to Boost dashboard after activating Boost plugin.
+- Image Size Analyzer: New feature for Premium users which scans their site for image issues
+
+#### Changed
+- General: Beta tags removed from Concatenate CSS/JS and Image CDN.
+- General: Indicate full compatibility with the latest version of WordPress, 6.3.
+- Speed Scores: Update 'score dropped' card copy, with links to documentation.
 
 #### Fixed
-- Admin notices: only display regeneration notice to admins.
-- Compatibility: Improve critical CSS compatibility with older Safari browsers.
-- General: Don't let analytics failures prevent features from functioning.
-- Critical CSS: Fixed an issue where notices to regenerate critical CSS were showing unnecessarily.
-- General: Fix woocommerce deprecation warning.
+- Cloud CSS: Fixed automatic start of cloud CSS regeneration when module is toggled on
+- General: Fixed error snackbar from showing under UI separators on the Getting Started page.
+- Speed Score: Prevented page speed scores from auto refreshing on page load.
+- Super Cache Measurement Tool: Fixed the use of the donotcachepage option during tests, which may have produced understated results
 
 --------
 

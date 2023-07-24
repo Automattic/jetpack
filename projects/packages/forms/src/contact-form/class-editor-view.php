@@ -32,7 +32,7 @@ class Editor_View {
 	 * Admin header.
 	 */
 	public static function admin_head() {
-		remove_action( 'media_buttons', 'grunion_media_button', 999 );
+		remove_action( 'media_buttons', array( Admin::init(), 'grunion_media_button' ), 999 );
 		add_action( 'media_buttons', array( __CLASS__, 'grunion_media_button' ), 999 );
 	}
 

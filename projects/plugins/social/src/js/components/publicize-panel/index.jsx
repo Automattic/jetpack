@@ -26,12 +26,8 @@ const PublicizePanel = ( { prePublish } ) => {
 	);
 	const { togglePublicizeFeature } = useDispatch( 'jetpack/publicize' );
 
-	const {
-		hasPaidPlan,
-		isShareLimitEnabled,
-		numberOfSharesRemaining,
-		connectionsAdminUrl,
-	} = usePublicizeConfig();
+	const { hasPaidPlan, isShareLimitEnabled, numberOfSharesRemaining, connectionsAdminUrl } =
+		usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
@@ -74,7 +70,6 @@ const PublicizePanel = ( { prePublish } ) => {
 						/>
 					</PanelRow>
 				) }
-
 				<PublicizeConnectionVerify />
 				<PublicizeForm
 					isPublicizeEnabled={ isPublicizeEnabled }

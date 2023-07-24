@@ -2,7 +2,7 @@ import { InnerBlocks, store as blockEditorStore } from '@wordpress/block-editor'
 import { cloneBlock, createBlock, getBlockType, registerBlockVariation } from '@wordpress/blocks';
 import { Placeholder } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
 import PaymentsIntroBlockPicker from './block-picker';
@@ -12,20 +12,39 @@ import defaultVariations from './variations';
 export default function JetpackPaymentsIntroEdit( { name, clientId, className } ) {
 	const patternFilter = pattern => pattern.categories?.includes( 'shop' );
 
-	const { blockType, hasInnerBlocks, hasPatterns } = useSelect( select => {
-		const { getBlocks, __experimentalGetAllowedPatterns } = select( blockEditorStore );
+	const { blockType, hasInnerBlocks, hasPatterns, settings } = useSelect( select => {
+		const { getBlocks, __experimentalGetAllowedPatterns, getSettings } = select( blockEditorStore );
 
 		return {
+			settings: getSettings(),
 			blockType: getBlockType( name ),
 			hasInnerBlocks: getBlocks( clientId )?.length > 0,
 			hasPatterns: __experimentalGetAllowedPatterns?.().filter( patternFilter ).length > 0,
 		};
 	} );
 
-	const { replaceBlock, selectBlock } = useDispatch( blockEditorStore );
+	const { replaceBlock, selectBlock, updateSettings } = useDispatch( blockEditorStore );
+
+	const maybeMakeBlockVisible = useCallback(
+		blockName => {
+			const isBlockAllowed =
+				settings?.allowedBlockTypes === true || settings?.allowedBlockTypes?.includes( blockName );
+			if ( ! isBlockAllowed ) {
+				// Add the block to the allowed block list before rendering
+				updateSettings( {
+					...settings,
+					allowedBlockTypes: [ ...settings.allowedBlockTypes, blockName ],
+				} );
+			}
+		},
+		[ settings, updateSettings ]
+	);
 
 	const setVariation = variation => {
-		replaceBlock( clientId, createBlock( variation.name ) );
+		const blockName = variation.name;
+
+		maybeMakeBlockVisible( blockName );
+		replaceBlock( clientId, createBlock( blockName ) );
 		selectBlock( clientId );
 	};
 

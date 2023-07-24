@@ -23,6 +23,13 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
  */
 class Waf_Tests_WPDB extends \Db_Less_Wpdb {
 	/**
+	 * Mock for WordPress Options table.
+	 *
+	 * @var string
+	 */
+	public $options = 'wp_options';
+
+	/**
 	 * Mock for `wpdb::db_server_info`.
 	 *
 	 * @return bool Always false.

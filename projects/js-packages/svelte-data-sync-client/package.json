@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-svelte-data-sync-client",
-	"version": "0.1.0-alpha",
+	"version": "0.3.2-alpha",
 	"description": "A Svelte.js client for the wp-js-data-sync package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/svelte-data-sync-client/#readme",
 	"type": "module",
@@ -16,7 +16,6 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"prepare": "[ -e ./build/index.js ] || pnpm build",
 		"build": "pnpm run clean && webpack",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
@@ -26,20 +25,27 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@typescript-eslint/parser": "5.36.1",
-		"eslint": "8.33.0",
-		"jest": "29.3.1",
-		"svelte": "3.55.1",
+		"@typescript-eslint/parser": "5.62.0",
+		"eslint": "8.44.0",
+		"jest": "29.4.3",
+		"svelte": "3.58.0",
 		"ts-loader": "9.4.2",
-		"tslib": "2.3.1",
-		"typescript": "4.8.2",
-		"webpack": "5.72.1",
+		"tslib": "2.5.0",
+		"typescript": "5.0.4",
+		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1",
 		"zod": "3.20.2"
 	},
 	"engines": {
 		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"exports": {
+		".": {
+			"jetpack:src": "./src/index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		}
 	},
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts"

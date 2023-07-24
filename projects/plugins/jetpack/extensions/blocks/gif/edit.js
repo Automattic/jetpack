@@ -102,7 +102,7 @@ function GifEdit( { attributes, setAttributes, className, isSelected } ) {
 							className="wp-block-jetpack-gif-caption gallery-caption"
 							inlineToolbar
 							isSelected={ captionFocus }
-							unstableOnFocus={ () => setCaptionFocus( false ) }
+							onFocus={ () => setCaptionFocus( false ) }
 							onChange={ value => setAttributes( { caption: value } ) }
 							placeholder={ __( 'Write caption…', 'jetpack' ) }
 							tagName="figcaption"

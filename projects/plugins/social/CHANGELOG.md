@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.0 - 2023-07-05
+### Added
+- Add authentication to Zendesk chat widget. [#31339]
+
+### Changed
+- Social: change the admin page plan redirect link. [#31195]
+- Social: update the Readme to better reflect new features. [#31686]
+- Updated package dependencies.
+
+### Fixed
+- Social: fix the connection state to ensure that new connections are disabled by default when there are no shares left. [#31168]
+- Social Review Prompt: fix the state so it is shown when Jetpack is also active. [#31456]
+
+## 1.11.0 - 2023-06-06
+### Added
+- Added feature flag for Mastodon preview [#30919]
+- Jetpack Social: Add a notice to let users know Instagram is available [#30777]
+
+### Changed
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now [#29942]
+- Updated package dependencies.
+- Updates the enhanced publishing feature check [#29881]
+
+### Deprecated
+- Minor changes around upcoming functionality change in Twitter. [#30272]
+
+## 1.10.0 - 2023-05-02
+### Added
+- Social: Updating plugin version. [#30158]
+
+### Changed
+- Added dynamic pricing to Social admin page. [#30105]
+- Updated package dependencies. [#29565, #29854, #29857, #30019]
+- Update WordPress version requirements. Now requires version 6.1. [#30120]
+
+### Fixed
+- Dashboard: ensure the link to the post editor works, even when WordPress is installed in a subdirectory. [#30159]
+- Jetpack Social: Render Social Image Generator panel even when SIG's default is disabled [#30358]
+- Temporarily removed review prompts to fix the plugin's UI state. [#30101]
+
+## 1.9.1 - 2023-04-06
+### Fixed
+- Reinstated is_social_image_generator_enabled for backwards compatibility. [#29952]
+
+## 1.9.0 - 2023-04-04
+### Added
+- (Backup, Boost, Search, Social) Add links on upgrade pages to activate a license key, if you already have one. [#29443]
+- Added option for CUT component to have a tooltip. [#29609]
+- Added SIG image to the post media array if it's enabled. [#29093]
+- Added toggle to Social admin page to enable or disable Social Image Generator as well as an option to pick a default template. [#29722]
+
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+- Jetpack Social: Enable Social Image Generator by default when it's available. [#29742]
+- Refactored the ToggleSection component to decouple it from other logic. [#29619]
+- Updated package dependencies. [#29216, #29289, #29297, #29434, #29471, #29480]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Updated composer.lock. [#29762]
+
+## 1.8.0 - 2023-03-07
+### Added
+- Add Social Image Generator editor panel to post sidebar [#28737]
+- Add Social Image Generator feature flag to Jetpack Social [#29001]
+
+### Changed
+- Changed remaining shares phrasing [#28688]
+- Remove `ci.targets` from package.json. Better scoping of e2e tests. [#28913]
+- Update billing language [#29126]
+- Updated package dependencies.
+- Update to React 18. [#28710]
+
+### Fixed
+- Revise Jetpack connection agreement text to comply with our User Agreement [#28403]
+- Use External Link icons for external links [#28922]
+
 ## 1.7.0 - 2023-02-07
 ### Added
 - Added Advanced Social plan to pricing table [#28258]

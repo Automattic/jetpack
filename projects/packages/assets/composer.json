@@ -12,6 +12,9 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0"
 	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
 	"autoload": {
 		"files": [
 			"actions.php"
@@ -56,7 +59,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.17.x-dev"
+			"dev-trunk": "1.18.x-dev"
 		}
 	}
 }

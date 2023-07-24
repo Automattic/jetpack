@@ -630,9 +630,9 @@ function jpcrm_ajax_mail_delivery_validate_api_oauth() {
 				// build
 				$subject = __( '[CRM] Mail Delivery Routine', 'zero-bs-crm' );
 
-				// WLREMOVE
+				##WLREMOVE
 				$subject = '[Jetpack CRM] ' . __( 'Mail Delivery Routine', 'zero-bs-crm' );
-				// /WLREMOVE
+				##/WLREMOVE
 
 				// send email to themself!
 				if ( jpcrm_mail_delivery_send_via_gmail_oauth(
@@ -774,9 +774,9 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 	// no need, now done in zeroBSCRM_mailDelivery_sendMessage $mailDeliveryDetails = zeroBSCRM_mailDelivery_retrieveACCByKey($mailDeliveryIndxKey);
 
 	$subject = 'Mail Delivery Routine Test';
-	// WLREMOVE
+	##WLREMOVE
 		$subject = '[Jetpack CRM] ' . $subject;
-	// /WLREMOVE
+	##/WLREMOVE
 
 	// this'll get set by zeroBSCRM_mailDelivery_sendMessage - $headers = array('Content-Type: text/html; charset=UTF-8');
 	// this'll get set by zeroBSCRM_mailDelivery_sendMessage - $headers[] = 'From: '.$sendFromName.' <'.$sendFromEmail.'>';

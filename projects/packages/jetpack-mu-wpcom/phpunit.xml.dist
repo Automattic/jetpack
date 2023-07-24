@@ -1,4 +1,10 @@
-<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true" convertDeprecationsToExceptions="true">
+<phpunit
+	bootstrap="tests/php/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertDeprecationsToExceptions="true"
+	convertWarningsToExceptions="true"
+>
 	<testsuites>
 		<testsuite name="features">
 			<directory suffix="-test.php">tests/php/features</directory>

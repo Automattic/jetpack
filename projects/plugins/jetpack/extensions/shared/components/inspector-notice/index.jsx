@@ -1,9 +1,9 @@
 import './style.scss';
 
-export default function InspectorNotice( { children } ) {
+export default function InspectorNotice( { children, spanClass } ) {
 	return (
 		<div className="jetpack-inspector-notice">
-			<span>{ children }</span>
+			<span className={ spanClass }>{ children }</span>
 		</div>
 	);
 }

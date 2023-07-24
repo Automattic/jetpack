@@ -59,8 +59,11 @@ $ok_wp_deps = array(
  * @var string[][] Keys are block names, value is an array of dependencies to not complain about.
  */
 $allowed = array(
-	'dialogue'       => array(
-		'wp-data',
+	'ai-chat'        => array(
+		'react',
+		'react-dom',
+		'wp-components',
+		'wp-element',
 	),
 	'podcast-player' => array(
 		'lodash',
@@ -133,7 +136,7 @@ foreach ( $iter as $file ) {
 		}
 	}
 	if ( ! empty( $allow ) ) {
-		$issues[ $script ][] = sprintf( 'Allowlist data for the %s block lists unneeded dependencies: %s.', $block, join( ', ', array_keys( $allow ) ) );
+		$issues[ $script ][] = sprintf( 'Allowlist data for the %s block lists unneeded dependencies: %s.', $block, implode( ', ', array_keys( $allow ) ) );
 	}
 }
 
@@ -149,7 +152,7 @@ if ( empty( $issues[ $script ] ) ) {
 if ( ! empty( $issues ) ) {
 	echo "\n\n\e[1mBlock view script dependency check detected issues!\e[0m\n";
 	foreach ( $issues as $file => $msgs ) {
-		echo "\n\e[1mIn $file\e[0m\n" . join( "\n", $msgs ) . "\n";
+		echo "\n\e[1mIn $file\e[0m\n" . implode( "\n", $msgs ) . "\n";
 	}
 	echo "\n\e[32mDependencies allowed may be adjusted by editing the arrays at the top of $script.\e[0m\n\n";
 	exit( 1 );

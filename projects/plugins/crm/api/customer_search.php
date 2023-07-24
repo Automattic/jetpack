@@ -28,7 +28,8 @@ jpcrm_api_check_http_method( array( 'GET' ) );
 // Process the pagination parameters from the query
 list( $page, $per_page ) = jpcrm_api_process_pagination();
 
-$search_phrase = jpcrm_api_process_search();
+$search_phrase               = jpcrm_api_process_search();
+$replace_hyphens_in_response = jpcrm_api_process_replace_hyphens_in_json_keys();
 
 $args = array(
 	'searchPhrase' => $search_phrase,
@@ -47,6 +48,7 @@ if ( isset( $_GET['email'] ) ) {
 			'email'            => $email,
 			'withInvoices'     => true,
 			'withTransactions' => true,
+			'withTags'         => true,
 		)
 	);
 
@@ -84,9 +86,10 @@ if ( isset( $_GET['email'] ) ) {
 	$customer_matches = zeroBS_integrations_searchCustomers( $args );
 }
 
-if ( $zbs->zapier ) {
-	wp_send_json( $zbs->zapier->use_valid_key_names( $customer_matches ) );
+if ( $replace_hyphens_in_response === 1 ) {
+	wp_send_json( jpcrm_api_replace_hyphens_in_json_keys_with_underscores( $customer_matches ) );
 }
+
 wp_send_json( $customer_matches );
 
 

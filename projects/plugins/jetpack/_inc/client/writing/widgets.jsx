@@ -40,7 +40,7 @@ class Widgets extends Component {
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							{ __(
-								'Make extra widgets available for use on your site including subscription forms and Twitter streams',
+								'Make extra widgets available for use on your site including subscription forms and more',
 								'jetpack'
 							) }
 						</ModuleToggle>

@@ -80,6 +80,7 @@ abstract class Base_Admin_Menu {
 			add_action( 'admin_footer', array( $this, 'dashboard_switcher_scripts' ) );
 			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 			add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
+			add_action( 'adminmenu', array( $this, 'inject_core_mobile_toggle' ) );
 		}
 	}
 
@@ -423,7 +424,7 @@ abstract class Base_Admin_Menu {
 			// Menu items that don't have icons, for example separators, have less than 7
 			// elements, partly because the 7th is the icon. So, if we have less than 7,
 			// let's skip it.
-			if ( count( $menu_item ) < 7 ) {
+			if ( ! is_countable( $menu_item ) || ( count( $menu_item ) < 7 ) ) {
 				continue;
 			}
 
@@ -443,7 +444,7 @@ abstract class Base_Admin_Menu {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$menu[ $idx ] = $menu_item;
 		}
-		if ( count( $svg_items ) > 0 ) {
+		if ( $svg_items !== array() ) {
 			$styles = '.menu-svg-icon .wp-menu-image { background-repeat: no-repeat; background-position: center center } ';
 			foreach ( $svg_items as $svg_item ) {
 				$styles .= sprintf( '#%s .wp-menu-image { background-image: url( "%s" ) }', $svg_item['id'], $svg_item['icon'] );
@@ -743,6 +744,17 @@ abstract class Base_Admin_Menu {
 	 */
 	public function should_link_to_wp_admin() {
 		return get_user_option( 'jetpack_admin_menu_link_destination' );
+	}
+
+	/**
+	 * Injects the core's mobile toggle for proper positioning of the submenus.
+	 *
+	 * @see https://core.trac.wordpress.org/ticket/32747
+	 *
+	 * @return void
+	 */
+	public function inject_core_mobile_toggle() {
+		echo '<span id="wp-admin-bar-menu-toggle" style="display: none!important">';
 	}
 
 	/**

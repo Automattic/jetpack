@@ -49,7 +49,7 @@ $autoLoggers = array(
 	),
 	array(
 		'fieldname' => 'autolog_event_new',
-		'title'     => 'Event Creation',
+		'title'     => 'Task Creation',
 	),
 	array(
 		'fieldname' => 'autolog_clientportal_new',
@@ -81,6 +81,10 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 		$updatedSettings['menulayout'] = (int) sanitize_text_field( $_POST['wpzbscrm_menulayout'] );
 	}
 
+	$updatedSettings['showfullwidthforlisting'] = 0; // phpcs:ignore
+	if ( isset( $_POST['wpzbscrm_showfullwidthforlisting'] ) && ! empty( $_POST['wpzbscrm_showfullwidthforlisting'] ) ) { // phpcs:ignore
+		$updatedSettings['showfullwidthforlisting'] = 1; // phpcs:ignore
+	}
 	$updatedSettings['showprefix'] = 0;
 	if ( isset( $_POST['wpzbscrm_showprefix'] ) && ! empty( $_POST['wpzbscrm_showprefix'] ) ) {
 		$updatedSettings['showprefix'] = 1;
@@ -297,9 +301,9 @@ if ( ! $confirmAct ) {
 					<div>
 						<?php esc_html_e( 'Are you looking for your other WordPress menu items? (e.g.', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>"><?php esc_html_e( 'Plugins', 'zero-bs-crm' ); ?></a>, <?php esc_html_e( 'or', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( admin_url( 'users.php' ) ); ?>"><?php esc_html_e( 'Users', 'zero-bs-crm' ); ?></a>)?<br />
 						<?php esc_html_e( "If you can't see these, (and you want to), select 'Slimline' or 'Full' from the above menu, then make sure 'Override WordPress (For All WP Users):' is disabled below", 'zero-bs-crm' ); ?> (<a href="#override-allusers"><?php esc_html_e( 'here', 'zero-bs-crm' ); ?></a>).<br />
-						<?php // WLREMOVE ?>
+						<?php ##WLREMOVE ?>
 						<a href="<?php echo esc_url( $zbs->urls['kbshowwpmenus'] ); ?>" target="_blank"><?php esc_html_e( 'View Guide', 'zero-bs-crm' ); ?></a>
-						<?php // /WLREMOVE ?>
+						<?php ##/WLREMOVE ?>
 					</div>
 				</td>
 			</tr>
@@ -320,6 +324,16 @@ if ( ! $confirmAct ) {
 			<tbody>
 
 				<tr>
+					<td class="wfieldname"><label for="wpzbscrm_showfullwidthforlisting"><?php esc_html_e( 'Show listing pages in full width', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to limit the width of the listing pages', 'zero-bs-crm' ); ?></td>
+					<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_showfullwidthforlisting" id="wpzbscrm_showfullwidthforlisting" value="1"
+					<?php
+					if ( isset( $settings['showfullwidthforlisting'] ) && $settings['showfullwidthforlisting'] === 1 ) {
+						echo ' checked="checked"';}
+					?>
+					/></td>
+				</tr>
+
+				<tr>
 					<td class="wfieldname"><label for="wpzbscrm_showprefix"><?php esc_html_e( 'Show Prefix', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to hide the prefix (mr, mrs, etc)', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_showprefix" id="wpzbscrm_showprefix" value="1"
 					<?php
@@ -332,7 +346,7 @@ if ( ! $confirmAct ) {
 
 
 				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_showaddress"><?php esc_html_e( 'Show Customer Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to hide the address fields (useful for online business)', 'zero-bs-crm' ); ?></td>
+					<td class="wfieldname"><label for="wpzbscrm_showaddress"><?php esc_html_e( 'Show Contact Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to hide the address fields (useful for online business)', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_showaddress" id="wpzbscrm_showaddress" value="1"
 					<?php
 					if ( isset( $settings['showaddress'] ) && $settings['showaddress'] == '1' ) {
@@ -342,7 +356,7 @@ if ( ! $confirmAct ) {
 				</tr>
 
 				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_secondaddress"><?php esc_html_e( 'Second Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Allow editing of a "second address" against a customer', 'zero-bs-crm' ); ?></td>
+					<td class="wfieldname"><label for="wpzbscrm_secondaddress"><?php esc_html_e( 'Second Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Allow editing of a "second address" against a contact', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px">
 						<input type="checkbox" class="winput form-control" name="wpzbscrm_secondaddress" id="wpzbscrm_secondaddress" value="1"
 						<?php
@@ -554,7 +568,7 @@ if ( ! $confirmAct ) {
 				</td>
 			</tr>
 
-			<?php // WLREMOVE ?>
+			<?php ##WLREMOVE ?>
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_shareessentials"><?php esc_html_e( 'Usage Tracking', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Share CRM usage with us. No contact or sensitive CRM data is shared.', 'zero-bs-crm' ); ?>
 				<a href="<?php echo esc_url( $zbs->urls['usageinfo'] ); ?>" target="_blank"><?php esc_html_e( 'Learn More', 'zero-bs-crm' ); ?>.</a>
@@ -586,7 +600,7 @@ if ( ! $confirmAct ) {
 					<input type="checkbox" class="winput form-control" name="jpcrm_showpoweredby_admin" id="jpcrm_showpoweredby_admin" value="1"<?php echo isset( $settings['showpoweredby_admin'] ) && $settings['showpoweredby_admin'] === 0 ? '' : ' checked="checked"'; ?> />
 				</td>
 			</tr>
-			<?php // /WLREMOVE ?>
+			<?php ##/WLREMOVE ?>
 
 			</tbody>
 
@@ -606,7 +620,7 @@ if ( ! $confirmAct ) {
 
 
 			<tr>
-				<td class="wfieldname"><label><?php esc_html_e( 'Accepted Upload File Types', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This setting specifies which file types are acceptable for uploading against customers, quotes, or invoices.', 'zero-bs-crm' ); ?></td>
+				<td class="wfieldname"><label><?php esc_html_e( 'Accepted Upload File Types', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This setting specifies which file types are acceptable for uploading against contacts, quotes, or invoices.', 'zero-bs-crm' ); ?></td>
 				<td style="width:540px">
 					<?php foreach ( $zbs->acceptable_mime_types as $filetype => $mimedeet ) { ?>
 						<input type="checkbox" class="winput form-control" name="<?php echo esc_attr( 'wpzbscrm_ft_' . $filetype ); ?>" id="<?php echo esc_attr( 'wpzbscrm_ft_' . $filetype ); ?>" value="1"
@@ -679,26 +693,6 @@ if ( ! $confirmAct ) {
 		</table>
 
 	</form>
-
-
-	<table class="table table-bordered table-striped wtab" style="margin-top:40px;">
-
-		<thead>
-		<tr>
-			<th class="wmid"><?php esc_html_e( 'Jetpack CRM Plugin: Extra Tools', 'zero-bs-crm' ); ?></th>
-		</tr>
-		</thead>
-
-		<tbody>
-		<tr>
-			<td>
-				<p style="padding: 10px;text-align:center;">
-					<button type="button" class="ui primary button" onclick="javascript:window.location='?page=<?php echo esc_attr( $zbs->slugs['settings'] ); ?>&resetsettings=1';"><?php esc_html_e( 'Restore default settings', 'zero-bs-crm' ); ?></button>
-				</p>
-			</td>
-		</tr>
-		</tbody>
-	</table>
 
 	<script type="text/javascript">
 

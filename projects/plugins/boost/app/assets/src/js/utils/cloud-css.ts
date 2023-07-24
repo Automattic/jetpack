@@ -1,40 +1,11 @@
-import api from '../api/api';
-import {
-	getStatus,
-	updateGenerateStatus,
-	resetCloudStatus,
-	resetCloudRetryStatus,
-	setError,
-	CriticalCssStatus,
-} from '../stores/critical-css-status';
-
-export async function requestCloudCss(): Promise< void > {
-	resetCloudStatus();
-	await startCloudCssRequest();
-}
-
-export async function retryCloudCss(): Promise< void > {
-	resetCloudRetryStatus();
-	await startCloudCssRequest();
-}
-
-async function startCloudCssRequest(): Promise< void > {
-	try {
-		await api.post( '/cloud-css/request-generate' );
-	} catch ( e ) {
-		if ( 200 !== e.httpCode ) {
-			setError();
-			stopPollingCloudCssStatus();
-			return;
-		}
-	}
-	pollCloudCssStatus();
-}
+import { get } from 'svelte/store';
+import { criticalCssProgress, criticalCssState } from '../stores/critical-css-state';
 
 let statusIntervalId = null;
 
-function pollIntervalForStatus( status: CriticalCssStatus ) {
-	return status.progress < 100 ? 5 * 1000 : 2 * 60 * 1000;
+function calcIntervalDuration() {
+	const progress = get( criticalCssProgress );
+	return progress < 100 ? 5 * 1000 : 2 * 60 * 1000;
 }
 
 /**
@@ -47,21 +18,17 @@ function pollIntervalForStatus( status: CriticalCssStatus ) {
  * poll the status with a short interval. Once there are no pending responses,
  * poll the status with a long interval.
  */
-export function pollCloudCssStatus() {
-	let status = getStatus();
-	const interval = pollIntervalForStatus( getStatus() );
-
+export function startPollingCloudStatus() {
 	// If we are creating a new poll, clear the previous one.
 	stopPollingCloudCssStatus();
+	const duration = calcIntervalDuration();
 
 	statusIntervalId = setInterval( async () => {
-		status = await api.get< CriticalCssStatus >( '/cloud-css/status' );
-		updateGenerateStatus( status );
-
-		if ( interval !== pollIntervalForStatus( status ) ) {
-			pollCloudCssStatus();
+		await criticalCssState.refresh();
+		if ( duration !== calcIntervalDuration() ) {
+			startPollingCloudStatus();
 		}
-	}, interval );
+	}, duration );
 }
 
 export function stopPollingCloudCssStatus() {

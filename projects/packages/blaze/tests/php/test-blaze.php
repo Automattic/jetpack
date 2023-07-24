@@ -30,8 +30,6 @@ class Test_Blaze extends BaseTestCase {
 
 	/**
 	 * Set up before each test.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->admin_id = wp_insert_user(
@@ -56,8 +54,6 @@ class Test_Blaze extends BaseTestCase {
 
 	/**
 	 * Tear down after each test.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		wp_dequeue_script( Blaze::SCRIPT_HANDLE );
@@ -70,9 +66,9 @@ class Test_Blaze extends BaseTestCase {
 	 *
 	 * @covers Automattic\Jetpack\Blaze::init
 	 */
-	public function test_should_not_check_eligibility_by_defuault() {
+	public function test_should_not_check_eligibility_by_default() {
 		/*
-		 *The post_row_actions action should not be available on init.
+		 * The post_row_actions action should not be available on init.
 		 * It only happens on a specific screen.
 		 */
 		$this->assertFalse( has_action( 'post_row_actions' ) );
@@ -81,6 +77,18 @@ class Test_Blaze extends BaseTestCase {
 		 * It should only be available after you've made a remote request to WordPress.com.
 		 */
 		$this->assertFalse( has_filter( 'jetpack_blaze_enabled' ) );
+	}
+
+	/**
+	 * Test that the jetpack_blaze_dashboard_enable filter overwrites eligibility for the dashboard page.
+	 *
+	 * @covers Automattic\Jetpack\Blaze::is_dashboard_enabled
+	 */
+	public function test_dashboard_filter_enable() {
+		$this->assertTrue( Blaze::is_dashboard_enabled() );
+		add_filter( 'jetpack_blaze_dashboard_enable', '__return_false' );
+		$this->assertFalse( Blaze::is_dashboard_enabled() );
+		add_filter( 'jetpack_blaze_dashboard_enable', '__return_true' );
 	}
 
 	/**
@@ -126,6 +134,27 @@ class Test_Blaze extends BaseTestCase {
 		Blaze::add_post_links_actions();
 
 		$this->assertNotFalse( has_action( 'post_row_actions' ) );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test if the admin menu is added for admins when we force Blaze to be enabled.
+	 *
+	 * @covers Automattic\Jetpack\Blaze::enable_blaze_menu
+	 */
+	public function test_admin_menu_added() {
+		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
+
+		// Ensure that no menu is added by default.
+		$this->assertEmpty( menu_page_url( 'advertising' ) );
+
+		wp_set_current_user( $this->admin_id );
+
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		Blaze::enable_blaze_menu();
+		$this->assertNotEmpty( menu_page_url( 'advertising' ) );
+
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
 	}
 

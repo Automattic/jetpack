@@ -8,9 +8,6 @@
 
 # Plugins
 
-# Other bits of the Codebase
-/projects/plugins/jetpack/_inc/lib/debugger/ @kraftbj
-
 # Functionality that is important to our partners
 /projects/plugins/jetpack/class.jetpack-cli.php @automattic/jetpack-infinity
 /tools/partner-provision.sh @automattic/jetpack-infinity

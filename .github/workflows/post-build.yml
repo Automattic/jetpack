@@ -14,6 +14,11 @@ env:
   COMPOSER_ROOT_VERSION: "dev-trunk"
   SUMMARY: Post-Build run [#${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for Build run [#${{ github.event.workflow_run.id }}](${{ github.event.workflow_run.html_url }})
 
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+
 # Note the job logic here is a bit unusual. That's because this workflow is triggered by `workflow_run`, and so is not shown on the PR by default.
 # Instead we have to manually report back, including where we could normally just skip or let a failure be handled.
 #  - If the "Build" job failed, we need to set our status as failed too (build_failed).
@@ -112,7 +117,7 @@ jobs:
             echo "$JSON"
             echo "::endgroup::"
             ZIPURL="$(jq -r '.artifacts[] | select( .name == "jetpack-build" ) | .archive_download_url' <<<"$JSON")"
-            PLUGINS="$(jq -r '.artifacts[] | select( .name == "plugins" )' <<<"$JSON")"
+            PLUGINS="$(jq -r '.artifacts[] | select( .name == "plugins.tsv" )' <<<"$JSON")"
             if [[ -n "$ZIPURL" ]]; then
               break
             fi
@@ -184,7 +189,7 @@ jobs:
     timeout-minutes: 15  # 2022-08-26: Successful runs seem to take about 6 minutes, but give some extra time for the downloads.
     services:
       db:
-        image: mariadb:latest
+        image: mariadb:lts
         env:
           MARIADB_ROOT_PASSWORD: wordpress
         ports:
@@ -256,7 +261,7 @@ jobs:
           done
           [[ ! -e "artifact.zip" ]] && { echo "::error::Failed to download artifact."; exit 1; }
           unzip artifact.zip
-          tar --xz -xvvf build.tar.xz
+          tar --xz -xvvf build.tar.xz build
 
       - name: Setup WordPress
         run: trunk/.github/files/test-plugin-update/setup.sh

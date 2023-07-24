@@ -9,6 +9,8 @@ const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
 	customText: sigSettings?.custom_text ?? null,
 	imageType: sigSettings?.image_type ?? null,
 	imageId: sigSettings?.image_id ?? null,
+	template: sigSettings?.template ?? null,
+	token: sigSettings?.token ?? null,
 } );
 
 /**
@@ -18,10 +20,13 @@ const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
  * @property {string} customText - Custom text for the generated image.
  * @property {string} imageType - Optional. Type of the image in the generated image.
  * @property {number} imageId - Optional. ID of the image in the generated image.
+ * @property {string} template - Template for the generated image.
  * @property {Function} setIsEnabled - Callback to enable or disable the image generator for a post.
  * @property {Function} setCustomText - Callback to change the custom text.
  * @property {Function} setImageType - Callback to change the image type.
  * @property {Function} setImageId - Callback to change the image ID.
+ * @property {Function} setTemplate - Callback to change the template.
+ * @property {Function} setToken - Callback to change the token.
  */
 
 /**
@@ -59,5 +64,7 @@ export default function useImageGeneratorConfig() {
 		setCustomText: value => updateSettings( 'custom_text', value ),
 		setImageType: value => updateSettings( 'image_type', value ),
 		setImageId: value => updateSettings( 'image_id', value ),
+		setTemplate: value => updateSettings( 'template', value ),
+		setToken: value => updateSettings( 'token', value ),
 	};
 }

@@ -1,46 +1,75 @@
-import { useCallback, useState } from '@wordpress/element';
+/**
+ * External dependencies
+ */
+import { createRef, useCallback, useEffect, useRef } from '@wordpress/element';
 import classnames from 'classnames';
-import { difference, includes, kebabCase, map, without } from 'lodash';
+import { difference, forEach, includes, kebabCase, map, without } from 'lodash';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+/**
+ * Internal dependencies
+ */
 import TableItem from './item';
 
 import './style.scss';
 
-const Table = ( { className, columns, defaultSelected, items, onSelectionChange } ) => {
-	const [ selected, setSelected ] = useState( defaultSelected || [] );
+const getItemKey = ( item, index ) =>
+	`table-row-${ item.isLoading ? `${ index }-loading` : item.id }`;
+
+const Table = ( {
+	className,
+	columns,
+	items,
+	rowAnimationTimeout = 0,
+	selectedResponses = [],
+	setSelectedResponses,
+} ) => {
+	const { current: refs } = useRef( {} );
+
+	useEffect( () => {
+		forEach( items, item => {
+			if ( refs[ getItemKey( item ) ] ) {
+				return;
+			}
+
+			refs[ getItemKey( item ) ] = createRef();
+		} );
+	}, [ items, refs ] );
 
 	const toggleSelected = useCallback(
 		id => {
-			const newState = includes( selected, id ) ? without( selected, id ) : [ ...selected, id ];
+			const newState = includes( selectedResponses, id )
+				? without( selectedResponses, id )
+				: [ ...selectedResponses, id ];
 
-			setSelected( newState );
-			onSelectionChange( newState );
+			setSelectedResponses( newState );
 		},
-		[ selected, onSelectionChange ]
+		[ selectedResponses, setSelectedResponses ]
 	);
 	const selectAll = useCallback( () => {
-		if ( difference( map( items, 'id' ), selected ).length === 0 ) {
-			setSelected( [] );
+		if ( difference( map( items, 'id' ), selectedResponses ).length === 0 ) {
+			setSelectedResponses( [] );
 			return;
 		}
 
-		setSelected( map( items, 'id' ) );
-	}, [ items, selected ] );
+		const newState = map( items, 'id' );
+		setSelectedResponses( newState );
+	}, [ items, selectedResponses, setSelectedResponses ] );
 
 	const classes = classnames( 'jp-forms__table', className );
 	const checkboxClasses = classnames( 'jp-forms__table-checkbox', {
-		'is-intermediate': selected.length !== 0 && selected.length !== items.length,
+		'is-intermediate': selectedResponses.length !== 0 && selectedResponses.length !== items.length,
 	} );
 
 	return (
 		<div className={ classes }>
 			<div className="jp-forms__table-header">
-				{ !! onSelectionChange && (
+				{ !! setSelectedResponses && (
 					<div className="jp-forms__table-cell is-select">
 						<input
 							className={ checkboxClasses }
 							onChange={ selectAll }
 							type="checkbox"
-							checked={ difference( map( items, 'id' ), selected ).length === 0 }
+							checked={ difference( map( items, 'id' ), selectedResponses ).length === 0 }
 						/>
 					</div>
 				) }
@@ -56,15 +85,25 @@ const Table = ( { className, columns, defaultSelected, items, onSelectionChange 
 				} ) }
 			</div>
 
-			{ map( items, item => (
-				<TableItem
-					key={ `table-row-${ item.id }` }
-					columns={ columns }
-					item={ item }
-					isSelected={ includes( selected, item.id ) }
-					onSelectChange={ onSelectionChange && toggleSelected }
-				/>
-			) ) }
+			<TransitionGroup component={ null }>
+				{ map( items, ( item, index ) => (
+					<CSSTransition
+						key={ getItemKey( item, index ) }
+						nodeRef={ refs[ getItemKey( item, index ) ] }
+						mountOnEnter={ !! rowAnimationTimeout }
+						mountOnExit={ !! rowAnimationTimeout }
+						timeout={ rowAnimationTimeout }
+					>
+						<TableItem
+							ref={ refs[ getItemKey( item, index ) ] }
+							columns={ columns }
+							item={ item }
+							isSelected={ includes( selectedResponses, item.id ) }
+							onSelectChange={ setSelectedResponses && toggleSelected }
+						/>
+					</CSSTransition>
+				) ) }
+			</TransitionGroup>
 		</div>
 	);
 };

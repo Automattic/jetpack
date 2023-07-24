@@ -50,7 +50,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		'geo'              => '(object>geo|false)',
 		'menu_order'       => '(int) (Pages Only) The order pages should appear in.',
 		'page_template'    => '(string) (Pages Only) The page template this page is using.',
-		'publicize_URLs'   => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
+		'publicize_URLs'   => '(array:URL) Array of Facebook URLs published by this post.',
 		'terms'            => '(object) Hash of taxonomy names mapping to a hash of terms keyed by term name.',
 		'tags'             => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
 		'categories'       => '(object:category) Hash of categories (keyed by category name) applied to the post.',

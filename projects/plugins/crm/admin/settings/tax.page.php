@@ -20,46 +20,50 @@ if ( isset( $_POST['editzbstax'] ) ) {
 	// check nonce
 	check_admin_referer( 'jpcrm-update-settings-tax' );
 
-	if ( empty( $_POST['jpcrm-taxtable-line']['ids'] ) || ! is_array( $_POST['jpcrm-taxtable-line']['ids'] ) ) {
-		return;
-	}
-
-	// get unsanitised tax rate data
-	$raw_submitted_rates = $_POST['jpcrm-taxtable-line'];
-
 	// this stores a quick index; every ID not present will get culled after this.
 	$new_tax_table_ids = array();
 
-	// max out at 128 tax rates for now
-	$max_tax_rates = min( count( $raw_submitted_rates['ids'] ), 128 );
+	if ( isset( $_POST['jpcrm-taxtable-line'] ) ) {
 
-	for ( $i = 0; $i < $max_tax_rates; $i++ ) {
+		// get unsanitised tax rate data
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- POST data is sanitized / defined when used below
+		$raw_submitted_rates = wp_unslash( $_POST['jpcrm-taxtable-line'] );
 
-		if (
-			! isset( $raw_submitted_rates['ids'][ $i ] )
-			|| ! isset( $raw_submitted_rates['names'][ $i ] )
-			|| ! isset( $raw_submitted_rates['rates'][ $i ] )
-		) {
-			continue;
+		if ( empty( $raw_submitted_rates['ids'] ) || ! is_array( $raw_submitted_rates['ids'] ) ) {
+			return;
 		}
 
-		$potential_rate_id = (int) $raw_submitted_rates['ids'][ $i ];
+		// max out at 128 tax rates for now
+		$max_tax_rates = min( count( $raw_submitted_rates['ids'] ), 128 );
 
-		$new_tax_table_ids[] = $potential_rate_id;
+		for ( $i = 0; $i < $max_tax_rates; $i++ ) {
 
-		$added_rate_id = zeroBSCRM_taxRates_addUpdateTaxRate(
-			array(
+			if (
+				! isset( $raw_submitted_rates['ids'][ $i ] )
+				|| ! isset( $raw_submitted_rates['names'][ $i ] )
+				|| ! isset( $raw_submitted_rates['rates'][ $i ] )
+			) {
+				continue;
+			}
 
-				'id'   => $potential_rate_id,
-				'data' => array(
-					'name' => sanitize_text_field( $raw_submitted_rates['names'][ $i ] ),
-					'rate' => (float) $raw_submitted_rates['rates'][ $i ],
-				),
-			)
-		);
+			$potential_rate_id = (int) $raw_submitted_rates['ids'][ $i ];
 
-		if ( $potential_rate_id === -1 && $added_rate_id > 0 ) {
-			$new_tax_table_ids[] = $added_rate_id;
+			$new_tax_table_ids[] = $potential_rate_id;
+
+			$added_rate_id = zeroBSCRM_taxRates_addUpdateTaxRate(
+				array(
+
+					'id'   => $potential_rate_id,
+					'data' => array(
+						'name' => sanitize_text_field( $raw_submitted_rates['names'][ $i ] ),
+						'rate' => (float) $raw_submitted_rates['rates'][ $i ],
+					),
+				)
+			);
+
+			if ( $potential_rate_id === -1 && $added_rate_id > 0 ) {
+				$new_tax_table_ids[] = $added_rate_id;
+			}
 		}
 	}
 
@@ -138,7 +142,21 @@ if ( isset( $sbupdated ) ) {
 					<div class="ui info icon message">
 						<div class="content">
 							<div class="header"><?php esc_html_e( 'No Tax Rates', 'zero-bs-crm' ); ?></div>
-							<p><?php echo wp_kses( sprintf( __( 'There are no tax rates defined yet. Do you want to <a href="%s" id="zbs-new-add-tax-rate">create one</a>?', 'zero-bs-crm' ), '#' ), $zbs->acceptable_restricted_html ); ?></p>
+							<p>
+								<?php
+									echo sprintf(
+										wp_kses(
+											/* Translators: placeholder is an anchor, which gets changed via Javascript elsewhere to create new tax rate entry fields. */
+											__(
+												'There are no tax rates defined yet. Do you want to <a href="%s" id="zbs-new-add-tax-rate">create one</a>?',
+												'zero-bs-crm'
+											),
+											$zbs->acceptable_restricted_html
+										),
+										'#'
+									);
+									?>
+							</p>
 						</div>
 					</div>
 				</td>
@@ -218,8 +236,9 @@ if ( isset( $sbupdated ) ) {
 					text: '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Are you sure you want to delete this tax rate? This will remove it from your database and existing transactions with this tax rate will not show properly. You cannot undo this.', 'zero-bs-crm' ) ) ); ?>',
 					type: 'warning',
 					showCancelButton: true,
-					confirmButtonColor: '#3085d6',
-					cancelButtonColor: '#d33',
+					confirmButtonColor: '#000',
+					cancelButtonColor: '#fff',
+					cancelButtonText: '<span style="color: #000">Cancel</span>',
 					confirmButtonText: '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Yes, remove the tax rate.', 'zero-bs-crm' ) ) ); ?>',
 				})//.then((result) => {
 					.then(function (result) {
@@ -264,13 +283,13 @@ if ( isset( $sbupdated ) ) {
 
 			html += '<tr class="zbs-taxtable-line">';
 			html += '<td>';
-			html += '<input type="hidden" name="jpcrm-taxtable-line[ids][]" value="' + thisID + '" />';
-			html += '<div class="ui fluid input"><input type="text" class="winput form-control" name="jpcrm-taxtable-line[names][]" value="' + namestr + '" placeholder="' + window.zeroBSCRMJS_taxTableLang.defaultTaxName + '" /></div>';
+			html += '<input type="hidden" name="jpcrm-taxtable-line[ids][]" value="' + jpcrm.esc_attr( thisID ) + '" />';
+			html += '<div class="ui fluid input"><input type="text" class="winput form-control" name="jpcrm-taxtable-line[names][]" value="' + jpcrm.esc_attr( namestr ) + '" placeholder="' + jpcrm.esc_attr( window.zeroBSCRMJS_taxTableLang.defaultTaxName ) + '" /></div>';
 			html += '</td>';
 			html += '<td>';
 			html += '<div class="ui right labeled input">';
-			html += '<input type="text" class="winput form-control numbersOnly zbs-dc" name="jpcrm-taxtable-line[rates][]" value="' + rateval + '" placeholder="' + window.zeroBSCRMJS_taxTableLang.defaultTaxPerc + '"  />';
-			html += '<div class="ui basic label">' + window.zeroBSCRMJS_taxTableLang.percSymbol + '</div></div>';
+			html += '<input type="text" class="winput form-control numbersOnly zbs-dc" name="jpcrm-taxtable-line[rates][]" value="' + jpcrm.esc_attr( rateval ) + '" placeholder="' + jpcrm.esc_attr( window.zeroBSCRMJS_taxTableLang.defaultTaxPerc ) + '"  />';
+			html += '<div class="ui basic label">' + jpcrm.esc_html( window.zeroBSCRMJS_taxTableLang.percSymbol ) + '</div></div>';
 			html += '</td>';
 			html += '<td class="wmid">';
 			html += '<button type="button" class="ui icon button zbs-taxtable-remove-rate"><i class="close icon"></i></button>';

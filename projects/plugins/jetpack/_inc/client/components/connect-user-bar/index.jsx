@@ -24,22 +24,22 @@ const ConnectUserBar = props => {
 
 	return (
 		<Card compact className="jp-connect-user-bar__card">
-			<div className="jp-connect-user-bar__text">
+			<span>
 				{ sprintf(
 					/* translators: placeholder is text adding extra instructions on what to do next. */
 					__( 'This feature is provided by the WordPress.com cloud. %s', 'jetpack' ),
 					text
 				) }
-			</div>
+			</span>
 
-			<div className="jp-connect-user-bar__button">
-				<ConnectButton
-					connectUser={ true }
-					from="unlinked-user-connect"
-					connectLegend={ __( 'Connect your WordPress.com account', 'jetpack' ) }
-					customConnect={ customConnect }
-				/>
-			</div>
+			<ConnectButton
+				connectUser={ true }
+				from="unlinked-user-connect"
+				connectLegend={ __( 'Connect your WordPress.com account', 'jetpack' ) }
+				customConnect={ customConnect }
+				rna={ true }
+				compact={ true }
+			/>
 		</Card>
 	);
 };

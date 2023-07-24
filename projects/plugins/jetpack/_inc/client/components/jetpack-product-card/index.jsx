@@ -1,4 +1,4 @@
-import { ProductPrice } from '@automattic/jetpack-components';
+import { ProductPrice, TermsOfService } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -95,6 +95,8 @@ const JetpackProductCard = props => {
 						legend={ billingDescription }
 					/>
 				</div>
+
+				<TermsOfService agreeButtonLabel={ checkoutText } />
 
 				<Button className={ buttonClasses } href={ checkoutUrl } onClick={ onClick }>
 					{ checkoutText }

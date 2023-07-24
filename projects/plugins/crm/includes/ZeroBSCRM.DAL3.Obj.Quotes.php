@@ -797,12 +797,12 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 
             // Mapped sorts
             // This catches listview and other exception sort cases
-            $sort_map = array(
+				$sort_map = array(
+					'customer' => '(SELECT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_from = quote.ID)', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// hack to support quote statuses (for here only, 2 is accepted, 1 is unaccepted, 0 is draft)
+					'status'   => '(CASE WHEN zbsq_accepted > 0 THEN 2 WHEN zbsq_template > 0 THEN 1 ELSE 0 END)',
+				);
 
-                'customer'				=> '(SELECT zbsol_objid_to FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_QUOTE.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_from = quote.ID)',                           
-
-            );
-            
             if ( array_key_exists( $sortByField, $sort_map ) ) {
 
                 $sortByField = $sort_map[ $sortByField ];
@@ -1116,6 +1116,10 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			// if owner = -1, add current
 			if (!isset($owner) || $owner === -1) { $owner = zeroBSCRM_user(); }
 
+			// if no date is passed, use current date
+			if ( empty( $data['date'] ) ) {
+				$data['date'] = time(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			}
 
 			if (is_array($limitedFields)){ 
 

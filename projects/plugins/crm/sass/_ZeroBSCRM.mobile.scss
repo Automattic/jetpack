@@ -92,23 +92,10 @@
         }
     }
 
-    #zbs-screen-options{
-        margin-top: -5.3em !important;
-        margin-bottom: 25px;
-        .header{
-            padding-top: 5px;
-        }
-    }
-
     #wpcontent {
-        margin-left:0px !important;
 
         .label{
             white-space: pre-wrap;
-        }
-
-        #zbs-hide-main-menu{
-            display:none;
         }
 
         .grid{
@@ -116,10 +103,7 @@
         }
 
         #zbs-mobile-nav{
-            padding: 7px;
-            // actually don't think this is needed? (only needed sub 600px, wh adapted elsewhere in this file) padding-top: 60px;
             background: #2c2e2f;
-            margin-left: -10px;
             cursor: pointer;
         }
 
@@ -135,17 +119,10 @@
 
         #zbs-main-logo-mobile{
             img{
-                width:45px;
+                width:85px;
                 cursor:pointer;
                 height:auto;
             }
-        }
-
-        #zbs-admin-top-bar{
-            margin-right: 0px;
-        }
-        #zbs-admin-top-bar{
-            padding-left:30px;
         }
 
         .ui.grid>.row>[class*="eight wide"].column, .ui.grid>.column.row>[class*="eight wide"].column, .ui.grid>[class*="eight wide"].column, .ui.column.grid>[class*="eight wide"].column{
@@ -178,28 +155,10 @@
             padding-right:0px;
         }
 
-        #zbs-list-table-wrap{
-            position:relative;
-        }
-        #zbs-list-table-wrap, #zbs-list-sidebar-wrap{
-            padding-right: 0;
-        }
-
-
         #zbs-customer-panel .three.wide.column img {
             max-width: 100%;
             width: 95% !important;
         }
-
-        .zbs-view-card{
-            text-align:center;
-        }
-
-
-        #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap, #zbs-side-sortables{
-            padding-right:0px !important;
-        }
-
 
         //specific targets
         #email-template-submenu-admin{
@@ -210,29 +169,10 @@
 
     }
 
-    //target the dashboard page 
-    .toplevel_page_zerobscrm-dash{
-        .col-6{
-            //width:95% !important;
-            width:100% !important;
-        }
-        .col-md-4-db{
-            width:100% !important;
-        }
-        #settings_dashboard_latest_contacts_display{
-            width:100%;
-        }
-    }
-
-
     //sort the padding out - semantic really should do this out the box!!
-    #zbs-list-table-wrap, #zbs-list-sidebar-wrap, #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
+    #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
         width:100% !important;
         overflow:hidden;
-    }
-
-    #zbs-list-sidebar-wrap{
-        margin-top:10px;
     }
 
     #zbs-edit-master-wrap{
@@ -252,25 +192,9 @@
         display:none;
     }
 
-    //main navigation menu - going to need "some" tweaks here
-    .zbs-admin-main-menu{
-        padding-top:50px !important;
-    }
-    
-    .zbs-dash-header{
-        margin-top:-2px !important;
-        margin-left:-80px !important;
-    }
-
-
     .auto-fold #adminmenu a.menu-top {
         height: inherit !important;
     }
-
-    .zbs-listview-bulk-hd .ui.fitted.checkbox, .zbs-listview-bulk .ui.fitted.checkbox {
-        padding-left: 13px !important;
-    }
-
 
     //invoice 
     .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper input, .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper select{
@@ -285,24 +209,13 @@
         width:100% !important;
     }
 
-    #zbsExtensionsPage .zbsExtensionGroup .zbsExtensionList .zbsExtension{
-        width:100% !important;
-    }
-
-    .zbs-page-wrap{
-        margin-right:0px !important;
-        padding-right:0px !important;
-    }
-
-
-
 }
 
 /* TINY old Mobile Style */
 @media only screen and (max-width: 600px) {
     #wpcontent {
             #zbs-mobile-nav.ui.mobile.only{
-                padding-top: 40px;
+                padding-top: 55px;
             }
     }
 }
@@ -315,46 +228,10 @@
     }
 }
 
-/* Tablet / iPad Portrait */
-@media only screen and (min-width: 768px) and (max-width: 960px) {
-    #wpcontent {
-        margin-left:0px !important; 
-
-        #zbs-mobile-nav {
-            margin-left: 10px !important;
-            padding-left: 15px !important;
-        }
-
-        #zbs-list-top-bar h2.zbs-white {
-            margin-left: 30px;
-        }
-    }
-
-    #wpbody {
-      margin-left: 30px;
-    }
-
-}
-// tiny gap:
-@media only screen and (min-width: 768px) and (max-width: 783px) {
-    #wpcontent {
-        margin-left:0px !important; 
-
-        #zbs-mobile-nav {
-            margin-left: -10px !important;
-            padding-left: 10px !important;
-        }
-
-        #zbs-list-top-bar h2.zbs-white {
-            margin-left: 0;
-        }
-    }
-
-    #wpbody {
-      margin-left: 0;
-    }
-
-
+#zbs-mobile-nav {
+	padding: 10px 20px;
+	background: #2c2e2f;
+	cursor: pointer;
 }
 
 /* Tablet / iPad Portrait */
@@ -368,20 +245,6 @@
         .grid{
             max-width:100%;
         }
-
-        #zbs-mobile-nav {
-            padding: 7px;
-            padding-top: 10px;
-            background: #2c2e2f;
-            margin-left: -10px;
-            cursor: pointer;
-            margin-left: -20px;
-            padding-left: 10px;
-        }
-
-        #wpbody-content{
-            margin-top:0px;
-        }
         
         #zbs-mobile-navigation-toggle{
             display:none;
@@ -390,17 +253,10 @@
 
         #zbs-main-logo-mobile{
             img{
-                width:45px;
+                width:85px;
                 cursor:pointer;
                 height:auto;
             }
-        }
-
-        #zbs-admin-top-bar{
-            margin-right: 0px;
-        }
-        #zbs-admin-top-bar{
-            padding-left:30px;
         }
 
         .ui.grid>.row>[class*="eight wide"].column, .ui.grid>.column.row>[class*="eight wide"].column, .ui.grid>[class*="eight wide"].column, .ui.column.grid>[class*="eight wide"].column{
@@ -428,25 +284,6 @@
             padding-right:0px;
         }
 
-        #zbs-list-table-wrap{
-            position:relative;
-        }
-
-        #zbs-list-table-wrap, #zbs-list-sidebar-wrap{
-            padding-right: 0;
-        }
-
-
-        .zbs-view-card{
-            text-align:center;
-        }
-
-
-        #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap, #zbs-side-sortables{
-            padding-right:0px !important;
-        }
-
-
         //specific targets
         #email-template-submenu-admin{
             a{
@@ -456,29 +293,10 @@
 
     }
 
-    //target the dashboard page 
-    .toplevel_page_zerobscrm-dash{
-        .col-6{
-            //width:95% !important;
-            width:100% !important;
-        }
-        .col-md-4-db{
-            width:100% !important;
-        }
-        #settings_dashboard_latest_contacts_display{
-            width:100%;
-        }
-    }
-
-
     //sort the padding out - semantic really should do this out the box!!
-    #zbs-list-table-wrap, #zbs-list-sidebar-wrap, #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
+    #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
         width:100% !important;
         overflow:hidden;
-    }
-
-    #zbs-list-sidebar-wrap{
-        margin-top:10px;
     }
 
     #zbs-edit-master-wrap{
@@ -498,25 +316,9 @@
         display:none;
     }
 
-    //main navigation menu - going to need "some" tweaks here
-    .zbs-admin-main-menu{
-        padding-top:50px !important;
-    }
-    
-    .zbs-dash-header{
-        margin-top:-2px !important;
-        margin-left:-80px !important;
-    }
-
-
     .auto-fold #adminmenu a.menu-top {
         height: inherit !important;
     }
-
-    .zbs-listview-bulk-hd .ui.fitted.checkbox, .zbs-listview-bulk .ui.fitted.checkbox {
-        padding-left: 13px !important;
-    }
-
 
     //invoice 
     .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper input, .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper select{
@@ -529,13 +331,6 @@
 
     .zbs-invoice-topper, #zbs_invoice_logos, #zbs-business-info-wrapper, #billing-to, #assign-to, .zbs-controls{
         width:100% !important;
-    }
-
-
-    // WH fixes for extensions page
-    #zbsExtensionsPage .zbsExtensionGroup .zbsExtensionList .zbsExtension.zbsFreeExtension {
-        width: 45% !important;
-        min-width: 45% !important;
     }
 
     // Email template editor

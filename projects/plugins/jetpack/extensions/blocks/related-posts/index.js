@@ -16,6 +16,7 @@ export const icon = (
 
 export const settings = {
 	title: __( 'Related Posts', 'jetpack' ),
+	description: __( 'Display a list of related posts.', 'jetpack' ),
 
 	icon: {
 		src: icon,
@@ -35,9 +36,17 @@ export const settings = {
 			type: 'string',
 			default: 'grid',
 		},
+		displayAuthor: {
+			type: 'boolean',
+			default: false,
+		},
 		displayDate: {
 			type: 'boolean',
 			default: true,
+		},
+		displayHeadline: {
+			type: 'boolean',
+			default: false,
 		},
 		displayThumbnails: {
 			type: 'boolean',
@@ -46,6 +55,10 @@ export const settings = {
 		displayContext: {
 			type: 'boolean',
 			default: false,
+		},
+		headline: {
+			type: 'string',
+			default: '',
 		},
 		postsToShow: {
 			type: 'number',
@@ -89,9 +102,12 @@ export const settings = {
 	example: {
 		attributes: {
 			postLayout: 'grid',
+			displayAuthor: false,
 			displayDate: true,
+			displayHeadline: false,
 			displayThumbnails: true,
 			displayContext: false,
+			headline: '',
 			postsToShow: 2,
 		},
 	},

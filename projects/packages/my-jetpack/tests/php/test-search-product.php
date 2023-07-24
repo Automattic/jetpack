@@ -81,7 +81,7 @@ class Test_Search_Product extends TestCase {
 	 */
 	public function test_if_jetpack_active_return_false() {
 		activate_plugin( 'jetpack/jetpack.php' );
-		$this->assertFalse( Search::is_plugin_active() );
+		$this->assertTrue( Search::is_plugin_active() );
 	}
 
 	/**

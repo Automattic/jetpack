@@ -72,12 +72,12 @@ const MobileApp: FC< Props > = ( { slug, underside = false } ) => {
 				src={ imagePath + `/recommendations/mobile-app-qr-code-${ slug }.png` }
 				width={ 80 }
 				height={ 80 }
-				alt="qr code to jetpack.com/mobile/ web page"
+				alt="qr code to jetpack.com/app/ web page"
 			/>
 			<p className="jp-recommendations-sidebar-mobile__qr-code-body">
 				{ createInterpolateElement(
 					__(
-						'Visit <ExternalLink>jetpack.com/mobile</ExternalLink> or scan this code to download the Jetpack mobile app.',
+						'Visit <ExternalLink>jetpack.com/app</ExternalLink> or scan this code to download the Jetpack mobile app.',
 						'jetpack'
 					),
 					{

@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
+
 new WPCOM_JSON_API_Site_Settings_Endpoint(
 	array(
 		'description'      => 'Get detailed settings information about a site.',
@@ -55,7 +57,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_relatedposts_show_date'          => '(bool) Show date in related posts?',
 			'jetpack_relatedposts_show_headline'      => '(bool) Show headline in related posts?',
 			'jetpack_relatedposts_show_thumbnails'    => '(bool) Show thumbnails in related posts?',
-			'jetpack_protect_whitelist'               => '(array) List of IP addresses to whitelist',
+			'jetpack_protect_whitelist'               => '(array) List of IP addresses to always allow',
 			'instant_search_enabled'                  => '(bool) Enable the new Jetpack Instant Search interface',
 			'jetpack_search_enabled'                  => '(bool) Enable Jetpack Search',
 			'jetpack_search_supported'                => '(bool) Jetpack Search is supported',
@@ -116,6 +118,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'posts_per_rss'                           => '(int) Number of posts to show in the RSS feed',
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
+			'sm_enabled'                              => '(bool) Whether the newsletter subscribe modal is enabled',
 		),
 
 		'response_format'     => array(
@@ -439,7 +442,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
+						'sm_enabled'                       => (bool) get_option( 'sm_enabled' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
+						'wpcom_reader_views_enabled'       => (bool) get_option( 'wpcom_reader_views_enabled', true ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
@@ -493,9 +498,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response[ $key ]['sharing_open_links']   = (string) $sharing['open_links'];
 					}
 
-					if ( function_exists( 'jetpack_protect_format_whitelist' ) ) {
-						$response[ $key ]['jetpack_protect_whitelist'] = jetpack_protect_format_whitelist();
-					}
+					$response[ $key ]['jetpack_protect_whitelist'] = Brute_Force_Protection_Shared_Functions::format_allow_list();
 
 					if ( ! current_user_can( 'edit_posts' ) ) {
 						unset( $response[ $key ] );
@@ -628,12 +631,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'jetpack_protect_whitelist':
-					if ( function_exists( 'jetpack_protect_save_whitelist' ) ) {
-						$result = jetpack_protect_save_whitelist( $value );
+					if ( class_exists( 'Brute_Force_Protection_Shared_Functions' ) ) {
+						$result = Brute_Force_Protection_Shared_Functions::save_allow_list( $value );
 						if ( is_wp_error( $result ) ) {
 							return $result;
 						}
-						$updated[ $key ] = jetpack_protect_format_whitelist();
+						$updated[ $key ] = Brute_Force_Protection_Shared_Functions::format_allow_list();
 					}
 					break;
 				case 'jetpack_sync_non_public_post_stati':
@@ -725,6 +728,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_testimonial':
 				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
+				case 'wpcom_reader_views_enabled':
 					// settings are stored as 1|0.
 					$coerce_value = (int) $value;
 					if ( update_option( $key, $coerce_value ) ) {
@@ -799,9 +803,25 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'subscription_options':
-					$sanitized_value = (array) $value;
+					if ( ! is_array( $value ) ) {
+						break;
+					}
+
+					$allowed_keys   = array( 'invitation', 'comment_follow' );
+					$filtered_value = array_filter(
+						$value,
+						function ( $key ) use ( $allowed_keys ) {
+							return in_array( $key, $allowed_keys, true );
+						},
+						ARRAY_FILTER_USE_KEY
+					);
+
+					if ( empty( $filtered_value ) ) {
+						break;
+					}
+
 					array_walk_recursive(
-						$sanitized_value,
+						$filtered_value,
 						function ( &$value ) {
 							$value = wp_kses(
 								$value,
@@ -814,13 +834,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					);
 
-					$has_correct_length  = count( $sanitized_value ) === 2;
-					$required_keys_exist = array_key_exists( 'invitation', $sanitized_value )
-						&& array_key_exists( 'comment_follow', $sanitized_value );
-					$is_valid            = $has_correct_length && $required_keys_exist;
+					$old_subscription_options = get_option( 'subscription_options' );
+					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
 
-					if ( $is_valid && update_option( $key, $sanitized_value ) ) {
-						$updated[ $key ] = $sanitized_value;
+					if ( update_option( $key, $new_subscription_options ) ) {
+						$updated[ $key ] = $filtered_value;
 					}
 					break;
 
@@ -1004,6 +1022,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 
+				case 'sm_enabled':
+					update_option( 'sm_enabled', (int) (bool) $value );
+					$updated[ $key ] = (int) (bool) $value;
+					break;
+
 				case 'show_on_front':
 					if ( in_array( $value, array( 'page', 'posts' ), true ) && update_option( $key, $value ) ) {
 							$updated[ $key ] = $value;
@@ -1060,7 +1083,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		if ( count( $jetpack_relatedposts_options ) ) {
+		if ( $jetpack_relatedposts_options !== array() ) {
 			// track new jetpack_relatedposts options against old.
 			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
 

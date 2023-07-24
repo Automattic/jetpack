@@ -12,40 +12,32 @@ import ProgressBar from './progress-bar';
 import Slide from './slide';
 
 export default function PlayerUI( { id, slides, metadata, disabled } ) {
-	const { setFullscreen, setEnded, setPlaying, setMuted, showSlide } = useDispatch(
-		'jetpack/story/player'
-	);
-	const {
-		playing,
-		muted,
-		currentSlideIndex,
-		currentSlideEnded,
-		ended,
-		fullscreen,
-		settings,
-	} = useSelect(
-		select => {
-			const {
-				getCurrentSlideIndex,
-				getSettings,
-				hasCurrentSlideEnded,
-				hasEnded,
-				isFullscreen,
-				isMuted,
-				isPlaying,
-			} = select( 'jetpack/story/player' );
-			return {
-				playing: isPlaying( id ),
-				muted: isMuted( id ),
-				currentSlideIndex: getCurrentSlideIndex( id ),
-				currentSlideEnded: hasCurrentSlideEnded( id ),
-				ended: hasEnded( id ),
-				fullscreen: isFullscreen( id ),
-				settings: getSettings( id ),
-			};
-		},
-		[ id ]
-	);
+	const { setFullscreen, setEnded, setPlaying, setMuted, showSlide } =
+		useDispatch( 'jetpack/story/player' );
+	const { playing, muted, currentSlideIndex, currentSlideEnded, ended, fullscreen, settings } =
+		useSelect(
+			select => {
+				const {
+					getCurrentSlideIndex,
+					getSettings,
+					hasCurrentSlideEnded,
+					hasEnded,
+					isFullscreen,
+					isMuted,
+					isPlaying,
+				} = select( 'jetpack/story/player' );
+				return {
+					playing: isPlaying( id ),
+					muted: isMuted( id ),
+					currentSlideIndex: getCurrentSlideIndex( id ),
+					currentSlideEnded: hasCurrentSlideEnded( id ),
+					ended: hasEnded( id ),
+					fullscreen: isFullscreen( id ),
+					settings: getSettings( id ),
+				};
+			},
+			[ id ]
+		);
 
 	const slideContainerRef = useRef();
 	const [ maxSlideWidth, setMaxSlideWidth ] = useState( null );

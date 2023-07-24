@@ -17,7 +17,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 if ( ! defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) {
-	define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) );
+	define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) . '-lite' );
 }
 
 /**
@@ -130,26 +130,9 @@ class Jetpack_Notifications {
 
 		$this->print_js();
 
-		// attempt to use core or plugin libraries if registered.
 		$script_handles = array();
-		if ( ! wp_script_is( 'mustache', 'registered' ) ) {
-			wp_register_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER, true );
-		}
-		$script_handles[] = 'mustache';
-		if ( ! wp_script_is( 'underscore', 'registered' ) ) {
-			wp_register_script( 'underscore', $this->wpcom_static_url( '/wp-includes/js/underscore.min.js' ), null, JETPACK_NOTES__CACHE_BUSTER, true );
-		}
-		$script_handles[] = 'underscore';
-		if ( ! wp_script_is( 'backbone', 'registered' ) ) {
-			wp_register_script( 'backbone', $this->wpcom_static_url( '/wp-includes/js/backbone.min.js' ), array( 'underscore' ), JETPACK_NOTES__CACHE_BUSTER, true );
-		}
-		$script_handles[] = 'backbone';
-
-		wp_register_script( 'wpcom-notes-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-common-v2.js' ), array( 'jquery', 'underscore', 'backbone', 'mustache' ), JETPACK_NOTES__CACHE_BUSTER, true );
+		wp_register_script( 'wpcom-notes-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-common-lite.min.js' ), array(), JETPACK_NOTES__CACHE_BUSTER, true );
 		$script_handles[] = 'wpcom-notes-common';
-		$script_handles[] = 'jquery';
-		$script_handles[] = 'jquery-migrate';
-		$script_handles[] = 'jquery-core';
 		wp_enqueue_script( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.js' ), array( 'wpcom-notes-common' ), JETPACK_NOTES__CACHE_BUSTER, true );
 		$script_handles[] = 'wpcom-notes-admin-bar';
 

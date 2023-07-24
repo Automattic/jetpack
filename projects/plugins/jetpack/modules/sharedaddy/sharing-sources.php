@@ -182,7 +182,7 @@ abstract class Sharing_Source {
 		 * Allow customizing how the list of tags is displayed.
 		 *
 		 * @module sharedaddy
-		 * @since $$next-version$$
+		 * @since 11.9
 		 *
 		 * @param string $tags     Comma-separated list of tags.
 		 * @param int    $post_id  Post ID.
@@ -521,13 +521,13 @@ abstract class Sharing_Source {
 			esc_attr(
 				$is_deprecated
 					/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
-					? sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
+					? sprintf( __( 'The %1$s sharing service has shut down or discontinued support for sharing buttons. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
 					: $this->get_name()
 			),
 			esc_html(
 				$is_deprecated
 					/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
-					? sprintf( __( '%1$s has shut down', 'jetpack' ), $this->get_name() )
+					? sprintf( __( '%1$s is no longer supported', 'jetpack' ), $this->get_name() )
 					: $text
 			)
 		);
@@ -845,9 +845,9 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 		return $this->get_link(
 			$this->get_share_url( $post->ID ),
 			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
-			sprintf( __( '%1$s has shut down', 'jetpack' ), $this->get_name() ),
+			sprintf( __( '%1$s is no longer supported', 'jetpack' ), $this->get_name() ),
 			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
-			sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
+			sprintf( __( 'The %1$s sharing service has shut down or discontinued support for sharing buttons. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
 		);
 	}
 }
@@ -1194,7 +1194,7 @@ class Share_Twitter extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_display( $post ) {
-		$via = $this->sharing_twitter_via( $post );
+		$via = static::sharing_twitter_via( $post );
 
 		if ( $via ) {
 			$via = 'data-via="' . esc_attr( $via ) . '"';
@@ -1202,7 +1202,7 @@ class Share_Twitter extends Sharing_Source {
 			$via = '';
 		}
 
-		$related = $this->get_related_accounts( $post );
+		$related = static::get_related_accounts( $post );
 		if ( ! empty( $related ) && $related !== $via ) {
 			$related = 'data-related="' . esc_attr( $related ) . '"';
 		} else {
@@ -1260,8 +1260,8 @@ class Share_Twitter extends Sharing_Source {
 			$substr = 'substr';
 		}
 
-		$via     = $this->sharing_twitter_via( $post );
-		$related = $this->get_related_accounts( $post );
+		$via     = static::sharing_twitter_via( $post );
+		$related = static::get_related_accounts( $post );
 		if ( $via ) {
 			$sig = " via @$via";
 			if ( $related === $via ) {
@@ -1336,22 +1336,6 @@ class Share_Reddit extends Sharing_Source {
 	public $icon = '\f222';
 
 	/**
-	 * Constructor.
-	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
-	 */
-	public function __construct( $id, array $settings ) {
-		parent::__construct( $id, $settings );
-
-		if ( 'official' === $this->button_style ) {
-			$this->smart = true;
-		} else {
-			$this->smart = false;
-		}
-	}
-
-	/**
 	 * Service name.
 	 *
 	 * @return string
@@ -1368,11 +1352,12 @@ class Share_Reddit extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_display( $post ) {
-		if ( $this->smart ) {
-			return '<div class="reddit_button"><iframe src="' . $this->http() . '://www.reddit.com/static/button/button1.html?newwindow=true&width=120&amp;url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
-		} else {
-			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Reddit', 'share to', 'jetpack' ), __( 'Click to share on Reddit', 'jetpack' ), 'share=reddit' );
-		}
+		return $this->get_link(
+			$this->get_process_request_url( $post->ID ),
+			_x( 'Reddit', 'share to', 'jetpack' ),
+			__( 'Click to share on Reddit', 'jetpack' ),
+			'share=reddit'
+		);
 	}
 
 	/**
@@ -2572,8 +2557,13 @@ class Share_Pinterest extends Sharing_Source {
 						var shares = document.querySelectorAll( 'li.share-pinterest' );
 						for ( var i = 0; i < shares.length; i++ ) {
 							var share = shares[ i ];
-							if ( share.querySelector( 'a span:visible' ) ) {
-								share.style.width = '80px';
+							var countElement = share.querySelector( 'a span' );
+							if (countElement) {
+								var countComputedStyle = window.getComputedStyle(countElement);
+								if ( countComputedStyle.display === 'block' ) {
+									var countWidth = parseInt( countComputedStyle.width, 10 );
+									share.style.marginRight = countWidth + 11 + 'px';
+								}
 							}
 						}
 					}
@@ -2926,7 +2916,7 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 /**
  * Skype sharing service.
  */
-class Share_Skype extends Sharing_Source {
+class Share_Skype extends Deprecated_Sharing_Source {
 	/**
 	 * Service short name.
 	 *
@@ -2935,150 +2925,12 @@ class Share_Skype extends Sharing_Source {
 	public $shortname = 'skype';
 
 	/**
-	 * Service icon font code.
-	 *
-	 * @var string
-	 */
-	public $icon = '\f220';
-
-	/**
-	 * Sharing type.
-	 *
-	 * @var string
-	 */
-	private $share_type = 'default';
-
-	/**
-	 * Constructor.
-	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
-	 */
-	public function __construct( $id, array $settings ) {
-		parent::__construct( $id, $settings );
-
-		if ( isset( $settings['share_type'] ) ) {
-			$this->share_type = $settings['share_type'];
-		}
-
-		if ( 'official' === $this->button_style ) {
-			$this->smart = true;
-		} else {
-			$this->smart = false;
-		}
-	}
-
-	/**
 	 * Service name.
 	 *
 	 * @return string
 	 */
 	public function get_name() {
 		return __( 'Skype', 'jetpack' );
-	}
-
-	/**
-	 * Get the markup of the sharing button.
-	 *
-	 * @param WP_Post $post Post object.
-	 *
-	 * @return string
-	 */
-	public function get_display( $post ) {
-		if ( $this->smart ) {
-			$skype_share_html = sprintf(
-				'<div class="skype-share" data-href="%1$s" data-lang="%2$s" data-style="small" data-source="jetpack" ></div>',
-				esc_attr( $this->get_share_url( $post->ID ) ),
-				'en-US'
-			);
-			return $skype_share_html;
-		}
-
-		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
-		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'skype' ) ) {
-			sharing_register_post_for_share_counts( $post->ID );
-		}
-		return $this->get_link(
-			$this->get_process_request_url( $post->ID ),
-			_x( 'Skype', 'share to', 'jetpack' ),
-			__( 'Click to share on Skype', 'jetpack' ),
-			'share=skype',
-			'sharing-skype-' . $post->ID
-		);
-	}
-
-	/**
-	 * AMP display for Skype.
-	 *
-	 * @param \WP_Post $post The current post being viewed.
-	 */
-	public function get_amp_display( $post ) {
-		$attrs = array(
-			'data-share-endpoint' => sprintf(
-				'https://web.skype.com/share?url=%1$s&lang=%2$s=&source=jetpack',
-				rawurlencode( $this->get_share_url( $post->ID ) ),
-				'en-US'
-			),
-		);
-
-		return $this->build_amp_markup( $attrs );
-	}
-
-	/**
-	 * Process sharing request. Add actions that need to happen when sharing here.
-	 *
-	 * @param WP_Post $post Post object.
-	 * @param array   $post_data Array of information about the post we're sharing.
-	 *
-	 * @return void
-	 */
-	public function process_request( $post, array $post_data ) {
-		$skype_url = sprintf(
-			'https://web.skype.com/share?url=%1$s&lang=%2$s=&source=jetpack',
-			rawurlencode( $this->get_share_url( $post->ID ) ),
-			'en-US'
-		);
-
-		// Record stats
-		parent::process_request( $post, $post_data );
-
-		parent::redirect_request( $skype_url );
-	}
-
-	/**
-	 * Add content specific to a service in the footer.
-	 */
-	public function display_footer() {
-		if ( $this->smart ) :
-			?>
-			<script>
-				(function(r, d, s) {
-					r.loadSkypeWebSdkAsync = r.loadSkypeWebSdkAsync || function(p) {
-							var js, sjs = d.getElementsByTagName(s)[0];
-							if (d.getElementById(p.id)) { return; }
-							js = d.createElement(s);
-							js.id = p.id;
-							js.src = p.scriptToLoad;
-							js.onload = p.callback
-							sjs.parentNode.insertBefore(js, sjs);
-						};
-					var p = {
-						scriptToLoad: 'https://swx.cdn.skype.com/shared/v/latest/skypewebsdk.js',
-						id: 'skype_web_sdk'
-					};
-					r.loadSkypeWebSdkAsync(p);
-				})(window, document, 'script');
-			</script>
-			<?php
-		else :
-			$this->js_dialog(
-				$this->shortname,
-				array(
-					'width'  => 305,
-					'height' => 665,
-				)
-			);
-		endif;
 	}
 }
 
@@ -3155,7 +3007,7 @@ class Share_Mastodon extends Sharing_Source {
 		 * Allow filtering the default message that gets posted to Mastodon.
 		 *
 		 * @module sharedaddy
-		 * @since $$next-version$$
+		 * @since 11.9
 		 *
 		 * @param string  $share_url The default message that gets posted to Mastodon.
 		 * @param WP_Post $post      The post object.
@@ -3191,5 +3043,68 @@ class Share_Mastodon extends Sharing_Source {
 				'height' => 400,
 			)
 		);
+	}
+}
+
+/**
+ * Nextdoor sharing service.
+ */
+class Share_Nextdoor extends Sharing_Source {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'nextdoor';
+
+	/**
+	 * Service icon font code.
+	 *
+	 * @var string
+	 */
+	public $icon = '\f10c';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Nextdoor', 'jetpack' );
+	}
+
+	/**
+	 * Get the markup of the sharing button.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_display( $post ) {
+		return $this->get_link(
+			$this->get_process_request_url( $post->ID ),
+			_x( 'Nextdoor', 'share to', 'jetpack' ),
+			__( 'Click to share on Nextdoor', 'jetpack' ),
+			'share=nextdoor',
+			'sharing-nextdoor-' . $post->ID
+		);
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		$url  = 'https://nextdoor.com/sharekit/?source=jetpack&body=';
+		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
+
+		parent::redirect_request( $url );
 	}
 }

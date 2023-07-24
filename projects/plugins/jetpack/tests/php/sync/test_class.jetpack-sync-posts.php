@@ -441,7 +441,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( '[foo]', $post_on_server->post_content );
-		$this->assertEquals( trim( $post_on_server->post_content_filtered ), 'bar' );
+		$this->assertEquals( 'bar', trim( $post_on_server->post_content_filtered ) );
 	}
 
 	public function test_sync_disabled_post_filtered_content() {
@@ -472,7 +472,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( '[foo]', $post_on_server->post_excerpt );
 		// The excerpt by default should not contain shortcodes so we do not expand them.
-		$this->assertEquals( trim( $post_on_server->post_excerpt_filtered ), '[foo]' );
+		$this->assertEquals( '[foo]', trim( $post_on_server->post_excerpt_filtered ) );
 	}
 
 	public function test_sync_post_filter_do_not_expand_jetpack_shortcodes() {
@@ -490,7 +490,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( '[foo]', $post_on_server->post_content );
-		$this->assertEquals( trim( $post_on_server->post_content_filtered ), '<p>[foo]</p>' );
+		$this->assertEquals( '<p>[foo]</p>', trim( $post_on_server->post_content_filtered ) );
 	}
 
 	public function do_not_expand_shortcode( $shortcodes ) {
@@ -509,7 +509,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		// Change the password from the original
-		$this->assertNotEquals( $post_on_server->post_password, 'bob' );
+		$this->assertNotEquals( 'bob', $post_on_server->post_password );
 		// Make sure it is not empty
 		$this->assertNotEmpty( $post_on_server->post_password );
 	}
@@ -1303,7 +1303,7 @@ That was a cool video.';
 	 */
 	public function test_sync_jetpack_published_post_no_action( $post_ID, $post ) {
 		$this->server_event_storage->reset();
-		do_action( 'wp_after_insert_post', $post_ID, $post, false );
+		do_action( 'wp_after_insert_post', $post_ID, $post, false, null );
 
 		$this->sender->do_sync();
 

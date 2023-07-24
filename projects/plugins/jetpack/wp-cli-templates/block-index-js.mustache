@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { __{{#hasKeywords}}, _x{{/hasKeywords}} } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import { __{{#hasKeywords}}, _x{{/hasKeywords}} } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
-import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Style dependencies
@@ -22,17 +15,12 @@ export const name = '{{ slug }}';
 export const title = __( '{{ title }}', 'jetpack' );
 export const settings = {
 	title,
-	description: (
-		<Fragment>
-			<p>{ __( '{{ description }}', 'jetpack' ) }</p>
-			<ExternalLink href="#">{ __( 'Learn more about {{ title }}', 'jetpack' ) }</ExternalLink>
-		</Fragment>
-	),
+	description: __( '{{ description }}', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'grow',
 	keywords: [{{#keywords}}_x( '{{ keyword }}', 'block search term', 'jetpack' ), {{/keywords}}],
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.

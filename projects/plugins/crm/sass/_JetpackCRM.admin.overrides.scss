@@ -10,7 +10,6 @@
 
 
  // variables
- $nav_bg: white;
  $body_bg: #f1f1f1;
  $page_title: #2a323c;
  $menu_hover: #f7f7f7;
@@ -36,87 +35,20 @@
 	@include jetpackBox;
 
 }
-#settings_dashboard_sales_funnel_display .panel,
-#settings_dashboard_revenue_chart_display .panel {
-	box-shadow: none !important;
-}
+
 .ui.attached.tabular.menu {
 
     border: 0;
     box-shadow: none !important;
 }
 
- .zbs-admin-main-menu, .zbs-admin-bg-menu{
-	background: $nav_bg;
- }
-
- #wpcontent, body{
-	 background: $body_bg !important;
- }
-
- #zbs-admin-top-bar{
-	//background: $body_bg !important;
-	background: #f6f7f7 !important;
- }
- #zbs-list-top-bar {
-    border-bottom: 1px solid #CCC;
-	background: #f6f7f7 !important;
- }
-
-    
-
- .zbs-admin-main-menu, #zbs-hide-main-menu{
-	 background: $nav_bg !important;
-	 border-bottom: 1px $bottom_border solid !important;
- }
-
- .zbs-cube{
-	 width:80px !important;
-	 img{
-		 max-width: 80px !important;
-	 }
- }
- 
-
- #zbs-list-top-bar{
-	.zbs-white{
-		color: $page_title;
-	}
- }
-
-
-.ui.menu .ui.dropdown .menu>.item:hover {
-    background:  $menu_hover !important;
-    color: $page_title!important;
-}
-
-
- .zbs-currently-browsing {
-    background: $nav_bg !important;
-    border-radius: 0px;
-    color:  $page_title;
-    border-bottom: 2px solid  $page_title;
-}
-
-.zbs-admin-bg-menu.ui.menu {
-
-	.item {
-	    background: #FFF !important;
-		color: #000 !important;
-	}
-	.ui.dropdown .menu>.item {
-		color: #000 !important;
-	}
-
-}
-
-// buttons
-
 .ui.blue.button {
 	background-color: $blue-medium;
 }
 
-
+.ui.icon.buttons .button, .ui.icon.button {
+	font-size: 14px;
+}
 
 .dops-button {
 	background: #f3f5f6;
@@ -146,19 +78,6 @@
 	background: #007cba;
 	border-color: #007cba;
 	color: white;
-}
-
-// adjust position of customiser ico
-.zbs-dash-header {
-
-	background: $body_bg !important;
-	padding-top: 0px !important;
-
-}
-.dashboard-customiser {
-
-    top: -49px !important;
-
 }
 
 // hide logo

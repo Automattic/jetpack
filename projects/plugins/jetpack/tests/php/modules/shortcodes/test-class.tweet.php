@@ -75,7 +75,7 @@ BODY;
 	 * @since  4.5.0
 	 */
 	public function test_shortcodes_tweet_exists() {
-		$this->assertEquals( shortcode_exists( 'tweet' ), true );
+		$this->assertTrue( shortcode_exists( 'tweet' ) );
 	}
 
 	/**

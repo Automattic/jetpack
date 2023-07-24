@@ -1,5 +1,5 @@
 // Style everything with border box turned on
-#jb-settings * {
+#jb-dashboard * {
 	box-sizing: border-box;
 }
 
@@ -7,9 +7,11 @@ p {
 	font-size: 16px;
 	color: $gray_80;
 }
-
+.jb-dashboard--main {
+	background-color: $primary-white;
+}
 // Override WordPress component styles
-.jb-settings {
+.jb-dashboard {
 	--wp-admin-theme-color: #{$jetpack_green_50};
 	--wp-admin-theme-link-color: #{$gray_90};
 	--wp-admin-theme-color-darker-10: #{$jetpack_green_60};
@@ -20,12 +22,17 @@ p {
 	--font-body-small: 14px;
 	--spacing-base: 8px;
 
+	font-size: 16px;
+	min-height: calc(100vh - 60px);
+	display: flex;
+	flex-direction: column;
+  	position: relative;
+
 	a {
 		color: var( --wp-admin-theme-link-color );
 	}
 
 	.components-button.is-jb-primary {
-		background-color: #000;
 		background-color: $jetpack_green;
 		border-radius: $border-radius;
 		font-weight: 600;
@@ -53,6 +60,12 @@ p {
 		font-weight: 500;
 		outline-color: transparent;
 		outline-style: none;
+	}
+
+	h1 {
+		font-size: 36px;
+		font-weight: 700;
+		line-height: 40px;
 	}
 
 	h2 {

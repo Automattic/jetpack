@@ -22,8 +22,6 @@ class Test_Dedicated_Sender extends BaseTestCase {
 
 	/**
 	 * Setting up the testing environment.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->dedicated_sync_request_spawned = false;
@@ -45,8 +43,6 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	}
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();

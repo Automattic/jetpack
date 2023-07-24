@@ -277,6 +277,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][2][2] );
 	}
 
 	/**
@@ -293,13 +294,13 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_gutenberg_menus
+	 * Tests remove_gutenberg_menu
 	 *
-	 * @covers ::add_gutenberg_menus
+	 * @covers ::remove_gutenberg_menu
 	 */
-	public function test_add_gutenberg_menus() {
+	public function test_remove_gutenberg_menu() {
 		global $menu;
-		static::$admin_menu->add_gutenberg_menus();
+		static::$admin_menu->remove_gutenberg_menu();
 
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );

@@ -13,6 +13,7 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		editor: './src/blocks/contact-form/editor.js',
+		view: './src/blocks/contact-form/view.js',
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -65,7 +66,7 @@ const sharedWebpackConfig = {
 						loader: 'postcss-loader',
 						options: {
 							// postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-							postcssOptions: { plugins: { autoprefixer: {} } },
+							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
 						},
 					},
 					'sass-loader',

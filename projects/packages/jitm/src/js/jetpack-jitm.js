@@ -1,8 +1,25 @@
+import jQuery from 'jquery';
+
 import '../css/jetpack-admin-jitm.scss';
 
 jQuery( document ).ready( function ( $ ) {
 	var templates = {
 		default: function ( envelope ) {
+			const EXTERNAL_LINK_ICON = `
+				<svg class="gridicon gridicons-external-link" height="17" width="17" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+					<g>
+						<path d="M19 13v6c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V7c0-1.105.895-2 2-2h6v2H5v12h12v-6h2zM13 3v2h4.586l-7.793 7.793 1.414 1.414L19 6.414V11h2V3h-8z" />
+					</g>
+				</svg>
+				`;
+
+			const CHECKMARK_ICON = `
+				<svg class="gridicon gridicons-checkmark" height="16" width="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+					<g>
+						<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" />
+					</g>
+				</svg>`;
+
 			var html =
 				'<div class="jitm-card jitm-banner ' +
 				( envelope.CTA.message ? 'has-call-to-action' : '' ) +
@@ -32,13 +49,13 @@ jQuery( document ).ready( function ( $ ) {
 								envelope.id +
 								'">' +
 								text +
+								EXTERNAL_LINK_ICON +
 								'</a>';
 						}
 
 						html +=
 							'<li>' +
-							'<svg class="gridicon gridicons-checkmark" height="16" width="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g>' +
-							'<path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" /></g></svg>' +
+							CHECKMARK_ICON +
 							text +
 							'</li>';
 					}
@@ -69,6 +86,7 @@ jQuery( document ).ready( function ( $ ) {
 				}
 
 				var ajaxAction = envelope.CTA.ajax_action;
+				var externalLink = envelope.CTA.newWindow && ! ajaxAction;
 
 				html += '<div class="jitm-banner__action">';
 				html +=
@@ -77,7 +95,7 @@ jQuery( document ).ready( function ( $ ) {
 						? envelope.CTA.link
 						: envelope.url ) +
 					'" target="' +
-					( envelope.CTA.newWindow === false || ajaxAction ? '_self' : '_blank' ) +
+					( externalLink ? '_blank' : '_self' ) +
 					'" rel="noopener noreferrer" title="' +
 					envelope.CTA.message +
 					'" data-module="' +
@@ -90,6 +108,7 @@ jQuery( document ).ready( function ( $ ) {
 					( ajaxAction ? 'data-ajax-action="' + ajaxAction + '"' : '' ) +
 					'>' +
 					envelope.CTA.message +
+					( externalLink ? EXTERNAL_LINK_ICON : '' )
 					'</a>';
 				html += '</div>';
 			}
@@ -264,7 +283,16 @@ jQuery( document ).ready( function ( $ ) {
 
 	$( window ).on( 'hashchange', function ( e ) {
 		const newURL = e.originalEvent.newURL;
-		const isJetpackPage = newURL.indexOf( 'jetpack#/' ) >= 0 || newURL.indexOf( 'my-jetpack' ) >= 0;
+		const isJetpackPage = [
+			'jetpack',
+			'my-jetpack',
+			'jetpack-backup',
+			'jetpack-boost',
+			'jetpack-protect',
+			'jetpack-search',
+			'jetpack-social',
+			'jetpack-videopress',
+		].some( str => newURL.includes( `admin.php?page=${ str }` ) );
 
 		if ( isJetpackPage ) {
 			var jitm_card = document.querySelector( '.jitm-card' );

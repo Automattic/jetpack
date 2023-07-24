@@ -34,10 +34,10 @@
 	#zbsAddLogForm {
 
 	    margin: 10px;
-	    border: 1px solid #b0a1ec;
+	    border: 1px dashed var(--jp-gray-20);
 	    padding: 12px;
-	    border-radius: 5px;
-	    background: #e1e6f3;
+	    border-radius: 4px;
+	    background: var(--jp-gray-0);
 	    line-height: 32px;
 
 	    // logo ico
@@ -49,7 +49,7 @@
 
 		    i.fa {
 
-		    	font-size:32px;
+		    	font-size:20px;
 		    }
 		    
 
@@ -60,7 +60,7 @@
 		select#zbsAddLogType {
 
 		    max-width: 200px;
-		    font-size: 16px;
+		    font-size: 14px;
 		    line-height: 20px;
 		    height: 34px;
 		    margin-bottom: 14px;
@@ -108,7 +108,7 @@
 	    border: 1px solid #b0a1ec;
 	    padding: 12px;
 	    border-radius: 5px;
-	    background: #e1e6f3;
+	    background: var(--jp-gray-0);
 	    line-height: 32px;
 
 	    // logo ico
@@ -120,7 +120,7 @@
 
 		    i.fa {
 
-		    	font-size:32px;
+		    	font-size:20px;
 		    }
 		    
 
@@ -131,7 +131,7 @@
 		select#zbsEditLogType {
 
 		    max-width: 200px;
-		    font-size: 16px;
+		    font-size: 14px;
 		    line-height: 20px;
 		    height: 34px;
 		    margin-bottom: 14px;
@@ -180,9 +180,9 @@
 
 	    .zbsLogOutTitle {
 
-		    font-size: 16px;
+		    font-size: 14px;
 		    font-weight: 800;
-    		border-bottom: 2px solid rgba(9, 185, 129, 0.58);
+    		border-bottom: 2px solid var(--jp-gray-20);
 
     		// edit icos
     		.zbsLogOutEdits {
@@ -199,7 +199,7 @@
 
 			    .fa {
 							    	
-				    color: #73947c;
+				    color: var(--jp-gray-20);
 				    padding: 4px;
 				    
 
@@ -221,12 +221,6 @@
     				vertical-align: middle;
 
 			    }
-
-			    // editing
-			    .zbsLogActionEdit {
-
-			    }
-
     		}
 
 
@@ -250,7 +244,7 @@
 
 		    i.fa {
 			
-			    font-size: 32px;
+			    font-size: 20px;
 			
 			}
 		

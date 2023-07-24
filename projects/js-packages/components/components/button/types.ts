@@ -16,8 +16,6 @@ type JetpackButtonBaseProps = {
 	ref: React.ForwardedRef< unknown >;
 };
 
-type JetpackLinkProps = Omit< Button.AnchorProps, 'size' | 'variant' >;
+type WPButtonProps = Omit< React.ComponentProps< typeof Button >, 'size' | 'variant' >;
 
-type JetpackButtonProps = Omit< Button.ButtonProps, 'size' | 'variant' >;
-
-export type ButtonProps = JetpackButtonBaseProps & ( JetpackLinkProps | JetpackButtonProps );
+export type ButtonProps = JetpackButtonBaseProps & WPButtonProps;

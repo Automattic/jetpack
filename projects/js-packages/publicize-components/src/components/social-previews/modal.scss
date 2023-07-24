@@ -2,6 +2,7 @@
  * Modal styles for Social Previews
  */
 
+@import '@automattic/jetpack-base-styles/root-variables';
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 // Styles shared between modals
@@ -15,23 +16,37 @@
 	}
 }
 
+.jetpack-social-previews__modal--close-btn {
+	position: absolute;
+	right: 0.5rem;
+	top: 0.5rem;
+	height: 2rem;
+}
+
 // Main modal containing the social previews
 .jetpack-social-previews__modal-previews {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
 
+	.components-tab-panel__tabs-item:focus-visible:before {
+		box-shadow: none;
+		outline: none;
+	}
+
 	.components-tab-panel__tabs {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
-		padding: 12px;
+		height: 3rem;
 		max-width: none;
+		border-bottom: 1px solid var( --jp-gray );
 
 		.components-button {
 			outline: 0;
-			margin: 3px 0;
 			font-size: 0;
+			height: 100%;
+			width: 2.5rem;
 			white-space: nowrap;
 
 			svg {
@@ -39,12 +54,15 @@
 				fill: currentColor;
 			}
 
-			&.is-active {
-				box-shadow: 0px 0px 0px 2px var(--wp-admin-theme-color);
+			&.is-active::after {
+				height: 0px;
+				border-bottom: 1px solid var( --jp-highlight );
+				margin-bottom: -1px;
 			}
 
-			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-secondary ):not( .is-primary ):not( .is-tertiary ):not( .is-link ):hover {
-				box-shadow: 0px 0px 0px 2px var(--wp-admin-theme-color);
+			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-secondary ):not( .is-primary ):not( .is-tertiary ):not( .is-link ):hover::after {
+				border-bottom: 1px solid var( --jp-highlight );
+				margin-bottom: -1px;
 			}
 		}
 	}
@@ -53,6 +71,7 @@
 		padding: 10px;
 		background-color: $white;
 		flex: 1;
+		overflow: auto;
 
 		> div {
 			display: flex;
@@ -60,35 +79,36 @@
 		}
 	}
 
-	.twitter-preview__summary {
-		max-width: 100%;
-	}
-
 	@media ( min-width: $break-small ) {
 		width: calc( 100vw - 40px );
 	}
 
 	@media ( min-width: $break-large ) {
-		flex-direction: row;
 		width: calc( #{$break-large} - 40px );
-		min-height: 500px;
 
 		.components-tab-panel__tabs {
-			flex-direction: column;
-			justify-content: flex-start;
-			padding: 24px;
 
 			.components-button {
 				font-size: 13px;
-
-				> svg {
-					margin-right: 8px;
-				}
 			}
 		}
 
 		.components-tab-panel__tab-content {
 			padding: 40px;
+		}
+	}
+
+	// Facebook
+
+	.facebook-preview {
+		width: 100%;
+	}
+
+	// Mastodon
+
+	.components-tab-panel__tab-content {
+		.mastodon-preview {
+			max-width: 578px;
 		}
 	}
 }
@@ -169,3 +189,4 @@
 		}
 	}
 }
+

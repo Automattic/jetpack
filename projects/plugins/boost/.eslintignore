@@ -6,3 +6,4 @@ jetpack_vendor/
 vendor/
 wordpress/
 tests/e2e/output/
+dist/

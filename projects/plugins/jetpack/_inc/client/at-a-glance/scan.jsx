@@ -1,7 +1,7 @@
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _n } from '@wordpress/i18n';
+import { __, _n, _x } from '@wordpress/i18n';
 import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
@@ -251,7 +251,7 @@ class DashScan extends Component {
 	getUpgradeBanner() {
 		return (
 			<JetpackBanner
-				callToAction={ __( 'Upgrade', 'jetpack' ) }
+				callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 				title={ __(
 					'Purchase Jetpack Scan to protect your site from security threats with automated scanning.',
 					'jetpack'
@@ -262,6 +262,7 @@ class DashScan extends Component {
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 				trackBannerDisplay={ this.props.trackUpgradeButtonView }
+				noIcon
 			/>
 		);
 	}

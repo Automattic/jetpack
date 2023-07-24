@@ -1,14 +1,8 @@
-import {
-	FontSizePicker,
-	InspectorAdvancedControls,
-	InspectorControls,
-	PanelColorSettings,
-} from '@wordpress/block-editor';
+import { FontSizePicker, InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
-import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
@@ -16,7 +10,6 @@ import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 function JetpackFieldCheckbox( props ) {
 	const {
-		id,
 		instanceId,
 		required,
 		requiredText,
@@ -103,10 +96,6 @@ function JetpackFieldCheckbox( props ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-
-			<InspectorAdvancedControls>
-				<JetpackFieldCss setAttributes={ setAttributes } id={ id } />
-			</InspectorAdvancedControls>
 		</div>
 	);
 }

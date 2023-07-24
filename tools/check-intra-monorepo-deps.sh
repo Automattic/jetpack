@@ -6,12 +6,13 @@ cd $(dirname "${BASH_SOURCE[0]}")/..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/changelogger.sh"
 . "$BASE/tools/includes/alpha-tag.sh"
 
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-a] [-n <name>] [-v] [-H] [-U|-u] [<slug> ...]
+		usage: $0 [-a] [-n <name>] [-v] [-R] [-U|-u] [<slug> ...]
 
 		Check that all composer and pnpm dependencies between monorepo projects are up to date.
 
@@ -26,7 +27,7 @@ function usage {
 		 -a: Pass --filename-auto-suffix to changelogger (avoids "file already exists" errors).
 		 -n: Set changelogger filename.
 		 -v: Output debug information.
-		 -H: When on a release branch, skip updating the corresponding plugin.
+		 -R: When on a release branch, skip updating the corresponding plugins.
 	EOH
 	exit 1
 }
@@ -37,8 +38,8 @@ VERBOSE=false
 DOCL_EVER=true
 AUTO_SUFFIX=false
 CL_FILENAME=
-HARDWAY=false
-while getopts ":uUvhHan:" opt; do
+RELEASEBRANCH=false
+while getopts ":uUvhHRan:" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
@@ -56,8 +57,9 @@ while getopts ":uUvhHan:" opt; do
 		v)
 			VERBOSE=true
 			;;
-		H)
-			HARDWAY=true
+		H|R)
+			# -H is an old name, kept for back compat.
+			RELEASEBRANCH=true
 			;;
 		h)
 			usage
@@ -89,33 +91,24 @@ else
 	fi
 fi
 
-debug "Making sure changelogger is runnable"
-CL="$BASE/projects/packages/changelogger/bin/changelogger"
-if ! "$CL" &>/dev/null; then
-	(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
-	if ! "$CL" &>/dev/null; then
-		die "Changelogger is not runnable via $CL"
-	fi
-fi
-
 declare -A SKIPSLUGS
-if $HARDWAY; then
-	debug "Checking for release branch for -H"
+if $RELEASEBRANCH; then
+	debug "Checking for release branch for -R"
 	BRANCH="$(git symbolic-ref --short HEAD)"
 	if [[ "$BRANCH" == */branch-* ]]; then
-		for k in $(jq -r --arg prefix "${BRANCH%%/*}" 'if .extra["release-branch-prefix"] == $prefix then input_filename | capture( "projects/(?<s>[^/]+/[^/]+)/composer.json" ).s else empty end' projects/*/*/composer.json); do
+		for k in $(jq -r --arg prefix "${BRANCH%%/*}" '.extra["release-branch-prefix"] | if type == "array" then . else [ . ] end | if index( $prefix ) then input_filename | capture( "projects/(?<s>[^/]+/[^/]+)/composer.json" ).s else empty end' projects/*/*/composer.json); do
 			debug "Release branch matches $k"
 			SKIPSLUGS[$k]=$k
 		done
 		if [[ "${#SKIPSLUGS[@]}" -eq 0 ]]; then
-			warn "-H was specified, but the current branch (\"$BRANCH\") does not appear to be a release branch for any monorepo plugin"
-			HARDWAY=false
+			warn "-R was specified, but the current branch (\"$BRANCH\") does not appear to be a release branch for any monorepo plugin"
+			RELEASEBRANCH=false
 		else
 			debug "Release branch matches ${SKIPSLUGS[*]}"
 		fi
 	else
-		warn "-H was specified, but the current branch (\"$BRANCH\") does not appear to be a release branch"
-		HARDWAY=false
+		warn "-R was specified, but the current branch (\"$BRANCH\") does not appear to be a release branch"
+		RELEASEBRANCH=false
 	fi
 fi
 
@@ -135,7 +128,7 @@ function get_packages {
 		PACKAGES="$(<"$PACKAGE_VERSIONS_CACHE")"
 	else
 		for PKG in "${PKGS[@]}"; do
-			PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.name as $k | $packages | .[$k] |= { rel: $ver, dep: ( "^" + $ver ) }' "$PKG")
+			PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && changelogger version current --default-first-version)" '.name as $k | $packages | .[$k] |= { rel: $ver, dep: ( "^" + $ver ) }' "$PKG")
 		done
 		if [[ -n "$PACKAGE_VERSIONS_CACHE" ]]; then
 			echo "$PACKAGES" > "$PACKAGE_VERSIONS_CACHE"
@@ -161,19 +154,13 @@ else
 fi
 
 if $UPDATE; then
-	function changelogger {
+	function do_changelogger {
 		local SLUG="$1"
 
 		local OLDDIR=$PWD
 		cd "$BASE/projects/$SLUG"
 
-		local ARGS=()
-		ARGS=( add --no-interaction --significance=patch )
-		local CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
-		if [[ -n "$CLTYPE" ]]; then
-			ARGS+=( "--type=$CLTYPE" )
-		fi
-
+		local ARGS=( "$2" "$3" )
 		if [[ -n "$CL_FILENAME" ]]; then
 			ARGS+=( --filename="$CL_FILENAME" )
 		fi
@@ -181,16 +168,14 @@ if $UPDATE; then
 			ARGS+=( --filename-auto-suffix )
 		fi
 
-		ARGS+=( --entry="$2" --comment="$3" )
-
 		local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-			"$CL" "${ARGS[@]}"
+			changelogger_add "${ARGS[@]}"
 		else
-			"$CL" "${ARGS[@]}"
+			changelogger_add "${ARGS[@]}"
 			info "Updating version for $SLUG"
-			local PRERELEASE=$(alpha_tag "$CL" composer.json 0)
-			local VER=$("$CL" version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
+			local PRERELEASE=$(alpha_tag composer.json 0)
+			local VER=$(changelogger version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
 			"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
 			get_packages "$SLUG"
 		fi
@@ -246,7 +231,7 @@ for SLUG in "${SLUGS[@]}"; do
 
 				if $DOCL; then
 					info "Creating changelog entry for $SLUG"
-					changelogger "$SLUG" 'Updated package dependencies.'
+					do_changelogger "$SLUG" 'Updated package dependencies.'
 					DOCL=false
 				fi
 			fi
@@ -260,7 +245,7 @@ for SLUG in "${SLUGS[@]}"; do
 
 				if $DOCL; then
 					info "Creating changelog entry for $SLUG"
-					changelogger "$SLUG" 'Updated package dependencies.'
+					do_changelogger "$SLUG" 'Updated package dependencies.'
 					DOCL=false
 				fi
 			fi
@@ -274,7 +259,7 @@ for SLUG in "${SLUGS[@]}"; do
 			"$BASE/tools/composer-update-monorepo.sh" --quiet --no-audit "$PROJECTFOLDER"
 			if [[ "$OLD" != "$(<composer.lock)" ]] && $DOCL; then
 				info "Creating changelog entry for $SLUG composer.lock update"
-				changelogger "$SLUG" '' 'Updated composer.lock.'
+				do_changelogger "$SLUG" '' 'Updated composer.lock.'
 				DOCL=false
 			fi
 			cd "$BASE"
@@ -323,14 +308,14 @@ if ! $UPDATE && [[ "$EXIT" != "0" ]]; then
 	jetpackGreen 'You might use `tools/check-intra-monorepo-deps.sh -u` to fix these errors.'
 fi
 
-if $HARDWAY && [[ "${#SKIPPED[@]}" -gt 0 && "$EXIT" == "0" ]]; then
+if $RELEASEBRANCH && [[ "${#SKIPPED[@]}" -gt 0 && "$EXIT" == "0" ]]; then
 	jetpackGreen <<-EOF
-		Due to use of \`-H\`, dependencies may not be fully updated. If you're doing a
-		"hard way" package release, next steps are:
-		 1. Commit the changes and push to the release branch. Note the
-		    "Check plugin monorepo dep versions" test will fail.
-		 2. Use the build artifact to do the package releases.
-		 3. Update the release plugin's deps by running
+		Due to use of \`-R\`, dependencies may not be fully updated. If you're doing a
+		package release from a release branch, next steps are:
+		 1. Commit the changes. Do not push yet.
+		 2. Create a prerelease branch with this commit. Wait for CI to run, and verify
+		    the new package versions are on Packagist.
+		 3. Back on this release branch, update the release plugin's deps by running
 		      tools/check-intra-monorepo-deps.sh -aU ${SKIPPED[*]}
 		    then commit and push.
 	EOF

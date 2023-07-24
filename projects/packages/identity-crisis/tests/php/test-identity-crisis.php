@@ -21,8 +21,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 	/**
 	 * Set up tests.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true );
@@ -31,8 +29,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 	/**
 	 * Tear down tests.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Constants::clear_constants();

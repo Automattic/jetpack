@@ -5,6 +5,108 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.38.1] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.38.0] - 2023-07-10
+### Removed
+- Disable Customizer integration for Instant Search if the site is using a block-based theme [#31731]
+
+## [0.37.4] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## [0.37.3] - 2023-06-26
+### Changed
+- Updated package dependencies. [#31468]
+
+## [0.37.2] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## [0.37.1] - 2023-05-22
+### Changed
+- PHP Compatibility: fix dynamic property deprecation notices [#30786]
+
+## [0.37.0] - 2023-05-15
+### Added
+- Jetpack Search: add "Open overlay from filter links" option, which allows users to enable/disable the opening of the search overlay when filtering from a separate widget outside of the Jetpack Search Sidebar [#30455]
+
+### Changed
+- PHP 8.1 compatibility updates [#30564]
+
+## [0.36.3] - 2023-05-02
+### Changed
+- Updated package dependencies.
+
+## [0.36.2] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [0.36.1] - 2023-04-25
+
+- Minor internal updates.
+
+## [0.36.0] - 2023-04-17
+### Added
+- Search: Restore Tracks to Instant Search [#29979]
+
+### Changed
+- Updated package dependencies. [#30019]
+
+## [0.35.0] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+- Implemented a "tabbed" variation for static filters. This adds tabs on top of the results for each filter group. [#29811]
+
+## [0.34.4] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854, #29857]
+
+## [0.34.3] - 2023-04-03
+### Changed
+- Internal updates.
+
+## [0.34.2] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [0.34.1] - 2023-03-27
+### Added
+- (Backup, Boost, Search, Social) Add links on upgrade pages to activate a license key, if you already have one. [#29443]
+
+### Changed
+- Updated package dependencies. [#29632]
+
+## [0.34.0] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+### Removed
+- Remove Tracks from Instant Search [#29490]
+
+## [0.33.3] - 2023-03-13
+### Fixed
+- Search Dashboard: fix wrong return URL when site already has a valid subscription [#29409]
+
+## [0.33.2] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+### Fixed
+- Fix bad check against isMultiSite resulting in extended search format not showing expected additional post details. [#29179]
+
+## [0.33.1] - 2023-02-28
+### Added
+- Search: Add JITM container [#29106]
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fix CSS for products in search results [#29110]
+
 ## [0.33.0] - 2023-02-20
 ### Added
 - Adds a "show post date" selector to Search customberg, allows non-multisite sites to show the post date in the "expanded" search result format. [#28918]
@@ -670,6 +772,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.38.1]: https://github.com/Automattic/jetpack-search/compare/v0.38.0...v0.38.1
+[0.38.0]: https://github.com/Automattic/jetpack-search/compare/v0.37.4...v0.38.0
+[0.37.4]: https://github.com/Automattic/jetpack-search/compare/v0.37.3...v0.37.4
+[0.37.3]: https://github.com/Automattic/jetpack-search/compare/v0.37.2...v0.37.3
+[0.37.2]: https://github.com/Automattic/jetpack-search/compare/v0.37.1...v0.37.2
+[0.37.1]: https://github.com/Automattic/jetpack-search/compare/v0.37.0...v0.37.1
+[0.37.0]: https://github.com/Automattic/jetpack-search/compare/v0.36.3...v0.37.0
+[0.36.3]: https://github.com/Automattic/jetpack-search/compare/v0.36.2...v0.36.3
+[0.36.2]: https://github.com/Automattic/jetpack-search/compare/v0.36.1...v0.36.2
+[0.36.1]: https://github.com/Automattic/jetpack-search/compare/v0.36.0...v0.36.1
+[0.36.0]: https://github.com/Automattic/jetpack-search/compare/v0.35.0...v0.36.0
+[0.35.0]: https://github.com/Automattic/jetpack-search/compare/v0.34.4...v0.35.0
+[0.34.4]: https://github.com/Automattic/jetpack-search/compare/v0.34.3...v0.34.4
+[0.34.3]: https://github.com/Automattic/jetpack-search/compare/v0.34.2...v0.34.3
+[0.34.2]: https://github.com/Automattic/jetpack-search/compare/v0.34.1...v0.34.2
+[0.34.1]: https://github.com/Automattic/jetpack-search/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/Automattic/jetpack-search/compare/v0.33.3...v0.34.0
+[0.33.3]: https://github.com/Automattic/jetpack-search/compare/v0.33.2...v0.33.3
+[0.33.2]: https://github.com/Automattic/jetpack-search/compare/v0.33.1...v0.33.2
+[0.33.1]: https://github.com/Automattic/jetpack-search/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/Automattic/jetpack-search/compare/v0.32.0...v0.33.0
 [0.32.0]: https://github.com/Automattic/jetpack-search/compare/v0.31.7...v0.32.0
 [0.31.7]: https://github.com/Automattic/jetpack-search/compare/v0.31.6...v0.31.7

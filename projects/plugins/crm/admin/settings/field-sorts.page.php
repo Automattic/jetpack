@@ -124,7 +124,7 @@ $fieldHideOverrides = $zbs->settings->get( 'fieldhides' );
 
 ?>
 
-<p id="sbDesc"><?php esc_html_e( 'Using this page you can modify the order of the fields associated with Customers, Companies, Quotes', 'zero-bs-crm' ); ?></p>
+<p id="sbDesc"><?php esc_html_e( 'Using this page you can modify the order of the fields associated with Contacts, Companies, Quotes', 'zero-bs-crm' ); ?></p>
 
 <?php
 if ( isset( $sbupdated ) ) {
@@ -179,6 +179,11 @@ if ( isset( $sbupdated ) ) {
 
 								if ( count( $fieldTypesArray ) > 0 ) {
 									foreach ( $fieldTypesArray as $subkey => $field ) {
+
+										// if the field doesn't exist anymore, skip it
+										if ( ! isset( $field[0] ) || ! isset( $field[1] ) ) {
+											continue;
+										}
 
 										// remove address custom fields echo '<br>'.$subkey; print_r($field);
 										if ( $key != 'address' && ( substr( $subkey, 0, 7 ) == 'addr_cf' || substr( $subkey, 0, 10 ) == 'secaddr_cf' ) ) {

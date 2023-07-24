@@ -186,7 +186,7 @@ class jpcrm_templating_placeholders {
 					'aliases'			=> array( )
 				),
 
-				'biz-extra-info' => array(
+				'biz-extra'          => array(
 
 					'description' => __( 'Business: Extra Info', 'zero-bs-crm' ),
 					'origin' => __( 'Global', 'zero-bs-crm' ),
@@ -696,7 +696,7 @@ class jpcrm_templating_placeholders {
 
 				'invoice-label-to' => array(
 
-					'description' 		=> __( 'Label for name of customer receiving invoice', 'zero-bs-crm' ),
+					'description'     => __( 'Label for name of contact receiving invoice', 'zero-bs-crm' ),
 					'origin' 			=> __( 'Invoice Builder', 'zero-bs-crm' ),
 					'expected_format' 	=> 'str',
 					'available_in'	 	=> array(),
@@ -1124,7 +1124,15 @@ class jpcrm_templating_placeholders {
 					// deal with exclusions
 					if ( !in_array( $field_index, $excluded_slugs ) ) {
 
-						$new_key =  str_replace( '_', '-', $object_type_key . '-' . $field_index );
+						// catching legacy secondary address contact field issues
+						$secondary_address_array = array( 'secaddr1', 'secaddr2', 'seccity', 'seccounty', 'secpostcode', 'seccountry' );
+						if ( 'contact' === $object_type_key && in_array( $field_index, $secondary_address_array, true ) ) {
+							$field_index = str_replace( 'sec', 'secaddr_', $field_index );
+							$new_key     = $object_type_key . '-' . $field_index;
+						} else {
+							$new_key = str_replace( '_', '-', $object_type_key . '-' . $field_index );
+						}
+
 						$expected_format = '';
 
 						// add if not present
@@ -1520,8 +1528,24 @@ class jpcrm_templating_placeholders {
 		global $zbs;
 		
 		// vars
-		$login_url = admin_url('admin.php?page='.$zbs->slugs['dash'] ); 
-		$portal_url = zeroBS_portal_link();
+		$login_url      = admin_url( 'admin.php?page=' . $zbs->slugs['dash'] );
+		$portal_url     = zeroBS_portal_link();
+		$biz_name       = zeroBSCRM_getSetting( 'businessname' );
+		$biz_your_name  = zeroBSCRM_getSetting( 'businessyourname' );
+		$biz_your_email = zeroBSCRM_getSetting( 'businessyouremail' );
+		$biz_your_url   = zeroBSCRM_getSetting( 'businessyoururl' );
+		$biz_extra      = zeroBSCRM_getSetting( 'businessextra' );
+		$biz_info       = zeroBSCRM_invoicing_generateInvPart_bizTable(
+			array(
+				'zbs_biz_name'      => $biz_name,
+				'zbs_biz_yourname'  => $biz_your_name,
+				'zbs_biz_extra'     => $biz_extra,
+				'zbs_biz_youremail' => $biz_your_email,
+				'zbs_biz_yoururl'   => $biz_your_url,
+				'template'          => 'pdf',
+			)
+		);
+		$social_links   = show_social_links();
 		
 		// return
 		return array(
@@ -1537,18 +1561,21 @@ class jpcrm_templating_placeholders {
 			'portal-url'        => $portal_url,
 
 			// biz stuff
-			'biz-name'			=> zeroBSCRM_getSetting('businessname'),
-			'biz-your-name'		=> zeroBSCRM_getSetting('businessyourname'),
-			'biz-your-email'	=> zeroBSCRM_getSetting('businessyouremail'),
-			'biz-your-url'		=> zeroBSCRM_getSetting('businessyoururl'),
-			'biz-extra'			=> zeroBSCRM_getSetting('businessextra'),
-			'biz-logo'			=> jpcrm_business_logo_img( '150px' ),
+			'biz-name'        => $biz_name,
+			'biz-your-name'   => $biz_your_name,
+			'biz-your-email'  => $biz_your_email,
+			'biz-your-url'    => $biz_your_url,
+			'biz-info'        => $biz_info,
+			'biz-extra'       => $biz_extra,
+			'biz-logo'        => jpcrm_business_logo_img( '150px' ),
 
 			// general
 			'powered-by'		=> zeroBSCRM_mailTemplate_poweredByHTML(),
 			'email-from-name'	=> zeroBSCRM_mailDelivery_defaultFromname(),
 			'password'			=> '<a href="' . wp_lostpassword_url() . '" title="' . __( 'Lost Password', 'zero-bs-crm' ) . '">'. __('Set Your Password', 'zero-bs-crm').'</a>',
 
+			// social
+			'social-links'    => $social_links,
 		);
 
 	}
@@ -1644,7 +1671,7 @@ class jpcrm_templating_placeholders {
 				// ##BIZ-STATE## -> biz-state
 				$key = str_replace( '#', '', strtolower( $replace_string ) );
 				if ( isset( $replacement_info['key'] ) && !empty( $replacement_info['key'] ) ) {
-					
+
 					$key = $replacement_info['key'];
 
 				}
@@ -1893,32 +1920,6 @@ class jpcrm_templating_placeholders {
 	public function placeholder_selector( $id = '', $insert_target_id = '', $tooling = array('global'), $return = false, $extra_classes = '' ){
 
 		$placeholder_list = array();
-
-
-		// placeholder type-ahead
-		/* This is the pre-work to provide typeahead placeholders. Functional in as far as passing & drawing as at #1373.
-
-		if ( is_array( $tooling ) ){
-
-			$placeholder_list = $this->get_placeholders_for_tooling( $tooling, true );
-
-		} else {
-
-			// retrieve simplified placeholder list (not divided by category)
-			$placeholder_list = $this->get_placeholders( false );
-
-		}
-
-		// pass specific placeholder list
-		// <TBC> is there a better place to pass this? 
-		$html = '<script>var jpcrm_placeholder_list = ' . json_encode( $this->simplify_placeholders( $placeholder_list ) ) . ';</script>';
-
-		// build typeahead HTML input		
-		$html .= '<div class="zbstypeaheadwrap '.$extra_classes.'">';
-		$html .= '<input class="jpcrm-placeholder-typeahead" id="' . $id .'" type="text" placeholder="' . __( 'Placeholder...',"zero-bs-crm") . '" data-target="' . $insert_target_id .'" autocomplete="jpcrm-'.time().'-typeahead" data-autokey="placeholderlist">';	
-		$html .= '</div>';
-
-		*/
 
 		// Simpler <select>
 		if ( is_array( $tooling ) ){

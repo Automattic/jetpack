@@ -11,8 +11,8 @@ class WP_Test_Jetpack_Shortcodes_ArchiveOrg extends WP_UnitTestCase {
 	 * @since  4.5.0
 	 */
 	public function test_shortcodes_exists() {
-		$this->assertEquals( shortcode_exists( 'archiveorg' ), true );
-		$this->assertEquals( shortcode_exists( 'archiveorg-book' ), true );
+		$this->assertTrue( shortcode_exists( 'archiveorg' ) );
+		$this->assertTrue( shortcode_exists( 'archiveorg-book' ) );
 	}
 
 	/**

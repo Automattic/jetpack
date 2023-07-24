@@ -5,11 +5,15 @@ $admin_url = admin_url( 'options-general.php?page=wpsupercache' );
 echo '<a name="debug"></a>';
 echo '<fieldset class="options">';
 echo '<p>' . __( 'Fix problems with the plugin by debugging it here. It will log to a file in your cache directory.', 'wp-super-cache' ) . '</p>';
+// $wp_cache_debug_log is declared when this file is included.
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 if ( ! isset( $wp_cache_debug_log ) || $wp_cache_debug_log == '' ) {
 	extract( wpsc_create_debug_log() ); // $wp_cache_debug_log, $wp_cache_debug_username
 }
 
-$log_file_link = "<a href='" . home_url( str_replace( $_SERVER['DOCUMENT_ROOT'], '', "{$cache_path}view_{$wp_cache_debug_log}?wp-admin=1&wp-json=1&filter=" ) ) . "'>$wp_cache_debug_log</a>";
+// $cache_path and $wp_cache_debug_log is declared when this file is included.
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+$log_file_link = "<a href='" . home_url( str_replace( get_home_path(), '', "{$cache_path}view_{$wp_cache_debug_log}?wp-admin=1&wp-json=1&filter=" ) ) . "'>$wp_cache_debug_log</a>";
 
 if ( $wp_super_cache_debug == 1 ) {
 	echo "<p>" . sprintf( __( 'Currently logging to: %s', 'wp-super-cache' ), $log_file_link ) . "</p>";

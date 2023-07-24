@@ -17,11 +17,11 @@
 
 /* large options */
 tr.wh-large label {
-    font-size:20px;
+    font-size: 14px;
 }
 tr.wh-large select, tr.wh-large input {
-    font-size:20px;    
-    height: 36px;
+    font-size:14px;    
+    line-height: 1.4em;
 }
 // fixes radio buttons + checkbox heights (which above breaks!)
 tr.wh-large input[type="radio"] {
@@ -30,11 +30,11 @@ tr.wh-large input[type="radio"] {
 }
 tr.wh-large th, tr.wh-large td {
   padding: 6px 20px;
-  color: rgb(48, 76, 105);
+  color: black;
 }
 table.wh-metatab tr th label {
   padding: 6px 20px;
-  color: rgb(48, 76, 105);
+  color: black;
 }
 table.wh-metatab tr.wh-large th label, table.wh-metatab tr.wh-large td label {
   padding:0;
@@ -63,7 +63,7 @@ span.wh-info {
 }
 
 .zbs-prominent {
-  font-size: 22px;
+  font-size: 14px;
     color: green;
 }
 .widetext {
@@ -162,16 +162,18 @@ textarea.form-control{
     font-weight: 400;
 }
 
+.zbs-tel-wrap {
+	display: flex;
+  flex-wrap: wrap;
 
+	input {
+		flex: 1 0 200px;
+	}
 
-// telephone - for clickable links :)
-.zbs-tel-wrap .form-control.zbs-tel {
-    max-width: 180px;
-    display: inline-block;
-}
-.zbs-tel-wrap a {
-    margin-top: 3px !important;
-    margin-left: 10px !important;
+	a.button {
+		margin-left: 10px;
+		padding-top: 2px;
+	}
 }
 
 
@@ -188,15 +190,14 @@ textarea.form-control{
 // date fields
 .form-control.jpcrm-date, .form-control.zbs-date {
     display: inline-block;
-    width: auto;
 }
 
 
 
 // id fields + autonumbers
 .zbs-field-id {
-  font-size: 20px !important;
-  color: green !important;
+  font-size: 14px !important;
+  color: black !important;
   vertical-align: top !important;
 }
 

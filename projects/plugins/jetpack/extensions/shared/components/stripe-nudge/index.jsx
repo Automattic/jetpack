@@ -1,4 +1,9 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	isAtomicSite,
+	isSimpleSite,
+	useAnalytics,
+} from '@automattic/jetpack-shared-extension-utils';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import GridiconStar from 'gridicons/dist/star';
@@ -11,14 +16,32 @@ export const StripeNudge = ( { blockName } ) => {
 	const store = select( membershipProductsStore );
 	const stripeConnectUrl = store.getConnectUrl();
 	const { tracks } = useAnalytics();
+	const isWpcom = isAtomicSite() || isSimpleSite();
 
 	const recordTracksEvent = () =>
 		tracks.recordEvent( 'jetpack_editor_block_stripe_connect_click', {
 			block: blockName,
 		} );
 
-	if ( store.getShouldUpgrade() || ! stripeConnectUrl ) {
+	if ( ! stripeConnectUrl ) {
 		return null;
+	}
+
+	let readMoreUrl;
+
+	switch ( blockName ) {
+		case 'payment-buttons':
+			readMoreUrl = isWpcom
+				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-payments-block' )
+				: getRedirectUrl( 'jetpack-support-jetpack-blocks-payments-block' );
+		case 'donations':
+			readMoreUrl = isWpcom
+				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-donations-block' )
+				: getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' );
+		case 'premium-content':
+			readMoreUrl = isWpcom
+				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-premium-content-block' )
+				: getRedirectUrl( 'jetpack-support-jetpack-blocks-premium-content-block' );
 	}
 
 	return (
@@ -35,6 +58,7 @@ export const StripeNudge = ( { blockName } ) => {
 				/>
 			}
 			href={ stripeConnectUrl }
+			readMoreUrl={ readMoreUrl }
 			onClick={ recordTracksEvent }
 			title={ __( 'Connect to Stripe to use this block on your site', 'jetpack' ) }
 			subtitle={ __(

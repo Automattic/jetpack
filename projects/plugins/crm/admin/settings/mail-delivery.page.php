@@ -251,9 +251,9 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 				<div class="ui very padded segment borderless">
 					<p>
 						<?php esc_html_e( 'Enter your "Send From" details below. For best brand impact we recommend using a same-domain email address, although any email you have SMTP details for will work.', 'zero-bs-crm' ); ?>
-						<?php // WLREMOVE ?>
+						<?php ##WLREMOVE ?>
 						<a href="<?php echo esc_url( $zbs->urls['kbsmtpsetup'] ); ?>"><?php esc_html_e( 'See the Guide', 'zero-bs-crm' ); ?></a>
-						<?php // /WLREMOVE ?>
+						<?php ##/WLREMOVE ?>
 					</p>
 				</div>
 
@@ -287,9 +287,9 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 				<div class="ui very padded segment borderless">
 					<p>
 						<?php esc_html_e( 'The CRM can send out emails via your default server settings, API, or via an SMTP server (mail server). If you would like to reliably send emails from a custom domain, we recommend using SMTP or an API connection.', 'zero-bs-crm' ); ?>
-						<?php // WLREMOVE ?>
+						<?php ##WLREMOVE ?>
 						<a href="<?php echo esc_url( $zbs->urls['kbsmtpsetup'] ); ?>"><?php esc_html_e( 'See the Guide', 'zero-bs-crm' ); ?></a>
-						<?php // /WLREMOVE ?>
+						<?php ##/WLREMOVE ?>
 					</p>
 				</div>
 
@@ -472,13 +472,13 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 
 									<div class="required field">
 										<label for="zbs-mail-delivery-wizard-step-2-smtp-user"><?php esc_html_e( 'Username', 'zero-bs-crm' ); ?></label>
-										<input type="text" placeholder="e.g. mike or mike@yourdomain.com" id="zbs-mail-delivery-wizard-step-2-smtp-user" class="mailInp" value="" autocomplete="new-smtpuser-<?php echo esc_attr( time() ); ?>" />
+										<input type="text" placeholder="e.g. mike or mike@yourdomain.com" id="zbs-mail-delivery-wizard-step-2-smtp-user" class="mailInp" value="" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 										<div class="ui pointing label hidden" id="zbs-mail-delivery-wizard-smtpuser-error"></div>
 									</div> <!-- .field -->
 
 									<div class="required field">
 										<label for="zbs-mail-delivery-wizard-step-2-smtp-pass"><?php esc_html_e( 'Password', 'zero-bs-crm' ); ?></label>
-										<input type="text" placeholder="" id="zbs-mail-delivery-wizard-step-2-smtp-pass" class="mailInp" value="" autocomplete="new-password-<?php echo esc_attr( time() ); ?>" />
+										<input type="text" placeholder="" id="zbs-mail-delivery-wizard-step-2-smtp-pass" class="mailInp" value="" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 										<div class="ui pointing label hidden" id="zbs-mail-delivery-wizard-smtppass-error"></div>
 									</div> <!-- .field -->
 

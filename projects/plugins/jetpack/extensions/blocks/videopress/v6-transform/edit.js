@@ -18,7 +18,7 @@ const withV6TransformEdit = createHigherOrderComponent( BlockEdit => props => {
 	return (
 		<>
 			<InspectorControls>
-				<TransformControl />
+				<TransformControl clientId={ props.clientId } attributes={ props.attributes } />
 			</InspectorControls>
 
 			<BlockEdit { ...props } />

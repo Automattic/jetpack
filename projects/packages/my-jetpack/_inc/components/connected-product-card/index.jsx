@@ -1,26 +1,54 @@
-import { getIconBySlug } from '@automattic/jetpack-components';
+/**
+ * External dependencies
+ */
 import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+/**
+ * Internal dependencies
+ */
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
-import ProductCard from '../product-card';
+import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 
-const ConnectedProductCard = ( { admin, slug } ) => {
+const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuItems = [] } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
-	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
-	const { name, description, manageUrl, requiresUserConnection } = detail;
+
+	const {
+		detail,
+		activate,
+		deactivate,
+		isFetching,
+		installStandalonePlugin,
+		deactivateStandalonePlugin,
+	} = useProduct( slug );
+	const { name, description, requiresUserConnection, standalonePluginInfo, status } = detail;
+	const [ installingStandalone, setInstallingStandalone ] = useState( false );
+	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 
-	const navigateToAddProductPage = useMyJetpackNavigate( `add-${ slug }` );
+	/* Menu Handling */
+	const hasStandalonePlugin = standalonePluginInfo?.hasStandalonePlugin;
+	const isStandaloneInstalled = standalonePluginInfo?.isStandaloneInstalled;
+	const isStandaloneActive = standalonePluginInfo?.isStandaloneActive;
+	const showActivateOption = hasStandalonePlugin && isStandaloneInstalled && ! isStandaloneActive;
+	const showDeactivateOption = hasStandalonePlugin && isStandaloneInstalled && isStandaloneActive;
+	const showInstallOption = hasStandalonePlugin && ! isStandaloneInstalled;
+	const isConnected = isRegistered && isUserConnected;
+	const isAbsent =
+		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
 
-	/*
-	 * Redirect to manage URL
-	 */
-	const onManage = useCallback( () => {
-		window.location = manageUrl;
-	}, [ manageUrl ] );
+	const menuIsActive =
+		showMenu && // The menu is enabled for the product AND
+		! isAbsent && // product status is not absent AND
+		status !== PRODUCT_STATUSES.ERROR && // product status is not error AND
+		isConnected && // the site is connected AND
+		( menuItems?.length > 0 || // Show custom menus, if present
+			showActivateOption || // Show install | activate options for standalone plugin
+			showDeactivateOption || // Show deactivate option for standalone plugin
+			showInstallOption );
+	/* End Menu Handling */
 
 	/*
 	 * Redirect only if connected
@@ -40,27 +68,58 @@ const ConnectedProductCard = ( { admin, slug } ) => {
 		navigateToConnectionPage,
 	] );
 
-	const Icon = getIconBySlug( slug );
+	const handleInstallStandalone = useCallback( () => {
+		setInstallingStandalone( true );
+
+		installStandalonePlugin()
+			.then( () => {
+				window?.location?.reload();
+			} )
+			.catch( () => {
+				setInstallingStandalone( false );
+			} );
+	}, [ installStandalonePlugin ] );
+
+	const handleDeactivateStandalone = useCallback( () => {
+		setDeactivatingStandalone( true );
+
+		deactivateStandalonePlugin()
+			.then( () => {
+				window?.location?.reload();
+			} )
+			.catch( () => {
+				setDeactivatingStandalone( false );
+			} );
+	}, [ deactivateStandalonePlugin ] );
 
 	return (
 		<ProductCard
 			name={ name }
 			description={ description }
 			status={ status }
-			icon={ <Icon opacity={ 0.4 } /> }
 			admin={ admin }
 			isFetching={ isFetching }
+			isInstallingStandalone={ installingStandalone }
+			isDeactivatingStandalone={ deactivatingStandalone }
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ handleActivate }
-			onAdd={ navigateToAddProductPage }
-			onManage={ onManage }
-			onFixConnection={ navigateToConnectionPage }
-		/>
+			showMenu={ menuIsActive }
+			menuItems={ menuItems }
+			showActivateOption={ showActivateOption }
+			showDeactivateOption={ showDeactivateOption }
+			showInstallOption={ showInstallOption }
+			onInstallStandalone={ handleInstallStandalone }
+			onActivateStandalone={ handleInstallStandalone }
+			onDeactivateStandalone={ handleDeactivateStandalone }
+		>
+			{ children }
+		</ProductCard>
 	);
 };
 
 ConnectedProductCard.propTypes = {
+	children: PropTypes.node,
 	admin: PropTypes.bool.isRequired,
 	slug: PropTypes.string.isRequired,
 };

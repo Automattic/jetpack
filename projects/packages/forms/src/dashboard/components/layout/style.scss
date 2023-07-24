@@ -1,4 +1,4 @@
-body.jetpack_page_jetpack-forms {
+body.toplevel_page_jetpack-forms {
 	background-color: #fff;
 
 	#wpcontent {
@@ -12,9 +12,14 @@ body.jetpack_page_jetpack-forms {
 	flex-direction: column;
 	margin: 0;
 	padding: 0;
+	width: 100%;
 
 	.jp-forms__logo {
 		margin: 40px 64px;
+
+		@media (max-width: 660px) {
+			margin: 40px 24px;
+		}
 	}
 }
 
@@ -22,8 +27,12 @@ body.jetpack_page_jetpack-forms {
 	background-color: #f9f9f9;
 	box-sizing: border-box;
 	margin: 0;
-	padding: 48px 64px;
+	padding: 48px 64px 16px;
 	width: 100%;
+
+	@media (max-width: 660px) {
+		padding: 48px 24px 32px;
+	}
 }
 
 .jp-forms__layout-title {
@@ -37,7 +46,7 @@ body.jetpack_page_jetpack-forms {
 
 .jp-forms__layout-footer.jp-dashboard-footer {
 	box-sizing: border-box;
-	margin-top: 60px;
+	margin: 60px 0;
 	max-width: 100%;
 	padding-left: 64px;
 	padding-right: 64px;

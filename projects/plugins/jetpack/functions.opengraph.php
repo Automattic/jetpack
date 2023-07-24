@@ -335,7 +335,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 			);
 			if ( ! empty( $post_image ) && is_array( $post_image ) ) {
 				$image['src'] = $post_image['src'];
-				if ( isset( $post_image['src_width'], $post_image['src_height'] ) ) {
+				if ( isset( $post_image['src_width'] ) && isset( $post_image['src_height'] ) ) {
 					$image['width']  = $post_image['src_width'];
 					$image['height'] = $post_image['src_height'];
 				}
@@ -372,7 +372,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		$image_id = jetpack_get_site_logo( 'id' );
 		$logo     = wp_get_attachment_image_src( $image_id, 'full' );
 		if (
-			isset( $logo[0], $logo[1], $logo[2] )
+			isset( $logo[0] ) && isset( $logo[1] ) && isset( $logo[2] )
 			&& ( _jetpack_og_get_image_validate_size( $logo[1], $logo[2], $width, $height ) )
 		) {
 			$image['src']      = $logo[0];
@@ -387,7 +387,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		$image_id = get_option( 'site_icon' );
 		$icon     = wp_get_attachment_image_src( $image_id, 'full' );
 		if (
-			isset( $icon[0], $icon[1], $icon[2] )
+			isset( $icon[0] ) && isset( $icon[1] ) && isset( $icon[2] )
 			&& ( _jetpack_og_get_image_validate_size( $icon[1], $icon[2], $width, $height ) )
 		) {
 			$image['src']      = $icon[0];

@@ -2,8 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [1.9] - 2023-07-05
+### Added
+- Add authentication to Zendesk chat widget. [#31339]
+- Add video section to Backup connect page. [#31260]
+
+### Changed
+- Update connection module to have an RNA option that updates the design. [#31201]
+- Updated package dependencies. [#31308]
+
+## [1.8] - 2023-06-06
+### Changed
+- General: update link references to releases in changelog. [#30634]
+- Updated package dependencies. [#30493]
+
+## 1.7 - 2023-05-02
+### Changed
+- Updated package dependencies. [#29565]
+- Update WordPress version requirements. Now requires version 6.1. [#30120]
+
+## 1.6 - 2023-04-04
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+- Updated package dependencies. [#29434]
+
+## 1.5 - 2023-03-07
+### Changed
+- Backup: Update description headline, add video [#28890]
+- Updated package dependencies. [#28910]
+
+### Fixed
+- Fixes the plugin's versioning so it actually uses WordPress versioning [#29133]
 
 ## 1.4.4 - 2023-02-07
 ### Changed
@@ -142,3 +173,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
+
+[1.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.8...1.9-beta
+[1.8]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.7...1.8

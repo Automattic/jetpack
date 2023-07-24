@@ -152,7 +152,7 @@ class Filter_Embedded_HTML_Objects {
 			}
 		}
 
-		if ( count( $unfiltered_content_tokens ) > 0 ) {
+		if ( $unfiltered_content_tokens !== array() ) {
 			// Replace any tokens generated earlier with their original unfiltered text.
 			$html = str_replace( array_keys( $unfiltered_content_tokens ), $unfiltered_content_tokens, $html );
 		}

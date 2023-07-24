@@ -59,6 +59,7 @@ const mastodonVideoTypes = [ 'video/webm', 'video/quicktime', 'video/ogg' ];
 export const GLOBAL_MAX_SIZE = 100000;
 
 export const DEFAULT_RESTRICTIONS = {
+	requiresMedia: false,
 	allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS, MOV ] ),
 	image: {
 		maxSize: 4,
@@ -68,6 +69,11 @@ export const DEFAULT_RESTRICTIONS = {
 		minSize: 0,
 		maxSize: GLOBAL_MAX_SIZE,
 		maxLength: GLOBAL_MAX_SIZE,
+		maxWidth: GLOBAL_MAX_SIZE,
+		aspectRatio: {
+			min: 0,
+			max: GLOBAL_MAX_SIZE,
+		},
 	},
 };
 
@@ -112,6 +118,23 @@ export const RESTRICTIONS = {
 			maxSize: 200,
 			maxLength: 600,
 			minLength: 3,
+		},
+	},
+	[ 'instagram-business' ]: {
+		requiresMedia: true,
+		allowedMediaTypes: [ 'image/jpg', 'image/jpeg', MP4, MOV, VIDEOPRESS ],
+		image: {
+			maxSize: 8,
+		},
+		video: {
+			maxLength: 90,
+			minLength: 3,
+			maxSize: 1000,
+			maxWidth: 1920,
+			aspectRatio: {
+				min: 0.01 / 1,
+				max: 10 / 1,
+			},
 		},
 	},
 	mastodon: {

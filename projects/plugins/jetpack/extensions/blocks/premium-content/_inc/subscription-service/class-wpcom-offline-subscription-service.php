@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+
 /**
  * Class WPCOM_Offline_Subscription_Service
  * This subscription service is used when a subscriber is offline and a token is not available.
@@ -46,8 +48,14 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Online_Subscription_Servi
 		$previous_user = wp_get_current_user();
 		wp_set_current_user( $user_id );
 
-		$access_level       = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
-		$valid_plan_ids     = \Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
+		$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+
+		if ( ! $access_level || self::POST_ACCESS_LEVEL_EVERYBODY === $access_level ) {
+			// The post is not gated, we return early
+			return true;
+		}
+
+		$valid_plan_ids     = \Jetpack_Memberships::get_all_newsletter_plan_ids();
 		$is_blog_subscriber = true; // it is a subscriber as this is used in async when lopping through subscribers...
 		$allowed            = $this->user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, $post_id );
 

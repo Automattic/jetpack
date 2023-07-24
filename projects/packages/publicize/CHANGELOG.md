@@ -5,6 +5,122 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.4] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.30.3] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## [0.30.2] - 2023-06-26
+### Changed
+- Updated package dependencies. [#31468]
+
+## [0.30.1] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+### Fixed
+- Simplified i18n strings [#31185]
+
+## [0.30.0] - 2023-05-29
+### Added
+- Added account_name field to the publicize connections object. [#30937]
+- Added the Instagram service [#30803]
+- Check for featured image in the classic editor [#30769]
+- Jetpack Social: Add a notice to let users know Instagram is available [#30777]
+- Mastodon post preview [#30919]
+
+### Changed
+- Changed the enhanced publishing feature check to use Current_Plan [#29881]
+
+## [0.29.0] - 2023-05-22
+### Added
+- Added validation of featured image for Instagram connections [#30724]
+
+### Fixed
+- Added a failsafe check for error codes [#30748]
+- Publicize: Update the UI logic to properly cope with broken connections [#30687]
+
+## [0.28.0] - 2023-05-15
+### Added
+- Added Mastodon to list of supported services [#30661]
+
+### Changed
+- Changed how we update the publicize skip meta. [#30479]
+- Get Jetpack to use connection_id as the uninque identifier of the editor elements on the sidebar [#30492]
+- PHP 8 Compatibility fixes [#30692]
+
+## [0.27.0] - 2023-05-08
+### Added
+- Added support for flagging unsupported connections in the editor UI [#30280]
+
+## [0.26.0] - 2023-05-02
+### Changed
+- Updated package dependencies. [#30375]
+
+## [0.25.1] - 2023-05-01
+### Fixed
+- Jetpack Social: Render Social Image Generator panel even when SIG's default is disabled [#30358]
+
+## [0.25.0] - 2023-04-25
+### Added
+- Added new option for flagging a post as social post [#30179]
+
+### Changed
+- Added dynamic pricing to Social admin page [#30105]
+- Use attached media for the OpenGraph image [#30162]
+
+## [0.24.2] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+### Fixed
+- Reinstated is_social_image_generator_enabled for backwards compatibility [#29952]
+
+## [0.24.1] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## [0.24.0] - 2023-03-28
+### Changed
+- Jetpack Social: Enable Social Image Generator by default when it's available. [#29742]
+- Use picked default template for Social Image Generator [#29722]
+
+## [0.23.0] - 2023-03-27
+### Added
+- Add new endpoint to Social Image Generator to get and update SIG-specific options [#29624]
+- Social: Added an endpoint to generate a token for use as the preview of the social image. [#29596]
+
+### Changed
+- Moved SIG initilization to the admin_init hooks and updated the check to find out whether SIG is enabled to use the current plans package and added code to refresh plan data on every jetpack heartbeat." [#29529]
+- Updated package dependencies. [#29529]
+- Use TemplatePicker to save selected template and send it to our token generation endpoint [#29590]
+
+## [0.22.0] - 2023-03-20
+### Added
+- Added SIG image to the post media array if it's enabled [#29093]
+
+### Changed
+- Updated package dependencies. [#29471]
+
+### Fixed
+- Prevent metadata updates during autosave. [#29263]
+
+## [0.21.0] - 2023-03-13
+### Added
+- Add Social Image Generator class to Publicize [#29118]
+
+## [0.20.1] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## [0.20.0] - 2023-02-28
+### Added
+- Add options panel for Social Image Generator to Jetpack Social sidebar. [#28737]
+- Add Social Image Generator feature flag to Jetpack Social [#29001]
+
 ## [0.19.5] - 2023-02-20
 ### Changed
 - Minor internal updates.
@@ -230,6 +346,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.30.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.3...v0.30.4
+[0.30.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.2...v0.30.3
+[0.30.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.1...v0.30.2
+[0.30.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.0...v0.30.1
+[0.30.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.29.0...v0.30.0
+[0.29.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.28.0...v0.29.0
+[0.28.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.27.0...v0.28.0
+[0.27.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.26.0...v0.27.0
+[0.26.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.25.1...v0.26.0
+[0.25.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.25.0...v0.25.1
+[0.25.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.24.2...v0.25.0
+[0.24.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.24.1...v0.24.2
+[0.24.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.23.0...v0.24.0
+[0.23.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.22.0...v0.23.0
+[0.22.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.20.1...v0.21.0
+[0.20.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.20.0...v0.20.1
+[0.20.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.19.5...v0.20.0
 [0.19.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.19.4...v0.19.5
 [0.19.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.19.3...v0.19.4
 [0.19.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.19.2...v0.19.3

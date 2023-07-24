@@ -9,25 +9,11 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamComment
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamName
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamTag
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingReturn
-// phpcs:disable Generic.Commenting.DocComment.MissingShort
-// phpcs:disable Squiz.Commenting.FunctionComment.Missing
-// phpcs:disable Squiz.Commenting.ClassComment.Missing
-// phpcs:disable Squiz.Commenting.FileComment.Missing
-
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Endpoints\Endpoint;
 
 class Registry {
-
-	/**
-	 * The Registry class is a singleton.
-	 *
-	 * @var Registry[]
-	 */
-	private static $instance = array();
 
 	/**
 	 * Registry instances are namespaced to allow for multiple registries.
@@ -39,7 +25,7 @@ class Registry {
 	/**
 	 * Store a references for every Data_Sync_Entry instance.
 	 *
-	 * @var Data_Sync_Entry[]
+	 * @var Data_Sync_Entry_Adapter[]
 	 */
 	private $entries = array();
 
@@ -56,16 +42,8 @@ class Registry {
 	 *
 	 * @param $namespace string The namespace for this registry instance.
 	 */
-	private function __construct( $namespace ) {
+	public function __construct( $namespace ) {
 		$this->namespace = $namespace;
-	}
-
-	public static function get_instance( $namespace ) {
-		if ( ! isset( static::$instance[ $namespace ] ) ) {
-			static::$instance[ $namespace ] = new static( $namespace );
-		}
-
-		return static::$instance[ $namespace ];
 	}
 
 	/**
@@ -76,11 +54,14 @@ class Registry {
 	 * @return string
 	 * @throws \Exception In debug mode, if the key is invalid.
 	 */
-	public function sanitize_key( $key ) {
+	private function sanitize_key( $key ) {
 		$sanitized_key = sanitize_key( $key );
 		$sanitized_key = str_replace( '-', '_', $sanitized_key );
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && $sanitized_key !== $key ) {
-			throw new \Exception( "Invalid key '$key'. Keys should only include alphanumeric characters and underscores." );
+			// If the key is invalid,
+			// Log an error during development
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( "Invalid key '$key'. Keys should only include alphanumeric characters and underscores." );
 		}
 		return $sanitized_key;
 	}
@@ -92,30 +73,27 @@ class Registry {
 	 *
 	 * @return string
 	 */
-	public function sanitize_url_key( $key ) {
+	private function sanitize_url_key( $key ) {
 		return str_replace( '_', '-', sanitize_key( $key ) );
 	}
 
 	/**
 	 * Register a new entry and add it to the registry.
 	 *
-	 * @param $entry_name  string - The name of the entry. For example `widget_status`.
-	 * @param $value       Data_Sync_Entry_Handler
+	 * @param $key        string - The name of the entry. For example `widget_status`.
+	 * @param $entry      Data_Sync_Entry
 	 *
 	 * @return Data_Sync_Entry
-	 * @throws \Exception If the option name is invalid.
 	 */
-	public function register( $key, $handler ) {
+	public function register( $key, $entry ) {
 
 		$key = $this->sanitize_key( $key );
 
-		$entry                 = new Data_Sync_Entry( $this->namespace, $key, $handler );
-		$this->entries[ $key ] = $entry;
-
-		$endpoint                = new Endpoint( $this->get_namespace_http(), $this->sanitize_url_key( $entry->key() ), $entry );
+		$this->entries[ $key ]   = $entry;
+		$endpoint                = new Endpoint( $this->get_namespace_http(), $this->sanitize_url_key( $key ), $entry );
 		$this->endpoints[ $key ] = $endpoint;
 
-		add_action( 'rest_api_init', array( $endpoint, 'register_rest_route' ) );
+		add_action( 'rest_api_init', array( $endpoint, 'register_rest_routes' ) );
 
 		return $entry;
 	}
@@ -123,7 +101,7 @@ class Registry {
 	/**
 	 * Get all registered entries.
 	 *
-	 * @return Data_Sync_Entry[]
+	 * @return Entry_Can_Get[]
 	 */
 	public function all() {
 		return $this->entries;

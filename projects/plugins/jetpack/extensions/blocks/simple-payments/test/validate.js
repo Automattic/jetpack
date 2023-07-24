@@ -1,10 +1,5 @@
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { register } from '@wordpress/data';
 import { settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
-
-// this is necessary because block editor store becomes unregistered during jest initialization
-register( blockEditorStore );
 
 const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );
 beforeEach( () => {

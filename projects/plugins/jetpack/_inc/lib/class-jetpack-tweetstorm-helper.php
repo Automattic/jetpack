@@ -392,7 +392,8 @@ class Jetpack_Tweetstorm_Helper {
 		} else {
 			$lines = array( $block['text'] );
 		}
-		$line_total = count( $lines );
+
+		$line_total = is_array( $lines ) ? count( $lines ) : 0;
 
 		// Keep track of how many characters from this block we've allocated to tweets.
 		$current_character_count = 0;
@@ -443,8 +444,9 @@ class Jetpack_Tweetstorm_Helper {
 			}
 
 			// The line is too long for a single tweet, so split it by sentences, or linebreaks.
-			$sentences      = preg_split( '/(?|(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[\p{L}\'"\(])|(\n+))/u', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
-			$sentence_total = count( $sentences );
+			$sentences = preg_split( '/(?|(?<!\.\.\.)(?<=[.?!]|\.\)|\.["\'])(\s+)(?=[\p{L}\'"\(])|(\n+))/u', $line_text, -1, PREG_SPLIT_DELIM_CAPTURE );
+
+			$sentence_total = $sentences !== false ? count( $sentences ) : 0;
 
 			// preg_split() puts the blank space between sentences into a seperate entry in the result,
 			// so we need to step through the result array by two, and append the blank space when needed.
@@ -501,7 +503,7 @@ class Jetpack_Tweetstorm_Helper {
 
 				// Split the long sentence into words.
 				$words      = preg_split( '/(\p{Z})/u', $current_sentence, -1, PREG_SPLIT_DELIM_CAPTURE );
-				$word_total = count( $words );
+				$word_total = $words !== false ? count( $words ) : 0;
 				for ( $word_count = 0; $word_count < $word_total; $word_count += 2 ) {
 					// Make sure we have the most recent tweet.
 					$current_tweet = self::get_current_tweet();
@@ -554,6 +556,9 @@ class Jetpack_Tweetstorm_Helper {
 	 * @param array $block  The block to process.
 	 */
 	private static function add_media_to_tweets( $block ) {
+		if ( ! is_countable( $block['media'] ) ) {
+			return;
+		}
 		// There's some media to attach!
 		$media_count = count( $block['media'] );
 		if ( 0 === $media_count ) {
@@ -564,7 +569,7 @@ class Jetpack_Tweetstorm_Helper {
 
 		// We can only attach media to the previous tweet if the previous tweet
 		// doesn't already have media.
-		if ( count( $current_tweet['media'] ) > 0 ) {
+		if ( is_countable( $current_tweet['media'] ) && count( $current_tweet['media'] ) > 0 ) {
 			$current_tweet = self::start_new_tweet();
 		}
 
@@ -899,7 +904,7 @@ class Jetpack_Tweetstorm_Helper {
 
 		$block_def = self::get_block_definition( $block['name'] );
 
-		if ( isset( $block_def['content'] ) && count( $block_def['content'] ) > 0 ) {
+		if ( ! empty( $block_def['content'] ) ) {
 			$tags = $block_def['content'];
 		} else {
 			$tags = array( 'content' );
@@ -1646,17 +1651,25 @@ class Jetpack_Tweetstorm_Helper {
 
 		$requests = array_filter( $requests );
 
-		$hooks = new Requests_Hooks();
+		// Remove this check once WordPress 6.2 is the minimum supported version.
+		if ( ! class_exists( '\WpOrg\Requests\Hooks' ) ) {
+			$hooks = new Requests_Hooks();
+		} else {
+			$hooks = new \WpOrg\Requests\Hooks();
+		}
 
 		$hooks->register(
 			'requests.before_redirect',
 			array( self::class, 'validate_redirect_url' )
 		);
 
-		$results = Requests::request_multiple( $requests, array( 'hooks' => $hooks ) );
+		// Remove this check once WordPress 6.2 is the minimum supported version.
+		$results = class_exists( '\WpOrg\Requests\Requests' )
+			? \WpOrg\Requests\Requests::request_multiple( $requests, array( 'hooks' => $hooks ) )
+			: Requests::request_multiple( $requests, array( 'hooks' => $hooks ) );
 
 		foreach ( $results as $result ) {
-			if ( $result instanceof Requests_Exception ) {
+			if ( $result instanceof Requests_Exception || $result instanceof \WpOrg\Requests\Exception ) {
 				return new WP_Error(
 					'invalid_url',
 					__( 'Sorry, something is wrong with the requested URL.', 'jetpack' ),
@@ -1725,12 +1738,17 @@ class Jetpack_Tweetstorm_Helper {
 	 * Filters the redirect URLs that can appear when requesting passed URLs.
 	 *
 	 * @param String $redirect_url the URL to which a redirect is requested.
-	 * @throws Requests_Exception In case the URL is not validated.
+	 * @throws Requests_Exception        In case the URL is not validated, if WP version is less than 6.2.
+	 * @throws \WpOrg\Requests\Exception In case the URL is not validated, if WP version is 6.2 or greater.
 	 * @return void
-	 * */
+	 */
 	public static function validate_redirect_url( $redirect_url ) {
 		if ( ! wp_http_validate_url( $redirect_url ) ) {
-			throw new Requests_Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
+			// Remove this check once WordPress 6.2 is the minimum supported version.
+			if ( ! class_exists( '\WpOrg\Requests\Exception' ) ) {
+				throw new Requests_Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
+			}
+			throw new \WpOrg\Requests\Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
 		}
 	}
 }

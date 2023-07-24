@@ -99,7 +99,7 @@ class ManifestReaderTest extends TestCase {
 
 		$this->assertArrayHasKey( Classmap_Test_Class::class, $input_array );
 		$this->assertEquals( Test_Plugin_Factory::VERSION_CURRENT, $input_array[ Classmap_Test_Class::class ]['version'] );
-		$this->assertEquals( $input_array[ Classmap_Test_Class::class ]['path'], TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php' );
+		$this->assertEquals( TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php', $input_array[ Classmap_Test_Class::class ]['path'] );
 	}
 
 	/**
@@ -116,7 +116,7 @@ class ManifestReaderTest extends TestCase {
 
 		$this->assertArrayHasKey( Classmap_Test_Class::class, $input_array );
 		$this->assertEquals( Test_Plugin_Factory::VERSION_CURRENT, $input_array[ Classmap_Test_Class::class ]['version'] );
-		$this->assertEquals( $input_array[ Classmap_Test_Class::class ]['path'], TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php' );
+		$this->assertEquals( TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php', $input_array[ Classmap_Test_Class::class ]['path'] );
 	}
 
 	/**
@@ -133,6 +133,6 @@ class ManifestReaderTest extends TestCase {
 
 		$this->assertArrayHasKey( Classmap_Test_Class::class, $input_array );
 		$this->assertEquals( Test_Plugin_Factory::VERSION_CURRENT, $input_array[ Classmap_Test_Class::class ]['version'] );
-		$this->assertEquals( $input_array[ Classmap_Test_Class::class ]['path'], TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php' );
+		$this->assertEquals( TEST_PLUGIN_DIR . '/includes/class-classmap-test-class.php', $input_array[ Classmap_Test_Class::class ]['path'] );
 	}
 }

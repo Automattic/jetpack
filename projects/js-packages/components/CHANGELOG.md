@@ -2,6 +2,171 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.41.0] - 2023-07-24
+### Added
+- Jetpack Footer: added generic links [#31627]
+
+### Changed
+- Updated package dependencies. [#31999]
+
+## [0.40.4] - 2023-07-18
+### Changed
+- Use Connection initial state for fetching Calypso Env. [#31906]
+- Code quality improvements. [#31684]
+
+## [0.40.3] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+## [0.40.2] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.40.1] - 2023-07-05
+### Changed
+- Adjust component pricing slider border and box-shadow styling. [#31593]
+- Updated package dependencies. [#31659]
+- Updated package dependencies. [#31661]
+- Update storybook mdx to use `@storybook/blocks` directly rather than `@storybook/addon-docs`. [#31607]
+
+### Fixed
+- Add tagName prop to Col and Container [#31606]
+- Fix Jetpack footer accessibility issues [#31417]
+
+## [0.40.0] - 2023-06-26
+### Added
+- Add authentication to Zendesk chat. [#31339]
+
+## [0.39.0] - 2023-06-23
+### Added
+- Add component Pricing Slider for Stat pricing page.
+- Added config values to publish mirror repo
+- Auto-publish jetpack-components package to npm
+
+## 0.38.1 - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## 0.38.0 - 2023-06-15
+### Added
+- Add testimonial component and use it on the backup connect screen [#31221]
+
+## 0.37.0 - 2023-06-06
+### Changed
+- Update connection module to have an RNA option that updates the design [#31201]
+- Updated package dependencies. [#31129]
+- Update pricing table tooltip to allow its position to be configurable from pricing table. [#31107]
+
+## 0.36.0 - 2023-05-29
+### Added
+- Added the Instagram social icon [#30803]
+- Updated icons from social-link block from @wordpress/block-library [#29803]
+
+### Fixed
+- Fixed the SIG feature check to disable the media picker [#30888]
+- Fixed version [#29803]
+- Fix ternary issue with translations that were failing builds [#30877]
+
+## 0.35.0 - 2023-05-22
+### Added
+- Action Button: Add "Disabled" prop. [#30570]
+
+## 0.34.0 - 2023-05-18
+### Added
+- Add a new component for the Boost Score Bar used in the Boost plugin and later, in the Jetpack plugin [#30037]
+
+### Changed
+- Update pricing table tooltip to allow its position to be configurable from pricing table. [#30751]
+
+## 0.33.0 - 2023-05-02
+### Added
+- Added "wide" variant and styled unordered lists to icon tooltip content. [#30399]
+
+### Changed
+- Updated package dependencies.
+
+### Removed
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now. [#29942]
+
+## 0.32.1 - 2023-05-01
+### Changed
+- Minor internal updates.
+
+## 0.32.0 - 2023-04-25
+### Added
+- Add a Toggle component. [#30166]
+- Add Status component. [#30166]
+
+### Fixed
+- RNA: Fix button box-shadow radius on Linux build of Firefox [#30249]
+
+## 0.31.6 - 2023-04-19
+### Changed
+- Updated package dependencies. [#30015]
+
+### Removed
+- Remove WordPress 6.0 backwards-compatibility code. [#30126]
+
+## 0.31.5 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+### Fixed
+- Set Term of service links whitespace to no wrap. [#29683]
+
+## 0.31.4 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 0.31.3 - 2023-04-03
+### Changed
+- Minor internal updates.
+
+## 0.31.2 - 2023-03-29
+### Changed
+- Minor internal updates.
+
+## 0.31.1 - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## 0.31.0 - 2023-03-27
+### Changed
+- Added option for CUT component to have a tooltip [#29609]
+
+## 0.30.2 - 2023-03-23
+### Changed
+- Updated package dependencies.
+
+## 0.30.1 - 2023-03-20
+### Changed
+- RNA: tweak secondary button styling [#29475]
+- Updated package dependencies. [#29471]
+
+## 0.30.0 - 2023-03-13
+### Added
+- Add Zendesk chat module to My Jetpack page [#28712]
+
+### Changed
+- Updated pricing table component to allow a custom tooltip class. Will allow more flexibility over styling individual tooltips. [#29250]
+
+## 0.29.0 - 2023-03-08
+### Added
+- Add loading placeholder component into js-packages [#29270]
+
+### Changed
+- Updated package dependencies. [#29216]
+
+## 0.28.0 - 2023-02-28
+### Added
+- Added arrow-left and arrow-right icons to the Gridicon component [#28826]
+- JS Components: add Mastodon icon [#28987]
+- JS Components: add pricing-utils folder to store pricing-related helper functions. [#29139]
+
+### Fixed
+- Revise Jetpack connection agreement text to comply with our User Agreement [#28403]
+- Update React peer dependencies to match updated dev dependencies. [#28924]
+
 ## 0.27.7 - 2023-02-20
 ### Fixed
 - Changed wrong version [#28824]
@@ -613,3 +778,11 @@
 
 ### Changed
 - Update node version requirement to 14.16.1
+
+[0.41.0]: https://github.com/Automattic/jetpack-components/compare/0.40.4...0.41.0
+[0.40.4]: https://github.com/Automattic/jetpack-components/compare/0.40.3...0.40.4
+[0.40.3]: https://github.com/Automattic/jetpack-components/compare/0.40.2...0.40.3
+[0.40.2]: https://github.com/Automattic/jetpack-components/compare/0.40.1...0.40.2
+[0.40.1]: https://github.com/Automattic/jetpack-components/compare/0.40.0...0.40.1
+[0.40.0]: https://github.com/Automattic/jetpack-components/compare/0.39.0...0.40.0
+[0.39.0]: https://github.com/Automattic/jetpack-components/compare/0.38.1...0.39.0

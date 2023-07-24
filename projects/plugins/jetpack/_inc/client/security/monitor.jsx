@@ -63,6 +63,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 							href={ getRedirectUrl( 'calypso-settings-security', {
 								site: this.props.siteRawUrl,
 							} ) }
+							target="_blank"
 						>
 							{ __( 'Configure your notification settings', 'jetpack' ) }
 						</Card>

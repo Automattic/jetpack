@@ -8,11 +8,6 @@
  * Date: 27/06/16
  */
 
-
-#adminmenu {
-    // margin-top: -10px !important;
-}
-
 .mobile {
 	#zbscrm-wpadminbar {
 		display:none;
@@ -23,46 +18,6 @@
 
 }
 
-
-// ============= Mods to MS top admin menu:
-.zbs-admin-bg-menu.ui.inverted.menu {
-
-	// active colour to match our headers
-	// note .zbs-currently-browsing is so we can change colour without opening (as js auto opens if active)
-	.active.item, .zbs-currently-browsing {
-		background: #3f4348;
-		border-radius: 0px;
-	}
-
-	// > ico on submenus
-	.zbs-subsub-ico {
-	    margin: 0 !important;
-	    padding-top: 0.2em !important;
-	    margin-right: -0.2em !important;
-	}
-
-	// fix for wp override :)
-	.icon.search {
-		color:#81878c !important
-	}
-
-}
-
-// Hover over full CRM menu :)
-#zbs-user-menu {
-	width:580px;
-	min-width:580px;
-
-	a.item:hover {
-		color:#0073aa;
-	}
-}
-
-// this would change colour of little triangle in wp menu, but not a good idea as lower menu items look duff.
-ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:after {
-    //border-right-color: #3f4348;
-}
-
 // this is used in tour to highlight menu items 
 .menu.ui .item.tourhighlight, 
 .ui.menu .ui.dropdown .menu>.item.tourhighlight {
@@ -70,97 +25,15 @@ ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:a
     color: #8bc63f !important;
 }
 
-//============== ZBS Spinning logo / menu expander ico / 3D box:
-// http://cssdeck.com/labs/css3-flipping-cube
-/* Container box to set the sides relative to */
-.zbs-cube {
-	width: 30px;
-	text-align: center;
-	margin: 0 auto;
-	height: 30px;
+/* Full-screen mode */
 
-	-webkit-transition: -webkit-transform .33s;
-	transition: transform .33s; /* Animate the transform properties */
-
-	-webkit-transform-style: preserve-3d;
-	transform-style: preserve-3d; /* <-NB */
-}
-.zbs-cube img {
-	max-width:30px;
-}
-.zbs-cube .fa, .zbs-cube .icon {
-	height:30px;width:30px;font-size:30px;
-}
-
-
-/* The two faces of the cube */
-.zbs-face1,.zbs-face2 {
-	background: none;
-	//border: 1px solid rgba(147, 184, 189, .8);
-
-	//-webkit-border-radius: 5px;
-	//border-radius: 5px;
-
-	//-webkit-box-shadow: 0 5px 20px rgba(105, 108, 109, .3), 0 0 8px 5px rgba(208, 223, 226, .4) inset;
-	//box-shadow: 0 5px 20px rgba(105, 108, 109, .3), 0 0 8px 5px rgba(208, 223, 226, .4) inset;
-	height: 30px;
-}
-
-/* Position the faces */
-.zbs-face1 {
-	-webkit-transform: translateZ(15px);
-	transform: translateZ(15px);
-}
-
-.zbs-face2 {
-	-webkit-transform: rotateX(-90deg) translateZ(-15px);
-	transform: rotateX(-90deg) translateZ(-15px);
-	.expand{
-		color: black !important;
+// open
+body.zbs-fullscreen {
+	#wpcontent, #wpfooter{
+		margin-left:0px !important; 
+		margin-top:-32px !important;
+	}
+	#wpadminbar, #adminmenuback, #adminmenuwrap{
+		display:none !important;
 	}
 }
-
-#zbs-main-logo{
-	&:hover{
-		.zbs-face1{
-			display:none;
-		}
-	}	
-}
-
-/* Rotate the cube */
-.zbs-cube:hover {
-	-webkit-transform: rotateX(89deg);
-	transform: rotateX(89deg); /* Text bleed at 90º */
-	cursor:pointer;
-}
-//============== / ZBS Spinning logo / menu expander ico / 3D box
-
-
-
-//============== Hide show wp menu
-
-	// these replace the JS so we can build in compat for other themes etc.
-
-	// default (not open)
-	#wpcontent {
-
-		 /* Removed  !important 3.0.12 as was conflicting with calypsoify, avoid using these without testing */
-		margin-left:160px;
-		margin-top:0px;
-
-	}
-
-	// open
-	body.zbs-fullscreen {
-
-		#wpcontent, #wpfooter{
-			margin-left:0px !important; 
-			margin-top:-32px !important;
-		}
-		#wpadminbar, #adminmenuback, #adminmenuwrap{
-			display:none !important;
-		}
-
-
-	}

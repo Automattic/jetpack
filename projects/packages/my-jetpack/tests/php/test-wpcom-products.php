@@ -99,6 +99,7 @@ class Test_Wpcom_Products extends TestCase {
 				'cost_display'           => 'R$4.90',
 				'cost'                   => 4.9,
 				'currency_code'          => 'BRL',
+				'product_term'           => 'one time',
 			),
 			'jetpack_videopress_monthly' => (object) array(
 				'product_id'             => 2222,
@@ -111,6 +112,7 @@ class Test_Wpcom_Products extends TestCase {
 				'cost_display'           => 'R$4.90',
 				'cost'                   => 4.9,
 				'currency_code'          => 'BRL',
+				'product_term'           => 'month',
 				'sale_coupon'            => (object) array(
 					'start_date' => gmdate( 'Y' ) . '-01-01',
 					'expires'    => gmdate( 'Y' ) . '-12-31',
@@ -211,6 +213,7 @@ class Test_Wpcom_Products extends TestCase {
 			'discount_price'        => 2.45,
 			'is_introductory_offer' => false,
 			'introductory_offer'    => null,
+			'product_term'          => 'month',
 			'coupon_discount'       => 50,
 		);
 

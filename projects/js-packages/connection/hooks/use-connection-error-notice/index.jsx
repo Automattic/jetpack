@@ -24,11 +24,8 @@ export default function useConnectionErrorNotice() {
 
 export const ConnectionError = () => {
 	const { hasConnectionError, connectionErrorMessage } = useConnectionErrorNotice();
-	const {
-		restoreConnection,
-		isRestoringConnection,
-		restoreConnectionError,
-	} = useRestoreConnection();
+	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
+		useRestoreConnection();
 
 	return hasConnectionError ? (
 		<ConnectionErrorNotice

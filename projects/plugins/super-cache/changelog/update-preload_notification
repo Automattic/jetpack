@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+WP Super Cache: preload notification shows the last 5 preloaded URLs now

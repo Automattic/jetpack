@@ -217,14 +217,6 @@ jQuery( function ( $ ) {
 				$( '.total-tasks-panel' ).html( total_tasks );
 				$( '.completed-tasks-panel' ).html( completed_tasks );
 				$( '.inprogress-tasks-panel' ).html( progress_tasks );
-
-				if ( response.customer.status == 'Customer' ) {
-					$( '#panel-status' ).removeClass( 'blue' ).addClass( 'green' );
-				}
-				if ( response.customer.status == 'Lead' ) {
-					$( '#panel-status' ).addClass( 'blue' ).removeClass( 'green' );
-				}
-
 				$( '.total-paid .the_value' ).html( response.trans_value );
 				$( '.total-due .the_value' ).html( response.quote_value );
 
@@ -308,14 +300,6 @@ jQuery( function ( $ ) {
 				);
 			},
 		} );
-	} );
-
-	$( '.zbs-inbox-link' ).on( 'click', function ( e ) {
-		$( '.app-content' ).hide();
-		$( '.click-email-to-load' ).show();
-		$( '.spinner-gif' ).hide();
-
-		$( '.inbox-email-list, .zbs-email-content' ).fadeIn( 1000 );
 	} );
 
 	$( '.zbs-sent-link' ).on( 'click', function ( e ) {

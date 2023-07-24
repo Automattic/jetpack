@@ -59,13 +59,19 @@ echo __( 'Send me status emails when files are refreshed.', 'wp-super-cache' ) .
 if ( !isset( $wp_cache_preload_email_volume ) )
 	$wp_cache_preload_email_volume = 'none';
 echo '<select type="select" name="wp_cache_preload_email_volume">';
-echo '<option value="none" '. selected( 'none', $wp_cache_preload_email_volume ) . '>'.  __( 'No Emails', 'wp-super-cache' ) . '</option>';
-echo '<option value="many" '. selected( 'many', $wp_cache_preload_email_volume ) . '>'.  __( 'Many emails, 2 emails per 100 posts.', 'wp-super-cache' ) . '</option>';
-echo '<option value="medium" '. selected( 'medium', $wp_cache_preload_email_volume ) . '>'.  __( 'Medium, 1 email per 100 posts.', 'wp-super-cache' ) . '</option>';
-echo '<option value="less" '. selected( 'less', $wp_cache_preload_email_volume ) . '>'.  __( 'Less emails, 1 at the start and 1 at the end of preloading all posts.', 'wp-super-cache' ) . '</option>';
+echo '<option value="none" ' . selected( 'none', $wp_cache_preload_email_volume ) . '>' . esc_html__( 'No Emails', 'wp-super-cache' ) . '</option>';
+// translators: %d is the number of posts
+echo '<option value="many" ' . selected( 'many', $wp_cache_preload_email_volume ) . '>' . esc_html( sprintf( __( 'Many emails, 2 emails per %d posts.', 'wp-super-cache' ), WPSC_PRELOAD_POST_COUNT ) ) . '</option>';
+// translators: %d is the number of posts
+echo '<option value="medium" ' . selected( 'medium', $wp_cache_preload_email_volume ) . '>' . esc_html( sprintf( __( 'Medium, 1 email per %d posts.', 'wp-super-cache' ), WPSC_PRELOAD_POST_COUNT ) ) . '</option>';
+echo '<option value="less" ' . selected( 'less', $wp_cache_preload_email_volume ) . '>' . esc_html__( 'Less emails, 1 at the start and 1 at the end of preloading all posts.', 'wp-super-cache' ) . '</option>';
 echo "</select>";
 
-if ( wp_next_scheduled( 'wp_cache_preload_hook' ) || wp_next_scheduled( 'wp_cache_full_preload_hook' ) ) {
+if (
+	wp_next_scheduled( 'wp_cache_preload_hook' )
+	|| wp_next_scheduled( 'wp_cache_full_preload_hook' )
+	|| wpsc_is_preload_active()
+) {
 	$currently_preloading = true;
 }
 echo '<div class="submit"><input class="button-primary" type="submit" name="preload" value="' . __( 'Save Settings', 'wp-super-cache' ) . '" />';

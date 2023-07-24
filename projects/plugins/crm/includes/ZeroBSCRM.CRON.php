@@ -38,10 +38,10 @@
 
 	$zbscrm_CRONList = array(
 
-		// WLREMOVE
+		##WLREMOVE
 		'zbstele'            => 'daily',
 		'zbsext'             => 'daily',
-		// /WLREMOVE
+		##/WLREMOVE
 
 		'zbsnotifyevents'    => 'hourly',
 		// 'clearTempHashes'    => 'hourly'

@@ -5,6 +5,7 @@ set -eo pipefail
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/changelogger.sh"
 . "$BASE/tools/includes/version-compare.sh"
 
 function usage {
@@ -71,16 +72,8 @@ fi
 
 # Get the list of packages to update, mapped to their target versions.
 PACKAGES='{}'
-CL="$PWD/projects/packages/changelogger/bin/changelogger"
-if ! "$CL" &>/dev/null; then
-	(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
-	if ! "$CL" &>/dev/null; then
-		die "Changelogger is not runnable via $CL"
-	fi
-fi
-
 for PKG in "$BASE"/projects/packages/*/composer.json; do
-	PACKAGES=$(jq -c --arg k "$(jq -r .name "$PKG")" --arg v1 "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" --arg v2 "@dev" '.[$k] |= { rel: $v1, dev: $v2 }' <<<"$PACKAGES")
+	PACKAGES=$(jq -c --arg k "$(jq -r .name "$PKG")" --arg v1 "$(cd "${PKG%/composer.json}" && changelogger version current --default-first-version)" --arg v2 "@dev" '.[$k] |= { rel: $v1, dev: $v2 }' <<<"$PACKAGES")
 done
 
 for PLUGIN in "${PLUGINS[@]}"; do

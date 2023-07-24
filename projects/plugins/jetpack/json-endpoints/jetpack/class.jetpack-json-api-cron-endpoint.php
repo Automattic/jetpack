@@ -260,7 +260,7 @@ class Jetpack_JSON_API_Cron_Schedule_Endpoint extends Jetpack_JSON_API_Cron_Endp
 				return new WP_Error( 'invalid-recurrence', 'Please provide a valid recurrence argument', 400 );
 			}
 
-			if ( count( $next_scheduled ) > 0 ) {
+			if ( is_countable( $next_scheduled ) && count( $next_scheduled ) > 0 ) {
 				return new WP_Error( 'event-already-scheduled', 'This event is ready scheduled', 400 );
 			}
 			$lock = $this->lock_cron();

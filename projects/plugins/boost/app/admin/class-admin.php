@@ -9,14 +9,14 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
-use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 
 class Admin {
 
@@ -46,9 +46,9 @@ class Admin {
 	 */
 	private $config;
 
-	public function __construct( Optimizations $modules ) {
+	public function __construct( Modules_Setup $modules ) {
 		$this->modules     = $modules;
-		$this->speed_score = new Speed_Score( $modules );
+		$this->speed_score = new Speed_Score( $modules, 'boost-plugin' );
 		Environment_Change_Detector::init();
 		Premium_Pricing::init();
 

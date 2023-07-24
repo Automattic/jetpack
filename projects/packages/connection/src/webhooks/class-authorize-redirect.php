@@ -42,9 +42,9 @@ class Authorize_Redirect {
 				$domains[] = 'jetpack.wordpress.com';
 				$domains[] = 'wordpress.com';
 				// Calypso envs.
-				$domains[] = 'http://calypso.localhost:3000/';
-				$domains[] = 'https://wpcalypso.wordpress.com/';
-				$domains[] = 'https://horizon.wordpress.com/';
+				$domains[] = 'calypso.localhost';
+				$domains[] = 'wpcalypso.wordpress.com';
+				$domains[] = 'horizon.wordpress.com';
 				return array_unique( $domains );
 			}
 		);

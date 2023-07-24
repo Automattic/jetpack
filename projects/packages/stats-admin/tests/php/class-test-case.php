@@ -121,6 +121,16 @@ class Test_Case extends TestCase {
 			);
 		}
 
+		if ( strpos( $url, '/jetpack-stats-dashboard/notices' ) !== false ) {
+			return array(
+				'response' => array(
+					'code'    => 200,
+					'message' => 'ok',
+				),
+				'body'     => '{"opt_in_new_stats":true,"opt_out_new_stats":true,"new_stats_feedback":true,"traffic_page_settings":false}',
+			);
+		}
+
 		if ( strpos( $url, '/sites/999/' ) !== false ) {
 			return array(
 				'response' => array(

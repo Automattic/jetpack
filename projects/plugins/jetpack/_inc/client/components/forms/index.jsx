@@ -194,6 +194,7 @@ export class FormSelect extends React.Component {
 				onSelect={ this.handleOnSelect }
 				disabled={ this.props.disabled }
 				initialSelected={ this.props.value }
+				rna={ this.props.rna }
 			/>
 		);
 	}

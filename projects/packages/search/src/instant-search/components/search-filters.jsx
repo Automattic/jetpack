@@ -71,7 +71,7 @@ class SearchFilters extends Component {
 			return null;
 		}
 
-		const availableStaticFilters = getAvailableStaticFilters();
+		const availableStaticFilters = getAvailableStaticFilters( 'sidebar' );
 		const aggregations = this.props.results?.aggregations;
 		return (
 			<div className="jetpack-instant-search__search-filters">

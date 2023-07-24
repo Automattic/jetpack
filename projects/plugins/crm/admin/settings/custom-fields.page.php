@@ -293,6 +293,89 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 	// Brutal update (note this is on top of updateActiveCustomFields DAL2+ work above)
 	$zbs->settings->update( 'customfields', $custom_fields );
 
+	/*
+	 * After the update, we must remove all references in the field sorting
+	 * settings for any custom fields that no longer exist. We begin with
+	 * a hard-coded map, which is required since field types in custom fields and
+	 * field sorts are hard-coded differently. Unifying them would demand major efforts.
+	 */
+	$sort_types_map = array(
+		'address'  => array(
+			'custom_key' => 'addresses',
+			'obj_key'    => 'zbsAddressFields',
+		),
+		'customer' => array(
+			'custom_key' => 'customers',
+			'obj_key'    => 'zbsCustomerFields',
+		),
+		'company'  => array(
+			'custom_key' => 'companies',
+			'obj_key'    => 'zbsCompanyFields',
+		),
+	);
+
+	/*
+	 * Creating a lookup table so we don't need to have multiple nested loops in
+	 * the next step. We do this by first adding all currently valid custom
+	 * fields, then adding all others (that should be the default ones).
+	 */
+	$sort_field_names = array();
+	foreach ( $custom_fields as $custom_type => $field_arrays ) {
+		foreach ( $field_arrays as $field_array ) {
+			if ( isset( $field_array[3] ) ) {
+					$sort_field_names[ $custom_type ][ $field_array[3] ] = true;
+			}
+		}
+	}
+	foreach ( $sort_types_map as $sort_type => $sort_map ) {
+		$custom_type = $sort_map['custom_key'];
+		$field_types = isset( $GLOBALS[ $sort_map['obj_key'] ] ) ? $GLOBALS[ $sort_map['obj_key'] ] : array();
+		foreach ( $field_types as $field_key => $field_array ) {
+			if ( isset( $field_array['custom-field'] ) && $field_array['custom-field'] ) {
+				continue;
+			}
+			$sort_field_names[ $custom_type ][ $field_key ] = true;
+
+			// This is a special case used for grouping addresses.
+			if ( isset( $field_array['migrate'] ) ) {
+				$sort_field_names[ $custom_type ][ $field_array['migrate'] ] = true;
+			}
+		}
+	}
+
+	/*
+	 * In this step, we remove any field that no longer exists. Additionally, if
+	 * a field type becomes empty, we also remove the corresponding entry from
+	 * the sort array. We have two distinct settings for sorting fields: one for
+	 * the sorting itself and another for hidden fields.
+	 */
+	$settings_to_update = array( 'fieldsorts', 'fieldhides' );
+	foreach ( $settings_to_update as $setting ) {
+		$fields = $zbs->settings->get( $setting );
+		foreach ( $fields as $sort_type => $sort_names ) {
+			$custom_type = $sort_types_map[ $sort_type ]['custom_key'];
+
+			if ( ! isset( $custom_fields[ $custom_type ] ) || ! isset( $sort_field_names[ $custom_type ] ) ) {
+				unset( $fields[ $sort_type ] );
+				continue;
+			}
+
+			$fields[ $sort_type ] = array_values(
+				array_filter(
+					$sort_names,
+					function ( $field_name ) use ( $sort_field_names, $custom_type ) {
+						return isset( $sort_field_names[ $custom_type ][ $field_name ] );
+					}
+				)
+			);
+
+			if ( empty( $fields[ $sort_type ] ) ) {
+				unset( $fields[ $sort_type ] );
+			}
+		}
+		$zbs->settings->update( $setting, $fields );
+	}
+
 	// $msg out!
 	$sbupdated = true;
 
@@ -353,7 +436,7 @@ if ( isset( $sbupdated ) && $sbupdated ) {
 		<?php
 
 		// loading here is shown until custom fields drawn, then this loader hidden and all .zbs-generic-loaded shown
-		echo zeroBSCRM_UI2_loadingSegmentHTML( '300px', 'zbs-generic-loading' );
+		echo jpcrm_loading_container(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// add nonce
 		wp_nonce_field( 'zbs-update-settings-customfields' );

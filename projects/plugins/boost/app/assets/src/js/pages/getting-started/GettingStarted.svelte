@@ -1,10 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { derived, writable } from 'svelte/store';
+	import { Snackbar } from '@wordpress/components';
+	import ActivateLicense from '../../elements/ActivateLicense.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Header from '../../sections/Header.svelte';
 	import config, { markGetStartedComplete } from '../../stores/config';
-	import { updateModuleState } from '../../stores/modules';
+	import { connection } from '../../stores/connection';
 	import { recordBoostEvent } from '../../utils/analytics';
 	import { getUpgradeURL } from '../../utils/upgrade';
 
@@ -12,47 +14,120 @@
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;
-	const chooseFreePlan = async () => {
-		// Allow opening the boost settings page. The actual flag is changed in the backend by enabling the critical-css module below.
+
+	let initiatingFreePlan = false;
+	let initiatingPaidPlan = false;
+	const dismissedSnackbar = writable( false );
+
+	const snackbarMessage = derived(
+		[ connection, dismissedSnackbar ],
+		( [ $connection, $dismissedSnackbar ] ) => {
+			if ( ! $dismissedSnackbar && ! $connection.connected && $connection.error?.message ) {
+				return $connection.error.message;
+			}
+
+			return null;
+		}
+	);
+
+	/**
+	 * Mark that getting started is completed, and head to the next page.
+	 *
+	 * @param {string} externalPage If specified, head to the external page instead of staying on the dashboard.
+	 */
+	function finishGettingStarted( externalPage?: string ) {
 		markGetStartedComplete();
 
-		// Need to await in this case because the generation request needs to go after the backend has enabled the module.
-		await updateModuleState( 'critical-css', true );
-		await recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
-		navigate( '/' );
-	};
-
-	const choosePaidPlan = async () => {
-		await recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
-		window.location.href = getUpgradeURL();
-	};
-
-	onMount( () => {
-		// If we don't have pricing data, we should skip the page and go directly to settings.
-		if ( typeof pricing.yearly === 'undefined' ) {
-			// Allow opening the boost settings page.
-			markGetStartedComplete();
-
+		if ( externalPage ) {
+			window.location.href = externalPage;
+		} else {
 			navigate( '/', { replace: true } );
 		}
-	} );
+	}
+
+	/**
+	 * User clicked "Free plan"
+	 */
+	async function chooseFreePlan() {
+		initiatingFreePlan = true;
+
+		try {
+			// Make sure there is a Jetpack connection
+			await connection.initialize();
+
+			// Record this selection. This must be done after the connection is initialized.
+			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
+
+			// Head to the settings page.
+			finishGettingStarted();
+		} catch ( e ) {
+			// Un-dismiss snackbar on error. Actual error comes from connection object.
+			dismissedSnackbar.set( false );
+		} finally {
+			initiatingFreePlan = false;
+		}
+	}
+
+	/**
+	 * User clicked Premium.
+	 */
+	async function choosePaidPlan() {
+		initiatingPaidPlan = true;
+
+		try {
+			// Make sure there is a Jetpack connection
+			await connection.initialize();
+
+			// Record this selection. This must be done after the connection is initialized.
+			recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
+
+			// Check if the site is already on a premium plan and go directly to settings if so.
+			if ( $config.isPremium ) {
+				finishGettingStarted();
+				return;
+			}
+
+			// Go to the purchase flow.
+			finishGettingStarted( getUpgradeURL() );
+		} catch ( e ) {
+			// Un-dismiss snackbar on error. Actual error comes from connection object.
+			dismissedSnackbar.set( false );
+		} finally {
+			initiatingPaidPlan = false;
+		}
+	}
 </script>
 
-<div id="jb-settings" class="jb-settings jb-settings--main">
-	<div class="jb-container">
-		<Header />
-	</div>
+<div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
+	<Header>
+		<ActivateLicense />
+	</Header>
 
-	{#if pricing.yearly}
-		<div class="jb-section jb-section--alt">
-			<div class="jb-container">
+	<div class="jb-section jb-section--alt">
+		<div class="jb-container">
+			<div class="jb-pricing-table">
 				<ReactComponent
 					this={BoostPricingTable}
 					{pricing}
 					onPremiumCTA={choosePaidPlan}
 					onFreeCTA={chooseFreePlan}
+					chosenFreePlan={initiatingFreePlan}
+					chosenPaidPlan={initiatingPaidPlan}
 				/>
+				{#if $snackbarMessage}
+					<ReactComponent
+						this={Snackbar}
+						children={$snackbarMessage}
+						onDismiss={() => dismissedSnackbar.set( true )}
+					/>
+				{/if}
 			</div>
 		</div>
-	{/if}
+	</div>
 </div>
+
+<style lang="scss">
+	.jb-pricing-table {
+		isolation: isolate;
+	}
+</style>

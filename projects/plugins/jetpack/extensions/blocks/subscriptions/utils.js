@@ -1,5 +1,6 @@
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ToolbarButton } from '@wordpress/components';
+import { Button, ToolbarButton, Notice } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { _x, __ } from '@wordpress/i18n';
 
 /**
@@ -21,19 +22,38 @@ export const encodeValueForShortcodeAttribute = value => {
 		.replace( /\u200b/g, '&#x200b;' );
 };
 
-export const getPaidPlanLink = hasNewsletterPlans => {
+export const getPaidPlanLink = alreadyHasNewsletterPlans => {
 	const link = 'https://wordpress.com/earn/payments-plans/' + location.hostname;
-	return hasNewsletterPlans ? link : link + '#add-newsletter-payment-plan';
+	// We force the "Newsletters plan" link only if there is no plans already created
+	return alreadyHasNewsletterPlans ? link : link + '#add-newsletter-payment-plan';
 };
 
 export const isNewsletterFeatureEnabled = () => {
 	return getJetpackData()?.jetpack?.is_newsletter_feature_enabled ?? false;
 };
 
+export const MisconfigurationWarning = () => (
+	<Notice
+		status="warning"
+		isDismissible={ false }
+		className="edit-post-post-misconfiguration__warning"
+	>
+		{ createInterpolateElement(
+			__(
+				'You’ll need to change the post’s access to Everybody or visibility to Public.<br/>' +
+					'<br/>' +
+					'Subscribers aren’t able to view private or password-protected posts.',
+				'jetpack'
+			),
+			{ br: <br /> }
+		) }
+	</Notice>
+);
+
 export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 	const addPaidPlanButtonText = hasNewsletterPlans
 		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
-		: __( 'Add Payments', 'jetpack' );
+		: __( 'Set up a paid plan', 'jetpack' );
 
 	if ( 'toolbar' === context ) {
 		return (

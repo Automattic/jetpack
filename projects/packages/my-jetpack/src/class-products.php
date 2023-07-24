@@ -27,12 +27,14 @@ class Products {
 			'boost'      => Products\Boost::class,
 			'crm'        => Products\Crm::class,
 			'extras'     => Products\Extras::class,
+			'jetpack-ai' => Products\Jetpack_Ai::class,
 			'scan'       => Products\Scan::class,
 			'search'     => Products\Search::class,
 			'social'     => Products\Social::class,
 			'security'   => Products\Security::class,
 			'protect'    => Products\Protect::class,
 			'videopress' => Products\Videopress::class,
+			'stats'      => Products\Stats::class,
 		);
 
 		/**

@@ -10,7 +10,7 @@ const gatherSupportReferences = require( './tasks/gather-support-references' );
 const notifyDesign = require( './tasks/notify-design' );
 const notifyEditorial = require( './tasks/notify-editorial' );
 const replyToCustomersReminder = require( './tasks/reply-to-customers-reminder' );
-const triageNewIssues = require( './tasks/triage-new-issues' );
+const triageIssues = require( './tasks/triage-issues' );
 const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
 const debug = require( './utils/debug' );
 const ifNotClosed = require( './utils/if-not-closed' );
@@ -33,6 +33,11 @@ const automations = [
 	},
 	{
 		event: 'pull_request_target',
+		action: [ 'closed' ],
+		task: cleanLabels,
+	},
+	{
+		event: 'issues',
 		action: [ 'closed' ],
 		task: cleanLabels,
 	},
@@ -63,8 +68,8 @@ const automations = [
 	},
 	{
 		event: 'issues',
-		action: [ 'opened', 'reopened' ],
-		task: triageNewIssues,
+		action: [ 'opened', 'reopened', 'labeled' ],
+		task: triageIssues,
 	},
 	{
 		event: 'issues',

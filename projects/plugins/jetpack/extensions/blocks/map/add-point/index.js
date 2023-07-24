@@ -7,7 +7,7 @@ import './style.scss';
 
 export class AddPoint extends Component {
 	render() {
-		const { onClose, onAddPoint, onError, apiKey } = this.props;
+		const { onClose, onAddPoint, onError, apiKey, mapProvider } = this.props;
 		return (
 			<Button className="component__add-point">
 				{ __( 'Add marker', 'jetpack' ) }
@@ -20,6 +20,7 @@ export class AddPoint extends Component {
 						label={ __( 'Add a location', 'jetpack' ) }
 						apiKey={ apiKey }
 						onError={ onError }
+						mapProvider={ mapProvider }
 					/>
 				</Popover>
 			</Button>
@@ -31,6 +32,7 @@ AddPoint.defaultProps = {
 	onAddPoint: () => {},
 	onClose: () => {},
 	onError: () => {},
+	mapProvider: 'mapbox',
 };
 
 export default AddPoint;

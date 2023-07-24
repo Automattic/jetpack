@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.4] - 2023-07-24
+
+## [0.6.3] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.6.2] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+- Update storybook mdx to use `@storybook/blocks` directly rather than `@storybook/addon-docs`. [#31607]
+
+## [0.6.1] - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## [0.6.0] - 2023-06-06
+### Changed
+- Update connection module to have an RNA option that updates the design [#31201]
+- Updated package dependencies. [#31129]
+
+## [0.5.1] - 2023-05-29
+### Added
+- Added the jp-highlight colour for use with the social previews [#31023]
+
+## [0.5.0] - 2023-05-18
+### Added
+- Add root variable for boost score bar [#30037]
+
+## [0.4.4] - 2023-05-02
+### Changed
+- Updated package dependencies. [#30375]
+
+## [0.4.3] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## [0.4.2] - 2023-03-29
+### Changed
+- Minor internal updates.
+
+## [0.4.1] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [0.4.0] - 2023-03-27
+### Changed
+- Add new vars [#29644]
+- Modularized root variable declaration out of main style file [#29600]
+
+## [0.3.20] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
 ## [0.3.19] - 2023-02-15
 ### Changed
 - Update to React 18. [#28710]
@@ -147,6 +200,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[0.6.4]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.3...0.6.4
+[0.6.3]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.2...0.6.3
+[0.6.2]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.1...0.6.2
+[0.6.1]: https://github.com/Automattic/jetpack-base-styles/compare/0.6.0...0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-base-styles/compare/0.5.1...0.6.0
+[0.5.1]: https://github.com/Automattic/jetpack-base-styles/compare/0.5.0...0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-base-styles/compare/0.4.4...0.5.0
+[0.4.4]: https://github.com/Automattic/jetpack-base-styles/compare/0.4.3...0.4.4
+[0.4.3]: https://github.com/Automattic/jetpack-base-styles/compare/0.4.2...0.4.3
+[0.4.2]: https://github.com/Automattic/jetpack-base-styles/compare/0.4.1...0.4.2
+[0.4.1]: https://github.com/Automattic/jetpack-base-styles/compare/0.4.0...0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.20...0.4.0
+[0.3.20]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.19...0.3.20
 [0.3.19]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.18...0.3.19
 [0.3.18]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.17...0.3.18
 [0.3.17]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.16...0.3.17

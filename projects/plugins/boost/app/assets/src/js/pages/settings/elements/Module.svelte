@@ -1,62 +1,53 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { __ } from '@wordpress/i18n';
-	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import Toggle from '../../../elements/Toggle.svelte';
-	import {
-		isModuleAvailableStore,
-		isModuleEnabledStore,
-		updateModuleState,
-	} from '../../../stores/modules';
+	import { modulesState, modulesStatePending } from '../../../stores/modules';
 
-	export let slug;
+	export let toggle = true;
+	export let slug: string;
 
 	const dispatch = createEventDispatcher();
 
-	const isEnabled = isModuleEnabledStore( slug );
-	const isAvailable = isModuleAvailableStore( slug );
-
-	let error = null;
-	let isLoading = false;
+	$: isModuleActive = $modulesState[ slug ].active;
+	$: isModuleAvailable = $modulesState[ slug ].available;
 
 	async function handleToggle() {
-		if ( isLoading ) {
-			return;
-		}
+		$modulesState[ slug ].active = ! isModuleActive;
+	}
 
-		error = null;
-		isLoading = true;
-
-		try {
-			if ( await updateModuleState( slug, ! $isEnabled ) ) {
-				dispatch( 'enabled' );
-			} else {
-				dispatch( 'disabled' );
+	/**
+	 * Watch for changes in state and dispatch an event when the state is no longer pending.
+	 */
+	let lastToggledState = $modulesState[ slug ].active;
+	$: {
+		if ( ! $modulesStatePending ) {
+			const newState = $modulesState[ slug ].active;
+			if ( lastToggledState !== newState ) {
+				lastToggledState = newState;
+				dispatch( newState ? 'enabled' : 'disabled' );
 			}
-		} catch ( caughtError ) {
-			error = caughtError;
 		}
-
-		isLoading = false;
 	}
 
 	onMount( async () => {
-		if ( $isEnabled ) {
+		if ( isModuleAvailable && isModuleActive ) {
 			dispatch( 'mountEnabled' );
 		}
 	} );
 </script>
 
-{#if $isAvailable}
+{#if isModuleAvailable}
 	<div class="jb-feature-toggle">
 		<div class="jb-feature-toggle__toggle">
-			<Toggle
-				id={`jb-feature-toggle-${ slug }`}
-				checked={$isEnabled}
-				bind:disabled={isLoading}
-				on:click={handleToggle}
-			/>
+			{#if toggle}
+				<Toggle
+					id={`jb-feature-toggle-${ slug }`}
+					checked={isModuleActive}
+					on:click={handleToggle}
+				/>
+			{/if}
 		</div>
+
 		<div class="jb-feature-toggle__content">
 			<slot name="title" />
 
@@ -67,16 +58,20 @@
 			<div class="jb-feature-toggle__content">
 				<slot />
 
-				{#if error}
-					<ErrorNotice title={__( 'Failed to toggle feature', 'jetpack-boost' )} {error} />
-				{/if}
-
-				{#if $isEnabled}
+				{#if isModuleActive}
 					<slot name="meta" />
-				{/if}
 
-				<slot name="notice" />
+					<slot name="notice" />
+
+					<slot name="cta" />
+				{/if}
 			</div>
 		</div>
 	</div>
 {/if}
+
+<style>
+	.jb-feature-toggle__toggle {
+		min-width: 36px;
+	}
+</style>

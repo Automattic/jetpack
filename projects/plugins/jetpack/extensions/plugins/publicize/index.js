@@ -15,6 +15,7 @@ import {
 	useSocialMediaConnections,
 	usePublicizeConfig,
 	SocialImageGeneratorPanel,
+	PostPublishReviewPrompt,
 } from '@automattic/jetpack-publicize-components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
@@ -28,7 +29,7 @@ export const name = 'publicize';
 
 const PublicizeSettings = () => {
 	const { hasEnabledConnections } = useSocialMediaConnections();
-	const { isSocialImageGeneratorEnabled } = usePublicizeConfig();
+	const { isSocialImageGeneratorAvailable } = usePublicizeConfig();
 
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
@@ -38,7 +39,7 @@ const PublicizeSettings = () => {
 				<PublicizePanel enableTweetStorm={ true }>
 					<UpsellNotice />
 				</PublicizePanel>
-				{ isSocialImageGeneratorEnabled && <SocialImageGeneratorPanel /> }
+				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel
@@ -56,7 +57,7 @@ const PublicizeSettings = () => {
 				</PublicizePanel>
 			</PluginPrePublishPanel>
 
-			{ isSocialImageGeneratorEnabled && (
+			{ isSocialImageGeneratorAvailable && (
 				<PluginPrePublishPanel
 					initialOpen
 					title={ __( 'Social Image Generator', 'jetpack' ) }
@@ -65,6 +66,8 @@ const PublicizeSettings = () => {
 					<SocialImageGeneratorPanel prePublish={ true } />
 				</PluginPrePublishPanel>
 			) }
+
+			<PostPublishReviewPrompt />
 		</PostTypeSupportCheck>
 	);
 };

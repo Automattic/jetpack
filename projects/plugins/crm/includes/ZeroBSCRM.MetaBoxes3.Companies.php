@@ -115,8 +115,6 @@
                 #} Rather than reload all the time :)
                 global $zbsCompanyEditing; 
 
-                #} retrieve
-                //$zbsCustomer = get_post_meta($company['id'], 'zbs_customer_meta', true);
                 if (!isset($zbsCompanyEditing)){
                     $zbsCompany = zeroBS_getCompany($companyID,false);
                     $zbsCompanyEditing = $zbsCompany;
@@ -124,41 +122,18 @@
                     $zbsCompany = $zbsCompanyEditing;
                 }
 
-                // Get field Hides...
-                $fieldHideOverrides = $zbs->settings->get('fieldhides');
-                $zbsShowID = $zbs->settings->get('showid');
-
-                // Click 2 call?
-                $click2call = $zbs->settings->get('clicktocall');
-
-                global $zbsCompanyName; $zbsCompanyName = ''; if (isset($zbsCompany['name'])) $zbsCompanyName = $zbsCompany['name'];
-
-                global $zbsCompanyFields; $fields = $zbsCompanyFields;
-
-                #} Address settings
-                $showAddresses = zeroBSCRM_getSetting('showaddress');
-                $showSecondAddress = zeroBSCRM_getSetting('secondaddress');
-                $showCountryFields = zeroBSCRM_getSetting('countries');
-                $second_address_label = zeroBSCRM_getSetting( 'secondaddresslabel' );
+					global $zbsCompanyFields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$fields               = $zbsCompanyFields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$show_id              = (int) $zbs->settings->get( 'showid' );
+					$fields_to_hide       = $zbs->settings->get( 'fieldhides' );
+					$show_addresses       = (int) $zbs->settings->get( 'showaddress' );
+					$show_second_address  = (int) $zbs->settings->get( 'secondaddress' );
+					$show_country_fields  = $zbs->settings->get( 'countries' );
+					$second_address_label = $zbs->settings->get( 'secondaddresslabel' );
                 if ( empty( $second_address_label ) ) {
                   $second_address_label = __( 'Second Address', 'zero-bs-crm' );
                 }
-
-               // PerfTest: zeroBSCRM_performanceTest_finishTimer('custmetabox-dataget');
-               // PerfTest: zeroBSCRM_performanceTest_startTimer('custmetabox-draw');
-            
-                //sticky tape some CSS until new UI!!
             ?>
-                <style>
-                    #post-body-content{
-                        display:none;
-                    }
-                        @media all and (max-width:699px){
-                        table.wh-metatab{
-                            min-width:100% !important;
-                        }
-                    }  
-                </style>
                 <script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
 
                 <?php #} Pass this if it's a new customer (for internal automator) - note added this above with DEFINE for simpler.
@@ -166,209 +141,90 @@
                     if (gettype($zbsCompany) != "array") echo '<input type="hidden" name="zbscrm_newcompany" value="1" />';
 
                 ?>
-
-
-                <table class="form-table wh-metatab wptbp" id="wptbpMetaBoxMainItem">
+			<div>
+				<div class="jpcrm-form-grid" id="wptbpMetaBoxMainItem">
 
                     <?php #} WH Hacky quick addition for MVP 
                     # ... further hacked
 
-                    if ($zbsShowID == "1" && $companyID > 0) { ?>
-                    <tr class="wh-large"><th><label><?php echo esc_html( $this->coOrgLabel ) . ' '; esc_html_e("ID","zero-bs-crm");?>:</label></th>
-                    <td style="font-size: 20px;color: green;vertical-align: top;">
-                        #<?php echo esc_html( $companyID ); ?>
-                    </td></tr>
+				if ( $show_id === 1 && $companyID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					?>
+							<div class="jpcrm-form-group">
+								<label class="jpcrm-form-label"><?php echo esc_html( $this->coOrgLabel ) . ' '; esc_html_e( 'ID', 'zero-bs-crm' ); // phpcs:ignore Generic.Formatting.DisallowMultipleStatements.SameLine, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase, Squiz.PHP.EmbeddedPhp.MultipleStatements ?>:</label>
+								<b>#<?php echo isset( $companyID ) ? esc_html( $companyID ) : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></b>
+							</div>
+							<div class="jpcrm-form-group">
+							</div>
                     <?php } ?>
 
-                    <?php /* if (has_post_thumbnail( $post->ID ) ): ?>
-                      <?php $image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'single-post-thumbnail' ); ?>
-                      <tr class="wh-large"><th><label><?php echo $this->coOrgLabel; ?> Image:</label></th>
-                                    <td>
-                                        <a href="<?php echo $image[0]; ?>" target="_blank"><img src="<?php echo $image[0]; ?>" alt="<?php echo $this->coOrgLabel; ?> Image" style="max-width:300px;border:0" /></a>
-                                    </td></tr>
-                    <?php endif; */ ?>
+					<?php
+					global $zbsFieldsEnabled; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					if ( $show_second_address === 1 ) {
+						$zbsFieldsEnabled['secondaddress'] = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					}
+					$field_group = '';
 
-                    <?php /*<tr><td><pre><?php print_r($fields); ?></pre></td></tr> */
+					/*
+					 * We need to know if we are in the first column or not because
+					 * when we have a group (e.g. addresses), they should start in
+					 * the first column. We are using only two columns.
+					 */
+					$is_first_column = false;
+					foreach ( $fields as $field_key => $field_value ) {
+						$is_first_column = ! $is_first_column;
+						$show_field      = ! isset( $field_value['opt'] ) || isset( $zbsFieldsEnabled[ $field_value['opt'] ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$show_field      = isset( $fields_to_hide['company'] )
+							&& is_array( $fields_to_hide['company'] )
+							&& in_array( $field_key, $fields_to_hide['company'] ) // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
+							? false
+							: $show_field;
+						$show_field      = isset( $field_value[0] )
+							&& 'selectcountry' === $field_value[0]
+							&& 0 === $show_country_fields
+							? false
+							: $show_field;
 
-            
+						if ( isset( $field_value['area'] ) && $field_value['area'] !== '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							if ( $show_addresses !== 1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+								continue;
+							} elseif ( $field_group === '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+								if ( ! $is_first_column ) {
+									echo '<div class="jpcrm-empty-form-group">&nbsp;</div>';
+								}
+								echo '<div class="jpcrm-form-grid" style="padding:0px;grid-template-columns: 1fr;">';
+								echo '<div class="jpcrm-form-group"><label>';
+								echo esc_html__( $field_value['area'], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText
+								echo '</label></div>';
+							} elseif ( $field_group !== $field_value['area'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+								echo '</div>';
+								echo '<div class="jpcrm-form-grid" style="padding:0px;grid-template-columns: 1fr;">';
+								echo '<div class="jpcrm-form-group"><label>';
+								echo $show_field ? esc_html( $second_address_label ) : '';
+								echo '</label></div>';
+							}
+							$field_group = $field_value['area']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText
+						}
 
-                    #} This global holds "enabled/disabled" for specific fields... ignore unless you're WH or ask
-                    global $zbsFieldsEnabled; if ($showSecondAddress == '1') $zbsFieldsEnabled['secondaddress'] = true;
-                    
-                    #} This is the grouping :)
-                    $zbsFieldGroup = ''; $zbsOpenGroup = false;
+						if ( $field_group !== '' && ( ! isset( $field_value['area'] ) || $field_value['area'] === '' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							$field_group = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							echo '</div>';
+							echo '<div class="jpcrm-form-group jpcrm-form-group-span-2">&nbsp;</div>';
+						}
 
-                    foreach ($fields as $fieldK => $fieldV){
-
-                        $showField = true;
-
-                        #} Check if not hard-hidden by opt override (on off for second address, mostly)
-                        if (isset($fieldV['opt']) && (!isset($zbsFieldsEnabled[$fieldV['opt']]) || !$zbsFieldsEnabled[$fieldV['opt']])) $showField = false;
-
-
-                        // or is hidden by checkbox? 
-                        if (isset($fieldHideOverrides['company']) && is_array($fieldHideOverrides['company'])){
-                            if (in_array($fieldK, $fieldHideOverrides['company'])){
-                              $showField = false;
-                            }
-                        }
-
-                        // 'show/hide Countries' setting:
-                        if (isset($fieldV[0]) && $fieldV[0] == 'selectcountry' && $showCountryFields == 0) $showField = false;
-
-
-                        // ++ We hide status, because it's now in the 'company action' box
-                        if ($fieldK == 'status') $showField = false;
-
-
-                        // ==================================================================================
-                        // Following grouping code needed moving out of ifShown loop:
-
-                            #} Whatever prev fiedl group was, if this is diff, close (post group)
-                            if (
-                                $zbsOpenGroup &&
-                                    #} diff group
-                                    ( 
-                                        (isset($fieldV['area']) && $fieldV['area'] != $zbsFieldGroup) ||
-                                        #} No group
-                                         !isset($fieldV['area']) && $zbsFieldGroup != ''
-                                    )
-                                ){
-
-                                    #} Special cases... gross
-                                    $zbsCloseTable = true; if ($zbsFieldGroup == 'Main Address') $zbsCloseTable = false;
-
-                                    #} Close it
-                                    echo '</table></div>';
-                                    if ($zbsCloseTable) echo '</td></tr>';
-
-                            }
-
-                            #} Any groupings?
-                            if (isset($fieldV['area'])){
-
-                                #} First in a grouping? (assumes in sequential grouped order)
-                                if ($zbsFieldGroup != $fieldV['area']){
-
-                                    #} set it
-                                    $zbsFieldGroup = $fieldV['area'];
-                                    $fieldGroupLabel = str_replace(' ','_',$zbsFieldGroup); $fieldGroupLabel = strtolower($fieldGroupLabel);
-
-                                    #} Special cases... gross
-                                    $zbsOpenTable = true; if ($zbsFieldGroup == 'Second Address') $zbsOpenTable = false;
+						if ( $show_field ) {
+							if ( isset( $field_value[0] ) ) {
+								if ( $field_group === 'Second Address' ) {
+									$field_value[1] = str_replace( ' (' . $second_address_label . ')', '', $field_value[1] );
+								}
+								zeroBSCRM_html_editField( $zbsCompany, $field_key, $field_value, 'zbsco_' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							}
+						}
+					}
+					?>
+				</div>
+			</div>
 
 
-                                    #} Make class for hiding address (this form output is weird) <-- classic mike saying my code is weird when it works fully. Ask if you don't know!
-                                    $zbsLineClass = ''; $zbsGroupClass = '';
-
-                                    // if addresses turned off, hide the lot
-                                    if ($showAddresses != "1") {
-
-                                        // addresses turned off
-                                        $zbsLineClass = 'zbs-hide';
-                                        $zbsGroupClass = 'zbs-hide';
-
-                                    } else { 
-
-                                        // addresses turned on
-                                        if ($zbsFieldGroup == 'Second Address'){
-
-                                            // if we're in second address grouping:
-
-                                                // if second address turned off
-                                                if ($showSecondAddress != "1"){
-
-                                                    $zbsLineClass = 'zbs-hide';
-                                                    $zbsGroupClass = 'zbs-hide';
-
-                                                }
-
-                                        }
-
-                                    }
-                                    // / address  modifiers
-
-
-                                    #} add group div + label
-                                    if ($zbsOpenTable) echo '<tr class="wh-large zbs-field-group-tr '.esc_attr($zbsLineClass).'"><td colspan="2">';
-
-                                    if( $fieldV['area'] == 'Second Address' ) {
-                                        echo '<div class="zbs-field-group zbs-fieldgroup-'.esc_attr($fieldGroupLabel).' '. esc_attr($zbsGroupClass) .'"><label class="zbs-field-group-label">'. esc_html( $second_address_label ) .'</label>';
-                                    } else {
-                                        echo '<div class="zbs-field-group zbs-fieldgroup-'.esc_attr($fieldGroupLabel).' '. esc_attr($zbsGroupClass) .'"><label class="zbs-field-group-label">'. esc_html__( $fieldV['area'], 'zero-bs-crm' ).'</label>';
-                                    }
-
-                                    echo '<table class="form-table wh-metatab wptbp" id="wptbpMetaBoxGroup-'.esc_attr($fieldGroupLabel).'">';
-                                    
-                                    #} Set this (need to close)
-                                    $zbsOpenGroup = true;
-
-                                }
-
-
-                            } else {
-
-                                #} No groupings!
-                                $zbsFieldGroup = '';
-
-                            }
-
-                        // / grouping
-                        // ==================================================================================
-
-                        #} If show...
-                        if ($showField) {
-
-                            if (isset($fieldV[0])){
-                                if ($zbsFieldGroup == 'Second Address') {
-                                    $fieldV[1] = str_replace( ' (' . $second_address_label . ')', '', $fieldV[1] );
-                                }
-                                // we now put these out via the centralised func (2.95.3+)
-                                //... rather than distinct switch below
-                                zeroBSCRM_html_editField($zbsCompany, $fieldK, $fieldV, $postPrefix = 'zbsco_');
-
-                            }
-
-                        } #} / if show
-
-
-                        // ==================================================================================
-                        // Following grouping code needed moving out of ifShown loop:
-
-                            #} Closing field?
-                            if (
-                                $zbsOpenGroup &&
-                                    #} diff group
-                                    ( 
-                                        (isset($fieldV['area']) && $fieldV['area'] != $zbsFieldGroup) ||
-                                        #} No group
-                                         !isset($fieldV['area']) && $zbsFieldGroup != ''
-                                    )
-                                ){
-
-                                    #} Special cases... gross
-                                    $zbsCloseTable = true; if ($zbsFieldGroup == 'Main Address') $zbsCloseTable = false;
-
-                                    #} Close it
-                                    echo '</table></div>';
-                                    if ($zbsCloseTable) echo '</td></tr>';
-
-                            }
-                        // / grouping
-                        // ==================================================================================
-
-                    }
-
-                    ?>
-                    
-            </table>
-
-
-            <style type="text/css">
-                #submitdiv {
-                    display:none;
-                }
-            </style>
             <script type="text/javascript">
 
                 jQuery(function(){
@@ -635,31 +491,7 @@ class zeroBS__Metabox_CompanyContacts extends zeroBS__Metabox{
 
                 <tr class="wh-large"><th>
                     <?php
-
                         if (count($contacts) > 0){
-
-                            /* WH modified to use more semantic friendly markup v3.0 25/4/19
-
-                            echo '<div id="zbs-co-contacts">';
-
-                            foreach ($contacts as $contact){
-
-                                echo '<div class="zbs-co-contact">';
-
-                                #} Img or ico 
-                                echo zeroBS_getCustomerIcoHTML($contact['id']);
-
-                                #} new view link
-                                $url = jpcrm_esc_link('view',$contact['id'],'zerobs_customer');
-
-                                echo '<strong><a href="'.$url.'">'.zeroBS_customerName($contact['id'],$contact,false,false).'</a></strong><br />';
-
-                                echo '</div>';
-
-                            } 
-                            echo '</div>';
-                            */
-
                             echo '<div id="zbs-co-contacts" class="ui cards">';
 
                             foreach ($contacts as $contact){
@@ -1121,26 +953,6 @@ class zeroBS__Metabox_CompanyTags extends zeroBS__Metabox_Tags{
 
             // localise ID & content
             $companyID = -1; if (is_array($company) && isset($company['id'])) $companyID = (int)$company['id'];
-            
-                #} Status either way
-                $potentialStatuses = zeroBSCRM_getCompanyStatuses();
-
-                $status = ''; if (is_array($company) && isset($company['status'])) $status = $company['status'];
-
-                ?>
-                <div>
-                    <label for="zbsco_status"><?php echo esc_html($this->coOrgLabel).' '.esc_html__('Status',"zero-bs-crm"); ?>: </label>
-                    <select id="zbsco_status" name="zbsco_status">
-                            <?php foreach($potentialStatuses as $z){
-                                if($z == $status){$sel = ' selected'; }else{ $sel = '';}
-                                echo '<option value="'. esc_attr( $z ) .'"'. esc_attr( $sel ) .'>'.esc_html__($z,"zero-bs-crm").'</option>';
-                            } ?>
-                    </select>
-                </div>
-
-                <div class="clear"></div>
-                <?php
-
 
                 #} if a saved post...
                 //if (isset($post->post_status) && $post->post_status != "auto-draft"){
@@ -1150,7 +962,7 @@ class zeroBS__Metabox_CompanyTags extends zeroBS__Metabox_Tags{
 
                     <div class="zbs-company-actions-bottom zbs-objedit-actions-bottom">
 
-                        <button  class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php echo esc_html( $this->coOrgLabel ); ?></button>
+								<button  class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php echo esc_html( $this->coOrgLabel ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase ?></button>
 
                         <?php
 
@@ -1175,7 +987,7 @@ class zeroBS__Metabox_CompanyTags extends zeroBS__Metabox_Tags{
 
                     <div class="zbs-company-actions-bottom zbs-objedit-actions-bottom">
                         
-                        <button  class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Save","zero-bs-crm"); ?> <?php echo esc_html( $this->coOrgLabel ); ?></button>
+							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php echo esc_html( $this->coOrgLabel ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase ?></button>
 
                     </div>
 

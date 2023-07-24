@@ -5,6 +5,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.5.7 - 2023-07-18
+### Changed
+- Updated package dependencies. [#31922]
+
+## 1.5.6 - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+## 1.5.5 - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## 1.5.4 - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## 1.5.3 - 2023-06-26
+### Changed
+- Updated package dependencies. [#31524]
+
+## 1.5.2 - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## 1.5.1 - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## 1.5.0 - 2023-05-02
+### Added
+- Webpack's `.resolve.conditionNames` may now be set from `.npmrc` or the corresponding environment variable. [#30313]
+
+### Changed
+- Updated package dependencies.
+
+## 1.4.5 - 2023-04-25
+### Changed
+- Updated package dependencies. [#30246]
+
+## 1.4.4 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## 1.4.3 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 1.4.2 - 2023-03-29
+### Changed
+- Minor internal updates.
+
+## 1.4.1 - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## 1.4.0 - 2023-03-27
+### Added
+- Adds compatibility with @svgr/webpack library for loading svg files as react components [#29544]
+
+## 1.3.27 - 2023-03-23
+### Changed
+- Updated package dependencies.
+
+## 1.3.26 - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## 1.3.25 - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
 ## 1.3.24 - 2023-02-15
 ### Changed
 - Update to React 18. [#28710]

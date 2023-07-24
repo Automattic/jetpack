@@ -2169,182 +2169,169 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
 
     }
 
-    /**
-     * Takes whatever invoice data available and re-calculates net, total, tax etc. 
-     * .. returning same obj with updated vals
-     * .. This is a counter to the js func which does this in-UI, so changes need to be replicated in either or
-     *
-     * @param array $invoiceData
-     *
-     * @return array $invoiceData
-     */
-    public function recalculate($invoiceData=false){
+		/**
+		 * Takes whatever invoice data available and re-calculates net, total, tax etc.
+		 * .. returning same obj with updated vals
+		 * .. This is a counter to the js func which does this in-UI, so changes need to be replicated in either or
+		 *
+		 * @param array $invoice_data Invoice data.
+		 *
+		 * @return array
+		 */
+		public function recalculate( $invoice_data = false ) {
 
-        if (is_array($invoiceData)){
+			if ( is_array( $invoice_data ) ) {
+				global $zbs;
 
-            global $zbs;
+				// we pass any discount saved against main invoice DOWN to the lineitems, first:
+				if ( isset( $invoice_data['lineitems'] ) && is_array( $invoice_data['lineitems'] ) ) {
+					$final_line_items = array();
 
-            // we pass any discount saved against main invoice DOWN to the lineitems, first:
-            if (isset($invoiceData['lineitems']) && is_array($invoiceData['lineitems'])){
+					// if not discounted, still recalc net
+					if ( ! isset( $invoice_data['discount'] ) && $invoice_data['discount'] <= 0 ) {
+						// recalc line items, but no discount to apply
+						foreach ( $invoice_data['lineitems'] as $line_item ) {
+							// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+							$final_line_items[] = $zbs->DAL->lineitems->recalculate( $line_item );
+						}
+					} else {
+						$discount_value = (float) $invoice_data['discount'];
+						$discount_type  = 'value';
 
-                // if not discounted, still recalc net
-                if (!isset($invoiceData['discount']) && $invoiceData['discount'] <= 0){
+						if ( $invoice_data['discount_type'] === '%' ) {
+							$discount_type = 'percentage';
+						}
+						$calc_line_items = array();
 
-                    // recalc line items, but no discount to apply
-                    foreach ($invoiceData['lineitems'] as $lineItem) { 
+						if ( $discount_type === 'percentage' ) {
+							$discount_percentage = ( (float) $invoice_data['discount'] ) / 100;
 
-                        $finalLineItems[] = $zbs->DAL->lineitems->recalculate($lineItem);
+							// percentage discount
+							foreach ( $invoice_data['lineitems'] as $line_item ) {
+								$n = $line_item;
+								if ( ! isset( $line_item['fee'] ) ) {
+									// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+									$n = $zbs->DAL->lineitems->recalculate( $line_item );
 
-                    }
+									$n['discount'] = $n['net'] * $discount_percentage;
+									// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+									$n = $zbs->DAL->lineitems->recalculate( $n );
+								} else {
+									$n['net'] = $line_item['total'];
+								}
+								$final_line_items[] = $n;
+							}
+						} else {
+							// first calc +
+							// accumulate a line-item net, so can pro-rata discounts
+							$line_item_sum = 0;
 
-                } else {
+							foreach ( $invoice_data['lineitems'] as $line_item ) {
+								if ( ! isset( $line_item['fee'] ) ) {
+									// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+									$n = $zbs->DAL->lineitems->recalculate( $line_item );
 
+									$line_item_sum    += $n['net'];
+									$calc_line_items[] = $n;
+								} else {
+									$line_item['net']  = $line_item['total'];
+									$calc_line_items[] = $line_item;
+								}
+							}
 
-                    $discountValue = (float)$invoiceData['discount'];
-                    $discountType = 'value'; if ($invoiceData['discount_type'] == '%') $discountType = 'percentage';
-                    $calcedLineItems = array(); $finalLineItems = array();
+							// now actually correct em
+							foreach ( $calc_line_items as $n ) {
+								$nl = $n;
 
-                    if ($discountType == 'percentage'){
+								if ( ! isset( $n['fee'] ) ) {
+									// calc pro-rata discount in absolute 0.00
+									// so this takes the net of all line item values
+									// and then proportionally discounts a part of it (this line item net)
+									// ... where have net
+									if ( $n['net'] > 0 && $line_item_sum > 0 ) {
+										$nl['discount'] = round( $discount_value * ( $n['net'] / $line_item_sum ), 2 );
+									}
 
-                        $discountPercentage = ((float)$invoiceData["discount"])/100;
+									// final recalc to deal with new discount val
+									// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+									$nl = $zbs->DAL->lineitems->recalculate( $nl );
+								}
+								// pass it
+								$final_line_items[] = $nl;
+							}
+						} // / absolute discount
+					} // / if lineitems + discount to apply
 
-                        // percentage discount
-                        foreach ($invoiceData['lineitems'] as $lineItem) { 
+					// reset
+					$invoice_data['lineitems'] = $final_line_items;
+					unset( $final_line_items, $calc_line_items );
+				}
 
-                            $n = $zbs->DAL->lineitems->recalculate($lineItem);
-                            $n['discount'] = $n['net']*$discountPercentage;
-                            $n = $zbs->DAL->lineitems->recalculate($n);
-                            $finalLineItems[] = $n;
+				// subtotal (zbsi_net)
+				// == line item Quantity * rate * tax%
+				// ... also calc tax as we go for 'total' below
+				$sub_total = 0.0;
+				$items_tax = 0.0;
+				$discount  = 0.0;
 
-                        }
+				// cycle through (any) line items
+				if ( isset( $invoice_data ) && is_array( $invoice_data['lineitems'] ) ) {
+					foreach ( $invoice_data['lineitems'] as $line_item ) {
+						// can then directly use the recalced numbers :)
+						if ( isset( $line_item['net'] ) ) {
+							$sub_total += $line_item['net'];
+						}
+						if ( isset( $line_item['discount'] ) ) {
+							$discount += (float) $line_item['discount'];
+						}
+						$items_tax += $line_item['tax'];
+					}
+				}
 
-                    } else {
+				// set it
+				$invoice_data['net'] = $sub_total;
 
-                        // first calc + 
-                        // accumulate a line-item net, so can pro-rata discounts
-                        $lineItemsSumNet = 0; 
-                        foreach ($invoiceData['lineitems'] as $lineItem) { 
+				// discount is accumulated from line items (applied at top)
+				$total = $invoice_data['net'] - $discount;
 
-                            $n = $zbs->DAL->lineitems->recalculate($lineItem);
-                            $lineItemsSumNet += $n['net']; 
-                            $calcedLineItems[] = $n;
+				$shipping        = 0.0;
+				$tax_on_shipping = 0.0;
 
-                        }
+				// shipping subtotal
+				if ( isset( $invoice_data['shipping'] ) && ! empty( $invoice_data['shipping'] ) ) {
+					$shipping = (float) $invoice_data['shipping'];
+				}
 
-                        // now actually correct em
-                        foreach ($calcedLineItems as $n){
+				if ( $shipping > 0 && empty( $invoice_data['shipping_tax'] ) ) {
+					// tax on shipping - recalc.
+					if ( isset( $invoice_data['shipping_taxes'] ) ) {
+						$tax_on_shipping = zeroBSCRM_taxRates_getTaxValue( $shipping, $invoice_data['shipping_taxes'] );
+					}
 
-                            $nl = $n;
+					// set it
+					$invoice_data['shipping_tax'] = $tax_on_shipping;
 
-                            // calc pro-rata discount in absolute 0.00
-                            // so this takes the net of all line item values 
-                            // and then proportionally discounts a part of it (this line item net)
-                            // ... where have net
-                            if ($n['net'] > 0 && $lineItemsSumNet > 0){
+					// shipping total
+					$shipping += $tax_on_shipping;
 
-                                $nl['discount'] = round($discountValue*($n['net']/$lineItemsSumNet),2);
+				} elseif ( is_numeric( $invoice_data['shipping_tax'] ) ) {
+					$shipping += $invoice_data['shipping_tax'];
+				}
+				$total += $shipping;
 
-                            }
+				// tax - this is (re)calculated by line item recalc above
+				$total += $items_tax;
 
-                            // final recalc to deal with new discount val
-                            $nl = $zbs->DAL->lineitems->recalculate($nl);
+				// total tax for invoice = lineitem tax + any tax on shipping
+				$invoice_data['tax'] = $items_tax + $tax_on_shipping;
 
-                            // pass it
-                            $finalLineItems[] = $nl;
+				// set it
+				$invoice_data['total'] = $total;
 
-
-                        }
-
-
-                    } // / absolute discount
-
-                } // / if lineitems + discount to apply
-
-                // reset 
-                $invoiceData['lineitems'] = $finalLineItems; unset($finalLineItems,$calcedLineItems);
-
-            }
-
-            // subtotal (zbsi_net)
-            // == line item Quantity * rate * tax%
-            // ... also calc tax as we go for 'total' below
-            $subTotal = 0.0; $itemsTax = 0.0; $discount = 0.0;
-
-                // cycle through (any) line items
-                if (isset($invoiceData) && is_array($invoiceData['lineitems'])) foreach ($invoiceData['lineitems'] as $lineItem){
-
-                    // use the lineitem recalc to calc :)
-                    // no need, this is now done above as part of discount calcs
-                    // $recalcedLineItem = $zbs->DAL->lineitems->recalculate($lineItem);
-
-                    // lineitems can store these, but we're not using them in v3.0 mvp (invs have their own global level for these)
-                    // currency
-                    // discount
-                    // shipping
-
-                    // .. can then directly use the recalced numbers :)
-                    $subTotal += $lineItem['net'];
-                    if (isset($lineItem['discount'])) $discount += (float)$lineItem['discount'];
-                    $itemsTax += $lineItem['tax'];
-
-                }
-
-                // set it
-                $invoiceData['net'] = $subTotal;
-
-            // total
-            // = subtotal - (discount) + (shipping + tax on shipping) + taxes
-            // discount is accumulated from line items (applied at top)
-            $total = $invoiceData['net']-$discount;
-
-                // shipping (if used)
-                $shipping = 0.0; $taxOnShipping = 0.0;
-
-                    // shipping subtotal
-                    if (isset($invoiceData["shipping"]) && !empty($invoiceData["shipping"])){ 
-
-                        $shipping = (float)$invoiceData["shipping"];
-
-                    }
-
-                    if ($shipping > 0){
-
-                        // tax on shipping - recalc.
-                        if (isset($invoiceData['shipping_taxes'])) $taxOnShipping = zeroBSCRM_taxRates_getTaxValue($shipping,$invoiceData['shipping_taxes']);
-
-                        // set it
-                        $invoiceData['shipping_tax'] = $taxOnShipping;
-
-                        // shipping total
-                        $shipping += $taxOnShipping;
-
-
-                    }
-
-                // + shipping
-                $total += $shipping;
-
-
-                // Taxes (if used)
-
-                    // tax - this is (re)calculated by line item recalc above
-                    $total += $itemsTax;
-                
-                    // total tax for invoice = lineitem tax + any tax on shipping
-                    $invoiceData['tax'] = $itemsTax+$taxOnShipping;
-
-                // set it
-                $invoiceData['total'] = $total;
-
-                // return
-                return $invoiceData;
-
-
-        }
-
-        return false;
-
-    }
+				return $invoice_data;
+			}
+			return false;
+		}
 
     /**
      * Takes whatever invoice data available and generates correct totals table (discount, shipping, tax vals)
@@ -2681,6 +2668,23 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
         
     }
 
+		/**
+		 * Returns an SQL query addition which will allow filtering of invoices
+		 * that should be included in "total value" fields, excluding 'deleted' status invoices.
+		 *
+		 * @param str $table_alias_sql - if using a table alias pass that here, e.g. `invoices.`.
+		 * @return array
+		 */
+		public function get_invoice_status_except_deleted_for_query( $table_alias_sql = '' ) {
+
+			$invoice_statuses_except_deleted = array( 'Draft', 'Unpaid', 'Paid', 'Overdue' );
+
+			$inv_statuses_str = $this->build_csv( $invoice_statuses_except_deleted );
+
+			$query_addition = ' AND ' . $table_alias_sql . 'zbsi_status IN (' . $inv_statuses_str . ')';
+
+			return $query_addition;
+		}
 
     /**
      * Returns an hash against a invoice

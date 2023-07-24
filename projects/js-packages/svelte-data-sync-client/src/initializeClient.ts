@@ -1,3 +1,4 @@
+import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { API } from './API';
 import { API_Endpoint } from './Endpoint';
@@ -89,13 +90,23 @@ function setupRestApi( namespace: string ) {
  */
 export function initializeClient( namespace: string ) {
 	const api = setupRestApi( namespace );
+	const errorStores = [];
 
-	function createAsyncStore< T extends z.ZodSchema >( valueName: string, schema: T ) {
+	type AsyncStoreOptions = {
+		// If this is set to true, the store won't be added to the global error store.
+		hideFromGlobalErrors?: boolean;
+	};
+
+	function createAsyncStore< T extends z.ZodSchema >(
+		valueName: string,
+		schema: T,
+		opts: AsyncStoreOptions = {}
+	) {
 		// Get the value from window and validate it with the schema.
 		const { nonce, value } = getValidatedValue( namespace, valueName, schema );
 
 		// Setup the Svelte Store and the API Endpoint for this value
-		const store = new SyncedStore< z.infer< T > >( value );
+		const syncedStore = new SyncedStore< z.infer< T > >( value );
 		const endpoint = new API_Endpoint< z.infer< T > >( api, valueName, schema );
 
 		/**
@@ -109,24 +120,58 @@ export function initializeClient( namespace: string ) {
 		 * For example,
 		 * ```js
 		 *	const client = initializeClient( 'jetpack_favorites' );
-		 *	client.setCallback( 'status', ( value ) => {
-		 *		client.endpoint.status.POST( value.replace("a", "b") );
+		 *	client.setSyncAction( ( preValue, value, abortSignal ) => {
+		 *		return client.status.endpoint.SET( value, abortSignal );
 		 *	} );
 		 */
 		endpoint.nonce = nonce;
-		store.setCallback( endpoint.POST );
 
 		// The client doesn't need the whole store object.
 		// Only expose selected public methods:
-		const storeInterface = store.getPublicInterface();
+		const store = syncedStore.getPublicInterface();
 
-		return {
+		store.setSyncAction( ( prevValue, newValue, abortController ) =>
+			endpoint.SET( newValue, abortController )
+		);
+
+		const client = {
 			endpoint,
-			...storeInterface,
+			...store,
+			refresh: async () => {
+				const response = await endpoint.GET();
+				store.store.set( response );
+				return response;
+			},
 		};
+
+		if ( opts.hideFromGlobalErrors !== true ) {
+			// Keep track of all the error stores that don't opt out.
+			errorStores.push( client.errors );
+		}
+
+		return client;
 	}
+
 	return {
+		/**
+		 * Create a new Synced Store.
+		 * @see createAsyncStore
+		 */
 		createAsyncStore,
+
+		/**
+		 * The API Object to interact with the REST API directly.
+		 * @see API
+		 *
+		 * Note that each client has `endpoint` property available.
+		 * @see API_Endpoint
+		 */
 		api,
+		/**
+		 * Each client has its own error store.
+		 * This takes all error stores and joins them into one.
+		 * Make sure that you run `globalErrorStore.subscribe()` after all the stores are created.
+		 */
+		globalErrorStore: () => derived( errorStores, $errorStores => $errorStores.flat() ),
 	};
 }

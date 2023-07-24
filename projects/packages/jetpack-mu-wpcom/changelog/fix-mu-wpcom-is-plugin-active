@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix undefined is_plugin_active fatal on wpcom.

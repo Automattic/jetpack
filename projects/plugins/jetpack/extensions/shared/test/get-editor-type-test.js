@@ -31,8 +31,7 @@ const testCaseMap = [
 		context: NAVIGATION_EDITOR,
 	},
 	{
-		name:
-			'When we are not in any of the other editors and the core/editor store is available we return post editor context',
+		name: 'When we are not in any of the other editors and the core/editor store is available we return post editor context',
 		store: 'core/edit-post',
 		context: POST_EDITOR,
 	},

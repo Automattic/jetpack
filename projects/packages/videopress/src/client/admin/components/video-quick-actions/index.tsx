@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
-import { Popover, Dropdown, Modal } from '@wordpress/components';
+import { Text, Button } from '@automattic/jetpack-components';
+import { Popover, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { image, trash, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
 import classNames from 'classnames';
@@ -23,6 +23,7 @@ import { usePermission } from '../../hooks/use-permission';
 import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
+import DeleteVideoConfirmationModal from '../delete-video-confirmation-modal';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
 import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
@@ -44,15 +45,15 @@ const PopoverWithAnchor = ( {
 	anchor,
 	children = null,
 }: PopoverWithAnchorProps ) => {
-	if ( ! anchor || ! showPopover ) {
-		return null;
-	}
-
 	useEffect( () => {
 		if ( showPopover && ! isAnchorFocused ) {
 			( anchor?.querySelector( '.components-popover' ) as HTMLElement | null )?.focus();
 		}
 	}, [ showPopover ] );
+
+	if ( ! anchor || ! showPopover ) {
+		return null;
+	}
 
 	const popoverProps = {
 		anchor,
@@ -69,14 +70,8 @@ const PopoverWithAnchor = ( {
 };
 
 const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) => {
-	const {
-		setAnchor,
-		setIsFocused,
-		setIsHovering,
-		anchor,
-		isFocused,
-		showPopover,
-	} = useActionItem();
+	const { setAnchor, setIsFocused, setIsHovering, anchor, isFocused, showPopover } =
+		useActionItem();
 
 	return (
 		<div ref={ setAnchor } className={ className }>
@@ -108,19 +103,12 @@ const ThumbnailActionsDropdown = ( {
 	isUpdatingPoster,
 	disabled,
 }: ThumbnailActionsDropdownProps ) => {
-	const {
-		setAnchor,
-		setIsFocused,
-		setIsHovering,
-		setShowPopover,
-		anchor,
-		isFocused,
-		showPopover,
-	} = useActionItem();
+	const { setAnchor, setIsFocused, setIsHovering, setShowPopover, anchor, isFocused, showPopover } =
+		useActionItem();
 
 	return (
 		<Dropdown
-			position="bottom left"
+			placement="bottom left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<div ref={ setAnchor }>
 					<Button
@@ -167,15 +155,8 @@ const PrivacyActionsDropdown = ( {
 	onUpdate,
 	disabled,
 }: PrivacyActionsDropdownProps ) => {
-	const {
-		setAnchor,
-		setIsFocused,
-		setIsHovering,
-		setShowPopover,
-		anchor,
-		isFocused,
-		showPopover,
-	} = useActionItem();
+	const { setAnchor, setIsFocused, setIsHovering, setShowPopover, anchor, isFocused, showPopover } =
+		useActionItem();
 
 	let currentPrivacyIcon = siteDefaultPrivacyIcon;
 	if ( VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
@@ -186,7 +167,7 @@ const PrivacyActionsDropdown = ( {
 
 	return (
 		<Dropdown
-			position="bottom left"
+			placement="bottom left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<div ref={ setAnchor }>
 					<Button
@@ -309,9 +290,8 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		return null;
 	}
 
-	const { data, updateVideoPrivacy, deleteVideo, isUpdatingPrivacy, isUpdatingPoster } = useVideo(
-		videoId
-	);
+	const { data, updateVideoPrivacy, deleteVideo, isUpdatingPrivacy, isUpdatingPoster } =
+		useVideo( videoId );
 
 	const { isFetchingPlaybackToken } = usePlaybackToken( data );
 
@@ -327,14 +307,15 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		selectAndUpdatePosterImageFromLibrary,
 	} = usePosterEdit( { video: data } );
 
-	const onUpdateVideoThumbnail: VideoQuickActionsProps[ 'onUpdateVideoThumbnail' ] = async action => {
-		switch ( action ) {
-			case 'select-from-video':
-				return handleOpenSelectFrame();
-			case 'upload-image':
-				return selectAndUpdatePosterImageFromLibrary();
-		}
-	};
+	const onUpdateVideoThumbnail: VideoQuickActionsProps[ 'onUpdateVideoThumbnail' ] =
+		async action => {
+			switch ( action ) {
+				case 'select-from-video':
+					return handleOpenSelectFrame();
+				case 'upload-image':
+					return selectAndUpdatePosterImageFromLibrary();
+			}
+		};
 
 	useEffect( () => {
 		if ( selectedTime == null ) {
@@ -346,40 +327,13 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 
 	if ( showDeleteModal ) {
 		return (
-			<Modal
-				title={ __( 'Delete video', 'jetpack-videopress-pkg' ) }
-				onRequestClose={ () => setShowDeleteModal( false ) }
-				className={ styles[ 'delete-video-modal' ] }
-			>
-				<ThemeProvider>
-					<div>
-						<Text>{ __( 'This action cannot be undone.', 'jetpack-videopress-pkg' ) }</Text>
-						<div className={ styles[ 'modal-actions' ] }>
-							<Button
-								className={ styles[ 'modal-action-button' ] }
-								variant="secondary"
-								weight="bold"
-								onClick={ () => setShowDeleteModal( false ) }
-							>
-								{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
-							</Button>
-
-							<Button
-								className={ styles[ 'modal-action-button' ] }
-								isDestructive
-								variant="primary"
-								weight="bold"
-								onClick={ () => {
-									setShowDeleteModal( false );
-									deleteVideo();
-								} }
-							>
-								{ __( 'Delete', 'jetpack-videopress-pkg' ) }
-							</Button>
-						</div>
-					</div>
-				</ThemeProvider>
-			</Modal>
+			<DeleteVideoConfirmationModal
+				onClose={ () => setShowDeleteModal( false ) }
+				onDelete={ () => {
+					setShowDeleteModal( false );
+					deleteVideo();
+				} }
+			/>
 		);
 	}
 

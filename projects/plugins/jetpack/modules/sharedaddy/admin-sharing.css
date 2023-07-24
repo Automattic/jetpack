@@ -87,7 +87,7 @@ body.settings_page_sharing ul.services-hidden {
 	font-weight: 500;
 	line-height: 23px;
 	margin: 0 8px 8px 0;
-	padding: 4px 11px 5px 9px;
+	padding: 3px 11px 4px 9px;
 	border-radius: 4px;
 	background: #fff;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
@@ -162,11 +162,11 @@ li.service.share-telegram span:before {
 li.service.share-jetpack-whatsapp span:before {
 	content: '\f608';
 }
-li.service.share-skype span:before {
-	content: '\f220';
-}
 li.service.share-mastodon span:before {
 	content: '\f10a';
+}
+li.service.share-nextdoor span:before {
+	content: '\f10c';
 }
 
 /**
@@ -305,13 +305,6 @@ body.settings_page_sharing .advanced input[type=submit] {
 	margin-top: 2px;
 }
 
-.preview-reddit .option-smart-on {
-	background: url(images/smart-reddit.png) no-repeat top left;
-	background-size: 104px 21px;
-	width:104px;
-	height:21px;
-}
-
 .preview-facebook .option-smart-on {
 	background: url(images/smart-like.png) no-repeat top left;
 	background-size: 85px 20px;
@@ -355,13 +348,6 @@ body.settings_page_sharing .advanced input[type=submit] {
 	height: 20px;
 }
 
-.preview-skype .option-smart-on {
-	background: url(images/smart-skype.png) no-repeat top left;
-	background-size: 60px 20px;
-	width: 60px;
-	height: 20px;
-}
-
 .preview-item.share-deprecated {
 	opacity: 0.5;
 }
@@ -375,10 +361,6 @@ body.settings_page_sharing .advanced input[type=submit] {
 (min-resolution: 120dpi) {
 	.preview-digg .option-smart-on {
 		background-image: url(images/smart-digg@2x.png);
-	}
-
-	.preview-reddit .option-smart-on {
-		background-image: url(images/smart-reddit@2x.png);
 	}
 
 	.preview-facebook .option-smart-on {
@@ -403,10 +385,6 @@ body.settings_page_sharing .advanced input[type=submit] {
 
 	.preview-pocket .option-smart-on {
 		background-image: url(images/smart-pocket@2x.png);
-	}
-
-	.preview-skype .option-smart-on {
-		background-image: url(images/smart-skype@2x.png);
 	}
 }
 

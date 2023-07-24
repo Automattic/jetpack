@@ -1,35 +1,28 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import { criticalCssStatus, showError } from '../../../stores/critical-css-status';
-	import generateCriticalCss from '../../../utils/generate-critical-css';
+	import ProgressActivityLabel from '../../../elements/ProgressActivityLabel.svelte';
+	import ProgressBar from '../../../elements/ProgressBar.svelte';
+	import {
+		criticalCssProgress,
+		criticalCssState,
+		isFatalError,
+	} from '../../../stores/critical-css-state';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 </script>
 
-{#if $criticalCssStatus.status === 'requesting'}
+{#if $criticalCssState.status === 'pending'}
 	<div class="jb-critical-css-progress">
-		<span class="jb-critical-css-progress__label">
+		<ProgressActivityLabel>
 			{__(
 				'Generating Critical CSS. Please don’t leave this page until completed.',
 				'jetpack-boost'
 			)}
-		</span>
-		<div
-			role="progressbar"
-			aria-valuemax={100}
-			aria-valuemin={0}
-			aria-valuenow={$criticalCssStatus.progress}
-			class="jb-progress-bar"
-		>
-			<div
-				class="jb-progress-bar__filler"
-				aria-hidden="true"
-				style={`width: ${ $criticalCssStatus.progress }%;`}
-			/>
-		</div>
+		</ProgressActivityLabel>
+		<ProgressBar progress={$criticalCssProgress} />
 	</div>
-{:else if $showError}
-	<CriticalCssShowStopperError on:retry={() => generateCriticalCss( true, true )} />
+{:else if $isFatalError}
+	<CriticalCssShowStopperError />
 {:else}
-	<CriticalCssStatus on:retry={() => generateCriticalCss()} />
+	<CriticalCssStatus />
 {/if}

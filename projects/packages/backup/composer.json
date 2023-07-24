@@ -19,6 +19,9 @@
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/wordbless": "@dev"
 	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
 	"autoload": {
 		"files": [
 			"actions.php"
@@ -72,7 +75,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.12.x-dev"
+			"dev-trunk": "1.16.x-dev"
 		}
 	},
 	"config": {

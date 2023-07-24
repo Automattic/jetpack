@@ -10,7 +10,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { name as aiParagraphBlockName } from './index';
 
 // Maximum number of characters we send from the content
-export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 240;
+export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
 
 // Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
 export const createPrompt = (
@@ -39,11 +39,11 @@ export const createPrompt = (
 	if ( postTitle ) {
 		prompt = sprintf(
 			/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
-			__( "This is a post titled '%1$s' ", 'jetpack' ),
+			__( "Please help me write a short piece of a blog post titled '%1$s'", 'jetpack' ),
 			postTitle
 		);
 	} else {
-		prompt = __( 'This is a post', 'jetpack' );
+		prompt = __( 'Please help me write a short piece of a blog post', 'jetpack' );
 	}
 
 	if ( categoriesNames ) {
@@ -56,9 +56,11 @@ export const createPrompt = (
 		prompt += sprintf( __( " and tagged '%1$s'", 'jetpack' ), tagsNames );
 	}
 
+	prompt += __( '. Please only output generated content ready for publishing.', 'jetpack' );
+
 	if ( shorter_content ) {
 		/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
-		prompt += sprintf( __( ':\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+		prompt += sprintf( __( ' Please continue from here:\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
 	}
 
 	return prompt.trim();
@@ -197,7 +199,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			content: createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames ),
 		};
 
-		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
+		tracks.recordEvent( 'jetpack_ai_chat_completion', {
 			post_id: postId,
 		} );
 
@@ -207,7 +209,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			data: data,
 		} )
 			.then( res => {
-				const result = res.prompts[ 0 ].text.trim().replaceAll( '\n', '<br/>' );
+				const result = res.trim().replaceAll( '\n', '<br/>' );
 				setAttributes( { content: result } );
 				setIsLoadingCompletion( false );
 			} )

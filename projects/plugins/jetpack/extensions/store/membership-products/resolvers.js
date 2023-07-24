@@ -5,15 +5,7 @@ import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-manag
 import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
 import executionLock from '../../shared/execution-lock';
 import getConnectUrl from '../../shared/get-connect-url';
-import {
-	saveProduct,
-	setApiState,
-	setConnectUrl,
-	setProducts,
-	setShouldUpgrade,
-	setSiteSlug,
-	setUpgradeUrl,
-} from './actions';
+import { saveProduct, setApiState, setConnectUrl, setProducts, setSiteSlug } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
 
@@ -54,16 +46,19 @@ const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispat
 	const postId = registry.select( editorStore ).getCurrentPostId();
 
 	dispatch( setConnectUrl( getConnectUrl( postId, response.connect_url ) ) );
-	dispatch( setShouldUpgrade( response.should_upgrade_to_access_memberships ) );
 	dispatch( setSiteSlug( response.site_slug ) );
-	dispatch( setUpgradeUrl( response.upgrade_url ) );
 	dispatch( setProducts( response.products ) );
 	dispatch(
 		setApiState( response.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED )
 	);
 };
 
-const createDefaultProduct = async ( productType, setSelectedProductId, dispatch ) => {
+const createDefaultProduct = async (
+	productType,
+	setSelectedProductId,
+	dispatch,
+	shouldDisplayProductCreationNotice
+) => {
 	await dispatch(
 		saveProduct(
 			{
@@ -73,15 +68,15 @@ const createDefaultProduct = async ( productType, setSelectedProductId, dispatch
 				interval: '1 month',
 			},
 			productType,
-			setSelectedProductId
+			setSelectedProductId,
+			() => {},
+			shouldDisplayProductCreationNotice
 		)
 	);
 };
 
 const shouldCreateDefaultProduct = response =>
-	! response.products.length &&
-	! response.should_upgrade_to_access_memberships &&
-	response.connected_account_id;
+	! response.products.length && response.connected_account_id;
 
 const setDefaultProductIfNeeded = ( selectedProductId, setSelectedProductId, select ) => {
 	if ( selectedProductId ) {
@@ -93,34 +88,50 @@ const setDefaultProductIfNeeded = ( selectedProductId, setSelectedProductId, sel
 	}
 };
 
-export const getProducts = (
+export const getNewsletterProducts = (
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	selectedProductId = 0,
 	setSelectedProductId = () => {}
-) => async ( { dispatch, registry, select } ) => {
-	await executionLock.blockExecution( EXECUTION_KEY );
-	if ( hydratedFromAPI ) {
-		setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
-		return;
-	}
+) =>
+	// Returns the products, but silences the snack bar if a default product is created
+	getProducts( productType, selectedProductId, setSelectedProductId, false );
 
-	const lock = executionLock.acquire( EXECUTION_KEY );
-	try {
-		const response = await fetchMemberships();
-		mapAPIResponseToMembershipProductsStoreData( response, registry, dispatch );
-
-		if ( shouldCreateDefaultProduct( response ) ) {
-			// Is ready to use and has no product set up yet. Let's create one!
-			await createDefaultProduct( productType, setSelectedProductId, dispatch );
+export const getProducts =
+	(
+		productType = PRODUCT_TYPE_PAYMENT_PLAN,
+		selectedProductId = 0,
+		setSelectedProductId = () => {},
+		shouldDisplayProductCreationNotice = true
+	) =>
+	async ( { dispatch, registry, select } ) => {
+		await executionLock.blockExecution( EXECUTION_KEY );
+		if ( hydratedFromAPI ) {
+			setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
+			return;
 		}
 
-		setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
+		const lock = executionLock.acquire( EXECUTION_KEY );
+		try {
+			const response = await fetchMemberships();
+			mapAPIResponseToMembershipProductsStoreData( response, registry, dispatch );
 
-		hydratedFromAPI = true;
-	} catch ( error ) {
-		dispatch( setConnectUrl( null ) );
-		dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-		onError( error.message, registry );
-	}
-	executionLock.release( lock );
-};
+			if ( shouldCreateDefaultProduct( response ) ) {
+				// Is ready to use and has no product set up yet. Let's create one!
+				await createDefaultProduct(
+					productType,
+					setSelectedProductId,
+					dispatch,
+					shouldDisplayProductCreationNotice
+				);
+			}
+
+			setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
+
+			hydratedFromAPI = true;
+		} catch ( error ) {
+			dispatch( setConnectUrl( null ) );
+			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
+			onError( error.message, registry );
+		}
+		executionLock.release( lock );
+	};

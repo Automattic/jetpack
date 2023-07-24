@@ -7,10 +7,9 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
-use Jetpack_Plan;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -69,7 +68,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
-		$this->add_inbox_menu();
+		$this->remove_gutenberg_menu();
+
+		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+			$this->add_inbox_menu();
+		}
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -79,7 +82,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		$this->add_woocommerce_installation_menu();
-
 		ksort( $GLOBALS['menu'] );
 	}
 
@@ -107,6 +109,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		return parent::get_preferred_view( $screen, $fallback_global_preference );
+	}
+
+	/**
+	 * Adds Users menu.
+	 */
+	public function add_users_menu() {
+		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
+
+		return parent::add_users_menu();
 	}
 
 	/**
@@ -202,6 +213,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$is_coming_soon = ( new Status() )->is_coming_soon();
 
 		$badge = '';
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack' ) . '</span>';
+		}
+
 		if ( ( function_exists( 'site_is_private' ) && site_is_private() ) || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
@@ -310,6 +326,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			return;
+		}
 		$products = Jetpack_Plan::get();
 		if ( array_key_exists( 'product_name_short', $products ) ) {
 			$plan = $products['product_name_short'];
@@ -355,20 +375,30 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
 
-		if (
-			function_exists( 'wpcom_site_has_feature' ) &&
-			wpcom_site_has_feature( \WPCOM_Features::ATOMIC )
-		) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain, null, 12 );
-		}
-
 		// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
+	}
 
-		if ( Blaze::should_initialize() ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
+	/**
+	 * Adds Tools menu entries.
+	 */
+	public function add_tools_menu() {
+		parent::add_tools_menu();
+
+		/**
+		 * Whether to show the WordPress.com Site Logs submenu under the main Tools menu.
+		 *
+		 * @use add_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_true' );
+		 * @module masterbar
+		 *
+		 * @since 12.0
+		 *
+		 * @param bool $show_wpcom_site_logs_menu Load the WordPress.com Site Logs submenu item. Default to false.
+		 */
+		if ( apply_filters( 'jetpack_show_wpcom_site_logs_menu', false ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Site Logs', 'jetpack' ), __( 'Site Logs', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-logs/' . $this->domain, null, 7 );
 		}
 	}
 
@@ -390,10 +420,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	/**
 	 * Also remove the Gutenberg plugin menu.
 	 */
-	public function add_gutenberg_menus() {
+	public function remove_gutenberg_menu() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-		parent::add_gutenberg_menus();
 	}
 
 	/**

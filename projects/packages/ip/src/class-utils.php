@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\IP;
  */
 class Utils {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.4';
 
 	/**
 	 * Get the current user's IP address.
@@ -165,6 +165,82 @@ class Utils {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Extracts IP addresses from a given string.
+	 *
+	 * We allow for both, one IP per line or comma-; semicolon; or whitespace-separated lists. This also validates the IP addresses
+	 * and only returns the ones that look valid. IP ranges using the "-" character are also supported.
+	 *
+	 * @param string $ips List of ips - example: "8.8.8.8\n4.4.4.4,2.2.2.2;1.1.1.1 9.9.9.9,5555.5555.5555.5555,1.1.1.10-1.1.1.20".
+	 * @return array List of valid IP addresses. - example based on input example: array('8.8.8.8', '4.4.4.4', '2.2.2.2', '1.1.1.1', '9.9.9.9', '1.1.1.10-1.1.1.20')
+	 */
+	public static function get_ip_addresses_from_string( $ips ) {
+		$ips = (string) $ips;
+		$ips = preg_split( '/[\s,;]/', $ips );
+
+		$result = array();
+
+		foreach ( $ips as $ip ) {
+			// Validate both IP values from the range.
+			$range = explode( '-', $ip );
+			if ( count( $range ) === 2 ) {
+				if ( self::validate_ip_range( $range[0], $range[1] ) ) {
+					$result[] = $ip;
+				}
+				continue;
+			}
+
+			// Validate the single IP value.
+			if ( filter_var( $ip, FILTER_VALIDATE_IP ) !== false ) {
+				$result[] = $ip;
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Validates the low and high IP addresses of a range.
+	 *
+	 * NOTE: servers that do not support inet_pton cannot support ipv6.
+	 *
+	 * @param string $range_low  Low IP address.
+	 * @param string $range_high High IP address.
+	 * @return bool True if the range is valid, false otherwise.
+	 */
+	public static function validate_ip_range( $range_low, $range_high ) {
+		// Validate that both IP addresses are valid.
+		if ( ! filter_var( $range_low, FILTER_VALIDATE_IP ) || ! filter_var( $range_high, FILTER_VALIDATE_IP ) ) {
+			return false;
+		}
+
+		// Validate that the $range_low is lower or equal to $range_high.
+		if ( function_exists( 'inet_pton' ) ) {
+			// The inet_pton will give us binary string of an ipv4 or ipv6.
+			// We can then use strcmp to see if the address is in range.
+			$ip_low  = inet_pton( $range_low );
+			$ip_high = inet_pton( $range_high );
+			if ( false === $ip_low || false === $ip_high ) {
+				return false;
+			}
+			if ( strcmp( $ip_low, $ip_high ) > 0 ) {
+				return false;
+			}
+		} else {
+			// The ip2long will give us an integer of an ipv4 address only. it will produce FALSE for ipv6.
+			$ip_low  = ip2long( $range_low );
+			$ip_high = ip2long( $range_high );
+			if ( false === $ip_low || false === $ip_high ) {
+				return false;
+			}
+			if ( $ip_low > $ip_high ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 }

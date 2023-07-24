@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Remove `ci.targets` from package.json. Better scoping of e2e tests.

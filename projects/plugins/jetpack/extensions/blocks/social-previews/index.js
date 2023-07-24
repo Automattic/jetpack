@@ -5,7 +5,6 @@ import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
-import './editor.scss';
 
 export const name = 'social-previews';
 
@@ -20,13 +19,14 @@ export const SocialPreviews = function SocialPreviews() {
 		<>
 			{ isOpened && <SocialPreviewsModal onClose={ () => setIsOpened( false ) } /> }
 			<JetpackPluginSidebar>
-				<PanelBody title={ __( 'Social Previews', 'jetpack' ) }>
+				<PanelBody title={ __( 'Social Previews', 'jetpack' ) } initialOpen={ false }>
 					<SocialPreviewsPanel openModal={ () => setIsOpened( true ) } />
 				</PanelBody>
 			</JetpackPluginSidebar>
 			<PluginPrePublishPanel
 				title={ __( 'Social Previews', 'jetpack' ) }
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				initialOpen={ false }
 			>
 				<SocialPreviewsPanel openModal={ () => setIsOpened( true ) } />
 			</PluginPrePublishPanel>

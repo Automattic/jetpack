@@ -25,6 +25,14 @@ class REST_Controller {
 	protected $is_wpcom;
 
 	/**
+	 * Social Product Slugs
+	 *
+	 * @var string
+	 */
+	const JETPACK_SOCIAL_BASIC_YEARLY    = 'jetpack_social_basic_yearly';
+	const JETPACK_SOCIAL_ADVANCED_YEARLY = 'jetpack_social_advanced_yearly';
+
+	/**
 	 * Constructor
 	 *
 	 * @param bool $is_wpcom - Whether it's run on WPCOM.
@@ -67,6 +75,30 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_publicize_shares_count' ),
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+
+		// Get current social product from the product's endpoint.
+		register_rest_route(
+			'jetpack/v4',
+			'/social-product-info',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_social_product_info' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+
+		// Dismiss a notice.
+		register_rest_route(
+			'jetpack/v4',
+			'/social/dismiss-notice',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'update_dismissed_notices' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'args'                => rest_get_endpoint_args_for_schema( $this->get_dismiss_notice_endpoint_schema(), WP_REST_Server::CREATABLE ),
+				'schema'              => array( $this, 'get_dismiss_notice_endpoint_schema' ),
 			)
 		);
 
@@ -122,6 +154,29 @@ class REST_Controller {
 	}
 
 	/**
+	 * Retrieves the JSON schema for dismissing notices.
+	 *
+	 * @return array Schema data.
+	 */
+	public function get_dismiss_notice_endpoint_schema() {
+		$schema = array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'jetpack-social-dismiss-notice',
+			'type'       => 'object',
+			'properties' => array(
+				'notice' => array(
+					'description' => __( 'Name of the notice to dismiss', 'jetpack-publicize-pkg' ),
+					'type'        => 'string',
+					'enum'        => array( 'instagram' ),
+					'required'    => true,
+				),
+			),
+		);
+
+		return rest_default_additional_properties_to_false( $schema );
+	}
+
+	/**
 	 * Gets the current Publicize connections, with the resolt of testing them, for the site.
 	 *
 	 * GET `jetpack/v4/publicize/connection-test-results`
@@ -154,6 +209,59 @@ class REST_Controller {
 		global $publicize;
 		$response = $publicize->get_publicize_shares_count( $this->get_blog_id() );
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Gets information about the current social product plans.
+	 *
+	 * @return string|WP_Error A JSON object of the current social product being if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_social_product_info() {
+		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
+		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+
+		if ( 200 !== $response_code ) {
+			// Something went wrong so we'll just return the response without caching.
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack-publicize-pkg' ),
+				array(
+					'status'  => $response_code,
+					'request' => $wpcom_request,
+				)
+			);
+		}
+
+		$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		return array(
+			'advanced' => $products->{self::JETPACK_SOCIAL_ADVANCED_YEARLY},
+			'basic'    => $products->{self::JETPACK_SOCIAL_BASIC_YEARLY},
+		);
+	}
+
+	/**
+	 * Dismisses a notice to prevent it from appearing again.
+	 *
+	 * @param WP_Request $request The request object, which includes the parameters.
+	 * @return WP_REST_Response|WP_Error True if the request was successful, or a WP_Error otherwise.
+	 */
+	public function update_dismissed_notices( $request ) {
+		$notice            = $request->get_param( 'notice' );
+		$dismissed_notices = get_option( Publicize::OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES );
+
+		if ( ! is_array( $dismissed_notices ) ) {
+			$dismissed_notices = array();
+		}
+
+		if ( in_array( $notice, $dismissed_notices, true ) ) {
+			return rest_ensure_response( array( 'success' => true ) );
+		}
+
+		array_push( $dismissed_notices, $notice );
+		update_option( Publicize::OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES, $dismissed_notices );
+
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 
 	/**

@@ -1,19 +1,54 @@
+/**
+ * External dependencies
+ */
+import { Button } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
+import { map } from 'lodash';
+/**
+ * Internal dependencies
+ */
+import SwitchTransition from '../components/switch-transition';
+import { formatFieldName, formatFieldValue, getDisplayName } from './util';
 
-const InboxResponse = () => {
-	const classes = classnames( 'jp-forms__inbox-response', {
-		'has-email': true,
-	} );
+const InboxResponse = ( { loading, response } ) => {
+	const [ emailCopied, setEmailCopied ] = useState( false );
+
+	const ref = useRef();
+
+	useEffect( () => {
+		if ( ! ref.current ) {
+			return;
+		}
+
+		ref.current.scrollTop = 0;
+	}, [ response ] );
+
+	const copyEmail = useCallback( async () => {
+		await window.navigator.clipboard.writeText( response.author_email );
+		setEmailCopied( true );
+		setTimeout( () => setEmailCopied( false ), 3000 );
+	}, [ response, setEmailCopied ] );
+
 	const titleClasses = classnames( 'jp-forms__inbox-response-title', {
-		'is-email': false,
-		'is-ip': false,
-		'is-name': true,
+		'is-email': response && ! response.author_name && response.author_email,
+		'is-ip': response && ! response.author_name && ! response.author_email,
+		'is-name': response && response.author_name,
 	} );
+
+	if ( ! loading && ! response ) {
+		return null;
+	}
 
 	return (
-		<div className={ classes }>
+		<SwitchTransition
+			ref={ ref }
+			activeViewKey={ response.id }
+			className="jp-forms__inbox-response"
+			duration={ 200 }
+		>
 			<div className="jp-forms__inbox-response-avatar">
 				<img
 					src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
@@ -21,50 +56,60 @@ const InboxResponse = () => {
 				/>
 			</div>
 
-			<h3 className={ titleClasses }>{ __( 'Bill Suitor', 'jetpack-forms' ) }</h3>
-			<p className="jp-forms__inbox-response-subtitle">
-				{ __( 'bill@la84.com', 'jetpack-forms' ) }
-			</p>
+			<h3 className={ titleClasses }>{ getDisplayName( response ) }</h3>
+			{ response.author_email && getDisplayName( response ) !== response.author_email && (
+				<p className="jp-forms__inbox-response-subtitle">
+					{ response.author_email }
+					<Button variant="secondary" onClick={ copyEmail }>
+						{ ! emailCopied && __( 'Copy', 'jetpack-forms' ) }
+						{ emailCopied && __( '✓ Copied', 'jetpack-forms' ) }
+					</Button>
+				</p>
+			) }
 
 			<div className="jp-forms__inbox-response-meta">
 				<div className="jp-forms__inbox-response-meta-label">
-					{ __( 'Date:', 'jetpack-forms' ) }
-				</div>
-				<div className="jp-forms__inbox-response-meta-value">
-					{ sprintf(
-						/* Translators: %1$s is the date, %2$s is the time. */
-						__( '%1$s at %2$s', 'jetpack-forms' ),
-						dateI18n( getDateSettings().formats.date, new Date().getTime() ),
-						dateI18n( getDateSettings().formats.time, new Date().getTime() )
-					) }
+					<span className="jp-forms__inbox-response-meta-key">
+						{ __( 'Date:', 'jetpack-forms' ) }&nbsp;
+					</span>
+					<span className="jp-forms__inbox-response-meta-value">
+						{ sprintf(
+							/* Translators: %1$s is the date, %2$s is the time. */
+							__( '%1$s at %2$s', 'jetpack-forms' ),
+							dateI18n( getDateSettings().formats.date, response.date ),
+							dateI18n( getDateSettings().formats.time, response.date )
+						) }
+					</span>
 				</div>
 				<div className="jp-forms__inbox-response-meta-label">
-					{ __( 'Source:', 'jetpack-forms' ) }
+					<span className="jp-forms__inbox-response-meta-key">
+						{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
+					</span>
+					<span className="jp-forms__inbox-response-meta-value">
+						<Button variant="link" href={ response.entry_permalink }>
+							{ response.entry_permalink }
+						</Button>
+					</span>
 				</div>
-				<div className="jp-forms__inbox-response-meta-value">{ '/rsvp' }</div>
 				<div className="jp-forms__inbox-response-meta-label">
-					{ __( 'IP address:', 'jetpack-forms' ) }
+					<span className="jp-forms__inbox-response-meta-key	">
+						{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;
+					</span>
+					<span className="jp-forms__inbox-response-meta-value">{ response.ip }</span>
 				</div>
-				<div className="jp-forms__inbox-response-meta-value">{ '168.1.0.254' }</div>
 			</div>
 
 			<div className="jp-forms__inbox-response-separator" />
 
 			<div className="jp-forms__inbox-response-data">
-				<div className="jp-forms__inbox-response-data-label">
-					{ __( 'Name:', 'jetpack-forms' ) }
-				</div>
-				<div className="jp-forms__inbox-response-data-value">
-					{ __( 'Bill Suitor', 'jetpack-forms' ) }
-				</div>
-				<div className="jp-forms__inbox-response-data-label">
-					{ __( 'Email:', 'jetpack-forms' ) }
-				</div>
-				<div className="jp-forms__inbox-response-data-value">
-					{ __( 'bill@la84.com', 'jetpack-forms' ) }
-				</div>
+				{ map( response.fields, ( value, key ) => (
+					<div key={ key } className="jp-forms__inbox-response-item">
+						<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }:</div>
+						<div className="jp-forms__inbox-response-data-value">{ formatFieldValue( value ) }</div>
+					</div>
+				) ) }
 			</div>
-		</div>
+		</SwitchTransition>
 	);
 };
 

@@ -4,15 +4,17 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 11.9-a.6
+ * Version: 12.4-a.8
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 6.0
+ * Requires at least: 6.1
  * Requires PHP: 5.6
  *
  * @package automattic/jetpack
  */
+
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
 /*
 This program is free software; you can redistribute it and/or
@@ -30,9 +32,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '6.0' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '6.1' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
-define( 'JETPACK__VERSION', '11.9-a.6' );
+define( 'JETPACK__VERSION', '12.4-a.8' );
 
 /**
  * Constant used to fetch the connection owner token
@@ -189,6 +191,9 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 
 register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
+
+// Load image cdn core. This should load regardless of whether the photon module is active.
+Image_CDN_Core::setup();
 
 // Require everything else, that is not loaded via the autoloader.
 require_once JETPACK__PLUGIN_DIR . 'load-jetpack.php';

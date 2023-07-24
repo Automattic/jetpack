@@ -177,11 +177,9 @@
 
    $zeroBSCRM_columns_quote = array();
    $zeroBSCRM_columns_quote['default'] =  array(
-
-                                          
                                                     'id' => array('ID',false,'basefield'),
                                                     'title' => array(__('Quote Title','zero-bs-crm'),false,'basefield'),
-                                                    'customer' => array(__('Customer','zero-bs-crm')),
+													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
                                                     'status' => array(__('Status','zero-bs-crm'),false,'basefield'),
                                                     'value' => array(__('Quote Value',"zero-bs-crm"),false,'basefield'),
                                                     'editlink' => array(__('Edit',"zero-bs-crm"))
@@ -190,18 +188,14 @@
                                             );
 
    $zeroBSCRM_columns_quote['all'] =  array(
-
-                                          
                                                     'id' => array('ID',false,'basefield'),
                                                     'title' => array(__('Quote Title','zero-bs-crm'),false,'basefield'),
-                                                    'customer' => array(__('Customer','zero-bs-crm')),
+													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
                                                     'status' => array(__('Status','zero-bs-crm'),false,'basefield'),
                                                     'value' => array(__('Quote Value',"zero-bs-crm"),false,'basefield'),
                                                     'editlink' => array(__('Edit',"zero-bs-crm")),
-
                                                     // not user-configurable, so disabling for now
                                                     //'assignedobj' => array(__('Assigned To',"zero-bs-crm"),false,'basefield'),
-
                                             );
 
    /* ======================================================================================================
@@ -218,27 +212,20 @@
 
      $zeroBSCRM_columns_invoice = array();
      $zeroBSCRM_columns_invoice['default'] =  array(
-
-                                            
                                                       'id' => array('ID',false,'basefield'),
 
                                                       'ref' => array(__('Reference','zero-bs-crm'),false,'basefield'),
-                                                      'customer' => array(__('Customer','zero-bs-crm')),
+														'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
                                                       'status' => array(__('Status','zero-bs-crm'),false,'basefield'),
                                                       'value' => array(__('Value',"zero-bs-crm"),false,'basefield'),
                                                       'date' => array(__('Date',"zero-bs-crm"),false,'basefield'),
-
                                                       'editlink' => array(__('Edit',"zero-bs-crm"))
-
                                               );
 
-     $zeroBSCRM_columns_invoice['all'] =  array(
-
-                                            
+	$zeroBSCRM_columns_invoice['all'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,Generic.WhiteSpace.ScopeIndent.Incorrect
                                                       'id' => array('ID',false,'basefield'),
-
                                                       'ref' => array(__('Reference','zero-bs-crm'),false,'basefield'),
-                                                      'customer' => array(__('Customer','zero-bs-crm')),
+														'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
                                                       'status' => array(__('Status','zero-bs-crm'),false,'basefield'),
                                                       'value' => array(__('Value',"zero-bs-crm"),false,'basefield'),
                                                       'date' => array(__('Date',"zero-bs-crm"),false,'basefield'),
@@ -266,11 +253,9 @@
    global $zeroBSCRM_columns_transaction;
 
    $zeroBSCRM_columns_transaction = array();
-   $zeroBSCRM_columns_transaction['default'] =  array(
-
-                                          
+		$zeroBSCRM_columns_transaction['default'] = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                                                     'id' => array('ID','zbsDefault_column_customerid','basefield'),
-                                                    'customer' => array(__('Customer',"zero-bs-crm")),
+													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
                                                     'status' => array(__('Status',"zero-bs-crm"),false,'basefield'),
                                                     'total' => array(__('Value',"zero-bs-crm"),false,'basefield'),
                                                     'item' => array(__('Item',"zero-bs-crm"),false,'basefield'),
@@ -280,9 +265,8 @@
                                             );
 
    $zeroBSCRM_columns_transaction['all'] = array(
-
                                                     'id' => array('ID','zbsDefault_column_customerid','basefield'),
-                                                    'customer' => array(__('Customer',"zero-bs-crm")),
+													'customer' => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
                                                     'customeremail' => array(__('Email',"zero-bs-crm")),
                                                     'tagged' => array(__(__('Tagged',"zero-bs-crm"),"zero-bs-crm")),
                                                     'status' => array(__('Status',"zero-bs-crm"),false,'basefield'),
@@ -312,8 +296,6 @@
 
    $zeroBSCRM_columns_form = array();
    $zeroBSCRM_columns_form['default'] =  array(
-
-                                          
                                                     'id' => array('ID',false,'basefield'),
                                                     'title' => array(__('Title','zero-bs-crm'),false,'basefield'),
                                                     'style' => array(__('Style',"zero-bs-crm"),false,'basefield'),
@@ -321,13 +303,9 @@
                                                     'conversions' => array(__('Conversions',"zero-bs-crm")),
                                                     'added' => array(__('Added',"zero-bs-crm"),false,'basefield'),
                                                     'editlink' => array(__('Edit',"zero-bs-crm"))
-
-
                                             );
 
    $zeroBSCRM_columns_form['all'] =  array(
-
-                                          
                                                     'id' => array('ID',false,'basefield'),
                                                     'title' => array(__('Title','zero-bs-crm'),false,'basefield'),
                                                     'style' => array(__('Style',"zero-bs-crm"),false,'basefield'),
@@ -335,7 +313,6 @@
                                                     'conversions' => array(__('Conversions',"zero-bs-crm")),
                                                     'added' => array(__('Added',"zero-bs-crm"),false,'basefield'),
                                                     'editlink' => array(__('Edit',"zero-bs-crm"))
-
                                             );
 
    /* ======================================================================================================
@@ -351,8 +328,6 @@
 
    $zeroBSCRM_columns_segment = array();
    $zeroBSCRM_columns_segment['default'] =  array(
-
-                                          
                                                     'id' => array('ID',false,'basefield'),
                                                     'name' => array(__('Name','zero-bs-crm'),false,'basefield'),
                                                     'audiencecount' => array(__('Contact Count','zero-bs-crm')),
@@ -360,7 +335,6 @@
                                             );
 
    $zeroBSCRM_columns_segment['all'] = array(
-
                                                     'id' => array('ID',false,'basefield'),
                                                     'name' => array(__('Name','zero-bs-crm'),false,'basefield'),
                                                     'audiencecount' => array(__('Contact Count','zero-bs-crm')),
@@ -469,14 +443,14 @@
   $zeroBSCRM_filterbuttons_customer['default'] = array(
 
                               'lead' => array(__('Lead',"zero-bs-crm")),
-                              'customer' => array(__('Customer',"zero-bs-crm")),
+								'customer'     => array( __( 'Customer', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
                               'assigned_to_me' => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
                               
                         );
   $zeroBSCRM_filterbuttons_customer['all'] = array(
 
         'lead' => array( __( 'Lead', 'zero-bs-crm' ) ),
-        'customer' => array( __( 'Customer', 'zero-bs-crm' ) ),
+		'customer'       => array( __( 'Customer', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
         'assigned_to_me' => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
         'not_assigned' => array( __( 'Not assigned', 'zero-bs-crm' ) ),
 
@@ -497,12 +471,12 @@
       $zeroBSCRM_filterbuttons_company['default'] = array(
 
                                   'lead' => array(__('Lead',"zero-bs-crm")),
-                                  'customer' => array(__('Customer',"zero-bs-crm"))
+									'customer' => array( __( 'Customer', 'zero-bs-crm' ) ),  // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
                             );
       $zeroBSCRM_filterbuttons_company['all'] = array(
 
             'lead' => array(__('Lead',"zero-bs-crm")),
-            'customer' => array(__('Customer',"zero-bs-crm"))
+			'customer' => array( __( 'Customer', 'zero-bs-crm' ) ),  // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
 
         );
 
@@ -757,40 +731,18 @@
 
         }
 
+			// add segments to quickfilters if setting enabled
+			if ( zeroBSCRM_getSetting( 'filtersfromsegments' ) === 1 ) {
+				$segments = $zbs->DAL->segments->getSegments( -1, 100, 0, false, '', '', 'zbsseg_name', 'ASC' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-
-      // Auto-add segment filters DAL2 only
-      if ($zbs->isDAL2()){
-
-          // if setting on, append these :) - temp fix really :)
-          #} 2.17 - filters from status
-          if (zeroBSCRM_getSetting('filtersfromsegments') == "1"){
-
-              // get segments
-              if ($zbs->isDAL3())
-                $segments = $zbs->DAL->segments->getSegments(-1,100,0,false,'','','zbsseg_name','ASC');
-              else
-                $segments = $zbs->DAL->getSegments(-1,100,0,false,'','','zbsseg_name','ASC');
-
-
-              // add one for each :)
-              foreach ($segments as $s){
-
-                if (
-                    // if isn't already directly set
-                      !isset($zeroBSCRM_filterbuttons_customer['all']['segment_'.strtolower($s['slug'])])
-                    ) {
-
-                      // add it
-                      $zeroBSCRM_filterbuttons_customer['all']['segment_'.strtolower($s['slug'])] = array('<i class="pie chart icon"></i>'.$s['name']);
-
-                }
-              }
-
-          }
-
-      } // quickfilters for segments - dal2 only
-
+				// add one for each :)
+				foreach ( $segments as $s ) {
+					// add if it doesn't already exist
+					if ( ! isset( $zeroBSCRM_filterbuttons_customer['all'][ 'segment_' . strtolower( $s['slug'] ) ] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$zeroBSCRM_filterbuttons_customer['all'][ 'segment_' . strtolower( $s['slug'] ) ] = array( $s['name'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					}
+				}
+			}
 
       // ALL FIELD TYPES
       global $zeroBSCRM_columns_customer, $zbsCustomerFields;

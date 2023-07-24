@@ -7,14 +7,16 @@ const resolvers = {
 			return Object.keys( state?.jetpackScan ).length > 0;
 		},
 
-		fulfill: () => async ( { dispatch } ) => {
-			const response = await apiFetch( {
-				path: '/my-jetpack/v1/site/products/scan',
-				method: 'GET',
-			} );
+		fulfill:
+			() =>
+			async ( { dispatch } ) => {
+				const response = await apiFetch( {
+					path: '/my-jetpack/v1/site/products/scan',
+					method: 'GET',
+				} );
 
-			dispatch( actions.setJetpackScan( response ) );
-		},
+				dispatch( actions.setJetpackScan( response ) );
+			},
 	},
 };
 

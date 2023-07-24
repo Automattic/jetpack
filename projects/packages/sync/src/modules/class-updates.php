@@ -492,7 +492,7 @@ class Updates extends Module {
 	 * @return array $args The hook parameters.
 	 */
 	public function expand_themes( $args ) {
-		if ( ! isset( $args[0], $args[0]->response ) ) {
+		if ( ! isset( $args[0]->response ) ) {
 			return $args;
 		}
 		if ( ! is_array( $args[0]->response ) ) {

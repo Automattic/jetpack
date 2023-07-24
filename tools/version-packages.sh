@@ -5,6 +5,7 @@ set -eo pipefail
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/changelogger.sh"
 
 # This script updates the composer.json file in the specified directory.
 # It will update any monorepo packages to their latest version as declared in their changelog.
@@ -78,9 +79,8 @@ echo "$JSON" > "$DIR/composer.json"
 
 # Get the list of packages to update, mapped to their target versions.
 PACKAGES='{}'
-CL="$PWD/projects/packages/changelogger/bin/changelogger"
 for PKG in "$BASE"/projects/packages/*/composer.json; do
-	PACKAGES=$(jq -c --arg k "$(jq -r .name "$PKG")" --arg v "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.[$k] |= $v' <<<"$PACKAGES")
+	PACKAGES=$(jq -c --arg k "$(jq -r .name "$PKG")" --arg v "$(cd "${PKG%/composer.json}" && changelogger version current --default-first-version)" '.[$k] |= $v' <<<"$PACKAGES")
 done
 
 # Update the versions in composer.json, without actually updating them yet.

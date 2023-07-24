@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.9] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+## [0.10.8] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.10.7] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## [0.10.6] - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## [0.10.5] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## [0.10.4] - 2023-05-02
+### Changed
+- Updated package dependencies.
+
+## [0.10.3] - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## [0.10.2] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## [0.10.1] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [0.10.0] - 2023-03-27
+### Added
+- useModuleStatus: Add new hook to enable or disable Jetpack modules. [#29044]
+
+## [0.9.2] - 2023-03-23
+### Changed
+- Updated package dependencies.
+
+## [0.9.1] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
 ## [0.9.0] - 2023-02-20
 ### Added
 - Add a new section to describe including assets from backend [#29016]
@@ -173,6 +221,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.10.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.8...0.10.9
+[0.10.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.7...0.10.8
+[0.10.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.6...0.10.7
+[0.10.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.5...0.10.6
+[0.10.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.4...0.10.5
+[0.10.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.3...0.10.4
+[0.10.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.2...0.10.3
+[0.10.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.1...0.10.2
+[0.10.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.0...0.10.1
+[0.10.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.9.2...0.10.0
+[0.9.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.9.1...0.9.2
+[0.9.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.8.4...0.9.0
 [0.8.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.8.3...0.8.4
 [0.8.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.8.2...0.8.3

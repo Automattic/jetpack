@@ -55,6 +55,12 @@ class Archive_Provider extends Provider {
 		return self::get_post_types();
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	/** @inheritdoc */
+	public static function get_edit_url( $_provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		return null;
+	}
+
 	// phpcs:ignore
 	/** @inheritdoc */
 	public static function describe_key( $provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort

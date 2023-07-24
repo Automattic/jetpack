@@ -12,8 +12,11 @@
 .socialIcon {
 	fill: $gray-700;
 	&.facebook {
-		border-radius: 50% !important;
 		fill: var( --color-facebook );
+		border-radius: 50% !important;
+	}
+	&.instagram {
+		fill: var( --color-instagram );
 	}
 	&.twitter {
 		fill: var( --color-twitter );
@@ -29,6 +32,9 @@
 	}
 	&.mastodon {
 		fill: var( --color-mastodon );
+	}
+	&.instagram {
+		fill: var( --color-instagram );
 	}
 }
 

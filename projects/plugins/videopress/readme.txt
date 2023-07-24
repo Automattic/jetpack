@@ -2,9 +2,9 @@
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani
 Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, mobile-video, jetpack
 
-Requires at least: 6.0
-Tested up to: 6.1
-Stable tag: 1.4.0
+Requires at least: 6.1
+Tested up to: 6.3
+Stable tag: 1.5
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -27,7 +27,7 @@ Tired of video companies sending your customers to their app to view videos? Or 
 
 High-quality, lightning-fast video hosting
 
-Take the complexity out of self-hosting videos. VideoPress offers fully-hosted videos and a CDN to ensure instant video speed for your audience around the globe. With our powerful and reliable hosting infrastructure, you can provide your audience with fast-motion videos with 60 FPS and full 4K resolution. 
+Take the complexity out of self-hosting videos. VideoPress offers fully-hosted videos and a CDN to ensure instant video speed for your audience around the globe. With our powerful and reliable hosting infrastructure, you can provide your audience with fast-motion videos with 60 FPS and full 4K resolution.
 
 
 == Installation ==
@@ -73,31 +73,24 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.4.0 - 2023-02-15
+### 1.5 - 2023-03-22
 #### Added
-- Added connect banner to video block when required
-- Added Share and Download sections to the video details page
-- Added site default privacy in video block privacy control
-- Added manual conversion panel to video block sidebar
-- Added Preload Metadata control to the video block Playback panel
+- Added request and update video poster functionality
+- Added label and help properties support for the TimestampControl component
+- Added basic upload functionality to mobile app block version
+- Added details panel to mobile app block's settings
+- Added check to remove tracks from previous video after replacement on block
 
 #### Changed
+- Indicated full compatibility with the latest version of WordPress, 6.2.
+- Updated deprecated core prop
+- Replaced loading placeholder
 - Updated package dependencies
-- Updated video block transform to/from embed block
-- Updated layout of video block when uploading a new file
-- Updated videos gallery rendering with page and search parameters
-- Updated chapters parser limitations
-- Updated data request of private videos
-- Updated the request handling when a user is not connected
-
-#### Removed
-- Removed prompt to convert embed block to video block
 
 #### Fixed
-- Fixed adding videos from the WordPress.com media library
-- Fixed minor visual issues of the video block
-- Fixed uploading video tracks for private videos
-- Fixed error when local videos cannot be read
-- Fixed block visualization for private videos
-- Fixed custom CSS classes removed issue
+- Fixed video details form change detection
+- Fixed race condition when saving the post too fast after uploading a video
+- Fixed video library displaying arbitrary video in first page
+- Fixed opening upload options automatically when  block is inserted from the block inserter menu (mobile)
+- Fixed handling failed uploads on VideoPress block
 

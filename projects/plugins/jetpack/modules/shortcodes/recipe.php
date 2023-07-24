@@ -510,9 +510,9 @@ class Jetpack_Recipes {
 			preg_match_all( $ul_pattern, $content, $ul_matches );
 			preg_match_all( $ol_pattern, $content, $ol_matches );
 
-			if ( 0 !== count( $ul_matches[0] ) || 0 !== count( $ol_matches[0] ) ) {
+			if ( ( is_countable( $ul_matches[0] ) && count( $ul_matches[0] ) > 0 ) || ( is_countable( $ol_matches[0] ) && count( $ol_matches[0] ) > 0 ) ) {
 
-				if ( 0 !== count( $ol_matches[0] ) ) {
+				if ( is_countable( $ol_matches[0] ) && count( $ol_matches[0] ) > 0 ) {
 					$listtype          = 'ol';
 					$list_item_pattern = $ol_pattern;
 				} else {

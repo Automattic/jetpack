@@ -7,14 +7,14 @@ import PageNumber from './page-number';
 import './style.scss';
 
 const PageNavigation = ( { currentPage, expandedRange = 3, onSelectPage, pages } ) => {
-	const goToPrevious = useCallback( () => onSelectPage( currentPage - 1 ), [
-		currentPage,
-		onSelectPage,
-	] );
-	const goToNext = useCallback( () => onSelectPage( currentPage + 1 ), [
-		currentPage,
-		onSelectPage,
-	] );
+	const goToPrevious = useCallback(
+		() => onSelectPage( currentPage - 1 ),
+		[ currentPage, onSelectPage ]
+	);
+	const goToNext = useCallback(
+		() => onSelectPage( currentPage + 1 ),
+		[ currentPage, onSelectPage ]
+	);
 
 	const currentRange = range(
 		Math.max( 0, currentPage - expandedRange + 1 ),

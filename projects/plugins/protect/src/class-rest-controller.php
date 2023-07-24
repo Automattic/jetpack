@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Protect;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack_Protect;
+use WP_Error;
 use WP_REST_Response;
 
 /**
@@ -254,7 +255,7 @@ class REST_Controller {
 	 */
 	public static function api_ignore_threat( $request ) {
 		if ( ! $request['threat_id'] ) {
-			return new WP_REST_RESPONSE( 'Missing threat ID.', 400 );
+			return new WP_REST_Response( 'Missing threat ID.', 400 );
 		}
 
 		$threat_ignored = Threats::ignore_threat( $request['threat_id'] );
@@ -275,7 +276,7 @@ class REST_Controller {
 	 */
 	public static function api_fix_threats( $request ) {
 		if ( empty( $request['threat_ids'] ) ) {
-			return new WP_REST_RESPONSE( 'Missing threat IDs.', 400 );
+			return new WP_REST_Response( 'Missing threat IDs.', 400 );
 		}
 
 		$threats_fixed = Threats::fix_threats( $request['threat_ids'] );
@@ -296,7 +297,7 @@ class REST_Controller {
 	 */
 	public static function api_fix_threats_status( $request ) {
 		if ( empty( $request['threat_ids'] ) ) {
-			return new WP_REST_RESPONSE( 'Missing threat IDs.', 400 );
+			return new WP_REST_Response( 'Missing threat IDs.', 400 );
 		}
 
 		$threats_fixed = Threats::fix_threats_status( $request['threat_ids'] );
@@ -341,16 +342,32 @@ class REST_Controller {
 	/**
 	 * Toggles the WAF module on or off for the API endpoint
 	 *
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function api_toggle_waf() {
 		if ( Waf_Runner::is_enabled() ) {
-			Waf_Runner::disable();
-			return rest_ensure_response( true, 200 );
+			$disabled = Waf_Runner::disable();
+			if ( ! $disabled ) {
+				return new WP_Error(
+					'waf_disable_failed',
+					__( 'An error occured disabling the firewall.', 'jetpack-protect' ),
+					array( 'status' => 500 )
+				);
+			}
+
+			return rest_ensure_response( true );
 		}
 
-		Waf_Runner::enable();
-		return rest_ensure_response( true, 200 );
+		$enabled = Waf_Runner::enable();
+		if ( ! $enabled ) {
+			return new WP_Error(
+				'waf_enable_failed',
+				__( 'An error occured enabling the firewall.', 'jetpack-protect' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response( true );
 	}
 
 	/**

@@ -38,14 +38,14 @@
 
 	.ui.centralsimple.huge {
 		
-		font-size: 1.5em;
+		font-size: 20px;
 		text-align: center;
 		.field {
 			text-align: center;
 		}
 
 		input {
-			font-size: 1.1em;
+			font-size: 20px;
 		}
 
 	}
@@ -64,7 +64,7 @@
 	    }
 
 	    .field>label {
-		    color: rgba(8, 0, 138, 0.87);
+		    color: black;
 		    font-size: 1em;
    		}
    		.ui p {
@@ -201,5 +201,12 @@
 	.segment-condition-errored {
 		max-width:25%;
 		color:#CCC;
+	}
+}
+
+#zbs-segment-edit-act-save {
+	i {
+		height: unset;
+		margin-left: 5px;
 	}
 }

@@ -152,7 +152,8 @@
 
 }
 
-/* .zbs-metabox.segment.zbs-draggable, .zbs-metabox-head.segment.zbs-draggable {
-    opacity: 0.45;
-    color: rgba(40,40,40,0.3);
-}*/
+#zbs-custom-quicklinks,
+#zbs-edit-sidebar-wrap {
+	box-shadow: unset;
+	padding-right: 0;
+}

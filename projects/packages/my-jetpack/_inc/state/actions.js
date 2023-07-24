@@ -17,12 +17,27 @@ const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
+const SET_CHAT_AVAILABILITY_IS_FETCHING = 'SET_CHAT_AVAILABILITY_IS_FETCHING';
+const SET_CHAT_AVAILABILITY = 'SET_CHAT_AVAILABILITY';
+const SET_CHAT_AUTHENTICATION_IS_FETCHING = 'SET_CHAT_AUTHENTICATION_IS_FETCHING';
+const SET_CHAT_AUTHENTICATION = 'SET_CHAT_AUTHENTICATION';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
 
+const SET_PRODUCT_STATS = 'SET_PRODUCT_STATS';
+const SET_IS_FETCHING_PRODUCT_STATS = 'SET_IS_FETCHING_PRODUCT_STATS';
+
 const setPurchasesIsFetching = isFetching => {
 	return { type: SET_PURCHASES_IS_FETCHING, isFetching };
+};
+
+const setChatAvailabilityIsFetching = isFetching => {
+	return { type: SET_CHAT_AVAILABILITY_IS_FETCHING, isFetching };
+};
+
+const setChatAuthenticationIsFetching = isFetching => {
+	return { type: SET_CHAT_AUTHENTICATION_IS_FETCHING, isFetching };
 };
 
 const fetchPurchases = () => {
@@ -31,6 +46,14 @@ const fetchPurchases = () => {
 
 const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
+};
+
+const setChatAvailability = chatAvailability => {
+	return { type: SET_CHAT_AVAILABILITY, chatAvailability };
+};
+
+const setChatAuthentication = chatAuthentication => {
+	return { type: SET_CHAT_AUTHENTICATION, chatAuthentication };
 };
 
 const setAvailableLicensesIsFetching = isFetching => {
@@ -149,9 +172,87 @@ const activateProduct = productId => async store => {
 	return await requestProductStatus( productId, { activate: true }, store );
 };
 
+/**
+ * Side effect action that will trigger
+ * the standalone plugin activation state on the server.
+ *
+ * @param {string} productId - My Jetpack product ID.
+ * @returns {Promise}        - Promise which resolves when the product plugin is deactivated.
+ */
+const deactivateStandalonePluginForProduct = productId => async store => {
+	return await requestProductStatus( productId, { activate: false }, store );
+};
+
+/**
+ * Side effect action that will trigger
+ * the standalone plugin installation on the server.
+ *
+ * @param {string} productId - My Jetpack product ID.
+ * @returns {Promise}        - Promise which resolves when the product plugin is installed.
+ */
+const installStandalonePluginForProduct = productId => async store => {
+	const { select, dispatch, registry } = store;
+	return await new Promise( ( resolve, reject ) => {
+		// Check valid product.
+		const isValid = select.isValidProduct( productId );
+
+		if ( ! isValid ) {
+			const message = __( 'Invalid product name', 'jetpack-my-jetpack' );
+			const error = new Error( message );
+
+			dispatch( setRequestProductError( productId, error ) );
+			dispatch( setGlobalNotice( message, { status: 'error', isDismissible: true } ) );
+			reject( error );
+			return;
+		}
+
+		/** Processing... */
+		dispatch( setIsFetchingProduct( productId, true ) );
+
+		// Install product standalone plugin.
+		return apiFetch( {
+			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }/install-standalone`,
+			method: 'POST',
+		} )
+			.then( freshProduct => {
+				dispatch( setIsFetchingProduct( productId, false ) );
+				dispatch( setProduct( freshProduct ) );
+				registry.dispatch( CONNECTION_STORE_ID ).refreshConnectedPlugins();
+				resolve( freshProduct?.standalone_plugin_info );
+			} )
+			.catch( error => {
+				const { name } = select.getProduct( productId );
+				const message = sprintf(
+					// translators: %$1s: Jetpack Product name; %$2s: Original error message
+					__(
+						'Failed to install standalone plugin for %1$s: %2$s. Please try again',
+						'jetpack-my-jetpack'
+					),
+					name,
+					error.message
+				);
+
+				dispatch( setIsFetchingProduct( productId, false ) );
+				dispatch( setRequestProductError( productId, error ) );
+				dispatch( setGlobalNotice( message, { status: 'error', isDismissible: true } ) );
+				reject( error );
+			} );
+	} );
+};
+
+const setProductStats = ( productId, stats ) => {
+	return { type: SET_PRODUCT_STATS, productId, stats };
+};
+
+const setIsFetchingProductStats = ( productId, isFetching ) => {
+	return { type: SET_IS_FETCHING_PRODUCT_STATS, productId, isFetching };
+};
+
 const productActions = {
 	setProduct,
 	activateProduct,
+	deactivateStandalonePluginForProduct,
+	installStandalonePluginForProduct,
 	setIsFetchingProduct,
 	setRequestProductError,
 	setProductStatus,
@@ -164,11 +265,17 @@ const noticeActions = {
 
 const actions = {
 	setPurchasesIsFetching,
+	setChatAvailabilityIsFetching,
+	setChatAuthenticationIsFetching,
 	fetchPurchases,
 	setPurchases,
+	setChatAvailability,
+	setChatAuthentication,
 	setAvailableLicensesIsFetching,
 	fetchAvailableLicenses,
 	setAvailableLicenses,
+	setProductStats,
+	setIsFetchingProductStats,
 	...noticeActions,
 	...productActions,
 };
@@ -187,5 +294,11 @@ export {
 	SET_PRODUCT_STATUS,
 	SET_GLOBAL_NOTICE,
 	CLEAN_GLOBAL_NOTICE,
+	SET_PRODUCT_STATS,
+	SET_IS_FETCHING_PRODUCT_STATS,
+	SET_CHAT_AVAILABILITY,
+	SET_CHAT_AVAILABILITY_IS_FETCHING,
+	SET_CHAT_AUTHENTICATION,
+	SET_CHAT_AUTHENTICATION_IS_FETCHING,
 	actions as default,
 };

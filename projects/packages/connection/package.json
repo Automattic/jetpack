@@ -25,8 +25,8 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@wordpress/browserslist-config": "5.9.0",
-		"webpack": "5.72.1",
+		"@wordpress/browserslist-config": "5.20.0",
+		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
 	},
 	"engines": {

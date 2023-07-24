@@ -15,8 +15,8 @@ function getChangeloggerProjects() {
 		if (
 			// include changelogger package and any other packages that use changelogger package.
 			file.endsWith( '/projects/packages/changelogger/composer.json' ) ||
-			json.require[ 'automattic/jetpack-changelogger' ] ||
-			json[ 'require-dev' ][ 'automattic/jetpack-changelogger' ]
+			json.require?.[ 'automattic/jetpack-changelogger' ] ||
+			json[ 'require-dev' ]?.[ 'automattic/jetpack-changelogger' ]
 		) {
 			projects.push( getProject( file ).fullName );
 		}

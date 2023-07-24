@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.13] - 2023-07-17
+### Changed
+- Generate query string when using the WPCOM API to fetch JITMs [#31809]
+
+## [2.3.12] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [2.3.11] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## [2.3.10] - 2023-06-23
+### Changed
+- Updated package dependencies. [#31468]
+
+## [2.3.9] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## [2.3.8] - 2023-05-08
+### Added
+- JITM: Add jetpack-videopress to JITM refetch on hashchange list [#30465]
+
+## [2.3.7] - 2023-05-02
+### Changed
+- Updated package dependencies. [#30375]
+
+## [2.3.6] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [2.3.5] - 2023-04-04
+### Added
+- Add external link icons in JITM [#29654]
+
+### Changed
+- Updated package dependencies. [#29854]
+
+## [2.3.4] - 2023-03-28
+### Fixed
+- JITM: Fix button overflow when text length is too big [#29749]
+
+## [2.3.3] - 2023-03-27
+### Changed
+- JITM: Update styles [#29709]
+
+## [2.3.2] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [2.3.1] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
 ## [2.3.0] - 2023-02-20
 ### Changed
 - Moving deleting connection owner notice from JITM to Connection package. [#28516]
@@ -546,6 +601,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[2.3.13]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.12...v2.3.13
+[2.3.12]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.11...v2.3.12
+[2.3.11]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.10...v2.3.11
+[2.3.10]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.9...v2.3.10
+[2.3.9]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.8...v2.3.9
+[2.3.8]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.7...v2.3.8
+[2.3.7]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.6...v2.3.7
+[2.3.6]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.5...v2.3.6
+[2.3.5]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.4...v2.3.5
+[2.3.4]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.3...v2.3.4
+[2.3.3]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.2...v2.3.3
+[2.3.2]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/Automattic/jetpack-jitm/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.42...v2.3.0
 [2.2.42]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.41...v2.2.42
 [2.2.41]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.40...v2.2.41

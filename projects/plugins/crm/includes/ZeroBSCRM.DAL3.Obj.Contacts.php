@@ -605,13 +605,21 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                     // ... we calc total by adding invs + trans below :)
 
                     // only include transactions with statuses which should be included in total value:
-                    $transStatusQueryAdd = $this->DAL()->transactions->getTransactionStatusesToIncludeQuery();                    
+					$transStatusQueryAdd = $this->DAL()->transactions->getTransactionStatusesToIncludeQuery(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// include invoices without deleted status in the total value for invoices_total_inc_deleted:
+					$inv_status_query_add = $this->DAL()->invoices->get_invoice_status_except_deleted_for_query();
 
                     // quotes:
                     $extraSelect .= ',(SELECT SUM(quotestotal.zbsq_value) FROM '.$ZBSCRM_t['quotes'].' as quotestotal WHERE quotestotal.ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_QUOTE." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = contact.ID)) as quotes_total";
-                    // invs:
-                    $extraSelect .= ',(SELECT SUM(invstotal.zbsi_total) FROM '.$ZBSCRM_t['invoices'].' as invstotal WHERE invstotal.ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_INVOICE." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = contact.ID)) as invoices_total";
-                    // trans (with status):
+					// invs not including deleted:
+					$extraSelect .= ',(SELECT IFNULL(SUM(invstotal.zbsi_total),0) FROM ' . $ZBSCRM_t['invoices'] . ' as invstotal WHERE invstotal.ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID)' . $inv_status_query_add . ') as invoices_total'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// invs including deleted:
+					$extraSelect .= ',(SELECT SUM(invstotalincdeleted.zbsi_total) FROM ' . $ZBSCRM_t['invoices'] . ' as invstotalincdeleted WHERE invstotalincdeleted.ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID)) as invoices_total_inc_deleted'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// invs count:
+					$extraSelect .= ',(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID)' . $inv_status_query_add . ') as invoices_count'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// invs count including deleted:
+					$extraSelect .= ',(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID)) as invoices_count_inc_deleted'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// trans (with status):
                     $extraSelect .= ',(SELECT SUM(transtotal.zbst_total) FROM '.$ZBSCRM_t['transactions'].' as transtotal WHERE transtotal.ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TRANSACTION." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = contact.ID)".$transStatusQueryAdd.") as transactions_total";
                     // paid balance against invs  (also in getContacts)
                     // (this allows us to subtract from totals to get a true figure where transactions are part/whole payments for invs)
@@ -811,23 +819,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                         $res['owner'] = zeroBS_getOwner($potentialRes->ID,true,'zerobs_customer',$potentialRes->zbs_owner);
 
                     }
-
-                    #} use sql instead #DB1LEGACY (TOMOVE)
-                    /* Needs writing for DAL3 
-    
-                        - note. I've left this here (4/2/19) because I believe the following/DAL3 generally might be
-                        ... such a performance hike that this is irrelevant.
-                        ... can later homogenise the following/these *WITHX* stuffs into 1 query, though not sure it'll produce 
-                        ... much perf gains.if ($withInvoices && $withQuotes && $withTransactions){
-
-                        $custDeets = zeroBS_getCustomerExtrasViaSQL($potentialRes->ID);
-                        $res['quotes'] = $custDeets['quotes'];
-                        $res['invoices'] = $custDeets['invoices'];
-                        $res['transactions'] = $custDeets['transactions'];
-
-
-                    } else { */
-
 
                         // Objects: return all, unless $with_obj_limit
                         $objs_page = -1;
@@ -1249,12 +1240,21 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                 // only include transactions with statuses which should be included in total value:
                 $transStatusQueryAdd = $this->DAL()->transactions->getTransactionStatusesToIncludeQuery();  
+				// include invoices without deleted status in the total value for invoices_total_inc_deleted:
+				$inv_status_query_add = $this->DAL()->invoices->get_invoice_status_except_deleted_for_query();
 
                 // quotes:
                 $extraSelect .= ',(SELECT SUM(quotestotal.zbsq_value) FROM '.$ZBSCRM_t['quotes'].' as quotestotal WHERE quotestotal.ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_QUOTE." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = contact.ID)) as quotes_total";
                 // invs:
-                $extraSelect .= ',(SELECT SUM(invstotal.zbsi_total) FROM '.$ZBSCRM_t['invoices'].' as invstotal WHERE invstotal.ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_INVOICE." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = contact.ID)) as invoices_total";
-                // trans (with status):
+				$extraSelect .= ',(SELECT IFNULL(SUM(invstotal.zbsi_total),0) FROM ' . $ZBSCRM_t['invoices'] . ' as invstotal WHERE invstotal.ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID)' . $inv_status_query_add . ') as invoices_total'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// invs including deleted:
+				$extraSelect .= ',(SELECT SUM(invstotalincdeleted.zbsi_total) FROM ' . $ZBSCRM_t['invoices'] . ' as invstotalincdeleted WHERE invstotalincdeleted.ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID)) as invoices_total_inc_deleted'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// invs count:
+				$extraSelect .= ',(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID)' . $inv_status_query_add . ') as invoices_count'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// invs count including deleted:
+				$extraSelect .= ',(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID)) as invoices_count_inc_deleted'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+				// trans (with status):
                 $extraSelect .= ',(SELECT SUM(transtotal.zbst_total) FROM '.$ZBSCRM_t['transactions'].' as transtotal WHERE transtotal.ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TRANSACTION." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = contact.ID)".$transStatusQueryAdd.") as transactions_total";
                 // paid balance against invs  (also in getContact)
                 // (this allows us to subtract from totals to get a true figure where transactions are part/whole payments for invs)
@@ -1629,7 +1629,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                     case 'customer':
 
                                         // hack - adapted from DAL1 (probs can be slicker)
-                                        $wheres['quickfiltercustomer'] = array('zbsc_status','LIKE','%s','Customer');
+										$wheres['quickfiltercustomer'] = array( 'zbsc_status', 'LIKE', '%s', 'Customer' );
 
                                         break;
 
@@ -1718,58 +1718,61 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         #} ============   SORT   ==============
 
-            // latest log
-            // Latest Contact Log (as sort) needs an additional SQL where str:
-            $contactLogTypesStr = ''; $sortFunction = 'MAX'; if ($sortOrder !== 'DESC') $sortFunction = 'MIN';
-            if ($withLastLog){
+				// latest log
+				// Latest Contact Log (as sort) needs an additional SQL where str:
+				$contact_log_types_str = '';
+				$sort_function         = 'MAX';
+				if ( $sortOrder !== 'DESC' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$sort_function = 'MIN';
+				}
+				if ( $withLastLog ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                    // retrieve log types to include 
-                    $contactLogTypes = $zbs->DAL->logs->contactLogTypes;
-                    $contactLogTypes = array_map('strtolower', $contactLogTypes);
+					// retrieve log types to include
+					$contact_log_types = $zbs->DAL->logs->contact_log_types; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-                    // build sql
-                    $contactLogSQL = ''; 
-                    if (is_array($contactLogTypes)){
+					// build sql
+					if ( is_array( $contact_log_types ) ) {
+						// create escaped csv
+						$contact_log_types_str = $this->build_csv( $contact_log_types );
+					}
+				}
 
-                        // create escaped csv
-                        $contactLogTypesStr = $this->build_csv($contactLogTypes);
+				// include invoices without deleted status in the total value for invoices_total_inc_deleted:
+				$inv_status_query_add = $this->DAL()->invoices->get_invoice_status_except_deleted_for_query();
 
-                    }   
+				// Mapped sorts
+				// This catches listview and other specific sort cases
+				// Note: Prefix here is a legacy leftover from the fact the AJAX List view retrieve goes through zeroBS_getCustomers() which prefixes zbsc_
+				$sort_map = array(
+					'zbsc_id'                   => 'ID',
+					'zbsc_owner'                => 'zbs_owner',
+					'zbsc_zbs_owner'            => 'zbs_owner',
 
-            }
+					// company (name)
+					'zbsc_company'              => '(SELECT zbsco_name FROM ' . $ZBSCRM_t['companies'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_from = contact.ID) ORDER BY zbsco_name ' . $sortOrder . ' LIMIT 0,1)', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-            // Mapped sorts
-            // This catches listview and other specific sort cases
-            // Note: Prefix here is a legacy leftover from the fact the AJAX List view retrieve goes through zeroBS_getCustomers() which prefixes zbsc_
-            $sort_map = array(
-                'zbsc_id'               => 'ID',
-                'zbsc_owner'            => 'zbs_owner',
-                'zbsc_zbs_owner'        => 'zbs_owner',   
+					// sort by subquery: Logs
+					// sort by latest log is effectively 'sort by last log added'
+					'zbsc_latestlog'            => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ')', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// sort by latest contact log is effectively 'sort by last contact log added' (requires $withLastLog = true)
+					'zbsc_lastcontacted'        => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ' AND zbsl_type IN (' . $contact_log_types_str . '))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                // company (name)
-                'zbsc_company'          => '(SELECT zbsco_name FROM '.$ZBSCRM_t['companies'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_to FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_CONTACT.' AND zbsol_objtype_to = '.ZBS_TYPE_COMPANY.' AND zbsol_objid_from = contact.ID) ORDER BY zbsco_name '.$sortOrder.' LIMIT 0,1)',
-
-                // sort by subquery: Logs 
-                // sort by latest log is effectively 'sort by last log added'
-                'zbsc_latestlog'        => '(SELECT '.$sortFunction.'(zbsl_created) FROM '.$ZBSCRM_t['logs'].' WHERE zbsl_objid = contact.ID AND zbsl_objtype = '.ZBS_TYPE_CONTACT.')',
-                // sort by latest contact log is effectively 'sort by last contact log added' (requires $withLastLog = true)
-                'zbsc_lastcontacted'    => '(SELECT '.$sortFunction.'(zbsl_created) FROM '.$ZBSCRM_t['logs'].' WHERE zbsl_objid = contact.ID AND zbsl_objtype = '.ZBS_TYPE_CONTACT.' AND zbsl_type IN ('.$contactLogTypesStr.'))',
-
-                // has & counts (same queries)
-                'zbsc_hasquote'         => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['quotes'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_QUOTE.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',
-                'zbsc_hasinvoice'       => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['invoices'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_INVOICE.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',
-                'zbsc_hastransaction'   => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['transactions'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_TRANSACTION.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',            
-                'zbsc_quotecount'       => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['quotes'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_QUOTE.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',
-                'zbsc_invoicecount'     => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['invoices'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_INVOICE.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',
-                'zbsc_transactioncount' => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['transactions'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_TRANSACTION.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',
-
-                // following will only work if obj total value subqueries triggered above ^
-                'zbsc_totalvalue'       => '((IFNULL(invoices_total,0) + IFNULL(transactions_total,0)) - IFNULL(transactions_paid_total,0))', // custom sort by total invoice value + transaction value - paid transactions (as mimicking tidy_contact php logic into SQL)
-                'zbsc_transactiontotal' => 'transactions_total',
-                'zbsc_quotetotal'       => 'quotes_total',
-                'zbsc_invoicetotal'     => 'invoices_total',
-
-            );
+				// has & counts (same queries)
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				'zbsc_hasquote'                 => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['quotes'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+				'zbsc_hasinvoice'               => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+				'zbsc_hastransaction'           => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['transactions'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+				'zbsc_quotecount'               => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['quotes'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+				'zbsc_invoicecount_inc_deleted' => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+				'zbsc_invoicecount'             => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID)' . $inv_status_query_add . ')',
+				'zbsc_transactioncount'         => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['transactions'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))',
+				// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// following will only work if obj total value subqueries triggered above ^
+				'zbsc_totalvalue'               => '((IFNULL(invoices_total,0) + IFNULL(transactions_total,0)) - IFNULL(transactions_paid_total,0))', // custom sort by total invoice value + transaction value - paid transactions (as mimicking tidy_contact php logic into SQL)
+				'zbsc_transactiontotal'         => 'transactions_total',
+				'zbsc_quotetotal'               => 'quotes_total',
+				'zbsc_invoicetotal'             => 'invoices_total',
+				);
             
             // either from $sort_map, or multi-dimensional name search
             if ( array_key_exists( $sortByField, $sort_map ) ) {
@@ -1839,15 +1842,28 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                         $query .= ", ";
                     }
 
-                    $query .= "(SELECT SUM(i.zbsi_total) 
-                    FROM " . $ZBSCRM_t['invoices'] . " AS i 
-                    INNER JOIN " . $ZBSCRM_t['objlinks'] . " AS ol
-                    ON i.ID = ol.zbsol_objid_from
-                    WHERE 
-                    ol.zbsol_objtype_from = " . ZBS_TYPE_INVOICE . "
-                    AND ol.zbsol_objtype_to = " . ZBS_TYPE_CONTACT . "
-                    AND ol.zbsol_objid_to IN ( " . $contact_query . " )) AS invoices_total";
+							// include invoices without deleted status in the total value for invoices_total_inc_deleted:
+							$inv_status_query_add = $this->DAL()->invoices->get_invoice_status_except_deleted_for_query();
 
+							// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							$query .= '(SELECT SUM(i.zbsi_total) 
+							FROM ' . $ZBSCRM_t['invoices'] . ' AS i 
+							INNER JOIN ' . $ZBSCRM_t['objlinks'] . ' AS ol
+							ON i.ID = ol.zbsol_objid_from
+							WHERE 
+							ol.zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . '
+							AND ol.zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . '
+							AND ol.zbsol_objid_to IN ( ' . $contact_query . ' ) ' . $inv_status_query_add . ') AS invoices_total,';
+
+							$query .= '(SELECT SUM(inc_deleted_invoices.zbsi_total) 
+							FROM ' . $ZBSCRM_t['invoices'] . ' AS inc_deleted_invoices 
+							INNER JOIN ' . $ZBSCRM_t['objlinks'] . ' AS ol
+							ON inc_deleted_invoices.ID = ol.zbsol_objid_from
+							WHERE 
+							ol.zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . '
+							AND ol.zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . '
+							AND ol.zbsol_objid_to IN ( ' . $contact_query . ' )) AS invoices_total_inc_deleted';
+							// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                 }
 
                 if ( zeroBSCRM_getSetting( 'feat_transactions' ) == 1 ){
@@ -1899,11 +1915,14 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                         // calculate a total sum (invoices + unassigned transactions)
                         $totals_data->total_sum = (float)$totals_data->invoices_total + (float)$totals_data->transactions_total - (float)$totals_data->assigned_transactions_total;
+								//total_sum_inc_deleted currently factors in deleted invoices
+								$totals_data->total_sum_inc_deleted = (float) $totals_data->invoices_total_inc_deleted + (float) $totals_data->transactions_total - (float) $totals_data->assigned_transactions_total;
 
                     } elseif ( zeroBSCRM_getSetting( 'feat_invs' ) == 1 ){
 
-                        // just include invoices in total
-                        $totals_data->total_sum = (float)$totals_data->invoices_total;
+								// just include invoices in total
+								$totals_data->total_sum             = (float) $totals_data->invoices_total;
+								$totals_data->total_sum_inc_deleted = (float) $totals_data->invoices_total_inc_deleted;
 
                     } elseif ( zeroBSCRM_getSetting( 'feat_quotes' ) == 1 ){
 
@@ -1941,7 +1960,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                     $totals_data = null;
 
                 }
-
                 return $totals_data;
 
             }
@@ -2032,23 +2050,25 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastlog'] = $potentialLogs[0];
 
-                        // CONTACT logs specificaly
-                        // doesn't return singular, for now using arr
-                        $potentialLogs = $this->DAL()->logs->getLogsForObj(array(
+								// CONTACT logs specifically
+								// doesn't return singular, for now using arr
+								$potentialLogs = $this->DAL()->logs->getLogsForObj( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									array(
 
-                                                'objtype' => ZBS_TYPE_CONTACT,
-                                                'objid' => $resDataLine->ID,
+										'objtype'     => ZBS_TYPE_CONTACT,
+										'objid'       => $resDataLine->ID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                                                'notetypes' => $zbs->DAL->logs->contactLogTypes,
-                                                
-                                                'incMeta'   => true,
+										'notetypes'   => $zbs->DAL->logs->contact_log_types, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-                                                'sortByField'   => 'zbsl_created',
-                                                'sortOrder'     => 'DESC',
-                                                'page'          => 0,
-                                                'perPage'       => 1
+										'incMeta'     => true,
 
-                                            ));
+										'sortByField' => 'zbsl_created',
+										'sortOrder'   => 'DESC',
+										'page'        => 0,
+										'perPage'     => 1,
+
+									)
+								);
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastcontactlog'] = $potentialLogs[0];
 
@@ -2084,24 +2104,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                     
                     }
-
-                    #} use sql instead #DB1LEGACY (TOMOVE)
-                    /* Needs writing for DAL3 
-    
-                        - note. I've left this here (4/2/19) because I believe the following/DAL3 generally might be
-                        ... such a performance hike that this is irrelevant.
-                        ... can later homogenise the following/these *WITHX* stuffs into 1 query, though not sure it'll produce 
-                        ... much perf gains.
-                        
-                    if ($withInvoices && $withQuotes && $withTransactions){
-
-                        $custDeets = zeroBS_getCustomerExtrasViaSQL($resDataLine->ID);
-                        $resArr['quotes'] = $custDeets['quotes'];
-                        $resArr['invoices'] = $custDeets['invoices'];
-                        $resArr['transactions'] = $custDeets['transactions'];
-
-
-                    } else { */
 
                             if ($withInvoices){
                             
@@ -3596,7 +3598,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             // gross backward compat
             if ($zbs->db1CompatabilitySupport) $res['meta'] = $res;
 
-
             // to maintain old obj more easily, here we refine created into datestamp
             $res['created'] = zeroBSCRM_locale_utsToDatetime($obj->zbsc_created);
             if ($obj->zbsc_lastcontacted != -1 && !empty($obj->zbsc_lastcontacted) && $obj->zbsc_lastcontacted > 0)
@@ -3622,8 +3623,15 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             // if have totals, pass them :)
             if (isset($obj->quotes_total)) $res['quotes_total'] = $obj->quotes_total;
-            if (isset($obj->invoices_total)) $res['invoices_total'] = $obj->invoices_total;
-            if (isset($obj->transactions_total)) $res['transactions_total'] = $obj->transactions_total;
+				if ( isset( $obj->invoices_total ) ) {
+					$res['invoices_total']             = $obj->invoices_total;
+					$res['invoices_total_inc_deleted'] = $obj->invoices_total_inc_deleted;
+					$res['invoices_count']             = $obj->invoices_count;
+					$res['invoices_count_inc_deleted'] = $obj->invoices_count_inc_deleted;
+				}
+				if ( isset( $obj->transactions_total ) ) {
+					$res['transactions_total'] = $obj->transactions_total;
+				}
             if (isset($obj->transactions_paid_total)) $res['transactions_paid_total'] = $obj->transactions_paid_total;
 
                 // and if have invs + trans totals, add to make total val
@@ -4896,67 +4904,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
     }
 
     /**
-     * Returns a count of objects of a type which are associated with this contact
-     * Supports Quotes, Invoices, Transactions, Events currently
-     *
-     * @param int contact_id
-     * @param int obj type id
-     *
-     * @return int
-     */
-    public function contactHasCountObjType( $contact_id, $obj_type_id ){
-
-        global $ZBSCRM_t, $wpdb;
-
-        switch ( $obj_type_id ){
-
-            case ZBS_TYPE_QUOTE: 
-
-                $table_name = $ZBSCRM_t['quotes'];
-
-                break;
-
-            case ZBS_TYPE_INVOICE: 
-
-                $table_name = $ZBSCRM_t['invoices'];
-
-                break;
-
-            case ZBS_TYPE_TRANSACTION: 
-
-                $table_name = $ZBSCRM_t['transactions'];
-
-                break;
-
-            case ZBS_TYPE_EVENT: 
-
-                $table_name = $ZBSCRM_t['events'];
-
-                break;
-
-            default:
-
-                // unsupported objtype
-                return -1;
-                break;
-        }
-
-        $obj_query = "SELECT COUNT(obj_table.id) FROM " . $table_name . " obj_table"
-            . " INNER JOIN " . $ZBSCRM_t['objlinks'] . " obj_links"
-            . " ON obj_table.id = obj_links.zbsol_objid_from"
-            . " WHERE obj_links.zbsol_objtype_from = " . $obj_type_id
-            . " AND obj_links.zbsol_objtype_to = " . ZBS_TYPE_CONTACT
-            . " AND obj_links.zbsol_objid_to = %d";
-
-        // counting objs with objlinks to this contact
-        // Note this also ignores ownership :O
-        $query = $this->prepare( $obj_query, $contact_id );
-
-        return (int)$wpdb->get_var( $query );
-        
-    }
-
-    /**
      * Returns the next customer ID and the previous customer ID
      * Used for the navigation between contacts. 
      *
@@ -5143,10 +5090,11 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             }
 
 			// Object view. Escaping JS for Phone link attr to avoid XSS
-	        $resArr['hometel'] = esc_js( $resArr['hometel'] );
-	        $resArr['worktel'] = esc_js( $resArr['worktel'] );
-			$resArr['mobtel']  = esc_js( $resArr['mobtel'] );
-
+			// phpcs:disable
+			$resArr['hometel'] = isset( $resArr['hometel'] ) ? esc_js( $resArr['hometel'] ) : '';
+			$resArr['worktel'] = isset( $resArr['worktel'] ) ? esc_js( $resArr['worktel'] ) : '';
+			$resArr['mobtel']  = isset( $resArr['mobtel'] ) ? esc_js( $resArr['mobtel'] ) : '';
+			// phpcs:enable
 
             return $resArr;
         }

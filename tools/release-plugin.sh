@@ -9,18 +9,18 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/plugin-functions.sh"
 . "$BASE/tools/includes/version-compare.sh"
 . "$BASE/tools/includes/normalize-version.sh"
+. "$BASE/tools/includes/changelogger.sh"
 
 
 # Instructions
 function usage {
 	cat <<-EOH
-		usage: $0 [options] <plugin> <version>
+		usage: $0 [options] <plugin> [<version>] [<plugin> [<version>] ...]
 
-		Conduct a full release of a specified plugin through release branch creation. The <plugin> must be the slug of the plugin, such as plugins/jetpack
+		Conduct a full release of specified plugins through release branch creation. Just the plugin name is fine, such as 'jetpack' or 'backup.' The version is optional, and if not specified, will be set to the next stable version.
 
 		Options:
-			-a Release an alpha version
-			-b Release a beta version
+			-h Show this help message.
 	EOH
 	exit 1
 }
@@ -33,7 +33,7 @@ if ! command -v gh &> /dev/null; then
 		brew install gh
 	else
 		die "Please install the GitHub CLI before proceeding"
-	fi 
+	fi
 fi
 
 GH_VER="$( gh --version | grep -E -o -m1 '[0-9]+\.[0-9]+\.[0-9]+' )"
@@ -42,19 +42,16 @@ if ! version_compare "$GH_VER" "2.21.2"; then
 	die "Your version of the GH CLI is out of date. Please upgrade your version$WITH and start again"
 fi
 
+# Make sure we're signed into the GitHub CLI.
+if ! gh auth status --hostname github.com &> /dev/null; then
+	yellow "You are not signed into the GitHub CLI."
+	proceed_p "Sign in to the GitHub CLI?"
+	gh auth login
+fi
+
 # Get the options passed and parse them.
-ARGS=('-p')
-ALPHABETA=
-while getopts "v:abh" opt; do
+while getopts "h" opt; do
 	case ${opt} in
-		a)
-			ALPHABETA='-a'
-			ARGS+=("$ALPHABETA")
-		;;
-		b)
-			ALPHABETA='-b'
-			ARGS+=("$ALPHABETA")
-		;;
 		h)
 			usage
 		;;
@@ -67,30 +64,68 @@ while getopts "v:abh" opt; do
 done
 shift "$(($OPTIND -1))"
 
-# If there are more than two arguments, bail.
-[[ $# -gt 2 ]] && die "Too many arguments specified! Only provide a project and a version number. Got:$(printf ' "%s"' "$@")"$'\n'"(note all options must come before the project slug)"
-
-# Get the project slug.
-PROJECT=
-SLUG="${1#projects/}" # DWIM
-SLUG="${SLUG%/}" # Sanitize
-if [[ -e "$BASE/projects/$SLUG/composer.json" ]]; then
-	yellow "Project found: $SLUG"
-	PROJECT="$SLUG"
+# Parse arguments in associated array of plugins/project => version format.
+if [ $# -eq 0 ]; then
+	usage
 fi
-[[ -z "$PROJECT" ]] && die "A valid project slug must be specified (make sure project is in plugins/<project> format and comes before specifying version number."
 
-# Determine the project version
-[[ -z $2 ]] && die "Please specify a version number"
-# Figure out the version(s) to use for the plugin(s).
+declare -A PROJECTS
+while [[ $# -gt 0 ]]; do
+	if [[ "$1" =~ ^[a-zA-Z\-]+$ ]]; then
+		PLUGIN=$1
+	else
+		die "Script must be passed in <project> [version] format. Got $1"
+	fi
+
+	if [[ "$2" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
+		PROJECTS["$PLUGIN"]=$2
+		SHIFT="2"
+	else
+		PROJECTS["$PLUGIN"]=''
+		SHIFT="1"
+	fi
+	shift "$SHIFT"
+done
+
+# If we're releasing Jetpack, we're also releasing mu-wpcom-plugin.
+if [[ -v PROJECTS["jetpack"] && ! -v PROJECTS["mu-wpcom-plugin"] ]]; then
+	PROJECTS["mu-wpcom-plugin"]=''
+fi
+
+# Check that the projects are valid.
+for PLUGIN in "${!PROJECTS[@]}"; do
+	# Get the project slug.
+	SLUG="${PLUGIN#projects/}" # DWIM
+	SLUG="${SLUG%/}" # Sanitize
+	SLUG="plugins/$SLUG"
+	if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
+		die "$SLUG isn't a valid project!"
+	elif ! jq -e '.extra["release-branch-prefix"]' "$BASE/projects/$SLUG/composer.json" &>/dev/null; then
+		die "$SLUG has no release branch prefix!"
+	else
+		PROJECTS["$SLUG"]="${PROJECTS[$PLUGIN]}"
+		unset "PROJECTS[$PLUGIN]"
+	fi
+done
+
+# Try to obtain a version number for plugins that we didn't supply.
+for SLUG in "${!PROJECTS[@]}"; do
+	if [[ -z "${PROJECTS[$SLUG]}" ]]; then
+		cd "$BASE/projects/$SLUG"
+		PROJECTS["$SLUG"]=$(changelogger version next)
+	fi
+done
+cd "$BASE"
+
+# Check the plugin version(s) to use for the plugin(s).
 function check_ver {
-	normalize_version_number "$1"
+	normalize_version_number "$2"
 	if [[ ! "$NORMALIZED_VERSION" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
 		red "\"$NORMALIZED_VERSION\" does not appear to be a valid version number."
 		return 1
 	fi
 	local CUR_VERSION
-	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PROJECT")
+	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$1")
 	# shellcheck disable=SC2310
 	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
 		proceed_p "Version $NORMALIZED_VERSION <= $CUR_VERSION."
@@ -99,40 +134,23 @@ function check_ver {
 	return 0
 }
 
-if ! check_ver "$2"; then
-	die "Please specify a valid version number."
-fi
-VERSION="$2"
-
-# Bail if we're passing an alpha or beta flag but not including it in the version number and vice versa.
-VERSION_AB=
-if VERSION_AB="$(grep -o '-a\|-beta' <<< "$VERSION")"; then
-	VERSION_AB="-${VERSION_AB:1:1}"
-fi
-
-if [[ -n "$ALPHABETA" ]]; then
-	if [[ "$VERSION_AB" != "$ALPHABETA" || ! "$VERSION_AB" ]]; then
-		die "$ALPHABETA passed to script, but version number $VERSION does not contain the corresponding flag."
+for PLUGIN in "${!PROJECTS[@]}"; do
+	if ! check_ver "$PLUGIN" "${PROJECTS[$PLUGIN]}"; then
+		die "Please specify a valid version number."
 	fi
-elif [[ -n "$VERSION_AB" && -z "$ALPHABETA" ]]; then
-	die "$VERSION contains alpha or beta flag, but corresponding flag was not passed to the script, i.e. tools/release-plugin.sh -b plugins/jetpack 11.6-beta."
-fi
+	echo "Releasing $PLUGIN ${PROJECTS[$PLUGIN]}"
+done
 
-proceed_p "Releasing $PROJECT $VERSION" "Proceed?"
+proceed_p "" "Proceed releasing above projects?"
 
-# Check if a remote branch for the release branch exits and ask to delete it if it does.
-PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/"$PROJECT"/composer.json)
-RELEASE_BRANCH=
-if [[ -n "$PREFIX" ]]; then
-	RELEASE_BRANCH="$PREFIX/branch-${VERSION%%-*}"
-else
-	die "No release branch prefix found for $PROJECT, aborting."
-fi
-
-REMOTE_BRANCH="$(git ls-remote origin "$RELEASE_BRANCH")"
-if [[ -n "$REMOTE_BRANCH" ]]; then
-	proceed_p "Existing release branch $RELEASE_BRANCH found." "Delete it before continuing?"
-	git push origin --delete "$RELEASE_BRANCH"
+# Figure out which release branch prefixes to use.
+PREFIXDATA=$(jq -n 'reduce inputs as $in ({}; .[ $in.extra["release-branch-prefix"] | if . == null then empty elif type == "array" then .[] else . end ] += [ input_filename | capture( "projects/plugins/(?<p>[^/]+)/composer\\.json$" ).p ] ) | to_entries | sort_by( ( .value | -length ), .key ) | from_entries' "$BASE"/projects/plugins/*/composer.json)
+TMP=$(jq -rn --argjson d "$PREFIXDATA" '$d | reduce to_entries[] as $p ({ s: ( $ARGS.positional | map( sub( "^plugins/"; "" ) ) ), o: []}; if $p.value - .s == [] then .o += [ $p.key ] | .s -= $p.value else . end) | .o[]' --args "${!PROJECTS[@]}")
+mapfile -t PREFIXES <<<"$TMP"
+[[ ${#PREFIXES[@]} -eq 0 ]] && die "Could not determine prefixes for projects ${!PROJECTS[*]}"
+if [[ ${#PREFIXES[@]} -gt 1 ]]; then
+	yellow "The specified set of plugins will require multiple release branches: ${PREFIXES[*]}"
+	proceed_p ""
 fi
 
 # Make sure we're standing on trunk and working directory is clean
@@ -158,9 +176,25 @@ if ! git push -u origin HEAD; then
 	die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 fi
 
-yellow "Updating the changelogs."
-# Run the changelogger release script
-tools/changelogger-release.sh "${ARGS[@]}" "$PROJECT"
+# Loop through the projects and update the changelogs after building the arguments.
+for PLUGIN in "${!PROJECTS[@]}"; do
+	yellow "Updating the changelog files for $PLUGIN."
+
+	# Add the PR numbers to the changelog.
+	ARGS=('-p')
+
+	# Add alpha and beta flags.
+	VERSION="${PROJECTS[$PLUGIN]}"
+	case $VERSION in
+		*-a* ) ARGS+=('-a');;
+		*-beta ) ARGS+=('-b');;
+	esac
+
+	# Explicitly pass the version number we want so there are no surprises.
+	ARGS+=( '-r' "${PROJECTS[$PLUGIN]}" )
+	ARGS+=("$PLUGIN");
+	tools/changelogger-release.sh "${ARGS[@]}"
+done
 
 # When it completes, wait for user to edit anything they want, then push key to continue.
 read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)), then press enter when finished to continue the release process.'
@@ -168,11 +202,11 @@ echo ""
 
 yellow "Committing changes."
 git add --all
-git commit -am "Changelog edits for $PROJECT"
+git commit -am "Changelog edits."
 
-# If we're running a beta, amend the changelog
-if [[ "$PROJECT" == "projects/jetpack" && "$ALPHABETA" == "-b" ]]; then
-	yellow "Releasing a beta, amending the readme.txt"
+# If we're releasing Jetpack and it's a beta, amend the readme.txt
+if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" == *-beta ]]; then
+	yellow "Releasing a beta for Jetpack, amending the readme.txt"
 	pnpm jetpack changelog squash plugins/jetpack readme
 	git commit -am "Amend readme.txt"
 fi
@@ -194,15 +228,26 @@ done
 
 if [[ -z "$BUILDID" ]]; then
 	die "Build ID not found. Check GitHub actions to see if build on prerelease branch is running, then continue with manual steps."
-fi 
+fi
 
 yellow "Build ID found, waiting for build to complete and push to mirror repos."
 if ! gh run watch "${BUILDID[0]}" --exit-status; then
 	echo "Build failed! Check for build errors on GitHub for more information." && die
 fi
 
-# After this, run tools/create-release-branch.sh to create a release branch.
-yellow "Build is complete. Creating a release branch."
-tools/create-release-branch.sh "$PROJECT" "$VERSION"
+yellow "Build is complete."
+# Run tools/create-release-branch.sh to create a release branch for each project.
+for PREFIX in "${PREFIXES[@]}"; do
+	git checkout prerelease
+	PROJECT=$(jq -r --arg prefix "$PREFIX" '.[$prefix] | if length == 1 then "plugins/\(first)" else empty end' <<<"$PREFIXDATA")
+	if [[ -n "$PROJECT" && -n "${PROJECTS[$PROJECT]}" ]]; then
+		VERSION="${PROJECTS[$PROJECT]}"
+		yellow "Creating release branch for $PROJECT $VERSION"
+		tools/create-release-branch.sh "$PROJECT" "$VERSION"
+	else
+		yellow "Creating release branch for $PREFIX"
+		tools/create-release-branch.sh "$PREFIX"
+	fi
+done
 
-yellow "Release branch created!"
+yellow "Release branches created!"

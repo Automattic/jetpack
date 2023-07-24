@@ -11,32 +11,11 @@ Use composer to add the package to your project:
 composer add automattic/jetpack-blaze
 ```
 
-### Initializing the features
-
-#### Using the Config Package
-
-The JITMs can be enabled using the Config package:
-
-```
-use Automattic/Jetpack/Blaze;
-
-add_action( 'plugins_loaded', 'configure_blaze', 1 );
-
-function configure_blaze() {
-    $config = new Config();
-    $config->ensure( 'blaze' );
-}
-```
-
-#### Hook it
-Or can initialize it on the `admin_init` hook:
-
-```php
-add_action( 'admin_init', array( '\Automattic\Jetpack\Blaze', 'configure' ) );
-```
+### Initializing the feature
 
 #### Direct invocation
-Or directly invoke with a method call: 
+You can directly invoke the feature with a method call: 
+
 ```php
 use Automattic\Jetpack\Blaze;
 Blaze::init();
@@ -58,7 +37,9 @@ jetpack build packages/blaze
 ```bash
 jetpack watch packages/blaze
 ```
+## Using this package in your WordPress plugin
 
+If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
 
 ## Security
 

@@ -487,19 +487,14 @@ class Tokens {
 	 *
 	 * @todo Refactor to properly load the XMLRPC client independently.
 	 *
-	 * @param int       $user_id The user identifier.
-	 * @param bool|null $deprecated Deprecated.
+	 * @param int $user_id The user identifier.
 	 *
 	 * @return bool Whether the disconnection of the user was successful.
 	 */
-	public function disconnect_user( $user_id, $deprecated = null ) {
+	public function disconnect_user( $user_id ) {
 		$tokens = $this->get_user_tokens();
 		if ( ! $tokens ) {
 			return false;
-		}
-
-		if ( null !== $deprecated ) {
-			_deprecated_argument( __METHOD__, '1.46.0', 'Parameter $can_overwrite_primary_user is deprecated' );
 		}
 
 		if ( ! isset( $tokens[ $user_id ] ) ) {
@@ -557,7 +552,7 @@ class Tokens {
 			$nonce = substr( sha1( wp_rand( 0, 1000000 ) ), 0, 10 );
 		}
 
-		$normalized_request_string = join(
+		$normalized_request_string = implode(
 			"\n",
 			array(
 				$token_key,
@@ -581,7 +576,7 @@ class Tokens {
 			$header_pieces[] = sprintf( '%s="%s"', $key, $value );
 		}
 
-		return join( ' ', $header_pieces );
+		return implode( ' ', $header_pieces );
 	}
 
 	/**

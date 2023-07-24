@@ -27,7 +27,7 @@ new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint(
 			'alt'         => '(string) Alternative text for image files.',
 			'artist'      => '(string) Audio Only. Artist metadata for the audio track.',
 			'album'       => '(string) Audio Only. Album metadata for the audio track.',
-			'media'       => '(object) An object file to attach to the post. To upload media, ' .
+			'media'       => '(media) An object file to attach to the post. To upload media, ' .
 							'the entire request should be multipart/form-data encoded. ' .
 							'Multiple media items will be displayed in a gallery. Accepts ' .
 							'jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. ' .
@@ -117,7 +117,8 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 	 * @param  {Object} $attrs - `attrs` parameter sent from the client in the request body.
 	 */
 	private function update_by_attrs_parameter( $media_id, $attrs ) {
-		$insert = array();
+		$post_update_action = null;
+		$insert             = array();
 
 		// Attributes: Title, Caption, Description.
 		if ( isset( $attrs['title'] ) ) {

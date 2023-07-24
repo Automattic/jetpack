@@ -12,12 +12,8 @@ import styles from './styles.module.scss';
  * @returns {React.Component} The `ConnectionErrorNotice` component.
  */
 const ConnectionErrorNotice = props => {
-	const {
-		message,
-		isRestoringConnection,
-		restoreConnectionCallback,
-		restoreConnectionError,
-	} = props;
+	const { message, isRestoringConnection, restoreConnectionCallback, restoreConnectionError } =
+		props;
 
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 	const wrapperClassName =

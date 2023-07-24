@@ -12,7 +12,6 @@ namespace Automattic\Jetpack_Boost\Lib;
 use Automattic\Jetpack\Config as Jetpack_Config;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Terms_Of_Service;
-use Automattic\Jetpack_Boost\Admin\Config;
 
 /**
  * Class Connection
@@ -130,19 +129,14 @@ class Connection {
 	 */
 	public function register() {
 		if ( $this->is_connected() ) {
-			Analytics::record_user_event( 'connect_site' );
-
+			Analytics::record_user_event( 'using_existing_connection' );
 			return true;
 		}
 
 		$result = $this->manager->register();
 
 		if ( ! is_wp_error( $result ) ) {
-			Analytics::record_user_event( 'connect_site' );
-
-			// Set a flag that the site is getting started with Boost
-			Config::set_getting_started( true );
-
+			Analytics::record_user_event( 'established_connection' );
 			Premium_Features::clear_cache();
 		}
 
@@ -201,9 +195,14 @@ class Connection {
 
 		$response = $this->register();
 
+		// Clear premium features cache to force a refresh.
+		Premium_Features::clear_cache();
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
+
+		do_action( 'jetpack_boost_connection_established' );
 
 		return rest_ensure_response( $this->get_connection_api_response() );
 	}
@@ -227,11 +226,13 @@ class Connection {
 	public function get_connection_api_response() {
 		$force_connected = apply_filters( 'jetpack_boost_connection_bypass', false );
 
-		return array(
+		$response = array(
 			'connected'     => $force_connected || $this->is_connected(),
 			'wpcomBlogId'   => ( $force_connected || $this->is_connected() ) ? self::wpcom_blog_id() : null,
 			'userConnected' => $this->manager->is_user_connected(),
 		);
+
+		return $response;
 	}
 
 	/**

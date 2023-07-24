@@ -5,6 +5,102 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2023-07-24
+### Added
+- Image Size Analyzer: New feature for Premium users which scans their site for image issues [#31794]
+
+### Changed
+- General: Beta tags removed from Concatenate CSS/JS and Image CDN. [#31777]
+- General: Indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
+- Speed Scores: Update 'score dropped' card copy, with links to documentation. [#32010]
+
+### Fixed
+- Cloud CSS: Fixed automatic start of cloud CSS regeneration when module is toggled on [#31887]
+- General: Fixed error snackbar from showing under UI separators on the Getting Started page. [#31706]
+- Speed Score: Prevented page speed scores from auto refreshing on page load. [#31863]
+- Super Cache Measurement Tool: Fixed the use of the donotcachepage option during tests, which may have produced understated results [#31828]
+
+## [1.9.4] - 2023-07-05
+### Fixed
+- Minify CSS/JS: Removed Content-Length from cached minified content to avoid potential cache mangling on some hosts [#31692]
+
+## [1.9.3] - 2023-07-03
+### Fixed
+- General: Bumped version to fix a versioning glitch in the WordPress.org repository.
+
+## [1.9.2] - 2023-07-03
+### Added
+- Image Guide: Added a proxy to allow the Image Guide UI to load the size of remote images. [#31145]
+- Minify CSS/JS: Added an endpoint for fetching minfied content which does not rely on loading WordPress, allowing hosts to more efficiently fetch minified content. [#30825]
+- Speed Scores: Added an internal argument to record the source of each Speed Score request. [#31012]
+- Speed Scores: Added a notice to the Site Health panel when speed scores need updating. [#31101]
+
+### Changed
+- Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
+- General: Updated checklist spacing and button font size and line height. [#31098]
+- Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
+- Minify CSS: Moved the default URL base of minified CSS files to /_jb_static, and added a constant to override it. [#31631]
+- Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
+- General: Updated checklist spacing and button font size and line height. [#31098]
+- Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
+
+### Fixed
+- Critical CSS: Critical CSS Generation was skipping posts and pages on sites with fewer than 10 of either. [#31506]
+- General: Compatibility fixes for older versions of Safari [#31534]
+- General: Fixed a potential loop which repeatedly showed the Getting Started page. [#31648]
+- General: Fixed incorrect tracks events around plugin connection [#31233]
+- Image Guide: Fixed issues with Image Guide placement on the page with some themes. [#31410]
+- Minify CSS: Fixed issues with relative paths when WordPress is installed in a sub-directory. [30863]
+- Minify CSS: Fixed issues with relative paths when WordPress is installed in a sub-directory. [#30863]
+- Image Guide: Fixed issues with Image Guide placement on the page with some themes. [#31410]
+
+## [1.9.1] - 2023-05-11
+### Added
+- New Feature: Added JS and CSS file minification [#30005]
+
+### Changed
+- General: Improved the way modules are toggled internally [#29451]
+- General: Updated package dependencies
+- Image CDN: Improved Image CDN description [#29962]
+- User Experience: Removed back button from purchase success page [#30180]
+
+### Fixed
+- Cloud CSS: Don't run local regenerate automagically when using cloud css [#29968]
+- Cloud CSS: Fixed a mismatch in cloud-css key [#29972]
+- Critical CSS: Fixed Critical CSS from making redundant requests on page load [#30053]
+- Deferred JS: Fixed some extremely short pages (such as WooCommerce Box Office tickets being printed) from resulting in a blank page [#30025]
+- General: Fixed some PHP 8.2 Warnings [#30150]
+- User Experience: Fixed some language choices around Boost popups [#30048]
+
+## [1.8.0] - 2023-04-06
+### Added
+- Critical CSS: Added a notice to regenerate Critical CSS to the Boost dashboard. [#28858]
+- General: Added a link to activate a license key. [#29443]
+- Image CDN: Added image CDN to Boost. [#29561]
+- Image Guide: Added information about the Image Guide to the readme. [#29799]
+
+### Changed
+- Critical CSS: Added clearer explanations of the feature, and when to regenerate CSS. [#29250]
+- General: Faster "Getting Started" flow, bypassing the first connection screen. [#28938]
+- General: Revised Jetpack connection agreement text to comply with our User Agreement. [#28403]
+- General: Switch to a more stable internal data sync package. [#29899]
+- General: Updated contributors list. [#28891]
+- General: Updated to React 18. [#28710]
+
+### Fixed
+- Critical CSS: Added Internal schema validation for improved stability. [#29564]
+- Critical CSS: Expanded the set of site changes which can trigger a regeneration. [#29109]
+- Critical CSS: Fixed a minor UI glitch caused by a missing close tag. [#28548]
+- Critical CSS: Fixed PHP warning when deleting stored Critical CSS [#28372]
+- Critical CSS: Unified the internal structure of Cloud and Critical CSS, ensuring a smoother experience when switching between the two. [#29554]
+- Lazy Loading: Fixed images sometimes failing to Lazy-load in Safari. [#29266]
+- General: Fixed incorrect font sizes and weights in various screens. [#29411]
+- General: Fixed incorrect GET parameters used during purchase flow, which leading to inconsistent behaviour. [#28825]
+- Deferred JS: Fixed some compatibility issues with page-builders by turning off Deferred JS in the customizer preview. [#29143]
+- General: Fixed triggers for optimization initialization sometimes firing on the wrong hook. [#28888]
+- General: Fixed "Undefined array key: post" warning. [#29096]
+- General: Fixed stats tracking by using the correct casing for Tracks event properties. [#29111]
+
 ## [1.7.0] - 2023-01-17
 ### Added
 - New Feature: Jetpack Boost Image Guide.
@@ -202,15 +298,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[1.3.1-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.3.0-beta...v1.3.1-beta
-[1.3.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.2.0...v1.3.0-beta
-[1.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.1.0...v1.2.0-beta
-[1.4.3-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.2...v1.4.3-beta
-[1.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.6.0...v1.7.0
-[1.6.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.5.4...v1.6.0
-[1.5.4]: https://github.com/Automattic/jetpack-boost-production/compare/v1.5.3...v1.5.4
-[1.5.3]: https://github.com/Automattic/jetpack-boost-production/compare/v1.5.1...v1.5.3
-[1.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/v1.5.0...v1.5.1
-[1.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.1...v1.5.0
-[1.4.2]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.1...v1.4.2
-[1.4.1]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.0...v1.4.1
+[2.0.0]: https://github.com/Automattic/jetpack-boost-production/compare/1.9.4...2.0.0
+[1.9.4]: https://github.com/Automattic/jetpack-boost-production/compare/1.9.3...1.9.4
+[1.9.3]: https://github.com/Automattic/jetpack-boost-production/compare/1.9.2...1.9.3
+[1.9.2]: https://github.com/Automattic/jetpack-boost-production/compare/1.9.1...1.9.2
+[1.9.1]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.8.0...boost/branch-1.9.1
+[1.8.0]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.7.0...boost/branch-1.8.0
+[1.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.6.0...boost/branch-1.7.0
+[1.6.0]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.5.4...boost/branch-1.6.0
+[1.5.4]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.5.3...boost/branch-1.5.4
+[1.5.3]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.5.1...boost/branch-1.5.3
+[1.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.5.0...boost/branch-1.5.0
+[1.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.4.2...boost/branch-1.5.0
+[1.4.2]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.4.1...boost/branch-1.4.2
+[1.4.1]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.3.1...boost/branch-1.4.1

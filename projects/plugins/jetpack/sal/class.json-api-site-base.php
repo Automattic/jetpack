@@ -11,6 +11,7 @@
  * @package automattic/jetpack
  **/
 
+use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -484,6 +485,20 @@ abstract class SAL_Site {
 	 * @return bool - False for Jetpack-connected sites.
 	 */
 	public function is_wpcom_store() {
+		return false;
+	}
+
+	/**
+	 * Indicate whether this site was ever a specific trial.
+	 *
+	 * @param string $trial The trial type to check for.
+	 *
+	 * @return bool
+	 */
+	public function was_trial( $trial ) {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( "had-{$trial}-trial" );
+		}
 		return false;
 	}
 
@@ -1457,5 +1472,44 @@ abstract class SAL_Site {
 		}
 
 		return array();
+	}
+
+	/**
+	 * Detect whether a site is WordPress.com Staging Site.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_wpcom_staging_site();
+
+	/**
+	 * Get site option for the production blog id (if is a WP.com Staging Site).
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function get_wpcom_production_blog_id();
+
+	/**
+	 * Get site option for the staging blog ids (if it has them)
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function get_wpcom_staging_blog_ids();
+
+	/**
+	 * Get the site's Blaze eligibility status.
+	 *
+	 * @return bool
+	 */
+	public function can_blaze() {
+		return (bool) Blaze::site_supports_blaze( $this->blog_id );
+	}
+
+	/**
+	 * Return site's setup identifier.
+	 *
+	 * @return string
+	 */
+	public function get_wpcom_site_setup() {
+		return get_option( 'wpcom_site_setup' );
 	}
 }

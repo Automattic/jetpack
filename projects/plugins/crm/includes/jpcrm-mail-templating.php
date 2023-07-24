@@ -145,7 +145,7 @@ function zeroBSCRM_mailTemplate_emailPreview($templateID=-1){
 
 			$bizInfoTable = "";
 			##WLREMOVE
-				$bizInfoTable = "<div style='text-align:right'><b>John Doe</b><br/>".__("This is replaced<br>with the customers details<br>from their profile.",'zero-bs-crm')."</div>";			
+			$bizInfoTable = '<div style="text-align:right"><b>John Doe</b><br/>' . __( 'This is replaced<br>with the contacts details<br>from their profile.', 'zero-bs-crm' ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase	
 			##/WLREMOVE
 
 			$replacements['invoice-number'] = $invNoStr;
@@ -213,8 +213,8 @@ function zeroBSCRM_mailTemplate_emailPreview($templateID=-1){
 		// event
 		if ( $templateID == 5 ){
 
-			$replacements['task-title'] = __('Example Event #101','zero-bs-crm');
-			$replacements['task-link'] = '<div style="text-align:center;margin:1em;margin-top:2em">'.zeroBSCRM_mailTemplate_emailSafeButton(admin_url(),__('View Event','zero-bs-crm')).'</div>';
+			$replacements['task-title'] = __( 'Example Task #101', 'zero-bs-crm' );
+			$replacements['task-link']  = '<div style="text-align:center;margin:1em;margin-top:2em">' . zeroBSCRM_mailTemplate_emailSafeButton( admin_url(), __( 'View Task', 'zero-bs-crm' ) ) . '</div>';
 
 	        // replace vars
 	        $html = $placeholder_templating->replace_placeholders( array( 'global', 'event' ), $html, $replacements );
@@ -864,15 +864,15 @@ function zeroBSCRM_Event_generateNotificationHTML( $return = true, $email = fals
 		$eventURL = jpcrm_esc_link( 'edit', $event['id'], ZBS_TYPE_EVENT );
 		$eventHTML = '<p>' . nl2br( $event['desc'] ) . '</p>';
 		$eventHTML .= '<hr /><p style="text-align:center">';
-		$eventHTML .= __( 'Your event starts at ', 'zero-bs-crm' ) . '<strong>' . $event['start_date'] . '</strong><br/>';
+		$eventHTML .= __( 'Your task starts at ', 'zero-bs-crm' ) . '<strong>' . $event['start_date'] . '</strong><br/>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// $eventHTML .= __( 'to: ', 'zero-bs-crm' ) . $event['end_date'];
 		$eventHTML .= '</p><hr />';
 
 		// replacements
-		$replacements['title'] = __( 'Your Event is starting soon', 'zero-bs-crm' );
-		$replacements['task-title'] = '<h2>' . $event['title'] . '</h2>';
-		$replacements['task-desc'] = $eventHTML;
-		$replacements['task-link-button'] = '<div style="text-align:center;margin:1em;margin-top:2em">' . __( 'You can view your event at the following URL: ', 'zero-bs-crm' ) . '<br />' . zeroBSCRM_mailTemplate_emailSafeButton( $eventURL, __( 'View Event', 'zero-bs-crm' ) ) . '</div>';
+		$replacements['title']            = __( 'Your Task is starting soon', 'zero-bs-crm' );
+		$replacements['task-title']       = '<h2>' . $event['title'] . '</h2>';
+		$replacements['task-body']        = $eventHTML; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$replacements['task-link-button'] = '<div style="text-align:center;margin:1em;margin-top:2em">' . __( 'You can view your task at the following URL: ', 'zero-bs-crm' ) . '<br />' . zeroBSCRM_mailTemplate_emailSafeButton( $eventURL, __( 'View Task', 'zero-bs-crm' ) ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// replacements
 		$html = $placeholder_templating->replace_placeholders( array( 'global', 'event', 'contact', 'company' ), $html, $replacements, array( ZBS_TYPE_EVENT => $event ) );

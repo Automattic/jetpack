@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
@@ -31,9 +33,17 @@ const DEFAULT_SPACING_VALUE       = 10;
  * registration if we need to.
  */
 function register_block() {
+	/*
+	 * Disable the feature on P2 blogs
+	 */
+	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) &&
+		\WPForTeams\is_wpforteams_site( get_current_blog_id() ) ) {
+		return;
+	}
+
 	if (
 		( defined( 'IS_WPCOM' ) && IS_WPCOM )
-		|| ( Jetpack::is_connection_ready() && Jetpack::is_module_active( 'subscriptions' ) && ! ( new Status() )->is_offline_mode() )
+		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
 	) {
 		Blocks::jetpack_register_block(
 			BLOCK_NAME,
@@ -50,11 +60,24 @@ function register_block() {
 		);
 	}
 
+	/*
+	 * If the Subscriptions module is not active,
+	 * do not make any further changes on the site.
+	 */
+	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+		return;
+	}
+
+	/**
+	 * Do not proceed if the newsletter feature is not enabled
+	 * or if the 'Jetpack_Memberships' class does not exists.
+	 */
 	if (
 		/** This filter is documented in class.jetpack-gutenberg.php */
-		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
+		|| ! class_exists( '\Jetpack_Memberships' )
 	) {
-		return; // Stop here if our Paid Newsletter feature is not enabled.
+		return;
 	}
 
 	register_post_meta(
@@ -90,22 +113,12 @@ function register_block() {
 
 	// Gate the excerpt for a post
 	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
+
+	// Add a 'Newsletter access' column to the Edit posts page
+	add_action( 'manage_post_posts_columns', __NAMESPACE__ . '\register_newsletter_access_column' );
+	add_action( 'manage_post_posts_custom_column', __NAMESPACE__ . '\render_newsletter_access_rows', 10, 2 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
-
-/**
- * Check if Newsletter plans are available for a site
- *
- * @return bool - Default to false.
- */
-function has_newsletter_plans() {
-	return (
-		/** This filter is documented in class.jetpack-gutenberg.php */
-		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
-		&& class_exists( 'Jetpack_Memberships' )
-		&& Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' )
-	);
-}
 
 /**
  * Returns true when in a WP.com environment.
@@ -117,18 +130,64 @@ function is_wpcom() {
 }
 
 /**
- * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers
+ * Adds a 'Newsletter' column after the 'Title' column in the post list
  *
- * @return array containing ['value' => ['email_subscribers' => 0, 'social_followers' => 0]]
+ * @param array $columns An array of column names.
+ * @return array An array of column names.
+ */
+function register_newsletter_access_column( $columns ) {
+	if ( ! Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
+		// We only display the "NL access" column if we have published one paid-newsletter
+		return $columns;
+	}
+
+	$position   = array_search( 'title', array_keys( $columns ), true );
+	$new_column = array( NEWSLETTER_COLUMN_ID => '<span>' . __( 'Newsletter', 'jetpack' ) . '</span>' );
+	return array_merge(
+		array_slice( $columns, 0, $position + 1, true ),
+		$new_column,
+		array_slice( $columns, $position, null, true )
+	);
+}
+
+/**
+ * Displays the newsletter access level.
+ *
+ * @param string $column_id The ID of the column to display.
+ * @param int    $post_id The current post ID.
+ */
+function render_newsletter_access_rows( $column_id, $post_id ) {
+	if ( NEWSLETTER_COLUMN_ID !== $column_id ) {
+		return;
+	}
+
+	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+
+	switch ( $access_level ) {
+		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+			echo esc_html__( 'Paid Subscribers', 'jetpack' );
+			break;
+		case Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
+			echo esc_html__( 'Subscribers', 'jetpack' );
+			break;
+		case Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY:
+			echo esc_html__( 'Everybody', 'jetpack' );
+			break;
+		default:
+			echo '';
+	}
+}
+
+/**
+ * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers & paid_subscribers
+ *
+ * @return array containing ['value' => ['email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0]]
  */
 function fetch_subscriber_counts() {
 	$subs_count = 0;
 	if ( is_wpcom() ) {
 		$subs_count = array(
-			'value' => array(
-				'email_subscribers' => \wpcom_subs_total_for_blog(),
-				'social_followers'  => \wpcom_social_followers_total_for_blog(),
-			),
+			'value' => \wpcom_fetch_subs_counts( true ),
 		);
 	} else {
 		$cache_key  = 'wpcom_subscribers_totals';
@@ -145,6 +204,7 @@ function fetch_subscriber_counts() {
 					'value'   => ( isset( $subs_count['value'] ) ) ? $subs_count['value'] : array(
 						'email_subscribers' => 0,
 						'social_followers'  => 0,
+						'paid_subscribers'  => 0,
 					),
 				);
 			} else {
@@ -269,9 +329,9 @@ function get_element_class_names_from_attributes( $attributes ) {
 	);
 
 	return array(
-		'block_wrapper' => join( ' ', array_keys( $block_wrapper_classes ) ),
-		'email_field'   => join( ' ', array_keys( $email_field_classes ) ),
-		'submit_button' => join( ' ', array_keys( $submit_button_classes ) ),
+		'block_wrapper' => implode( ' ', array_keys( $block_wrapper_classes ) ),
+		'email_field'   => implode( ' ', array_keys( $email_field_classes ) ),
+		'submit_button' => implode( ' ', array_keys( $submit_button_classes ) ),
 	);
 }
 
@@ -366,9 +426,17 @@ function get_element_styles_from_attributes( $attributes ) {
  * @return string
  */
 function render_block( $attributes ) {
-	// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
-	if ( has_newsletter_plans() ) {
-		// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
+	// If the Subscriptions module is not active, don't render the block.
+	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+		return '';
+	}
+
+	if (
+		/** This filter is documented in class.jetpack-gutenberg.php */
+		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
+		&& class_exists( '\Jetpack_Memberships' )
+	) {
+		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {
 			wp_enqueue_style( 'thickbox' );
@@ -425,20 +493,17 @@ function render_block( $attributes ) {
 }
 
 /**
- * Generates the source parameter to pass to the iframe
+ *  Get the post access level for the current post. Defaults to 'everybody' if the query is not for a single post
  *
- * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
+ * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/constants.js for the values).
  */
-function get_post_access_level() {
-	$post_id = get_the_ID();
-	if ( ! $post_id ) {
-		return 'everybody';
+function get_post_access_level_for_current_post() {
+	if ( ! is_singular() ) {
+		// There is no "actual" current post.
+		return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 	}
-	$meta = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
-	if ( empty( $meta ) ) {
-		$meta = 'everybody';
-	}
-	return $meta;
+
+	return Jetpack_Memberships::get_post_access_level();
 }
 
 /**
@@ -464,7 +529,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
-	$post_access_level = get_post_access_level();
+	$post_access_level = get_post_access_level_for_current_post();
 
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
@@ -584,7 +649,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	);
 
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
-	$post_access_level = get_post_access_level();
+	$post_access_level = get_post_access_level_for_current_post();
 
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
@@ -701,7 +766,9 @@ function maybe_get_locked_content( $the_content ) {
 	if ( Jetpack_Memberships::user_can_view_post() ) {
 		return $the_content;
 	}
-	return get_locked_content_placeholder_text();
+
+	$post_access_level = Jetpack_Memberships::get_post_access_level();
+	return get_locked_content_placeholder_text( $post_access_level );
 }
 
 /**
@@ -716,6 +783,7 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
 	if ( ! $default_comments_open || ! $post_id ) {
 		return $default_comments_open;
 	}
+
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	return Jetpack_Memberships::user_can_view_post();
 }
@@ -742,13 +810,30 @@ function maybe_gate_existing_comments( $comment ) {
 /**
  * Placeholder text for non-subscribers
  *
+ * @param string $newsletter_access_level The newsletter access level.
  * @return string
  */
-function get_locked_content_placeholder_text() {
+function get_locked_content_placeholder_text( $newsletter_access_level ) {
+	// Default to subscribers
+	$access_level = __( 'subscribers', 'jetpack' );
+
+	// Only display this text when Stripe is connected and the post is marked for paid subscribers
+	if (
+		$newsletter_access_level === 'paid_subscribers'
+		&& ! empty( Jetpack_Memberships::get_connected_account_id() )
+	) {
+		$access_level = __( 'paid subscribers', 'jetpack' );
+	}
+
 	return do_blocks(
 		'<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->
 			<div class="wp-block-group has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center","style":{"typography":{"fontSize":"24px"},"spacing":{"margin":{"bottom":"var:preset|spacing|60"}}}} -->
-			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' . esc_html__( 'This post is for paid subscribers', 'jetpack' ) . '</h2>
+			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' .
+
+			/* translators: Newsletter access. Possible values are "paid newsletters" and "subscribers" */
+			sprintf( esc_html__( 'This post is for %s', 'jetpack' ), $access_level )
+
+			. '</h2>
 			<!-- /wp:heading -->
 
 			<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->

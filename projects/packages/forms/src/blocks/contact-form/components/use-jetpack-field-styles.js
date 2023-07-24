@@ -13,6 +13,16 @@ export const useJetpackFieldStyles = attributes => {
 		'--jetpack--contact-form--font-size': attributes.fieldFontSize,
 		'--jetpack--contact-form--line-height': attributes.lineHeight,
 		'--jetpack--contact-form--text-color': attributes.inputColor,
+		'--jetpack--contact-form--button-outline--text-color': attributes.inputColor,
+		'--jetpack--contact-form--button-outline--background-color': attributes.buttonBackgroundColor,
+		'--jetpack--contact-form--button-outline--border-radius': isNumber(
+			attributes.buttonBorderRadius
+		)
+			? `${ attributes.buttonBorderRadius }px`
+			: null,
+		'--jetpack--contact-form--button-outline--border-size': isNumber( attributes.buttonBorderWidth )
+			? `${ attributes.buttonBorderWidth }px`
+			: null,
 	};
 
 	const labelStyle = {
@@ -31,9 +41,16 @@ export const useJetpackFieldStyles = attributes => {
 		lineHeight: attributes.lineHeight,
 	};
 
+	const optionStyle = {
+		color: fieldStyle.color,
+		fontSize: fieldStyle.fontSize,
+		lineHeight: fieldStyle.lineHeight,
+	};
+
 	return {
 		blockStyle,
 		fieldStyle,
 		labelStyle,
+		optionStyle,
 	};
 };

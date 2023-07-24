@@ -81,7 +81,7 @@ class Test_Videopress_Product extends TestCase {
 	 */
 	public function test_if_jetpack_active_return_false() {
 		activate_plugins( 'jetpack/jetpack.php' );
-		$this->assertFalse( Videopress::is_plugin_active() );
+		$this->assertTrue( Videopress::is_plugin_active() );
 	}
 
 	/**
@@ -108,7 +108,7 @@ class Test_Videopress_Product extends TestCase {
 	public function test_videopress_manage_url_with_jetpack() {
 		activate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Videopress::get_installed_plugin_filename() );
-		$this->assertSame( null, Videopress::get_manage_url() );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack#/settings?term=videopress' ), Videopress::get_manage_url() );
 	}
 
 	/**

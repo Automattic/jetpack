@@ -70,8 +70,6 @@ function zbscrmjs_transaction_unsetCompany( o ) {
  * @param obj
  */
 function zbscrmjs_transaction_setCustomer( obj ) {
-	//
-	//	console.log("Customer Chosen!",obj);
 
 	if ( typeof obj.id !== 'undefined' ) {
 		// set vals
@@ -356,7 +354,7 @@ function zeroBSCRMJS_showContactLinkIf( contactID ) {
 
 			// ALSO show in header bar, if so
 			var navButton =
-				'<a target="_blank" style="margin-left:6px;" class="zbs-trans-quicknav-contact ui icon button blue mini labeled" href="' +
+				'<a target="_blank" style="margin-left:6px;" class="zbs-trans-quicknav-contact ui icon button black mini labeled" href="' +
 				url +
 				'"><i class="user icon"></i> ' +
 				zeroBSCRMJS_transEditLang( 'contact', 'Contact' ) +
@@ -416,7 +414,7 @@ function zeroBSCRMJS_showCompanyLinkIf( companyID ) {
 
 			// ALSO show in header bar, if so
 			var navButton =
-				'<a target="_blank" style="margin-left:6px;" class="zbs-trans-quicknav-company ui icon button blue mini labeled" href="' +
+				'<a target="_blank" style="margin-left:6px;" class="zbs-trans-quicknav-company ui icon button black mini labeled" href="' +
 				window.zeroBSCRMJS_transactionedit_links.editcompanyprefix +
 				companyID +
 				'"><i class="building icon"></i> ' +

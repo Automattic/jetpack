@@ -61,10 +61,11 @@ echo '::endgroup::'
 
 echo "::group::Adding and removing SVN files"
 while IFS=" " read -r FLAG FILE; do
+	# The appending of an `@` to the filename here avoids problems with filenames containing `@` being interpreted as "peg revisions".
 	if [[ "$FLAG" == '!' ]]; then
-		svn rm "$FILE"
+		svn rm "${FILE}@"
 	elif [[ "$FLAG" == "?" ]]; then
-		svn add "$FILE"
+		svn add "${FILE}@"
 	fi
 done < <( svn status )
 echo '::endgroup::'
@@ -73,7 +74,11 @@ echo '::endgroup::'
 CHECK="$(svn diff trunk/readme.txt | grep '^[+-]Stable tag:' || true)"
 if [[ -n "$CHECK" ]]; then
 	LINE="$(grep --line-number --max-count=1 '^Stable tag:' trunk/readme.txt)"
-	if [[ -n "$LINE" ]]; then
+	if grep -q '^+' <<<"$CHECK" && ! grep -q '^-' <<<"$CHECK"; then
+		# On the initial commit, it seems there's no way to specify not to immediately have that commit served as the stable version.
+		# So just print a notice pointing that out in case anyone is looking and leave it as-is.
+		echo "::notice::This appears to be the initial release of the plugin, which will unavoidably set the stable tag to the version being released now."
+	elif [[ -n "$LINE" ]]; then
 		echo "::warning::Stable tag must be updated manually! Update would change it, attempting to undo the change.%0A%0A${CHECK/$'\n'/%0A}"
 		nl=$'\n'
 		patch -R trunk/readme.txt <<<"@@ -${LINE%%:*},1 +${LINE%%:*},1 @@$nl$CHECK"

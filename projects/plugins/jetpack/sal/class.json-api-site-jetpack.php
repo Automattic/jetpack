@@ -589,10 +589,11 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 * Check if site should be considered as eligible for use of the core Site Editor.
 	 * The Site Editor requires a block based theme to be active.
 	 *
+	 * @since 12.2 Uses wp_is_block_theme() to determine if site is eligible instead of gutenberg_is_fse_theme().
 	 * @return bool true if site is eligible for the Site Editor
 	 */
 	public function is_core_site_editor_enabled() {
-		return function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme();
+		return wp_is_block_theme();
 	}
 
 	/**
@@ -639,6 +640,39 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 * @return null
 	 */
 	public function get_user_interactions() {
+		return null;
+	}
+
+	/**
+	 * Detect whether a site is WordPress.com Staging Site. Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return false
+	 */
+	public function is_wpcom_staging_site() {
+		return false;
+	}
+
+	/**
+	 * Get site option for the production blog id (if is a WP.com Staging Site). Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return null
+	 */
+	public function get_wpcom_production_blog_id() {
+		return null;
+	}
+
+	/**
+	 * Get site option for the staging blog ids (if it has them). Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return null
+	 */
+	public function get_wpcom_staging_blog_ids() {
 		return null;
 	}
 }

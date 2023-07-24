@@ -4,8 +4,8 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
 /**
@@ -26,11 +26,11 @@ class Config {
 
 	public function init() {
 		add_action( 'wp_ajax_set_show_score_prompt', array( $this, 'handle_set_show_score_prompt' ) );
-		add_action( 'jetpack_boost_before_module_status_update', array( $this, 'on_module_status_change' ), 10, 2 );
+		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_change' ), 10, 2 );
 	}
 
 	public function constants() {
-		$optimizations = ( new Optimizations() )->get_status();
+		$optimizations = ( new Modules_Setup() )->get_status();
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		$constants = array(
@@ -48,7 +48,9 @@ class Config {
 				'assetPath'  => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 				'getStarted' => self::is_getting_started(),
 				'isAtomic'   => ( new Host() )->is_woa_site(),
+				'postTypes'  => self::get_custom_post_types(),
 			),
+			'isPremium'             => Premium_Features::has_any(),
 			'preferences'           => array(
 				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),
@@ -189,5 +191,26 @@ class Config {
 	 */
 	public static function clear_getting_started() {
 		\delete_option( 'jb_get_started' );
+	}
+
+	/**
+	 * Retrieves custom post types.
+	 *
+	 * @return array Associative array of custom post types
+	 * with their labels as keys and names as values.
+	 */
+	public static function get_custom_post_types() {
+		$post_types = get_post_types(
+			array(
+				'public'   => true,
+				'_builtin' => false,
+			),
+			false
+		);
+		unset( $post_types['attachment'] );
+
+		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
+
+		return wp_list_pluck( $post_types, 'label', 'name' );
 	}
 }

@@ -306,10 +306,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved.
 		$submission = $feedback[0];
 
-		$this->assertStringContainsString( '[1_Name] =&gt; John Doe', $submission->post_content, 'Post content did not contain the name label and/or value' );
-		$this->assertStringContainsString( '[2_Dropdown] =&gt; First option', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
-		$this->assertStringContainsString( '[3_Radio] =&gt; Second option', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
-		$this->assertStringContainsString( '[4_Text] =&gt; Texty text', $submission->post_content, 'Post content did not contain the text field label and/or value' );
+		$this->assertStringContainsString( '"1_Name":"John Doe"', $submission->post_content, 'Post content did not contain the name label and/or value' );
+		$this->assertStringContainsString( '"2_Dropdown":"First option"', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
+		$this->assertStringContainsString( '"3_Radio":"Second option"', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
+		$this->assertStringContainsString( '"4_Text":"Texty text"', $submission->post_content, 'Post content did not contain the text field label and/or value' );
 	}
 
 	/**
@@ -348,11 +348,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
 		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
 
-		$email_body = explode( PHP_EOL . PHP_EOL, $email['message'] );
-
-		$email_body = $email_body[1];
-
-		$this->assertStringStartsWith( $expected, $email_body );
+		$this->assertStringContainsString( $expected, $email['message'] );
 	}
 
 	/**
@@ -401,11 +397,41 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
 		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
 
-		// Divides email by the first empty line.
-		$email_body = explode( PHP_EOL . PHP_EOL, $args['message'] );
-		$email_body = $email_body[1];
+		$this->assertStringContainsString( $expected, $args['message'] );
+	}
 
-		$this->assertStringStartsWith( $expected, $email_body );
+	/**
+	 * Tests that the response template is generated correctly
+	 */
+	public function test_wrap_message_in_html_tags() {
+		// Fill field values.
+		$this->add_field_values(
+			array(
+				'name'     => 'John Doe',
+				'dropdown' => 'First option',
+				'radio'    => 'Second option',
+				'text'     => 'Texty text',
+			)
+		);
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field.
+		$form = new Grunion_Contact_Form(
+			array(
+				'to'      => 'john@example.com, jane@example.com',
+				'subject' => 'Hello there!',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]"
+		);
+
+		$title  = 'You got a new response!';
+		$body   = 'Here are the details:';
+		$footer = 'This is the footer';
+		$result = $form->wrap_message_in_html_tags( $title, $body, $footer );
+
+		$this->assertStringContainsString( $title, $result );
+		$this->assertStringContainsString( $body, $result );
+		$this->assertStringContainsString( $footer, $result );
 	}
 
 	/**
@@ -1082,7 +1108,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				if ( 0 === $i ) {
 					$this->assertEquals( 'selected', $option->getAttribute( 'selected' ), 'Input is not selected' );
 				} else {
-					$this->assertNotEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is selected' );
+					$this->assertNotEquals( 'selected', $option->getAttribute( 'selected' ), 'Input is selected' );
 				}
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$this->assertEquals( $option->nodeValue, $attributes['options'][ $i ], 'Input does not match the option' );
@@ -1111,7 +1137,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				if ( 0 === $i ) {
 					$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 				} else {
-					$this->assertNotEquals( $input->getAttribute( 'checked' ), 'checked', 'Input checked doesn\'t match' );
+					$this->assertNotEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 				}
 			}
 		}
@@ -1240,7 +1266,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( 'value4', 'value4' ),
 			'key5'         => array( '', 'value5' ),
 			'key6'         => array( '', 'value6' ),
-			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
+			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );

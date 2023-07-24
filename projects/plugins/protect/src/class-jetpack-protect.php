@@ -13,6 +13,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\JITMS\JITM as JITM;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -38,7 +39,7 @@ class Jetpack_Protect {
 	 *
 	 * @var string
 	 */
-	const JETPACK_SCAN_PRODUCT_IDS          = array(
+	const JETPACK_SCAN_PRODUCT_IDS                   = array(
 		2010, // JETPACK_SECURITY_DAILY.
 		2011, // JETPACK_SECURITY_DAILY_MOTNHLY.
 		2012, // JETPACK_SECURITY_REALTIME.
@@ -54,8 +55,9 @@ class Jetpack_Protect {
 		2108, // JETPACK_SCAN_REALTIME.
 		2109, // JETPACK_SCAN_REALTIME_MONTHLY.
 	);
-	const JETPACK_WAF_MODULE_SLUG           = 'waf';
-	const JETPACK_PROTECT_ACTIVATION_OPTION = JETPACK_PROTECT_SLUG . '_activated';
+	const JETPACK_WAF_MODULE_SLUG                    = 'waf';
+	const JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG = 'protect';
+	const JETPACK_PROTECT_ACTIVATION_OPTION          = JETPACK_PROTECT_SLUG . '_activated';
 
 	/**
 	 * Constructor.
@@ -217,7 +219,8 @@ class Jetpack_Protect {
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
-				'isSupported'         => Waf_Runner::is_supported_environment(),
+				'wafSupported'        => Waf_Runner::is_supported_environment(),
+				'currentIp'           => IP_Utils::get_ip(),
 				'isSeen'              => self::get_waf_seen_status(),
 				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
@@ -260,16 +263,17 @@ class Jetpack_Protect {
 	 */
 	public static function do_plugin_activation_activities() {
 		if ( get_option( self::JETPACK_PROTECT_ACTIVATION_OPTION ) && ( new Connection_Manager() )->is_connected() ) {
-			self::activate_module();
+			self::activate_modules();
 		}
 	}
 
 	/**
-	 * Activates the Publicize module and disables the activation option
+	 * Activates the waf and brute force protection modules and disables the activation option
 	 */
-	public static function activate_module() {
+	public static function activate_modules() {
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
 		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
+		( new Modules() )->activate( self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG, false, false );
 	}
 
 	/**
@@ -319,21 +323,21 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * Adds module to the list of available modules
+	 * Adds modules to the list of available modules
 	 *
 	 * @param array $modules The available modules.
 	 * @return array
 	 */
 	public function protect_filter_available_modules( $modules ) {
-		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG ), $modules );
+		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG, self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG ), $modules );
 	}
 
 	/**
-	 * Check for user licenses.
+	 * Check if the user has an available license that includes Jetpack Scan.
 	 *
-	 * @param  boolean $has_license Check if user has a license.
-	 * @param  object  $licenses List of licenses.
-	 * @param string  $plugin_slug The plugin that initiated the flow.
+	 * @param boolean  $has_license  Whether a license was already found.
+	 * @param object[] $licenses     Unattached licenses belonging to the user.
+	 * @param string   $plugin_slug  Slug of the plugin that initiated the flow.
 	 *
 	 * @return boolean
 	 */
@@ -345,6 +349,10 @@ class Jetpack_Protect {
 		$license_found = false;
 
 		foreach ( $licenses as $license ) {
+			if ( $license->attached_at || $license->revoked_at ) {
+				continue;
+			}
+
 			if ( in_array( $license->product_id, self::JETPACK_SCAN_PRODUCT_IDS, true ) ) {
 				$license_found = true;
 				break;

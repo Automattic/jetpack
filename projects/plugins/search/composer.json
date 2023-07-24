@@ -56,7 +56,7 @@
 		"wp-plugin-slug": "jetpack-search",
 		"wp-svn-autopublish": true,
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-search-plugin/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-search-plugin/compare/${old}...${new}"
 		},
 		"version-constants": {
 			"JETPACK_SEARCH_PLUGIN__VERSION": "jetpack-search.php"
@@ -64,7 +64,7 @@
 	},
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ1_4_1_alpha",
+		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ1_5_0_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,

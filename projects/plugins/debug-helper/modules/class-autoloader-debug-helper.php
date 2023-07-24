@@ -155,7 +155,7 @@ class Autoloader_Debug_Helper {
 		$parts = explode( '\\', $classname );
 		array_pop( $parts );
 
-		return join( '\\', $parts );
+		return implode( '\\', $parts );
 	}
 
 	/**

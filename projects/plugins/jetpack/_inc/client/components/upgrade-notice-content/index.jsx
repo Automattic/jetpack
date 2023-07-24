@@ -1,6 +1,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import ModernOverlay from 'components/jetpack-dialogue-modern';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import jQuery from 'jquery';
 import analytics from 'lib/analytics';
 import React, { Component } from 'react';
 

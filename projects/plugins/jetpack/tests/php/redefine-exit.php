@@ -43,6 +43,25 @@ $exitfunc = function ( $arg = null ) {
 	}
 	throw new ExitException( 'Exit called with argument ' . var_export( $arg, true ) );
 };
-\Patchwork\redefine( 'exit', $exitfunc );
-\Patchwork\redefine( 'die', $exitfunc );
-unset( $exitfunc );
+
+foreach ( array( 'exit', 'die' ) as $func ) {
+	$handle = \Patchwork\redefine( $func, $exitfunc );
+	$handle->addExpirationHandler(
+		function () use ( $func ) {
+			// Allow removing the handler when called from Patchwork's own __destruct.
+			// Otherwise complain and exit.
+			$bt = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS );
+			foreach ( $bt as $data ) {
+				if ( isset( $data['class'] ) && $data['class'] === \Patchwork\CallRerouting\Handle::class && $data['function'] === '__destruct' ) {
+					return;
+				}
+			}
+
+			fprintf( STDERR, "The Patchwork handler for %s was removed. This breaks tests, don't do it.\nStack trace:\n%s\n", $func, ( new \Exception() )->getTraceAsString() );
+			exit( 1 );
+		}
+	);
+	$handle->unsilence();
+}
+
+unset( $exitfunc, $func, $handle );

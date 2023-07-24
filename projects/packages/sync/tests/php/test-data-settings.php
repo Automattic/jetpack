@@ -20,8 +20,6 @@ class Test_Data_Settings extends BaseTestCase {
 
 	/**
 	 * Set up before each test.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->data_settings = new Data_Settings();
@@ -29,8 +27,6 @@ class Test_Data_Settings extends BaseTestCase {
 
 	/**
 	 * Tear down after each test.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		( new Data_Settings() )->empty_data_settings_and_hooks();

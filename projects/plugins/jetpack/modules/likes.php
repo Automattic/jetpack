@@ -351,7 +351,7 @@ class Jetpack_Likes {
 					'_inc/build/likes/post-count-jetpack.min.js',
 					'modules/likes/post-count-jetpack.js'
 				),
-				array( 'likes-post-count' ),
+				array( 'jquery', 'likes-post-count' ),
 				JETPACK__VERSION,
 				$in_footer = false
 			);
@@ -403,6 +403,14 @@ class Jetpack_Likes {
 		$post_id = get_the_ID();
 
 		if ( ! is_numeric( $post_id ) || ! $this->settings->is_likes_visible() ) {
+			return $content;
+		}
+
+		// Do not output Likes on requests for ActivityPub requests.
+		if (
+			function_exists( '\Activitypub\is_activitypub_request' )
+			&& \Activitypub\is_activitypub_request()
+		) {
 			return $content;
 		}
 

@@ -9,13 +9,8 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} WAF data and methods for interacting with it.
  */
 const useWafData = () => {
-	const {
-		setWafConfig,
-		setWafStats,
-		setWafIsEnabled,
-		setWafIsUpdating,
-		setWafIsToggling,
-	} = useDispatch( STORE_ID );
+	const { setWafConfig, setWafStats, setWafIsEnabled, setWafIsUpdating, setWafIsToggling } =
+		useDispatch( STORE_ID );
 	const waf = useSelect( select => select( STORE_ID ).getWaf() );
 
 	/**
@@ -85,11 +80,22 @@ const useWafData = () => {
 	 */
 	const toggleManualRules = useCallback( () => {
 		setWafIsUpdating( true );
-		return ensureModuleIsEnabled()
-			.then( () => API.updateWaf( { jetpack_waf_ip_list: ! waf.config.jetpackWafIpList } ) )
+		return API.updateWaf( { jetpack_waf_ip_list: ! waf.config.jetpackWafIpList } )
 			.then( refreshWaf )
 			.finally( () => setWafIsUpdating( false ) );
-	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafIpList ] );
+	}, [ refreshWaf, setWafIsUpdating, waf.config.jetpackWafIpList ] );
+
+	/**
+	 * Toggle Brute Force Protection
+	 *
+	 * Flips the switch on the brute force protection feature, and then refreshes the data.
+	 */
+	const toggleBruteForceProtection = useCallback( () => {
+		setWafIsUpdating( true );
+		return API.updateWaf( { brute_force_protection: ! waf.config.bruteForceProtection } )
+			.then( refreshWaf )
+			.finally( () => setWafIsUpdating( false ) );
+	}, [ refreshWaf, setWafIsUpdating, waf.config.bruteForceProtection ] );
 
 	/**
 	 * Toggle Share Data
@@ -105,17 +111,16 @@ const useWafData = () => {
 	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafShareData ] );
 
 	/**
-	 * Update Config
+	 * Update WAF Config
 	 */
 	const updateConfig = useCallback(
 		update => {
 			setWafIsUpdating( true );
-			return ensureModuleIsEnabled()
-				.then( () => API.updateWaf( update ) )
+			return API.updateWaf( update )
 				.then( refreshWaf )
 				.finally( () => setWafIsUpdating( false ) );
 		},
-		[ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating ]
+		[ refreshWaf, setWafIsUpdating ]
 	);
 
 	/**
@@ -133,6 +138,7 @@ const useWafData = () => {
 		toggleWaf,
 		toggleAutomaticRules,
 		toggleManualRules,
+		toggleBruteForceProtection,
 		toggleShareData,
 		updateConfig,
 	};

@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.51.0] - 2023-07-17
+### Added
+- Jetpack & Jetpack Sync: Added cache check when trying to spawn dedicated sync or update JETPACK__VERSION to avoid additional requests to the DB if external cache is available. [#31645]
+- Newsletters: Add option to enable subscribe modal. [#31393]
+- Sync: Add support for additional guest and note meta fields [#31810]
+
+## [1.50.2] - 2023-07-05
+### Added
+- Sync wpcom_site_setup site option [#31662]
+
+## [1.50.1] - 2023-07-04
+### Changed
+- Revert dedicated hook endpoint to later in the 'init' hook, as it broke existing code that registers post statuses and such during 'init'. [#31685]
+
+## [1.50.0] - 2023-06-26
+### Added
+- Added a new callable to the whitelist for get_loaded_extensions(). [#31333]
+- CPT Exclusion: do not sync Jetpack Inspect Log entries. [#31535]
+
+### Fixed
+- Initialize dedicated hook endpoint earlier in the 'init' hook to avoid cookie conflicts. [#31423]
+
+## [1.49.0] - 2023-05-29
+### Added
+- Added `wpcom_reader_views_enabled` option to default sync list [#30800]
+
+### Changed
+- FSE: remove usage of `gutenberg_is_fse_theme` for modern `wp_is_block_theme` [#30806]
+
+## [1.48.1] - 2023-05-15
+### Changed
+- PHP 8 compatibility updates. [#30599]
+- PHP 8.1 compatibility updates [#30523]
+
+## [1.48.0] - 2023-05-08
+### Changed
+- Use Jetpack Constants to check the value of REST_API_REQUEST in Settings:is_syncing function so we're able to overwrite the value and render some jetpack blocks via the rest api endpoint [#30400]
+
+## [1.47.9] - 2023-05-02
+### Changed
+- Internal updates.
+
+## [1.47.8] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [1.47.7] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.47.6] - 2023-04-04
+### Changed
+- Sync: Lowered priority to sync so that the hook is run at the end. [#29804]
+
+## [1.47.5] - 2023-04-03
+### Changed
+- Minor internal updates.
+
+## [1.47.4] - 2023-03-28
+### Changed
+- Move brute force protection into WAF package. [#28401]
+
+## [1.47.3] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29480]
+
 ## [1.47.2] - 2023-02-20
 ### Changed
 - Minor internal updates.
@@ -818,6 +884,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.51.0]: https://github.com/Automattic/jetpack-sync/compare/v1.50.2...v1.51.0
+[1.50.2]: https://github.com/Automattic/jetpack-sync/compare/v1.50.1...v1.50.2
+[1.50.1]: https://github.com/Automattic/jetpack-sync/compare/v1.50.0...v1.50.1
+[1.50.0]: https://github.com/Automattic/jetpack-sync/compare/v1.49.0...v1.50.0
+[1.49.0]: https://github.com/Automattic/jetpack-sync/compare/v1.48.1...v1.49.0
+[1.48.1]: https://github.com/Automattic/jetpack-sync/compare/v1.48.0...v1.48.1
+[1.48.0]: https://github.com/Automattic/jetpack-sync/compare/v1.47.9...v1.48.0
+[1.47.9]: https://github.com/Automattic/jetpack-sync/compare/v1.47.8...v1.47.9
+[1.47.8]: https://github.com/Automattic/jetpack-sync/compare/v1.47.7...v1.47.8
+[1.47.7]: https://github.com/Automattic/jetpack-sync/compare/v1.47.6...v1.47.7
+[1.47.6]: https://github.com/Automattic/jetpack-sync/compare/v1.47.5...v1.47.6
+[1.47.5]: https://github.com/Automattic/jetpack-sync/compare/v1.47.4...v1.47.5
+[1.47.4]: https://github.com/Automattic/jetpack-sync/compare/v1.47.3...v1.47.4
+[1.47.3]: https://github.com/Automattic/jetpack-sync/compare/v1.47.2...v1.47.3
 [1.47.2]: https://github.com/Automattic/jetpack-sync/compare/v1.47.1...v1.47.2
 [1.47.1]: https://github.com/Automattic/jetpack-sync/compare/v1.47.0...v1.47.1
 [1.47.0]: https://github.com/Automattic/jetpack-sync/compare/v1.46.1...v1.47.0

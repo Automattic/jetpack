@@ -692,7 +692,7 @@ $zbsFieldSorts = array();
 			),
 			'customer'      => array(
 				'text',
-				__( 'Customer ID', 'zero-bs-crm' ),
+				__( 'Contact ID', 'zero-bs-crm' ),
 				'e.g. 1234',
 				'essential' => true,
 			),
@@ -722,7 +722,7 @@ $zbsFieldSorts = array();
 			/* RECOMMENDED: */
 			'customer_name' => array(
 				'text',
-				__( 'Customer Name', 'zero-bs-crm' ),
+				__( 'Contact Name', 'zero-bs-crm' ),
 				'e.g. John Doe',
 				'nocolumn' => true,
 			),

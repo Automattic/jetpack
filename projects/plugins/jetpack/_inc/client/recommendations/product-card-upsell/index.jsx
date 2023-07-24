@@ -64,14 +64,14 @@ const ProductCardUpsellComponent = ( {
 		: null;
 
 	// Get price parts, such as currency symbol and value.
-	const initialCurrencyObject = useMemo( () => getCurrencyObject( initialPrice / 12, currency ), [
-		initialPrice,
-		currency,
-	] );
-	const currencyObject = useMemo( () => getCurrencyObject( finalPrice / 12, currency ), [
-		finalPrice,
-		currency,
-	] );
+	const initialCurrencyObject = useMemo(
+		() => getCurrencyObject( initialPrice / 12, currency ),
+		[ initialPrice, currency ]
+	);
+	const currencyObject = useMemo(
+		() => getCurrencyObject( finalPrice / 12, currency ),
+		[ finalPrice, currency ]
+	);
 
 	const checkoutUrl = new URL( upgradeUrl );
 

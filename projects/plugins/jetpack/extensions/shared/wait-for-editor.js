@@ -15,7 +15,7 @@ export const waitForEditor = async () =>
 				resolve();
 			}
 
-			const blocks = select( 'core/editor' ).getBlocks();
+			const blocks = select( 'core/block-editor' ).getBlocks();
 
 			if ( blocks.length > 0 ) {
 				unsubscribe();

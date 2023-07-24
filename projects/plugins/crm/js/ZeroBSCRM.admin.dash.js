@@ -23,7 +23,7 @@ jQuery( function ( $ ) {
 				datasets: [
 					{
 						label: '',
-						backgroundColor: '#00a0d2',
+						backgroundColor: Chart.defaults.global.defaultColor,
 						data: '',
 					},
 				],
@@ -49,8 +49,8 @@ jQuery( function ( $ ) {
 			},
 		} );
 
-		jQuery( '.contact-display-chooser .day-or-month .button' ).on( 'click', function ( e ) {
-			jQuery( '.contact-display-chooser .day-or-month .button' ).removeClass( 'selected' );
+		jQuery( '.day-or-month .button' ).on( 'click', function ( e ) {
+			jQuery( '.day-or-month .button' ).removeClass( 'selected' );
 			jQuery( this ).addClass( 'selected' );
 
 			range = jQuery( this ).attr( 'data-range' );
@@ -70,18 +70,15 @@ jQuery( function ( $ ) {
 		} );
 	}
 
-	funnel_height = jQuery( '#bar-chart' ).height();
-	jQuery( '.zbs-funnel' ).height( funnel_height );
-
-	jQuery( '.dashboard-customiser' ).on( 'click', function ( e ) {
-		jQuery( '.dashboard-custom-choices' ).toggle();
+	jQuery( '#jpcrm_dash_page_options' ).on( 'click', function ( e ) {
+		document.querySelector('.dashboard-custom-choices').classList.toggle('hidden');
 	} );
 
 	jQuery( '.dashboard-custom-choices input' ).on( 'click', function ( e ) {
 		var zbs_dash_setting_id = jQuery( this ).attr( 'id' );
 		jQuery( '#' + zbs_dash_setting_id + '_display' ).toggle();
 
-		var is_checked = -1;
+		var is_checked = 0;
 		if ( jQuery( '#' + zbs_dash_setting_id ).is( ':checked' ) ) {
 			is_checked = 1;
 		}
@@ -142,38 +139,21 @@ jQuery( function ( $ ) {
 				window.weekly = res.chart.weekly;
 				window.daily = res.chart.daily;
 
-				jQuery( '#crm_summary_numbers' ).addClass( res.boxes );
 				summary_html = '';
 				for ( var i = 0; i < res.summary.length; i++ ) {
 					item = res.summary[ i ];
-					summary_html +=
-						'\
-                            <div class="card center aligned">\
-                                <div class="content">\
-                                    <h3 class="ui header">' +
-						item.label +
-						'</h3>\
-                                    <div class="range_total">+' +
-						item.range_total +
-						'</div>\
-                                    <div class="text-muted alltime_total">' +
-						item.alltime_total_str +
-						'</div>\
-                                </div>\
-                                <div class="ui bottom attached button">\
-                                    <a href="' +
-						item.link +
-						'">\
-                                        <i class="unhide icon"></i>\
-                                        ' +
-						zeroBSCRMJS_globViewLang( 'viewall' ) +
-						'\
-                                    </a>\
-                                </div>\
-                            </div>\
-                      ';
+					summary_html += `
+						<jpcrm-dashcount-card>
+							<h3>${item.label}</h3>
+							<div>
+								<span class="range_total">+${item.range_total}</span>
+								<span class="alltime_total">${item.alltime_total_str}</span>
+							</div>
+							<a href="${item.link}">${zeroBSCRMJS_globViewLang( 'viewall' )}</a>
+						</jpcrm-dashcount-card>
+						`;
 				}
-				jQuery( '#crm_summary_numbers' ).html( summary_html );
+				jQuery( 'jpcrm-dashcount' ).html( summary_html );
 				if ( window.contactChart ) {
 					jetpackcrm_draw_contact_chart( res.chart.monthly );
 				}
@@ -218,34 +198,6 @@ function jetpackcrm_draw_contact_chart( data ) {
 	window.contactChart.data.datasets[ 0 ].data = data.data;
 	window.contactChart.update();
 }
-
-//handle window resizing + charts
-jQuery( window ).on( 'resize', function () {
-	jQuery( '#funnel-container' ).html( '' );
-
-	funnel_height = jQuery( '#bar-chart' ).height();
-	jQuery( '.zbs-funnel' ).height( funnel_height );
-
-	jQuery( '#funnel-container' ).drawFunnel( window.funnelData, {
-		width: jQuery( '.zbs-funnel' ).width() - 50,
-		height: jQuery( '.zbs-funnel' ).height() - 50,
-
-		// Padding between segments, in pixels
-		padding: 1,
-
-		// Render only a half funnel
-		half: false,
-
-		// Width of a segment can't be smaller than this, in pixels
-		minSegmentSize: 30,
-
-		// label: function () { return "Label!"; }
-
-		label: function ( obj ) {
-			return obj;
-		},
-	} );
-} );
 
 if ( typeof module !== 'undefined' ) {
     module.exports = {  jetpackcrm_draw_contact_chart  };

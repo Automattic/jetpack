@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
+
 /**
  * Retrieves WAF stats.
  */
@@ -24,7 +26,7 @@ class Waf_Stats {
 			return 0;
 		}
 
-		$results = Waf_Rules_Manager::ip_option_to_array( $ip_allow_list );
+		$results = IP_Utils::get_ip_addresses_from_string( $ip_allow_list );
 
 		return count( $results );
 	}
@@ -41,7 +43,7 @@ class Waf_Stats {
 			return 0;
 		}
 
-		$results = Waf_Rules_Manager::ip_option_to_array( $ip_block_list );
+		$results = IP_Utils::get_ip_addresses_from_string( $ip_block_list );
 
 		return count( $results );
 	}

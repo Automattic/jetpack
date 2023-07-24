@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+WP Super Cache: removed unused "object cache" code.

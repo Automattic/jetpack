@@ -311,6 +311,22 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
+	# - Only plugins can use non-semver versioning.
+	# - Changelog header should not mention semver if project does not use semver.
+	if jq -e '( .extra.changelogger.versioning // "semver" ) != "semver"' "$PROJECT/composer.json" >/dev/null; then
+		if [[ "$TYPE" != "plugins" ]]; then
+			EXIT=1
+			LINE=$(jq --stream -r 'if length == 1 then .[0][:-1] else .[0] end | if . == ["extra","changelogger","versioning"] then ",line=\( input_line_number )" else empty end' "$PROJECT/composer.json")
+			echo "::error file=$PROJECT/composer.json$LINE::Project $SLUG needs to use semver (only plugins may use other versioning methods)."
+		else
+			LINE=$(sed '/^##/ q' "$PROJECT/CHANGELOG.md" | grep --line-number --max-count=1 'semver\.org' || true)
+			if [[ -n "$LINE" ]]; then
+				EXIT=1
+				echo "::error file=$PROJECT/CHANGELOG.md,line=${LINE%%:*}::Changelog should not mention semver when project does not use semver."
+			fi
+		fi
+	fi
+
 done
 
 # - Monorepo root composer.json must also use dev deps appropriately.

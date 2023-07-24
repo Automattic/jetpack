@@ -110,6 +110,23 @@
 
                 global $zbs;
 
+				// Define Quote statuses.
+				$acceptable_quote_statuses = array(
+					'draft'     => __( 'Draft', 'zero-bs-crm' ),
+					'published' => __( 'Published, Unaccepted', 'zero-bs-crm' ),
+					'accepted'  => __( 'Accepted', 'zero-bs-crm' ),
+				);
+
+				// status
+				$status = __( 'Draft', 'zero-bs-crm' );
+			if ( is_array( $quote ) && isset( $quote['status'] ) ) {
+				if ( $quote['status'] === -2 ) {
+					$status = __( 'Published, Unaccepted', 'zero-bs-crm' );
+				}
+				if ( $quote['status'] === 1 ) {
+					$status = __( 'Accepted', 'zero-bs-crm' );
+				}
+			}
                 // Debug echo 'Quote:<pre>'.print_r($quote,1).'</pre>';
     
                 ?>                
@@ -155,38 +172,49 @@
                     // we pass the hash along the chain here too :)
                     echo '<input type="hidden" name="zbscq_hash" id="zbscq_hash" value="' . (isset($quote['hash']) ? esc_attr( $quote['hash'] ) : '') . '" />';
                 ?>
-                <style>
-                    @media all and (max-width:699px){
-                        table.wh-metatab{
-                            min-width:100% !important;
-                        }
-                    }  
-                </style>
-                <table class="form-table wh-metatab wptbp" id="wptbpMetaBoxMainItem">
-
+					<div>
+						<div class="jpcrm-form-grid" id="wptbpMetaBoxMainItem">
                     <?php 
 
                     // DAL3 only show after saved, easier
                     if (!empty($quoteID) && $quoteID > 0){
-
-                        // QUOTE ID is seperate / unchangable
-                        ?><tr class="wh-large"><th><label><?php esc_html_e('Quote (ID)',"zero-bs-crm");?>:</label></th>
-                        <td>
-                            <div class="zbs-prominent"><?php 
-
-                            if (empty($quoteID)) $quoteID = zeroBSCRM_getNextQuoteID();
-
-                            echo esc_html( $quoteID );
-
-                            ?><input type="hidden" name="zbsquoteid" value="<?php echo esc_attr( $quoteID ); ?>" /></div>
-                        </td></tr><?php
+					?>
+								<div class="jpcrm-form-group jpcrm-form-group-span-2">
+									<label class="jpcrm-form-label"><?php esc_html_e( 'Quote (ID)', 'zero-bs-crm' ); ?>:</label>
+								<?php
+									echo '<b>' . esc_html( $quoteID ) . '</b>'; //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							?>
+									<input type="hidden" name="zbsquoteid" value="<?php echo esc_attr( $quoteID ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>" />
+								</div>
+								<?php
 
                     }
+					// Quote status.
+				if ( $quoteID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					?>
+				
+					<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="quote_status"><?php esc_html_e( 'Status', 'zero-bs-crm' ); ?>:</label>
+						<select class="form-control" id="quote_status" name="quote_status">
+							<?php
+							foreach ( $acceptable_quote_statuses as $status_opt => $status_str ) {
+								$sel = '';
+								if ( $status_str === $status ) {
+									$sel = ' selected="selected"';
+								}
+								/* Translators:  %s is the Quote status. */
+								echo '<option value="' . esc_attr( $status_opt ) . '"' . esc_attr( $sel ) . '>' . esc_html( sprintf( __( '%s', 'zero-bs-crm' ), $status_str ) ) . '</option>'; // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings
+							}
+							?>
+						</select>
+					</div>
+						<?php
+				} // end if
 
-
-                    #} ALSO customer assigning is seperate:
-                    ?><tr class="wh-large"><th><label><?php esc_html_e('Contact',"zero-bs-crm");?>:</label></th>
-                    <td><?php
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2 jpcrm-override-typeahead-padding">
+						<label class="jpcrm-form-label"><?php esc_html_e( 'Contact', 'zero-bs-crm' ); ?>:</label>
+						<?php
 
                         #} 27/09/16 - switched select for typeahead
 
@@ -279,7 +307,7 @@
                                                 jQuery('#zbs-customer-title').prepend(html); */
 
                                                 // ALSO show in header bar, if so
-                                                var navButton = '<a target="_blank" style="margin-left:6px;" class="zbs-quote-quicknav-contact ui icon button blue mini labeled" href="<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>' + contactID + '"><i class="user icon"></i> <?php  zeroBSCRM_slashOut(__('Contact','zero-bs-crm')); ?></a>';
+																var navButton = '<a target="_blank" style="margin-left:6px;" class="zbs-quote-quicknav-contact ui icon button black mini labeled" href="<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ); ?>' + contactID + '"><i class="user icon"></i> <?php zeroBSCRM_slashOut( __( 'Contact', 'zero-bs-crm' ) ); ?></a>';
                                                 jQuery('#zbs-quote-learn-nav').append(navButton);
 
                                                 // bind
@@ -290,8 +318,8 @@
                                 }
 
                             </script>
-                    </td>
-                    </tr><?php
+							</div>
+						<?php
 
 
                     // wh centralised 20/7/18 - 2.91+ skipFields
@@ -300,10 +328,8 @@
                     #} if enabled, and new quote, or one which hasn't had the 'templated' meta key added.
                     if ($useQuoteBuilder == 1 && !isset($quote['template'])){
 
-                        ?><tr class="wh-large" id="zbs-quote-builder-step-1">
-
-                            <th colspan="2">
-
+							?>
+								<div class="jpcrm-form-group jpcrm-form-group-span-2">
                                 <div class="zbs-move-on-wrap">
 
                                     <!-- infoz -->
@@ -336,20 +362,19 @@
                                     </select>
                                     <br />
                                     <p><?php esc_html_e('Create additional quote templates',"zero-bs-crm"); ?> <a href="<?php echo jpcrm_esc_link( $zbs->slugs['quote-templates'] ); ?>"><?php esc_html_e('here',"zero-bs-crm");?></a></p>
-                                    <button type="button" id="zbsQuoteBuilderStep2" class="button button-primary button-large xl"<?php if (!isset($quoteContactID) || empty($quoteContactID)){ echo ' disabled="disabled"'; } ?>><?php esc_html_e('Use Quote Builder',"zero-bs-crm");?></button>
+												<button type="button" id="zbsQuoteBuilderStep2" class="ui button button-primary black button-large xl"<?php if ( ! isset( $quoteContactID ) || empty( $quoteContactID ) ) { echo ' disabled="disabled"'; } ?>><?php esc_html_e( 'Use Quote Builder', 'zero-bs-crm' ); // phpcs:ignore Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></button>
                                     <?php if (!isset($quoteContactID) || empty($quoteContactID)){ ?>
-                                    <p id="zbsQuoteBuilderStep2info">(<?php esc_html_e("You'll need to assign this Quote to a customer to use this","zero-bs-crm");?>);</p>
+									<p id="zbsQuoteBuilderStep2info">(<?php esc_html_e( "You'll need to assign this Quote to a contact to use this", 'zero-bs-crm' ); ?>);</p>
                                     <?php } ?>
 
                                 </div>
-
-                            </th>
-
-                        </tr><?php
+									</div>
+								<?php
 
                     } ?>
 
-            </table><?php 
+				</div></div>
+				<?php
               
         }
 
@@ -409,8 +434,7 @@
 
                         #} Save content
                         //$data=htmlspecialchars($_POST['zbs_quote_content'], ENT_COMPAT);
-                        $quote['content'] = zeroBSCRM_io_WPEditor_WPEditorToDB($_POST['zbs_quote_content']);                        
-
+						$quote['content'] = wp_kses( $_POST['zbs_quote_content'], $zbs->acceptable_html ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- to follow up with.
                         #} update templated vars
                         if (isset($_POST['zbs_quote_template_id'])) $quote['template'] = (int)sanitize_text_field($_POST['zbs_quote_template_id']);
 
@@ -632,19 +656,25 @@
 
         public function html( $quote, $metabox ) {
 
+			global $zbs;
+
             // localise ID & content
             $quoteID = -1; if (is_array($quote) && isset($quote['id'])) $quoteID = (int)$quote['id'];
-            $quoteContent = ''; if (is_array($quote) && isset($quote['content'])) $quoteContent = $quote['content'];
+			$quote_content = '';
+		if ( is_array( $quote ) && isset( $quote['content'] ) ) {
+			$quote_content = wp_kses( $quote['content'], $zbs->acceptable_html );
+		}
             
-            #http://stackoverflow.com/questions/3493313/how-to-add-wysiwyg-editor-in-wordpress-meta-box
-            $content = zeroBSCRM_io_WPEditor_DBToWPEditor($quoteContent);
-
             // remove "Add contact form" button from Jetpack
             remove_action( 'media_buttons', 'grunion_media_button', 999 );
-            wp_editor( $content, 'zbs_quote_content', array(
-                'editor_height' => 580,
-                'wpautop' => false,
-            ));
+			wp_editor(
+				$quote_content,
+				'zbs_quote_content',
+				array(
+					'editor_height' => 580,
+					'wpautop'       => false,
+				)
+			);
         }
 
         // saved via main metabox
@@ -724,7 +754,7 @@
 
                                 <!-- infoz -->
                                 <h3><?php esc_html_e("Publish this Quote","zero-bs-crm");?></h3>
-                                <p><?php esc_html_e("When you've finished writing your Quote, save it here before sending on to your customer","zero-bs-crm");?>:</p>
+								<p><?php esc_html_e( "When you've finished writing your Quote, save it here before sending on to your contact", 'zero-bs-crm' ); ?>:</p>
 
                                 <button type="button" id="zbsQuoteBuilderStep3" class="button button-primary button-large xl"><?php esc_html_e("Save Quote","zero-bs-crm");?></button>
 
@@ -764,15 +794,15 @@
 
                                     <!-- infoz -->
                                     <h3><?php esc_html_e("Email or Share","zero-bs-crm");?></h3>
-                                    <p><?php esc_html_e("Great! Your Quote has been published. You can now email it to your customer, or share the link directly","zero-bs-crm");?>:</p>
+									<p><?php esc_html_e( 'Great! Your Quote has been published. You can now email it to your contact, or share the link directly', 'zero-bs-crm' ); ?>:</p>
 
                                     <?php do_action('zbs_quote_actions'); ?>
 
                                     <div class="zbsEmailOrShare">
-                                        <h4><?php esc_html_e("Email to Customer","zero-bs-crm");?>:</h4>
+										<h4><?php esc_html_e( 'Email to Contact', 'zero-bs-crm' ); ?>:</h4>
                                         <!-- todo -->                                    
                                         <p><input type="text" class="form-control" id="zbsQuoteBuilderEmailTo" value="<?php echo esc_attr( $contactEmail ); ?>" placeholder="<?php esc_attr_e('e.g. customer@yahoo.com','zero-bs-crm'); ?>" data-quoteid="<?php echo esc_attr( $quoteID ); ?>" /></p>
-                                        <p><button type="button" id="zbsQuoteBuilderSendNotification" class="button button-primary button-large"><?php esc_html_e("Send Quote","zero-bs-crm");?></button></p>
+													<p><button type="button" id="zbsQuoteBuilderSendNotification" class="ui button black"><?php esc_html_e( 'Send Quote', 'zero-bs-crm' ); ?></button></p>
                                         <p class="small" id="zbsQuoteBuilderEmailToErr" style="display:none"><?php esc_html_e("An Email Address to send to is required","zero-bs-crm");?>!</p>
                                     </div>
 												<?php
@@ -799,7 +829,7 @@
                                                 <div class="zbsEmailOrShare">
                                                 <h4><?php esc_html_e("Download PDF","zero-bs-crm");?></h4>
                                                 <p><i class="file pdf outline icon red" style="font-size:30px;margin-top:10px;"></i></p>
-                                                <input type="button" name="jpcrm_quote_download_pdf" id="jpcrm_quote_download_pdf" class="ui button green" value="<?php esc_attr_e("Download PDF","zero-bs-crm");?>" />
+																<input type="button" name="jpcrm_quote_download_pdf" id="jpcrm_quote_download_pdf" class="ui button black" value="<?php esc_attr_e( 'Download PDF', 'zero-bs-crm' ); ?>" />
                                                
                                                 </div>
                                                 <script type="text/javascript">
@@ -1317,52 +1347,11 @@ class zeroBS__Metabox_QuoteTags extends zeroBS__Metabox_Tags{
             
                 #} if a saved post...
                 //if (isset($post->post_status) && $post->post_status != "auto-draft"){
-                if ($quoteID > 0){ // existing
-
-                    // hard typed for now.
-                    $acceptableQuoteStatuses = array(
-                        "draft" => __('Draft','zero-bs-crm'),
-                        "published" => __('Published, Unaccepted','zero-bs-crm'),
-                        "accepted" => __('Accepted','zero-bs-crm')
-                    );
-
-                    // status
-                    $status = __('Draft','zero-bs-crm');
-                    if (is_array($quote) && isset($quote['status'])){
-                        if ($quote['status'] == -2) $status = __('Published, Unaccepted','zero-bs-crm');
-                        if ($quote['status'] == 1) $status = __('Accepted','zero-bs-crm');
-                    }
-
-                    /* grid doesn't work great for long-named:
-
-                    <div class="ui grid">
-                        <div class="six wide column">
-                        </div>
-                        <div class="ten wide column">
-                        </div>
-                    </div>
-
-                    */
-                    ?>
-                    <div>
-                        <label for="quote_status"><?php esc_html_e('Status',"zero-bs-crm"); ?>: </label>
-                        <select id="quote_status" name="quote_status">
-                            <?php foreach($acceptableQuoteStatuses as $statusOpt => $statusStr){
-
-                                $sel = '';
-                                if ($statusStr == $status) $sel = ' selected="selected"';
-                                echo '<option value="' . esc_attr( $statusOpt ) . '"'. esc_attr( $sel ) .'>'.esc_html__($statusStr,"zero-bs-crm").'</option>';
-
-                            } ?>
-                        </select>
-                    </div>
-
-                    <div class="clear"></div>
-
-
+			if ( $quoteID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				?>
                     <div class="zbs-quote-actions-bottom zbs-objedit-actions-bottom">
 
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php esc_html_e("Quote","zero-bs-crm"); ?></button>
+								<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Quote', 'zero-bs-crm' ); ?></button>
 
                         <?php
 
@@ -1383,9 +1372,10 @@ class zeroBS__Metabox_QuoteTags extends zeroBS__Metabox_Tags{
 
                 } else {
 
-                    // NEW quote ?>
+				// NEW quote
+				?>
 
-                    <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Save","zero-bs-crm"); ?> <?php esc_html_e("Quote","zero-bs-crm"); ?></button>
+						<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Quote', 'zero-bs-crm' ); ?></button>
 
                  <?php
 

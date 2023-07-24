@@ -140,8 +140,9 @@ class Main {
 			return;
 		}
 
-		add_action( 'wp_footer', array( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'add_to_footer' ), 101 );
-		add_action( 'web_stories_print_analytics', array( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'add_to_footer' ), 101 );
+		add_action( 'wp_enqueue_scripts', array( Tracking_Pixel::class, 'enqueue_stats_script' ), 101 );
+		add_action( 'wp_footer', array( Tracking_Pixel::class, 'add_amp_pixel' ), 101 );
+		add_action( 'web_stories_print_analytics', array( Tracking_Pixel::class, 'add_amp_pixel' ), 101 );
 	}
 
 	/**

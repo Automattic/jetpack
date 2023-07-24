@@ -33,7 +33,12 @@ export const PublicizeTwitterOptions = ( {
 	);
 
 	if (
-		! connections?.some( connection => 'twitter' === connection.service_name && connection.enabled )
+		! connections?.some(
+			connection =>
+				'twitter' === connection.service_name &&
+				connection.enabled &&
+				false !== connection.is_healthy
+		)
 	) {
 		return null;
 	}

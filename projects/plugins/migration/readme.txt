@@ -1,10 +1,10 @@
 === Move to WordPress.com ===
 Contributors: automattic
 Tags: migrate, migration, backup, restore, transfer, move, copy, wordpress.com, automattic, import, importer, hosting
-Requires at least: 6.0
+Requires at least: 6.1
 Requires PHP: 5.6
-Tested up to: 6.1
-Stable tag: 0.1.0-alpha
+Tested up to: 6.3
+Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,5 +39,14 @@ If you need a little help during or after the migration, you’ll have round-the
 3. Next, click the Activate button. After activating, you can navigate to Move to WordPress.com in your admin area.
 
 == Changelog ==
+### 1.0.0 - 2023-06-15
+#### Added
+- Adding Jetpack Backup package in the plugin
+- Add video section to backup connect page
 
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
+#### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2.
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now
+- Update connection module to have an RNA option that updates the design
+- Update WordPress version requirements. Now requires version 6.1.
+

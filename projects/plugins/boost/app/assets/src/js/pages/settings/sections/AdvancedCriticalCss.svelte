@@ -3,34 +3,22 @@
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import BackButton from '../../../elements/BackButton.svelte';
 	import CloseButton from '../../../elements/CloseButton.svelte';
-	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
+	import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
 	import {
-		activeIssues,
-		dismissedIssues,
-		dismissalError,
-		showDismissedIssues,
-		dismissIssue,
+		criticalCssIssues,
 		groupErrorsByFrequency,
-	} from '../../../stores/critical-css-recommendations';
-	import { isFinished } from '../../../stores/critical-css-status';
+	} from '../../../stores/critical-css-state-errors';
 	import InfoIcon from '../../../svg/info.svg';
-	import generateCriticalCss from '../../../utils/generate-critical-css';
 	import routerHistory from '../../../utils/router-history';
 	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
 
 	const { navigate } = routerHistory;
 
-	function onRetry() {
-		generateCriticalCss();
-		navigate( -1 );
-	}
-
 	/**
 	 * Figure out heading based on state.
 	 */
-	let heading: string;
 	$: heading =
-		$activeIssues.length === 0
+		activeIssues.length === 0
 			? __( 'Congratulations, you have dealt with all the recommendations.', 'jetpack-boost' )
 			: __(
 					'While Jetpack Boost has been able to automatically generate optimized CSS for most of your important files & sections, we have identified a few more that require your attention.',
@@ -39,8 +27,21 @@
 	/**
 	 * Automatically navigate back to main Settings page if generator isn't done.
 	 */
-	$: if ( ! $isFinished ) {
+
+	$: if ( $criticalCssIssues.length === 0 ) {
 		navigate( -1 );
+	}
+
+	$: dismissedIssues = $criticalCssIssues.filter( issue => issue.error_status === 'dismissed' );
+	$: activeIssues = $criticalCssIssues.filter( issue => issue.error_status !== 'dismissed' );
+
+	function showDismissedIssues() {
+		replaceCssState( {
+			providers: $criticalCssIssues.map( issue => {
+				issue.error_status = 'active';
+				return issue;
+			} ),
+		} );
 	}
 </script>
 
@@ -55,7 +56,7 @@
 		<section transition:slide|local>
 			<p>{heading}</p>
 
-			{#if $dismissedIssues.length > 0}
+			{#if dismissedIssues.length > 0}
 				<p>
 					<button class="components-button is-link" on:click={showDismissedIssues}>
 						{sprintf(
@@ -63,10 +64,10 @@
 							_n(
 								'Show %d hidden recommendation.',
 								'Show %d hidden recommendations.',
-								$dismissedIssues.length,
+								dismissedIssues.length,
 								'jetpack-boost'
 							),
-							$dismissedIssues.length
+							dismissedIssues.length
 						)}
 					</button>
 				</p>
@@ -74,24 +75,17 @@
 		</section>
 	{/key}
 
-	{#if $dismissalError}
-		<ErrorNotice title={$dismissalError.title} error={$dismissalError.error} />
-	{/if}
-
-	{#each $activeIssues as issue (issue.key)}
+	{#each activeIssues as provider (provider.key)}
 		<div class="panel" transition:slide|local>
-			<CloseButton on:click={() => dismissIssue( issue.key )} />
+			<CloseButton on:click={() => updateProvider( provider.key, { error_status: 'dismissed' } )} />
 
 			<h4>
 				<InfoIcon />
-				{issue.provider_name}
+				{provider.label}
 			</h4>
 
 			<div class="problem">
-				<CriticalCssErrorDescription
-					errorSet={groupErrorsByFrequency( issue )[ 0 ]}
-					on:retry={onRetry}
-				/>
+				<CriticalCssErrorDescription errorSet={groupErrorsByFrequency( provider )[ 0 ]} />
 			</div>
 		</div>
 	{/each}

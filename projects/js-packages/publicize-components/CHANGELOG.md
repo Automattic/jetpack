@@ -5,6 +5,159 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.1] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+### Fixed
+- Fix Instagram Max size [#31912]
+
+## [0.29.0] - 2023-07-10
+### Changed
+- Refactored component so it can accept values as prop, and disable debounce [#31700]
+
+## [0.28.0] - 2023-07-05
+### Changed
+- Refactored the media validation so that it is done on a per connection basis [#31565]
+- Updated package dependencies. [#31659]
+- Updated package dependencies. [#31661]
+
+## [0.27.0] - 2023-06-26
+### Changed
+- Updated package dependencies. [#31468]
+
+### Fixed
+- Media picker: Constrain the preview image [#31461]
+- Social Review Prompt: Fix the state so it is shown when Jetpack is also active [#31456]
+
+## [0.26.3] - 2023-06-19
+### Fixed
+- Fixed an issue where Instagram restricitons are not working because of the service name [#31310]
+
+## [0.26.2] - 2023-06-12
+### Changed
+- Improved the defaults for social previews [#31060]
+
+## [0.26.1] - 2023-06-06
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Jetpack Social: Hide the image requirement notice when the site is out of shares [#31184]
+- Simplified i18n strings [#31185]
+- Social: Fixed the connection state to ensure that new connections are disabled by default when there are no shares left. [#31168]
+
+## [0.26.0] - 2023-05-29
+### Added
+- Added account_name field to the connections post field. [#30937]
+- Added Instagram preview to Social Previews [#30929]
+- Instagram connection toggle [#30803]
+- Jetpack Social: Add a notice to let users know Instagram is available [#30777]
+- Mastodon post preview [#30919]
+
+### Changed
+- Bump social-previews version [#31034]
+- Removed duplicate twitter preview [#29803]
+- Social Preview: Shift the modal nav to the top [#29803]
+- Updated Google Search preview [#29803]
+- Updated the social previews to use the updated Calypso components [#29803]
+- Update Facebook preview [#29803]
+
+### Removed
+- Removed duplicate styles [#29803]
+
+### Fixed
+- Ensured the media picker is disabled correctly [#30888]
+- Fixed Instagram notice from showing up when you already have a connection. [#30980]
+- Fixed Social Preview modal styling [#29803]
+- Social Previews: Update the LinkedIn default profile image and make the text translatable [#31023]
+- Use correct image in Social Previews [#29803]
+
+## [0.25.0] - 2023-05-22
+### Added
+- Added validation of featured image for Instagram connections [#30724]
+
+### Fixed
+- Publicize: Update the UI logic to properly cope with broken connections [#30687]
+
+## [0.24.0] - 2023-05-15
+### Added
+- Support both connection_id and token_id in publicize connection test results repsponse. [#30492]
+
+## [0.23.0] - 2023-05-08
+### Added
+- Added support for flagging unsupported connections in the editor UI [#30280]
+
+## [0.22.0] - 2023-05-02
+### Changed
+- Jetpack Social sidebar: Disable the Media Picker if Social Image Generator is enabled. [#30311]
+- Reduced the file sizes of the Social Image Generator template previews. [#30301]
+- Updated package dependencies.
+
+### Fixed
+- Jetpack Social: Render Social Image Generator panel even when SIG's default is disabled. [#30358]
+
+## [0.21.0] - 2023-04-25
+### Added
+- Added new component social-post-control for toggling Share as a Social post. [#30185]
+- Added new option for flagging a post as social post [#30179]
+
+### Changed
+- Use attached media for the OpenGraph image [#30162]
+
+## [0.20.2] - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## [0.20.1] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+### Fixed
+- Fixed featured image not loading on startup [#29752]
+
+## [0.20.0] - 2023-03-28
+### Added
+- Added SIG image preview component [#29559]
+- Added toggle to Social admin page to enable or disable Social Image Generator as well as an option to pick a default template [#29722]
+
+## [0.19.0] - 2023-03-27
+### Added
+- Added SIG image preview component [#29559]
+
+### Changed
+- Use TemplatePicker to save selected template and send it to our token generation endpoint [#29590]
+
+### Fixed
+- Fixed infinite loop with media section [#29729]
+- Fixed the bug where the attache media doesn't show up after post publish. [#29613]
+
+## [0.18.0] - 2023-03-20
+### Added
+- Add Template Picker component to Jetpack Social [#29504]
+
+### Changed
+- Update deprecated core selector [#29420]
+
+### Fixed
+- Fixed a bug where reduce would show an error because of empty array [#29272]
+
+## [0.17.1] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## [0.17.0] - 2023-02-28
+### Added
+- Add Social Image Generator editor panel to post sidebar [#28737]
+- Add Social Image Generator feature flag to Jetpack Social [#29001]
+- Jetpack Social: Add Mastodon and default media upload restrictions [#29034]
+
+### Removed
+- Removed default image for SIG as it's not used yet [#29206]
+
+### Fixed
+- Update React peer dependencies to match updated dev dependencies. [#28924]
+
 ## [0.16.1] - 2023-02-20
 ### Changed
 - Minor internal updates.
@@ -201,6 +354,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.29.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.29.0...v0.29.1
+[0.29.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.28.0...v0.29.0
+[0.28.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.27.0...v0.28.0
+[0.27.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.3...v0.27.0
+[0.26.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.2...v0.26.3
+[0.26.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.1...v0.26.2
+[0.26.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.0...v0.26.1
+[0.26.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.25.0...v0.26.0
+[0.25.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.24.0...v0.25.0
+[0.24.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.23.0...v0.24.0
+[0.23.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.22.0...v0.23.0
+[0.22.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.20.2...v0.21.0
+[0.20.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.20.1...v0.20.2
+[0.20.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.20.0...v0.20.1
+[0.20.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.19.0...v0.20.0
+[0.19.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.18.0...v0.19.0
+[0.18.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.17.1...v0.18.0
+[0.17.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.17.0...v0.17.1
+[0.17.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.16.1...v0.17.0
 [0.16.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.15.2...v0.16.0
 [0.15.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.15.1...v0.15.2

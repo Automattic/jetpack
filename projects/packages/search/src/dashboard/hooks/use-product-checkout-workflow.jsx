@@ -19,7 +19,8 @@ const {
  *
  * @param {object} props              - The props passed to the hook.
  * @param {string} props.productSlug  - The WordPress product slug.
- * @param {string} props.redirectUrl  - The URI to redirect to after checkout.
+ * @param {string} props.adminUrl     - The base URL of WP-Admin.
+ * @param {string} props.redirectUri  - The URI to redirect to after checkout.
  * @param {string} [props.siteSuffix] - The site suffix.
  * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
  * @param {Function} props.from       - The plugin slug initiated the flow.
@@ -28,7 +29,8 @@ const {
  */
 export default function useProductCheckoutWorkflow( {
 	productSlug,
-	redirectUrl,
+	adminUrl,
+	redirectUri,
 	siteSuffix = defaultSiteSuffix,
 	siteProductAvailabilityHandler = null,
 	from,
@@ -38,7 +40,7 @@ export default function useProductCheckoutWorkflow( {
 	const { registerSite } = useDispatch( CONNECTION_STORE_ID );
 
 	const { isUserConnected, isRegistered, handleConnectUser } = useConnection( {
-		redirectUri: redirectUrl,
+		redirectUri,
 		from,
 	} );
 
@@ -57,7 +59,7 @@ export default function useProductCheckoutWorkflow( {
 	const checkoutProductUrl = getProductCheckoutUrl(
 		productSlug,
 		siteSuffix,
-		redirectUrl,
+		adminUrl + redirectUri,
 		isUserConnected || isWpcom
 	);
 
@@ -91,7 +93,7 @@ export default function useProductCheckoutWorkflow( {
 			return handleAfterRegistration();
 		}
 
-		registerSite( { registrationNonce, redirectUri: redirectUrl } ).then( handleAfterRegistration );
+		registerSite( { registrationNonce, redirectUri } ).then( handleAfterRegistration );
 	};
 
 	// Initialize/Setup the REST API.

@@ -34,7 +34,8 @@ class Client_Portal {
 		$this->router = new Client_Portal_Router();
 		$this->render = new Client_Portal_Render_Helper( $this );
 
-		$this->init();
+		// Initializes it later. Priority 10
+		add_action( 'init', array( $this, 'init' ) );
 	}
 
 	/**
@@ -57,7 +58,7 @@ class Client_Portal {
 		// Custom login redirect hook (this one is in our $router).
 		add_action( 'login_redirect', array( $this->router, 'redirect_contacts_upon_login' ), 10, 3 );
 		// Initializes all endpoints (including the ones from external plugins).
-		add_action( 'init', array( $this, 'init_endpoints' ) );
+		$this->init_endpoints();
 		// this catches failed logins, checks if from our page, then redirs
 		// From mr pippin https://pippinsplugins.com/redirect-to-custom-login-page-on-failed-login/
 		add_action( 'wp_login_failed', array( $this, 'portal_login_fail_redirect' ) );  // hook failed login
@@ -118,18 +119,11 @@ class Client_Portal {
 
 		wp_enqueue_style( 'zbs-portal', plugins_url( '/css/jpcrm-public-portal' . wp_scripts_get_suffix() . '.css', __FILE__ ), array(), $zbs->version );
 		wp_enqueue_style('zbs-fa', ZEROBSCRM_URL . 'css/font-awesome.min.css', array(), $zbs->version );
-		wp_enqueue_script('wh-moment-v2-8-1-js', untrailingslashit(ZEROBSCRM_URL) .'/js/lib/moment-with-locales.min.js', array('jquery'), $zbs->version );
-		zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
 		// This do_action call was left here for compatibility purposes (legacy).
 		do_action('zbs_enqueue_portal', 'zeroBS_portal_enqueue_stuff');
 		// This new action should be used for newer implementations.
 		do_action('jpcrm_enqueue_client_portal_styles');
-
-		// Adds the public portal script with the daterangepicker locale inline (it retrieves the locale from our core function)
-		$locale_opt_for_daterangepicker = json_encode( zeroBSCRM_date_localeForDaterangePicker() );
-		wp_enqueue_script( 'jpcrm-public-bind-daterange-js', plugins_url( '/js/jpcrm-public-bind-daterange'.wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), $zbs->version, true );
-		wp_add_inline_script( 'jpcrm-public-bind-daterange-js', 'var JPCRM_PUBLIC_LOCALE_OPT_FOR_DATERANGEPICKER = ' . $locale_opt_for_daterangepicker . ';', 'before' );
 	}
 
 	/**

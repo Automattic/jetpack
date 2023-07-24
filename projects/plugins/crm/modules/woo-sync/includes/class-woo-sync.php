@@ -228,42 +228,90 @@ class Woo_Sync {
 	 */
 	public function get_woo_order_statuses() {
 		$woo_order_statuses = array(
-			'wcpending'       => __( 'Pending', 'zero-bs-crm' ),
-			'wcprocessing'    => __( 'Processing', 'zero-bs-crm' ),
-			'wconhold'        => __( 'On hold', 'zero-bs-crm' ),
-			'wccompleted'     => __( 'Completed', 'zero-bs-crm' ),
-			'wccancelled'     => __( 'Cancelled', 'zero-bs-crm' ),
-			'wcrefunded'      => __( 'Refunded', 'zero-bs-crm' ),
-			'wcfailed'        => __( 'Failed', 'zero-bs-crm' ),
-			'wccheckoutdraft' => __( 'Draft', 'zero-bs-crm' ),
+			'pending'        => __( 'Pending', 'zero-bs-crm' ),
+			'processing'     => __( 'Processing', 'zero-bs-crm' ),
+			'on-hold'        => __( 'On hold', 'zero-bs-crm' ),
+			'completed'      => __( 'Completed', 'zero-bs-crm' ),
+			'cancelled'      => __( 'Cancelled', 'zero-bs-crm' ),
+			'refunded'       => __( 'Refunded', 'zero-bs-crm' ),
+			'failed'         => __( 'Failed', 'zero-bs-crm' ),
+			'checkout-draft' => __( 'Draft', 'zero-bs-crm' ),
 		);
 		return apply_filters( 'zbs-woo-additional-status', $woo_order_statuses );
+	}
+
+	/**
+	 * Retrieve default mapped order status for a given object type
+	 *
+	 * @param int $obj_type_id Object type (e.g. ZBS_TYPE_CONTACT, ZBS_TYPE_INVOICE, or ZBS_TYPE_TRANSACTION).
+	 * @param str $order_status Woo order status.
+	 *
+	 * @return str|bool Status string to use for object
+	 */
+	public function get_default_status_for_order_obj( $obj_type_id, $order_status ) {
+		global $zbs;
+
+		$status = false;
+
+		if ( $obj_type_id === ZBS_TYPE_CONTACT ) {
+			// default contact status is configured in CRM settings
+			$status = $zbs->settings->get( 'defaultstatus' );
+		} elseif ( $obj_type_id === ZBS_TYPE_INVOICE ) {
+			// reasonable default paid mapping based on Woo status descriptions:
+			// https://woocommerce.com/document/managing-orders/#order-statuses
+			$paid_statuses = array(
+				'completed',
+				'processing',
+			);
+
+			if ( in_array( $order_status, $paid_statuses, true ) ) {
+				$status = __( 'Paid', 'zero-bs-crm' );
+			} elseif ( $order_status === 'checkout-draft' ) {
+				$status = __( 'Draft', 'zero-bs-crm' );
+			} else {
+				$status = __( 'Unpaid', 'zero-bs-crm' );
+			}
+		} elseif ( $obj_type_id === ZBS_TYPE_TRANSACTION ) {
+			// note that transaction statuses aren't translated, as they're user-configurable
+			if ( $order_status === 'on-hold' ) {
+				// weird legacy mapping fix
+				$status = 'Hold';
+			} elseif ( $order_status === 'checkout-draft' ) {
+				// for lack of a better status
+				$status = 'Draft';
+			} else {
+				// default transaction status is the same as the Woo order status
+				$status = ucfirst( $order_status );
+			}
+		}
+
+		return $status;
 	}
 
 	/**
 	 * Retrieve available WooCommerce Order mapping to different CRM fields.
 	 * This mapping is stored in the settings in the settings, more specifically
 	 * in $settings[ $type_prefix . $woo_order_status_key ].
-	 * 
+	 *
 	 * @return array Array with mapping types for contacts, invoices and transactions.
 	 */
-	function get_woo_order_mapping_types() {
+	public function get_woo_order_mapping_types() {
 		$contact_statuses     = zeroBSCRM_getCustomerStatuses( true );
 		$invoice_statuses     = zeroBSCRM_getInvoicesStatuses();
 		$transaction_statuses = zeroBSCRM_getTransactionsStatuses( true );
 		return array(
 			'contact' => array(
-				'label'    => __( 'Contact status', 'zero-bs-crm' ), 
+				'label'    => __( 'Contact status', 'zero-bs-crm' ),
 				'prefix'   => 'order_contact_map_',
 				'statuses' => $contact_statuses,
 			),
 			'invoice' => array(
-				'label'    => __( 'Invoice status', 'zero-bs-crm' ), 
+				'label'    => __( 'Invoice status', 'zero-bs-crm' ),
 				'prefix'   => 'order_invoice_map_',
 				'statuses' => $invoice_statuses,
 			),
 			'transaction' => array(
-				'label'    => __( 'Transaction status', 'zero-bs-crm' ), 
+				'label'    => __( 'Transaction status', 'zero-bs-crm' ),
 				'prefix'   => 'order_transaction_map_',
 				'statuses' => $transaction_statuses,
 			),
@@ -1212,7 +1260,7 @@ class Woo_Sync {
 
 		$source_args = array(
 			'externalSource'    => 'woo',
-			'externalSourceUID' => $order_id,
+			'externalSourceUID' => $order_num,
 			'origin'            => $origin,
 		);
 
@@ -1524,12 +1572,17 @@ class Woo_Sync {
 	/**
 	 * Translates a WooCommerce order status to the equivalent settings key
 	 *
-	 * @param string $crm_type The type of CRM object: [ 'contact', 'invoice', 'transaction' ]
+	 * @param string $obj_type_id Object type ID.
 	 *
 	 * @return array The associated settings key array [ $order_status => $settings_key ]
 	 */
-	public function woo_order_status_mapping( $crm_type ) {
-		$setting_prefix = $this->get_woo_order_mapping_types()[ $crm_type ]['prefix'];
+	public function woo_order_status_mapping( $obj_type_id ) {
+		global $zbs;
+
+		// convert to key for use in legacy setting name
+		$obj_type_key = $zbs->DAL->objTypeKey( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+		$setting_prefix = $this->get_woo_order_mapping_types()[ $obj_type_key ]['prefix'];
 
 		return array(
 			'completed'      => $setting_prefix . 'wccompleted',
@@ -1547,49 +1600,41 @@ class Woo_Sync {
 	 * Translates a WooCommerce order status to a CRM contact resultant status
 	 *  previously `apply_status`
 	 *
-	 * @param string $order_status
+	 * @param string $obj_type_id Object type ID.
+	 * @param string $order_status Status from WooCommerce order (e.g. 'processing').
 	 *
 	 * @return string contact status
 	 */
-	public function woocommerce_order_status_to_contact_status( $order_status ){
+	public function translate_order_status_to_obj_status( $obj_type_id, $order_status ) {
+		global $zbs;
 
-	    // $order_status is the WooCommerce order status
 		$settings = $this->get_settings();
 
-	    // retrieve default status
-	    $default_status = zeroBSCRM_getSetting( 'defaultstatus' );
+		// get default object status for given Woo order status
+		$default_status = $this->get_default_status_for_order_obj( $obj_type_id, $order_status );
 
-	    // retrieve contact_statuses to ensure we are getting a valid one
-	    $contact_statuses = zeroBSCRM_getCustomerStatuses( true );
+		// if status mapping is disabled, return default status
+		$is_status_mapping_enabled = ( isset( $settings['enable_woo_status_mapping'] ) ? ( (int) $settings['enable_woo_status_mapping'] === 1 ) : true );
+		if ( ! $is_status_mapping_enabled ) {
+			return $default_status;
+		}
 
-	    // mappings
-	    $woo_order_status_mapping = $this->woo_order_status_mapping( 'contact' );
+		// mappings
+		$woo_order_status_mapping = $this->woo_order_status_mapping( $obj_type_id );
 
-	    // get the mapping setting from woocommerce
-	    if ( 
-	        array_key_exists( $order_status, $woo_order_status_mapping ) 
-	        && isset( $settings[ $woo_order_status_mapping[ $order_status ] ] )
-	        && in_array( $settings[ $woo_order_status_mapping[ $order_status ] ], $contact_statuses )
-	    ) {
+		if (
+			! empty( $settings[ $woo_order_status_mapping[ $order_status ] ] )
+			&& $zbs->DAL->is_valid_obj_status( $obj_type_id, $settings[ $woo_order_status_mapping[ $order_status ] ] ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		) {
+			// there's a valid mapping in settings, so use that
+			return $settings[ $woo_order_status_mapping[ $order_status ] ];
+		} elseif ( $default_status ) {
+			// there's a default object mapping for this order status, so use that
+			return $default_status;
+		}
 
-	        $order_status = $settings[ $woo_order_status_mapping[ $order_status ] ];
-
-	    } else {
-
-	        $order_status = $default_status;
-
-	    }
-
-	    if ( ! isset( $order_status ) || $order_status == -1 ) {
-
-	        return $default_status;
-
-	    } else {
-
-	        return $order_status;
-
-	    }
-
+		// use provided order status as fallback status
+		return $order_status;
 	}
 
 

@@ -38,6 +38,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	children,
 	popoverAnchorStyle = 'icon',
 	forceShow = false,
+	wide = false,
 } ) => {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
@@ -75,7 +76,10 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 				</Button>
 			) }
 
-			<div className="icon-tooltip-helper" style={ iconShiftBySize }>
+			<div
+				className={ classNames( 'icon-tooltip-helper', { 'is-wide': wide } ) }
+				style={ iconShiftBySize }
+			>
 				{ ( isForcedToShow || isVisible ) && (
 					<Popover { ...args }>
 						<div>

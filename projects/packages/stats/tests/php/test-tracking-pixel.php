@@ -30,6 +30,8 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 
 	/**
 	 * Test for Tracking_Pixel::build_view_data with post
+	 *
+	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
 	 */
 	public function test_build_view_data_with_post() {
 		global $wp_the_query;
@@ -48,6 +50,8 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 
 	/**
 	 * Test for Tracking_Pixel::build_view_data with gmt offset
+	 *
+	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data
 	 */
 	public function test_build_view_data_with_gmt_offset() {
 		add_option( 'gmt_offset', '5' );
@@ -63,34 +67,11 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Test for Tracking_Pixel::get_footer_to_add
-	 */
-	public function test_get_footer_to_add() {
-		$data          = array(
-			'v'    => 'ext',
-			'blog' => 1234,
-			'post' => 0,
-			'tz'   => false,
-			'srv'  => 'example.org',
-		);
-		$footer_to_add = Tracking_Pixel::get_footer_to_add( $data );
-		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		$script_url              = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
-		$footer_to_add_should_be = <<<END
-	<script src='{$script_url}' defer></script>
-	<script>
-		_stq = window._stq || [];
-		_stq.push([ 'view', {v:'ext',blog:'1234',post:'0',tz:'',srv:'example.org'} ]);
-		_stq.push([ 'clickTrackerInit', '1234', '0' ]);
-	</script>
-END;
-		$this->assertSame( $footer_to_add_should_be, $footer_to_add );
-	}
-
-	/**
 	 * Test for Tracking_Pixel::test_get_footer_to_add for an amp request
+	 *
+	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::get_amp_footer
 	 */
-	public function test_get_footer_to_add_amp_request() {
+	public function test_get_amp_footer() {
 		$_SERVER['HTTP_HOST'] = '127.0.0.1';
 		$data                 = array(
 			'v'    => 'ext',
@@ -100,10 +81,16 @@ END;
 			'srv'  => 'example.org',
 		);
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$footer_to_add = Tracking_Pixel::get_footer_to_add( $data );
+
+		$method = new \ReflectionMethod( Tracking_Pixel::class, 'get_amp_footer' );
+		$method->setAccessible( true );
+
+		$amp_footer_data = $method->invoke( new Tracking_Pixel(), $data );
+
 		remove_filter( 'jetpack_is_amp_request', '__return_true' );
+
 		$footer_to_add_should_be = '<amp-pixel src="https://pixel.wp.com/g.gif?v=ext&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER"></amp-pixel>';
-		$this->assertSame( $footer_to_add_should_be, $footer_to_add );
+		$this->assertSame( $footer_to_add_should_be, $amp_footer_data );
 	}
 
 	/**
@@ -118,28 +105,28 @@ END;
 
 	/**
 	 * Test for Tracking_Pixel::get_footer_to_add to check that stat_array filter is applied
+	 *
+	 * @covers \Automattic\Jetpack\Stats\Tracking_Pixel::build_stats_details
 	 */
 	public function test_get_footer_to_add_applies_filter() {
 		add_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ), 10, 2 );
-		$data          = array(
+		$data = array(
 			'v'    => 'ext',
 			'blog' => 1234,
 			'post' => 0,
 			'tz'   => false,
 			'srv'  => 'example.org',
 		);
-		$footer_to_add = Tracking_Pixel::get_footer_to_add( $data );
-		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		$script_url              = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
-		$footer_to_add_should_be = <<<END
-	<script src='{$script_url}' defer></script>
-	<script>
-		_stq = window._stq || [];
-		_stq.push([ 'view', {v:'ext',blog:'1234',post:'0',tz:'',srv:'replaced.com'} ]);
-		_stq.push([ 'clickTrackerInit', '1234', '0' ]);
-	</script>
-END;
+
+		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
+		$method->setAccessible( true );
+		$pixel_details = $method->invoke( new Tracking_Pixel(), $data );
+
+		$expected_pixel_details = "_stq = window._stq || [];
+_stq.push([ \"view\", {v:'ext',blog:'1234',post:'0',tz:'',srv:'replaced.com'} ]);
+_stq.push([ \"clickTrackerInit\", \"1234\", \"0\" ]);";
+
 		remove_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ) );
-		$this->assertSame( $footer_to_add_should_be, $footer_to_add );
+		$this->assertSame( $expected_pixel_details, $pixel_details );
 	}
 }

@@ -61,34 +61,48 @@
  * @package automattic/jetpack-wp-js-data-sync
  */
 
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamComment
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamName
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamTag
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingReturn
-// phpcs:disable Generic.Commenting.DocComment.MissingShort
-// phpcs:disable Squiz.Commenting.FunctionComment.Missing
-// phpcs:disable Squiz.Commenting.ClassComment.Missing
-// phpcs:disable Squiz.Commenting.FileComment.Missing
-
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-class Data_Sync {
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+final class Data_Sync {
+
+	const PACKAGE_VERSION = '0.2.1';
 
 	/**
 	 * @var Registry
 	 */
-	protected $registry;
+	private $registry;
 
 	/**
 	 * @var string Script Handle name to pass the variables to.
 	 */
-	protected $script_handle;
+	private $script_handle;
 
-	public function __construct( $script_handle, Registry $registry ) {
-		$this->script_handle = $script_handle;
-		$this->registry      = $registry;
+	/**
+	 * The Registry class is a singleton.
+	 *
+	 * @var Data_Sync[]
+	 */
+	private static $instance = array();
+	/**
+	 * @var string The namespace to use for the registry.
+	 */
+	private $namespace;
+
+	public function __construct( $namespace ) {
+		$this->namespace = $namespace;
+		$this->registry  = new Registry( $namespace );
+	}
+
+	public static function get_instance( $namespace ) {
+		if ( ! isset( self::$instance[ $namespace ] ) ) {
+			self::$instance[ $namespace ] = new self( $namespace );
+		}
+
+		return self::$instance[ $namespace ];
 	}
 
 	/**
@@ -105,35 +119,25 @@ class Data_Sync {
 				'nonce' => wp_create_nonce( 'wp_rest' ),
 			),
 		);
-		foreach ( $this->registry->all() as $entry ) {
-			$key          = $entry->key();
+		foreach ( $this->registry->all() as $key => $entry ) {
+
 			$data[ $key ] = array(
-				'value' => $entry->get(),
+				'value' => $entry->is( Lazy_Entry::class ) ? null : $entry->get(),
 				'nonce' => $this->registry->get_endpoint( $key )->create_nonce(),
 			);
+
+			if ( $entry->is( Lazy_Entry::class ) ) {
+				$data[ $key ]['lazy'] = true;
+			}
 		}
 
-		wp_localize_script( $this->script_handle, $this->registry->get_namespace(), $data );
-	}
-
-	/**
-	 * Tell WordPress to print script tags in the specified plugin page
-	 *
-	 * @param string $plugin_page The slug name of the plugin page.
-	 * @param string $parent_page The slug name for the parent menu (or the file name of a standard
-	 *                            WordPress admin page).
-	 *
-	 * @return void
-	 */
-	public function add_to_plugin_page( $plugin_page, $parent_page ) {
-		$plugin_page_hook = get_plugin_page_hook( $plugin_page, $parent_page );
-		add_action( $plugin_page_hook, array( $this, '_print_options_script_tag' ) );
+		wp_localize_script( $this->script_handle, $this->namespace, $data );
 	}
 
 	/**
 	 * Create a new instance of the Data_Sync class.
 	 *
-	 * @param $registry_name string - Each registry should have a unique name, typically plugin name, like `jetpack_boost`
+	 * @param $namespace     string - Each registry should have a unique name, typically plugin name, like `jetpack_boost`
 	 * @param $script_handle string - The script handle name to pass the variables to, typically the same as the plugin name,
 	 *                       but with a dash instead of underscore, like `jetpack-boost`
 	 * @param $plugin_page   string   - The slug name of the plugin page. If null, it will be assumed to be the same as the
@@ -143,27 +147,57 @@ class Data_Sync {
 	 *
 	 * @return Data_Sync - A new instance of the Data_Sync class.
 	 */
-	public static function setup( $registry_name, $script_handle, $plugin_page = null, $parent_page = 'admin' ) {
+	public function attach_to_plugin( $script_handle, $plugin_page_hook ) {
+		$this->script_handle = $script_handle;
+		add_action( $plugin_page_hook, array( $this, '_print_options_script_tag' ) );
+	}
 
-		$registry = Registry::get_instance( $registry_name );
+	public function get_registry() {
+		return $this->registry;
+	}
 
-		/**
-		 * The plugin page slug can be anything, but makes setup easier to read by making assumptions.
-		 * This assumes that the plugin page string is going to match the registry namespace,
-		 * formatted as a http parameter. (kebab case)
+	/**
+	 * DataSync entries have to be registered before they can be used.
+	 *
+	 * Typically, entries are stored in WP Options, so this method
+	 * is will default to registering entries as Data_Sync_Option.
+	 *
+	 * However, you can provide an `$entry` instance that subscribes Entry_Can_* methods.
+	 * If you do, `Entry_Can_Get` interface is required, and all other Entry_Can_* interfaces are optional.
+	 *
+	 * @param $key    string - The key to register the entry under.
+	 * @param $schema Schema - The schema to use for the entry.
+	 * @param $entry  Entry_Can_Get - The entry to register. If null, a new Data_Sync_Option will be created.
+	 *
+	 * @return void
+	 */
+	public function register( $key, $schema, $custom_entry_instance = null ) {
+		$option_key = $this->namespace . '_' . $key;
+
+		// If a custom entry instance is provided, and it implements Entry_Can_Get, use that.
+		// Otherwise, this Entry will store data using Data_Sync_Option (wp_options).
+		$entry = ( $custom_entry_instance instanceof Entry_Can_Get )
+			? $custom_entry_instance
+			: new Data_Sync_Option( $option_key );
+
+		/*
+		 * ## Adapter
+		 * This `register` method is inteded to be a shorthand for the most common use case.
 		 *
-		 * Example:
-		 * Registry with namespace:  `jetpack_boost` should be
-		 * automatically attached to `admin.php?page=jetpack-boost`
+		 * Custom entries can implement various interfaces depending on whether they can set, merge, delete, etc.
+		 * However, the Registry expects an object that implements Data_Sync_Entry.
+		 * That's why we wrap the Entry in an Adapter - giving it a guaranteed interface.
+		 *
+		 * ## Customization
+		 * Entries can be flexible because they're wrapped in an Adapter.
+		 * But you can also create a class that implements `Data_Sync_Entry` directly if you need to.
+		 * In that case, you'd need to use:
+		 * ```php
+		 *      $Data_Sync->get_registry()->register(...)` instead of `$Data_Sync->register(...)
+		 * ```
 		 */
-		if ( $plugin_page === null ) {
-			$plugin_page = $registry->get_namespace_http();
-		}
-
-		$instance = new self( $script_handle, $registry );
-		$instance->add_to_plugin_page( $plugin_page, $parent_page );
-
-		return $instance;
+		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $schema );
+		$this->registry->register( $key, $entry_adapter );
 	}
 
 }

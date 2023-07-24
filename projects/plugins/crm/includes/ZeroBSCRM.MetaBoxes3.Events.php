@@ -119,41 +119,6 @@
                 // check this
                 if (empty($event_id) || $event_id < 1)  $event_id = -1;
 
-                /* old way:
-
-                    $zbsEventMeta = array();
-            
-                    $start_d = date('m/d/Y H') . ":00:00";
-                    $end_d =  date('m/d/Y H') . ":00:00";
-                    $zbsEventMeta['from'] = $start_d; if (isset($_POST['zbse_start'])) $zbsEventMeta['from']  =  sanitize_text_field($_POST['zbse_start']);
-                    $zbsEventMeta['to'] =$end_d; if (isset($_POST['zbse_end'])) $zbsEventMeta['to']     = sanitize_text_field($_POST['zbse_end']);
-                    $zbsEventMeta['notes'] = ''; if (isset($_POST['zbse_desc'])) $zbsEventMeta['notes']  = zeroBSCRM_textProcess($_POST['zbse_desc']);
-                    $zbsEventMeta['title'] = ''; if (isset($_POST['event_post_title'])) $zbsEventMeta['title']  = zeroBSCRM_textProcess($_POST['event_post_title']);                        
-                    $zbsEventMeta['showoncal'] = false; if (isset($_POST['zbse_show_on_cal'])) $zbsEventMeta['showoncal']   = sanitize_text_field($_POST['zbse_show_on_cal']);                        
-                    $zbsEventMeta['showonportal'] = false; if (isset($_POST['zbse_show_on_portal'])) $zbsEventMeta['showonportal']   = sanitize_text_field($_POST['zbse_show_on_portal']);
-                    $zbsEventMeta['complete'] = -1; if (isset($_POST['complete_crm'])) $zbsEventMeta['complete']     =  (int)sanitize_text_field($_POST['complete_crm']);
-               
-
-                    // obj links:
-                    $zbsEventMeta['contacts'] = array(); if (isset($_POST['zbse_customer'])) $zbsEventMeta['contacts'][]   = (int)sanitize_text_field($_POST['zbse_customer']);
-                    $zbsEventMeta['companies'] = array(); if (isset($_POST['zbse_company'])) $zbsEventMeta['companies'][]   = (int)sanitize_text_field($_POST['zbse_company']);
-        
-                    // get old-style notify -> reminders
-                    $eventReminders = array();
-                    $zbsEventNotify = false; if (isset($_POST['zbs_remind_task_24'])) $zbsEventNotify  = (int)sanitize_text_field($_POST['zbs_remind_task_24']);
-                    if ($zbsEventNotify > 0){
-
-                            // this was only ever 0 or 24
-                            if ($zbsEventNotify == 24) $eventReminders[] = array(
-
-                                    'remind_at' => -86400,
-                                    'sent' => -1
-
-                            );
-                    }
-
-                */
-
                 // DAL3 way: 
                 $autoGenAutonumbers = true; // generate if not set :)
                 $event = zeroBS_buildObjArr($_POST,array(),'zbse_','',false,ZBS_TYPE_EVENT,$autoGenAutonumbers);
@@ -167,26 +132,26 @@
 
                 // because we deal with non-model datetime stamps here, we have to process separate to buildObjArr:
 
-                    // default
-                    $eventStart = time(); $eventEnd = time()+3600; 
-                
-                    // process _POST
-                    if (isset($_POST['zbse_start'])) {
+			// jpcrm_datetime_post_keys_to_uts() sanitises POST data
+			$task_start = jpcrm_datetime_post_keys_to_uts( 'jpcrm_start' );
+			$task_end   = jpcrm_datetime_post_keys_to_uts( 'jpcrm_end' );
 
-                        // 2019-05-01 12:00:00
-                        $eventStartStr = sanitize_text_field($_POST['zbse_start']);
-                        $eventStart = zeroBSCRM_locale_dateToUTS($eventStartStr,false,'Y-m-d H:i:s');
-                    }
-                    if (isset($_POST['zbse_end'])) {
+			// if unable to use task start input, set to current time
+			if ( ! $task_start ) {
+				// start +1 hour from now
+				$task_start = time() + 3600;
 
-                        // 2019-05-01 12:00:00
-                        $eventEndStr = sanitize_text_field($_POST['zbse_end']);
-                        $eventEnd = zeroBSCRM_locale_dateToUTS($eventEndStr,false,'Y-m-d H:i:s');
-                    }
+				// round to 15 minutes
+				$task_start -= $task_start % 900;
+			}
 
-                    // override
-                    if ($eventStart > 0) $event['start'] = $eventStart;
-                    if ($eventEnd > 0) $event['end'] = $eventEnd;
+			if ( ! $task_end || $task_end < $task_start ) {
+				// set to task start time + 1 hour if end is not set or is before start
+				$task_end = $task_start + 3600;
+			}
+
+			$event['start'] = $task_start;
+			$event['end']   = $task_end;
 
                 // obj links:
                 $event['contacts'] = array(); if (isset($_POST['zbse_customer'])) $event['contacts'][]   = (int)sanitize_text_field($_POST['zbse_customer']);
@@ -355,54 +320,19 @@
 
             ?><div class="zbs-generic-save-wrap">
 
-                    <div class="ui medium dividing header"><i class="save icon"></i> <?php esc_html_e('Event Actions','zero-bs-crm'); ?></div>
+				<div class="ui medium dividing header"><i class="save icon"></i> <?php esc_html_e( 'Task Actions', 'zero-bs-crm' ); ?></div>
 
             <?php
 
             // localise ID & content
             $eventID = -1; if (is_array($event) && isset($event['id'])) $eventID = (int)$event['id'];
 
-            #} if a saved event...
             if ($eventID > 0){
-
-                 // existing
-            
-                /* Event's dont use statuses for now.. 
-
-                        // hard typed for now.
-                        $acceptableQuoteStatuses = array(
-                            "draft" => __('Draft','zero-bs-crm'),
-                            "published" => __('Published, Unaccepted','zero-bs-crm'),
-                            "accepted" => __('Accepted','zero-bs-crm')
-                        );
-
-                        // status
-                        $status = __('Draft','zero-bs-crm');
-                        if (is_array($quote) && isset($quote['status'])){
-                            if ($quote['status'] == -2) $status = __('Published, Unaccepted','zero-bs-crm');
-                            if ($quote['status'] == 1) $status = __('Accepted','zero-bs-crm');
-                        }
-                        ?>
-                        <div>
-                            <label for="quote_status"><?php _e('Status',"zero-bs-crm"); ?>: </label>
-                            <select id="quote_status" name="quote_status">
-                                <?php foreach($acceptableQuoteStatuses as $statusOpt => $statusStr){
-
-                                    $sel = '';
-                                    if ($statusStr == $status) $sel = ' selected="selected"';
-                                    echo '<option value="'.$statusOpt.'"'. $sel .'>'.__($statusStr,"zero-bs-crm").'</option>';
-
-                                } ?>
-                            </select>
-                        </div>
-
-                        <div class="clear"></div>
-                    
-                    */ ?>
+				?>
 
                     <div class="zbs-event-actions-bottom zbs-objedit-actions-bottom">
 
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php esc_html_e("Event","zero-bs-crm"); ?></button>
+							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
 
                         <?php
 
@@ -425,7 +355,7 @@
 
                     // NEW Event ?>
 
-                    <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Save","zero-bs-crm"); ?> <?php esc_html_e("Event","zero-bs-crm"); ?></button>
+						<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
 
                  <?php
 
@@ -540,9 +470,11 @@ function zeroBSCRM_task_addEdit($taskID = -1){
 
     $html .= zeroBSCRM_task_ui_clear();
 
-    $html .= zeroBSCRM_task_ui_assignment($taskObject, $taskID);
+	$html .= jpcrm_task_ui_daterange( $taskObject ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-    $html .= zeroBSCRM_task_ui_date($taskObject);
+	$html .= zeroBSCRM_task_ui_clear();
+
+	$html .= zeroBSCRM_task_ui_assignment( $taskObject, $taskID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
     $html .= zeroBSCRM_task_ui_clear();
 
@@ -638,11 +570,14 @@ function zeroBSCRM_task_ui_mark_complete($taskObject = array(), $taskID = -1){
     
         if ($taskObject['complete'] == 1){
 
-            $html .= "<div id='task-mark-incomplete' class='task-comp incomplete'><button class='ui button green' data-taskid='".$taskID."'><i class='ui icon check white'></i>".__('Completed','zero-bs-crm')."</button></div>";
+				$html .= "<div id='task-mark-incomplete' class='task-comp incomplete'><button class='ui button black' data-taskid='" . $taskID . "'><i class='ui icon check white'></i>" . __( 'Completed', 'zero-bs-crm' ) . '</button></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
             $complete = "<input type='hidden' id='zbs-task-complete' value = '1' name = 'zbs-task-complete'/>";
         } else {
-
-            $html .= "<div id='task-mark-complete' class='task-comp complete'><button class='ui button' data-taskid='".$taskID."'><i class='ui icon check'></i>".__('Mark Complete','zero-bs-crm')."</button></div>";
+				$html .= sprintf(
+					'<div id="task-mark-complete" class="task-comp complete"><button class="ui button black button-primary button-large" data-taskid="%s"><i class="ui icon check"></i>%s</button></div>',
+					$taskID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					__( 'Mark Complete', 'zero-bs-crm' )
+				);
             $complete = "<input type='hidden' id='zbs-task-complete' value = '-1' name = 'zbs-task-complete'/>";
         }
 
@@ -675,7 +610,7 @@ function zeroBSCRM_task_ui_for($taskObject = array()){
         if (isset($taskContact['id'])) $custID = $taskContact['id'];
         $custName = $zbs->DAL->contacts->getContactNameWithFallback( $custID );
     }else{
-        if(isset($_GET['zbsprefillcust']) && !empty($_GET['zbsprefillcust'])){
+		if ( isset( $_GET['zbsprefillcust'] ) && ! empty( $_GET['zbsprefillcust'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $custID = (int)$_GET['zbsprefillcust'];
             $custName = $zbs->DAL->contacts->getContactNameWithFallback( $custID );
         }
@@ -683,7 +618,7 @@ function zeroBSCRM_task_ui_for($taskObject = array()){
     
     #} Output
     $html .= '<div class="zbs-task-for">' . zeroBSCRM_CustomerTypeList('zbscrmjs_events_setContact',$custName,true,'zbscrmjs_events_changeContact') . "</div>";
-    $html .= '<input type="hidden" name="zbse_customer" id="zbse_customer" value="' . $custID .'" />';
+	$html .= '<input type="hidden" name="zbse_customer" id="zbse_customer" value="' . ( $custName ? $custID : '' ) . '" />'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
     $html .= "<div class='clear'></div></div>";
 
     return $html;
@@ -691,7 +626,7 @@ function zeroBSCRM_task_ui_for($taskObject = array()){
 }
 
 function zeroBSCRM_task_ui_for_co($taskObject = array()){
-
+	global $zbs;
     $html = "";
 
     if(zeroBSCRM_getSetting('companylevelcustomers') == "1"){
@@ -699,26 +634,33 @@ function zeroBSCRM_task_ui_for_co($taskObject = array()){
         $html .= "<div class='no-contact zbs-task-for-who'><div class='zbs-task-for-help'><i class='ui icon building outline'></i> " . jpcrm_label_company() . "</div>";
 
         //need UI for selecting who the task is for (company, then contact)
-        $coName = ''; $coID = '';
+		$co_name = '';
+		$co_id   = '';
 
         if (isset($taskObject['company']) && is_array($taskObject['company'])){
 
-            $taskCompany = $taskObject['company'];
+			$task_company = $taskObject['company']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             // for now this needs a 0 offset as has potential for multi-contact
-            if (isset($taskCompany[0]) && is_array($taskCompany[0])){
-
-                $taskCompany = $taskCompany[0];
+			if ( isset( $task_company[0] ) && is_array( $task_company[0] ) ) {
+				$task_company = $task_company[0];
             }
 
-            if (isset($taskCompany['id'])) $coID = $taskCompany['id'];
-            if (isset($taskCompany['name'])) $coName = $taskCompany['name'];
-        }
-        
+			if ( isset( $task_company['id'] ) ) {
+				$co_id = $task_company['id'];
+			}
+			if ( isset( $task_company['name'] ) ) {
+				$co_name = $task_company['name'];
+			}
+		} elseif ( isset( $_GET['zbsprefillco'] ) && ! empty( $_GET['zbsprefillco'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$co_id   = (int) $_GET['zbsprefillco']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$co_name = $zbs->DAL->companies->getCompanyNameEtc( $co_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
+
         #} Output
-        $html .= '<div class="zbs-task-for-company">' . zeroBSCRM_CompanyTypeList('zbscrmjs_events_setCompany',$coName,true,'zbscrmjs_events_changeCompany') . "</div>";
-        $html .= '<input type="hidden" name="zbse_company" id="zbse_company" value="' .$coID .'" />';    
-        $html .= "<div class='clear'></div></div>";
+		$html .= '<div class="zbs-task-for-company">' . zeroBSCRM_CompanyTypeList( 'zbscrmjs_events_setCompany', $co_name, true, 'zbscrmjs_events_changeCompany' ) . '</div>';
+		$html .= '<input type="hidden" name="zbse_company" id="zbse_company" value="' . ( $co_name ? $co_id : '' ) . '" />';
+		$html .= '<div class="clear"></div></div>';
 
     }
 
@@ -727,62 +669,59 @@ function zeroBSCRM_task_ui_for_co($taskObject = array()){
 }
 
 
-#} the date picker UI
-function zeroBSCRM_task_ui_date($taskObject = array()){
+/**
+ * Returns a string for disabling browser autocomplete
+ * Ideally we'd just use "off", but support is not complete: https://caniuse.com/input-autocomplete-onoff
+ *
+ * @param obj $task_object Object containing task details.
+ *
+ * @return string $html Contains the start/end date and time inputs.
+ */
+function jpcrm_task_ui_daterange( $task_object = array() ) {
 
-    $html = "<div class='no-task-date'><i class='ui icon calendar outline'></i> ". __('Date','zero-bs-crm') ." </div>";
+	if ( ! isset( $task_object['start'] ) ) {
 
-    if (!isset($taskObject['start'])){
+		// no task start defined yet, so use some defaults
 
-        // starting date
-        //$start_d = date('m/d/Y H') . ":00:00";
-        //$end_d =  date('m/d/Y H') . ":00:00";
-        // wh modified to now + 1hr - 2hr
-        $start_d = date('d F Y H:i:s',(time()+3600));
-        $end_d =  date('d F Y H:i:s',(time()+3600+3600));
+		// start +1 hour from now
+		$task_start = time() + 3600;
 
+		// round to 15 minutes
+		$task_start -= $task_start % 900;
 
-    } else {
+		// end +1 hour from start
+		$task_end = $task_start + 3600;
 
-		// temp pre v3.0 fix, forcing english en for this datepicker only.
-		// requires js mod: search #forcedlocaletasks
-		// (Month names are localised, causing a mismatch here (Italian etc.))
-		// ... so we translate:
-		// d F Y H:i:s (date - not locale based)
-		// https://www.php.net/manual/en/function.date.php
-		// ... into
-		// %d %B %Y %H:%M:%S (strfttime - locale based date)
-		// (https://www.php.net/manual/en/function.strftime.php)
+	} else {
 
-		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
+		$task_start = $task_object['start'];
+		$task_end   = $task_object['end'];
 
-		/*
-		$start_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['start']);
-		$end_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['end']);
-		*/
-		// @todo - this is to be refactored.
-		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, PHPCompatibility.FunctionUse.RemovedFunctions.strftimeDeprecated
-		zeroBSCRM_locale_setServerLocale( 'en_US' );
-		$start_d = strftime( '%d %B %Y %H:%M:%S', $taskObject['start'] );
-		$end_d   = strftime( '%d %B %Y %H:%M:%S', $taskObject['end'] );
-		zeroBSCRM_locale_resetServerLocale();
-		// phps:enable Squiz.PHP.CommentedOutCode.Found, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, PHPCompatibility.FunctionUse.RemovedFunctions.strftimeDeprecated
 	}
 
-    $html = '<div class="no-task-date"><input type="text" id="daterange" class="form-control" name="daterange" value="' . $start_d . ' - ' . $end_d .'" autocomplete="zbs-'.time() . '-task-date" /></div>';
-    $html .= '<input type="hidden" id="zbs_from" name="zbse_start" value="' . $start_d .'"/>';
-    $html .= '<input type="hidden" id="zbs_to" name="zbse_end" value="' . $end_d . '"/>';
-    
-    return $html;
+	// For now, hack together a table so the date and time inputs line up nicely. Eventually we'll want to rework the entire UI of this page.
+	$html = '
+<table style="margin-left:20px;">
+	<tr class="wh-large">
+		<td><label>' . esc_html__( 'Start time', 'zero-bs-crm' ) . ':</label>&nbsp;</td>
+		<td>
+			<input type="date" name="jpcrm_start_datepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_start, 'Y-m-d' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
+			@ 
+			<input type="time" name="jpcrm_start_timepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_start, 'H:i' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
+		</td>
+	</tr>
+	<tr class="wh-large">
+		<td><label>' . esc_html__( 'End time', 'zero-bs-crm' ) . ':</label>&nbsp;</td>
+		<td>
+			<input type="date" name="jpcrm_end_datepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_end, 'Y-m-d' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
+			@ 
+			<input type="time" name="jpcrm_end_timepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_end, 'H:i' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
+		</td>
+	</tr>
+</table>';
+
+	return $html;
 }
-
-#} save UI button
-/* replaced with action metabox now.
-function zeroBSCRM_task_ui_save($taskObject = array()){
-
-    return "<button class='ui button blue large zbs-save-event'>". __('Save','zero-bs-crm') ." </button>";
-
-} */
 
 #} UI Reminders
 function zeroBSCRM_task_ui_reminders($taskObject = array(), $taskID = -1){
@@ -815,9 +754,11 @@ function zeroBSCRM_task_ui_reminders($taskObject = array(), $taskID = -1){
 
             // add admin cog (settings) for event notification template
             if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-                
-                $html .= '<a href="' . esc_url_raw( jpcrm_esc_link( 'zbs-email-templates' ) . '&zbs_template_id=' . ZBSEMAIL_EVENTNOTIFICATION ) . '" class="ui icon button right floated" title="'.__('Admin: Notification Settings','zero-bs-crm').'" target="_blank"><i class="cogs icon"></i></a>';        
-
+					$html .= sprintf(
+						'<a href="%s" class="button button-primary button-large" style="background-color:black;border-color:black;" title="%s" target="_blank"><i class="cogs icon"></i></a>',
+						esc_url_raw( jpcrm_esc_link( 'zbs-email-templates' ) . '&zbs_template_id=' . ZBSEMAIL_EVENTNOTIFICATION ),
+						__( 'Admin: Notification Settings', 'zero-bs-crm' )
+					);
             }
 
         $html .= '<input name="zbs_remind_task_24" id="zbs_remind_task_24" type="checkbox" value="24"';

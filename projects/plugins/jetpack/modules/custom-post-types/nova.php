@@ -847,7 +847,7 @@ class Nova_Restaurant {
 				'_inc/build/custom-post-types/js/nova-drag-drop.min.js',
 				'modules/custom-post-types/js/nova-drag-drop.js'
 			),
-			array( 'jquery-ui-sortable' ),
+			array( 'jquery', 'jquery-ui-sortable' ),
 			$this->version,
 			true
 		);
@@ -1486,7 +1486,7 @@ class Nova_Restaurant {
 				);
 			}
 
-			echo join( _x( ', ', 'Nova label separator', 'jetpack' ), $out ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we build $out ourselves and escape things there.
+			echo implode( _x( ', ', 'Nova label separator', 'jetpack' ), $out ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we build $out ourselves and escape things there.
 		} else {
 			esc_html_e( 'No Labels', 'jetpack' );
 		}

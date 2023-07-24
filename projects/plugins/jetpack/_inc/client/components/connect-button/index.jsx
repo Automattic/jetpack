@@ -51,6 +51,8 @@ export class ConnectButton extends React.Component {
 		connectInPlace: PropTypes.bool,
 		customConnect: PropTypes.func,
 		autoOpenInDisconnectRoute: PropTypes.bool,
+		rna: PropTypes.bool,
+		compact: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -59,6 +61,8 @@ export class ConnectButton extends React.Component {
 		asLink: false,
 		connectInPlace: true,
 		autoOpenInDisconnectRoute: false,
+		rna: false,
+		compact: false,
 	};
 
 	constructor( props ) {
@@ -161,7 +165,9 @@ export class ConnectButton extends React.Component {
 		return this.props.asLink ? (
 			<a { ...buttonProps }>{ connectLegend }</a>
 		) : (
-			<Button { ...buttonProps }>{ connectLegend }</Button>
+			<Button rna={ this.props.rna } compact={ this.props.compact } { ...buttonProps }>
+				{ connectLegend }
+			</Button>
 		);
 	};
 

@@ -17,10 +17,12 @@ export default class ClipboardButtonInput extends React.Component {
 		copied: PropTypes.string,
 		copy: PropTypes.string,
 		prompt: PropTypes.string,
+		rna: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		value: '',
+		rna: false,
 	};
 
 	state = {
@@ -54,7 +56,8 @@ export default class ClipboardButtonInput extends React.Component {
 			'isError',
 			'isValid',
 			'prompt',
-			'selectOnFocus'
+			'selectOnFocus',
+			'rna'
 		);
 
 		return (
@@ -66,6 +69,7 @@ export default class ClipboardButtonInput extends React.Component {
 					disabled={ this.props.disabled }
 					prompt={ this.props.prompt }
 					compact
+					rna={ this.props.rna }
 				>
 					{ this.state.isCopied ? this.props.copied : this.props.copy }
 				</ClipboardButton>

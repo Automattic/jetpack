@@ -1,4 +1,4 @@
-import { MeasurableImage } from './MeasurableImage';
+import { FetchFn, MeasurableImage } from './MeasurableImage';
 
 /**
  * Get elements that either are image tags or have a background image.
@@ -44,9 +44,13 @@ export function imageTagSource( node: HTMLImageElement ) {
  */
 export function backgroundImageSource( node: HTMLElement ) {
 	const src = getComputedStyle( node ).backgroundImage;
-	const url = src.match( /url\(.?(.*?).?\)/i );
-	if ( url && url[ 1 ] && imageLikeURL( url[ 1 ] ) ) {
-		return url[ 1 ];
+	const url = src.match( /url\(\s*(['"])(.*?)\1\s*\)/i );
+
+	// If background image is `url('')`, the computed value becomes the current page URL. So we need to check for that.
+	const currentUrlWithoutHash = window.location.href.split( '#' )[ 0 ];
+
+	if ( url && url[ 2 ] && url[ 2 ] !== currentUrlWithoutHash && imageLikeURL( url[ 2 ] ) ) {
+		return url[ 2 ];
 	}
 	return null;
 }
@@ -56,29 +60,33 @@ export function backgroundImageSource( node: HTMLElement ) {
  * and remove any nodes that can't be measured.
  *
  * @param {Element[]} domNodes - A list of nodes to measure
+ * @param {(input: string, init?: Array) => Promise<Response>} fetchFn -  A function that fetches a URL and returns a Promise.
  * @returns {MeasurableImage[]} - A list of MeasurableImage objects.
  */
-export function getMeasurableImages( domNodes: Element[] ): MeasurableImage[] {
+export async function getMeasurableImages(
+	domNodes: Element[],
+	fetchFn: FetchFn | null = null
+): Promise< MeasurableImage[] > {
 	const nodes = findMeasurableElements( domNodes );
-	return nodes
-		.map( node => {
-			if ( node instanceof HTMLImageElement ) {
-				return new MeasurableImage( node, imageTagSource );
-			} else if ( node instanceof HTMLElement ) {
-				if ( ! backgroundImageSource( node ) ) {
-					/**
-					 * Background elements that have no valid URL
-					 * shouldn't be measured.
-					 */
-					return null;
-				}
-
-				return new MeasurableImage( node, backgroundImageSource );
+	const images = nodes.map( node => {
+		if ( node instanceof HTMLImageElement ) {
+			return new MeasurableImage( node, imageTagSource, fetchFn );
+		} else if ( node instanceof HTMLElement ) {
+			if ( ! backgroundImageSource( node ) ) {
+				/**
+				 * Background elements that have no valid URL
+				 * shouldn't be measured.
+				 */
+				return null;
 			}
 
-			return null;
-		} )
-		.filter( image => image !== null );
+			return new MeasurableImage( node, backgroundImageSource );
+		}
+
+		return null;
+	} );
+
+	return images.filter( i => i !== null );
 }
 
 /**

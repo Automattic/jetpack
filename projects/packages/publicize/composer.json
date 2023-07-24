@@ -8,16 +8,23 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-redirect": "@dev"
+		"automattic/jetpack-redirect": "@dev",
+		"automattic/jetpack-plans": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.1"
+		"automattic/wordbless": "0.4.2"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
 			"src/"
+		],
+		"files": [
+			"src/social-image-generator/utilities.php"
 		]
 	},
 	"scripts": {
@@ -31,6 +38,10 @@
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"build-development": [
 			"pnpm run build"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
 		],
 		"build-production": [
 			"pnpm run build-production-concurrently"
@@ -55,7 +66,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.20.x-dev"
+			"dev-trunk": "0.31.x-dev"
 		}
 	},
 	"config": {

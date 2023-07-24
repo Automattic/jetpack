@@ -96,11 +96,11 @@
 
 		.successes, .generating {
 			color: $gray_40;
+			margin-right: 115px;
 		}
 
 		.failures {
 			color: $gray_100;
-			max-width: 25em;
 
 			svg {
 				position: absolute;

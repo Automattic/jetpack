@@ -119,6 +119,15 @@ export type OriginalVideoPressVideo = {
 		 * VideoPress site privacy setting into account.
 		 */
 		needs_playback_token?: boolean;
+		/**
+		 * If the video is private, considering the video and the site
+		 * privacy settings.
+		 */
+		is_private?: boolean;
+		/**
+		 * If the site video default privacy setting is private.
+		 */
+		private_enabled_for_site?: boolean;
 	};
 	/**
 	 * Video source URL
@@ -145,7 +154,7 @@ export type VideoPressVideo = {
 	url: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'original' ];
 	uploadDate: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'upload_date' ];
 	duration: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'duration' ];
-	isPrivate?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'is_private' ];
+	isPrivate?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'is_private' ];
 	posterImage?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
 	allowDownload?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'allow_download' ];
 	displayEmbed?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'display_embed' ];
@@ -156,7 +165,7 @@ export type VideoPressVideo = {
 		src: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
 	};
 	finished?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'finished' ];
-	filename?: OriginalVideoPressVideo[ 'slug' ];
+	filename?: string;
 	thumbnail?: string;
 	uploading?: boolean;
 	plays?: number; // Not provided yet
@@ -221,13 +230,17 @@ export type MetadataVideo = {
 	uploadProgress?: number;
 };
 
+export type SiteType = 'atomic' | 'jetpack' | 'simple';
+
 export type VideoPressSettings = {
 	videoPressVideosPrivateForSite: boolean;
+	siteIsPrivate: boolean;
+	siteType: SiteType;
 };
 
 export type VideopressSelectors = {
 	isFetchingPurchases: () => boolean;
-	getVideo: ( id: number | string ) => VideoPressVideo;
+	getVideo: ( id: number | string, addAtEnd: boolean ) => VideoPressVideo;
 	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];
 	getUploadedVideoCount: () => number;

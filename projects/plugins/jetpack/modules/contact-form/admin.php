@@ -284,12 +284,12 @@ function grunion_manage_post_column_date() {
 function grunion_manage_post_column_from( $post ) {
 	$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post->ID );
 
-	if ( isset( $content_fields['_feedback_author'] ) ) {
+	if ( ! empty( $content_fields['_feedback_author'] ) ) {
 		echo esc_html( $content_fields['_feedback_author'] );
 		return;
 	}
 
-	if ( isset( $content_fields['_feedback_author_email'] ) ) {
+	if ( ! empty( $content_fields['_feedback_author_email'] ) ) {
 		printf(
 			"<a href='%1\$s' target='_blank'>%2\$s</a><br />",
 			esc_url( 'mailto:' . $content_fields['_feedback_author_email'] ),
@@ -298,8 +298,8 @@ function grunion_manage_post_column_from( $post ) {
 		return;
 	}
 
-	if ( isset( $content_fields['_feedback_ip'] ) ) {
-		echo esc_html( $content_fields['feedback_ip'] );
+	if ( ! empty( $content_fields['_feedback_ip'] ) ) {
+		echo esc_html( $content_fields['_feedback_ip'] );
 		return;
 	}
 
@@ -313,6 +313,7 @@ function grunion_manage_post_column_from( $post ) {
  * @return void
  */
 function grunion_manage_post_column_response( $post ) {
+	$content_fields     = array();
 	$non_printable_keys = array(
 		'email_marketing_consent',
 		'entry_title',
@@ -323,17 +324,30 @@ function grunion_manage_post_column_response( $post ) {
 	$post_content = get_post_field( 'post_content', $post->ID );
 	$content      = explode( '<!--more-->', $post_content );
 	$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-	$chunks       = explode( "\nArray", $content );
-	if ( $chunks[1] ) {
-		// re-construct the array string
-		$array = 'Array' . $chunks[1];
-		// re-construct the array
-		$rearray         = Grunion_Contact_Form_Plugin::reverse_that_print( $array, true );
-		$response_fields = is_array( $rearray ) ? $rearray : array();
-	} else {
-		// couldn't reconstruct array, use the old method
-		$content_fields  = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post->ID );
-		$response_fields = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
+	$chunks       = explode( "\nJSON_DATA", $content );
+
+	$response_fields = array();
+
+	if ( is_array( $chunks ) && isset( $chunks[1] ) ) {
+		$rearray = json_decode( $chunks[1], true );
+		if ( is_array( $rearray ) && isset( $rearray['feedback_id'] ) ) {
+			$response_fields = $rearray;
+		}
+	}
+
+	if ( empty( $response_fields ) ) {
+		$chunks = explode( "\nArray", $content );
+		if ( $chunks[1] ) {
+			// re-construct the array string
+			$array = 'Array' . $chunks[1];
+			// re-construct the array
+			$rearray         = Grunion_Contact_Form_Plugin::reverse_that_print( $array, true );
+			$response_fields = is_array( $rearray ) ? $rearray : array();
+		} else {
+			// couldn't reconstruct array, use the old method
+			$content_fields  = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post->ID );
+			$response_fields = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
+		}
 	}
 
 	$response_fields = array_diff_key( $response_fields, array_flip( $non_printable_keys ) );
@@ -347,7 +361,7 @@ function grunion_manage_post_column_response( $post ) {
 		printf(
 			'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 			esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-			esc_html( $value )
+			nl2br( esc_html( $value ) )
 		);
 	}
 	echo '</div>';
@@ -497,9 +511,9 @@ function grunion_manage_post_row_actions( $actions ) {
 		);
 		$actions['trash'] = sprintf(
 			'<a class="submitdelete" title="%s" href="%s">%s</a>',
-			esc_attr__( 'Trash', 'jetpack' ),
+			esc_attr_x( 'Trash', 'verb', 'jetpack' ),
 			get_delete_post_link( $post->ID ),
-			esc_html__( 'Trash', 'jetpack' )
+			esc_html_x( 'Trash', 'verb', 'jetpack' )
 		);
 	} elseif ( $post->post_status === 'spam' ) {
 		$actions['unspam unapprove'] = sprintf(
@@ -554,6 +568,7 @@ function grunion_sort_objects( $a, $b ) {
  * returns both the shortcode form, and HTML markup representing a preview of the form
  */
 function grunion_ajax_shortcode() {
+	$field_shortcodes = array();
 	check_ajax_referer( 'grunion_shortcode' );
 
 	if ( ! current_user_can( 'edit_posts' ) ) {
@@ -806,7 +821,7 @@ function grunion_ajax_spam() {
 			$status_html .= ' class="current"';
 		}
 
-		$status_html .= '>' . __( 'Trash', 'jetpack' ) . ' <span class="count">';
+		$status_html .= '>' . _x( 'Trash', 'noun', 'jetpack' ) . ' <span class="count">';
 		$status_html .= '(' . number_format( $status['trash'] ) . ')';
 		$status_html .= '</span></a>';
 		if ( isset( $status['spam'] ) ) {
@@ -1048,7 +1063,7 @@ function grunion_recheck_queue() {
 
 	wp_send_json(
 		array(
-			'processed' => count( $approved_feedbacks ),
+			'processed' => is_countable( $approved_feedbacks ) ? count( $approved_feedbacks ) : 0,
 		)
 	);
 }
@@ -1286,7 +1301,7 @@ class Grunion_Admin {
 		$export_data = $grunion->get_feedback_entries_from_post();
 
 		$fields    = array_keys( $export_data );
-		$row_count = count( reset( $export_data ) );
+		$row_count = is_countable( $export_data ) ? count( reset( $export_data ) ) : 0;
 
 		$sheet_data = array( $fields );
 
@@ -1318,6 +1333,8 @@ class Grunion_Admin {
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
 		$sheet = Jetpack_Google_Drive_Helper::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
+
+		$grunion->record_tracks_event( 'forms_export_responses', array( 'format' => 'gsheets' ) );
 
 		wp_send_json(
 			array(

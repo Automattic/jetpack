@@ -19,7 +19,7 @@ jobs:
   build:
     name: Build all projects
     runs-on: ubuntu-latest
-    timeout-minutes: 25  # 2023-01-30: Build times have crept back up to ~15–20+ minutes as we've added more projects, bump to 25.
+    timeout-minutes: 30  # 2023-05-25: Build times have crept up to ~15–25+ minutes as we've added more projects, bump to 30.
     env:
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
@@ -63,6 +63,33 @@ jobs:
             const checkTestReminderComment = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
             const data = await checkTestReminderComment( github, context, core );
             return data;
+
+      # We need the tree (but not the blob) for packages that will have -alpha version numbers so the timestamp appending works right.
+      - name: Deepen tree for packages
+        env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
+        run: |
+          mapfile -t PROJECTS < <(jq -r 'to_entries[] | select( .value ) | .key' <<<"$CHANGED")
+          if [[ ${#PROJECTS[@]} -gt 0 ]]; then
+            depth=$( git rev-list --count --first-parent HEAD )
+            [[ "$depth" -lt 1000 ]] && depth=1000
+            BASE=$PWD
+            REF=$(git rev-parse HEAD)
+            for SLUG in $(pnpm jetpack dependencies list --add-dependencies --extra="build" --ignore-root "${PROJECTS[@]}"); do
+              [[ "$SLUG" == packages/* ]] || continue
+              cd "$BASE/projects/$SLUG/"
+              CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+              [[ -d "$CHANGES_DIR" && -n "$(ls -- "$CHANGES_DIR")" ]] || continue
+              echo "Checking depth for $SLUG"
+              while git log --format='%h, %D,' -1 . | grep ', grafted,'; do
+                depth=$((depth * 2))
+                echo "::group::Deepen to $depth"
+                echo "/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth --filter=blob:none origin $REF"
+                /usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth --filter=blob:none origin "$REF"
+                echo "::endgroup::"
+              done
+            done
+          fi
 
       - name: Build changed projects
         id: build
@@ -112,10 +139,19 @@ jobs:
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
 
+      - name: Store plugins.tsv as artifact
+        if: steps.plugins.outputs.any == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: plugins.tsv
+          path: ${{ env.BUILD_BASE }}/plugins.tsv
+          # We don't really care about this artifact, its presence is a flag to the post-build job.
+          retention-days: 1
+
       - name: Update reminder with testing instructions
         id: update-reminder-comment
         uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
           DATA: ${{ steps.check-test-reminder-comment.outputs.result }}
@@ -131,9 +167,17 @@ jobs:
               `;
             }, '' );
             const commentBody = `${ TEST_COMMENT_INDICATOR }
-            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run
+            Are you an Automattician? Please test your changes on all WordPress.com environments to help mitigate accidental explosions.
+
+            - To test on WoA, go to the Plugins menu on a WordPress.com Simple site. Click on the "Upload" button and follow the upgrade flow to be able to upload, install, and activate [the Jetpack Beta plugin](https://jetpack.com/download-jetpack-beta/). Once the plugin is active, go to Jetpack > Jetpack Beta > Jetpack and enable the \`${ BRANCH_NAME }\` branch.
+            - To test on Simple, run the following command on your sandbox:
             ${ commands }
-            to get started. More details: p9dueE-5Nn-p2`;
+
+            *Interested in more tips and information?*
+
+            - In your local development environment, use the \`jetpack rsync\` command to sync your changes to a WoA dev blog.
+            - Read more about our development workflow here: PCYsg-eg0-p2
+            - Figure out **when your changes will be shipped to customers** here: PCYsg-eg5-p2`;
             await github.rest.issues.updateComment( {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -157,7 +201,7 @@ jobs:
         with:
           name: jetpack-build
       - name: Extract build archive
-        run: tar --xz -xvvf build.tar.xz
+        run: tar --xz -xvvf build.tar.xz build
 
       - name: Prepare plugin zips
         id: prepare
@@ -196,8 +240,6 @@ jobs:
             if [[ -e "$SRC/to-test.md" ]]; then
               cp "$SRC/to-test.md" "work/${SLUG}-dev/"
             fi
-            mkdir -p "work/${SLUG}-dev/docs/testing/"
-            cp monorepo/docs/testing/testing-tips.md "work/${SLUG}-dev/docs/testing/"
 
             # Extract and update version.
             CURRENT_VERSION=$(monorepo/tools/plugin-version.sh "work/${SLUG}-dev/")-$VERSUFFIX
@@ -246,30 +288,6 @@ jobs:
             --form-string "plugins=$PLUGIN_DATA" \
             --form-string "secret=$SECRET"
 
-  teamcity_trigger:
-    name: "Trigger TeamCity build"
-    runs-on: ubuntu-latest
-    needs: build
-    if: ${{ fromJSON(needs.build.outputs.changed_projects)['plugins/jetpack'] == true }}
-
-    steps:
-      - name: Trigger TeamCity build
-        env:
-          SECRET: ${{ secrets.JETPACK__GITHUB_TEAMCITY_TOKEN }}
-          URL: ${{ secrets.TEAMCITY_TRIGGER_ENDPOINT }}
-          PR: ${{ github.event_name == 'push' && github.ref_name || github.event.number }}
-          SHA: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
-        run: |
-          response=$(curl --fail -L \
-            --url "$URL" \
-            --form-string "pr-number=$PR" \
-            --form-string "sha=$SHA" \
-            --form-string "secret=$SECRET")
-
-          echo "The TeamCity build has been triggered. Details: /viewQueued.html?itemId=$response"
-          echo
-          echo "If you would like to restart the tests, please re-run this job."
-
   update_mirrors:
     name: Push to mirror repos
     runs-on: ubuntu-latest
@@ -290,7 +308,7 @@ jobs:
           name: jetpack-build
         timeout-minutes: 2  # 2022-03-15: Successful runs normally take a few seconds, but on occasion they've been taking 60+ recently.
       - name: Extract build archive
-        run: tar --xz -xvvf build.tar.xz
+        run: tar --xz -xvvf build.tar.xz build
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
       - name: Wait for prior instances of the workflow to finish

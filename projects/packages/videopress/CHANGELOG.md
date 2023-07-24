@@ -5,6 +5,333 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.10] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+## [0.14.9] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.14.8] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+- Updated package dependencies. [#31661]
+- Update storybook mdx to use `@storybook/blocks` directly rather than `@storybook/addon-docs`. [#31607]
+
+## [0.14.7] - 2023-06-23
+### Changed
+- Updated package dependencies. [#31468]
+
+## [0.14.6] - 2023-06-12
+### Added
+- RNMobile: Display no title and no description placeholder for not belonged videos [#31134]
+
+## [0.14.5] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+### Fixed
+- Fixes VideoPress ajax calls on wp.com [#30947]
+
+## [0.14.4] - 2023-05-22
+### Added
+- RNMobile: Disable VideoPress settings if video does not belong to the site [#30759]
+
+### Changed
+- PHP8 compatibility updates. [#30715]
+
+## [0.14.3] - 2023-05-15
+### Changed
+- Refactor Pressable component for the Android embed overlay [#30654]
+- VideoPress block: Disable debug logs when running unit tests [#30540]
+
+### Fixed
+- RNMobile: Turn off autoplay if poster hover effect's active [#30663]
+- Use native embed WebView for the VideoPress editor preview on Android [#30521]
+
+## [0.14.2] - 2023-05-11
+### Added
+- VideoPress block: Added test IDs to query elements in integration tests [#30486]
+
+### Fixed
+- Fixed player loading screen on Android [#30411]
+
+## [0.14.1] - 2023-05-08
+### Added
+- VideoPress: add a Notice when trying to edit a video that doesn't belong to the site [#30443]
+- VideoPress: Add a wpcom/v2/videopress `check-ownership` endpoint [#30427]
+- VideoPress: create VideoPress video block when pasting URLs [#30463]
+- VideoPress: dont allow editing video data when the video doesn't belong to the site [#30438]
+- VideoPress: introduce helper function to get VideoPress video block attributes from URL [#30484]
+
+### Changed
+- VideoPress: hide core/embed core, VideoPress variation, when video block is available [#30467]
+- VideoPress: pick video block attrs from URL when pasting/inserting [#30488]
+
+### Fixed
+- VideoPress: fix disabling Privacy and rating panel [#30471]
+- VideoPress: Fix JITM layout on video edit page [#30465]
+
+## [0.14.0] - 2023-05-02
+### Added
+- Adds Divi Builder Compatibility for VideoPress. [#28193]
+
+### Changed
+- Updated package dependencies.
+- VideoPress: change the connection message when the Jetpack VideoPress module is not active [#30345]
+- VideoPress: enqueue token bridge file in the front-end only when required [#30156]
+- VideoPress: fix playing state of poster mini-player [#30383]
+- VideoPress: move video frame poster to production [#30384]
+- VideoPress: update Preview On Hover to the IFrame API updates [#30335]
+
+### Fixed
+- Update the embed loading styles and usage [#30251]
+- VideoPress: set Preview On Hover player initial state only when it's enabled [#30380]
+
+## [0.13.10] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [0.13.9] - 2023-04-25
+### Added
+- VideoPress: add is_videopress_url() helper function [#30142]
+- VideoPress: add play button when the video block show controls and Preview On Hovwer is enabled [#30224]
+- VideoPress: autoplay video also when Preview On Hover is enabled [#30181]
+- VideoPress: integrate video poster with Preview On Hover effect [#30184]
+- VideoPress: return the player control after user interaction [#30165]
+- VideoPress block: Sync metadata when post is manually saved on native [#30131]
+
+### Changed
+- Updated package dependencies. [#30015]
+- VideoPress: change max duration of the Preview On Hover effect to ten seconds [#30183]
+- VideoPress: enqueue IFrame API file based on the embed_oembed_html filter [#30154]
+- VideoPress: fix visual issue in the poster integration with Preview On Hover [#30208]
+- VideoPress: iterated over autoplay + PreviewOnHover effect [#30214]
+- VideoPress: Move out from Stats class [#30194]
+- VideoPress: playback at beginning when Preview On Hover is enabled [#30234]
+
+### Removed
+- VideoPress: Remove poster frame update on preview play [#30217]
+
+### Fixed
+- Fix native player aspect ratio after uploading a video [#30071]
+- VideoPress: Pause poster preview video when necessary [#30123]
+- VideoPress block: Cover case of GUID being empty after upload finish. [#30130]
+- VideoPress block: Fix blocking state when stopping an upload [#30244]
+- VideoPress block: Stop saving HTML markup representation. [#30134]
+
+## [0.13.8] - 2023-04-17
+### Added
+- VideoPress: add Utils PHP class [#30033]
+- VideoPress: remove duplicated code when saving video block [#29993]
+- VideoPress: Update poster frame by playing preview video [#30022]
+- VideoPress block: Add support for fetching VideoPress metadata on native. [#29997]
+- VideoPress block: Implement metadata syncing on native [#29996]
+
+### Changed
+- Refactor native Player component to handle the embed preview [#30062]
+- Updated package dependencies. [#30019]
+- VideoPress: do not save video block representation [#30081]
+- VideoPress: render VideoPress video block 100% dynamically [#30036]
+- VideoPress block: Migrate native TS files to JS files. [#29894]
+
+### Fixed
+- Disable zoom on native player [#30020]
+- VideoPress: check guid attribute before to get the VideoPress video url [#30090]
+- VideoPress: fix helper VideoPress function when generating URL [#30035]
+- VideoPress: Fix minimum starting point for preview on hover feature with very short videos [#29994]
+- VideoPress: fix setting front-end css file issue for the VideoPress video block [#30016]
+
+## [0.13.7] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+- VideoPress: Add fallback for experimental features for hover preview [#29974]
+- VideoPress: add help to the "Starting point" range control [#29950]
+- VideoPress: add marksEvery to the TimestampControl component [#29955]
+- VideoPress block: Add token to play private videos. [#29933]
+
+### Changed
+- VideoPress: Do not force-enable the Stats module inside the VideoPress plugin. [#29966]
+- VideoPress: expose the Preview On Hover data dynamically [#29939]
+- VideoPress: set video player position according to "starting point" and "duration" [#29954]
+- VideoPress: support tooltip in TimestampControl component [#29967]
+- VideoPress: turn playback "controls" off when pOH feature is enabled [#29949]
+- VideoPress block: Divide poster functionality from the useSyncMedia hook into a smaller hook. [#29973]
+
+## [0.13.6] - 2023-04-05
+### Added
+- VideoPress: change the way to propagate the Preview On Hover data [#29912]
+- VideoPress: check if beta extensions are enabled when saving VideoPress video block [#29926]
+- VideoPress: enqueue the VideoPress IFrame API asset file [#29912]
+- VideoPress: first previewOnHover implementation in the front-end [#29912]
+- VideoPress block: Add native version of `getMediaToken` function to fetch the VideoPress token. [#29756]
+
+### Changed
+- VideoPress: update URL and add version when enqueuing VideoPress IFrame API file [#29923]
+
+### Fixed
+- VideoPress: Add empty native version of `PosterPanel` component. [#29943]
+- VideoPress: Fix minimum loop duration and default hover values [#29925]
+
+## [0.13.5] - 2023-04-04
+### Added
+- Add video caption to native player [#29765]
+- VideoPress: Added stats endpoint to fetch the data to be featured on the My Jetpack screen. [#29785]
+- VideoPress: Add video duration to block attributes [#29788]
+- VideoPress: Add video preview on hover options to poster and preview panel [#29781]
+- VideoPress: Persist hover preview values on markup for video block [#29883]
+- VideoPress: play/pause video when previewOnHover is enabled [#29790]
+- VideoPress: replace local state by using block attributes for the PreviewOnHover feature [#29807]
+- VideoPress: support autoplay playback option when previewOnHover is enabled [#29816]
+
+### Changed
+- Updated package dependencies. [#29854, #29857]
+- VideoPress: avoid using local state to deal with previewOnHover data [#29821]
+- VideoPress: Change hover preview loop duration component to Timestamp control and fix default values [#29819]
+- VideoPress: extract, create and expose usePlayerReady() hook [#29777]
+- VideoPress: Fix the permission check for the VideoPress stats APIs, to check for manage_options capability. [#29820]
+- VideoPress: handle limit-loop duration of the previewOn based on starting point [#29876]
+- VideoPress: handle max value of the TimestampControl component [#29852]
+- VideoPress: pause player when previewOnHover enables [#29843]
+- VideoPress: pick duration from block attribute instead of listening player client [#29830]
+- VideoPress: playback video into the boundaries defined the previewOnHover [#29892]
+- VideoPress: store and control TimestampControl value externally [#29828]
+- VideoPress block: Refactor useSyncMedia hook [#29898]
+
+### Fixed
+- Disable autoplay in the native editor [#29823]
+- VideoPress: fix debounced callback TimestampControl issue [#29850]
+- VideoPress: Retry video data fetch if data is not fully available yet [#29907]
+- VideoPress block: Address the case of closing/re-opening post with an ongoing video upload. [#29690]
+
+## [0.13.4] - 2023-04-03
+### Changed
+- Internal updates.
+
+## [0.13.3] - 2023-03-29
+### Added
+- VideoPress: generate video image when selecting poster from frame [#29738]
+- VideoPress: handle poster image generation state [#29746]
+
+### Changed
+- VideoPress: use WP COM API to generate poster image for simple sites [#29761]
+
+## [0.13.2] - 2023-03-27
+### Added
+- Add basic native supported player [#29478]
+- VideoPress: Added Stats module to the list of enabled modules for the standalone VP plugin. [#29668]
+- VideoPress: add frame selector to Poster panel [#29688]
+- VideoPress: store poster data into video block attribute [#29718]
+- VideoPress block: Add Privacy and Rating panel to native block's settings. [#29477]
+- VideoPress block: Add replace functionality for the native version of the block. [#29662]
+
+### Changed
+- VideoPress: trigger video events to client via player-bridge [#29617]
+- VideoPress: tweak and rename poster panel title [#29711]
+- VideoPress block: Tweak the label for the "Playback Bar Color" setting for clarity [#29625]
+
+### Fixed
+- Avoid conflicts with Better Click To Tweet plugin [#29681]
+- VideoPress: fix computing decimal part in the TimestampControl component [#29629]
+- VideoPress: Fix TimestampControl input width and mobile UI [#29639]
+- VideoPress block: Fix for the case when video upload finishes outside the editor (iOS only). [#29620]
+- VideoPress block: Get VideoPress GUID from a different metadata property in iOS. [#29612]
+
+## [0.13.1] - 2023-03-22
+### Added
+- VideoPress: add decimalPlaces to the TimestampControl component [#29594]
+- VideoPress block: Add playback bar color settings to native settings. [#29567]
+- VideoPress block: Add playback panel to native block's settings. [#29457]
+
+### Changed
+- VideoPress: polish TimestampControl component styles [#29601]
+
+### Fixed
+- VideoPress block: Fix inserting item from media library. [#29476]
+
+## [0.13.0] - 2023-03-20
+### Added
+- VideoPress: add async helper fn to request video poster [#29494]
+- VideoPress: add disabled and autoHideTimeInput props to TimestampControl component [#29449]
+- VideoPress: add helper function to request update the VideoPress video poster [#29487]
+- VideoPress: add label and help properties support for the TimestampControl component [#29454]
+- VideoPress block: Adds basic upload functionality to native version. [#29461]
+
+### Changed
+- Consolidate VideoPreview type [#29447]
+- General: update deprecated core prop [#29463]
+- Replace placeholder with loading placeholder component from js-packages [#29271]
+- Updated package dependencies. [#29471]
+- Updated package dependencies. [#29480]
+- VideoPress: delay Done button activation to mitigate the chance of a race condition when saving the post too fast. [#29493]
+- VideoPress: get rid of script const / component prop [#29466]
+- VideoPress: Update comment on deprecated prop to mark it for later change [#29541]
+- VideoPress block: Add details panel to native block's settings. [#29283]
+- VideoPress block: Handle failed uploads. [#29511]
+
+### Removed
+- VideoPress: Remove storage meter for atomic sites [#29446]
+
+### Fixed
+- VideoPress: Add check to remove tracks from previous video after replacement on block [#29488]
+- VideoPress: Fix video details form change detection [#29519]
+- VideoPress: Fix video library displaying arbitrary video in first page [#29523]
+- VideoPress block: Only open upload options automatically when the block is inserted from the block inserter menu. [#29515]
+
+## [0.12.1] - 2023-03-13
+### Added
+- VideoPress: Add download button to video details page [#29403]
+- VideoPress: add fineAdjusment to TimestampControl component [#29439]
+- VideoPress: add story for PosterPanel component [#29398]
+- VideoPress: first approach of TimestampControl component [#29358]
+
+### Changed
+- VideoPress: add Range control to the Timestamp control component [#29368]
+- VideoPress: Move is_private and private_enabled_for_site fields to the jetpack_videopress property on the media endpoint response. [#29404]
+- VideoPress: Separate loading states in video details page and disable redirect on save [#29369]
+- VideoPress: set video URL based on the video privacy [#29389]
+- VideoPress: Update isPrivate video property on state after privacy changes. [#29421]
+- VideoPress block: Add settings toggle to native block. [#29248]
+
+### Fixed
+- VideoPress: Fix filename with token [#29395]
+- VideoPress: Fix video URL available to copying in video details page [#29370]
+
+## [0.12.0] - 2023-03-08
+### Added
+- VideoPress: add caption control to video block toolbar [#29233]
+- VideoPress: add chapters generation from description to dashboard [#29155]
+- VideoPress: add story for the Banner component [#29296]
+- VideoPress: add support to "private" as site default privacy on public Atomic sites. [#29104]
+- VideoPress: Add video delete action to details page [#29161]
+- VideoPress: Disable the video's privacy toggle on the VideoPress dashboard for private Atomic sites. [#29169]
+
+### Changed
+- Add usePreview hook [#29164]
+- Updated package dependencies. [#29216]
+- VideoPress: rewrite player by using TypeScript [#29226]
+
+### Fixed
+- VideoPress: fix requesting video data on Simple sites [#29261]
+
+## [0.11.0] - 2023-02-28
+### Added
+- Added support for the `preload` or `preloadcontent` attribute to the VideoPress shortcode. [#28865]
+- VideoPress: add a note about __experimentalGroup InspectorControls property [#29152]
+- VideoPress: add player-bridge. Update player loading state [#29057]
+- VideoPress: add Poster panel to video block sidebar [#29150]
+- VideoPress: move the Playback Bar color panel into the colors panel group [#29054]
+- VideoPress: set poster height in block sidebar based on video ratio [#29173]
+
+### Changed
+- Updated package dependencies. [#29117]
+- VideoPress: tweak Remove poster button [#29157]
+
+### Removed
+- VideoPress: removed deprecated wp-block-bridge lib [#29107]
+- VideoPress: remove uploading image for video poster when uploading video [#29183]
+
 ## [0.10.12] - 2023-02-20
 ### Added
 - VideoPress: flush token when the requester retries [#28930]
@@ -727,6 +1054,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.14.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.9...v0.14.10
+[0.14.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.8...v0.14.9
+[0.14.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.7...v0.14.8
+[0.14.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.6...v0.14.7
+[0.14.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.5...v0.14.6
+[0.14.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.4...v0.14.5
+[0.14.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.3...v0.14.4
+[0.14.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.2...v0.14.3
+[0.14.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.10...v0.14.0
+[0.13.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.9...v0.13.10
+[0.13.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.8...v0.13.9
+[0.13.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.7...v0.13.8
+[0.13.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.6...v0.13.7
+[0.13.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.5...v0.13.6
+[0.13.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.4...v0.13.5
+[0.13.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.3...v0.13.4
+[0.13.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.2...v0.13.3
+[0.13.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.1...v0.13.2
+[0.13.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.0...v0.13.1
+[0.13.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.12.1...v0.13.0
+[0.12.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.11.0...v0.12.0
+[0.11.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.12...v0.11.0
 [0.10.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.11...v0.10.12
 [0.10.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.10...v0.10.11
 [0.10.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.9...v0.10.10

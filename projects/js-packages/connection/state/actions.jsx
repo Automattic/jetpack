@@ -15,6 +15,7 @@ const FETCH_AUTHORIZATION_URL = 'FETCH_AUTHORIZATION_URL';
 const SET_CONNECTED_PLUGINS = 'SET_CONNECTED_PLUGINS';
 const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
 const SET_CONNECTION_ERRORS = 'SET_CONNECTION_ERRORS';
+const SET_IS_OFFLINE_MODE = 'SET_IS_OFFLINE_MODE';
 
 const setConnectionStatus = connectionStatus => {
 	return { type: SET_CONNECTION_STATUS, connectionStatus };
@@ -64,6 +65,10 @@ const setConnectionErrors = connectionErrors => {
 	return { type: SET_CONNECTION_ERRORS, connectionErrors };
 };
 
+const setIsOfflineMode = isOfflineMode => {
+	return { type: SET_IS_OFFLINE_MODE, isOfflineMode };
+};
+
 /**
  * Connect site with wp.com user
  *
@@ -110,14 +115,16 @@ function* registerSite( { registrationNonce, redirectUri } ) {
  *
  * @returns {Promise} - Promise which resolves when the product status is activated.
  */
-const refreshConnectedPlugins = () => async ( { dispatch } ) => {
-	return await new Promise( resolve => {
-		return restApi.fetchConnectedPlugins().then( data => {
-			dispatch( setConnectedPlugins( data ) );
-			resolve( data );
+const refreshConnectedPlugins =
+	() =>
+	async ( { dispatch } ) => {
+		return await new Promise( resolve => {
+			return restApi.fetchConnectedPlugins().then( data => {
+				dispatch( setConnectedPlugins( data ) );
+				resolve( data );
+			} );
 		} );
-	} );
-};
+	};
 
 const actions = {
 	setConnectionStatus,
@@ -135,6 +142,7 @@ const actions = {
 	setConnectedPlugins,
 	refreshConnectedPlugins,
 	setConnectionErrors,
+	setIsOfflineMode,
 };
 
 export {
@@ -153,5 +161,6 @@ export {
 	SET_CONNECTED_PLUGINS,
 	REFRESH_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
+	SET_IS_OFFLINE_MODE,
 	actions as default,
 };

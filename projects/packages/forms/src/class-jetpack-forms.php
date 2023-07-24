@@ -9,12 +9,13 @@ namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 /**
  * Understands the Jetpack Forms package.
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '0.6.0-alpha';
+	const PACKAGE_VERSION = '0.19.8-alpha';
 
 	/**
 	 * Load the contact form module.
@@ -22,19 +23,10 @@ class Jetpack_Forms {
 	public static function load_contact_form() {
 		Util::init();
 
-		if (
-			is_admin()
-			/**
-			 * Enable the new Jetpack Forms dashboard.
-			 *
-			 * @module contact-form
-			 * @since 0.3.0
-			 *
-			 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
-			 */
-			&& apply_filters( 'jetpack_forms_dashboard_enable', false )
-		) {
-			$dashboard = new Dashboard();
+		if ( is_admin() && self::is_feedback_dashboard_enabled() ) {
+			$view_switch = new Dashboard_View_Switch();
+
+			$dashboard = new Dashboard( $view_switch );
 			$dashboard->init();
 		}
 
@@ -52,5 +44,29 @@ class Jetpack_Forms {
 	 */
 	public static function plugin_url() {
 		return plugin_dir_url( __FILE__ );
+	}
+
+	/**
+	 * Get the assets URL.
+	 */
+	public static function assets_url() {
+		return plugin_dir_url( __DIR__ ) . 'assets';
+	}
+
+	/**
+	 * Returns true if the feedback dashboard is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_feedback_dashboard_enabled() {
+		/**
+		 * Enable the new Jetpack Forms dashboard.
+		 *
+		 * @module contact-form
+		 * @since 0.3.0
+		 *
+		 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
+		 */
+		return apply_filters( 'jetpack_forms_dashboard_enable', true );
 	}
 }

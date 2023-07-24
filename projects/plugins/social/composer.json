@@ -19,7 +19,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.1",
+		"automattic/wordbless": "0.4.2",
 		"yoast/phpunit-polyfills": "1.0.4",
 		"brain/monkey": "2.6.1"
 	},
@@ -68,7 +68,10 @@
 			"v": false
 		},
 		"mirror-repo": "Automattic/jetpack-social-plugin",
-		"release-branch-prefix": "jetpack",
+		"release-branch-prefix": [
+			"social",
+			"monthly"
+		],
 		"wp-plugin-slug": "jetpack-social",
 		"wp-svn-autopublish": true
 	},
@@ -78,6 +81,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ1_8_0_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ2_1_0_alpha"
 	}
 }
