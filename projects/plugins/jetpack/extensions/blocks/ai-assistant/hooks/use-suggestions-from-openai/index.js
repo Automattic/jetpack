@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { askQuestion } from '@automattic/jetpack-ai-client';
 import { parse } from '@wordpress/blocks';
 import { useSelect, useDispatch, dispatch } from '@wordpress/data';
 import { useEffect, useState, useRef } from '@wordpress/element';
@@ -11,7 +12,6 @@ import debugFactory from 'debug';
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
 import { buildPromptForBlock, delimiter } from '../../lib/prompt';
-import { askQuestion } from '../../lib/suggestions';
 import {
 	getContentFromBlocks,
 	getPartialContentToBlock,
@@ -212,7 +212,7 @@ const useSuggestionsFromOpenAI = ( {
 			source.current = await askQuestion( prompt, {
 				postId,
 				requireUpgrade,
-				useGpt4: attributes?.useGpt4,
+				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : undefined,
 			} );
 		} catch ( err ) {
 			if ( err.message ) {

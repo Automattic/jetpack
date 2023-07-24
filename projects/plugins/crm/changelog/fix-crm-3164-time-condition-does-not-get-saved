@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Segments: Fix bug that prevented dates to be saved in some environments

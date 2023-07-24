@@ -185,4 +185,73 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertEquals( $expected, wpcom_launchpad_is_task_list_completed( 'task-list-test' ) );
 	}
+
+	/**
+	 * Test the validation of the repetition props.
+	 * Both target_repetitions and repetition_count_callback must be set if either property is set.
+	 */
+	public function test_repetition_counting_task_definition() {
+		$valid_task = array(
+			'id'                        => 'task_0',
+			'title'                     => 'task_0',
+			'target_repetitions'        => 2,
+			'repetition_count_callback' => function () {
+				return 1;
+			},
+		);
+		$this->assertTrue( Launchpad_Task_Lists::validate_task( $valid_task ) );
+
+		$invalid_task_without_repetition_count_callback = array(
+			'id'                 => 'task_0',
+			'title'              => 'task_0',
+			'target_repetitions' => 2,
+		);
+		$this->assertFalse( Launchpad_Task_Lists::validate_task( $invalid_task_without_repetition_count_callback ) );
+
+		$invalid_task_without_target_repetitions = array(
+			'id'                        => 'task_0',
+			'title'                     => 'task_0',
+			'repetition_count_callback' => function () {
+				return 1;
+			},
+		);
+		$this->assertFalse( Launchpad_Task_Lists::validate_task( $invalid_task_without_target_repetitions ) );
+	}
+
+	/**
+	 * Test the values for target_repetitions and repetition_count_callback.
+	 */
+	public function test_repetition_counting_task_list() {
+		wpcom_register_launchpad_task(
+			array(
+				'id'                        => 'task-0',
+				'title'                     => 'Task 0',
+				'target_repetitions'        => 2,
+				'repetition_count_callback' => function () {
+					return 1;
+				},
+			)
+		);
+
+		wpcom_register_launchpad_task(
+			array(
+				'id'    => 'task-1',
+				'title' => 'Task 1',
+			)
+		);
+
+		wpcom_launchpad_checklists()->unregister_task_list( 'task-list-test' );
+		wpcom_register_launchpad_task_list(
+			array(
+				'id'       => 'task-list-test',
+				'title'    => 'Simple testing task list',
+				'task_ids' => array( 'task-0', 'task-1' ),
+			)
+		);
+
+		$first_task = wpcom_get_launchpad_checklist_by_checklist_slug( 'task-list-test' )[0];
+
+		$this->assertSame( 1, $first_task['repetition_count'] );
+		$this->assertEquals( 2, $first_task['target_repetitions'] );
+	}
 }

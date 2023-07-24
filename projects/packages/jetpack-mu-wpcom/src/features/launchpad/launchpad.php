@@ -161,7 +161,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'title'               => 'Blog',
 			'task_ids'            => array(
 				'site_title',
-				'design_edited',
 				'domain_claim',
 				'verify_email',
 				'domain_customize',
@@ -176,6 +175,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_claim',
 				'domain_customize',
 				'share_site',
+				'customize_welcome_message',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
@@ -186,6 +186,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_claim',
 				'domain_customize',
 				'share_site',
+				'customize_welcome_message',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),

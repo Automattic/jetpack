@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Widget Visibility: add new filter to allow third-parties to add Widget Visibility support to their own blocks.
