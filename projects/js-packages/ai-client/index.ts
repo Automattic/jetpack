@@ -3,6 +3,6 @@ export { default as SuggestionsEventSource } from './src/suggestions-event-sourc
 export { default as askQuestion } from './src/ask-question';
 
 // Hooks
-export { default as useSuggestions } from './src/hooks/use-suggestions';
+export { default as useAiSuggestions } from './src/hooks/use-ai-suggestions';
 
 export * from './src/index.js';

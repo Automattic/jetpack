@@ -40,7 +40,7 @@ export type SuggestionErrorProps = {
 	severity: 'info' | 'error';
 };
 
-type useSuggestionsOptions = {
+type useAiSuggestionsOptions = {
 	/*
 	 * Request prompt.
 	 */
@@ -74,7 +74,7 @@ type useSuggestionsOptions = {
 
 export type RequestingStateProp = 'init' | 'requesting' | 'suggesting' | 'done' | 'error';
 
-type useSuggestionsProps = {
+type useAiSuggestionsProps = {
 	/*
 	 * The suggestion.
 	 */
@@ -171,17 +171,17 @@ function getErrorData( errorCode: SuggestionErrorCode ): SuggestionErrorProps {
  * React custom hook to get suggestions from AI,
  * by hitting the query endpoint.
  *
- * @param {useSuggestionsOptions} options - The options for the hook.
- * @returns {useSuggestionsProps}           The props for the hook.
+ * @param {useAiSuggestionsOptions} options - The options for the hook.
+ * @returns {useAiSuggestionsProps}           The props for the hook.
  */
-export default function useSuggestions( {
+export default function useAiSuggestions( {
 	prompt,
 	autoRequest = true,
 	askQuestionOptions = {},
 	onSuggestion,
 	onDone,
 	onError,
-}: useSuggestionsOptions = {} ): useSuggestionsProps {
+}: useAiSuggestionsOptions = {} ): useAiSuggestionsProps {
 	const [ requestingState, setRequestingState ] = useState< RequestingStateProp >( 'init' );
 	const [ suggestion, setSuggestion ] = useState< string >( '' );
 	const [ error, setError ] = useState< SuggestionErrorProps >();
