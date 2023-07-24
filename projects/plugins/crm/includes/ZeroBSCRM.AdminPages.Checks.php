@@ -170,7 +170,7 @@ function zeroBSCRM_isAPIRequest() {
 	// below is more reliable as QUERY_STRING will always be set for API requests.
 
 	// lazy, non-wp way of doing this
-	if ( isset( $_SERVER['QUERY_STRING'] ) && strpos( '#' . $_SERVER['QUERY_STRING'], 'api_key=zbscrm_' ) > 0 ) {
+	if ( isset( $_SERVER['QUERY_STRING'] ) && ( strpos( '#' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ), 'api_key=zbscrm_' ) > 0 || strpos( '#' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ), 'api_key=jpcrm_' ) ) ) {
 		return true;
 	}
 

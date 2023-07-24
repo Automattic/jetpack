@@ -32,8 +32,10 @@ class Jetpack_Mu_Wpcom {
 
 		// Coming Soon feature.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
+
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
@@ -120,6 +122,18 @@ class Jetpack_Mu_Wpcom {
 
 		$map_provider = apply_filters( 'wpcom_map_block_map_provider', 'mapbox' );
 		wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Maps', array( 'provider' => $map_provider ) );
+	}
+
+	/**
+	 * Load Gutenberg's Block Theme Previews feature.
+	 */
+	public static function load_block_theme_previews() {
+		if ( defined( 'IS_GUTENBERG_PLUGIN' ) && IS_GUTENBERG_PLUGIN ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( ! empty( $_GET['wp_theme_preview'] ) ) {
+				require_once __DIR__ . '/features/block-theme-previews/block-theme-previews.php';
+			}
+		}
 	}
 
 	/**

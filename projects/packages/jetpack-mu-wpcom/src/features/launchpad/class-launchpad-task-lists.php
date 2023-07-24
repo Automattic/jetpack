@@ -433,7 +433,7 @@ class Launchpad_Task_Lists {
 			_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );
 			$error_messages[] = $msg;
 		} elseif ( isset( $task_list['required_task_ids'] ) ) {
-				// Ensure we have a valid array.
+			// Ensure we have a valid array.
 			if ( ! is_array( $task_list['required_task_ids'] ) ) {
 				$msg = 'The required_task_ids attribute must be an array';
 				_doing_it_wrong( 'validate_task_list', esc_html( $msg ), '6.1' );

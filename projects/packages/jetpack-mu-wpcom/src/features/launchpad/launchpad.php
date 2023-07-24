@@ -24,7 +24,7 @@ require_once __DIR__ . '/launchpad-task-definitions.php';
  */
 function wpcom_launchpad_get_task_list_definitions() {
 	$core_task_list_definitions = array(
-		'build'           => array(
+		'build'                  => array(
 			'title'               => 'Build',
 			'task_ids'            => array(
 				'setup_general',
@@ -36,7 +36,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
-		'free'            => array(
+		'free'                   => array(
 			'title'               => 'Free',
 			'task_ids'            => array(
 				'plan_selected',
@@ -49,7 +49,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
-		'link-in-bio'     => array(
+		'link-in-bio'            => array(
 			'title'               => 'Link In Bio',
 			'task_ids'            => array(
 				'design_selected',
@@ -60,7 +60,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
-		'link-in-bio-tld' => array(
+		'link-in-bio-tld'        => array(
 			'title'               => 'Link In Bio',
 			'task_ids'            => array(
 				'design_selected',
@@ -71,7 +71,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
-		'newsletter'      => array(
+		'newsletter'             => array(
 			'title'               => 'Newsletter',
 			'task_ids'            => array(
 				'setup_newsletter',
@@ -84,7 +84,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
-		'videopress'      => array(
+		'videopress'             => array(
 			'title'               => 'Videopress',
 			'task_ids'            => array(
 				'videopress_setup',
@@ -94,7 +94,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
-		'write'           => array(
+		'write'                  => array(
 			'title'               => 'Write',
 			'task_ids'            => array(
 				'setup_write',
@@ -105,7 +105,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
-		'start-writing'   => array(
+		'start-writing'          => array(
 			'title'               => 'Start Writing',
 			'task_ids'            => array(
 				'first_post_published',
@@ -116,7 +116,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
-		'design-first'    => array(
+		'design-first'           => array(
 			'title'               => 'Pick a Design',
 			'task_ids'            => array(
 				'design_completed',
@@ -129,7 +129,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
 		// @TODO: Remove the following task list once the migration/rename is complete across WP.com and Calypso.
-		'keep-building'   => array(
+		'keep-building'          => array(
 			'title'               => 'Keep Building',
 			'task_ids'            => array(
 				'site_title',
@@ -143,7 +143,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
-		'intent-build'    => array(
+		'intent-build'           => array(
 			'title'               => 'Keep Building',
 			'task_ids'            => array(
 				'site_title',
@@ -157,7 +157,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
-		'intent-write'    => array(
+		'intent-write'           => array(
 			'title'               => 'Blog',
 			'task_ids'            => array(
 				'site_title',
@@ -168,6 +168,26 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'drive_traffic',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_intent_write_enabled',
+		),
+		'intent-free-newsletter' => array(
+			'title'               => 'Free Newsletter',
+			'task_ids'            => array(
+				'verify_email',
+				'domain_claim',
+				'domain_customize',
+				'share_site',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
+		),
+		'intent-paid-newsletter' => array(
+			'title'               => 'Paid Newsletter',
+			'task_ids'            => array(
+				'verify_email',
+				'domain_claim',
+				'domain_customize',
+				'share_site',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
 	);
 
@@ -611,6 +631,24 @@ function wpcom_launchpad_is_keep_building_enabled() {
  */
 function wpcom_launchpad_is_intent_write_enabled() {
 	return apply_filters( 'is_launchpad_intent_write_enabled', false );
+}
+
+/**
+ * Checks if the Free Newsletter flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_free_newsletter_enabled() {
+	return apply_filters( 'wpcom_launchpad_intent_free_newsletter_enabled', false );
+}
+
+/**
+ * Checks if the Paid Newsletter flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_paid_newsletter_enabled() {
+	return apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
