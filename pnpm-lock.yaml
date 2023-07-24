@@ -2746,6 +2746,64 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
 
+  projects/plugins/inspect:
+    dependencies:
+      tslib:
+        specifier: 2.5.0
+        version: 2.5.0
+    devDependencies:
+      '@babel/core':
+        specifier: 7.22.9
+        version: 7.22.9
+      '@babel/preset-env':
+        specifier: 7.22.9
+        version: 7.22.9(@babel/core@7.22.9)
+      '@rollup/plugin-commonjs':
+        specifier: 19.0.2
+        version: 19.0.2(rollup@2.79.1)
+      '@rollup/plugin-node-resolve':
+        specifier: 13.3.0
+        version: 13.3.0(rollup@2.79.1)
+      '@rollup/plugin-terser':
+        specifier: 0.4.3
+        version: 0.4.3(rollup@2.79.1)
+      '@rollup/plugin-typescript':
+        specifier: 8.3.3
+        version: 8.3.3(rollup@2.79.1)(tslib@2.5.0)(typescript@5.0.4)
+      '@wordpress/i18n':
+        specifier: 4.37.0
+        version: 4.37.0
+      postcss:
+        specifier: 8.4.21
+        version: 8.4.21
+      rollup:
+        specifier: 2.79.1
+        version: 2.79.1
+      rollup-plugin-livereload:
+        specifier: 2.0.5
+        version: 2.0.5
+      rollup-plugin-postcss:
+        specifier: 4.0.2
+        version: 4.0.2(postcss@8.4.21)
+      rollup-plugin-svelte:
+        specifier: 7.1.0
+        version: 7.1.0(rollup@2.79.1)(svelte@3.58.0)
+      sass:
+        specifier: 1.63.6
+        version: 1.63.6
+      svelte:
+        specifier: 3.58.0
+        version: 3.58.0
+      svelte-preprocess:
+        specifier: 5.0.3
+        version: 5.0.3(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.63.6)(svelte@3.58.0)(typescript@5.0.4)
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
+      zod:
+        specifier: 3.20.2
+        version: 3.20.2
+
   projects/plugins/jetpack:
     dependencies:
       '@automattic/calypso-color-schemes':
@@ -21466,6 +21524,16 @@ packages:
       rollup: 2.79.1
     dev: true
 
+  /rollup-plugin-livereload@2.0.5:
+    resolution: {integrity: sha512-vqQZ/UQowTW7VoiKEM5ouNW90wE5/GZLfdWuR0ELxyKOJUIaj+uismPZZaICU4DnWPVjnpCDDxEqwU7pcKY/PA==}
+    engines: {node: '>=8.3'}
+    dependencies:
+      livereload: 0.9.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: true
+
   /rollup-plugin-postcss@4.0.2(postcss@8.4.21):
     resolution: {integrity: sha512-05EaY6zvZdmvPUDi3uCcAQoESDcYnv8ogJJQRp6V5kZ6J6P7uAVJlrTZcaaA20wTH527YTnKfkAoPxWI/jPp4w==}
     engines: {node: '>=10'}
@@ -21796,6 +21864,16 @@ packages:
   /sass@1.56.1:
     resolution: {integrity: sha512-VpEyKpyBPCxE7qGDtOcdJ6fFbcpOM+Emu7uZLxVrkX8KVU/Dp5UF7WLvzqRuUhB6mqqQt1xffLoG+AndxTZrCQ==}
     engines: {node: '>=12.0.0'}
+    hasBin: true
+    dependencies:
+      chokidar: 3.5.3
+      immutable: 4.3.0
+      source-map-js: 1.0.2
+    dev: true
+
+  /sass@1.63.6:
+    resolution: {integrity: sha512-MJuxGMHzaOW7ipp+1KdELtqKbfAWbH7OLIdoSMnVe3EXPMTmxTmlaZDCTsgIpPCs3w99lLo9/zDKkOrJuT5byw==}
+    engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
       chokidar: 3.5.3
@@ -22528,6 +22606,56 @@ packages:
       magic-string: 0.27.0
       postcss: 8.4.21
       sass: 1.43.3
+      sorcery: 0.11.0
+      strip-indent: 3.0.0
+      svelte: 3.58.0
+      typescript: 5.0.4
+    dev: true
+
+  /svelte-preprocess@5.0.3(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.63.6)(svelte@3.58.0)(typescript@5.0.4):
+    resolution: {integrity: sha512-GrHF1rusdJVbOZOwgPWtpqmaexkydznKzy5qIC2FabgpFyKN57bjMUUUqPRfbBXK5igiEWn1uO/DXsa2vJ5VHA==}
+    engines: {node: '>= 14.10.0'}
+    requiresBuild: true
+    peerDependencies:
+      '@babel/core': ^7.10.2
+      coffeescript: ^2.5.1
+      less: ^3.11.3 || ^4.0.0
+      postcss: ^7 || ^8
+      postcss-load-config: ^2.1.0 || ^3.0.0 || ^4.0.0
+      pug: ^3.0.0
+      sass: ^1.26.8
+      stylus: ^0.55.0
+      sugarss: ^2.0.0 || ^3.0.0 || ^4.0.0
+      svelte: ^3.23.0
+      typescript: '>=3.9.5 || ^4.0.0 || ^5.0.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      coffeescript:
+        optional: true
+      less:
+        optional: true
+      postcss:
+        optional: true
+      postcss-load-config:
+        optional: true
+      pug:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@babel/core': 7.22.9
+      '@types/pug': 2.0.6
+      detect-indent: 6.1.0
+      magic-string: 0.27.0
+      postcss: 8.4.21
+      sass: 1.63.6
       sorcery: 0.11.0
       strip-indent: 3.0.0
       svelte: 3.58.0

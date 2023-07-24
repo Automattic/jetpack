@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { askQuestion } from '@automattic/jetpack-ai-client';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -9,7 +10,6 @@ import debugFactory from 'debug';
  * Types
  */
 import { PromptItemProps, delimiter } from '../../lib/prompt';
-import { askQuestion } from '../../lib/suggestions';
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
@@ -166,9 +166,7 @@ export default function useSuggestionsFromAI( {
 			try {
 				source.current = await askQuestion( promptArg, {
 					postId,
-					requireUpgrade: false, // It shouldn't be part of the askQuestion API.
 					fromCache: false,
-					useGpt4: false,
 				} );
 
 				// Set the request status.

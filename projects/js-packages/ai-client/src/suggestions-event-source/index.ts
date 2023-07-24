@@ -6,10 +6,7 @@ import debugFactory from 'debug';
 /*
  * Types & constants
  */
-export type PromptItemProps = {
-	role: 'system' | 'user' | 'assistant';
-	content: string;
-};
+import type { PromptItemProps } from '../types';
 
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;
@@ -93,6 +90,7 @@ export default class SuggestionsEventSource extends EventTarget {
 		}
 
 		await fetchEventSource( url, {
+			openWhenHidden: true,
 			method: 'POST',
 			headers: {
 				'Content-type': 'application/json',
@@ -165,7 +163,7 @@ export default class SuggestionsEventSource extends EventTarget {
 		 * Sometimes the first token of the message is not received,
 		 * so we check only for JETPACK_AI_ERROR, ignoring:
 		 * - the double underscores (italic markdown)
-		 * - the doouble asterisks (bold markdown)
+		 * - the double asterisks (bold markdown)
 		 */
 		const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
 		if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {

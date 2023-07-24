@@ -354,9 +354,11 @@ function runPHPLinter( toLintFiles ) {
 
 /**
  * Runs PHPCS against checked PHP files. Exits if the check fails.
+ *
+ * @param {Array} toLintFiles - List of files to lint
  */
-function runPHPCS() {
-	const phpcsResult = spawnSync( 'composer', [ 'phpcs:lint:errors', ...phpcsFiles ], {
+function runPHPCS( toLintFiles ) {
+	const phpcsResult = spawnSync( 'composer', [ 'phpcs:lint', ...toLintFiles ], {
 		stdio: 'inherit',
 	} );
 
@@ -378,19 +380,21 @@ function runPHPCS() {
 
 /**
  * Runs PHPCBF against checked PHP files
+ *
+ * @param {Array} toFixFiles - List of files to fix
  */
-function runPHPCbf() {
-	const toPhpCbf = phpcsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+function runPHPCbf( toFixFiles ) {
+	const toPhpCbf = toFixFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 	if ( toPhpCbf.length === 0 ) {
 		return;
 	}
 
-	const phpCbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...toPhpCbf ], {
+	const phpCbfResult = spawnSync( 'composer', [ 'phpcs:fix', ...toPhpCbf ], {
 		stdio: 'inherit',
 	} );
 
 	if ( phpCbfResult && phpCbfResult.status ) {
-		spawnSync( 'git', [ 'add', ...phpcsFiles ], { stdio: 'inherit' } );
+		spawnSync( 'git', [ 'add', ...toFixFiles ], { stdio: 'inherit' } );
 		console.log( chalk.yellow( 'PHPCS issues detected and automatically fixed via PHPCBF.' ) );
 	}
 }
@@ -526,8 +530,8 @@ if ( phpFiles.length > 0 ) {
 }
 
 if ( phpcsFiles.length > 0 ) {
-	runPHPCbf();
-	runPHPCS();
+	runPHPCbf( phpcsFiles );
+	runPHPCS( phpcsFiles );
 }
 if ( phpcsChangedFiles.length > 0 ) {
 	runPHPCSChanged( phpcsChangedFiles );
