@@ -874,7 +874,7 @@ function wpcom_find_site_about_page_id() {
 	);
 	$about_pages = get_posts( $filters );
 
-	// Return null if we couldn't find any published pages matching the hs_old_ids.
+	// Return null if we couldn't find any pages matching the hs_old_ids.
 	if ( empty( $about_pages ) ) {
 		return null;
 	}
