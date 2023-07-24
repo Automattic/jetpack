@@ -135,6 +135,9 @@ class Manager {
 
 		// Initialize connection notices.
 		new Connection_Notice();
+
+		// Initialize token locks.
+		new Tokens_Locks();
 	}
 
 	/**
