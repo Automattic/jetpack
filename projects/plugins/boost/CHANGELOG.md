@@ -5,14 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0-beta.2] - 2023-07-19
+## [2.0.0-beta.2] - 2023-07-24
 ### Added
 - Image Size Analyzer: New feature for Premium users which scans their site for image issues [#31794]
-- Image Guide: Added an upgrade CTA [#31829]
 
 ### Changed
-- Jetpack Boost: Beta tags removed from Concatenate CSS/JS and Image CDN. [#31777]
-- General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
+- General: Beta tags removed from Concatenate CSS/JS and Image CDN. [#31777]
+- General: Indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
+- Speed Scores: Update 'score dropped' card copy, with links to documentation. [#32010]
 
 ### Fixed
 - Cloud CSS: Fixed automatic start of cloud CSS regeneration when module is toggled on [#31887]
@@ -40,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - General: Updated checklist spacing and button font size and line height. [#31098]
 - Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
 - Minify CSS: Moved the default URL base of minified CSS files to /_jb_static, and added a constant to override it. [#31631]
+- Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
+- General: Updated checklist spacing and button font size and line height. [#31098]
+- Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
 
 ### Fixed
 - Critical CSS: Critical CSS Generation was skipping posts and pages on sites with fewer than 10 of either. [#31506]
@@ -48,14 +51,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - General: Fixed incorrect tracks events around plugin connection [#31233]
 - Image Guide: Fixed issues with Image Guide placement on the page with some themes. [#31410]
 - Minify CSS: Fixed issues with relative paths when WordPress is installed in a sub-directory. [30863]
-
-
-### Changed
-- Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
-- General: Updated checklist spacing and button font size and line height. [#31098]
-- Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
-
-### Fixed
 - Minify CSS: Fixed issues with relative paths when WordPress is installed in a sub-directory. [#30863]
 - Image Guide: Fixed issues with Image Guide placement on the page with some themes. [#31410]
 
