@@ -912,21 +912,8 @@ function wpcom_launchpad_has_translation( $string, $domain = 'jetpack-mu-wpcom' 
  * @return bool True if we should show the task, false otherwise.
  */
 function wpcom_is_update_about_page_task_visible() {
-	$task_definitions = wpcom_launchpad_get_task_definitions();
-
-	// The task isn't visible if it isn't defined.
-	if ( ! isset( $task_definitions['update_about_page'] ) ) {
-		return false;
-	}
-
-	// The task isn't visible if the get_title callback isn't defined or isn't callable.
-	if ( ! isset( $task_definitions['update_about_page']['get_title'] ) || ! is_callable( $task_definitions['update_about_page']['get_title'] ) ) {
-		return false;
-	}
-
-	// The task isn't visible if we're in a non-English locale and the task title hasn't been translated.
-	$update_about_page_title = $task_definitions['update_about_page']['get_title']();
-	if ( ! wpcom_launchpad_has_translation( $update_about_page_title ) ) {
+	// The task isn't visible if the task title hasn't been translated into the current locale.
+	if ( ! wpcom_launchpad_has_translation( 'Update your About page', 'jetpack-mu-wpcom' ) ) {
 		return false;
 	}
 
