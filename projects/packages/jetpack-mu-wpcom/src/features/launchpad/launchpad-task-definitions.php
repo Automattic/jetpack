@@ -782,9 +782,9 @@ add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
 /**
  * Return the about page id, if any.
  *
- * This fucntion will retrieve the page from the cache whenever possible.
+ * This function will retrieve the page from the cache whenever possible.
  *
- * @return int The page ID of the 'About' page if it exists, null otherwise.
+ * @return int|null The page ID of the 'About' page if it exists, null otherwise.
  */
 function wpcom_get_site_about_page_id() {
 	// First, attempt to get the page ID from the cache.
@@ -801,7 +801,7 @@ function wpcom_get_site_about_page_id() {
 	}
 
 	// Call the current function implementation without any caching logic.
-	$about_page_id = wpcom_find_site_about_page_id(); // could also be wpcom_identify_site_about_page_id() or similar
+	$about_page_id = wpcom_find_site_about_page_id();
 
 	if ( null === $about_page_id ) {
 		// In the event that we don't have a page id, cache -1 to avoid caching null

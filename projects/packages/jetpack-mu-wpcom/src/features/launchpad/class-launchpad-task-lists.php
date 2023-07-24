@@ -322,7 +322,7 @@ class Launchpad_Task_Lists {
 
 	/**
 	 * Loads any extra data for a task, calling the 'extra_data_callback' callback if it exists,
-	 * or an empty array if there is no callback.
+	 * or an null if there is no callback or the callback returns an empty array.
 	 *
 	 * @param Task $task A task definition.
 	 * @return array|null The extra data for the task.
