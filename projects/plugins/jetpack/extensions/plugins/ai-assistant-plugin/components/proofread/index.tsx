@@ -73,6 +73,7 @@ export default function Proofread() {
 					'Focus on feeeback and not summarize the content.',
 					"Be concise and direct, doesn't repeat the content, and avoid repeat the request. Ex. 'The content delimited ...'",
 					'Do not ask to assist with something more',
+					'Answer in the same language as the content',
 				],
 				useGutenbergSyntax: false,
 				useMarkdown: false,
