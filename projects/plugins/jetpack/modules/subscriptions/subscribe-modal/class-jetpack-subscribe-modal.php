@@ -191,6 +191,9 @@ HTML;
 	 * @return bool
 	 */
 	public static function should_load_subscriber_modal() {
+		if ( ! self::is_wpcom() ) {
+			return false;
+		}
 		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
 			return false;
 		}
@@ -246,6 +249,15 @@ HTML;
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Check if we're in WordPress.com.
+	 *
+	 * @return bool
+	 */
+	public static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && IS_WPCOM;
 	}
 }
 
