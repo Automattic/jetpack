@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Check description task: support different phrasing in milestone descriptiion. "Code Freeze" can also be "Branch cut".

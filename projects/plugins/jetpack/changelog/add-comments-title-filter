@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Comments: add filter allowing customizing the heading tag used in comment  treply title.
