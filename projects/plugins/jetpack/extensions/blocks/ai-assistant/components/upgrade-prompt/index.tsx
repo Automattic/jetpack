@@ -35,11 +35,12 @@ const UpgradePrompt = () => {
 			className={ 'jetpack-ai-upgrade-banner' }
 			description={ createInterpolateElement(
 				__(
-					'You have reached the limit of free requests.<br /> Upgrade now to keep using Jetpack AI.',
+					'Congratulations on exploring Jetpack AI and reaching the free requests limit!<br /><strong>Upgrade now to keep using it.</strong>',
 					'jetpack'
 				),
 				{
 					br: <br />,
+					strong: <strong />,
 				}
 			) }
 			goToCheckoutPage={ autosaveAndRedirect }

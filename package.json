@@ -30,7 +30,7 @@
 	"devDependencies": {
 		"eslint": "8.44.0",
 		"husky": "8.0.3",
-		"jetpack-cli": "workspace:1.0.0",
+		"jetpack-cli": "workspace:*",
 		"jetpack-js-tools": "workspace:*"
 	},
 	"engines": {

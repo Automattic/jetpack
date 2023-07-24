@@ -24,14 +24,14 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.0.0';
+	public $version = '6.1.0';
 
 	/**
 	 * WordPress version tested with.
 	 *
 	 * @var string
 	 */
-	public $wp_tested = '6.1';
+	public $wp_tested = '6.3';
 
 	/**
 	 * WordPress update API version.
@@ -1013,18 +1013,19 @@ final class ZeroBSCRM {
 		##WLREMOVE
 		$this->slugs['home'] = 'zerobscrm-plugin';
 		##/WLREMOVE
-		$this->slugs['dash']         = 'zerobscrm-dash';
-		$this->slugs['settings']     = 'zerobscrm-plugin-settings';
-		$this->slugs['logout']       = 'zerobscrm-logout';
-		$this->slugs['datatools']    = 'zerobscrm-datatools';
-		$this->slugs['welcome']      = 'zerobscrm-welcome';
-		$this->slugs['crmresources'] = 'jpcrm-resources';
-		$this->slugs['support']      = 'jpcrm-support';
-		$this->slugs['extensions']   = 'zerobscrm-extensions';
-		$this->slugs['modules']      = 'zerobscrm-modules';
-		$this->slugs['export']       = 'zerobscrm-export';
-		$this->slugs['systemstatus'] = 'zerobscrm-systemstatus';
-		$this->slugs['sync']         = 'zerobscrm-sync';
+		$this->slugs['dash']             = 'zerobscrm-dash';
+		$this->slugs['settings']         = 'zerobscrm-plugin-settings';
+		$this->slugs['logout']           = 'zerobscrm-logout';
+		$this->slugs['datatools']        = 'zerobscrm-datatools';
+		$this->slugs['welcome']          = 'zerobscrm-welcome';
+		$this->slugs['crmresources']     = 'jpcrm-resources';
+		$this->slugs['support']          = 'jpcrm-support';
+		$this->slugs['extensions']       = 'zerobscrm-extensions';
+		$this->slugs['modules']          = 'zerobscrm-modules';
+		$this->slugs['export']           = 'zerobscrm-export';
+		$this->slugs['systemstatus']     = 'zerobscrm-systemstatus';
+		$this->slugs['sync']             = 'zerobscrm-sync';
+		$this->slugs['core-automations'] = 'jpcrm-automations';
 
 		// CSV importer Lite
 		$this->slugs['csvlite'] = 'zerobscrm-csvimporterlite-app';

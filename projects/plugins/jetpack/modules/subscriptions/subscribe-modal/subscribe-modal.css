@@ -29,36 +29,16 @@
 	transition: all 0.4s;
 }
 
-.jetpack-subscribe-modal__modal-content .wp-block-group {
-    justify-content: center;
-	gap: 0;
-}
-
 .jetpack-subscribe-modal__modal-content > .wp-block-group {
     max-width: 450px;
 	margin: 0 auto;
 }
 
-.jetpack-subscribe-modal__modal-content > .wp-block-group:before {
-	content: '\f160';
-    text-align: center;
-    display: block;
-    font-family: 'Dashicons';
-    color: black;
-    font-size: 24px;
-    margin-bottom: 24px;
-    line-height: 1;
-}
-
-.jetpack-subscribe-modal__modal-content h2 {
-    margin: 4px;
+.jetpack-subscribe-modal__modal-content > .wp-block-group a {
+    text-decoration: none;
 }
 
 .jetpack-subscribe-modal.open .jetpack-subscribe-modal__modal-content {
 	top: 0;
 	visibility: visible;
-}
-
-.jetpack-subscribe-modal__close {
-	cursor: pointer;
 }

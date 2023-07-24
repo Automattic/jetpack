@@ -136,6 +136,11 @@ function is_wpcom() {
  * @return array An array of column names.
  */
 function register_newsletter_access_column( $columns ) {
+	if ( ! Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
+		// We only display the "NL access" column if we have published one paid-newsletter
+		return $columns;
+	}
+
 	$position   = array_search( 'title', array_keys( $columns ), true );
 	$new_column = array( NEWSLETTER_COLUMN_ID => '<span>' . __( 'Newsletter', 'jetpack' ) . '</span>' );
 	return array_merge(
