@@ -367,12 +367,66 @@ class Queue {
 	 *
 	 * @return void
 	 */
-	public function migrate_from_custom_table_to_options_table() {
-		// get all from the custom table
+	public static function migrate_from_custom_table_to_options_table() {
+		global $wpdb;
 
-		// convert them in the specific format
+		// Instantiate table storage, so we can get the table name. Queue ID is just a placeholder here.
+		$queue_table_storage = new Queue_Storage_Table( 'test_queue' );
+		$custom_table_name   = $queue_table_storage->table_name;
 
-		// insert them in the options table
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$count_result = $wpdb->get_row( "SELECT COUNT(*) as item_count FROM {$custom_table_name}" );
+
+		$item_count = $count_result->item_count;
+
+		$limit  = 100;
+		$offset = 0;
+
+		do {
+			// get all the records from the options table
+			$query = "
+				SELECT
+					event_id,
+					event_payload
+				FROM
+				    {$custom_table_name}
+				ORDER BY
+				    event_id ASC
+				LIMIT $offset, $limit
+			";
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+			$rows = $wpdb->get_results( $query );
+
+			$insert_rows = array();
+
+			foreach ( $rows as $event ) {
+				$insert_rows[] = $wpdb->prepare(
+					'(%s, %s, "no")',
+					array(
+						$event->event_id,
+						$event->event_payload,
+					)
+				);
+			}
+
+			if ( ! empty( $insert_rows ) ) {
+				$insert_query = "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES ";
+
+				$insert_query .= implode( ',', $insert_rows );
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+				$wpdb->query( $insert_query );
+			}
+
+			$offset += $limit;
+		} while ( $offset < $item_count );
+
+		// Clear the custom table
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$custom_table_name}" );
+
+		// TODO should we drop the table here instead?
 	}
 	/**
 	 * Add a single item to the queue.

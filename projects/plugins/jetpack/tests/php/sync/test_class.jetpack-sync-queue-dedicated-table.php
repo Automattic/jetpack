@@ -374,4 +374,47 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 
 		$this->assertEquals( $options_counts, 0 );
 	}
+
+	public function test_migration_to_options_table() {
+		parent::setUp();
+
+		$test_queue_id = 'mytestqueue';
+
+		// Set the option to `1` so we know that we'll be using a dedicated table.
+		update_option( Queue::$use_dedicated_table_option_name, '1' );
+
+		$test_queue                = new Queue( $test_queue_id );
+		$test_queue->queue_storage = new Queue\Queue_Storage_Table( $test_queue_id );
+
+		// Empty out the queue
+		$test_queue->queue_storage->clear_queue();
+
+		// Add more items, so we can also test the pagination.
+		for ( $i = 0; $i < 300; $i++ ) {
+			$test_queue->add( 'foo' . $i );
+		}
+
+		$items_in_table_before_migration = $test_queue->get_all();
+
+		// Reset the table
+		$options_storage = new Queue\Queue_Storage_Options( $test_queue_id );
+		$options_storage->clear_queue();
+
+		Queue::migrate_from_custom_table_to_options_table();
+
+		$this->assertEquals( 300, $options_storage->get_item_count() );
+
+		$items_in_table = $options_storage->get_items_ids_with_size( 500 );
+
+		$keys_before_migration = array_column( $items_in_table_before_migration, 'id' );
+		$keys_after_migration  = array_column( $items_in_table, 'id' );
+
+		$this->assertEquals( $keys_before_migration, $keys_after_migration );
+
+		// check the options queue is empty
+		$options_storage = new Queue\Queue_Storage_Table( $test_queue_id );
+		$options_counts  = $options_storage->get_item_count();
+
+		$this->assertEquals( 0, $options_counts );
+	}
 }
