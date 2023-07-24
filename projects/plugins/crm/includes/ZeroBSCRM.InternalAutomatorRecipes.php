@@ -1290,8 +1290,6 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 
 		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) {
 
-			do_action( 'jpcrm_automation_contact_new', $obj );
-		
 			do_action( 'jpcrm_after_contact_insert', $obj['id'] );
 
 			// legacy, use `jpcrm_after_contact_insert` from 5.3+
@@ -1310,20 +1308,15 @@ function zeroBSCRM_IA_EditCustomerWPHook( $obj = array() ) {
 
 	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
 
-		do_action( 'jpcrm_automation_contact_update', $obj );
 		do_action( 'jpcrm_after_contact_update', $obj['id'] );
 
 		// legacy, use `jpcrm_after_contact_update` from 5.3+
 		do_action( 'zbs_edit_customer', $obj['id'] );
 
-		// If the contact status has changed.
-		if ( isset( $obj['from'] ) && ! empty( $obj['from'] ) ) {
-			do_action( 'jpcrm_automation_contact_status_update', $obj );
-		}
 		// If the contact email has changed.
 		if ( isset( $obj['userMeta']['zbsc_email'] ) && isset( $obj['prev_contact'] ) ) {
 			if ( $obj['prev_contact']['email'] !== $obj['userMeta']['zbsc_email'] ) {
-				do_action( 'jpcrm_automation_contact_email_update', $obj );
+				do_action( 'jpcrm_contact_email_updated', $obj );
 			}
 		}
 	}
@@ -1357,7 +1350,7 @@ function zeroBSCRM_IA_EditCustomerWPHook( $obj = array() ) {
 function zeroBSCRM_IA_DeleteCustomerWPHook( $obj = array() ) {
 
 	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
-		do_action( 'jpcrm_automation_contact_delete', $obj );
+		do_action( 'jpcrm_contact_deleted', $obj );
 		// Legacy:
 		do_action( 'zbs_delete_customer', $obj['id'] );
 	}
@@ -1371,7 +1364,7 @@ function zeroBSCRM_IA_DeleteCustomerWPHook( $obj = array() ) {
 	function zeroBSCRM_IA_BeforeDeleteCustomerWPHook($obj=array()){
 
 	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
-		do_action( 'jpcrm_automation_contact_before_delete', $obj );
+		do_action( 'jpcrm_contact_before_deleted', $obj );
 		do_action( 'jpcrm_before_delete_contact', $obj );
 	}
 
@@ -1386,11 +1379,11 @@ function zeroBSCRM_IA_EditCompanyWPHook( $obj = array() ) {
 
 	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
 
-		do_action( 'jpcrm_automation_company_update', $obj );
+		do_action( 'jpcrm_company_updated', $obj );
 
 		// If the company status has changed.
 		if ( isset( $obj['from'] ) && ! empty( $obj['from'] ) ) {
-			do_action( 'jpcrm_automation_company_status_update', $obj );
+			do_action( 'jpcrm_company_status_updated', $obj );
 		}
 	}
 }
@@ -1404,7 +1397,7 @@ function zeroBSCRM_IA_NewCompanyWPHook( $obj = array() ) {
 
 	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
 
-		do_action( 'jpcrm_automation_company_new', $obj );
+		do_action( 'jpcrm_company_created', $obj );
 		// Legacy:
 		do_action( 'zbs_new_company', $obj['id'] );
 
@@ -1419,7 +1412,7 @@ function zeroBSCRM_IA_NewCompanyWPHook( $obj = array() ) {
 function zeroBSCRM_IA_DeleteCompanyWPHook( $obj = array() ) {
 
 	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
-		do_action( 'jpcrm_automation_company_delete', $obj );
+		do_action( 'jpcrm_company_deleted', $obj );
 		// Legacy:
 		do_action( 'zbs_delete_company', $obj['id'] );
 	}
@@ -1451,7 +1444,7 @@ function zeroBSCRM_IA_DeleteCompanyWPHook( $obj = array() ) {
 function zeroBSCRM_IA_NewInvoiceWPHook( $obj = array() ) {
 
 	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
-		do_action( 'jpcrm_automation_invoice_new', $obj );
+		do_action( 'jpcrm_invoice_created', $obj );
 		do_action( 'zbs_new_invoice', $obj['id'] );
 	}
 }
@@ -1463,11 +1456,11 @@ function zeroBSCRM_IA_NewInvoiceWPHook( $obj = array() ) {
  */
 function zeroBSCRM_IA_EditInvoiceWPHook( $obj = array() ) {
 	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
-		do_action( 'jpcrm_automation_invoice_update', $obj );
+		do_action( 'jpcrm_invoice_updated', $obj );
 		do_action( 'zbs_new_invoice', $obj['id'] );
 		// If the invoice status has been updated.
 		if ( isset( $obj['from'] ) && ! empty( $obj['from'] ) ) {
-			do_action( 'jpcrm_automation_invoice_status_update', $obj );
+			do_action( 'jpcrm_invoice_status_updated', $obj );
 		}
 	}
 }
@@ -1480,7 +1473,7 @@ function zeroBSCRM_IA_EditInvoiceWPHook( $obj = array() ) {
 function zeroBSCRM_IA_DeleteInvoiceWPHook( $obj = array() ) {
 
 	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
-		do_action( 'jpcrm_automation_invoice_delete', $obj );
+		do_action( 'jpcrm_invoice_deleted', $obj );
 		do_action( 'zbs_delete_invoice', $obj['id'] );
 	}
 }

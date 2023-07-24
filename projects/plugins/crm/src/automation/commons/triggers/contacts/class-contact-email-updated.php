@@ -53,7 +53,7 @@ class Contact_Email_Updated extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_contact_email_update',
+			'jpcrm_contact_email_updated',
 			array( $this, 'execute_workflow' )
 		);
 	}

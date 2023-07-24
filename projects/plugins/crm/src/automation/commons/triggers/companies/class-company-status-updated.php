@@ -47,7 +47,7 @@ class Company_Status_Updated extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_company_status_update',
+			'jpcrm_company_status_updated',
 			array( $this, 'execute_workflow' )
 		);
 	}

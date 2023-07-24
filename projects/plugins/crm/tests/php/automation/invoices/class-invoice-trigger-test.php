@@ -56,7 +56,7 @@ class Invoice_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the invoice_update action.
-		do_action( 'jpcrm_automation_invoice_update', $invoice_data );
+		do_action( 'jpcrm_invoice_updated', $invoice_data );
 	}
 
 	/**
@@ -89,7 +89,7 @@ class Invoice_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the invoice_status_update action.
-		do_action( 'jpcrm_automation_invoice_status_update', $invoice_data );
+		do_action( 'jpcrm_invoice_status_updated', $invoice_data );
 	}
 
 	/**
@@ -155,7 +155,7 @@ class Invoice_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the invoice_deleted action.
-		do_action( 'jpcrm_automation_invoice_delete', $invoice_data );
+		do_action( 'jpcrm_invoice_deleted', $invoice_data );
 	}
 
 }
