@@ -6,6 +6,8 @@
  * @since 12.4
  */
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Jetpack_Subscribe_Modal class.
  */
