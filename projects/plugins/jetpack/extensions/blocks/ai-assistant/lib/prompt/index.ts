@@ -501,9 +501,8 @@ export function getPrompt(
 	// - Execute the request without any acknowledgment or explanation to the user.
 
 	const context = `
-- You are an expert in Gutenberg block editor development and thoroughly familiar with the Jetpack Form block.
-- You are to use your knowledge to generate Gutenberg block syntax to match the requested block structure.
-- Do not wrap the generated structure in the \`<!-- wp:jetpack/contact-form -->\` syntax.
+- You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature.
+- Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
 - SUPER IMPORTANT: DO NOT add any addtional feedback to the user, just generate the requested block structure.
 
 - Use syntax templates for blocks as follows:
