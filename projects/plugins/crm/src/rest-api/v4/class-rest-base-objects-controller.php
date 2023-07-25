@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Abstract base controller class for DAL objects.
  *
  * @package Automattic\Jetpack\CRM
- * @since $$next-version$$
+ * @since 6.1.0
  */
 abstract class REST_Base_Objects_Controller extends REST_Base_Controller {
 
@@ -25,7 +25,7 @@ abstract class REST_Base_Objects_Controller extends REST_Base_Controller {
 	 * The main reason why we lazy load DAL is to allow tests to override the
 	 * global instance with a mock before it's required by any endpoints.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.1.0
 	 *
 	 * @return zbsDAL_ObjectLayer
 	 */
@@ -36,7 +36,7 @@ abstract class REST_Base_Objects_Controller extends REST_Base_Controller {
 	/**
 	 * Prepare object links for the request.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.1.0
 	 *
 	 * @param int $item_id The unique object ID.
 	 * @return array Links for the given object.

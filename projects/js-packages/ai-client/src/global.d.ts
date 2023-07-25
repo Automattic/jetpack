@@ -4,7 +4,6 @@ export declare global {
 			apiNonce: string;
 			siteSuffix: string;
 			siteId: string;
-			wpcomFetch: () => void;
 		};
 	}
 }

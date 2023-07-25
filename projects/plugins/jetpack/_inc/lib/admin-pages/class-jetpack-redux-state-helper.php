@@ -74,6 +74,10 @@ class Jetpack_Redux_State_Helper {
 		$modules['blocks']['module']                    = 'blocks';
 		$modules['blocks']['additional_search_queries'] = esc_html_x( 'blocks, block, gutenberg', 'Search terms', 'jetpack' );
 
+		// "mock" an Earn module in order to get it searchable in the settings.
+		$modules['earn']['module']                    = 'earn';
+		$modules['earn']['additional_search_queries'] = esc_html_x( 'earn, paypal, stripe, payments, pay', 'Search terms', 'jetpack' );
+
 		// Collecting roles that can view site stats.
 		$stats_roles   = array();
 		$enabled_roles = Stats_Options::get_option( 'roles' );

@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName)
 /**
- * Module Name: Subscriptions
+ * Module Name: Newsletter
  * Module Description: Let visitors subscribe to new posts and comments via email
  * Sort Order: 9
  * Recommendation Order: 8
@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement
- * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup
+ * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter
  */
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.

@@ -142,11 +142,14 @@ class Jetpack_Memberships {
 	private static function get_plan_property_mapping() {
 		$meta_prefix = 'jetpack_memberships_';
 		$properties  = array(
-			'price'    => array(
+			'price'           => array(
 				'meta' => $meta_prefix . 'price',
 			),
-			'currency' => array(
+			'currency'        => array(
 				'meta' => $meta_prefix . 'currency',
+			),
+			'site_subscriber' => array(
+				'meta' => $meta_prefix . 'site_subscriber',
 			),
 		);
 		return $properties;
