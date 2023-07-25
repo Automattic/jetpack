@@ -143,9 +143,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		}
 		$product_details = $this->get_product_details( $product );
 
-		$all_props = array_merge(
-			$properties,
-			$this->get_common_properties()
+		$all_props = apply_filters(
+			'jetpack_woocommerce_analytics_event_props',
+			array_merge(
+				$properties,
+				$this->get_common_properties()
+			)
 		);
 
 		$js = "{
