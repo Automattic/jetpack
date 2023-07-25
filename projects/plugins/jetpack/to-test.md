@@ -99,7 +99,7 @@ We currently link to an old Calypso page when folks want to see their subscriber
 
 ### Custom CSS
 
-There's a new feature introduced into Jetpack to detect if the WordPress site has the core site editor feature enabled. With it comess a contextual adjustment to the user interface. The Jetpack > Settings > Writing > Custom CSS toggle is now conditionally rendered based on whether the site uses a block-based theme or not. For sites using a block-based theme, this toggle is removed, aligning with the concept that such themes inherently offer greater flexibility for customization and thus the additional CSS settings might not be necessary.
+There's a new feature introduced into Jetpack to detect if the WordPress site has the core site editor feature enabled. With it comes a contextual adjustment to the user interface. The Jetpack > Settings > Writing > Custom CSS toggle is now conditionally rendered based on whether the site uses a block-based theme or not. For sites using a block-based theme, this toggle is removed, aligning with the concept that such themes inherently offer greater flexibility for customization and thus the additional CSS settings might not be necessary.
 
 This PR involves changes in multiple files, including state reducers, the writing settings component, and theme enhancements, to ensure the changes are effectively integrated.
 
