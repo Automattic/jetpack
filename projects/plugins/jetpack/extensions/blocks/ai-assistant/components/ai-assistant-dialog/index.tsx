@@ -3,7 +3,7 @@
  */
 import { PlainText, BlockPreview } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
-import { Icon, KeyboardShortcuts, Popover } from '@wordpress/components';
+import { Icon, KeyboardShortcuts, Popover, Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useRef, useEffect, useContext } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -15,10 +15,11 @@ import React from 'react';
 import './style.scss';
 import { AiAssistantContext } from '../../extensions/ai-assistant/context';
 import aiAssistant from '../../icons/ai-assistant';
-import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_CHANGE_TONE } from '../../lib/prompt';
+import origamiPlane from '../../icons/origami-plane';
+// import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_CHANGE_TONE } from '../../lib/prompt';
 import { QuickActionsMenuItems } from '../ai-assistant-control';
-import { I18nMenuDropdown } from '../i18n-dropdown-control';
-import { ToneDropdownMenu } from '../tone-dropdown-control';
+// import { I18nMenuDropdown } from '../i18n-dropdown-control';
+// import { ToneDropdownMenu } from '../tone-dropdown-control';
 import { actionsList } from './contact-form-quick-actions';
 
 type AiAssistantDialogProps = {
@@ -66,6 +67,8 @@ export default function AiAssistantDialog( props: AiAssistantDialogProps ): Reac
 		};
 	}, [ onFocusLost ] );
 
+	const { requestingState } = useContext( AiAssistantContext );
+
 	// Send request when the user presses enter
 	useKeyboardShortcut( [ 'command+enter', 'ctrl+enter' ], onRequest, {
 		target: inputRef,
@@ -78,16 +81,29 @@ export default function AiAssistantDialog( props: AiAssistantDialogProps ): Reac
 				shortcuts={ {
 					tab: () => onDialogTabPress(),
 				} }
+			/>
+
+			<PlainText
+				value={ promptValue }
+				onChange={ onChange }
+				placeholder={ __( 'AI writing', 'jetpack' ) }
+				className="jetpack-ai-assistant-dialog__input"
+				disabled={ false }
+				ref={ inputRef }
+			/>
+
+			<Button
+				className="jetpack-ai-assistant__prompt_button"
+				onClick={ onRequest }
+				isSmall={ true }
+				label={ __( 'Send request', 'jetpack' ) }
+				disabled={
+					! promptValue || requestingState === 'requesting' || requestingState === 'suggesting'
+				}
 			>
-				<PlainText
-					value={ promptValue }
-					onChange={ onChange }
-					placeholder={ __( 'AI writing', 'jetpack' ) }
-					className="jetpack-ai-assistant-dialog__input"
-					disabled={ false }
-					ref={ inputRef }
-				/>
-			</KeyboardShortcuts>
+				<Icon icon={ origamiPlane } />
+				{ __( 'Send', 'jetpack' ) }
+			</Button>
 		</div>
 	);
 }
@@ -172,7 +188,7 @@ export const AiAssistantPopover = ( {
 							} }
 						/>
 
-						<I18nMenuDropdown
+						{ /* <I18nMenuDropdown
 							onChange={ language => {
 								setPromptValue( `Translate the text to ${ language }` );
 								onPromptChange( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
@@ -186,7 +202,7 @@ export const AiAssistantPopover = ( {
 								onPromptChange( PROMPT_TYPE_CHANGE_TONE, { tone } );
 								hideAssistantMenu();
 							} }
-						/>
+						/> */ }
 					</div>
 				) }
 

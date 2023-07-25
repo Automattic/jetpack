@@ -7,13 +7,19 @@
 	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 	min-width: 600px;
 	display: flex;
-	padding: 2px;
+	padding: 2px 8px;
 	gap: 8px;
 	align-items: center;
+
 }
 
 .jetpack-ai-assistant-dialog__wrapper {
 	flex-grow: 2;
+	flex-grow: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
 	&.is-disconnected {
 		opacity: 0.4;
 	}
