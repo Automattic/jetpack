@@ -259,6 +259,6 @@ To ensure that related posts continue to work correctly after the refactor:
 
 ### And More!
 
-You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/monthly/branch-2023-06-26/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
+You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
 **Thank you for all your help!**
