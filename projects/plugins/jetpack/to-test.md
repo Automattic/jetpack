@@ -95,7 +95,7 @@ We currently link to an old Calypso page when folks want to see their subscriber
 - Go to Jetpack > Settings > Discussion
 - Ensure the link to view subscribers works. It should be updated depending on your site settings
   - Is the Stats module enabled (you can disable it under Jetpack > Settings > Module)
-  - Is the new Stats experience enabled (you can check that under Jetpack > Settings > Traffic
+  - Is the new Stats experience enabled (you can check that under Jetpack > Settings > Traffic)
 
 ### Custom CSS
 
