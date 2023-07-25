@@ -196,7 +196,7 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 
 				// Check if the generated blocks are valid.
 				const validBlocks = newContentBlocks.filter( block => {
-					return block.isValid;
+					return block.isValid && block.name !== 'core/freeform';
 				} );
 
 				// Get HTML markup of the generated blocks
