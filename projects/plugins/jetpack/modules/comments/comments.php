@@ -391,7 +391,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		 * Filter the comment title tag.
 		 *
 		 * @module comments
-		 * @since $$next-version$$
+		 * @since 12.4
 		 *
 		 * @param string $comment_reply_title_tag The comment title tag. Default to h3.
 		 */
