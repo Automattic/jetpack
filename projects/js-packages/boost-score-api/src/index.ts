@@ -106,14 +106,16 @@ export async function requestSpeedScores(
  * @param {string} nonce - Nonce to use for authentication.
  * @returns {SpeedHistory} Speed score history returned by the server.
  */
-export async function requestSpeedHistory(
+export async function requestSpeedScoresHistory(
 	rootUrl: string,
 	siteUrl: string,
 	nonce: string
 ): Promise< SpeedScoresSet > {
+	const end = new Date().getTime();
+	const start = end - 1000 * 60 * 60 * 24 * 30; // 30 days ago
 	// Request metrics
 	const response = parseResponse(
-		await api.post( rootUrl, '/speed-scores-history', { url: siteUrl }, nonce )
+		await api.post( rootUrl, '/speed-scores-history', { start, end }, nonce )
 	);
 
 	// If the response contains ready-to-use metrics, we're done here.

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { requestSpeedHistory } from '@automattic/jetpack-boost-score-api';
+	import { requestSpeedScoresHistory } from '@automattic/jetpack-boost-score-api';
 	import { BoostScoreGraph } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
@@ -41,7 +41,7 @@
 		loadError = undefined;
 
 		try {
-			scores = await requestSpeedHistory(
+			scores = await requestSpeedScoresHistory(
 				wpApiSettings.root,
 				Jetpack_Boost.site.url,
 				wpApiSettings.nonce
