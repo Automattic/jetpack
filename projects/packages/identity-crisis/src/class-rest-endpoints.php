@@ -202,11 +202,7 @@ class REST_Endpoints {
 	 * @return WP_Error|\WP_REST_Response
 	 */
 	public static function fetch_url_secret() {
-		try {
-			$secret = new URL_Secret();
-		} catch ( Exception $e ) {
-			return new WP_Error( $e->getCode(), $e->getMessage() );
-		}
+		$secret = new URL_Secret();
 
 		if ( ! $secret->exists() ) {
 			return new WP_Error( 'missing_url_secret', esc_html__( 'URL secret does not exist.', 'jetpack-idc' ) );
