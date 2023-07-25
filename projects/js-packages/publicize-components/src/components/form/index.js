@@ -13,7 +13,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { Fragment, createInterpolateElement, useMemo, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
-import useDismissNotice from '../../hooks/use-dismiss-notice';
+import useDismissNotice, { INSTAGRAM_NOTICE } from '../../hooks/use-dismiss-notice';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
@@ -69,10 +69,12 @@ export default function PublicizeForm( {
 	);
 
 	const shouldShowInstagramNotice =
-		! hasInstagramConnection && isInstagramConnectionSupported && shouldShowNotice( 'instagram' );
+		! hasInstagramConnection &&
+		isInstagramConnectionSupported &&
+		shouldShowNotice( INSTAGRAM_NOTICE );
 
 	const onDismissInstagramNotice = useCallback( () => {
-		dismissNotice( 'instagram' );
+		dismissNotice( INSTAGRAM_NOTICE );
 	}, [ dismissNotice ] );
 	const shouldDisableMediaPicker =
 		isSocialImageGeneratorAvailable && isSocialImageGeneratorEnabledForPost;

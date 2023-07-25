@@ -2,11 +2,13 @@ import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useMemo, useState } from 'react';
 
-const calculateReappearanceTime = minutes => {
-	if ( minutes === -1 ) {
+export const INSTAGRAM_NOTICE = 'instagram';
+
+const calculateReappearanceTime = seconds => {
+	if ( seconds === -1 ) {
 		return 0;
 	}
-	return new Date( Date.now() + minutes * 60 * 1000 ).getTime();
+	return new Date( Date.now() + seconds * 1000 ).getTime();
 };
 
 /**
@@ -33,10 +35,10 @@ export default function useDismissNotice() {
 	 * Dismiss a notice for a given time.
 	 *
 	 * @param {string} notice - The name of the notice to dismiss.
-	 * @param {number} [dismissedMinutes=-1] - The number of minutes to dismiss the notice for. -1 means forever.
+	 * @param {number} [dismissDuration=-1] - The number of seconds to dismiss the notice for. -1 means forever.
 	 */
-	const dismissNotice = useCallback( ( notice, dismissedMinutes = -1 ) => {
-		const reappearance_time = calculateReappearanceTime( dismissedMinutes );
+	const dismissNotice = useCallback( ( notice, dismissDuration = -1 ) => {
+		const reappearance_time = calculateReappearanceTime( dismissDuration );
 		// Optimistically update the dismissed notices.
 		setDismissedNotices( notices => ( { ...notices, ...{ [ notice ]: reappearance_time } } ) );
 
