@@ -263,6 +263,7 @@ export default function useAiSuggestions( {
 
 			// Pass the post ID to the askQuestion function, when defined.
 			if ( postId ) {
+				debug( 'Post ID: %s', postId );
 				options.postId = postId;
 			}
 
