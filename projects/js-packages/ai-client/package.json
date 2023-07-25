@@ -21,7 +21,7 @@
 	},
 	"type": "module",
 	"devDependencies": {
-		"jest": "*",
+		"jest": "^29.6.1",
 		"jest-environment-jsdom": "29.5.0",
 		"typescript": "5.0.4"
 	},
