@@ -137,9 +137,7 @@ class URL_Secret {
 		try {
 			$secret = new URL_Secret();
 
-			if ( ! $secret->create() ) {
-				throw new Exception( esc_html__( 'Unable to create an URL secret.', 'jetpack-idc' ), 'unable_to_create_url_secret' );
-			}
+			$secret->create();
 		} catch ( Exception $e ) {
 			$response['url_secret_error'] = new WP_Error( $e->getCode(), $e->getMessage() );
 		}
