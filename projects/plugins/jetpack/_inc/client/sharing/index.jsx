@@ -28,7 +28,7 @@ class Sharing extends Component {
 			siteRawUrl: this.props.siteRawUrl,
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
-			activeFeatures: this.props.hasSocialBasicFeatures,
+			activeFeatures: this.props.activeFeatures,
 			hasSocialBasicFeatures: this.props.hasSocialBasicFeatures,
 			hasSocialAdvancedFeatures: this.props.hasSocialAdvancedFeatures,
 		};
@@ -77,7 +77,7 @@ export default connect( state => {
 		siteRawUrl: getSiteRawUrl( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 		hasSocialBasicFeatures: siteHasFeature( state, 'social-shares-1000' ),
-		activeFeature: getActiveFeatures( state ),
+		activeFeatures: getActiveFeatures( state ),
 		hasSocialAdvancedFeatures: siteHasFeature( state, 'social-enhanced-publishing' ),
 		userCanManageModules: userCanManageModules( state ),
 	};
