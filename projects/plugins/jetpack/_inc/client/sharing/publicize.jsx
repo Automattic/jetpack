@@ -38,6 +38,12 @@ export const Publicize = withModuleSettingsFormHelpers(
 				'jetpack'
 			);
 
+			const jetpackSocialBasicUpgradeText = __( 'Upgrade to a Jetpack Social plan', 'jetpack' );
+			const jetpackSocialAdvancedText = __(
+				'Upgrade to the Jetpack Social Advanced plan',
+				'jetpack'
+			);
+
 			const configCard = () => {
 				if ( unavailableInOfflineMode ) {
 					return;
@@ -94,8 +100,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 											} ) }
 										>
 											{ showUpgradeLink && ! hasSocialBasicFeatures
-												? __( 'Upgrade to a Jetpack Social plan', 'jetpack' )
-												: __( 'Upgrade to the Jetpack Social Advanced plan', 'jetpack' ) }
+												? jetpackSocialBasicUpgradeText
+												: jetpackSocialAdvancedText }
 										</a>
 										&nbsp;
 										{ showUpgradeLink && ! hasSocialBasicFeatures
