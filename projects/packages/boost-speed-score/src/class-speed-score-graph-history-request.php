@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Boost_Speed_Score;
 
+use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Cacheable;
 
 /**
@@ -60,6 +61,49 @@ class Speed_Score_Graph_History_Request extends Cacheable {
 		$this->retry_count = 0;
 	}
 
+		/**
+	 * Convert this object to a plain array for JSON serialization.
+	 */
+	#[\ReturnTypeWillChange]
+	public function jsonSerialize() {
+		return array(
+			'start'       => $this->start,
+			'end'         => $this->end,
+			'error'       => $this->error,
+			'retry_count' => $this->retry_count,
+		);
+	}
+
+	/**
+	 * This is intended to be the reverse of JsonSerializable->jsonSerialize.
+	 *
+	 * @param mixed $data The data to turn into an object.
+	 *
+	 * @return Speed_Score_Graph_History_Request
+	 */
+	public static function jsonUnserialize( $data ) {
+		$object = new Speed_Score_Graph_History_Request(
+			$data['start'],
+			$data['end'],
+			$data['error']
+		);
+
+		if ( ! empty( $data['retry_count'] ) ) {
+			$object->retry_count = intval( $data['retry_count'] );
+		}
+
+		return $object;
+	}
+
+	/**
+	 * Return the cache prefix.
+	 *
+	 * @return string
+	 */
+	protected static function cache_prefix() {
+		return 'jetpack_boost_speed_scores_graph_history_';
+	}
+
 	/**
 	 * Send a Speed History request to the API.
 	 *
@@ -83,6 +127,15 @@ class Speed_Score_Graph_History_Request extends Cacheable {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Instantiate the API client.
+	 *
+	 * @return Boost_API_Client
+	 */
+	private function get_client() {
+		return Boost_API::get_client();
 	}
 
 }
