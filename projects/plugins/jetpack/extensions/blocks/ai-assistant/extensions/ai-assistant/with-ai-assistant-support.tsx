@@ -148,7 +148,7 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 			blockDomReference.current = blockDomElement;
 		}, [ clientId ] );
 
-		const [ firstClientId, ...restClientIds ] = clientIds;
+		const [ firstClientId ] = clientIds;
 
 		/*
 		 * Hide the Assistant when
@@ -252,7 +252,6 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 			autoRequest: false,
 			onDone: doneContent => {
 				const newContentBlocks = parse( doneContent );
-				console.log( { newContentBlocks } );
 				replaceInnerBlocks( groupBlockWrapper.clientId, newContentBlocks );
 			},
 		} );

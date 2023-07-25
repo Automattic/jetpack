@@ -1,24 +1,23 @@
 @import '@automattic/jetpack-base-styles/style';
 
-.jetpack-ai-assistant__input-container {
+.jetpack-ai-assistant-dialog__container {
 	color: var( --jp-gray-80 );
 	background-color: var( --jp-white );
 	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
 	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-	min-width: 300px;
-}
-
-.jetpack-ai-assistant__input-wrapper {
+	min-width: 600px;
 	display: flex;
 	padding: 2px;
 	gap: 8px;
+}
 
-
+.jetpack-ai-assistant-dialog__wrapper {
+	flex-grow: 2;
 	&.is-disconnected {
 		opacity: 0.4;
 	}
 
-	textarea.jetpack-ai-assistant__input {
+	textarea.jetpack-ai-assistant-dialog__input{
 		width: 100%;
 		min-width: 300px;
 		flex-grow: 1;

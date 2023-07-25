@@ -74,8 +74,8 @@ export default function AiAssistantDialog( props: AiAssistantDialogProps ): Reac
 	} );
 
 	return (
-		<div className="jetpack-ai-assistant__input-container">
-			<div className="jetpack-ai-assistant__input-wrapper">
+		<div className="jetpack-ai-assistant-dialog__container">
+			<div className="jetpack-ai-assistant-dialog__wrapper">
 				<KeyboardShortcuts
 					bindGlobal
 					shortcuts={ {
@@ -86,7 +86,7 @@ export default function AiAssistantDialog( props: AiAssistantDialogProps ): Reac
 						value={ promptValue }
 						onChange={ onChange }
 						placeholder={ __( 'AI writing', 'jetpack' ) }
-						className="jetpack-ai-assistant__input"
+						className="jetpack-ai-assistant-dialog__input"
 						disabled={ false }
 						ref={ inputRef }
 					/>
