@@ -326,7 +326,7 @@ export const getStepContent = ( state, stepSlug ) => {
 				),
 				descriptionLink: getRedirectUrl( 'jetpack-newsletter-landing' ),
 				ctaText: __( 'Enable Newsletter', 'jetpack' ),
-				illustration: 'assistant-creative-mail',
+				illustration: 'assistant-newsletter',
 			};
 		case 'monitor':
 			return {

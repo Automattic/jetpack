@@ -1,0 +1,5 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"include": [ "./" ],
+	"files": [ "../../blocks/ai-assistant/global.d.ts" ]
+}
