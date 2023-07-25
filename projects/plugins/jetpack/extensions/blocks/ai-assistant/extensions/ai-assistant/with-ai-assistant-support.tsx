@@ -242,9 +242,9 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		const { request: requestSuggestion, requestingState } = useAiSuggestions( {
 			// prompt: userPrompt,
 			onSuggestion: setContent,
-			askQuestionOptions: {
-				feature: 'ai-assistant-experimental',
-			},
+			// askQuestionOptions: {
+			// 	feature: 'ai-assistant-experimental',
+			// },
 			// onSuggestion: setGeneratedContent,
 			autoRequest: false,
 			onDone: doneContent => {
@@ -324,7 +324,13 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 							const prompt = getPrompt( promptType, { ...options, content } );
 							requestSuggestion( prompt );
 						} }
-						onRequest={ () => requestSuggestion( userPrompt ) }
+						onRequest={ () => {
+							requestSuggestion( userPrompt );
+							// close the popover after 2 seconds
+							setTimeout( () => {
+								hideAssistant();
+							}, 2000 );
+						} }
 					/>
 				</KeyboardShortcuts>
 			</AiAssistantContextProvider>
