@@ -44,6 +44,16 @@ export const Publicize = withModuleSettingsFormHelpers(
 				'jetpack'
 			);
 
+			const jetpackSocialBasicUpgradeTextSuffix = __(
+				'to get unlimited shares and advanced media sharing options.',
+				'jetpack'
+			);
+
+			const jetpackSocialAdvancedUpgradeTextSuffix = __(
+				'to get advanced media sharing options.',
+				'jetpack'
+			);
+
 			const configCard = () => {
 				if ( unavailableInOfflineMode ) {
 					return;
@@ -105,11 +115,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 										</a>
 										&nbsp;
 										{ showUpgradeLink && ! hasSocialBasicFeatures
-											? __(
-													'to get unlimited shares and advanced media sharing options.',
-													'jetpack'
-											  )
-											: __( 'to get advanced media sharing options.', 'jetpack' ) }
+											? jetpackSocialBasicUpgradeTextSuffix
+											: jetpackSocialAdvancedUpgradeTextSuffix }
 									</p>
 								</React.Fragment>
 							) }
