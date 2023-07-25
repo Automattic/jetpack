@@ -191,7 +191,10 @@ HTML;
 	 * @return bool
 	 */
 	public static function should_load_subscriber_modal() {
-		if ( ! self::is_wpcom() ) {
+		// Adding extra check/flag to load only on WP.com
+		// When ready for Jetpack release, remove this.
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
+		if ( ! $is_wpcom ) {
 			return false;
 		}
 		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
