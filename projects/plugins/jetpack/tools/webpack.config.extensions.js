@@ -293,6 +293,7 @@ module.exports = [
 		entry: {
 			...editorSingleBlocksScripts,
 			...viewSingleBlocksScripts,
+			'editor-core': path.join( __dirname, '../extensions/editor.js' ),
 		},
 		plugins: [
 			new CopyWebpackPlugin( {
@@ -316,11 +317,5 @@ module.exports = [
 				},
 			} ),
 		],
-	},
-	{
-		...sharedWebpackConfig,
-		entry: {
-			'editor-core': path.join( __dirname, '../extensions/editor.js' ),
-		},
 	},
 ];

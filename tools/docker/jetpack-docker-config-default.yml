@@ -7,6 +7,7 @@ default:
     tools/docker/wordpress: /var/www/html
     .: /usr/local/src/jetpack-monorepo
     tools/docker/mu-plugins: /var/www/html/wp-content/mu-plugins
+    /Users/andrewlysenko/Automattic/gutenberg: /var/www/html/wp-content/plugins/gutenberg
 
   # Extra configuration (none by default). Anything set under this key will be written out as
   # an extra docker-compose configuration file.

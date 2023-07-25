@@ -36,7 +36,7 @@ class Blocks {
 	 *     @type array $version_requirements Array containing required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
 	 *     @type bool  $plan_check           Should we check for a specific plan before registering the block.
 	 * }
-	 * @param string $metadata_dir TODO: define.
+	 * @param string $metadata_dir Directory holding the block.json metadata file.
 	 *
 	 * @return WP_Block_Type|false The registered block type on success, or false on failure.
 	 */
