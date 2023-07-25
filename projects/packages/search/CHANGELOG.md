@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.38.2] - 2023-07-25
+### Changed
+- Updated package dependencies. [#31923]
+- Updated package dependencies. [#32040]
+- Update props passed to JetpackFooter [#31627]
+
+## [0.38.1] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.38.0] - 2023-07-10
+### Removed
+- Disable Customizer integration for Instant Search if the site is using a block-based theme [#31731]
+
+## [0.37.4] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
 ## [0.37.3] - 2023-06-26
 ### Changed
 - Updated package dependencies. [#31468]
@@ -760,6 +778,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.38.2]: https://github.com/Automattic/jetpack-search/compare/v0.38.1...v0.38.2
+[0.38.1]: https://github.com/Automattic/jetpack-search/compare/v0.38.0...v0.38.1
+[0.38.0]: https://github.com/Automattic/jetpack-search/compare/v0.37.4...v0.38.0
+[0.37.4]: https://github.com/Automattic/jetpack-search/compare/v0.37.3...v0.37.4
 [0.37.3]: https://github.com/Automattic/jetpack-search/compare/v0.37.2...v0.37.3
 [0.37.2]: https://github.com/Automattic/jetpack-search/compare/v0.37.1...v0.37.2
 [0.37.1]: https://github.com/Automattic/jetpack-search/compare/v0.37.0...v0.37.1

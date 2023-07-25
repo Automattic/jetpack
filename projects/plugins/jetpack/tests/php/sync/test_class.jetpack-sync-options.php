@@ -81,6 +81,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'subscription_options'                         => 'pineapple',
 			'stb_enabled'                                  => true,
 			'stc_enabled'                                  => false,
+			'sm_enabled'                                   => false,
 			'comment_registration'                         => 'pineapple',
 			'show_avatars'                                 => 'pineapple',
 			'avatar_default'                               => 'pineapple',

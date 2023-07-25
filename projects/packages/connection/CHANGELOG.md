@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.55.0] - 2023-07-25
+### Added
+- Connection: lock tokens to prevent IDC during AIOWPM export. [#31883]
+
+## [1.54.1] - 2023-07-18
+### Fixed
+- Pass Calypso environment during connection to redirect users to proper Calypso URL. [#31906]
+
+## [1.54.0] - 2023-07-17
+### Added
+- Restore invalid connection owner ID. [#31618]
+
+## [1.53.3] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [1.53.2] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
 ## [1.53.1] - 2023-06-23
 ### Changed
 - Updated package dependencies. [#31468]
@@ -829,6 +849,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.55.0]: https://github.com/Automattic/jetpack-connection/compare/v1.54.1...v1.55.0
+[1.54.1]: https://github.com/Automattic/jetpack-connection/compare/v1.54.0...v1.54.1
+[1.54.0]: https://github.com/Automattic/jetpack-connection/compare/v1.53.3...v1.54.0
+[1.53.3]: https://github.com/Automattic/jetpack-connection/compare/v1.53.2...v1.53.3
+[1.53.2]: https://github.com/Automattic/jetpack-connection/compare/v1.53.1...v1.53.2
 [1.53.1]: https://github.com/Automattic/jetpack-connection/compare/v1.53.0...v1.53.1
 [1.53.0]: https://github.com/Automattic/jetpack-connection/compare/v1.52.2...v1.53.0
 [1.52.2]: https://github.com/Automattic/jetpack-connection/compare/v1.52.1...v1.52.2

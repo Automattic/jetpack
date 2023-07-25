@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.8] - 2023-07-25
+### Changed
+- Updated package dependencies. [#32040]
+- Update the name of the Newsletter Sign-up Variation. [#31998]
+
+## [0.19.7] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+### Fixed
+- Avoid Fatal errors when exporting fields that were not saved with the correct value. [#31858]
+- Fix Forms dropdown required validation [#31894]
+
+## [0.19.6] - 2023-07-05
+### Changed
+- Remove the default title ("You got a new response!") added to emails sent for new feedback received. [#31667]
+- Updated package dependencies. [#31659]
+
 ## [0.19.5] - 2023-06-26
 ### Changed
 - Updated package dependencies.
@@ -274,6 +292,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.19.8]: https://github.com/automattic/jetpack-forms/compare/v0.19.7...v0.19.8
+[0.19.7]: https://github.com/automattic/jetpack-forms/compare/v0.19.6...v0.19.7
+[0.19.6]: https://github.com/automattic/jetpack-forms/compare/v0.19.5...v0.19.6
 [0.19.5]: https://github.com/automattic/jetpack-forms/compare/v0.19.4...v0.19.5
 [0.19.4]: https://github.com/automattic/jetpack-forms/compare/v0.19.3...v0.19.4
 [0.19.3]: https://github.com/automattic/jetpack-forms/compare/v0.19.2...v0.19.3

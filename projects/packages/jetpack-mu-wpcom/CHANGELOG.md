@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2023-07-25
+### Added
+- Added additional tests for launchpad tasklist validation [#31992]
+- Added the Free and Paid Newsletter task list [#31981]
+- Add new task for post-launch Newsletter task lists. [#32034]
+- Adds the count propertis to the task definitions [#31970]
+- Adds the Earn money with your newsletter task [#32000]
+- Launchpad task for updating the about page [#31966]
+- Show the correct homepage on the Site Editor when previewing a theme.
+  See https://github.com/Automattic/wp-calypso/issues/79221 in more detail. [#31929]
+
+### Changed
+- Rename the keep-building Launchpad checklist to intent-build [#31905]
+- Updated initial state of Launchpad subscribers task. [#31947]
+- Updated launchpad task list validation return types to be more useful. Previously, we just returned a simple bool. Now we return a WP_Error where appropriate. [#31834]
+
+### Fixed
+- Remove `design_edited` task from post-launch task list. [#31995]
+
+## [3.7.0] - 2023-07-17
+### Added
+- Launchpad: Filter tasks by newsletter import goal. [#31825]
+- Launchpad task for editing a page [#31789]
+
+## [3.6.0] - 2023-07-10
+### Added
+- While in the design_first flow, if the user creates a post, deletes the default hello-world. [#31702]
+
+## [3.5.0] - 2023-07-05
+### Added
+- Added a new email campaign trigger for blog-onboarding [#31612]
+- Add validation for required tasks. [#31626]
+- Launchpad task for adding a new page [#31578]
+
+### Changed
+- Update keep building task list visibility logic to check if a site is launched [#31623]
+
+### Fixed
+- Don't hide design_edited task if complete [#31620]
+
 ## [3.4.0] - 2023-06-27
 ### Added
 - Check that the function jetpack_is_atomic_site exists before using it. [#31602]
@@ -208,6 +248,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[4.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.7.0...v4.0.0
+[3.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.6.0...v3.7.0
+[3.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.5.0...v3.6.0
+[3.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.1.0...v3.2.0

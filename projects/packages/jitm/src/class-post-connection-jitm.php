@@ -266,7 +266,7 @@ class Post_Connection_JITM extends JITM {
 			array(
 				'external_user_id' => urlencode_deep( $user->ID ),
 				'user_roles'       => urlencode_deep( $user_roles ),
-				'query_string'     => urlencode_deep( $query ),
+				'query_string'     => urlencode_deep( build_query( $query ) ),
 				'mobile_browser'   => Device_Detection::is_smartphone() ? 1 : 0,
 				'_locale'          => get_user_locale(),
 			),

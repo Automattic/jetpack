@@ -31,7 +31,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '3.1.0-alpha';
+	const PACKAGE_VERSION = '3.2.0';
 
 	/**
 	 * Initialize My Jetpack
@@ -198,7 +198,8 @@ class Initializer {
 	 */
 	public static function get_my_jetpack_flags() {
 		$flags = array(
-			'videoPressStats' => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
+			'videoPressStats'      => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
+			'showJetpackStatsCard' => class_exists( 'Jetpack' ),
 		);
 
 		return $flags;
@@ -222,6 +223,7 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
+		new REST_AI();
 
 		register_rest_route(
 			'my-jetpack/v1',

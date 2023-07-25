@@ -82,6 +82,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.MONITOR:
 			redirectPath = '/monitor';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.NEWSLETTER:
+			redirectPath = '/newsletter';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.RELATED_POSTS:
 			redirectPath = '/related-posts';
 			break;
@@ -213,6 +216,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/monitor">
 						<FeaturePrompt stepSlug="monitor" />
+					</Route>
+					<Route path="/recommendations/newsletter">
+						<FeaturePrompt stepSlug="newsletter" />
 					</Route>
 					<Route path="/recommendations/related-posts">
 						<FeaturePrompt stepSlug="related-posts" />

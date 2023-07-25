@@ -95,6 +95,7 @@ const recommendationsRoutes = [
 	'/recommendations/agency',
 	'/recommendations/woocommerce',
 	'/recommendations/monitor',
+	'/recommendations/newsletter',
 	'/recommendations/related-posts',
 	'/recommendations/creative-mail',
 	'/recommendations/site-accelerator',
@@ -117,6 +118,7 @@ const settingsRoutes = [
 	'/writing',
 	'/sharing',
 	'/discussion',
+	'/earn',
 	'/traffic',
 	'/privacy',
 ];
@@ -297,6 +299,7 @@ class Main extends React.Component {
 			case '/writing':
 			case '/sharing':
 			case '/discussion':
+			case '/earn':
 			case '/traffic':
 			case '/privacy':
 				return (
@@ -539,6 +542,7 @@ class Main extends React.Component {
 			case '/writing':
 			case '/sharing':
 			case '/discussion':
+			case '/earn':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (
@@ -573,6 +577,7 @@ class Main extends React.Component {
 			case '/recommendations/agency':
 			case '/recommendations/woocommerce':
 			case '/recommendations/monitor':
+			case '/recommendations/newsletter':
 			case '/recommendations/related-posts':
 			case '/recommendations/creative-mail':
 			case '/recommendations/site-accelerator':
