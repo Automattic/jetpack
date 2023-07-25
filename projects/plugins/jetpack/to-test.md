@@ -196,7 +196,7 @@ There have been changes to the prompt that asks the user to upgrade to a paid pl
 A new feature has been released to the users: the "Get Feedback" feature. To test it:
 
 - Write a post.
-- Open Jetpack sidebar.
+- Open Jetpack sidebar or start to publish the post.
 - Ask for feedback.
 
 ## Contact Forms
