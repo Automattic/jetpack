@@ -6,7 +6,7 @@ import { BlockControls } from '@wordpress/block-editor';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
 /**
  * Internal dependencies
@@ -20,7 +20,6 @@ import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '.';
 const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { isSelected, clientId } = props;
-
 		// AI Assistant component visibility
 		const [ isAssistantShown, setAssistantVisibility ] = useState( false );
 		const [ isAssistantMenuShown, setAssistantMenuVisibility ] = useState( true );
@@ -239,9 +238,12 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 			[ firstClientId, replaceInnerBlocks ]
 		);
 
+		const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
+
 		const { request: requestSuggestion, requestingState } = useAiSuggestions( {
 			// prompt: userPrompt,
 			onSuggestion: setContent,
+			postId,
 			// askQuestionOptions: {
 			// 	feature: 'ai-assistant-experimental',
 			// },
