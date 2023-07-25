@@ -95,23 +95,4 @@ class Test_URL_Secret extends TestCase {
 		static::assertFalse( $secret_db );
 	}
 
-	/**
-	 * Test the `add_secret_to_url_validation_response()` method.
-	 *
-	 * @return void
-	 */
-	public static function test_add_secret_to_url_validation_response() {
-		$data = array(
-			'key1' => 'value1',
-			'key2' => 'value2',
-		);
-
-		$data_updated = URL_Secret::add_secret_to_url_validation_response( $data );
-
-		$secret_db          = Jetpack_Options::get_option( URL_Secret::OPTION_KEY );
-		$data['url_secret'] = $secret_db['secret'];
-
-		static::assertEquals( $data, $data_updated );
-		static::assertArrayNotHasKey( 'url_secret_error', $data_updated );
-	}
 }
