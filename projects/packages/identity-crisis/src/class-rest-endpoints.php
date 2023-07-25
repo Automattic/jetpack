@@ -64,17 +64,6 @@ class REST_Endpoints {
 			)
 		);
 
-		// Generate URL verification secret.
-		register_rest_route(
-			'jetpack/v4',
-			'/identity-crisis/create-url-secret',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( static::class, 'generate_url_secret' ),
-				'permission_callback' => array( static::class, 'url_secret_permission_check' ),
-			)
-		);
-
 		// Fetch URL verification secret.
 		register_rest_route(
 			'jetpack/v4',
