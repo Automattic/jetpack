@@ -72,9 +72,8 @@ class Stats extends Module_Product {
 	 */
 	public static function get_features() {
 		return array(
-			__( 'Access to all-time data', 'jetpack-my-jetpack' ),
+			__( 'Instant access to upcoming features', 'jetpack-my-jetpack' ),
 			__( 'Priority support', 'jetpack-my-jetpack' ),
-			__( 'No upsell or ads in the Stats page', 'jetpack-my-jetpack' ),
 		);
 	}
 
