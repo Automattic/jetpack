@@ -63,7 +63,6 @@ export default function QuestionAnswer() {
 	const [ showReferences, setShowReferences ] = useState( false );
 
 	const handleSubmitQuestion = () => {
-		console.log( 'HOLA!' );
 		setAnimationDone( false );
 		setShowReferences( false );
 		submitQuestion();

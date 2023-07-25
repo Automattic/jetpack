@@ -170,7 +170,6 @@ export default function AiAssistantDropdown( {
 	requestingState,
 	disabled,
 	onChange,
-	onReplace,
 }: AiAssistantControlComponentProps ) {
 	const quickActionsListFiltered = quickActionsList.filter(
 		quickAction => ! exclude.includes( quickAction.key )
