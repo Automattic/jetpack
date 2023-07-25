@@ -12,6 +12,7 @@ use WP_Error;
 
 /**
  * IDC URL secret functionality.
+ * A short-lived secret used to verify whether an IDC is coming from the same vs a different Jetpack site.
  */
 class URL_Secret {
 
