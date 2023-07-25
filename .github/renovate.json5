@@ -65,6 +65,11 @@
 			groupName: 'GitHub API packages',
 			matchPackagePatterns: [ '^@actions/', '^@octokit/' ],
 		},
+		{
+			groupName: 'Codeception packages',
+			matchDatasources: [ 'packagist' ],
+			matchPackagePrefixes: [ 'codeception/' ],
+		},
 
 		// 🤷
 		{

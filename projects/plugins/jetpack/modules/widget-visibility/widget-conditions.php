@@ -153,7 +153,7 @@ class Jetpack_Widget_Conditions {
 	 * to know about the new attribute, too.
 	 */
 	public static function add_block_attributes_filter() {
-		$blocks_to_add_visibility_conditions = array(
+		$blocks = array(
 			// These use <ServerSideRender>.
 			'core/calendar',
 			'core/latest-comments',
@@ -164,9 +164,19 @@ class Jetpack_Widget_Conditions {
 			'core/latest-posts',
 			'woocommerce/product-categories',
 		);
+		/**
+		 * Filters the list of widget visibility blocks using <ServerSideRender>.
+		 *
+		 * @since 12.4
+		 *
+		 * @module widget-visibility
+		 *
+		 * @param string[] $blocks Array of block names from WordPress core and WooCommerce.
+		 */
+		$blocks_to_add_visibility_conditions = apply_filters( 'jetpack_widget_visibility_server_side_render_blocks', $blocks );
 
-		$filter_metadata_registration = function ( $settings, $metadata ) use ( $blocks_to_add_visibility_conditions ) {
-			if ( in_array( $metadata['name'], $blocks_to_add_visibility_conditions, true ) && ! empty( $settings['attributes'] ) ) {
+		$filter_metadata_registration = function ( $settings, $name ) use ( $blocks_to_add_visibility_conditions ) {
+			if ( in_array( $name, $blocks_to_add_visibility_conditions, true ) && ! empty( $settings['attributes'] ) ) {
 				$settings['attributes']['conditions'] = array(
 					'type' => 'object',
 				);
@@ -174,7 +184,7 @@ class Jetpack_Widget_Conditions {
 			return $settings;
 		};
 
-		add_filter( 'block_type_metadata_settings', $filter_metadata_registration, 10, 2 );
+		add_filter( 'register_block_type_args', $filter_metadata_registration, 10, 2 );
 	}
 
 	/**

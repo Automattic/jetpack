@@ -1,5 +1,0 @@
-Significance: minor
-Type: added
-
-Show the correct homepage on the Site Editor when previewing a theme.
-See https://github.com/Automattic/wp-calypso/issues/79221 in more detail.

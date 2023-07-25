@@ -675,8 +675,7 @@ class Jetpack_Gutenberg {
 				'error-code'    => $ai_assistant_state->get_error_code(),
 			);
 		} else {
-			$ai_assistant_state['is-playground-visible']     = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' );
-			$ai_assistant_state['is-plugin-sidebar-visible'] = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLUGIN_SIDEBAR' );
+			$ai_assistant_state['is-playground-visible'] = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' );
 		}
 
 		$screen_base = null;

@@ -54,6 +54,7 @@ export const delimiter = '````';
  * @param {string} options.context - The context of the prompt.
  * @param {Array<string>} options.rules - The rules to follow.
  * @param {boolean} options.useGutenbergSyntax - Enable prompts focused on layout building.
+ * @param {boolean} options.useMarkdown - Enable answer to be in markdown.
  * @param {string} options.customSystemPrompt - Provide a custom system prompt that will override system.
  * @returns {PromptItemProps} The initial system prompt.
  */
@@ -61,11 +62,13 @@ export function getInitialSystemPrompt( {
 	context = 'You are an advanced polyglot ghostwriter. Your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the WordPress editor',
 	rules,
 	useGutenbergSyntax = false,
+	useMarkdown = true,
 	customSystemPrompt = null,
 }: {
 	context?: string;
 	rules?: Array< string >;
 	useGutenbergSyntax?: boolean;
+	useMarkdown?: boolean;
 	customSystemPrompt?: string;
 } ): PromptItemProps {
 	// Rules
@@ -77,7 +80,9 @@ export function getInitialSystemPrompt( {
 
 	let prompt = `${ context }. Strictly follow these rules:
 
-${ extraRules }- Format your responses in Markdown syntax, ready to be published.
+${ extraRules }${
+		useMarkdown ? '- Format your responses in Markdown syntax, ready to be published.' : ''
+	}
 - Execute the request without any acknowledgement to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
@@ -129,7 +134,7 @@ type PromptOptionsProps = {
 	prevMessages?: Array< PromptItemProps >;
 };
 
-function getDelimitedContent( content: string ): string {
+export function getDelimitedContent( content: string ): string {
 	return `${ delimiter }${ content.replaceAll( delimiter, '' ) }${ delimiter }`;
 }
 
