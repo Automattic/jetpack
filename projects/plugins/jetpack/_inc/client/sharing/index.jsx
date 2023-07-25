@@ -8,7 +8,12 @@ import {
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
-import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
+import {
+	getSiteRawUrl,
+	getSiteAdminUrl,
+	userCanManageModules,
+	isAtomicSite,
+} from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
@@ -31,6 +36,7 @@ class Sharing extends Component {
 			activeFeatures: this.props.activeFeatures,
 			hasSocialBasicFeatures: this.props.hasSocialBasicFeatures,
 			hasSocialAdvancedFeatures: this.props.hasSocialAdvancedFeatures,
+			isAtomicSite: this.props.isAtomicSite,
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
@@ -80,5 +86,6 @@ export default connect( state => {
 		activeFeatures: getActiveFeatures( state ),
 		hasSocialAdvancedFeatures: siteHasFeature( state, 'social-enhanced-publishing' ),
 		userCanManageModules: userCanManageModules( state ),
+		isAtomicSite: isAtomicSite( state ),
 	};
 } )( Sharing );

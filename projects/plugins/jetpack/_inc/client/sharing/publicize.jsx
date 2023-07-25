@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
@@ -26,30 +27,19 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'publicize' ),
 				hasSocialBasicFeatures = this.props.hasSocialBasicFeatures,
 				hasSocialAdvancedFeatures = this.props.hasSocialAdvancedFeatures,
+				isAtomicSite = this.props.isAtomicSite,
 				activeFeatures = this.props.activeFeatures,
 				userCanManageModules = this.props.userCanManageModules;
 
 			const showUpgradeLink =
-				activeFeatures && activeFeatures.length > 0 && isActive && ! hasSocialAdvancedFeatures;
+				! isAtomicSite &&
+				activeFeatures &&
+				activeFeatures.length > 0 &&
+				isActive &&
+				! hasSocialAdvancedFeatures;
 
 			const jetpackSocialText = __(
 				'Connect your website to the social media networks you use and share your content across all your social accounts with a single click. When you publish a post, it will appear on all connected accounts.',
-				'jetpack'
-			);
-
-			const jetpackSocialBasicUpgradeText = __( 'Upgrade to a Jetpack Social plan', 'jetpack' );
-			const jetpackSocialAdvancedText = __(
-				'Upgrade to the Jetpack Social Advanced plan',
-				'jetpack'
-			);
-
-			const jetpackSocialBasicUpgradeTextSuffix = __(
-				'to get unlimited shares and advanced media sharing options.',
-				'jetpack'
-			);
-
-			const jetpackSocialAdvancedUpgradeTextSuffix = __(
-				'to get advanced media sharing options.',
 				'jetpack'
 			);
 
@@ -102,22 +92,49 @@ export const Publicize = withModuleSettingsFormHelpers(
 							{ showUpgradeLink && (
 								<React.Fragment>
 									<p>
-										<a
-											href={ getRedirectUrl( 'jetpack-plugin-admin-page-sharings-screen', {
-												site: siteRawUrl,
-												query:
-													'redirect_to=' +
-													encodeURIComponent( window.location.href.split( '#' )[ 0 ] ),
-											} ) }
-										>
-											{ showUpgradeLink && ! hasSocialBasicFeatures
-												? jetpackSocialBasicUpgradeText
-												: jetpackSocialAdvancedText }
-										</a>
-										&nbsp;
-										{ showUpgradeLink && ! hasSocialBasicFeatures
-											? jetpackSocialBasicUpgradeTextSuffix
-											: jetpackSocialAdvancedUpgradeTextSuffix }
+										{ ! hasSocialBasicFeatures
+											? createInterpolateElement(
+													__(
+														'<moreInfo>Upgrade to a Jetpack Social plan</moreInfo> to get unlimited shares and advanced media sharing options.',
+														'jetpack'
+													),
+													{
+														moreInfo: (
+															<a
+																href={ getRedirectUrl(
+																	'jetpack-plugin-admin-page-sharings-screen',
+																	{
+																		site: siteRawUrl,
+																		query:
+																			'redirect_to=' +
+																			encodeURIComponent( window.location.href.split( '#' )[ 0 ] ),
+																	}
+																) }
+															/>
+														),
+													}
+											  )
+											: createInterpolateElement(
+													__(
+														'<moreInfo>Upgrade to the Jetpack Social Advanced plan</moreInfo> to get advanced media sharing options.',
+														'jetpack'
+													),
+													{
+														moreInfo: (
+															<a
+																href={ getRedirectUrl(
+																	'jetpack-plugin-admin-page-sharings-screen',
+																	{
+																		site: siteRawUrl,
+																		query:
+																			'redirect_to=' +
+																			encodeURIComponent( window.location.href.split( '#' )[ 0 ] ),
+																	}
+																) }
+															/>
+														),
+													}
+											  ) }
 									</p>
 								</React.Fragment>
 							) }
