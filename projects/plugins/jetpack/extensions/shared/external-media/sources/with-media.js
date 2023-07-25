@@ -1,13 +1,14 @@
 import apiFetch from '@wordpress/api-fetch';
 import { withNotices, Modal } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { withSelect, useDispatch } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import classnames from 'classnames';
 import { uniqBy } from 'lodash';
 import { PATH_RECENT } from '../constants';
+import { JETPACK_MEDIA_STORE } from '../store';
 
 export default function withMedia() {
 	return createHigherOrderComponent( OriginalComponent => {
@@ -74,7 +75,10 @@ export default function withMedia() {
 				}
 			};
 
-			setAuthenticated = isAuthenticated => this.setState( { isAuthenticated } );
+			setAuthenticated = isAuthenticated => {
+				this.setState( { isAuthenticated } );
+				this.props.setAuthenticated( isAuthenticated );
+			};
 
 			mergeMedia( initial, media ) {
 				return uniqBy( initial.concat( media ), 'ID' );
@@ -112,7 +116,8 @@ export default function withMedia() {
 
 			handleApiError = error => {
 				if ( error.code === 'authorization_required' ) {
-					this.setState( { isAuthenticated: false, isLoading: false, isCopying: false } );
+					this.setAuthenticated( false );
+					this.setState( { isLoading: false, isCopying: false } );
 					return;
 				}
 
@@ -296,6 +301,7 @@ export default function withMedia() {
 		return withSelect( select => {
 			return {
 				postId: select( 'core/editor' ).getCurrentPostId(),
+				setAuthenticated: useDispatch( JETPACK_MEDIA_STORE ).setAuthenticated,
 			};
 		} )( withNotices( WithMediaComponent ) );
 	} );
