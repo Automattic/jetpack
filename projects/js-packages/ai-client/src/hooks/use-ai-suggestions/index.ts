@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -51,6 +50,12 @@ type useAiSuggestionsOptions = {
 	 */
 	autoRequest?: boolean;
 
+	/*
+	 * The post ID.
+	 * Its value, when defined, will be passed to the askQuestion function.
+	 */
+	postId?: number;
+
 	/**
 	 * AskQuestion options.
 	 */
@@ -84,11 +89,6 @@ type useAiSuggestionsProps = {
 	 * The error.
 	 */
 	error: SuggestionErrorProps | undefined;
-
-	/*
-	 * The post ID.
-	 */
-	postId: number;
 
 	/*
 	 * Whether the request is in progress.
@@ -178,6 +178,7 @@ export default function useAiSuggestions( {
 	prompt,
 	autoRequest = false,
 	askQuestionOptions = {},
+	postId,
 	onSuggestion,
 	onDone,
 	onError,
@@ -185,9 +186,6 @@ export default function useAiSuggestions( {
 	const [ requestingState, setRequestingState ] = useState< RequestingStateProp >( 'init' );
 	const [ suggestion, setSuggestion ] = useState< string >( '' );
 	const [ error, setError ] = useState< SuggestionErrorProps >();
-
-	// Try to pick the post ID to populate the askQuestion request.
-	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
 	// Store the event source in a ref, so we can handle it if needed.
 	const eventSourceRef = useRef< SuggestionsEventSource | undefined >( undefined );
@@ -259,11 +257,17 @@ export default function useAiSuggestions( {
 			// Set the request status.
 			setRequestingState( 'requesting' );
 
+			const options = {
+				...askQuestionOptions,
+			};
+
+			// Pass the post ID to the askQuestion function, when defined.
+			if ( postId ) {
+				options.postId = postId;
+			}
+
 			try {
-				eventSourceRef.current = await askQuestion( promptArg, {
-					postId,
-					...askQuestionOptions,
-				} );
+				eventSourceRef.current = await askQuestion( promptArg, options );
 
 				if ( ! eventSourceRef?.current ) {
 					return;
@@ -358,8 +362,5 @@ export default function useAiSuggestions( {
 
 		// SuggestionsEventSource
 		eventSource: eventSourceRef.current,
-
-		// Expose adiditonal props.
-		postId,
 	};
 }

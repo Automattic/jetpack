@@ -22,6 +22,7 @@ Invokes the custom hook with the provided options.
 
 - `prompt: PromptItemProps[]` (optional): An array of request prompts.
 - `autoRequest: boolean` (optional, defaults to `false`): Determines whether to request suggestions automatically.
+- `postId: number`: When defined, will be passed to the askQuestion function.
 - `askQuestionOptions: AskQuestionOptionsArgProps` (optional): Options for the askQuestion function.
 - `onSuggestion: ( suggestion: string ) => void` (optional): A callback function that gets triggered when a suggestion is received.
 - `onDone: ( content: string ) => void` (optional): A callback function that gets triggered when the process is complete.
@@ -33,7 +34,6 @@ An object with the following properties:
 
 - `suggestion: string`: The obtained suggestion.
 - `error: SuggestionErrorProps | undefined`: An error object if an error occurs.
-- `postId: number`: The ID of the post that is currently in progress.
 - `requestingState: RequestingStateProp`: The state of the request.
 - `eventSource: SuggestionsEventSource | undefined`: The event source of the request.
 - `request: ( prompt: Array< PromptItemProps > ) => Promise< void >`: The request handler.
