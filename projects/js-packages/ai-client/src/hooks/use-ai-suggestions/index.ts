@@ -52,7 +52,7 @@ type useAiSuggestionsOptions = {
 
 	/*
 	 * The post ID.
-	 * Its value, when defined, will be passed to the askQuestion function.
+	 * It's value, when defined, will be passed to the askQuestion function.
 	 */
 	postId?: number;
 
