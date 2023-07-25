@@ -1,5 +1,4 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
@@ -104,9 +103,11 @@ export const Publicize = withModuleSettingsFormHelpers(
 								<React.Fragment>
 									<p>
 										<a
-											href={ getRedirectUrl( 'jetpack-connections-sharing-screen', {
-												site: getSiteFragment(),
-												query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+											href={ getRedirectUrl( 'jetpack-plugin-admin-page-sharings-screen', {
+												site: siteRawUrl,
+												query:
+													'redirect_to=' +
+													encodeURIComponent( window.location.href.split( '#' )[ 0 ] ),
 											} ) }
 										>
 											{ showUpgradeLink && ! hasSocialBasicFeatures
