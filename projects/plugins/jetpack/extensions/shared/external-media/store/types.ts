@@ -1,7 +1,7 @@
 export type AuthState = {
-	isAuthorized: boolean;
+	isAuthenticated: boolean;
 };
 
 export const initialAuthState: AuthState = {
-	isAuthorized: false,
+	isAuthenticated: false,
 };

@@ -191,7 +191,7 @@ export const getPexelsMediaCategory = () =>
  */
 export const isGooglePhotosConnected = ( isConnectedCallback: ConnectedMediaSourceCallback ) => {
 	const isDisconnectedCallback = () =>
-		waitFor( select( JETPACK_MEDIA_STORE ).isAuthenticated() ).then( isConnectedCallback );
+		waitFor( () => select( JETPACK_MEDIA_STORE ).isAuthenticated() ).then( isConnectedCallback );
 	isMediaSourceConnected( MediaSource.GooglePhotos, isConnectedCallback, isDisconnectedCallback );
 };
 
