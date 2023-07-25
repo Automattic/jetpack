@@ -291,6 +291,16 @@ class Launchpad_Task_Lists {
 		$built_task['subtitle']     = $this->load_subtitle( $task );
 		$built_task['badge_text']   = $this->load_value_from_callback( $task, 'badge_text_callback' );
 		$built_task['isLaunchTask'] = isset( $task['isLaunchTask'] ) ? $task['isLaunchTask'] : false;
+		$extra_data                 = $this->load_extra_data( $task );
+
+		if ( is_array( $extra_data ) && array() !== $extra_data ) {
+			$built_task['extra_data'] = $extra_data;
+		}
+
+		if ( isset( $task['target_repetitions'] ) ) {
+			$built_task['target_repetitions'] = $task['target_repetitions'];
+			$built_task['repetition_count']   = $this->load_repetition_count( $task );
+		}
 
 		return $built_task;
 	}
@@ -308,6 +318,22 @@ class Launchpad_Task_Lists {
 			return call_user_func_array( $item[ $callback ], array( $item, $default ) );
 		}
 		return $default;
+	}
+
+	/**
+	 * Loads any extra data for a task, calling the `extra_data_callback` callback to get the data if the callback is defined.
+	 * Returns null if there is no callback or the callback returns an empty array or a non-array.
+	 *
+	 * @param Task $task A task definition.
+	 * @return array|null The extra data for the task.
+	 */
+	private function load_extra_data( $task ) {
+		$extra_data = $this->load_value_from_callback( $task, 'extra_data_callback' );
+		if ( is_array( $extra_data ) && array() !== $extra_data ) {
+			return $extra_data;
+		}
+
+		return null;
 	}
 
 	/**
@@ -348,6 +374,16 @@ class Launchpad_Task_Lists {
 			$task['subtitle'];
 		}
 		return '';
+	}
+
+	/**
+	 * Loads the repetition count for a task, calling the callback if it exists.
+	 *
+	 * @param Task $task A task definition.
+	 * @return int|null The repetition count for the task.
+	 */
+	private function load_repetition_count( $task ) {
+		return $this->load_value_from_callback( $task, 'repetition_count_callback' );
 	}
 
 	/**
@@ -610,6 +646,14 @@ class Launchpad_Task_Lists {
 
 		if ( ! $has_valid_title ) {
 			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires a "title" attribute or a "get_title" callback', '6.2' );
+			return false;
+		}
+
+		$has_any_repetition_properties  = isset( $task['target_repetitions'] ) || isset( $task['repetition_count_callback'] );
+		$has_both_repetition_properties = isset( $task['target_repetitions'] ) && isset( $task['repetition_count_callback'] );
+
+		if ( $has_any_repetition_properties && ! $has_both_repetition_properties ) {
+			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires both a "target_repetitions" attribute and a "repetition_count_callback" callback', '6.3' );
 			return false;
 		}
 

@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-SSites API: add was_migration_trial flag to data returned for site details
