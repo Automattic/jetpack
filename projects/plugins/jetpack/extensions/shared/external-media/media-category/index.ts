@@ -7,7 +7,7 @@ const PEXELS_ID = 'pexels';
 const PEXELS_NAME = __( 'Pexels Free Photos', 'jetpack' );
 const PEXELS_SEARCH_PLACEHOLDER = __( 'Search Pexels Free Photos', 'jetpack' );
 const DEFAULT_PEXELS_SEARCH: MediaSearch = {
-	per_page: 25,
+	per_page: 10,
 	search: 'mountain',
 };
 
@@ -131,7 +131,7 @@ const buildMediaCategory = (
 	fetch: async ( mediaCategorySearch: MediaSearch ) =>
 		await apiFetch( {
 			path: getMediaApiUrl( source, {
-				per_page: mediaCategorySearch?.per_page || defaultSearch.per_page,
+				per_page: defaultSearch.per_page,
 				search:
 					mediaCategorySearch?.search === '' ? defaultSearch.search : mediaCategorySearch.search,
 			} ),
