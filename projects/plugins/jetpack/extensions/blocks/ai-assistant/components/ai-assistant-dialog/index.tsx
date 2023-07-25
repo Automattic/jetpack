@@ -15,9 +15,10 @@ import React from 'react';
 import './style.scss';
 import { AiAssistantContext } from '../../extensions/ai-assistant/context';
 import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_CHANGE_TONE } from '../../lib/prompt';
-import { QuickActionsMenuItems, quickActionsList } from '../ai-assistant-control';
+import { QuickActionsMenuItems } from '../ai-assistant-control';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
 import { ToneDropdownMenu } from '../tone-dropdown-control';
+import { actionsList } from './contact-form-quick-actions';
 
 const markdownConverter = new MarkdownIt( {
 	breaks: true,
@@ -133,7 +134,7 @@ export const AiAssistantPopover = ( {
 		return null;
 	}
 
-	const filteredActions = quickActionsList.filter( action => {
+	const filteredActions = actionsList.filter( action => {
 		return promptValue?.split( ' ' ).every( word => new RegExp( word, 'i' ).test( action.name ) );
 	} );
 

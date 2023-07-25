@@ -22,6 +22,9 @@ export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
 export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
 export const PROMPT_TYPE_USER_PROMPT = 'userPrompt' as const;
 
+// Jetpack forms
+export const PROMPT_TYPE_JETPACK_CONTACT_FORM_CONTACT_FORM = 'create-contact-form' as const;
+
 export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_SUMMARY_BY_TITLE,
 	PROMPT_TYPE_CONTINUE,
@@ -489,36 +492,42 @@ export function getPrompt(
 	type: PromptTypeProp,
 	options?: PromptOptionsProps = {}
 ): Array< PromptItemProps > {
-	debug( 'Addressing prompt type: %o %o', type, options );
+	// debug( 'Addressing prompt type: %o %o', type, options );
 	const { prevMessages = [] } = options;
 
-	const context =
-		'You are an advanced polyglot ghostwriter.' +
-		'Your task is to help the user create and modify content based on their requests.';
+	// You understand that the block composition is always wrapped into the <!-- wp:jetpack/contact-form {"subject":FORM_SUBJECT,"to":FORM_EMAIL_RECIPIENT} --><div class="wp-block-jetpack-contact-form">{FORM_CONTENT}</div><!-- /wp:jetpack/contact-form -->\` syntax, where FORM_SUBJECT, FORM_EMAIL_RECIPIENT, and FORM_CONTENT should be replaced with the user's specifications.'
+	// You are capable of creating complex block compositions based on a given specification.
+
+	// - Execute the request without any acknowledgment or explanation to the user.
+
+	const context = `
+- You are an expert in Gutenberg block editor development and thoroughly familiar with the Jetpack Form block.
+- You are to use your knowledge to generate Gutenberg block syntax to match the requested block structure.
+- Do not wrap the generated structure in the \`<!-- wp:jetpack/contact-form -->\` syntax.
+- SUPER IMPORTANT: DO NOT add any addtional feedback to the user, just generate the requested block structure.
+
+- Use syntax templates for blocks as follows:
+	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Text Input Field\`: <!-- wp:jetpack/field-text {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Multi-line Text Field \`: <!-- wp:jetpack/field-textarea {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Checkbox\`: <!-- wp:jetpack/field-checkbox {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT} /-->
+	- \`Date Picker\`: <!-- wp:jetpack/field-date {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Phone Number Field\`: <!-- wp:jetpack/field-telephone {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`URL Field\`: <!-- wp:jetpack/field-url {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Multiple Choice (Checkbox)\`: <!-- wp:jetpack/field-checkbox-multiple {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
+	- \`Single Choice (Radio)\`: <!-- wp:jetpack/field-radio {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
+	- \`Dropdown Field\`: <!-- wp:jetpack/field-select {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE],"toggleLabel":TOGGLE_LABEL} /-->
+	- \`Terms Consent\`:  <!-- wp:jetpack/field-consent {"consentType":"CONSENT_TYPE","implicitConsentMessage":"IMPLICIT_CONSENT_MESSAGE","explicitConsentMessage":"EXPLICIT_CONSENT_MESSAGE", /-->
+	- \`Button\`: <!-- wp:jetpack/button {"label":FIELD_LABEL,"element":"button","text":BUTTON_TEXT,"borderRadius":BORDER_RADIUS,"lock":{"remove":true}} /-->
+- When the user provides instructions, translate them into appropriate Gutenberg blocks and Jetpack form structure.
+- Replace placeholders (like FIELD_LABEL, IS_REQUIRED, etc.) with the user's specifications.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.`;
 
 	const systemPrompt: PromptItemProps = {
 		role: 'system',
-		content: `${ context }
-- Compose the content following the Gutenberg block syntax:
-  - Image block: 
-    <!-- wp:image -->
-      <figure class='wp-block-image'><img src='{image-url}' alt='{image-description}'></figure>
-    <!-- /wp:image -->
-  
-  - Heading block: 
-    <!-- wp:heading {'level':2} -->
-      <h2 class='wp-block-heading'>{heading}</h2>
-    <!-- /wp:heading -->
-  
-  - Paragraph block: 
-    <!-- wp:paragraph -->
-      <p>{content}</p>
-    <!-- /wp:paragraph -->
-
-- Execute the request without any acknowledgment or explanation to the user.
-- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
-`,
+		content: context,
 	};
 
 	// Prompt starts with the previous messages, if any.

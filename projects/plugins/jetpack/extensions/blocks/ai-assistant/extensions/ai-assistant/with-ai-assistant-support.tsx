@@ -32,8 +32,12 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		const [ isAssistantShown, setAssistantVisibility ] = useState( false );
 		const [ isAssistantMenuShown, setAssistantMenuVisibility ] = useState( true );
 
+		// const [ promptValue, setLocalPromptValue ] = useState(
+		// 	'Create a three-column. In each column, there should be an empty image, followed by a level 2 heading, and then three paragraph.'
+		// );
+
 		const [ promptValue, setLocalPromptValue ] = useState(
-			'Create a three-column. In each column, there should be an empty image, followed by a level 2 heading, and then three paragraph.'
+			"I'd like to create a contact form with the following fields: name, email, message. Add a `Contact us` button to submit the form."
 		);
 
 		// const [ promptValue, setLocalPromptValue ] = useState(
@@ -193,10 +197,10 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 				// const [ firstClientId, ...restClientIds ] = clientIds;
 				console.log( { newContent } );
 
-				if ( ! wrapperBlockHasBeenInserted.current ) {
-					wrapperBlockHasBeenInserted.current = true;
-					replaceBlock( firstClientId, groupBlockWrapper );
-				}
+				// if ( ! wrapperBlockHasBeenInserted.current ) {
+				// 	wrapperBlockHasBeenInserted.current = true;
+				// 	replaceBlock( firstClientId, groupBlockWrapper );
+				// }
 
 				const newContentBlocks = parse( newContent );
 
@@ -207,7 +211,7 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 
 				console.log( { validBlocks } );
 
-				// Get HTML makrup of the generated blocks
+				// Get HTML markup of the generated blocks
 				const html = validBlocks.reduce( ( html, block ) => {
 					return html + getBlockContent( block );
 				}, '' );
@@ -215,7 +219,7 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 				console.log( { html } );
 
 				// Only update the valid blocks
-				replaceInnerBlocks( groupBlockWrapper.clientId, validBlocks );
+				replaceInnerBlocks( firstClientId, validBlocks );
 
 				// updateBlockAttributes( firstClientId, { content: newContent } );
 
@@ -251,8 +255,10 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 			// onSuggestion: setGeneratedContent,
 			autoRequest: false,
 			onDone: doneContent => {
-				const newContentBlocks = parse( doneContent );
-				replaceInnerBlocks( groupBlockWrapper.clientId, newContentBlocks );
+				console.log( doneContent );
+				setContent( doneContent );
+				// const newContentBlocks = parse( doneContent );
+				// replaceInnerBlocks( groupBlockWrapper.clientId, newContentBlocks );
 			},
 		} );
 
