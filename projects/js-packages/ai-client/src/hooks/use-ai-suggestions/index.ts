@@ -9,9 +9,6 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import askQuestion, { AskQuestionOptionsArgProps } from '../../ask-question';
-/**
- * Types & constants
- */
 import {
 	ERROR_MODERATION,
 	ERROR_NETWORK,
@@ -21,6 +18,9 @@ import {
 	type PromptItemProps,
 	type SuggestionErrorCode,
 } from '../../types';
+/**
+ * Types & constants
+ */
 import type SuggestionsEventSource from '../../suggestions-event-source';
 
 export type SuggestionErrorProps = {
@@ -176,7 +176,7 @@ function getErrorData( errorCode: SuggestionErrorCode ): SuggestionErrorProps {
  */
 export default function useAiSuggestions( {
 	prompt,
-	autoRequest,
+	autoRequest = true,
 	askQuestionOptions = {},
 	onSuggestion,
 	onDone,
@@ -277,11 +277,11 @@ export default function useAiSuggestions( {
 
 				eventSource.addEventListener( 'suggestion', handleSuggestion );
 
-				eventSource.addEventListener( 'error_quota_exceeded', handleErrorQuotaExceededError );
-				eventSource.addEventListener( 'error_unclear_prompt', handleUnclearPromptError );
-				eventSource.addEventListener( 'error_service_unavailable', handleServiceUnavailableError );
-				eventSource.addEventListener( 'error_moderation', handleModerationError );
-				eventSource.addEventListener( 'error_network', handleNetwotkError );
+				eventSource.addEventListener( ERROR_QUOTA_EXCEEDED, handleErrorQuotaExceededError );
+				eventSource.addEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
+				eventSource.addEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
+				eventSource.addEventListener( ERROR_MODERATION, handleModerationError );
+				eventSource.addEventListener( ERROR_NETWORK, handleNetwotkError );
 
 				eventSource.addEventListener( 'done', handleDone );
 			} catch ( e ) {
@@ -327,11 +327,11 @@ export default function useAiSuggestions( {
 			// Clean up the event listeners.
 			eventSource.removeEventListener( 'suggestion', handleSuggestion );
 
-			eventSource.removeEventListener( 'error_quota_exceeded', handleErrorQuotaExceededError );
-			eventSource.removeEventListener( 'error_unclear_prompt', handleUnclearPromptError );
-			eventSource.removeEventListener( 'error_service_unavailable', handleServiceUnavailableError );
-			eventSource.removeEventListener( 'error_moderation', handleModerationError );
-			eventSource.removeEventListener( 'error_network', handleNetwotkError );
+			eventSource.removeEventListener( ERROR_QUOTA_EXCEEDED, handleErrorQuotaExceededError );
+			eventSource.removeEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
+			eventSource.removeEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
+			eventSource.removeEventListener( ERROR_MODERATION, handleModerationError );
+			eventSource.removeEventListener( ERROR_NETWORK, handleNetwotkError );
 
 			eventSource.removeEventListener( 'done', handleDone );
 		};
