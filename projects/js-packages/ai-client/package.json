@@ -37,6 +37,9 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@microsoft/fetch-event-source": "2.0.1",
 		"@wordpress/api-fetch": "6.34.0",
+		"@wordpress/data": "9.7.0",
+		"@wordpress/element": "5.14.0",
+		"@wordpress/i18n": "4.37.0",
 		"debug": "4.3.4"
 	}
 }
