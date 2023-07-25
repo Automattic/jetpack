@@ -3,16 +3,18 @@
  */
 import { PlainText, BlockPreview } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
-import { KeyboardShortcuts, Popover } from '@wordpress/components';
+import { Icon, KeyboardShortcuts, Popover } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useRef, useEffect, useContext } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import React from 'react';
 /**
  * Internal dependencies
  */
 import './style.scss';
 import { AiAssistantContext } from '../../extensions/ai-assistant/context';
+import aiAssistant from '../../icons/ai-assistant';
 import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_CHANGE_TONE } from '../../lib/prompt';
 import { QuickActionsMenuItems } from '../ai-assistant-control';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
@@ -70,24 +72,22 @@ export default function AiAssistantDialog( props: AiAssistantDialogProps ): Reac
 	} );
 
 	return (
-		<div className="jetpack-ai-assistant-dialog__container">
-			<div className="jetpack-ai-assistant-dialog__wrapper">
-				<KeyboardShortcuts
-					bindGlobal
-					shortcuts={ {
-						tab: () => onDialogTabPress(),
-					} }
-				>
-					<PlainText
-						value={ promptValue }
-						onChange={ onChange }
-						placeholder={ __( 'AI writing', 'jetpack' ) }
-						className="jetpack-ai-assistant-dialog__input"
-						disabled={ false }
-						ref={ inputRef }
-					/>
-				</KeyboardShortcuts>
-			</div>
+		<div className="jetpack-ai-assistant-dialog__wrapper">
+			<KeyboardShortcuts
+				bindGlobal
+				shortcuts={ {
+					tab: () => onDialogTabPress(),
+				} }
+			>
+				<PlainText
+					value={ promptValue }
+					onChange={ onChange }
+					placeholder={ __( 'AI writing', 'jetpack' ) }
+					className="jetpack-ai-assistant-dialog__input"
+					disabled={ false }
+					ref={ inputRef }
+				/>
+			</KeyboardShortcuts>
 		</div>
 	);
 }
@@ -112,6 +112,7 @@ export const AiAssistantPopover = ( {
 		hideAssistantMenu,
 		showAssistantMenu,
 		generatedContent,
+		requestingState,
 	} = useContext( AiAssistantContext );
 
 	// useEffect( () => {
@@ -141,14 +142,24 @@ export const AiAssistantPopover = ( {
 					'mod+/': toggleAssistant,
 				} }
 			>
-				<AiAssistantDialog
-					onChange={ value => {
-						setPromptValue( value );
-						showAssistantMenu();
-					} }
-					onDialogTabPress={ console.log } // eslint-disable-line no-console
-					{ ...rest }
-				/>
+				<div className="jetpack-ai-assistant-dialog__container">
+					<div
+						className={ classNames( 'ai-icon-wrapper', {
+							[ `is-${ requestingState }` ]: true,
+						} ) }
+					>
+						<Icon icon={ aiAssistant } size={ 24 } />
+					</div>
+
+					<AiAssistantDialog
+						onChange={ value => {
+							setPromptValue( value );
+							showAssistantMenu();
+						} }
+						onDialogTabPress={ console.log } // eslint-disable-line no-console
+						{ ...rest }
+					/>
+				</div>
 
 				{ isAssistantMenuShown && (
 					<div className="jetpack-ai-assistant__menu">

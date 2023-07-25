@@ -1,5 +1,12 @@
 @import '@automattic/jetpack-base-styles/style';
 
+.ai-icon-wrapper {
+	color: var( --jp-green-40 );
+	height: 24px;
+	margin-left: 4px;
+}
+
+.ai-icon-wrapper,
 .jetpack-ai-assistant__button {
 	&.is-suggesting {
 		.ai-assistant-icon > path {
