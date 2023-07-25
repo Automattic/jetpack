@@ -29,7 +29,7 @@ Some things have changed that also need attention on older themes. Switch to a t
 ### Social Menu Threads support
 
 - /wp-content/plugins/jetpack-dev/\_inc/social-logos/social-logos.html
-- Check the new logos
+- Check the new Threads logo
 - Go to Jetpack > Settings and enable extra sidebar widgets.
 - Switch to an old theme, like Twenty Ten.
 - Go to Plugins > Add New and install the Classic Widgets plugin.
