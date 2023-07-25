@@ -219,9 +219,9 @@ HTML;
 			return false;
 		}
 
-		// Don't show if user has subscription cookie.
-		// It is set (sometimes) if user subscribed to blog.
-		if ( $this->has_subscription_cookie() ) {
+		// Don't show if user is subscribed to blog.
+		require_once __DIR__ . '/../views.php';
+		if ( $this->has_subscription_cookie() || Jetpack_Subscriptions_Widget::is_current_user_subscribed() ) {
 			return false;
 		}
 		return true;
