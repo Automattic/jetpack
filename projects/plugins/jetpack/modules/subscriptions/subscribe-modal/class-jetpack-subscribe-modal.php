@@ -214,6 +214,7 @@ HTML;
 
 		// Don't show if subscribe query param is set.
 		// It is set when user submits the subscribe form.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['subscribe'] ) ) {
 			return false;
 		}
