@@ -10,6 +10,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
+import { processBlock } from '../../lib/blocks-processing';
 import { buildPromptForBlock, delimiter } from '../../lib/prompt';
 import { askQuestion } from '../../lib/suggestions';
 import {
@@ -274,9 +275,11 @@ const useSuggestionsFromOpenAI = ( {
 			// Generates the list of blocks from the generated code
 			const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
 			const blocks = parse( detail );
-			const validBlocks = blocks.filter( block => block.isValid );
-			replaceInnerBlocks( clientId, validBlocks );
 
+			// Try to recover the blocks that are not valid.
+			const validBlocks = blocks.map( processBlock ).filter( block => block != null );
+
+			replaceInnerBlocks( clientId, validBlocks );
 			refreshFeatureData();
 		} );
 
