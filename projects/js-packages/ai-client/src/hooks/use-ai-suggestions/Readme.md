@@ -21,7 +21,7 @@ Invokes the custom hook with the provided options.
 #### Options
 
 - `prompt: PromptItemProps[]` (optional): An array of request prompts.
-- `autoRequest: boolean` (optional, defaults to `true`): Determines whether to request suggestions automatically.
+- `autoRequest: boolean` (optional, defaults to `false`): Determines whether to request suggestions automatically.
 - `askQuestionOptions: AskQuestionOptionsArgProps` (optional): Options for the askQuestion function.
 - `onSuggestion: ( suggestion: string ) => void` (optional): A callback function that gets triggered when a suggestion is received.
 - `onDone: ( content: string ) => void` (optional): A callback function that gets triggered when the process is complete.
@@ -57,7 +57,7 @@ An object containing the following properties:
 
 ### Rendring `suggestion` or `error`, based on `requestingState`.
 
-In this example, the state of the request and any returned `suggestion` or `error` are displayed in the rendered output based on the `requestingState`.
+In this example, the state of the request and any returned `suggestion` or `error` are displayed in the rendered output based on the `requestingState`. It sets `autoRequest` to true to trigger the request automatically.
 
 ```jsx
 import { useAiSuggestions } from '@automattic/jetpack-ai-client';
@@ -65,6 +65,7 @@ import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 function ExampleComponent() {
 	const { suggestion, error, requestingState } = useAiSuggestions( {
 		prompt: [ { role: 'user', content: 'Hello AI!' } ],
+		autoRequest: true,
 	} );
 
 	return (
@@ -80,12 +81,12 @@ function ExampleComponent() {
 
 The following example invokes `useAiSuggestions` with a single prompt and two callback functions for when a suggestion is received or when an error occurs.
 
-
 ```jsx
 import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 
 function ExampleComponent() {
 	useAiSuggestions( {
+		autoRequest: true,
 		prompt: [ { role: 'user', content: 'Hello AI!' } ],
 		onSuggestion: suggestion => console.log( 'Suggestion: ', suggestion ),
 		onError: error => console.log( 'Error: ', error ),
@@ -97,7 +98,7 @@ function ExampleComponent() {
 
 ### Handle requests programmatically
 
-In example below, `autoRequest` is set to false, and the request is manually triggered by a button click.
+In example below the request is manually triggered by a button click (`autoRequest` is false by default).
 The handleClick function calls the `request` function, which in turn invokes the AI with a new prompt.
 
 ```jsx
@@ -106,7 +107,6 @@ import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 function ExampleComponent() {
 	const { request } = useAiSuggestions( {
 		prompt: [ { role: 'user', content: 'Hello AI!' } ],
-		autoRequest: false,
 		onSuggestion: suggestion => console.log( 'Suggestion: ', suggestion ),
 		onError: error => console.log( 'Error: ', error ),
 	} );

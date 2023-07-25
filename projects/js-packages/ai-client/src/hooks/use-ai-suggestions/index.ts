@@ -176,7 +176,7 @@ function getErrorData( errorCode: SuggestionErrorCode ): SuggestionErrorProps {
  */
 export default function useAiSuggestions( {
 	prompt,
-	autoRequest = true,
+	autoRequest,
 	askQuestionOptions = {},
 	onSuggestion,
 	onDone,
