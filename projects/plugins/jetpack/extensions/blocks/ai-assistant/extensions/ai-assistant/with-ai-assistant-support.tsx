@@ -29,9 +29,11 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		// 	'Create a three-column. In each column, there should be an empty image, followed by a level 2 heading, and then three paragraph.'
 		// );
 
-		const [ promptValue, setLocalPromptValue ] = useState(
-			"I'd like to create a contact form with the following fields: name, email, message. Add a `Contact us` button to submit the form."
-		);
+		// const [ promptValue, setLocalPromptValue ] = useState(
+		// 	"I'd like to create a contact form with the following fields: name, email, message. Add a `Contact us` button to submit the form."
+		// );
+
+		const [ promptValue, setLocalPromptValue ] = useState( '' );
 
 		// const [ promptValue, setLocalPromptValue ] = useState(
 		// 	'create a table with ten of the best video games of the CZSpectrum'
