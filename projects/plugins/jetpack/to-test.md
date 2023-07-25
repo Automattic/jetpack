@@ -1,5 +1,10 @@
 ## Jetpack 12.4
 
+### Before you start:
+
+- **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
+- Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
+
 ## Items behind the feature flag
 
 Some development is still underway on these features, so it's important to test that in their default state they aren't accessible to the user, and do not add any regressions.
@@ -55,6 +60,14 @@ add_action( 'after_setup_theme', function () {
 - Drag the Social Icons widget to one of the active widget areas, and add some links again.
 - Check how things look like on the frontend, for both your social menu and the Social Icons Widget you created.
 
+### Related posts - different link based on a theme
+
+- Start on a site connected to WordPress.com.
+- Go to Jetpack > Settings > Traffic
+- Enable the Related Posts feature.
+- Check that the configuration link at the bottom of the card works, and that the wording is accurate. Since your test site is on an older theme, you should get a link to the customizer.
+- When you switch back to a block theme, you should get a different link and different text.
+
 ## Sharing
 
 Jetpack had trouble with Sharing buttons being correctly displayed in this release cycle. To make sure things are smooth, please do the following:
@@ -75,9 +88,18 @@ We have deprecated sharing to Skype in this release, to test that deprecation pr
   - the button will appear with a message when you're logged in.
   - the button will not appear when you're logged out.
 
-### Jetpack Dashboard
+## Jetpack Dashboard
 
-## My Plan
+### Introducing Jetpack Newsletter
+
+The recommendations flow now includes Jetpack Newsletters when you connect a new site.
+
+- Step through the "Recommendations" using Jetpack Free (i.e. not a paid plan)
+- You should see the Newsletter recommendation.
+- Enable it, it should show up on the summary.
+- Navigate directly to the card wp-admin/admin.php?page=jetpack#/recommendations/newsletter it should show the status of the feature.
+
+### My Plan
 
 - Purchase Stats for your site https://wordpress.com/checkout/${siteId}/jetpack_stats_monthly
 - Open /wp-admin/admin.php?page=jetpack#/my-plan
@@ -110,6 +132,15 @@ There's a new feature introduced into Jetpack to detect if the WordPress site ha
   - You should still have the option to turn the feature off, but a notice now recommends Global styles instead of the Customizer.
 - Turn the feature off
   - The toggle should disappear. A notice should remain, explaining that Global Styles are the way to go now.
+
+## Pexels integration
+
+There is a new service added to our editor suite to allow adding images from the Pexels service. To test:
+
+- Go to a Jetpack-connected site.
+- Edit or create a new Post.
+- Open the Media Sidebar
+- You should see the Pexels integration.
 
 ## AI extensions
 
@@ -154,10 +185,19 @@ There has been a change in how Jetpack initializes the AI. If you notice anythin
 There have been changes to the prompt that asks the user to upgrade to a paid plan. To make sure it works properly:
 
 - On a Jetpack site, send 20 requests for the AI Assistant.
+- Confirm you see the upgrade banner.
+- Confirm when you see the upgrade banner after a request, the spinner for the AI request goes away.
+- Confirm the console doesn't show any errors.
 - Check that the upgrade flow works and the user is initially redirected to a price page.
 - On an Atomic site, check that the upgrade prompt is displayed after 20 requests and the user is redirected directly to the checkout page.
 - In a site with the 20 free requests already used, create an extended block, like paragraph or heading.
 - Check that the AI extension menu is still enabled.
+
+A new feature has been released to the users: the "Get Feedback" feature. To test it:
+
+- Write a post.
+- Open Jetpack sidebar or start to publish the post.
+- Ask for feedback.
 
 ## Contact Forms
 
@@ -182,11 +222,6 @@ To ensure that related posts continue to work correctly after the refactor:
 - Open a post that has related posts with thumbnails.
 - Smoke-test for any breakage.
 - Verify that the thumbnails include a srcset with different pixel ratios (up to 4x, if the source image is large enough).
-
-### Before you start:
-
-- **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
-- Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
 ### And More!
 

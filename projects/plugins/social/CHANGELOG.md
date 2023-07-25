@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0-beta - 2023-07-25
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
+- Refactor TemplatePicker component, so inner part can be use in it's own without a modal. [#31740]
+- Social: Update the screenshots to reflect the current UI [#31832]
+- Updated package dependencies. [#31659]
+- Updated package dependencies. [#31661]
+- Updated package dependencies. [#31769]
+- Updated package dependencies. [#31785]
+- Updated package dependencies. [#31872]
+- Updated package dependencies. [#31923]
+- Updated package dependencies. [#32040]
+
+### Fixed
+- Fix admin page unit test [#31417]
+
 ## 2.0.0 - 2023-07-05
 ### Added
 - Add authentication to Zendesk chat widget. [#31339]
