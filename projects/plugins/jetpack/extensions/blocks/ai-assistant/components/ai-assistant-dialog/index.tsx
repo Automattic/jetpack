@@ -150,8 +150,10 @@ export const AiAssistantPopover = ( {
 		return promptValue?.split( ' ' ).every( word => new RegExp( word, 'i' ).test( action.name ) );
 	} );
 
+	const forceHide = true;
+
 	return (
-		<Popover anchor={ anchor }>
+		<Popover anchor={ anchor } className="jetpack-ai-assistant__popover">
 			<KeyboardShortcuts
 				bindGlobal
 				shortcuts={ {
@@ -177,7 +179,7 @@ export const AiAssistantPopover = ( {
 					/>
 				</div>
 
-				{ isAssistantMenuShown && (
+				{ isAssistantMenuShown && ! forceHide && (
 					<div className="jetpack-ai-assistant__menu">
 						<QuickActionsMenuItems
 							actions={ filteredActions }

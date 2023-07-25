@@ -1,5 +1,10 @@
 @import '@automattic/jetpack-base-styles/style';
 
+.jetpack-ai-assistant__popover {
+	margin-top: 8px;
+	margin-left: 2px;
+}
+
 .jetpack-ai-assistant-dialog__container {
 	color: var( --jp-gray-80 );
 	background-color: var( --jp-white );
@@ -8,7 +13,6 @@
 	min-width: 600px;
 	display: flex;
 	padding: 2px 8px;
-	gap: 8px;
 	align-items: center;
 
 }

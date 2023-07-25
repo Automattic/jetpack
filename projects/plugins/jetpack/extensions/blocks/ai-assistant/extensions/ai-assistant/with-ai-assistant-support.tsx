@@ -14,7 +14,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/el
 import { AiAssistantPopover } from '../../components/ai-assistant-dialog';
 import AiAssistantToobarButton from '../../components/ai-assistant-toolbar-control';
 import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-selected-blocks';
-import { PROMPT_TYPE_USER_PROMPT, getPrompt } from '../../lib/prompt';
+import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../lib/prompt';
 import { AiAssistantContextProvider } from './context';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '.';
 const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
@@ -165,7 +165,7 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 			};
 		}, [ hideAssistant, isSelected, firstClientId ] ); // Addind firstClientId as a dependency helps to hide the assistant when the block is unselcted.
 
-		const userPrompt = getPrompt( PROMPT_TYPE_USER_PROMPT, {
+		const userPrompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
 			customPrompt: promptValue,
 			content,
 		} );
@@ -242,6 +242,9 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		const { request: requestSuggestion, requestingState } = useAiSuggestions( {
 			// prompt: userPrompt,
 			onSuggestion: setContent,
+			askQuestionOptions: {
+				feature: 'ai-assistant-experimental',
+			},
 			// onSuggestion: setGeneratedContent,
 			autoRequest: false,
 			onDone: doneContent => {

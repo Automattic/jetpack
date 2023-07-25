@@ -21,6 +21,7 @@ export const PROMPT_TYPE_CHANGE_TONE = 'changeTone' as const;
 export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
 export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
 export const PROMPT_TYPE_USER_PROMPT = 'userPrompt' as const;
+export const PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT = 'jetpackFormCustomPrompt' as const;
 
 // Jetpack forms
 export const PROMPT_TYPE_JETPACK_CONTACT_FORM_CONTACT_FORM = 'create-contact-form' as const;
@@ -37,6 +38,7 @@ export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
+	PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT,
 ] as const;
 
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
@@ -254,6 +256,19 @@ function getCustomUserPrompt( {
 		{
 			role,
 			content: `Hanle the following request:\n\n${ customPrompt }\nText to change:\n\n${ content }`,
+		},
+	];
+}
+
+function getJetpackFormCustomPrompt( {
+	content,
+	role = 'user',
+	customPrompt,
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	return [
+		{
+			role,
+			content: `Hanle the following request: ${ customPrompt }\n\nJetpack Form to change:\n${ content }`,
 		},
 	];
 }
@@ -503,7 +518,7 @@ export function getPrompt(
 	const context = `
 - You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature.
 - Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
-- SUPER IMPORTANT: DO NOT add any addtional feedback to the user, just generate the requested block structure.
+- DO NOT add any addtional feedback to the "user", just generate the requested block structure.
 
 - Use syntax templates for blocks as follows:
 	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
@@ -563,6 +578,9 @@ export function getPrompt(
 
 		case PROMPT_TYPE_USER_PROMPT:
 			return [ ...prompt, ...getCustomUserPrompt( options ) ];
+
+		case PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT:
+			return [ ...prompt, ...getJetpackFormCustomPrompt( options ) ];
 
 		default:
 			throw new Error( `Unknown prompt type: ${ type }` );
