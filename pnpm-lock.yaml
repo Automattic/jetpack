@@ -1076,11 +1076,11 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       storybook:
         specifier: 7.1.0
         version: 7.1.0
@@ -1272,11 +1272,11 @@ importers:
         specifier: 3.23.5
         version: 3.23.5
       sass:
-        specifier: 1.54.4
-        version: 1.54.4
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.54.4)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -1386,11 +1386,11 @@ importers:
         specifier: 29.4.3
         version: 29.4.3
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -1456,11 +1456,11 @@ importers:
         specifier: 5.20.0
         version: 5.20.0
       sass:
-        specifier: 1.54.4
-        version: 1.54.4
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.54.4)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -1545,8 +1545,8 @@ importers:
         specifier: 2.3.0
         version: 2.3.0(redux@4.0.5)
       sass:
-        specifier: 1.38.1
-        version: 1.38.1
+        specifier: 1.64.1
+        version: 1.64.1
       semver:
         specifier: 7.5.2
         version: 7.5.2
@@ -1632,7 +1632,7 @@ importers:
         version: 6.2.0(postcss@8.4.21)(webpack@5.76.0)
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.38.1)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -1676,11 +1676,11 @@ importers:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -1713,11 +1713,11 @@ importers:
         specifier: 5.20.0
         version: 5.20.0
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -1840,11 +1840,11 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -1863,11 +1863,11 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
       sass:
-        specifier: 1.56.1
-        version: 1.56.1
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.56.1)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       tslib:
         specifier: 2.5.0
         version: 2.5.0
@@ -2069,11 +2069,11 @@ importers:
         specifier: npm:wp-prettier@2.8.5
         version: /wp-prettier@2.8.5
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       size-limit:
         specifier: 8.2.6
         version: 8.2.6
@@ -2251,11 +2251,11 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       sass:
-        specifier: 1.54.2
-        version: 1.54.2
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.54.2)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -2411,11 +2411,11 @@ importers:
         specifier: npm:wp-prettier@2.8.5
         version: /wp-prettier@2.8.5
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -2477,11 +2477,11 @@ importers:
         specifier: 5.20.0
         version: 5.20.0
       sass:
-        specifier: 1.54.4
-        version: 1.54.4
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.54.4)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -2607,14 +2607,14 @@ importers:
         specifier: 0.2.3
         version: 0.2.3(svelte@3.58.0)
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       svelte:
         specifier: 3.58.0
         version: 3.58.0
       svelte-preprocess:
-        specifier: 5.0.3
-        version: 5.0.3(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.43.3)(svelte@3.58.0)(typescript@5.0.4)
+        specifier: 5.0.4
+        version: 5.0.4(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.64.1)(svelte@3.58.0)(typescript@5.0.4)
       tslib:
         specifier: 2.5.0
         version: 2.5.0
@@ -2731,11 +2731,11 @@ importers:
         specifier: 29.3.1
         version: 29.3.1
       sass:
-        specifier: 1.43.4
-        version: 1.43.4
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.4)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -2789,14 +2789,14 @@ importers:
         specifier: 7.1.0
         version: 7.1.0(rollup@2.79.1)(svelte@3.58.0)
       sass:
-        specifier: 1.63.6
-        version: 1.63.6
+        specifier: 1.64.1
+        version: 1.64.1
       svelte:
         specifier: 3.58.0
         version: 3.58.0
       svelte-preprocess:
-        specifier: 5.0.3
-        version: 5.0.3(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.63.6)(svelte@3.58.0)(typescript@5.0.4)
+        specifier: 5.0.4
+        version: 5.0.4(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.64.1)(svelte@3.58.0)(typescript@5.0.4)
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -2987,8 +2987,8 @@ importers:
         specifier: 1.5.1
         version: 1.5.1
       sass:
-        specifier: 1.38.1
-        version: 1.38.1
+        specifier: 1.64.1
+        version: 1.64.1
       semver:
         specifier: 7.5.2
         version: 7.5.2
@@ -3152,7 +3152,7 @@ importers:
         version: 0.13.9
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.38.1)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       typescript:
         specifier: 5.0.4
         version: 5.0.4
@@ -3236,11 +3236,11 @@ importers:
         specifier: 7.6.0
         version: 7.6.0
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -3347,11 +3347,11 @@ importers:
         specifier: 7.6.0
         version: 7.6.0
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -3482,11 +3482,11 @@ importers:
         specifier: 6.2.0
         version: 6.2.0(postcss@8.4.21)(webpack@5.76.0)
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -3573,11 +3573,11 @@ importers:
         specifier: 29.4.3
         version: 29.4.3
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -3678,11 +3678,11 @@ importers:
         specifier: 7.6.0
         version: 7.6.0
       sass:
-        specifier: 1.43.3
-        version: 1.43.3
+        specifier: 1.64.1
+        version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.43.3)(webpack@5.76.0)
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -5557,6 +5557,7 @@ packages:
 
   /@emotion/memoize@0.7.4:
     resolution: {integrity: sha512-Ja/Vfqe3HpuzRsG1oBtWTHk2PGZ7GR+2Vz5iYGelAw8dx32K0y7PjVuxK6z1nMpZOqAFsRUPCkK1YjJ56qJlgw==}
+    requiresBuild: true
     optional: true
 
   /@emotion/memoize@0.8.1:
@@ -16640,7 +16641,6 @@ packages:
 
   /immutable@4.3.0:
     resolution: {integrity: sha512-0AOCmOip+xgJwEVTQj1EfiDDOkPmuyllDuTuEX+DDXUgapLAsBIfkg3sxCYyCEA8mQqZrrxPUGjcOQ2JS3WLkg==}
-    dev: true
 
   /import-cwd@3.0.0:
     resolution: {integrity: sha512-4pnzH16plW+hgvRECbDWpQl3cqtvSofHWh44met7ESfZ8UZOWWddm8hEyDTqREJ9RbYHY8gi8DqmaelApoOGMg==}
@@ -21689,7 +21689,7 @@ packages:
       rimraf: 2.7.1
     dev: true
 
-  /sass-loader@12.4.0(sass@1.38.1)(webpack@5.76.0):
+  /sass-loader@12.4.0(sass@1.64.1)(webpack@5.76.0):
     resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
@@ -21707,182 +21707,18 @@ packages:
     dependencies:
       klona: 2.0.6
       neo-async: 2.6.2
-      sass: 1.38.1
+      sass: 1.64.1
       webpack: 5.76.0(webpack-cli@4.9.1)
     dev: true
 
-  /sass-loader@12.4.0(sass@1.43.3)(webpack@5.76.0):
-    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
-      sass: ^1.3.0
-      webpack: ^5.0.0
-    peerDependenciesMeta:
-      fibers:
-        optional: true
-      node-sass:
-        optional: true
-      sass:
-        optional: true
-    dependencies:
-      klona: 2.0.6
-      neo-async: 2.6.2
-      sass: 1.43.3
-      webpack: 5.76.0(webpack-cli@4.9.1)
-    dev: true
-
-  /sass-loader@12.4.0(sass@1.43.4)(webpack@5.76.0):
-    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
-      sass: ^1.3.0
-      webpack: ^5.0.0
-    peerDependenciesMeta:
-      fibers:
-        optional: true
-      node-sass:
-        optional: true
-      sass:
-        optional: true
-    dependencies:
-      klona: 2.0.6
-      neo-async: 2.6.2
-      sass: 1.43.4
-      webpack: 5.76.0(webpack-cli@4.9.1)
-    dev: true
-
-  /sass-loader@12.4.0(sass@1.54.2)(webpack@5.76.0):
-    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
-      sass: ^1.3.0
-      webpack: ^5.0.0
-    peerDependenciesMeta:
-      fibers:
-        optional: true
-      node-sass:
-        optional: true
-      sass:
-        optional: true
-    dependencies:
-      klona: 2.0.6
-      neo-async: 2.6.2
-      sass: 1.54.2
-      webpack: 5.76.0(webpack-cli@4.9.1)
-    dev: true
-
-  /sass-loader@12.4.0(sass@1.54.4)(webpack@5.76.0):
-    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
-      sass: ^1.3.0
-      webpack: ^5.0.0
-    peerDependenciesMeta:
-      fibers:
-        optional: true
-      node-sass:
-        optional: true
-      sass:
-        optional: true
-    dependencies:
-      klona: 2.0.6
-      neo-async: 2.6.2
-      sass: 1.54.4
-      webpack: 5.76.0(webpack-cli@4.9.1)
-    dev: true
-
-  /sass-loader@12.4.0(sass@1.56.1)(webpack@5.76.0):
-    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
-    engines: {node: '>= 12.13.0'}
-    peerDependencies:
-      fibers: '>= 3.1.0'
-      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
-      sass: ^1.3.0
-      webpack: ^5.0.0
-    peerDependenciesMeta:
-      fibers:
-        optional: true
-      node-sass:
-        optional: true
-      sass:
-        optional: true
-    dependencies:
-      klona: 2.0.6
-      neo-async: 2.6.2
-      sass: 1.56.1
-      webpack: 5.76.0(webpack-cli@4.9.1)
-    dev: true
-
-  /sass@1.38.1:
-    resolution: {integrity: sha512-Lj8nPaSYOuRhgqdyShV50fY5jKnvaRmikUNalMPmbH+tKMGgEKVkltI/lP30PEfO2T1t6R9yc2QIBLgOc3uaFw==}
-    engines: {node: '>=8.9.0'}
-    hasBin: true
-    dependencies:
-      chokidar: 3.5.3
-
-  /sass@1.43.3:
-    resolution: {integrity: sha512-BJnLngqWpMeS65UvlYYEuCb3/fLxDxhHtOB/gWPxs6NKrslTxGt3ZxwIvOe/0Jm4tWwM/+tIpE3wj4dLEhPDeQ==}
-    engines: {node: '>=8.9.0'}
-    hasBin: true
-    dependencies:
-      chokidar: 3.5.3
-    dev: true
-
-  /sass@1.43.4:
-    resolution: {integrity: sha512-/ptG7KE9lxpGSYiXn7Ar+lKOv37xfWsZRtFYal2QHNigyVQDx685VFT/h7ejVr+R8w7H4tmUgtulsKl5YpveOg==}
-    engines: {node: '>=8.9.0'}
-    hasBin: true
-    dependencies:
-      chokidar: 3.5.3
-    dev: true
-
-  /sass@1.54.2:
-    resolution: {integrity: sha512-wbVV26sejsCIbBScZZtNkvnrB/bVCQ8hSlZ01D9nzsVh9zLqCkWrlpvTb3YEb6xsuNi9cx75hncqwikHFSz7tw==}
-    engines: {node: '>=12.0.0'}
-    hasBin: true
-    dependencies:
-      chokidar: 3.5.3
-      immutable: 4.3.0
-      source-map-js: 1.0.2
-    dev: true
-
-  /sass@1.54.4:
-    resolution: {integrity: sha512-3tmF16yvnBwtlPrNBHw/H907j8MlOX8aTBnlNX1yrKx24RKcJGPyLhFUwkoKBKesR3unP93/2z14Ll8NicwQUA==}
-    engines: {node: '>=12.0.0'}
-    hasBin: true
-    dependencies:
-      chokidar: 3.5.3
-      immutable: 4.3.0
-      source-map-js: 1.0.2
-    dev: true
-
-  /sass@1.56.1:
-    resolution: {integrity: sha512-VpEyKpyBPCxE7qGDtOcdJ6fFbcpOM+Emu7uZLxVrkX8KVU/Dp5UF7WLvzqRuUhB6mqqQt1xffLoG+AndxTZrCQ==}
-    engines: {node: '>=12.0.0'}
-    hasBin: true
-    dependencies:
-      chokidar: 3.5.3
-      immutable: 4.3.0
-      source-map-js: 1.0.2
-    dev: true
-
-  /sass@1.63.6:
-    resolution: {integrity: sha512-MJuxGMHzaOW7ipp+1KdELtqKbfAWbH7OLIdoSMnVe3EXPMTmxTmlaZDCTsgIpPCs3w99lLo9/zDKkOrJuT5byw==}
+  /sass@1.64.1:
+    resolution: {integrity: sha512-16rRACSOFEE8VN7SCgBu1MpYCyN7urj9At898tyzdXFhC+a+yOX5dXwAR7L8/IdPJ1NB8OYoXmD55DM30B2kEQ==}
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
       chokidar: 3.5.3
       immutable: 4.3.0
       source-map-js: 1.0.2
-    dev: true
 
   /saxes@6.0.0:
     resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==}
@@ -22565,8 +22401,8 @@ packages:
       - typescript
     dev: false
 
-  /svelte-preprocess@5.0.3(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.43.3)(svelte@3.58.0)(typescript@5.0.4):
-    resolution: {integrity: sha512-GrHF1rusdJVbOZOwgPWtpqmaexkydznKzy5qIC2FabgpFyKN57bjMUUUqPRfbBXK5igiEWn1uO/DXsa2vJ5VHA==}
+  /svelte-preprocess@5.0.4(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.64.1)(svelte@3.58.0)(typescript@5.0.4):
+    resolution: {integrity: sha512-ABia2QegosxOGsVlsSBJvoWeXy1wUKSfF7SWJdTjLAbx/Y3SrVevvvbFNQqrSJw89+lNSsM58SipmZJ5SRi5iw==}
     engines: {node: '>= 14.10.0'}
     requiresBuild: true
     peerDependencies:
@@ -22579,7 +22415,7 @@ packages:
       sass: ^1.26.8
       stylus: ^0.55.0
       sugarss: ^2.0.0 || ^3.0.0 || ^4.0.0
-      svelte: ^3.23.0
+      svelte: ^3.23.0 || ^4.0.0-next.0 || ^4.0.0
       typescript: '>=3.9.5 || ^4.0.0 || ^5.0.0'
     peerDependenciesMeta:
       '@babel/core':
@@ -22608,57 +22444,7 @@ packages:
       detect-indent: 6.1.0
       magic-string: 0.27.0
       postcss: 8.4.21
-      sass: 1.43.3
-      sorcery: 0.11.0
-      strip-indent: 3.0.0
-      svelte: 3.58.0
-      typescript: 5.0.4
-    dev: true
-
-  /svelte-preprocess@5.0.3(@babel/core@7.22.9)(postcss@8.4.21)(sass@1.63.6)(svelte@3.58.0)(typescript@5.0.4):
-    resolution: {integrity: sha512-GrHF1rusdJVbOZOwgPWtpqmaexkydznKzy5qIC2FabgpFyKN57bjMUUUqPRfbBXK5igiEWn1uO/DXsa2vJ5VHA==}
-    engines: {node: '>= 14.10.0'}
-    requiresBuild: true
-    peerDependencies:
-      '@babel/core': ^7.10.2
-      coffeescript: ^2.5.1
-      less: ^3.11.3 || ^4.0.0
-      postcss: ^7 || ^8
-      postcss-load-config: ^2.1.0 || ^3.0.0 || ^4.0.0
-      pug: ^3.0.0
-      sass: ^1.26.8
-      stylus: ^0.55.0
-      sugarss: ^2.0.0 || ^3.0.0 || ^4.0.0
-      svelte: ^3.23.0
-      typescript: '>=3.9.5 || ^4.0.0 || ^5.0.0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      coffeescript:
-        optional: true
-      less:
-        optional: true
-      postcss:
-        optional: true
-      postcss-load-config:
-        optional: true
-      pug:
-        optional: true
-      sass:
-        optional: true
-      stylus:
-        optional: true
-      sugarss:
-        optional: true
-      typescript:
-        optional: true
-    dependencies:
-      '@babel/core': 7.22.9
-      '@types/pug': 2.0.6
-      detect-indent: 6.1.0
-      magic-string: 0.27.0
-      postcss: 8.4.21
-      sass: 1.63.6
+      sass: 1.64.1
       sorcery: 0.11.0
       strip-indent: 3.0.0
       svelte: 3.58.0

@@ -60,7 +60,7 @@
 		"react-dom": "18.2.0",
 		"remark-gfm": "3.0.1",
 		"require-from-string": "2.0.2",
-		"sass": "1.43.3",
+		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
 		"storybook": "7.1.0",
 		"storybook-addon-mock": "4.0.0",

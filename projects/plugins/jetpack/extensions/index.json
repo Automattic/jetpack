@@ -1,6 +1,7 @@
 {
 	"production": [
 		"ai-assistant",
+		"ai-assistant-plugin",
 		"blogging-prompt",
 		"business-hours",
 		"button",
@@ -52,7 +53,6 @@
 		"ai-assistant-support"
 	],
 	"beta": [
-		"ai-assistant-plugin",
 		"ai-chat",
 		"amazon",
 		"author-recommendation",
