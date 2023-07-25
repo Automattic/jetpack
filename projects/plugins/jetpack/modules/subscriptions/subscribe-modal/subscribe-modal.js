@@ -9,7 +9,8 @@ domReady( function () {
 
 	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
 	const modalDismissedCookie = 'jetpack_subscribe_modal_dismissed';
-	const hasModalDismissedCookie = document.cookie.indexOf( modalDismissedCookie ) > -1;
+	const hasModalDismissedCookie =
+		document.cookie && document.cookie.indexOf( modalDismissedCookie ) > -1;
 	let hasLoaded = false;
 	let isScrolling;
 
