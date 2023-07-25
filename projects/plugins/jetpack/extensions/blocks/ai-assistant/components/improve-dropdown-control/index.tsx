@@ -93,9 +93,7 @@ export default function ImproveToolbarDropdownMenu( {
 							return (
 								<MenuItem
 									key={ `key-${ quickAction.key }` }
-									onClick={ () =>
-										onChange( quickAction.promptType, { contentType: 'generated' } )
-									}
+									onClick={ () => onChange( quickAction.promptType, { contentType: 'generated' } ) }
 									isSelected={ key === quickAction.key }
 								>
 									{ quickAction.name }
