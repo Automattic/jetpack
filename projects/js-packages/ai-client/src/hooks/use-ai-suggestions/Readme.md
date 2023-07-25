@@ -55,7 +55,7 @@ An object containing the following properties:
 
 ## Examples
 
-### Rendring `suggestion` or `error`, based on `requestingState`.
+### Rendering `suggestion` or `error`, based on `requestingState`.
 
 In this example, the state of the request and any returned `suggestion` or `error` are displayed in the rendered output based on the `requestingState`. It sets `autoRequest` to true to trigger the request automatically.
 
