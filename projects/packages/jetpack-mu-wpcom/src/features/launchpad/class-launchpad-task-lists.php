@@ -291,6 +291,11 @@ class Launchpad_Task_Lists {
 		$built_task['subtitle']     = $this->load_subtitle( $task );
 		$built_task['badge_text']   = $this->load_value_from_callback( $task, 'badge_text_callback' );
 		$built_task['isLaunchTask'] = isset( $task['isLaunchTask'] ) ? $task['isLaunchTask'] : false;
+		$extra_data                 = $this->load_extra_data( $task );
+
+		if ( is_array( $extra_data ) && array() !== $extra_data ) {
+			$built_task['extra_data'] = $extra_data;
+		}
 
 		if ( isset( $task['target_repetitions'] ) ) {
 			$built_task['target_repetitions'] = $task['target_repetitions'];
@@ -313,6 +318,22 @@ class Launchpad_Task_Lists {
 			return call_user_func_array( $item[ $callback ], array( $item, $default ) );
 		}
 		return $default;
+	}
+
+	/**
+	 * Loads any extra data for a task, calling the `extra_data_callback` callback to get the data if the callback is defined.
+	 * Returns null if there is no callback or the callback returns an empty array or a non-array.
+	 *
+	 * @param Task $task A task definition.
+	 * @return array|null The extra data for the task.
+	 */
+	private function load_extra_data( $task ) {
+		$extra_data = $this->load_value_from_callback( $task, 'extra_data_callback' );
+		if ( is_array( $extra_data ) && array() !== $extra_data ) {
+			return $extra_data;
+		}
+
+		return null;
 	}
 
 	/**

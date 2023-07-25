@@ -72,9 +72,8 @@ class Stats extends Module_Product {
 	 */
 	public static function get_features() {
 		return array(
-			__( 'Access to all-time data', 'jetpack-my-jetpack' ),
+			__( 'Instant access to upcoming features', 'jetpack-my-jetpack' ),
 			__( 'Priority support', 'jetpack-my-jetpack' ),
-			__( 'No upsell or ads in the Stats page', 'jetpack-my-jetpack' ),
 		);
 	}
 
@@ -92,6 +91,7 @@ class Stats extends Module_Product {
 				'wpcom_pwyw_product_slug' => static::get_wpcom_pwyw_product_slug(),
 			),
 			// TODO: replace with `Wpcom_Products::get_product_pricing` once available.
+			// This is not yet used anywhere, so it's fine to leave it as is for now.
 			array(
 				'currency_code'  => 'USD',
 				'full_price'     => 10,

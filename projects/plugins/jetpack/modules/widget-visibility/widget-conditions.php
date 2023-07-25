@@ -167,7 +167,7 @@ class Jetpack_Widget_Conditions {
 		/**
 		 * Filters the list of widget visibility blocks using <ServerSideRender>.
 		 *
-		 * @since $$next-version$$
+		 * @since 12.4
 		 *
 		 * @module widget-visibility
 		 *

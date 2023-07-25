@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Updated launchpad task list validation return types to be more useful. Previously, we just returned a simple bool. Now we return a WP_Error where appropriate.

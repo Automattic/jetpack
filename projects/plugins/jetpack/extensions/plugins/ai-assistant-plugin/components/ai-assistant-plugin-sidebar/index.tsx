@@ -11,15 +11,8 @@ import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import Proofread from '../proofread';
 
-const isPluginSidebarVisible =
-	window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'is-plugin-sidebar-visible' ];
-
 export default function AiAssistantPluginSidebar() {
 	const title = __( 'AI Assistant', 'jetpack' );
-
-	if ( ! isPluginSidebarVisible ) {
-		return null;
-	}
 
 	return (
 		<>

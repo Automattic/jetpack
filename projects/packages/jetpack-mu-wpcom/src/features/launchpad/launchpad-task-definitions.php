@@ -238,6 +238,19 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
 
+		'update_about_page'               => array(
+			'get_title'            => function () {
+				return __( 'Update your About page', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_is_update_about_page_task_visible',
+			'extra_data_callback'  => function () {
+				return array(
+					'about_page_id' => wpcom_get_site_about_page_id(),
+				);
+			},
+		),
+
 		'edit_page'                       => array(
 			'get_title'            => function () {
 				return __( 'Edit a page', 'jetpack-mu-wpcom' );
@@ -762,9 +775,192 @@ function wpcom_add_new_page_check( $post_id, $post ) {
 		return;
 	}
 
+	// This is necessary to avoid marking the task as complete when the about page is updated.
+	if ( $post_id === wpcom_get_site_about_page_id() ) {
+		return;
+	}
+
 	wpcom_mark_launchpad_task_complete( 'add_new_page' );
 }
 add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
+
+/**
+ * Return the about page id, if any.
+ *
+ * This function will retrieve the page from the cache whenever possible.
+ *
+ * @return int|null The page ID of the 'About' page if it exists, null otherwise.
+ */
+function wpcom_get_site_about_page_id() {
+	// First, attempt to get the page ID from the cache.
+	$about_page_id_cache_key = 'wpcom_about_page_id';
+	$about_page_id           = wp_cache_get( $about_page_id_cache_key, 'jetpack_mu_wpcom' );
+
+	if ( false !== $about_page_id ) {
+		$about_page_id = (int) $about_page_id;
+		if ( $about_page_id > 0 ) {
+			return $about_page_id;
+		}
+
+		return null;
+	}
+
+	// Call the current function implementation without any caching logic.
+	$about_page_id = wpcom_find_site_about_page_id();
+
+	if ( null === $about_page_id ) {
+		// In the event that we don't have a page id, cache -1 to avoid caching null
+		$value_to_cache = -1;
+	} else {
+		$value_to_cache = $about_page_id;
+	}
+
+	// Use wp_cache_add() to avoid cache stampedes, and specify an expiration time
+	wp_cache_add( $about_page_id_cache_key, $value_to_cache, 'jetpack_mu_wpcom', 3600 );
+
+	return $about_page_id;
+}
+
+/**
+ * Determine if the site has an 'About' page.
+ * We do this by loading the `en` annotation for the site and theme.
+ * We then check if there is a post with the title 'About'. If there is, we get the `hs_old_id` and check to make sure a corresponding post exists in the user's locale.
+ *
+ * @return int|null The page ID of the 'About' page if it exists, null otherwise.
+ */
+function wpcom_find_site_about_page_id() {
+	$annotation = wpcom_get_theme_annotation( get_stylesheet() );
+
+	// Return null if there is no annotation or the annotation doesn't have any content.
+	if ( ! $annotation || ! isset( $annotation['content'] ) || ! is_array( $annotation['content'] ) ) {
+		return null;
+	}
+
+	// Use the annotation to build up a list of 'About' pages.
+	$headstart_about_pages = array_filter(
+		$annotation['content'],
+		function ( $page ) {
+			if ( 'page' !== $page['post_type'] ) {
+				return false;
+			}
+
+			if ( 'about' === $page['post_name'] || false !== strpos( $page['post_title'], 'About' ) ) {
+				return true;
+			}
+		}
+	);
+
+	// Return null if there are no 'About' pages.
+	if ( empty( $headstart_about_pages ) ) {
+		return null;
+	}
+
+	// Get the hs_old_ids for the 'About' pages. We'll use these to find any published pages with the same hs_old_id.
+	$headstart_about_page_hs_old_ids = array_map(
+		function ( $about_page ) {
+			return $about_page['hs_old_id'];
+		},
+		$headstart_about_pages
+	);
+
+	// Return null if there aren't any hs_old_ids to check.
+	if ( empty( $headstart_about_page_hs_old_ids ) ) {
+		return null;
+	}
+
+	$filters     = array(
+		'post_type'    => 'page',
+		'numberposts'  => 1,
+		'fields'       => 'ids',
+		'orderby'      => 'meta_value',
+		'meta_key'     => '_hs_old_id',
+		'meta_compare' => 'IN',
+		'meta_value'   => $headstart_about_page_hs_old_ids,
+	);
+	$about_pages = get_posts( $filters );
+
+	// Return null if we couldn't find any pages matching the hs_old_ids.
+	if ( empty( $about_pages ) ) {
+		return null;
+	}
+
+	// Return the id of the first About page.
+	return (int) $about_pages[0];
+}
+
+/**
+ * Check to see if a string has been translated.
+ *
+ * @param string $string The string to check.
+ * @param string $domain The text domain to use.
+ * @return bool True if the string has been translated, false otherwise.
+ */
+function wpcom_launchpad_has_translation( $string, $domain = 'jetpack-mu-wpcom' ) {
+	if ( empty( $string ) ) {
+		return false;
+	}
+
+	$current_locale = get_user_locale();
+	if ( is_string( $current_locale ) && 0 === strpos( $current_locale, 'en' ) ) {
+		return true;
+	}
+
+	// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.NonSingularStringLiteralDomain
+	$translated_string = __( $string, $domain );
+
+	return $translated_string !== $string;
+}
+
+/**
+ * Determine `update_about_page` task visibility. The task is visible if there is an 'About' page on the site.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_is_update_about_page_task_visible() {
+	// The task isn't visible if the task title hasn't been translated into the current locale.
+	if ( ! wpcom_launchpad_has_translation( 'Update your About page', 'jetpack-mu-wpcom' ) ) {
+		return false;
+	}
+
+	return wpcom_get_site_about_page_id() !== null;
+}
+
+/**
+ * When a page is updated, check to see if it's the About page and mark the task complete accordingly.
+ *
+ * @param int     $post_id The ID of the post being updated.
+ * @param WP_Post $post The post object.
+ */
+function wpcom_update_about_page_check( $post_id, $post ) {
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// We only care about pages, ignore other post types.
+	if ( $post->post_type !== 'page' ) {
+		return;
+	}
+
+	// We only care about published pages. Pages added via the API are not published by default.
+	if ( $post->post_status !== 'publish' ) {
+		return;
+	}
+
+	// Don't do anything if the task is already complete.
+	if ( wpcom_is_task_option_completed( array( 'id' => 'update_about_page' ) ) ) {
+		return;
+	}
+
+	// If the page is not the previously located About page, ignore it.
+	$about_page_id = wpcom_get_site_about_page_id();
+	if ( null === $about_page_id || $post->ID !== $about_page_id ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'update_about_page' );
+}
+add_action( 'post_updated', 'wpcom_update_about_page_check', 10, 3 );
 
 /**
  * Determine `edit_page` task visibility. The task is visible if there is at least one page and the add_new_page task is complete.
@@ -772,10 +968,17 @@ add_action( 'wp_insert_post', 'wpcom_add_new_page_check', 10, 3 );
  * @return bool True if we should show the task, false otherwise.
  */
 function wpcom_is_edit_page_task_visible() {
+	// Don't show the task if the update_about_page task is visible.
+	if ( wpcom_is_update_about_page_task_visible() ) {
+		return false;
+	}
+
+	// Otherwise, don't show the task until after a page has been added.
 	if ( ! wpcom_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
 		return false;
 	}
 
+	// Show the task if there is at least one page.
 	return ! empty(
 		get_posts(
 			array(
