@@ -6571,12 +6571,12 @@ endif;
 	 * Return Calypso environment value; used for developing Jetpack and pairing
 	 * it with different Calypso enrionments, such as localhost.
 	 *
-	 * @deprecated $$next-version$$ Moved to the Status package.
+	 * @deprecated 12.4 Moved to the Status package.
 	 *
 	 * @return string Calypso environment
 	 */
 	public static function get_calypso_env() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', '\Automattic\Jetpack\Status\Host->get_calypso_env' );
+		_deprecated_function( __METHOD__, 'jetpack-12.4', '\Automattic\Jetpack\Status\Host->get_calypso_env' );
 		return ( new Host() )->get_calypso_env();
 	}
 
