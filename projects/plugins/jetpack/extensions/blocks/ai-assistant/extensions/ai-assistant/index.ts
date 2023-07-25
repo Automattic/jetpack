@@ -24,6 +24,7 @@ export const EXTENDED_BLOCKS = [
 	'core/list',
 	'core/list-item',
 	'core/table',
+	'jetpack/contact-form',
 ] as const;
 
 export type ExtendedBlockProp = ( typeof EXTENDED_BLOCKS )[ number ];
