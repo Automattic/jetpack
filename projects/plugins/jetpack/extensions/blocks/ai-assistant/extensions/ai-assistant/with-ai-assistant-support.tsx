@@ -3,27 +3,20 @@
  */
 import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
-import { rawHandler, pasteHandler, parse, createBlock, getBlockContent } from '@wordpress/blocks';
+import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
-import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
 import { AiAssistantPopover } from '../../components/ai-assistant-dialog';
 import AiAssistantToobarButton from '../../components/ai-assistant-toolbar-control';
 import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-selected-blocks';
-//import { getTextContentFromSelectedBlocks } from '../../lib/utils/block-content';
 import { PROMPT_TYPE_USER_PROMPT, getPrompt } from '../../lib/prompt';
 import { AiAssistantContextProvider } from './context';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '.';
-
-const markdownConverter = new MarkdownIt( {
-	breaks: true,
-} );
-
 const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { isSelected, clientId } = props;
@@ -46,10 +39,9 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		const [ generatedContent, setGeneratedContentValue ] = useState( '' );
 
 		// Get the selected block client IDs.
-		const { content, clientIds, blocks } = useTextContentFromSelectedBlocks();
+		const { content, clientIds } = useTextContentFromSelectedBlocks();
 
-		const { updateBlockAttributes, removeBlocks, replaceBlock, insertBlock, replaceInnerBlocks } =
-			useDispatch( 'core/block-editor' );
+		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 		/**
 		 * Show the AI Assistant
 		 *
@@ -176,18 +168,18 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 			content,
 		} );
 
-		const wrapperBlockHasBeenInserted = useRef( false );
-		// Let's create a core group block to wrap the generated content.
-		const groupBlockWrapper = createBlock(
-			'core/group',
-			{
-				tagName: 'div',
-				layout: {
-					type: 'constrained',
-				},
-			},
-			[ createBlock( 'core/paragraph' ) ]
-		);
+		// const wrapperBlockHasBeenInserted = useRef( false );
+		// // Let's create a core group block to wrap the generated content.
+		// const groupBlockWrapper = createBlock(
+		// 	'core/group',
+		// 	{
+		// 		tagName: 'div',
+		// 		layout: {
+		// 			type: 'constrained',
+		// 		},
+		// 	},
+		// 	[ createBlock( 'core/paragraph' ) ]
+		// );
 		// Insert after
 		// insertAfterBlock( firstClientId, groupBlockWrapper );
 		// }, [ firstClientId, groupBlockWrapper, insertAfterBlock ] );
@@ -195,8 +187,6 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		const setContent = useCallback(
 			( newContent: string ) => {
 				// const [ firstClientId, ...restClientIds ] = clientIds;
-				console.log( { newContent } );
-
 				// if ( ! wrapperBlockHasBeenInserted.current ) {
 				// 	wrapperBlockHasBeenInserted.current = true;
 				// 	replaceBlock( firstClientId, groupBlockWrapper );
@@ -209,14 +199,12 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 					return block.isValid;
 				} );
 
-				console.log( { validBlocks } );
-
 				// Get HTML markup of the generated blocks
-				const html = validBlocks.reduce( ( html, block ) => {
-					return html + getBlockContent( block );
-				}, '' );
+				// const html = validBlocks.reduce( ( html, block ) => {
+				// 	return html + getBlockContent( block );
+				// }, '' );
 
-				console.log( { html } );
+				// console.log( { html } );
 
 				// Only update the valid blocks
 				replaceInnerBlocks( firstClientId, validBlocks );
@@ -246,7 +234,7 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 				// 	// } );
 				// }
 			},
-			[ firstClientId, groupBlockWrapper, insertBlock ]
+			[ firstClientId, replaceInnerBlocks ]
 		);
 
 		const { request: requestSuggestion, requestingState } = useAiSuggestions( {
@@ -255,7 +243,6 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 			// onSuggestion: setGeneratedContent,
 			autoRequest: false,
 			onDone: doneContent => {
-				console.log( doneContent );
 				setContent( doneContent );
 				// const newContentBlocks = parse( doneContent );
 				// replaceInnerBlocks( groupBlockWrapper.clientId, newContentBlocks );
@@ -326,8 +313,8 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 						show={ isAssistantShown }
 						promptValue={ promptValue }
 						onPromptChange={ ( promptType, options = {} ) => {
-							console.log( 'promptType: ', promptType );
-							console.log( 'options: ', options );
+							// console.log( 'promptType: ', promptType );
+							// console.log( 'options: ', options );
 
 							const prompt = getPrompt( promptType, { ...options, content } );
 							requestSuggestion( prompt );
@@ -342,11 +329,14 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 
 export const withAiAssistantToolbarButton = createHigherOrderComponent(
 	BlockEdit => props => {
+		const blockControlsProps = {
+			group: 'block',
+		};
 		return (
 			<>
 				<BlockEdit { ...props } />
 
-				<BlockControls group="block">
+				<BlockControls { ...blockControlsProps }>
 					<AiAssistantToobarButton requestingState="iddle" />
 				</BlockControls>
 			</>

@@ -7,7 +7,6 @@ import { KeyboardShortcuts, Popover } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useRef, useEffect, useContext } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import MarkdownIt from 'markdown-it';
 import React from 'react';
 /**
  * Internal dependencies
@@ -19,10 +18,6 @@ import { QuickActionsMenuItems } from '../ai-assistant-control';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
 import { ToneDropdownMenu } from '../tone-dropdown-control';
 import { actionsList } from './contact-form-quick-actions';
-
-const markdownConverter = new MarkdownIt( {
-	breaks: true,
-} );
 
 type AiAssistantDialogProps = {
 	promptValue: string;
@@ -106,7 +101,7 @@ export const AiAssistantPopover = ( {
 	anchor,
 	show,
 	onPromptChange,
-	onQuickAction,
+	// onQuickAction,
 	...rest
 }: AiAssistantPopoverProps ) => {
 	const {
@@ -119,16 +114,16 @@ export const AiAssistantPopover = ( {
 		generatedContent,
 	} = useContext( AiAssistantContext );
 
-	useEffect( () => {
-		if ( ! generatedContent ) {
-			return;
-		}
+	// useEffect( () => {
+	// 	if ( ! generatedContent ) {
+	// 		return;
+	// 	}
 
-		const newContentBlocks = rawHandler( {
-			HTML: generatedContent,
-		} );
-		console.log( { newContentBlocks } );
-	}, [ generatedContent ] );
+	// 	const newContentBlocks = rawHandler( {
+	// 		HTML: generatedContent,
+	// 	} );
+	// 	console.log( { newContentBlocks } );
+	// }, [ generatedContent ] );
 
 	if ( ! show ) {
 		return null;
@@ -151,7 +146,7 @@ export const AiAssistantPopover = ( {
 						setPromptValue( value );
 						showAssistantMenu();
 					} }
-					onDialogTabPress={ console.log }
+					onDialogTabPress={ console.log } // eslint-disable-line no-console
 					{ ...rest }
 				/>
 
