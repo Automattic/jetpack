@@ -48,14 +48,6 @@ const Edit = props => {
 		setLoadingError( message );
 	};
 
-	const filterProducts = productList =>
-		productList.reduce( ( filteredProducts, { id, currency: productCurrency, type, interval } ) => {
-			if ( productCurrency === currency && type === 'donation' ) {
-				filteredProducts[ interval ] = id;
-			}
-			return filteredProducts;
-		}, {} );
-
 	const hasRequiredProducts = productIdsPerInterval => {
 		const intervals = Object.keys( productIdsPerInterval );
 
@@ -68,6 +60,18 @@ const Edit = props => {
 
 	useEffect( () => {
 		lockPostSaving( 'donations' );
+
+		const filterProducts = productList =>
+			productList.reduce(
+				( filteredProducts, { id, currency: productCurrency, type, interval } ) => {
+					if ( productCurrency === currency && type === 'donation' ) {
+						filteredProducts[ interval ] = id;
+					}
+					return filteredProducts;
+				},
+				{}
+			);
+
 		fetchStatus( 'donation' ).then( result => {
 			if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
 				unlockPostSaving( 'donations' );
@@ -106,7 +110,14 @@ const Edit = props => {
 				}, apiError );
 			}
 		}, apiError );
-	}, [ lockPostSaving ] );
+	}, [
+		lockPostSaving,
+		currency,
+		post.id,
+		setConnectUrl,
+		setConnectedAccountDefaultCurrency,
+		unlockPostSaving,
+	] );
 
 	if ( loadingError ) {
 		return <LoadingError className={ className } error={ loadingError } />;
