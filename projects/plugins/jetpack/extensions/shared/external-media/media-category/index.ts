@@ -1,6 +1,9 @@
 import apiFetch from '@wordpress/api-fetch';
+import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { waitFor } from '../../wait-for';
+import { JETPACK_MEDIA_STORE } from '../store';
 
 // Pexels constants
 const PEXELS_ID = 'pexels';
@@ -63,6 +66,8 @@ type WpcomMediaItem = {
 	caption: string;
 	// Sometimes the title is null, so we need to handle that case.
 	title: string | null;
+	name: string | null;
+	file: string;
 	thumbnails: {
 		thumbnail: string;
 	};
@@ -101,7 +106,7 @@ const getMediaApiUrl = ( source: MediaSource, mediaSearch: MediaSearch ) =>
 const mapWpcomMediaToMedia = ( item: WpcomMediaItem ): MediaItem => ( {
 	caption: item?.caption ?? '',
 	previewUrl: item.thumbnails.thumbnail,
-	title: item?.title ?? '',
+	title: item?.title ?? item?.name ?? item.file,
 	url: item.URL,
 } );
 
@@ -149,18 +154,20 @@ const buildMediaCategory = (
  *
  * @param {MediaSource} source - MediaSource to check.
  * @param {ConnectedMediaSourceCallback} isConnectedCallback - Callback to call with the response.
+ * @param {() => void} isDisconnectedCallback - Callback to call when the media source isn't connected.
  * @returns {void}
  */
 const isMediaSourceConnected = (
 	source: MediaSource,
-	isConnectedCallback: ConnectedMediaSourceCallback
+	isConnectedCallback: ConnectedMediaSourceCallback,
+	isDisconnectedCallback: () => void
 ) =>
 	apiFetch( {
 		path: getMediaApiUrl( source, DEFAULT_PEXELS_SEARCH ),
 		method: 'GET',
 	} )
-		.then( ( wpcomMediaResponse: WpcomMediaResponse ) => isConnectedCallback( wpcomMediaResponse ) )
-		.catch( () => null );
+		.then( isConnectedCallback )
+		.catch( isDisconnectedCallback );
 
 /**
  * Get Pexels media category.
@@ -182,8 +189,11 @@ export const getPexelsMediaCategory = () =>
  * @param {ConnectedMediaSourceCallback} isConnectedCallback
  * @returns {void}
  */
-export const isGooglePhotosConnected = ( isConnectedCallback: ConnectedMediaSourceCallback ) =>
-	isMediaSourceConnected( MediaSource.GooglePhotos, isConnectedCallback );
+export const isGooglePhotosConnected = ( isConnectedCallback: ConnectedMediaSourceCallback ) => {
+	const isDisconnectedCallback = () =>
+		waitFor( select( JETPACK_MEDIA_STORE ).isAuthenticated() ).then( isConnectedCallback );
+	isMediaSourceConnected( MediaSource.GooglePhotos, isConnectedCallback, isDisconnectedCallback );
+};
 
 /**
  * Get Google Photos media category.
