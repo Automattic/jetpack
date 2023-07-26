@@ -295,14 +295,14 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_is_enable_subscribers_modal_visible',
 		),
-		'write_posts'                     => array(
+		'write_3_posts'                   => array(
 			'get_title'                 => function () {
 				return __( 'Write 3 posts', 'jetpack-mu-wpcom' );
 			},
 			'add_listener_callback'     => function () {
-				add_action( 'publish_post', 'wpcom_track_write_posts_task' );
+				add_action( 'publish_post', 'wpcom_track_write_3_posts_task' );
 			},
-			'repetition_count_callback' => 'wpcom_get_write_posts_repetition_count',
+			'repetition_count_callback' => 'wpcom_get_write_3_posts_repetition_count',
 			'target_repetitions'        => 3,
 		),
 	);
@@ -536,19 +536,29 @@ function wpcom_track_publish_first_post_task() {
 }
 
 /**
- * Callback for completing the Write posts task.
+ * Callback for completing the Write 3 posts task.
  *
  * @return void
  */
-function wpcom_track_write_posts_task() {
+function wpcom_track_write_3_posts_task() {
 	// Ensure that Headstart posts don't mark this as complete
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return;
 	}
 
-	$posts_count = wp_count_posts( 'post' );
-	if ( $posts_count->publish >= 3 ) {
-		wpcom_mark_launchpad_task_complete_if_active( 'write_posts' );
+	$total_posts_count = wp_count_posts( 'post' );
+
+	// Make sure we don't count any published posts that were created by Headstart.
+	$headstart_posts_filter = array(
+		'post_type'    => 'post',
+		'fields'       => 'ids',
+		'status'       => 'publish',
+		'meta_key'     => '_hs_old_id',
+		'meta_compare' => 'EXISTS',
+	);
+	$headstart_posts_count  = count( get_posts( $headstart_posts_filter ) );
+	if ( ( $total_posts_count->publish - $headstart_posts_count ) >= 3 ) {
+		wpcom_mark_launchpad_task_complete_if_active( 'write_3_posts' );
 	}
 }
 
@@ -558,7 +568,7 @@ function wpcom_track_write_posts_task() {
  * @param array $task The Task definition.
  * @return int
  */
-function wpcom_get_write_posts_repetition_count( $task ) {
+function wpcom_get_write_3_posts_repetition_count( $task ) {
 	$published_posts_count = wp_count_posts( 'post' )->publish;
 	if ( $published_posts_count > $task['target_repetitions'] ) {
 		return $task['target_repetitions'];
