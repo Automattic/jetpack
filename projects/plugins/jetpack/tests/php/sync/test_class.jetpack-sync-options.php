@@ -219,6 +219,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_connection_active_plugins'            => array( 'jetpack' ),
 			'jetpack_sync_non_blocking'                    => false,
 			'jetpack_sync_settings_dedicated_sync_enabled' => false,
+			'jetpack_sync_settings_custom_queue_table_enabled' => false,
 			'jetpack_sync_settings_comment_meta_whitelist' => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_post_meta_whitelist'    => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_post_types_blacklist'   => array( 'jetpack', 'pineapple' ),

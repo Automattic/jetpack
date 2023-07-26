@@ -1,6 +1,7 @@
 {
 	"production": [
 		"ai-assistant",
+		"ai-assistant-plugin",
 		"blogging-prompt",
 		"business-hours",
 		"button",
