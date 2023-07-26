@@ -1,4 +1,4 @@
-import { CheckboxControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -6,8 +6,8 @@ import JetpackLikesAndSharingPanel from '../../../../shared/jetpack-likes-and-sh
 
 function ShowSharingCheckbox( { checked, onChange } ) {
 	return (
-		<CheckboxControl
-			label={ __( 'Show sharing buttons.', 'jetpack' ) }
+		<ToggleControl
+			label={ __( 'Show sharing buttons', 'jetpack' ) }
 			checked={ checked }
 			onChange={ value => {
 				onChange( { jetpack_sharing_enabled: value } );
