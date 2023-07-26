@@ -57,7 +57,7 @@ class Jetpack_Subscribe_Modal {
 	 * @return void
 	 */
 	public function enqueue_assets() {
-		if ( $this->is_front_end_single_post() ) {
+		if ( $this->should_user_see_modal() ) {
 			wp_enqueue_style( 'subscribe-modal-css', plugins_url( 'subscribe-modal.css', __FILE__ ), array(), JETPACK__VERSION );
 			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
 		}
@@ -69,7 +69,7 @@ class Jetpack_Subscribe_Modal {
 	 * @return void
 	 */
 	public function add_subscribe_modal_to_frontend() {
-		if ( $this->is_front_end_single_post() ) { ?>
+		if ( $this->should_user_see_modal() ) { ?>
 					<div class="jetpack-subscribe-modal">
 						<div class="jetpack-subscribe-modal__modal-content">
 				<?php block_template_part( self::BLOCK_TEMPLATE_PART_SLUG ); ?>
@@ -147,19 +147,6 @@ class Jetpack_Subscribe_Modal {
 	}
 
 	/**
-	 * Returns true if we are on frontend of single post.
-	 * Note: Because of how WordPress works, this function will
-	 * only return the correct value after a certain point in the
-	 * WordPress loading process. You cannot, for example, use this
-	 * method in the class contructor method - it will always return false.
-	 *
-	 * @return bool
-	 */
-	public function is_front_end_single_post() {
-		return ! is_admin() && is_singular( 'post' );
-	}
-
-	/**
 	 * Returns the initial content of the Subscribe Modal template.
 	 * This can then be edited by the user.
 	 *
@@ -211,6 +198,54 @@ HTML;
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Returns true if a site visitor should see
+	 * the Subscribe Modal.
+	 *
+	 * @return bool
+	 */
+	public function should_user_see_modal() {
+		// Only show when viewing frontend single post.
+		if ( is_admin() || ! is_singular( 'post' ) ) {
+			return false;
+		}
+
+		// Don't show if subscribe query param is set.
+		// It is set when user submits the subscribe form.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['subscribe'] ) ) {
+			return false;
+		}
+
+		// Dont show if user is member of site.
+		if ( is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
+			return false;
+		}
+
+		// Don't show if user is subscribed to blog.
+		require_once __DIR__ . '/../views.php';
+		if ( $this->has_subscription_cookie() || Jetpack_Subscriptions_Widget::is_current_user_subscribed() ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Returns true if site visitor has subscribed
+	 * to the blog and has a subscription cookie.
+	 *
+	 * @return bool
+	 */
+	public function has_subscription_cookie() {
+		$cookies = $_COOKIE;
+		foreach ( $cookies as $name => $value ) {
+			if ( strpos( $name, 'jetpack_blog_subscribe_' ) !== false ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
