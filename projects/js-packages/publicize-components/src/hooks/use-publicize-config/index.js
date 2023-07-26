@@ -81,6 +81,25 @@ export default function usePublicizeConfig() {
 	 */
 	const hidePublicizeFeature = isPostPublished && ! isRePublicizeFeatureAvailable;
 
+	/**
+	 * hasPaidPlan:
+	 * Whether the site has a paid plan. This could be either the Basic or the Advanced plan.
+	 */
+	const hasPaidPlan = !! getJetpackData()?.social?.hasPaidPlan;
+
+	/**
+	 * isEnhancedPublishingEnabled:
+	 * Whether the site has the enhanced publishing feature enabled. If true, it means that
+	 * the site has the Advanced plan.
+	 */
+	const isEnhancedPublishingEnabled = !! getJetpackData()?.social?.isEnhancedPublishingEnabled;
+
+	/**
+	 * hasBasicPlan:
+	 * Whether the site has the Basic plan.
+	 */
+	const hasBasicPlan = hasPaidPlan && ! isEnhancedPublishingEnabled;
+
 	return {
 		isPublicizeEnabledMeta,
 		isPublicizeEnabled,
@@ -92,8 +111,9 @@ export default function usePublicizeConfig() {
 		isShareLimitEnabled,
 		isPostAlreadyShared,
 		numberOfSharesRemaining: sharesData.shares_remaining,
-		hasPaidPlan: !! getJetpackData()?.social?.hasPaidPlan,
-		isEnhancedPublishingEnabled: !! getJetpackData()?.social?.isEnhancedPublishingEnabled,
+		hasPaidPlan,
+		hasBasicPlan,
+		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
 		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
