@@ -18,11 +18,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
-import {
-	store as membershipProductsStore,
-	getSubscriberCounts,
-} from '../../store/membership-products';
-// import { getSubscriberCounts } from './api';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import EmailPreview from './email-preview';
 import {
@@ -307,12 +303,14 @@ export default function SubscribePanels() {
 		accessLevel = accessOptions.everybody.key;
 	}
 
+	const { getSubscriberCounts } = useSelect( select => select( membershipProductsStore ) );
+
 	useEffect( () => {
 		if ( ! isModuleActive ) {
 			return;
 		}
 		getSubscriberCounts();
-	}, [ isModuleActive ] );
+	}, [ isModuleActive, getSubscriberCounts ] );
 
 	// Can be “private”, “password”, or “public”.
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );

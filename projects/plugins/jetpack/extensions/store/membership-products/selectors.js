@@ -30,3 +30,5 @@ export const getSocialFollowerCount = state => state.counts.social_followers;
 export const getEmailSubscriberCount = state => state.counts.email_subscribers;
 
 export const getPaidSubscriberCount = state => state.counts.paid_subscribers;
+
+export const getSubscriberCounts = state => state.counts;
