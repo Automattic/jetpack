@@ -581,7 +581,7 @@ function wpcom_track_write_3_posts_task() {
  * @return int
  */
 function wpcom_get_write_3_posts_repetition_count( $task ) {
-	$published_non_headstart_posts = get_published_non_headstart_posts_count();
+	$published_non_headstart_posts = wpcom_get_published_non_headstart_posts_count();
 
 	return min( $task['target_repetitions'], $published_non_headstart_posts );
 }
