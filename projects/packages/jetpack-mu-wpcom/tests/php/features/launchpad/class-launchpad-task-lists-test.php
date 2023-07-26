@@ -254,4 +254,123 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 1, $first_task['repetition_count'] );
 		$this->assertEquals( 2, $first_task['target_repetitions'] );
 	}
+
+	/**
+	 * Data provider for {@see test_wpcom_launchpad_is_repeated_task_complete()}.
+	 *
+	 * @return array Test cases for the unit test.
+	 */
+	public function provide_wpcom_launchpad_is_repeated_task_complete_test_cases() {
+		return array(
+			'Task is complete when the task option was already complete' => array(
+				array(
+					'id'                        => 'test-repeated-completion-already-complete',
+					'title'                     => 'test-repeated-completion-already-complete',
+					'is_complete_callback'      => 'wpcom_launchpad_is_repeated_task_complete',
+					'target_repetitions'        => 5,
+					'repetition_count_callback' => function () {
+						return 1;
+					},
+				),
+				true,
+				true,
+			),
+			'Task is complete when target_repetitions is reached'        => array(
+				array(
+					'id'                        => 'test-repeated-completion-target-repetitions-reached',
+					'title'                     => 'test-repeated-completion-target-repetitions-reached',
+					'is_complete_callback'      => 'wpcom_launchpad_is_repeated_task_complete',
+					'target_repetitions'        => 5,
+					'repetition_count_callback' => function () {
+						return 5;
+					},
+				),
+				true,
+				false,
+			),
+			'Task is complete when target_repetitions is exceeded'       => array(
+				array(
+					'id'                        => 'test-repeated-completion-target-repetitions-exceeded',
+					'title'                     => 'test-repeated-completion-target-repetitions-exceeded',
+					'is_complete_callback'      => 'wpcom_launchpad_is_repeated_task_complete',
+					'target_repetitions'        => 5,
+					'repetition_count_callback' => function () {
+						return 7;
+					},
+				),
+				true,
+				false,
+			),
+			'Task is incomplete when target_repetitions is not reached'   => array(
+				array(
+					'id'                        => 'test-repeated-completion-target-repetitions-not-reached',
+					'title'                     => 'test-repeated-completion-target-repetitions-not-reached',
+					'is_complete_callback'      => 'wpcom_launchpad_is_repeated_task_complete',
+					'target_repetitions'        => 7,
+					'repetition_count_callback' => function () {
+						return 3;
+					},
+				),
+				false,
+				false,
+			),
+		);
+	}
+
+	/**
+	 * Tests for {@see wpcom_launchpad_is_repeated_task_complete()}.
+	 *
+	 * @dataProvider provide_wpcom_launchpad_is_repeated_task_complete_test_cases()
+	 * @param array $task                           The task data.
+	 * @param bool  $expected_completion_status     The expected status for the task at the end of the test.
+	 * @param bool  $initial_task_completion_status The status to set up for the task at the beginning of the test.
+	 * @return void
+	 */
+	public function test_wpcom_launchpad_is_repeated_task_complete( $task, $expected_completion_status, $initial_task_completion_status ) {
+		delete_option( 'launchpad_checklist_tasks_statuses' );
+
+		$option_value = array();
+		if ( $initial_task_completion_status ) {
+			$option_value[ $task['id'] ] = true;
+		}
+
+		update_option( 'launchpad_checklist_tasks_statuses', $option_value );
+
+		// Ensure the task definition is in the definition list.
+		add_filter(
+			'wpcom_launchpad_extended_task_definitions',
+			function ( $extended_task_definitions ) use ( $task ) {
+				$extended_task_definitions[ $task['id'] ] = $task;
+
+				return $extended_task_definitions;
+			}
+		);
+
+		wpcom_register_launchpad_task( $task );
+
+		wpcom_launchpad_checklists()->unregister_task_list( 'test_wpcom_launchpad_is_repeated_task_complete' );
+		wpcom_register_launchpad_task_list(
+			array(
+				'id'       => 'test_wpcom_launchpad_is_repeated_task_complete',
+				'title'    => 'Test task list for wpcom_launchpad_is_repeated_task_complete()',
+				'task_ids' => array( $task['id'] ),
+			)
+		);
+
+		$task_list_for_api = wpcom_get_launchpad_checklist_by_checklist_slug( 'test_wpcom_launchpad_is_repeated_task_complete' );
+
+		$this->assertIsArray( $task_list_for_api );
+		$this->assertCount( 1, $task_list_for_api );
+
+		$first_task = reset( $task_list_for_api );
+
+		$this->assertIsArray( $first_task );
+		$this->assertSame( $task['id'], $first_task['id'] );
+
+		// Verify that the returned task has the right completion status.
+		$this->assertSame( $expected_completion_status, $first_task['completed'] );
+
+		// Verify that the task option has the right value.
+		$this->assertSame( $expected_completion_status, wpcom_is_task_option_completed( $task ) );
+	}
 }
