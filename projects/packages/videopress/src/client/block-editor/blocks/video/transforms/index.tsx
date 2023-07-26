@@ -18,7 +18,7 @@ import {
 /**
  * Types
  */
-import { isVideoFile } from '../../../utils/video';
+import { filterVideoFiles, isVideoFile } from '../../../utils/video';
 import { CoreEmbedVideoPressVariationBlockAttributes, VideoBlockAttributes } from '../types';
 
 const transformFromCoreEmbed = {
@@ -63,7 +63,7 @@ const transformFromFile = {
 
 	priority: 8, // higher priority (lower number) than v5's core/video transform (9).
 	transform: ( files: File[] ) =>
-		files.map( ( file: File ) =>
+		filterVideoFiles( files ).map( ( file: File ) =>
 			createBlock( 'videopress/video', {
 				src: createBlobURL( file ),
 			} )
