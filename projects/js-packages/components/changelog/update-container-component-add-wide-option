@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Container component: added "wide" prop to allow for 1551px max width
