@@ -16,13 +16,7 @@
 
 	let isLoading = false;
 
-	let scores = {};
-
-	const exampleData = [
-		[ 1689379200, 1689465600, 1689552000, 1689638400, 1689724800, 1689811200, 1689897600 ],
-		[ 76, 81, 87, 89, 91, 94, 99 ],
-		[ 72, 78, 80, 81, 5, 74, 84, 89 ],
-	];
+	let periods = [];
 
 	// Load the speed score. Will be cached in the plugin.
 	loadScore();
@@ -41,11 +35,12 @@
 		loadError = undefined;
 
 		try {
-			scores = await requestSpeedScoresHistory(
+			const response = await requestSpeedScoresHistory(
 				wpApiSettings.root,
 				Jetpack_Boost.site.url,
 				wpApiSettings.nonce
 			);
+			periods = response.data.periods;
 		} catch ( err ) {
 			recordBoostEvent( 'speed_history_request_error', {
 				error_message: castToString( err.message ),
@@ -109,7 +104,7 @@
 		{/if}
 		<ReactComponent
 			this={BoostScoreGraph}
-			data={exampleData}
+			{periods}
 			title={__( 'Performance history', 'jetpack-boost' )}
 		/>
 	</div>
