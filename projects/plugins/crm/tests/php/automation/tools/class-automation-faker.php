@@ -111,20 +111,6 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return dummy quote triggers name list
-	 * @return array
-	 */
-	public function quote_triggers(): array {
-		return array(
-			'jpcrm/quote_new',
-			'jpcrm/quote_accepted',
-			'jpcrm/quote_updated',
-			'jpcrm/quote_status_updated',
-			'jpcrm/quote_deleted',
-		);
-	}
-
-	/**
 	 * Return dummy invoice triggers name list
 	 * @return array
 	 */
@@ -239,20 +225,6 @@ class Automation_Faker {
 				),
 				'contacts'    => array( 1 ),
 				'created'     => -1,
-			),
-		);
-	}
-
-	public function quote_data() {
-		return array(
-			'id'   => 1,
-			'data' => array(
-				'id_override' => '1',
-				'title'       => '',
-				'status'      => 'Unpaid',
-				'hash'        => 'V8jAlsi0#$ksm0Plsxp',
-				'accepted'    => 1676923766,
-				'created'     => 1676000000,
 			),
 		);
 	}
