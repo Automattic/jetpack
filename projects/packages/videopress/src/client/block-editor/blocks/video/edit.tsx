@@ -29,6 +29,7 @@ import {
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
 import { useSyncMedia } from '../../hooks/use-sync-media';
+import { isVideoFile } from '../../utils/video';
 import ConnectBanner from './components/banner/connect-banner';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
@@ -171,6 +172,10 @@ export default function VideoPressEdit( {
 		// Get the file from the blob URL.
 		const file = getBlobByURL( src );
 		if ( ! file ) {
+			return;
+		}
+
+		if ( ! isVideoFile( file ) ) {
 			return;
 		}
 
