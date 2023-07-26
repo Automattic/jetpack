@@ -1,4 +1,4 @@
-import { CheckboxControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { PostTypeSupportCheck } from '@wordpress/editor';
@@ -8,8 +8,8 @@ import JetpackLikesAndSharingPanel from '../../shared/jetpack-likes-and-sharing-
 const LikesCheckbox = ( { areLikesEnabled, editPost } ) => (
 	<PostTypeSupportCheck supportKeys="jetpack-post-likes">
 		<JetpackLikesAndSharingPanel>
-			<CheckboxControl
-				label={ __( 'Show likes.', 'jetpack' ) }
+			<ToggleControl
+				label={ __( 'Show likes', 'jetpack' ) }
 				checked={ areLikesEnabled }
 				onChange={ value => {
 					editPost( { jetpack_likes_enabled: value } );
