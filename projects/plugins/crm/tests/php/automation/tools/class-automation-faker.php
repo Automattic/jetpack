@@ -117,6 +117,7 @@ class Automation_Faker {
 	public function quote_triggers(): array {
 		return array(
 			'jpcrm/quote_new',
+			'jpcrm/quote_accepted',
 			'jpcrm/quote_updated',
 			'jpcrm/quote_status_updated',
 			'jpcrm/quote_deleted',
