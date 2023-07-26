@@ -690,6 +690,7 @@ function add_launchpad_options_to_jetpack_sync( $allowed_options ) {
 	$launchpad_options = array(
 		'site_intent',
 		'launchpad_checklist_tasks_statuses',
+		'site_goals',
 	);
 
 	return array_merge( $allowed_options, $launchpad_options );
