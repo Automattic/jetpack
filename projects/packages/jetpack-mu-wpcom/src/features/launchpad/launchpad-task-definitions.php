@@ -829,10 +829,14 @@ function wpcom_get_site_about_page_id() {
  * @return int|null The page ID of the 'About' page if it exists, null otherwise.
  */
 function wpcom_find_site_about_page_id() {
+	if ( ! function_exists( 'wpcom_get_theme_annotation' ) ) {
+		return null;
+	}
+
 	$annotation = wpcom_get_theme_annotation( get_stylesheet() );
 
-	// Return null if there is no annotation or the annotation doesn't have any content.
-	if ( ! $annotation || ! isset( $annotation['content'] ) || ! is_array( $annotation['content'] ) ) {
+	// Return null if there is no annotation, an error, or the annotation doesn't have any content.
+	if ( ! $annotation || ! is_array( $annotation ) || ! isset( $annotation['content'] ) || ! is_array( $annotation['content'] ) ) {
 		return null;
 	}
 

@@ -28,7 +28,7 @@ function register_block() {
 			'attributes'      => array(
 				'currency'         => array(
 					'type'    => 'string',
-					'default' => 'USD',
+					'default' => '',
 				),
 				'oneTimeDonation'  => array(
 					'type'    => 'object',

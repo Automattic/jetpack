@@ -11,7 +11,9 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack\IdentityCrisis\UI;
+use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Tracking as Tracking;
 use Jetpack_Options;
@@ -28,7 +30,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.8.52';
+	const PACKAGE_VERSION = '0.9.0-alpha';
 
 	/**
 	 * Instance of the object.
@@ -86,6 +88,8 @@ class Identity_Crisis {
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( __CLASS__, 'jetpack_connection_disconnect_site_wpcom_filter' ) );
 
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
+
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
 
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
@@ -1285,5 +1289,30 @@ class Identity_Crisis {
 		}
 
 		return $path;
+	}
+
+	/**
+	 * Adds `url_secret` to the `jetpack.idcUrlValidation` URL validation endpoint.
+	 * Adds `url_secret_error` in case of an error.
+	 *
+	 * @param array $response The endpoint response that we're modifying.
+	 *
+	 * @return array
+	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
+	 */
+	public static function add_secret_to_url_validation_response( array $response ) {
+		try {
+			$secret = new URL_Secret();
+
+			$secret->create();
+		} catch ( Exception $e ) {
+			$response['url_secret_error'] = new WP_Error( 'unable_to_create_url_secret', $e->getMessage() );
+		}
+
+		if ( $secret->exists() ) {
+			$response['url_secret'] = $secret->get_secret();
+		}
+
+		return $response;
 	}
 }

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync: Add feature flag for enabling custom queue table.

@@ -17,6 +17,11 @@ export const setConnectUrl = connectUrl => ( {
 	connectUrl,
 } );
 
+export const setConnectedAccountDefaultCurrency = connectedAccountDefaultCurrency => ( {
+	type: 'SET_CONNECTED_ACCOUNT_DEFAULT_CURRENCY',
+	connectedAccountDefaultCurrency,
+} );
+
 export const setApiState = apiState => ( {
 	type: 'SET_API_STATE',
 	apiState,

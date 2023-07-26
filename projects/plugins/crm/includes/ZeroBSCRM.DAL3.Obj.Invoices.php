@@ -1549,6 +1549,8 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                 #} Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
                 $originalStatus = $this->getInvoiceStatus($id);
 
+					$previous_invoice_obj = $this->getInvoice( $id );
+
                 // log any change of status
                 if (isset($dataArr['zbsi_status']) && !empty($dataArr['zbsi_status']) && !empty($originalStatus) && $dataArr['zbsi_status'] != $originalStatus){
 
@@ -1735,7 +1737,8 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
                                         'againstids'=>array(), //$againstIDs,
                                         'extsource'=>false, //$approvedExternalSource
                                         'automatorpassthrough'=>$automatorPassthrough, #} This passes through any custom log titles or whatever into the Internal automator recipe.
-                                        'extraMeta'=>$confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
+									'extraMeta'      => $confirmedExtraMeta, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- Also this is the "extraMeta" passed (as saved)
+									'prev_invoice'   => $previous_invoice_obj,
                                     ));
 
                                 
