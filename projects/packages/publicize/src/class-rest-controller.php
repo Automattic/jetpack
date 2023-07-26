@@ -164,11 +164,16 @@ class REST_Controller {
 			'title'      => 'jetpack-social-dismiss-notice',
 			'type'       => 'object',
 			'properties' => array(
-				'notice' => array(
+				'notice'            => array(
 					'description' => __( 'Name of the notice to dismiss', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'enum'        => array( 'instagram' ),
 					'required'    => true,
+				),
+				'reappearance_time' => array(
+					'description' => __( 'Time when the notice should reappear', 'jetpack-publicize-pkg' ),
+					'type'        => 'integer',
+					'default'     => 0,
 				),
 			),
 		);
@@ -248,17 +253,18 @@ class REST_Controller {
 	 */
 	public function update_dismissed_notices( $request ) {
 		$notice            = $request->get_param( 'notice' );
+		$reappearance_time = $request->get_param( 'reappearance_time' );
 		$dismissed_notices = get_option( Publicize::OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES );
 
 		if ( ! is_array( $dismissed_notices ) ) {
 			$dismissed_notices = array();
 		}
 
-		if ( in_array( $notice, $dismissed_notices, true ) ) {
+		if ( array_key_exists( $notice, $dismissed_notices ) && $dismissed_notices[ $notice ] === $reappearance_time ) {
 			return rest_ensure_response( array( 'success' => true ) );
 		}
 
-		array_push( $dismissed_notices, $notice );
+		$dismissed_notices[ $notice ] = $reappearance_time;
 		update_option( Publicize::OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES, $dismissed_notices );
 
 		return rest_ensure_response( array( 'success' => true ) );
