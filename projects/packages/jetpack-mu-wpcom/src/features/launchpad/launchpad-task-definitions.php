@@ -734,6 +734,7 @@ function wpcom_mark_enable_subscribers_modal_complete( $old_value, $value ) {
 	}
 }
 add_action( 'update_option_sm_enabled', 'wpcom_mark_enable_subscribers_modal_complete', 10, 3 );
+add_action( 'add_option_sm_enabled', 'wpcom_mark_enable_subscribers_modal_complete', 10, 3 );
 
 /**
  * Determines whether the enable_subscribers_modal task should show.
