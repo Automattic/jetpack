@@ -51,7 +51,6 @@
 	"projects/plugins/jetpack/_inc/jetpack-modules.js",
 	"projects/plugins/jetpack/_inc/lib/debugger/jetpack-debugger-site-health.js",
 	"projects/plugins/jetpack/_inc/twitter-timeline.js",
-	"projects/plugins/jetpack/extensions/blocks/donations/edit.js",
 	"projects/plugins/jetpack/extensions/blocks/eventbrite/index.js",
 	"projects/plugins/jetpack/extensions/blocks/eventbrite/utils.js",
 	"projects/plugins/jetpack/extensions/blocks/image-compare/edit.js",
