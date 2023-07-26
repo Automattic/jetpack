@@ -9,7 +9,7 @@ import SuggestionsEventSource from '../suggestions-event-source';
  */
 import type { PromptItemProps } from '../types';
 
-type AskQuestionOptionsArgProps = {
+export type AskQuestionOptionsArgProps = {
 	/*
 	 * ID of the post where the question is asked.
 	 */
