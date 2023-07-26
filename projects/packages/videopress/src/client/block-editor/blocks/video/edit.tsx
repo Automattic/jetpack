@@ -154,36 +154,6 @@ export default function VideoPressEdit( {
 
 	const [ showCaption, setShowCaption ] = useState( !! caption );
 
-	/*
-	 * Check if the video URL is a blob URL.
-	 * If so, it means that the video needs to be uploaded.
-	 * This scenario happens when the user drops a video file
-	 * into the editor canvas (transformFromFile).
-	 */
-	useEffect( () => {
-		if ( ! src ) {
-			return;
-		}
-
-		if ( ! isBlobURL( src ) ) {
-			return;
-		}
-
-		// Get the file from the blob URL.
-		const file = getBlobByURL( src );
-		if ( ! file ) {
-			return;
-		}
-
-		if ( ! isVideoFile( file ) ) {
-			return;
-		}
-
-		// Set state to start the upload process.
-		setIsUploadingFile( true );
-		setFileToUpload( file );
-	}, [ src ] );
-
 	const {
 		videoData,
 		isRequestingVideoData,
@@ -333,7 +303,39 @@ export default function VideoPressEdit( {
 	// Setting video media process
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
 	const [ fileToUpload, setFileToUpload ] = useState( null );
+	/*
+	 * Check if the video URL is a blob URL.
+	 * If so, it means that the video needs to be uploaded.
+	 * This scenario happens when the user drops a video file
+	 * into the editor canvas (transformFromFile).
+	 */
+	useEffect( () => {
+		if ( ! src ) {
+			return;
+		}
 
+		if ( ! isBlobURL( src ) ) {
+			return;
+		}
+
+		// Get the file from the blob URL.
+		const file = getBlobByURL( src );
+		if ( ! file ) {
+			return;
+		}
+
+		// Check if the file is a video file.
+		if ( ! isVideoFile( file ) ) {
+			return;
+		}
+
+		// Clean the src attribute.
+		setAttributes( { src: undefined } );
+
+		// Set state to start the upload process.
+		setIsUploadingFile( true );
+		setFileToUpload( file );
+	}, [ src ] );
 	const { replaceBlock } = useDispatch( blockEditorStore );
 
 	// Replace video state
