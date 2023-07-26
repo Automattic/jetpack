@@ -536,17 +536,15 @@ function wpcom_track_publish_first_post_task() {
 }
 
 /**
- * Callback for completing the Write 3 posts task.
+ * Gets the number of published posts that were not created by Headstart.
  *
- * @return void
+ * @return int
  */
-function wpcom_track_write_3_posts_task() {
-	// Ensure that Headstart posts don't mark this as complete
+function wpcom_get_published_non_headstart_posts_count() {
+	// Ensure that Headstart posts don't affect the count
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
-		return;
+		return 0;
 	}
-
-	$total_posts_count = wp_count_posts( 'post' );
 
 	// Make sure we don't count any published posts that were created by Headstart.
 	$headstart_posts_filter = array(
@@ -556,8 +554,22 @@ function wpcom_track_write_3_posts_task() {
 		'meta_key'     => '_hs_old_id',
 		'meta_compare' => 'EXISTS',
 	);
-	$headstart_posts_count  = count( get_posts( $headstart_posts_filter ) );
-	if ( ( $total_posts_count->publish - $headstart_posts_count ) >= 3 ) {
+
+	$total_posts_count     = wp_count_posts( 'post' )->publish;
+	$headstart_posts_count = count( get_posts( $headstart_posts_filter ) );
+
+	return $total_posts_count - $headstart_posts_count;
+}
+
+/**
+ * Callback for completing the Write 3 posts task.
+ *
+ * @return void
+ */
+function wpcom_track_write_3_posts_task() {
+	$published_non_headstart_posts = wpcom_get_published_non_headstart_posts_count();
+
+	if ( $published_non_headstart_posts >= 3 ) {
 		wpcom_mark_launchpad_task_complete_if_active( 'write_3_posts' );
 	}
 }
@@ -569,11 +581,9 @@ function wpcom_track_write_3_posts_task() {
  * @return int
  */
 function wpcom_get_write_3_posts_repetition_count( $task ) {
-	$published_posts_count = wp_count_posts( 'post' )->publish;
-	if ( $published_posts_count > $task['target_repetitions'] ) {
-		return $task['target_repetitions'];
-	}
-	return (int) $published_posts_count;
+	$published_non_headstart_posts = get_published_non_headstart_posts_count();
+
+	return min( $task['target_repetitions'], $published_non_headstart_posts );
 }
 
 /**
