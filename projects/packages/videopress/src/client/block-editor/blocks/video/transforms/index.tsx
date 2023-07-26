@@ -18,6 +18,7 @@ import {
 /**
  * Types
  */
+import { isVideoFile } from '../../../utils/video';
 import { CoreEmbedVideoPressVariationBlockAttributes, VideoBlockAttributes } from '../types';
 
 const transformFromCoreEmbed = {
@@ -57,7 +58,7 @@ const transformFromFile = {
 			return false;
 		}
 
-		return files.some( ( file: File ) => file?.type.startsWith( 'video/' ) );
+		return files.some( isVideoFile );
 	},
 
 	priority: 8, // higher priority (lower number) than v5's core/video transform (9).

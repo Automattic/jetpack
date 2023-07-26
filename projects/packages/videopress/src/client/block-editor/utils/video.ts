@@ -12,3 +12,13 @@ export function isVideoFile( file: File ): boolean {
 
 	return file.type.startsWith( 'video/' );
 }
+
+/**
+ * Filter an array of files to only include video files.
+ *
+ * @param {File[]} files - Array of files to filter.
+ * @returns {File[]}       Array of video files.
+ */
+export function filterVideoFiles( files: File[] ): File[] {
+	return files.filter( isVideoFile );
+}
