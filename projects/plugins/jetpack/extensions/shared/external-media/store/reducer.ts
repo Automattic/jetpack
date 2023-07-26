@@ -7,7 +7,13 @@ export default (
 ): AuthState => {
 	switch ( action.type ) {
 		case SET_AUTHENTICATED:
-			return { ...state, isAuthenticated: action.payload };
+			return {
+				...state,
+				mediaSourceIsAuthenticated: state.mediaSourceIsAuthenticated.set(
+					action.payload.mediaSource,
+					action.payload.isAuthenticated
+				),
+			};
 		default:
 			return state;
 	}

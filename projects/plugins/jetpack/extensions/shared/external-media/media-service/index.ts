@@ -1,9 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
-import { select } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { waitFor } from '../../wait-for';
 import { JETPACK_MEDIA_STORE } from '../store';
+import { MediaSource } from './types';
 
 // Pexels constants
 const PEXELS_ID = 'pexels';
@@ -29,15 +30,6 @@ const DEFAULT_GOOGLE_PHOTOS_SEARCH: MediaSearch = {
 // eslint-disable-next-line no-shadow
 enum WpcomMediaEndpoints {
 	List = '/wpcom/v2/external-media/list/',
-}
-
-/**
- * External media sources.
- */
-// eslint-disable-next-line no-shadow
-enum MediaSource {
-	Pexels = 'pexels',
-	GooglePhotos = 'google_photos',
 }
 
 /**
@@ -80,8 +72,6 @@ type WpcomMediaResponse = {
 	found: number;
 	media: WpcomMediaItem[];
 };
-
-type ConnectedMediaSourceCallback = ( response: WpcomMediaResponse ) => void;
 
 /**
  * Get media URL for a given MediaSource.
@@ -150,31 +140,52 @@ const buildMediaCategory = (
 } );
 
 /**
+ * Get Google Photos media category.
+ *
+ * @returns {object} Google Photos media category.
+ */
+const googlePhotosProvider = () =>
+	buildMediaCategory(
+		GOOGLE_PHOTOS_ID,
+		GOOGLE_PHOTOS_NAME,
+		GOOGLE_PHOTOS_SEARCH_PLACEHOLDER,
+		MediaSource.GooglePhotos,
+		DEFAULT_GOOGLE_PHOTOS_SEARCH
+	);
+
+/**
  * Checks if a given MediaSource is connected and calls the callback with the response.
  *
  * @param {MediaSource} source - MediaSource to check.
- * @param {ConnectedMediaSourceCallback} isConnectedCallback - Callback to call with the response.
- * @param {() => void} isDisconnectedCallback - Callback to call when the media source isn't connected.
  * @returns {void}
  */
-const isMediaSourceConnected = (
-	source: MediaSource,
-	isConnectedCallback: ConnectedMediaSourceCallback,
-	isDisconnectedCallback: () => void
-) =>
-	apiFetch( {
+const isMediaSourceConnected = async ( source: MediaSource ) =>
+	apiFetch< boolean | WpcomMediaResponse >( {
 		path: getMediaApiUrl( source, DEFAULT_PEXELS_SEARCH ),
 		method: 'GET',
 	} )
-		.then( isConnectedCallback )
-		.catch( isDisconnectedCallback );
+		.then( response => response )
+		.catch( () => false );
+
+/**
+ * Checks if the inserter is opened.
+ *
+ * @returns {boolean} True if the inserter is opened false otherwise.
+ */
+const isInserterOpened = (): boolean =>
+	select( 'core/edit-post' )?.isInserterOpened() ||
+	select( 'core/edit-site' )?.isInserterOpened() ||
+	select( 'core/edit-widgets' )?.isInserterOpened?.();
+
+const registerInInserter = ( mediaCategoryProvider: () => object ) =>
+	dispatch( 'core/block-editor' )?.registerInserterMediaCategory?.( mediaCategoryProvider() );
 
 /**
  * Get Pexels media category.
  *
  * @returns {object} Pexels media category.
  */
-export const getPexelsMediaCategory = () =>
+const pexelsProvider = () =>
 	buildMediaCategory(
 		PEXELS_ID,
 		PEXELS_NAME,
@@ -184,27 +195,46 @@ export const getPexelsMediaCategory = () =>
 	);
 
 /**
- * Checks if GooglePhotos is connected and calls the callback with the response.
+ * Checks if a given MediaSource is authenticated in the store.
  *
- * @param {ConnectedMediaSourceCallback} isConnectedCallback
- * @returns {void}
+ * @param {MediaSource} source - MediaSource to check.
+ * @returns {boolean} True if the MediaSource is authenticated false otherwise.
  */
-export const isGooglePhotosConnected = ( isConnectedCallback: ConnectedMediaSourceCallback ) => {
-	const isDisconnectedCallback = () =>
-		waitFor( () => select( JETPACK_MEDIA_STORE ).isAuthenticated() ).then( isConnectedCallback );
-	isMediaSourceConnected( MediaSource.GooglePhotos, isConnectedCallback, isDisconnectedCallback );
+const isMediaSourceAuthenticated = ( source: MediaSource ) =>
+	!! select( JETPACK_MEDIA_STORE ).isAuthenticated( source );
+
+/**
+ * Adds Google Photos to the media inserter if/when it's connected.
+ * We will not remove Google Photos from the inserter if the user disconnects Google Photos during runtime.
+ */
+export const addGooglePhotosToMediaInserter = async () => {
+	const isConnected = await isMediaSourceConnected( MediaSource.GooglePhotos );
+
+	waitFor( isInserterOpened ).then( () => {
+		if ( isConnected ) {
+			registerInInserter( googlePhotosProvider );
+			return;
+		}
+
+		waitFor( () => isMediaSourceAuthenticated( MediaSource.GooglePhotos ) ).then( () =>
+			registerInInserter( googlePhotosProvider )
+		);
+	} );
 };
 
 /**
- * Get Google Photos media category.
- *
- * @returns {object} Google Photos media category.
+ * Adds Pexels to the media inserter. There is no need to check if it's connected because it's always connected.
  */
-export const getGooglePhotosMediaCategory = () =>
-	buildMediaCategory(
-		GOOGLE_PHOTOS_ID,
-		GOOGLE_PHOTOS_NAME,
-		GOOGLE_PHOTOS_SEARCH_PLACEHOLDER,
-		MediaSource.GooglePhotos,
-		DEFAULT_GOOGLE_PHOTOS_SEARCH
-	);
+export const addPexelsToMediaInserter = () => {
+	waitFor( isInserterOpened ).then( () => registerInInserter( pexelsProvider ) );
+};
+
+/**
+ * Authenticates a given MediaSource.
+ *
+ * @param {MediaSource} source - MediaSource to authenticate.
+ * @param {boolean} isAuthenticated - True if the MediaSource is authenticated false otherwise.
+ */
+export const authenticateMediaSource = ( source: MediaSource, isAuthenticated: boolean ) => {
+	dispatch( JETPACK_MEDIA_STORE ).setAuthenticated( source, isAuthenticated );
+};
