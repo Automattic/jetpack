@@ -177,6 +177,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_customize',
 				'share_site',
 				'customize_welcome_message',
+				'enable_subscribers_modal',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
@@ -188,6 +189,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_customize',
 				'share_site',
 				'customize_welcome_message',
+				'enable_subscribers_modal',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
@@ -691,6 +693,7 @@ function add_launchpad_options_to_jetpack_sync( $allowed_options ) {
 		'site_intent',
 		'launchpad_checklist_tasks_statuses',
 		'site_goals',
+		'sm_enabled',
 	);
 
 	return array_merge( $allowed_options, $launchpad_options );
