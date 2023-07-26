@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { isBlobURL, getBlobByURL } from '@wordpress/blob';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BlockIcon,
@@ -151,6 +152,32 @@ export default function VideoPressEdit( {
 	const chapter = tracks?.filter( track => track.kind === 'chapters' )?.[ 0 ];
 
 	const [ showCaption, setShowCaption ] = useState( !! caption );
+
+	/*
+	 * Check if the video URL is a blob URL.
+	 * If so, it means that the video needs to be uploaded.
+	 * This scenario happens when the user drops a video file
+	 * into the editor canvas (transformFromFile).
+	 */
+	useEffect( () => {
+		if ( ! src ) {
+			return;
+		}
+
+		if ( ! isBlobURL( src ) ) {
+			return;
+		}
+
+		// Get the file from the blob URL.
+		const file = getBlobByURL( src );
+		if ( ! file ) {
+			return;
+		}
+
+		// Set state to start the upload process.
+		setIsUploadingFile( true );
+		setFileToUpload( file );
+	}, [ src ] );
 
 	const {
 		videoData,
