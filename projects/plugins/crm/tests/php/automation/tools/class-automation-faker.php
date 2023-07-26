@@ -244,6 +244,24 @@ class Automation_Faker {
 	}
 
 	/**
+	 * Return data for a dummy quote
+	 * @return array
+	 */
+	public function quote_data() {
+		return array(
+			'id'   => 1,
+			'data' => array(
+				'id_override' => '1',
+				'title'       => '',
+				'status'      => 'Unpaid',
+				'hash'        => 'V8jAlsi0#$ksm0Plsxp',
+				'accepted'    => 1676923766,
+				'created'     => 1676000000,
+			),
+		);
+	}
+
+	/**
 	 * Return data for a dummy company
 	 * @return array
 	 */
