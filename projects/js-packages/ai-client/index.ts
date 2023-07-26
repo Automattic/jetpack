@@ -5,4 +5,7 @@ export { default as askQuestion } from './src/ask-question';
 // Hooks
 export { default as useAiSuggestions } from './src/hooks/use-ai-suggestions';
 
+// Icons
+export * from './src/icons/index.js';
+
 export * from './src/index.js';
