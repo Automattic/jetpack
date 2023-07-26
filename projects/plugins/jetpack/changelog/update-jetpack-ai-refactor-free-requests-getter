@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack AI: Get free requests limit from getter function instead of reading the constant value.
