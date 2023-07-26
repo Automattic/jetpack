@@ -9,6 +9,6 @@ export const initialAuthState: AuthState = {
 		[ MediaSource.Pexels, false ],
 		[ MediaSource.GooglePhotos, false ],
 		[ MediaSource.Openverse, false ],
-		[ MediaSource.Unknown, false ], // Fix the typo in the enum value name here (Unknow -> Unknown)
+		[ MediaSource.Unknown, false ],
 	] ),
 };
