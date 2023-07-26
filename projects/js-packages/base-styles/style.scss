@@ -37,7 +37,7 @@ body {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	max-width: 1128px;
+	max-width: 1280px;
 	margin: 0 auto;
 }
 
@@ -55,7 +55,7 @@ body {
 
 	@include for-tablet-up {
 		grid-template-columns: repeat( 12, 1fr );
-		max-width: 1128px;
+		max-width: 1280px;
 		margin: 0 24px;
 	}
 }
