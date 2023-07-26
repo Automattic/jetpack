@@ -625,7 +625,7 @@ function wpcom_launchpad_is_repeated_task_complete( $task, $is_option_complete )
 
 	try {
 		$repetition_count = call_user_func( $task['repetition_count_callback'], $task, 0 );
-	} catch ( Throwable $throwable ) {
+	} catch ( Exception $exception ) {
 		return false;
 	}
 
