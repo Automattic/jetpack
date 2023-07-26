@@ -112,14 +112,10 @@ class Dashboard {
 				});
 
 				// Monitor any changes to the page hash. If the hash changes, we need to update the current menu item.
-				$( window ).on( 'hashchange', function() {
-					highlightCurrentMenuItem();
-				});
+				$( window ).on( 'hashchange', highlightCurrentMenuItem );
 
 				// Also trigger the potential change when folks click to switch between menus.
-				$( '#toplevel_page_jetpack' ).on( 'click', 'li', function() {
-					highlightCurrentMenuItem();
-				});
+				$( '#toplevel_page_jetpack' ).on( 'click', 'li', highlightCurrentMenuItem );
 
 				// Also trigger the highlight on initial load.
 				highlightCurrentMenuItem();
@@ -133,7 +129,6 @@ class Dashboard {
 				 * @return void
 				 */
 				function highlightCurrentMenuItem() {
-					console.log( 'highlightCurrentMenuItem' );
 					const hash = location.hash;
 
 					const currentHash = hash.split( '/' )[ 2 ];
@@ -142,47 +137,22 @@ class Dashboard {
 					}
 
 					// Find the sub-nav item currently selected.
-					const currentSubNavItem = $( '#toplevel_page_jetpack' ).find( 'li' ).filter( function() {
-						return $( this ).hasClass( 'current' );
-					} );
+					const currentSubNavItem = $( '#toplevel_page_jetpack li.current' );
+					const currentSubNavItemText = currentSubNavItem.text().toLowerCase();
 
-					// When the hash includes "subscribers".
-					if (
-						currentHash === 'subscribers'
-						&& currentSubNavItem[ 0 ].innerText.toLowerCase() !== 'subscribers'
-					) {
-						// If the currentHash is "subscribers", we need to highlight the "Subscribers" menu item.
-						// This is done by adding the 'current' class to the menu item.
-						$( '#toplevel_page_jetpack' )
-							.find( 'li' )
-							.filter( function() {
-								return $( this ).text().toLowerCase() === 'subscribers';
-							} )
-							.addClass( 'current' );
-
-						// And remove the 'current' class from the "Stats" menu item.
-						currentSubNavItem.removeClass( 'current' );
-						return;
-					}
-
-					// When the hash has changed and includes anything else.
-					if ( currentHash !== 'subscribers' ) {
-						// If the currentHash is anything else, we need to highlight the "Stats" menu item.
-						// This is done by adding the 'current' class to the menu item.
-						$( '#toplevel_page_jetpack' )
-							.find( 'li' )
-							.filter( function() {
-								return $( this ).text().toLowerCase() === 'stats';
-							} )
-							.addClass( 'current' );
-
-						// And remove the 'current' class from the "Subscribers" menu item.
-						$( '#toplevel_page_jetpack' )
-							.find( 'li' )
-							.filter( function() {
-								return $( this ).text().toLowerCase() === 'subscribers';
-							} )
-							.removeClass( 'current' );
+					switch ( currentHash ) {
+						case 'subscribers':
+							if ( currentSubNavItemText !== 'subscribers' ) {
+								$( '#toplevel_page_jetpack li:contains("Subscribers")' ).toggleClass( 'current' );
+								currentSubNavItem.toggleClass( 'current' );
+							}
+							break;
+						default:
+							if ( currentSubNavItemText !== 'stats' ) {
+								$( '#toplevel_page_jetpack li:contains("Stats")' ).toggleClass( 'current' );
+								$( '#toplevel_page_jetpack li:contains("Subscribers")' ).toggleClass( 'current' );
+							}
+							break;
 					}
 				}
 			});
