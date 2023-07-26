@@ -126,7 +126,7 @@ class Speed_Score_Graph_History_Request extends Cacheable {
 			return $response;
 		}
 
-		return true;
+		return $response;
 	}
 
 	/**
