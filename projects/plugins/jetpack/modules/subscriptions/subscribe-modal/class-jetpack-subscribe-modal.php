@@ -255,15 +255,6 @@ HTML;
 		}
 		return false;
 	}
-
-	/**
-	 * Check if we're in WordPress.com.
-	 *
-	 * @return bool
-	 */
-	public static function is_wpcom() {
-		return defined( 'IS_WPCOM' ) && IS_WPCOM;
-	}
 }
 
 add_filter(
