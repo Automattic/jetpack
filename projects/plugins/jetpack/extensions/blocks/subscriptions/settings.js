@@ -5,6 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import { getPaidPlanLink, MisconfigurationWarning } from './utils';
 
@@ -31,18 +32,22 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 	}
 }
 
-export function NewsletterNotice( {
-	accessLevel,
-	emailSubscribers,
-	paidSubscribers,
-	showMisconfigurationWarning,
-} ) {
+export function NewsletterNotice( { accessLevel, showMisconfigurationWarning } ) {
 	const { hasPostBeenPublished, hasPostBeenScheduled } = useSelect( select => {
 		const { isCurrentPostPublished, isCurrentPostScheduled } = select( editorStore );
 
 		return {
 			hasPostBeenPublished: isCurrentPostPublished(),
 			hasPostBeenScheduled: isCurrentPostScheduled(),
+		};
+	} );
+
+	const { emailSubscribers, paidSubscribers } = useSelect( select => {
+		const { getEmailSubscriberCount, getPaidSubscriberCount } = select( membershipProductsStore );
+
+		return {
+			emailSubscribers: getEmailSubscriberCount(),
+			paidSubscribers: getPaidSubscriberCount(),
 		};
 	} );
 
@@ -166,8 +171,6 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 function NewsletterAccessRadioButtons( {
 	onChange,
 	accessLevel,
-	emailSubscribers,
-	paidSubscribers,
 	hasNewsletterPlans,
 	stripeConnectUrl,
 	showMisconfigurationWarning,
@@ -209,8 +212,6 @@ function NewsletterAccessRadioButtons( {
 						<p className="editor-post-visibility__notice">
 							<NewsletterNotice
 								accessLevel={ accessLevel }
-								emailSubscribers={ emailSubscribers }
-								paidSubscribers={ paidSubscribers }
 								showMisconfigurationWarning={ showMisconfigurationWarning }
 							/>
 						</p>
@@ -231,8 +232,6 @@ function NewsletterAccessRadioButtons( {
 export function NewsletterAccessDocumentSettings( {
 	accessLevel,
 	setPostMeta,
-	emailSubscribers,
-	paidSubscribers,
 	showMisconfigurationWarning,
 } ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
@@ -271,8 +270,6 @@ export function NewsletterAccessDocumentSettings( {
 										isEditorPanel={ true }
 										onChange={ setPostMeta }
 										accessLevel={ _accessLevel }
-										emailSubscribers={ emailSubscribers }
-										paidSubscribers={ paidSubscribers }
 										stripeConnectUrl={ stripeConnectUrl }
 										hasNewsletterPlans={ hasNewsletterPlans }
 										showMisconfigurationWarning={ showMisconfigurationWarning }
@@ -293,8 +290,6 @@ export function NewsletterAccessDocumentSettings( {
 export function NewsletterAccessPrePublishSettings( {
 	accessLevel,
 	setPostMeta,
-	emailSubscribers,
-	paidSubscribers,
 	showMisconfigurationWarning,
 } ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
@@ -333,8 +328,6 @@ export function NewsletterAccessPrePublishSettings( {
 									<NewsletterAccessRadioButtons
 										onChange={ setPostMeta }
 										accessLevel={ _accessLevel }
-										emailSubscribers={ emailSubscribers }
-										paidSubscribers={ paidSubscribers }
 										stripeConnectUrl={ stripeConnectUrl }
 										hasNewsletterPlans={ hasNewsletterPlans }
 										showMisconfigurationWarning={ showMisconfigurationWarning }

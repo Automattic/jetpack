@@ -103,3 +103,28 @@ export const saveProduct =
 			callback( false );
 		}
 	};
+
+export const setSocialFollowerCount = socialFollowers => ( {
+	type: 'SET_SOCIAL_FOLLOWER_COUNT',
+	socialFollowers,
+} );
+
+export const setEmailSubscriberCount = emailSubscribers => ( {
+	type: 'SET_EMAIL_SUBSCRIBER_COUNT',
+	emailSubscribers,
+} );
+
+export const setPaidSubscriberCount = paidSubscribers => ( {
+	type: 'SET_PAID_SUBSCRIBER_COUNT',
+	paidSubscribers,
+} );
+
+export const setAccessLevel = accessLevel => ( {
+	type: 'SET_ACCESS_LEVEL',
+	accessLevel,
+} );
+
+export const setShowMisconfigurationWarning = showMisconfigurationWarning => ( {
+	type: 'SET_SHOW_MISCONFIGURATION_WARNING',
+	showMisconfigurationWarning,
+} );

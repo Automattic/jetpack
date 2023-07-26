@@ -12,11 +12,15 @@ import {
 	setProducts,
 	setSiteSlug,
 	setConnectedAccountDefaultCurrency,
+	setSocialFollowerCount,
+	setEmailSubscriberCount,
+	setPaidSubscriberCount,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
 
 const EXECUTION_KEY = 'membership-products-resolver-getProducts';
+const SUBSCRIBER_COUNT_EXECUTION_KEY = 'membership-products-resolver-getSubscriberCounts';
 let hydratedFromAPI = false;
 
 const fetchMemberships = async () => {
@@ -59,6 +63,46 @@ const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispat
 	dispatch(
 		setApiState( response.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED )
 	);
+};
+
+const fetchSubscriberCounts = async () => {
+	const response = await apiFetch( {
+		path: '/wpcom/v2/subscribers/counts',
+	} );
+
+	if ( ! response && typeof response !== 'object' ) {
+		throw new Error( 'Unexpected API response' );
+	}
+
+	/**
+	 * WP_Error returns a list of errors with custom names:
+	 * `errors: { foo: [ 'message' ], bar: [ 'message' ] }`
+	 * Since we don't know their names, to get the message, we transform the object
+	 * into an array, and just pick the first message of the first error.
+	 *
+	 * @see https://developer.wordpress.org/reference/classes/wp_error/
+	 */
+	const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
+	if ( wpError ) {
+		throw new Error( wpError );
+	}
+
+	return response;
+};
+
+const mapSubscriberCountsAPIResponseToMembershipProductsStoreData = (
+	response,
+	registry,
+	dispatch
+) => {
+	// const postId = registry.select( editorStore ).getCurrentPostId();
+
+	dispatch( setSocialFollowerCount( response.social_followers ) );
+	dispatch( setEmailSubscriberCount( response.email_subscribers ) );
+	dispatch( setPaidSubscriberCount( response.paid_subscribers ) );
+	// dispatch(
+	// 	setApiState( response.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED )
+	// );
 };
 
 const createDefaultProduct = async (
@@ -138,6 +182,22 @@ export const getProducts =
 			hydratedFromAPI = true;
 		} catch ( error ) {
 			dispatch( setConnectUrl( null ) );
+			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
+			onError( error.message, registry );
+		}
+		executionLock.release( lock );
+	};
+
+export const getSubscriberCounts =
+	() =>
+	async ( { dispatch, registry } ) => {
+		await executionLock.blockExecution( SUBSCRIBER_COUNT_EXECUTION_KEY );
+
+		const lock = executionLock.acquire( SUBSCRIBER_COUNT_EXECUTION_KEY );
+		try {
+			const response = await fetchSubscriberCounts();
+			mapSubscriberCountsAPIResponseToMembershipProductsStoreData( response, registry, dispatch );
+		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );
 		}

@@ -18,8 +18,11 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
-import { store as membershipProductsStore } from '../../store/membership-products';
-import { getSubscriberCounts } from './api';
+import {
+	store as membershipProductsStore,
+	getSubscriberCounts,
+} from '../../store/membership-products';
+// import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import EmailPreview from './email-preview';
 import {
@@ -55,9 +58,6 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 function NewsletterEditorSettingsPanel( {
 	accessLevel,
 	setPostMeta,
-	socialFollowers,
-	emailSubscribers,
-	paidSubscribers,
 	isModuleActive,
 	showMisconfigurationWarning,
 } ) {
@@ -74,9 +74,6 @@ function NewsletterEditorSettingsPanel( {
 			<NewsletterAccessDocumentSettings
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
-				socialFollowers={ socialFollowers }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
 			/>
 		</PluginDocumentSettingPanel>
@@ -118,9 +115,6 @@ const NewsletterDisabledPanels = () => (
 function NewsletterPrePublishSettingsPanel( {
 	accessLevel,
 	setPostMeta,
-	socialFollowers,
-	emailSubscribers,
-	paidSubscribers,
 	isModuleActive,
 	showMisconfigurationWarning,
 	showPreviewModal,
@@ -160,9 +154,6 @@ function NewsletterPrePublishSettingsPanel( {
 					<NewsletterAccessPrePublishSettings
 						accessLevel={ accessLevel }
 						setPostMeta={ setPostMeta }
-						socialFollowers={ socialFollowers }
-						emailSubscribers={ emailSubscribers }
-						paidSubscribers={ paidSubscribers }
 						showMisconfigurationWarning={ showMisconfigurationWarning }
 					/>
 					<Button variant="secondary" onClick={ showPreviewModal }>
@@ -302,9 +293,6 @@ function NewsletterPostPublishSettingsPanel( {
 
 export default function SubscribePanels() {
 	const { isModuleActive } = useModuleStatus( name );
-	const [ paidSubscribers, setPaidSubscribers ] = useState( null );
-	const [ socialFollowers, setSocialFollowers ] = useState( null );
-	const [ emailSubscribers, setEmailSubscribers ] = useState( null );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
@@ -323,11 +311,7 @@ export default function SubscribePanels() {
 		if ( ! isModuleActive ) {
 			return;
 		}
-		getSubscriberCounts( counts => {
-			setEmailSubscribers( counts.email_subscribers );
-			setSocialFollowers( counts.social_followers );
-			setPaidSubscribers( counts.paid_subscribers );
-		} );
+		getSubscriberCounts();
 	}, [ isModuleActive ] );
 
 	// Can be “private”, “password”, or “public”.
@@ -358,18 +342,12 @@ export default function SubscribePanels() {
 			<NewsletterEditorSettingsPanel
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
-				socialFollowers={ socialFollowers }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
 				isModuleActive={ isModuleActive }
 			/>
 			<NewsletterPrePublishSettingsPanel
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
-				socialFollowers={ socialFollowers }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
 				isModuleActive={ isModuleActive }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
 				showPreviewModal={ () => {
@@ -380,8 +358,6 @@ export default function SubscribePanels() {
 			<NewsletterPostPublishSettingsPanel
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
 				isModuleActive={ isModuleActive }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
 			/>

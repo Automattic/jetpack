@@ -6,6 +6,13 @@ export const DEFAULT_STATE = {
 	connectUrl: null,
 	siteSlug: '',
 	connectedAccountDefaultCurrency: '',
+	counts: {
+		socialFollowers: null,
+		emailSubscribers: null,
+		paidSubscribers: null,
+	},
+	accessLevel: null,
+	showMisconfigurationWarning: false,
 };
 
 export default function reducer( state = DEFAULT_STATE, action ) {
@@ -23,6 +30,34 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 				...state,
 				connectedAccountDefaultCurrency: action.connectedAccountDefaultCurrency,
 			};
+		case 'SET_SOCIAL_FOLLOWER_COUNT':
+			return {
+				...state,
+				counts: {
+					...state.counts,
+					socialFollowers: action.socialFollowers,
+				},
+			};
+		case 'SET_EMAIL_SUBSCRIBER_COUNT':
+			return {
+				...state,
+				counts: {
+					...state.counts,
+					emailSubscribers: action.socialFollowers,
+				},
+			};
+		case 'SET_PAID_SUBSCRIBER_COUNT':
+			return {
+				...state,
+				counts: {
+					...state.counts,
+					paidSubscribers: action.socialFollowers,
+				},
+			};
+		case 'SET_ACCESS_LEVEL':
+			return { ...state, accessLevel: action.accessLevel };
+		case 'SET_SHOW_MISCONFIGURATION_WARNING':
+			return { ...state, showMisconfigurationWarning: action.showMisconfigurationWarning };
 	}
 	return state;
 }
