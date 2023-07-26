@@ -4,12 +4,12 @@ import type { Meta } from '@storybook/react';
 const exampleRawResponse = {
 	data: {
 		_meta: {
-			start: 1687786571210,
-			end: 1690378571210,
+			start: 1687802957811,
+			end: 1690394957811,
 		},
 		periods: [
 			{
-				timestamp: 1690204803336,
+				timestamp: 1689686403,
 				dimensions: {
 					desktop_overall_score: 67,
 					desktop_cls: {
@@ -64,7 +64,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690204802376,
+				timestamp: 1690022402,
 				dimensions: {
 					desktop_lcp: {
 						value: 3.2,
@@ -119,7 +119,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690200392972,
+				timestamp: 1690143992,
 				dimensions: {
 					desktop_fcp: {
 						score: 0.52,
@@ -174,7 +174,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690200349552,
+				timestamp: 1690171549,
 				dimensions: {
 					desktop_fcp: {
 						score: 0.54,
@@ -229,7 +229,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690200323687,
+				timestamp: 1690197123,
 				dimensions: {
 					desktop_fcp: {
 						score: 0.26,
@@ -284,7 +284,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690200322863,
+				timestamp: 1690200322,
 				dimensions: {
 					desktop_fcp: {
 						score: 0.55,
@@ -339,7 +339,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690200278938,
+				timestamp: 1690200278,
 				dimensions: {
 					desktop_fcp: {
 						score: 0.33,
