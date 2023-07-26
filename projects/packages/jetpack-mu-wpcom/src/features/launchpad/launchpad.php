@@ -138,6 +138,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_customize',
 				'add_new_page',
 				'drive_traffic',
+				'update_about_page',
 				'edit_page',
 				'share_site',
 			),
@@ -176,6 +177,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_customize',
 				'share_site',
 				'customize_welcome_message',
+				'enable_subscribers_modal',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
@@ -187,6 +189,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_customize',
 				'share_site',
 				'customize_welcome_message',
+				'enable_subscribers_modal',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
@@ -640,7 +643,12 @@ function wpcom_launchpad_is_intent_write_enabled() {
  * @return bool True if the task list is enabled, false otherwise.
  */
 function wpcom_launchpad_is_free_newsletter_enabled() {
-	return apply_filters( 'wpcom_launchpad_intent_free_newsletter_enabled', false );
+	$intent = get_option( 'site_intent', false );
+	if ( 'newsletter' !== $intent ) {
+		return false;
+	}
+
+	return ! wpcom_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_free_newsletter_enabled', false );
 }
 
 /**
@@ -649,7 +657,12 @@ function wpcom_launchpad_is_free_newsletter_enabled() {
  * @return bool True if the task list is enabled, false otherwise.
  */
 function wpcom_launchpad_is_paid_newsletter_enabled() {
-	return apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
+	$intent = get_option( 'site_intent', false );
+	if ( 'newsletter' !== $intent ) {
+		return false;
+	}
+
+	return wpcom_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
@@ -679,6 +692,8 @@ function add_launchpad_options_to_jetpack_sync( $allowed_options ) {
 	$launchpad_options = array(
 		'site_intent',
 		'launchpad_checklist_tasks_statuses',
+		'site_goals',
+		'sm_enabled',
 	);
 
 	return array_merge( $allowed_options, $launchpad_options );

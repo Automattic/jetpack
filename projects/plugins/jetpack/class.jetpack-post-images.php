@@ -741,10 +741,9 @@ class Jetpack_PostImages {
 			return $srcset;
 		}
 
-		$multipliers   = array( 1, 2, 3, 4 );
+		$multipliers   = array( 1, 1.5, 2, 3, 4 );
 		$srcset_values = array();
 		foreach ( $multipliers as $multiplier ) {
-			// Forcefully cast to int, in case we ever add decimal multipliers.
 			$srcset_width  = (int) ( $base_width * $multiplier );
 			$srcset_height = (int) ( $base_height * $multiplier );
 			if ( $srcset_width < 1 || $srcset_width > $image['src_width'] ) {
