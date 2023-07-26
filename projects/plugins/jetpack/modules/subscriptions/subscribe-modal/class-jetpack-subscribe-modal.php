@@ -6,6 +6,8 @@
  * @since 12.4
  */
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Jetpack_Subscribe_Modal class.
  */
@@ -191,6 +193,12 @@ HTML;
 	 * @return bool
 	 */
 	public static function should_load_subscriber_modal() {
+		// Adding extra check/flag to load only on WP.com
+		// When ready for Jetpack release, remove this.
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
+		if ( ! $is_wpcom ) {
+			return false;
+		}
 		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
 			return false;
 		}
@@ -256,25 +264,6 @@ add_filter(
 		'should_load_subscriber_modal',
 	)
 );
-
-/*
- * The following line is being added temporarily as a feature flag.
- *
- * It disables the subscribe modal feature using the
- * jetpack_subscriptions_modal_enabled filter. If you want to test
- * this feature, you'll need to override the line below by adding
- *
- * add_filter( 'jetpack_subscriptions_modal_enabled', '__return_true', 20 );
- *
- * to your test site. When we are ready for full release of this
- * feature, we will remove this line, but will leave the
- * jetpack_subscriptions_modal_enabled filter in place.
- * The filter is documented just below and defaults to false.
- * But for production purposes, the value of this filter is
- * determined by add_filter() call just above, which uses the
- * should_load_subscriber_modal() method.
- */
-add_filter( 'jetpack_subscriptions_modal_enabled', '__return_false', 11 );
 
 /**
  * Filter for enabling or disabling the Jetpack Subscribe Modal
