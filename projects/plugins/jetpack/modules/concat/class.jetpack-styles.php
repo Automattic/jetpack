@@ -1,6 +1,6 @@
 <?php
 
-class JetPack_Scripts extends WP_Scripts {
+class JetPack_Styles extends WP_Styles {
 
 	/**
 	 * Constructor.
@@ -9,8 +9,8 @@ class JetPack_Scripts extends WP_Scripts {
 	 */
 	public function __construct() {
 		parent::__construct();
-		global $wp_scripts;
-		$wp_scripts = $this;
+		global $wp_styles;
+		$wp_styles = $this;
 	}
 
 	/**
@@ -27,23 +27,29 @@ class JetPack_Scripts extends WP_Scripts {
 	 */
 	public function do_items( $handles = false, $group = false ) {
 
+		static $hashes = array();
 		$instance = Jetpack_Concat::get_instance();
 		$items    = false === $handles ? $this->queue : (array) $handles;
+		$items    = array_diff( $items, $hashes );
 
-		foreach ( $items as $item ) {
-			$instance->add_script( $item );
-		}
+		if ( ! empty( $items ) ) {
+			foreach ( $items as $item ) {
+				$instance->add_style( $item );
+			}
 
-		$path = $instance->get_script_path();
-		$hash = $instance->get_script_hash();
-		if ( ! file_exists( $path ) ) {
-			$instance->build_cache( 'script' );
+			$path = $instance->get_style_path();
+			$hash = $instance->get_style_hash();
+			if ( ! file_exists( $path ) ) {
+				$instance->build_cache( 'style' );
+			}
+
+			wp_register_style( $hash, $instance->get_style_url(), array(), filemtime( $path ) );
+			foreach ( $instance->enqueued_styles as $style ) {
+				$instance->prep_inline_styles( $style );
+			}
+			$this->queue[] = $hash;
+			$hashes[]      = $hash;
 		}
-		wp_register_script( $hash, $instance->get_script_url(), array(), filemtime( $path ) );
-		foreach ( $instance->enqueued_scripts as $script ) {
-			$instance->prep_inlines( $script );
-		}
-		$this->queue[] = $hash;
 
 		return parent::do_items( $handles, $group );
 	}

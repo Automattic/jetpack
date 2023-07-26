@@ -41,9 +41,6 @@ require_once JETPACK__PLUGIN_DIR . 'modules/module-headings.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-connection-widget.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
-require_once JETPACK__PLUGIN_DIR . 'class.jetpack-concat.php';
-require_once JETPACK__PLUGIN_DIR . 'class.jetpack-styles.php';
-require_once JETPACK__PLUGIN_DIR . 'class.jetpack-scripts.php';
 
 // Used by the API endpoints.
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-utils.php';
@@ -79,8 +76,3 @@ add_filter( 'is_jetpack_site', '__return_true' );
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';
 
 Jetpack::init();
-Jetpack_Concat::get_instance();
-if( ! is_admin() ) {
-	new JetPack_Styles();
-	new JetPack_Scripts();
-}

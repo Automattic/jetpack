@@ -9,7 +9,6 @@
  * Provides concatenation of scripts and styles.
  */
 class Jetpack_Concat {
-
 	/**
 	 * Holds a list of script handles that have been enqueued.
 	 *
@@ -45,7 +44,7 @@ class Jetpack_Concat {
 		add_action( 'jetpack_pre_activate_module', array( $this, 'flush_cache' ) );
 		add_action( 'jetpack_pre_deactivate_module', array( $this, 'flush_cache' ) );
 
-		$this->cache_folder = WP_CONTENT_DIR . '/jetpack-cache';
+		$this->cache_folder = WP_CONTENT_DIR . '/concat-cache';
 		if ( ! file_exists( $this->cache_folder ) ) {
 			wp_mkdir_p( $this->cache_folder );
 		}
@@ -139,13 +138,9 @@ class Jetpack_Concat {
 	 */
 	public function add_style( $handle ) {
 		$wp_styles = wp_styles();
-		if ( empty( $wp_styles->registered[ $handle ] ) ) {
-			return;
-		}
-		// Check if src is remote.
-		if ( ! $this->is_local( $wp_styles->registered[ $handle ]->src ) ) {
-			wp_enqueue_style( $handle );
 
+		// Check if src is remote.
+		if ( empty( $wp_styles->registered[ $handle ] ) || ! $this->is_local( $wp_styles->registered[ $handle ]->src ) ) {
 			return;
 		}
 		if ( ! empty( $wp_styles->registered[ $handle ]->deps ) ) {
@@ -202,11 +197,13 @@ class Jetpack_Concat {
 		}
 		$content = array();
 		if ( 'script' === $type ) {
-			$file  = $this->get_script_path();
-			$items = $this->enqueued_scripts;
+			$file      = $this->get_script_path();
+			$items     = $this->enqueued_scripts;
+			$content[] = '// ' . implode( '-', array_keys( $this->enqueued_scripts ) );
 		} else {
-			$file  = $this->get_style_path();
-			$items = $this->enqueued_styles;
+			$file      = $this->get_style_path();
+			$items     = $this->enqueued_styles;
+			$content[] = '// ' . implode( '-', array_keys( $this->enqueued_styles ) );
 		}
 		foreach ( $items as $object ) {
 			$src = strtok( ABSPATH . ltrim( str_replace( $home_url, '', $object->src ), '/' ), '?' );
@@ -225,7 +222,7 @@ class Jetpack_Concat {
 	 *
 	 * @param \_WP_Dependency $script The script dependency.
 	 */
-	public function prep_inlines( $script ) {
+	public function prep_inline_scripts( $script ) {
 		$hash = $this->get_script_hash();
 		if ( ! empty( $script->extra['data'] ) ) {
 			wp_add_inline_script( $hash, $script->extra['data'], 'before' );
@@ -233,6 +230,23 @@ class Jetpack_Concat {
 		if ( ! empty( $script->extra['after'] ) ) {
 			foreach ( (array) $script->extra['after'] as $after ) {
 				wp_add_inline_script( $hash, $after );
+			}
+		}
+	}
+
+	/**
+	 * Prepare inline styles.
+	 *
+	 * @param \_WP_Dependency $style The style dependency.
+	 */
+	public function prep_inline_styles( $style ) {
+		$hash = $this->get_style_hash();
+		if ( ! empty( $style->extra['data'] ) ) {
+			wp_add_inline_style( $hash, $style->extra['data'], 'before' );
+		}
+		if ( ! empty( $style->extra['after'] ) ) {
+			foreach ( (array) $style->extra['after'] as $after ) {
+				wp_add_inline_style( $hash, $after );
 			}
 		}
 	}
