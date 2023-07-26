@@ -175,7 +175,7 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
-	 * Testing the `/jetpack/v4/identity-crisis/fetch` endpoint.
+	 * Testing the GET method for the `/jetpack/v4/identity-crisis/url-secret` endpoint.
 	 */
 	public function test_fetch_url_secret() {
 		$secret_data = array(
@@ -186,7 +186,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->set_blog_token_auth();
 
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/identity-crisis/fetch-url-secret' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/identity-crisis/url-secret' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$response = $this->server->dispatch( $request );
@@ -203,7 +203,7 @@ class Test_REST_Endpoints extends TestCase {
 	public function test_fetch_url_secret_empty() {
 		$this->set_blog_token_auth();
 
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/identity-crisis/fetch-url-secret' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/identity-crisis/url-secret' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$response = $this->server->dispatch( $request );
@@ -217,7 +217,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/identity-crisis/fetch` endpoint returns an error when blog token authorization fails.
 	 */
 	public function test_fetch_url_secret_no_access() {
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/identity-crisis/fetch-url-secret' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/identity-crisis/url-secret' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$response = $this->server->dispatch( $request );

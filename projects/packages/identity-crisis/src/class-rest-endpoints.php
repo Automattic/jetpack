@@ -67,7 +67,7 @@ class REST_Endpoints {
 		// Fetch URL verification secret.
 		register_rest_route(
 			'jetpack/v4',
-			'/identity-crisis/fetch-url-secret',
+			'/identity-crisis/url-secret',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( static::class, 'fetch_url_secret' ),
