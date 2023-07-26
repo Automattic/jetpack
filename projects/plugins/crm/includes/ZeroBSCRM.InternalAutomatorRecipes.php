@@ -52,32 +52,34 @@
 	#} - WH commented out, you need to have a corresponding function for any of these you add:
 	#// zeroBSCRM_AddInternalAutomatorRecipe('status.change','zeroBSCRM_IA_StatusChange',array());
 
-	#} WP Hook tie-ins (for Mike [and 3rd party developers!], mostly)
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.new','zeroBSCRM_IA_NewCustomerWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.update','zeroBSCRM_IA_EditCustomerWPHook',array());
+	// WP Hook tie-ins (for Mike [and 3rd party developers!], mostly).
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.new', 'zeroBSCRM_IA_NewCustomerWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.update', 'zeroBSCRM_IA_EditCustomerWPHook', array() );
 	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.status.update', 'zeroBSCRM_IA_EditCustomerWPHook', array() );
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.vitals.update','zeroBSCRM_IA_EditCustomerVitalsWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.email.update','zeroBSCRM_IA_EditCustomerEmailWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.delete','zeroBSCRM_IA_DeleteCustomerWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('company.new','zeroBSCRM_IA_NewCompanyWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('company.delete','zeroBSCRM_IA_DeleteCompanyWPHook',array());
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.vitals.update', 'zeroBSCRM_IA_EditCustomerVitalsWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.email.update', 'zeroBSCRM_IA_EditCustomerEmailWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.delete', 'zeroBSCRM_IA_DeleteCustomerWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'company.new', 'zeroBSCRM_IA_NewCompanyWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'company.delete', 'zeroBSCRM_IA_DeleteCompanyWPHook', array() );
 	zeroBSCRM_AddInternalAutomatorRecipe( 'company.update', 'zeroBSCRM_IA_EditCompanyWPHook', array() );
 	zeroBSCRM_AddInternalAutomatorRecipe( 'company.status.update', 'zeroBSCRM_IA_EditCompanyWPHook', array() );
-	zeroBSCRM_AddInternalAutomatorRecipe('quote.new','zeroBSCRM_IA_NewQuoteWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('quote.accepted','zeroBSCRM_IA_AcceptedQuoteWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('quote.delete','zeroBSCRM_IA_DeleteQuoteWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('invoice.new','zeroBSCRM_IA_NewInvoiceWPHook',array());
+	zeroBSCRM_AddInternalAutomatorRecipe( 'quote.new', 'zeroBSCRM_IA_NewQuoteWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'quote.accepted', 'zeroBSCRM_IA_AcceptedQuoteWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'quote.update', 'zeroBSCRM_IA_EditInvoiceWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'quote.status.update', 'zeroBSCRM_IA_EditInvoiceWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'quote.delete', 'zeroBSCRM_IA_DeleteQuoteWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'invoice.new', 'zeroBSCRM_IA_NewInvoiceWPHook', array() );
 	zeroBSCRM_AddInternalAutomatorRecipe( 'invoice.update', 'zeroBSCRM_IA_EditInvoiceWPHook', array() );
 	zeroBSCRM_AddInternalAutomatorRecipe( 'invoice.status.update', 'zeroBSCRM_IA_EditInvoiceWPHook', array() );
-	zeroBSCRM_AddInternalAutomatorRecipe('invoice.delete','zeroBSCRM_IA_DeleteInvoiceWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('transaction.new','zeroBSCRM_IA_NewTransactionWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('transaction.delete','zeroBSCRM_IA_DeleteTransactionWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('event.new','zeroBSCRM_IA_NewEventWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('event.update','zeroBSCRM_IA_UpdateEventWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('event.delete','zeroBSCRM_IA_DeleteEventWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('clientwpuser.new','zeroBSCRM_IA_NewClientPortalUserHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('segment.delete','zeroBSCRM_IA_DeleteSegmentWPHook',array());
-	zeroBSCRM_AddInternalAutomatorRecipe('contact.before.delete','zeroBSCRM_IA_BeforeDeleteCustomerWPHook',array());
+	zeroBSCRM_AddInternalAutomatorRecipe( 'invoice.delete', 'zeroBSCRM_IA_DeleteInvoiceWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'transaction.new', 'zeroBSCRM_IA_NewTransactionWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'transaction.delete', 'zeroBSCRM_IA_DeleteTransactionWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'event.new', 'zeroBSCRM_IA_NewEventWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'event.update', 'zeroBSCRM_IA_UpdateEventWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'event.delete', 'zeroBSCRM_IA_DeleteEventWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'clientwpuser.new', 'zeroBSCRM_IA_NewClientPortalUserHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'segment.delete', 'zeroBSCRM_IA_DeleteSegmentWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'contact.before.delete', 'zeroBSCRM_IA_BeforeDeleteCustomerWPHook', array() );
 	// don't need to expose tbh
 	//zeroBSCRM_AddInternalAutomatorRecipe('form.delete','zeroBSCRM_IA_DeleteFormWPHook',array());
 
