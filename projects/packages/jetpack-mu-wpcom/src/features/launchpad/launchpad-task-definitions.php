@@ -603,6 +603,7 @@ function wpcom_is_task_option_completed( $task ) {
  * the task has already been marked as complete.
  * This is most useful for cases where it's simpler to look at the cached action count than
  * injecting additional logic into complex code paths.
+ * NOTE: This function should only be used when (re)computing the repetition count is quick.
  *
  * @param array $task              The task data.
  * @param bool  $is_option_complete Whether the underlying option has already been marked as complete.
