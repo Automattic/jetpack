@@ -3,11 +3,35 @@ import React, { type FunctionComponent } from 'react';
 import uPlot from 'uplot';
 import Text from '../text';
 import UplotLineChart from './uplot-line-chart';
+import { useBoostScoreTransform } from './use-boost-score-transform';
 
 import './style.scss';
 
+interface ScoreValuePair {
+	score: number;
+	value: number;
+}
+export interface Period {
+	timestamp: number;
+	dimensions: {
+		desktop_overall_score: number;
+		desktop_fcp: ScoreValuePair;
+		desktop_tbt: ScoreValuePair;
+		desktop_tti: ScoreValuePair;
+		desktop_cls: ScoreValuePair;
+		desktop_lcp: ScoreValuePair;
+		desktop_si: ScoreValuePair;
+		mobile_overall_score: number;
+		mobile_fcp: ScoreValuePair;
+		mobile_tbt: ScoreValuePair;
+		mobile_tti: ScoreValuePair;
+		mobile_cls: ScoreValuePair;
+		mobile_lcp: ScoreValuePair;
+		mobile_si: ScoreValuePair;
+	};
+}
 export interface BoostScoreGraphProps {
-	data: uPlot.AlignedData;
+	periods: Period[];
 	title?: string;
 	isLoading?: boolean;
 }
@@ -39,14 +63,14 @@ function LegendCell( { label, value } ) {
  * @returns {React.ReactElement} The JSX element representing the BoostScoreGraph component, or null if loading.
  */
 export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
-	data,
+	periods,
 	title,
 	isLoading = false,
 } ) => {
-	if ( isLoading ) {
+	const data = useBoostScoreTransform( periods );
+	if ( isLoading || ! data?.length ) {
 		return null;
 	}
-
 	return (
 		<div className="jb-score-graph">
 			{ title && <Text variant="title-medium">{ title }</Text> }
