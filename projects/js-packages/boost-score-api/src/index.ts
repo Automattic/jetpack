@@ -47,7 +47,7 @@ interface SpeedHistoryPeriod {
 	dimensions: SpeedHistoryDimension[];
 }
 
-interface SpeedHistory {
+interface SpeedHistoryResponse {
 	data: {
 		_meta: {
 			start: number;
@@ -104,27 +104,23 @@ export async function requestSpeedScores(
  * @param {string} rootUrl - Root URL for the HTTP request.
  * @param {string} siteUrl - URL of the site.
  * @param {string} nonce - Nonce to use for authentication.
- * @returns {SpeedHistory} Speed score history returned by the server.
+ * @returns {SpeedHistoryResponse} Speed score history returned by the server.
  */
 export async function requestSpeedScoresHistory(
 	rootUrl: string,
 	siteUrl: string,
 	nonce: string
-): Promise< SpeedScoresSet > {
+): Promise< SpeedHistoryResponse > {
 	const end = new Date().getTime();
 	const start = end - 1000 * 60 * 60 * 24 * 30; // 30 days ago
 	// Request metrics
-	const response = parseResponse(
-		await api.post( rootUrl, '/speed-scores-history', { start, end }, nonce )
+	const response = await api.post< SpeedHistoryResponse >(
+		rootUrl,
+		'/speed-scores-history',
+		{ start, end },
+		nonce
 	);
-
-	// If the response contains ready-to-use metrics, we're done here.
-	if ( response.scores ) {
-		return response.scores;
-	}
-
-	// Poll for metrics.
-	return await pollRequest( rootUrl, siteUrl, nonce );
+	return response;
 }
 
 /**
