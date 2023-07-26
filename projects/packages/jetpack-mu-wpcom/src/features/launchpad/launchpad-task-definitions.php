@@ -604,12 +604,13 @@ function wpcom_is_task_option_completed( $task ) {
  * This is most useful for cases where it's simpler to look at the cached action count than
  * injecting additional logic into complex code paths.
  *
- * @param array $task The task data.
+ * @param array $task              The task data.
+ * @param bool  $is_option_complete Whether the underlying option has already been marked as complete.
  * @return bool True if the underlying option has been marked as complete, or if we detect that
  * target_repetitions has been reached.
  */
-function wpcom_launchpad_is_repeated_task_complete( $task ) {
-	if ( wpcom_is_task_option_completed( $task ) ) {
+function wpcom_launchpad_is_repeated_task_complete( $task, $is_option_complete ) {
+	if ( $is_option_complete ) {
 		return true;
 	}
 
