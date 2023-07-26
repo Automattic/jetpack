@@ -24,6 +24,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isLinked = this.props.isLinked,
 				isOfflineMode = this.props.isOfflineMode,
 				siteRawUrl = this.props.siteRawUrl,
+				siteAdminUrl = this.props.siteAdminUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
 				hasSocialBasicFeatures = this.props.hasSocialBasicFeatures,
 				hasSocialAdvancedFeatures = this.props.hasSocialAdvancedFeatures,
@@ -38,11 +39,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isActive &&
 				! hasSocialAdvancedFeatures;
 
-			const jetpackSocialText = __(
-				'Connect your website to the social media networks you use and share your content across all your social accounts with a single click. When you publish a post, it will appear on all connected accounts.',
-				'jetpack'
-			);
-
+			// We need to strip off the trailing slash for the pricing modal to open correctly.
+			const redirectUrl = encodeURIComponent( siteAdminUrl.replace( /\/$/, '' ) );
 			const configCard = () => {
 				if ( unavailableInOfflineMode ) {
 					return;
@@ -88,9 +86,14 @@ export const Publicize = withModuleSettingsFormHelpers(
 								link: getRedirectUrl( 'jetpack-support-publicize' ),
 							} }
 						>
-							<p>{ jetpackSocialText }</p>
+							<p>
+								{ __(
+									'Connect your website to the social media networks you use and share your content across all your social accounts with a single click. When you publish a post, it will appear on all connected accounts.',
+									'jetpack'
+								) }
+							</p>
 							{ showUpgradeLink && (
-								<React.Fragment>
+								<>
 									<p>
 										{ ! hasSocialBasicFeatures
 											? createInterpolateElement(
@@ -105,9 +108,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 																	'jetpack-plugin-admin-page-sharings-screen',
 																	{
 																		site: siteRawUrl,
-																		query:
-																			'redirect_to=' +
-																			encodeURIComponent( window.location.href.split( '#' )[ 0 ] ),
+																		query: 'redirect_to=' + redirectUrl,
 																	}
 																) }
 															/>
@@ -126,9 +127,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 																	'jetpack-plugin-admin-page-sharings-screen',
 																	{
 																		site: siteRawUrl,
-																		query:
-																			'redirect_to=' +
-																			encodeURIComponent( window.location.href.split( '#' )[ 0 ] ),
+																		query: 'redirect_to=' + redirectUrl,
 																	}
 																) }
 															/>
@@ -136,7 +135,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 													}
 											  ) }
 									</p>
-								</React.Fragment>
+								</>
 							) }
 							<ModuleToggle
 								slug="publicize"
