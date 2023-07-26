@@ -36,6 +36,20 @@ A custom class to append with the default ones.
 - Default: `undefined`
 - Required: `false`
 
+### wide
+
+It changes the max width from 1128px to 1551px.
+
+- Type: `Boolean`
+- Default: `false`
+- Required: `false`
+
+#### Example
+
+```jsx
+<Container wide />
+```
+
 ### fluid
 
 It makes the container take the entire width and removes the right and left padding.

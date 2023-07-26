@@ -13,6 +13,7 @@ import type React from 'react';
 const Container: React.FC< ContainerProps > = ( {
 	children,
 	fluid = false,
+	wide = false,
 	tagName = 'div',
 	className,
 	horizontalGap = 1,
@@ -30,6 +31,7 @@ const Container: React.FC< ContainerProps > = ( {
 	}, [ horizontalGap, horizontalSpacing ] );
 
 	const containerClassName = classNames( className, styles.container, {
+		[ styles.wide ]: wide,
 		[ styles.fluid ]: fluid,
 	} );
 

@@ -28,6 +28,10 @@
 	@include container( "md" );
 	@include container( "lg" );
 
+	&.wide {
+		--max-container-width: 1551px;
+	}
+
 	&.fluid {
 		max-width: none;
 		padding: unset;

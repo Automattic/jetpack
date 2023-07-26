@@ -39,6 +39,11 @@ export type ContainerProps = {
 	tagName?: string;
 
 	/**
+	 * Make the container use Jetpack Emeralds widest max width (1551px).
+	 */
+	wide?: boolean;
+
+	/**
 	 * Make container not having a max width.
 	 */
 	fluid?: boolean;

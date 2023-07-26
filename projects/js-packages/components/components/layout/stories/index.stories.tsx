@@ -4,11 +4,12 @@ import Container from '../container';
 import useBreakpointMatch from '../use-breakpoint-match';
 import styles from './styles.module.scss';
 
-const Layout = ( { items, fluid, horizontalGap, horizontalSpacing } ) => {
+const Layout = ( { items, wide, fluid, horizontalGap, horizontalSpacing } ) => {
 	return (
 		<Container
 			className={ styles.container }
 			horizontalSpacing={ horizontalSpacing }
+			wide={ wide }
 			fluid={ fluid }
 			horizontalGap={ horizontalGap }
 		>
@@ -32,7 +33,7 @@ const Layout = ( { items, fluid, horizontalGap, horizontalSpacing } ) => {
 				);
 			} ) }
 			<Col>
-				<Container fluid horizontalSpacing={ 0 } horizontalGap={ 1 }>
+				<Container wide fluid horizontalSpacing={ 0 } horizontalGap={ 1 }>
 					<Col className={ styles.col }>Composition Example</Col>
 					<Col className={ styles.col }>Composition Example</Col>
 				</Container>
@@ -49,6 +50,7 @@ export default {
 const Template = args => <Layout { ...args } />;
 export const Default = Template.bind( {} );
 Default.args = {
+	wide: false,
 	fluid: false,
 	horizontalSpacing: 10,
 	horizontalGap: 5,
