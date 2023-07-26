@@ -22,6 +22,8 @@ export const processBlock = block => {
 		case 'core/cover':
 			return processCover( block );
 		case 'core/table':
+		case 'core/image':
+		case 'core/column':
 			return processSimpleBlock( block );
 		default:
 			return block.isValid ? block : null;

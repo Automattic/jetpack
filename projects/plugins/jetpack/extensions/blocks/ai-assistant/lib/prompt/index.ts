@@ -99,7 +99,7 @@ ${ extraRules }- Do not refer to yourself in your answers.
 - Use only WordPress core blocks.
 - If you cannot generate a meaningful response to a request, reply with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.
 - Do not wrap the response with any kind of delimiters.
-- All blocks should contain a Gutenberg HTML comment with the block name, e.g. <!-- wp:paragraph -->.
+- All blocks should be enclosed in Gutenberg HTML comments with the block name. Example: <!-- wp:paragraph --><p>Text</p><!-- /wp:paragraph -->. Always include the closing comment.
 - Code snippets should use a code block.
 - For poetry or song lyrics, use a verse block
 - Use https://source.unsplash.com/random/ for images with a random id parameter. When the image content is specified, add the search terms to the URL, e.g. https://source.unsplash.com/random/?cat&id=437 for a random image of a cat.

@@ -6,6 +6,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { comments as columnComments } from './column/comments';
 import { comments as coverComments } from './cover/comments';
 
 const debug = debugFactory( 'jetpack-ai-assistant:block-processing' );
@@ -16,6 +17,8 @@ const getComments = ( block, attributes? ) => {
 	switch ( block.name ) {
 		case 'core/cover':
 			return coverComments( block, attributes );
+		case 'core/column':
+			return columnComments( block, attributes );
 		default:
 			return {
 				open: `<!-- ${ defaultTag } -->`,
