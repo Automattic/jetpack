@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+WooCommerce Analytics events: Introduce 'jetpack_woocommerce_analytics_event_props' filter
