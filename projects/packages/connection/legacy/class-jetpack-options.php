@@ -128,6 +128,7 @@ class Jetpack_Options {
 			'partner_coupon_added',                // (string) A date for when `partner_coupon` was added, so we can auto-purge after a certain time interval.
 			'dismissed_backup_review_restore',     // (bool) Determines if the component review request is dismissed for successful restore requests.
 			'dismissed_backup_review_backups',     // (bool) Determines if the component review request is dismissed for successful backup requests.
+			'identity_crisis_url_secret',          // (array) The IDC URL secret and its expiration date.
 		);
 	}
 
