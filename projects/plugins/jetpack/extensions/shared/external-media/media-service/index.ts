@@ -200,7 +200,7 @@ const pexelsProvider = () =>
  * @param {MediaSource} source - MediaSource to check.
  * @returns {boolean} True if the MediaSource is authenticated false otherwise.
  */
-const isMediaSourceAuthenticated = ( source: MediaSource ) =>
+const isAuthenticatedByWithMediaComponent = ( source: MediaSource ) =>
 	!! select( JETPACK_MEDIA_STORE ).isAuthenticated( source );
 
 /**
@@ -216,7 +216,7 @@ export const addGooglePhotosToMediaInserter = async () => {
 			return;
 		}
 
-		waitFor( () => isMediaSourceAuthenticated( MediaSource.GooglePhotos ) ).then( () =>
+		waitFor( () => isAuthenticatedByWithMediaComponent( MediaSource.GooglePhotos ) ).then( () =>
 			registerInInserter( googlePhotosProvider )
 		);
 	} );
