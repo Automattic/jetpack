@@ -123,6 +123,17 @@ class Automation_Faker {
 	}
 
 	/**
+	 * Return dummy event triggers name list
+	 * @return array
+	 */
+	public function event_triggers(): array {
+		return array(
+			'jpcrm/event_new',
+			'jpcrm/event_deleted',
+		);
+	}
+
+	/**
 	 * Return a workflow with a condition and an action
 	 * @return array
 	 */
