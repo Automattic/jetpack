@@ -150,6 +150,7 @@ const buildMediaCategory = (
 				jetpackAnalytics.tracks.recordEvent( 'jetpack_editor_media_inserter_external_source', {
 					mediaSource: source.toString(),
 					results: mediaItems.length,
+					search: mediaCategorySearch?.search === '' ? defaultSearch.search : mediaCategorySearch.search
 				} );
 
 				return mediaItems;
