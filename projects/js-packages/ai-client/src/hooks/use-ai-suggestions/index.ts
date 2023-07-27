@@ -7,20 +7,20 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import askQuestion, { AskQuestionOptionsArgProps } from '../../ask-question';
+import askQuestion from '../../ask-question';
 import {
 	ERROR_MODERATION,
 	ERROR_NETWORK,
 	ERROR_QUOTA_EXCEEDED,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
-	type PromptItemProps,
-	type SuggestionErrorCode,
 } from '../../types';
 /**
  * Types & constants
  */
+import type { AskQuestionOptionsArgProps } from '../../ask-question';
 import type SuggestionsEventSource from '../../suggestions-event-source';
+import type { PromptItemProps, SuggestionErrorCode } from '../../types';
 
 export type SuggestionErrorProps = {
 	/*
