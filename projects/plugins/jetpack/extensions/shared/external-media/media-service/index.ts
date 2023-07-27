@@ -34,6 +34,15 @@ enum WpcomMediaEndpoints {
 }
 
 /**
+ * WPCOM media type of the WPCOM Media Api.
+ */
+// eslint-disable-next-line no-shadow
+enum WpcomMediaItemType {
+	Image = 'image',
+	Video = 'video',
+}
+
+/**
  * Gutenberg media category search DTO.
  */
 type MediaSearch = {
@@ -64,6 +73,7 @@ type WpcomMediaItem = {
 	thumbnails: {
 		thumbnail: string;
 	};
+	type: WpcomMediaItemType;
 };
 
 /**
@@ -134,7 +144,9 @@ const buildMediaCategory = (
 			method: 'GET',
 		} )
 			.then( ( response: WpcomMediaResponse ) => {
-				const mediaItems = response.media.map( mapWpcomMediaToMedia );
+				const mediaItems = response.media
+					.filter( wpcomMediaItem => wpcomMediaItem.type === WpcomMediaItemType.Image )
+					.map( mapWpcomMediaToMedia );
 				jetpackAnalytics.tracks.recordEvent( 'jetpack_editor_media_inserter_external_source', {
 					mediaSource: source.toString(),
 					results: mediaItems.length,
@@ -209,7 +221,7 @@ const pexelsProvider = () =>
  * @param {MediaSource} source - MediaSource to check.
  * @returns {boolean} True if the MediaSource is authenticated false otherwise.
  */
-const isMediaSourceAuthenticated = ( source: MediaSource ) =>
+const isAuthenticatedByWithMediaComponent = ( source: MediaSource ) =>
 	!! select( JETPACK_MEDIA_STORE ).isAuthenticated( source );
 
 /**
@@ -225,7 +237,7 @@ export const addGooglePhotosToMediaInserter = async () => {
 			return;
 		}
 
-		waitFor( () => isMediaSourceAuthenticated( MediaSource.GooglePhotos ) ).then( () =>
+		waitFor( () => isAuthenticatedByWithMediaComponent( MediaSource.GooglePhotos ) ).then( () =>
 			registerInInserter( googlePhotosProvider )
 		);
 	} );
