@@ -128,22 +128,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
-		// @TODO: Remove the following task list once the migration/rename is complete across WP.com and Calypso.
-		'keep-building'          => array(
-			'title'               => 'Keep Building',
-			'task_ids'            => array(
-				'site_title',
-				'domain_claim',
-				'verify_email',
-				'domain_customize',
-				'add_new_page',
-				'drive_traffic',
-				'update_about_page',
-				'edit_page',
-				'share_site',
-			),
-			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
-		),
 		'intent-build'           => array(
 			'title'               => 'Keep Building',
 			'task_ids'            => array(
