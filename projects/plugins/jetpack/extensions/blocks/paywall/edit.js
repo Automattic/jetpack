@@ -1,19 +1,15 @@
-import { BlockIcon } from '@wordpress/block-editor';
-import { Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
-import icon from './icon';
 
 function PaywallEdit( { className } ) {
+	const text = __( 'Paywall', 'jetpack' );
+	const style = {
+		width: `${ text.length + 1.2 }em`,
+	};
+
 	return (
 		<div className={ className }>
-			<Placeholder
-				label={ __( 'Paywall', 'jetpack' ) }
-				instructions={ __( 'Instructions go here.', 'jetpack' ) }
-				icon={ <BlockIcon icon={ icon } /> }
-			>
-				{ __( 'User input goes here?', 'jetpack' ) }
-			</Placeholder>
+			<span style={ style }>{ text }</span>
 		</div>
 	);
 }
