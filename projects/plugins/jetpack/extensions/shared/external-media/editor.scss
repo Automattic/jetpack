@@ -450,8 +450,7 @@ $grid-size: 8px;
 
 .block-editor-inserter__media-panel .components-search-control input[type=search].components-search-control__input[placeholder~="Google"] {
 	display: none;
-}
-
-.block-editor-inserter__media-panel .components-search-control input[type=search].components-search-control__input[placeholder~="Google"] + .components-search-control__icon {
-	display: none;
+	& + .components-search-control__icon {
+		display: none;
+	}
 }
