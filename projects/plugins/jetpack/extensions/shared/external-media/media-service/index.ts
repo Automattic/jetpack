@@ -144,7 +144,7 @@ const buildMediaCategory = (
 		} )
 			.then( ( response: WpcomMediaResponse ) =>
 				response.media
-					//.filter( wpcomMediaItem => wpcomMediaItem.type === WpcomMediaItemType.Image )
+					.filter( wpcomMediaItem => wpcomMediaItem.type === WpcomMediaItemType.Image )
 					.map( mapWpcomMediaToMedia )
 			)
 			// Null object pattern, we don't want to break if the API fails.
