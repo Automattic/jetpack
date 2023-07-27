@@ -254,6 +254,28 @@ class Automation_Faker {
 	}
 
 	/**
+	 * Return data for a dummy event
+	 * @return array
+	 */
+	public function event_data() {
+		return array(
+			'id'   => 1,
+			'data' => array(
+				'title'          => 'Some event title',
+				'desc'           => 'Some desc',
+				'hash'           => 'V8jAlsi0#$ksm0Plsxp',
+				'start'          => 1676000000,
+				'end'            => 1676923766,
+				'complete'       => false,
+				'show_on_portal' => true,
+				'show_on_cal'    => true,
+				'created'        => 1675000000,
+				'lastupdated'    => 1675000000,
+			),
+		);
+	}
+
+	/**
 	 * Return a empty workflow, without triggers and initial step
 	 * @return array
 	 */
