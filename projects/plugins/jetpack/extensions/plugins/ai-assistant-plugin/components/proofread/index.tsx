@@ -1,14 +1,15 @@
 /**
  * External dependencies
  */
+import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { Modal, Button, Spinner } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, close } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import useSuggestionsFromAI from '../../../../blocks/ai-assistant/hooks/use-suggestions-from-ai';
 import aiAssistantIcon from '../../../../blocks/ai-assistant/icons/ai-assistant';
 import {
 	delimiter,
@@ -35,6 +36,7 @@ const ModalHeader = ( { loading, onClose } ) => {
 export default function Proofread() {
 	const [ isProofreadModalVisible, setIsProofreadModalVisible ] = useState( false );
 	const [ suggestion, setSuggestion ] = useState( null );
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
 	const toggleProofreadModal = () => {
 		setIsProofreadModalVisible( ! isProofreadModalVisible );
@@ -56,8 +58,8 @@ export default function Proofread() {
 		// TODO: Handle Done
 	};
 
-	const { request, requestingState } = useSuggestionsFromAI( {
-		autoRequest: false,
+	const { request, requestingState } = useAiSuggestions( {
+		postId,
 		onSuggestion: handleSuggestion,
 		onDone: handleDone,
 		onError: handleSuggestionError,
