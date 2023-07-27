@@ -158,7 +158,9 @@ function wp_cache_serve_cache_file() {
 
 	extract( wp_super_cache_init() ); // $key, $cache_filename, $meta_file, $cache_file, $meta_pathname
 
-	// Look for wp-cache file+meta for the current URL
+	// Look for wp-cache file + meta file for the current URL
+	// If we can't find them, we will look for supercache html files. These files don't have any meta data
+	// which is why the code below does more work setting up the headers, etc.
 	if (
 		! defined( 'WPSC_SUPERCACHE_ONLY' ) &&
 		(
