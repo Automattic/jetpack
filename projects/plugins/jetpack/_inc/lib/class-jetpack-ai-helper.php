@@ -332,6 +332,7 @@ class Jetpack_AI_Helper {
 				'requests-count'       => $requests_count,
 				'requests-limit'       => $requests_limit,
 				'site-require-upgrade' => $require_upgrade,
+				'upgrade-prompt-type'  => wpcom_is_vip( $blog_id ) ? 'vip' : 'default',
 			);
 		}
 
