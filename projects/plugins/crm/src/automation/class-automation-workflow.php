@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\CRM\Automation;
  */
 class Automation_Workflow {
 
-	/** @var int */
+	/** @var int|string */
 	private $id;
 
 	/** @var string */
@@ -24,7 +24,7 @@ class Automation_Workflow {
 	/** @var string */
 	public $category;
 
-	/** @var array */
+	/** @var string[] */
 	public $triggers;
 
 	/** @var array */
@@ -55,15 +55,17 @@ class Automation_Workflow {
 		$this->active       = $workflow_data['is_active'] ?? true;
 
 		$this->automation_engine = $automation_engine;
-		$this->logger            = $automation_engine->get_logger() ?? Automation_Logger::instance();
 	}
 
 	/**
 	 * Get the id of this workflow
 	 *
-	 * @return int
+	 * This will either be a string if the workflow is registered in the codebase,
+	 * or an integer if it is a custom workflow stored in the database.
+	 *
+	 * @return int|string
 	 */
-	public function get_id(): int {
+	public function get_id() {
 		return $this->id;
 	}
 
@@ -79,7 +81,7 @@ class Automation_Workflow {
 	/**
 	 * Get the trigger names of this workflow
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function get_triggers(): array {
 		return $this->triggers;
@@ -157,8 +159,8 @@ class Automation_Workflow {
 	 * @throws Automation_Exception Throws an exception if the step class does not exist, or there is an error executing the workflow.
 	 */
 	public function execute( Trigger $trigger, array $data ): bool {
-		$this->logger->log( 'Trigger activated: ' . $trigger->get_slug() );
-		$this->logger->log( 'Executing workflow: ' . $this->name );
+		$this->get_logger()->log( 'Trigger activated: ' . $trigger->get_slug() );
+		$this->get_logger()->log( 'Executing workflow: ' . $this->name );
 
 		$step_data = $this->initial_step;
 
@@ -183,20 +185,20 @@ class Automation_Workflow {
 					$step->set_attributes( $step_data['attributes'] );
 				}
 
-				$this->logger->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step->get_type() );
+				$this->get_logger()->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step->get_type() );
 
 				$step->execute( $data );
 				$step_data = $step->get_next_step();
 
-				$this->logger->log( '[' . $step->get_slug() . '] Step executed!' );
+				$this->get_logger()->log( '[' . $step->get_slug() . '] Step executed!' );
 
 				if ( ! $step_data ) {
-					$this->logger->log( 'Workflow execution finished: No more steps found.' );
+					$this->get_logger()->log( 'Workflow execution finished: No more steps found.' );
 					return true;
 				}
 			} catch ( Automation_Exception $automation_exception ) {
 
-				$this->logger->log( 'Error executing the workflow on step: ' . $step_slug . ' - ' . $automation_exception->getMessage() );
+				$this->get_logger()->log( 'Error executing the workflow on step: ' . $step_slug . ' - ' . $automation_exception->getMessage() );
 
 				throw $automation_exception;
 			}
@@ -248,18 +250,22 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Set Automation Logger
+	 * Set Logger
+	 *
 	 * @param Automation_Logger $logger An instance of the Automation_Logger class.
+	 * @return void
 	 */
-	public function set_automation_logger( Automation_Logger $logger ) {
+	public function set_logger( Automation_Logger $logger ) {
 		$this->logger = $logger;
 	}
 
 	/**
-	 * Set Automation Engine
-	 * @param Automation_Engine $automation_engine An instance of the Automation_Engine class.
+	 * Get Logger
+	 *
+	 * @return Automation_Logger Return an instance of the Automation_Logger class.
 	 */
-	public function set_automation_engine( Automation_Engine $automation_engine ) {
-		$this->automation_engine = $automation_engine;
+	public function get_logger(): Automation_Logger {
+		return $this->logger ?? Automation_Logger::instance();
 	}
+
 }
