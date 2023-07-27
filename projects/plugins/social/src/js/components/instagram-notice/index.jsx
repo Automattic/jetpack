@@ -11,8 +11,6 @@ import { __ } from '@wordpress/i18n';
 import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
-const INSTAGRAM_NOTICE = 'instagram';
-
 const freePlanNoticeText = __(
 	'Share featured images directly to your Instagram Business account for free, or share unlimited photos with Jetpack Social Advanced.',
 	'jetpack-social'
@@ -23,7 +21,7 @@ const paidPlanNoticeText = __(
 );
 
 const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
-	const { shouldShowNotice, dismissNotice } = useDismissNotice();
+	const { shouldShowNotice, dismissNotice, NOTICES } = useDismissNotice();
 
 	const { connectionsAdminUrl, isInstagramConnectionSupported, isEnhancedPublishingEnabled } =
 		useSelect( select => {
@@ -36,10 +34,10 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 		} );
 
 	const handleDismiss = useCallback( () => {
-		dismissNotice( INSTAGRAM_NOTICE );
-	}, [ dismissNotice ] );
+		dismissNotice( NOTICES.instagram );
+	}, [ dismissNotice, NOTICES ] );
 
-	if ( ! shouldShowNotice( INSTAGRAM_NOTICE ) || ! isInstagramConnectionSupported ) {
+	if ( ! shouldShowNotice( NOTICES.instagram ) || ! isInstagramConnectionSupported ) {
 		return null;
 	}
 
