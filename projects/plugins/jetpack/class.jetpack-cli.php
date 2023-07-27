@@ -2010,6 +2010,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			"$path/$slug.php"     => self::render_block_file(
 				'block-register-php',
 				array(
+					'nextVersion'      => '$$next-version$$',
 					'slug'             => $slug,
 					'title'            => $title,
 					'underscoredSlug'  => str_replace( '-', '_', $slug ),
