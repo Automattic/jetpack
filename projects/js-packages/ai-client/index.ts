@@ -6,6 +6,6 @@ export { default as askQuestion } from './src/ask-question';
 export { default as useAiSuggestions } from './src/hooks/use-ai-suggestions';
 
 // Icons
-export * from './src/icons/index.js';
+export * from './src/icons';
 
 export * from './src/index.js';
