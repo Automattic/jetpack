@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+We hide the search input for the Google Photos Sidebar Media integration since it is not searchable
