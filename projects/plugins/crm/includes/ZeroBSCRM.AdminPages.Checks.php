@@ -170,7 +170,7 @@ function zeroBSCRM_isAPIRequest() {
 	// below is more reliable as QUERY_STRING will always be set for API requests.
 
 	// lazy, non-wp way of doing this
-	if ( isset( $_SERVER['QUERY_STRING'] ) && strpos( '#' . $_SERVER['QUERY_STRING'], 'api_key=zbscrm_' ) > 0 ) {
+	if ( isset( $_SERVER['QUERY_STRING'] ) && ( strpos( '#' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ), 'api_key=zbscrm_' ) > 0 || strpos( '#' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ), 'api_key=jpcrm_' ) ) ) {
 		return true;
 	}
 
@@ -1023,4 +1023,36 @@ function jpcrm_is_settings_page() {
 
 	global $zbs;
 	return zeroBS_isPage( array( 'admin.php' ), false, array( $zbs->slugs['settings'] ) );
+}
+
+/**
+ * Checks if a page is designated as a full-width page in Jetpack CRM.
+ *
+ * @param string $page_name The name of the page to check (usually this is the http `page` GET param).
+ *
+ * @return bool Whether the page should be displayed in full width.
+ */
+function jpcrm_is_full_width_page( $page_name ) {
+	global $zbs;
+
+	if ( $zbs->settings->get( 'showfullwidthforlisting' ) !== 1 ) {
+		return false;
+	}
+
+	$full_width_pages = array(
+		'tag-manager',
+		'manage-customers',
+		'manage-companies',
+		'manage-segments',
+		'manage-quotes',
+		'manage-invoices',
+		'manage-quote-templates',
+		'manage-transactions',
+		'manage-events',
+		'manage-forms',
+	);
+
+	$full_width_pages = apply_filters( 'jetpack_crm_full_width_pages', $full_width_pages );
+
+	return in_array( $page_name, $full_width_pages, true );
 }

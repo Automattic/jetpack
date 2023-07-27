@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName)
 /**
- * Module Name: Subscriptions
+ * Module Name: Newsletter
  * Module Description: Let visitors subscribe to new posts and comments via email
  * Sort Order: 9
  * Recommendation Order: 8
@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement
- * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup
+ * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter
  */
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
@@ -348,6 +348,24 @@ class Jetpack_Subscriptions {
 			'stc_enabled'
 		);
 
+		/** Enable Subscribe Modal */
+
+		/** This filter is documented in plugins/jetpack/modules/subscriptions/subscribe-module/class-jetpack-subscribe-module.php */
+		if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
+			add_settings_field(
+				'jetpack_subscriptions_comment_subscribe',
+				__( 'Enable Subscribe Modal', 'jetpack' ),
+				array( $this, 'subscribe_modal_setting' ),
+				'discussion',
+				'jetpack_subscriptions'
+			);
+
+			register_setting(
+				'discussion',
+				'sm_enabled'
+			);
+		}
+
 		/** Email me whenever: Someone follows my blog */
 		/* @since 8.1 */
 
@@ -456,6 +474,22 @@ class Jetpack_Subscriptions {
 				array( 'em' => array() )
 			);
 			?>
+		</p>
+
+		<?php
+	}
+
+	/**
+	 * Subscribe Modal Toggle.
+	 */
+	public function subscribe_modal_setting() {
+
+		$sm_enabled = get_option( 'sm_enabled', 1 );
+		?>
+
+		<p class="description">
+			<input type="checkbox" name="sm_enabled" id="jetpack-subscribe-modal" value="1" <?php checked( $sm_enabled, 1 ); ?> />
+			<?php esc_html_e( 'Show a popup subscribe modal to readers.', 'jetpack' ); ?>
 		</p>
 
 		<?php
@@ -1036,3 +1070,4 @@ class Jetpack_Subscriptions {
 Jetpack_Subscriptions::init();
 
 require __DIR__ . '/subscriptions/views.php';
+require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';

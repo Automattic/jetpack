@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.0] - 2023-07-25
+### Added
+- Added instagram reel restrictions [#31808]
+
+### Changed
+- Refactor TemplatePicker component, so inner part can be use in it's own without a modal. [#31740]
+
+## [0.29.1] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+### Fixed
+- Fix Instagram Max size [#31912]
+
+## [0.29.0] - 2023-07-10
+### Changed
+- Refactored component so it can accept values as prop, and disable debounce [#31700]
+
 ## [0.28.0] - 2023-07-05
 ### Changed
 - Refactored the media validation so that it is done on a per connection basis [#31565]
@@ -343,6 +361,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.30.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.29.1...v0.30.0
+[0.29.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.29.0...v0.29.1
+[0.29.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.28.0...v0.29.0
 [0.28.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.3...v0.27.0
 [0.26.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.26.2...v0.26.3

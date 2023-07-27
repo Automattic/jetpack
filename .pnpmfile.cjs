@@ -64,6 +64,16 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Missing dep on @emotion/react.
+	// https://github.com/WordPress/gutenberg/issues/52474
+	if (
+		pkg.name === '@wordpress/block-editor' &&
+		pkg.dependencies?.[ '@emotion/styled' ] &&
+		! pkg.dependencies?.[ '@emotion/react' ]
+	) {
+		pkg.dependencies[ '@emotion/react' ] = '^11.7.1';
+	}
+
 	// Avoid annoying flip-flopping of sub-dep peer deps.
 	// https://github.com/localtunnel/localtunnel/issues/481
 	if ( pkg.name === 'localtunnel' ) {
@@ -114,6 +124,15 @@ function fixDeps( pkg ) {
 		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
 		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+	}
+
+	// To update semver dep.
+	// https://github.com/storybookjs/storybook/pull/23396
+	if (
+		pkg.name === '@storybook/cli' &&
+		pkg.dependencies[ 'simple-update-notifier' ] === '^1.0.0'
+	) {
+		pkg.dependencies[ 'simple-update-notifier' ] = '^2.0.0';
 	}
 
 	return pkg;

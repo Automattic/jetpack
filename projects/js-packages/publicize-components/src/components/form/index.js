@@ -13,7 +13,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { Fragment, createInterpolateElement, useMemo, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
-import useDismissNotice from '../../hooks/use-dismiss-notice';
+import useDismissNotice, { INSTAGRAM_NOTICE } from '../../hooks/use-dismiss-notice';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
@@ -58,7 +58,7 @@ export default function PublicizeForm( {
 		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
-	const { dismissedNotices, dismissNotice } = useDismissNotice();
+	const { dismissNotice, shouldShowNotice } = useDismissNotice();
 
 	const { isInstagramConnectionSupported } = useSelect( select => ( {
 		isInstagramConnectionSupported: select( PUBLICIZE_STORE_ID ).isInstagramConnectionSupported(),
@@ -71,10 +71,10 @@ export default function PublicizeForm( {
 	const shouldShowInstagramNotice =
 		! hasInstagramConnection &&
 		isInstagramConnectionSupported &&
-		! dismissedNotices.includes( 'instagram' );
+		shouldShowNotice( INSTAGRAM_NOTICE );
 
 	const onDismissInstagramNotice = useCallback( () => {
-		dismissNotice( 'instagram' );
+		dismissNotice( INSTAGRAM_NOTICE );
 	}, [ dismissNotice ] );
 	const shouldDisableMediaPicker =
 		isSocialImageGeneratorAvailable && isSocialImageGeneratorEnabledForPost;
@@ -163,6 +163,29 @@ export default function PublicizeForm( {
 		[ isPublicizeDisabledBySitePlan, validationErrors ]
 	);
 
+	const renderInstagramNotice = () => {
+		return isEnhancedPublishingEnabled ? (
+			<Notice type={ 'warning' }>
+				{ __(
+					'To share to Instagram, add an image/video, or enable Social Image Generator.',
+					'jetpack'
+				) }
+				<br />
+				<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+					{ __( 'Learn more', 'jetpack' ) }
+				</ExternalLink>
+			</Notice>
+		) : (
+			<Notice type={ 'warning' }>
+				{ __( 'You need a featured image to share to Instagram.', 'jetpack' ) }
+				<br />
+				<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+					{ __( 'Learn more', 'jetpack' ) }
+				</ExternalLink>
+			</Notice>
+		);
+	};
+
 	return (
 		<Wrapper>
 			{ hasConnections && (
@@ -250,13 +273,7 @@ export default function PublicizeForm( {
 					</PanelRow>
 					{ showValidationNotice &&
 						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR ) ? (
-							<Notice type={ 'warning' }>
-								{ __( 'You need a valid image in your post to share to Instagram.', 'jetpack' ) }
-								<br />
-								<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
-									{ __( 'Learn more', 'jetpack' ) }
-								</ExternalLink>
-							</Notice>
+							renderInstagramNotice()
 						) : (
 							<Notice type={ 'warning' }>
 								<p>

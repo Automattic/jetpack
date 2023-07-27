@@ -93,10 +93,13 @@ export default class PageActions {
 	/**
 	 * Waits for page to reach the 'networkidle' load state or timeout in given ms
 	 *
+	 * TODO: Deprecate and remove this, see https://github.com/playwright-community/eslint-plugin-playwright/blob/main/docs/rules/no-networkidle.md
+	 *
 	 * @param {number} timeout
 	 * @return {Promise<void>}
 	 */
 	async waitForNetworkIdle( timeout = this.timeout ) {
+		// eslint-disable-next-line playwright/no-networkidle
 		await this.waitForLoadState( 'networkidle', timeout );
 	}
 

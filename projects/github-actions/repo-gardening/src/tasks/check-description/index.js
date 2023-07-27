@@ -94,7 +94,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
 
 		// Look for a code freeze date in the milestone description.
-		const dateRegex = /^Code Freeze: (\d{4}-\d{2}-\d{2})\s*$/m;
+		const dateRegex = /^(?:Code Freeze|Branch Cut): (\d{4}-\d{2}-\d{2})\s*$/m;
 		const freezeDateDescription = nextMilestone.description.match( dateRegex );
 
 		// If we have a date and it is valid, use it, otherwise set code freeze to a week before the release.

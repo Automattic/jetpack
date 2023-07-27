@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import Spinner from '../../../elements/Spinner.svelte';
+	import TemplatedString from '../../../elements/TemplatedString.svelte';
+	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import { ISA_Data, isaData, isaDataLoading } from '../store/isa-data';
 	import { ISAStatus, isaSummary } from '../store/isa-summary';
 	import BrokenDataRow from './row-types/BrokenDataRow.svelte';
@@ -9,6 +11,9 @@
 	import LoadingRow from './row-types/LoadingRow.svelte';
 
 	$: activeFilter = $isaData.query.group === 'ignored' ? 'ignored' : 'active';
+
+	export let needsRefresh: boolean;
+	export let refresh: () => Promise< void >;
 
 	let isLoading = false;
 	let ignoreStatusUpdated = false;
@@ -47,9 +52,19 @@
 
 {#if ! isLoading && activeImages.length === 0}
 	<h1>
-		{jobFinished
-			? __( '🥳 No image size issues found!', 'jetpack-boost' )
-			: __( 'No image size issues found yet…', 'jetpack-boost' )}
+		{#if needsRefresh}
+			<TemplatedString
+				template={__(
+					'<refresh>Refresh</refresh> to see the latest recommendations.',
+					'jetpack-boost'
+				)}
+				vars={actionLinkTemplateVar( () => refresh(), 'refresh' )}
+			/>
+		{:else}
+			{jobFinished
+				? __( '🥳 No image size issues found!', 'jetpack-boost' )
+				: __( 'No image size issues found yet…', 'jetpack-boost' )}
+		{/if}
 	</h1>
 {:else}
 	<div class="jb-table" class:jb-loading={isLoading}>
@@ -107,6 +122,11 @@
 		}
 	}
 	.jb-table-header {
+		/* Hide on small screens */
+		@media ( max-width: 782px ) {
+			display: none;
+		}
+
 		font-size: 0.875rem;
 		color: var( --gray-60 );
 		border: var( --border );

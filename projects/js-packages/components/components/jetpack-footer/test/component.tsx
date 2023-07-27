@@ -7,7 +7,6 @@ describe( 'JetpackFooter', () => {
 	const className = 'sample-classname';
 	const moduleName = 'Test module';
 	const moduleNameHref = 'https://jetpack.com/path/to-some-page';
-	const a8cLogoHref = 'https://automattic.com';
 
 	describe( 'Render the component', () => {
 		const menu = [
@@ -71,12 +70,11 @@ describe( 'JetpackFooter', () => {
 		} );
 
 		it( 'should render the Automattic logo', () => {
-			render( <JetpackFooter a8cLogoHref={ a8cLogoHref } /> );
+			render( <JetpackFooter /> );
 
 			const element = screen.getByLabelText( 'An Automattic Airline', { selector: 'a' } );
 
 			expect( element ).toBeInTheDocument();
-			expect( element ).toHaveAttribute( 'href', a8cLogoHref );
 		} );
 
 		it( 'should render a list', () => {
@@ -86,7 +84,7 @@ describe( 'JetpackFooter', () => {
 
 			expect( element ).toBeInTheDocument();
 			// eslint-disable-next-line testing-library/no-node-access
-			expect( element.children ).toHaveLength( 2 + menu.length );
+			expect( element.children ).toHaveLength( 2 + 3 + menu.length ); // 2 logos, 3 generic links
 		} );
 
 		it( 'should render the links', () => {
@@ -113,7 +111,6 @@ describe( 'JetpackFooter', () => {
 					className={ className }
 					moduleName={ moduleName }
 					moduleNameHref={ moduleNameHref }
-					a8cLogoHref={ a8cLogoHref }
 					menu={ menu }
 				/>
 			);
