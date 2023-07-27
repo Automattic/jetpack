@@ -33,7 +33,7 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	public static $connected_account_id_option_name = 'jetpack-memberships-connected-account-id';
+	public static $has_connected_account_option_name = 'jetpack-memberships-has-connected-account';
 
 	/**
 	 * Post meta that will store the level of access for newsletters
@@ -282,7 +282,7 @@ class Jetpack_Memberships {
 	 */
 	public function should_render_button_preview( $block ) {
 		$user_can_edit              = static::user_can_edit();
-		$requires_stripe_connection = ! static::get_connected_account_id();
+		$requires_stripe_connection = ! static::has_connected_account();
 
 		$jetpack_ready = ! self::is_enabled_jetpack_recurring_payments();
 
@@ -428,10 +428,10 @@ class Jetpack_Memberships {
 	/**
 	 * Get the id of the connected payment acount (Stripe etc).
 	 *
-	 * @return int|void
+	 * @return bool
 	 */
-	public static function get_connected_account_id() {
-		return get_option( self::$connected_account_id_option_name );
+	public static function has_connected_account() {
+		return get_option( self::$has_connected_account_option_name, false ) ? true : false;
 	}
 
 	/**
