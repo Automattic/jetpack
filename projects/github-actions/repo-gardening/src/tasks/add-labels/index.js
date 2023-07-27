@@ -142,7 +142,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		const module = file.match( /^projects\/plugins\/jetpack\/modules\/(?<module>[^/]*)\// );
 		const moduleName = module && module.groups.module;
 		if ( moduleName ) {
-			keywords.add( `${ cleanName( moduleName ) }` );
+			keywords.add( `[Feature] ${ cleanName( moduleName ) }` );
 		}
 
 		// Actions.
@@ -199,7 +199,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		// WPCOM API.
 		const wpcomApi = file.match( /^projects\/plugins\/jetpack\/json-endpoints\// );
 		if ( wpcomApi !== null ) {
-			keywords.add( 'WPCOM API' );
+			keywords.add( '[Feature] WPCOM API' );
 		}
 
 		// CRM elements.
@@ -248,7 +248,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 	// If we're touching that package, let's add the Photon label too
 	// so we can keep track of changes to the feature.
 	if ( keywords.has( '[Package] Image Cdn' ) ) {
-		keywords.add( 'Photon' );
+		keywords.add( '[Feature] Photon' );
 	}
 
 	// Add '[Status] In Progress' for draft PRs
