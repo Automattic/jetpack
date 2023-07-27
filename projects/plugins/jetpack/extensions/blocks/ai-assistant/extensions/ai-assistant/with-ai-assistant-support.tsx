@@ -328,10 +328,7 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 						} }
 						onRequest={ () => {
 							requestSuggestion( userPrompt );
-							// close the popover after 2 seconds
-							setTimeout( () => {
-								hideAssistant();
-							}, 2000 );
+							hideAssistant();
 						} }
 					/>
 				</KeyboardShortcuts>
