@@ -50,12 +50,6 @@ type useAiSuggestionsOptions = {
 	 */
 	autoRequest?: boolean;
 
-	/*
-	 * The post ID.
-	 * It's value, when defined, will be passed to the askQuestion function.
-	 */
-	postId?: number;
-
 	/**
 	 * AskQuestion options.
 	 */
@@ -178,7 +172,6 @@ export default function useAiSuggestions( {
 	prompt,
 	autoRequest = false,
 	askQuestionOptions = {},
-	postId,
 	onSuggestion,
 	onDone,
 	onError,
@@ -257,18 +250,8 @@ export default function useAiSuggestions( {
 			// Set the request status.
 			setRequestingState( 'requesting' );
 
-			const options = {
-				...askQuestionOptions,
-			};
-
-			// Pass the post ID to the askQuestion function, when defined.
-			if ( postId ) {
-				debug( 'Post ID: %s', postId );
-				options.postId = postId;
-			}
-
 			try {
-				eventSourceRef.current = await askQuestion( promptArg, options );
+				eventSourceRef.current = await askQuestion( promptArg, askQuestionOptions );
 
 				if ( ! eventSourceRef?.current ) {
 					return;
@@ -295,7 +278,6 @@ export default function useAiSuggestions( {
 			}
 		},
 		[
-			postId,
 			handleDone,
 			handleErrorQuotaExceededError,
 			handleUnclearPromptError,
