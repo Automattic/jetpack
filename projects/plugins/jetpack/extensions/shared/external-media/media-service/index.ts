@@ -33,6 +33,15 @@ enum WpcomMediaEndpoints {
 }
 
 /**
+ * WPCOM media type of the WPCOM Media Api.
+ */
+// eslint-disable-next-line no-shadow
+enum WpcomMediaItemType {
+	Image = 'image',
+	Video = 'video',
+}
+
+/**
  * Gutenberg media category search DTO.
  */
 type MediaSearch = {
@@ -63,6 +72,7 @@ type WpcomMediaItem = {
 	thumbnails: {
 		thumbnail: string;
 	};
+	type: WpcomMediaItemType;
 };
 
 /**
@@ -132,7 +142,11 @@ const buildMediaCategory = (
 			} ),
 			method: 'GET',
 		} )
-			.then( ( response: WpcomMediaResponse ) => response.media.map( mapWpcomMediaToMedia ) )
+			.then( ( response: WpcomMediaResponse ) =>
+				response.media
+					//.filter( wpcomMediaItem => wpcomMediaItem.type === WpcomMediaItemType.Image )
+					.map( mapWpcomMediaToMedia )
+			)
 			// Null object pattern, we don't want to break if the API fails.
 			.catch( () => [] ),
 	getReportUrl: null,
