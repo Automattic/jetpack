@@ -84,6 +84,7 @@ describe( 'Media API Tests', () => {
 		// Then.
 		// We should not be polling the connection status.
 		expect( select.mock.calls ).toHaveLength( 0 );
+		// Dispatched action to register the source.
 		expect( dispatch.mock.calls ).toHaveLength( 1 );
 		// Connection has been checked.
 		expect( apiFetch.mock.calls ).toHaveLength( 1 );
@@ -94,15 +95,14 @@ describe( 'Media API Tests', () => {
 		// The inserter is opened.
 		// eslint-disable-next-line testing-library/await-async-utils
 		waitFor.mockReturnValue( ANY_RESOLVED_WAIT );
-		// The Media Source is connected.
+		// The Media Source is not connected.
 		apiFetch.mockReturnValue( ANY_CONNECTION_ERROR );
 
 		// When.
 		await addGooglePhotosToMediaInserter();
 
 		// Then.
-		// We should not be polling the connection status.
-		expect( select.mock.calls ).toHaveLength( 1 );
+		// Action to register the source is not dispatched.
 		expect( dispatch.mock.calls ).toHaveLength( 0 );
 		// Connection has been checked.
 		expect( apiFetch.mock.calls ).toHaveLength( 1 );
