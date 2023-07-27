@@ -18,7 +18,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: 'grow',
+	category: 'earn',
 	keywords: [],
 	supports: {
 		customClassName: false,
