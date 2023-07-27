@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
@@ -23,9 +24,23 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isLinked = this.props.isLinked,
 				isOfflineMode = this.props.isOfflineMode,
 				siteRawUrl = this.props.siteRawUrl,
+				siteAdminUrl = this.props.siteAdminUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
+				hasSocialBasicFeatures = this.props.hasSocialBasicFeatures,
+				hasSocialAdvancedFeatures = this.props.hasSocialAdvancedFeatures,
+				isAtomicSite = this.props.isAtomicSite,
+				activeFeatures = this.props.activeFeatures,
 				userCanManageModules = this.props.userCanManageModules;
 
+			const showUpgradeLink =
+				! isAtomicSite &&
+				activeFeatures &&
+				activeFeatures.length > 0 &&
+				isActive &&
+				! hasSocialAdvancedFeatures;
+
+			// We need to strip off the trailing slash for the pricing modal to open correctly.
+			const redirectUrl = encodeURIComponent( siteAdminUrl.replace( /\/$/, '' ) );
 			const configCard = () => {
 				if ( unavailableInOfflineMode ) {
 					return;
@@ -77,6 +92,51 @@ export const Publicize = withModuleSettingsFormHelpers(
 									'jetpack'
 								) }
 							</p>
+							{ showUpgradeLink && (
+								<>
+									<p>
+										{ ! hasSocialBasicFeatures
+											? createInterpolateElement(
+													__(
+														'<moreInfo>Upgrade to a Jetpack Social plan</moreInfo> to get unlimited shares and advanced media sharing options.',
+														'jetpack'
+													),
+													{
+														moreInfo: (
+															<a
+																href={ getRedirectUrl(
+																	'jetpack-plugin-admin-page-sharings-screen',
+																	{
+																		site: siteRawUrl,
+																		query: 'redirect_to=' + redirectUrl,
+																	}
+																) }
+															/>
+														),
+													}
+											  )
+											: createInterpolateElement(
+													__(
+														'<moreInfo>Upgrade to the Jetpack Social Advanced plan</moreInfo> to get advanced media sharing options.',
+														'jetpack'
+													),
+													{
+														moreInfo: (
+															<a
+																href={ getRedirectUrl(
+																	'jetpack-plugin-admin-page-sharings-screen',
+																	{
+																		site: siteRawUrl,
+																		query: 'redirect_to=' + redirectUrl,
+																	}
+																) }
+															/>
+														),
+													}
+											  ) }
+									</p>
+								</>
+							) }
 							<ModuleToggle
 								slug="publicize"
 								disabled={ unavailableInOfflineMode || ! this.props.isLinked }
