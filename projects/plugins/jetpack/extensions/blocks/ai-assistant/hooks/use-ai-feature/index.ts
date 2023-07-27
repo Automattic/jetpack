@@ -13,6 +13,7 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'error-message': string;
 	'error-code': string;
 	'is-playground-visible': boolean;
+	'upgrade-prompt-type': string;
 };
 
 type AIFeatureProps = {
@@ -23,6 +24,7 @@ type AIFeatureProps = {
 	requireUpgrade: boolean;
 	errorMessage: string;
 	errorCode: string;
+	upgradePromptType: string;
 };
 
 const NUM_FREE_REQUESTS_LIMIT = 20;
@@ -37,6 +39,7 @@ export const AI_Assistant_Initial_State = {
 	requireUpgrade: !! aiAssistantFeature?.[ 'site-require-upgrade' ],
 	errorMessage: aiAssistantFeature?.[ 'error-message' ] || '',
 	errorCode: aiAssistantFeature?.[ 'error-code' ],
+	upgradePromptType: aiAssistantFeature?.[ 'upgrade-prompt-type' ],
 };
 
 export async function getAIFeatures(): Promise< AIFeatureProps > {
@@ -53,6 +56,7 @@ export async function getAIFeatures(): Promise< AIFeatureProps > {
 			requireUpgrade: !! response[ 'site-require-upgrade' ],
 			errorMessage: response[ 'error-message' ],
 			errorCode: response[ 'error-code' ],
+			upgradePromptType: response[ 'upgrade-prompt-type' ],
 		};
 	} catch ( error ) {
 		console.error( error ); // eslint-disable-line no-console
