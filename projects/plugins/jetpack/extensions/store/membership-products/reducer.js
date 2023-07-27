@@ -43,7 +43,7 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 				...state,
 				counts: {
 					...state.counts,
-					emailSubscribers: action.socialFollowers,
+					emailSubscribers: action.emailSubscribers,
 				},
 			};
 		case 'SET_PAID_SUBSCRIBER_COUNT':
@@ -51,7 +51,7 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 				...state,
 				counts: {
 					...state.counts,
-					paidSubscribers: action.socialFollowers,
+					paidSubscribers: action.paidSubscribers,
 				},
 			};
 		case 'SET_ACCESS_LEVEL':
