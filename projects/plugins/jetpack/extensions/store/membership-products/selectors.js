@@ -32,3 +32,7 @@ export const getEmailSubscriberCount = state => state.counts.emailSubscribers;
 export const getPaidSubscriberCount = state => state.counts.paidSubscribers;
 
 export const getSubscriberCounts = state => state.counts;
+
+export const getAccessLevel = state => state.accessLevel;
+
+export const getShowMisconfigurationWarning = state => state.showMisconfigurationWarning;

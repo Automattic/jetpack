@@ -32,7 +32,7 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 	}
 }
 
-export function NewsletterNotice( { accessLevel, showMisconfigurationWarning } ) {
+export function NewsletterNotice() {
 	const { hasPostBeenPublished, hasPostBeenScheduled } = useSelect( select => {
 		const { isCurrentPostPublished, isCurrentPostScheduled } = select( editorStore );
 
@@ -42,14 +42,23 @@ export function NewsletterNotice( { accessLevel, showMisconfigurationWarning } )
 		};
 	} );
 
-	const { emailSubscribers, paidSubscribers } = useSelect( select => {
-		const { getEmailSubscriberCount, getPaidSubscriberCount } = select( membershipProductsStore );
+	const { emailSubscribers, paidSubscribers, accessLevel, showMisconfigurationWarning } = useSelect(
+		select => {
+			const {
+				getEmailSubscriberCount,
+				getPaidSubscriberCount,
+				getAccessLevel,
+				getShowMisconfigurationWarning,
+			} = select( membershipProductsStore );
 
-		return {
-			emailSubscribers: getEmailSubscriberCount(),
-			paidSubscribers: getPaidSubscriberCount(),
-		};
-	} );
+			return {
+				emailSubscribers: getEmailSubscriberCount(),
+				paidSubscribers: getPaidSubscriberCount(),
+				accessLevel: getAccessLevel(),
+				showMisconfigurationWarning: getShowMisconfigurationWarning(),
+			};
+		}
+	);
 
 	// If there is a misconfiguration, we do not show the NewsletterNotice
 	if ( showMisconfigurationWarning ) {
@@ -170,14 +179,19 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 
 function NewsletterAccessRadioButtons( {
 	onChange,
-	accessLevel,
 	hasNewsletterPlans,
 	stripeConnectUrl,
-	showMisconfigurationWarning,
 	isEditorPanel = false,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons );
+	const { accessLevel } = useSelect( select => {
+		const { getAccessLevel } = select( 'jetpack/membership-products' );
+
+		return {
+			accessLevel: getAccessLevel(),
+		};
+	} );
 
 	return (
 		<fieldset className="editor-post-visibility__fieldset">
@@ -210,10 +224,7 @@ function NewsletterAccessRadioButtons( {
 					</label>
 					{ key === accessLevel && key !== accessOptions.everybody.key && (
 						<p className="editor-post-visibility__notice">
-							<NewsletterNotice
-								accessLevel={ accessLevel }
-								showMisconfigurationWarning={ showMisconfigurationWarning }
-							/>
+							<NewsletterNotice />
 						</p>
 					) }
 				</div>
@@ -229,11 +240,17 @@ function NewsletterAccessRadioButtons( {
 	);
 }
 
-export function NewsletterAccessDocumentSettings( {
-	accessLevel,
-	setPostMeta,
-	showMisconfigurationWarning,
-} ) {
+export function NewsletterAccessDocumentSettings( { setPostMeta } ) {
+	const { accessLevel, showMisconfigurationWarning } = useSelect( select => {
+		const { getAccessLevel, getShowMisconfigurationWarning } = select(
+			'jetpack/membership-products'
+		);
+
+		return {
+			accessLevel: getAccessLevel(),
+			showMisconfigurationWarning: getShowMisconfigurationWarning(),
+		};
+	} );
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
 		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
@@ -287,11 +304,17 @@ export function NewsletterAccessDocumentSettings( {
 	);
 }
 
-export function NewsletterAccessPrePublishSettings( {
-	accessLevel,
-	setPostMeta,
-	showMisconfigurationWarning,
-} ) {
+export function NewsletterAccessPrePublishSettings( { setPostMeta } ) {
+	const { accessLevel, showMisconfigurationWarning } = useSelect( select => {
+		const { getAccessLevel, getShowMisconfigurationWarning } = select(
+			'jetpack/membership-products'
+		);
+
+		return {
+			accessLevel: getAccessLevel(),
+			showMisconfigurationWarning: getShowMisconfigurationWarning(),
+		};
+	} );
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
 		const { getProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
@@ -327,10 +350,8 @@ export function NewsletterAccessPrePublishSettings( {
 								<FlexBlock>
 									<NewsletterAccessRadioButtons
 										onChange={ setPostMeta }
-										accessLevel={ _accessLevel }
 										stripeConnectUrl={ stripeConnectUrl }
 										hasNewsletterPlans={ hasNewsletterPlans }
-										showMisconfigurationWarning={ showMisconfigurationWarning }
 									/>
 								</FlexBlock>
 							</>

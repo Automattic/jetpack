@@ -1,7 +1,13 @@
 import apiFetch from '@wordpress/api-fetch';
+import { useEntityProp } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
-import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
+import {
+	PRODUCT_TYPE_PAYMENT_PLAN,
+	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+	accessOptions,
+} from '../../shared/components/product-management-controls/constants';
 import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
 import executionLock from '../../shared/execution-lock';
 import getConnectUrl from '../../shared/get-connect-url';
@@ -15,9 +21,12 @@ import {
 	setSocialFollowerCount,
 	setEmailSubscriberCount,
 	setPaidSubscriberCount,
+	setAccessLevel,
+	setShowMisconfigurationWarning,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
+import { store as membershipProductsStore } from './';
 
 const EXECUTION_KEY = 'membership-products-resolver-getProducts';
 const SUBSCRIBER_COUNT_EXECUTION_KEY = 'membership-products-resolver-getSubscriberCounts';
@@ -197,4 +206,39 @@ export const getSubscriberCounts =
 			onError( error.message, registry );
 		}
 		executionLock.release( lock );
+	};
+
+export const getAccessLevel =
+	() =>
+	async ( { dispatch } ) => {
+		const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+		const [ postMeta = [] ] = useEntityProp( 'postType', postType, 'meta' );
+
+		// Set the accessLevel to "everybody" when one is not defined
+		let accessLevel =
+			postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? accessOptions.everybody.key;
+
+		// If accessLevel is ''
+		if ( ! accessLevel ) {
+			accessLevel = accessOptions.everybody.key;
+		}
+
+		dispatch( setAccessLevel( accessLevel ) );
+	};
+
+export const getShowMisconfigurationWarning =
+	() =>
+	async ( { dispatch } ) => {
+		// Can be “private”, “password”, or “public”.
+		const { accessLevel, postVisibility } = useSelect( select => {
+			return {
+				accessLevel: select( membershipProductsStore ).getAccessLevel(),
+				postVisibility: select( editorStore ).getEditedPostVisibility(),
+			};
+		} );
+
+		const showMisconfigurationWarning =
+			postVisibility !== 'public' && accessLevel !== accessOptions.everybody.key;
+
+		dispatch( setShowMisconfigurationWarning( showMisconfigurationWarning ) );
 	};
