@@ -26,7 +26,7 @@ class Event_New extends Base_Trigger {
 	 * Get the title of the trigger.
 	 * @return string
 	 */
-	public static function get_title(): ?string {
+	public static function get_title(): string {
 		return __( 'New Event', 'zero-bs-crm' );
 	}
 
