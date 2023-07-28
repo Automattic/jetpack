@@ -1,0 +1,68 @@
+/**
+ * External dependencies
+ */
+import { createContext } from '@wordpress/element';
+import React from 'react';
+/**
+ * Types & Constants
+ */
+import type { RequestingStateProp, RequestingErrorProps } from '../../hooks/use-ai-suggestions';
+import type { PromptTypeProp } from '../../types';
+
+type AiAssistantDataContextProps = {
+	/*
+	 * Suggestion value
+	 */
+	suggestion: string;
+
+	/*
+	 * Suggestion error
+	 */
+	requestingError: RequestingErrorProps;
+
+	/*
+	 * Requesting state
+	 */
+	requestingState: RequestingStateProp;
+
+	/*
+	 * Request suggestion function
+	 */
+	requestSuggestion: ( prompt: PromptTypeProp ) => void;
+};
+
+type AiAssistantDataContextProviderProps = {
+	/*
+	 * Open the AI Assistant
+	 */
+	value: AiAssistantDataContextProps;
+
+	/*
+	 * Children
+	 */
+	children: React.ReactNode;
+};
+
+/**
+ * Ai Assistant Context
+ *
+ * @returns {AiAssistantDataContextProps} Context.
+ */
+export const AiAssistantDataContext = createContext( {} as AiAssistantDataContextProps );
+
+/**
+ * Ai Assistant Context Provider
+ *
+ * @param {AiAssistantDataContextProviderProps} props - Component props.
+ * @returns {React.ReactNode}                           Context provider.
+ * @example
+ * <AiAssistantDataContextProvider value={ value }>
+ * 	{ children }
+ * </AiAssistantDataContextProvider>
+ */
+export const AiAssistantDataContextProvider = ( {
+	value,
+	children,
+}: AiAssistantDataContextProviderProps ): React.ReactNode => (
+	<AiAssistantDataContext.Provider value={ value } children={ children } />
+);
