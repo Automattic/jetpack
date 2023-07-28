@@ -55,7 +55,7 @@ class Event_New extends Base_Trigger {
 	/**
 	 * Listen to this trigger's target event.
 	 */
-	protected function listen_to_event() {
+	protected function listen_to_event(): void {
 		add_action(
 			'jpcrm_event_new',
 			array( $this, 'execute_workflow' )
