@@ -13,7 +13,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { Fragment, createInterpolateElement, useMemo, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
-import useDismissNotice, { INSTAGRAM_NOTICE } from '../../hooks/use-dismiss-notice';
+import useDismissNotice from '../../hooks/use-dismiss-notice';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
@@ -58,7 +58,7 @@ export default function PublicizeForm( {
 		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
-	const { dismissNotice, shouldShowNotice } = useDismissNotice();
+	const { dismissNotice, shouldShowNotice, NOTICES } = useDismissNotice();
 
 	const { isInstagramConnectionSupported } = useSelect( select => ( {
 		isInstagramConnectionSupported: select( PUBLICIZE_STORE_ID ).isInstagramConnectionSupported(),
@@ -71,11 +71,11 @@ export default function PublicizeForm( {
 	const shouldShowInstagramNotice =
 		! hasInstagramConnection &&
 		isInstagramConnectionSupported &&
-		shouldShowNotice( INSTAGRAM_NOTICE );
+		shouldShowNotice( NOTICES.instagram );
 
 	const onDismissInstagramNotice = useCallback( () => {
-		dismissNotice( INSTAGRAM_NOTICE );
-	}, [ dismissNotice ] );
+		dismissNotice( NOTICES.instagram );
+	}, [ dismissNotice, NOTICES ] );
 	const shouldDisableMediaPicker =
 		isSocialImageGeneratorAvailable && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
