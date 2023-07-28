@@ -2,11 +2,13 @@
  * External dependencies
  */
 import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { serialize } from '@wordpress/blocks';
 import { Modal, Button, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, close } from '@wordpress/icons';
+import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
@@ -16,8 +18,15 @@ import {
 	getDelimitedContent,
 	getInitialSystemPrompt,
 } from '../../../../blocks/ai-assistant/lib/prompt';
-import { getContentFromBlocks } from '../../../../blocks/ai-assistant/lib/utils/block-content';
 import './style.scss';
+
+// Turndown instance
+const turndownService = new TurndownService();
+
+const usePostContent = () => {
+	const blocks = useSelect( select => select( 'core/editor' ).getBlocks(), [] );
+	return blocks?.length ? turndownService.turndown( serialize( blocks ) ) : '';
+};
 
 const ModalHeader = ( { loading, onClose } ) => {
 	return (
@@ -36,7 +45,9 @@ const ModalHeader = ( { loading, onClose } ) => {
 export default function Proofread() {
 	const [ isProofreadModalVisible, setIsProofreadModalVisible ] = useState( false );
 	const [ suggestion, setSuggestion ] = useState( null );
+
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
+	const postContent = usePostContent();
 
 	const toggleProofreadModal = () => {
 		setIsProofreadModalVisible( ! isProofreadModalVisible );
@@ -83,7 +94,6 @@ export default function Proofread() {
 				useMarkdown: false,
 			} ),
 		];
-		const postContent = getContentFromBlocks();
 		messages.push( {
 			role: 'user',
 			content: `Provide a short feedback about the post content delimited with ${ delimiter }. If it could be improved, provide a list of actions on how to do it. ${ getDelimitedContent(
@@ -115,7 +125,7 @@ export default function Proofread() {
 					'jetpack'
 				) }
 			</p>
-			<Button onClick={ handleRequest } variant="secondary">
+			<Button onClick={ handleRequest } variant="secondary" disabled={ ! postContent }>
 				{ __( 'Generate feedback', 'jetpack' ) }
 			</Button>
 		</div>
