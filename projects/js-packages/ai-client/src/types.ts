@@ -11,7 +11,16 @@ export type SuggestionErrorCode =
 	| typeof ERROR_NETWORK
 	| typeof ERROR_UNCLEAR_PROMPT;
 
+/*
+ * Prompt types
+ */
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant';
 	content: string;
 };
+
+export type PromptMessagesProps = {
+	prompt: Array< PromptItemProps >;
+};
+
+export type PromptTypeProp = PromptMessagesProps | string;
