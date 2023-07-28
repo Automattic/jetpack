@@ -29,7 +29,6 @@ class Event_Trigger_Test extends BaseTestCase {
 	 * @testdox Test the event new trigger executes the workflow with an action
 	 */
 	public function test_event_new_trigger() {
-
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/event_new' );
 
 		// Build a PHPUnit mock Automation_Workflow
@@ -61,7 +60,6 @@ class Event_Trigger_Test extends BaseTestCase {
 	 * @testdox Test the event deleted trigger executes the workflow with an action
 	 */
 	public function test_event_deleted_trigger() {
-
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/event_deleted' );
 
 		$trigger = new Event_Deleted();
