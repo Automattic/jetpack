@@ -78,7 +78,7 @@ export default function PublicizeForm( {
 
 	const onDismissInstagramNotice = useCallback( () => {
 		dismissNotice( NOTICES.instagram );
-	}, [ NOTICES, dismissNotice ] );
+	}, [ dismissNotice, NOTICES ] );
 	const shouldDisableMediaPicker =
 		isSocialImageGeneratorAvailable && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
