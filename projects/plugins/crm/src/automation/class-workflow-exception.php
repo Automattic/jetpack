@@ -15,6 +15,5 @@ class Workflow_Exception extends \Exception {
 	const WORKFLOW_REQUIRE_A_TRIGGER      = 11;
 	const WORKFLOW_REQUIRE_A_INITIAL_STEP = 12;
 	const ERROR_INITIALIZING_TRIGGER      = 13;
-
-	const MISSING_ENGINE_INSTANCE = 14;
+	const MISSING_ENGINE_INSTANCE         = 14;
 }
