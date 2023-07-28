@@ -1,4 +1,4 @@
-import { FormToggle } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import ConnectionIcon from '../connection-icon';
@@ -16,15 +16,16 @@ const ConnectionToggle = props => {
 	return (
 		<div className={ wrapperClasses }>
 			<ConnectionIcon
-				id={ id }
 				serviceName={ serviceName }
 				label={ label }
 				profilePicture={ profilePicture }
 			/>
-			<FormToggle
+			<ToggleControl
+				style={ { margin: 'auto' } }
 				id={ id }
 				className={ className }
 				checked={ checked }
+				label={ label }
 				onChange={ onChange }
 				disabled={ disabled }
 			/>
