@@ -65,6 +65,8 @@ class Queue {
 	 * Add a single item to the queue.
 	 *
 	 * @param object $item Event object to add to queue.
+	 *
+	 * @return bool|WP_Error
 	 */
 	public function add( $item ) {
 		$added = false;
