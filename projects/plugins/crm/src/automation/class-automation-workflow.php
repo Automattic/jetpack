@@ -42,10 +42,9 @@ class Automation_Workflow {
 	/**
 	 * Automation_Workflow constructor.
 	 *
-	 * @param array             $workflow_data The workflow data to be constructed.
-	 * @param Automation_Engine $automation_engine An instance of the Automation_Engine class.
+	 * @param array $workflow_data The workflow data to be constructed.
 	 */
-	public function __construct( array $workflow_data, Automation_Engine $automation_engine ) {
+	public function __construct( array $workflow_data ) {
 		$this->id           = $workflow_data['id'] ?? null;
 		$this->triggers     = $workflow_data['triggers'] ?? array();
 		$this->initial_step = $workflow_data['initial_step'] ?? array();
@@ -53,8 +52,6 @@ class Automation_Workflow {
 		$this->description  = $workflow_data['description'] ?? '';
 		$this->category     = $workflow_data['category'] ?? '';
 		$this->active       = $workflow_data['is_active'] ?? true;
-
-		$this->automation_engine = $automation_engine;
 	}
 
 	/**
@@ -99,7 +96,7 @@ class Automation_Workflow {
 
 		foreach ( $this->get_triggers() as $trigger_slug ) {
 			try {
-				$trigger_class = $this->automation_engine->get_trigger_class( $trigger_slug );
+				$trigger_class = $this->get_engine()->get_trigger_class( $trigger_slug );
 
 				/** @var Base_Trigger $trigger */
 				$trigger = new $trigger_class();
@@ -168,7 +165,7 @@ class Automation_Workflow {
 			try {
 				$step_slug = $step_data['slug'];
 
-				$step_class = $step_data['class_name'] ?? $this->automation_engine->get_step_class( $step_slug );
+				$step_class = $step_data['class_name'] ?? $this->get_engine()->get_step_class( $step_slug );
 
 				if ( ! class_exists( $step_class ) ) {
 					throw new Automation_Exception(
@@ -216,7 +213,7 @@ class Automation_Workflow {
 	private function get_step_class( array $step_data ): string {
 		$step_type = $step_data['type'];
 
-		return $this->automation_engine->get_step_class( $step_type );
+		return $this->get_engine()->get_step_class( $step_type );
 	}
 
 	/**
@@ -247,6 +244,35 @@ class Automation_Workflow {
 	 */
 	public function add_trigger( string $string ) {
 		$this->triggers[] = $string;
+	}
+
+	/**
+	 * Set the automation engine
+	 *
+	 * @param Automation_Engine $engine An instance of the Automation_Engine class.
+	 * @return void
+	 */
+	public function set_engine( Automation_Engine $engine ) {
+		$this->automation_engine = $engine;
+	}
+
+	/**
+	 * Get the automation engine
+	 *
+	 * @return Automation_Engine
+	 *
+	 * @throws Workflow_Exception Throws an exception if there is no engine instance.
+	 */
+	protected function get_engine(): Automation_Engine {
+		if ( ! $this->automation_engine instanceof Automation_Engine ) {
+			throw new Workflow_Exception(
+				/* Translators: %s The ID of the workflow. */
+				sprintf( __( '[%s] Cannot run workflow logic without an engine instance', 'zero-bs-crm' ), $this->get_id() ),
+				Workflow_Exception::MISSING_ENGINE_INSTANCE
+			);
+		}
+
+		return $this->automation_engine;
 	}
 
 	/**

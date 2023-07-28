@@ -23,7 +23,7 @@ class Automation_Engine {
 	/** @var array steps map name => classname */
 	private $steps_map = array();
 
-	/** @var Automation_Logger Automation logger */
+	/** @var ?Automation_Logger Automation logger */
 	private $automation_logger;
 
 	/** @var array */
@@ -234,10 +234,10 @@ class Automation_Engine {
 	/**
 	 * Get Automation logger
 	 *
-	 * @return Automation_Logger
+	 * @return Automation_Logger Return an instance of the Automation_Logger class.
 	 */
-	public function get_logger(): ?Automation_Logger {
-		return $this->automation_logger;
+	public function get_logger(): Automation_Logger {
+		return $this->automation_logger ?? Automation_Logger::instance();
 	}
 
 	/**
