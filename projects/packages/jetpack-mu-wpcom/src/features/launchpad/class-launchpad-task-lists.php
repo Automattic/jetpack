@@ -299,7 +299,7 @@ class Launchpad_Task_Lists {
 
 		if ( isset( $task['target_repetitions'] ) ) {
 			$built_task['target_repetitions'] = $task['target_repetitions'];
-			$built_task['repetition_count']   = $this->load_repetition_count( $task );
+			$built_task['repetition_count']   = min( $this->load_repetition_count( $task ), $task['target_repetitions'] );
 		}
 
 		return $built_task;
@@ -383,7 +383,7 @@ class Launchpad_Task_Lists {
 	 * @return int|null The repetition count for the task.
 	 */
 	private function load_repetition_count( $task ) {
-		return $this->load_value_from_callback( $task, 'repetition_count_callback' );
+		return $this->load_value_from_callback( $task, 'repetition_count_callback', 0 );
 	}
 
 	/**
