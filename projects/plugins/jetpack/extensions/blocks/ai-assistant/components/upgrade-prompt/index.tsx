@@ -23,7 +23,7 @@ import useAIFeature from '../../hooks/use-ai-feature';
  *
  * @returns {React.ReactNode} the Nudge component with the prompt.
  */
-const DefaultUpgradePrompt = () => {
+const DefaultUpgradePrompt = (): React.ReactNode => {
 	const wpcomCheckoutUrl = getRedirectUrl( 'jetpack-ai-monthly-plan-ai-assistant-block-banner', {
 		site: getSiteFragment(),
 	} );
@@ -66,7 +66,7 @@ const DefaultUpgradePrompt = () => {
  *
  * @returns {React.ReactNode} the Nudge component with the prompt.
  */
-const VIPUpgradePrompt = () => {
+const VIPUpgradePrompt = (): React.ReactNode => {
 	return (
 		<Nudge
 			buttonText={ null }
@@ -92,10 +92,10 @@ const VIPUpgradePrompt = () => {
 };
 
 const UpgradePrompt = () => {
-	const { upgradePromptType } = useAIFeature();
+	const { upgradeType } = useAIFeature();
 
 	// If the user is on a VIP site, show the VIP upgrade prompt.
-	if ( upgradePromptType === 'vip' ) {
+	if ( upgradeType === 'vip' ) {
 		return VIPUpgradePrompt();
 	}
 

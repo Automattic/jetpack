@@ -321,10 +321,11 @@ class Jetpack_AI_Helper {
 			$requests_limit = \OpenAI_Limit_Usage::get_free_requests_limit( $blog_id );
 			$requests_count = \OpenAI_Request_Count::get_count( $blog_id );
 
-			/*
-			 * Check if the site requires an upgrade.
-			 */
+			// Check if the site requires an upgrade.
 			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
+
+			// Determine the upgrade type
+			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
 
 			return array(
 				'has-feature'          => $has_ai_assistant_feature,
@@ -332,7 +333,7 @@ class Jetpack_AI_Helper {
 				'requests-count'       => $requests_count,
 				'requests-limit'       => $requests_limit,
 				'site-require-upgrade' => $require_upgrade,
-				'upgrade-prompt-type'  => wpcom_is_vip( $blog_id ) ? 'vip' : 'default',
+				'upgrade-type'         => $upgrade_type,
 			);
 		}
 
