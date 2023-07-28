@@ -37,7 +37,7 @@ class Event_Deleted extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_description(): string {
-		return __( 'Triggered when a event is deleted', 'zero-bs-crm' );
+		return __( 'Triggered when an event is deleted', 'zero-bs-crm' );
 	}
 
 	/**
