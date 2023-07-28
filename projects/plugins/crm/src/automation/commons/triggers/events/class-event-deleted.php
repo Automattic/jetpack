@@ -48,7 +48,7 @@ class Event_Deleted extends Base_Trigger {
 	 *
 	 * @return string
 	 */
-	public static function get_category(): ?string {
+	public static function get_category(): string {
 		return 'event';
 	}
 
