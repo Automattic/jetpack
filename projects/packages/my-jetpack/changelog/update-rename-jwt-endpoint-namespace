@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack: Rename the namespace of the JWT endpoint, and register it only when it isn't already registered

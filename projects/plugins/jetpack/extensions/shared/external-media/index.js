@@ -1,10 +1,8 @@
 import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
-import { select, dispatch } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
-import { waitFor } from '../wait-for';
 import MediaButton from './media-button';
-import { getPexelsMediaCategory } from './media-category';
+import { addPexelsToMediaInserter, addGooglePhotosToMediaInserter } from './media-service';
 import { mediaSources } from './sources';
 import './editor.scss';
 
@@ -20,14 +18,8 @@ function insertExternalMediaBlocks( settings, name ) {
 }
 
 if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
-	const isInserterOpened = () =>
-		select( 'core/edit-post' )?.isInserterOpened() ||
-		select( 'core/edit-site' )?.isInserterOpened() ||
-		select( 'core/edit-widgets' )?.isInserterOpened?.();
-
-	waitFor( isInserterOpened ).then( () =>
-		dispatch( 'core/block-editor' )?.registerInserterMediaCategory?.( getPexelsMediaCategory() )
-	);
+	addPexelsToMediaInserter();
+	addGooglePhotosToMediaInserter();
 
 	const isFeaturedImage = props =>
 		props.unstableFeaturedImageFlow ||

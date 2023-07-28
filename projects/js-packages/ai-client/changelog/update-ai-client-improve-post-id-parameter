@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: handle properly passing the post_id parameter to endpoint
