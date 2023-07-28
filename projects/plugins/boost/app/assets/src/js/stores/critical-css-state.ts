@@ -155,6 +155,9 @@ export const regenerateCriticalCss = async () => {
 	// Clear regeneration suggestions
 	suggestRegenerateDS.store.set( null );
 
+	// Immediately set the status to pending to disable the regenerate button
+	replaceCssState( { status: 'pending' } );
+
 	// This will clear the CSS from the database
 	// And return fresh nonce, provider and viewport data.
 	const freshState = await generateCriticalCssRequest();

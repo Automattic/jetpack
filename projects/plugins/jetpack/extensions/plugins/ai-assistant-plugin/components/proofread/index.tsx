@@ -59,7 +59,9 @@ export default function Proofread() {
 	};
 
 	const { request, requestingState } = useAiSuggestions( {
-		postId,
+		askQuestionOptions: {
+			postId,
+		},
 		onSuggestion: handleSuggestion,
 		onDone: handleDone,
 		onError: handleSuggestionError,

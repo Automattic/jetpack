@@ -68,7 +68,17 @@ export default class SuggestionsEventSource extends EventTarget {
 		token,
 		options = {},
 	}: SuggestionsEventSourceConstructorArgs ) {
-		const bodyData = { post_id: options?.postId, messages: [], question: '', feature: '' };
+		const bodyData: {
+			post_id?: number;
+			messages?: PromptItemProps[];
+			question?: string;
+			feature?: string;
+		} = {};
+
+		// Populate body data with post id
+		if ( options?.postId ) {
+			bodyData.post_id = options.postId;
+		}
 
 		// If the url is not provided, we use the default one
 		if ( ! url ) {
