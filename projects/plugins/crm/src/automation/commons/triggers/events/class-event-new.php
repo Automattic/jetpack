@@ -11,6 +11,8 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 
 /**
  * Adds the Event_New class.
+ *
+ * @since $$next-version$$
  */
 class Event_New extends Base_Trigger {
 
