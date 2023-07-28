@@ -2,7 +2,7 @@ import {
 	Sidebar,
 	PluginsPage,
 	DashboardPage,
-	JetpackPage,
+	MyJetpackPage,
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
@@ -42,12 +42,19 @@ test( 'Connect button is displayed on dashboard page', async ( { page } ) => {
 	).toBeTruthy();
 } );
 
-test( 'Connect button is displayed  on Jetpack page', async ( { page } ) => {
+test( 'Connect button is displayed on My Jetpack page', async ( { page } ) => {
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
-	const jetpackPage = await JetpackPage.init( page );
+	const myJetpackPage = await MyJetpackPage.init( page );
 	expect(
-		await jetpackPage.isConnectScreenVisible(),
+		await myJetpackPage.isConnectNoticeVisible(),
+		'My Jetpack Connection Notice should be visible'
+	).toBeTruthy();
+
+	await myJetpackPage.clickNoticeConnectButton();
+
+	expect(
+		await myJetpackPage.isConnectScreenVisible(),
 		'Connect screen should be visible'
 	).toBeTruthy();
 } );
