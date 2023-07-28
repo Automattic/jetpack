@@ -95,14 +95,9 @@ const mapSubscriberCountsAPIResponseToMembershipProductsStoreData = (
 	registry,
 	dispatch
 ) => {
-	// const postId = registry.select( editorStore ).getCurrentPostId();
-
-	dispatch( setSocialFollowerCount( response.social_followers ) );
-	dispatch( setEmailSubscriberCount( response.email_subscribers ) );
-	dispatch( setPaidSubscriberCount( response.paid_subscribers ) );
-	// dispatch(
-	// 	setApiState( response.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED )
-	// );
+	dispatch( setSocialFollowerCount( response.counts.social_followers ) );
+	dispatch( setEmailSubscriberCount( response.counts.email_subscribers ) );
+	dispatch( setPaidSubscriberCount( response.counts.paid_subscribers ) );
 };
 
 const createDefaultProduct = async (

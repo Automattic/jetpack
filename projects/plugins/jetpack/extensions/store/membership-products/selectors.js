@@ -25,10 +25,10 @@ export const isApiStateLoading = state => state.apiState === API_STATE_LOADING;
 export const isInvalidProduct = ( state, productId ) =>
 	!! productId && ! getProduct( state, productId );
 
-export const getSocialFollowerCount = state => state.counts.social_followers;
+export const getSocialFollowerCount = state => state.counts.socialFollowers;
 
-export const getEmailSubscriberCount = state => state.counts.email_subscribers;
+export const getEmailSubscriberCount = state => state.counts.emailSubscribers;
 
-export const getPaidSubscriberCount = state => state.counts.paid_subscribers;
+export const getPaidSubscriberCount = state => state.counts.paidSubscribers;
 
 export const getSubscriberCounts = state => state.counts;
