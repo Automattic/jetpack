@@ -675,8 +675,7 @@ class Jetpack_Gutenberg {
 				'error-code'    => $ai_assistant_state->get_error_code(),
 			);
 		} else {
-			$ai_assistant_state['is-playground-visible']     = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' );
-			$ai_assistant_state['is-plugin-sidebar-visible'] = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLUGIN_SIDEBAR' );
+			$ai_assistant_state['is-playground-visible'] = Constants::is_true( 'JETPACK_AI_ASSISTANT_PLAYGROUND' );
 		}
 
 		$screen_base = null;
@@ -694,18 +693,7 @@ class Jetpack_Gutenberg {
 				'is_private_site'               => $status->is_private_site(),
 				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
-				'is_newsletter_feature_enabled' => (
-					/**
-					 * Enable the Paid Newsletters feature in the block editor context.
-					 *
-					 * @module subscriptions
-					 * @since 11.8
-					 *
-					 * @param bool false Enable the Paid Newsletters feature in the block editor context.
-					 */
-					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
-					&& class_exists( '\Jetpack_Memberships' )
-				),
+				'is_newsletter_feature_enabled' => class_exists( '\Jetpack_Memberships' ),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *

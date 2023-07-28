@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs.

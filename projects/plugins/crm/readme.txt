@@ -389,26 +389,18 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.0.0 - 2023-06-21
+### 6.1.0 - 2023-07-24
 #### Added
-- CRM: Revamped CRM User Interface - Merge the sleek aesthetics of Jetpack’s style, bringing a new level of sophistication and seamless navigation to your CRM experience
-- API: Now it retrieves contacts with tags
-- Contacts: Allow unsubscribe flag to be removed
+- Listing pages: Add a new setting that allows listing pages to utilize the full width of the screen
 
 #### Changed
-- User roles: Further restricted capabilities on some roles
-- Contacts: Use sha256 instead of md5 for gravatar images
+- General: indicate full compatibility with the latest version of WordPress, 6.3
 
 #### Fixed
-- Client Portal: Fix a fatal error initializing endpoints and shortcodes
-- CRM: Fix new lines display in quote templates
-- CRM: Fix whitelabel bug with full menu layout
-- CRM: Page layout now has a max width of 1551px
-- CRM: Welcome tour now goes through all steps
-- Extensions: Catch PHP notice if offline
-- Invoices: Show assigned contact/company link
-- Listview: Per-page settings no longer reset
-- Listview: PHP notice no longer shows when saving settings
-- Quotes: Fix sort by status
-- White label: JPCRM support and resources pages no longer show
-
+- API: Fixed error 200 while saving new api connections
+- Contacts: Fix bug that prevented the creation of contacts WP user for the Client Portal
+- Contacts: Fix Filter options not available on the main contacts listing
+- File Uploads: Fix bug that prevented file uploads from working in environments where the PHP finfo_open function was not available
+- Menu: Improved alignment for items in the menu
+- OAuth/Gmail: Fix to enable sending links and images in the email content, supporting text/plain
+- Segments: Fix bug that prevented dates to be saved in some environments

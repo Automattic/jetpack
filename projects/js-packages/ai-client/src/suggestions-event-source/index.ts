@@ -6,14 +6,18 @@ import debugFactory from 'debug';
 /*
  * Types & constants
  */
-export type PromptItemProps = {
-	role: 'system' | 'user' | 'assistant';
-	content: string;
-};
+import {
+	ERROR_MODERATION,
+	ERROR_NETWORK,
+	ERROR_QUOTA_EXCEEDED,
+	ERROR_SERVICE_UNAVAILABLE,
+	ERROR_UNCLEAR_PROMPT,
+} from '../types';
+import type { PromptMessagesProp, PromptProp } from '../types';
 
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;
-	question: string | PromptItemProps[];
+	question: PromptProp;
 	token: string;
 	options?: {
 		postId?: number;
@@ -64,7 +68,17 @@ export default class SuggestionsEventSource extends EventTarget {
 		token,
 		options = {},
 	}: SuggestionsEventSourceConstructorArgs ) {
-		const bodyData = { post_id: options?.postId, messages: [], question: '', feature: '' };
+		const bodyData: {
+			post_id?: number;
+			messages?: PromptMessagesProp;
+			question?: PromptProp;
+			feature?: string;
+		} = {};
+
+		// Populate body data with post id
+		if ( options?.postId ) {
+			bodyData.post_id = options.postId;
+		}
 
 		// If the url is not provided, we use the default one
 		if ( ! url ) {
@@ -79,7 +93,7 @@ export default class SuggestionsEventSource extends EventTarget {
 			debug( 'URL not provided, using default: %o', url );
 		}
 
-		// question can be a string or an array of PromptItemProps
+		// question can be a string or an array of PromptMessagesProp
 		if ( Array.isArray( question ) ) {
 			bodyData.messages = question;
 		} else {
@@ -131,7 +145,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * service unavailable
 				 */
 				if ( response.status === 503 ) {
-					this.dispatchEvent( new CustomEvent( 'error_service_unavailable' ) );
+					this.dispatchEvent( new CustomEvent( ERROR_SERVICE_UNAVAILABLE ) );
 				}
 
 				/*
@@ -139,7 +153,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * you exceeded your current quota please check your plan and billing details
 				 */
 				if ( response.status === 429 ) {
-					this.dispatchEvent( new CustomEvent( 'error_quota_exceeded' ) );
+					this.dispatchEvent( new CustomEvent( ERROR_QUOTA_EXCEEDED ) );
 				}
 
 				/*
@@ -147,7 +161,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * request flagged by moderation system
 				 */
 				if ( response.status === 422 ) {
-					this.dispatchEvent( new CustomEvent( 'error_moderation' ) );
+					this.dispatchEvent( new CustomEvent( ERROR_MODERATION ) );
 				}
 
 				throw new Error();
@@ -166,12 +180,12 @@ export default class SuggestionsEventSource extends EventTarget {
 		 * Sometimes the first token of the message is not received,
 		 * so we check only for JETPACK_AI_ERROR, ignoring:
 		 * - the double underscores (italic markdown)
-		 * - the doouble asterisks (bold markdown)
+		 * - the double asterisks (bold markdown)
 		 */
 		const replacedMessage = this.fullMessage.replace( /__|(\*\*)/g, '' );
 		if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {
 			// The unclear prompt marker was found, so we dispatch an error event
-			this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
+			this.dispatchEvent( new CustomEvent( ERROR_UNCLEAR_PROMPT ) );
 		} else if ( 'JETPACK_AI_ERROR'.startsWith( replacedMessage ) ) {
 			// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
 			debug( this.fullMessage );
@@ -210,13 +224,13 @@ export default class SuggestionsEventSource extends EventTarget {
 
 	processConnectionError( response ) {
 		debug( 'Connection error: %o', response );
-		this.dispatchEvent( new CustomEvent( 'error_network', { detail: response } ) );
+		this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: response } ) );
 	}
 
 	processErrorEvent( e ) {
 		debug( 'onerror: %o', e );
 
 		// Dispatch a generic network error event
-		this.dispatchEvent( new CustomEvent( 'error_network', { detail: e } ) );
+		this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: e } ) );
 	}
 }
