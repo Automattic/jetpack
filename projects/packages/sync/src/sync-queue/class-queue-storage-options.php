@@ -242,7 +242,7 @@ class Queue_Storage_Options {
 	 *
 	 * @param int $max_count How many items to fetch from the queue.
 	 *
-	 * @return array|object|\stdClass[]|null
+	 * @return \stdClass[]|null
 	 */
 	public function get_items_ids_with_size( $max_count ) {
 		global $wpdb;
