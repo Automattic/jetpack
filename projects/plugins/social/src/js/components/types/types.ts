@@ -8,6 +8,7 @@ type JetpackSettingsSelectors = {
 	showPricingPage: () => boolean;
 	isUpdatingJetpackSettings: () => boolean;
 	hasPaidPlan: () => boolean;
+	hasBasicPlan: () => boolean;
 };
 
 type ConnectionDataSelectors = {
