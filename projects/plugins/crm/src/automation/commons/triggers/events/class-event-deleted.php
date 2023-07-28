@@ -11,6 +11,8 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 
 /**
  * Adds the Event_Deleted class.
+ * 
+ * @since $$next-version$$
  */
 class Event_Deleted extends Base_Trigger {
 
