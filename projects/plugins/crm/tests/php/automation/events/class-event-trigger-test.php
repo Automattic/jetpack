@@ -13,7 +13,8 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
 /**
  * Test Automation's event triggers
  *
- * @covers Automattic\Jetpack\CRM\Automation
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Event_Deleted
+ * @covers Automattic\Jetpack\CRM\Automation\Triggers\Event_New
  */
 class Event_Trigger_Test extends BaseTestCase {
 
