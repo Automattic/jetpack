@@ -8,8 +8,8 @@ actor: AcceptanceTester
 modules:
     enabled:
         - Db:
-            user: 'gogdzl'
-            password: 'pass'
+            user: 'some_db_user'
+            password: 'some_db_pass'
             dsn: 'mysql:host=localhost;dbname=jpcrm_testing'
             initial_queries:
                 - 'DROP DATABASE IF EXISTS jpcrm_testing'
@@ -27,5 +27,5 @@ modules:
             wp_prefix: 'wp_'
             jpcrm_prefix: 'wp_zbs_'
             server_host: 'localhost:8000'
-            wp_path: '/Users/diegorodrigues/Dsk/avengers/jetpack_crm_tests'
+            wp_path: '/path/to/test/file/must-overwrite-it-in-acceptance.suite.yml'
 step_decorators: ~
