@@ -125,7 +125,7 @@ class Queue_Storage_Table {
 		global $wpdb;
 
 		if ( ! $this->custom_table_exists() ) {
-			return false;
+			return new \WP_Error( 'custom_table_not_exist', 'Jetpack Sync Custom table: Table does not exist' );
 		}
 
 		// Try to read from the table
@@ -136,7 +136,7 @@ class Queue_Storage_Table {
 
 		if ( $query === false ) {
 			// The query failed to select anything from the table, so there must be an issue reading from it.
-			return false;
+			return new \WP_Error( 'custom_table_unable_to_read', 'Jetpack Sync Custom table: Unable to read from table' );
 		}
 
 		if ( $wpdb->last_error ) {
@@ -144,6 +144,18 @@ class Queue_Storage_Table {
 			// TODO check if we need this error check.
 			return false;
 		}
+
+		// Check if we can write in the table
+		if ( ! $this->insert_item( 'test', 'test' ) ) {
+			return new \WP_Error( 'custom_table_unable_to_writeread', 'Jetpack Sync Custom table: Unable to write into table' );
+		}
+
+		// See if we can read the item back
+		$items = $this->fetch_items_by_ids( 'test' );
+		if ( empty( $items ) || ! is_object( $items[0] ) || $items[0]->value !== 'test' ) {
+			return false;
+		}
+		// Try to insert an item, read it back and then delete it.
 
 		return true;
 	}
@@ -455,5 +467,28 @@ class Queue_Storage_Table {
 				array_merge( array( $this->queue_id ), $ids )
 			)
 		);
+	}
+
+	/**
+	 * Table initialization
+	 */
+	public static function initialize_dedicated_sync_table() {
+		/**
+		 * Initialize an instance of the class with a test name, so we can use table prefix and then test if the table is healthy.
+		 */
+		$dedicated_table_instance = new Queue_Storage_Table( 'test_queue' );
+
+		// Check if the table exists
+		if ( ! $dedicated_table_instance->custom_table_exists() ) {
+			$dedicated_table_instance->create_table();
+		}
+
+		if ( ! $dedicated_table_instance->is_custom_table_healthy() ) {
+
+			// TODO: clean up the table.
+			return false;
+		}
+
+		return true;
 	}
 }
