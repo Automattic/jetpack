@@ -27,7 +27,7 @@ class Event_Deleted extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_title(): ?string {
-		return __( 'Delete Event', 'zero-bs-crm' );
+		return __( 'Event Deleted', 'zero-bs-crm' );
 	}
 
 	/**
