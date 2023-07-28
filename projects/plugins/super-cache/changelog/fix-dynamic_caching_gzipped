@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache: fix bug serving gzipped content to known users when dynamic caching is enabled.

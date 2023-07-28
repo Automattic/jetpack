@@ -595,7 +595,7 @@ function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.
 /**
  * Determine if a user is allowed to manage contacts.
  *
- * @since $$next-version$$
+ * @since 6.1.0
  *
  * @param WP_User $user The WP User to check permission access for.
  * @param int     $contact_id (Optional) The ID of the CRM contact.
@@ -605,7 +605,7 @@ function jpcrm_can_user_manage_contacts( WP_User $user, $contact_id = null ) {
 	/**
 	 * Allow third party plugins to modify the permission conditions for contacts.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.1.0
 	 *
 	 * @param boolean  $allowed A boolean that represents the permission state.
 	 * @param WP_User  $user The WP User to check permission access for.
@@ -622,7 +622,7 @@ function jpcrm_can_user_manage_contacts( WP_User $user, $contact_id = null ) {
 /**
  * Determine if the current user is allowed to manage contacts.
  *
- * @deprecated $$next-version$$ Use jpcrm_can_user_manage_contacts()
+ * @deprecated 6.1.0 Use jpcrm_can_user_manage_contacts()
  *
  * @return bool
  *

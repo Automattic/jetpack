@@ -74,6 +74,10 @@ class Jetpack_Redux_State_Helper {
 		$modules['blocks']['module']                    = 'blocks';
 		$modules['blocks']['additional_search_queries'] = esc_html_x( 'blocks, block, gutenberg', 'Search terms', 'jetpack' );
 
+		// "mock" an Earn module in order to get it searchable in the settings.
+		$modules['earn']['module']                    = 'earn';
+		$modules['earn']['additional_search_queries'] = esc_html_x( 'earn, paypal, stripe, payments, pay', 'Search terms', 'jetpack' );
+
 		// Collecting roles that can view site stats.
 		$stats_roles   = array();
 		$enabled_roles = Stats_Options::get_option( 'roles' );
@@ -216,7 +220,7 @@ class Jetpack_Redux_State_Helper {
 			'currentIp'                   => IP_Utils::get_ip(),
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => self::get_external_services_connect_urls(),
-			'calypsoEnv'                  => Jetpack::get_calypso_env(),
+			'calypsoEnv'                  => ( new Host() )->get_calypso_env(),
 			'products'                    => Jetpack::get_products_for_purchase(),
 			'recommendationsStep'         => Jetpack_Core_Json_Api_Endpoints::get_recommendations_step()['step'],
 			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.

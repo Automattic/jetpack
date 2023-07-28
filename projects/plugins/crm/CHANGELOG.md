@@ -5,6 +5,22 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.1.0] - 2023-07-24
+### Added
+- Listing pages: Add a new setting that allows listing pages to utilize the full width of the screen [#31904]
+
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
+
+### Fixed
+- API: Fixed error 200 while saving new api connections [#32003]
+- Contacts: Fix bug that prevented the creation of contacts WP user for the Client Portal [#31710]
+- Contacts: Fix Filter options not available on the main contacts listing [#31517]
+- File Uploads: Fix bug that prevented file uploads from working in environments where the PHP finfo_open function was not available [#31527]
+- Menu: Improved alignment for items in the menu [#31846]
+- OAuth/Gmail: Fix to enable sending links and images in the email content, supporting text/plain [#31943]
+- Segments: Fix bug that prevented dates to be saved in some environments [#31628]
+
 ## [6.0.0] - 2023-06-21
 ### Added
 - CRM: Revamped CRM User Interface - Merge the sleek aesthetics of Jetpack’s style, bringing a new level of sophistication and seamless navigation to your CRM experience [#30916]
@@ -188,6 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added a migration to remove outdated AKA lines
 
 [5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[6.1.0]: https://github.com/Automattic/jetpack-crm/compare/6.0.0...6.1.0
 [6.0.0]: https://github.com/Automattic/jetpack-crm/compare/5.8.0...6.0.0
 [5.8.0]: https://github.com/Automattic/jetpack-crm/compare/5.7.0...5.8.0
 [5.7.0]: https://github.com/Automattic/jetpack-crm/compare/v5.6.0...v5.7.0

@@ -4092,7 +4092,7 @@ p {
 							$url = add_query_arg( 'onboarding', $token, $url );
 						}
 
-						$calypso_env = $this->get_calypso_env();
+						$calypso_env = ( new Host() )->get_calypso_env();
 						if ( ! empty( $calypso_env ) ) {
 							$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 						}
@@ -4451,7 +4451,7 @@ endif;
 				$url = add_query_arg( 'is_multisite', network_admin_url( 'admin.php?page=jetpack-settings' ), $url );
 			}
 
-			$calypso_env = self::get_calypso_env();
+			$calypso_env = ( new Host() )->get_calypso_env();
 
 			if ( ! empty( $calypso_env ) ) {
 				$url = add_query_arg( 'calypso_env', $calypso_env, $url );
@@ -4554,7 +4554,7 @@ endif;
 			)
 		);
 
-		$calypso_env = self::get_calypso_env();
+		$calypso_env = ( new Host() )->get_calypso_env();
 
 		if ( ! empty( $calypso_env ) ) {
 			$args['calypso_env'] = $calypso_env;
@@ -6571,24 +6571,13 @@ endif;
 	 * Return Calypso environment value; used for developing Jetpack and pairing
 	 * it with different Calypso enrionments, such as localhost.
 	 *
-	 * @since 7.4.0
+	 * @deprecated 12.4 Moved to the Status package.
 	 *
 	 * @return string Calypso environment
 	 */
 	public static function get_calypso_env() {
-		if ( isset( $_GET['calypso_env'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is not required; only used for changing environments.
-			return sanitize_key( $_GET['calypso_env'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is not required; only used for changing environments.
-		}
-
-		if ( getenv( 'CALYPSO_ENV' ) ) {
-			return sanitize_key( getenv( 'CALYPSO_ENV' ) );
-		}
-
-		if ( defined( 'CALYPSO_ENV' ) && CALYPSO_ENV ) {
-			return sanitize_key( CALYPSO_ENV );
-		}
-
-		return '';
+		_deprecated_function( __METHOD__, 'jetpack-12.4', '\Automattic\Jetpack\Status\Host->get_calypso_env' );
+		return ( new Host() )->get_calypso_env();
 	}
 
 	/**
@@ -6600,7 +6589,7 @@ endif;
 	 * @return string Calypso host.
 	 */
 	public static function get_calypso_host() {
-		$calypso_env = self::get_calypso_env();
+		$calypso_env = ( new Host() )->get_calypso_env();
 		switch ( $calypso_env ) {
 			case 'development':
 				return 'http://calypso.localhost:3000/';

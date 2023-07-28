@@ -30,7 +30,6 @@ import './style.scss';
 /**
  * Types and constants
  */
-import type { RequestingStateProp } from '../../hooks/use-suggestions-from-ai';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
 
@@ -109,7 +108,7 @@ type AiAssistantControlComponentProps = {
 	/*
 	 * Whether the dropdown is requesting suggestions from AI.
 	 */
-	requestingState?: RequestingStateProp;
+	requestingState?: string;
 
 	/*
 	 * Whether the dropdown is disabled.

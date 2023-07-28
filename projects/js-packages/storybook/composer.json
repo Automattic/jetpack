@@ -31,6 +31,7 @@
 	"extra": {
 		"dependencies": {
 			"build": [
+				"js-packages/ai-client",
 				"js-packages/components",
 				"js-packages/connection",
 				"js-packages/idc",

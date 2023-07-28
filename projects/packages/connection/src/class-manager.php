@@ -12,6 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_IXR_Client;
@@ -134,6 +135,9 @@ class Manager {
 
 		// Initialize connection notices.
 		new Connection_Notice();
+
+		// Initialize token locks.
+		new Tokens_Locks();
 	}
 
 	/**
@@ -1911,6 +1915,7 @@ class Manager {
 				'site_lang'             => get_locale(),
 				'site_created'          => $this->get_assumed_site_creation_date(),
 				'allow_site_connection' => ! $this->has_connected_owner(),
+				'calypso_env'           => ( new Host() )->get_calypso_env(),
 			)
 		);
 

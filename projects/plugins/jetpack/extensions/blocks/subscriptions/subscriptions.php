@@ -72,11 +72,7 @@ function register_block() {
 	 * Do not proceed if the newsletter feature is not enabled
 	 * or if the 'Jetpack_Memberships' class does not exists.
 	 */
-	if (
-		/** This filter is documented in class.jetpack-gutenberg.php */
-		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
-		|| ! class_exists( '\Jetpack_Memberships' )
-	) {
+	if ( ! class_exists( '\Jetpack_Memberships' ) ) {
 		return;
 	}
 
@@ -136,6 +132,11 @@ function is_wpcom() {
  * @return array An array of column names.
  */
 function register_newsletter_access_column( $columns ) {
+	if ( ! Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
+		// We only display the "NL access" column if we have published one paid-newsletter
+		return $columns;
+	}
+
 	$position   = array_search( 'title', array_keys( $columns ), true );
 	$new_column = array( NEWSLETTER_COLUMN_ID => '<span>' . __( 'Newsletter', 'jetpack' ) . '</span>' );
 	return array_merge(
@@ -426,11 +427,7 @@ function render_block( $attributes ) {
 		return '';
 	}
 
-	if (
-		/** This filter is documented in class.jetpack-gutenberg.php */
-		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
-		&& class_exists( '\Jetpack_Memberships' )
-	) {
+	if ( class_exists( '\Jetpack_Memberships' ) ) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {

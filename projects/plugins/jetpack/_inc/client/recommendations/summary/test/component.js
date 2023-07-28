@@ -113,11 +113,11 @@ describe( 'Recommendations – Summary', () => {
 			expect( within( enabledFeatures ).getByText( 'Related Posts' ) ).toBeInTheDocument();
 		} );
 
-		it( 'shows the skipped recommendations (Monitor, Site Accelerator, and Creative Mail)', () => {
+		it( 'shows the skipped recommendations (Monitor, Site Accelerator, and Newsletter)', () => {
 			render( <SummaryFeature />, {
 				initialState: buildInitialState( {
 					enabledRecommendations: { 'related-posts': true },
-					skippedRecommendations: [ 'monitor', 'site-accelerator', 'creative-mail' ],
+					skippedRecommendations: [ 'monitor', 'site-accelerator', 'newsletter' ],
 					productSlug: 'jetpack_free',
 				} ),
 			} );
@@ -127,7 +127,7 @@ describe( 'Recommendations – Summary', () => {
 			expect( skippedFeatures ).toBeInTheDocument();
 			expect( within( skippedFeatures ).getByText( 'Downtime Monitoring' ) ).toBeInTheDocument();
 			expect( within( skippedFeatures ).getByText( 'Site Accelerator' ) ).toBeInTheDocument();
-			expect( within( skippedFeatures ).getByText( 'Creative Mail' ) ).toBeInTheDocument();
+			expect( within( skippedFeatures ).getByText( 'Newsletter' ) ).toBeInTheDocument();
 		} );
 	} );
 

@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { sample } from 'lodash';
 import { SOURCE_PEXELS, PEXELS_EXAMPLE_QUERIES } from '../constants';
 import MediaBrowser from '../media-browser';
+import { MediaSource } from '../media-service/types';
 import { getApiUrl } from './api';
 import withMedia from './with-media';
 
@@ -110,4 +111,4 @@ function PexelsMedia( props ) {
 	);
 }
 
-export default withMedia()( PexelsMedia );
+export default withMedia( MediaSource.Pexels )( PexelsMedia );

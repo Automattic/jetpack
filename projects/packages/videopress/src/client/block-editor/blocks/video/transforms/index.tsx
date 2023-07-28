@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { createBlobURL } from '@wordpress/blob';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
@@ -17,6 +18,7 @@ import {
 /**
  * Types
  */
+import { filterVideoFiles, isVideoFile } from '../../../utils/video';
 import { CoreEmbedVideoPressVariationBlockAttributes, VideoBlockAttributes } from '../types';
 
 const transformFromCoreEmbed = {
@@ -46,6 +48,26 @@ const transformFromCoreEmbed = {
 
 		return createBlock( 'videopress/video', { guid, src } );
 	},
+};
+
+const transformFromFile = {
+	type: 'files',
+	// Check if the files array contains a video file.
+	isMatch: files => {
+		if ( ! files || ! files.length ) {
+			return false;
+		}
+
+		return files.some( isVideoFile );
+	},
+
+	priority: 8, // higher priority (lower number) than v5's core/video transform (9).
+	transform: ( files: File[] ) =>
+		filterVideoFiles( files ).map( ( file: File ) =>
+			createBlock( 'videopress/video', {
+				src: createBlobURL( file ),
+			} )
+		),
 };
 
 const transformToCoreEmbed = {
@@ -117,7 +139,7 @@ const transformFromPastingVideoPressURL = {
 	},
 };
 
-const from = [ transformFromCoreEmbed, transformFromPastingVideoPressURL ];
+const from = [ transformFromFile, transformFromCoreEmbed, transformFromPastingVideoPressURL ];
 const to = [ transformToCoreEmbed ];
 
 export default { from, to };
