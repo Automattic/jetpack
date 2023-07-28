@@ -267,6 +267,11 @@ class Queue_Storage_Options {
 	 */
 	public function delete_items_by_ids( $ids ) {
 		global $wpdb;
+
+		if ( ! is_array( $ids ) || empty( $ids ) ) {
+			return false;
+		}
+
 		// TODO check if it's working properly - no need to delete all options in the table if the params are not right
 		$ids_placeholders = implode( ', ', array_fill( 0, count( $ids ), '%s' ) );
 
