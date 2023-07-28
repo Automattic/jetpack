@@ -8,6 +8,7 @@ use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
+use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
@@ -234,6 +235,19 @@ class Automation_Workflow_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @testdox Ensure that we throw an error if a workflow is executed without an engine
+	 */
+	public function test_workflow_execution_without_engine() {
+		$workflow_data = $this->automation_faker->basic_workflow();
+		$workflow      = new Automation_Workflow( $workflow_data );
+
+		$this->expectException( Workflow_Exception::class );
+		$this->expectExceptionCode( Workflow_Exception::MISSING_ENGINE_INSTANCE );
+
+		$workflow->execute( new Contact_Created_Trigger(), array() );
+	}
+
+	/**
 	 * @testdox Test an automation workflow execution with condition => true
 	 */
 	public function test_workflow_execution_with_condition_true() {
@@ -308,4 +322,5 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$this->assertEquals( 'Workflow execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
 		$this->assertEquals( 'Condition met?: false', $log[ $total_log - 3 ][1] );
 	}
+
 }
