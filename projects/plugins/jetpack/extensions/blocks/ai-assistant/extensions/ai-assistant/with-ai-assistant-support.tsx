@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAiSuggestions, AiAssistantDataContextProvider } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
@@ -24,20 +24,21 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		const [ isAssistantShown, setAssistantVisibility ] = useState( false );
 		const [ isAssistantMenuShown, setAssistantMenuVisibility ] = useState( true );
 
-		// const [ promptValue, setLocalPromptValue ] = useState(
+		// const [ promptValue, setPromptValue ] = useState(
 		// 	'Create a three-column. In each column, there should be an empty image, followed by a level 2 heading, and then three paragraph.'
 		// );
 
-		// const [ promptValue, setLocalPromptValue ] = useState(
+		// const [ promptValue, setPromptValue ] = useState(
 		// 	"I'd like to create a contact form with the following fields: name, email, message. Add a `Contact us` button to submit the form."
 		// );
 
-		const [ promptValue, setLocalPromptValue ] = useState( '' );
+		// const [ prompt, setPromptValue ] = useState( '' );
 
-		// const [ promptValue, setLocalPromptValue ] = useState(
+		// const [ promptValue, setPromptValue ] = useState(
 		// 	'create a table with ten of the best video games of the CZSpectrum'
 		// );
-		const [ generatedContent, setGeneratedContentValue ] = useState( '' );
+		// const [ suggestion, setSuggestionValue ] = useState( '' );
+		// const [ requestingError, setRequestingErrorValue ] = useState( '' );
 
 		// Get the selected block client IDs.
 		const { content, clientIds } = useTextContentFromSelectedBlocks();
@@ -89,25 +90,19 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		}, [] );
 
 		/**
-		 * Set the prompt value
-		 *
-		 * @param {string} value - Prompt value
-		 * @returns {void}
-		 */
-		const setPromptValue = useCallback( value => {
-			setLocalPromptValue( value );
-		}, [] );
-
-		/**
 		 * Store in a local state the generated content
 		 * provided by the AI server response.
 		 *
 		 * @param {string} value - Generated content
 		 * @returns {void}
 		 */
-		const setGeneratedContent = useCallback( value => {
-			setGeneratedContentValue( value );
-		}, [] );
+		// const setSuggestion = useCallback( value => {
+		// 	setSuggestionValue( value );
+		// }, [] );
+
+		// const setRequestingError = useCallback( value => {
+		// 	setRequestingErrorValue( value );
+		// }, [] );
 
 		/*
 		 * Pick the DOM element of the block,
@@ -163,11 +158,6 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 				hideAssistant();
 			};
 		}, [ hideAssistant, isSelected, firstClientId ] ); // Addind firstClientId as a dependency helps to hide the assistant when the block is unselcted.
-
-		const userPrompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
-			customPrompt: promptValue,
-			content,
-		} );
 
 		// const wrapperBlockHasBeenInserted = useRef( false );
 		// // Let's create a core group block to wrap the generated content.
@@ -240,14 +230,20 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 
 		const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
-		const { request: requestSuggestion, requestingState } = useAiSuggestions( {
+		const {
+			suggestion,
+			error: requestingError,
+			requestingState,
+			request: requestSuggestion,
+			eventSource,
+		} = useAiSuggestions( {
 			// prompt: userPrompt,
 			onSuggestion: setContent,
-			postId,
-			// askQuestionOptions: {
-			// 	feature: 'ai-assistant-experimental',
-			// },
-			// onSuggestion: setGeneratedContent,
+			askQuestionOptions: {
+				postId,
+				// feature: 'ai-assistant-experimental',
+			},
+			// onSuggestion: setSuggestion,
 			autoRequest: false,
 			onDone: doneContent => {
 				setContent( doneContent );
@@ -259,12 +255,6 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
 			() => ( {
-				promptValue,
-				setPromptValue,
-
-				generatedContent,
-				setGeneratedContent,
-
 				isAssistantShown,
 				showAssistant,
 				hideAssistant,
@@ -274,14 +264,9 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 				showAssistantMenu,
 				hideAssistantMenu,
 
-				requestSuggestion,
-				requestingState,
+				eventSource,
 			} ),
 			[
-				promptValue,
-				setPromptValue,
-				generatedContent,
-				setGeneratedContent,
 				isAssistantShown,
 				showAssistant,
 				hideAssistant,
@@ -289,9 +274,20 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 				isAssistantMenuShown,
 				showAssistantMenu,
 				hideAssistantMenu,
-				requestSuggestion,
-				requestingState,
+
+				eventSource,
 			]
+		);
+
+		// Build the context value to pass to the ai assistant data provider.
+		const dataContextValue = useMemo(
+			() => ( {
+				suggestion,
+				requestingError,
+				requestingState,
+				requestSuggestion,
+			} ),
+			[ suggestion, requestingError, requestingState, requestSuggestion ]
 		);
 
 		if ( ! isPossibleToExtendBlock() ) {
@@ -304,35 +300,40 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		}
 
 		return (
-			<AiAssistantContextProvider value={ contextValue }>
-				<KeyboardShortcuts
-					shortcuts={ {
-						'mod+/': () => {
-							toggleAssistant();
-							showAssistantMenu();
-						},
-					} }
-				>
-					<BlockListBlock { ...props } />
-
-					<AiAssistantPopover
-						anchor={ blockDomReference?.current }
-						show={ isAssistantShown }
-						promptValue={ promptValue }
-						onPromptChange={ ( promptType, options = {} ) => {
-							// console.log( 'promptType: ', promptType );
-							// console.log( 'options: ', options );
-
-							const prompt = getPrompt( promptType, { ...options, content } );
-							requestSuggestion( prompt );
+			<AiAssistantDataContextProvider value={ dataContextValue }>
+				<AiAssistantContextProvider value={ contextValue }>
+					<KeyboardShortcuts
+						shortcuts={ {
+							'mod+/': () => {
+								toggleAssistant();
+								showAssistantMenu();
+							},
 						} }
-						onRequest={ () => {
-							requestSuggestion( userPrompt );
-							hideAssistant();
-						} }
-					/>
-				</KeyboardShortcuts>
-			</AiAssistantContextProvider>
+					>
+						<BlockListBlock { ...props } />
+
+						<AiAssistantPopover
+							anchor={ blockDomReference?.current }
+							show={ isAssistantShown }
+							// promptValue={ prompt }
+							onPromptChange={ () => {
+								// const newPrompt = getPrompt( promptType, { ...options, content } );
+								// console.log( { newPrompt } );
+								// requestSuggestion( newPrompt );
+							} }
+							onRequest={ message => {
+								const pr = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
+									request: message,
+									content,
+								} );
+
+								requestSuggestion( pr );
+								hideAssistant();
+							} }
+						/>
+					</KeyboardShortcuts>
+				</AiAssistantContextProvider>
+			</AiAssistantDataContextProvider>
 		);
 	};
 }, 'withAiAssistant' );

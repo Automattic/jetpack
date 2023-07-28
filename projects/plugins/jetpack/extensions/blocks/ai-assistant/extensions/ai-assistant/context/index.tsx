@@ -2,11 +2,6 @@
  * External dependencies
  */
 import { createContext } from '@wordpress/element';
-/**
- * Types
- */
-import type { RequestingStateProp } from '../../../hooks/use-suggestions-from-ai';
-import type { PromptItemProps } from '../../../lib/prompt';
 
 type AiAssistantContextProps = {
 	// Dialog visibility
@@ -17,13 +12,6 @@ type AiAssistantContextProps = {
 
 	isAssistantMenuShown: boolean;
 	hideAssistantMenu: () => void;
-
-	promptValue: string;
-	setPromptValue: ( value: string ) => void;
-
-	// Request actions and state
-	requestingState: RequestingStateProp;
-	requestSuggestion: ( prompts: Array< PromptItemProps > ) => void;
 };
 
 type AiAssistantContextProviderProps = {

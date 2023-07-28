@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
+import { AiAssistantDataContext } from '@automattic/jetpack-ai-client';
 import { PlainText, BlockPreview } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
 import { Icon, KeyboardShortcuts, Popover, Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
-import { useRef, useEffect, useContext } from '@wordpress/element';
+import { useRef, useEffect, useContext, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React from 'react';
@@ -23,7 +24,7 @@ import { QuickActionsMenuItems } from '../ai-assistant-control';
 import { actionsList } from './contact-form-quick-actions';
 
 type AiAssistantDialogProps = {
-	promptValue: string;
+	value: string;
 
 	onFocusLost?: () => void;
 	onChange: ( value: string ) => void;
@@ -42,7 +43,7 @@ const noop = () => {}; // eslint-disable-line @typescript-eslint/no-empty-functi
  * @returns {React.ReactElement} JSX component
  */
 export default function AiAssistantDialog( props: AiAssistantDialogProps ): React.ReactElement {
-	const { onFocusLost = noop, onChange, promptValue, onRequest, onDialogTabPress } = props;
+	const { onFocusLost = noop, onChange, value, onRequest, onDialogTabPress } = props;
 
 	// Hooks
 	const inputRef = useRef( null );
@@ -84,7 +85,7 @@ export default function AiAssistantDialog( props: AiAssistantDialogProps ): Reac
 			/>
 
 			<PlainText
-				value={ promptValue }
+				value={ value }
 				onChange={ onChange }
 				placeholder={ __( 'AI writing', 'jetpack' ) }
 				className="jetpack-ai-assistant-dialog__input"
@@ -97,9 +98,7 @@ export default function AiAssistantDialog( props: AiAssistantDialogProps ): Reac
 				onClick={ onRequest }
 				isSmall={ true }
 				label={ __( 'Send request', 'jetpack' ) }
-				disabled={
-					! promptValue || requestingState === 'requesting' || requestingState === 'suggesting'
-				}
+				disabled={ ! value || requestingState === 'requesting' || requestingState === 'suggesting' }
 			>
 				<Icon icon={ origamiPlane } />
 				{ __( 'Send', 'jetpack' ) }
@@ -116,20 +115,16 @@ type AiAssistantPopoverProps = {
 export const AiAssistantPopover = ( {
 	anchor,
 	show,
+	onRequest,
 	onPromptChange,
 	// onQuickAction,
 	...rest
 }: AiAssistantPopoverProps ) => {
-	const {
-		toggleAssistant,
-		promptValue,
-		setPromptValue,
-		isAssistantMenuShown,
-		hideAssistantMenu,
-		showAssistantMenu,
-		generatedContent,
-		requestingState,
-	} = useContext( AiAssistantContext );
+	const { toggleAssistant, isAssistantMenuShown, hideAssistantMenu, showAssistantMenu } =
+		useContext( AiAssistantContext );
+
+	const { requestingState, suggestion } = useContext( AiAssistantDataContext );
+	const [ message, setMessage ] = useState( '' );
 
 	// useEffect( () => {
 	// 	if ( ! generatedContent ) {
@@ -147,7 +142,7 @@ export const AiAssistantPopover = ( {
 	}
 
 	const filteredActions = actionsList.filter( action => {
-		return promptValue?.split( ' ' ).every( word => new RegExp( word, 'i' ).test( action.name ) );
+		return message?.split( ' ' ).every( word => new RegExp( word, 'i' ).test( action.name ) );
 	} );
 
 	const forceHide = true;
@@ -170,12 +165,14 @@ export const AiAssistantPopover = ( {
 					</div>
 
 					<AiAssistantDialog
+						{ ...rest }
 						onChange={ value => {
-							setPromptValue( value );
+							setMessage( value );
 							showAssistantMenu();
 						} }
 						onDialogTabPress={ console.log } // eslint-disable-line no-console
-						{ ...rest }
+						value={ message }
+						onRequest={ () => onRequest( message ) }
 					/>
 				</div>
 
@@ -184,7 +181,7 @@ export const AiAssistantPopover = ( {
 						<QuickActionsMenuItems
 							actions={ filteredActions }
 							onChange={ action => {
-								setPromptValue( action.name );
+								setPrompt( action.name );
 								onPromptChange( action.promptType );
 								hideAssistantMenu();
 							} }
@@ -192,7 +189,7 @@ export const AiAssistantPopover = ( {
 
 						{ /* <I18nMenuDropdown
 							onChange={ language => {
-								setPromptValue( `Translate the text to ${ language }` );
+								setPrompt( `Translate the text to ${ language }` );
 								onPromptChange( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
 								hideAssistantMenu();
 							} }
@@ -200,7 +197,7 @@ export const AiAssistantPopover = ( {
 
 						<ToneDropdownMenu
 							onChange={ tone => {
-								setPromptValue( `Change the tone to ${ tone }` );
+								setPrompt( `Change the tone to ${ tone }` );
 								onPromptChange( PROMPT_TYPE_CHANGE_TONE, { tone } );
 								hideAssistantMenu();
 							} }
@@ -208,12 +205,12 @@ export const AiAssistantPopover = ( {
 					</div>
 				) }
 
-				{ !! generatedContent?.length && (
+				{ !! suggestion?.length && ! forceHide && (
 					<div className="jetpack-ai-assistant__preview">
 						<BlockPreview
 							viewportWidth={ 0 }
 							blocks={ rawHandler( {
-								HTML: generatedContent,
+								HTML: suggestion,
 							} ) }
 						/>
 					</div>

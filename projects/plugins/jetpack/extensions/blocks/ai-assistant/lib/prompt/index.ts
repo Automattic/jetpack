@@ -255,7 +255,7 @@ function getCustomUserPrompt( {
 	return [
 		{
 			role,
-			content: `Hanle the following request:\n\n${ customPrompt }\nText to change:\n\n${ content }`,
+			content: `Handle the following request:\n\n${ customPrompt }\nText to change:\n\n${ content }`,
 		},
 	];
 }
@@ -263,13 +263,18 @@ function getCustomUserPrompt( {
 function getJetpackFormCustomPrompt( {
 	content,
 	role = 'user',
-	customPrompt,
+	request,
 }: PromptOptionsProps ): Array< PromptItemProps > {
+	if ( ! request ) {
+		throw new Error( 'You must provide a custom prompt for the Jetpack Form Custom Prompt' );
+	}
+
 	return [
 		{
 			role,
-			// content: `Hanle the following request: ${ customPrompt }\n\nJetpack Form to modify:\n${ content }`,
-			content: `Hanle the following request:${ customPrompt }
+			// content: `Handle the following request: ${ request }\n\nJetpack Form to modify:\n${ content }`,
+			content: `Handle the following request: ${ request }
+
 - Use syntax templates for blocks as follows:
 	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
 	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
