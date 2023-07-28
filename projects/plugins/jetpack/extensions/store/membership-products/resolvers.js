@@ -1,13 +1,12 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useEntityProp } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import {
-	PRODUCT_TYPE_PAYMENT_PLAN,
-	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 	accessOptions,
-} from '../../shared/components/product-management-controls/constants';
+	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+} from '../../blocks/subscriptions/constants';
+import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
 import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
 import executionLock from '../../shared/execution-lock';
 import getConnectUrl from '../../shared/get-connect-url';
@@ -210,11 +209,14 @@ export const getSubscriberCounts =
 
 export const getAccessLevel =
 	() =>
-	async ( { dispatch } ) => {
-		const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-		const [ postMeta = [] ] = useEntityProp( 'postType', postType, 'meta' );
+	async ( { dispatch, registry } ) => {
+		const postType = registry.select( editorStore ).getCurrentPostType();
+		const postId = registry.select( editorStore ).getCurrentPostId();
+		const { getEntityRecord, getEditedEntityRecord } = registry.select( coreStore );
+		getEntityRecord( 'postType', postType ); // Trigger resolver.
+		const editedRecord = getEditedEntityRecord( 'postType', postType, postId );
+		const postMeta = editedRecord.meta;
 
-		// Set the accessLevel to "everybody" when one is not defined
 		let accessLevel =
 			postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? accessOptions.everybody.key;
 
@@ -228,14 +230,17 @@ export const getAccessLevel =
 
 export const getShowMisconfigurationWarning =
 	() =>
-	async ( { dispatch } ) => {
+	async ( { dispatch, registry } ) => {
 		// Can be “private”, “password”, or “public”.
-		const { accessLevel, postVisibility } = useSelect( select => {
+		const {
+			accessLevel,
+			postVisibility,
+		} = () => {
 			return {
-				accessLevel: select( membershipProductsStore ).getAccessLevel(),
-				postVisibility: select( editorStore ).getEditedPostVisibility(),
+				accessLevel: registry.select( membershipProductsStore ).getAccessLevel(),
+				postVisibility: registry.select( editorStore ).getEditedPostVisibility(),
 			};
-		} );
+		};
 
 		const showMisconfigurationWarning =
 			postVisibility !== 'public' && accessLevel !== accessOptions.everybody.key;

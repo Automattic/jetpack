@@ -286,7 +286,7 @@ function NewsletterPostPublishSettingsPanel( {
 export default function SubscribePanels() {
 	const { isModuleActive } = useModuleStatus( name );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ setPostMeta ] = useEntityProp( 'meta' );
+	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const { tracks } = useAnalytics();
 
