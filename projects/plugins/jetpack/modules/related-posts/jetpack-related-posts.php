@@ -359,7 +359,7 @@ EOT;
 	/**
 	 * Echoes out items for the Gutenberg block
 	 *
-	 * @param array $related_post The post oject.
+	 * @param array $related_post The post object.
 	 * @param array $block_attributes The block attributes.
 	 */
 	public function render_block_item( $related_post, $block_attributes ) {
@@ -382,13 +382,14 @@ EOT;
 
 		if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) {
 			$img_link = sprintf(
-				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img src="%3$s" width="%4$s" height="%5$s" alt="%6$s" loading="lazy" /></a></li>',
+				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img loading="lazy" src="%3$s" width="%4$s" height="%5$s" alt="%6$s" %7$s/></a></li>',
 				esc_url( $related_post['url'] ),
 				( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' ),
 				esc_url( $related_post['img']['src'] ),
 				esc_attr( $related_post['img']['width'] ),
 				esc_attr( $related_post['img']['height'] ),
-				esc_attr( $related_post['img']['alt_text'] )
+				esc_attr( $related_post['img']['alt_text'] ),
+				( ! empty( $related_post['img']['srcset'] ) ? 'srcset="' . esc_attr( $related_post['img']['srcset'] ) . '"' : '' )
 			);
 
 			$item_markup .= $img_link;

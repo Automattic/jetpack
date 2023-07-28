@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Added some guards around calls to wpcom_get_theme_annotation() to avoid errors
