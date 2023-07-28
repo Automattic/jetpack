@@ -113,6 +113,15 @@ class AJAX {
 	}
 
 	/**
+	 * Determines if the current user can access gated content.
+	 *
+	 * @return bool
+	 */
+	private function can_access_gated_content() {
+		return false;
+	}
+
+	/**
 	 * Determines if the current user can view the provided video. Only ever gets fired if site-wide private videos are enabled.
 	 *
 	 * Filterable for 3rd party plugins.
@@ -139,6 +148,9 @@ class AJAX {
 				break;
 			case VIDEOPRESS_PRIVACY::IS_PRIVATE:
 				$is_user_authed = current_user_can( 'read' );
+				break;
+			case VIDEOPRESS_PRIVACY::IS_GATED:
+				$is_user_authed = $this->can_access_gated_content( $guid, $embedded_post_id );
 				break;
 			case VIDEOPRESS_PRIVACY::SITE_DEFAULT:
 			default:

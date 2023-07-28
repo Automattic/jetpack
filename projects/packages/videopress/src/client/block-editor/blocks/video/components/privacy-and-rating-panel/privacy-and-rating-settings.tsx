@@ -11,6 +11,7 @@ import {
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
+	VIDEO_PRIVACY_LEVEL_GATED,
 	VIDEO_RATING_G,
 	VIDEO_RATING_PG_13,
 	VIDEO_RATING_R_17,
@@ -51,6 +52,10 @@ export default function PrivacyAndRatingSettings( {
 	const privacyOptionPrivate = {
 		value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PRIVATE ) ),
 		label: _x( 'Private', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
+	};
+	const privacyOptionGated = {
+		value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_GATED ) ),
+		label: _x( 'Gated', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
 	};
 
 	return (
@@ -105,7 +110,12 @@ export default function PrivacyAndRatingSettings( {
 					setAttributes( attrsToUpdate );
 				} }
 				value={ String( privacySetting ) }
-				options={ [ privacyOptionSiteDefault, privacyOptionPublic, privacyOptionPrivate ] }
+				options={ [
+					privacyOptionSiteDefault,
+					privacyOptionPublic,
+					privacyOptionPrivate,
+					privacyOptionGated,
+				] }
 				disabled={ ! videoBelongToSite }
 			/>
 

@@ -553,7 +553,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 				if ( isset( $json_params['privacy_setting'] ) ) {
 					$privacy_setting = $json_params['privacy_setting'];
-					if ( ! isset( $meta['videopress']['privacy_setting'] ) || $meta['videopress']['privacy_setting'] !== $privacy_setting ) {
+					if (
+						! isset( $meta['videopress']['privacy_setting'] ) ||
+						$meta['videopress']['privacy_setting'] !== $privacy_setting
+					) {
 						$meta['videopress']['privacy_setting'] = $privacy_setting;
 						$should_update_meta                    = true;
 

@@ -14,6 +14,7 @@ abstract class VIDEOPRESS_PRIVACY {
 	const IS_PUBLIC    = 0;
 	const IS_PRIVATE   = 1;
 	const SITE_DEFAULT = 2;
+	const IS_GATED     = 3;
 }
 
 /**
