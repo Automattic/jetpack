@@ -20,7 +20,7 @@ import {
  */
 import type { AskQuestionOptionsArgProps } from '../../ask-question';
 import type SuggestionsEventSource from '../../suggestions-event-source';
-import type { PromptItemProps, PromptTypeProp, SuggestionErrorCode } from '../../types';
+import type { PromptProp, SuggestionErrorCode } from '../../types';
 
 export type RequestingErrorProps = {
 	/*
@@ -43,7 +43,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * Request prompt.
 	 */
-	prompt?: PromptTypeProp;
+	prompt?: PromptProp;
 
 	/*
 	 * Whether to request suggestions automatically.
@@ -97,7 +97,7 @@ type useAiSuggestionsProps = {
 	/*
 	 * The request handler.
 	 */
-	request: ( prompt: PromptTypeProp ) => Promise< void >;
+	request: ( prompt: PromptProp ) => Promise< void >;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
@@ -243,10 +243,15 @@ export default function useAiSuggestions( {
 	 * @returns {Promise<void>} The promise.
 	 */
 	const request = useCallback(
-		async ( promptArg: Array< PromptItemProps > ) => {
-			promptArg.forEach( ( { role, content: promptContent }, i ) =>
-				debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
-			);
+		async ( promptArg: PromptProp ) => {
+			if ( Array.isArray( promptArg ) && promptArg?.length ) {
+				promptArg.forEach( ( { role, content: promptContent }, i ) =>
+					debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
+				);
+			} else {
+				debug( '%o', promptArg );
+			}
+
 			// Set the request status.
 			setRequestingState( 'requesting' );
 

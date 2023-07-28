@@ -48,4 +48,4 @@ The current state of the suggestion request. It can be one of the following:
 - `error`: The state when an error has occurred during the request.
 
 ### `requestSuggestion`
-A function to request a suggestion from the AI. The function takes a prompt parameter which can be an object of `PromptMessagesProps` or a string.
+A function to request a suggestion from the AI. The function takes a prompt parameter which can be an object of `PromptMessagesProp` or a string.

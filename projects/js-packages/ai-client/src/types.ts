@@ -19,8 +19,6 @@ export type PromptItemProps = {
 	content: string;
 };
 
-export type PromptMessagesProps = {
-	prompt: Array< PromptItemProps >;
-};
+export type PromptMessagesProp = Array< PromptItemProps >;
 
-export type PromptTypeProp = PromptMessagesProps | string;
+export type PromptProp = PromptMessagesProp | string;

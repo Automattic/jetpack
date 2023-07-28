@@ -7,7 +7,7 @@ import React from 'react';
  * Types & Constants
  */
 import type { RequestingStateProp, RequestingErrorProps } from '../../hooks/use-ai-suggestions';
-import type { PromptTypeProp } from '../../types';
+import type { PromptProp } from '../../types';
 
 type AiAssistantDataContextProps = {
 	/*
@@ -28,7 +28,7 @@ type AiAssistantDataContextProps = {
 	/*
 	 * Request suggestion function
 	 */
-	requestSuggestion: ( prompt: PromptTypeProp ) => void;
+	requestSuggestion: ( prompt: PromptProp ) => void;
 };
 
 type AiAssistantDataContextProviderProps = {
