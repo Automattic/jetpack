@@ -54,6 +54,15 @@ final class Automation_Boostrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Updated::class,
 		);
 
+		/**
+		 * Filter list of available triggers for automations.
+		 *
+		 * This can be used to add and/or remove triggers allowed in CRM
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $var A list of condition classes.
+		 */
 		$triggers = apply_filters( 'jpcrm_automation_triggers', $triggers );
 
 		foreach ( $triggers as $trigger ) {
@@ -73,6 +82,15 @@ final class Automation_Boostrap {
 	protected function register_conditions() {
 		$conditions = array();
 
+		/**
+		 * Filter list of available conditions for automations.
+		 *
+		 * This can be used to add and/or remove condition allowed in CRM.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $var A list of condition classes.
+		 */
 		$conditions = apply_filters( 'jpcrm_automation_conditions', $conditions );
 
 		foreach ( $conditions as $condition ) {
@@ -99,6 +117,15 @@ final class Automation_Boostrap {
 			\Automattic\Jetpack\CRM\Automation\Actions\Update_Contact_Status::class,
 		);
 
+		/**
+		 * Filter list of available actions for automations.
+		 *
+		 * This can be used to add and/or remove actions allowed in CRM.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $var A list of actions class names.
+		 */
 		$actions = apply_filters( 'jpcrm_automation_actions', $actions );
 
 		foreach ( $actions as $action ) {
