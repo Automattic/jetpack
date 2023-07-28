@@ -22,8 +22,7 @@ Invokes the custom hook with the provided options.
 
 - `prompt: PromptItemProps[]` (optional): An array of request prompts.
 - `autoRequest: boolean` (optional, defaults to `false`): Determines whether to request suggestions automatically.
-- `postId: number`: When defined, will be passed to the askQuestion function.
-- `askQuestionOptions: AskQuestionOptionsArgProps` (optional): Options for the askQuestion function.
+- `askQuestionOptions: AskQuestionOptionsArgProps` (optional): [Options for the askQuestion](../../ask-question/Readme.md#ask-question-parameters) function.
 - `onSuggestion: ( suggestion: string ) => void` (optional): A callback function that gets triggered when a suggestion is received.
 - `onDone: ( content: string ) => void` (optional): A callback function that gets triggered when the process is complete.
 - `onError: ( error: SuggestionErrorProps ) => void` (optional): A callback function that gets triggered when an error occurs.

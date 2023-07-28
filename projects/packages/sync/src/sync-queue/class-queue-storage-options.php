@@ -104,7 +104,7 @@ class Queue_Storage_Options {
 	 *
 	 * @param array $items_ids Items IDs to fetch from the queue.
 	 *
-	 * @return array|object|\stdClass[]|null
+	 * @return \stdClass[]|null
 	 */
 	public function fetch_items_by_ids( $items_ids ) {
 		global $wpdb;
@@ -242,7 +242,7 @@ class Queue_Storage_Options {
 	 *
 	 * @param int $max_count How many items to fetch from the queue.
 	 *
-	 * @return array|object|\stdClass[]|null
+	 * @return \stdClass[]|null
 	 */
 	public function get_items_ids_with_size( $max_count ) {
 		global $wpdb;
@@ -267,6 +267,11 @@ class Queue_Storage_Options {
 	 */
 	public function delete_items_by_ids( $ids ) {
 		global $wpdb;
+
+		if ( ! is_array( $ids ) || empty( $ids ) ) {
+			return false;
+		}
+
 		// TODO check if it's working properly - no need to delete all options in the table if the params are not right
 		$ids_placeholders = implode( ', ', array_fill( 0, count( $ids ), '%s' ) );
 

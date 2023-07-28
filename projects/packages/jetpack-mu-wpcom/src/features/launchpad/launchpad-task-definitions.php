@@ -288,6 +288,13 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
+		'enable_subscribers_modal'        => array(
+			'get_title'            => function () {
+				return __( 'Enable subscribers modal', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_is_enable_subscribers_modal_visible',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -711,6 +718,32 @@ function wpcom_mark_site_title_complete( $old_value, $value ) {
 	}
 }
 add_action( 'update_option_blogname', 'wpcom_mark_site_title_complete', 10, 3 );
+
+/**
+ * Mark the enable_subscribers_modal task complete
+ * if its option is updated to `true`.
+ *
+ * @param string $old_value The old value of the option.
+ * @param string $value The new value of the option.
+ *
+ * @return void
+ */
+function wpcom_mark_enable_subscribers_modal_complete( $old_value, $value ) {
+	if ( $value ) {
+		wpcom_mark_launchpad_task_complete( 'enable_subscribers_modal' );
+	}
+}
+add_action( 'update_option_sm_enabled', 'wpcom_mark_enable_subscribers_modal_complete', 10, 3 );
+add_action( 'add_option_sm_enabled', 'wpcom_mark_enable_subscribers_modal_complete', 10, 3 );
+
+/**
+ * Determines whether the enable_subscribers_modal task should show.
+ *
+ * @return bool True if the task should show, false otherwise.
+ */
+function wpcom_is_enable_subscribers_modal_visible() {
+	return apply_filters( 'jetpack_subscriptions_modal_enabled', false );
+}
 
 /**
  * Determine `domain_claim` task visibility.
