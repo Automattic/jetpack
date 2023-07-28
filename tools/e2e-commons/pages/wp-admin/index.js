@@ -14,6 +14,7 @@ export { default as DashboardPage } from './dashboard.js';
 export { default as InPlacePlansPage } from './in-place-plans.js';
 export { default as JetpackPage } from './jetpack.js';
 export { default as MyJetpackPage } from './my-jetpack.js';
+export { default as MyJetpackConnectionPage } from './my-jetpack.js';
 export { default as JetpackDashboardPage } from './jetpack-dashboard.js';
 export { default as JetpackMyPlanPage } from './jetpack-my-plan.js';
 export { default as WPLoginPage } from './login.js';

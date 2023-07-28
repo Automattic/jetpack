@@ -5,7 +5,11 @@ import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 export default class MyJetpackPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=my-jetpack';
-		super( page, { expectedSelectors: [ '#my-jetpack-container' ], url } );
+		super( page, {
+			expectedSelectors: [ '#my-jetpack-container' ],
+			url,
+			explicitWaitMS: 30000,
+		} );
 	}
 
 	async isConnectNoticeVisible() {

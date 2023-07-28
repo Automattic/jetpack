@@ -3,6 +3,7 @@ import {
 	PluginsPage,
 	DashboardPage,
 	MyJetpackPage,
+	MyJetpackConnectionPage,
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
@@ -53,8 +54,10 @@ test( 'Connect button is displayed on My Jetpack page', async ( { page } ) => {
 
 	await myJetpackPage.clickNoticeConnectButton();
 
+	const myJetpackConnectionPage = await MyJetpackConnectionPage.init( page );
+
 	expect(
-		await myJetpackPage.isConnectScreenVisible(),
-		'Connect screen should be visible'
+		await myJetpackConnectionPage.isConnectScreenVisible(),
+		'My Jetpack Connection screen should be visible'
 	).toBeTruthy();
 } );
