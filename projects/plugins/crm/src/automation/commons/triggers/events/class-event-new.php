@@ -39,7 +39,7 @@ class Event_New extends Base_Trigger {
 	 *
 	 * @return string
 	 */
-	public static function get_description(): ?string {
+	public static function get_description(): string {
 		return __( 'Triggered when a new event status is added', 'zero-bs-crm' );
 	}
 
