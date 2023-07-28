@@ -16,6 +16,7 @@ class Event_New extends Base_Trigger {
 
 	/**
 	 * Get the slug name of the trigger.
+	 *
 	 * @return string
 	 */
 	public static function get_slug(): string {
@@ -24,6 +25,7 @@ class Event_New extends Base_Trigger {
 
 	/**
 	 * Get the title of the trigger.
+	 *
 	 * @return string
 	 */
 	public static function get_title(): string {
@@ -32,6 +34,7 @@ class Event_New extends Base_Trigger {
 
 	/**
 	 * Get the description of the trigger.
+	 *
 	 * @return string
 	 */
 	public static function get_description(): ?string {
@@ -40,6 +43,7 @@ class Event_New extends Base_Trigger {
 
 	/**
 	 * Get the category of the trigger.
+	 *
 	 * @return string
 	 */
 	public static function get_category(): ?string {

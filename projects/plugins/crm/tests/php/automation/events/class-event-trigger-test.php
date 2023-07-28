@@ -44,7 +44,7 @@ class Event_Trigger_Test extends BaseTestCase {
 		// Fake event data.
 		$event_data = $this->automation_faker->event_data();
 
-		// We expect the workflow to be executed on event_new event with the event data
+		// We expect the workflow to be executed on event_new event with the event data.
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
@@ -76,7 +76,7 @@ class Event_Trigger_Test extends BaseTestCase {
 		// Fake event data.
 		$event_data = $this->automation_faker->event_data();
 
-		// We expect the workflow to be executed on event_deleted event with the event data
+		// We expect the workflow to be executed on event_deleted event with the event data.
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(

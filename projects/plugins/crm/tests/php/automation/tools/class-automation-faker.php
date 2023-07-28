@@ -124,6 +124,7 @@ class Automation_Faker {
 
 	/**
 	 * Return dummy event triggers name list
+	 *
 	 * @return array
 	 */
 	public function event_triggers(): array {
@@ -242,6 +243,7 @@ class Automation_Faker {
 
 	/**
 	 * Return data for a dummy company
+	 *
 	 * @return array
 	 */
 	public function company_data() {
@@ -255,6 +257,7 @@ class Automation_Faker {
 
 	/**
 	 * Return data for a dummy event
+	 *
 	 * @return array
 	 */
 	public function event_data() {
@@ -277,6 +280,7 @@ class Automation_Faker {
 
 	/**
 	 * Return a empty workflow, without triggers and initial step
+	 *
 	 * @return array
 	 */
 	public function empty_workflow(): array {
