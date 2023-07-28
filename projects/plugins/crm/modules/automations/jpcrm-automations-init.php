@@ -49,8 +49,11 @@ function load_module() {
 	require_once JPCRM_AUTOMATIONS_MODULE_PATH . '/admin/admin-page-init.php';
 	initialize_admin_page();
 
-	$bootstrap = new Automation_Boostrap();
-	$bootstrap->init();
+	/* @todo Refactor this to be part of a separate initialisation process. */
+	if ( is_admin() ) {
+		$bootstrap = new Automation_Boostrap();
+		$bootstrap->init();
+	}
 }
 
 add_action( 'jpcrm_load_modules', __NAMESPACE__ . '\load_module' );
