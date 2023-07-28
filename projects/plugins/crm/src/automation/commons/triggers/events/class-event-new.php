@@ -48,7 +48,7 @@ class Event_New extends Base_Trigger {
 	 *
 	 * @return string
 	 */
-	public static function get_category(): ?string {
+	public static function get_category(): string {
 		return __( 'event', 'zero-bs-crm' );
 	}
 
