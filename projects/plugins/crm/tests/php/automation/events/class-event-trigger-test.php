@@ -32,8 +32,6 @@ class Event_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/event_new' );
 
-		$trigger = new Event_New();
-
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
 			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
@@ -41,6 +39,7 @@ class Event_Trigger_Test extends BaseTestCase {
 			->getMock();
 
 		// Init the Event_New trigger.
+		$trigger = new Event_New();
 		$trigger->init( $workflow );
 
 		// Fake event data.
