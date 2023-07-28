@@ -1095,6 +1095,7 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
 			),
 		),
 		self::VIDEOPRESS                       => array(
@@ -1117,6 +1118,7 @@ class WPCOM_Features {
 			),
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
 			),
 		),
 
@@ -1144,6 +1146,7 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
 			),
 		),
 		self::VIDEOPRESS_UNLIMITED_STORAGE     => array(
