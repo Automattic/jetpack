@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
+import { pageBreak as icon } from '@wordpress/icons';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
-import icon from './icon';
 
 /**
  * Style dependencies
@@ -19,19 +19,17 @@ export const settings = {
 		foreground: getIconColor(),
 	},
 	category: 'earn',
-	keywords: [],
+	keywords: [ 'subscribe' ],
 	supports: {
 		customClassName: false,
 		html: false,
 		multiple: false,
 	},
+	parent: [ 'core/post-content' ],
 	edit,
-	/* @TODO Write the block editor output */
 	save: () => null,
 	attributes,
 	example: {
-		attributes: {
-			// @TODO: Add default values for block attributes, for generating the block preview.
-		},
+		attributes: {},
 	},
 };
