@@ -20,9 +20,9 @@ import {
  */
 import type { AskQuestionOptionsArgProps } from '../../ask-question';
 import type SuggestionsEventSource from '../../suggestions-event-source';
-import type { PromptItemProps, SuggestionErrorCode } from '../../types';
+import type { PromptProp, SuggestionErrorCode } from '../../types';
 
-export type SuggestionErrorProps = {
+export type RequestingErrorProps = {
 	/*
 	 * A string code to refer to the error.
 	 */
@@ -43,7 +43,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * Request prompt.
 	 */
-	prompt?: PromptItemProps[];
+	prompt?: PromptProp;
 
 	/*
 	 * Whether to request suggestions automatically.
@@ -68,7 +68,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * onError callback.
 	 */
-	onError?: ( error: SuggestionErrorProps ) => void;
+	onError?: ( error: RequestingErrorProps ) => void;
 };
 
 export type RequestingStateProp = 'init' | 'requesting' | 'suggesting' | 'done' | 'error';
@@ -82,7 +82,7 @@ type useAiSuggestionsProps = {
 	/*
 	 * The error.
 	 */
-	error: SuggestionErrorProps | undefined;
+	error: RequestingErrorProps | undefined;
 
 	/*
 	 * Whether the request is in progress.
@@ -97,7 +97,7 @@ type useAiSuggestionsProps = {
 	/*
 	 * The request handler.
 	 */
-	request: ( prompt: Array< PromptItemProps > ) => Promise< void >;
+	request: ( prompt: PromptProp ) => Promise< void >;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
@@ -106,9 +106,9 @@ const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
  * Get the error data for a given error code.
  *
  * @param {SuggestionErrorCode} errorCode - The error code.
- * @returns {SuggestionErrorProps}          The error data.
+ * @returns {RequestingErrorProps}          The error data.
  */
-function getErrorData( errorCode: SuggestionErrorCode ): SuggestionErrorProps {
+function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorProps {
 	switch ( errorCode ) {
 		case ERROR_QUOTA_EXCEEDED:
 			return {
@@ -178,7 +178,7 @@ export default function useAiSuggestions( {
 }: useAiSuggestionsOptions = {} ): useAiSuggestionsProps {
 	const [ requestingState, setRequestingState ] = useState< RequestingStateProp >( 'init' );
 	const [ suggestion, setSuggestion ] = useState< string >( '' );
-	const [ error, setError ] = useState< SuggestionErrorProps >();
+	const [ error, setError ] = useState< RequestingErrorProps >();
 
 	// Store the event source in a ref, so we can handle it if needed.
 	const eventSourceRef = useRef< SuggestionsEventSource | undefined >( undefined );
@@ -243,10 +243,15 @@ export default function useAiSuggestions( {
 	 * @returns {Promise<void>} The promise.
 	 */
 	const request = useCallback(
-		async ( promptArg: Array< PromptItemProps > ) => {
-			promptArg.forEach( ( { role, content: promptContent }, i ) =>
-				debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
-			);
+		async ( promptArg: PromptProp ) => {
+			if ( Array.isArray( promptArg ) && promptArg?.length ) {
+				promptArg.forEach( ( { role, content: promptContent }, i ) =>
+					debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
+				);
+			} else {
+				debug( '%o', promptArg );
+			}
+
 			// Set the request status.
 			setRequestingState( 'requesting' );
 
