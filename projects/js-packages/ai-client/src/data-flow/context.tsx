@@ -6,8 +6,8 @@ import React from 'react';
 /**
  * Types & Constants
  */
-import type { RequestingStateProp, RequestingErrorProps } from '../../hooks/use-ai-suggestions';
-import type { PromptProp } from '../../types';
+import type { RequestingStateProp, RequestingErrorProps } from '../hooks/use-ai-suggestions';
+import type { PromptProp } from '../types';
 
 type AiAssistantDataContextProps = {
 	/*
