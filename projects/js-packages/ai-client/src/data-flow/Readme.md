@@ -1,7 +1,12 @@
 
-# Data Flow
+# AI Assistant Data Flow
 
-## AI Assistant Context
+## In-depth Analysis
+
+* [AI Assistant Context](#ai-assistant-content)
+* [withAiDataProvider HOC](#with-ai-data-provider)
+
+<h2 id="ai-assistant-content">AI Assistant Context</h2>
 
 The AI Assistant Context is a React context implementation for managing the state and functionality of an AI Assistant. It manages the suggestion values, error states, and request functionality for the AI Assistant.
 
@@ -51,3 +56,7 @@ The current state of the suggestion request. It can be one of the following:
 
 #### `requestSuggestion`
 A function to request a suggestion from the AI. The function takes a prompt parameter which can be an object of `PromptMessagesProp` or a string.
+
+<h2 id="with-ai-data-provider">withAiDataProvider HOC</h2>
+
+Higher Order Component (HOC) that wraps a given component and provides it with the AI Assistant Data context. This HOC is instrumental in the data flow of the AI Assistant functionality and helps manage the interaction with the AI Assistant's communication layer.

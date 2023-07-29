@@ -6,10 +6,11 @@ import React from 'react';
 /**
  * Types & Constants
  */
+import SuggestionsEventSource from '../suggestions-event-source';
 import type { RequestingStateProp, RequestingErrorProps } from '../hooks/use-ai-suggestions';
 import type { PromptProp } from '../types';
 
-type AiAssistantDataContextProps = {
+export type AiAssistantDataContextProps = {
 	/*
 	 * Suggestion value
 	 */
@@ -29,6 +30,11 @@ type AiAssistantDataContextProps = {
 	 * Request suggestion function
 	 */
 	requestSuggestion: ( prompt: PromptProp ) => void;
+
+	/*
+	 * The Suggestions Event Source instance
+	 */
+	eventSource: SuggestionsEventSource | null;
 };
 
 type AiAssistantDataContextProviderProps = {
