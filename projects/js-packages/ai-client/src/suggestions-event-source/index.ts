@@ -218,7 +218,6 @@ export default class SuggestionsEventSource extends EventTarget {
 	}
 
 	processEvent( e: EventSourceMessage ) {
-		// console.log( 'processEvent', e );
 		if ( e.data === '[DONE]' ) {
 			if ( this.fullMessage.length ) {
 				// Dispatch an event with the full content
