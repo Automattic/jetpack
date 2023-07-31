@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions, AiAssistantDataContextProvider } from '@automattic/jetpack-ai-client';
+import { useAiSuggestions, AiDataContextProvider } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
@@ -300,7 +300,7 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 		}
 
 		return (
-			<AiAssistantDataContextProvider value={ dataContextValue }>
+			<AiDataContextProvider value={ dataContextValue }>
 				<AiAssistantContextProvider value={ contextValue }>
 					<KeyboardShortcuts
 						shortcuts={ {
@@ -333,7 +333,7 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 						/>
 					</KeyboardShortcuts>
 				</AiAssistantContextProvider>
-			</AiAssistantDataContextProvider>
+			</AiDataContextProvider>
 		);
 	};
 }, 'withAiAssistant' );

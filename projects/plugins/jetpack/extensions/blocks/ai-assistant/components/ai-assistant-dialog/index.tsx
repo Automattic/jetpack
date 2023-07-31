@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { AiAssistantDataContext } from '@automattic/jetpack-ai-client';
+import { AiDataContext } from '@automattic/jetpack-ai-client';
 import { PlainText, BlockPreview } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
 import { Icon, KeyboardShortcuts, Popover, Button } from '@wordpress/components';
@@ -123,7 +123,7 @@ export const AiAssistantPopover = ( {
 	const { toggleAssistant, isAssistantMenuShown, hideAssistantMenu, showAssistantMenu } =
 		useContext( AiAssistantContext );
 
-	const { requestingState, suggestion } = useContext( AiAssistantDataContext );
+	const { requestingState, suggestion } = useContext( AiDataContext );
 	const [ message, setMessage ] = useState( '' );
 
 	// useEffect( () => {
