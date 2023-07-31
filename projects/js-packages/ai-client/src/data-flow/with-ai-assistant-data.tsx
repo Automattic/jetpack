@@ -1,6 +1,7 @@
 /**
  * External Dependencies
  */
+import { createHigherOrderComponent } from '@wordpress/compose';
 import { useMemo } from '@wordpress/element';
 import React, { ReactNode } from 'react';
 /**
@@ -16,7 +17,7 @@ import { AiDataContextProvider } from '.';
  * @param {ReactNode} WrappedComponent - component to wrap.
  * @returns {ReactNode}          		 Wrapped component, with the AI Assistant Data context.
  */
-const withAiDataProvider = ( WrappedComponent: ReactNode ): ReactNode => {
+const withAiDataProvider = createHigherOrderComponent( ( WrappedComponent: ReactNode ) => {
 	return props => {
 		// Connect with the AI Assistant communication layer.
 		const {
@@ -46,6 +47,6 @@ const withAiDataProvider = ( WrappedComponent: ReactNode ): ReactNode => {
 			</AiDataContextProvider>
 		);
 	};
-};
+}, 'withAiDataProvider' );
 
 export default withAiDataProvider;
