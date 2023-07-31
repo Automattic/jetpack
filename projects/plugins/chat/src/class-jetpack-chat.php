@@ -80,7 +80,9 @@ class Jetpack_Chat {
 			return;
 		}
 		?>
-			<div id="jetpack-odysseus-root"></div>
+			<a href="#" id="widget-button-test">Open Odie Chat (Test)</a>
+
+
 		<?php
 	}
 
@@ -92,6 +94,9 @@ class Jetpack_Chat {
 	}
 
 	public function enqueue_jetpack_odysseus_scripts() {
+		// enqueue the https://widgets.wp.com/odie/widget.js script
+		wp_enqueue_script( 'jetpack-odysseus-widget', '//widgets.wp.com/odie/widget.js', array(), false, true );
+	
 		Assets::register_script(
 			'jetpack-odysseus-js',
 			'build/odysseus.js',
@@ -101,7 +106,7 @@ class Jetpack_Chat {
 				'textdomain' => 'jetpack-odysseus',
 			)
 		);
-		Assets::enqueue_script( 'jetpack-odysseus-js' );
+		// Assets::enqueue_script( 'jetpack-odysseus-js' );
 	}
 
 	/**
