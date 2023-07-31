@@ -2,8 +2,8 @@ import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack
 import { CONNECTION_STORE_ID, ConnectScreen } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React, { useState, useEffect } from 'react';
-import ChatForm from '../chatform';
+import React from 'react';
+import OdieWidget from '../odie-widget';
 import styles from './styles.module.scss';
 
 const Admin = () => {
@@ -28,7 +28,7 @@ const Admin = () => {
 							<div id="jp-admin-notices" className="jetpack-chat-jitm-card" />
 						</Col>
 						<Col sm={ 4 } md={ 6 } lg={ 6 }>
-							<h1 className={ styles.heading }>{ __( 'Jetpack Odysseus', 'jetpack-chat' ) }</h1>
+							<h1 className={ styles.heading }>{ __( 'Jetpack Odie', 'jetpack-chat' ) }</h1>
 							<h3>{ __( "Don't waste your time chatting with humans.", 'jetpack-chat' ) }</h3>
 							<ul className={ styles[ 'jp-product-promote' ] }>
 								<li>{ __( 'Chat with your site.', 'jetpack-chat' ) }</li>
@@ -38,7 +38,7 @@ const Admin = () => {
 						</Col>
 						<Col lg={ 1 } md={ 1 } sm={ 0 } />
 						<Col sm={ 4 } md={ 5 } lg={ 5 }>
-							<ChatForm />
+							<OdieWidget />
 						</Col>
 					</Container>
 				) }
@@ -54,7 +54,7 @@ const ConnectionSection = () => {
 	return (
 		<ConnectScreen
 			buttonLabel={ __( 'Connect to start chatting', 'jetpack-chat' ) }
-			title={ __( 'Jetpack Odysseus!', 'jetpack-chat' ) }
+			title={ __( 'Jetpack Odie!', 'jetpack-chat' ) }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			registrationNonce={ registrationNonce }

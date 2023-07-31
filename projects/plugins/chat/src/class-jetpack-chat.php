@@ -64,7 +64,7 @@ class Jetpack_Chat {
 
 		My_Jetpack_Initializer::init();
 
-		// Inject div element with id jetpack-chat-root on every page, front end and back end. 
+		// Inject div element with id jetpack-chat-root on every page, front end and back end.
 		add_action( 'wp_footer', array( $this, 'inject_jetpack_odysseus_root' ) );
 		add_action( 'admin_notices', array( $this, 'inject_jetpack_odysseus_root' ) );
 
@@ -73,16 +73,16 @@ class Jetpack_Chat {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_jetpack_odysseus_scripts' ) );
 	}
 
+	/**
+	 * Injects the DOM element that the widget is targeted.
+	 */
 	public function inject_jetpack_odysseus_root() {
-		// Don't show it on the Jetpack Chat settings page. It's rednered on the page already.
 		global $current_screen;
 		if ( isset( $current_screen->id ) && $current_screen->id === 'jetpack_page_jetpack-chat' ) {
 			return;
 		}
 		?>
-			<a href="#" id="widget-button-test">Open Odie Chat (Test)</a>
-
-
+			<div id="jetpack-odie-root"></div>
 		<?php
 	}
 
@@ -93,20 +93,24 @@ class Jetpack_Chat {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 	}
 
+	/**
+	 * Enqueues the Jetpack Odysseus scripts and styles.
+	 */
 	public function enqueue_jetpack_odysseus_scripts() {
-		// enqueue the https://widgets.wp.com/odie/widget.js script
-		wp_enqueue_script( 'jetpack-odysseus-widget', '//widgets.wp.com/odie/widget.js', array(), false, true );
-	
+		// Enqueue the https://widgets.wp.com/odie/widget.js script.
+		// TODO: proper version time check.
+		wp_enqueue_script( 'jetpack-odysseus-widget', '//widgets.wp.com/odie/widget.js', array(), time(), true );
+
 		Assets::register_script(
-			'jetpack-odysseus-js',
-			'build/odysseus.js',
+			'jetpack-odie-js',
+			'build/odie.js',
 			JETPACK_CHAT_ROOT_FILE,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-odysseus',
+				'textdomain' => 'jetpack-chat',
 			)
 		);
-		// Assets::enqueue_script( 'jetpack-odysseus-js' );
+		Assets::enqueue_script( 'jetpack-odie-js' );
 	}
 
 	/**

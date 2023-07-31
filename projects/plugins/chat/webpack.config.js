@@ -5,7 +5,7 @@ module.exports = [
 	{
 		entry: {
 			index: './src/js/index.js',
-			odysseus: './src/js/odysseus.js',
+			odie: './src/js/odie.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
