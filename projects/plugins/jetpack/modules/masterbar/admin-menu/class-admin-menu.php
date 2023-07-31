@@ -407,7 +407,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			 */
 			apply_filters( 'calypso_use_newsletter_settings', '__return_false' )
 		) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 1 );
+			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
 		}
 
 		if (
@@ -421,7 +421,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			 */
 			apply_filters( 'calypso_use_podcasting_settings', '__return_false' )
 		) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack' ), __( 'Podcasting', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, 1 );
+			add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack' ), __( 'Podcasting', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, 8 );
 		}
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 1 );
