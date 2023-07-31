@@ -61,6 +61,45 @@ class Event_Manager_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @testdox Test that contact multi fields updated event is fired
+	 */
+	public function test_notify_on_contact_multi_fields_updated() {
+
+		$contact_data = Event_Manager_Faker::instance()->contact_data();
+
+		$contact_updated           = $contact_data;
+		$contact_updated['status'] = 'Customer';
+		$contact_updated['name']   = 'John2';
+		$contact_updated['email']  = 'johndoe2@example.com';
+
+		// Listen and test the name was updated.
+		add_action(
+			'jpcrm_contact_name_updated',
+			function ( $contact, $old_name ) {
+				$this->assertEquals( 'John Doe', $old_name );
+				$this->assertEquals( 'John2', $contact['name'] );
+			},
+			10,
+			2
+		);
+
+		// Listen and test the email was updated.
+		add_action(
+			'jpcrm_contact_email_updated',
+			function ( $contact, $old_email ) {
+				$this->assertEquals( 'johndoe@example.com', $old_email );
+				$this->assertEquals( 'johndoe2@example.com', $contact['email'] );
+			},
+			10,
+			2
+		);
+
+		$contact_event = new Contact_Event();
+
+		$contact_event->updated( $contact_updated, $contact_data );
+	}
+
+	/**
 	 * @testdox Test that contact updated event is fired
 	 */
 	public function test_notify_on_contact_updated() {
