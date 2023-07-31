@@ -88,7 +88,7 @@ A function to request a suggestion from the AI. The function takes a prompt para
 
 Higher Order Component (HOC) that wraps a given component and provides it with the AI Assistant Data context. This HOC is instrumental in the data flow of the AI Assistant functionality and helps manage the interaction with the AI Assistant's communication layer.
 
-<h2 id="use-ai-data">useAiContext Hook</h2>
+<h2 id="use-ai-context">useAiContext Hook</h2>
 
 The `useAiContext` hook provides a convenient way to access the 
 Ai Data Context and subscribe to the `done` and `suggestion` events emitted by SuggestionsEventSource.
