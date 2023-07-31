@@ -396,7 +396,21 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 9 );
+		if (
+			/**
+			 * Filter to enable the Newsletter Settings section in Calypso UI.
+			 *
+			 * @since $$next-version$$
+			 * @module masterbar
+			 *
+			 * @param bool false Enable newsletter setting section? Default to false.
+			 */
+			apply_filters( 'calypso_use_newsletter_settings', '__return_false' )
+		) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 1 );
+		}
+
+		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 1 );
 	}
 
 	/**
