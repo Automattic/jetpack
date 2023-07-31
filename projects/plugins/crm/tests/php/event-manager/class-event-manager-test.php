@@ -81,4 +81,23 @@ class Event_Manager_Test extends BaseTestCase {
 
 		$contact_event->updated( $contact_updated, $contact_data );
 	}
+
+	/**
+	 * @testdox Test that contact deleted event is fired
+	 */
+	public function test_notify_on_contact_deleted() {
+
+		$contact_data = Event_Manager_Faker::instance()->contact_data();
+
+		add_action(
+			'jpcrm_contact_deleted',
+			function ( $contact_id ) use ( $contact_data ) {
+				$this->assertEquals( $contact_data['id'], $contact_id );
+			}
+		);
+
+		$contact_event = new Contact_Event();
+
+		$contact_event->deleted( $contact_data['id'] );
+	}
 }
