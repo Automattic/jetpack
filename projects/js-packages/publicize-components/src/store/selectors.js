@@ -640,6 +640,15 @@ export function isInstagramConnectionSupported() {
 }
 
 /**
+ * Returns true if the site has the Basic plan for 30 days or made 3 shares.
+ *
+ * @returns {boolean} Whether the site has the Basic plan for 30 days or made 3 shares.
+ */
+export function shouldShowAdvancedPlanNudge() {
+	return getJetpackData()?.social?.shouldShowAdvancedPlanNudge;
+}
+
+/**
  * Checks if the Mastodon connection is supported.
  *
  * @returns {boolean} Whether the Mastodon connection is supported

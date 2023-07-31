@@ -99,6 +99,11 @@ export default function usePublicizeConfig() {
 	 * Whether the site has the Basic plan.
 	 */
 	const hasBasicPlan = hasPaidPlan && ! isEnhancedPublishingEnabled;
+	/**
+	 * shouldShowAdvancedPlanNudge:
+	 * Returns true if the site has the Basic plan for 30 days or shared 3 posts.
+	 */
+	const shouldShowAdvancedPlanNudge = getJetpackData()?.social?.shouldShowAdvancedPlanNudge;
 
 	return {
 		isPublicizeEnabledMeta,
@@ -114,6 +119,7 @@ export default function usePublicizeConfig() {
 		hasPaidPlan,
 		hasBasicPlan,
 		isEnhancedPublishingEnabled,
+		shouldShowAdvancedPlanNudge,
 		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
 		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),

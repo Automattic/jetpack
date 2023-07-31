@@ -243,6 +243,7 @@ class Jetpack_Social {
 						'dismissedNotices'               => $publicize->get_dismissed_notices(),
 						'isInstagramConnectionSupported' => $publicize->has_instagram_connection_feature(),
 						'isMastodonConnectionSupported'  => $publicize->has_mastodon_connection_feature(),
+						'shouldShowAdvancedPlanNudge'    => $publicize->should_show_advanced_plan_upgrade_nudge(),
 					),
 					'connectionData'               => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
@@ -344,6 +345,7 @@ class Jetpack_Social {
 					'dismissedNotices'                => $publicize->get_dismissed_notices(),
 					'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 					'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
+					'shouldShowAdvancedPlanNudge'     => $publicize->should_show_advanced_plan_upgrade_nudge(),
 				),
 			)
 		);

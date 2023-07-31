@@ -1756,6 +1756,16 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Check if the advanced plan upgrade nudge should be shown.
+	 * Returns true if the site has the Basic plan for 30 days or made 3 shares.
+	 *
+	 * @return bool
+	 */
+	public function should_show_advanced_plan_upgrade_nudge() {
+		return false; // TODO implement this.
+	}
+
+	/**
 	 * Check if the enhanced publishing feature is enabled.
 	 *
 	 * @return bool
