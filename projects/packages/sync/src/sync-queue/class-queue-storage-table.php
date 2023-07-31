@@ -151,7 +151,7 @@ class Queue_Storage_Table {
 	/**
 	 * Drop the custom table as part of cleanup.
 	 *
-	 * @return bool If the table is cleared. It's using `is_custom_table_healthy` to check.
+	 * @return bool If the table is cleared.
 	 */
 	public function drop_table() {
 		global $wpdb;
