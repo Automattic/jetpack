@@ -1,51 +1,45 @@
 <?php
 /**
- * Jetpack CRM Automation Contact_New trigger.
+ * Jetpack CRM Automation Company_Created trigger.
  *
  * @package automattic/jetpack-crm
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
-use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 
 /**
- * Adds the Contact_New class.
+ * Adds the Company_Created class.
  */
-class Contact_New extends Base_Trigger {
-
-	/**
-	 * @var Automation_Workflow The Automation workflow object.
-	 */
-	protected $workflow;
+class Company_Created extends Base_Trigger {
 
 	/** Get the slug name of the trigger
 	 * @return string
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/contact_new';
+		return 'jpcrm/company_created';
 	}
 
 	/** Get the title of the trigger
 	 * @return string
 	 */
 	public static function get_title(): ?string {
-		return __( 'New Contact', 'zero-bs-crm' );
+		return __( 'New Company', 'zero-bs-crm' );
 	}
 
 	/** Get the description of the trigger
 	 * @return string
 	 */
 	public static function get_description(): ?string {
-		return __( 'Triggered when a CRM contact is added', 'zero-bs-crm' );
+		return __( 'Triggered when a CRM company is added', 'zero-bs-crm' );
 	}
 
 	/** Get the category of the trigger
 	 * @return string
 	 */
 	public static function get_category(): ?string {
-		return __( 'contact', 'zero-bs-crm' );
+		return __( 'company', 'zero-bs-crm' );
 	}
 
 	/**
@@ -53,7 +47,7 @@ class Contact_New extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_contact_new',
+			'jpcrm_automation_company_created',
 			array( $this, 'execute_workflow' )
 		);
 	}

@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Event_New trigger.
+ * Jetpack CRM Automation Event_Created trigger.
  *
  * @package automattic/jetpack-crm
  */
@@ -10,11 +10,11 @@ namespace Automattic\Jetpack\CRM\Automation\Triggers;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 
 /**
- * Adds the Event_New class.
+ * Adds the Event_Created class.
  *
  * @since $$next-version$$
  */
-class Event_New extends Base_Trigger {
+class Event_Created extends Base_Trigger {
 
 	/**
 	 * Get the slug name of the trigger.
@@ -22,7 +22,7 @@ class Event_New extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/event_new';
+		return 'jpcrm/event_created';
 	}
 
 	/**
@@ -57,7 +57,7 @@ class Event_New extends Base_Trigger {
 	 */
 	protected function listen_to_event(): void {
 		add_action(
-			'jpcrm_event_new',
+			'jpcrm_event_created',
 			array( $this, 'execute_workflow' )
 		);
 	}
