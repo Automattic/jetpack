@@ -100,4 +100,23 @@ class Event_Manager_Test extends BaseTestCase {
 
 		$contact_event->deleted( $contact_data['id'] );
 	}
+
+	/**
+	 * @testdox Test contact is about to be deleted event is fired
+	 */
+	public function test_notify_on_contact_before_delete() {
+
+		$contact_data = Event_Manager_Faker::instance()->contact_data();
+
+		add_action(
+			'jpcrm_contact_before_delete',
+			function ( $contact_id ) use ( $contact_data ) {
+				$this->assertEquals( $contact_data['id'], $contact_id );
+			}
+		);
+
+		$contact_event = new Contact_Event();
+
+		$contact_event->before_delete( $contact_data['id'] );
+	}
 }
