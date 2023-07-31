@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiData } from '@automattic/jetpack-ai-client';
+import { useAiContext } from '@automattic/jetpack-ai-client';
 import { PlainText, BlockPreview } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
 import { Icon, KeyboardShortcuts, Popover, Button } from '@wordpress/components';
@@ -45,7 +45,7 @@ const noop = () => {}; // eslint-disable-line @typescript-eslint/no-empty-functi
 export default function AiAssistantDialog( props: AiAssistantDialogProps ): React.ReactElement {
 	const { onFocusLost = noop, onChange, value, onRequest, onDialogTabPress } = props;
 
-	const { requestingState } = useAiData();
+	const { requestingState } = useAiContext();
 
 	// Hooks
 	const inputRef = useRef( null );
@@ -123,7 +123,7 @@ export const AiAssistantPopover = ( {
 	const { toggleAssistant, isAssistantMenuShown, hideAssistantMenu, showAssistant } =
 		useContext( AiAssistantUiContext );
 
-	const { requestingState, suggestion } = useAiData();
+	const { requestingState, suggestion } = useAiContext();
 	const [ message, setMessage ] = useState( '' );
 
 	// useEffect( () => {

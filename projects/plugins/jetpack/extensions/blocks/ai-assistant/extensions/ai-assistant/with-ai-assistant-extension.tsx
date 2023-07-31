@@ -9,7 +9,7 @@
 /**
  * External dependencies
  */
-import { useAiData } from '@automattic/jetpack-ai-client';
+import { useAiContext } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
@@ -192,7 +192,7 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 
 		const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
-		const { requestSuggestion } = useAiData( {
+		const { requestSuggestion } = useAiContext( {
 			// prompt: userPrompt,
 			onSuggestion: setContent,
 			askQuestionOptions: {
