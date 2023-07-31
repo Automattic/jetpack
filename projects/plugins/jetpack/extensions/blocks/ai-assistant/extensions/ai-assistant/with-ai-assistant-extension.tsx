@@ -34,7 +34,7 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 		const [ isAssistantMenuShown, setAssistantMenuVisibility ] = useState( true );
 
 		// Get the selected block client IDs.
-		const { content, clientIds } = useTextContentFromSelectedBlocks();
+		const { content } = useTextContentFromSelectedBlocks();
 
 		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 		/**
@@ -88,10 +88,6 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 		 */
 		const blockDomReference = useRef< HTMLElement >();
 		useEffect( () => {
-			// if ( ! clientIds?.length ) {
-			// 	return;
-			// }
-
 			if ( ! clientId ) {
 				return;
 			}
@@ -118,8 +114,6 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 			blockDomReference.current = blockDomElement;
 		}, [ clientId ] );
 
-		const [ firstClientId ] = clientIds;
-
 		/*
 		 * Hide the Assistant when
 		 * - unmounting,
@@ -135,74 +129,31 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 			return () => {
 				hideAssistant();
 			};
-		}, [ hideAssistant, isSelected, firstClientId ] ); // Addind firstClientId as a dependency helps to hide the assistant when the block is unselcted.
+		}, [ hideAssistant, isSelected ] );
 
 		const setContent = useCallback(
 			( newContent: string ) => {
-				// const [ firstClientId, ...restClientIds ] = clientIds;
-				// if ( ! wrapperBlockHasBeenInserted.current ) {
-				// 	wrapperBlockHasBeenInserted.current = true;
-				// 	replaceBlock( firstClientId, groupBlockWrapper );
-				// }
-
 				const newContentBlocks = parse( newContent );
 
 				// Check if the generated blocks are valid.
 				const validBlocks = newContentBlocks.filter( block => {
 					return block.isValid && block.name !== 'core/freeform';
 				} );
-
-				// Get HTML markup of the generated blocks
-				// const html = validBlocks.reduce( ( html, block ) => {
-				// 	return html + getBlockContent( block );
-				// }, '' );
-
-				// console.log( { html } );
-
 				// Only update the valid blocks
-				replaceInnerBlocks( firstClientId, validBlocks );
-
-				// updateBlockAttributes( firstClientId, { content: newContent } );
-
-				// console.log( { newContentBlocks } );
-
-				// replaceBlock( firstClientId, newContentBlocks );
-
-				/*
-				 * Update the content of the block
-				 * by calling the setAttributes function,
-				 * updating the `content` attribute.
-				 * It doesn't scale for other blocks.
-				 * @todo: find a better way to update the content.
-				 */
-				// replaceBlock( firstClientId, newContentBlocks );
-				// console.log( { firstClientId } );
-				// updateBlockAttributes( firstClientId, { content: newContent } );
-
-				// // Remove the rest of the block in case there are more than one.
-				// if ( restClientIds.length ) {
-				// 	removeBlocks( restClientIds );
-				// 	// then( () => {
-				// 	// 	clientIdsRef.current = [ firstClientId ];
-				// 	// } );
-				// }
+				replaceInnerBlocks( clientId, validBlocks );
 			},
-			[ firstClientId, replaceInnerBlocks ]
+			[ clientId, replaceInnerBlocks ]
 		);
 
 		const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
 		const { requestSuggestion } = useAiContext( {
-			// prompt: userPrompt,
 			onSuggestion: setContent,
 			askQuestionOptions: {
 				postId,
-				// feature: 'ai-assistant-experimental', // @todo
 			},
 			onDone: doneContent => {
 				setContent( doneContent );
-				// const newContentBlocks = parse( doneContent );
-				// replaceInnerBlocks( groupBlockWrapper.clientId, newContentBlocks );
 			},
 		} );
 

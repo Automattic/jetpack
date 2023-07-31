@@ -2,8 +2,7 @@
  * External dependencies
  */
 import { useAiContext } from '@automattic/jetpack-ai-client';
-import { PlainText, BlockPreview } from '@wordpress/block-editor';
-import { rawHandler } from '@wordpress/blocks';
+import { PlainText } from '@wordpress/block-editor';
 import { Icon, KeyboardShortcuts, Popover, Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useRef, useEffect, useContext, useState } from '@wordpress/element';
@@ -17,11 +16,6 @@ import './style.scss';
 import { AiAssistantUiContext } from '../../extensions/ai-assistant/ui-context';
 import aiAssistant from '../../icons/ai-assistant';
 import origamiPlane from '../../icons/origami-plane';
-// import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_CHANGE_TONE } from '../../lib/prompt';
-import { QuickActionsMenuItems } from '../ai-assistant-control';
-// import { I18nMenuDropdown } from '../i18n-dropdown-control';
-// import { ToneDropdownMenu } from '../tone-dropdown-control';
-import { actionsList } from './contact-form-quick-actions';
 
 type AiAssistantDialogProps = {
 	value: string;
@@ -116,36 +110,15 @@ export const AiAssistantPopover = ( {
 	anchor,
 	show,
 	onRequest,
-	onPromptChange,
-	// onQuickAction,
 	...rest
 }: AiAssistantPopoverProps ) => {
-	const { toggleAssistant, isAssistantMenuShown, hideAssistantMenu, showAssistant } =
-		useContext( AiAssistantUiContext );
+	const { toggleAssistant, showAssistant } = useContext( AiAssistantUiContext );
 
-	const { requestingState, suggestion } = useAiContext();
+	const { requestingState } = useAiContext();
 	const [ message, setMessage ] = useState( '' );
-
-	// useEffect( () => {
-	// 	if ( ! generatedContent ) {
-	// 		return;
-	// 	}
-
-	// 	const newContentBlocks = rawHandler( {
-	// 		HTML: generatedContent,
-	// 	} );
-	// 	console.log( { newContentBlocks } );
-	// }, [ generatedContent ] );
-
 	if ( ! show ) {
 		return null;
 	}
-
-	const filteredActions = actionsList.filter( action => {
-		return message?.split( ' ' ).every( word => new RegExp( word, 'i' ).test( action.name ) );
-	} );
-
-	const forceHide = true;
 
 	return (
 		<Popover anchor={ anchor } className="jetpack-ai-assistant__popover">
@@ -175,46 +148,6 @@ export const AiAssistantPopover = ( {
 						onRequest={ () => onRequest( message ) }
 					/>
 				</div>
-
-				{ isAssistantMenuShown && ! forceHide && (
-					<div className="jetpack-ai-assistant__menu">
-						<QuickActionsMenuItems
-							actions={ filteredActions }
-							onChange={ action => {
-								setPrompt( action.name );
-								onPromptChange( action.promptType );
-								hideAssistantMenu();
-							} }
-						/>
-
-						{ /* <I18nMenuDropdown
-							onChange={ language => {
-								setPrompt( `Translate the text to ${ language }` );
-								onPromptChange( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
-								hideAssistantMenu();
-							} }
-						/>
-
-						<ToneDropdownMenu
-							onChange={ tone => {
-								setPrompt( `Change the tone to ${ tone }` );
-								onPromptChange( PROMPT_TYPE_CHANGE_TONE, { tone } );
-								hideAssistantMenu();
-							} }
-						/> */ }
-					</div>
-				) }
-
-				{ !! suggestion?.length && ! forceHide && (
-					<div className="jetpack-ai-assistant__preview">
-						<BlockPreview
-							viewportWidth={ 0 }
-							blocks={ rawHandler( {
-								HTML: suggestion,
-							} ) }
-						/>
-					</div>
-				) }
 			</KeyboardShortcuts>
 		</Popover>
 	);
