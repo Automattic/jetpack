@@ -1,3 +1,11 @@
+/*
+ * This is the new version of the AI Assistant extension.
+ *
+ * - Add a dialog to ask the user for a prompt.
+ * - Add a toolbar button to trigger the AI Assistant.
+ * - Add a keyboard shortcut to trigger the AI Assistant.
+ */
+
 /**
  * External dependencies
  */
@@ -17,28 +25,13 @@ import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../lib/prompt';
 import { AiAssistantContextProvider } from './context';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '.';
-const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
+
+const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { isSelected, clientId } = props;
 		// AI Assistant component visibility
 		const [ isAssistantShown, setAssistantVisibility ] = useState( false );
 		const [ isAssistantMenuShown, setAssistantMenuVisibility ] = useState( true );
-
-		// const [ promptValue, setPromptValue ] = useState(
-		// 	'Create a three-column. In each column, there should be an empty image, followed by a level 2 heading, and then three paragraph.'
-		// );
-
-		// const [ promptValue, setPromptValue ] = useState(
-		// 	"I'd like to create a contact form with the following fields: name, email, message. Add a `Contact us` button to submit the form."
-		// );
-
-		// const [ prompt, setPromptValue ] = useState( '' );
-
-		// const [ promptValue, setPromptValue ] = useState(
-		// 	'create a table with ten of the best video games of the CZSpectrum'
-		// );
-		// const [ suggestion, setSuggestionValue ] = useState( '' );
-		// const [ requestingError, setRequestingErrorValue ] = useState( '' );
 
 		// Get the selected block client IDs.
 		const { content, clientIds } = useTextContentFromSelectedBlocks();
@@ -158,22 +151,6 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 				hideAssistant();
 			};
 		}, [ hideAssistant, isSelected, firstClientId ] ); // Addind firstClientId as a dependency helps to hide the assistant when the block is unselcted.
-
-		// const wrapperBlockHasBeenInserted = useRef( false );
-		// // Let's create a core group block to wrap the generated content.
-		// const groupBlockWrapper = createBlock(
-		// 	'core/group',
-		// 	{
-		// 		tagName: 'div',
-		// 		layout: {
-		// 			type: 'constrained',
-		// 		},
-		// 	},
-		// 	[ createBlock( 'core/paragraph' ) ]
-		// );
-		// Insert after
-		// insertAfterBlock( firstClientId, groupBlockWrapper );
-		// }, [ firstClientId, groupBlockWrapper, insertAfterBlock ] );
 
 		const setContent = useCallback(
 			( newContent: string ) => {
@@ -336,7 +313,7 @@ const withAiAssistant = createHigherOrderComponent( BlockListBlock => {
 			</AiDataContextProvider>
 		);
 	};
-}, 'withAiAssistant' );
+}, 'withAiAssistantExtension' );
 
 export const withAiAssistantToolbarButton = createHigherOrderComponent(
 	BlockEdit => props => {
@@ -356,4 +333,4 @@ export const withAiAssistantToolbarButton = createHigherOrderComponent(
 	'withAiAssistantToolbarButton'
 );
 
-export default withAiAssistant;
+export default withAiAssistantExtension;

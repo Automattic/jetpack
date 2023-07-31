@@ -8,7 +8,7 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { isPossibleToExtendBlock } from '../extensions/ai-assistant';
 import withAIAssistant from '../extensions/ai-assistant/with-ai-assistant';
-import { withAiAssistantToolbarButton } from '../extensions/ai-assistant/with-ai-assistant-support';
+import { withAiAssistantToolbarButton } from '../extensions/ai-assistant/with-ai-assistant-extension';
 
 export const SUPPORT_NAME = 'jetpack/ai';
 
