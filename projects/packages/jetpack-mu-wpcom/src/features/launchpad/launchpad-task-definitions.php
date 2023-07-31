@@ -514,13 +514,14 @@ function wpcom_update_launchpad_task_status( $original_statuses ) {
 
 	$statuses = array();
 	foreach ( $original_statuses as $task_id => $value ) {
-		// Filter out non-existent tasks taking into account the id_map.
+		// Find out wether the task id sent is the actual task id or the id_map.
 		$actual_task_id = ( isset( $reverse_id_map[ $task_id ] ) ) ? $reverse_id_map[ $task_id ] : $task_id;
 		if ( ! isset( $task_definitions[ $actual_task_id ] ) ) {
+			// Bail if no task definition was found.
 			continue;
 		}
 
-		// Find the task id that should be used to store the status.
+		// If the task has an id_map, use that, otherwise use the actual task id as the key.
 		$task                        = $task_definitions[ $actual_task_id ];
 		$stored_task_id              = isset( $task['id_map'] ) ? $task['id_map'] : $actual_task_id;
 		$statuses[ $stored_task_id ] = $value;
