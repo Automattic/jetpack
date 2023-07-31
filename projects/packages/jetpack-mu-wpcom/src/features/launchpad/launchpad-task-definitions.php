@@ -572,7 +572,7 @@ function wpcom_launchpad_track_write_3_posts_task() {
 	$published_non_headstart_posts = wpcom_launchpad_get_published_non_headstart_posts_count();
 
 	if ( $published_non_headstart_posts >= 3 ) {
-		wpcom_mark_launchpad_task_complete_if_active( 'write_3_posts' );
+		wpcom_mark_launchpad_task_complete( 'write_3_posts' );
 	}
 }
 add_action( 'publish_post', 'wpcom_launchpad_track_write_3_posts_task', 10, 3 );
