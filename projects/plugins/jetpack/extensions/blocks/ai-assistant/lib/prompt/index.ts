@@ -243,24 +243,24 @@ function getJetpackFormCustomPrompt( {
 	return [
 		{
 			role: 'system',
-			content: `You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature.
+			content: `You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature. Your content will be used inside a Jetpack Form block that already exists.
 Writing rules:
 - Execute the request without any acknowledgment or explanation to the user.
 - If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- When the user provides instructions, translate them into appropriate Gutenberg blocks and Jetpack form structure.
-- Do not wrap the generated structure with any block or delimiters of any kind, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
-- DO NOT add any addtional feedback to the "user", just generate the requested block structure and nothing else.`,
+- DO NOT add any addtional feedback to the user, just generate the requested block structure and nothing else.`,
 		},
 		{
 			role,
 			content: `Handle the following request, delimited with ${ delimiter }: ${ getDelimitedContent(
 				request
-			) } }
-
+			) }
 Strong requirements:
+- When the user provides instructions, translate them into appropriate Gutenberg blocks and Jetpack form structure.
+- Do not wrap the generated structure with any block, element, or delimiters of any kind.
+- Do not use the \`<!-- wp:jetpack/contact-form -->\` block nor any containing elements. The existing form already has a containing block and appropriate elements.
 - Replace placeholders (like FIELD_LABEL, IS_REQUIRED, etc.) with the user's specifications.
-- Use syntax templates for blocks as follows:
+- Use only the following blocks with the following syntax templates:
 	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
 	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
 	- \`Text Input Field\`: <!-- wp:jetpack/field-text {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
@@ -528,7 +528,7 @@ Writing rules:
 	};
 
 	// Prompt starts with the previous messages, if any.
-	const prompt: Array< PromptItemProps > = prevMessages;
+	const prompt: Array< PromptItemProps > = [ ...prevMessages ];
 
 	// Then, add the `system` prompt to clarify the context.
 	prompt.push( systemPrompt );
