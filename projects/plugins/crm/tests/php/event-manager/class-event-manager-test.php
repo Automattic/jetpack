@@ -8,29 +8,30 @@ use WorDBless\BaseTestCase;
 require_once __DIR__ . '/class-event-manager-faker.php';
 
 /**
- * Test Event Manager system
+ * Test Event Manager system.
  *
  * @covers Automattic\Jetpack\CRM\Event_Manager
  */
 class Event_Manager_Test extends BaseTestCase {
 
-	public function setUp(): void {
-		parent::setUp();
-	}
-
 	/**
 	 * @testdox Test that contact created event is fired
 	 */
 	public function test_notify_on_contact_created() {
-		
+
 		$contact_data = Event_Manager_Faker::instance()->contact_data();
-		
-		add_action( 'jpcrm_contact_created', function( $contact ) use ( $contact_data ) {
-			$this->assertEquals( $contact, $contact_data );
-		}, 10, 1 );
+
+		add_action(
+			'jpcrm_contact_created',
+			function ( $contact ) use ( $contact_data ) {
+				$this->assertEquals( $contact, $contact_data );
+			},
+			10,
+			1
+		);
 
 		$contact_event = new Contact_Event();
-		
+
 		$contact_event->created( $contact_data );
 	}
 
@@ -40,14 +41,19 @@ class Event_Manager_Test extends BaseTestCase {
 	public function test_notify_on_contact_status_updated() {
 
 		$contact_data = Event_Manager_Faker::instance()->contact_data();
-		
+
 		$contact_updated           = $contact_data;
 		$contact_updated['status'] = 'Customer';
 
-		add_action( 'jpcrm_contact_status_updated', function( $contact, $old_status_value ) {
-			$this->assertEquals( $contact['status'], 'Customer' );
-			$this->assertEquals( $old_status_value, 'Lead' );
-		}, 10, 2 );
+		add_action(
+			'jpcrm_contact_status_updated',
+			function ( $contact, $old_status_value ) {
+				$this->assertEquals( 'Customer', $contact['status'] );
+				$this->assertEquals( 'Lead', $old_status_value );
+			},
+			10,
+			2
+		);
 
 		$contact_event = new Contact_Event();
 
@@ -64,9 +70,12 @@ class Event_Manager_Test extends BaseTestCase {
 		$contact_updated           = $contact_data;
 		$contact_updated['status'] = 'Customer';
 
-		add_action( 'jpcrm_contact_updated', function( $contact ) {
-			$this->assertEquals( $contact['status'], 'Customer' );
-		} );
+		add_action(
+			'jpcrm_contact_updated',
+			function ( $contact ) {
+				$this->assertEquals( 'Customer', $contact['status'] );
+			}
+		);
 
 		$contact_event = new Contact_Event();
 

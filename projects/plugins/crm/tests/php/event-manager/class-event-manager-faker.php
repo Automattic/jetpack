@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\CRM\Event_Manager\Tests;
 
-
 class Event_Manager_Faker {
 
 	private static $instance;
