@@ -16,6 +16,11 @@ export { default as useAiSuggestions } from './src/hooks/use-ai-suggestions';
 export * from './src/icons';
 
 /*
+ * Components
+ */
+export { default as AIControl } from './src/components/ai-control';
+
+/*
  * Contexts
  */
 export * from './src/data-flow';
