@@ -37,7 +37,7 @@ class Jetpack_SEO {
 		}
 
 		/**
-		 * Can be used to prevent SEO tools form modifying site titles.
+		 * Can be used to prevent SEO tools from modifying site titles.
 		 *
 		 * @module seo-tools
 		 *

@@ -18,6 +18,6 @@ export * from './src/icons';
 /*
  * Contexts
  */
-export * from './src/contexts';
+export * from './src/data-flow';
 
 export * from './src/index.js';

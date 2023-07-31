@@ -217,6 +217,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				// Dispatch an event with the chunk
 				this.dispatchEvent( new CustomEvent( 'chunk', { detail: chunk } ) );
 				// Dispatch an event with the full message
+				debug( 'suggestion: %o', this.fullMessage );
 				this.dispatchEvent( new CustomEvent( 'suggestion', { detail: this.fullMessage } ) );
 			}
 		}
