@@ -7,7 +7,7 @@ import React, { ReactNode } from 'react';
  * Internal Dependencies
  */
 import { useAiSuggestions } from '../../';
-import { AiAssistantDataContextProvider } from '.';
+import { AiDataContextProvider } from '.';
 
 /**
  * High Order Component that provides the
@@ -41,9 +41,9 @@ const withAiDataProvider = ( WrappedComponent: ReactNode ): ReactNode => {
 		);
 
 		return (
-			<AiAssistantDataContextProvider value={ dataContextValue }>
+			<AiDataContextProvider value={ dataContextValue }>
 				<WrappedComponent { ...props } />
-			</AiAssistantDataContextProvider>
+			</AiDataContextProvider>
 		);
 	};
 };

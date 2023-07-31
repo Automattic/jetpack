@@ -10,7 +10,7 @@ import SuggestionsEventSource from '../suggestions-event-source';
 import type { RequestingStateProp, RequestingErrorProps } from '../hooks/use-ai-suggestions';
 import type { PromptProp } from '../types';
 
-export type AiAssistantDataContextProps = {
+export type AiDataContextProps = {
 	/*
 	 * Suggestion value
 	 */
@@ -37,11 +37,11 @@ export type AiAssistantDataContextProps = {
 	eventSource: SuggestionsEventSource | null;
 };
 
-type AiAssistantDataContextProviderProps = {
+type AiDataContextProviderProps = {
 	/*
 	 * Open the AI Assistant
 	 */
-	value: AiAssistantDataContextProps;
+	value: AiDataContextProps;
 
 	/*
 	 * Children
@@ -52,23 +52,23 @@ type AiAssistantDataContextProviderProps = {
 /**
  * Ai Assistant Context
  *
- * @returns {AiAssistantDataContextProps} Context.
+ * @returns {AiDataContextProps} Context.
  */
-export const AiAssistantDataContext = createContext( {} as AiAssistantDataContextProps );
+export const AiDataContext = createContext( {} as AiDataContextProps );
 
 /**
  * Ai Assistant Context Provider
  *
- * @param {AiAssistantDataContextProviderProps} props - Component props.
+ * @param {AiDataContextProviderProps} props - Component props.
  * @returns {React.ReactNode}                           Context provider.
  * @example
- * <AiAssistantDataContextProvider value={ value }>
+ * <AiDataContextProvider value={ value }>
  * 	{ children }
- * </AiAssistantDataContextProvider>
+ * </AiDataContextProvider>
  */
-export const AiAssistantDataContextProvider = ( {
+export const AiDataContextProvider = ( {
 	value,
 	children,
-}: AiAssistantDataContextProviderProps ): React.ReactNode => (
-	<AiAssistantDataContext.Provider value={ value } children={ children } />
+}: AiDataContextProviderProps ): React.ReactNode => (
+	<AiDataContext.Provider value={ value } children={ children } />
 );

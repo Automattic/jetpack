@@ -16,21 +16,21 @@ The AI Assistant Context is a React context implementation for managing the stat
 Import the AI Assistant Context and Provider into your component:
 
 ```javascript
-import { AiAssistantDataContext, AiAssistantDataContextProvider } from '@automattic/jetpack-ai-client';
+import { AiDataContext, AiDataContextProvider } from '@automattic/jetpack-ai-client';
 ```
 
 Use the Provider in your component's render method to wrap the children components:
 
 ```es6
-<AiAssistantDataContextProvider value={ value }>
+<AiDataContextProvider value={ value }>
   { children }
-</AiAssistantDataContextProvider>
+</AiDataContextProvider>
 ```
 
 You can access the context values in your child components using the `useContext` hook:
 
 ```javascript
-const aiContext = React.useContext( AiAssistantDataContext );
+const aiContext = React.useContext( AiDataContext );
 ```
 
 ### Context Values
