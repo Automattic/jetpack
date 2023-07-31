@@ -147,6 +147,7 @@ class WPCOM_Features {
 	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
 	private const JETPACK_AI_MONTHLY                          = 'jetpack_ai_monthly'; // 2450
+	private const JETPACK_AI_YEARLY                           = 'jetpack_ai_yearly'; // 2451
 	private const JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY         = 'jetpack_social_monthly'; // 2500
 	private const JETPACK_SOCIAL_BASIC                        = 'jetpack_social_basic_yearly'; // 2503
 	private const JETPACK_SOCIAL_BASIC_MONTHLY                = 'jetpack_social_basic_monthly'; // 2504
@@ -376,6 +377,7 @@ class WPCOM_Features {
 	private const FEATURES_MAP = array(
 		self::AI_ASSISTANT                     => array(
 			self::JETPACK_AI_MONTHLY,
+			self::JETPACK_AI_YEARLY,
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS               => array(
