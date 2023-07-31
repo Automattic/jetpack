@@ -299,7 +299,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'get_title'                 => function () {
 				return __( 'Write 3 posts', 'jetpack-mu-wpcom' );
 			},
-			'repetition_count_callback' => 'wpcom_get_write_3_posts_repetition_count',
+			'repetition_count_callback' => 'wpcom_launchpad_get_write_3_posts_repetition_count',
 			'target_repetitions'        => 3,
 		),
 	);
@@ -537,7 +537,7 @@ function wpcom_track_publish_first_post_task() {
  *
  * @return int
  */
-function wpcom_get_published_non_headstart_posts_count() {
+function wpcom_launchpad_get_published_non_headstart_posts_count() {
 	// Ensure that Headstart posts don't affect the count
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return 0;
@@ -563,19 +563,19 @@ function wpcom_get_published_non_headstart_posts_count() {
  *
  * @return void
  */
-function wpcom_track_write_3_posts_task() {
+function wpcom_launchpad_track_write_3_posts_task() {
 	// If the task is already completed, don't do anything.
 	if ( wpcom_is_task_option_completed( array( 'id' => 'write_3_posts' ) ) ) {
 		return;
 	}
 
-	$published_non_headstart_posts = wpcom_get_published_non_headstart_posts_count();
+	$published_non_headstart_posts = wpcom_launchpad_get_published_non_headstart_posts_count();
 
 	if ( $published_non_headstart_posts >= 3 ) {
 		wpcom_mark_launchpad_task_complete_if_active( 'write_3_posts' );
 	}
 }
-add_action( 'publish_post', 'wpcom_track_write_3_posts_task', 10, 3 );
+add_action( 'publish_post', 'wpcom_launchpad_track_write_3_posts_task', 10, 3 );
 
 /**
  * Callback for getting the number of posts published.
@@ -583,8 +583,8 @@ add_action( 'publish_post', 'wpcom_track_write_3_posts_task', 10, 3 );
  * @param array $task The Task definition.
  * @return int
  */
-function wpcom_get_write_3_posts_repetition_count( $task ) {
-	$published_non_headstart_posts = wpcom_get_published_non_headstart_posts_count();
+function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
+	$published_non_headstart_posts = wpcom_launchpad_get_published_non_headstart_posts_count();
 
 	return min( $task['target_repetitions'], $published_non_headstart_posts );
 }
