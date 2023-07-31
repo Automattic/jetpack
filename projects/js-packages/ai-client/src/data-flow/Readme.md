@@ -3,17 +3,17 @@
 
 ## In-depth Analysis
 
-* [AI Assistant Context](#ai-assistant-content)
+* [Ai Data Context](#ai-assistant-content)
 * [withAiDataProvider HOC](#with-ai-data-provider)
 
-<h2 id="ai-assistant-content">AI Assistant Context</h2>
+<h2 id="ai-assistant-content">Ai Data Context</h2>
 
-The AI Assistant Context is a React context implementation for managing the state and functionality of an AI Assistant. It manages the suggestion values, error states, and request functionality for the AI Assistant.
+The Ai Data Context is a React context implementation for managing the state and functionality of an AI Assistant. It manages the suggestion values, error states, and request functionality.
 
 
 ### Usage
 
-Import the AI Assistant Context and Provider into your component:
+Import the Ai Data Context and Provider into your component:
 
 ```javascript
 import { AiDataContext, AiDataContextProvider } from '@automattic/jetpack-ai-client';
@@ -35,7 +35,7 @@ const aiContext = React.useContext( AiDataContext );
 
 ### Context Values
 
-The AI Assistant Context has the following values:
+The Ai Data Context has the following values:
 
 #### `suggestion`
 The suggestion value from the AI.

@@ -39,7 +39,7 @@ export type AiDataContextProps = {
 
 type AiDataContextProviderProps = {
 	/*
-	 * Open the AI Assistant
+	 * Data to provide to the context
 	 */
 	value: AiDataContextProps;
 
@@ -50,14 +50,14 @@ type AiDataContextProviderProps = {
 };
 
 /**
- * Ai Assistant Context
+ * AI Data Context
  *
  * @returns {AiDataContextProps} Context.
  */
 export const AiDataContext = createContext( {} as AiDataContextProps );
 
 /**
- * Ai Assistant Context Provider
+ * AI Data Context Provider
  *
  * @param {AiDataContextProviderProps} props - Component props.
  * @returns {React.ReactNode}                           Context provider.
