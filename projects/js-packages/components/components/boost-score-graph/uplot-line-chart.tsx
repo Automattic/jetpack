@@ -5,7 +5,6 @@ import UplotReact from 'uplot-react';
 import { getUserLocale } from '../../lib/locale';
 import numberFormat from '../number-format';
 import getDateFormat from './get-date-format';
-import getPeriodDateFormat from './get-period-date-format';
 import { tooltipsPlugin } from './tooltips-plugin';
 import useResize from './use-resize';
 
@@ -56,12 +55,11 @@ function createSerieInfo( label: string, color: string ) {
 /**
  * UplotLineChart component.
  *
- * @param {object} root0 - The props object for the UplotLineChart component.
- * @param {uPlot.AlignedData} root0.data - The data for the uPlot chart.
- * @param {string} root0.period - The period to be used for the chart.
+ * @param {object} props - The props object for the UplotLineChart component.
+ * @param {uPlot.AlignedData} props.data - The data for the uPlot chart.
  * @returns {React.Element} The JSX element representing the UplotLineChart component.
  */
-export default function UplotLineChart( { data, period }: UplotChartProps ) {
+export default function UplotLineChart( { data }: UplotChartProps ) {
 	const uplot = useRef< uPlot | null >( null );
 	const uplotContainer = useRef( null );
 
@@ -71,7 +69,7 @@ export default function UplotLineChart( { data, period }: UplotChartProps ) {
 			...DEFAULT_DIMENSIONS,
 			tzDate: ts => uPlot.tzDate( new Date( ts * 1e3 ), 'Etc/UTC' ),
 			fmtDate: ( chartDateStringTemplate: string ) => {
-				return date => getDateFormat( chartDateStringTemplate, date, getUserLocale() || 'en' );
+				return date => getDateFormat( chartDateStringTemplate, date, getUserLocale() );
 			},
 			axes: [
 				{
@@ -112,12 +110,8 @@ export default function UplotLineChart( { data, period }: UplotChartProps ) {
 						if ( ! rawValue ) {
 							return '-';
 						}
-
-						return getPeriodDateFormat(
-							period,
-							new Date( rawValue * 1000 ),
-							getUserLocale() || 'en'
-						);
+						const date = new Date( rawValue * 1000 );
+						return date.toLocaleDateString( getUserLocale() );
 					},
 				},
 				createSerieInfo( __( 'Desktop', 'jetpack' ), '#3373BE' ),
@@ -131,7 +125,7 @@ export default function UplotLineChart( { data, period }: UplotChartProps ) {
 		return {
 			...defaultOptions,
 		};
-	}, [ period ] );
+	}, [] );
 
 	useResize( uplot, uplotContainer );
 	const onCreate = useCallback( chart => {
