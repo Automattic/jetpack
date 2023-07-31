@@ -2,10 +2,10 @@
 # AI Assistant Data Flow
 
 ```jsx
-import { withAiAssistantData, useAiDataContext } from '@automattic/jetpack-ai-client';
+import { withAiAssistantData, useAiData } from '@automattic/jetpack-ai-client';
 
 const MyComponent = () => {
-  const { suggestion, requestingState, requestSuggestion } = useAiDataContext( {
+  const { suggestion, requestingState, requestSuggestion } = useAiData( {
     onDone: content => console.log( `Content is done: ${ content }.` );
   } );
 
@@ -31,7 +31,7 @@ export default withAiAssistantData( MyComponent );
 
 * [AI Data Context](#ai-assistant-content)
 * [withAiDataProvider HOC](#with-ai-data-provider)
-* [useAiDataContext Hook](#use-ai-data-context)
+* [useAiData Hook](#use-ai-data)
 
 <h2 id="ai-assistant-content">Ai Data Context</h2>
 
@@ -88,13 +88,13 @@ A function to request a suggestion from the AI. The function takes a prompt para
 
 Higher Order Component (HOC) that wraps a given component and provides it with the AI Assistant Data context. This HOC is instrumental in the data flow of the AI Assistant functionality and helps manage the interaction with the AI Assistant's communication layer.
 
-<h2 id="use-ai-data-context">useAiDataContext Hook</h2>
+<h2 id="use-ai-data">useAiData Hook</h2>
 
-The `useAiDataContext` hook provides a convenient way to access the 
+The `useAiData` hook provides a convenient way to access the 
 Ai Data Context and subscribe to the `done` and `suggestion` events emitted by SuggestionsEventSource.
 
 ```es6
-const { suggestion } = useAiDataContext( {
+const { suggestion } = useAiData( {
   onDone: content => console.log( content ),
   onSuggestion: suggestion => console.log( suggestion ),
 } );
