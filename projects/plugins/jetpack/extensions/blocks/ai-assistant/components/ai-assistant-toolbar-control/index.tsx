@@ -9,7 +9,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { AiAssistantContext } from '../../extensions/ai-assistant/context';
+import { AiAssistantUiContext } from '../../extensions/ai-assistant/ui-context';
 import aiAssistant from '../../icons/ai-assistant';
 import './style.scss';
 
@@ -18,7 +18,7 @@ export default function AiAssistantToobarButton( {
 	disabled = false,
 	requestingState,
 } ) {
-	const { isAssistantShown, toggleAssistant } = useContext( AiAssistantContext );
+	const { isAssistantShown, toggleAssistant } = useContext( AiAssistantUiContext );
 
 	return (
 		<ToolbarButton

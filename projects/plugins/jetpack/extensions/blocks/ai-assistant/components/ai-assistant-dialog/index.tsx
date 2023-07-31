@@ -14,7 +14,7 @@ import React from 'react';
  * Internal dependencies
  */
 import './style.scss';
-import { AiAssistantContext } from '../../extensions/ai-assistant/context';
+import { AiAssistantUiContext } from '../../extensions/ai-assistant/ui-context';
 import aiAssistant from '../../icons/ai-assistant';
 import origamiPlane from '../../icons/origami-plane';
 // import { PROMPT_TYPE_CHANGE_LANGUAGE, PROMPT_TYPE_CHANGE_TONE } from '../../lib/prompt';
@@ -68,7 +68,7 @@ export default function AiAssistantDialog( props: AiAssistantDialogProps ): Reac
 		};
 	}, [ onFocusLost ] );
 
-	const { requestingState } = useContext( AiAssistantContext );
+	const { requestingState } = useContext( AiAssistantUiContext );
 
 	// Send request when the user presses enter
 	useKeyboardShortcut( [ 'command+enter', 'ctrl+enter' ], onRequest, {
@@ -121,7 +121,7 @@ export const AiAssistantPopover = ( {
 	...rest
 }: AiAssistantPopoverProps ) => {
 	const { toggleAssistant, isAssistantMenuShown, hideAssistantMenu, showAssistantMenu } =
-		useContext( AiAssistantContext );
+		useContext( AiAssistantUiContext );
 
 	const { requestingState, suggestion } = useContext( AiDataContext );
 	const [ message, setMessage ] = useState( '' );

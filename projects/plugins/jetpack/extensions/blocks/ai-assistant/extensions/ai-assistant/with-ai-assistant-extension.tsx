@@ -23,7 +23,7 @@ import { AiAssistantPopover } from '../../components/ai-assistant-dialog';
 import AiAssistantToobarButton from '../../components/ai-assistant-toolbar-control';
 import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-selected-blocks';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../lib/prompt';
-import { AiAssistantContextProvider } from './context';
+import { AiAssistantUiContextProvider } from './ui-context';
 import { EXTENDED_BLOCKS, isPossibleToExtendBlock } from '.';
 
 const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
@@ -239,7 +239,7 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 		}
 
 		return (
-			<AiAssistantContextProvider value={ contextValue }>
+			<AiAssistantUiContextProvider value={ contextValue }>
 				<KeyboardShortcuts
 					shortcuts={ {
 						'mod+/': () => {
@@ -270,7 +270,7 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 
 					<BlockListBlock { ...props } />
 				</KeyboardShortcuts>
-			</AiAssistantContextProvider>
+			</AiAssistantUiContextProvider>
 		);
 	};
 }, 'withAiAssistantExtension' );

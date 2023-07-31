@@ -16,7 +16,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { AiAssistantContext } from '../../extensions/ai-assistant/context';
+import { AiAssistantUiContext } from '../../extensions/ai-assistant/ui-context';
 import aiAssistant from '../../icons/ai-assistant';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
@@ -177,7 +177,7 @@ export default function AiAssistantDropdown( {
 	const toolbarLabel =
 		requestingState === 'suggesting' ? null : label || __( 'AI Assistant', 'jetpack' );
 
-	const { showAssistant } = useContext( AiAssistantContext );
+	const { showAssistant } = useContext( AiAssistantUiContext );
 
 	return (
 		<Dropdown

@@ -3,7 +3,7 @@
  */
 import { createContext } from '@wordpress/element';
 
-type AiAssistantContextProps = {
+type AiAssistantUiContextProps = {
 	// Dialog visibility
 	isAssistantShown: boolean;
 	showAssistant: () => void;
@@ -14,11 +14,11 @@ type AiAssistantContextProps = {
 	hideAssistantMenu: () => void;
 };
 
-type AiAssistantContextProviderProps = {
+type AiAssistantUiContextProviderProps = {
 	/*
 	 * Open the AI Assistant
 	 */
-	value: AiAssistantContextProps;
+	value: AiAssistantUiContextProps;
 
 	/*
 	 * Children
@@ -29,11 +29,11 @@ type AiAssistantContextProviderProps = {
 /**
  * Ai Assistant Context
  */
-export const AiAssistantContext = createContext( {} as AiAssistantContextProps );
+export const AiAssistantUiContext = createContext( {} as AiAssistantUiContextProps );
 
-export const AiAssistantContextProvider = ( {
+export const AiAssistantUiContextProvider = ( {
 	value,
 	children,
-}: AiAssistantContextProviderProps ) => (
-	<AiAssistantContext.Provider value={ value } children={ children } />
+}: AiAssistantUiContextProviderProps ) => (
+	<AiAssistantUiContext.Provider value={ value } children={ children } />
 );
