@@ -512,14 +512,18 @@ function wpcom_update_launchpad_task_status( $original_statuses ) {
 	$task_definitions = wpcom_launchpad_get_task_definitions();
 	$reverse_id_map   = wpcom_launchpad_get_reverse_id_mappings();
 
-	// Filter out non-existent tasks taking into account the id_map.
 	$statuses = array();
 	foreach ( $original_statuses as $task_id => $value ) {
+		// Filter out non-existent tasks taking into account the id_map.
 		$actual_task_id = ( isset( $reverse_id_map[ $task_id ] ) ) ? $reverse_id_map[ $task_id ] : $task_id;
 		if ( ! isset( $task_definitions[ $actual_task_id ] ) ) {
 			continue;
 		}
-		$statuses[ $task_id ] = $value;
+
+		// Find the task id that should be used to store the status.
+		$task                        = $task_definitions[ $actual_task_id ];
+		$stored_task_id              = isset( $task['id_map'] ) ? $task['id_map'] : $actual_task_id;
+		$statuses[ $stored_task_id ] = $value;
 	}
 
 	$old_values = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );

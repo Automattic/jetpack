@@ -21,9 +21,12 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 			'wpcom_launchpad_extended_task_definitions',
 			function () {
 				return array(
-					'test_task1' => array(),
-					'test_task2' => array(),
-					'test_task3' => array(),
+					'test_task1'            => array(),
+					'test_task2'            => array(),
+					'test_task3'            => array(),
+					'test_task_with_id_map' => array(
+						'id_map' => 'test_task_id_map',
+					),
 				);
 			}
 		);
@@ -86,5 +89,16 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 		$options = get_option( 'launchpad_checklist_tasks_statuses' );
 
 		$this->assertTrue( count( $options ) === 2 );
+	}
+
+	/**
+	 * Tests wether the correct task ID is stored in the 'launchpad_checklist_tasks_statuses' option.
+	 * When tasks have an 'id_map' property, the 'id_map' value should be used as the task ID.
+	 */
+	public function test_correct_task_id_is_stored() {
+		wpcom_mark_launchpad_task_complete( 'test_task_with_id_map' );
+		$options = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertFalse( isset( $options['test_task_with_id_map'] ) );
+		$this->assertTrue( isset( $options['test_task_id_map'] ) );
 	}
 }
