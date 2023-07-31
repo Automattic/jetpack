@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
-use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Accepted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Deleted;
@@ -38,7 +37,7 @@ class Quote_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -71,7 +70,7 @@ class Quote_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -104,7 +103,7 @@ class Quote_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -137,7 +136,7 @@ class Quote_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -170,7 +169,7 @@ class Quote_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
