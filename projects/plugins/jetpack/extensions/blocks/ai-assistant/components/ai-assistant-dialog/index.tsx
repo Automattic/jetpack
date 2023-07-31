@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { AiDataContext } from '@automattic/jetpack-ai-client';
+import { useAiData } from '@automattic/jetpack-ai-client';
 import { PlainText, BlockPreview } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
 import { Icon, KeyboardShortcuts, Popover, Button } from '@wordpress/components';
@@ -45,6 +45,8 @@ const noop = () => {}; // eslint-disable-line @typescript-eslint/no-empty-functi
 export default function AiAssistantDialog( props: AiAssistantDialogProps ): React.ReactElement {
 	const { onFocusLost = noop, onChange, value, onRequest, onDialogTabPress } = props;
 
+	const { requestingState } = useAiData();
+
 	// Hooks
 	const inputRef = useRef( null );
 	/*
@@ -67,8 +69,6 @@ export default function AiAssistantDialog( props: AiAssistantDialogProps ): Reac
 			inputRefElement.removeEventListener( 'blur', onCloseEventListner );
 		};
 	}, [ onFocusLost ] );
-
-	const { requestingState } = useContext( AiAssistantUiContext );
 
 	// Send request when the user presses enter
 	useKeyboardShortcut( [ 'command+enter', 'ctrl+enter' ], onRequest, {
@@ -120,10 +120,10 @@ export const AiAssistantPopover = ( {
 	// onQuickAction,
 	...rest
 }: AiAssistantPopoverProps ) => {
-	const { toggleAssistant, isAssistantMenuShown, hideAssistantMenu, showAssistantMenu } =
+	const { toggleAssistant, isAssistantMenuShown, hideAssistantMenu, showAssistant } =
 		useContext( AiAssistantUiContext );
 
-	const { requestingState, suggestion } = useContext( AiDataContext );
+	const { requestingState, suggestion } = useAiData();
 	const [ message, setMessage ] = useState( '' );
 
 	// useEffect( () => {
@@ -168,7 +168,7 @@ export const AiAssistantPopover = ( {
 						{ ...rest }
 						onChange={ value => {
 							setMessage( value );
-							showAssistantMenu();
+							showAssistant();
 						} }
 						onDialogTabPress={ console.log } // eslint-disable-line no-console
 						value={ message }

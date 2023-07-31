@@ -264,7 +264,6 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 							} );
 
 							requestSuggestion( pr );
-							hideAssistant();
 						} }
 					/>
 
