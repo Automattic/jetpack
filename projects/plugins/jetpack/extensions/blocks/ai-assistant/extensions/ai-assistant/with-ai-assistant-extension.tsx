@@ -9,7 +9,7 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions, AiDataContextProvider } from '@automattic/jetpack-ai-client';
+import { useAiData } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
@@ -81,21 +81,6 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 		const hideAssistantMenu = useCallback( () => {
 			setAssistantMenuVisibility( false );
 		}, [] );
-
-		/**
-		 * Store in a local state the generated content
-		 * provided by the AI server response.
-		 *
-		 * @param {string} value - Generated content
-		 * @returns {void}
-		 */
-		// const setSuggestion = useCallback( value => {
-		// 	setSuggestionValue( value );
-		// }, [] );
-
-		// const setRequestingError = useCallback( value => {
-		// 	setRequestingErrorValue( value );
-		// }, [] );
 
 		/*
 		 * Pick the DOM element of the block,
@@ -207,21 +192,13 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 
 		const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
-		const {
-			suggestion,
-			error: requestingError,
-			requestingState,
-			request: requestSuggestion,
-			eventSource,
-		} = useAiSuggestions( {
+		const { requestSuggestion } = useAiData( {
 			// prompt: userPrompt,
 			onSuggestion: setContent,
 			askQuestionOptions: {
 				postId,
-				// feature: 'ai-assistant-experimental',
+				// feature: 'ai-assistant-experimental', // @todo
 			},
-			// onSuggestion: setSuggestion,
-			autoRequest: false,
 			onDone: doneContent => {
 				setContent( doneContent );
 				// const newContentBlocks = parse( doneContent );
@@ -240,8 +217,6 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 				isAssistantMenuShown,
 				showAssistantMenu,
 				hideAssistantMenu,
-
-				eventSource,
 			} ),
 			[
 				isAssistantShown,
@@ -251,20 +226,7 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 				isAssistantMenuShown,
 				showAssistantMenu,
 				hideAssistantMenu,
-
-				eventSource,
 			]
-		);
-
-		// Build the context value to pass to the ai assistant data provider.
-		const dataContextValue = useMemo(
-			() => ( {
-				suggestion,
-				requestingError,
-				requestingState,
-				requestSuggestion,
-			} ),
-			[ suggestion, requestingError, requestingState, requestSuggestion ]
 		);
 
 		if ( ! isPossibleToExtendBlock() ) {
@@ -277,40 +239,38 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 		}
 
 		return (
-			<AiDataContextProvider value={ dataContextValue }>
-				<AiAssistantContextProvider value={ contextValue }>
-					<KeyboardShortcuts
-						shortcuts={ {
-							'mod+/': () => {
-								toggleAssistant();
-								showAssistantMenu();
-							},
+			<AiAssistantContextProvider value={ contextValue }>
+				<KeyboardShortcuts
+					shortcuts={ {
+						'mod+/': () => {
+							toggleAssistant();
+							showAssistantMenu();
+						},
+					} }
+				>
+					<AiAssistantPopover
+						anchor={ blockDomReference?.current }
+						show={ isAssistantShown }
+						// promptValue={ prompt }
+						onPromptChange={ () => {
+							// const newPrompt = getPrompt( promptType, { ...options, content } );
+							// console.log( { newPrompt } );
+							// requestSuggestion( newPrompt );
 						} }
-					>
-						<BlockListBlock { ...props } />
+						onRequest={ message => {
+							const pr = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
+								request: message,
+								content,
+							} );
 
-						<AiAssistantPopover
-							anchor={ blockDomReference?.current }
-							show={ isAssistantShown }
-							// promptValue={ prompt }
-							onPromptChange={ () => {
-								// const newPrompt = getPrompt( promptType, { ...options, content } );
-								// console.log( { newPrompt } );
-								// requestSuggestion( newPrompt );
-							} }
-							onRequest={ message => {
-								const pr = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
-									request: message,
-									content,
-								} );
+							requestSuggestion( pr );
+							hideAssistant();
+						} }
+					/>
 
-								requestSuggestion( pr );
-								hideAssistant();
-							} }
-						/>
-					</KeyboardShortcuts>
-				</AiAssistantContextProvider>
-			</AiDataContextProvider>
+					<BlockListBlock { ...props } />
+				</KeyboardShortcuts>
+			</AiAssistantContextProvider>
 		);
 	};
 }, 'withAiAssistantExtension' );

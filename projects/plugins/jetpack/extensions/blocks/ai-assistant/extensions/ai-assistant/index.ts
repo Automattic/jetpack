@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { withAiDataProvider } from '@automattic/jetpack-ai-client';
 import { getBlockType } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
@@ -112,7 +113,15 @@ function addJetpackAISupport(
 	};
 }
 
-// Extend BlockType.
+// Extend BlockType (the old/current AI extension )
 addFilter( 'blocks.registerBlockType', 'jetpack/ai-assistant-support', addJetpackAISupport, 100 );
 
-addFilter( 'editor.BlockListBlock', 'jetpack/ai-assistant-block-list', withAiAssistantExtension );
+// Add the AI Assistant extension (the new one)
+addFilter(
+	'editor.BlockListBlock',
+	'jetpack/ai-assistant-block-list',
+	withAiAssistantExtension,
+	100
+);
+
+addFilter( 'editor.BlockListBlock', 'jetpack/ai-assistant-block-list', withAiDataProvider, 110 );
