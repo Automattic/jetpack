@@ -50,4 +50,41 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertTrue( count( $options ) === 3 );
 	}
+
+	/**
+	 * Tests wether the wpcom_mark_launchpad_task_incomplete works correctly.
+	 */
+	public function test_wpcom_mark_launchpad_task_incomplete() {
+		wpcom_mark_launchpad_task_incomplete( 'test_task1' );
+		$options = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertTrue( isset( $options['test_task1'] ) && ! $options['test_task1'] );
+
+		wpcom_mark_launchpad_task_incomplete(
+			array(
+				'test_task2',
+				'test_task3',
+			)
+		);
+		$options = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertTrue( isset( $options['test_task2'] ) && ! $options['test_task2'] );
+		$this->assertTrue( isset( $options['test_task3'] ) && ! $options['test_task3'] );
+
+		$this->assertTrue( count( $options ) === 3 );
+	}
+
+	/**
+	 * Tests wether a correct amount of array elements get stored in the 'launchpad_checklist_tasks_statuses' option.
+	 */
+	public function test_correct_task_count() {
+		wpcom_mark_launchpad_task_complete(
+			array(
+				'test_task2',
+				'test_task3',
+			)
+		);
+
+		$options = get_option( 'launchpad_checklist_tasks_statuses' );
+
+		$this->assertTrue( count( $options ) === 2 );
+	}
 }
