@@ -52,6 +52,10 @@
 			color: var( --jp-gray-80 );
 		}
 
+		&:disabled {
+			color: var( --jp-gray-20 );
+		}
+
 		@media (min-width: 600px) {
 			font-size: 13px;
 		}

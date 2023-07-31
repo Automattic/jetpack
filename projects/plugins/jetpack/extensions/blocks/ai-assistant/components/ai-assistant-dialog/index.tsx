@@ -89,7 +89,7 @@ export default function AiAssistantDialog( props: AiAssistantDialogProps ): Reac
 				onChange={ onChange }
 				placeholder={ __( 'AI writing', 'jetpack' ) }
 				className="jetpack-ai-assistant-dialog__input"
-				disabled={ false }
+				disabled={ requestingState === 'requesting' || requestingState === 'suggesting' }
 				ref={ inputRef }
 			/>
 
