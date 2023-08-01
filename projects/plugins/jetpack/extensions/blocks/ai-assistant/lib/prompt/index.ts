@@ -249,19 +249,6 @@ function getTonePrompt( {
 	];
 }
 
-function getCustomUserPrompt( {
-	content,
-	role = 'user',
-	customPrompt,
-}: PromptOptionsProps ): Array< PromptItemProps > {
-	return [
-		{
-			role,
-			content: `Handle the following request:\n\n${ customPrompt }\nText to change:\n\n${ content }`,
-		},
-	];
-}
-
 function getJetpackFormCustomPrompt( {
 	content,
 	role = 'user',
@@ -589,9 +576,6 @@ Writing rules:
 
 		case PROMPT_TYPE_CHANGE_TONE:
 			return [ ...prompt, ...getTonePrompt( options ) ];
-
-		case PROMPT_TYPE_USER_PROMPT:
-			return [ ...prompt, ...getCustomUserPrompt( options ) ];
 
 		case PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT:
 			return [ ...prompt, ...getJetpackFormCustomPrompt( options ) ];
