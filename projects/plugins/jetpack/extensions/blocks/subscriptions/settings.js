@@ -45,7 +45,6 @@ export function NewsletterNotice( { accessLevel, showMisconfigurationWarning } )
 	const emailSubscribers = useSelect( select =>
 		select( membershipProductsStore ).getEmailSubscriberCount()
 	);
-
 	const paidSubscribers = useSelect( select =>
 		select( membershipProductsStore ).getPaidSubscriberCount()
 	);
