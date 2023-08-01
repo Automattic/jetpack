@@ -32,7 +32,7 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 	}
 }
 
-export function NewsletterNotice( accessLevel, showMisconfigurationWarning ) {
+export function NewsletterNotice( { accessLevel, showMisconfigurationWarning } ) {
 	const { hasPostBeenPublished, hasPostBeenScheduled } = useSelect( select => {
 		const { isCurrentPostPublished, isCurrentPostScheduled } = select( editorStore );
 
@@ -172,6 +172,7 @@ function NewsletterAccessRadioButtons( {
 	accessLevel,
 	hasNewsletterPlans,
 	stripeConnectUrl,
+	showMisconfigurationWarning,
 	isEditorPanel = false,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
@@ -208,7 +209,10 @@ function NewsletterAccessRadioButtons( {
 					</label>
 					{ key === accessLevel && key !== accessOptions.everybody.key && (
 						<p className="editor-post-visibility__notice">
-							<NewsletterNotice accessLevel={ accessLevel } />
+							<NewsletterNotice
+								accessLevel={ accessLevel }
+								showMisconfigurationWarning={ showMisconfigurationWarning }
+							/>
 						</p>
 					) }
 				</div>
@@ -282,11 +286,11 @@ export function NewsletterAccessDocumentSettings( {
 	);
 }
 
-export function NewsletterAccessPrePublishSettings( { accessLevel, setPostMeta } ) {
-	const showMisconfigurationWarning = useSelect( select =>
-		select( membershipProductsStore ).getShowMisconfigurationWarning()
-	);
-
+export function NewsletterAccessPrePublishSettings( {
+	accessLevel,
+	setPostMeta,
+	showMisconfigurationWarning,
+} ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
 		const { getProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
