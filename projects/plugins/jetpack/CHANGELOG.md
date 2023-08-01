@@ -2,10 +2,6 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.5-a.0 - unreleased
-
-This is an alpha version! The changes listed here are not final.
-
 ## 12.4 - 2023-08-01
 ### Enhancements
 - Added Pexels integrations to the Media Sidebar of the block editor. [#31914]
