@@ -657,6 +657,11 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
+		if ( isset( $task['target_repetitions'] ) && ! is_int( $task['target_repetitions'] ) ) {
+			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires a "target_repetitions" attribute that is an integer', '6.4' );
+			return false;
+		}
+
 		return true;
 	}
 
