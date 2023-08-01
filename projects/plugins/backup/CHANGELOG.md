@@ -234,6 +234,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
-[2.0-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.9...2.0-beta
+[2.0]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.9...2.0
 [1.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.8...1.9-beta
 [1.8]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.7...1.8
