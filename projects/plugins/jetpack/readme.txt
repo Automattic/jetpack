@@ -295,52 +295,39 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 12.4-beta - 2023-07-25
 #### Enhancements
-- Added Pexels integrations to the Media Sidebar of the block editor.
-- AI Assistant: add dev playground panel
-- AI Assistant: Add GPT4 endpoint parameter
-- AI Assistant: Enable custom prompt if provided
-- AI Assistant: improved the upgrade prompt logic when requesting suggestions.
 - AI Assistant: introduce sidebar and proofread components.
-- AI Assistant: Keep original content when trying again after transforming a paragraph using the "Ask AI Assistant" button.
-- AI Assistant: release the Get Feedback feature.
-- AI Assistant: update upgrade prompt message with new wording and formatting.
+- AI Assistant: keep original content when trying again after transforming a paragraph using the "Ask AI Assistant" button.
+- AI Assistant: add a "Get Feedback" feature.
 - AI Assistant: various improvements to syntax parsing, formatting, and other backend enhancements.
-- AI Extension: transform block to AI Assistant when using an AI Extension suggestion.
 - Akismet: show correct logo for all Jetpack plans that include Akismet.
-- Akismet: use Akismet logo instead of Jetpack logo in masthead
 - Contact Forms: remove the default title ("You got a new response!") added to emails sent for new feedback received.
-- Cookie Consent Block: Persist markup and ensure it is rendered in the footer.
-- Custom CSS: Display a notice to recommend the use of Global Styles when you use a Block theme on your site.
+- Cookie Consent Block: persist markup and ensure it is rendered in the footer.
+- Custom CSS: display a notice to recommend the use of Global Styles when you use a Block theme on your site.
 - Dashboard: add a new "Earn" section to the settings.
 - Dashboard: highlight Jetpack Newsletter in recommendations flow.
 - Dashboard: update link to configure Related Posts when you use a Block theme on your site.
-- Newsletter: Only display the "NL access" column if we have published one paid-newsletter.
-- Newsletters: add frontend subscriber modal.
+- External Media: add Pexels to the Media Sidebar of the block editor.
 - Social Menu & Social Media Icons: add support for the Threads service.
-- Stats: show stats products in My Plan.
-- Subscribers page: Add subscribers page to menu.
 - Subscriptions: link to new Subscription management page from the Jetpack dashboard.
 
 #### Improved compatibility
-- Customizer: make the testimonial, featured content, portfolio, and related post customizer sections be shown only if current theme is not a block theme. [#31730] [#31779] [#31754]
+- Customizer: make the testimonial, featured content, portfolio, and related post customizer sections be shown only if current theme is not a block theme.
 - General: indicate full compatibility with the latest version of WordPress, 6.3.
-- Sharing: deprecate the Skype sharing button, as Skype ddoes not support those buttons anymore.
-- Social Links: prevent social links foom being used in block themes.
+- Sharing: deprecate the Skype sharing button, as Skype does not support those buttons anymore.
+- Social Links: prevent social links from being used in block themes.
 - Tiled Galleries: Fix deprecation notices that may appear in logs when using PHP 8.2.
 - WordPress.com REST API: avoid PHP notice when using PHP 8.2.
 
 #### Bug fixes
 - AI Assistant: fix crash when transforming to AI Assistant.
-- AI Assistant: Only append flag if no error
-- API: fix PHP warning in list posts endpoint.
-- Contact Form: avoid fatal errors when exporting form data to CSV.
-- Dashboard: Fix Jetpack footer accessibility issues.
-- Fixed users menu item pointing to wp-admin on Atomic sites.
-- Forms: fix Forms dropdown required validation.
+- WordPress.com REST API: fix PHP warning in list posts endpoint.
+- Contact Forms: avoid fatal errors when exporting form data to CSV.
+- Contact Forms: fix Forms dropdown required validation.
+- Dashboard: fix accessibility issues in the footer area.
 - Payments Block: update link to support documentation.
 - Related Posts: do not display related posts in emails and outside of WordPress context.
 - Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard.
-- Sharing: fix icon font display following the addition of the Threads icon.
+- Subscriptions: only display the "Newsletter access" column if we have set up a payment plan.
 
 --------
 

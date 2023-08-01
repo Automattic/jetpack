@@ -67,7 +67,7 @@ class Queue_Storage_Table {
 	 *
 	 * @return void
 	 */
-	public function create_table() {
+	private function create_table() {
 		global $wpdb;
 
 		// TODO if we run this only in the context of an upgrade, we should not include this here.
@@ -100,7 +100,7 @@ class Queue_Storage_Table {
 	 *
 	 * @return bool
 	 */
-	public function custom_table_exists() {
+	private function custom_table_exists() {
 		global $wpdb;
 
 		// Check if the table exists
@@ -163,7 +163,7 @@ class Queue_Storage_Table {
 	/**
 	 * Drop the custom table as part of cleanup.
 	 *
-	 * @return bool If the table is cleared. It's using `is_custom_table_healthy` to check.
+	 * @return bool If the table is cleared.
 	 */
 	public function drop_table() {
 		global $wpdb;

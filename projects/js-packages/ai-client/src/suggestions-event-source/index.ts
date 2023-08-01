@@ -13,11 +13,11 @@ import {
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
 } from '../types';
-import type { PromptItemProps } from '../types';
+import type { PromptMessagesProp, PromptProp } from '../types';
 
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;
-	question: string | PromptItemProps[];
+	question: PromptProp;
 	token: string;
 	options?: {
 		postId?: number;
@@ -70,8 +70,8 @@ export default class SuggestionsEventSource extends EventTarget {
 	}: SuggestionsEventSourceConstructorArgs ) {
 		const bodyData: {
 			post_id?: number;
-			messages?: PromptItemProps[];
-			question?: string;
+			messages?: PromptMessagesProp;
+			question?: PromptProp;
 			feature?: string;
 		} = {};
 
@@ -93,7 +93,7 @@ export default class SuggestionsEventSource extends EventTarget {
 			debug( 'URL not provided, using default: %o', url );
 		}
 
-		// question can be a string or an array of PromptItemProps
+		// question can be a string or an array of PromptMessagesProp
 		if ( Array.isArray( question ) ) {
 			bodyData.messages = question;
 		} else {
@@ -217,6 +217,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				// Dispatch an event with the chunk
 				this.dispatchEvent( new CustomEvent( 'chunk', { detail: chunk } ) );
 				// Dispatch an event with the full message
+				debug( 'suggestion: %o', this.fullMessage );
 				this.dispatchEvent( new CustomEvent( 'suggestion', { detail: this.fullMessage } ) );
 			}
 		}
