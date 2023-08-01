@@ -18,6 +18,7 @@ import transforms from './transforms';
  */
 import './supports';
 import './extensions/ai-assistant';
+import './extensions/jetpack-form-block-ai-composition';
 /**
  * Style dependencies
  */
