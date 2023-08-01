@@ -20,7 +20,7 @@ import { isJetpackFromBlockAiCompositionAvailable } from './constants';
  * @param {string} blockName - The block name.
  * @returns {boolean}          True if it is possible to extend the block.
  */
-function isPossibleToExtendJetpackFormBlock( blockName: string | undefined ): boolean {
+export function isPossibleToExtendJetpackFormBlock( blockName: string | undefined ): boolean {
 	// Check if the AI Assistant block is registered.
 	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
 	if ( ! isBlockRegistered ) {
