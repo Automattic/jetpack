@@ -7,9 +7,9 @@ import SuggestionsEventSource from '../suggestions-event-source';
 /*
  * Types & constants
  */
-import type { PromptItemProps } from '../types';
+import type { PromptProp } from '../types';
 
-type AskQuestionOptionsArgProps = {
+export type AskQuestionOptionsArgProps = {
 	/*
 	 * ID of the post where the question is asked.
 	 */
@@ -32,7 +32,7 @@ const debug = debugFactory( 'jetpack-ai-client:ask-question' );
  * An asynchronous function that asks a question
  * and returns an event source with suggestions.
  *
- * @param {string|PromptItemProps[]} question - The question to ask. It can be a simple string or an array of PromptItemProps objects.
+ * @param {PromptProp} question - The question to ask. It can be a simple string or an array of PromptMessageItemProps objects.
  * @param {AskQuestionOptionsArgProps} options - An optional object for additional configuration:
  * @returns {Promise<SuggestionsEventSource>}    A promise that resolves to an instance of the SuggestionsEventSource
  * @example
@@ -47,7 +47,7 @@ const debug = debugFactory( 'jetpack-ai-client:ask-question' );
  *  } );
  */
 export default async function askQuestion(
-	question: string | PromptItemProps[],
+	question: PromptProp,
 	{ postId = null, fromCache = false, feature }: AskQuestionOptionsArgProps = {}
 ): Promise< SuggestionsEventSource > {
 	debug( 'Asking question: %o. options: %o', question, { postId, fromCache, feature } );

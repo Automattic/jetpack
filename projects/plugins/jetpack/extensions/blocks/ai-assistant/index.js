@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
@@ -11,13 +12,13 @@ import { getIconColor } from '../../shared/block-icons';
  */
 import attributes from './attributes';
 import edit from './edit';
-import Icon from './icons/ai-assistant';
 import transforms from './transforms';
 /**
  * Supports and extensions
  */
 import './supports';
 import './extensions/ai-assistant';
+import './extensions/jetpack-contact-form';
 /**
  * Style dependencies
  */
@@ -55,7 +56,7 @@ export const settings = {
 		</Fragment>
 	),
 	icon: {
-		src: Icon,
+		src: aiAssistantIcon,
 		foreground: getIconColor(),
 	},
 	category: 'text',
