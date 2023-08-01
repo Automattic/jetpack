@@ -227,7 +227,7 @@ export default class SuggestionsEventSource extends EventTarget {
 			}
 
 			if ( this.fullFunctionCall.name.length ) {
-				this.dispatchEvent( new CustomEvent( 'functionDone', { detail: this.fullFunctionCall } ) );
+				this.dispatchEvent( new CustomEvent( 'function_done', { detail: this.fullFunctionCall } ) );
 				debug( 'Done: %o', this.fullFunctionCall );
 				return;
 			}

@@ -260,7 +260,7 @@ const useSuggestionsFromOpenAI = ( {
 			prompt = [ ...prompt, assistantResponse, functionResponse ];
 
 			// Remove source.current listeners
-			source?.current?.removeEventListener( 'functionDone', onFunctionDone );
+			source?.current?.removeEventListener( 'function_done', onFunctionDone );
 			source?.current?.removeEventListener( 'done', onDone );
 			source?.current?.removeEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 			source?.current?.removeEventListener( 'error_network', onErrorNetwork );
@@ -280,7 +280,7 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 
 			// Add the listeners back
-			source?.current?.addEventListener( 'functionDone', onFunctionDone );
+			source?.current?.addEventListener( 'function_done', onFunctionDone );
 			source?.current?.addEventListener( 'done', onDone );
 			source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 			source?.current?.addEventListener( 'error_network', onErrorNetwork );
@@ -462,7 +462,7 @@ const useSuggestionsFromOpenAI = ( {
 			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );
 		};
 
-		source?.current?.addEventListener( 'functionDone', onFunctionDone );
+		source?.current?.addEventListener( 'function_done', onFunctionDone );
 		source?.current?.addEventListener( 'done', onDone );
 		source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
 		source?.current?.addEventListener( 'error_network', onErrorNetwork );
