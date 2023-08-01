@@ -97,7 +97,7 @@ type useAiSuggestionsProps = {
 	/*
 	 * The request handler.
 	 */
-	request: ( prompt: PromptProp ) => Promise< void >;
+	request: ( prompt: PromptProp, options?: AskQuestionOptionsArgProps ) => Promise< void >;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
