@@ -10,18 +10,17 @@ import { useState, useMemo, useCallback } from '@wordpress/element';
 import { isPossibleToExtendJetpackFormBlock } from '..';
 import { AiAssistantUiContextProvider } from './context';
 
-const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
+const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		// AI Assistant component visibility
-		const [ isAssistantShown, setAssistantVisibility ] = useState( false );
-		const [ isAssistantMenuShown, setAssistantMenuVisibility ] = useState( true );
+		const [ isVisible, setAssistantVisibility ] = useState( false );
 
 		/**
 		 * Show the AI Assistant
 		 *
 		 * @returns {void}
 		 */
-		const showAssistant = useCallback( () => {
+		const show = useCallback( () => {
 			setAssistantVisibility( true );
 		}, [] );
 
@@ -30,7 +29,7 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 		 *
 		 * @returns {void}
 		 */
-		const hideAssistant = useCallback( () => {
+		const hide = useCallback( () => {
 			setAssistantVisibility( false );
 		}, [] );
 
@@ -39,50 +38,25 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 		 *
 		 * @returns {void}
 		 */
-		const toggleAssistant = useCallback( () => {
-			setAssistantVisibility( ! isAssistantShown );
-		}, [ isAssistantShown ] );
+		const toggle = useCallback( () => {
+			setAssistantVisibility( ! isVisible );
+		}, [ isVisible ] );
 
-		/**
-		 * Show the AI Assistant menu
-		 *
-		 * @returns {void}
-		 */
-		const showAssistantMenu = useCallback( () => {
-			setAssistantMenuVisibility( true );
-		}, [] );
-
-		/**
-		 * Hide the AI Assistant menu
-		 *
-		 * @returns {void}
-		 */
-		const hideAssistantMenu = useCallback( () => {
-			setAssistantMenuVisibility( false );
-		}, [] );
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
 			() => ( {
-				isAssistantShown,
-				showAssistant,
-				hideAssistant,
-				toggleAssistant,
-
-				isAssistantMenuShown,
-				showAssistantMenu,
-				hideAssistantMenu,
+				isVisible,
+				show,
+				hide,
+				toggle,
 			} ),
-			[
-				isAssistantShown,
-				showAssistant,
-				hideAssistant,
-				toggleAssistant,
-				isAssistantMenuShown,
-				showAssistantMenu,
-				hideAssistantMenu,
-			]
+			[ isVisible, show, hide, toggle ]
 		);
 
+		/*
+		 * Ensure to provide data context
+		 * only if is't possible to extend the block.
+		 */
 		if ( ! isPossibleToExtendJetpackFormBlock( props.name ) ) {
 			return <BlockListBlock { ...props } />;
 		}
@@ -92,7 +66,7 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 				<KeyboardShortcuts
 					shortcuts={ {
 						'mod+/': () => {
-							toggleAssistant();
+							toggle();
 						},
 					} }
 				>
@@ -101,6 +75,6 @@ const withAiAssistantExtension = createHigherOrderComponent( BlockListBlock => {
 			</AiAssistantUiContextProvider>
 		);
 	};
-}, 'withAiAssistantExtension' );
+}, 'withUiHandlerDataProvider' );
 
-export default withAiAssistantExtension;
+export default withUiHandlerDataProvider;
