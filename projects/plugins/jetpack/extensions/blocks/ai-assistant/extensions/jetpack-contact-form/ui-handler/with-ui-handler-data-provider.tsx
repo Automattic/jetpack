@@ -8,6 +8,7 @@ import { useState, useMemo, useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
+import { AiAssistantPopover } from '../components/ai-assistant-popover';
 import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
@@ -80,6 +81,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 						},
 					} }
 				>
+					<AiAssistantPopover />
 					<BlockListBlock { ...props } />
 				</KeyboardShortcuts>
 			</AiAssistantUiContextProvider>
