@@ -240,6 +240,8 @@ export default function useAiSuggestions( {
 	/**
 	 * Request handler.
 	 *
+	 * @param {PromptProp} promptArg               - The messages array of the prompt.
+	 * @param {AskQuestionOptionsArgProps} options - The options for the askQuestion request. Uses the hook's askQuestionOptions by default.
 	 * @returns {Promise<void>} The promise.
 	 */
 	const request = useCallback(
