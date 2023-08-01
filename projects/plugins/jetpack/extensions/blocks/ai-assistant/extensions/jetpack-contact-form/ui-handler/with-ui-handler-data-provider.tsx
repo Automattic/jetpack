@@ -16,7 +16,7 @@ import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './conte
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
-		const { clientId } = props;
+		const { clientId, isSelected } = props;
 
 		// AI Assistant input value
 		const [ inputValue, setInputValue ] = useState( '' );
@@ -94,6 +94,14 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			setPopoverProps( prev => ( { ...prev, anchor: blockDomElement } ) );
 		}, [ clientId ] );
 
+		// Show/hide the assistant based on the block selection.
+		useEffect( () => {
+			if ( isSelected ) {
+				return;
+			}
+			hide();
+		}, [ isSelected, hide ] );
+
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
 			() => ( {
@@ -136,7 +144,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		} );
 
 		/*
-		 * Ensure to provide data context
+		 * Ensure to provide data context,
+		 * and the AI Assistant component (popover)
 		 * only if is't possible to extend the block.
 		 */
 		if ( ! isPossibleToExtendJetpackFormBlock( props.name ) ) {
