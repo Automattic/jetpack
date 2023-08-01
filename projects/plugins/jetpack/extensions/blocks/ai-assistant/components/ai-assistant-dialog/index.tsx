@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiContext } from '@automattic/jetpack-ai-client';
+import { aiAssistantIcon, origamiPlaneIcon, useAiContext } from '@automattic/jetpack-ai-client';
 import { PlainText } from '@wordpress/block-editor';
 import { Icon, KeyboardShortcuts, Popover, Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
@@ -14,8 +14,6 @@ import React from 'react';
  */
 import './style.scss';
 import { AiAssistantUiContext } from '../../extensions/ai-assistant/ui-context';
-import aiAssistant from '../../icons/ai-assistant';
-import origamiPlane from '../../icons/origami-plane';
 
 type AiAssistantDialogProps = {
 	value: string;
@@ -94,7 +92,7 @@ export default function AiAssistantDialog( props: AiAssistantDialogProps ): Reac
 				label={ __( 'Send request', 'jetpack' ) }
 				disabled={ ! value || requestingState === 'requesting' || requestingState === 'suggesting' }
 			>
-				<Icon icon={ origamiPlane } />
+				<Icon icon={ origamiPlaneIcon } />
 				{ __( 'Send', 'jetpack' ) }
 			</Button>
 		</div>
@@ -134,7 +132,7 @@ export const AiAssistantPopover = ( {
 							[ `is-${ requestingState }` ]: true,
 						} ) }
 					>
-						<Icon icon={ aiAssistant } size={ 24 } />
+						<Icon icon={ aiAssistantIcon } size={ 24 } />
 					</div>
 
 					<AiAssistantDialog
