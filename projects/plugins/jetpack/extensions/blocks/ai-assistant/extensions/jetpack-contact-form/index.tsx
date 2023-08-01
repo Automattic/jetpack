@@ -78,7 +78,7 @@ const withAiAssistantToolbarButton = createHigherOrderComponent( BlockEdit => {
 				<BlockEdit { ...props } />
 
 				<BlockControls { ...blockControlsProps }>
-					<AiAssistantToobarButton />
+					<AiAssistantToolbarButton />
 				</BlockControls>
 			</>
 		);
