@@ -11,7 +11,7 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
-import AiAssistantToobarButton from './components/ai-assistant-toolbar-button';
+import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
 
 /**
