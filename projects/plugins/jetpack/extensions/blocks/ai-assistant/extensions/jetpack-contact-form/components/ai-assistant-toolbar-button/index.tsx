@@ -6,7 +6,7 @@ import { ToolbarButton } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 
-export default function AiAssistantToobarButton(): React.ReactElement {
+export default function AiAssistantToolbarButton(): React.ReactElement {
 	const onToggle = () => console.log( 'toggle!' ); // eslint-disable-line no-console
 
 	return (
