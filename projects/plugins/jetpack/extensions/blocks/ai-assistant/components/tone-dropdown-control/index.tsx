@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { speakToneIcon } from '@automattic/jetpack-ai-client';
 import {
 	MenuItem,
 	MenuGroup,
@@ -14,7 +15,6 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import speakToneIcon from '../../icons/speak-tone';
 import './style.scss';
 
 const PROMPT_TONES_LIST = [
