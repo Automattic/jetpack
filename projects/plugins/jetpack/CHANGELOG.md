@@ -5,7 +5,7 @@
 ## 12.5-a.1 - 2023-08-01
 ### Enhancements
 - AI Assistant: various backend improvements.
-- AI Assistant: Disable feedback button if post is empty [#32122]
+- AI Assistant: disable feedback button if post is empty [#32122]
 - Block editor: add Google Photo integration to Gutenberg's Media Sidebar for Jetpack connected sites. [#32047]
 - Dashboard: update the SEO hide page control from a checkbox to a toggle. [#32059]
 - Donation block: display the default Stripe currency in the Donation block and add a "check" icon next to the selected currency in the currency dropdown [#31795]
