@@ -11,12 +11,29 @@ import { __ } from '@wordpress/i18n';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import './style.scss';
+/*
+ * Types
+ */
+import type { useAiContextOptions } from '@automattic/jetpack-ai-client';
+import type React from 'react';
 
-export const AiAssistantPopover = () => {
+/**
+ * useAiContext hook to provide access to
+ * the AI Assistant data (from context),
+ * and to subscribe to the request events (onDone, onSuggestion).
+ *
+ * @param {useAiContextOptions} options - the hook options.
+ * @returns {React.Component}          the AI Assistant data context.
+ */
+export const AiAssistantPopover = ( { onSuggestion, onDone, askQuestionOptions } ) => {
 	const { toggle, isVisible, popoverProps, inputValue, setInputValue } =
 		useContext( AiAssistantUiContext );
 
-	const { requestSuggestion, requestingState } = useAiContext();
+	const { requestSuggestion, requestingState } = useAiContext( {
+		onDone,
+		onSuggestion,
+		askQuestionOptions,
+	} );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 
