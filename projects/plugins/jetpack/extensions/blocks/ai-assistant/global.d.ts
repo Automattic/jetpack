@@ -1,4 +1,4 @@
-import { JETPACK_FORM_BLOCK_AI_COMPOSITION } from './extensions/jetpack-form-block-ai-composition/constants';
+import { JETPACK_FORM_BLOCK_AI_COMPOSITION } from './extensions/jetpack-contact-form/constants';
 import { SiteAIAssistantFeatureEndpointResponseProps } from './hooks/use-ai-feature';
 
 export {};
