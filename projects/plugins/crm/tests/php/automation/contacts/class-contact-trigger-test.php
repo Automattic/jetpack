@@ -5,9 +5,9 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Before_Deleted;
+use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Email_Updated;
-use Automattic\Jetpack\CRM\Automation\Triggers\Contact_New;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
 use WorDBless\BaseTestCase;
@@ -102,7 +102,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_created' );
 
-		$trigger = new Contact_New();
+		$trigger = new Contact_Created();
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
@@ -110,7 +110,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
-		// Init the Contact_New trigger.
+		// Init the Contact_Created trigger.
 		$trigger->init( $workflow );
 
 		// Fake event data.

@@ -4,8 +4,8 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
+use Automattic\Jetpack\CRM\Automation\Triggers\Company_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Company_Deleted;
-use Automattic\Jetpack\CRM\Automation\Triggers\Company_New;
 use Automattic\Jetpack\CRM\Automation\Triggers\Company_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Company_Updated;
 use WorDBless\BaseTestCase;
@@ -99,7 +99,7 @@ class Company_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/company_created' );
 
-		$trigger = new Company_New();
+		$trigger = new Company_Created();
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
@@ -107,7 +107,7 @@ class Company_Trigger_Test extends BaseTestCase {
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
-		// Init the Company_New trigger.
+		// Init the Company_Created trigger.
 		$trigger->init( $workflow );
 
 		// Fake event data.

@@ -4,8 +4,8 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
+use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted;
-use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_New;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Updated;
 use WorDBless\BaseTestCase;
@@ -99,7 +99,7 @@ class Invoice_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/invoice_created' );
 
-		$trigger = new Invoice_New();
+		$trigger = new Invoice_Created();
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
@@ -107,7 +107,7 @@ class Invoice_Trigger_Test extends BaseTestCase {
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
-		// Init the Invoice_New trigger.
+		// Init the Invoice_Created trigger.
 		$trigger->init( $workflow );
 
 		// Fake event data.

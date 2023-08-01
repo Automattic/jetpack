@@ -1,10 +1,37 @@
 
 # AI Assistant Data Flow
 
+```jsx
+import { withAiAssistantData, useAiContext } from '@automattic/jetpack-ai-client';
+
+const MyComponent = () => {
+  const { suggestion, requestingState, requestSuggestion } = useAiContext( {
+    onDone: content => console.log( `Content is done: ${ content }.` );
+  } );
+
+  return (
+    <>
+      <div>{ suggestions }</div>
+      <button
+        onClick={ () => requestSuggestion( 'How to make a cake' ) }
+        disabled={ requestingState === 'suggesting' }
+      >
+        Request
+      </button>
+    <>
+  )
+};
+
+// Ensure to provide the data context to `MyComponent`.
+export default withAiAssistantData( MyComponent );
+
+```
+
 ## In-depth Analysis
 
-* [Ai Data Context](#ai-assistant-content)
+* [AI Data Context](#ai-assistant-content)
 * [withAiDataProvider HOC](#with-ai-data-provider)
+* [useAiContext Hook](#use-ai-context)
 
 <h2 id="ai-assistant-content">Ai Data Context</h2>
 
@@ -60,3 +87,27 @@ A function to request a suggestion from the AI. The function takes a prompt para
 <h2 id="with-ai-data-provider">withAiDataProvider HOC</h2>
 
 Higher Order Component (HOC) that wraps a given component and provides it with the AI Assistant Data context. This HOC is instrumental in the data flow of the AI Assistant functionality and helps manage the interaction with the AI Assistant's communication layer.
+
+<h2 id="use-ai-context">useAiContext Hook</h2>
+
+The `useAiContext` hook provides a convenient way to access the 
+Ai Data Context and subscribe to the `done` and `suggestion` events emitted by SuggestionsEventSource.
+
+```es6
+const { suggestion } = useAiContext( {
+  onDone: content => console.log( content ),
+  onSuggestion: suggestion => console.log( suggestion ),
+} );
+
+```
+
+_Before using the hook, ensure the data is provided by the [Ai Data Context](#ai-assistant-content). [withAiDataProvider HOC](#with-ai-data-provider) is usually the best option_
+
+Optional options object:
+
+- `onDone`: A callback function to be called when a request completes. The callback receives the request result as a parameter.
+- `onSuggestion`: A callback function to be called when a new suggestion is received. The callback receives the suggestion as a parameter.
+
+These callbacks will be invoked with the detail of the corresponding event emitted by SuggestionsEventSource.
+
+When called, the hook returns the Ai Data Context.
