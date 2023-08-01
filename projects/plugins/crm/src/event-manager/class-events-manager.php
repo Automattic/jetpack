@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\CRM\Event_Manager;
 
 /**
  * Events_Manager class.
+ *
+ * @since $$next-version$$
  */
 class Events_Manager {
 

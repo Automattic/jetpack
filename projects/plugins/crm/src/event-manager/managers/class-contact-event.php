@@ -9,13 +9,15 @@ namespace Automattic\Jetpack\CRM\Event_Manager;
 
 /**
  * Contact Event class.
+ *
+ * @since $$next-version$$
  */
 class Contact_Event implements Event {
 
 	/** @var null The Contact_Event instance. */
 	private static $instance = null;
 
-	/** @var array Fields that should not be notified. */
+	/** @var array Field updates that should not be notified. */
 	private $not_notifiable_fields = array(
 		'created',
 		'lastupdated',
