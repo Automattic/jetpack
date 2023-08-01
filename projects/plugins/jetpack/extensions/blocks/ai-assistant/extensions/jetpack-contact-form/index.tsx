@@ -13,6 +13,7 @@ import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
 import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
+import withUiHandlerDataProvider from './ui-handler/with-ui-handler-data-provider';
 
 /**
  * Check if it is possible to extend the block.
@@ -89,5 +90,13 @@ addFilter(
 	'editor.BlockEdit',
 	'jetpack/jetpack-form-block-edit',
 	withAiAssistantToolbarButton,
+	100
+);
+
+// Provide the UI Handler data context to the block.
+addFilter(
+	'editor.BlockListBlock',
+	'jetpack/ai-assistant-support',
+	withUiHandlerDataProvider,
 	100
 );
