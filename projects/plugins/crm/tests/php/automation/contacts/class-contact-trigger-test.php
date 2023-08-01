@@ -5,9 +5,9 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Before_Deleted;
+use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Email_Updated;
-use Automattic\Jetpack\CRM\Automation\Triggers\Contact_New;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
 use WorDBless\BaseTestCase;
@@ -98,11 +98,11 @@ class Contact_Trigger_Test extends BaseTestCase {
 	/**
 	 * @testdox Test the contact new trigger executes the workflow with an action
 	 */
-	public function test_contact_new_trigger() {
+	public function test_contact_created_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_new' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/contact_created' );
 
-		$trigger = new Contact_New();
+		$trigger = new Contact_Created();
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
@@ -110,13 +110,13 @@ class Contact_Trigger_Test extends BaseTestCase {
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
-		// Init the Contact_New trigger.
+		// Init the Contact_Created trigger.
 		$trigger->init( $workflow );
 
 		// Fake event data.
 		$contact_data = $this->automation_faker->contact_data();
 
-		// We expect the workflow to be executed on contact_new event with the contact data
+		// We expect the workflow to be executed on contact_created event with the contact data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
@@ -124,8 +124,8 @@ class Contact_Trigger_Test extends BaseTestCase {
 			$this->equalTo( $contact_data )
 		);
 
-		// Run the contact_new action.
-		do_action( 'jpcrm_automation_contact_new', $contact_data );
+		// Notify the contact_created event.
+		do_action( 'jpcrm_automation_contact_created', $contact_data );
 	}
 
 	/**
