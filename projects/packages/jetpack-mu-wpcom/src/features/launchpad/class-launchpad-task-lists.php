@@ -414,7 +414,8 @@ class Launchpad_Task_Lists {
 		}
 
 		$data = array(
-			'site_slug' => $this->site_slug,
+			'site_slug'         => $this->site_slug,
+			'site_slug_encoded' => rawurlencode( $this->site_slug ),
 		);
 
 		$calypso_path = $this->load_value_from_callback( $task, 'get_calypso_path', null, $data );

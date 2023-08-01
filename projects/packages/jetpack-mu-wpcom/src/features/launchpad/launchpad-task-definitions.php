@@ -22,7 +22,7 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
-				return '/site-editor/' . rawurlencode( $data['site_slug'] );
+				return '/site-editor/' . $data['site_slug_encoded'];
 			},
 		),
 		// design_completed checks for task completion while design_selected always returns true.
@@ -46,7 +46,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_domain_claim_completed',
 			'is_visible_callback'  => 'wpcom_domain_claim_is_visible_callback',
 			'get_task_url'         => function ( $task, $default, $data ) {
-				return '/domains/add/' . rawurlencode( $data['site_slug'] );
+				return '/domains/add/' . $data['site_slug_encoded'];
 			},
 		),
 		'domain_upsell'                   => array(
@@ -58,7 +58,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'badge_text_callback'  => 'wpcom_get_domain_upsell_badge_text',
 			'is_visible_callback'  => 'wpcom_is_domain_upsell_task_visible',
 			'get_task_url'         => function ( $task, $default, $data ) {
-				return '/domains/add/' . rawurlencode( $data['site_slug'] );
+				return '/domains/add/' . $data['site_slug_encoded'];
 			},
 		),
 		'first_post_published'            => array(
@@ -69,7 +69,7 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
-				return '/post/' . rawurlencode( $data['site_slug'] );
+				return '/post/' . $data['site_slug_encoded'];
 			},
 		),
 		'plan_completed'                  => array(
@@ -101,7 +101,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'isLaunchTask'          => true,
 			'add_listener_callback' => 'wpcom_add_site_launch_listener',
 			'get_task_url'          => function ( $task, $default, $data ) {
-				return '/settings/general/' . rawurlencode( $data['site_slug'] ) . '#site-privacy-settings';
+				return '/settings/general/' . $data['site_slug_encoded'] . '#site-privacy-settings';
 			},
 		),
 		'verify_email'                    => array(
@@ -124,7 +124,7 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
-				return '/post/' . rawurlencode( $data['site_slug'] );
+				return '/post/' . $data['site_slug_encoded'];
 			},
 		),
 		'newsletter_plan_created'         => array(
@@ -172,7 +172,7 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
-				return '/site-editor/' . rawurlencode( $data['site_slug'] );
+				return '/site-editor/' . $data['site_slug_encoded'];
 			},
 		),
 		'setup_link_in_bio'               => array(
@@ -247,7 +247,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/general/' . rawurlencode( $data['site_slug'] );
+				return '/settings/general/' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -257,7 +257,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/marketing/connections/' . rawurlencode( $data['site_slug'] );
+				return '/marketing/connections/' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -267,7 +267,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/page/' . rawurlencode( $data['site_slug'] );
+				return '/page/' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -283,7 +283,7 @@ function wpcom_launchpad_get_task_definitions() {
 				);
 			},
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/page/' . rawurlencode( $data['site_slug'] ) . '/' . wpcom_get_site_about_page_id();
+				return '/page/' . $data['site_slug_encoded'] . '/' . wpcom_get_site_about_page_id();
 			},
 		),
 
@@ -294,7 +294,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_is_edit_page_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/pages/' . rawurlencode( $data['site_slug'] );
+				return '/pages/' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -306,7 +306,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_domain_customize_completed',
 			'is_visible_callback'  => 'wpcom_is_domain_customize_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/domains/add/' . rawurlencode( $data['site_slug'] );
+				return '/domains/add/' . $data['site_slug_encoded'];
 			},
 		),
 
@@ -324,7 +324,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/earn/' . rawurlencode( $data['site_slug'] );
+				return '/earn/' . $data['site_slug_encoded'];
 			},
 		),
 
