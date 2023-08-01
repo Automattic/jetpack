@@ -15,11 +15,8 @@ test.beforeAll( async ( { browser } ) => {
 	await page.close();
 } );
 
-test.beforeEach( async ( { page } ) => {
-	await DashboardPage.visit( page );
-} );
-
 test( 'Connect button is displayed on plugins page', async ( { page } ) => {
+	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 
 	const pluginsPage = await PluginsPage.init( page );
@@ -33,6 +30,7 @@ test( 'Connect button is displayed on plugins page', async ( { page } ) => {
 } );
 
 test( 'Connect button is displayed on dashboard page', async ( { page } ) => {
+	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectDashboard();
 
 	const dashboard = await DashboardPage.init( page );
@@ -43,9 +41,9 @@ test( 'Connect button is displayed on dashboard page', async ( { page } ) => {
 } );
 
 test( 'Connect Notice is displayed on My Jetpack page', async ( { page } ) => {
-	await ( await Sidebar.init( page ) ).selectJetpack();
-
+	await MyJetpackPage.visit( page );
 	const myJetpackPage = await MyJetpackPage.init( page );
+
 	expect(
 		await myJetpackPage.isConnectNoticeVisible(),
 		'My Jetpack Connection Notice should be visible'
@@ -55,9 +53,9 @@ test( 'Connect Notice is displayed on My Jetpack page', async ( { page } ) => {
 test( 'Clicking connect notice CTA loads my-jetpack#/connection page and displays connect button', async ( {
 	page,
 } ) => {
-	await ( await Sidebar.init( page ) ).selectJetpack();
-
+	await MyJetpackPage.visit( page );
 	const myJetpackPage = await MyJetpackPage.init( page );
+
 	await myJetpackPage.clickNoticeConnectButton();
 
 	expect(
