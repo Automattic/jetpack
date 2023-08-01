@@ -12,7 +12,7 @@ import { AiDataContext } from '.';
 import type { AiDataContextProps } from './context';
 import type { AskQuestionOptionsArgProps } from '../ask-question';
 
-type useAiContextOptions = {
+export type useAiContextOptions = {
 	/*
 	 * Ask question options.
 	 */
