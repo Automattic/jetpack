@@ -128,22 +128,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 			),
 			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
 		),
-		// @TODO: Remove the following task list once the migration/rename is complete across WP.com and Calypso.
-		'keep-building'          => array(
-			'title'               => 'Keep Building',
-			'task_ids'            => array(
-				'site_title',
-				'domain_claim',
-				'verify_email',
-				'domain_customize',
-				'add_new_page',
-				'drive_traffic',
-				'update_about_page',
-				'edit_page',
-				'share_site',
-			),
-			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
-		),
 		'intent-build'           => array(
 			'title'               => 'Keep Building',
 			'task_ids'            => array(
@@ -155,6 +139,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'drive_traffic',
 				'edit_page',
 				'share_site',
+				'update_about_page',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
@@ -177,6 +162,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_customize',
 				'share_site',
 				'customize_welcome_message',
+				'enable_subscribers_modal',
+				'manage_subscribers',
+				'write_3_posts',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
@@ -188,6 +176,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'domain_customize',
 				'share_site',
 				'customize_welcome_message',
+				'enable_subscribers_modal',
+				'manage_subscribers',
+				'write_3_posts',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
@@ -690,6 +681,8 @@ function add_launchpad_options_to_jetpack_sync( $allowed_options ) {
 	$launchpad_options = array(
 		'site_intent',
 		'launchpad_checklist_tasks_statuses',
+		'site_goals',
+		'sm_enabled',
 	);
 
 	return array_merge( $allowed_options, $launchpad_options );

@@ -258,7 +258,7 @@
 			</h3>
 			<p slot="description">
 				{__(
-					`This tool will search your site for images that are too large and have an impact your visitors experience, page loading times, and search rankings. Once finished, it will give you a report of all improperly sized images with suggestions on how to fix them.`,
+					`This tool will search your site for images that are too large and have an impact on your visitors' experience, page loading times, and search rankings. Once finished, it will give you a report of all improperly sized images with suggestions on how to fix them.`,
 					'jetpack-boost'
 				)}
 			</p>

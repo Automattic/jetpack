@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Display the default Stripe currency in the Donation block on mount and add a "check" icon next to the selected currency in the currency dropdown
