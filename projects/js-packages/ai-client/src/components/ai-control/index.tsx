@@ -91,7 +91,7 @@ export default function AIControl( {
 								className="jetpack-components-ai-control__controls-prompt_button"
 								onClick={ () => onSend( value ) }
 								isSmall={ true }
-								disabled={ value?.length }
+								disabled={ ! value?.length }
 								label={ __( 'Send request', 'jetpack-ai-client' ) }
 							>
 								<Icon icon={ arrowUp } />
