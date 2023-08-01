@@ -32,22 +32,24 @@ export const AiAssistantPopover = () => {
 					'mod+/': toggle,
 				} }
 			>
-				<TextControl onChange={ setInputValue } value={ inputValue } disabled={ isDisabled } />
+				<div className="jetpack-ai-assistant__popover-container">
+					<TextControl onChange={ setInputValue } value={ inputValue } disabled={ isDisabled } />
 
-				<Button
-					variant="primary"
-					onClick={ () => {
-						const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
-							request: inputValue,
-							content: '',
-						} );
+					<Button
+						variant="primary"
+						onClick={ () => {
+							const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
+								request: inputValue,
+								content: '',
+							} );
 
-						requestSuggestion( prompt );
-					} }
-					disabled={ isDisabled }
-				>
-					{ __( 'Ask', 'jetpack' ) }
-				</Button>
+							requestSuggestion( prompt );
+						} }
+						disabled={ isDisabled }
+					>
+						{ __( 'Ask', 'jetpack' ) }
+					</Button>
+				</div>
 			</KeyboardShortcuts>
 		</Popover>
 	);
