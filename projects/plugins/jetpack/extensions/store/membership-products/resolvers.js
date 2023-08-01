@@ -1,11 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
-import { store as coreStore } from '@wordpress/core-data';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
-import {
-	accessOptions,
-	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
-} from '../../blocks/subscriptions/constants';
+import { accessOptions } from '../../blocks/subscriptions/constants';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
 import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
 import executionLock from '../../shared/execution-lock';
@@ -20,7 +16,6 @@ import {
 	setSocialFollowerCount,
 	setEmailSubscriberCount,
 	setPaidSubscriberCount,
-	setAccessLevel,
 	setShowMisconfigurationWarning,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
@@ -205,27 +200,6 @@ export const getSubscriberCounts =
 			onError( error.message, registry );
 		}
 		executionLock.release( lock );
-	};
-
-export const getAccessLevel =
-	() =>
-	async ( { dispatch, registry } ) => {
-		const postType = registry.select( editorStore ).getCurrentPostType();
-		const postId = registry.select( editorStore ).getCurrentPostId();
-		const { getEntityRecord, getEditedEntityRecord } = registry.select( coreStore );
-		getEntityRecord( 'postType', postType ); // Trigger resolver.
-		const editedRecord = getEditedEntityRecord( 'postType', postType, postId );
-		const postMeta = editedRecord.meta;
-
-		let accessLevel =
-			postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? accessOptions.everybody.key;
-
-		// If accessLevel is ''
-		if ( ! accessLevel ) {
-			accessLevel = accessOptions.everybody.key;
-		}
-
-		dispatch( setAccessLevel( accessLevel ) );
 	};
 
 export const getShowMisconfigurationWarning =

@@ -19,7 +19,7 @@ import { useEffect, useState, createInterpolateElement } from '@wordpress/elemen
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import { accessOptions, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import EmailPreview from './email-preview';
 import {
 	Link,
@@ -287,6 +287,7 @@ export default function SubscribePanels() {
 
 	const { getSubscriberCounts } = useSelect( select => select( membershipProductsStore ) );
 
+	// Set the accessLevel to "everybody" when one is not defined
 	let accessLevel =
 		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? accessOptions.everybody.key;
 

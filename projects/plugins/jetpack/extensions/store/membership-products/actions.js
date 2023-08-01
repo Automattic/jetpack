@@ -119,11 +119,6 @@ export const setPaidSubscriberCount = paidSubscribers => ( {
 	paidSubscribers,
 } );
 
-export const setAccessLevel = accessLevel => ( {
-	type: 'SET_ACCESS_LEVEL',
-	accessLevel,
-} );
-
 export const setShowMisconfigurationWarning = showMisconfigurationWarning => ( {
 	type: 'SET_SHOW_MISCONFIGURATION_WARNING',
 	showMisconfigurationWarning,

@@ -11,7 +11,6 @@ export const DEFAULT_STATE = {
 		emailSubscribers: null,
 		paidSubscribers: null,
 	},
-	accessLevel: null,
 	showMisconfigurationWarning: false,
 };
 
@@ -54,8 +53,6 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 					paidSubscribers: action.paidSubscribers,
 				},
 			};
-		case 'SET_ACCESS_LEVEL':
-			return { ...state, accessLevel: action.accessLevel };
 		case 'SET_SHOW_MISCONFIGURATION_WARNING':
 			return { ...state, showMisconfigurationWarning: action.showMisconfigurationWarning };
 	}
