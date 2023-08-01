@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Dashboard: do not allow toggling the Subscriptions feature on or off when the user is not connected.
