@@ -10,14 +10,14 @@ import { AiAssistantUiContext } from '../../ui-handler/context';
 import './style.scss';
 
 export const AiAssistantPopover = () => {
-	const { toggle, isVisible } = useContext( AiAssistantUiContext );
+	const { toggle, isVisible, popoverProps } = useContext( AiAssistantUiContext );
 
 	if ( ! isVisible ) {
 		return null;
 	}
 
 	return (
-		<Popover className="jetpack-ai-assistant__popover">
+		<Popover { ...popoverProps } className="jetpack-ai-assistant__popover">
 			<KeyboardShortcuts
 				bindGlobal
 				shortcuts={ {
