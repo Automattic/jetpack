@@ -6,7 +6,7 @@ import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useMemo, useCallback } from '@wordpress/element';
+import { useState, useMemo, useCallback, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -17,6 +17,7 @@ import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './conte
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { clientId } = props;
+
 		// AI Assistant input value
 		const [ inputValue, setInputValue ] = useState( '' );
 
@@ -61,6 +62,36 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const toggle = useCallback( () => {
 			setAssistantVisibility( ! isVisible );
 		}, [ isVisible ] );
+
+		/*
+		 * Set the anchor element for the popover.
+		 * For now, let's use the block representation in the canvas,
+		 * but we can change it in the future.
+		 */
+		useEffect( () => {
+			if ( ! clientId ) {
+				return;
+			}
+
+			const idAttribute = `block-${ clientId }`;
+
+			/*
+			 * Get the DOM element of the block,
+			 * keeping in mind that the block element is rendered into the `editor-canvas` iframe.
+			 */
+			const iFrame: HTMLIFrameElement = document.querySelector( 'iframe[name="editor-canvas"]' );
+			const iframeDocument = iFrame && iFrame.contentWindow.document;
+			if ( ! iframeDocument ) {
+				return;
+			}
+
+			const blockDomElement = iframeDocument.getElementById( idAttribute );
+			if ( ! blockDomElement ) {
+				return;
+			}
+
+			setPopoverProps( prev => ( { ...prev, anchor: blockDomElement } ) );
+		}, [ clientId ] );
 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
