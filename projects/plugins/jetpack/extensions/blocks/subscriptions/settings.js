@@ -240,16 +240,9 @@ function NewsletterAccessRadioButtons( {
 	);
 }
 
-export function NewsletterAccessDocumentSettings( { setPostMeta } ) {
-	const { accessLevel, showMisconfigurationWarning } = useSelect( select => {
-		const { getAccessLevel, getShowMisconfigurationWarning } = select(
-			'jetpack/membership-products'
-		);
-
-		return {
-			accessLevel: getAccessLevel(),
-			showMisconfigurationWarning: getShowMisconfigurationWarning(),
-		};
+export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } ) {
+	const showMisconfigurationWarning = useSelect( select => {
+		select( 'jetpack/membership-products' ).getShowMisconfigurationWarning();
 	} );
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
 		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
