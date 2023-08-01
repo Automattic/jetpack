@@ -1,0 +1,4 @@
+Significance: patch
+Type: fix
+
+AI Client: Fix wrong disabled state condition.
