@@ -192,6 +192,15 @@ module.exports = [
 					},
 				],
 			} ),
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: '**/block.json',
+						to: '[path][name][ext]',
+						context: path.join( __dirname, '../extensions/blocks' ),
+					},
+				],
+			} ),
 			new CopyBlockEditorAssetsPlugin(),
 		],
 	},

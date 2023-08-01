@@ -1,0 +1,11 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/blogging-prompt",
+	"title": "Writing Prompt",
+	"description": "Answer a new and inspiring writing prompt each day.",
+	"keywords": [ "writing", "blogging" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "text"
+}
