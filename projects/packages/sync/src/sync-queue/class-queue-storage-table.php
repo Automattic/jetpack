@@ -121,7 +121,7 @@ class Queue_Storage_Table {
 	 *
 	 * @return bool If the custom table is available, and we can read and write from/to it.
 	 */
-	public function is_custom_table_healthy() {
+	private function is_custom_table_healthy() {
 		global $wpdb;
 
 		if ( ! $this->custom_table_exists() ) {
