@@ -1,4 +1,9 @@
 <?php
+global $wp_cache_mod_rewrite, $wp_cache_mfunc_enabled, $wp_cache_mobile_enabled;
+
+$faq_url          = 'https://jetpack.com/support/wp-super-cache/wp-super-cache-faq/';
+$kses_allow_links = array( 'a' => array( 'href' => array() ) ); // Arguments for wp_kses to allow links.
+
 if ( isset( $wp_cache_front_page_checks ) == false ) {
 	$wp_cache_front_page_checks = true;
 }
@@ -81,8 +86,54 @@ echo '<input type="hidden" name="action" value="scupdates" />';
 	<td>
 		<fieldset>
 		<legend class="hidden">Advanced</legend>
-		<label><input <?php disabled( $wp_cache_mod_rewrite ); ?> type='checkbox' name='wp_cache_mfunc_enabled' <?php if( $wp_cache_mfunc_enabled ) echo "checked"; ?> value='1'> <?php _e( 'Enable dynamic caching. (See <a href="https://jetpack.com/support/wp-super-cache/wp-super-cache-faq/">FAQ</a> or wp-super-cache/plugins/dynamic-cache-test.php for example code.)', 'wp-super-cache' ); ?></label><br />
-		<label><input type='checkbox' name='wp_cache_mobile_enabled' <?php if( $wp_cache_mobile_enabled ) echo "checked"; ?> value='1'> <?php _e( 'Mobile device support. (External plugin or theme required. See the <a href="https://jetpack.com/support/wp-super-cache/wp-super-cache-faq/">FAQ</a> for further details.)', 'wp-super-cache' ); ?></label><br />
+
+		<label>
+			<input
+				type='checkbox'
+				name='wp_cache_mfunc_enabled'
+				value='1'
+				<?php disabled( $wp_cache_mod_rewrite ); ?>
+				<?php checked( $wp_cache_mfunc_enabled ); ?>
+			>
+			<?php
+				echo wp_kses(
+					sprintf(
+						/* translators: %s is the URL of the FAQ */
+						__(
+							'Enable dynamic caching. (See <a href="%s">FAQ</a> or wp-super-cache/plugins/dynamic-cache-test.php for example code.)',
+							'wp-super-cache'
+						),
+						$faq_url
+					),
+					$kses_allow_links
+				);
+				?>
+		</label>
+		<br />
+
+		<label>
+			<input
+				type='checkbox'
+				name='wp_cache_mobile_enabled'
+				value='1'
+				<?php checked( $wp_cache_mobile_enabled ); ?>
+			>
+			<?php
+				echo wp_kses(
+					sprintf(
+						/* translators: %s is the URL of the FAQ */
+						__(
+							'Mobile device support. (External plugin or theme required. See the <a href="https://jetpack.com/support/wp-super-cache/wp-super-cache-faq/">FAQ</a> for further details.)',
+							'wp-super-cache'
+						),
+						$faq_url
+					),
+					$kses_allow_links
+				);
+				?>
+		</label>
+		<br />
+
 <?php if ( $wp_cache_mobile_enabled ) {
 echo '<blockquote><h5>' . __( 'Mobile Browsers', 'wp-super-cache' ) . '</h5>' . esc_html( $wp_cache_mobile_browsers ) . "<br /><h5>" . __( 'Mobile Prefixes', 'wp-super-cache' ) . "</h5>" . esc_html( $wp_cache_mobile_prefixes ) . "<br /></blockquote>";
 			} ?>
