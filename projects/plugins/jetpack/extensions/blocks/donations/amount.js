@@ -78,6 +78,11 @@ const Amount = ( {
 		setEditedValue( formatCurrency( value, currency, { symbol: '' } ) );
 	}, [ currency, isFocused, isInvalid, setAmount, value ] );
 
+	useEffect( () => {
+		setAmount( formatCurrency( value, currency, { symbol: '' } ) );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ value ] );
+
 	return (
 		<div
 			className={ classnames( 'donations__amount', className, {
