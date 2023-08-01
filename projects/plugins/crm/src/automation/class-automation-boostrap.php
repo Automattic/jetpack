@@ -39,17 +39,17 @@ final class Automation_Boostrap {
 	protected function register_triggers() {
 		$triggers = array(
 			\Automattic\Jetpack\CRM\Automation\Triggers\Company_Deleted::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Company_New::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Company_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Company_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Company_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Before_Deleted::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Deleted::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Email_Updated::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_New::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_New::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Updated::class,
 		);
