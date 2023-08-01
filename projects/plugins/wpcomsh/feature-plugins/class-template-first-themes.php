@@ -1,14 +1,15 @@
 <?php
 /**
  * Template_First_Themes file.
- * This file started from wp-content/mu-plugins/full-site-editing.php in order to bring
+ * This file started from wp-content/mu-plugins/full-site-editing/class-template-first-themes.php in order to bring
  * theme homepage switch to Atomic.
  *
  * @package wpcomsh
  */
 
 /**
- * Class Template_First_Themes
+ * "Template-first themes" are themes which set the homepage as a static page
+ * defined in the Headstart annotation.
  */
 class Template_First_Themes {
 
@@ -18,13 +19,6 @@ class Template_First_Themes {
 	 * @var Template_First_Themes
 	 */
 	private static $instance = null;
-
-	/**
-	 * Template_First_Themes constructor.
-	 */
-	public function __construct() {
-		add_action( 'plugins_loaded', array( $this, 'register_hooks' ) );
-	}
 
 	/**
 	 * Creates instance.
@@ -40,52 +34,36 @@ class Template_First_Themes {
 	}
 
 	/**
-	 * Adds hooks.
+	 * Returns whether the theme supports automatically setting up a static home page
+	 * from Headstart annotation when it is activated.
+	 *
+	 * @param \WP_Theme $theme WP_Theme the theme.
 	 */
-	public function register_hooks() {
-		add_action( 'switch_theme', array( $this, 'update_homepage_template' ), 10, 3 );
+	public function has_auto_loading_homepage( $theme ) {
+		return ! ! $this->get_front_page_template( $theme->get_stylesheet() ) &&
+			in_array( 'auto-loading-homepage', $theme->tags, true );
 	}
 
 	/**
 	 * Updates the front-page with the new theme's homepage template.
 	 *
-	 * @param string    $new_name  Name of the new theme.
-	 * @param \WP_Theme $new_theme WP_Theme instance of the new theme.
-	 * @param \WP_Theme $old_theme WP_Theme instance of the old theme.
-	 *
 	 * @return bool True if the homepage is changed, false is not.
 	 */
-	public function update_homepage_template( $new_name, $new_theme, $old_theme ) /* phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter */ {
+	public function switch_homepage_to_static_page() {
 		$stylesheet = get_stylesheet();
-
-		// Track existing front-page for legacy themes.
-		$front_page_id = (int) get_option( 'page_on_front' );
-		if ( $front_page_id && $this->has_autoloading_homepage( $stylesheet ) && ! in_array( 'auto-loading-homepage', $old_theme->tags, true ) ) {
-			update_post_meta( $front_page_id, '_tft_existing_frontpage', true );
-		}
-
-		// Setup a blog theme and return early.
-		if ( $this->has_blog_homepage( $stylesheet ) ) {
-			return $this->setup_blog_theme();
-		}
 
 		// See if a homepage template already exists for this theme
 		// or a tracked previous homepage for legacy themes.
 		$new_front_page_id = $this->get_existing_homepage_template_id( $stylesheet );
 
 		// Create homepage template if it doesn't already exist.
-		if ( $this->has_autoloading_homepage( $stylesheet ) && ! $new_front_page_id ) {
+		if ( ! $new_front_page_id ) {
 			$new_front_page_id = $this->create_front_page_template( $stylesheet );
 		}
 
 		// Something failed when getting the front-page ID.
 		if ( ! $new_front_page_id || is_wp_error( $new_front_page_id ) ) {
 			return false;
-		}
-
-		// Cleanup if we're switching to a legacy theme.
-		if ( ! $this->has_autoloading_homepage( $stylesheet ) ) {
-			delete_post_meta( $new_front_page_id, '_tft_existing_frontpage' );
 		}
 
 		$this->apply_stylesheet_front_page_meta_to_id( $stylesheet, $new_front_page_id );
@@ -110,30 +88,17 @@ class Template_First_Themes {
 	}
 
 	/**
-	 * Sets up a `blog-homepage` tagged theme.
+	 * Cleans up old posts page that was generated
+	 * when activating the old theme.
 	 */
-	public function setup_blog_theme() {
-		// Set old front-page to draft.
-		$front_page_id = (int) get_option( 'page_on_front' );
-		if ( $front_page_id ) {
-			$old_front_page                = get_post( $front_page_id, ARRAY_A );
-			$old_front_page['post_status'] = 'draft';
-			wp_update_post( $old_front_page );
-		}
-
-		// Draft "Blog" page if one exists.
+	public function clean_up_old_posts_page() {
+		// Draft previously created "Blog" page if exists
 		$page_for_posts = $this->get_existing_posts_page_id();
 		if ( $page_for_posts ) {
 			$old_posts_page                = get_post( $page_for_posts, ARRAY_A );
 			$old_posts_page['post_status'] = 'draft';
 			wp_update_post( $old_posts_page );
 		}
-
-		// Update links to old homepage with custom "/" link.
-		$this->update_menus_with_custom_link( $front_page_id );
-
-		// Set the homepage to a posts list.
-		return update_option( 'show_on_front', 'posts' );
 	}
 
 	/**
@@ -301,8 +266,7 @@ class Template_First_Themes {
 	}
 
 	/**
-	 * Looks for a stored homepage template for auto-loading homepage themes
-	 * or a saved previous front-page for legacy themes, and returns its ID.
+	 * Looks for a stored homepage template and returns its ID.
 	 *
 	 * @param string $stylesheet Slug of the theme to check.
 	 * @return bool|int Front-page ID on success, false on failure.
@@ -321,15 +285,10 @@ class Template_First_Themes {
 			'post_status'    => 'any',
 			'posts_per_page' => 1,
 			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-			'meta_key'       => '_tft_existing_frontpage',
-		);
-
-		if ( $this->has_autoloading_homepage( $stylesheet ) ) {
-			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-			$args['meta_key'] = '_tft_homepage_template';
+			'meta_key'       => '_tft_homepage_template',
 			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-			$args['meta_value'] = $stylesheet;
-		}
+			'meta_value'     => $stylesheet,
+		);
 
 		$ids = ( new \WP_Query() )->query( $args );
 
@@ -388,53 +347,5 @@ class Template_First_Themes {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Updates old front-page menu items with a custom "/" link.
-	 *
-	 * @param int $old_page_id ID of the old front-page.
-	 */
-	public function update_menus_with_custom_link( $old_page_id ) {
-		foreach ( wp_get_nav_menus() as $menu ) {
-			foreach ( wp_get_nav_menu_items( $menu ) as $menu_item ) {
-				if ( (int) $menu_item->object_id === $old_page_id ) {
-					wp_update_nav_menu_item(
-						$menu->term_id,
-						$menu_item->ID,
-						array(
-							'menu-item-title'  => __( 'Home' ),
-							'menu-item-url'    => '/',
-							'menu-item-status' => 'publish',
-							'menu-item-type'   => 'custom',
-						)
-					);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Returns whether the passed theme supports auto-loading homepage templates.
-	 *
-	 * @param string $stylesheet Slug of the theme to check.
-	 * @return bool
-	 */
-	public function has_autoloading_homepage( string $stylesheet ) : bool {
-		$theme = wp_get_theme( $stylesheet );
-
-		return ! $theme->errors() && in_array( 'auto-loading-homepage', $theme->tags, true );
-	}
-
-	/**
-	 * Returns whether the passed theme has a blog homepage.
-	 *
-	 * @param string $stylesheet Slug of the theme to check.
-	 * @return bool
-	 */
-	public function has_blog_homepage( string $stylesheet ) : bool {
-		$theme = wp_get_theme( $stylesheet );
-
-		return ! $theme->errors() && in_array( 'blog-homepage', $theme->tags, true );
 	}
 }
