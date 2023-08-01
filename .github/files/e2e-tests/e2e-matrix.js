@@ -13,7 +13,7 @@ const projects = [
 		project: 'Jetpack pre-connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/pre-connection', '--retries=1' ],
-		targets: [ 'plugins/jetpack', 'monorepo' ],
+		targets: [ 'plugins/jetpack', 'monorepo', 'packages/my-jetpack' ],
 		suite: '',
 	},
 	{
