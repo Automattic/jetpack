@@ -4,43 +4,44 @@
 
 ## 12.5-a.1 - 2023-08-01
 ### Enhancements
-- Add Google Photos integration to Gutenberg's Media Sidebar for Jetpack connected sites. [#32047]
-- Added track events to monitor which media sources get inserted through the Media Inserter [#32103]
+- AI Assistant: various backend improvements.
+- AI Assistant: disable feedback button if post is empty [#32122]
+- Block editor: add Google Photo integration to Gutenberg's Media Sidebar for Jetpack connected sites. [#32047]
+- Dashboard: update the SEO hide page control from a checkbox to a toggle. [#32059]
+- Donation block: display the default Stripe currency in the Donation block and add a "check" icon next to the selected currency in the currency dropdown [#31795]
+- Dashboard: update the likes and sharing button controls in the Jetpack sidebar from checkboxes to toggles. [#32060]
+- Paywall block: update the block styles. [#32101]
+
+### Bug fixes
+- Dashboard: do not allow toggling the Subscriptions feature on or off when not connected to Jetpack. [#32179]
+- Donation block: fix issue where an invalid amount entered would persist when switching tabs in the block editor. [#32098]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Remove feature flag for subscriptions newsletter. [#32045]
+- Add track events to monitor which media sources get inserted through the Media Inserter [#32103]
 - Add Paywall block scaffold [#32093]
 - Add paywall logic to newsletters [#32119]
-- AI Assistance plugin: do not pass postId to suggestions hook. It isn't required. [#32104]
-- AI Assistant: Add custom form prompt [#32165]
-- AI Assistant: Add function calling feature [#32161]
-- AI Assistant: Disable feedback button if empty post [#32122]
-- AI Assistant: import Icons from AI Client pkg [#32173]
+- AI Assistant: do not pass postId to suggestions hook. It isn't required. [#32104]
 - AI Assistant: Register ai-assistant-form-support beta flag to control the form extension we are working on. [#32162]
 - AI Assistant: remove unused code from AI Extension [#32035]
+- AI Assistant: import Icons from AI Client pkg [#32173]
 - AI Assistant: show/hide assistant container for Jetpack Form block [#32189]
 - AI Assistant: use AI Client suggestion hook. Clean the internal hook. [#32077]
 - AI Extension: introduce UI Handler context for the Jetpack Form AI Assistant feature [#32186]
 - AI Extension: start to extend Jetpack From block [#32181]
-- Display the default Stripe currency in the Donation block on mount and add a "check" icon next to the selected currency in the currency dropdown [#31795]
+- AI Assistant: Add custom form prompt [#32165]
+- AI Assistant: Add function calling feature [#32161]
 - Jetpack AI: Add support for different limits of free requests and different upgrade prompts. [#32096]
-- Make the likes and sharing buttons controls in the Jetpack sidebar be toggles [#32060]
 - Paywall block: limit to post level, add icon [#32137]
 - Performance settings: update position in wpcom menu [#32149]
 - Related posts block: add srcset to thumbnails [#32026]
-- Social: Added upsell links in the sharing section of the Jetpack plugin. [#32032]
+- Social: add upsell links in the sharing section of the Jetpack plugin. [#32032]
 - Subcribe modal: add conditions for display. [#32043]
 - Subscriptions: Remove subscribe modal feature flag. [#32002]
 - The media inserter Google Photos service is now aware of the connection status of the service [#32058]
-- update paywall block styles [#32101]
-- Update SEO hide page control from checkbox to toggle [#32059]
 - Update SEO tools textarea in editor plugin container to be 100% wide [#32056]
 - We hide the search input for the Google Photos Sidebar Media integration since it is not searchable [#32108]
 - WooCommerce Analytics events: Introduce 'jetpack_woocommerce_analytics_event_props' filter [#32052]
-
-### Bug fixes
-- Dashboard: do not allow toggling the Subscriptions feature on or off when the user is not connected. [#32179]
-- Fix tab switching by adding a value handler for the Amount component. [#32098]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Remove feature flag for subscriptions newsletter. [#32045]
 
 ## 12.4 - 2023-08-01
 ### Enhancements
