@@ -118,8 +118,3 @@ export const setPaidSubscriberCount = paidSubscribers => ( {
 	type: 'SET_PAID_SUBSCRIBER_COUNT',
 	paidSubscribers,
 } );
-
-export const setShowMisconfigurationWarning = showMisconfigurationWarning => ( {
-	type: 'SET_SHOW_MISCONFIGURATION_WARNING',
-	showMisconfigurationWarning,
-} );

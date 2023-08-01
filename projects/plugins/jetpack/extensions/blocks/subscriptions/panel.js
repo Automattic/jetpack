@@ -148,6 +148,7 @@ function NewsletterPrePublishSettingsPanel( {
 			{ isModuleActive && (
 				<>
 					<NewsletterAccessPrePublishSettings
+						accessLevel={ accessLevel }
 						setPostMeta={ setPostMeta }
 						showMisconfigurationWarning={ showMisconfigurationWarning }
 					/>
