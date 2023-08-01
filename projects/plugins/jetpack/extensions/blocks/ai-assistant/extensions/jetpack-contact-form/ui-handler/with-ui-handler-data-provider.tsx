@@ -28,6 +28,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		>( {
 			anchor: null,
 			placement: 'bottom',
+			offset: 12,
 		} );
 
 		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
