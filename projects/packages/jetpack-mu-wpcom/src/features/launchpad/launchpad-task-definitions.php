@@ -583,7 +583,7 @@ function wpcom_launchpad_track_write_3_posts_task() {
 		wpcom_mark_launchpad_task_complete( 'write_3_posts' );
 	}
 }
-add_action( 'publish_post', 'wpcom_launchpad_track_write_3_posts_task', 10, 3 );
+add_action( 'publish_post', 'wpcom_launchpad_track_write_3_posts_task' );
 
 /**
  * Callback for getting the number of posts published.
