@@ -603,6 +603,26 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
 }
 
 /**
+ * Checks if a specific task list is visible.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to check.
+ * @return bool True if the task list is visible, false otherwise.
+ */
+function wpcom_launchpad_is_task_list_visible( $checklist_slug ) {
+	return wpcom_launchpad_checklists()->is_task_list_visible( $checklist_slug );
+}
+
+/**
+ * Sets a specific task list visibility.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to check.
+ * @param bool   $is_visible True if the task list is visible, false otherwise.
+ */
+function wpcom_launchpad_set_task_list_visibility( $checklist_slug, $is_visible ) {
+	wpcom_launchpad_checklists()->set_task_list_visibility( $checklist_slug, $is_visible );
+}
+
+/**
  * Checks if the Keep building task list is enabled.
  *
  * @return bool True if the task list is enabled, false otherwise.

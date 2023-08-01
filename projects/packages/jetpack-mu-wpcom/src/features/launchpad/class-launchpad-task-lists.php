@@ -153,6 +153,31 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Check if a task list is enabled by checking its is_enabled_callback callback.
+	 *
+	 * @param string $id Task List id.
+	 * @return bool|null True if visible, false if not.
+	 */
+	public function is_task_list_visible( $id ) {
+		$task_list_status = get_option( 'wpcom_launchpad_task_list_visibility', array() );
+
+		// Return true if the task list is not in the visibility option or if it is and the value is true.
+		return ! isset( $task_list_status[ $id ] ) || $task_list_status[ $id ];
+	}
+
+	/**
+	 * Set wether a task list is visible or not for a site.
+	 *
+	 * @param string $id Task List id.
+	 * @param bool   $is_visible True if visible, false if not.
+	 */
+	public function set_task_list_visibility( $id, $is_visible ) {
+		$task_list_status        = get_option( 'wpcom_launchpad_task_list_visibility', array() );
+		$task_list_status[ $id ] = $is_visible;
+		update_option( 'wpcom_launchpad_task_list_visibility', $task_list_status );
+	}
+
+	/**
 	 * See if the task list registry has any task lists.
 	 *
 	 * @return bool True if there are task lists, false if not.

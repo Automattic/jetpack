@@ -48,16 +48,31 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'callback'            => array( $this, 'update_site_options' ),
 					'permission_callback' => array( $this, 'can_access' ),
 					'args'                => array(
-						'checklist_statuses' => array(
+						'checklist_statuses'   => array(
 							'description'          => 'Launchpad statuses',
 							'type'                 => 'object',
 							'properties'           => $this->get_checklist_statuses_properties(),
 							'additionalProperties' => false,
 						),
-						'launchpad_screen'   => array(
+						'launchpad_screen'     => array(
 							'description' => 'Launchpad screen',
 							'type'        => 'string',
 							'enum'        => array( 'off', 'minimized', 'full' ),
+						),
+						'is_checklist_visible' => array(
+							'description'          => 'Toggle checklist visibility',
+							'type'                 => 'object',
+							'properties'           => array(
+								'slug'  => array(
+									'description' => 'Checklist slug',
+									'type'        => 'string',
+									'enum'        => $this->get_checklist_slug_enums(),
+								),
+								'value' => array(
+									'type' => 'boolean',
+								),
+							),
+							'additionalProperties' => false,
 						),
 					),
 				),
@@ -123,6 +138,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
 			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug ),
 			'is_enabled'         => wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ),
+			'is_visible'         => wpcom_launchpad_is_task_list_visible( $checklist_slug ),
 		);
 	}
 
@@ -156,6 +172,12 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					wpcom_launchpad_checklists()->maybe_disable_fullscreen_launchpad();
 					break;
 
+				case 'is_checklist_visible':
+					$checklist_slug = $value['slug'];
+					$is_enabled     = $value['value'];
+
+					wpcom_launchpad_set_task_list_visibility( $checklist_slug, $is_enabled );
+					break;
 				default:
 					if ( update_option( $key, $value ) ) {
 						$updated[ $key ] = $value;
