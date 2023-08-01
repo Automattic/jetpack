@@ -21,6 +21,10 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
+	// check if the subscription module is enabled
+	if ( ! class_exists( '\Jetpack_Memberships' ) ) {
+		return;
+	}
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
