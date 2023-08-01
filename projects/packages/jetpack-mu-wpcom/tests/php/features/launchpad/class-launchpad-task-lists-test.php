@@ -426,4 +426,86 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 		// Verify that the task option has the right value.
 		$this->assertSame( $expected_completion_status, wpcom_is_task_option_completed( $task ) );
 	}
+
+	/**
+	 * Data provider for {@see test_get_calypso_path_validation()}.
+	 *
+	 * @return array
+	 */
+	public function provide_get_calypso_path_validation_test_cases() {
+		return array(
+			'Full URL is rejected'                       => array(
+				'https://example.com/invalid-full-url',
+				null,
+			),
+			'Same-protocol URL is rejected'              => array(
+				'//example.com/invalid-protocol-url',
+				null,
+			),
+			'Relative URL without leading / is rejected' => array(
+				'test/relative-url-invalid',
+				null,
+			),
+			'Null value is rejected'                     => array(
+				null,
+				null,
+			),
+			'Empty string is rejected'                   => array(
+				'',
+				null,
+			),
+			'Valid absolute path is accepted'            => array(
+				'/test/example',
+				'/test/example',
+			),
+		);
+	}
+
+	/**
+	 * Test that we correctly validate return values from the
+	 * `get_calypso_path` callback for tasks.
+	 *
+	 * @dataProvider provide_get_calypso_path_validation_test_cases()
+	 * @param string|null $calypso_path_to_test The path to test.
+	 * @param string|null $expected_path        The path we expect to be returned.
+	 * @return void
+	 */
+	public function test_get_calypso_path_validation( $calypso_path_to_test, $expected_path ) {
+		wpcom_register_launchpad_task(
+			array(
+				'id'               => 'test-get-calypso-path-validation',
+				'title'            => 'Test get_calypso_path validation',
+				'get_calypso_path' => function () use ( $calypso_path_to_test ) {
+					return $calypso_path_to_test;
+				},
+			)
+		);
+
+		wpcom_launchpad_checklists()->unregister_task_list( 'test-get-calypso-path-validation-task-list' );
+		wpcom_register_launchpad_task_list(
+			array(
+				'id'       => 'test-get-calypso-path-validation-task-list',
+				'title'    => 'Test task list for testing get_calypso_path validation',
+				'task_ids' => array( 'test-get-calypso-path-validation' ),
+			)
+		);
+
+		$tasks = wpcom_get_launchpad_checklist_by_checklist_slug( 'test-get-calypso-path-validation-task-list' );
+
+		$this->assertIsArray( $tasks );
+		$this->assertCount( 1, $tasks );
+
+		$first_task = reset( $tasks );
+
+		$this->assertIsArray( $first_task );
+		$this->assertArrayHasKey( 'id', $first_task );
+		$this->assertSame( 'test-get-calypso-path-validation', $first_task['id'] );
+
+		if ( null === $expected_path ) {
+			$this->assertArrayNotHasKey( 'calypso_path', $first_task );
+		} else {
+			$this->assertArrayHasKey( 'calypso_path', $first_task );
+			$this->assertSame( $expected_path, $first_task['calypso_path'] );
+		}
+	}
 }
