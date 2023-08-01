@@ -14,23 +14,23 @@ namespace Automattic\Jetpack\CRM\Automation;
  */
 class Automation_Engine {
 
-	/** @var Automation_Engine Instance singleton */
+	/** @var Automation_Engine Instance singleton. */
 	private static $instance = null;
 
-	/** @var array triggers map name => classname */
+	/** @var array triggers map name => classname. */
 	private $triggers_map = array();
 
-	/** @var array steps map name => classname */
+	/** @var array steps map name => classname. */
 	private $steps_map = array();
 
-	/** @var Automation_Logger Automation logger */
+	/** @var Automation_Logger Automation logger. */
 	private $automation_logger;
 
 	/** @var array */
 	private $workflows = array();
 
 	/**
-	 *  Instance singleton object
+	 *  Instance singleton object.
 	 *
 	 * @param bool $force Whether to force a new Automation_Engine instance.
 	 * @return Automation_Engine
@@ -44,7 +44,7 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Set the automation logger
+	 * Set the automation logger.
 	 *
 	 * @param Automation_Logger $logger The automation logger.
 	 */
@@ -53,7 +53,7 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Register a trigger
+	 * Register a trigger.
 	 *
 	 * @param string $trigger_classname Trigger classname to add to the mapping.
 	 * @throws Automation_Exception Throws an exception if the trigger class does not match the expected conditions.
@@ -99,7 +99,7 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Register a step in the automation engine
+	 * Register a step in the automation engine.
 	 *
 	 * @param string $step_name The name of the step to be registered.
 	 * @param string $class_name The name of the class in which the step should belong.
@@ -117,7 +117,7 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get a step class by name
+	 * Get a step class by name.
 	 *
 	 * @param string $step_name The name of the step whose class we will be retrieving.
 	 * @return string
@@ -135,7 +135,7 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Add a workflow
+	 * Add a workflow.
 	 *
 	 * @param Automation_Workflow $workflow The workflow class instance to be added.
 	 * @param bool                $init_workflow Whether or not to initialize the workflow.
@@ -151,7 +151,7 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Build and add a workflow
+	 * Build and add a workflow.
 	 *
 	 * @param array $workflow_data The workflow data to be added.
 	 * @param bool  $init_workflow Whether or not to initialize the workflow.
@@ -180,7 +180,7 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get step instance
+	 * Get step instance.
 	 *
 	 * @param string $step_name The name of the step to be registered.
 	 * @param array  $step_data The step data to be registered.
@@ -203,7 +203,7 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get registered steps
+	 * Get registered steps.
 	 *
 	 * @return array
 	 */
@@ -212,7 +212,7 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get trigger instance
+	 * Get trigger instance.
 	 *
 	 * @param string $trigger_slug The name of the trigger slug with which to retrieve the trigger class.
 	 * @return string
@@ -232,7 +232,7 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get Automation logger
+	 * Get Automation logger.
 	 *
 	 * @return Automation_Logger
 	 */
@@ -241,7 +241,7 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get the registered triggers
+	 * Get the registered triggers.
 	 */
 	public function get_registered_triggers(): array {
 		return $this->triggers_map;

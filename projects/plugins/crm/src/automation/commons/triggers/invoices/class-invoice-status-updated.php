@@ -11,17 +11,23 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 
 /**
  * Adds the Invoice_Status_Updated class.
+ *
+ * @since $$next-version$$
  */
 class Invoice_Status_Updated extends Base_Trigger {
 
-	/** Get the slug name of the trigger
+	/**
+	 * Get the slug name of the trigger.
+	 *
 	 * @return string
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/invoice_status_updated';
 	}
 
-	/** Get the title of the trigger
+	/**
+	 * Get the title of the trigger.
+	 *
 	 * @return string
 	 */
 	public static function get_title(): ?string {
@@ -35,7 +41,9 @@ class Invoice_Status_Updated extends Base_Trigger {
 		return __( 'Triggered when an invoice status is updated', 'zero-bs-crm' );
 	}
 
-	/** Get the category of the trigger
+	/**
+	 * Get the category of the trigger.
+	 *
 	 * @return string
 	 */
 	public static function get_category(): ?string {
@@ -43,7 +51,7 @@ class Invoice_Status_Updated extends Base_Trigger {
 	}
 
 	/**
-	 * Listen to the desired event
+	 * Listen to the desired event.
 	 */
 	protected function listen_to_event() {
 		add_action(

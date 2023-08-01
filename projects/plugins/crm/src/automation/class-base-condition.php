@@ -8,17 +8,17 @@
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
- * Base Condition Step
+ * Base Condition Step.
  *
  * @inheritDoc
  */
 abstract class Base_Condition extends Base_Step implements Condition {
 
-	/** @var array|null Next step data if it meets the condition  */
+	/** @var array|null Next step data if it meets the condition.  */
 	protected $next_step_true = null;
-	/** @var array|null Next step data if it does not meet the condition */
+	/** @var array|null Next step data if it does not meet the condition. */
 	protected $next_step_false = null;
-	/** @var bool If the condition is met or not */
+	/** @var bool If the condition is met or not. */
 	protected $condition_met = false;
 
 	/**
@@ -34,7 +34,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	}
 
 	/**
-	 * Get the next step
+	 * Get the next step.
 	 *
 	 * @return array|null
 	 */

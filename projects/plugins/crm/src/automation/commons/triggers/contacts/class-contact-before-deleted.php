@@ -12,36 +12,44 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 
 /**
  * Adds the Contact_Before_Deleted class.
+ *
+ * @since $$next-version$$
  */
 class Contact_Before_Deleted extends Base_Trigger {
 
-	/**
-	 * @var Automation_Workflow The Automation workflow object.
-	 */
+	/** @var Automation_Workflow The Automation workflow object. */
 	protected $workflow;
 
-	/** Get the slug name of the trigger
+	/**
+	 * Get the slug name of the trigger.
+	 *
 	 * @return string
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/contact_before_delete';
 	}
 
-	/** Get the title of the trigger
+	/**
+	 * Get the title of the trigger.
+	 *
 	 * @return string
 	 */
 	public static function get_title(): ?string {
 		return __( 'Contact Before Deleted', 'zero-bs-crm' );
 	}
 
-	/** Get the description of the trigger
+	/**
+	 * Get the description of the trigger.
+	 *
 	 * @return string
 	 */
 	public static function get_description(): ?string {
 		return __( 'Triggered just before a CRM contact is deleted', 'zero-bs-crm' );
 	}
 
-	/** Get the category of the trigger
+	/**
+	 * Get the category of the trigger.
+	 *
 	 * @return string
 	 */
 	public static function get_category(): ?string {
@@ -49,7 +57,7 @@ class Contact_Before_Deleted extends Base_Trigger {
 	}
 
 	/**
-	 * Listen to the desired event
+	 * Listen to the desired event.
 	 */
 	protected function listen_to_event() {
 		add_action(

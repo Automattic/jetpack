@@ -8,19 +8,15 @@
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
- * Base Step
+ * Base Step.
  *
  * @inheritDoc
  */
 abstract class Base_Step implements Step {
 
-	/**
-	 * @var array Step attributes
-	 */
+	/** @var array Step attributes. */
 	protected $attributes;
-	/**
-	 * @var array|null Next linked step.
-	 */
+	/** @var array|null Next linked step. */
 	protected $next_step;
 
 	/**
@@ -33,7 +29,7 @@ abstract class Base_Step implements Step {
 	}
 
 	/**
-	 * Get the data of the step
+	 * Get the data of the step.
 	 *
 	 * @return array
 	 */
@@ -42,7 +38,7 @@ abstract class Base_Step implements Step {
 	}
 
 	/**
-	 * Set attributes of the step
+	 * Set attributes of the step.
 	 *
 	 * @param array $attributes The attributes to set.
 	 */
@@ -51,7 +47,7 @@ abstract class Base_Step implements Step {
 	}
 
 	/**
-	 * Set the next step
+	 * Set the next step.
 	 *
 	 * @param array $step_data The next linked step.
 	 */
@@ -60,7 +56,7 @@ abstract class Base_Step implements Step {
 	}
 
 	/**
-	 * Get the next step
+	 * Get the next step.
 	 *
 	 * @return array|null
 	 */
@@ -69,49 +65,49 @@ abstract class Base_Step implements Step {
 	}
 
 	/**
-	 * Execute the step
+	 * Execute the step.
 	 *
 	 * @param array $data Data passed from the trigger.
 	 */
 	abstract public function execute( array $data );
 
 	/**
-	 * Get the slug name of the step
+	 * Get the slug name of the step.
 	 *
 	 * @return string
 	 */
 	abstract public static function get_slug(): string;
 
 	/**
-	 * Get the title of the step
+	 * Get the title of the step.
 	 *
 	 * @return string
 	 */
 	abstract public static function get_title(): ?string;
 
 	/**
-	 * Get the description of the step
+	 * Get the description of the step.
 	 *
 	 * @return string
 	 */
 	abstract public static function get_description(): ?string;
 
 	/**
-	 * Get the type of the step
+	 * Get the type of the step.
 	 *
 	 * @return string
 	 */
 	abstract public static function get_type(): string;
 
 	/**
-	 * Get the category of the step
+	 * Get the category of the step.
 	 *
 	 * @return string
 	 */
 	abstract public static function get_category(): ?string;
 
 	/**
-	 * Get the allowed triggers
+	 * Get the allowed triggers.
 	 *
 	 * @return array
 	 */

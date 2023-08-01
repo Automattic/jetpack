@@ -11,11 +11,13 @@ use Automattic\Jetpack\CRM\Automation\Base_Action;
 
 /**
  * Adds the New_Contact class.
+ *
+ * @since $$next-version$$
  */
 class New_Contact extends Base_Action {
 
 	/**
-	 * Get the slug name of the step
+	 * Get the slug name of the step.
 	 *
 	 * @return string
 	 */
@@ -24,7 +26,7 @@ class New_Contact extends Base_Action {
 	}
 
 	/**
-	 * Get the title of the step
+	 * Get the title of the step.
 	 *
 	 * @return string
 	 */
@@ -33,7 +35,7 @@ class New_Contact extends Base_Action {
 	}
 
 	/**
-	 * Get the description of the step
+	 * Get the description of the step.
 	 *
 	 * @return string
 	 */
@@ -42,7 +44,7 @@ class New_Contact extends Base_Action {
 	}
 
 	/**
-	 * Get the type of the step
+	 * Get the type of the step.
 	 *
 	 * @return string
 	 */
@@ -51,7 +53,7 @@ class New_Contact extends Base_Action {
 	}
 
 	/**
-	 * Get the category of the step
+	 * Get the category of the step.
 	 *
 	 * @return string
 	 */
@@ -60,7 +62,7 @@ class New_Contact extends Base_Action {
 	}
 
 	/**
-	 * Get the allowed triggers
+	 * Get the allowed triggers.
 	 *
 	 * @return array
 	 */

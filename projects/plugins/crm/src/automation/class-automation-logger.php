@@ -33,7 +33,7 @@ class Automation_Logger {
 	private $is_active = true;
 
 	/**
-	 * Initialize the logger
+	 * Initialize the logger.
 	 *
 	 * @param bool $force Force a new instance.
 	 * @return Automation_Logger
@@ -47,14 +47,14 @@ class Automation_Logger {
 	}
 
 	/**
-	 * Set is_active to true to indicate the logger is active
+	 * Set is_active to true to indicate the logger is active.
 	 */
 	public function turn_on() {
 		$this->is_active = true;
 	}
 
 	/**
-	 * Set is_active to false to indicate the logger is not active
+	 * Set is_active to false to indicate the logger is not active.
 	 */
 	public function turn_off() {
 		$this->is_active = false;
@@ -69,7 +69,7 @@ class Automation_Logger {
 	}
 
 	/**
-	 * Get log list
+	 * Get log list.
 	 */
 	public function get_log(): array {
 		return $this->log;
@@ -91,7 +91,7 @@ class Automation_Logger {
 	}
 
 	/**
-	 * Reset the log
+	 * Reset the log.
 	 */
 	public function reset_log() {
 		$this->log = array();

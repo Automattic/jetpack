@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
- * Base Action Step
+ * Base Action Step.
  *
  * @inheritDoc
  */

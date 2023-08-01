@@ -59,7 +59,7 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Get the id of this workflow
+	 * Get the id of this workflow.
 	 *
 	 * @return int
 	 */
@@ -77,7 +77,7 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Get the trigger names of this workflow
+	 * Get the trigger names of this workflow.
 	 *
 	 * @return array
 	 */
@@ -86,7 +86,8 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Instance the triggers of this workflow
+	 * Instance the triggers of this workflow.
+	 *
 	 * @throws Workflow_Exception Throws an exception if there is an issue initializing the trigger.
 	 */
 	public function init_triggers() {
@@ -114,7 +115,8 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Set initial step of this workflow
+	 * Set initial step of this workflow.
+	 *
 	 * @param array $step_data The data for the step to be set as the initial step.
 	 */
 	public function set_initial_step( array $step_data ) {
@@ -122,7 +124,8 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Get the workflow as an array
+	 * Get the workflow as an array.
+	 *
 	 * @return array
 	 */
 	public function get_workflow_array() {
@@ -140,7 +143,7 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Get the initial step of this workflow
+	 * Get the initial step of this workflow.
 	 *
 	 * @return array
 	 */
@@ -149,7 +152,7 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Start the workflow execution once a trigger is activated
+	 * Start the workflow execution once a trigger is activated.
 	 *
 	 * @param Trigger $trigger An instance of the Trigger class.
 	 * @param array   $data All relevant object data to be passed through the workflow.
@@ -206,7 +209,8 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Get the step classname based on the step type
+	 * Get the step classname based on the step type.
+	 *
 	 * @param array $step_data The step data with which to check the step type.
 	 * @return string
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
@@ -218,21 +222,22 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Turn on the workflow
+	 * Turn on the workflow.
 	 */
 	public function turn_on() {
 		$this->active = true;
 	}
 
 	/**
-	 * Turn off the workflow
+	 * Turn off the workflow.
 	 */
 	public function turn_off() {
 		$this->active = false;
 	}
 
 	/**
-	 * Check if the workflow is active
+	 * Check if the workflow is active.
+	 *
 	 * @return bool
 	 */
 	public function is_active(): bool {
@@ -240,7 +245,8 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Add a trigger to this workflow
+	 * Add a trigger to this workflow.
+	 *
 	 * @param string $string The name of the trigger to add.
 	 */
 	public function add_trigger( string $string ) {
@@ -248,7 +254,8 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Set Automation Logger
+	 * Set Automation Logger.
+	 *
 	 * @param Automation_Logger $logger An instance of the Automation_Logger class.
 	 */
 	public function set_automation_logger( Automation_Logger $logger ) {
@@ -256,7 +263,8 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Set Automation Engine
+	 * Set Automation Engine.
+	 *
 	 * @param Automation_Engine $automation_engine An instance of the Automation_Engine class.
 	 */
 	public function set_automation_engine( Automation_Engine $automation_engine ) {

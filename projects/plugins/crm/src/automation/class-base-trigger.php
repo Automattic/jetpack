@@ -8,17 +8,17 @@
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
- * Base Trigger implementation
+ * Base Trigger implementation.
  *
  * @inheritDoc
  */
 abstract class Base_Trigger implements Trigger {
 
-	/** @var Automation_Workflow The workflow to execute by this trigger */
+	/** @var Automation_Workflow The workflow to execute by this trigger. */
 	protected $workflow = null;
 
 	/**
-	 * Set the workflow to execute by this trigger
+	 * Set the workflow to execute by this trigger.
 	 *
 	 * @param Automation_Workflow $workflow The workflow to execute by this trigger.
 	 */
@@ -27,7 +27,7 @@ abstract class Base_Trigger implements Trigger {
 	}
 
 	/**
-	 * Execute the workflow
+	 * Execute the workflow.
 	 *
 	 * @param array $data The data to pass to the workflow.
 	 * @throws Automation_Exception Throws an exception if no workflow is defined.
@@ -39,7 +39,7 @@ abstract class Base_Trigger implements Trigger {
 	}
 
 	/**
-	 * Initialize the trigger to listen to the desired event
+	 * Initialize the trigger to listen to the desired event.
 	 *
 	 * @param Automation_Workflow $workflow The workflow to execute by this trigger.
 	 */
@@ -49,28 +49,28 @@ abstract class Base_Trigger implements Trigger {
 	}
 
 	/**
-	 * Get the trigger slug
+	 * Get the trigger slug.
 	 *
 	 * @return string
 	 */
 	abstract public static function get_slug(): string;
 
 	/**
-	 * Get the trigger title
+	 * Get the trigger title.
 	 *
 	 * @return string
 	 */
 	abstract public static function get_title(): ?string;
 
 	/**
-	 * Get the trigger description
+	 * Get the trigger description.
 	 *
 	 * @return string|null
 	 */
 	abstract public static function get_description(): ?string;
 
 	/**
-	 * Get the trigger category
+	 * Get the trigger category.
 	 *
 	 * @return string
 	 */
