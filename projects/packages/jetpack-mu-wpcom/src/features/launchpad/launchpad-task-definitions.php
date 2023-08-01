@@ -350,6 +350,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/subscribers/' . $data['site_slug_encoded'];
+			},
 		),
 	);
 
