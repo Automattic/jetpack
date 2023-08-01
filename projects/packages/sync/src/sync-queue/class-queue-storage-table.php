@@ -491,4 +491,167 @@ class Queue_Storage_Table {
 
 		return true;
 	}
+
+	/**
+	 * Migrates the existing Sync events from the options table to the Custom table
+	 *
+	 * @return void
+	 */
+	public static function migrate_from_options_table_to_custom_table() {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count_result = $wpdb->get_row(
+			"
+				SELECT
+					COUNT(*) as item_count
+				FROM
+				    {$wpdb->options}
+				WHERE
+				    option_name LIKE 'jpsq_%'
+			"
+		);
+
+		$item_count = $count_result->item_count;
+
+		$limit  = 100;
+		$offset = 0;
+
+		do {
+			// get all the records from the options table
+			$query = "
+				SELECT
+					option_name as event_id,
+					option_value as event_payload
+				FROM
+				    {$wpdb->options}
+				WHERE
+				    option_name LIKE 'jpsq_%'
+				ORDER BY
+				    option_name ASC
+				LIMIT $offset, $limit
+			";
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+			$rows = $wpdb->get_results( $query );
+
+			$insert_rows = array();
+
+			foreach ( $rows as $event ) {
+				$event_id = $event->event_id;
+
+				// Parse the event
+				if (
+					preg_match(
+						'!jpsq_(?P<queue_id>[^-]+)-(?P<timestamp>[^-]+)-.+!',
+						$event_id,
+						$events_matches
+					)
+				) {
+					$queue_id  = $events_matches['queue_id'];
+					$timestamp = $events_matches['timestamp'];
+
+					$insert_rows[] = $wpdb->prepare(
+						'(%s, %s, %s, %s)',
+						array(
+							$queue_id,
+							$event_id,
+							$event->event_payload,
+							(int) $timestamp,
+						)
+					);
+				}
+			}
+
+			// Instantiate table storage, so we can get the table name. Queue ID is just a placeholder here.
+			$queue_table_storage = new Queue_Storage_Table( 'test_queue' );
+
+			if ( ! empty( $insert_rows ) ) {
+				$insert_query = 'INSERT INTO ' . $queue_table_storage->table_name . ' (queue_id, event_id, event_payload, timestamp) VALUES ';
+
+				$insert_query .= implode( ',', $insert_rows );
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+				$wpdb->query( $insert_query );
+			}
+
+			$offset += $limit;
+		} while ( $offset < $item_count );
+
+		// Clear out the options queue
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+				'jpsq_%-%'
+			)
+		);
+	}
+
+	/**
+	 * Migrates the existing Sync events from the Custom table to the Options table
+	 *
+	 * @return void
+	 */
+	public static function migrate_from_custom_table_to_options_table() {
+		global $wpdb;
+
+		// Instantiate table storage, so we can get the table name. Queue ID is just a placeholder here.
+		$queue_table_storage = new Queue_Storage_Table( 'test_queue' );
+		$custom_table_name   = $queue_table_storage->table_name;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$count_result = $wpdb->get_row( "SELECT COUNT(*) as item_count FROM {$custom_table_name}" );
+
+		$item_count = $count_result->item_count;
+
+		$limit  = 100;
+		$offset = 0;
+
+		do {
+			// get all the records from the options table
+			$query = "
+				SELECT
+					event_id,
+					event_payload
+				FROM
+				    {$custom_table_name}
+				ORDER BY
+				    event_id ASC
+				LIMIT $offset, $limit
+			";
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+			$rows = $wpdb->get_results( $query );
+
+			$insert_rows = array();
+
+			foreach ( $rows as $event ) {
+				$insert_rows[] = $wpdb->prepare(
+					'(%s, %s, "no")',
+					array(
+						$event->event_id,
+						$event->event_payload,
+					)
+				);
+			}
+
+			if ( ! empty( $insert_rows ) ) {
+				$insert_query = "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES ";
+
+				$insert_query .= implode( ',', $insert_rows );
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+				$wpdb->query( $insert_query );
+			}
+
+			$offset += $limit;
+		} while ( $offset < $item_count );
+
+		// Clear the custom table
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$custom_table_name}" );
+
+		// TODO should we drop the table here instead?
+	}
 }
