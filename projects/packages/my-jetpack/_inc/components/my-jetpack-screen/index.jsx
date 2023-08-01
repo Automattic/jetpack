@@ -118,7 +118,7 @@ export default function MyJetpackScreen() {
 				</Container>
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<Text variant="headline-small">
+						<Text variant="headline-small" className="my-jetpack-page-heading">
 							{ __( 'Manage your Jetpack products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
