@@ -139,6 +139,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'drive_traffic',
 				'edit_page',
 				'share_site',
+				'update_about_page',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
 		),
