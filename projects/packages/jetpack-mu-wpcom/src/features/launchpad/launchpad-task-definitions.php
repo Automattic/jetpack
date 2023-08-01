@@ -401,6 +401,13 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/earn/payments-plans/' . $data['site_slug_encoded'];
 			},
 		),
+		'add_about_page'                  => array(
+			'get_title'            => function () {
+				return __( 'Add your About page', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_is_add_about_page_visible',
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -1234,6 +1241,15 @@ function wpcom_launchpad_has_translation( $string, $domain = 'jetpack-mu-wpcom' 
 	$translated_string = __( $string, $domain );
 
 	return $translated_string !== $string;
+}
+
+/**
+ * Determine `add_new_page` task visibility. The task is visible if there is no 'About' page on the site.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_is_add_about_page_visible() {
+	return ! wpcom_is_update_about_page_task_visible();
 }
 
 /**
