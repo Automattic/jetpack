@@ -27,7 +27,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			AiAssistantUiContextProps[ 'popoverProps' ]
 		>( {
 			anchor: null,
-			placement: 'bottom',
+			placement: 'bottom-start',
 			offset: 12,
 		} );
 
