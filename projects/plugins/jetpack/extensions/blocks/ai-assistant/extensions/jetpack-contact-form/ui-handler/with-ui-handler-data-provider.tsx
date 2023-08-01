@@ -8,12 +8,19 @@ import { useState, useMemo, useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
-import { AiAssistantUiContextProvider } from './context';
+import { AiAssistantPopover } from '../components/ai-assistant-popover';
+import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		// AI Assistant component visibility
 		const [ isVisible, setAssistantVisibility ] = useState( false );
+		const [ popoverProps, setPopoverProps ] = useState<
+			AiAssistantUiContextProps[ 'popoverProps' ]
+		>( {
+			anchor: null,
+			placement: 'bottom',
+		} );
 
 		/**
 		 * Show the AI Assistant
@@ -46,11 +53,15 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const contextValue = useMemo(
 			() => ( {
 				isVisible,
+				popoverProps,
+
 				show,
 				hide,
 				toggle,
+
+				setPopoverProps,
 			} ),
-			[ isVisible, show, hide, toggle ]
+			[ isVisible, popoverProps, show, hide, toggle ]
 		);
 
 		/*
@@ -70,6 +81,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 						},
 					} }
 				>
+					<AiAssistantPopover />
 					<BlockListBlock { ...props } />
 				</KeyboardShortcuts>
 			</AiAssistantUiContextProvider>
