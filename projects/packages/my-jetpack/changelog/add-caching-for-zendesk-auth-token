@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add transient caching for zendesk jwt auth token

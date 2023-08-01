@@ -30,6 +30,13 @@ class Launchpad_Task_Lists {
 	private $task_registry = array();
 
 	/**
+	 * Internal reference for the current site slug.
+	 *
+	 * @var string|null
+	 */
+	private $site_slug = null;
+
+	/**
 	 * Singleton instance
 	 *
 	 * @var Launchpad_Task_List
@@ -302,6 +309,14 @@ class Launchpad_Task_Lists {
 			$built_task['repetition_count']   = $this->load_repetition_count( $task );
 		}
 
+		if ( isset( $task['get_calypso_path'] ) ) {
+			$calypso_path = $this->load_calypso_path( $task );
+
+			if ( ! empty( $calypso_path ) ) {
+				$built_task['calypso_path'] = $calypso_path;
+			}
+		}
+
 		return $built_task;
 	}
 
@@ -311,11 +326,12 @@ class Launchpad_Task_Lists {
 	 * @param array  $item     The task or task list definition.
 	 * @param string $callback The callback to attempt to call.
 	 * @param mixed  $default  The default value, passed to the callback if it exists.
+	 * @param array  $data     Any additional data specific to the callback.
 	 * @return mixed The value returned by the callback, or the default value.
 	 */
-	private function load_value_from_callback( $item, $callback, $default = '' ) {
+	private function load_value_from_callback( $item, $callback, $default = '', $data = array() ) {
 		if ( isset( $item[ $callback ] ) && is_callable( $item[ $callback ] ) ) {
-			return call_user_func_array( $item[ $callback ], array( $item, $default ) );
+			return call_user_func_array( $item[ $callback ], array( $item, $default, $data ) );
 		}
 		return $default;
 	}
@@ -384,6 +400,36 @@ class Launchpad_Task_Lists {
 	 */
 	private function load_repetition_count( $task ) {
 		return $this->load_value_from_callback( $task, 'repetition_count_callback' );
+	}
+
+	/**
+	 * Helper function to load the Calypso path for a task.
+	 *
+	 * @param array $task A task definition.
+	 * @return string|null
+	 */
+	private function load_calypso_path( $task ) {
+		if ( null === $this->site_slug ) {
+			$this->site_slug = wpcom_launchpad_get_site_slug();
+		}
+
+		$data = array(
+			'site_slug'         => $this->site_slug,
+			'site_slug_encoded' => rawurlencode( $this->site_slug ),
+		);
+
+		$calypso_path = $this->load_value_from_callback( $task, 'get_calypso_path', null, $data );
+
+		if ( ! is_string( $calypso_path ) ) {
+			return null;
+		}
+
+		// Require that the string start with `/`, but don't allow `//`.
+		if ( '/' !== substr( $calypso_path, 0, 1 ) || '/' === substr( $calypso_path, 1, 1 ) ) {
+			return null;
+		}
+
+		return $calypso_path;
 	}
 
 	/**
