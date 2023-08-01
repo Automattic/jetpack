@@ -1,8 +1,8 @@
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ToolbarButton, Notice } from '@wordpress/components';
+import { useEntityProp } from '@wordpress/core-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { _x, __ } from '@wordpress/i18n';
-import { accessOptions } from './constants';
 
 /**
  * Apply HTML encoding for special characters inside shortcode attributes.
@@ -74,3 +74,16 @@ export default function GetAddPaidPlanButton( { context = 'other', hasNewsletter
 		</Button>
 	);
 }
+
+export const GetAccessLevel = postType => {
+	const [ postMeta = [] ] = useEntityProp( 'postType', postType, 'meta' );
+
+	let accessLevel =
+		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? accessOptions.everybody.key;
+
+	// If accessLevel is ''
+	if ( ! accessLevel ) {
+		accessLevel = accessOptions.everybody.key;
+	}
+	return accessLevel;
+};

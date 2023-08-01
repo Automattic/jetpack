@@ -19,7 +19,8 @@ import { useEffect, useState, createInterpolateElement } from '@wordpress/elemen
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
+import { getSubscriberCounts } from './api';
+import { accessOptions } from './constants';
 import EmailPreview from './email-preview';
 import {
 	Link,
@@ -281,18 +282,13 @@ function NewsletterPostPublishSettingsPanel( { accessLevel, isModuleActive } ) {
 export default function SubscribePanels() {
 	const { isModuleActive } = useModuleStatus( name );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
+
 	const { tracks } = useAnalytics();
 
 	// Set the accessLevel to "everybody" when one is not defined
-	let accessLevel =
-		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? accessOptions.everybody.key;
-
-	// If accessLevel is ''
-	if ( ! accessLevel ) {
-		accessLevel = accessOptions.everybody.key;
-	}
+	const accessLevel = GetAccessLevel( postType );
 
 	useEffect( () => {
 		if ( ! isModuleActive ) {
