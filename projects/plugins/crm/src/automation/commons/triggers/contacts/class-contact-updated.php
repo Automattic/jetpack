@@ -49,6 +49,15 @@ class Contact_Updated extends Base_Trigger {
 	}
 
 	/**
+	 * Get the date type
+	 *
+	 * @return string
+	 */
+	public static function get_data_type(): string {
+		return 'contact';
+	}
+
+	/**
 	 * Listen to the desired event
 	 */
 	protected function listen_to_event() {

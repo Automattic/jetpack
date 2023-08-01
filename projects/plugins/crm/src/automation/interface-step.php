@@ -7,14 +7,16 @@
 
 namespace Automattic\Jetpack\CRM\Automation;
 
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
+
 interface Step {
 
 	/**
 	 * Execute the step
 	 *
-	 * @param array $data Data passed from the trigger.
+	 * @param Data_Type_Base $data Data passed from the trigger.
 	 */
-	public function execute( array $data );
+	public function execute( Data_Type_Base $data );
 
 	/**
 	 * Get the next step
@@ -66,11 +68,11 @@ interface Step {
 	public static function get_description(): ?string;
 
 	/**
-	 * Get the type of the step
+	 * Get the data type
 	 *
 	 * @return string
 	 */
-	public static function get_type(): ?string;
+	public static function get_data_type(): string;
 
 	/**
 	 * Get the category of the step

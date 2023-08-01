@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 /**
  * Adds the Add_Remove_Contact_Tag class.
@@ -42,12 +44,12 @@ class Add_Remove_Contact_Tag extends Base_Action {
 	}
 
 	/**
-	 * Get the type of the step
+	 * Get the data type
 	 *
 	 * @return string
 	 */
-	public static function get_type(): string {
-		return 'contacts';
+	public static function get_data_type(): string {
+		return Data_Type_Contact::get_slug();
 	}
 
 	/**
@@ -71,9 +73,9 @@ class Add_Remove_Contact_Tag extends Base_Action {
 	/**
 	 * Add / remove the tag to / from the contact via the DAL.
 	 *
-	 * @param array $contact_data The contact data on which the tag is to be added / removed.
+	 * @param Data_Type_Base $data An instance of the contact data type.
 	 */
-	public function execute( array $contact_data = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( Data_Type_Base $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
 		$zbs->DAL->contacts->addUpdateContactTags( $this->attributes ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase

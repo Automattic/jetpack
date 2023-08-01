@@ -43,6 +43,13 @@ interface Trigger {
 	public static function get_category(): ?string;
 
 	/**
+	 * Get the trigger's data type
+	 *
+	 * @return string
+	 */
+	public static function get_data_type(): string;
+
+	/**
 	 * Execute the workflow
 	 *
 	 * @param array $data The data to pass to the workflow.

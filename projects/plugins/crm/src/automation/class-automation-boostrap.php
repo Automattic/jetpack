@@ -25,10 +25,73 @@ final class Automation_Boostrap {
 	public function init() {
 		$this->engine = Automation_Engine::instance();
 
+		$this->register_data_types();
+		$this->register_data_transformers();
 		$this->register_triggers();
 		$this->register_conditions();
 		$this->register_actions();
 		$this->register_workflows();
+	}
+
+	/**
+	 * Register data types.
+	 *
+	 * @return void
+	 */
+	protected function register_data_types() {
+		$data_types = array(
+			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact::class,
+			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice::class,
+		);
+
+		/**
+		 * Filter list of available data types for automations.
+		 *
+		 * This can be used to add and/or remove data types allowed in automations.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $var A list of data type classes.
+		 */
+		$data_types = apply_filters( 'jpcrm_automation_data_types', $data_types );
+
+		foreach ( $data_types as $data_type ) {
+			try {
+				$this->engine->register_data_type( $data_type );
+			} catch ( \Exception $e ) {
+				$this->engine->get_logger()->log( $e->getMessage() );
+			}
+		}
+	}
+
+	/**
+	 * Register data transformers.
+	 *
+	 * @return void
+	 */
+	protected function register_data_transformers() {
+		$data_transformers = array(
+			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Invoice_To_Contact::class,
+		);
+
+		/**
+		 * Filter list of available data transformers for automation steps.
+		 *
+		 * This can be used to add and/or remove data transformers allowed in automations.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $var A list of data transformer classes.
+		 */
+		$data_transformers = apply_filters( 'jpcrm_automation_data_types', $data_transformers );
+
+		foreach ( $data_transformers as $data_transformer ) {
+			try {
+				$this->engine->register_data_transformer( $data_transformer );
+			} catch ( \Exception $e ) {
+				$this->engine->get_logger()->log( $e->getMessage() );
+			}
+		}
 	}
 
 	/**
@@ -57,11 +120,11 @@ final class Automation_Boostrap {
 		/**
 		 * Filter list of available triggers for automations.
 		 *
-		 * This can be used to add and/or remove triggers allowed in CRM
+		 * This can be used to add and/or remove triggers allowed in automations.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string[] $var A list of condition classes.
+		 * @param string[] $var A list of trigger classes.
 		 */
 		$triggers = apply_filters( 'jpcrm_automation_triggers', $triggers );
 
@@ -85,7 +148,7 @@ final class Automation_Boostrap {
 		/**
 		 * Filter list of available conditions for automations.
 		 *
-		 * This can be used to add and/or remove condition allowed in CRM.
+		 * This can be used to add and/or remove condition allowed in automations.
 		 *
 		 * @since $$next-version$$
 		 *

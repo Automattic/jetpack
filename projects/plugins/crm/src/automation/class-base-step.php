@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\CRM\Automation;
 
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
+
 /**
  * Base Step
  *
@@ -71,9 +73,9 @@ abstract class Base_Step implements Step {
 	/**
 	 * Execute the step
 	 *
-	 * @param array $data Data passed from the trigger.
+	 * @param Data_Type_Base $data Data passed from the trigger.
 	 */
-	abstract public function execute( array $data );
+	abstract public function execute( Data_Type_Base $data );
 
 	/**
 	 * Get the slug name of the step
@@ -101,7 +103,7 @@ abstract class Base_Step implements Step {
 	 *
 	 * @return string
 	 */
-	abstract public static function get_type(): string;
+	abstract public static function get_data_type(): string;
 
 	/**
 	 * Get the category of the step

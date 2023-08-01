@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 /**
  * Adds the Delete_Contact class.
@@ -42,12 +44,12 @@ class Delete_Contact extends Base_Action {
 	}
 
 	/**
-	 * Get the type of the step
+	 * Get the data type
 	 *
 	 * @return string
 	 */
-	public static function get_type(): string {
-		return 'contacts';
+	public static function get_data_type(): string {
+		return Data_Type_Contact::get_slug();
 	}
 
 	/**
@@ -71,11 +73,12 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Update the DAL - deleting the given contact.
 	 *
-	 * @param array $contact_data The contact data to be passed into the DAL's delete function.
+	 * @param Data_Type_Base $data An instance of the contact data type.
 	 */
-	public function execute( array $contact_data ) {
+	public function execute( Data_Type_Base $data ) {
 		global $zbs;
 
+		$contact_data              = $data->get_entity();
 		$contact_data_for_deletion = array(
 			'id'          => (int) $contact_data['id'],
 			'saveOrphans' => (bool) $this->attributes['keep_orphans'],

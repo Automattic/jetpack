@@ -43,6 +43,15 @@ class Invoice_Status_Updated extends Base_Trigger {
 	}
 
 	/**
+	 * Get the date type
+	 *
+	 * @return string
+	 */
+	public static function get_data_type(): string {
+		return 'invoice';
+	}
+
+	/**
 	 * Listen to the desired event
 	 */
 	protected function listen_to_event() {
