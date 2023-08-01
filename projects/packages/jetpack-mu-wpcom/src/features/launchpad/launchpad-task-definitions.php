@@ -296,6 +296,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_is_enable_subscribers_modal_visible',
 		),
+		'write_3_posts'                   => array(
+			'get_title'                 => function () {
+				return __( 'Write 3 posts', 'jetpack-mu-wpcom' );
+			},
+			'repetition_count_callback' => 'wpcom_launchpad_get_write_3_posts_repetition_count',
+			'target_repetitions'        => 3,
+		),
 		'manage_subscribers'              => array(
 			'get_title'            => function () {
 				return __( 'Manage your subscribers', 'jetpack-mu-wpcom' );
@@ -531,6 +538,63 @@ function wpcom_track_publish_first_post_task() {
 	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
 	wpcom_mark_launchpad_task_complete_if_active( 'first_post_published' );
 	wpcom_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
+}
+
+/**
+ * Gets the number of published posts that were not created by Headstart.
+ *
+ * @return int
+ */
+function wpcom_launchpad_get_published_non_headstart_posts_count() {
+	// Ensure that Headstart posts don't affect the count
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return 0;
+	}
+
+	// Make sure we don't count any published posts that were created by Headstart.
+	$headstart_posts_filter = array(
+		'post_type'    => 'post',
+		'fields'       => 'ids',
+		'status'       => 'publish',
+		'meta_key'     => '_hs_old_id',
+		'meta_compare' => 'EXISTS',
+	);
+
+	$total_posts_count     = wp_count_posts( 'post' )->publish;
+	$headstart_posts_count = count( get_posts( $headstart_posts_filter ) );
+
+	return $total_posts_count - $headstart_posts_count;
+}
+
+/**
+ * Callback for completing the Write 3 posts task.
+ *
+ * @return void
+ */
+function wpcom_launchpad_track_write_3_posts_task() {
+	// If the task is already completed, don't do anything.
+	if ( wpcom_is_task_option_completed( array( 'id' => 'write_3_posts' ) ) ) {
+		return;
+	}
+
+	$published_non_headstart_posts = wpcom_launchpad_get_published_non_headstart_posts_count();
+
+	if ( $published_non_headstart_posts >= 3 ) {
+		wpcom_mark_launchpad_task_complete( 'write_3_posts' );
+	}
+}
+add_action( 'publish_post', 'wpcom_launchpad_track_write_3_posts_task' );
+
+/**
+ * Callback for getting the number of posts published.
+ *
+ * @param array $task The Task definition.
+ * @return int
+ */
+function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
+	$published_non_headstart_posts = wpcom_launchpad_get_published_non_headstart_posts_count();
+
+	return min( $task['target_repetitions'], $published_non_headstart_posts );
 }
 
 /**
