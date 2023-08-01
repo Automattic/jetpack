@@ -3,7 +3,9 @@
  */
 import { createContext } from '@wordpress/element';
 
-type AiAssistantUiContextProps = {
+export type AiAssistantUiContextProps = {
+	inputValue: string;
+
 	isVisible: boolean;
 
 	popoverProps?: {
@@ -24,6 +26,8 @@ type AiAssistantUiContextProps = {
 			| 'left-end'
 			| 'overlay';
 	};
+
+	setInputValue: ( value: string ) => void;
 
 	show: () => void;
 	hide: () => void;
