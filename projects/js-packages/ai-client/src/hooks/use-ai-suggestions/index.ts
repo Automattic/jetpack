@@ -243,7 +243,10 @@ export default function useAiSuggestions( {
 	 * @returns {Promise<void>} The promise.
 	 */
 	const request = useCallback(
-		async ( promptArg: PromptProp ) => {
+		async (
+			promptArg: PromptProp,
+			options: AskQuestionOptionsArgProps = { ...askQuestionOptions }
+		) => {
 			if ( Array.isArray( promptArg ) && promptArg?.length ) {
 				promptArg.forEach( ( { role, content: promptContent }, i ) =>
 					debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
@@ -256,7 +259,7 @@ export default function useAiSuggestions( {
 			setRequestingState( 'requesting' );
 
 			try {
-				eventSourceRef.current = await askQuestion( promptArg, askQuestionOptions );
+				eventSourceRef.current = await askQuestion( promptArg, options );
 
 				if ( ! eventSourceRef?.current ) {
 					return;
@@ -302,7 +305,7 @@ export default function useAiSuggestions( {
 
 		// Trigger the request.
 		if ( autoRequest ) {
-			request( prompt );
+			request( prompt, askQuestionOptions );
 		}
 
 		return () => {
