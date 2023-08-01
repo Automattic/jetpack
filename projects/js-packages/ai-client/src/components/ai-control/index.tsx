@@ -11,7 +11,7 @@ import classNames from 'classnames';
  * Internal dependencies
  */
 import { aiAssistantIcon } from '../../icons';
-import styles from './style.module.scss';
+import './style.scss';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -61,17 +61,17 @@ export default function AIControl( {
 	const promptUserInputRef = useRef( null );
 
 	return (
-		<div className={ styles.container }>
+		<div className="jetpack-components-ai-control__container">
 			<div
-				className={ classNames( styles[ 'input-wrapper' ], {
-					[ styles[ 'is-opaque' ] ]: isOpaque,
+				className={ classNames( 'jetpack-components-ai-control__wrapper', {
+					'is-opaque': isOpaque,
 				} ) }
 			>
-				<div className={ styles[ 'icon-wrapper' ] }>
+				<div className="jetpack-components-ai-controlton__icon">
 					{ loading ? (
-						<Spinner className={ styles[ 'input-spinner' ] } />
+						<Spinner className="input-spinner" />
 					) : (
-						<Icon className={ styles[ 'input-icon' ] } icon={ aiAssistantIcon } size={ 24 } />
+						<Icon className="input-icon" icon={ aiAssistantIcon } size={ 24 } />
 					) }
 				</div>
 
@@ -79,16 +79,16 @@ export default function AIControl( {
 					value={ value }
 					onChange={ onChange }
 					placeholder={ placeholder }
-					className={ styles.input }
+					className="jetpack-components-ai-control__input"
 					disabled={ loading }
 					ref={ promptUserInputRef }
 				/>
 
-				<div className={ styles.controls }>
-					<div className={ styles.prompt_button_wrapper }>
+				<div className="jetpack-components-ai-control__controls">
+					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 						{ ! loading ? (
 							<Button
-								className={ styles.prompt_button }
+								className="jetpack-components-ai-control__controls-prompt_button"
 								onClick={ () => onSend( value ) }
 								isSmall={ true }
 								disabled={ value?.length }
@@ -99,7 +99,7 @@ export default function AIControl( {
 							</Button>
 						) : (
 							<Button
-								className={ styles.prompt_button }
+								className="jetpack-components-ai-control__controls-prompt_button"
 								onClick={ onStop }
 								isSmall={ true }
 								label={ __( 'Stop request', 'jetpack-ai-client' ) }
@@ -111,9 +111,9 @@ export default function AIControl( {
 					</div>
 
 					{ showAccept && (
-						<div className={ styles.prompt_button_wrapper }>
+						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 							<Button
-								className={ styles.prompt_button }
+								className="jetpack-components-ai-control__controls-prompt_button"
 								onClick={ onAccept }
 								isSmall={ true }
 								label={ acceptLabel }
