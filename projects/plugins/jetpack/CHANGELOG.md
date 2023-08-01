@@ -9,7 +9,7 @@
 - Block editor: add Google Photo integration to Gutenberg's Media Sidebar for Jetpack connected sites. [#32047]
 - Dashboard: update the SEO hide page control from a checkbox to a toggle. [#32059]
 - Donation block: display the default Stripe currency in the Donation block and add a "check" icon next to the selected currency in the currency dropdown [#31795]
-- Dashboard: update the likes and sharing button controls in the Jetpack sidebarffrom checkboxes to toggles. [#32060]
+- Dashboard: update the likes and sharing button controls in the Jetpack sidebar from checkboxes to toggles. [#32060]
 - Paywall block: update the block styles. [#32101]
 
 ### Bug fixes
