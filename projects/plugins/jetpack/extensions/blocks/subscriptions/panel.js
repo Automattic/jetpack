@@ -33,6 +33,8 @@ import { name } from './';
 
 import './panel.scss';
 
+const newsletterIcon = <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />;
+
 const SubscriptionsPanelPlaceholder = ( { children } ) => {
 	return (
 		<Flex align="center" gap={ 4 } direction="column" style={ { alignItems: 'center' } }>
@@ -68,8 +70,8 @@ function NewsletterEditorSettingsPanel( {
 	return (
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
-			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			title={ __( 'Send email to', 'jetpack' ) }
+			icon={ newsletterIcon }
 		>
 			<NewsletterAccessDocumentSettings
 				accessLevel={ accessLevel }
@@ -89,31 +91,33 @@ const NewsletterDisabledNotice = () => (
 	</Notice>
 );
 
-const NewsletterDisabledPanels = () => (
-	<>
-		<PluginDocumentSettingPanel
-			className="jetpack-subscribe-newsletters-panel"
-			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
-		>
-			<NewsletterDisabledNotice />
-		</PluginDocumentSettingPanel>
-		<PluginPrePublishPanel
-			className="jetpack-subscribe-newsletters-panel"
-			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
-		>
-			<NewsletterDisabledNotice />
-		</PluginPrePublishPanel>
-		<PluginPostPublishPanel
-			className="jetpack-subscribe-newsletters-panel"
-			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
-		>
-			<NewsletterDisabledNotice />
-		</PluginPostPublishPanel>
-	</>
-);
+const NewsletterDisabledPanels = () => {
+	return (
+		<>
+			<PluginDocumentSettingPanel
+				className="jetpack-subscribe-newsletters-panel"
+				title={ __( 'Send newsletter email to', 'jetpack' ) }
+				icon={ newsletterIcon }
+			>
+				<NewsletterDisabledNotice />
+			</PluginDocumentSettingPanel>
+			<PluginPrePublishPanel
+				className="jetpack-subscribe-newsletters-panel"
+				title={ __( 'Send newsletter email to', 'jetpack' ) }
+				icon={ newsletterIcon }
+			>
+				<NewsletterDisabledNotice />
+			</PluginPrePublishPanel>
+			<PluginPostPublishPanel
+				className="jetpack-subscribe-newsletters-panel"
+				title={ __( 'Sent email to', 'jetpack' ) }
+				icon={ newsletterIcon }
+			>
+				<NewsletterDisabledNotice />
+			</PluginPostPublishPanel>
+		</>
+	);
+};
 
 function NewsletterPrePublishSettingsPanel( {
 	accessLevel,
@@ -153,7 +157,7 @@ function NewsletterPrePublishSettingsPanel( {
 					) }
 				</>
 			}
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			icon={ newsletterIcon }
 		>
 			{ isModuleActive && (
 				<>
@@ -221,21 +225,30 @@ function NewsletterPostPublishSettingsPanel( {
 
 	const reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
 
-	let subscriberType = __( 'subscribers', 'jetpack' );
-	if ( accessLevel === accessOptions.paid_subscribers.key ) {
-		subscriberType = __( 'paid subscribers', 'jetpack' );
-	}
-
-	const numberOfSubscribersText = sprintf(
-		/* translators: %1s is the post name,  %2s is the number of subscribers in numerical format, %3s Options are paid subscribers or subscribers */
+	const sentToPaidSubscribers = sprintf(
+		/* translators: %1s is the post name,  %2s is the number of subscribers in numerical format */
 		__(
-			'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s %3$s</strong>.',
+			'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s paid subscribers</strong>.',
 			'jetpack'
 		),
 		postName,
-		reachCount,
-		subscriberType
+		reachCount
 	);
+
+	const sentToFreeSubscribers = sprintf(
+		/* translators: %1s is the post name,  %2s is the number of subscribers in numerical format */
+		__(
+			'<postPublishedLink>%1$s</postPublishedLink> was sent to <strong>%2$s subscribers</strong>.',
+			'jetpack'
+		),
+		postName,
+		reachCount
+	);
+
+	const sentConfirmation =
+		accessLevel === accessOptions.paid_subscribers.key
+			? sentToPaidSubscribers
+			: sentToFreeSubscribers;
 
 	return (
 		<>
@@ -252,11 +265,11 @@ function NewsletterPostPublishSettingsPanel( {
 					</>
 				}
 				className="jetpack-subscribe-newsletters-panel jetpack-subscribe-post-publish-panel"
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				icon={ newsletterIcon }
 			>
 				{ ! showMisconfigurationWarning && (
 					<Notice className="jetpack-subscribe-post-publish-panel__notice" isDismissible={ false }>
-						{ createInterpolateElement( numberOfSubscribersText, {
+						{ createInterpolateElement( sentConfirmation, {
 							strong: <strong />,
 							postPublishedLink: <Link href={ postPublishedLink } />,
 						} ) }
@@ -269,7 +282,7 @@ function NewsletterPostPublishSettingsPanel( {
 					initialOpen
 					className="jetpack-subscribe-newsletters-panel paid-newsletters-post-publish-panel"
 					title={ __( 'Set up a paid newsletter', 'jetpack' ) }
-					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+					icon={ newsletterIcon }
 				>
 					<PanelRow>
 						<p>

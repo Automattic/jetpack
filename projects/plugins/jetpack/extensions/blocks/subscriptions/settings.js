@@ -84,7 +84,7 @@ export function NewsletterNotice( {
 
 	let numberOfSubscribersText = sprintf(
 		/* translators: %1s is the number of subscribers in numerical format, %2s options are paid subscribers or subscribers */
-		__( 'This will also be sent to <br/><strong>%1$s %2$s</strong>.', 'jetpack' ),
+		__( 'This will be sent to <br/><strong>%1$s %2$s</strong>.', 'jetpack' ),
 		reachCount,
 		subscriberType
 	);
@@ -178,7 +178,7 @@ function NewsletterAccessRadioButtons( {
 
 	return (
 		<fieldset className="editor-post-visibility__fieldset">
-			<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
+			<VisuallyHidden as="legend">{ __( 'Send email to', 'jetpack' ) } </VisuallyHidden>
 			{ Object.keys( accessOptions ).map( key => (
 				<div className="editor-post-visibility__choice" key={ key }>
 					<input

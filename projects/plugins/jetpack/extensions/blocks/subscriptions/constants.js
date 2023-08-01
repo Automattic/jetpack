@@ -21,11 +21,6 @@ export const DEFAULT_FONTSIZE_VALUE = '16px';
 export const META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS = '_jetpack_newsletter_access';
 
 export const accessOptions = {
-	everybody: {
-		key: 'everybody',
-		label: __( 'Everyone', 'jetpack' ),
-		panelHeading: __( 'Everyone', 'jetpack' ),
-	},
 	subscribers: {
 		key: 'subscribers',
 		label: __( 'Anyone subscribed', 'jetpack' ),
@@ -35,5 +30,12 @@ export const accessOptions = {
 		key: 'paid_subscribers',
 		label: __( 'Paid subscribers only', 'jetpack' ),
 		panelHeading: __( 'Paid subscribers', 'jetpack' ),
+	},
+	// This is called "everybody" because everyone can access the post on the site,
+	// but label says "No one" to indicate that no subscriber will receive the email.
+	everybody: {
+		key: 'everybody',
+		label: __( 'No one', 'jetpack' ),
+		panelHeading: __( 'No one', 'jetpack' ),
 	},
 };
