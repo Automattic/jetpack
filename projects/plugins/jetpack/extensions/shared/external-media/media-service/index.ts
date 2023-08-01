@@ -1,3 +1,4 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -142,11 +143,19 @@ const buildMediaCategory = (
 			} ),
 			method: 'GET',
 		} )
-			.then( ( response: WpcomMediaResponse ) =>
-				response.media
+			.then( ( response: WpcomMediaResponse ) => {
+				const mediaItems = response.media
 					.filter( wpcomMediaItem => wpcomMediaItem.type === WpcomMediaItemType.Image )
-					.map( mapWpcomMediaToMedia )
-			)
+					.map( mapWpcomMediaToMedia );
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_editor_media_inserter_external_source', {
+					mediaSource: source.toString(),
+					results: mediaItems.length,
+					search:
+						mediaCategorySearch?.search === '' ? defaultSearch.search : mediaCategorySearch.search,
+				} );
+
+				return mediaItems;
+			} )
 			// Null object pattern, we don't want to break if the API fails.
 			.catch( () => [] ),
 	getReportUrl: null,

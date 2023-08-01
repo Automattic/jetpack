@@ -4,7 +4,7 @@
 import { SVG, Path } from '@wordpress/components';
 import React from 'react';
 
-const speakToneIcon = (
+const speakTone = (
 	<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<Path
 			fillRule="evenodd"
@@ -21,4 +21,4 @@ const speakToneIcon = (
 	</SVG>
 );
 
-export default speakToneIcon;
+export default speakTone;

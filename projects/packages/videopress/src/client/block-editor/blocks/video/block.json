@@ -8,6 +8,7 @@
 	"icon": "smiley",
 	"description": "Embed a video from your media library or upload a new one with VideoPress.",
 	"supports": {
+		"html": false,
 		"align": true,
 		"anchor": true,
 		"spacing": {

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added track events to monitor which media sources get inserted through the Media Inserter
