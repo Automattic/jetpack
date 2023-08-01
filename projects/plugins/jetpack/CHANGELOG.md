@@ -2,10 +2,12 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.4-beta - 2023-07-25
+## 12.5-a.0 - unreleased
 
+This is an alpha version! The changes listed here are not final.
+
+## 12.4 - 2023-08-01
 ### Enhancements
-
 - Added Pexels integrations to the Media Sidebar of the block editor. [#31914]
 - AI Assistant: improved the upgrade prompt logic when requesting suggestions. [#31949]
 - AI Assistant: introduce sidebar and proofread components. [#32001]
@@ -16,21 +18,21 @@
 - Newsletter: Only display the "NL access" column if we have published one paid-newsletter. [#31960]
 
 ### Improved compatibility
-
 - General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
 
 ### Bug fixes
-
+- Ficx issue with Paid-content block on self-hosted env by enabling sub-blocks [#32180]
 - Payments Block: update link to support documentation. [#31986]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-
 - Added a "to test" draft for Jetpack 12.4. [#32048]
+- Added things to the to-test file to amend for the latest release. [#32054]
 - AI Assistant: Connect logic with get feedback sidebar. [#32018]
 - AI Assistant: import and use askQuestion() from AI Client pkg. [#31964]
 - AI Assistant: import and use SuggestionsEventSource() from AI Client package. [#31944]
 - AI Assistant: use AI Client package to get jwt token. [#31924]
 - AI Extension: remove multiple-blocks-edition obsolete implementation. [#32023]
+- Blaze: add missing Advertising menu in Calypso, for self-hosted sites. [#32109]
 - Comments: add filter allowing customizing the heading tag used in comment reply title. [#31930]
 - Dashboard: only display Earn section in search results when appropriate. [#31937]
 - Fix some `require` paths to not uselessly call `plugin_basename()`. [#31997]
