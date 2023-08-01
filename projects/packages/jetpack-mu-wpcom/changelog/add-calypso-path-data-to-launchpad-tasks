@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Launchpad: add calypso_url property to tasks where we know the Calypso page we want to show
