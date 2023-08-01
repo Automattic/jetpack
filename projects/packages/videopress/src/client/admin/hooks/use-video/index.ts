@@ -41,7 +41,7 @@ export default function useVideo( id: number | string, addAtEnd = false ) {
 	return {
 		// Data
 		data: {
-			privacySetting: VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PUBLIC ) as 0 | 1 | 2,
+			privacySetting: VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PUBLIC ) as 0 | 1 | 2 | 3,
 			...videoData,
 		},
 

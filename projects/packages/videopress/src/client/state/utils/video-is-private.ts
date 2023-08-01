@@ -6,6 +6,7 @@ import {
 	VIDEO_PRIVACY_LEVELS,
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
+	VIDEO_PRIVACY_LEVEL_GATED,
 } from '../constants';
 
 /**
@@ -25,6 +26,9 @@ export const videoIsPrivate = (
 	}
 
 	if ( VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
+		return true;
+	}
+	if ( VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_GATED ) {
 		return true;
 	}
 
