@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: use AI Client suggestion hook. Clean the internal hook.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix tab switching by adding a value handler for the Amount component.
