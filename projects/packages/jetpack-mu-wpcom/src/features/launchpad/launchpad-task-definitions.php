@@ -373,6 +373,16 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
 		),
+		'connect_social_media'            => array(
+			'id_map'               => 'drive_traffic',
+			'get_title'            => function () {
+				return __( 'Connect your social media accounts', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/marketing/connections/' . $data['site_slug_encoded'];
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
