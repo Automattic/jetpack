@@ -3,22 +3,27 @@
  */
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { ToolbarButton } from '@wordpress/components';
+import { useContext } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
+/*
+ * Internal dependencies
+ */
+import { AiAssistantUiContext } from '../../ui-handler/context';
 
 export default function AiAssistantToolbarButton(): React.ReactElement {
-	const onToggle = () => console.log( 'toggle!' ); // eslint-disable-line no-console
+	const { isVisible, toggle } = useContext( AiAssistantUiContext );
 
 	return (
 		<ToolbarButton
 			showTooltip
-			onClick={ onToggle }
+			onClick={ toggle }
 			aria-haspopup="true"
 			aria-expanded={ true }
 			label={ __( 'AI Assistant', 'jetpack' ) }
 			icon={ aiAssistantIcon }
 			disabled={ false }
-			isActive={ false }
+			isActive={ isVisible }
 		/>
 	);
 }
