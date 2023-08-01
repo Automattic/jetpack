@@ -25,14 +25,14 @@ Invokes the custom hook with the provided options.
 - `askQuestionOptions: AskQuestionOptionsArgProps` (optional): [Options for the askQuestion](../../ask-question/Readme.md#ask-question-parameters) function.
 - `onSuggestion: ( suggestion: string ) => void` (optional): A callback function that gets triggered when a suggestion is received.
 - `onDone: ( content: string ) => void` (optional): A callback function that gets triggered when the process is complete.
-- `onError: ( error: SuggestionErrorProps ) => void` (optional): A callback function that gets triggered when an error occurs.
+- `onError: ( error: RequestingErrorProps ) => void` (optional): A callback function that gets triggered when an error occurs.
 
 #### Returns
 
 An object with the following properties:
 
 - `suggestion: string`: The obtained suggestion.
-- `error: SuggestionErrorProps | undefined`: An error object if an error occurs.
+- `error: RequestingErrorProps | undefined`: An error object if an error occurs.
 - `requestingState: RequestingStateProp`: The state of the request.
 - `eventSource: SuggestionsEventSource | undefined`: The event source of the request.
 - `request: ( prompt: Array< PromptItemProps > ) => Promise< void >`: The request handler.
@@ -44,7 +44,7 @@ An object containing the following properties:
 - `role: 'system' | 'user' | 'assistant'`: The role of the item in the prompt.
 - `content: string`: The content of the prompt.
 
-### `SuggestionErrorProps`
+### `RequestingErrorProps`
 
 An object containing the following properties:
 

@@ -4,8 +4,8 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
+use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted;
-use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_New;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Updated;
 use WorDBless\BaseTestCase;
@@ -95,11 +95,11 @@ class Invoice_Trigger_Test extends BaseTestCase {
 	/**
 	 * @testdox Test the invoice new trigger executes the workflow with an action
 	 */
-	public function test_invoice_new_trigger() {
+	public function test_invoice_created_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/invoice_new' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'jpcrm/invoice_created' );
 
-		$trigger = new Invoice_New();
+		$trigger = new Invoice_Created();
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
@@ -107,13 +107,13 @@ class Invoice_Trigger_Test extends BaseTestCase {
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
-		// Init the Invoice_New trigger.
+		// Init the Invoice_Created trigger.
 		$trigger->init( $workflow );
 
 		// Fake event data.
 		$invoice_data = $this->automation_faker->invoice_data();
 
-		// We expect the workflow to be executed on invoice_new event with the invoice data
+		// We expect the workflow to be executed on invoice_created event with the invoice data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
@@ -121,8 +121,8 @@ class Invoice_Trigger_Test extends BaseTestCase {
 			$this->equalTo( $invoice_data )
 		);
 
-		// Run the invoice_new action.
-		do_action( 'jpcrm_automation_invoice_new', $invoice_data );
+		// Run the invoice_created action.
+		do_action( 'jpcrm_automation_invoice_created', $invoice_data );
 	}
 
 	/**

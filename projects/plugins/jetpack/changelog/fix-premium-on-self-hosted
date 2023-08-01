@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Ficx issue with Paid-content block on self-hosted env by enabling sub-blocks

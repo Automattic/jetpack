@@ -282,6 +282,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		),
+
 		'customize_welcome_message'       => array(
 			'get_title'            => function () {
 				return __( 'Customize welcome message', 'jetpack-mu-wpcom' );
@@ -303,6 +304,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback'       => 'wpcom_launchpad_are_newsletter_subscriber_counts_available',
 			'target_repetitions'        => 10,
 			'repetition_count_callback' => 'wpcom_launchpad_get_newsletter_subscriber_count',
+		),
+		'manage_subscribers'              => array(
+			'get_title'            => function () {
+				return __( 'Manage your subscribers', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
 		),
 	);
 
