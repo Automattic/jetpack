@@ -3,7 +3,6 @@ import {
 	PluginsPage,
 	DashboardPage,
 	MyJetpackPage,
-	MyJetpackConnectionPage,
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
@@ -43,7 +42,7 @@ test( 'Connect button is displayed on dashboard page', async ( { page } ) => {
 	).toBeTruthy();
 } );
 
-test( 'Connect button is displayed on My Jetpack page', async ( { page } ) => {
+test( 'Connect Notice is displayed on My Jetpack page', async ( { page } ) => {
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	const myJetpackPage = await MyJetpackPage.init( page );
@@ -51,13 +50,28 @@ test( 'Connect button is displayed on My Jetpack page', async ( { page } ) => {
 		await myJetpackPage.isConnectNoticeVisible(),
 		'My Jetpack Connection Notice should be visible'
 	).toBeTruthy();
+} );
 
+test( 'Clicking connect notice CTA loads my-jetpack#/connection page and displays connect button', async ( {
+	page,
+} ) => {
+	await ( await Sidebar.init( page ) ).selectJetpack();
+
+	const myJetpackPage = await MyJetpackPage.init( page );
 	await myJetpackPage.clickNoticeConnectButton();
 
-	const myJetpackConnectionPage = await MyJetpackConnectionPage.init( page );
+	expect(
+		await myJetpackPage.isMyJetpackConnectionRoute(),
+		'My Jetpack Connection screen should be visible'
+	).toBeTruthy();
 
 	expect(
-		await myJetpackConnectionPage.isConnectScreenVisible(),
+		await myJetpackPage.isConnectScreenVisible(),
+		'My Jetpack Connection screen should be visible'
+	).toBeTruthy();
+
+	expect(
+		await myJetpackPage.isConnectScreenConnectButtonVisible(),
 		'My Jetpack Connection screen should be visible'
 	).toBeTruthy();
 } );

@@ -8,29 +8,43 @@ export default class MyJetpackPage extends WpPage {
 		super( page, {
 			expectedSelectors: [ '#my-jetpack-container' ],
 			url,
-			explicitWaitMS: 30000,
 		} );
 	}
 
 	async isConnectNoticeVisible() {
 		logger.step( 'Checking if connection notice is visible' );
-		const selector = '.components-notice button.components-notice__action';
+		const selector = '.components-notice';
+
 		return await this.isElementVisible( selector );
 	}
 
 	async clickNoticeConnectButton() {
 		logger.step( 'Clicking the connection notice button' );
 		const buttonSelector = '.components-notice button.components-notice__action';
-		await this.click( buttonSelector );
+
+		return await this.click( buttonSelector );
+	}
+
+	async isMyJetpackConnectionRoute() {
+		logger.step( 'Checking if the current URL is the My Jetpack Connection page' );
+		const myJetpackConnectionPageRoute = '**/admin.php?page=my-jetpack#/connection';
+		await this.page.waitForURL( myJetpackConnectionPageRoute );
+
+		return this.page.url().endsWith( '/admin.php?page=my-jetpack#/connection' );
 	}
 
 	async isConnectScreenVisible() {
-		logger.step( 'Checking if Connect screen is visible' );
-
+		logger.step( 'Checking if the connection screen is visible' );
 		const containerSelector = '.jp-connection__connect-screen';
+		await this.waitForElementToBeVisible( containerSelector );
+
+		return await this.isElementVisible( containerSelector );
+	}
+
+	async isConnectScreenConnectButtonVisible() {
+		logger.step( 'Checking if the connect screen Connect Button is visible' );
 		const connectButtonSelector = '.jp-connection__connect-screen button.jp-action-button--button';
 
-		await this.waitForElementToBeVisible( containerSelector );
 		return await this.isElementVisible( connectButtonSelector );
 	}
 }

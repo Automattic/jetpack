@@ -12,6 +12,13 @@ export default class Sidebar extends WpPage {
 		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
 	}
 
+	async selectJetpackSubMenuItem() {
+		const jetpackMenuSelector = '#toplevel_page_jetpack';
+		const menuItemSelector = '#toplevel_page_jetpack .wp-submenu a[href$="admin.php?page=jetpack"]';
+
+		return await this._selectMenuItem( jetpackMenuSelector, menuItemSelector );
+	}
+
 	async selectJetpackBoost() {
 		const jetpackMenuSelector = '#toplevel_page_jetpack';
 		const menuItemSelector = '#toplevel_page_jetpack a[href$="jetpack-boost"]';
