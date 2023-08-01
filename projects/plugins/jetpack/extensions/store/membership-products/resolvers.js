@@ -1,7 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
-import { accessOptions } from '../../blocks/subscriptions/constants';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
 import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
 import executionLock from '../../shared/execution-lock';
@@ -16,11 +15,9 @@ import {
 	setSocialFollowerCount,
 	setEmailSubscriberCount,
 	setPaidSubscriberCount,
-	setShowMisconfigurationWarning,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
-import { store as membershipProductsStore } from './';
 
 const EXECUTION_KEY = 'membership-products-resolver-getProducts';
 const SUBSCRIBER_COUNT_EXECUTION_KEY = 'membership-products-resolver-getSubscriberCounts';
@@ -200,24 +197,4 @@ export const getSubscriberCounts =
 			onError( error.message, registry );
 		}
 		executionLock.release( lock );
-	};
-
-export const getShowMisconfigurationWarning =
-	() =>
-	async ( { dispatch, registry } ) => {
-		// Can be “private”, “password”, or “public”.
-		const {
-			accessLevel,
-			postVisibility,
-		} = () => {
-			return {
-				accessLevel: registry.select( membershipProductsStore ).getAccessLevel(),
-				postVisibility: registry.select( editorStore ).getEditedPostVisibility(),
-			};
-		};
-
-		const showMisconfigurationWarning =
-			postVisibility !== 'public' && accessLevel !== accessOptions.everybody.key;
-
-		dispatch( setShowMisconfigurationWarning( showMisconfigurationWarning ) );
 	};

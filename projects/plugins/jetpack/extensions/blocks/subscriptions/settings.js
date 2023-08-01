@@ -32,7 +32,7 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 	}
 }
 
-export function NewsletterNotice( accessLevel ) {
+export function NewsletterNotice( accessLevel, showMisconfigurationWarning ) {
 	const { hasPostBeenPublished, hasPostBeenScheduled } = useSelect( select => {
 		const { isCurrentPostPublished, isCurrentPostScheduled } = select( editorStore );
 
@@ -42,16 +42,13 @@ export function NewsletterNotice( accessLevel ) {
 		};
 	} );
 
-	const { emailSubscribers, paidSubscribers, showMisconfigurationWarning } = useSelect( select => {
-		const { getEmailSubscriberCount, getPaidSubscriberCount, getShowMisconfigurationWarning } =
-			select( membershipProductsStore );
+	const emailSubscribers = useSelect( select =>
+		select( membershipProductsStore ).getEmailSubscriberCount()
+	);
 
-		return {
-			emailSubscribers: getEmailSubscriberCount(),
-			paidSubscribers: getPaidSubscriberCount(),
-			showMisconfigurationWarning: getShowMisconfigurationWarning(),
-		};
-	} );
+	const paidSubscribers = useSelect( select =>
+		select( membershipProductsStore ).getPaidSubscriberCount()
+	);
 
 	// If there is a misconfiguration, we do not show the NewsletterNotice
 	if ( showMisconfigurationWarning ) {
@@ -227,10 +224,11 @@ function NewsletterAccessRadioButtons( {
 	);
 }
 
-export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } ) {
-	const showMisconfigurationWarning = useSelect( select => {
-		select( 'jetpack/membership-products' ).getShowMisconfigurationWarning();
-	} );
+export function NewsletterAccessDocumentSettings( {
+	accessLevel,
+	setPostMeta,
+	showMisconfigurationWarning,
+} ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
 		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
@@ -327,6 +325,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel, setPostMeta }
 										accessLevel={ _accessLevel }
 										stripeConnectUrl={ stripeConnectUrl }
 										hasNewsletterPlans={ hasNewsletterPlans }
+										showMisconfigurationWarning={ showMisconfigurationWarning }
 									/>
 								</FlexBlock>
 							</>
