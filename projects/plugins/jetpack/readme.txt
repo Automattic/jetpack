@@ -324,6 +324,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Contact Forms: avoid fatal errors when exporting form data to CSV.
 - Contact Forms: fix Forms dropdown required validation.
 - Dashboard: fix accessibility issues in the footer area.
+- Fix issue with Paid-content block by enabling sub-blocks.
 - Payments Block: update link to support documentation.
 - Related Posts: do not display related posts in emails and outside of WordPress context.
 - Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard.
