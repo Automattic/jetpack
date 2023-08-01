@@ -2,6 +2,11 @@
 
 set -eo pipefail
 
+# Conditionally allow WooCommerce/Jetpack integration tests to run.
+if [[ -d "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/woocommerce/tests" ]]; then
+	export JETPACK_TEST_WOOCOMMERCE=1
+fi
+
 echo "::group::Jetpack tests"
 phpunit
 echo "::endgroup::"

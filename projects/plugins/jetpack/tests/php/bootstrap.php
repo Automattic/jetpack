@@ -99,7 +99,7 @@ function _manually_install_woocommerce() {
 	// clean existing install first
 	define( 'WP_UNINSTALL_PLUGIN', true );
 	define( 'WC_REMOVE_ALL_DATA', true );
-	include JETPACK_WOOCOMMERCE_INSTALL_DIR . '/uninstall.php';
+	require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/uninstall.php';
 
 	WC_Install::install();
 

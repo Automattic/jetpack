@@ -129,6 +129,28 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	echo "::endgroup::"
 done
 
+# Install WooCommerce plugin used for some Jetpack integration tests.
+# Todo: check the require paths being used by the Woo tests, they may need updating since the Woo repo structure changed.
+# Todo: what to check so this only runs when Jetpack will be tested?
+# Todo: what PHP_VERSION variable is considered "default"?
+if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "8.2" ]]; then
+	echo "::group::Installing plugin WooCommerce into WordPress"
+	cd "/tmp"
+	git clone --depth=1 https://github.com/woocommerce/woocommerce.git
+	cd "/tmp/woocommerce"
+
+	# Todo: figure out how to build Woo or an alternative.
+	start_time=$(date +%s)
+	pnpm run --filter=woocommerce build # Will fail due to pnpm/node version mismatch, also will want to see how long build takes.
+	end_time=$(date +%s)
+	elapsed_time=$((end_time - start_time))
+	echo "Elapsed install time: $elapsed_time seconds"
+	# Copy the built Woo plugin with included '/tests' dir to WordPress.
+	cp -r "/tmp/woocommerce/plugins/woocommerce" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins"
+	cd "$BASE"
+	echo "::endgroup::"
+fi
+
 cd "/tmp/wordpress-$WP_BRANCH"
 
 cp wp-tests-config-sample.php wp-tests-config.php
