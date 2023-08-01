@@ -13,6 +13,9 @@ import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './conte
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
+		// AI Assistant input value
+		const [ inputValue, setInputValue ] = useState( '' );
+
 		// AI Assistant component visibility
 		const [ isVisible, setAssistantVisibility ] = useState( false );
 		const [ popoverProps, setPopoverProps ] = useState<
@@ -52,16 +55,17 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
 			() => ( {
+				inputValue,
 				isVisible,
 				popoverProps,
 
+				setInputValue,
 				show,
 				hide,
 				toggle,
-
 				setPopoverProps,
 			} ),
-			[ isVisible, popoverProps, show, hide, toggle ]
+			[ inputValue, isVisible, popoverProps, show, hide, toggle ]
 		);
 
 		/*
