@@ -334,7 +334,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/reading/' . $data['site_slug_encoded'] . ' #newsletter-settings';
+				return '/settings/reading/' . $data['site_slug_encoded'] . '#newsletter-settings';
 			},
 		),
 		'enable_subscribers_modal'        => array(
