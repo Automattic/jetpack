@@ -23,4 +23,4 @@ export type PromptMessagesProp = Array< PromptItemProps >;
 
 export type PromptProp = PromptMessagesProp | string;
 
-export type { useAiContextOptions } from './data-flow/use-ai-context';
+export type { UseAiContextOptions } from './data-flow/use-ai-context';
