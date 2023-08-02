@@ -32,8 +32,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// AI Assistant component visibility
 		const [ isVisible, setAssistantVisibility ] = useState( false );
 
+		// AI Assistant component is-fixed state
+		const [ isFixed, setAssistantFixed ] = useState( false );
+
 		// AI Assistant width
-		const [ width, setWidth ] = useState( 400 );
+		const [ width, setWidth ] = useState< number | string >( 400 );
 
 		// AI Assistant popover props
 		const [ popoverProps, setPopoverProps ] = useState<
@@ -114,6 +117,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
+			// Do not anchor the popover if the toolbar is fixed.
+			if ( isFixed ) {
+				return setWidth( '100%' ); // ensure to use the full width.
+			}
+
 			const idAttribute = `block-${ clientId }`;
 
 			/*
@@ -131,9 +139,15 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
-			setPopoverProps( prev => ( { ...prev, anchor: blockDomElement } ) );
+			setPopoverProps( prev => ( {
+				...prev,
+				anchor: blockDomElement,
+				placement: 'bottom-start',
+				offset: 12,
+			} ) );
+
 			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
-		}, [ clientId ] );
+		}, [ clientId, isFixed ] );
 
 		// Show/hide the assistant based on the block selection.
 		useEffect( () => {
@@ -149,6 +163,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
+			// Do not observe the anchor resize if the toolbar is fixed.
+			if ( isFixed ) {
+				return;
+			}
+
 			const resizeObserver = new ResizeObserver( () => {
 				setWidth( popoverProps.anchor?.getBoundingClientRect?.()?.width );
 			} );
@@ -158,13 +177,14 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			return () => {
 				resizeObserver.disconnect();
 			};
-		}, [ popoverProps.anchor ] );
+		}, [ popoverProps.anchor, isFixed ] );
 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
 			() => ( {
 				inputValue,
 				isVisible,
+				isFixed,
 				popoverProps,
 				width,
 
@@ -172,9 +192,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				show,
 				hide,
 				toggle,
+				setAssistantFixed,
 				setPopoverProps,
 			} ),
-			[ inputValue, isVisible, popoverProps, width, show, hide, toggle ]
+			[ inputValue, isVisible, isFixed, popoverProps, width, show, hide, toggle ]
 		);
 
 		const setContent = useCallback(

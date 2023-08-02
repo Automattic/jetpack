@@ -5,19 +5,21 @@ import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
 import { KeyboardShortcuts, Popover } from '@wordpress/components';
 import { select } from '@wordpress/data';
-import { useContext, useCallback } from '@wordpress/element';
+import { useContext, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { useEffect } from 'react';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 /*
  * Types
  */
 import type React from 'react';
+
+import './style.scss';
 
 type AiAssistantPopoverProps = {
 	clientId?: string;
@@ -63,7 +65,7 @@ function getSerializedContentFromBlock( clientId: string ): string {
 export const AiAssistantPopover = ( {
 	clientId = '',
 }: AiAssistantPopoverProps ): React.ReactNode => {
-	const { isVisible, hide, toggle, popoverProps, inputValue, setInputValue, width } =
+	const { isVisible, isFixed, hide, toggle, popoverProps, inputValue, setInputValue, width } =
 		useContext( AiAssistantUiContext );
 
 	const { requestSuggestion, requestingState, eventSource } = useAiContext();
@@ -110,13 +112,21 @@ export const AiAssistantPopover = ( {
 	}
 
 	return (
-		<Popover onClose={ hide } { ...popoverProps } animate={ false }>
+		<Popover
+			onClose={ hide }
+			{ ...popoverProps }
+			animate={ false }
+			className={ classNames( 'jetpack-ai-assistant__popover', {
+				'is-fixed': isFixed,
+			} ) }
+		>
 			<KeyboardShortcuts
 				bindGlobal
 				shortcuts={ {
 					'mod+/': toggle,
 				} }
 			/>
+
 			<div style={ { width } }>
 				<AIControl
 					loading={ isLoading }
