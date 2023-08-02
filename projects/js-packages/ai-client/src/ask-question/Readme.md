@@ -11,7 +11,7 @@ function askQuestion(
 ): Promise< SuggestionsEventSource >
 ```
 
-## Parameters
+<h2 id="ask-question-parameters">Parameters</h2>
 
 - `question` (**string** | **PromptItemProps[]**):
     - The question to ask. 

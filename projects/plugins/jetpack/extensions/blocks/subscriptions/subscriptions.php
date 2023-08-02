@@ -97,8 +97,8 @@ function register_block() {
 		}
 	);
 
-	// Hide the content
-	add_action( 'the_content', __NAMESPACE__ . '\maybe_get_locked_content' );
+	// Hide the content – Priority 8 makes it run before do_blocks gets called for the content
+	add_filter( 'the_content', __NAMESPACE__ . '\add_paywall', 8 );
 
 	// Close comments on the front-end
 	add_filter( 'comments_open', __NAMESPACE__ . '\maybe_close_comments', 10, 2 );
@@ -752,7 +752,8 @@ function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
  *
  * @return string
  */
-function maybe_get_locked_content( $the_content ) {
+function add_paywall( $the_content ) {
+	$block_name = 'jetpack/paywall';
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 	if ( Jetpack_Memberships::user_can_view_post() ) {
@@ -760,7 +761,13 @@ function maybe_get_locked_content( $the_content ) {
 	}
 
 	$post_access_level = Jetpack_Memberships::get_post_access_level();
-	return get_locked_content_placeholder_text( $post_access_level );
+	$paywalled_content = get_paywall_blocks( $post_access_level );
+
+	if ( has_block( $block_name ) ) {
+		$paywalled_content = strstr( $the_content, '<!-- wp:' . $block_name . ' /-->', true ) . $paywalled_content;
+	}
+
+	return $paywalled_content;
 }
 
 /**
@@ -805,7 +812,7 @@ function maybe_gate_existing_comments( $comment ) {
  * @param string $newsletter_access_level The newsletter access level.
  * @return string
  */
-function get_locked_content_placeholder_text( $newsletter_access_level ) {
+function get_paywall_blocks( $newsletter_access_level ) {
 	// Default to subscribers
 	$access_level = __( 'subscribers', 'jetpack' );
 
@@ -817,8 +824,7 @@ function get_locked_content_placeholder_text( $newsletter_access_level ) {
 		$access_level = __( 'paid subscribers', 'jetpack' );
 	}
 
-	return do_blocks(
-		'<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->
+	return '<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->
 			<div class="wp-block-group has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center","style":{"typography":{"fontSize":"24px"},"spacing":{"margin":{"bottom":"var:preset|spacing|60"}}}} -->
 			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' .
 
@@ -830,6 +836,5 @@ function get_locked_content_placeholder_text( $newsletter_access_level ) {
 
 			<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
 			</div>
-		<!-- /wp:group -->'
-	);
+		<!-- /wp:group -->';
 }
