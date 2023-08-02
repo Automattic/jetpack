@@ -247,6 +247,7 @@ function getJetpackFormCustomPrompt( {
 - You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature.
 - Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
 - DO NOT add any addtional feedback to the "user", just generate the requested block structure.
+- Always add, at the end, exactly one jetpack/button for the form submission. Forms require one button to be valid.
 
 - Use syntax templates for blocks as follows:
 	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
@@ -274,6 +275,7 @@ function getJetpackFormCustomPrompt( {
 Strong requirements:
 - Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
 - DO NOT add any addtional feedback to the "user", just generate the requested block structure.
+- Always add, at the end, exactly one jetpack/button for the form submission. Forms require one button to be valid.
 - Use syntax templates for blocks as follows:
 	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
 	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
