@@ -7,12 +7,20 @@ import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect } from '@wordpress/element';
+import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
 import { AiAssistantPopover } from '../components/ai-assistant-popover';
 import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
+/**
+ * Types
+ */
+import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
+
+// An identifier to use on the extension error notices,
+const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
@@ -72,6 +80,24 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const selectFormBlock = useCallback( () => {
 			dispatch( 'core/block-editor' ).selectBlock( props.clientId );
 		}, [ props.clientId ] );
+
+		const { createNotice } = useDispatch( noticesStore );
+
+		/**
+		 * Show the error notice
+		 *
+		 * @param {RequestingErrorProps} suggestionError
+		 * @returns {void}
+		 */
+		const showSuggestionError = useCallback(
+			( { severity, message }: RequestingErrorProps ) => {
+				createNotice( severity, message, {
+					isDismissible: true,
+					id: AI_ASSISTANT_JETPACK_FORM_NOTICE_ID,
+				} );
+			},
+			[ createNotice ]
+		);
 
 		/*
 		 * Set the anchor element for the popover.
@@ -147,9 +173,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		);
 
 		useAiContext( {
+			askQuestionOptions: { postId },
 			onDone: setContent,
 			onSuggestion: setContent,
-			askQuestionOptions: { postId },
+			onError: showSuggestionError,
 		} );
 
 		/*
