@@ -117,6 +117,13 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
+			// Add a CSS class to document body when the popover is fixed.
+			if ( isVisible && isFixed ) {
+				document.body.classList.add( 'jetpack-ai-assistant-bar-is-fixed' );
+			} else {
+				document.body.classList.remove( 'jetpack-ai-assistant-bar-is-fixed' );
+			}
+
 			// Do not anchor the popover if the toolbar is fixed.
 			if ( isFixed ) {
 				return setWidth( '100%' ); // ensure to use the full width.
@@ -147,7 +154,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			} ) );
 
 			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
-		}, [ clientId, isFixed ] );
+		}, [ clientId, isFixed, isVisible ] );
 
 		// Show/hide the assistant based on the block selection.
 		useEffect( () => {
