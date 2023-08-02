@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Gravatar Hovercards
- * Module Description: Enable pop-up business cards over commenters’ Gravatars.
+ * Module Description: Enable profile hovercards on comment avatars.
  * Sort Order: 11
  * Recommendation Order: 13
  * First Introduced: 1.1
@@ -263,7 +263,7 @@ function grofiles_attach_cards() {
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		wp_enqueue_style( 'gravatar-hovercard-style', plugins_url( '/gravatar/gravatar-hovercards-amp.css', __FILE__ ), array(), JETPACK__VERSION );
 	} else {
-		wp_enqueue_script( 'grofiles-cards', 'https://secure.gravatar.com/js/gprofiles.js', array(), GROFILES__CACHE_BUSTER, true );
+		wp_enqueue_script( 'grofiles-cards', 'https://secure.gravatar.com/js/hovercards/hovercards.min.js', array(), GROFILES__CACHE_BUSTER, true );
 		wp_enqueue_script( 'wpgroho', plugins_url( 'wpgroho.js', __FILE__ ), array( 'grofiles-cards' ), JETPACK__VERSION, true );
 		if ( is_user_logged_in() ) {
 			$cu      = wp_get_current_user();
@@ -274,6 +274,16 @@ function grofiles_attach_cards() {
 			$my_hash = '';
 		}
 		wp_localize_script( 'wpgroho', 'WPGroHo', compact( 'my_hash' ) );
+		wp_localize_script(
+			'grofiles-cards',
+			'GravatarHovercardsi18n',
+			array(
+				'Edit your profile' => __( 'Edit your profile', 'jetpack' ),
+				'View profile'      => __( 'View profile', 'jetpack' ),
+				'Sorry, we are unable to load this Gravatar profile.' => __( 'Sorry, we are unable to load this Gravatar profile.', 'jetpack' ),
+				'Sorry, we are unable to load this Gravatar profile. Please check your internet connection.' => __( 'Sorry, we are unable to load this Gravatar profile. Please check your internet connection.', 'jetpack' ),
+			)
+		);
 	}
 }
 /**

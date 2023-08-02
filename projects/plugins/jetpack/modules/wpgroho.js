@@ -1,4 +1,4 @@
-/* global WPGroHo:true, Gravatar */
+/* global WPGroHo:true, Gravatar, GravatarHovercardsi18n */
 ( function () {
 	var extend = function ( out ) {
 		out = out || {};
@@ -65,7 +65,7 @@
 		};
 
 		Gravatar.my_hash = WPGroHo.my_hash;
-		Gravatar.init( 'body', '#wpadminbar' );
+		Gravatar.init( 'body', '#wpadminbar', { i18n: GravatarHovercardsi18n } );
 	};
 
 	if ( document.readyState === 'interactive' || document.readyState === 'complete' ) {
