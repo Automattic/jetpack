@@ -7,9 +7,11 @@ import { KeyboardShortcuts, Popover } from '@wordpress/components';
 import { select } from '@wordpress/data';
 import { useContext, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { useEffect } from 'react';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 /*
@@ -20,6 +22,8 @@ import type React from 'react';
 type AiAssistantPopoverProps = {
 	clientId?: string;
 };
+
+const debug = debugFactory( 'jetpack-ai-assistant:form-assistant' );
 
 /**
  * Return the serialized content from the childrens block.
@@ -62,7 +66,25 @@ export const AiAssistantPopover = ( {
 	const { isVisible, hide, toggle, popoverProps, inputValue, setInputValue, width } =
 		useContext( AiAssistantUiContext );
 
-	const { requestSuggestion, requestingState } = useAiContext();
+	const { requestSuggestion, requestingState, eventSource } = useAiContext();
+
+	const stopSuggestion = useCallback( () => {
+		if ( ! eventSource ) {
+			return;
+		}
+		debug( 'Stopping suggestion' );
+		eventSource?.close();
+	}, [ eventSource ] );
+
+	useEffect( () => {
+		/**
+		 * Cleanup function to remove the event listeners
+		 * and close the event source.
+		 */
+		return () => {
+			stopSuggestion();
+		};
+	}, [ stopSuggestion ] );
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
