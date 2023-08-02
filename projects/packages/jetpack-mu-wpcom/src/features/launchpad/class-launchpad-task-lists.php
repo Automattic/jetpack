@@ -159,10 +159,10 @@ class Launchpad_Task_Lists {
 	 * @return bool|null True if visible, false if not.
 	 */
 	public function is_task_list_visible( $id ) {
-		$task_list_status = get_option( 'wpcom_launchpad_task_list_visibility', array() );
+		$task_list_visibility = $this->get_task_list_visibility_status();
 
 		// Return true if the task list is not in the visibility option or if it is and the value is true.
-		return ! isset( $task_list_status[ $id ] ) || $task_list_status[ $id ];
+		return ! isset( $task_list_visibility[ $id ] ) || $task_list_visibility[ $id ];
 	}
 
 	/**
@@ -172,9 +172,22 @@ class Launchpad_Task_Lists {
 	 * @param bool   $is_visible True if visible, false if not.
 	 */
 	public function set_task_list_visibility( $id, $is_visible ) {
-		$task_list_status        = get_option( 'wpcom_launchpad_task_list_visibility', array() );
-		$task_list_status[ $id ] = $is_visible;
-		update_option( 'wpcom_launchpad_task_list_visibility', $task_list_status );
+		$task_list_visibility        = $this->get_task_list_visibility_status();
+		$task_list_visibility[ $id ] = $is_visible;
+
+		$launchpad_config                         = get_option( 'wpcom_launchpad_config', array() );
+		$launchpad_config['task_list_visibility'] = $task_list_visibility;
+		update_option( 'wpcom_launchpad_config', $launchpad_config );
+	}
+
+	/**
+	 * Get the task list visibility status for a site.
+	 *
+	 * @return array
+	 */
+	protected function get_task_list_visibility_status() {
+		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+		return isset( $launchpad_config['task_list_visibility'] ) ? $launchpad_config['task_list_visibility'] : array();
 	}
 
 	/**
