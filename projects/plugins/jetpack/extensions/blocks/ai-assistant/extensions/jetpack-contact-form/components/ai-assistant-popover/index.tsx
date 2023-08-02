@@ -11,7 +11,18 @@ import { __ } from '@wordpress/i18n';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import './style.scss';
+/*
+ * Types
+ */
+import type React from 'react';
 
+/**
+ * useAiContext hook to provide access to
+ * the AI Assistant data (from context),
+ * and to subscribe to the request events (onDone, onSuggestion).
+ *
+ * @returns {React.Component}          the AI Assistant data context.
+ */
 export const AiAssistantPopover = () => {
 	const { toggle, isVisible, popoverProps, inputValue, setInputValue } =
 		useContext( AiAssistantUiContext );

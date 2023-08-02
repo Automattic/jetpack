@@ -1,8 +1,11 @@
 /**
  * External dependencies
  */
+import { useAiContext } from '@automattic/jetpack-ai-client';
+import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useMemo, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
@@ -13,6 +16,7 @@ import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './conte
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
+		const { clientId } = props;
 		// AI Assistant input value
 		const [ inputValue, setInputValue ] = useState( '' );
 
@@ -24,6 +28,12 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			anchor: null,
 			placement: 'bottom',
 		} );
+
+		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
+		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as {
+			getCurrentPostId: () => number;
+		};
+		const postId = coreEditorSelect.getCurrentPostId();
 
 		/**
 		 * Show the AI Assistant
@@ -67,6 +77,31 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			} ),
 			[ inputValue, isVisible, popoverProps, show, hide, toggle ]
 		);
+
+		const setContent = useCallback(
+			( newContent: string ) => {
+				// Remove the Jetpack Form block from the content.
+				const processedContent = newContent.replace(
+					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
+					''
+				);
+				const newContentBlocks = parse( processedContent );
+
+				// Check if the generated blocks are valid.
+				const validBlocks = newContentBlocks.filter( block => {
+					return block.isValid && block.name !== 'core/freeform';
+				} );
+				// Only update the valid blocks
+				replaceInnerBlocks( clientId, validBlocks );
+			},
+			[ clientId, replaceInnerBlocks ]
+		);
+
+		useAiContext( {
+			onDone: setContent,
+			onSuggestion: setContent,
+			askQuestionOptions: { postId },
+		} );
 
 		/*
 		 * Ensure to provide data context

@@ -12,7 +12,7 @@ import { AiDataContext } from '.';
 import type { AiDataContextProps } from './context';
 import type { AskQuestionOptionsArgProps } from '../ask-question';
 
-type useAiContextOptions = {
+export type UseAiContextOptions = {
 	/*
 	 * Ask question options.
 	 */
@@ -34,13 +34,13 @@ type useAiContextOptions = {
  * the AI Assistant data (from context),
  * and to subscribe to the request events (onDone, onSuggestion).
  *
- * @param {useAiContextOptions} options - the hook options.
+ * @param {UseAiContextOptions} options - the hook options.
  * @returns {AiDataContextProps}          the AI Assistant data context.
  */
 export default function useAiContext( {
 	onDone,
 	onSuggestion,
-}: useAiContextOptions = {} ): AiDataContextProps {
+}: UseAiContextOptions = {} ): AiDataContextProps {
 	const context = useContext( AiDataContext );
 	const { eventSource } = context;
 
