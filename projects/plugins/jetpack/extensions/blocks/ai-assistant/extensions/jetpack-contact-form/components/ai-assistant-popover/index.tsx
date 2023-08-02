@@ -44,7 +44,7 @@ function getSerializedContentFromBlock( clientId: string ): string {
 	}
 
 	return innerBlocks.reduce( ( acc, innerBlock ) => {
-		return acc + serialize( innerBlock );
+		return acc + serialize( innerBlock ) + '\n\n';
 	}, '' );
 }
 
