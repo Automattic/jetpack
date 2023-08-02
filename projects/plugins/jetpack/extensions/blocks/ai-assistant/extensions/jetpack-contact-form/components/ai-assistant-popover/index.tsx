@@ -5,7 +5,7 @@ import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
 import { KeyboardShortcuts, Popover } from '@wordpress/components';
 import { select } from '@wordpress/data';
-import { useContext } from '@wordpress/element';
+import { useContext, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -70,22 +70,22 @@ export const AiAssistantPopover = ( {
 
 	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
 
-	if ( ! isVisible ) {
-		return null;
-	}
-
 	const onStop = () => {
 		// TODO: Implement onStop
 	};
 
-	const onSend = () => {
+	const onSend = useCallback( () => {
 		const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
 			request: inputValue,
 			content: getSerializedContentFromBlock( clientId ),
 		} );
 
 		requestSuggestion( prompt );
-	};
+	}, [ clientId, inputValue, requestSuggestion ] );
+
+	if ( ! isVisible ) {
+		return null;
+	}
 
 	return (
 		<Popover onClose={ hide } { ...popoverProps } animate={ false }>
