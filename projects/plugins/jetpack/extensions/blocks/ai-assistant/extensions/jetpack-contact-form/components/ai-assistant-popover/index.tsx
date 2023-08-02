@@ -69,10 +69,11 @@ export const AiAssistantPopover = ( {
 	const { requestSuggestion, requestingState, eventSource } = useAiContext();
 
 	const stopSuggestion = useCallback( () => {
-		if ( eventSource ) {
-			debug( 'Stopping suggestion' );
-			eventSource?.close();
+		if ( ! eventSource ) {
+			return;
 		}
+		debug( 'Stopping suggestion' );
+		eventSource?.close();
 	}, [ eventSource ] );
 
 	useEffect( () => {
