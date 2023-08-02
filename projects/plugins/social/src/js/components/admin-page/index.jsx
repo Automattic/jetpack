@@ -34,7 +34,6 @@ const Admin = () => {
 		isModuleEnabled,
 		showPricingPage,
 		hasPaidPlan,
-		hasBasicPlan,
 		isShareLimitEnabled,
 		pluginVersion,
 		isSocialImageGeneratorAvailable,
@@ -44,7 +43,6 @@ const Admin = () => {
 			isModuleEnabled: store.isModuleEnabled(),
 			showPricingPage: store.showPricingPage(),
 			hasPaidPlan: store.hasPaidPlan(),
-			hasBasicPlan: store.hasBasicPlan(),
 			isShareLimitEnabled: store.isShareLimitEnabled(),
 			pluginVersion: store.getPluginVersion(),
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
@@ -81,7 +79,7 @@ const Admin = () => {
 						<Header />
 					</AdminSectionHero>
 					<AdminSection>
-						{ hasBasicPlan && <AdvancedUpsellNotice /> }
+						{ <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
 						{ isModuleEnabled && isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }

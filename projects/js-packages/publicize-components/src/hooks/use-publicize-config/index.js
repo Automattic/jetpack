@@ -94,12 +94,6 @@ export default function usePublicizeConfig() {
 	 */
 	const isEnhancedPublishingEnabled = !! getJetpackData()?.social?.isEnhancedPublishingEnabled;
 
-	/**
-	 * hasBasicPlan:
-	 * Whether the site has the Basic plan.
-	 */
-	const hasBasicPlan = hasPaidPlan && ! isEnhancedPublishingEnabled;
-
 	return {
 		isPublicizeEnabledMeta,
 		isPublicizeEnabled,
@@ -112,7 +106,6 @@ export default function usePublicizeConfig() {
 		isPostAlreadyShared,
 		numberOfSharesRemaining: sharesData.shares_remaining,
 		hasPaidPlan,
-		hasBasicPlan,
 		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
