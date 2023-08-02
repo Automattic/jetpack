@@ -70,7 +70,7 @@ export const AiAssistantPopover = ( {
 
 	const stopSuggestion = useCallback( () => {
 		if ( eventSource ) {
-			debug( 'Stoping suggestion' );
+			debug( 'Stopping suggestion' );
 			eventSource?.close();
 		}
 	}, [ eventSource ] );
