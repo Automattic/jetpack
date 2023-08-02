@@ -6,9 +6,7 @@ import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
-import lock from './lock.svg';
 import SubscribePanels from './panel';
-
 export const name = 'subscriptions';
 export const icon = (
 	<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -83,9 +81,7 @@ export const settings = {
 		],
 	},
 	example: {
-		attributes: {
-			lock,
-		},
+		attributes: {},
 	},
 	supports: {
 		spacing: {
