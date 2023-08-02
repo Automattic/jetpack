@@ -20,6 +20,7 @@ export const PROMPT_TYPE_CHANGE_TONE = 'changeTone' as const;
 export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
 export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
 export const PROMPT_TYPE_USER_PROMPT = 'userPrompt' as const;
+export const PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT = 'jetpackFormCustomPrompt' as const;
 
 export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_SUMMARY_BY_TITLE,
@@ -33,6 +34,7 @@ export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
+	PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT,
 ] as const;
 
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
@@ -132,6 +134,11 @@ type PromptOptionsProps = {
 	 * The previous messages of the same prompt. Optional.
 	 */
 	prevMessages?: Array< PromptItemProps >;
+
+	/*
+	 * A custom request prompt. Optional.
+	 */
+	request?: string;
 };
 
 export function getDelimitedContent( content: string ): string {
@@ -218,6 +225,87 @@ function getTonePrompt( {
 		{
 			role,
 			content: `Rewrite the text delimited with ${ delimiter }, with a ${ tone } tone, keeping the language of the text: ${ getDelimitedContent(
+				content
+			) }`,
+		},
+	];
+}
+
+function getJetpackFormCustomPrompt( {
+	content,
+	role = 'user',
+	request,
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	if ( ! request ) {
+		throw new Error( 'You must provide a custom prompt for the Jetpack Form Custom Prompt' );
+	}
+
+	return [
+		{
+			role: 'system',
+			content: `You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature. Your content will be used inside a Jetpack Form block that already exists.
+Writing rules:
+- Execute the request without any acknowledgment or explanation to the user.
+- If you cannot generate a meaningful response to a user's request, reply only with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- Do not add any additional feedback to the user, just generate the requested block structure and nothing else.
+- Do not refer to yourself, the user or the response in any way.`,
+		},
+		{
+			role,
+			content: `Handle the following request, delimited with ${ delimiter }: ${ getDelimitedContent(
+				request
+			) }
+Strong requirements:
+- When the user provides instructions, translate them into appropriate Gutenberg Jetpack form blocks in the allowed list.
+- Do not wrap the generated structure with any block, element, or delimiters of any kind.
+- Never use the wp:jetpack/contact-form block nor any containing elements. The existing form already has a containing block and appropriate elements.
+- There is no wp:jetpack/form block. Never use it.
+- Crucially, when asked to add or modify something in the form, always respond with the full form including the previous form and the modified or added part in it, not just the new part. This is to ensure no data is lost.
+- Replace placeholders (like FIELD_LABEL, IS_REQUIRED, etc.) with the user's specifications.
+- Use only the allowed blocks with their given syntax.
+- Allowed blocks:
+  Name Field
+    code: wp:jetpack/field-name
+    syntax: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+  Email Field
+    code: wp:jetpack/field-email
+    syntax: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+  Text Input Field
+    code: wp:jetpack/field-text
+    syntax: <!-- wp:jetpack/field-text {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+  Multi-line Text Field
+    code: wp:jetpack/field-textarea
+    syntax: <!-- wp:jetpack/field-textarea {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+  Checkbox
+    code: wp:jetpack/field-checkbox
+    syntax: <!-- wp:jetpack/field-checkbox {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT} /-->
+  Date Picker
+    code: wp:jetpack/field-date
+    syntax: <!-- wp:jetpack/field-date {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+  Phone Number Field
+    code: wp:jetpack/field-telephone
+    syntax: <!-- wp:jetpack/field-telephone {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+  URL Field
+    code: wp:jetpack/field-url
+    syntax: <!-- wp:jetpack/field-url {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+  Multiple Choice (Checkbox)
+    code: wp:jetpack/field-checkbox-multiple
+    syntax: <!-- wp:jetpack/field-checkbox-multiple {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
+  Single Choice (Radio)
+    code: wp:jetpack/field-radio
+    syntax: <!-- wp:jetpack/field-radio {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
+  Dropdown Field
+    code: wp:jetpack/field-select
+    syntax: <!-- wp:jetpack/field-select {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE],"toggleLabel":TOGGLE_LABEL} /-->
+  Terms Consent
+    code: wp:jetpack/field-consent
+    syntax: <!-- wp:jetpack/field-consent {"consentType":"CONSENT_TYPE","implicitConsentMessage":"IMPLICIT_CONSENT_MESSAGE","explicitConsentMessage":"EXPLICIT_CONSENT_MESSAGE", /-->
+  Button
+    code: wp:jetpack/button
+    syntax: <!-- wp:jetpack/button {"label":FIELD_LABEL,"element":"button","text":BUTTON_TEXT,"borderRadius":BORDER_RADIUS,"lock":{"remove":true}} /-->
+
+Jetpack Form to modify or add content to, delimited with ${ delimiter }: ${ getDelimitedContent(
 				content
 			) }`,
 		},
@@ -461,22 +549,18 @@ export function getPrompt(
 	debug( 'Addressing prompt type: %o %o', type, options );
 	const { prevMessages = [] } = options;
 
-	const context =
-		'You are an advanced polyglot ghostwriter.' +
-		'Your task is to help the user create and modify content based on their requests.';
-
 	const systemPrompt: PromptItemProps = {
 		role: 'system',
-		content: `${ context }
+		content: `You are an advanced polyglot ghostwriter. Your task is to help the user create and modify content based on their requests.
 Writing rules:
 - Execute the request without any acknowledgment or explanation to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `,
 	};
 
 	// Prompt starts with the previous messages, if any.
-	const prompt: Array< PromptItemProps > = prevMessages;
+	const prompt: Array< PromptItemProps > = [ ...prevMessages ];
 
 	// Then, add the `system` prompt to clarify the context.
 	prompt.push( systemPrompt );
@@ -501,9 +585,11 @@ Writing rules:
 		case PROMPT_TYPE_CHANGE_TONE:
 			return [ ...prompt, ...getTonePrompt( options ) ];
 
+		case PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT:
+			// Does not use the default system prompt.
+			return [ ...prevMessages, ...getJetpackFormCustomPrompt( options ) ];
+
 		default:
 			throw new Error( `Unknown prompt type: ${ type }` );
 	}
-
-	return prompt;
 }

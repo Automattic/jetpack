@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { aiAssistantIcon, useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
 import { Modal, Button, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -12,7 +12,6 @@ import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
-import aiAssistantIcon from '../../../../blocks/ai-assistant/icons/ai-assistant';
 import {
 	delimiter,
 	getDelimitedContent,

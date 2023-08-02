@@ -64,7 +64,8 @@
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"paywall"
+		"paywall",
+		"ai-assistant-form-support"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
