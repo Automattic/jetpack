@@ -14,7 +14,6 @@ import './style.scss';
 /*
  * Types
  */
-import type { UseAiContextOptions } from '@automattic/jetpack-ai-client';
 import type React from 'react';
 
 /**
@@ -22,18 +21,13 @@ import type React from 'react';
  * the AI Assistant data (from context),
  * and to subscribe to the request events (onDone, onSuggestion).
  *
- * @param {UseAiContextOptions} options - the hook options.
  * @returns {React.Component}          the AI Assistant data context.
  */
-export const AiAssistantPopover = ( { onSuggestion, onDone, askQuestionOptions } ) => {
+export const AiAssistantPopover = () => {
 	const { toggle, isVisible, popoverProps, inputValue, setInputValue } =
 		useContext( AiAssistantUiContext );
 
-	const { requestSuggestion, requestingState } = useAiContext( {
-		onDone,
-		onSuggestion,
-		askQuestionOptions,
-	} );
+	const { requestSuggestion, requestingState } = useAiContext();
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 

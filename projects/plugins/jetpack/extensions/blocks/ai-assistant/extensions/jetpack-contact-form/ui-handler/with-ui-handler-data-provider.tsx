@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useAiContext } from '@automattic/jetpack-ai-client';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -96,6 +97,12 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			[ clientId, replaceInnerBlocks ]
 		);
 
+		useAiContext( {
+			onDone: setContent,
+			onSuggestion: setContent,
+			askQuestionOptions: { postId },
+		} );
+
 		/*
 		 * Ensure to provide data context
 		 * only if is't possible to extend the block.
@@ -113,11 +120,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 						},
 					} }
 				>
-					<AiAssistantPopover
-						onDone={ setContent }
-						onSuggestion={ setContent }
-						askQuestionOptions={ postId }
-					/>
+					<AiAssistantPopover />
 					<BlockListBlock { ...props } />
 				</KeyboardShortcuts>
 			</AiAssistantUiContextProvider>
