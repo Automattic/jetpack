@@ -1,18 +1,17 @@
 /**
  * External dependencies
  */
-import { useAiContext } from '@automattic/jetpack-ai-client';
+import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
-import { Button, KeyboardShortcuts, Popover, TextControl } from '@wordpress/components';
+import { KeyboardShortcuts, Popover } from '@wordpress/components';
 import { select } from '@wordpress/data';
-import { useContext } from '@wordpress/element';
+import { useContext, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
-import './style.scss';
 /*
  * Types
  */
@@ -60,44 +59,52 @@ function getSerializedContentFromBlock( clientId: string ): string {
 export const AiAssistantPopover = ( {
 	clientId = '',
 }: AiAssistantPopoverProps ): React.ReactNode => {
-	const { isVisible, hide, toggle, popoverProps, inputValue, setInputValue } =
+	const { isVisible, hide, toggle, popoverProps, inputValue, setInputValue, width } =
 		useContext( AiAssistantUiContext );
 
 	const { requestSuggestion, requestingState } = useAiContext();
 
-	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
+	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
+
+	const placeholder = __( 'Which form do you need?', 'jetpack' );
+
+	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
+
+	const onStop = () => {
+		// TODO: Implement onStop
+	};
+
+	const onSend = useCallback( () => {
+		const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
+			request: inputValue,
+			content: getSerializedContentFromBlock( clientId ),
+		} );
+
+		requestSuggestion( prompt );
+	}, [ clientId, inputValue, requestSuggestion ] );
 
 	if ( ! isVisible ) {
 		return null;
 	}
 
 	return (
-		<Popover onClose={ hide } { ...popoverProps } className="jetpack-ai-assistant__popover">
+		<Popover onClose={ hide } { ...popoverProps } animate={ false }>
 			<KeyboardShortcuts
 				bindGlobal
 				shortcuts={ {
 					'mod+/': toggle,
 				} }
-			>
-				<div className="jetpack-ai-assistant__popover-container">
-					<TextControl onChange={ setInputValue } value={ inputValue } disabled={ isDisabled } />
-
-					<Button
-						variant="primary"
-						onClick={ () => {
-							const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
-								request: inputValue,
-								content: getSerializedContentFromBlock( clientId ),
-							} );
-
-							requestSuggestion( prompt );
-						} }
-						disabled={ isDisabled }
-					>
-						{ __( 'Ask', 'jetpack' ) }
-					</Button>
-				</div>
-			</KeyboardShortcuts>
+			/>
+			<div style={ { width } }>
+				<AIControl
+					loading={ isLoading }
+					value={ isLoading ? undefined : inputValue }
+					placeholder={ isLoading ? loadingPlaceholder : placeholder }
+					onChange={ setInputValue }
+					onSend={ onSend }
+					onStop={ onStop }
+				/>
+			</div>
 		</Popover>
 	);
 };

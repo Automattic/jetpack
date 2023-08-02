@@ -54,10 +54,10 @@ export default function AIControl( {
 	acceptLabel?: string;
 	showButtonsLabel?: boolean;
 	isOpaque?: boolean;
-	onChange: ( newValue: string ) => void;
-	onSend: ( currentValue: string ) => void;
-	onStop: () => void;
-	onAccept: () => void;
+	onChange?: ( newValue: string ) => void;
+	onSend?: ( currentValue: string ) => void;
+	onStop?: () => void;
+	onAccept?: () => void;
 } ) {
 	const promptUserInputRef = useRef( null );
 
@@ -115,7 +115,7 @@ export default function AIControl( {
 								className="jetpack-components-ai-control__controls-prompt_button"
 								onClick={ () => onSend( value ) }
 								isSmall={ true }
-								disabled={ value?.length }
+								disabled={ ! value?.length }
 								label={ __( 'Send request', 'jetpack-ai-client' ) }
 							>
 								<Icon icon={ arrowUp } />
