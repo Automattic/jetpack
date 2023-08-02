@@ -65,8 +65,6 @@ export const AiAssistantPopover = ( {
 
 	const { requestSuggestion, requestingState } = useAiContext();
 
-	const content = getSerializedContentFromBlock( clientId );
-
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 
 	if ( ! isVisible ) {
@@ -89,7 +87,7 @@ export const AiAssistantPopover = ( {
 						onClick={ () => {
 							const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
 								request: inputValue,
-								content,
+								content: getSerializedContentFromBlock( clientId ),
 							} );
 
 							requestSuggestion( prompt );
