@@ -12,7 +12,7 @@ import React, { useEffect } from 'react';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 
 export default function AiAssistantToolbarButton(): React.ReactElement {
-	const { isVisible, toggle, setPopoverProps, setAssistantFixed } =
+	const { isVisible, toggle, setPopoverProps, setAssistantFixed, matchPopoverWidthToBlock } =
 		useContext( AiAssistantUiContext );
 	const { requestingState } = useAiContext();
 
@@ -38,16 +38,21 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 		setAssistantFixed( isFixed );
 
 		if ( ! isFixed ) {
-			return;
+			setPopoverProps( {
+				anchor: null,
+				placement: 'bottom-start',
+				offset: 12,
+			} );
+			matchPopoverWidthToBlock();
+		} else {
+			setPopoverProps( prev => ( {
+				...prev,
+				anchor: toolbar,
+				offset: 0,
+				variant: 'toolbar',
+			} ) );
 		}
-
-		setPopoverProps( prev => ( {
-			...prev,
-			anchor: toolbar,
-			offset: 0,
-			variant: 'toolbar',
-		} ) );
-	}, [ setAssistantFixed, setPopoverProps ] );
+	}, [ matchPopoverWidthToBlock, setAssistantFixed, setPopoverProps ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 
