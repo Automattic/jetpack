@@ -5,6 +5,7 @@ import { useCallback, useContext, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import { ERROR_RESPONSE } from '../types';
 import { AiDataContext } from '.';
 /**
  * Types & constants
@@ -27,6 +28,11 @@ export type UseAiContextOptions = {
 	 * onSuggestion callback.
 	 */
 	onSuggestion?: ( suggestion: string ) => void;
+
+	/*
+	 * onError callback.
+	 */
+	onError?: ( error: Error ) => void;
 };
 
 /**
@@ -40,6 +46,7 @@ export type UseAiContextOptions = {
 export default function useAiContext( {
 	onDone,
 	onSuggestion,
+	onError,
 }: UseAiContextOptions = {} ): AiDataContextProps {
 	const context = useContext( AiDataContext );
 	const { eventSource } = context;
@@ -49,6 +56,9 @@ export default function useAiContext( {
 		( event: CustomEvent ) => onSuggestion?.( event?.detail ),
 		[ onSuggestion ]
 	);
+	const error = useCallback( ( event: CustomEvent ) => {
+		onError?.( event?.detail );
+	}, [] );
 
 	useEffect( () => {
 		if ( ! eventSource ) {
@@ -63,9 +73,14 @@ export default function useAiContext( {
 			eventSource.addEventListener( 'suggestion', suggestion );
 		}
 
+		if ( onError ) {
+			eventSource.addEventListener( ERROR_RESPONSE, error );
+		}
+
 		return () => {
 			eventSource.removeEventListener( 'done', done );
 			eventSource.removeEventListener( 'suggestion', suggestion );
+			eventSource.removeEventListener( ERROR_RESPONSE, error );
 		};
 	}, [ eventSource ] );
 
