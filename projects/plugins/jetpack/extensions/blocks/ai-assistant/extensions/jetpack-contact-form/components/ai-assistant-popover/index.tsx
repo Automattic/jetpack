@@ -113,7 +113,6 @@ export const AiAssistantPopover = ( {
 
 	return (
 		<Popover
-			onClose={ null }
 			{ ...popoverProps }
 			animate={ false }
 			className={ classNames( 'jetpack-ai-assistant__popover', {
