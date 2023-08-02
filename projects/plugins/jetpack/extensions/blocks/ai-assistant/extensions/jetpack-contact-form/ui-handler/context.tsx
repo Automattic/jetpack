@@ -13,7 +13,7 @@ export type AiAssistantUiContextProps = {
 	width?: number;
 
 	popoverProps?: {
-		anchor: HTMLElement | null;
+		anchor?: HTMLElement | null;
 		offset?: number;
 		variant?: 'toolbar' | 'unstyled';
 		placement?:
