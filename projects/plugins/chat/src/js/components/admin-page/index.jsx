@@ -3,7 +3,6 @@ import { CONNECTION_STORE_ID, ConnectScreen } from '@automattic/jetpack-connecti
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import OdieWidget from '../odie-widget';
 import styles from './styles.module.scss';
 
 const Admin = () => {
@@ -38,7 +37,7 @@ const Admin = () => {
 						</Col>
 						<Col lg={ 1 } md={ 1 } sm={ 0 } />
 						<Col sm={ 4 } md={ 5 } lg={ 5 }>
-							<OdieWidget />
+							<div id="jetpack-odie-root"></div>
 						</Col>
 					</Container>
 				) }
