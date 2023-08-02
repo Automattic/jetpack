@@ -10,10 +10,10 @@ const AdvancedUpsellNotice = () => {
 	const { shouldShowNotice, dismissNotice, NOTICES } = useDismissNotice();
 
 	const handleDismiss = useCallback( () => {
-		dismissNotice( NOTICES.advancedUpgrade, 3 * MONTH_IN_SECONDS );
+		dismissNotice( NOTICES.advancedUpgradeAdmin, 3 * MONTH_IN_SECONDS );
 	}, [ dismissNotice, NOTICES ] );
 
-	if ( ! shouldShowNotice( NOTICES.advancedUpgrade ) ) {
+	if ( ! shouldShowNotice( NOTICES.advancedUpgradeAdmin ) ) {
 		return null;
 	}
 

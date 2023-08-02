@@ -167,7 +167,7 @@ class REST_Controller {
 				'notice'            => array(
 					'description' => __( 'Name of the notice to dismiss', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
-					'enum'        => array( 'instagram', 'advanced-upgrade-nudge' ),
+					'enum'        => array( 'instagram', 'advanced-upgrade-nudge-admin', 'advanced-upgrade-nudge-editor' ),
 					'required'    => true,
 				),
 				'reappearance_time' => array(
