@@ -36,7 +36,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const [ isFixed, setAssistantFixed ] = useState( false );
 
 		// AI Assistant width
-		const [ width, setWidth ] = useState( 400 );
+		const [ width, setWidth ] = useState< number | string >( 400 );
 
 		// AI Assistant popover props
 		const [ popoverProps, setPopoverProps ] = useState<
@@ -117,6 +117,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
+			// Do not anchor the popover if the toolbar is fixed.
+			if ( isFixed ) {
+				return setWidth( '100%' ); // ensure to use the full width.
+			}
+
 			const idAttribute = `block-${ clientId }`;
 
 			/*
@@ -136,7 +141,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 			setPopoverProps( prev => ( { ...prev, anchor: blockDomElement } ) );
 			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
-		}, [ clientId ] );
+		}, [ clientId, isFixed ] );
 
 		// Show/hide the assistant based on the block selection.
 		useEffect( () => {
