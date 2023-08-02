@@ -28,6 +28,7 @@ import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
 const PUBLICIZE_STORE_ID = 'jetpack/publicize';
+const MONTH_IN_SECONDS = 30 * 24 * 60 * 60;
 
 const checkConnectionCode = ( connection, code ) =>
 	false === connection.is_healthy && code === ( connection.error_code ?? 'broken' );
@@ -43,6 +44,7 @@ const checkConnectionCode = ( connection, code ) =>
  * @param {boolean} props.isSocialImageGeneratorAvailable - Whether the Social Image Generator feature is available. Optional.
  * @param {string} props.connectionsAdminUrl              - URL to the Admin connections page
  * @param {string} props.adminUrl                         - URL af the plugin's admin page to redirect to after a plan upgrade
+ * @param {boolean} props.shouldShowAdvancedPlanNudge     - Whether the advanced plan nudge should be shown
  * @returns {object}                                      - Publicize form component.
  */
 export default function PublicizeForm( {
@@ -50,6 +52,7 @@ export default function PublicizeForm( {
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
 	isEnhancedPublishingEnabled = false,
+	shouldShowAdvancedPlanNudge = false,
 	isSocialImageGeneratorAvailable = false,
 	connectionsAdminUrl,
 	adminUrl,
@@ -106,6 +109,11 @@ export default function PublicizeForm( {
 			}
 		},
 		[ autosave, isEditedPostDirty ]
+	);
+
+	const onAdvancedNudgeDismiss = useCallback(
+		() => dismissNotice( NOTICES.advancedUpgrade, 3 * MONTH_IN_SECONDS ),
+		[ dismissNotice, NOTICES ]
 	);
 
 	const renderNotices = () => (
@@ -337,6 +345,21 @@ export default function PublicizeForm( {
 								message={ message }
 							/>
 						</>
+					) }
+					{ shouldShowAdvancedPlanNudge && shouldShowNotice( NOTICES.advancedUpgrade ) && (
+						<Notice onDismiss={ onAdvancedNudgeDismiss } type={ 'highlight' }>
+							{ createInterpolateElement(
+								__(
+									'Need more reach? Unlock custom media sharing with the <upgradeLink>Advanced Plan</upgradeLink>',
+									'jetpack'
+								),
+								{
+									upgradeLink: (
+										<ExternalLink href={ getRedirectUrl( 'jetpack-social-pricing-modal' ) } />
+									),
+								}
+							) }
+						</Notice>
 					) }
 					{ isEnhancedPublishingEnabled && (
 						<MediaSection
