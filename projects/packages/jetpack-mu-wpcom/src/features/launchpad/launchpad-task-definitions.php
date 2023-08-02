@@ -352,6 +352,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback'       => 'wpcom_launchpad_are_newsletter_subscriber_counts_available',
 			'target_repetitions'        => 10,
 			'repetition_count_callback' => 'wpcom_launchpad_get_newsletter_subscriber_count',
+			'get_calypso_path'          => function ( $task, $default, $data ) {
+				return '/subscribers/' . $data['site_slug_encoded'];
+			},
 		),
 		'write_3_posts'                   => array(
 			'get_title'                 => function () {
