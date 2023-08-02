@@ -37,6 +37,7 @@ const Admin = () => {
 		isShareLimitEnabled,
 		pluginVersion,
 		isSocialImageGeneratorAvailable,
+		shouldShowAdvancedPlanNudge,
 	} = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
@@ -46,6 +47,7 @@ const Admin = () => {
 			isShareLimitEnabled: store.isShareLimitEnabled(),
 			pluginVersion: store.getPluginVersion(),
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
+			shouldShowAdvancedPlanNudge: store.shouldShowAdvancedPlanNudge(),
 		};
 	} );
 
@@ -79,7 +81,7 @@ const Admin = () => {
 						<Header />
 					</AdminSectionHero>
 					<AdminSection>
-						{ <AdvancedUpsellNotice /> }
+						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
 						{ isModuleEnabled && isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
