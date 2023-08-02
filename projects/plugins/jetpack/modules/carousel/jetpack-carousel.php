@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module: Jetpack Carousel
- *
+ *  A change
  * @package automattic/jetpack
  */
 

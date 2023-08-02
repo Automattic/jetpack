@@ -3,6 +3,7 @@
  * Module Name: Asset CDN
  * Module Description: Jetpack’s Site Accelerator loads your site faster by optimizing your images and serving your images and static files from our global network of servers.
  * Sort Order: 26
+ * TESTING A CHANGE
  * Recommendation Order: 1
  * First Introduced: 6.6
  * Requires Connection: No
