@@ -3,6 +3,7 @@
  */
 import { PlainText } from '@wordpress/block-editor';
 import { Button, Spinner } from '@wordpress/components';
+import { useKeyboardShortcut } from '@wordpress/compose';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall, check, arrowUp } from '@wordpress/icons';
@@ -59,6 +60,29 @@ export default function AIControl( {
 	onAccept: () => void;
 } ) {
 	const promptUserInputRef = useRef( null );
+
+	useKeyboardShortcut(
+		[ 'command+enter', 'ctrl+enter' ],
+		() => {
+			if ( showAccept ) {
+				onAccept?.();
+			}
+		},
+		{
+			target: promptUserInputRef,
+		}
+	);
+
+	useKeyboardShortcut(
+		'enter',
+		e => {
+			e.preventDefault();
+			onSend?.( value );
+		},
+		{
+			target: promptUserInputRef,
+		}
+	);
 
 	return (
 		<div className="jetpack-components-ai-control__container">
