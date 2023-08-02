@@ -6,7 +6,7 @@ import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useMemo, useCallback } from '@wordpress/element';
+import { useState, useMemo, useCallback, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -16,7 +16,8 @@ import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './conte
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
-		const { clientId } = props;
+		const { clientId, isSelected } = props;
+
 		// AI Assistant input value
 		const [ inputValue, setInputValue ] = useState( '' );
 
@@ -26,7 +27,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			AiAssistantUiContextProps[ 'popoverProps' ]
 		>( {
 			anchor: null,
-			placement: 'bottom',
+			placement: 'bottom-start',
+			offset: 12,
 		} );
 
 		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
@@ -61,6 +63,44 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const toggle = useCallback( () => {
 			setAssistantVisibility( ! isVisible );
 		}, [ isVisible ] );
+
+		/*
+		 * Set the anchor element for the popover.
+		 * For now, let's use the block representation in the canvas,
+		 * but we can change it in the future.
+		 */
+		useEffect( () => {
+			if ( ! clientId ) {
+				return;
+			}
+
+			const idAttribute = `block-${ clientId }`;
+
+			/*
+			 * Get the DOM element of the block,
+			 * keeping in mind that the block element is rendered into the `editor-canvas` iframe.
+			 */
+			const iFrame: HTMLIFrameElement = document.querySelector( 'iframe[name="editor-canvas"]' );
+			const iframeDocument = iFrame && iFrame.contentWindow.document;
+			if ( ! iframeDocument ) {
+				return;
+			}
+
+			const blockDomElement = iframeDocument.getElementById( idAttribute );
+			if ( ! blockDomElement ) {
+				return;
+			}
+
+			setPopoverProps( prev => ( { ...prev, anchor: blockDomElement } ) );
+		}, [ clientId ] );
+
+		// Show/hide the assistant based on the block selection.
+		useEffect( () => {
+			if ( isSelected ) {
+				return;
+			}
+			hide();
+		}, [ isSelected, hide ] );
 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
@@ -104,7 +144,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		} );
 
 		/*
-		 * Ensure to provide data context
+		 * Ensure to provide data context,
+		 * and the AI Assistant component (popover)
 		 * only if is't possible to extend the block.
 		 */
 		if ( ! isPossibleToExtendJetpackFormBlock( props.name ) ) {
