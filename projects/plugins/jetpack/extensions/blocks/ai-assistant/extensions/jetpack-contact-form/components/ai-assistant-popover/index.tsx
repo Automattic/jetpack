@@ -24,7 +24,7 @@ import type React from 'react';
  * @returns {React.Component}          the AI Assistant data context.
  */
 export const AiAssistantPopover = () => {
-	const { toggle, isVisible, popoverProps, inputValue, setInputValue } =
+	const { isVisible, hide, toggle, popoverProps, inputValue, setInputValue } =
 		useContext( AiAssistantUiContext );
 
 	const { requestSuggestion, requestingState } = useAiContext();
@@ -36,7 +36,7 @@ export const AiAssistantPopover = () => {
 	}
 
 	return (
-		<Popover { ...popoverProps } className="jetpack-ai-assistant__popover">
+		<Popover onClose={ hide } { ...popoverProps } className="jetpack-ai-assistant__popover">
 			<KeyboardShortcuts
 				bindGlobal
 				shortcuts={ {

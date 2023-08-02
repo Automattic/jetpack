@@ -5,7 +5,7 @@ import { useAiContext } from '@automattic/jetpack-ai-client';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
@@ -63,6 +63,15 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const toggle = useCallback( () => {
 			setAssistantVisibility( ! isVisible );
 		}, [ isVisible ] );
+
+		/**
+		 * Select the Jetpack Form block
+		 *
+		 * @returns {void}
+		 */
+		const selectFormBlock = useCallback( () => {
+			dispatch( 'core/block-editor' ).selectBlock( props.clientId );
+		}, [ props.clientId ] );
 
 		/*
 		 * Set the anchor element for the popover.
@@ -158,6 +167,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					shortcuts={ {
 						'mod+/': () => {
 							toggle();
+							selectFormBlock();
 						},
 					} }
 				>
