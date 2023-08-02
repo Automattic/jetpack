@@ -48,7 +48,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Gets the current migration for this source site.
+	 * Initiates a chat session.
 	 *
 	 * GET `jetpack/v4/chat/odie/start_chat`
 	 *
