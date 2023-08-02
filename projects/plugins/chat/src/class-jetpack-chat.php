@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Chat\REST_Controller as Chat_Rest_Controller;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -71,6 +72,8 @@ class Jetpack_Chat {
 		// Enqueue Chat app on every page, front end and back end.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_jetpack_odysseus_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_jetpack_odysseus_scripts' ) );
+
+		add_action( 'rest_api_init', array( new Chat_Rest_Controller(), 'register_rest_routes' ) );
 	}
 
 	/**
@@ -97,20 +100,31 @@ class Jetpack_Chat {
 	 * Enqueues the Jetpack Odysseus scripts and styles.
 	 */
 	public function enqueue_jetpack_odysseus_scripts() {
-		// Enqueue the https://widgets.wp.com/odie/widget.js script.
-		// TODO: proper version time check.
-		wp_enqueue_script( 'jetpack-odysseus-widget', '//widgets.wp.com/odie/widget.js', array(), time(), true );
+		wp_enqueue_script( 'jetpack-odie-widget', '//widgets.wp.com/odie/widget.js', array(), time(), true );
+
+		$js_data = array(
+			'isRunningInJetpack' => true,
+			'jetpackXhrParams'   => array(
+				'apiRoot'     => esc_url_raw( rest_url() ),
+				'headerNonce' => wp_create_nonce( 'wp_rest' ),
+			),
+			'authToken'          => 'wpcom-proxy-request',
+		);
+
+		$js_config_data = 'window.JetpackXhrParams = ' . wp_json_encode( $js_data ) . ';';
+
+		wp_add_inline_script( 'jetpack-odie-widget', $js_config_data, 'before' );
 
 		Assets::register_script(
 			'jetpack-odie-js',
 			'build/odie.js',
 			JETPACK_CHAT_ROOT_FILE,
 			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-chat',
+				'in_footer'    => true,
+				'enqueue'      => true,
+				'dependencies' => array( 'jetpack-odie-widget' ),
 			)
 		);
-		Assets::enqueue_script( 'jetpack-odie-js' );
 	}
 
 	/**
