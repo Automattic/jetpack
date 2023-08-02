@@ -114,15 +114,47 @@ class AJAX {
 	}
 
 	/**
-	 * Determines if the current user can access gated content.
+	 * Determines if the current user can access restricted content.
+	 *
+	 * @param string $guid the video guid.
+	 * @param int    $embedded_post_id the post id.
+	 * @param int    $selected_plan_id the selected plan id.
 	 *
 	 * @return bool
 	 */
-	private function can_access_gated_content() {
-		if ( ! function_exists( 'Automattic\Jetpack\Extensions\Premium_Content\can' ) ) {
-			return current_user_can( 'read' );
+	private function can_access_restricted_content( $guid, $embedded_post_id, $selected_plan_id ) {
+		// "just" private content.
+		$default_auth = current_user_can( 'read' );
+
+		/*
+		if ( ! Jetpack::is_module_active( 'subscriptions' ) ) { */
+		/*
+			return $default_auth; */
+		/* } */
+
+		if ( class_exists( '\Jetpack_Memberships' ) ) {
+			// handle memberships - specific checks.
+			//
+			$memberships_can_view_post = \Jetpack_Memberships::user_can_view_post( $embedded_post_id );
+			if ( ! $memberships_can_view_post ) {
+				return false;
+			}
 		}
-		return true;
+
+		if ( function_exists( 'Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access_with_subscription' ) ) {
+			/* require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php'; */
+			if ( $selected_plan_id > 0 ) {
+				$paywall      = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+				$access_level = \Automattic\Jetpack\Extensions\Premium_Content\Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS; // Only paid subscribers should be granted access to the premium content
+				$can_view     = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );
+
+				if ( ! $can_view ) {
+					return false;
+				}
+			}
+		}
+
+		return $default_auth;
 	}
 
 	/**
@@ -153,15 +185,15 @@ class AJAX {
 				$is_user_authed = true;
 				break;
 			case VIDEOPRESS_PRIVACY::IS_PRIVATE:
-				$is_user_authed = current_user_can( 'read' );
-				break;
-			case VIDEOPRESS_PRIVACY::IS_GATED:
-				$is_user_authed = $this->can_access_gated_content( $guid, $embedded_post_id, $selected_plan_id );
+				$is_user_authed = $this->can_access_restricted_content( $guid, $embedded_post_id, $selected_plan_id );
 				break;
 			case VIDEOPRESS_PRIVACY::SITE_DEFAULT:
 			default:
 				$is_videopress_private_for_site = Data::get_videopress_videos_private_for_site();
-				$is_user_authed                 = false === $is_videopress_private_for_site || ( $is_videopress_private_for_site && current_user_can( 'read' ) );
+				$is_user_authed                 = true;
+				if ( $is_videopress_private_for_site ) {
+					$is_user_authed = $this->can_access_restricted_content( $guid, $embedded_post_id, $selected_plan_id );
+				}
 				break;
 		}
 
