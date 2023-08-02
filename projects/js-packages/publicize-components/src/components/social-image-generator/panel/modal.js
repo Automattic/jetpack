@@ -80,7 +80,7 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 						mediaDetails={ mediaDetails }
 						onChange={ onCustomImageChange }
 						allowedMediaTypes={ ALLOWED_MEDIA_TYPES }
-						imageClassName={ styles.customImage }
+						wrapperClassName={ styles.mediaPicker }
 					/>
 				) }
 				<TextControl

@@ -25,7 +25,7 @@ const clickHandler = open => e => {
  * @param {number} props.mediaId - The ID of the currently selected media
  * @param {object} props.mediaDetails - The details of the media for preview
  * @param {Function} props.onChange - A callback that can be passed to parent for validation
- * @param {string} props.imageClassName - A class name to be added to the image
+ * @param {string} props.wrapperClassName - A class name to be added to the wrapper
  * @returns {object} The media section.
  */
 export default function MediaPicker( {
@@ -34,7 +34,7 @@ export default function MediaPicker( {
 	mediaId = null,
 	mediaDetails = {},
 	onChange,
-	imageClassName,
+	wrapperClassName,
 } ) {
 	const { mediaData: { width, height, sourceUrl } = {}, metaData: { mime, length = null } = {} } =
 		mediaDetails;
@@ -57,7 +57,7 @@ export default function MediaPicker( {
 			}
 
 			return (
-				<div className={ styles[ 'preview-wrapper' ] }>
+				<div className={ classNames( styles[ 'preview-wrapper' ], wrapperClassName ) }>
 					<button className={ styles.remove } onClick={ onRemoveMedia }>
 						<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
 						<Icon icon={ closeSmall } />
@@ -75,18 +75,14 @@ export default function MediaPicker( {
 							></VideoPreview>
 						) : (
 							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
-								<img
-									src={ sourceUrl }
-									alt=""
-									className={ classNames( styles[ 'preview-image' ], imageClassName ) }
-								/>
+								<img src={ sourceUrl } alt="" className={ styles[ 'preview-image' ] } />
 							</ResponsiveWrapper>
 						) }
 					</button>
 				</div>
 			);
 		},
-		[ height, length, mime, onRemoveMedia, sourceUrl, width, imageClassName ]
+		[ height, length, mime, onRemoveMedia, sourceUrl, width, wrapperClassName ]
 	);
 
 	const renderPicker = useCallback(
