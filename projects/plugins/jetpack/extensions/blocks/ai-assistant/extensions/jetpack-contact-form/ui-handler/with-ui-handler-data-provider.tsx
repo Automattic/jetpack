@@ -32,6 +32,9 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// AI Assistant component visibility
 		const [ isVisible, setAssistantVisibility ] = useState( false );
 
+		// AI Assistant component is-fixed state
+		const [ isFixed, setAssistantFixed ] = useState( false );
+
 		// AI Assistant width
 		const [ width, setWidth ] = useState( 400 );
 
@@ -165,6 +168,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			() => ( {
 				inputValue,
 				isVisible,
+				isFixed,
 				popoverProps,
 				width,
 
@@ -172,9 +176,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				show,
 				hide,
 				toggle,
+				setAssistantFixed,
 				setPopoverProps,
 			} ),
-			[ inputValue, isVisible, popoverProps, width, show, hide, toggle ]
+			[ inputValue, isVisible, isFixed, popoverProps, width, show, hide, toggle ]
 		);
 
 		const setContent = useCallback(
