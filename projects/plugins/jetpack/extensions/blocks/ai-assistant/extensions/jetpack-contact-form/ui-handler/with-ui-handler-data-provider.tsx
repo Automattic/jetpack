@@ -157,6 +157,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
+			// Do not observe the anchor resize if the toolbar is fixed.
+			if ( isFixed ) {
+				return;
+			}
+
 			const resizeObserver = new ResizeObserver( () => {
 				setWidth( popoverProps.anchor?.getBoundingClientRect?.()?.width );
 			} );
@@ -166,7 +171,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			return () => {
 				resizeObserver.disconnect();
 			};
-		}, [ popoverProps.anchor ] );
+		}, [ popoverProps.anchor, isFixed ] );
 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
