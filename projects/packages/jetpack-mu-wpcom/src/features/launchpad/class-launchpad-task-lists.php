@@ -438,9 +438,8 @@ class Launchpad_Task_Lists {
 	 * @return boolean
 	 */
 	private function is_valid_url_or_path( $input ) {
-		// Validate as a full URL
-		$url_info = wp_parse_url( $input );
-		if ( $url_info !== false && isset( $url_info['scheme'] ) ) {
+		// Checks if the string is URL starting with the admin URL
+		if ( strpos( $input, admin_url() ) === 0 ) {
 			return true;
 		}
 

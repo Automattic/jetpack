@@ -435,8 +435,8 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	public function provide_get_calypso_path_validation_test_cases() {
 		return array(
 			'Full URL should be valid'                   => array(
-				'https://example.com/valid-full-url',
-				'https://example.com/valid-full-url',
+				'http://example.org/wp-admin/admin.php?page=jetpack#/discussion',
+				'http://example.org/wp-admin/admin.php?page=jetpack#/discussion',
 			),
 			'Same-protocol URL is rejected'              => array(
 				'//example.com/invalid-protocol-url',
