@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2023-08-01
+### Added
+- Add manage subscribers task. [#32064]
+- Add new subscribers modal task to newsletter launchpads. [#32042]
+- Add site_goals to the jetpack sync options. [#32068]
+- Add the Write 3 posts task for the newsletter flow. [#32012]
+- Launchpad: add calypso_url property to tasks where we know the Calypso page we want to show. [#32177]
+- Add back the update_about_page task to the intent-build list. [#32188]
+
+### Changed
+- Auto-formatted composer file. [#32005]
+
+### Removed
+- Remove duplicate task list [#32121]
+
 ## [4.1.0] - 2023-07-26
 ### Added
 - Add the intent check on the newsletter functions" [#32067]
@@ -255,6 +270,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[4.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.7.0...v4.0.0
 [3.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.6.0...v3.7.0

@@ -23,7 +23,13 @@ type SuggestionsEventSourceConstructorArgs = {
 		postId?: number;
 		feature?: 'ai-assistant-experimental' | string | undefined;
 		fromCache?: boolean;
+		functions?: Array< object >;
 	};
+};
+
+type FunctionCallProps = {
+	name?: string;
+	arguments?: string;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:suggestions-event-source' );
@@ -48,12 +54,17 @@ const debug = debugFactory( 'jetpack-ai-client:suggestions-event-source' );
  */
 export default class SuggestionsEventSource extends EventTarget {
 	fullMessage: string;
+	fullFunctionCall: FunctionCallProps;
 	isPromptClear: boolean;
 	controller: AbortController;
 
 	constructor( data: SuggestionsEventSourceConstructorArgs ) {
 		super();
 		this.fullMessage = '';
+		this.fullFunctionCall = {
+			name: '',
+			arguments: '',
+		};
 		this.isPromptClear = false;
 
 		// The AbortController is used to close the fetchEventSource connection
@@ -73,6 +84,7 @@ export default class SuggestionsEventSource extends EventTarget {
 			messages?: PromptMessagesProp;
 			question?: PromptProp;
 			feature?: string;
+			functions?: Array< object >;
 		} = {};
 
 		// Populate body data with post id
@@ -104,6 +116,12 @@ export default class SuggestionsEventSource extends EventTarget {
 		if ( options?.feature?.length ) {
 			debug( 'Feature: %o', options.feature );
 			bodyData.feature = options.feature;
+		}
+
+		// Propagate the functions option
+		if ( options?.functions?.length ) {
+			debug( 'Functions: %o', options.functions );
+			bodyData.functions = options.functions;
 		}
 
 		await fetchEventSource( url, {
@@ -201,14 +219,31 @@ export default class SuggestionsEventSource extends EventTarget {
 
 	processEvent( e: EventSourceMessage ) {
 		if ( e.data === '[DONE]' ) {
-			// Dispatch an event with the full content
-			this.dispatchEvent( new CustomEvent( 'done', { detail: this.fullMessage } ) );
-			debug( 'Done: %o', this.fullMessage );
-			return;
+			if ( this.fullMessage.length ) {
+				// Dispatch an event with the full content
+				this.dispatchEvent( new CustomEvent( 'done', { detail: this.fullMessage } ) );
+				debug( 'Done: %o', this.fullMessage );
+				return;
+			}
+
+			if ( this.fullFunctionCall.name.length ) {
+				this.dispatchEvent( new CustomEvent( 'function_done', { detail: this.fullFunctionCall } ) );
+				debug( 'Done: %o', this.fullFunctionCall );
+				return;
+			}
 		}
 
-		const data = JSON.parse( e.data );
-		const chunk = data.choices[ 0 ].delta.content;
+		let data;
+		try {
+			data = JSON.parse( e.data );
+		} catch ( err ) {
+			debug( 'Error parsing JSON', e, err );
+			return;
+		}
+		const { delta } = data?.choices?.[ 0 ] ?? { delta: { content: null, function_call: null } };
+		const chunk = delta.content;
+		const functionCallChunk = delta.function_call;
+
 		if ( chunk ) {
 			this.fullMessage += chunk;
 			this.checkForUnclearPrompt();
@@ -220,6 +255,21 @@ export default class SuggestionsEventSource extends EventTarget {
 				debug( 'suggestion: %o', this.fullMessage );
 				this.dispatchEvent( new CustomEvent( 'suggestion', { detail: this.fullMessage } ) );
 			}
+		}
+
+		if ( functionCallChunk ) {
+			if ( functionCallChunk.name != null ) {
+				this.fullFunctionCall.name += functionCallChunk.name;
+			}
+
+			if ( functionCallChunk.arguments != null ) {
+				this.fullFunctionCall.arguments += functionCallChunk.arguments;
+			}
+
+			// Dispatch an event with the function call
+			this.dispatchEvent(
+				new CustomEvent( 'functionCallChunk', { detail: this.fullFunctionCall } )
+			);
 		}
 	}
 

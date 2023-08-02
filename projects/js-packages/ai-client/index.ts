@@ -25,4 +25,7 @@ export { default as AIControl } from './src/components/ai-control';
  */
 export * from './src/data-flow';
 
-export * from './src/index.js';
+/*
+ * Types
+ */
+export * from './src/types';
