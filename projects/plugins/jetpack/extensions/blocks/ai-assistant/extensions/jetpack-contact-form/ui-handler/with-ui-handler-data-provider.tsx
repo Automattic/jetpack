@@ -107,6 +107,31 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			[ createNotice ]
 		);
 
+		const matchPopoverWidthToBlock = useCallback( () => {
+			if ( ! isFixed ) {
+				const idAttribute = `block-${ clientId }`;
+
+				let blockDomElement = document.getElementById( idAttribute );
+
+				if ( ! blockDomElement ) {
+					const iFrame: HTMLIFrameElement = document.querySelector(
+						'iframe[name="editor-canvas"]'
+					);
+
+					const iframeDocument = iFrame && iFrame.contentWindow.document;
+					if ( iframeDocument ) {
+						blockDomElement = iframeDocument.getElementById( idAttribute );
+					}
+
+					if ( ! blockDomElement ) {
+						return;
+					}
+				}
+
+				setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
+			}
+		}, [ clientId, isFixed ] );
+
 		/*
 		 * Set the anchor element for the popover.
 		 * For now, let's use the block representation in the canvas,
@@ -194,8 +219,19 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				toggle,
 				setAssistantFixed,
 				setPopoverProps,
+				matchPopoverWidthToBlock,
 			} ),
-			[ inputValue, isVisible, isFixed, popoverProps, width, show, hide, toggle ]
+			[
+				inputValue,
+				isVisible,
+				isFixed,
+				popoverProps,
+				width,
+				show,
+				hide,
+				toggle,
+				matchPopoverWidthToBlock,
+			]
 		);
 
 		const setContent = useCallback(

@@ -45,6 +45,8 @@ export type AiAssistantUiContextProps = {
 			| AiAssistantUiContextProps[ 'popoverProps' ]
 			| ( ( prev: AiAssistantUiContextProps[ 'popoverProps' ] ) => void )
 	) => void;
+
+	matchPopoverWidthToBlock: () => void;
 };
 
 type AiAssistantUiContextProviderProps = {
