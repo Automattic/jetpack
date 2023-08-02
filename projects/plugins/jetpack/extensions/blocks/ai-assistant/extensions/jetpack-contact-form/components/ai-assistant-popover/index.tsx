@@ -14,7 +14,7 @@ import './style.scss';
 /*
  * Types
  */
-import type { useAiContextOptions } from '@automattic/jetpack-ai-client';
+import type { UseAiContextOptions } from '@automattic/jetpack-ai-client';
 import type React from 'react';
 
 /**
@@ -22,7 +22,7 @@ import type React from 'react';
  * the AI Assistant data (from context),
  * and to subscribe to the request events (onDone, onSuggestion).
  *
- * @param {useAiContextOptions} options - the hook options.
+ * @param {UseAiContextOptions} options - the hook options.
  * @returns {React.Component}          the AI Assistant data context.
  */
 export const AiAssistantPopover = ( { onSuggestion, onDone, askQuestionOptions } ) => {
