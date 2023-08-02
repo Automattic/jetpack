@@ -2,7 +2,9 @@
  * External dependencies
  */
 import { useAiContext } from '@automattic/jetpack-ai-client';
+import { serialize } from '@wordpress/blocks';
 import { Button, KeyboardShortcuts, Popover, TextControl } from '@wordpress/components';
+import { select } from '@wordpress/data';
 import { useContext } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -16,14 +18,48 @@ import './style.scss';
  */
 import type React from 'react';
 
+type AiAssistantPopoverProps = {
+	clientId?: string;
+};
+
+/**
+ * Return the serialized content from the childrens block.
+ *
+ * @param {string} clientId - The block client ID.
+ * @returns {string}          The serialized content.
+ */
+function getSerializedContentFromBlock( clientId: string ): string {
+	if ( ! clientId?.length ) {
+		return '';
+	}
+
+	const block = select( 'core/block-editor' ).getBlock( clientId );
+	if ( ! block ) {
+		return '';
+	}
+
+	const { innerBlocks } = block;
+	if ( ! innerBlocks?.length ) {
+		return '';
+	}
+
+	return innerBlocks.reduce( ( acc, innerBlock ) => {
+		return acc + serialize( innerBlock ) + '\n\n';
+	}, '' );
+}
+
 /**
  * useAiContext hook to provide access to
  * the AI Assistant data (from context),
  * and to subscribe to the request events (onDone, onSuggestion).
  *
- * @returns {React.Component}          the AI Assistant data context.
+ * @param {string} clientId  - The block client ID. Optional.
+ * @returns {React.Component} the AI Assistant data context.
  */
-export const AiAssistantPopover = () => {
+
+export const AiAssistantPopover = ( {
+	clientId = '',
+}: AiAssistantPopoverProps ): React.ReactNode => {
 	const { isVisible, hide, toggle, popoverProps, inputValue, setInputValue } =
 		useContext( AiAssistantUiContext );
 
@@ -51,7 +87,7 @@ export const AiAssistantPopover = () => {
 						onClick={ () => {
 							const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
 								request: inputValue,
-								content: '',
+								content: getSerializedContentFromBlock( clientId ),
 							} );
 
 							requestSuggestion( prompt );

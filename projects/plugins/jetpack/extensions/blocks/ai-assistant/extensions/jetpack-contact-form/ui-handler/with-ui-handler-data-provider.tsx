@@ -171,7 +171,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 						},
 					} }
 				>
-					<AiAssistantPopover />
+					<AiAssistantPopover clientId={ clientId } />
 					<BlockListBlock { ...props } />
 				</KeyboardShortcuts>
 			</AiAssistantUiContextProvider>
