@@ -63,12 +63,12 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 							'description'          => 'Toggle checklist visibility',
 							'type'                 => 'object',
 							'properties'           => array(
-								'slug'  => array(
+								'slug'       => array(
 									'description' => 'Checklist slug',
 									'type'        => 'string',
 									'enum'        => $this->get_checklist_slug_enums(),
 								),
-								'value' => array(
+								'is_visible' => array(
 									'type' => 'boolean',
 								),
 							),
@@ -174,9 +174,9 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 
 				case 'is_checklist_visible':
 					$checklist_slug = $value['slug'];
-					$is_enabled     = $value['value'];
+					$is_visible     = $value['is_visible'];
 
-					wpcom_launchpad_set_task_list_visibility( $checklist_slug, $is_enabled );
+					wpcom_launchpad_set_task_list_visibility( $checklist_slug, $is_visible );
 					break;
 				default:
 					if ( update_option( $key, $value ) ) {

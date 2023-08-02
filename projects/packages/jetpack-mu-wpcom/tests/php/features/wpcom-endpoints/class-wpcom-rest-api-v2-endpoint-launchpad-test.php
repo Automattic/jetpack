@@ -87,8 +87,8 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		wp_set_current_user( $this->admin_id );
 
 		$values = array(
-			'slug'  => 'intent-build',
-			'value' => false,
+			'slug'       => 'intent-build',
+			'is_visible' => false,
 		);
 		$data   = array( 'is_checklist_visible' => $values );
 
