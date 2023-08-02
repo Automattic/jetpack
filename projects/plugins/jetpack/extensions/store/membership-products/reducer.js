@@ -6,7 +6,7 @@ export const DEFAULT_STATE = {
 	connectUrl: null,
 	siteSlug: '',
 	connectedAccountDefaultCurrency: '',
-	counts: {
+	subscriberCounts: {
 		socialFollowers: null,
 		emailSubscribers: null,
 		paidSubscribers: null,
@@ -28,29 +28,10 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 				...state,
 				connectedAccountDefaultCurrency: action.connectedAccountDefaultCurrency,
 			};
-		case 'SET_SOCIAL_FOLLOWER_COUNT':
+		case 'SET_SUBSCRIBER_COUNTS':
 			return {
 				...state,
-				counts: {
-					...state.counts,
-					socialFollowers: action.socialFollowers,
-				},
-			};
-		case 'SET_EMAIL_SUBSCRIBER_COUNT':
-			return {
-				...state,
-				counts: {
-					...state.counts,
-					emailSubscribers: action.emailSubscribers,
-				},
-			};
-		case 'SET_PAID_SUBSCRIBER_COUNT':
-			return {
-				...state,
-				counts: {
-					...state.counts,
-					paidSubscribers: action.paidSubscribers,
-				},
+				subscriberCounts: action.subscriberCounts,
 			};
 	}
 	return state;

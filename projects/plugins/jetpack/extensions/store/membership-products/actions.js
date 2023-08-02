@@ -104,17 +104,7 @@ export const saveProduct =
 		}
 	};
 
-export const setSocialFollowerCount = socialFollowers => ( {
-	type: 'SET_SOCIAL_FOLLOWER_COUNT',
-	socialFollowers,
-} );
-
-export const setEmailSubscriberCount = emailSubscribers => ( {
-	type: 'SET_EMAIL_SUBSCRIBER_COUNT',
-	emailSubscribers,
-} );
-
-export const setPaidSubscriberCount = paidSubscribers => ( {
-	type: 'SET_PAID_SUBSCRIBER_COUNT',
-	paidSubscribers,
+export const setSubscriberCounts = subscriberCounts => ( {
+	type: 'SET_SUBSCRIBER_COUNTS',
+	subscriberCounts,
 } );

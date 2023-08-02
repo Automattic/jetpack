@@ -42,11 +42,8 @@ export function NewsletterNotice( { accessLevel } ) {
 		};
 	} );
 
-	const emailSubscribers = useSelect( select =>
-		select( membershipProductsStore ).getEmailSubscriberCount()
-	);
-	const paidSubscribers = useSelect( select =>
-		select( membershipProductsStore ).getPaidSubscriberCount()
+	const { emailSubscribers, paidSubscribers } = useSelect( select =>
+		select( membershipProductsStore ).getSubscriberCounts()
 	);
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );

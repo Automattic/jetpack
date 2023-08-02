@@ -12,9 +12,7 @@ import {
 	setProducts,
 	setSiteSlug,
 	setConnectedAccountDefaultCurrency,
-	setSocialFollowerCount,
-	setEmailSubscriberCount,
-	setPaidSubscriberCount,
+	setSubscriberCounts,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
@@ -88,16 +86,6 @@ const fetchSubscriberCounts = async () => {
 	}
 
 	return response;
-};
-
-const mapSubscriberCountsAPIResponseToMembershipProductsStoreData = (
-	response,
-	registry,
-	dispatch
-) => {
-	dispatch( setSocialFollowerCount( response.counts.social_followers ) );
-	dispatch( setEmailSubscriberCount( response.counts.email_subscribers ) );
-	dispatch( setPaidSubscriberCount( response.counts.paid_subscribers ) );
 };
 
 const createDefaultProduct = async (
@@ -191,7 +179,13 @@ export const getSubscriberCounts =
 		const lock = executionLock.acquire( SUBSCRIBER_COUNT_EXECUTION_KEY );
 		try {
 			const response = await fetchSubscriberCounts();
-			mapSubscriberCountsAPIResponseToMembershipProductsStoreData( response, registry, dispatch );
+			dispatch(
+				setSubscriberCounts( {
+					socialFollowers: response.counts.social_followers,
+					emailSubscribers: response.counts.email_subscribers,
+					paidSubscribers: response.counts.paid_subscribers,
+				} )
+			);
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );

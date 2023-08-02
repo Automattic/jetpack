@@ -170,12 +170,10 @@ function NewsletterPrePublishSettingsPanel( {
 }
 
 function NewsletterPostPublishSettingsPanel( { accessLevel, isModuleActive } ) {
-	const emailSubscribers = useSelect( select =>
-		select( membershipProductsStore ).getEmailSubscriberCount()
-	);
-	const paidSubscribers = useSelect( select =>
-		select( membershipProductsStore ).getPaidSubscriberCount()
-	);
+	const { emailSubscribers, paidSubscribers } = useSelect( select => {
+		const test = select( membershipProductsStore ).getSubscriberCounts();
+		return test;
+	} );
 
 	const { postName, postPublishedLink } = useSelect( select => {
 		const currentPost = select( editorStore ).getCurrentPost();
@@ -288,8 +286,6 @@ export default function SubscribePanels() {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const { tracks } = useAnalytics();
 
-	const { getSubscriberCounts } = useSelect( select => select( membershipProductsStore ) );
-
 	// Set the accessLevel to "everybody" when one is not defined
 	let accessLevel =
 		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? accessOptions.everybody.key;
@@ -303,8 +299,7 @@ export default function SubscribePanels() {
 		if ( ! isModuleActive ) {
 			return;
 		}
-		getSubscriberCounts();
-	}, [ isModuleActive, getSubscriberCounts ] );
+	}, [ isModuleActive ] );
 
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.
 	// TODO: Make it available for pages later.
