@@ -4,6 +4,7 @@ const sharesDataSelectors = {
 	getPostsCount: state => state.sharesData?.shared_posts_count ?? 0,
 	isShareLimitEnabled: state => state.sharesData?.is_share_limit_enabled ?? false,
 	numberOfSharesRemaining: state => state.sharesData?.shares_remaining ?? null,
+	shouldShowAdvancedPlanNudge: state => state.jetpackSettings?.show_advanced_plan_upgrade_nudge,
 };
 
 export default sharesDataSelectors;

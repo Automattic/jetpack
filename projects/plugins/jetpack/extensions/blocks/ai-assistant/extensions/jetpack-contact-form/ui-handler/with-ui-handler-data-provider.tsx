@@ -7,12 +7,20 @@ import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect } from '@wordpress/element';
+import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
 import { AiAssistantPopover } from '../components/ai-assistant-popover';
 import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
+/**
+ * Types
+ */
+import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
+
+// An identifier to use on the extension error notices,
+const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
@@ -23,6 +31,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 		// AI Assistant component visibility
 		const [ isVisible, setAssistantVisibility ] = useState( false );
+
+		// AI Assistant width
+		const [ width, setWidth ] = useState( 400 );
+
+		// AI Assistant popover props
 		const [ popoverProps, setPopoverProps ] = useState<
 			AiAssistantUiContextProps[ 'popoverProps' ]
 		>( {
@@ -73,6 +86,24 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			dispatch( 'core/block-editor' ).selectBlock( props.clientId );
 		}, [ props.clientId ] );
 
+		const { createNotice } = useDispatch( noticesStore );
+
+		/**
+		 * Show the error notice
+		 *
+		 * @param {RequestingErrorProps} suggestionError
+		 * @returns {void}
+		 */
+		const showSuggestionError = useCallback(
+			( { severity, message }: RequestingErrorProps ) => {
+				createNotice( severity, message, {
+					isDismissible: true,
+					id: AI_ASSISTANT_JETPACK_FORM_NOTICE_ID,
+				} );
+			},
+			[ createNotice ]
+		);
+
 		/*
 		 * Set the anchor element for the popover.
 		 * For now, let's use the block representation in the canvas,
@@ -101,6 +132,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			}
 
 			setPopoverProps( prev => ( { ...prev, anchor: blockDomElement } ) );
+			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
 		}, [ clientId ] );
 
 		// Show/hide the assistant based on the block selection.
@@ -111,12 +143,30 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			hide();
 		}, [ isSelected, hide ] );
 
+		// Update width when the anchor resize change.
+		useEffect( () => {
+			if ( ! popoverProps.anchor ) {
+				return;
+			}
+
+			const resizeObserver = new ResizeObserver( () => {
+				setWidth( popoverProps.anchor?.getBoundingClientRect?.()?.width );
+			} );
+
+			resizeObserver.observe( popoverProps.anchor );
+
+			return () => {
+				resizeObserver.disconnect();
+			};
+		}, [ popoverProps.anchor ] );
+
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
 			() => ( {
 				inputValue,
 				isVisible,
 				popoverProps,
+				width,
 
 				setInputValue,
 				show,
@@ -124,7 +174,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				toggle,
 				setPopoverProps,
 			} ),
-			[ inputValue, isVisible, popoverProps, show, hide, toggle ]
+			[ inputValue, isVisible, popoverProps, width, show, hide, toggle ]
 		);
 
 		const setContent = useCallback(
@@ -147,9 +197,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		);
 
 		useAiContext( {
+			askQuestionOptions: { postId },
 			onDone: setContent,
 			onSuggestion: setContent,
-			askQuestionOptions: { postId },
+			onError: showSuggestionError,
 		} );
 
 		/*
