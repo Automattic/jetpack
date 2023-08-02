@@ -116,6 +116,9 @@ importers:
       '@wordpress/components':
         specifier: 25.3.0
         version: 25.3.0(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/compose':
+        specifier: 6.14.0
+        version: 6.14.0(react@18.2.0)
       '@wordpress/data':
         specifier: 9.7.0
         version: 9.7.0(react@18.2.0)
@@ -11018,7 +11021,7 @@ packages:
       '@wordpress/blob': 3.37.0
       '@wordpress/blocks': 12.14.0(react@18.2.0)
       '@wordpress/components': 25.3.0(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/compose': 6.14.0(react@18.2.0)
+      '@wordpress/compose': 6.15.0(react@18.2.0)
       '@wordpress/data': 9.7.0(react@18.2.0)
       '@wordpress/date': 4.37.0
       '@wordpress/deprecated': 3.38.0
@@ -11200,7 +11203,7 @@ packages:
       '@wordpress/autop': 3.37.0
       '@wordpress/blob': 3.37.0
       '@wordpress/block-serialization-default-parser': 4.37.0
-      '@wordpress/compose': 6.14.0(react@18.2.0)
+      '@wordpress/compose': 6.15.0(react@18.2.0)
       '@wordpress/data': 9.7.0(react@18.2.0)
       '@wordpress/deprecated': 3.37.0
       '@wordpress/dom': 3.37.0
@@ -11439,7 +11442,7 @@ packages:
       '@radix-ui/react-dropdown-menu': 2.0.5(react-dom@18.2.0)(react@18.2.0)
       '@use-gesture/react': 10.2.27(react@18.2.0)
       '@wordpress/a11y': 3.37.0
-      '@wordpress/compose': 6.14.0(react@18.2.0)
+      '@wordpress/compose': 6.15.0(react@18.2.0)
       '@wordpress/date': 4.37.0
       '@wordpress/deprecated': 3.38.0
       '@wordpress/dom': 3.38.0
@@ -11495,12 +11498,12 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.6
       '@types/mousetrap': 1.6.11
-      '@wordpress/deprecated': 3.37.0
-      '@wordpress/dom': 3.37.0
+      '@wordpress/deprecated': 3.38.0
+      '@wordpress/dom': 3.38.0
       '@wordpress/element': 5.14.0
-      '@wordpress/is-shallow-equal': 4.37.0
-      '@wordpress/keycodes': 3.37.0
-      '@wordpress/priority-queue': 2.37.0
+      '@wordpress/is-shallow-equal': 4.38.0
+      '@wordpress/keycodes': 3.38.0
+      '@wordpress/priority-queue': 2.38.0
       change-case: 4.1.2
       clipboard: 2.0.11
       mousetrap: 1.6.5
@@ -12538,6 +12541,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.6
       requestidlecallback: 0.3.0
+    dev: true
 
   /@wordpress/priority-queue@2.38.0:
     resolution: {integrity: sha512-Cb3uQ7EDuNA8aLrySgFVBFTg3CSoIHnJk1M496hd7vk1knP85mw+LsoL/g7kcz6tAlHlqQgc0SPwqz2+TZ24xQ==}
@@ -12683,7 +12687,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.6
       '@wordpress/a11y': 3.37.0
-      '@wordpress/compose': 6.14.0(react@18.2.0)
+      '@wordpress/compose': 6.15.0(react@18.2.0)
       '@wordpress/data': 9.7.0(react@18.2.0)
       '@wordpress/deprecated': 3.37.0
       '@wordpress/element': 5.14.0
