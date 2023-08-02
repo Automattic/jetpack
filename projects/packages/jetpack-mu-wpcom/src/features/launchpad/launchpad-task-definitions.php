@@ -1252,12 +1252,49 @@ function wpcom_is_add_about_page_visible() {
 	return ! wpcom_is_update_about_page_task_visible();
 }
 
+function wpcom_add_about_page_check( $post_id, $post ) {
+	error_log( 'wpcom_add_about_page_check' );
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// We only care about pages, ignore other post types.
+	if ( $post->post_type !== 'page' ) {
+		return;
+	}
+
+	// We only care about published pages. Pages added via the API are not published by default.
+	if ( $post->post_status !== 'publish' ) {
+		return;
+	}
+
+	// Don't do anything if the task is already complete.
+	if ( wpcom_is_task_option_completed( array( 'id' => 'add_about_page' ) ) ) {
+		return;
+	}
+
+	// If the page is the previously located About page, ignore it.
+	$about_page_id = wpcom_get_site_about_page_id();
+	if ( null !== $about_page_id && $post->ID === $about_page_id ) {
+		return;
+	}
+
+	// TODO - How can we tell if the page being added is an About page?
+	error_log( print_r( $post, true ) );
+
+	// wpcom_mark_launchpad_task_complete( 'add_about_page' );
+}
+add_action( 'wp_insert_post', 'wpcom_add_about_page_check', 10, 3 );
+
 /**
  * Determine `update_about_page` task visibility. The task is visible if there is an 'About' page on the site.
  *
  * @return bool True if we should show the task, false otherwise.
  */
 function wpcom_is_update_about_page_task_visible() {
+	// TODO - Need to make this visible in the case that add_about_page has happened. We need to get that page id somehow.
+
 	// The task isn't visible if the task title hasn't been translated into the current locale.
 	if ( ! wpcom_launchpad_has_translation( 'Update your About page', 'jetpack-mu-wpcom' ) ) {
 		return false;
