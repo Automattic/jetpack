@@ -126,30 +126,25 @@ class AJAX {
 		// "just" private content.
 		$default_auth = current_user_can( 'read' );
 
-		/*
-		if ( ! Jetpack::is_module_active( 'subscriptions' ) ) { */
-		/*
-			return $default_auth; */
-		/* } */
-
 		if ( class_exists( '\Jetpack_Memberships' ) ) {
-			// handle memberships - specific checks.
-			//
 			$memberships_can_view_post = \Jetpack_Memberships::user_can_view_post( $embedded_post_id );
 			if ( ! $memberships_can_view_post ) {
 				return false;
 			}
 		}
 
-		if ( function_exists( 'Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access_with_subscription' ) ) {
-			/* require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php'; */
-			if ( $selected_plan_id > 0 ) {
-				$paywall      = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-				$access_level = \Automattic\Jetpack\Extensions\Premium_Content\Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS; // Only paid subscribers should be granted access to the premium content
-				$can_view     = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );
+		if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			$subscription_service_file_path = JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+			if ( file_exists( $subscription_service_file_path ) ) {
+				require_once $subscription_service_file_path;
+				if ( $selected_plan_id > 0 ) {
+					$paywall      = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+					$access_level = \Automattic\Jetpack\Extensions\Premium_Content\Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS; // Only paid subscribers should be granted access to the premium content
+					$can_view     = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );
 
-				if ( ! $can_view ) {
-					return false;
+					if ( ! $can_view ) {
+						return false;
+					}
 				}
 			}
 		}
