@@ -76,7 +76,6 @@ export const VIDEO_EXTENSIONS = [ 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp
 export const VIDEO_PRIVACY_LEVEL_PUBLIC = 'public';
 export const VIDEO_PRIVACY_LEVEL_PRIVATE = 'private';
 export const VIDEO_PRIVACY_LEVEL_SITE_DEFAULT = 'site-default';
-export const VIDEO_PRIVACY_LEVEL_GATED = 'gated';
 
 /*
  * Order is very important here.
@@ -87,7 +86,6 @@ export const VIDEO_PRIVACY_LEVELS = [
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
-	VIDEO_PRIVACY_LEVEL_GATED,
 ];
 
 /*

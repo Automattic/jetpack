@@ -52,19 +52,14 @@ function render_subscriber_view_block( $attributes, $content, $block = null ) {
 		return '';
 	}
 
-	// Use this to reset any previous calls to
-	do_action( 'render_subscriber_view_block_visitor_pre', $attributes, $block );
-
 	$visitor_has_access = current_visitor_can_access( $attributes, $block );
 
 	if ( $visitor_has_access ) {
-		do_action( 'render_subscriber_view_block_visitor_has_access', $visitor_has_access, $attributes, $block );
 		Jetpack_Gutenberg::load_styles_as_required( SUBSCRIBER_VIEW_NAME );
 
 		// The viewer has access to premium content, so the viewer can see the subscriber view content.
 		return $content;
 	}
-	do_action( 'render_subscriber_view_block_visitor_has_no_access', $visitor_has_access, $attributes, $block );
 
 	return '';
 }
