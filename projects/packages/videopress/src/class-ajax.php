@@ -82,6 +82,7 @@ class AJAX {
 	public function wp_ajax_videopress_get_playback_jwt() {
 		$guid             = filter_input( INPUT_POST, 'guid' );
 		$embedded_post_id = filter_input( INPUT_POST, 'post_id', FILTER_VALIDATE_INT );
+		$selected_plan_id = filter_input( INPUT_POST, 'subscription_plan_id' );
 
 		if ( empty( $embedded_post_id ) ) {
 			$embedded_post_id = 0;
@@ -92,7 +93,7 @@ class AJAX {
 			return;
 		}
 
-		if ( ! $this->is_current_user_authed_for_video( $guid, $embedded_post_id ) ) {
+		if ( ! $this->is_current_user_authed_for_video( $guid, $embedded_post_id, $selected_plan_id ) ) {
 			wp_send_json_error( array( 'message' => __( 'You cannot view this video.', 'jetpack-videopress-pkg' ) ) );
 			return;
 		}
@@ -118,7 +119,10 @@ class AJAX {
 	 * @return bool
 	 */
 	private function can_access_gated_content() {
-		return false;
+		if ( ! function_exists( 'Automattic\Jetpack\Extensions\Premium_Content\can' ) ) {
+			return current_user_can( 'read' );
+		}
+		return true;
 	}
 
 	/**
@@ -128,8 +132,9 @@ class AJAX {
 	 *
 	 * @param string $guid             The video id being checked.
 	 * @param int    $embedded_post_id The post id the video is embedded in or 0.
+	 * @param int    $selected_plan_id The plan id the earn block this video is embedded in has.
 	 */
-	private function is_current_user_authed_for_video( $guid, $embedded_post_id ) {
+	private function is_current_user_authed_for_video( $guid, $embedded_post_id, $selected_plan_id = 0 ) {
 		$attachment = videopress_get_post_by_guid( $guid );
 		if ( ! $attachment ) {
 			return false;
@@ -141,6 +146,7 @@ class AJAX {
 		}
 
 		$is_user_authed = false;
+
 		// Determine if video is public, private or use site default.
 		switch ( $video_info->privacy_setting ) {
 			case VIDEOPRESS_PRIVACY::IS_PUBLIC:
@@ -150,7 +156,7 @@ class AJAX {
 				$is_user_authed = current_user_can( 'read' );
 				break;
 			case VIDEOPRESS_PRIVACY::IS_GATED:
-				$is_user_authed = $this->can_access_gated_content( $guid, $embedded_post_id );
+				$is_user_authed = $this->can_access_gated_content( $guid, $embedded_post_id, $selected_plan_id );
 				break;
 			case VIDEOPRESS_PRIVACY::SITE_DEFAULT:
 			default:

@@ -52,6 +52,7 @@ function render_subscriber_view_block( $attributes, $content, $block = null ) {
 		return '';
 	}
 
+	// Use this to reset any previous calls to
 	do_action( 'render_subscriber_view_block_visitor_pre', $attributes, $block );
 
 	$visitor_has_access = current_visitor_can_access( $attributes, $block );

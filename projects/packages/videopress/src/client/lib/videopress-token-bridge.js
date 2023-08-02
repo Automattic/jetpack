@@ -24,9 +24,16 @@
 			'*'
 		);
 
+		// $script_content = "window.__guidsToPlanIds || window.__guidsToPlanIds = {}; window.__guidsToPlanIds['$guid'] = $premium_block_plan_id;";
+		const subscriptionPlanId =
+			window.__guidsToPlanIds && window.__guidsToPlanIds[ event.data.guid ]
+				? window.__guidsToPlanIds[ event.data.guid ]
+				: 0;
+
 		const fetchData = {
 			action: 'videopress-get-playback-jwt',
 			guid: event.data.guid,
+			subscription_plan_id: subscriptionPlanId,
 			post_id: window.videopressAjax.post_id || 0,
 		};
 
