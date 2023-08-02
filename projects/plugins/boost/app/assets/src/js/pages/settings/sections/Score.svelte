@@ -17,6 +17,7 @@
 	import debounce from '../../../utils/debounce';
 	import PopOut from '../elements/PopOut.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
+	import History from './History.svelte';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
 
@@ -34,6 +35,8 @@
 		noBoost: null,
 		isStale: false,
 	};
+
+	let refreshHistory;
 
 	// Load the speed score. Will be cached in the plugin.
 	loadScore();
@@ -89,6 +92,9 @@
 			);
 			scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 			showPrevScores = didScoresChange( scores ) && ! scores.isStale;
+
+			// Trigger a refresh of the performance history.
+			refreshHistory();
 		} catch ( err ) {
 			recordBoostEvent( 'speed_score_request_error', {
 				error_message: castToString( err.message ),
@@ -180,6 +186,8 @@
 			noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
 		/>
 	</div>
+
+	<History bind:refresh={refreshHistory} />
 </div>
 
 {#if modalData}
