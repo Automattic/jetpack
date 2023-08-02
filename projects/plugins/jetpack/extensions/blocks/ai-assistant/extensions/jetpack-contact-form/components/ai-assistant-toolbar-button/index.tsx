@@ -28,14 +28,13 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 			return;
 		}
 
-		const toolbar: HTMLElement = anchorRef.current.closest(
-			'.block-editor-block-contextual-toolbar'
-		);
+		const toolbar = anchorRef.current.closest( '.block-editor-block-contextual-toolbar' );
 		if ( ! toolbar ) {
 			return;
 		}
-
 		const isFixed = toolbar.classList.contains( 'is-fixed' );
+		setAssistantFixed( isFixed );
+
 		if ( ! isFixed ) {
 			return;
 		}
@@ -46,8 +45,6 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 			offset: 0,
 			variant: 'toolbar',
 		} ) );
-
-		setAssistantFixed( true );
 	}, [ setAssistantFixed, setPopoverProps ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
