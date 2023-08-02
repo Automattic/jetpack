@@ -94,12 +94,6 @@ export default function usePublicizeConfig() {
 	 */
 	const isEnhancedPublishingEnabled = !! getJetpackData()?.social?.isEnhancedPublishingEnabled;
 
-	/**
-	 * hasBasicPlan:
-	 * Whether the site has the Basic plan.
-	 */
-	const hasBasicPlan = hasPaidPlan && ! isEnhancedPublishingEnabled;
-
 	return {
 		isPublicizeEnabledMeta,
 		isPublicizeEnabled,
@@ -113,7 +107,6 @@ export default function usePublicizeConfig() {
 		numberOfSharesRemaining: sharesData.shares_remaining,
 		shouldShowAdvancedPlanNudge: sharesData.show_advanced_plan_upgrade_nudge,
 		hasPaidPlan,
-		hasBasicPlan,
 		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,

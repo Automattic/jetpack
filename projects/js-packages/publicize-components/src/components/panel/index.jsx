@@ -28,7 +28,6 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 		isShareLimitEnabled,
 		numberOfSharesRemaining,
 		hasPaidPlan,
-		hasBasicPlan,
 		connectionsAdminUrl,
 		adminUrl,
 		isEnhancedPublishingEnabled,
@@ -86,7 +85,6 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 							isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
 						}
 						isEnhancedPublishingEnabled={ isEnhancedPublishingEnabled }
-						hasBasicPlan={ hasBasicPlan }
 						isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable }
 						adminUrl={ adminUrl }
 						shouldShowAdvancedPlanNudge={ shouldShowAdvancedPlanNudge }

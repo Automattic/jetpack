@@ -44,7 +44,6 @@ const checkConnectionCode = ( connection, code ) =>
  * @param {boolean} props.isSocialImageGeneratorAvailable - Whether the Social Image Generator feature is available. Optional.
  * @param {string} props.connectionsAdminUrl              - URL to the Admin connections page
  * @param {string} props.adminUrl                         - URL af the plugin's admin page to redirect to after a plan upgrade
- * @param {boolean} props.hasBasicPlan                    - Whether the site has a basic plan
  * @param {boolean} props.shouldShowAdvancedPlanNudge     - Whether the advanced plan nudge should be shown
  * @returns {object}                                      - Publicize form component.
  */
@@ -53,7 +52,6 @@ export default function PublicizeForm( {
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
 	isEnhancedPublishingEnabled = false,
-	hasBasicPlan = false,
 	shouldShowAdvancedPlanNudge = false,
 	isSocialImageGeneratorAvailable = false,
 	connectionsAdminUrl,
