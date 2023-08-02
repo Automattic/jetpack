@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { requestSpeedScoresHistory } from '@automattic/jetpack-boost-score-api';
-	import { BoostScoreGraph } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
+	import { PerformanceHistory } from '../../../react-components/PerformanceHistory';
+	import { performanceHistoryPanelDS } from '../../../stores/data-sync-client';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import { castToString } from '../../../utils/cast-to-string';
 
@@ -46,10 +47,15 @@
 			isLoading = false;
 		}
 	}
+
+	const panelStore = performanceHistoryPanelDS.store;
+	const onToggleHistory = status => {
+		panelStore.set( status );
+	};
 </script>
 
 <div class="jb-container">
-	<div class="jb-site-score" class:loading={isLoading}>
+	<div class="jb-performance-history" class:loading={isLoading}>
 		{#if loadError}
 			<ErrorNotice
 				title={__( 'Failed to load performance history', 'jetpack-boost' )}
@@ -59,9 +65,10 @@
 			/>
 		{/if}
 		<ReactComponent
-			this={BoostScoreGraph}
+			this={PerformanceHistory}
+			onToggle={onToggleHistory}
+			isOpen={$panelStore}
 			{periods}
-			title={__( 'Performance history', 'jetpack-boost' )}
 		/>
 	</div>
 </div>
