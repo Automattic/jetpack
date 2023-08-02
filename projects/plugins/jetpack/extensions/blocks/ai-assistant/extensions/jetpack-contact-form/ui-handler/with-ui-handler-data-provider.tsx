@@ -139,7 +139,13 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
-			setPopoverProps( prev => ( { ...prev, anchor: blockDomElement } ) );
+			setPopoverProps( prev => ( {
+				...prev,
+				anchor: blockDomElement,
+				placement: 'bottom-start',
+				offset: 12,
+			} ) );
+
 			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
 		}, [ clientId, isFixed ] );
 
