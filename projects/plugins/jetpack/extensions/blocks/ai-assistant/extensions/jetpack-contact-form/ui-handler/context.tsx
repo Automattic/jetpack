@@ -8,6 +8,8 @@ export type AiAssistantUiContextProps = {
 
 	isVisible: boolean;
 
+	width?: number;
+
 	popoverProps?: {
 		anchor: HTMLElement | null;
 		offset?: number;

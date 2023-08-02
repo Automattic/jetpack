@@ -10,7 +10,6 @@ import { __ } from '@wordpress/i18n';
  */
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
-import './style.scss';
 /*
  * Types
  */
@@ -24,7 +23,7 @@ import type React from 'react';
  * @returns {React.Component}          the AI Assistant data context.
  */
 export const AiAssistantPopover = () => {
-	const { toggle, isVisible, popoverProps, inputValue, setInputValue } =
+	const { toggle, isVisible, popoverProps, inputValue, setInputValue, width } =
 		useContext( AiAssistantUiContext );
 
 	const { requestSuggestion, requestingState } = useAiContext();
@@ -53,25 +52,24 @@ export const AiAssistantPopover = () => {
 	};
 
 	return (
-		<Popover { ...popoverProps } className="jetpack-ai-assistant__popover">
+		<Popover { ...popoverProps } animate={ false }>
 			<KeyboardShortcuts
 				bindGlobal
 				shortcuts={ {
 					'mod+/': toggle,
 				} }
-			>
-				<div className="jetpack-ai-assistant__popover-container">
-					<AIControl
-						loading={ isLoading }
-						value={ inputValue }
-						placeholder={ __( 'Which form do you need?', 'jetpack' ) }
-						onChange={ setInputValue }
-						onSend={ onSend }
-						onStop={ onStop }
-						onAccept={ onAccept }
-					/>
-				</div>
-			</KeyboardShortcuts>
+			/>
+			<div style={ { width } }>
+				<AIControl
+					loading={ isLoading }
+					value={ inputValue }
+					placeholder={ __( 'Which form do you need?', 'jetpack' ) }
+					onChange={ setInputValue }
+					onSend={ onSend }
+					onStop={ onStop }
+					onAccept={ onAccept }
+				/>
+			</div>
 		</Popover>
 	);
 };
