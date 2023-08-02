@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update tiny image check to treat images who's dimentions are missing as tiny.
