@@ -108,7 +108,7 @@ const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
  * @param {SuggestionErrorCode} errorCode - The error code.
  * @returns {RequestingErrorProps}          The error data.
  */
-function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorProps {
+export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorProps {
 	switch ( errorCode ) {
 		case ERROR_QUOTA_EXCEEDED:
 			return {

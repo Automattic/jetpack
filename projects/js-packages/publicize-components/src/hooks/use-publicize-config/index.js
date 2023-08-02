@@ -105,6 +105,7 @@ export default function usePublicizeConfig() {
 		isShareLimitEnabled,
 		isPostAlreadyShared,
 		numberOfSharesRemaining: sharesData.shares_remaining,
+		shouldShowAdvancedPlanNudge: sharesData.show_advanced_plan_upgrade_nudge,
 		hasPaidPlan,
 		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
