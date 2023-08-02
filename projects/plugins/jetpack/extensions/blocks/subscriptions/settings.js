@@ -1,7 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Flex, Notice, FlexBlock, PanelRow, VisuallyHidden, Spinner } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
-import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
@@ -171,13 +170,12 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 }
 
 function NewsletterAccessRadioButtons( {
+	onChange,
 	accessLevel,
 	hasNewsletterPlans,
 	stripeConnectUrl,
 	isEditorPanel = false,
 } ) {
-	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const isStripeConnected = stripeConnectUrl === null;
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons );
 
@@ -199,8 +197,9 @@ function NewsletterAccessRadioButtons( {
 							( ! isStripeConnected || ! hasNewsletterPlans )
 						}
 						onChange={ event => {
-							postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] = event?.target?.value;
-							return setPostMeta( { ...postMeta } );
+							const obj = {};
+							obj[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] = event?.target?.value;
+							return onChange && onChange( obj );
 						} }
 					/>
 					<label
@@ -227,7 +226,7 @@ function NewsletterAccessRadioButtons( {
 	);
 }
 
-export function NewsletterAccessDocumentSettings( { accessLevel } ) {
+export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
 		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
@@ -266,6 +265,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 								<div className="editor-post-visibility">
 									<NewsletterAccessRadioButtons
 										isEditorPanel={ true }
+										onChange={ setPostMeta }
 										accessLevel={ _accessLevel }
 										stripeConnectUrl={ stripeConnectUrl }
 										hasNewsletterPlans={ hasNewsletterPlans }
@@ -283,7 +283,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 	);
 }
 
-export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
+export function NewsletterAccessPrePublishSettings( { accessLevel, setPostMeta } ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
 		const { getProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
@@ -322,6 +322,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 							<>
 								<FlexBlock>
 									<NewsletterAccessRadioButtons
+										onChange={ setPostMeta }
 										accessLevel={ _accessLevel }
 										stripeConnectUrl={ stripeConnectUrl }
 										hasNewsletterPlans={ hasNewsletterPlans }
