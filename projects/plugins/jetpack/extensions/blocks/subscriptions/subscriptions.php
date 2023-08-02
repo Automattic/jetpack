@@ -821,8 +821,11 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		? esc_html__( 'This post is for paid subscribers', 'jetpack' )
 		: esc_html__( 'This post is for subscribers', 'jetpack' );
 
-	// translators: %s is the name of the site.
-	$subscribe_text = sprintf( esc_html__( 'Subscribe to %s to keep reading and get access to the full archive.', 'jetpack' ), get_bloginfo( 'name' ) );
+	$subscribe_text = $is_paid_post
+		// translators: %s is the name of the site.
+		? sprintf( esc_html__( 'Subscribe to %s to keep reading and receive all new posts in your inbox.', 'jetpack' ), get_bloginfo( 'name' ) )
+		// translators: %s is the name of the site.
+		: sprintf( esc_html__( 'Subscribe to %s to keep reading, receive all new posts in your inbox and have access to the full archives.', 'jetpack' ), get_bloginfo( 'name' ) );
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
