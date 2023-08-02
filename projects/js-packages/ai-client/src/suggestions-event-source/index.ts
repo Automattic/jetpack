@@ -190,7 +190,7 @@ export default class SuggestionsEventSource extends EventTarget {
 					this.dispatchEvent( new CustomEvent( ERROR_MODERATION ) );
 				}
 
-				// Always dispatch a global responseError event
+				// Always dispatch a global ERROR_RESPONSE event
 				this.dispatchEvent(
 					new CustomEvent( ERROR_RESPONSE, {
 						detail: getErrorData( errorCode ),
