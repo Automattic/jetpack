@@ -170,10 +170,9 @@ function NewsletterPrePublishSettingsPanel( {
 }
 
 function NewsletterPostPublishSettingsPanel( { accessLevel, isModuleActive } ) {
-	const { emailSubscribers, paidSubscribers } = useSelect( select => {
-		const test = select( membershipProductsStore ).getSubscriberCounts();
-		return test;
-	} );
+	const { emailSubscribers, paidSubscribers } = useSelect( select =>
+		select( membershipProductsStore ).getSubscriberCounts()
+	);
 
 	const { postName, postPublishedLink } = useSelect( select => {
 		const currentPost = select( editorStore ).getCurrentPost();
