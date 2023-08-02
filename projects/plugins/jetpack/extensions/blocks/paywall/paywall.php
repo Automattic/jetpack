@@ -22,9 +22,13 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	// check if the subscription module is enabled
+	if ( ! \Jetpack::is_module_active( 'subscriptions' ) ) {
+		return;
+	}
 	if ( ! class_exists( '\Jetpack_Memberships' ) ) {
 		return;
 	}
+
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
