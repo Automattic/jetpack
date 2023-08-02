@@ -7,7 +7,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
-import { getPaidPlanLink, MisconfigurationWarning } from './utils';
+import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 import './settings.scss';
 
@@ -32,7 +32,7 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 	}
 }
 
-export function NewsletterNotice( { accessLevel, showMisconfigurationWarning } ) {
+export function NewsletterNotice( { accessLevel } ) {
 	const { hasPostBeenPublished, hasPostBeenScheduled } = useSelect( select => {
 		const { isCurrentPostPublished, isCurrentPostScheduled } = select( editorStore );
 
@@ -48,6 +48,9 @@ export function NewsletterNotice( { accessLevel, showMisconfigurationWarning } )
 	const paidSubscribers = useSelect( select =>
 		select( membershipProductsStore ).getPaidSubscriberCount()
 	);
+
+	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
 
 	// If there is a misconfiguration, we do not show the NewsletterNotice
 	if ( showMisconfigurationWarning ) {
@@ -171,7 +174,6 @@ function NewsletterAccessRadioButtons( {
 	accessLevel,
 	hasNewsletterPlans,
 	stripeConnectUrl,
-	showMisconfigurationWarning,
 	isEditorPanel = false,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
@@ -208,10 +210,7 @@ function NewsletterAccessRadioButtons( {
 					</label>
 					{ key === accessLevel && key !== accessOptions.everybody.key && (
 						<p className="editor-post-visibility__notice">
-							<NewsletterNotice
-								accessLevel={ accessLevel }
-								showMisconfigurationWarning={ showMisconfigurationWarning }
-							/>
+							<NewsletterNotice accessLevel={ accessLevel } />
 						</p>
 					) }
 				</div>
@@ -227,11 +226,7 @@ function NewsletterAccessRadioButtons( {
 	);
 }
 
-export function NewsletterAccessDocumentSettings( {
-	accessLevel,
-	setPostMeta,
-	showMisconfigurationWarning,
-} ) {
+export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
 		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
@@ -244,6 +239,8 @@ export function NewsletterAccessDocumentSettings( {
 		};
 	} );
 
+	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+
 	if ( isLoading ) {
 		return (
 			<Flex direction="column" align="center">
@@ -254,6 +251,8 @@ export function NewsletterAccessDocumentSettings( {
 
 	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
 	const accessLabel = accessOptions[ _accessLevel ]?.label;
+
+	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
 
 	return (
 		<PostVisibilityCheck
@@ -270,7 +269,6 @@ export function NewsletterAccessDocumentSettings( {
 										accessLevel={ _accessLevel }
 										stripeConnectUrl={ stripeConnectUrl }
 										hasNewsletterPlans={ hasNewsletterPlans }
-										showMisconfigurationWarning={ showMisconfigurationWarning }
 									/>
 								</div>
 							) }
@@ -285,11 +283,7 @@ export function NewsletterAccessDocumentSettings( {
 	);
 }
 
-export function NewsletterAccessPrePublishSettings( {
-	accessLevel,
-	setPostMeta,
-	showMisconfigurationWarning,
-} ) {
+export function NewsletterAccessPrePublishSettings( { accessLevel, setPostMeta } ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
 		const { getProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
@@ -303,6 +297,8 @@ export function NewsletterAccessPrePublishSettings( {
 		};
 	} );
 
+	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+
 	if ( isLoading ) {
 		return (
 			<Flex direction="column" align="center">
@@ -314,12 +310,14 @@ export function NewsletterAccessPrePublishSettings( {
 	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
 	const accessLabel = accessOptions[ _accessLevel ]?.label;
 
+	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
+
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => (
 				<PanelRow className="edit-post-post-visibility">
 					<Flex direction="column">
-						{ showMisconfigurationWarning && MisconfigurationWarning() }
+						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
 						{ canEdit && (
 							<>
 								<FlexBlock>

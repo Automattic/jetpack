@@ -27,7 +27,7 @@ import {
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessPrePublishSettings,
 } from './settings';
-import { isNewsletterFeatureEnabled } from './utils';
+import { getShowMisconfigurationWarning, isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
 
 import './panel.scss';
@@ -51,12 +51,7 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 	);
 };
 
-function NewsletterEditorSettingsPanel( {
-	accessLevel,
-	setPostMeta,
-	isModuleActive,
-	showMisconfigurationWarning,
-} ) {
+function NewsletterEditorSettingsPanel( { accessLevel, setPostMeta, isModuleActive } ) {
 	if ( ! isModuleActive ) {
 		return null;
 	}
@@ -67,11 +62,7 @@ function NewsletterEditorSettingsPanel( {
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
-			<NewsletterAccessDocumentSettings
-				accessLevel={ accessLevel }
-				setPostMeta={ setPostMeta }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
-			/>
+			<NewsletterAccessDocumentSettings accessLevel={ accessLevel } setPostMeta={ setPostMeta } />
 		</PluginDocumentSettingPanel>
 	);
 }
@@ -112,7 +103,6 @@ function NewsletterPrePublishSettingsPanel( {
 	accessLevel,
 	setPostMeta,
 	isModuleActive,
-	showMisconfigurationWarning,
 	showPreviewModal,
 } ) {
 	const { tracks } = useAnalytics();
@@ -150,7 +140,6 @@ function NewsletterPrePublishSettingsPanel( {
 					<NewsletterAccessPrePublishSettings
 						accessLevel={ accessLevel }
 						setPostMeta={ setPostMeta }
-						showMisconfigurationWarning={ showMisconfigurationWarning }
 					/>
 					<Button variant="secondary" onClick={ showPreviewModal }>
 						{ __( 'Preview', 'jetpack' ) }
@@ -180,11 +169,7 @@ function NewsletterPrePublishSettingsPanel( {
 	);
 }
 
-function NewsletterPostPublishSettingsPanel( {
-	accessLevel,
-	isModuleActive,
-	showMisconfigurationWarning,
-} ) {
+function NewsletterPostPublishSettingsPanel( { accessLevel, isModuleActive } ) {
 	const emailSubscribers = useSelect( select =>
 		select( membershipProductsStore ).getEmailSubscriberCount()
 	);
@@ -207,6 +192,8 @@ function NewsletterPostPublishSettingsPanel( {
 		};
 	} );
 
+	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+
 	if ( ! isModuleActive ) {
 		return null;
 	}
@@ -228,6 +215,8 @@ function NewsletterPostPublishSettingsPanel( {
 		reachCount,
 		subscriberType
 	);
+
+	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
 
 	return (
 		<>
@@ -317,17 +306,11 @@ export default function SubscribePanels() {
 		getSubscriberCounts();
 	}, [ isModuleActive, getSubscriberCounts ] );
 
-	// Can be “private”, “password”, or “public”.
-	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
-
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.
 	// TODO: Make it available for pages later.
 	if ( postType !== 'post' ) {
 		return null;
 	}
-
-	const showMisconfigurationWarning =
-		postVisibility !== 'public' && accessLevel !== accessOptions.everybody.key;
 
 	// Only show the panels when the corresponding filter is enabled
 	if ( ! isNewsletterFeatureEnabled() ) {
@@ -345,14 +328,12 @@ export default function SubscribePanels() {
 			<NewsletterEditorSettingsPanel
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
 				isModuleActive={ isModuleActive }
 			/>
 			<NewsletterPrePublishSettingsPanel
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
 				isModuleActive={ isModuleActive }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
 				showPreviewModal={ () => {
 					tracks.recordEvent( 'jetpack_send_email_preview_prepublish_preview_button' );
 					setIsModalOpen( true );
@@ -362,7 +343,6 @@ export default function SubscribePanels() {
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
 				isModuleActive={ isModuleActive }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
 			/>
 			<EmailPreview isModalOpen={ isModalOpen } closeModal={ () => setIsModalOpen( false ) } />
 		</>
