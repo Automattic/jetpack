@@ -62,7 +62,7 @@ export default function AIControl( {
 	const promptUserInputRef = useRef( null );
 
 	useKeyboardShortcut(
-		[ 'command+enter', 'ctrl+enter' ],
+		'mod+enter',
 		() => {
 			if ( showAccept ) {
 				onAccept?.();
