@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 // This is to cope with the problem describeed here:
 // https://github.com/WordPress/gutenberg/blob/ebad47952fc94ce4324e989691dde2d3d7689f45/packages/block-editor/src/components/inserter/media-tab/media-tab.js#L122
 const clickHandler = open => e => {
-	e.target.focus();
+	e.currentTarget.focus();
 	open();
 };
 
