@@ -6,14 +6,16 @@ import debugFactory from 'debug';
 /*
  * Types & constants
  */
+import { getErrorData } from '../hooks/use-ai-suggestions';
 import {
 	ERROR_MODERATION,
 	ERROR_NETWORK,
 	ERROR_QUOTA_EXCEEDED,
+	ERROR_RESPONSE,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
 } from '../types';
-import type { PromptMessagesProp, PromptProp } from '../types';
+import type { PromptMessagesProp, PromptProp, SuggestionErrorCode } from '../types';
 
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;
@@ -150,6 +152,9 @@ export default class SuggestionsEventSource extends EventTarget {
 				if ( response.ok ) {
 					return;
 				}
+
+				let errorCode: SuggestionErrorCode;
+
 				if (
 					response.status >= 400 &&
 					response.status <= 500 &&
@@ -163,6 +168,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * service unavailable
 				 */
 				if ( response.status === 503 ) {
+					errorCode = ERROR_SERVICE_UNAVAILABLE;
 					this.dispatchEvent( new CustomEvent( ERROR_SERVICE_UNAVAILABLE ) );
 				}
 
@@ -171,6 +177,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * you exceeded your current quota please check your plan and billing details
 				 */
 				if ( response.status === 429 ) {
+					errorCode = ERROR_QUOTA_EXCEEDED;
 					this.dispatchEvent( new CustomEvent( ERROR_QUOTA_EXCEEDED ) );
 				}
 
@@ -179,8 +186,16 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * request flagged by moderation system
 				 */
 				if ( response.status === 422 ) {
+					errorCode = ERROR_MODERATION;
 					this.dispatchEvent( new CustomEvent( ERROR_MODERATION ) );
 				}
+
+				// Always dispatch a global ERROR_RESPONSE event
+				this.dispatchEvent(
+					new CustomEvent( ERROR_RESPONSE, {
+						detail: getErrorData( errorCode ),
+					} )
+				);
 
 				throw new Error();
 			},
@@ -204,6 +219,11 @@ export default class SuggestionsEventSource extends EventTarget {
 		if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {
 			// The unclear prompt marker was found, so we dispatch an error event
 			this.dispatchEvent( new CustomEvent( ERROR_UNCLEAR_PROMPT ) );
+			this.dispatchEvent(
+				new CustomEvent( ERROR_RESPONSE, {
+					detail: getErrorData( ERROR_UNCLEAR_PROMPT ),
+				} )
+			);
 		} else if ( 'JETPACK_AI_ERROR'.startsWith( replacedMessage ) ) {
 			// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
 			debug( this.fullMessage );
@@ -276,6 +296,11 @@ export default class SuggestionsEventSource extends EventTarget {
 	processConnectionError( response ) {
 		debug( 'Connection error: %o', response );
 		this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: response } ) );
+		this.dispatchEvent(
+			new CustomEvent( ERROR_RESPONSE, {
+				detail: getErrorData( ERROR_NETWORK ),
+			} )
+		);
 	}
 
 	processErrorEvent( e ) {
@@ -283,5 +308,10 @@ export default class SuggestionsEventSource extends EventTarget {
 
 		// Dispatch a generic network error event
 		this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: e } ) );
+		this.dispatchEvent(
+			new CustomEvent( ERROR_RESPONSE, {
+				detail: getErrorData( ERROR_NETWORK ),
+			} )
+		);
 	}
 }
