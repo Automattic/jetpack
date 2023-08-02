@@ -1,0 +1,67 @@
+{
+	"name": "automattic/jetpack-chatbot",
+	"description": "Chatbots powered by wpcom.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-sync": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.4",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"build-production": [
+			"pnpm run build-production"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-chatbot",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-chatbot/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"textdomain": "jetpack-chatbot",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-chatbot.php"
+		}
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	}
+}
