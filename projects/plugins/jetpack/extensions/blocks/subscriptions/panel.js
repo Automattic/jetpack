@@ -18,9 +18,12 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
+import {
+	useAccessLevel,
+	accessOptions,
+	isNewsletterFeatureEnabled,
+} from '../../../extensions/shared/memberships';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import { getSubscriberCounts } from './api';
-import { accessOptions } from './constants';
 import EmailPreview from './email-preview';
 import {
 	Link,
@@ -28,7 +31,7 @@ import {
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessPrePublishSettings,
 } from './settings';
-import { getShowMisconfigurationWarning, isNewsletterFeatureEnabled } from './utils';
+import { getShowMisconfigurationWarning } from './utils';
 import { name } from './';
 
 import './panel.scss';
@@ -288,7 +291,7 @@ export default function SubscribePanels() {
 	const { tracks } = useAnalytics();
 
 	// Set the accessLevel to "everybody" when one is not defined
-	const accessLevel = GetAccessLevel( postType );
+	const accessLevel = useAccessLevel( postType );
 
 	useEffect( () => {
 		if ( ! isModuleActive ) {

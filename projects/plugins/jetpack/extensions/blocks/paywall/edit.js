@@ -2,12 +2,11 @@ import './editor.scss';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { accessOptions } from '../subscriptions/constants';
-import { GetAccessLevel } from '../subscriptions/utils';
+import { accessOptions, useAccessLevel } from '../../shared/memberships';
 
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const accessLevel = GetAccessLevel( postType );
+	const accessLevel = useAccessLevel( postType );
 
 	const getText = key => {
 		switch ( key ) {
