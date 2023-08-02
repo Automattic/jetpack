@@ -21,6 +21,9 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
+	$dir      = dirname( JETPACK__PLUGIN_FILE );
+	$json_dir = $dir . '/_inc/blocks/' . FEATURE_NAME;
+
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
@@ -39,6 +42,7 @@ function register_block() {
 				),
 				'align'      => array( 'wide', 'full' ),
 			),
+			$json_dir,
 		)
 	);
 }

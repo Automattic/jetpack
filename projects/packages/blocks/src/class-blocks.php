@@ -36,10 +36,11 @@ class Blocks {
 	 *     @type array $version_requirements Array containing required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
 	 *     @type bool  $plan_check           Should we check for a specific plan before registering the block.
 	 * }
+	 * @param string $metadata_dir Directory where the block's metadata is located.
 	 *
 	 * @return WP_Block_Type|false The registered block type on success, or false on failure.
 	 */
-	public static function jetpack_register_block( $slug, $args = array() ) {
+	public static function jetpack_register_block( $slug, $args = array(), $metadata_dir = '' ) {
 		if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
 			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 9.0.0' );
 			$slug = 'jetpack/' . $slug;
@@ -94,12 +95,12 @@ class Blocks {
 
 			// Ensure editor styles are registered so that the site editor knows about the
 			// editor style dependency when copying styles to the editor iframe.
-			if ( ! isset( $args['editor_style'] ) ) {
+			if ( ! isset( $args['editor_style'] ) && ! $metadata_dir ) {
 				$args['editor_style'] = 'jetpack-blocks-editor';
 			}
 		}
 
-		return register_block_type( $slug, $args );
+		return register_block_type( $metadata_dir ? $metadata_dir : $slug, $args );
 	}
 
 	/**
