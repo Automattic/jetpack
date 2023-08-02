@@ -32,6 +32,7 @@ const PublicizePanel = ( { prePublish } ) => {
 		isShareLimitEnabled,
 		numberOfSharesRemaining,
 		connectionsAdminUrl,
+		shouldShowAdvancedPlanNudge,
 	} = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
@@ -84,6 +85,7 @@ const PublicizePanel = ( { prePublish } ) => {
 						isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
 					}
 					connectionsAdminUrl={ connectionsAdminUrl }
+					shouldShowAdvancedPlanNudge={ shouldShowAdvancedPlanNudge }
 				/>
 			</Fragment>
 		</PanelWrapper>
