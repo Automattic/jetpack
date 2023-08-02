@@ -8,23 +8,29 @@ import { GetAccessLevel } from '../subscriptions/utils';
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = GetAccessLevel( postType );
-	const text =
-		accessLevel === accessOptions.subscribers.key
-			? __( 'Subscribers Only', 'jetpack' )
-			: __( 'Paywall', 'jetpack' );
+
+	const getText = key => {
+		switch ( key ) {
+			case accessOptions.everybody.key:
+				return __( 'Change visibility to enable paywall', 'jetpack' );
+			case accessOptions.subscribers.key:
+				return __( 'Subscriber-only content below', 'jetpack' );
+			case accessOptions.paid_subscribers.key:
+				return __( 'Paid content below this line', 'jetpack' );
+			default:
+				return __( 'Paywall', 'jetpack' );
+		}
+	};
+
+	const text = getText( accessLevel );
+
 	const style = {
 		width: `${ text.length + 1.2 }em`,
 	};
 
-	const disabled = accessLevel === accessOptions.everybody.key && (
-		<span>{ __( '[Disabled]', 'jetpack' ) }</span>
-	);
-
 	return (
 		<div className={ className }>
-			<span style={ style }>
-				{ text } { disabled }
-			</span>
+			<span style={ style }>{ text }</span>
 		</div>
 	);
 }
