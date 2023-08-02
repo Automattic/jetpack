@@ -53,10 +53,10 @@ export default function AIControl( {
 	acceptLabel?: string;
 	showButtonsLabel?: boolean;
 	isOpaque?: boolean;
-	onChange: ( newValue: string ) => void;
-	onSend: ( currentValue: string ) => void;
-	onStop: () => void;
-	onAccept: () => void;
+	onChange?: ( newValue: string ) => void;
+	onSend?: ( currentValue: string ) => void;
+	onStop?: () => void;
+	onAccept?: () => void;
 } ) {
 	const promptUserInputRef = useRef( null );
 

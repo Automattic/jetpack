@@ -30,16 +30,16 @@ export const AiAssistantPopover = () => {
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
+	const placeholder = __( 'Which form do you need?', 'jetpack' );
+
+	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
+
 	if ( ! isVisible ) {
 		return null;
 	}
 
 	const onStop = () => {
-		alert( 'onStop' );
-	};
-
-	const onAccept = () => {
-		alert( 'onAccept' );
+		// TODO: Implement onStop
 	};
 
 	const onSend = () => {
@@ -62,12 +62,11 @@ export const AiAssistantPopover = () => {
 			<div style={ { width } }>
 				<AIControl
 					loading={ isLoading }
-					value={ inputValue }
-					placeholder={ __( 'Which form do you need?', 'jetpack' ) }
+					value={ isLoading ? undefined : inputValue }
+					placeholder={ isLoading ? loadingPlaceholder : placeholder }
 					onChange={ setInputValue }
 					onSend={ onSend }
 					onStop={ onStop }
-					onAccept={ onAccept }
 				/>
 			</div>
 		</Popover>
