@@ -21,6 +21,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'add_listener_callback' => function () {
 				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
 			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
+				return '/site-editor/' . $data['site_slug_encoded'];
+			},
 		),
 		// design_completed checks for task completion while design_selected always returns true.
 		'design_completed'                => array(
@@ -42,6 +45,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_domain_claim_completed',
 			'is_visible_callback'  => 'wpcom_domain_claim_is_visible_callback',
+			'get_task_url'         => function ( $task, $default, $data ) {
+				return '/domains/add/' . $data['site_slug_encoded'];
+			},
 		),
 		'domain_upsell'                   => array(
 			'id_map'               => 'domain_upsell_deferred',
@@ -51,6 +57,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_domain_upsell_completed',
 			'badge_text_callback'  => 'wpcom_get_domain_upsell_badge_text',
 			'is_visible_callback'  => 'wpcom_is_domain_upsell_task_visible',
+			'get_task_url'         => function ( $task, $default, $data ) {
+				return '/domains/add/' . $data['site_slug_encoded'];
+			},
 		),
 		'first_post_published'            => array(
 			'get_title'             => function () {
@@ -58,6 +67,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'add_listener_callback' => function () {
 				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
+			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
+				return '/post/' . $data['site_slug_encoded'];
 			},
 		),
 		'plan_completed'                  => array(
@@ -88,12 +100,18 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'isLaunchTask'          => true,
 			'add_listener_callback' => 'wpcom_add_site_launch_listener',
+			'get_task_url'          => function ( $task, $default, $data ) {
+				return '/settings/general/' . $data['site_slug_encoded'] . '#site-privacy-settings';
+			},
 		),
 		'verify_email'                    => array(
 			'get_title'           => function () {
 				return __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
+			'get_task_url'        => function () {
+				return '/me/account';
+			},
 		),
 
 		// Newsletter pre-launch tasks.
@@ -104,6 +122,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'add_listener_callback' => function () {
 				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
+			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
+				return '/post/' . $data['site_slug_encoded'];
 			},
 		),
 		'newsletter_plan_created'         => array(
@@ -149,6 +170,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'id_map'                => 'links_edited',
 			'add_listener_callback' => function () {
 				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
+			},
+			'get_calypso_path'      => function ( $task, $default, $data ) {
+				return '/site-editor/' . $data['site_slug_encoded'];
 			},
 		),
 		'setup_link_in_bio'               => array(
@@ -222,6 +246,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Give your site a name', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/general/' . $data['site_slug_encoded'];
+			},
 		),
 
 		'drive_traffic'                   => array(
@@ -229,6 +256,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Drive traffic to your site', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/marketing/connections/' . $data['site_slug_encoded'];
+			},
 		),
 
 		'add_new_page'                    => array(
@@ -236,6 +266,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Add a new page', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/page/' . $data['site_slug_encoded'];
+			},
 		),
 
 		'update_about_page'               => array(
@@ -249,6 +282,9 @@ function wpcom_launchpad_get_task_definitions() {
 					'about_page_id' => wpcom_get_site_about_page_id(),
 				);
 			},
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/page/' . $data['site_slug_encoded'] . '/' . wpcom_get_site_about_page_id();
+			},
 		),
 
 		'edit_page'                       => array(
@@ -257,6 +293,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_is_edit_page_task_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/pages/' . $data['site_slug_encoded'];
+			},
 		),
 
 		'domain_customize'                => array(
@@ -266,6 +305,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_domain_customize_completed',
 			'is_visible_callback'  => 'wpcom_is_domain_customize_task_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/domains/add/' . $data['site_slug_encoded'];
+			},
 		),
 
 		'share_site'                      => array(
@@ -281,12 +323,19 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Earn money with your newsletter', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/earn/' . $data['site_slug_encoded'];
+			},
 		),
+
 		'customize_welcome_message'       => array(
 			'get_title'            => function () {
 				return __( 'Customize welcome message', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/reading/' . $data['site_slug_encoded'] . '#newsletter-settings';
+			},
 		),
 		'enable_subscribers_modal'        => array(
 			'get_title'            => function () {
@@ -294,6 +343,23 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_is_enable_subscribers_modal_visible',
+		),
+		'write_3_posts'                   => array(
+			'get_title'                 => function () {
+				return __( 'Write 3 posts', 'jetpack-mu-wpcom' );
+			},
+			'repetition_count_callback' => 'wpcom_launchpad_get_write_3_posts_repetition_count',
+			'target_repetitions'        => 3,
+		),
+		'manage_subscribers'              => array(
+			'get_title'            => function () {
+				return __( 'Manage your subscribers', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/subscribers/' . $data['site_slug_encoded'];
+			},
 		),
 	);
 
@@ -526,6 +592,63 @@ function wpcom_track_publish_first_post_task() {
 }
 
 /**
+ * Gets the number of published posts that were not created by Headstart.
+ *
+ * @return int
+ */
+function wpcom_launchpad_get_published_non_headstart_posts_count() {
+	// Ensure that Headstart posts don't affect the count
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return 0;
+	}
+
+	// Make sure we don't count any published posts that were created by Headstart.
+	$headstart_posts_filter = array(
+		'post_type'    => 'post',
+		'fields'       => 'ids',
+		'status'       => 'publish',
+		'meta_key'     => '_hs_old_id',
+		'meta_compare' => 'EXISTS',
+	);
+
+	$total_posts_count     = wp_count_posts( 'post' )->publish;
+	$headstart_posts_count = count( get_posts( $headstart_posts_filter ) );
+
+	return $total_posts_count - $headstart_posts_count;
+}
+
+/**
+ * Callback for completing the Write 3 posts task.
+ *
+ * @return void
+ */
+function wpcom_launchpad_track_write_3_posts_task() {
+	// If the task is already completed, don't do anything.
+	if ( wpcom_is_task_option_completed( array( 'id' => 'write_3_posts' ) ) ) {
+		return;
+	}
+
+	$published_non_headstart_posts = wpcom_launchpad_get_published_non_headstart_posts_count();
+
+	if ( $published_non_headstart_posts >= 3 ) {
+		wpcom_mark_launchpad_task_complete( 'write_3_posts' );
+	}
+}
+add_action( 'publish_post', 'wpcom_launchpad_track_write_3_posts_task' );
+
+/**
+ * Callback for getting the number of posts published.
+ *
+ * @param array $task The Task definition.
+ * @return int
+ */
+function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
+	$published_non_headstart_posts = wpcom_launchpad_get_published_non_headstart_posts_count();
+
+	return min( $task['target_repetitions'], $published_non_headstart_posts );
+}
+
+/**
  * Returns the option value for a task and false if no option exists.
  *
  * @param array $task The Task object.
@@ -567,6 +690,36 @@ function wpcom_get_plan_selected_badge_text() {
 	}
 
 	return wpcom_global_styles_in_use() && wpcom_should_limit_global_styles() ? __( 'Upgrade plan', 'jetpack-mu-wpcom' ) : '';
+}
+
+/**
+ * Helper function to return the site slug for Calypso URLs.
+ * The fallback logic here is derived from the following code:
+ *
+ * @see https://github.com/Automattic/wc-calypso-bridge/blob/85664e2c7836b2ddc29e99871ec2c5dc4015bcc8/class-wc-calypso-bridge.php#L227-L251
+ *
+ * @return string
+ */
+function wpcom_launchpad_get_site_slug() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+		return WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+	}
+
+	// The Jetpack class should be auto-loaded if Jetpack has been loaded,
+	// but we've seen fatal errors from cases where the class wasn't defined.
+	// So let's make double-sure it exists before calling it.
+	if ( class_exists( '\Automattic\Jetpack\Status' ) ) {
+		$jetpack_status = new \Automattic\Jetpack\Status();
+
+		return $jetpack_status->get_site_suffix();
+	}
+
+	// If the Jetpack Status class doesn't exist, fall back on site_url()
+	// with any trailing '/' characters removed.
+	$site_url = untrailingslashit( site_url( '/', 'https' ) );
+
+	// Remove the leading 'https://' and replace any remaining `/` characters with ::
+	return str_replace( '/', '::', substr( $site_url, 8 ) );
 }
 
 /**

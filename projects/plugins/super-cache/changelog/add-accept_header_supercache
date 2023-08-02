@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-WP Super Cache - added support for the Accept HTTP Header. Commonly used in APIs to fetch JSON.
