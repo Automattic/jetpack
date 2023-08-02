@@ -447,7 +447,16 @@ class Jetpack_Memberships {
 	 * @return bool
 	 */
 	public static function has_connected_account() {
-		return get_option( self::$has_connected_account_option_name, false ) ? true : false;
+
+		// This is the primary solution.
+		$has_option = get_option( self::$has_connected_account_option_name, false ) ? true : false;
+		if ( $has_option ) {
+			return true;
+		}
+
+		// This is the fallback solution.
+		// TODO: Remove this once the has_connected_account_option is migrated to all sites.
+		return get_option( 'jetpack-memberships-connected-account-id', false ) ? true : false;
 	}
 
 	/**
