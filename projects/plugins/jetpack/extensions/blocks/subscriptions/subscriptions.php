@@ -813,28 +813,38 @@ function maybe_gate_existing_comments( $comment ) {
  * @return string
  */
 function get_paywall_blocks( $newsletter_access_level ) {
-	// Default to subscribers
-	$access_level = __( 'subscribers', 'jetpack' );
+	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
+	$is_paid_post = $newsletter_access_level === 'paid_subscribers'
+		&& ! empty( Jetpack_Memberships::get_connected_account_id() );
 
-	// Only display this text when Stripe is connected and the post is marked for paid subscribers
-	if (
-		$newsletter_access_level === 'paid_subscribers'
-		&& ! empty( Jetpack_Memberships::get_connected_account_id() )
-	) {
-		$access_level = __( 'paid subscribers', 'jetpack' );
-	}
+	$access_heading = $is_paid_post
+		? esc_html__( 'This post is for paid subscribers', 'jetpack' )
+		: esc_html__( 'This post is for subscribers', 'jetpack' );
 
-	return '<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->
-			<div class="wp-block-group has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center","style":{"typography":{"fontSize":"24px"},"spacing":{"margin":{"bottom":"var:preset|spacing|60"}}}} -->
-			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' .
+	$subscribe_text = $is_paid_post
+		// translators: %s is the name of the site.
+		? sprintf( esc_html__( 'Subscribe to %s to keep reading and receive all new posts in your inbox.', 'jetpack' ), get_bloginfo( 'name' ) )
+		// translators: %s is the name of the site.
+		: sprintf( esc_html__( 'Subscribe to %s to keep reading, receive all new posts in your inbox and have access to the full archives.', 'jetpack' ), get_bloginfo( 'name' ) );
 
-			/* translators: Newsletter access. Possible values are "paid newsletters" and "subscribers" */
-			sprintf( esc_html__( 'This post is for %s', 'jetpack' ), $access_level )
+	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
-			. '</h2>
-			<!-- /wp:heading -->
+	return '
+<!-- wp:group {"style":{"border":{"width":"1px","radius":"4px"},"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"32px","right":"32px"}}},"borderColor":"primary","className":"jetpack-subscribe-paywall","layout":{"type":"constrained","contentSize":"400px"}} -->
+<div class="wp-block-group jetpack-subscribe-paywall has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--70);padding-right:32px;padding-bottom:var(--wp--preset--spacing--70);padding-left:32px">
+<!-- wp:image {"align":"center","width":24,"height":24,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image aligncenter size-large is-resized"><img src="' . $lock_svg . '" alt="" width="24" height="24"/></figure>
+<!-- /wp:image -->
 
-			<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
-			</div>
-		<!-- /wp:group -->';
+<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"24px"},"layout":{"selfStretch":"fit"}}} -->
+<h2 class="wp-block-heading has-text-align-center" style="font-size:24px;font-style:normal;font-weight:600">' . $access_heading . '</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"},"spacing":{"margin":{"top":"10px","bottom":"10px"}}}} -->
+<p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /--></div>
+<!-- /wp:group -->
+';
 }

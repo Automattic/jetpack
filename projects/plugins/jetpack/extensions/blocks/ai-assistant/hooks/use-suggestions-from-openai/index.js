@@ -118,6 +118,13 @@ const useSuggestionsFromOpenAI = ( {
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
 	const getStreamedSuggestionFromOpenAI = async ( type, options = {} ) => {
+		const implementedFunctions = options?.functions?.reduce( ( acc, { name, implementation } ) => {
+			return {
+				...acc,
+				[ name ]: implementation,
+			};
+		}, {} );
+
 		/*
 		 * If the site requires an upgrade to use the feature,
 		 * let's set the error and return an `undefined` event source.
@@ -213,6 +220,7 @@ const useSuggestionsFromOpenAI = ( {
 				postId,
 				requireUpgrade,
 				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : undefined,
+				functions: options?.functions,
 			} );
 		} catch ( err ) {
 			if ( err.message ) {
@@ -232,7 +240,57 @@ const useSuggestionsFromOpenAI = ( {
 			setWasCompletionJustRequested( false );
 		}
 
-		source?.current?.addEventListener( 'done', e => {
+		const onFunctionDone = async e => {
+			const { detail } = e;
+
+			// Add assistant message with the function call request
+			const assistantResponse = { role: 'assistant', content: null, function_call: detail };
+
+			const response = await implementedFunctions[ detail.name ]?.(
+				JSON.parse( detail.arguments )
+			);
+
+			// Add the function call response
+			const functionResponse = {
+				role: 'function',
+				name: detail?.name,
+				content: JSON.stringify( response ),
+			};
+
+			prompt = [ ...prompt, assistantResponse, functionResponse ];
+
+			// Remove source.current listeners
+			source?.current?.removeEventListener( 'function_done', onFunctionDone );
+			source?.current?.removeEventListener( 'done', onDone );
+			source?.current?.removeEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
+			source?.current?.removeEventListener( 'error_network', onErrorNetwork );
+			source?.current?.removeEventListener(
+				'error_service_unavailable',
+				onErrorServiceUnavailable
+			);
+			source?.current?.removeEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
+			source?.current?.removeEventListener( 'error_moderation', onErrorModeration );
+			source?.current?.removeEventListener( 'suggestion', onSuggestion );
+
+			source.current = await askQuestion( prompt, {
+				postId,
+				requireUpgrade,
+				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : null,
+				functions: options.functions,
+			} );
+
+			// Add the listeners back
+			source?.current?.addEventListener( 'function_done', onFunctionDone );
+			source?.current?.addEventListener( 'done', onDone );
+			source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
+			source?.current?.addEventListener( 'error_network', onErrorNetwork );
+			source?.current?.addEventListener( 'error_service_unavailable', onErrorServiceUnavailable );
+			source?.current?.addEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
+			source?.current?.addEventListener( 'error_moderation', onErrorModeration );
+			source?.current?.addEventListener( 'suggestion', onSuggestion );
+		};
+
+		const onDone = e => {
 			const { detail } = e;
 
 			// Remove the delimiter from the suggestion.
@@ -278,9 +336,9 @@ const useSuggestionsFromOpenAI = ( {
 			replaceInnerBlocks( clientId, validBlocks );
 
 			refreshFeatureData();
-		} );
+		};
 
-		source?.current?.addEventListener( 'error_unclear_prompt', () => {
+		const onErrorUnclearPrompt = () => {
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -290,9 +348,9 @@ const useSuggestionsFromOpenAI = ( {
 				status: 'info',
 			} );
 			onUnclearPrompt?.();
-		} );
+		};
 
-		source?.current?.addEventListener( 'error_network', ( { detail: error } ) => {
+		const onErrorNetwork = ( { detail: error } ) => {
 			const { name: errorName, message: errorMessage } = error;
 			if ( errorName === 'TypeError' && errorMessage === 'Failed to fetch' ) {
 				/*
@@ -335,9 +393,9 @@ const useSuggestionsFromOpenAI = ( {
 				message: __( 'It was not possible to process your request. Mind trying again?', 'jetpack' ),
 				status: 'info',
 			} );
-		} );
+		};
 
-		source?.current?.addEventListener( 'error_service_unavailable', () => {
+		const onErrorServiceUnavailable = () => {
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -350,9 +408,9 @@ const useSuggestionsFromOpenAI = ( {
 				),
 				status: 'info',
 			} );
-		} );
+		};
 
-		source?.current?.addEventListener( 'error_quota_exceeded', () => {
+		const onErrorQuotaExceeded = () => {
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -362,9 +420,9 @@ const useSuggestionsFromOpenAI = ( {
 				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
 				status: 'info',
 			} );
-		} );
+		};
 
-		source?.current?.addEventListener( 'error_moderation', () => {
+		const onErrorModeration = () => {
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -378,9 +436,9 @@ const useSuggestionsFromOpenAI = ( {
 				status: 'info',
 			} );
 			onModeration?.();
-		} );
+		};
 
-		source?.current?.addEventListener( 'suggestion', e => {
+		const onSuggestion = e => {
 			setWasCompletionJustRequested( false );
 			debug( '(suggestion)', e?.detail );
 
@@ -402,7 +460,17 @@ const useSuggestionsFromOpenAI = ( {
 
 			// Remove the delimiter from the suggestion and update the block.
 			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );
-		} );
+		};
+
+		source?.current?.addEventListener( 'function_done', onFunctionDone );
+		source?.current?.addEventListener( 'done', onDone );
+		source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
+		source?.current?.addEventListener( 'error_network', onErrorNetwork );
+		source?.current?.addEventListener( 'error_service_unavailable', onErrorServiceUnavailable );
+		source?.current?.addEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
+		source?.current?.addEventListener( 'error_moderation', onErrorModeration );
+		source?.current?.addEventListener( 'suggestion', onSuggestion );
+
 		return source?.current;
 	};
 
