@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Removed dependency on nonces for Critical CSS generation.
