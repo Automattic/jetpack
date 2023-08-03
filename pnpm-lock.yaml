@@ -1506,6 +1506,8 @@ importers:
 
   projects/packages/boost-core: {}
 
+  projects/packages/chatbot: {}
+
   projects/packages/connection:
     devDependencies:
       '@automattic/jetpack-webpack-config':

@@ -10,6 +10,7 @@ import React, { useEffect } from 'react';
  * Internal dependencies
  */
 import { AiAssistantUiContext } from '../../ui-handler/context';
+import { handleAiExtensionsBarBodyClass } from '../../ui-handler/with-ui-handler-data-provider';
 
 export default function AiAssistantToolbarButton(): React.ReactElement {
 	const { isVisible, toggle, setPopoverProps, setAssistantFixed } =
@@ -34,18 +35,25 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 		}
 		const isFixed = toolbar.classList.contains( 'is-fixed' );
 		setAssistantFixed( isFixed );
+		handleAiExtensionsBarBodyClass( isFixed, isVisible );
 
 		if ( ! isFixed ) {
 			return;
 		}
 
-		setPopoverProps( prev => ( {
-			...prev,
-			anchor: toolbar,
-			offset: 0,
-			variant: 'toolbar',
-		} ) );
-	}, [ setAssistantFixed, setPopoverProps ] );
+		/*
+		 * There is a race condition between the toolbar and component onMount.
+		 * We need to wait a bit to set the popover props.
+		 */
+		setTimeout( () => {
+			setPopoverProps( prev => ( {
+				...prev,
+				anchor: toolbar,
+				offset: 0,
+				variant: 'toolbar',
+			} ) );
+		}, 100 );
+	}, [ setAssistantFixed, setPopoverProps, isVisible ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 
