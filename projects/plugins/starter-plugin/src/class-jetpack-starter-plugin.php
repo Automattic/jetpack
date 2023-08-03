@@ -11,7 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Chatbot;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -64,7 +63,6 @@ class Jetpack_Starter_Plugin {
 		);
 
 		My_Jetpack_Initializer::init();
-		Chatbot::init();
 	}
 
 	/**
