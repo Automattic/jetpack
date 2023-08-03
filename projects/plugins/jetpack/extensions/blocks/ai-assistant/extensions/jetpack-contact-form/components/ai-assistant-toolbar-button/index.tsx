@@ -40,10 +40,18 @@ export default function AiAssistantToolbarButton( {
 	const hasContent = hasFormContent( clientId );
 
 	/*
-	 * Let's switch the anchor when the toolbar is fixed
-	 * 1 - Pick the Dom element reference
-	 * 2 - Find the closest block-editor-block-contextual-toolbar
-	 * 3 - Check if the toolbar is fixed, based on `is-fixed` CSS class
+	 * *** AI Assistant bar anchor ***
+	 *
+	 * On this component onMount event:
+	 * 1 - Pick the Dom toolbar-button DOM element reference.
+	 * 2 - Find the Block Toolbar DOM element, based on a CSS class.
+	 * 3 - Check if the toolbar is fixed, based on `is-fixed` CSS class.
+	 * 4 - Anchot the AI Assistant Bar to it when:
+	 *  - The toolbar is fixed.
+	 *  - The toolbar is not fixed, but the block has content.
+	 *
+	 * Also, it set the isFixed UI context state
+	 * Add/remove the `jetpack-ai-assistant-bar-is-fixed` class to the body.
 	 */
 	const anchorRef = useRef< HTMLElement | null >( null );
 	useEffect( () => {
@@ -65,18 +73,12 @@ export default function AiAssistantToolbarButton( {
 			return;
 		}
 
-		/*
-		 * There is a race condition between the toolbar and component onMount.
-		 * We need to wait a bit to set the popover props.
-		 */
-		setTimeout( () => {
-			setPopoverProps( prev => ( {
-				...prev,
-				anchor: toolbar,
-				offset: hasContent && ! isFixed ? 6 : 0,
-				variant: 'toolbar',
-			} ) );
-		}, 100 );
+		setPopoverProps( prev => ( {
+			...prev,
+			anchor: toolbar,
+			offset: hasContent && ! isFixed ? 6 : 0,
+			variant: 'toolbar',
+		} ) );
 	}, [ setAssistantFixed, setPopoverProps, isVisible, hasContent ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';

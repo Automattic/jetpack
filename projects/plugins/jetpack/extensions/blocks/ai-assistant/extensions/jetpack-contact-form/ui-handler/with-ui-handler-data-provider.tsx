@@ -126,25 +126,22 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 		const hasContent = hasFormContent( clientId );
 
-		/*
-		 * Set the anchor element for the popover.
-		 * For now, let's use the block representation in the canvas,
-		 * but we can change it in the future.
-		 */
+		// *** AI Assistant bar anchor ***
 		useEffect( () => {
 			if ( ! clientId ) {
 				return;
 			}
 
+			// Add/remove the `jetpack-ai-assistant-bar-is-fixed` class to the body.
 			handleAiExtensionsBarBodyClass( isFixed, isVisible );
 
 			if ( hasContent ) {
-				return;
+				return; // Bail out if the block has content.
 			}
 
 			// Do not anchor the popover if the toolbar is fixed.
 			if ( isFixed ) {
-				return setWidth( '100%' ); // ensure to use the full width.
+				return setWidth( '100%' ); // ensure to use the full width, and bail out.
 			}
 
 			const idAttribute = `block-${ clientId }`;
@@ -158,11 +155,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			const iframeDocument = iFrame && iFrame.contentWindow.document;
 
 			const blockDomElement = ( iframeDocument ?? document ).getElementById( idAttribute );
-
 			if ( ! blockDomElement ) {
-				return;
+				return; // Bail out if the block DOM element is not available.
 			}
 
+			// Set the popover props.
 			setPopoverProps( prev => ( {
 				...prev,
 				anchor: blockDomElement,
@@ -170,6 +167,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				offset: 12,
 			} ) );
 
+			// Set the popover width.
 			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
 		}, [ clientId, isFixed, isVisible, hasContent ] );
 
@@ -187,7 +185,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
-			// Do not observe the anchor resize if the toolbar is fixed.
+			/*
+			 * Do not observe the anchor resize if
+			 * the toolbar is fixed or the block has content.
+			 */
 			if ( isFixed || hasContent ) {
 				setWidth( '100%' );
 				return;
@@ -263,6 +264,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				<KeyboardShortcuts
 					shortcuts={ {
 						'mod+/': () => {
+							// Select the block. Then toggle().
 							selectFormBlock().then( () => {
 								setTimeout( () => {
 									toggle();
