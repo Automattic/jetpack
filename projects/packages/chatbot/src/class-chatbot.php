@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack Chat: Why chat with a human?
+ * Jetpack Chatbot: Helpful bots for your WordPress site.
  *
  * @package automattic/jetpack-chatbot
  */
