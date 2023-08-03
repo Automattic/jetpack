@@ -34,9 +34,10 @@ export default async function generateCriticalCss(
 		// Load Critical CSS gen library if not already loaded.
 		await loadCriticalCssLibrary();
 
-		// Prepare GET parameters to include with each request.
+		// Prepare GET parameters to include with each request. Tell the back end that
+		// Critical CSS is being generated, but use a timestamp to prevent caching.
 		const requestGetParameters = {
-			'jb-generate-critical-css': cssState.generation_nonce,
+			'jb-generate-critical-css': Date.now().toString(),
 		};
 
 		logPreCriticalCSSGeneration();

@@ -23,32 +23,7 @@ class Generator {
 	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 */
 	public static function is_generating_critical_css() {
-		static $is_generating = null;
-		if ( null !== $is_generating ) {
-			return $is_generating;
-		}
-
-		// Accept nonce via HTTP headers or GET parameters.
-		$generate_nonce = null;
-		if ( ! empty( $_GET[ self::GENERATE_QUERY_ACTION ] ) ) {
-			$generate_nonce = sanitize_key(
-				$_GET[ self::GENERATE_QUERY_ACTION ]
-			);
-		} elseif ( ! empty( $_SERVER['HTTP_X_GENERATE_CRITICAL_CSS'] ) ) {
-			$generate_nonce = sanitize_key(
-				$_SERVER['HTTP_X_GENERATE_CRITICAL_CSS']
-			);
-		}
-
-		// If GET parameter or header set, we are trying to generate.
-		$is_generating = ! empty( $generate_nonce );
-
-		// Die if the nonce is invalid.
-		if ( $is_generating && ! Nonce::verify( $generate_nonce, self::GENERATE_QUERY_ACTION ) ) {
-			die();
-		}
-
-		return $is_generating;
+		return ! empty( $_GET[ self::GENERATE_QUERY_ACTION ] ) || ! empty( $_SERVER['HTTP_X_GENERATE_CRITICAL_CSS'] );
 	}
 
 	/**
@@ -77,9 +52,6 @@ class Generator {
 				'height' => 1080,
 			),
 		);
-
-		// Add a userless nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
-		$status['generation_nonce'] = Nonce::create( self::GENERATE_QUERY_ACTION );
 
 		// Add a user-bound nonce to use when proxying CSS for Critical CSS generation.
 		$status['proxy_nonce'] = wp_create_nonce( CSS_Proxy::NONCE_ACTION );
