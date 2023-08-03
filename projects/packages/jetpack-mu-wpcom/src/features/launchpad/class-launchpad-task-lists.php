@@ -636,7 +636,7 @@ class Launchpad_Task_Lists {
 		$statuses[ $key ] = true;
 		$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
 
-		$this->maybe_disable_launchpad();
+		$this->maybe_disable_fullscreen_launchpad();
 
 		return $result;
 	}
