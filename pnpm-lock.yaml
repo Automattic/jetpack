@@ -920,6 +920,9 @@ importers:
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../analytics
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../components
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../connection
