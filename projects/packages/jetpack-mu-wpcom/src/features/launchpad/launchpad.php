@@ -183,6 +183,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'manage_subscribers',
 				'write_3_posts',
 				'connect_social_media',
+				'manage_paid_newsletter_plan',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
