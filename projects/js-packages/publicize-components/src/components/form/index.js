@@ -112,7 +112,7 @@ export default function PublicizeForm( {
 	);
 
 	const onAdvancedNudgeDismiss = useCallback(
-		() => dismissNotice( NOTICES.advancedUpgrade, 3 * MONTH_IN_SECONDS ),
+		() => dismissNotice( NOTICES.advancedUpgradeEditor, 3 * MONTH_IN_SECONDS ),
 		[ dismissNotice, NOTICES ]
 	);
 
@@ -346,7 +346,7 @@ export default function PublicizeForm( {
 							/>
 						</>
 					) }
-					{ shouldShowAdvancedPlanNudge && shouldShowNotice( NOTICES.advancedUpgrade ) && (
+					{ shouldShowAdvancedPlanNudge && shouldShowNotice( NOTICES.advancedUpgradeEditor ) && (
 						<Notice onDismiss={ onAdvancedNudgeDismiss } type={ 'highlight' }>
 							{ createInterpolateElement(
 								__(
