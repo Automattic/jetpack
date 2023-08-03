@@ -58,6 +58,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
 		$workflow = new Automation_Workflow( $workflow_data );
+		$workflow->set_engine( new Automation_Engine() );
 
 		$workflow->set_initial_step(
 			array(
