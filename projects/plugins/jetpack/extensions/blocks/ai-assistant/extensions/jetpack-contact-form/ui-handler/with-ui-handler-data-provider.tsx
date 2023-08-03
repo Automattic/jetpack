@@ -22,6 +22,22 @@ import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 // An identifier to use on the extension error notices,
 const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 
+/**
+ * Add the `jetpack-ai-assistant-bar-is-fixed` class to the body
+ * when the toolbar is fixed and the AI Assistant is visible.
+ *
+ * @param {boolean} isFixed - Is the toolbar fixed?
+ * @param {boolean} isVisible - Is the AI Assistant visible?
+ * @returns {void}
+ */
+export function handleAiExtensionsBarBodyClass( isFixed: boolean, isVisible: boolean ) {
+	if ( isFixed && isVisible ) {
+		return document.body.classList.add( 'jetpack-ai-assistant-bar-is-fixed' );
+	}
+
+	document.body.classList.remove( 'jetpack-ai-assistant-bar-is-fixed' );
+}
+
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { clientId, isSelected } = props;
@@ -117,6 +133,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
+			handleAiExtensionsBarBodyClass( isFixed, isVisible );
+
 			// Do not anchor the popover if the toolbar is fixed.
 			if ( isFixed ) {
 				return setWidth( '100%' ); // ensure to use the full width.
@@ -147,7 +165,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			} ) );
 
 			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
-		}, [ clientId, isFixed ] );
+		}, [ clientId, isFixed, isVisible ] );
 
 		// Show/hide the assistant based on the block selection.
 		useEffect( () => {
