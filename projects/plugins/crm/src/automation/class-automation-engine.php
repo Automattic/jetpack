@@ -14,26 +14,36 @@ namespace Automattic\Jetpack\CRM\Automation;
  */
 class Automation_Engine {
 
-	/** @var Automation_Engine Instance singleton. */
+	/**
+	 * @var Automation_Engine Instance singleton.
+	 */
 	private static $instance = null;
 
-	/** @var array triggers map name => classname. */
+	/**
+	 * @var array triggers map name => classname.
+	 */
 	private $triggers_map = array();
 
-	/** @var array steps map name => classname. */
+	/**
+	 * @var array steps map name => classname.
+	 */
 	private $steps_map = array();
 
-	/** @var Automation_Logger Automation logger. */
+	/**
+	 * @var Automation_Logger Automation logger.
+	 */
 	private $automation_logger;
 
-	/** @var array */
+	/**
+	 * @var array A list of registered workflows.
+	 */
 	private $workflows = array();
 
 	/**
 	 *  Instance singleton object.
 	 *
 	 * @param bool $force Whether to force a new Automation_Engine instance.
-	 * @return Automation_Engine
+	 * @return Automation_Engine The Automation_Engine instance.
 	 */
 	public static function instance( bool $force = false ): Automation_Engine {
 		if ( ! self::$instance || $force ) {
@@ -120,7 +130,7 @@ class Automation_Engine {
 	 * Get a step class by name.
 	 *
 	 * @param string $step_name The name of the step whose class we will be retrieving.
-	 * @return string
+	 * @return string The name of the step class.
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
 	public function get_step_class( string $step_name ): string {
@@ -139,7 +149,6 @@ class Automation_Engine {
 	 *
 	 * @param Automation_Workflow $workflow The workflow class instance to be added.
 	 * @param bool                $init_workflow Whether or not to initialize the workflow.
-	 * @return void
 	 * @throws Workflow_Exception Throws an exception if the workflow is not valid.
 	 */
 	public function add_workflow( Automation_Workflow $workflow, bool $init_workflow = false ) {
@@ -155,7 +164,7 @@ class Automation_Engine {
 	 *
 	 * @param array $workflow_data The workflow data to be added.
 	 * @param bool  $init_workflow Whether or not to initialize the workflow.
-	 * @return Automation_Workflow
+	 * @return Automation_Workflow The workflow class instance to be added.
 	 * @throws Workflow_Exception Throws an exception if the workflow is not valid.
 	 */
 	public function build_add_workflow( array $workflow_data, bool $init_workflow = false ): Automation_Workflow {
@@ -168,7 +177,6 @@ class Automation_Engine {
 	/**
 	 * Init automation workflows.
 	 *
-	 * @return void
 	 * @throws Workflow_Exception Throws an exception if the workflow is not valid.
 	 */
 	public function init_workflows() {
@@ -184,7 +192,7 @@ class Automation_Engine {
 	 *
 	 * @param string $step_name The name of the step to be registered.
 	 * @param array  $step_data The step data to be registered.
-	 * @return Step
+	 * @return Step The step class instance.
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
 	public function get_registered_step( $step_name, array $step_data = array() ): Step {
@@ -205,7 +213,7 @@ class Automation_Engine {
 	/**
 	 * Get registered steps.
 	 *
-	 * @return array
+	 * @return array The registered steps.
 	 */
 	public function get_registered_steps(): array {
 		return $this->steps_map;
@@ -215,7 +223,7 @@ class Automation_Engine {
 	 * Get trigger instance.
 	 *
 	 * @param string $trigger_slug The name of the trigger slug with which to retrieve the trigger class.
-	 * @return string
+	 * @return string The name of the trigger class.
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
 	public function get_trigger_class( string $trigger_slug ): string {

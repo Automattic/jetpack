@@ -19,7 +19,7 @@ class New_Contact extends Base_Action {
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @return string
+	 * @return string The slug name of the step.
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/new_contact';
@@ -28,7 +28,7 @@ class New_Contact extends Base_Action {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @return string
+	 * @return string The title of the step.
 	 */
 	public static function get_title(): ?string {
 		return 'New Contact Action';
@@ -37,7 +37,7 @@ class New_Contact extends Base_Action {
 	/**
 	 * Get the description of the step.
 	 *
-	 * @return string
+	 * @return string The description of the step.
 	 */
 	public static function get_description(): ?string {
 		return 'Action to add the new contact';
@@ -46,7 +46,7 @@ class New_Contact extends Base_Action {
 	/**
 	 * Get the type of the step.
 	 *
-	 * @return string
+	 * @return string The type of the step.
 	 */
 	public static function get_type(): string {
 		return 'contacts';
@@ -55,7 +55,7 @@ class New_Contact extends Base_Action {
 	/**
 	 * Get the category of the step.
 	 *
-	 * @return string
+	 * @return string The category of the step.
 	 */
 	public static function get_category(): ?string {
 		return 'actions';
@@ -64,7 +64,7 @@ class New_Contact extends Base_Action {
 	/**
 	 * Get the allowed triggers.
 	 *
-	 * @return array
+	 * @return array The allowed triggers.
 	 */
 	public static function get_allowed_triggers(): ?array {
 		return array();

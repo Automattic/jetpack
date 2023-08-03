@@ -19,7 +19,7 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @return string
+	 * @return string The slug name of the step.
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/delete_contact';
@@ -28,7 +28,7 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @return string
+	 * @return string The title of the step.
 	 */
 	public static function get_title(): ?string {
 		return __( 'Delete Contact Action', 'zero-bs-crm' );
@@ -37,7 +37,7 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the description of the step.
 	 *
-	 * @return string
+	 * @return string The description of the step.
 	 */
 	public static function get_description(): ?string {
 		return __( 'Action to delete the contact', 'zero-bs-crm' );
@@ -46,7 +46,7 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the type of the step.
 	 *
-	 * @return string
+	 * @return string The type of the step.
 	 */
 	public static function get_type(): string {
 		return 'contacts';
@@ -55,7 +55,7 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the category of the step.
 	 *
-	 * @return string
+	 * @return string The category of the step.
 	 */
 	public static function get_category(): ?string {
 		return __( 'Contacts', 'zero-bs-crm' );
@@ -64,7 +64,7 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the allowed triggers.
 	 *
-	 * @return array
+	 * @return array The allowed triggers.
 	 */
 	public static function get_allowed_triggers(): ?array {
 		return array();
@@ -85,5 +85,4 @@ class Delete_Contact extends Base_Action {
 		);
 		$zbs->DAL->contacts->deleteContact( $contact_data_for_deletion ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
-
 }

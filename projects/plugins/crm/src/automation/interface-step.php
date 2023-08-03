@@ -19,7 +19,7 @@ interface Step {
 	/**
 	 * Get the next step.
 	 *
-	 * @return array|null
+	 * @return array|null The next linked step.
 	 */
 	public function get_next_step(): ?array;
 
@@ -33,7 +33,7 @@ interface Step {
 	/**
 	 * Get the attributes of the step.
 	 *
-	 * @return array
+	 * @return array The attributes of the step.
 	 */
 	public function get_attributes(): ?array;
 
@@ -47,42 +47,42 @@ interface Step {
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @return string
+	 * @return string The slug name of the step.
 	 */
 	public static function get_slug(): string;
 
 	/**
 	 * Get the title of the step.
 	 *
-	 * @return string
+	 * @return string The title of the step.
 	 */
 	public static function get_title(): ?string;
 
 	/**
 	 * Get the description of the step.
 	 *
-	 * @return string
+	 * @return string The description of the step.
 	 */
 	public static function get_description(): ?string;
 
 	/**
 	 * Get the type of the step.
 	 *
-	 * @return string
+	 * @return string The type of the step.
 	 */
 	public static function get_type(): ?string;
 
 	/**
 	 * Get the category of the step.
 	 *
-	 * @return string
+	 * @return string The category of the step.
 	 */
 	public static function get_category(): ?string;
 
 	/**
 	 * Get the category of the step.
 	 *
-	 * @return array
+	 * @return array The allowed triggers for the step.
 	 */
 	public static function get_allowed_triggers(): ?array;
 }

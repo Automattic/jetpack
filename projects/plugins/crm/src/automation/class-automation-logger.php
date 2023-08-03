@@ -36,7 +36,7 @@ class Automation_Logger {
 	 * Initialize the logger.
 	 *
 	 * @param bool $force Force a new instance.
-	 * @return Automation_Logger
+	 * @return Automation_Logger An instance of the Automation_Logger class.
 	 */
 	public static function instance( bool $force = false ): Automation_Logger {
 		if ( ! self::$instance || $force ) {
@@ -61,7 +61,8 @@ class Automation_Logger {
 	}
 
 	/**
-	 * Set if output the log or not
+	 * Set if output the log or not.
+	 *
 	 * @param bool $output Whether or not the log is set to output.
 	 */
 	public function with_output( bool $output ) {
@@ -76,7 +77,7 @@ class Automation_Logger {
 	}
 
 	/**
-	 * Add a log entry
+	 * Add a log entry.
 	 *
 	 * @param string $message The message to be output in the log.
 	 */

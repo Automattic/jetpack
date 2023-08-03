@@ -16,7 +16,8 @@ class Quote_Created extends Base_Trigger {
 
 	/**
 	 * Get the slug name of the trigger.
-	 * @return string
+	 *
+	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/quote_created';
@@ -24,7 +25,8 @@ class Quote_Created extends Base_Trigger {
 
 	/**
 	 * Get the title of the trigger.
-	 * @return string
+	 *
+	 * @return string The title of the trigger.
 	 */
 	public static function get_title(): ?string {
 		return __( 'New Quote', 'zero-bs-crm' );
@@ -32,7 +34,8 @@ class Quote_Created extends Base_Trigger {
 
 	/**
 	 * Get the description of the trigger.
-	 * @return string
+	 *
+	 * @return string The description of the trigger.
 	 */
 	public static function get_description(): ?string {
 		return __( 'Triggered when a new quote status is added', 'zero-bs-crm' );
@@ -40,7 +43,8 @@ class Quote_Created extends Base_Trigger {
 
 	/**
 	 * Get the category of the trigger.
-	 * @return string
+	 *
+	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): ?string {
 		return __( 'quote', 'zero-bs-crm' );

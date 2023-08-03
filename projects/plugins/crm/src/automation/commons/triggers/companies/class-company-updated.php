@@ -19,7 +19,7 @@ class Company_Updated extends Base_Trigger {
 	/**
 	 * Get the slug name of the trigger.
 	 *
-	 * @return string
+	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/company_updated';
@@ -28,7 +28,7 @@ class Company_Updated extends Base_Trigger {
 	/**
 	 * Get the title of the trigger.
 	 *
-	 * @return string
+	 * @return string The title of the trigger.
 	 */
 	public static function get_title(): ?string {
 		return __( 'Company Updated', 'zero-bs-crm' );
@@ -37,7 +37,7 @@ class Company_Updated extends Base_Trigger {
 	/**
 	 * Get the description of the trigger.
 	 *
-	 * @return string
+	 * @return string The description of the trigger.
 	 */
 	public static function get_description(): ?string {
 		return __( 'Triggered when a CRM company is updated', 'zero-bs-crm' );
@@ -46,7 +46,7 @@ class Company_Updated extends Base_Trigger {
 	/**
 	 * Get the category of the trigger.
 	 *
-	 * @return string
+	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): ?string {
 		return __( 'company', 'zero-bs-crm' );

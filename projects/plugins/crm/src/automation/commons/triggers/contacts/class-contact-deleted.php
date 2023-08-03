@@ -17,13 +17,15 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
  */
 class Contact_Deleted extends Base_Trigger {
 
-	/** @var Automation_Workflow The Automation workflow object. */
+	/**
+	 * @var Automation_Workflow The Automation workflow object.
+	 */
 	protected $workflow;
 
 	/**
 	 * Get the slug name of the trigger.
 	 *
-	 * @return string
+	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/contact_delete';
@@ -32,7 +34,7 @@ class Contact_Deleted extends Base_Trigger {
 	/**
 	 * Get the title of the trigger.
 	 *
-	 * @return string
+	 * @return string The title of the trigger.
 	 */
 	public static function get_title(): ?string {
 		return __( 'Contact Deleted', 'zero-bs-crm' );
@@ -41,7 +43,7 @@ class Contact_Deleted extends Base_Trigger {
 	/**
 	 * Get the description of the trigger.
 	 *
-	 * @return string
+	 * @return string The description of the trigger.
 	 */
 	public static function get_description(): ?string {
 		return __( 'Triggered when a CRM contact is deleted', 'zero-bs-crm' );

@@ -1,6 +1,6 @@
 <?php
 /**
- * Interface Action
+ * Interface Action.
  *
  * @package Automattic\Jetpack\CRM\Automation
  */

@@ -14,9 +14,13 @@ namespace Automattic\Jetpack\CRM\Automation;
  */
 abstract class Base_Step implements Step {
 
-	/** @var array Step attributes. */
+	/**
+	 * @var array Step attributes.
+	 */
 	protected $attributes;
-	/** @var array|null Next linked step. */
+	/**
+	 * @var array|null Next linked step.
+	 */
 	protected $next_step;
 
 	/**
@@ -31,7 +35,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the data of the step.
 	 *
-	 * @return array
+	 * @return array The step data.
 	 */
 	public function get_attributes(): array {
 		return $this->attributes;
@@ -58,7 +62,7 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the next step.
 	 *
-	 * @return array|null
+	 * @return array|null The next linked step.
 	 */
 	public function get_next_step(): ?array {
 		return $this->next_step;
@@ -74,42 +78,42 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the slug name of the step.
 	 *
-	 * @return string
+	 * @return string The slug name of the step.
 	 */
 	abstract public static function get_slug(): string;
 
 	/**
 	 * Get the title of the step.
 	 *
-	 * @return string
+	 * @return string The title of the step.
 	 */
 	abstract public static function get_title(): ?string;
 
 	/**
 	 * Get the description of the step.
 	 *
-	 * @return string
+	 * @return string The description of the step.
 	 */
 	abstract public static function get_description(): ?string;
 
 	/**
 	 * Get the type of the step.
 	 *
-	 * @return string
+	 * @return string The type of the step.
 	 */
 	abstract public static function get_type(): string;
 
 	/**
 	 * Get the category of the step.
 	 *
-	 * @return string
+	 * @return string The category of the step.
 	 */
 	abstract public static function get_category(): ?string;
 
 	/**
 	 * Get the allowed triggers.
 	 *
-	 * @return array
+	 * @return array The allowed triggers.
 	 */
 	abstract public static function get_allowed_triggers(): ?array;
 }

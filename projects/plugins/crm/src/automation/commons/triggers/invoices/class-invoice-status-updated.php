@@ -19,7 +19,7 @@ class Invoice_Status_Updated extends Base_Trigger {
 	/**
 	 * Get the slug name of the trigger.
 	 *
-	 * @return string
+	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/invoice_status_updated';
@@ -28,14 +28,16 @@ class Invoice_Status_Updated extends Base_Trigger {
 	/**
 	 * Get the title of the trigger.
 	 *
-	 * @return string
+	 * @return string The title of the trigger.
 	 */
 	public static function get_title(): ?string {
 		return __( 'Invoice Status Updated', 'zero-bs-crm' );
 	}
 
-	/** Get the description of the trigger
-	 * @return string
+	/**
+	 * Get the description of the trigger.
+	 *
+	 * @return string The description of the trigger.
 	 */
 	public static function get_description(): ?string {
 		return __( 'Triggered when an invoice status is updated', 'zero-bs-crm' );
@@ -44,7 +46,7 @@ class Invoice_Status_Updated extends Base_Trigger {
 	/**
 	 * Get the category of the trigger.
 	 *
-	 * @return string
+	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): ?string {
 		return __( 'invoice', 'zero-bs-crm' );

@@ -17,28 +17,28 @@ interface Trigger {
 	/**
 	 * Get the slug name of the trigger.
 	 *
-	 * @return string
+	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string;
 
 	/**
 	 * Get the title of the trigger.
 	 *
-	 * @return string
+	 * @return string The title of the trigger.
 	 */
 	public static function get_title(): ?string;
 
 	/**
 	 * Get the description of the trigger.
 	 *
-	 * @return string
+	 * @return string The description of the trigger.
 	 */
 	public static function get_description(): ?string;
 
 	/**
 	 * Get the category of the trigger.
 	 *
-	 * @return string
+	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): ?string;
 

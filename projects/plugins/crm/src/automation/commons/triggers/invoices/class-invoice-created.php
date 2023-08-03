@@ -28,7 +28,7 @@ class Invoice_Created extends Base_Trigger {
 	/**
 	 * Get the title of the trigger.
 	 *
-	 * @return string
+	 * @return string The title of the trigger.
 	 */
 	public static function get_title(): ?string {
 		return __( 'New Invoice', 'zero-bs-crm' );
@@ -37,7 +37,7 @@ class Invoice_Created extends Base_Trigger {
 	/**
 	 * Get the description of the trigger.
 	 *
-	 * @return string
+	 * @return string The description of the trigger.
 	 */
 	public static function get_description(): ?string {
 		return __( 'Triggered when a new invoice status is added', 'zero-bs-crm' );
@@ -46,7 +46,7 @@ class Invoice_Created extends Base_Trigger {
 	/**
 	 * Get the category of the trigger.
 	 *
-	 * @return string
+	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): ?string {
 		return __( 'invoice', 'zero-bs-crm' );

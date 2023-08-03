@@ -12,31 +12,49 @@ namespace Automattic\Jetpack\CRM\Automation;
  */
 class Automation_Workflow {
 
-	/** @var int */
+	/**
+	 * @var int|string The workflow id.
+	 */
 	private $id;
 
-	/** @var string */
+	/**
+	 * @var string The workflow name.
+	 */
 	public $name;
 
-	/** @var string */
+	/**
+	 * @var string The workflow description.
+	 */
 	public $description;
 
-	/** @var string */
+	/**
+	 * @var string The workflow category.
+	 */
 	public $category;
 
-	/** @var array */
+	/**
+	 * @var array The workflow triggers.
+	 */
 	public $triggers;
 
-	/** @var array */
+	/**
+	 * @var array The workflow initial step.
+	 */
 	public $initial_step;
 
-	/** @var bool */
+	/**
+	 * @var bool Whether the workflow is active.
+	 */
 	public $active;
 
-	/** @var Automation_Engine */
+	/**
+	 * @var Automation_Engine The automation engine.
+	 */
 	private $automation_engine;
 
-	/** @var Automation_Logger */
+	/**
+	 * @var Automation_Logger The automation logger.
+	 */
 	private $logger;
 
 	/**
@@ -61,9 +79,9 @@ class Automation_Workflow {
 	/**
 	 * Get the id of this workflow.
 	 *
-	 * @return int
+	 * @return int|string The workflow id.
 	 */
-	public function get_id(): int {
+	public function get_id() {
 		return $this->id;
 	}
 
@@ -79,7 +97,7 @@ class Automation_Workflow {
 	/**
 	 * Get the trigger names of this workflow.
 	 *
-	 * @return array
+	 * @return array The workflow trigger names.
 	 */
 	public function get_triggers(): array {
 		return $this->triggers;
@@ -124,9 +142,9 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Get the workflow as an array.
+	 * Get the workflow as an array to be stored or send as JSON.
 	 *
-	 * @return array
+	 * @return array The workflow as an array.
 	 */
 	public function get_workflow_array() {
 
@@ -156,7 +174,7 @@ class Automation_Workflow {
 	 *
 	 * @param Trigger $trigger An instance of the Trigger class.
 	 * @param array   $data All relevant object data to be passed through the workflow.
-	 * @return bool
+	 * @return bool Whether the workflow was executed successfully.
 	 * @throws Automation_Exception Throws an exception if the step class does not exist, or there is an error executing the workflow.
 	 */
 	public function execute( Trigger $trigger, array $data ): bool {
@@ -212,7 +230,7 @@ class Automation_Workflow {
 	 * Get the step classname based on the step type.
 	 *
 	 * @param array $step_data The step data with which to check the step type.
-	 * @return string
+	 * @return string The step classname.
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
 	private function get_step_class( array $step_data ): string {
@@ -238,7 +256,7 @@ class Automation_Workflow {
 	/**
 	 * Check if the workflow is active.
 	 *
-	 * @return bool
+	 * @return bool Whether the workflow is active.
 	 */
 	public function is_active(): bool {
 		return $this->active;
