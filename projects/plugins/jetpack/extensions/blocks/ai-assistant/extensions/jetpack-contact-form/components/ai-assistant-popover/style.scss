@@ -1,23 +1,21 @@
 .jetpack-ai-assistant__popover {
-	.components-popover__content {
-		display: flex;
-		min-width: 400px;
-		padding: 6px;
-		min-height: 40px;
-		align-items: center;
+	z-index: 31;
+	border-bottom: 1px solid #e0e0e0;
+	&.is-fixed {
+		width: 100%;
+		.components-popover__content,
+		.jetpack-components-ai-control__container {
+			width: 100%;
+			border-radius: 0;
+			box-shadow: none;
+		}
+		.jetpack-components-ai-control__wrapper {
+			padding: 7px 14px;
+			width: 100%;
+		}
 	}
 }
 
-/*
- * temporary styles
- * @todo removes when integrates the AI Control component
- */
- .jetpack-ai-assistant__popover-container {
-	display: flex;
-	gap: 8px;
-	align-items: center;
-
-	.components-text-control__input {
-		min-width: 300px;
-	};
- }
+.jetpack-ai-assistant-bar-is-fixed .block-editor-block-contextual-toolbar {
+	margin-bottom: 46px;
+}

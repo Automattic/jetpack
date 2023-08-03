@@ -3,6 +3,7 @@
  */
 import { PlainText } from '@wordpress/block-editor';
 import { Button, Spinner } from '@wordpress/components';
+import { useKeyboardShortcut } from '@wordpress/compose';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall, check, arrowUp } from '@wordpress/icons';
@@ -53,12 +54,35 @@ export default function AIControl( {
 	acceptLabel?: string;
 	showButtonsLabel?: boolean;
 	isOpaque?: boolean;
-	onChange: ( newValue: string ) => void;
-	onSend: ( currentValue: string ) => void;
-	onStop: () => void;
-	onAccept: () => void;
+	onChange?: ( newValue: string ) => void;
+	onSend?: ( currentValue: string ) => void;
+	onStop?: () => void;
+	onAccept?: () => void;
 } ) {
 	const promptUserInputRef = useRef( null );
+
+	useKeyboardShortcut(
+		'mod+enter',
+		() => {
+			if ( showAccept ) {
+				onAccept?.();
+			}
+		},
+		{
+			target: promptUserInputRef,
+		}
+	);
+
+	useKeyboardShortcut(
+		'enter',
+		e => {
+			e.preventDefault();
+			onSend?.( value );
+		},
+		{
+			target: promptUserInputRef,
+		}
+	);
 
 	return (
 		<div className="jetpack-components-ai-control__container">
@@ -91,7 +115,7 @@ export default function AIControl( {
 								className="jetpack-components-ai-control__controls-prompt_button"
 								onClick={ () => onSend( value ) }
 								isSmall={ true }
-								disabled={ value?.length }
+								disabled={ ! value?.length }
 								label={ __( 'Send request', 'jetpack-ai-client' ) }
 							>
 								<Icon icon={ arrowUp } />
