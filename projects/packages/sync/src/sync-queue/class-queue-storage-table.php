@@ -524,7 +524,7 @@ class Queue_Storage_Table {
 	/**
 	 * Migrates the existing Sync events from the options table to the Custom table
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	public static function migrate_from_options_table_to_custom_table() {
 		global $wpdb;
@@ -615,6 +615,8 @@ class Queue_Storage_Table {
 				'jpsq_%-%'
 			)
 		);
+
+		return true;
 	}
 
 	/**

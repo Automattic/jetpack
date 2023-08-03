@@ -221,6 +221,53 @@ class Settings {
 					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
 				}
 			}
+
+			/**
+			 * Custom table migration logic.
+			 */
+			if ( 'custom_queue_table_enabled' === $setting && $updated ) {
+				if ( (bool) $value ) {
+					/**
+					 * The custom table has been enabled.
+					 *
+					 * - Initialize the custom table
+					 * - Migrate the data
+					 *
+					 * If something fails, migrate back to the options table and clean up everything about the custom table.
+					 */
+					$init_result = Queue_Storage_Table::initialize_dedicated_sync_table();
+
+					/**
+					 * Check if there was a problem when initializing the table.
+					 */
+					if ( ! is_wp_error( $init_result ) ) {
+
+						if ( Queue_Storage_Table::migrate_from_options_table_to_custom_table() ) {
+							/**
+							 * Enable and migration were successful, return from here, as we don't need to do reverts.
+							 *
+							 * This is the early return and desired path. If this statement is not reached,
+							 * then we got to a failure, state and we need to revert.
+							 */
+							// TODO send a success event
+							return;
+						} else {
+							// If the migration failed, check and migrate back the data?
+							// TODO send a failure event
+							Queue_Storage_Table::migrate_from_custom_table_to_options_table();
+						}
+					}
+
+					// Failed to enable the table, set the option back
+					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
+				} else {
+					// The custom table has been disabled, migrate what we can from the custom table to the options table
+					Queue_Storage_Table::migrate_from_custom_table_to_options_table();
+				}
+			}
+			/**
+			 * End of custom table migration logic.
+			 */
 		}
 	}
 
