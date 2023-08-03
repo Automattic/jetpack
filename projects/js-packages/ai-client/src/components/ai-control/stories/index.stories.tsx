@@ -7,6 +7,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
+import { REQUESTING_STATES } from '../../../types';
 import AIControl from '../index';
 /**
  * Types
@@ -16,6 +17,14 @@ import type { Meta } from '@storybook/react';
 export default {
 	title: 'JS Packages/AI Client/AI Control',
 	component: AIControl,
+	argTypes: {
+		requestingState: {
+			control: {
+				type: 'select',
+			},
+			options: REQUESTING_STATES,
+		},
+	},
 	parameters: {
 		controls: {
 			exclude: /on[A-Z].*/,
@@ -38,6 +47,7 @@ const DefaultArgs = {
 	loading: false,
 	isOpaque: false,
 	placeholder: '',
+	requestingState: 'init',
 	showButtonsLabel: true,
 	showAccept: false,
 	acceptLabel: 'Accept',

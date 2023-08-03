@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { PlainText } from '@wordpress/block-editor';
-import { Button, Spinner } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -11,8 +11,12 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import { aiAssistantIcon } from '../../icons';
 import './style.scss';
+import AiStatusIndicator from '../ai-status-indicator';
+/**
+ * Types
+ */
+import type { RequestingStateProp } from '../../types';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -32,6 +36,7 @@ const noop = () => {};
  * @param {Function} props.onSend - send request handler
  * @param {Function} props.onStop - stop request handler
  * @param {Function} props.onAccept - accept handler
+ * @param {string} props.requestingState - requesting state
  * @returns {object} - AI Control component
  */
 export default function AIControl( {
@@ -42,6 +47,7 @@ export default function AIControl( {
 	acceptLabel = __( 'Accept', 'jetpack-ai-client' ),
 	showButtonsLabel = true,
 	isOpaque = false,
+	requestingState = 'init',
 	onChange = noop,
 	onSend = noop,
 	onStop = noop,
@@ -54,6 +60,7 @@ export default function AIControl( {
 	acceptLabel?: string;
 	showButtonsLabel?: boolean;
 	isOpaque?: boolean;
+	requestingState?: RequestingStateProp;
 	onChange?: ( newValue: string ) => void;
 	onSend?: ( currentValue: string ) => void;
 	onStop?: () => void;
@@ -91,13 +98,7 @@ export default function AIControl( {
 					'is-opaque': isOpaque,
 				} ) }
 			>
-				<div className="jetpack-components-ai-controlton__icon">
-					{ loading ? (
-						<Spinner className="input-spinner" />
-					) : (
-						<Icon className="input-icon" icon={ aiAssistantIcon } size={ 24 } />
-					) }
-				</div>
+				<AiStatusIndicator requestingState={ requestingState } />
 
 				<PlainText
 					value={ value }
