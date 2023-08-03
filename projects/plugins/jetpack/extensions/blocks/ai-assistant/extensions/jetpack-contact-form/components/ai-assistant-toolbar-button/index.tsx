@@ -3,6 +3,7 @@
  */
 import { aiAssistantIcon, useAiContext } from '@automattic/jetpack-ai-client';
 import { ToolbarButton } from '@wordpress/components';
+import { select } from '@wordpress/data';
 import { useContext, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
@@ -12,10 +13,31 @@ import React, { useEffect } from 'react';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import { handleAiExtensionsBarBodyClass } from '../../ui-handler/with-ui-handler-data-provider';
 
-export default function AiAssistantToolbarButton(): React.ReactElement {
+type AiAssistantToolbarButtonProps = {
+	clientId?: string;
+};
+
+function hasFormContent( clientId: string ): boolean {
+	if ( ! clientId?.length ) {
+		return false;
+	}
+
+	const block = select( 'core/block-editor' ).getBlock( clientId );
+	if ( ! block ) {
+		return false;
+	}
+
+	return !! block?.innerBlocks?.length;
+}
+
+export default function AiAssistantToolbarButton( {
+	clientId,
+}: AiAssistantToolbarButtonProps ): React.ReactElement {
 	const { isVisible, toggle, setPopoverProps, setAssistantFixed } =
 		useContext( AiAssistantUiContext );
 	const { requestingState } = useAiContext();
+
+	const hasContent = hasFormContent( clientId );
 
 	/*
 	 * Let's switch the anchor when the toolbar is fixed
@@ -39,7 +61,7 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 		setAssistantFixed( isFixed );
 		handleAiExtensionsBarBodyClass( isFixed, isVisible );
 
-		if ( ! isFixed ) {
+		if ( ! isFixed && ! hasContent ) {
 			return;
 		}
 
@@ -51,11 +73,11 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 			setPopoverProps( prev => ( {
 				...prev,
 				anchor: toolbar,
-				offset: 0,
+				offset: hasContent ? 8 : 0,
 				variant: 'toolbar',
 			} ) );
 		}, 100 );
-	}, [ setAssistantFixed, setPopoverProps, isVisible ] );
+	}, [ setAssistantFixed, setPopoverProps, isVisible, hasContent ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 

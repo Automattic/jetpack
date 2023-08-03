@@ -80,7 +80,7 @@ const withAiAssistantToolbarButton = createHigherOrderComponent( BlockEdit => {
 				<BlockEdit { ...props } />
 
 				<BlockControls { ...blockControlsProps }>
-					<AiAssistantToolbarButton />
+					<AiAssistantToolbarButton clientId={ props.clientId } />
 				</BlockControls>
 			</>
 		);

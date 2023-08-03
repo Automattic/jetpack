@@ -33,7 +33,7 @@ const debug = debugFactory( 'jetpack-ai-assistant:form-assistant' );
  * @param {string} clientId - The block client ID.
  * @returns {string}          The serialized content.
  */
-function getSerializedContentFromBlock( clientId: string ): string {
+export function getSerializedContentFromBlock( clientId: string ): string {
 	if ( ! clientId?.length ) {
 		return '';
 	}
