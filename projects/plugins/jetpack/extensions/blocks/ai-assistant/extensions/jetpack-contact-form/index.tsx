@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { withAiDataProvider } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -100,3 +101,5 @@ addFilter(
 	withUiHandlerDataProvider,
 	100
 );
+
+addFilter( 'editor.BlockListBlock', 'jetpack/ai-assistant-block-list', withAiDataProvider, 110 );

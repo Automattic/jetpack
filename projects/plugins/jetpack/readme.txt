@@ -293,42 +293,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.4 - 2023-08-01
+### 12.5-a.1 - 2023-08-01
 #### Enhancements
-- AI Assistant: introduce sidebar and proofread components.
-- AI Assistant: keep original content when trying again after transforming a paragraph using the "Ask AI Assistant" button.
-- AI Assistant: add a "Get Feedback" feature.
-- AI Assistant: various improvements to syntax parsing, formatting, and other backend enhancements.
-- Akismet: show correct logo for all Jetpack plans that include Akismet.
-- Contact Forms: remove the default title ("You got a new response!") added to emails sent for new feedback received.
-- Cookie Consent Block: persist markup and ensure it is rendered in the footer.
-- Custom CSS: display a notice to recommend the use of Global Styles when you use a Block theme on your site.
-- Dashboard: add a new "Earn" section to the settings.
-- Dashboard: highlight Jetpack Newsletter in recommendations flow.
-- Dashboard: update link to configure Related Posts when you use a Block theme on your site.
-- External Media: add Pexels to the Media Sidebar of the block editor.
-- Social Menu & Social Media Icons: add support for the Threads service.
-- Subscriptions: link to new Subscription management page from the Jetpack dashboard.
-
-#### Improved compatibility
-- Customizer: make the testimonial, featured content, portfolio, and related post customizer sections be shown only if current theme is not a block theme.
-- General: indicate full compatibility with the latest version of WordPress, 6.3.
-- Sharing: deprecate the Skype sharing button, as Skype does not support those buttons anymore.
-- Social Links: prevent social links from being used in block themes.
-- Tiled Galleries: Fix deprecation notices that may appear in logs when using PHP 8.2.
-- WordPress.com REST API: avoid PHP notice when using PHP 8.2.
+- AI Assistant: various backend improvements.
+- AI Assistant: Disable feedback button if post is empty
+- Block editor: add Google Photo integration to Gutenberg's Media Sidebar for Jetpack connected sites.
+- Dashboard: update the SEO hide page control from a checkbox to a toggle.
+- Donation block: display the default Stripe currency in the Donation block and add a "check" icon next to the selected currency in the currency dropdown
+- Dashboard: update the likes and sharing button controls in the Jetpack sidebarffrom checkboxes to toggles.
+- Paywall block: update the block styles.
 
 #### Bug fixes
-- AI Assistant: fix crash when transforming to AI Assistant.
-- WordPress.com REST API: fix PHP warning in list posts endpoint.
-- Contact Forms: avoid fatal errors when exporting form data to CSV.
-- Contact Forms: fix Forms dropdown required validation.
-- Dashboard: fix accessibility issues in the footer area.
-- Fix issue with Paid-content block by enabling sub-blocks.
-- Payments Block: update link to support documentation.
-- Related Posts: do not display related posts in emails and outside of WordPress context.
-- Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard.
-- Subscriptions: only display the "Newsletter access" column if we have set up a payment plan.
+- Dashboard: do not allow toggling the Subscriptions feature on or off when not connected to Jetpack.
+- Donation block: fix issue where an invalid amount entered would persist when switching tabs in the block editor.
 
 --------
 

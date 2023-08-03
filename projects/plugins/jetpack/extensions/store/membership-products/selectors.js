@@ -24,3 +24,5 @@ export const isApiStateLoading = state => state.apiState === API_STATE_LOADING;
 
 export const isInvalidProduct = ( state, productId ) =>
 	!! productId && ! getProduct( state, productId );
+
+export const getSubscriberCounts = state => state.subscriberCounts;

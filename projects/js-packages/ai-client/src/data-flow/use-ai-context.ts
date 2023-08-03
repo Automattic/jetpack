@@ -5,6 +5,7 @@ import { useCallback, useContext, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import { ERROR_RESPONSE } from '../types';
 import { AiDataContext } from '.';
 /**
  * Types & constants
@@ -12,7 +13,7 @@ import { AiDataContext } from '.';
 import type { AiDataContextProps } from './context';
 import type { AskQuestionOptionsArgProps } from '../ask-question';
 
-type useAiContextOptions = {
+export type UseAiContextOptions = {
 	/*
 	 * Ask question options.
 	 */
@@ -27,6 +28,11 @@ type useAiContextOptions = {
 	 * onSuggestion callback.
 	 */
 	onSuggestion?: ( suggestion: string ) => void;
+
+	/*
+	 * onError callback.
+	 */
+	onError?: ( error: Error ) => void;
 };
 
 /**
@@ -34,13 +40,14 @@ type useAiContextOptions = {
  * the AI Assistant data (from context),
  * and to subscribe to the request events (onDone, onSuggestion).
  *
- * @param {useAiContextOptions} options - the hook options.
+ * @param {UseAiContextOptions} options - the hook options.
  * @returns {AiDataContextProps}          the AI Assistant data context.
  */
 export default function useAiContext( {
 	onDone,
 	onSuggestion,
-}: useAiContextOptions = {} ): AiDataContextProps {
+	onError,
+}: UseAiContextOptions = {} ): AiDataContextProps {
 	const context = useContext( AiDataContext );
 	const { eventSource } = context;
 
@@ -49,6 +56,9 @@ export default function useAiContext( {
 		( event: CustomEvent ) => onSuggestion?.( event?.detail ),
 		[ onSuggestion ]
 	);
+	const error = useCallback( ( event: CustomEvent ) => {
+		onError?.( event?.detail );
+	}, [] );
 
 	useEffect( () => {
 		if ( ! eventSource ) {
@@ -63,9 +73,14 @@ export default function useAiContext( {
 			eventSource.addEventListener( 'suggestion', suggestion );
 		}
 
+		if ( onError ) {
+			eventSource.addEventListener( ERROR_RESPONSE, error );
+		}
+
 		return () => {
 			eventSource.removeEventListener( 'done', done );
 			eventSource.removeEventListener( 'suggestion', suggestion );
+			eventSource.removeEventListener( ERROR_RESPONSE, error );
 		};
 	}, [ eventSource ] );
 
