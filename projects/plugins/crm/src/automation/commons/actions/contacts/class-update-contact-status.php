@@ -44,7 +44,7 @@ class Update_Contact_Status extends Base_Action {
 	}
 
 	/**
-	 * Get the data type
+	 * Get the data type.
 	 *
 	 * @return string
 	 */

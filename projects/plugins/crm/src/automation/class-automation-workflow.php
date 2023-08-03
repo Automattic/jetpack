@@ -153,7 +153,6 @@ class Automation_Workflow {
 	 * @param Trigger $trigger An instance of the Trigger class.
 	 * @param array   $data All relevant object data to be passed through the workflow.
 	 * @return bool
-	 *
 	 * @throws Automation_Exception Throws an exception if the step class does not exist, or there is an error executing the workflow.
 	 */
 	public function execute( Trigger $trigger, array $data ): bool {

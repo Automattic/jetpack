@@ -33,17 +33,29 @@ class Automation_Engine {
 	private $workflows = array();
 
 	/**
-	 * @var array An array of supported data types.
+	 * An array of supported data types.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var Data_Type_Base[]
 	 */
 	private $data_types = array();
 
 	/**
-	 * @var array An array of supported data transformers.
+	 * An array of supported data transformers.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var Data_Transformer_Base[]
 	 */
 	private $data_transformers = array();
 
 	/**
-	 * @var array[] An array of data type that represents support between types.
+	 * An array of data type that represents support between types.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string[]
 	 */
 	public $data_transform_map = array();
 
@@ -71,7 +83,9 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Register data type
+	 * Register data type.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $class_name The fully qualified class name for the data type.
 	 * @return void
@@ -106,12 +120,14 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get data type instance
+	 * Get data type instance.
 	 *
 	 * This method will convert trigger/step raw data to a Data_type instance
 	 * and return the instance.
 	 * We need this to ensure the data looks valid and to ensure we have expected
 	 * methods to work with as an adapter to the entity.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $data_type_slug The slug of the data type to be instantiated.
 	 * @param mixed  $entity The entity data to be used to instantiate the data type.
@@ -131,7 +147,9 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Register data transformer
+	 * Register data transformer.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $class_name The fully qualified class name for the data transformer.
 	 * @return void
@@ -299,7 +317,9 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Execute workflow
+	 * Execute workflow.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param Automation_Workflow $workflow The workflow to be executed.
 	 * @param Trigger             $trigger The trigger that started the execution process.
@@ -364,6 +384,8 @@ class Automation_Engine {
 
 	/**
 	 * Maybe transform data type.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param Data_Type_Base $data_type The current data type.
 	 * @param string         $new_data_type The new data type to transform the data to.

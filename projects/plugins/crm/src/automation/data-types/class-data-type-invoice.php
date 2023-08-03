@@ -24,7 +24,7 @@ class Data_Type_Invoice extends Data_Type_Base {
 	}
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
 	 * We process the entity data before passing it to validation.
 	 * You can learn more in the "unify_invoice_data" method.
@@ -51,6 +51,8 @@ class Data_Type_Invoice extends Data_Type_Base {
 
 	/**
 	 * Validate the invoice entity data.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param mixed $entity Invoice entity data to validate.
 	 * @return bool Whether the entity is valid or not.
@@ -82,9 +84,7 @@ class Data_Type_Invoice extends Data_Type_Base {
 	}
 
 	/**
-	 * Unify how CRM invoice data is formatted
-	 *
-	 * The raw version of
+	 * Unify how CRM invoice data is formatted.
 	 *
 	 * zbsDAL_invoices::getInvoice() formats the data when it returns results
 	 * but some hooks like "invoice.update" provides a different format which
@@ -93,10 +93,12 @@ class Data_Type_Invoice extends Data_Type_Base {
 	 * This method attempts to unify the formatting, so we only have to work
 	 * with a single version of the formatting (the most recent one).
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param mixed $entity The data we want to potentially prepare.
 	 * @return array The unified data.
 	 */
-	public function unify_data( $entity ) {
+	public function unify_data( $entity ): array {
 		if ( ! is_array( $entity ) ) {
 			return $entity;
 		}

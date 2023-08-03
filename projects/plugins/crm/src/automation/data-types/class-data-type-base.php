@@ -12,14 +12,16 @@ use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 /**
  * Abstract Data Type base class.
  *
- * @package Automattic\Jetpack\CRM\Automation
- *
  * @since $$next-version$$
+ *
+ * @package Automattic\Jetpack\CRM\Automation
  */
 abstract class Data_Type_Base {
 
 	/**
 	 * An entity that represents an instance of the data type.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @var mixed
 	 */
@@ -27,6 +29,8 @@ abstract class Data_Type_Base {
 
 	/**
 	 * Constructor.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param mixed $entity An entity that represents the data type.
 	 *
@@ -51,6 +55,8 @@ abstract class Data_Type_Base {
 	 *
 	 * Example: 'contact', 'invoice', 'order', etc.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The slug of the data type.
 	 */
 	abstract public static function get_slug(): string;
@@ -61,8 +67,9 @@ abstract class Data_Type_Base {
 	 * This method is meant to validate if the entity has the expected inheritance
 	 * or structure and will be used to throw a fatal error if not.
 	 *
-	 * @param mixed $entity The entity to validate.
+	 * @since $$next-version$$
 	 *
+	 * @param mixed $entity The entity to validate.
 	 * @return bool Whether the entity is valid.
 	 */
 	abstract public function validate_entity( $entity ): bool;
@@ -73,6 +80,8 @@ abstract class Data_Type_Base {
 	 * We allow both integers AND strings as our return value since we
 	 * don't know how future integrations will handle their IDs.
 	 * E.g.: Stripe uses "cus_*" for customer specific IDs.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return int|string The entity identifier value.
 	 *
@@ -85,6 +94,8 @@ abstract class Data_Type_Base {
 	 *
 	 * We do not know what shape this takes. It could be a class, object,
 	 * or array. We leave it up to the data type to decide.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return mixed
 	 */

@@ -68,7 +68,9 @@ interface Step {
 	public static function get_description(): ?string;
 
 	/**
-	 * Get the data type
+	 * Get the data type.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string
 	 */

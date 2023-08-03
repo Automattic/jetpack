@@ -10,9 +10,9 @@ namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 /**
  * Contact Data Type
  *
- * @package Automattic\Jetpack\CRM\Automation
  * @since $$next-version$$
  *
+ * @package Automattic\Jetpack\CRM\Automation
  */
 class Data_Type_Contact extends Data_Type_Base {
 
@@ -24,7 +24,7 @@ class Data_Type_Contact extends Data_Type_Base {
 	}
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
 	 * We process the entity data before passing it to validation.
 	 * You can learn more in the "unify_contact_data" method.
@@ -51,6 +51,8 @@ class Data_Type_Contact extends Data_Type_Base {
 
 	/**
 	 * Validate the contact entity data.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param mixed $entity Contact entity data to validate.
 	 * @return bool Whether the entity is valid or not.
@@ -83,7 +85,7 @@ class Data_Type_Contact extends Data_Type_Base {
 	}
 
 	/**
-	 * Unify how CRM contact data is formatted
+	 * Unify how CRM contact data is formatted.
 	 *
 	 * zbsDAL_contacts::getContact() formats the data when it returns results
 	 * but some hooks like "contact.new" passes an older, raw, formatting which
@@ -92,11 +94,12 @@ class Data_Type_Contact extends Data_Type_Base {
 	 * with a single version of the formatting (the most recent one).
 	 *
 	 * @global \ZeroBSCRM $zbs
+	 * @since $$next-version$$
 	 *
 	 * @param mixed $entity The data we want to potentially prepare.
 	 * @return array The unified data.
 	 */
-	public function unify_data( $entity ) {
+	public function unify_data( $entity ): array {
 		global $zbs;
 
 		if ( ! is_array( $entity ) ) {

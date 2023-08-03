@@ -44,7 +44,7 @@ class New_Contact extends Base_Action {
 	}
 
 	/**
-	 * Get the data type
+	 * Get the data type.
 	 *
 	 * @return string
 	 */

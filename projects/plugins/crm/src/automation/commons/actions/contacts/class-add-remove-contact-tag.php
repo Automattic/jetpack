@@ -44,7 +44,7 @@ class Add_Remove_Contact_Tag extends Base_Action {
 	}
 
 	/**
-	 * Get the data type
+	 * Get the data type.
 	 *
 	 * @return string
 	 */
