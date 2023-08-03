@@ -100,13 +100,13 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 2.0.0 - 2023-07-05
+### 2.1.0 - 2023-08-01
 #### Changed
-- Social: change the admin page plan redirect link.
-- Social: update the Readme to better reflect new features.
+- General: indicate full compatibility with the latest version of WordPress, 6.3.
+- Refactor TemplatePicker component, so inner part can be use in it's own without a modal.
+- Social: Update the screenshots to reflect the current UI
 - Updated package dependencies.
 
 #### Fixed
-- Social: fix the connection state to ensure that new connections are disabled by default when there are no shares left.
-- Social Review Prompt: fix the state so it is shown when Jetpack is also active.
+- Fix admin page unit test
 

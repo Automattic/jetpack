@@ -191,19 +191,23 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Set the automation engine
+	 * Set the automation engine.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param Automation_Engine $engine An instance of the Automation_Engine class.
 	 * @return void
 	 */
-	public function set_engine( Automation_Engine $engine ) {
+	public function set_engine( Automation_Engine $engine ): void {
 		$this->automation_engine = $engine;
 	}
 
 	/**
-	 * Get the automation engine
+	 * Get the automation engine.
 	 *
-	 * @return Automation_Engine
+	 * @since $$next-version$$
+	 *
+	 * @return Automation_Engine Return an instance of the Automation_Engine class.
 	 *
 	 * @throws Workflow_Exception Throws an exception if there is no engine instance.
 	 */
@@ -211,7 +215,7 @@ class Automation_Workflow {
 		if ( ! $this->automation_engine instanceof Automation_Engine ) {
 			throw new Workflow_Exception(
 				/* Translators: %s The ID of the workflow. */
-				sprintf( __( '[%s] Cannot run workflow logic without an engine instance', 'zero-bs-crm' ), $this->get_id() ),
+				sprintf( '[%s] Cannot run workflow logic without an engine instance', $this->get_id() ),
 				Workflow_Exception::MISSING_ENGINE_INSTANCE
 			);
 		}
@@ -220,7 +224,9 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Set Logger
+	 * Set Logger.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param Automation_Logger $logger An instance of the Automation_Logger class.
 	 * @return void
@@ -230,7 +236,9 @@ class Automation_Workflow {
 	}
 
 	/**
-	 * Get Logger
+	 * Get Logger.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return Automation_Logger Return an instance of the Automation_Logger class.
 	 */

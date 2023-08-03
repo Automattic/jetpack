@@ -14,15 +14,23 @@ namespace Automattic\Jetpack\CRM\Automation;
  */
 final class Automation_Boostrap {
 
-	/** @var Automation_Engine */
+	/**
+	 * The automation engine we want to bootstrap.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var Automation_Engine
+	 */
 	private $engine;
 
 	/**
 	 * Initialise the automation engine.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
-	public function init() {
+	public function init(): void {
 		$this->engine = Automation_Engine::instance();
 
 		$this->register_data_types();
@@ -97,22 +105,24 @@ final class Automation_Boostrap {
 	/**
 	 * Register triggers.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
-	protected function register_triggers() {
+	protected function register_triggers(): void {
 		$triggers = array(
 			\Automattic\Jetpack\CRM\Automation\Triggers\Company_Deleted::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Company_New::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Company_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Company_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Company_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Before_Deleted::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Deleted::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Email_Updated::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_New::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted::class,
-			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_New::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Updated::class,
 		);
@@ -124,7 +134,7 @@ final class Automation_Boostrap {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string[] $var A list of trigger classes.
+		 * @param string[] $triggers A list of condition classes.
 		 */
 		$triggers = apply_filters( 'jpcrm_automation_triggers', $triggers );
 
@@ -138,11 +148,13 @@ final class Automation_Boostrap {
 	}
 
 	/**
-	 * Register conditions
+	 * Register conditions.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */
-	protected function register_conditions() {
+	protected function register_conditions(): void {
 		$conditions = array();
 
 		/**
@@ -152,7 +164,7 @@ final class Automation_Boostrap {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string[] $var A list of condition classes.
+		 * @param string[] $conditions A list of condition classes.
 		 */
 		$conditions = apply_filters( 'jpcrm_automation_conditions', $conditions );
 
@@ -168,9 +180,11 @@ final class Automation_Boostrap {
 	/**
 	 * Register actions.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
-	protected function register_actions() {
+	protected function register_actions(): void {
 		$actions = array(
 			\Automattic\Jetpack\CRM\Automation\Actions\Add_Contact_Log::class,
 			\Automattic\Jetpack\CRM\Automation\Actions\Add_Remove_Contact_Tag::class,
@@ -187,7 +201,7 @@ final class Automation_Boostrap {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string[] $var A list of actions class names.
+		 * @param string[] $actions A list of actions class names.
 		 */
 		$actions = apply_filters( 'jpcrm_automation_actions', $actions );
 
@@ -203,9 +217,20 @@ final class Automation_Boostrap {
 	/**
 	 * Register workflows.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
-	protected function register_workflows() {
+	protected function register_workflows(): void {
+		/**
+		 * Filter list of available workflows.
+		 *
+		 * This can be used to add and/or remove actions allowed in CRM.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param Automation_Workflow[] $workflows A collection of registered workflows.
+		 */
 		$workflows = apply_filters( 'jpcrm_automation_workflows', array() );
 
 		foreach ( $workflows as $workflow ) {
