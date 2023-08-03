@@ -21,6 +21,7 @@ import {
 import type { AskQuestionOptionsArgProps } from '../../ask-question';
 import type SuggestionsEventSource from '../../suggestions-event-source';
 import type { PromptProp, SuggestionErrorCode } from '../../types';
+import type { RequestingStateProp } from '../../types';
 
 export type RequestingErrorProps = {
 	/*
@@ -70,8 +71,6 @@ type useAiSuggestionsOptions = {
 	 */
 	onError?: ( error: RequestingErrorProps ) => void;
 };
-
-export type RequestingStateProp = 'init' | 'requesting' | 'suggesting' | 'done' | 'error';
 
 type useAiSuggestionsProps = {
 	/*

@@ -7,6 +7,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
+import { REQUESTING_STATES } from '../../../types';
 import AIControl from '../index';
 /**
  * Types
@@ -23,6 +24,14 @@ export default {
 			</div>
 		),
 	],
+	argTypes: {
+		requestingState: {
+			control: {
+				type: 'select',
+			},
+			options: REQUESTING_STATES,
+		},
+	},
 	parameters: {
 		controls: {
 			exclude: /on[A-Z].*/,
@@ -45,6 +54,7 @@ const DefaultArgs = {
 	loading: false,
 	isOpaque: false,
 	placeholder: '',
+	requestingState: 'init',
 	showButtonsLabel: true,
 	showAccept: false,
 	acceptLabel: 'Accept',
