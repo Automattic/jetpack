@@ -29,7 +29,9 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 			return;
 		}
 
-		const toolbar = anchorRef.current.closest( '.block-editor-block-contextual-toolbar' );
+		const toolbar = anchorRef.current.closest(
+			'.block-editor-block-contextual-toolbar'
+		) as HTMLElement;
 		if ( ! toolbar ) {
 			return;
 		}

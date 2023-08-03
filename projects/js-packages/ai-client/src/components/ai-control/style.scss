@@ -10,17 +10,39 @@
 	display: flex;
 	padding: 12px 14px;
 	gap: 8px;
+	align-items: center;
 
 	&.is-opaque {
 		opacity: 0.4;
 	}
+}
+
+.jetpack-components-ai-control__input-wrapper {
+	position: relative;
+	display: flex;
+	flex-grow: 1;
+	width: 100%;
+
+	.jetpack-components-ai-control__clear {
+		position: absolute;
+		right: 8px;
+		top: calc( 50% - 12px );
+		border-radius: 50%;
+		background-color: black;
+		opacity: 0.2;
+		fill: white;
+		cursor: pointer;
+
+		&:hover {
+			opacity: 0.4;
+		}
+	}
 
 	textarea.jetpack-components-ai-control__input {
 		width: 100%;
-        min-height: 20px;
-		flex-grow: 1;
+		min-height: 20px;
 		border-radius: 2px;
-		padding: 6px 8px;
+		padding: 6px 38px 6px 8px;
 
 		resize: none !important;
 		border: none;
