@@ -144,15 +144,14 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 			/*
 			 * Get the DOM element of the block,
-			 * keeping in mind that the block element is rendered into the `editor-canvas` iframe.
+			 * keeping in mind that the block element may be rendered into the `editor-canvas`
+			 * iframe if it is present.
 			 */
 			const iFrame: HTMLIFrameElement = document.querySelector( 'iframe[name="editor-canvas"]' );
 			const iframeDocument = iFrame && iFrame.contentWindow.document;
-			if ( ! iframeDocument ) {
-				return;
-			}
 
-			const blockDomElement = iframeDocument.getElementById( idAttribute );
+			const blockDomElement = ( iframeDocument ?? document ).getElementById( idAttribute );
+
 			if ( ! blockDomElement ) {
 				return;
 			}
