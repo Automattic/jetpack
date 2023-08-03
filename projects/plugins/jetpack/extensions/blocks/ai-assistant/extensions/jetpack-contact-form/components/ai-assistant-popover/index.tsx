@@ -65,7 +65,7 @@ function getSerializedContentFromBlock( clientId: string ): string {
 export const AiAssistantPopover = ( {
 	clientId = '',
 }: AiAssistantPopoverProps ): React.ReactNode => {
-	const { isVisible, isFixed, hide, toggle, popoverProps, inputValue, setInputValue, width } =
+	const { isVisible, isFixed, toggle, popoverProps, inputValue, setInputValue, width } =
 		useContext( AiAssistantUiContext );
 
 	const { requestSuggestion, requestingState, eventSource } = useAiContext();
@@ -113,7 +113,6 @@ export const AiAssistantPopover = ( {
 
 	return (
 		<Popover
-			onClose={ hide }
 			{ ...popoverProps }
 			animate={ false }
 			className={ classNames( 'jetpack-ai-assistant__popover', {
