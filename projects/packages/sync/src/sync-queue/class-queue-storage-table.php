@@ -480,18 +480,18 @@ class Queue_Storage_Table {
 	/**
 	 * Table initialization
 	 */
-	public static function initialize_dedicated_sync_table() {
+	public static function initialize_custom_sync_table() {
 		/**
 		 * Initialize an instance of the class with a test name, so we can use table prefix and then test if the table is healthy.
 		 */
-		$dedicated_table_instance = new Queue_Storage_Table( 'test_queue' );
+		$custom_table_instance = new Queue_Storage_Table( 'test_queue' );
 
 		// Check if the table exists
-		if ( ! $dedicated_table_instance->custom_table_exists() ) {
-			$dedicated_table_instance->create_table();
+		if ( ! $custom_table_instance->custom_table_exists() ) {
+			$custom_table_instance->create_table();
 		}
 
-		if ( ! $dedicated_table_instance->is_custom_table_healthy() ) {
+		if ( ! $custom_table_instance->is_custom_table_healthy() ) {
 
 			// TODO: clean up the table.
 			return false;
