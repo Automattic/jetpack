@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Queue\Queue_Storage_Table;
 
 /**
  * Class to manage the sync settings.
@@ -235,7 +236,7 @@ class Settings {
 					 *
 					 * If something fails, migrate back to the options table and clean up everything about the custom table.
 					 */
-					$init_result = Queue_Storage_Table::initialize_dedicated_sync_table();
+					$init_result = Queue_Storage_Table::initialize_custom_sync_table();
 
 					/**
 					 * Check if there was a problem when initializing the table.
