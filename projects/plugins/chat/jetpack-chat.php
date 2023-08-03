@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Chat
  * Plugin URI: https://wordpress.org/plugins/jetpack-chat
  * Description: Chatbots!.
- * Version: 0.3.1-alpha
+ * Version: 0.3.0
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
