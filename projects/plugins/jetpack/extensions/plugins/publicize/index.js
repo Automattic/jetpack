@@ -16,10 +16,10 @@ import {
 	SocialImageGeneratorPanel,
 	PostPublishReviewPrompt,
 } from '@automattic/jetpack-publicize-components';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import JetpackEditorPanelLogo from '../../shared/jetpack-editor-panel-logo';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import UpsellNotice from './components/upsell';
 

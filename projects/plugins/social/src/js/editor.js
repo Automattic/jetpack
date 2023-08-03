@@ -8,6 +8,7 @@ import {
 	PublicizePanel,
 	PostPublishReviewPrompt,
 } from '@automattic/jetpack-publicize-components';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
@@ -21,7 +22,6 @@ import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import { getQueryArg } from '@wordpress/url';
-import JetpackEditorPanelLogo from '../../shared/jetpack-editor-panel-logo';
 import Description from './components/publicize-panel/description';
 
 import './editor.scss';

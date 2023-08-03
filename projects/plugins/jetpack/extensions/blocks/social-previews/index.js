@@ -1,9 +1,9 @@
 import { SocialPreviewsModal, SocialPreviewsPanel } from '@automattic/jetpack-publicize-components';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import JetpackEditorPanelLogo from '../../shared/jetpack-editor-panel-logo';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 
 export const name = 'social-previews';

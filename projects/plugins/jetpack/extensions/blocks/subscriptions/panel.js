@@ -1,10 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
+	getSiteFragment,
 	isComingSoon,
 	isPrivateSite,
-	useModuleStatus,
+	JetpackEditorPanelLogo,
 	useAnalytics,
-	getSiteFragment,
+	useModuleStatus,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Flex, FlexItem, Notice, PanelRow } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
@@ -23,7 +24,6 @@ import {
 	accessOptions,
 	isNewsletterFeatureEnabled,
 } from '../../../extensions/shared/memberships-edit';
-import JetpackEditorPanelLogo from '../../shared/jetpack-editor-panel-logo';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import EmailPreview from './email-preview';
 import {

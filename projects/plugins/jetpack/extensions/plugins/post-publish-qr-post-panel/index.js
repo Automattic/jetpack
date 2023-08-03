@@ -1,9 +1,9 @@
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import JetpackEditorPanelLogo from '../../shared/jetpack-editor-panel-logo';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar.js';
 import { QRPostButton } from './components/qr-post.js';
 import './editor.scss';
