@@ -1,4 +1,4 @@
-# chatbot
+# Jetpack Chatbot 
 
 Helpful chatbots for you and your visitors
 
@@ -21,4 +21,3 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 ## License
 
 chatbot is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-

@@ -1506,7 +1506,35 @@ importers:
 
   projects/packages/boost-core: {}
 
-  projects/packages/chatbot: {}
+  projects/packages/chatbot:
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.22.9
+        version: 7.22.9
+      '@babel/preset-env':
+        specifier: 7.22.9
+        version: 7.22.9(@babel/core@7.22.9)
+      '@babel/runtime':
+        specifier: 7.22.6
+        version: 7.22.6
+      '@wordpress/browserslist-config':
+        specifier: 5.20.0
+        version: 5.20.0
+      sass:
+        specifier: 1.64.1
+        version: 1.64.1
+      sass-loader:
+        specifier: 12.4.0
+        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
+      webpack:
+        specifier: 5.76.0
+        version: 5.76.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.76.0)
 
   projects/packages/connection:
     devDependencies:
