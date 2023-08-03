@@ -102,7 +102,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 *
 		 * @returns {void}
 		 */
-		const selectFormBlock = useCallback( async () => {
+		const selectFormBlock = useCallback( () => {
 			return dispatch( 'core/block-editor' ).selectBlock( props.clientId );
 		}, [ props.clientId ] );
 
