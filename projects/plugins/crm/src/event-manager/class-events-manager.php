@@ -14,7 +14,9 @@ namespace Automattic\Jetpack\CRM\Event_Manager;
  */
 class Events_Manager {
 
-	/** @var null The Events_Manager instance. */
+	/**
+	 * @var null The Events_Manager instance.
+	 */
 	private static $instance = null;
 
 	/**
