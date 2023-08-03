@@ -100,14 +100,24 @@ export default function AIControl( {
 			>
 				<AiStatusIndicator requestingState={ requestingState } />
 
-				<PlainText
-					value={ value }
-					onChange={ onChange }
-					placeholder={ placeholder }
-					className="jetpack-components-ai-control__input"
-					disabled={ loading }
-					ref={ promptUserInputRef }
-				/>
+				<div className="jetpack-components-ai-control__input-wrapper">
+					<PlainText
+						value={ value }
+						onChange={ onChange }
+						placeholder={ placeholder }
+						className="jetpack-components-ai-control__input"
+						disabled={ loading }
+						ref={ promptUserInputRef }
+					/>
+
+					{ value?.length > 0 && (
+						<Icon
+							icon={ closeSmall }
+							className="jetpack-components-ai-control__clear"
+							onClick={ () => onChange( '' ) }
+						/>
+					) }
+				</div>
 
 				<div className="jetpack-components-ai-control__controls">
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
