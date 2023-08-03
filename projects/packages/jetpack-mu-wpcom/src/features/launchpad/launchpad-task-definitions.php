@@ -373,6 +373,25 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
 		),
+		'connect_social_media'            => array(
+			'id_map'           => 'drive_traffic',
+			'get_title'        => function () {
+				return __( 'Connect your social media accounts', 'jetpack-mu-wpcom' );
+			},
+			'get_calypso_path' => function ( $task, $default, $data ) {
+				return '/marketing/connections/' . $data['site_slug_encoded'];
+			},
+		),
+		'manage_paid_newsletter_plan'     => array(
+			'get_title'            => function () {
+				return __( 'Manage your paid Newsletter plan', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_has_goal_paid_subscribers',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/earn/payments-plans/' . $data['site_slug_encoded'];
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );

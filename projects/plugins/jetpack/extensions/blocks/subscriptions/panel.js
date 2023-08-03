@@ -18,8 +18,12 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
+import {
+	useAccessLevel,
+	accessOptions,
+	isNewsletterFeatureEnabled,
+} from '../../../extensions/shared/memberships-edit';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import EmailPreview from './email-preview';
 import {
 	Link,
@@ -27,7 +31,7 @@ import {
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessPrePublishSettings,
 } from './settings';
-import { getShowMisconfigurationWarning, isNewsletterFeatureEnabled } from './utils';
+import { getShowMisconfigurationWarning } from './utils';
 import { name } from './';
 
 import './panel.scss';
@@ -281,18 +285,11 @@ function NewsletterPostPublishSettingsPanel( { accessLevel, isModuleActive } ) {
 export default function SubscribePanels() {
 	const { isModuleActive } = useModuleStatus( name );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
+
 	const { tracks } = useAnalytics();
-
-	// Set the accessLevel to "everybody" when one is not defined
-	let accessLevel =
-		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? accessOptions.everybody.key;
-
-	// If accessLevel is ''
-	if ( ! accessLevel ) {
-		accessLevel = accessOptions.everybody.key;
-	}
+	const accessLevel = useAccessLevel( postType );
 
 	useEffect( () => {
 		if ( ! isModuleActive ) {

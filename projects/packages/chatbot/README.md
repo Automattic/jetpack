@@ -1,8 +1,8 @@
-# Jetpack Chat package
+# Jetpack Chatbot 
 
-Chatbots powered by wpcom. 
+Helpful chatbots for you and your visitors
 
-## How to install
+## How to install chatbot
 
 ### Installation From Git Repo
 
@@ -20,5 +20,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-chat is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
+chatbot is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)

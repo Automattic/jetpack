@@ -2,7 +2,7 @@
 	"private": true,
 	"name": "@automattic/jetpack-chatbot",
 	"version": "0.1.0-alpha",
-	"description": "Chatbots powered by Odie.",
+	"description": "Helpful chatbots for you and your visitors",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/chatbot/#readme",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[Package] Chatbot"
@@ -17,6 +17,7 @@
 	"scripts": {
 		"build": "pnpm run clean && webpack",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
+		"build-production-js": "echo 'Not implemented.'",
 		"clean": "rm -rf build/ .cache/",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "pnpm run build && pnpm webpack watch"

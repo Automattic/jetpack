@@ -11,7 +11,8 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
-		"automattic/jetpack-changelogger": "@dev"
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/wordbless": "dev-master"
 	},
 	"autoload": {
 		"classmap": [
@@ -34,7 +35,9 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
-		]
+		],
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"repositories": [
 		{
@@ -47,12 +50,17 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-chatbot",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-chatbot/compare/v${old}...v${new}"
 		},
-		"autotagger": true,
+		"autotagger": false,
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
 		},

@@ -22,6 +22,22 @@ import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 // An identifier to use on the extension error notices,
 const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 
+/**
+ * Add the `jetpack-ai-assistant-bar-is-fixed` class to the body
+ * when the toolbar is fixed and the AI Assistant is visible.
+ *
+ * @param {boolean} isFixed - Is the toolbar fixed?
+ * @param {boolean} isVisible - Is the AI Assistant visible?
+ * @returns {void}
+ */
+export function handleAiExtensionsBarBodyClass( isFixed: boolean, isVisible: boolean ) {
+	if ( isFixed && isVisible ) {
+		return document.body.classList.add( 'jetpack-ai-assistant-bar-is-fixed' );
+	}
+
+	document.body.classList.remove( 'jetpack-ai-assistant-bar-is-fixed' );
+}
+
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { clientId, isSelected } = props;
@@ -32,8 +48,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// AI Assistant component visibility
 		const [ isVisible, setAssistantVisibility ] = useState( false );
 
+		// AI Assistant component is-fixed state
+		const [ isFixed, setAssistantFixed ] = useState( false );
+
 		// AI Assistant width
-		const [ width, setWidth ] = useState( 400 );
+		const [ width, setWidth ] = useState< number | string >( 400 );
 
 		// AI Assistant popover props
 		const [ popoverProps, setPopoverProps ] = useState<
@@ -114,6 +133,13 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
+			handleAiExtensionsBarBodyClass( isFixed, isVisible );
+
+			// Do not anchor the popover if the toolbar is fixed.
+			if ( isFixed ) {
+				return setWidth( '100%' ); // ensure to use the full width.
+			}
+
 			const idAttribute = `block-${ clientId }`;
 
 			/*
@@ -131,9 +157,15 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
-			setPopoverProps( prev => ( { ...prev, anchor: blockDomElement } ) );
+			setPopoverProps( prev => ( {
+				...prev,
+				anchor: blockDomElement,
+				placement: 'bottom-start',
+				offset: 12,
+			} ) );
+
 			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
-		}, [ clientId ] );
+		}, [ clientId, isFixed, isVisible ] );
 
 		// Show/hide the assistant based on the block selection.
 		useEffect( () => {
@@ -149,6 +181,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
+			// Do not observe the anchor resize if the toolbar is fixed.
+			if ( isFixed ) {
+				return;
+			}
+
 			const resizeObserver = new ResizeObserver( () => {
 				setWidth( popoverProps.anchor?.getBoundingClientRect?.()?.width );
 			} );
@@ -158,13 +195,14 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			return () => {
 				resizeObserver.disconnect();
 			};
-		}, [ popoverProps.anchor ] );
+		}, [ popoverProps.anchor, isFixed ] );
 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
 			() => ( {
 				inputValue,
 				isVisible,
+				isFixed,
 				popoverProps,
 				width,
 
@@ -172,9 +210,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				show,
 				hide,
 				toggle,
+				setAssistantFixed,
 				setPopoverProps,
 			} ),
-			[ inputValue, isVisible, popoverProps, width, show, hide, toggle ]
+			[ inputValue, isVisible, isFixed, popoverProps, width, show, hide, toggle ]
 		);
 
 		const setContent = useCallback(
