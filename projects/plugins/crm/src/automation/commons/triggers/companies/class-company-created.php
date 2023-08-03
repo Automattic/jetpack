@@ -43,7 +43,7 @@ class Company_Created extends Base_Trigger {
 	}
 
 	/**
-	 * Get the date type
+	 * Get the date type.
 	 *
 	 * @return string
 	 */

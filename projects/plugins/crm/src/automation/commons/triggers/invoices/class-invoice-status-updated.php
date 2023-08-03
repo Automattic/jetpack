@@ -43,7 +43,7 @@ class Invoice_Status_Updated extends Base_Trigger {
 	}
 
 	/**
-	 * Get the date type
+	 * Get the date type.
 	 *
 	 * @return string
 	 */

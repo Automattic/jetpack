@@ -49,7 +49,7 @@ class Contact_Before_Deleted extends Base_Trigger {
 	}
 
 	/**
-	 * Get the date type
+	 * Get the date type.
 	 *
 	 * @return string
 	 */
