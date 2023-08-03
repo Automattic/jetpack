@@ -7,7 +7,6 @@
 	import { connection } from '../../stores/connection';
 	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
-	import History from './sections/History.svelte';
 	import Modules from './sections/Modules.svelte';
 	import Score from './sections/Score.svelte';
 	import Support from './sections/Support.svelte';
@@ -24,10 +23,6 @@
 
 		<div class="jb-section jb-section--alt jb-section--scores">
 			<Score />
-		</div>
-
-		<div class="jb-section">
-			<History />
 		</div>
 
 		<Router>
