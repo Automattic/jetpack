@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import JetpackEditorPanelLogo from '../../../../shared/jetpack-editor-panel-logo';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import Proofread from '../proofread';
 
