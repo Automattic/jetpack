@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-chatbot",
-	"description": "Chatbots powered by wpcom.",
+	"description": "Helpful bots for your WordPress site.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
