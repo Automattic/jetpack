@@ -147,6 +147,9 @@ importers:
       '@storybook/addon-actions':
         specifier: 7.1.0
         version: 7.1.0(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/blocks':
+        specifier: 7.1.0
+        version: 7.1.0(react-dom@18.2.0)(react@18.2.0)
       '@storybook/react':
         specifier: 7.1.0
         version: 7.1.0(react-dom@18.2.0)(react@18.2.0)(typescript@5.0.4)
@@ -9440,7 +9443,7 @@ packages:
       memoizerific: 1.11.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      semver: 7.5.2
+      semver: 7.5.4
       store2: 2.14.2
       telejson: 7.1.0
       ts-dedent: 2.2.0
@@ -22581,7 +22584,6 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
-    dev: true
 
   /send@0.18.0:
     resolution: {integrity: sha512-qqWzuOjSFOuqPjFe4NOsMLafToQQwBSOEpS+FwEt3A2V3vKubTquT3vmLTQpFgMXp8AlFWFuP1qKaJZOtPpVXg==}
