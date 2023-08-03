@@ -1,9 +1,9 @@
 <?php
 /**
  *
- * Plugin Name: Jetpack Starter Plugin
+ * Plugin Name: Jetpack Chat (Demo)
  * Plugin URI: https://wordpress.org/plugins/jetpack-starter-plugin
- * Description: plugin--description.
+ * Description: Demo functionality of Jetapck Chat, which is actually on top of the Starter Plugin.
  * Version: 0.3.1-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/

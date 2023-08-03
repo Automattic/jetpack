@@ -31,8 +31,8 @@ class Jetpack_Starter_Plugin {
 		Connection_Rest_Authentication::init();
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Starter Plugin', 'jetpack-starter-plugin' ),
-			_x( 'Starter Plugin', 'The Jetpack Starter Plugin product name, without the Jetpack prefix', 'jetpack-starter-plugin' ),
+			__( 'Chat (Demo)', 'jetpack-starter-plugin' ),
+			_x( 'Jetpack Chat (Demo)', 'The Jetpack Starter Plugin product name, without the Jetpack prefix', 'jetpack-starter-plugin' ),
 			'manage_options',
 			'jetpack-starter-plugin',
 			array( $this, 'plugin_settings_page' ),
