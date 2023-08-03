@@ -7,7 +7,6 @@ import numberFormat from '../number-format';
 import getDateFormat from './get-date-format';
 import { tooltipsPlugin } from './tooltips-plugin';
 import useResize from './use-resize';
-
 import 'uplot/dist/uPlot.min.css';
 
 const DEFAULT_DIMENSIONS = {
@@ -27,14 +26,15 @@ interface UplotChartProps {
  * Creates a series information object for uPlot based on the label and color.
  *
  * @param {string} label - The label for the series.
- * @param {string} color - The color of the series.
+ * @param {number} score - The last score for the series.
  * @returns {object} The series information object.
  */
-function createSerieInfo( label: string, color: string ) {
+function createSerieInfo( label: string, score ) {
 	const { spline } = uPlot.paths;
 	return {
 		label: label,
-		stroke: color,
+		stroke: getColor( score ),
+		fill: getColor( score, true ),
 		width: 2,
 		paths: ( u, seriesIdx, idx0, idx1 ) => {
 			return spline?.()( u, seriesIdx, idx0, idx1 ) || null;
@@ -53,6 +53,29 @@ function createSerieInfo( label: string, color: string ) {
 }
 
 /**
+ * Get the color value based on the score.
+ *
+ * @param {number} score - The score to get the color for.
+ * @param {boolean} transparent - Whether to return a transparent color.
+ * @returns {string} The color value.
+ */
+function getColor( score: number, transparent = false ) {
+	let color = '#D63638'; // bad
+
+	if ( score > 70 ) {
+		color = '#069e08'; // good
+	} else if ( score > 50 ) {
+		color = '#faa754'; //mediocre
+	}
+
+	if ( transparent ) {
+		return color + '22';
+	}
+
+	return color;
+}
+
+/**
  * UplotLineChart component.
  *
  * @param {object} props - The props object for the UplotLineChart component.
@@ -62,6 +85,9 @@ function createSerieInfo( label: string, color: string ) {
 export default function UplotLineChart( { data }: UplotChartProps ) {
 	const uplot = useRef< uPlot | null >( null );
 	const uplotContainer = useRef( null );
+
+	const desktopScore = data[ 1 ][ data[ 1 ].length - 1 ];
+	const mobileScore = data[ 2 ][ data[ 2 ].length - 1 ];
 
 	const options: uPlot.Options = useMemo( () => {
 		const defaultOptions: uPlot.Options = {
@@ -114,8 +140,8 @@ export default function UplotLineChart( { data }: UplotChartProps ) {
 						return date.toLocaleDateString( getUserLocale() );
 					},
 				},
-				createSerieInfo( __( 'Desktop', 'jetpack' ), '#3373BE' ),
-				createSerieInfo( __( 'Mobile', 'jetpack' ), '#069E08' ),
+				createSerieInfo( __( 'Desktop', 'jetpack' ), desktopScore ),
+				createSerieInfo( __( 'Mobile', 'jetpack' ), mobileScore ),
 			],
 			legend: {
 				show: false,
@@ -125,7 +151,7 @@ export default function UplotLineChart( { data }: UplotChartProps ) {
 		return {
 			...defaultOptions,
 		};
-	}, [] );
+	}, [ desktopScore, mobileScore ] );
 
 	useResize( uplot, uplotContainer );
 	const onCreate = useCallback( chart => {
