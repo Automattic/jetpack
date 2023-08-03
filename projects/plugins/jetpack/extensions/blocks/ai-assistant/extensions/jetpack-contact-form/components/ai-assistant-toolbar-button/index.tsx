@@ -13,7 +13,7 @@ import { AiAssistantUiContext } from '../../ui-handler/context';
 import { handleAiExtensionsBarBodyClass } from '../../ui-handler/with-ui-handler-data-provider';
 
 export default function AiAssistantToolbarButton(): React.ReactElement {
-	const { isVisible, toggle, setPopoverProps, setAssistantFixed, matchPopoverWidthToBlock } =
+	const { isVisible, toggle, setPopoverProps, setAssistantFixed } =
 		useContext( AiAssistantUiContext );
 	const { requestingState } = useAiContext();
 
@@ -40,27 +40,22 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 		handleAiExtensionsBarBodyClass( isFixed, isVisible );
 
 		if ( ! isFixed ) {
-			setPopoverProps( {
-				anchor: null,
-				placement: 'bottom-start',
-				offset: 12,
-			} );
-			matchPopoverWidthToBlock();
-		} else {
-			/*
-			 * There is a race condition between the toolbar and component onMount.
-			 * We need to wait a bit to set the popover props.
-			 */
-			setTimeout( () => {
-				setPopoverProps( prev => ( {
-					...prev,
-					anchor: toolbar,
-					offset: 0,
-					variant: 'toolbar',
-				} ) );
-			}, 100 );
+			return;
 		}
-	}, [ matchPopoverWidthToBlock, setAssistantFixed, setPopoverProps, isVisible ] );
+
+		/*
+		 * There is a race condition between the toolbar and component onMount.
+		 * We need to wait a bit to set the popover props.
+		 */
+		setTimeout( () => {
+			setPopoverProps( prev => ( {
+				...prev,
+				anchor: toolbar,
+				offset: 0,
+				variant: 'toolbar',
+			} ) );
+		}, 100 );
+	}, [ setAssistantFixed, setPopoverProps, isVisible ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 
