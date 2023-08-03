@@ -10,6 +10,7 @@ import React, { useEffect } from 'react';
  * Internal dependencies
  */
 import { AiAssistantUiContext } from '../../ui-handler/context';
+import { handleAiExtensionsBarBodyClass } from '../../ui-handler/with-ui-handler-data-provider';
 
 export default function AiAssistantToolbarButton(): React.ReactElement {
 	const { isVisible, toggle, setPopoverProps, setAssistantFixed } =
@@ -34,6 +35,7 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 		}
 		const isFixed = toolbar.classList.contains( 'is-fixed' );
 		setAssistantFixed( isFixed );
+		handleAiExtensionsBarBodyClass( isFixed, isVisible );
 
 		if ( ! isFixed ) {
 			return;
@@ -45,7 +47,7 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 			offset: 0,
 			variant: 'toolbar',
 		} ) );
-	}, [ setAssistantFixed, setPopoverProps ] );
+	}, [ setAssistantFixed, setPopoverProps, isVisible ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 
