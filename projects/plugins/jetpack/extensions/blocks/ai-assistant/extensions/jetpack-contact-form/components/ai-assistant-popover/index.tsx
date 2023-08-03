@@ -134,6 +134,7 @@ export const AiAssistantPopover = ( {
 					onChange={ setInputValue }
 					onSend={ onSend }
 					onStop={ onStop }
+					requestingState={ requestingState }
 				/>
 			</div>
 		</Popover>
