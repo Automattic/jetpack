@@ -53,7 +53,7 @@ const Admin = () => {
 export default Admin;
 
 const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackChatInitialState;
+	const { apiNonce, apiRoot, registrationNonce } = window.jetpackStarterPluginInitialState;
 	return (
 		<ConnectScreen
 			buttonLabel={ __( 'Connect to start chatting', 'jetpack-starter-plugin' ) }
