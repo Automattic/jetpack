@@ -355,7 +355,12 @@ export default function PublicizeForm( {
 								),
 								{
 									upgradeLink: (
-										<ExternalLink href={ getRedirectUrl( 'jetpack-social-pricing-modal' ) } />
+										<ExternalLink
+											href={ getRedirectUrl( 'jetpack-social-advanced-site-checkout', {
+												site: getSiteFragment(),
+												query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+											} ) }
+										/>
 									),
 								}
 							) }
