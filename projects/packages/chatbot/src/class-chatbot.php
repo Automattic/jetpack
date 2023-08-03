@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Chatbot\REST_Controller as Chat_Rest_Controller;
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 
 /**
  * Class description.
@@ -23,6 +24,12 @@ class Chatbot {
 	 * Constructor.
 	 */
 	public static function init() {
+		$connection = new Jetpack_Connection();
+		if ( ! $connection->is_user_connected() ) {
+			add_action( 'admin_notices', array( __CLASS__, 'please_connect_first_notice' ) );
+			return;
+		}
+
 		// Inject div element with id jetpack-chatbot-root on every page, front end and back end.
 		add_action( 'wp_footer', array( __CLASS__, 'inject_jetpack_chatbot_root' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'inject_jetpack_chatbot_root' ) );
@@ -32,6 +39,18 @@ class Chatbot {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jetpack_chatbot_scripts' ) );
 
 		add_action( 'rest_api_init', array( new Chat_Rest_Controller(), 'register_rest_routes' ) );
+	}
+
+	/**
+	 * Displays a notice to the user to connect to WordPress.com first.
+	 */
+	public static function please_connect_first_notice() {
+		?>
+		<div class="notice notice-warning is-dismissible">
+			<p><?php esc_html_e( 'Jetpack Chatbot requires a wordpress.com connection.', 'jetpack-chatbot' ); ?></p>
+			<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-starter-plugin' ) ); ?>"><?php esc_html_e( 'Connect to chat', 'jetpack-chatbot' ); ?></a></p>
+		</div>
+		<?php
 	}
 
 	/**
