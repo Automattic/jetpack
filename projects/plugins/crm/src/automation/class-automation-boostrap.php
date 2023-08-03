@@ -71,7 +71,7 @@ final class Automation_Boostrap {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string[] $triggers A list of condition classes.
+		 * @param string[] $triggers A list of triggers classes.
 		 */
 		$triggers = apply_filters( 'jpcrm_automation_triggers', $triggers );
 
