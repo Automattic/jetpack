@@ -3,7 +3,9 @@ name: E2E Tests
 on:
   pull_request:
     paths-ignore:
-    - '**.md'
+      - '**.md'
+    branches-ignore:
+      - 'demo/**'
   repository_dispatch:
     types: ['e2e tests**']
 
