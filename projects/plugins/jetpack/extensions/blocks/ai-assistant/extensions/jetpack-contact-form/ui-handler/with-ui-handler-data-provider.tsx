@@ -46,7 +46,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const [ inputValue, setInputValue ] = useState( '' );
 
 		// AI Assistant component visibility
-		const [ isVisible, setAssistantVisibility ] = useState( false );
+		const [ isVisible, setAssistantVisibility ] = useState( true );
 
 		// AI Assistant component is-fixed state
 		const [ isFixed, setAssistantFixed ] = useState( false );
