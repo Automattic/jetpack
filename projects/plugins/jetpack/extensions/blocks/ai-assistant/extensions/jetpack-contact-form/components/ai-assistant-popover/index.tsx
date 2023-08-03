@@ -14,6 +14,7 @@ import debugFactory from 'debug';
  */
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
+import { hasFormContent } from '../ai-assistant-toolbar-button';
 /*
  * Types
  */
@@ -33,7 +34,7 @@ const debug = debugFactory( 'jetpack-ai-assistant:form-assistant' );
  * @param {string} clientId - The block client ID.
  * @returns {string}          The serialized content.
  */
-export function getSerializedContentFromBlock( clientId: string ): string {
+function getSerializedContentFromBlock( clientId: string ): string {
 	if ( ! clientId?.length ) {
 		return '';
 	}
@@ -69,6 +70,7 @@ export const AiAssistantPopover = ( {
 		useContext( AiAssistantUiContext );
 
 	const { requestSuggestion, requestingState, eventSource } = useAiContext();
+	const hasContent = hasFormContent( clientId );
 
 	const stopSuggestion = useCallback( () => {
 		if ( ! eventSource ) {
@@ -117,6 +119,7 @@ export const AiAssistantPopover = ( {
 			animate={ false }
 			className={ classNames( 'jetpack-ai-assistant__popover', {
 				'is-fixed': isFixed,
+				'has-form-content': hasContent,
 			} ) }
 		>
 			<KeyboardShortcuts

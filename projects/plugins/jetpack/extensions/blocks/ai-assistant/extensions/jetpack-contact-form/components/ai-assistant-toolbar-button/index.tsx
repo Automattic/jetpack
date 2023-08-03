@@ -17,7 +17,7 @@ type AiAssistantToolbarButtonProps = {
 	clientId?: string;
 };
 
-function hasFormContent( clientId: string ): boolean {
+export function hasFormContent( clientId: string ): boolean {
 	if ( ! clientId?.length ) {
 		return false;
 	}
@@ -73,7 +73,7 @@ export default function AiAssistantToolbarButton( {
 			setPopoverProps( prev => ( {
 				...prev,
 				anchor: toolbar,
-				offset: hasContent ? 8 : 0,
+				offset: hasContent && ! isFixed ? 6 : 0,
 				variant: 'toolbar',
 			} ) );
 		}, 100 );

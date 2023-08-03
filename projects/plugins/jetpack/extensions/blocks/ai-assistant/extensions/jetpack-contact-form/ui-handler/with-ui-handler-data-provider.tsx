@@ -13,6 +13,7 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
 import { AiAssistantPopover } from '../components/ai-assistant-popover';
+import { hasFormContent } from '../components/ai-assistant-toolbar-button';
 import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
 /**
  * Types
@@ -101,8 +102,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 *
 		 * @returns {void}
 		 */
-		const selectFormBlock = useCallback( () => {
-			dispatch( 'core/block-editor' ).selectBlock( props.clientId );
+		const selectFormBlock = useCallback( async () => {
+			return dispatch( 'core/block-editor' ).selectBlock( props.clientId );
 		}, [ props.clientId ] );
 
 		const { createNotice } = useDispatch( noticesStore );
@@ -123,6 +124,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			[ createNotice ]
 		);
 
+		const hasContent = hasFormContent( clientId );
+
 		/*
 		 * Set the anchor element for the popover.
 		 * For now, let's use the block representation in the canvas,
@@ -134,6 +137,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			}
 
 			handleAiExtensionsBarBodyClass( isFixed, isVisible );
+
+			if ( hasContent ) {
+				return;
+			}
 
 			// Do not anchor the popover if the toolbar is fixed.
 			if ( isFixed ) {
@@ -164,7 +171,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			} ) );
 
 			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
-		}, [ clientId, isFixed, isVisible ] );
+		}, [ clientId, isFixed, isVisible, hasContent ] );
 
 		// Show/hide the assistant based on the block selection.
 		useEffect( () => {
@@ -181,7 +188,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			}
 
 			// Do not observe the anchor resize if the toolbar is fixed.
-			if ( isFixed ) {
+			if ( isFixed || hasContent ) {
+				setWidth( '100%' );
 				return;
 			}
 
@@ -194,7 +202,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			return () => {
 				resizeObserver.disconnect();
 			};
-		}, [ popoverProps.anchor, isFixed ] );
+		}, [ popoverProps.anchor, isFixed, hasContent ] );
 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
@@ -255,8 +263,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				<KeyboardShortcuts
 					shortcuts={ {
 						'mod+/': () => {
-							toggle();
-							selectFormBlock();
+							selectFormBlock().then( () => {
+								setTimeout( () => {
+									toggle();
+								}, 200 );
+							} );
 						},
 					} }
 				>

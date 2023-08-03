@@ -1,6 +1,7 @@
 .jetpack-ai-assistant__popover {
 	z-index: 31;
 	border-bottom: 1px solid #e0e0e0;
+
 	&.is-fixed {
 		width: 100%;
 		.components-popover__content,
@@ -12,6 +13,20 @@
 		.jetpack-components-ai-control__wrapper {
 			padding: 7px 14px;
 			width: 100%;
+		}
+	}
+
+	&.has-form-content:not(.is-fixed) {
+		border: 1px solid #1e1e1e;
+		min-width: 480px;
+		.components-popover__content,
+		.jetpack-components-ai-control__container {
+			width: 100%;
+			border-radius: 0;
+			box-shadow: none;
+		}
+		.jetpack-components-ai-control__wrapper {
+			padding: 7px 14px;
 		}
 	}
 }
