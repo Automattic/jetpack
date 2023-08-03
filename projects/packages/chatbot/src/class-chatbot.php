@@ -24,11 +24,7 @@ class Chatbot {
 	 * Constructor.
 	 */
 	public static function init() {
-		$connection = new Jetpack_Connection();
-		if ( ! $connection->is_user_connected() ) {
-			add_action( 'admin_notices', array( __CLASS__, 'please_connect_first_notice' ) );
-			return;
-		}
+		add_action( 'admin_notices', array( __CLASS__, 'maybe_connect_first_notice' ) );
 
 		// Inject div element with id jetpack-chatbot-root on every page, front end and back end.
 		add_action( 'wp_footer', array( __CLASS__, 'inject_jetpack_chatbot_root' ) );
@@ -44,7 +40,11 @@ class Chatbot {
 	/**
 	 * Displays a notice to the user to connect to WordPress.com first.
 	 */
-	public static function please_connect_first_notice() {
+	public static function maybe_connect_first_notice() {
+		$connection = new Jetpack_Connection();
+		if ( $connection->is_user_connected() ) {
+			return;
+		}
 		?>
 		<div class="notice notice-warning is-dismissible">
 			<p><?php esc_html_e( 'Jetpack Chatbot requires a wordpress.com connection.', 'jetpack-chatbot' ); ?></p>
@@ -70,6 +70,10 @@ class Chatbot {
 	 * Enqueues the Jetpack Odysseus scripts and styles.
 	 */
 	public static function enqueue_jetpack_chatbot_scripts() {
+		$connection = new Jetpack_Connection();
+		if ( ! $connection->is_user_connected() ) {
+			return;
+		}
 		wp_enqueue_script( 'jetpack-chatbot-widget', '//widgets.wp.com/odie/widget.js', array(), time(), true );
 
 		$js_data = array(
