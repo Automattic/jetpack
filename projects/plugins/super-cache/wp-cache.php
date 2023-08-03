@@ -1075,14 +1075,13 @@ table.wpsc-settings-table {
 			min-width: 40%;
 			max-width: 40%;
 			overflow: hidden;
+			text-align: right;
 		}
 
 		.wpsc-boost-banner-image-container img {
 			position: relative;
-			left: 50%;
 			top: 50%;
-			transform: translate(-50%, -50%);
-			width: 100%;
+			transform: translateY(-50%);
 		}
 
 		.wpsc-boost-banner h3 {
