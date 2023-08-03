@@ -44,9 +44,11 @@ final class Automation_Boostrap {
 	/**
 	 * Register data types.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
-	protected function register_data_types() {
+	protected function register_data_types(): void {
 		$data_types = array(
 			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact::class,
 			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice::class,
@@ -75,9 +77,11 @@ final class Automation_Boostrap {
 	/**
 	 * Register data transformers.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
-	protected function register_data_transformers() {
+	protected function register_data_transformers(): void {
 		$data_transformers = array(
 			\Automattic\Jetpack\CRM\Automation\Data_Transformers\Data_Transformer_Invoice_To_Contact::class,
 		);
