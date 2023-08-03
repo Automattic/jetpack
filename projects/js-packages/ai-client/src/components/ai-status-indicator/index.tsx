@@ -32,14 +32,12 @@ export default function AiStatusIndicator( {
 	size = 24,
 }: AiStatusIndicatorProps ): React.ReactElement {
 	return (
-		<div className="jetpack-ai-status-indicator__container">
-			<div
-				className={ classNames( 'jetpack-ai-status-indicator__icon-wrapper', {
-					[ `is-${ requestingState }` ]: true,
-				} ) }
-			>
-				<Icon icon={ aiAssistantIcon } size={ size } />
-			</div>
+		<div
+			className={ classNames( 'jetpack-ai-status-indicator__icon-wrapper', {
+				[ `is-${ requestingState }` ]: true,
+			} ) }
+		>
+			<Icon icon={ aiAssistantIcon } size={ size } />
 		</div>
 	);
 }
