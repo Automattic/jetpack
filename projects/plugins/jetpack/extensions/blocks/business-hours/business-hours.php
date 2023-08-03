@@ -42,8 +42,8 @@ function register_block() {
 				),
 				'align'      => array( 'wide', 'full' ),
 			),
-			$json_dir,
-		)
+		),
+		$json_dir
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
