@@ -302,8 +302,9 @@ export default function SubscribePanels() {
 
 	return (
 		<>
-			( isModuleActive &&{ ' ' }
-			<NewsletterEditorSettingsPanel accessLevel={ accessLevel } setPostMeta={ setPostMeta } /> )
+			{ isModuleActive && (
+				<NewsletterEditorSettingsPanel accessLevel={ accessLevel } setPostMeta={ setPostMeta } />
+			) }
 			<NewsletterPrePublishSettingsPanel
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
@@ -313,9 +314,12 @@ export default function SubscribePanels() {
 					setIsModalOpen( true );
 				} }
 			/>
-			( isModuleActive &&{ ' ' }
-			<NewsletterPostPublishSettingsPanel accessLevel={ accessLevel } setPostMeta={ setPostMeta } />{ ' ' }
-			)
+			{ isModuleActive && (
+				<NewsletterPostPublishSettingsPanel
+					accessLevel={ accessLevel }
+					setPostMeta={ setPostMeta }
+				/>
+			) }
 			<EmailPreview isModalOpen={ isModalOpen } closeModal={ () => setIsModalOpen( false ) } />
 		</>
 	);
