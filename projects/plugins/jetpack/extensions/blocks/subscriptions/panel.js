@@ -289,8 +289,6 @@ export default function SubscribePanels() {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	const { tracks } = useAnalytics();
-
-	// Set the accessLevel to "everybody" when one is not defined
 	const accessLevel = useAccessLevel( postType );
 
 	useEffect( () => {
