@@ -34,4 +34,19 @@ export type { RequestingErrorProps } from './hooks/use-ai-suggestions';
 /*
  * Requests types
  */
-export type RequestingStateProp = 'init' | 'requesting' | 'suggesting' | 'done' | 'error';
+
+const REQUESTING_STATE_INIT = 'init' as const;
+const REQUESTING_STATE_REQUESTING = 'requesting' as const;
+const REQUESTING_STATE_SUGGESTING = 'suggesting' as const;
+const REQUESTING_STATE_DONE = 'done' as const;
+const REQUESTING_STATE_ERROR = 'error' as const;
+
+export const REQUESTING_STATES = [
+	REQUESTING_STATE_INIT,
+	REQUESTING_STATE_REQUESTING,
+	REQUESTING_STATE_SUGGESTING,
+	REQUESTING_STATE_DONE,
+	REQUESTING_STATE_ERROR,
+] as const;
+
+export type RequestingStateProp = ( typeof REQUESTING_STATES )[ number ];

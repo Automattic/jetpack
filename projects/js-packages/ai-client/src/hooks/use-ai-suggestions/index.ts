@@ -86,7 +86,7 @@ type useAiSuggestionsProps = {
 	/*
 	 * Whether the request is in progress.
 	 */
-	requestingState: RequestingErrorProps;
+	requestingState: RequestingStateProp;
 
 	/*
 	 * The event source.
