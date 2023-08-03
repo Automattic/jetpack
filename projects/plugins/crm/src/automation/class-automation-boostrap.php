@@ -201,7 +201,7 @@ final class Automation_Boostrap {
 		/**
 		 * Filter list of available actions for automations.
 		 *
-		 * This can be used to add and/or remove actions allowed in CRM.
+		 * This can be used to add and/or remove actions allowed in automations.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -229,7 +229,7 @@ final class Automation_Boostrap {
 		/**
 		 * Filter list of available workflows.
 		 *
-		 * This can be used to add and/or remove actions allowed in CRM.
+		 * This can be used to add and/or remove actions allowed in automations.
 		 *
 		 * @since $$next-version$$
 		 *
