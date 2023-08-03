@@ -22,9 +22,15 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_block() {
 	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || \Jetpack::is_connection_ready() ) {
+		$dir      = dirname( JETPACK__PLUGIN_FILE );
+		$json_dir = $dir . '/_inc/blocks/' . FEATURE_NAME;
+
 		Blocks::jetpack_register_block(
 			BLOCK_NAME,
-			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+			array(
+				'render_callback' => __NAMESPACE__ . '\load_assets',
+			),
+			$json_dir,
 		);
 	}
 }

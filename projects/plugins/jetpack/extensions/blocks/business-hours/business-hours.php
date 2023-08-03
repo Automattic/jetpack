@@ -28,22 +28,8 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render',
-			'supports'        => array(
-				'color'      => array(
-					'gradients' => true,
-				),
-				'spacing'    => array(
-					'margin'  => true,
-					'padding' => true,
-				),
-				'typography' => array(
-					'fontSize'   => true,
-					'lineHeight' => true,
-				),
-				'align'      => array( 'wide', 'full' ),
-			),
-			$json_dir,
-		)
+		),
+		$json_dir,
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );

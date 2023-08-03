@@ -7,5 +7,22 @@
 	"keywords": [ "opening hours", "closing time", "schedule", "working day" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
-	"category": "grow"
+	"category": "grow",
+	"supports": {
+		"html": true,
+		"color": {
+			"gradients": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		},
+		"align": [ "wide", "full" ]
+	},
+	"editorScript": "file:./editor.js",
+	"editorStyle": "file:./editor.css"
 }

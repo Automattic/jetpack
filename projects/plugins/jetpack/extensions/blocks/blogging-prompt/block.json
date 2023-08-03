@@ -7,5 +7,29 @@
 	"keywords": [ "writing", "blogging" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
-	"category": "text"
+	"category": "text",
+	"supports": {
+		"align": false,
+		"alignWide": false,
+		"anchor": false,
+		"className": true,
+		"color": {
+			"background": true,
+			"gradients": true,
+			"link": true,
+			"text": true
+		},
+		"customClassName": true,
+		"html": false,
+		"inserter": true,
+		"multiple": false,
+		"reusable": true,
+		"spacing": {
+			"margin": [ "top", "bottom" ],
+			"padding": true,
+			"blockGap": false
+		}
+	},
+	"editorScript": "file:./editor.js",
+	"editorStyle": "file:./editor.css"
 }

@@ -19,6 +19,12 @@ const editorSetup = path.join( __dirname, '../extensions', 'editor' );
 const viewSetup = path.join( __dirname, '../extensions', 'view' );
 const blockEditorDirectories = [ 'plugins', 'blocks' ];
 const noop = function () {};
+const presetPath = path.join( __dirname, '../extensions', 'index.json' );
+const presetIndex = require( presetPath );
+const presetBundles = presetIndex._bundles || {};
+const bundledBlocks = Object.keys( presetBundles ).reduce( ( blocks, bundle ) => {
+	return blocks.concat( presetBundles[ bundle ] );
+}, [] );
 
 /**
  * Filters block editor scripts
@@ -30,14 +36,14 @@ const noop = function () {};
  */
 function presetProductionExtensions( type, inputDir, presetBlocks ) {
 	return presetBlocks
+		.filter( block => ! bundledBlocks.includes( block ) )
 		.flatMap( block =>
 			blockEditorDirectories.map( dir => path.join( inputDir, dir, block, `${ type }.js` ) )
 		)
-		.filter( fs.existsSync );
+		.filter( fs.existsSync )
+		.filter( block => ! bundledBlocks.includes( block ) );
 }
 
-const presetPath = path.join( __dirname, '../extensions', 'index.json' );
-const presetIndex = require( presetPath );
 const presetProductionBlocks = presetIndex.production || [];
 const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
 
@@ -49,13 +55,15 @@ const presetExperimentalBlocks = [
 const presetBetaBlocks = [ ...presetExperimentalBlocks, ...( presetIndex.beta || [] ) ];
 
 // Helps split up each block into its own folder view script
-const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
-	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
-	if ( fs.existsSync( viewScriptPath ) ) {
-		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
-	}
-	return viewBlocks;
-}, {} );
+const viewBlocksScripts = presetBetaBlocks
+	.filter( block => ! bundledBlocks.includes( block ) )
+	.reduce( ( viewBlocks, block ) => {
+		const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
+		if ( fs.existsSync( viewScriptPath ) ) {
+			viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
+		}
+		return viewBlocks;
+	}, {} );
 
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
@@ -95,6 +103,22 @@ const editorNoPostEditorScript = [
 		presetNoPostEditorBlocks
 	),
 ];
+
+const editorSingleBlocksScripts = bundledBlocks.reduce( ( editorBlocks, block ) => {
+	const editorScriptPath = path.join( __dirname, '../extensions/blocks', block, 'editor.js' );
+	if ( fs.existsSync( editorScriptPath ) ) {
+		editorBlocks[ block + '/editor' ] = [ editorScriptPath ];
+	}
+	return editorBlocks;
+}, {} );
+
+const viewSingleBlocksScripts = bundledBlocks.reduce( ( viewBlocks, block ) => {
+	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
+	if ( fs.existsSync( viewScriptPath ) ) {
+		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
+	}
+	return viewBlocks;
+}, {} );
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -276,5 +300,12 @@ module.exports = [
 				assets: [ 'components.js', 'components.js.map' ],
 			} ),
 		],
+	},
+	{
+		...sharedWebpackConfig,
+		entry: {
+			...editorSingleBlocksScripts,
+			...viewSingleBlocksScripts,
+		},
 	},
 ];
