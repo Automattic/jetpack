@@ -406,7 +406,10 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Add your About page', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_is_add_about_page_visible',
+			'is_visible_callback'  => 'wpcom_launchpad_is_add_about_page_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/page/' . $data['site_slug_encoded'];
+			},
 		),
 	);
 
@@ -1248,12 +1251,17 @@ function wpcom_launchpad_has_translation( $string, $domain = 'jetpack-mu-wpcom' 
  *
  * @return bool True if we should show the task, false otherwise.
  */
-function wpcom_is_add_about_page_visible() {
+function wpcom_launchpad_is_add_about_page_visible() {
 	return ! wpcom_is_update_about_page_task_visible();
 }
 
-function wpcom_add_about_page_check( $post_id, $post ) {
-	error_log( 'wpcom_add_about_page_check' );
+/**
+ * Completion hook for the `add_about_page` task.
+ *
+ * @param int    $post_id The post ID.
+ * @param object $post    The post object.
+ */
+function wpcom_launchpad_add_about_page_check( $post_id, $post ) {
 	// Ensure that Headstart posts don't mark this as complete
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return;
@@ -1280,12 +1288,14 @@ function wpcom_add_about_page_check( $post_id, $post ) {
 		return;
 	}
 
-	// TODO - How can we tell if the page being added is an About page?
-	error_log( print_r( $post, true ) );
+	$is_about_page = 'about' === get_post_meta( $post->ID, '_wp_layout_category', true );
+	if ( ! $is_about_page ) {
+		return;
+	}
 
-	// wpcom_mark_launchpad_task_complete( 'add_about_page' );
+	wpcom_mark_launchpad_task_complete( 'add_about_page' );
 }
-add_action( 'wp_insert_post', 'wpcom_add_about_page_check', 10, 3 );
+add_action( 'wp_insert_post', 'wpcom_launchpad_add_about_page_check', 10, 3 );
 
 /**
  * Determine `update_about_page` task visibility. The task is visible if there is an 'About' page on the site.
