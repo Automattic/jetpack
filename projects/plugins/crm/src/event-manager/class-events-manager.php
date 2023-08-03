@@ -17,9 +17,6 @@ class Events_Manager {
 	/** @var null The Events_Manager instance. */
 	private static $instance = null;
 
-	/** @var bool Whether or not the event manager is active. */
-	private $active = true;
-
 	/**
 	 * Get the singleton instance of this class.
 	 *
@@ -41,25 +38,6 @@ class Events_Manager {
 	 */
 	public static function set_instance( Events_Manager $instance ) {
 		self::$instance = $instance;
-	}
-
-	/**
-	 * Set whether or not the event manager is active.
-	 *
-	 * @param bool $active Whether or not the event manager is active.
-	 * @return void
-	 */
-	public function set_active( bool $active ) {
-		$this->active = $active;
-	}
-
-	/**
-	 * Get whether or not the event manager is active.
-	 *
-	 * @return bool
-	 */
-	public function is_active(): bool {
-		return $this->active;
 	}
 
 	/**
