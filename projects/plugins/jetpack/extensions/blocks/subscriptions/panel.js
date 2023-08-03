@@ -22,7 +22,7 @@ import {
 	useAccessLevel,
 	accessOptions,
 	isNewsletterFeatureEnabled,
-} from '../../../extensions/shared/memberships';
+} from '../../../extensions/shared/memberships-edit';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import EmailPreview from './email-preview';
 import {

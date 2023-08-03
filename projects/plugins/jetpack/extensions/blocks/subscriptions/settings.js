@@ -8,7 +8,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import {
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 	accessOptions,
-} from '../../../extensions/shared/memberships';
+} from '../../../extensions/shared/memberships-edit';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 import './settings.scss';

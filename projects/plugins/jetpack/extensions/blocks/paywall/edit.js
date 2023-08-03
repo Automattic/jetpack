@@ -2,7 +2,7 @@ import './editor.scss';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { accessOptions, useAccessLevel } from '../../shared/memberships';
+import { accessOptions, useAccessLevel } from '../../shared/memberships-edit';
 
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
