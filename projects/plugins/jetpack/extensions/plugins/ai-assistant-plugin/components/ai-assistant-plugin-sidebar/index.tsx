@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { JetpackLogo } from '@automattic/jetpack-components';
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import JetpackEditorPanelLogo from '../../../../shared/jetpack-editor-panel-logo';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import Proofread from '../proofread';
 
@@ -25,7 +25,7 @@ export default function AiAssistantPluginSidebar() {
 			</JetpackPluginSidebar>
 			<PluginPrePublishPanel
 				title={ title }
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				icon={ <JetpackEditorPanelLogo /> }
 				initialOpen={ false }
 			>
 				<Proofread />

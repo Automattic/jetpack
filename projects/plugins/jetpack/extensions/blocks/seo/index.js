@@ -1,8 +1,8 @@
-import { JetpackLogo } from '@automattic/jetpack-components';
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import JetpackEditorPanelLogo from '../../shared/jetpack-editor-panel-logo';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import SeoDescriptionPanel from './description-panel';
 import SeoNoindexPanel from './noindex-panel';
@@ -19,7 +19,7 @@ export const settings = {
 		};
 
 		const jetpackSeoPrePublishPanelProps = {
-			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
+			icon: <JetpackEditorPanelLogo />,
 			title: __( 'SEO', 'jetpack' ),
 		};
 
