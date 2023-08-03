@@ -242,7 +242,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/chatbot",
-                "reference": "ddd6f891b1345af311b8226921a8819fdba592a0"
+                "reference": "7abea122afbcca4ce6abd128b6f685241c318247"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
