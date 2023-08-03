@@ -242,7 +242,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/chatbot",
-                "reference": "280eb318f5826f3497be22653224b5c2005e3faf"
+                "reference": "ddd6f891b1345af311b8226921a8819fdba592a0"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-sync": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -299,7 +305,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Helpful chatbots for you and your visitors",
+            "description": "Helpful bots for your WordPress site.",
             "transport-options": {
                 "relative": true
             }
