@@ -6,7 +6,7 @@ import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
-import { useState, useMemo, useCallback, useEffect } from '@wordpress/element';
+import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
@@ -62,6 +62,9 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			placement: 'bottom-start',
 			offset: 12,
 		} );
+
+		// Keep track of the current list of valid blocks between renders.
+		const currentListOfValidBlocks = useRef( [] );
 
 		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as {
@@ -228,8 +231,15 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				const validBlocks = newContentBlocks.filter( block => {
 					return block.isValid && block.name !== 'core/freeform';
 				} );
-				// Only update the valid blocks
-				replaceInnerBlocks( clientId, validBlocks );
+
+				// Only update the blocks when the valid list changed, meaning a new block arrived.
+				if ( validBlocks.length !== currentListOfValidBlocks.current.length ) {
+					// Only update the valid blocks
+					replaceInnerBlocks( clientId, validBlocks );
+
+					// Update the list of current valid blocks
+					currentListOfValidBlocks.current = validBlocks;
+				}
 			},
 			[ clientId, replaceInnerBlocks ]
 		);
