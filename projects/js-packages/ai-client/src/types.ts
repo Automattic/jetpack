@@ -25,5 +25,13 @@ export type PromptMessagesProp = Array< PromptItemProps >;
 
 export type PromptProp = PromptMessagesProp | string;
 
+/*
+ * Data Flow types
+ */
 export type { UseAiContextOptions } from './data-flow/use-ai-context';
 export type { RequestingErrorProps } from './hooks/use-ai-suggestions';
+
+/*
+ * Requests types
+ */
+export type RequestingStateProp = 'init' | 'requesting' | 'suggesting' | 'done' | 'error';
