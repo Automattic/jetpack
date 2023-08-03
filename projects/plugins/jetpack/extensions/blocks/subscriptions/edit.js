@@ -11,15 +11,15 @@ import {
 import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { useSelect, useEffect } from '@wordpress/element';
+import { _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import GetAddPaidPlanButton from '../../shared/memberships/utils';
-import { getSubscriberCounts } from './api';
 import './view.scss';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import defaultAttributes from './attributes';
 import {
 	DEFAULT_BORDER_RADIUS_VALUE,
@@ -90,9 +90,6 @@ export function SubscriptionEdit( props ) {
 		buttonOnNewLine,
 		successMessage,
 	} = validatedAttributes;
-
-	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
-	const [ subscriberCount, setSubscriberCount ] = useState( '' );
 
 	const emailFieldGradient = isGradientAvailable
 		? useGradient( {
@@ -185,31 +182,29 @@ export function SubscriptionEdit( props ) {
 		);
 	};
 
-	useEffect( () => {
+	const { subscriberCount, subscriberCountString } = useSelect( select => {
 		if ( ! isModuleActive ) {
-			return;
+			return {
+				subscriberCounts: 0,
+				subscriberCountString: '',
+			};
 		}
-		getSubscriberCounts(
-			counts => {
-				const count = includeSocialFollowers
-					? counts.email_subscribers + counts.social_followers
-					: counts.email_subscribers;
+		const { emailSubscribers, socialFollowers } =
+			select( membershipProductsStore ).getSubscriberCounts();
+		let count = emailSubscribers;
+		if ( includeSocialFollowers ) {
+			count += socialFollowers;
+		}
 
-				setSubscriberCountString(
-					sprintf(
-						/* translators: Placeholder is a number of subscribers. */
-						_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
-						count
-					)
-				);
-				setSubscriberCount( count );
-			},
-			() => {
-				setSubscriberCountString( __( 'Subscriber count unavailable', 'jetpack' ) );
-				setSubscriberCount( 0 );
-			}
-		);
-	}, [ includeSocialFollowers, isModuleActive ] );
+		return {
+			subscriberCounts: count,
+			subscriberCountString: sprintf(
+				/* translators: Placeholder is a number of subscribers. */
+				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
+				count
+			),
+		};
+	} );
 
 	const previousButtonBackgroundColor = usePrevious( buttonBackgroundColor );
 
