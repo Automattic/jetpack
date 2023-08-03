@@ -4,7 +4,7 @@ import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import {
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 	accessOptions,
@@ -35,15 +35,6 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 }
 
 export function NewsletterNotice( { accessLevel } ) {
-	const { hasPostBeenPublished, hasPostBeenScheduled } = useSelect( select => {
-		const { isCurrentPostPublished, isCurrentPostScheduled } = select( editorStore );
-
-		return {
-			hasPostBeenPublished: isCurrentPostPublished(),
-			hasPostBeenScheduled: isCurrentPostScheduled(),
-		};
-	} );
-
 	const { emailSubscribers, paidSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
@@ -81,38 +72,6 @@ export function NewsletterNotice( { accessLevel } ) {
 			</FlexBlock>
 		);
 	}
-
-	let subscriberType = __( 'subscribers', 'jetpack' );
-	if ( accessLevel === accessOptions.paid_subscribers.key ) {
-		subscriberType = __( 'paid subscribers', 'jetpack' );
-	}
-
-	let numberOfSubscribersText = sprintf(
-		/* translators: %1s is the number of subscribers in numerical format, %2s options are paid subscribers or subscribers */
-		__( 'This will also be sent to <br/><strong>%1$s %2$s</strong>.', 'jetpack' ),
-		reachCount,
-		subscriberType
-	);
-
-	if ( hasPostBeenPublished && ! hasPostBeenScheduled ) {
-		numberOfSubscribersText = sprintf(
-			/* translators: %1s is the number of subscribers in numerical format, %2s options are paid subscribers or subscribers */
-			__( 'This was sent to <strong>%1$s %2$s</strong>.', 'jetpack' ),
-			reachCount,
-			subscriberType
-		);
-	}
-
-	return (
-		<FlexBlock>
-			<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-				{ createInterpolateElement( numberOfSubscribersText, {
-					br: <br />,
-					strong: <strong />,
-				} ) }
-			</Notice>
-		</FlexBlock>
-	);
 }
 
 function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasNewsletterPlans } ) {
