@@ -124,7 +124,7 @@ class SubscriptionsComponent extends React.Component {
 				>
 					<ModuleToggle
 						slug="subscriptions"
-						disabled={ unavailableInOfflineMode }
+						disabled={ unavailableInOfflineMode || ! this.props.isLinked }
 						activated={ isSubscriptionsActive }
 						toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
 						toggleModule={ this.props.toggleModuleNow }
@@ -138,7 +138,8 @@ class SubscriptionsComponent extends React.Component {
 								disabled={
 									! isSubscriptionsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'subscriptions' ] )
+									this.props.isSavingAnyOption( [ 'subscriptions' ] ) ||
+									! this.props.isLinked
 								}
 								toggling={ this.props.isSavingAnyOption( [ 'stb_enabled' ] ) }
 								onChange={ this.handleSubscribeToBlogToggleChange }
@@ -152,7 +153,8 @@ class SubscriptionsComponent extends React.Component {
 								disabled={
 									! isSubscriptionsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'subscriptions' ] )
+									this.props.isSavingAnyOption( [ 'subscriptions' ] ) ||
+									! this.props.isLinked
 								}
 								toggling={ this.props.isSavingAnyOption( [ 'stc_enabled' ] ) }
 								onChange={ this.handleSubscribeToCommentToggleChange }
@@ -168,7 +170,8 @@ class SubscriptionsComponent extends React.Component {
 										disabled={
 											! isSubscriptionsActive ||
 											unavailableInOfflineMode ||
-											this.props.isSavingAnyOption( [ 'subscriptions' ] )
+											this.props.isSavingAnyOption( [ 'subscriptions' ] ) ||
+											! this.props.isLinked
 										}
 										toggling={ this.props.isSavingAnyOption( [ 'sm_enabled' ] ) }
 										onChange={ this.handleSubscribeModalToggleChange }
