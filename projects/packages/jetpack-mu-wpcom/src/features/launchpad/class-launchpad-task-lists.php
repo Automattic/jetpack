@@ -636,7 +636,7 @@ class Launchpad_Task_Lists {
 		$statuses[ $key ] = true;
 		$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
 
-		$this->maybe_disable_launchpad();
+		$this->maybe_disable_fullscreen_launchpad();
 
 		return $result;
 	}
@@ -659,15 +659,15 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Disables Launchpad if all tasks are complete.
+	 * Disables fullscreen Launchpad if all tasks are complete.
 	 *
 	 * @return void
 	 */
-	public function maybe_disable_launchpad() {
+	public function maybe_disable_fullscreen_launchpad() {
 		if ( $this->has_active_tasks() ) {
 			return;
 		}
-		$this->disable_launchpad();
+		$this->disable_fullscreen_launchpad();
 	}
 
 	/**
@@ -729,7 +729,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return bool True if successful, false if not.
 	 */
-	private function disable_launchpad() {
+	private function disable_fullscreen_launchpad() {
 		return update_option( 'launchpad_screen', 'off' );
 	}
 
