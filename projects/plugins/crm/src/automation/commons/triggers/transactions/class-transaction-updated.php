@@ -21,7 +21,7 @@ class Transaction_Updated extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string
+	 * @return string The slug.
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/transaction_updated';
@@ -32,7 +32,7 @@ class Transaction_Updated extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string
+	 * @return string The title.
 	 */
 	public static function get_title(): string {
 		return __( 'Transaction Updated', 'zero-bs-crm' );
@@ -43,7 +43,7 @@ class Transaction_Updated extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string
+	 * @return string The description.
 	 */
 	public static function get_description(): string {
 		return __( 'Triggered when a transaction is updated', 'zero-bs-crm' );
@@ -54,7 +54,7 @@ class Transaction_Updated extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string
+	 * @return string The category.
 	 */
 	public static function get_category(): string {
 		return __( 'transaction', 'zero-bs-crm' );
