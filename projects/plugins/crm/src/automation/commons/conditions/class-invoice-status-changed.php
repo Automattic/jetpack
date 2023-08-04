@@ -44,7 +44,6 @@ class Invoice_Status_Changed extends Base_Condition {
 	 * @var string[] $valid_operators Valid attributes.
 	 */
 	private $valid_attributes = array(
-		'field',
 		'operator',
 		'value',
 	);
@@ -79,7 +78,7 @@ class Invoice_Status_Changed extends Base_Condition {
 			return;
 		}
 
-		$field    = $this->get_attributes()['field'];
+		$field    = 'status';
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
