@@ -274,4 +274,4 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	PR_TITLE+="$(basename "$PLUGIN") ${PROJECTS[$PLUGIN]}, "
 done
 
-gh pr create --title "Backport $PR_TITLE Changes" --body "$(cat .github/BACKPORT_RELEASE_CHANGES.md)" --label "Needs Review"
+gh pr create --title "Backport $PR_TITLE Changes" --body "$(cat .github/BACKPORT_RELEASE_CHANGES.md)" --label "Needs Review" --repo "Automattic/jetpack"
