@@ -26,6 +26,8 @@ abstract class Data_Transformer_Base {
 	 *
 	 * Example: 'invoice_to_contact', 'contact_to_woo_customer', etc.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The slug of the data transformer.
 	 */
 	abstract public static function get_slug(): string;
@@ -33,12 +35,16 @@ abstract class Data_Transformer_Base {
 	/**
 	 * Get the slug of the data type we transform from.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The slug of the data type we transform from.
 	 */
 	abstract public static function get_from(): string;
 
 	/**
 	 * Get the slug of the data type we transform to.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string The slug of the data type we transform to.
 	 */
@@ -48,6 +54,8 @@ abstract class Data_Transformer_Base {
 	 * Transform the entity.
 	 *
 	 * This method should transform the entity to the "to" data type.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param Data_Type_Base $data The data type we want to transform.
 	 * @return Data_Type_Base Return a transformed data type.

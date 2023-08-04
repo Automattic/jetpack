@@ -45,6 +45,8 @@ class Data_Transformer_Invoice_To_Contact extends Data_Transformer_Base {
 	/**
 	 * Transform invoice entity to a contact.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param Data_Type_Base $data The invoice data type we want to transform.
 	 * @return Data_Type_Base Return the Data_Type_Contact of the invoice owner.
 	 *
