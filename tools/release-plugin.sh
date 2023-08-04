@@ -251,3 +251,27 @@ for PREFIX in "${PREFIXES[@]}"; do
 done
 
 yellow "Release branches created!"
+
+yellow "Creating a PR to merge the prerelease branch into trunk."
+git checkout prerelease
+
+# If we're releasing the Jetpack plugin, ask if we want to start a new cycle.
+if [[ -v PROJECTS["plugins/jetpack"] ]]; then
+  if proceed_p "Do you want to start a new cycle for Jetpack?"; then
+    pnpm jetpack release plugins/jetpack version -a
+    git add --all
+    git commit -am "Init new cycle"
+  fi
+fi
+
+# Handle any package changes merged into trunk while we were working.
+git fetch
+git merge origin/trunk
+tools/fixup-project-versions.sh
+git push
+PR_TITLE=
+for PLUGIN in "${!PROJECTS[@]}"; do
+	PR_TITLE+="$(basename "$PLUGIN") ${PROJECTS[$PLUGIN]}, "
+done
+
+gh pr create --title "Backport $PR_TITLE Changes" --body "$(cat .github/BACKPORT_RELEASE_CHANGES.md)" --label "Needs Review"
