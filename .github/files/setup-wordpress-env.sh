@@ -135,18 +135,39 @@ done
 # Todo: what PHP_VERSION variable is considered "default"?
 if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "8.2" ]]; then
 	echo "::group::Installing plugin WooCommerce into WordPress"
-	cd "/tmp"
-	git clone --depth=1 https://github.com/woocommerce/woocommerce.git
-	cd "/tmp/woocommerce"
-
-	# Todo: figure out how to build Woo or an alternative.
 	start_time=$(date +%s)
-	pnpm run --filter=woocommerce build # Will fail due to pnpm/node version mismatch, also will want to see how long build takes.
+
+	WOO_REPO_URL="https://github.com/woocommerce/woocommerce"
+	WOO_GH_API_URL="https://api.github.com/repos/woocommerce/woocommerce/releases/latest"
+	WOO_LATEST_TAG=""
+	WOO_DL_URL=""
+
+	RESPONSE=$(curl -s "$WOO_GH_API_URL")
+	WOO_LATEST_TAG=$(jq -r ".tag_name" <<< "$RESPONSE")
+	WOO_DL_URL=$(jq -r ".zipball_url" <<< "$RESPONSE")
+
+	if [[ -n "$WOO_LATEST_TAG" && -n "$WOO_DL_URL" ]]; then
+		echo "WOO_LATEST_TAG: $WOO_LATEST_TAG"
+		echo "WOO_DL_URL: $WOO_DL_URL"
+		cd "/tmp"
+
+		# Download the built Woo plugin.
+		curl -s -L "$WOO_DL_URL" -o "woocommerce-$WOO_LATEST_TAG.zip"
+		unzip -q "woocommerce-$WOO_LATEST_TAG.zip"
+		mv woocommerce-woocommerce-* "woocommerce-$WOO_LATEST_TAG"
+		cp -r "woocommerce-$WOO_LATEST_TAG/plugins/woocommerce" "wordpress-$WP_BRANCH/src/wp-content/plugins"
+
+    	# Add the '/tests' directory not present in the built Woo download.
+		git clone --depth 1 --branch "$WOO_LATEST_TAG" "$WOO_REPO_URL" &> /dev/null
+		cp -r "woocommerce/plugins/woocommerce/tests" "wordpress-$WP_BRANCH/src/wp-content/plugins/woocommerce"
+	else
+		echo "::error::Error fetching latest WooCommerce plugin for Jetpack integration tests."
+		EXIT=1
+	fi
+
 	end_time=$(date +%s)
 	elapsed_time=$((end_time - start_time))
-	echo "Elapsed install time: $elapsed_time seconds"
-	# Copy the built Woo plugin with included '/tests' dir to WordPress.
-	cp -r "/tmp/woocommerce/plugins/woocommerce" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins"
+	echo "Woo elapsed install time: $elapsed_time seconds"
 	cd "$BASE"
 	echo "::endgroup::"
 fi
