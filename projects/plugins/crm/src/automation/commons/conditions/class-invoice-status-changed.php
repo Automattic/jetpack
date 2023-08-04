@@ -149,7 +149,7 @@ class Invoice_Status_Changed extends Base_Condition {
 	 * @return string The category 'jpcrm/invoice_condition'.
 	 */
 	public static function get_category(): string {
-		return 'jpcrm/invoice_condition';
+		return __( 'invoice', 'zero-bs-crm' );
 	}
 
 	/**
