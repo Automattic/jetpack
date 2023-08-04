@@ -49,7 +49,7 @@ class Transaction_Created extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_category(): string {
-		return 'transaction';
+		return __( 'transaction', 'zero-bs-crm' );
 	}
 
 	/**
