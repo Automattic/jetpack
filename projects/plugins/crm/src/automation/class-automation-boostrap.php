@@ -3,14 +3,15 @@
  * Bootstrap the Jetpack CRM Automation engine.
  *
  * @package Automattic\Jetpack\CRM
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
- * Bootstrap the Jetpack CRM Automation engine
+ * Bootstrap the Jetpack CRM Automation engine.
  *
- * @package Automattic\Jetpack\CRM\Automation
+ * @since $$next-version$$
  */
 final class Automation_Boostrap {
 
