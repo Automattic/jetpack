@@ -72,6 +72,31 @@ export function SubscriptionEdit( props ) {
 	} = props;
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( name );
+
+	const { subscriberCount, subscriberCountString } = useSelect( select => {
+		if ( ! isModuleActive ) {
+			return {
+				subscriberCounts: 0,
+				subscriberCountString: '',
+			};
+		}
+		const { emailSubscribers, socialFollowers } =
+			select( membershipProductsStore ).getSubscriberCounts();
+		let count = emailSubscribers;
+		if ( includeSocialFollowers ) {
+			count += socialFollowers;
+		}
+
+		return {
+			subscriberCounts: count,
+			subscriberCountString: sprintf(
+				/* translators: Placeholder is a number of subscribers. */
+				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
+				count
+			),
+		};
+	} );
+
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
@@ -181,30 +206,6 @@ export function SubscriptionEdit( props ) {
 			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined
 		);
 	};
-
-	const { subscriberCount, subscriberCountString } = useSelect( select => {
-		if ( ! isModuleActive ) {
-			return {
-				subscriberCounts: 0,
-				subscriberCountString: '',
-			};
-		}
-		const { emailSubscribers, socialFollowers } =
-			select( membershipProductsStore ).getSubscriberCounts();
-		let count = emailSubscribers;
-		if ( includeSocialFollowers ) {
-			count += socialFollowers;
-		}
-
-		return {
-			subscriberCounts: count,
-			subscriberCountString: sprintf(
-				/* translators: Placeholder is a number of subscribers. */
-				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
-				count
-			),
-		};
-	} );
 
 	const previousButtonBackgroundColor = usePrevious( buttonBackgroundColor );
 
