@@ -63,6 +63,14 @@ beforeEach( () => {
 		changeStatus: jest.fn(),
 	} );
 } );
+jest.mock( '@wordpress/element', () => ( {
+	...jest.requireActual( '@wordpress/element' ),
+	useSelect: () => ( {
+		subscriberCounts: 100,
+		subscriberCountString: 'Join 100 other subscribers',
+	} ),
+} ) );
+
 jest.mock( '@wordpress/notices', () => {}, { virtual: true } );
 
 describe( 'SubscriptionEdit', () => {
