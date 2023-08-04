@@ -30,6 +30,13 @@ class Launchpad_Task_Lists {
 	private $task_registry = array();
 
 	/**
+	 * Internal reference for the current site slug.
+	 *
+	 * @var string|null
+	 */
+	private $site_slug = null;
+
+	/**
 	 * Singleton instance
 	 *
 	 * @var Launchpad_Task_List
@@ -299,7 +306,15 @@ class Launchpad_Task_Lists {
 
 		if ( isset( $task['target_repetitions'] ) ) {
 			$built_task['target_repetitions'] = $task['target_repetitions'];
-			$built_task['repetition_count']   = $this->load_repetition_count( $task );
+			$built_task['repetition_count']   = min( $this->load_repetition_count( $task ), $task['target_repetitions'] );
+		}
+
+		if ( isset( $task['get_calypso_path'] ) ) {
+			$calypso_path = $this->load_calypso_path( $task );
+
+			if ( ! empty( $calypso_path ) ) {
+				$built_task['calypso_path'] = $calypso_path;
+			}
 		}
 
 		return $built_task;
@@ -311,11 +326,12 @@ class Launchpad_Task_Lists {
 	 * @param array  $item     The task or task list definition.
 	 * @param string $callback The callback to attempt to call.
 	 * @param mixed  $default  The default value, passed to the callback if it exists.
+	 * @param array  $data     Any additional data specific to the callback.
 	 * @return mixed The value returned by the callback, or the default value.
 	 */
-	private function load_value_from_callback( $item, $callback, $default = '' ) {
+	private function load_value_from_callback( $item, $callback, $default = '', $data = array() ) {
 		if ( isset( $item[ $callback ] ) && is_callable( $item[ $callback ] ) ) {
-			return call_user_func_array( $item[ $callback ], array( $item, $default ) );
+			return call_user_func_array( $item[ $callback ], array( $item, $default, $data ) );
 		}
 		return $default;
 	}
@@ -383,7 +399,37 @@ class Launchpad_Task_Lists {
 	 * @return int|null The repetition count for the task.
 	 */
 	private function load_repetition_count( $task ) {
-		return $this->load_value_from_callback( $task, 'repetition_count_callback' );
+		return $this->load_value_from_callback( $task, 'repetition_count_callback', 0 );
+	}
+
+	/**
+	 * Helper function to load the Calypso path for a task.
+	 *
+	 * @param array $task A task definition.
+	 * @return string|null
+	 */
+	private function load_calypso_path( $task ) {
+		if ( null === $this->site_slug ) {
+			$this->site_slug = wpcom_launchpad_get_site_slug();
+		}
+
+		$data = array(
+			'site_slug'         => $this->site_slug,
+			'site_slug_encoded' => rawurlencode( $this->site_slug ),
+		);
+
+		$calypso_path = $this->load_value_from_callback( $task, 'get_calypso_path', null, $data );
+
+		if ( ! is_string( $calypso_path ) ) {
+			return null;
+		}
+
+		// Require that the string start with `/`, but don't allow `//`.
+		if ( '/' !== substr( $calypso_path, 0, 1 ) || '/' === substr( $calypso_path, 1, 1 ) ) {
+			return null;
+		}
+
+		return $calypso_path;
 	}
 
 	/**
@@ -545,7 +591,7 @@ class Launchpad_Task_Lists {
 	 */
 	public function add_hooks_for_active_tasks( $task_list_id = null ) {
 		// leave things alone if Launchpad is not enabled.
-		if ( ! $this->is_launchpad_enabled() ) {
+		if ( ! $this->is_fullscreen_launchpad_enabled() ) {
 			return;
 		}
 
@@ -590,7 +636,7 @@ class Launchpad_Task_Lists {
 		$statuses[ $key ] = true;
 		$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
 
-		$this->maybe_disable_launchpad();
+		$this->maybe_disable_fullscreen_launchpad();
 
 		return $result;
 	}
@@ -613,15 +659,15 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Disables Launchpad if all tasks are complete.
+	 * Disables fullscreen Launchpad if all tasks are complete.
 	 *
 	 * @return void
 	 */
-	public function maybe_disable_launchpad() {
+	public function maybe_disable_fullscreen_launchpad() {
 		if ( $this->has_active_tasks() ) {
 			return;
 		}
-		$this->disable_launchpad();
+		$this->disable_fullscreen_launchpad();
 	}
 
 	/**
@@ -657,6 +703,11 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
+		if ( isset( $task['target_repetitions'] ) && ! is_int( $task['target_repetitions'] ) ) {
+			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires a "target_repetitions" attribute that is an integer', '6.4' );
+			return false;
+		}
+
 		return true;
 	}
 
@@ -665,7 +716,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return boolean
 	 */
-	public function is_launchpad_enabled() {
+	public function is_fullscreen_launchpad_enabled() {
 		$launchpad_screen = get_option( 'launchpad_screen' );
 		if ( 'full' !== $launchpad_screen ) {
 			return false;
@@ -678,7 +729,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return bool True if successful, false if not.
 	 */
-	private function disable_launchpad() {
+	private function disable_fullscreen_launchpad() {
 		return update_option( 'launchpad_screen', 'off' );
 	}
 

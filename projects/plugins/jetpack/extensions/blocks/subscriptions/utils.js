@@ -1,7 +1,7 @@
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ToolbarButton, Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { _x, __ } from '@wordpress/i18n';
+import { accessOptions } from '../../shared/memberships-edit';
 
 /**
  * Apply HTML encoding for special characters inside shortcode attributes.
@@ -28,8 +28,8 @@ export const getPaidPlanLink = alreadyHasNewsletterPlans => {
 	return alreadyHasNewsletterPlans ? link : link + '#add-newsletter-payment-plan';
 };
 
-export const isNewsletterFeatureEnabled = () => {
-	return getJetpackData()?.jetpack?.is_newsletter_feature_enabled ?? false;
+export const getShowMisconfigurationWarning = ( postVisibility, accessLevel ) => {
+	return postVisibility !== 'public' && accessLevel !== accessOptions.everybody.key;
 };
 
 export const MisconfigurationWarning = () => (

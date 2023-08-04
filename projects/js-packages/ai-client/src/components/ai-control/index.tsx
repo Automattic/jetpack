@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { PlainText } from '@wordpress/block-editor';
-import { Button, Spinner } from '@wordpress/components';
+import { Button } from '@wordpress/components';
+import { useKeyboardShortcut } from '@wordpress/compose';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall, check, arrowUp } from '@wordpress/icons';
@@ -10,8 +11,12 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import { aiAssistantIcon } from '../../icons';
 import './style.scss';
+import AiStatusIndicator from '../ai-status-indicator';
+/**
+ * Types
+ */
+import type { RequestingStateProp } from '../../types';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -31,6 +36,7 @@ const noop = () => {};
  * @param {Function} props.onSend - send request handler
  * @param {Function} props.onStop - stop request handler
  * @param {Function} props.onAccept - accept handler
+ * @param {string} props.requestingState - requesting state
  * @returns {object} - AI Control component
  */
 export default function AIControl( {
@@ -41,6 +47,7 @@ export default function AIControl( {
 	acceptLabel = __( 'Accept', 'jetpack-ai-client' ),
 	showButtonsLabel = true,
 	isOpaque = false,
+	requestingState = 'init',
 	onChange = noop,
 	onSend = noop,
 	onStop = noop,
@@ -53,12 +60,36 @@ export default function AIControl( {
 	acceptLabel?: string;
 	showButtonsLabel?: boolean;
 	isOpaque?: boolean;
-	onChange: ( newValue: string ) => void;
-	onSend: ( currentValue: string ) => void;
-	onStop: () => void;
-	onAccept: () => void;
+	requestingState?: RequestingStateProp;
+	onChange?: ( newValue: string ) => void;
+	onSend?: ( currentValue: string ) => void;
+	onStop?: () => void;
+	onAccept?: () => void;
 } ) {
 	const promptUserInputRef = useRef( null );
+
+	useKeyboardShortcut(
+		'mod+enter',
+		() => {
+			if ( showAccept ) {
+				onAccept?.();
+			}
+		},
+		{
+			target: promptUserInputRef,
+		}
+	);
+
+	useKeyboardShortcut(
+		'enter',
+		e => {
+			e.preventDefault();
+			onSend?.( value );
+		},
+		{
+			target: promptUserInputRef,
+		}
+	);
 
 	return (
 		<div className="jetpack-components-ai-control__container">
@@ -67,22 +98,26 @@ export default function AIControl( {
 					'is-opaque': isOpaque,
 				} ) }
 			>
-				<div className="jetpack-components-ai-controlton__icon">
-					{ loading ? (
-						<Spinner className="input-spinner" />
-					) : (
-						<Icon className="input-icon" icon={ aiAssistantIcon } size={ 24 } />
+				<AiStatusIndicator state={ requestingState } />
+
+				<div className="jetpack-components-ai-control__input-wrapper">
+					<PlainText
+						value={ value }
+						onChange={ onChange }
+						placeholder={ placeholder }
+						className="jetpack-components-ai-control__input"
+						disabled={ loading }
+						ref={ promptUserInputRef }
+					/>
+
+					{ value?.length > 0 && (
+						<Icon
+							icon={ closeSmall }
+							className="jetpack-components-ai-control__clear"
+							onClick={ () => onChange( '' ) }
+						/>
 					) }
 				</div>
-
-				<PlainText
-					value={ value }
-					onChange={ onChange }
-					placeholder={ placeholder }
-					className="jetpack-components-ai-control__input"
-					disabled={ loading }
-					ref={ promptUserInputRef }
-				/>
 
 				<div className="jetpack-components-ai-control__controls">
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
@@ -91,7 +126,7 @@ export default function AIControl( {
 								className="jetpack-components-ai-control__controls-prompt_button"
 								onClick={ () => onSend( value ) }
 								isSmall={ true }
-								disabled={ value?.length }
+								disabled={ ! value?.length }
 								label={ __( 'Send request', 'jetpack-ai-client' ) }
 							>
 								<Icon icon={ arrowUp } />

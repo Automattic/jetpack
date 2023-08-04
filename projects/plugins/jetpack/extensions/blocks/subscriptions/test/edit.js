@@ -46,9 +46,6 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 
 jest.mock( '../api', () => ( {
 	__esModule: true,
-	getSubscriberCount: jest.fn( successCallback => {
-		successCallback( 100 );
-	} ),
 	getSubscriberCounts: jest.fn( successCallback => {
 		successCallback( { email_subscribers: 100, social_followers: 100 } );
 	} ),

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Extension: Improve undo action behavior by controlling the way received valid blocks are rendered.

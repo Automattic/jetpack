@@ -76,6 +76,15 @@ class Automation_Workflow {
 	 * @since $$next-version$$
 	 * @var Automation_Engine
 	 */
+	/**
+	 * The version of the workflow.
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	public $version = 1;
+
+	/** @var Automation_Engine */
 	private $automation_engine;
 
 	/**
