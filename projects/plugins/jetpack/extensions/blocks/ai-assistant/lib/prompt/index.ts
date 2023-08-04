@@ -275,8 +275,8 @@ Strong requirements:
 	- \`Terms Consent\`:  <!-- wp:jetpack/field-consent {"consentType":"CONSENT_TYPE","implicitConsentMessage":"IMPLICIT_CONSENT_MESSAGE","explicitConsentMessage":"EXPLICIT_CONSENT_MESSAGE", /-->
 	- \`Button\`: <!-- wp:jetpack/button {"label":FIELD_LABEL,"element":"button","text":BUTTON_TEXT,"borderRadius":BORDER_RADIUS,"lock":{"remove":true}} /-->
 
-- When necessary, use core Gutenberg blocks to wrap the inner Jetpack form blocks, like \`<!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column">COLLUMN_CONTENT</div><!-- /wp:column --></div><!-- /wp:columns -->\`.
-
+- When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column), like so: \`Name Field\`:
+	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
 Jetpack Form to modify:\n${ content }`,
 		},
 	];
