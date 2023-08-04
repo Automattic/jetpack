@@ -585,7 +585,7 @@ function wpcom_log_launchpad_being_enabled_for_test_sites( $option, $value ) {
  * @return bool True if the launchpad is enabled, false otherwise.
  */
 function wpcom_get_launchpad_is_enabled() {
-	return wpcom_launchpad_checklists()->is_launchpad_enabled();
+	return wpcom_launchpad_checklists()->is_fullscreen_launchpad_enabled();
 }
 
 /**

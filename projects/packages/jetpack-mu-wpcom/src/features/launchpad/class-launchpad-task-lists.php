@@ -591,7 +591,7 @@ class Launchpad_Task_Lists {
 	 */
 	public function add_hooks_for_active_tasks( $task_list_id = null ) {
 		// leave things alone if Launchpad is not enabled.
-		if ( ! $this->is_launchpad_enabled() ) {
+		if ( ! $this->is_fullscreen_launchpad_enabled() ) {
 			return;
 		}
 
@@ -716,7 +716,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return boolean
 	 */
-	public function is_launchpad_enabled() {
+	public function is_fullscreen_launchpad_enabled() {
 		$launchpad_screen = get_option( 'launchpad_screen' );
 		if ( 'full' !== $launchpad_screen ) {
 			return false;
