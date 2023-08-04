@@ -44,13 +44,6 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	} ),
 } ) );
 
-jest.mock( '../api', () => ( {
-	__esModule: true,
-	getSubscriberCounts: jest.fn( successCallback => {
-		successCallback( { email_subscribers: 100, social_followers: 100 } );
-	} ),
-} ) );
-
 jest.mock( '../constants', () => ( {
 	IS_GRADIENT_AVAILABLE: true,
 } ) );
