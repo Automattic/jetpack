@@ -6,6 +6,9 @@ import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { globe } from '@wordpress/icons';
 import React from 'react';
+/*
+ * Internal dependencies
+ */
 import './style.scss';
 
 const LANGUAGE_LIST = [
@@ -44,66 +47,49 @@ export const defaultLocale = defaultLanguageLocale?.split( '-' )?.[ 1 ] || null;
 export const LANGUAGE_MAP = {
 	en: {
 		label: __( 'English', 'jetpack' ),
-		flag: '🇬🇧',
 	},
 	es: {
 		label: __( 'Spanish', 'jetpack' ),
-		flag: '🇪🇸',
 	},
 	fr: {
 		label: __( 'French', 'jetpack' ),
-		flag: '🇫🇷',
 	},
 	de: {
 		label: __( 'German', 'jetpack' ),
-		flag: '🇩🇪',
 	},
 	it: {
 		label: __( 'Italian', 'jetpack' ),
-		flag: '🇮🇹',
 	},
 	pt: {
 		label: __( 'Portuguese', 'jetpack' ),
-		flag: '🇵🇹',
 	},
 	ru: {
 		label: __( 'Russian', 'jetpack' ),
-		flag: '🇷🇺',
 	},
 	zh: {
 		label: __( 'Chinese', 'jetpack' ),
-		flag: '🇨🇳',
 	},
 	ja: {
 		label: __( 'Japanese', 'jetpack' ),
-		flag: '🇯🇵',
 	},
 	ar: {
 		label: __( 'Arabic', 'jetpack' ),
-		flag: '🇸🇦',
 	},
 	hi: {
 		label: __( 'Hindi', 'jetpack' ),
-		flag: '🇮🇳',
 	},
 	ko: {
 		label: __( 'Korean', 'jetpack' ),
-		flag: '🇰🇷',
 	},
 
 	id: {
-		label: __( 'Indonisian', 'jetpack' ),
-		flag: '🇮🇩',
+		label: __( 'Indonesian', 'jetpack' ),
 	},
-
 	tl: {
 		label: __( 'Filipino', 'jetpack' ),
-		flag: '🇵🇭',
 	},
-
 	vi: {
 		label: __( 'Vietnamese', 'jetpack' ),
-		flag: '🇻🇳',
 	},
 };
 
