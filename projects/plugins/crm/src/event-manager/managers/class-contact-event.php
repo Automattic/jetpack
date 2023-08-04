@@ -15,12 +15,18 @@ namespace Automattic\Jetpack\CRM\Event_Manager;
 class Contact_Event implements Event {
 
 	/**
-	 * @var Contact_Event The Contact_Event instance.
+	 * The Contact_Event instance.
+	 *
+	 * @since $$next-version$$
+	 * @var Contact_Event
 	 */
 	private static $instance = null;
 
 	/**
-	 * @var array Properties that should not be notified.
+	 * Properties that should not be notified.
+	 *
+	 * @since $$next-version$$
+	 * @var string[]
 	 */
 	private $not_notifiable_props = array(
 		'created',
@@ -30,6 +36,8 @@ class Contact_Event implements Event {
 
 	/**
 	 * Get the singleton instance of this class.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return Contact_Event The Contact_Event instance.
 	 */
@@ -44,6 +52,8 @@ class Contact_Event implements Event {
 	/**
 	 * A new contact was created.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array $contact_data The created contact data.
 	 * @return void
 	 */
@@ -53,6 +63,8 @@ class Contact_Event implements Event {
 
 	/**
 	 * The contact was updated.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $contact_data The updated contact data.
 	 * @param array $old_contact_data The old contact data.
@@ -106,6 +118,8 @@ class Contact_Event implements Event {
 	/**
 	 * A contact was deleted.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param int $contact_id The contact ID.
 	 * @return void
 	 */
@@ -115,6 +129,8 @@ class Contact_Event implements Event {
 
 	/**
 	 * A contact is about to be deleted.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param int $contact_id The contact ID.
 	 * @return void

@@ -15,14 +15,19 @@ namespace Automattic\Jetpack\CRM\Event_Manager;
 class Events_Manager {
 
 	/**
-	 * @var Events_Manager The Events_Manager instance.
+	 * The Events_Manager instance.
+	 *
+	 * @since $$next-version$$
+	 * @var Events_Manager
 	 */
 	private static $instance = null;
 
 	/**
 	 * Get the singleton instance of this class.
 	 *
-	 * @return Events_Manager
+	 * @since $$next-version$$
+	 *
+	 * @return Events_Manager The Events_Manager instance.
 	 */
 	public static function get_instance(): Events_Manager {
 		if ( ! self::$instance ) {
@@ -34,6 +39,8 @@ class Events_Manager {
 
 	/**
 	 * Return the Contact_Event instance.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return Contact_Event A Contact_Event instance.
 	 */
