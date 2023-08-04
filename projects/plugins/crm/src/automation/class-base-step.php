@@ -16,16 +16,24 @@ namespace Automattic\Jetpack\CRM\Automation;
 abstract class Base_Step implements Step {
 
 	/**
-	 * @var array Step attributes.
+	 * Step attributes.
+	 *
+	 * @since $$next-version$$
+	 * @var array
 	 */
 	protected $attributes;
 	/**
-	 * @var array|null Next linked step.
+	 * Next linked step.
+	 *
+	 * @since $$next-version$$
+	 * @var array|null
 	 */
 	protected $next_step;
 
 	/**
 	 * Base_Step constructor.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $step_data An array of data for the current step.
 	 */
@@ -36,6 +44,8 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the data of the step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return array The step data.
 	 */
 	public function get_attributes(): array {
@@ -44,6 +54,8 @@ abstract class Base_Step implements Step {
 
 	/**
 	 * Set attributes of the step.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $attributes The attributes to set.
 	 */
@@ -54,6 +66,8 @@ abstract class Base_Step implements Step {
 	/**
 	 * Set the next step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array $step_data The next linked step.
 	 */
 	public function set_next_step( array $step_data ) {
@@ -62,6 +76,8 @@ abstract class Base_Step implements Step {
 
 	/**
 	 * Get the next step.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return array|null The next linked step.
 	 */
@@ -72,12 +88,16 @@ abstract class Base_Step implements Step {
 	/**
 	 * Execute the step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array $data Data passed from the trigger.
 	 */
 	abstract public function execute( array $data );
 
 	/**
 	 * Get the slug name of the step.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string The slug name of the step.
 	 */
@@ -86,19 +106,25 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @return string The title of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The title of the step.
 	 */
 	abstract public static function get_title(): ?string;
 
 	/**
 	 * Get the description of the step.
 	 *
-	 * @return string The description of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The description of the step.
 	 */
 	abstract public static function get_description(): ?string;
 
 	/**
 	 * Get the type of the step.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string The type of the step.
 	 */
@@ -107,14 +133,18 @@ abstract class Base_Step implements Step {
 	/**
 	 * Get the category of the step.
 	 *
-	 * @return string The category of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The category of the step.
 	 */
 	abstract public static function get_category(): ?string;
 
 	/**
 	 * Get the allowed triggers.
 	 *
-	 * @return array The allowed triggers.
+	 * @since $$next-version$$
+	 *
+	 * @return array|null The allowed triggers.
 	 */
 	abstract public static function get_allowed_triggers(): ?array;
 }

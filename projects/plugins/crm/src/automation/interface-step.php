@@ -17,12 +17,16 @@ interface Step {
 	/**
 	 * Execute the step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array $data Data passed from the trigger.
 	 */
 	public function execute( array $data );
 
 	/**
 	 * Get the next step.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return array|null The next linked step.
 	 */
@@ -31,12 +35,16 @@ interface Step {
 	/**
 	 * Set the next step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array $step_data The next linked step.
 	 */
 	public function set_next_step( array $step_data );
 
 	/**
 	 * Get the attributes of the step.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return array The attributes of the step.
 	 */
@@ -45,12 +53,16 @@ interface Step {
 	/**
 	 * Get the attributes of the step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array $attributes Set attributes to this step.
 	 */
 	public function set_attributes( array $attributes );
 
 	/**
 	 * Get the slug name of the step.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string The slug name of the step.
 	 */
@@ -59,35 +71,45 @@ interface Step {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @return string The title of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The title of the step.
 	 */
 	public static function get_title(): ?string;
 
 	/**
 	 * Get the description of the step.
 	 *
-	 * @return string The description of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The description of the step.
 	 */
 	public static function get_description(): ?string;
 
 	/**
 	 * Get the type of the step.
 	 *
-	 * @return string The type of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The type of the step.
 	 */
 	public static function get_type(): ?string;
 
 	/**
 	 * Get the category of the step.
 	 *
-	 * @return string The category of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The category of the step.
 	 */
 	public static function get_category(): ?string;
 
 	/**
 	 * Get the category of the step.
 	 *
-	 * @return array The allowed triggers for the step.
+	 * @since $$next-version$$
+	 *
+	 * @return array|null The allowed triggers for the step.
 	 */
 	public static function get_allowed_triggers(): ?array;
 }

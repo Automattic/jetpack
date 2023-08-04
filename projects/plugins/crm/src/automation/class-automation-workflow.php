@@ -15,52 +15,81 @@ namespace Automattic\Jetpack\CRM\Automation;
 class Automation_Workflow {
 
 	/**
-	 * @var int|string The workflow id.
+	 * The workflow id.
+	 *
+	 * @since $$next-version$$
+	 * @var int|string
 	 */
 	private $id;
 
 	/**
-	 * @var string The workflow name.
+	 * The workflow name.
+	 *
+	 * @since $$next-version$$
+	 * @var string
 	 */
 	public $name;
 
 	/**
-	 * @var string The workflow description.
+	 * The workflow description.
+	 *
+	 * @since $$next-version$$
+	 * @var string
 	 */
 	public $description;
 
 	/**
-	 * @var string The workflow category.
+	 * The workflow category.
+	 *
+	 * @since $$next-version$$
+	 * @var string
 	 */
 	public $category;
 
 	/**
-	 * @var array The workflow triggers.
+	 * The workflow triggers.
+	 *
+	 * @since $$next-version$$
+	 * @var array
 	 */
 	public $triggers;
 
 	/**
-	 * @var array The workflow initial step.
+	 * The workflow initial step.
+	 *
+	 * @since $$next-version$$
+	 * @var array
 	 */
 	public $initial_step;
 
 	/**
-	 * @var bool Whether the workflow is active.
+	 * The workflow active status.
+	 *
+	 * @since $$next-version$$
+	 * @var bool
 	 */
 	public $active;
 
 	/**
-	 * @var Automation_Engine The automation engine.
+	 * The automation engine.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Engine
 	 */
 	private $automation_engine;
 
 	/**
-	 * @var Automation_Logger The automation logger.
+	 * The automation logger.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Logger
 	 */
 	private $logger;
 
 	/**
 	 * Automation_Workflow constructor.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array             $workflow_data The workflow data to be constructed.
 	 * @param Automation_Engine $automation_engine An instance of the Automation_Engine class.
@@ -81,6 +110,8 @@ class Automation_Workflow {
 	/**
 	 * Get the id of this workflow.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return int|string The workflow id.
 	 */
 	public function get_id() {
@@ -90,7 +121,9 @@ class Automation_Workflow {
 	/**
 	 * Set the triggers within the workflow given an array of triggers.
 	 *
-	 * @param array $triggers An array of triggers to be set.
+	 * @since $$next-version$$
+	 *
+	 * @param string[] $triggers An array of triggers to be set.
 	 */
 	public function set_triggers( array $triggers ) {
 		$this->triggers = $triggers;
@@ -99,7 +132,9 @@ class Automation_Workflow {
 	/**
 	 * Get the trigger names of this workflow.
 	 *
-	 * @return array The workflow trigger names.
+	 * @since $$next-version$$
+	 *
+	 * @return string[] The workflow trigger names.
 	 */
 	public function get_triggers(): array {
 		return $this->triggers;
@@ -107,6 +142,8 @@ class Automation_Workflow {
 
 	/**
 	 * Instance the triggers of this workflow.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @throws Workflow_Exception Throws an exception if there is an issue initializing the trigger.
 	 */
@@ -137,6 +174,8 @@ class Automation_Workflow {
 	/**
 	 * Set initial step of this workflow.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array $step_data The data for the step to be set as the initial step.
 	 */
 	public function set_initial_step( array $step_data ) {
@@ -145,6 +184,8 @@ class Automation_Workflow {
 
 	/**
 	 * Get the workflow as an array to be stored or send as JSON.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return array The workflow as an array.
 	 */
@@ -165,6 +206,8 @@ class Automation_Workflow {
 	/**
 	 * Get the initial step of this workflow.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return array
 	 */
 	public function get_initial_step(): array {
@@ -174,9 +217,12 @@ class Automation_Workflow {
 	/**
 	 * Start the workflow execution once a trigger is activated.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param Trigger $trigger An instance of the Trigger class.
 	 * @param array   $data All relevant object data to be passed through the workflow.
 	 * @return bool Whether the workflow was executed successfully.
+	 *
 	 * @throws Automation_Exception Throws an exception if the step class does not exist, or there is an error executing the workflow.
 	 */
 	public function execute( Trigger $trigger, array $data ): bool {
@@ -231,8 +277,11 @@ class Automation_Workflow {
 	/**
 	 * Get the step classname based on the step type.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array $step_data The step data with which to check the step type.
 	 * @return string The step classname.
+	 *
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
 	private function get_step_class( array $step_data ): string {
@@ -243,6 +292,8 @@ class Automation_Workflow {
 
 	/**
 	 * Turn on the workflow.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function turn_on() {
 		$this->active = true;
@@ -250,6 +301,8 @@ class Automation_Workflow {
 
 	/**
 	 * Turn off the workflow.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function turn_off() {
 		$this->active = false;
@@ -257,6 +310,8 @@ class Automation_Workflow {
 
 	/**
 	 * Check if the workflow is active.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return bool Whether the workflow is active.
 	 */
@@ -267,6 +322,8 @@ class Automation_Workflow {
 	/**
 	 * Add a trigger to this workflow.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param string $string The name of the trigger to add.
 	 */
 	public function add_trigger( string $string ) {
@@ -276,6 +333,8 @@ class Automation_Workflow {
 	/**
 	 * Set Automation Logger.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param Automation_Logger $logger An instance of the Automation_Logger class.
 	 */
 	public function set_automation_logger( Automation_Logger $logger ) {
@@ -284,6 +343,8 @@ class Automation_Workflow {
 
 	/**
 	 * Set Automation Engine.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param Automation_Engine $automation_engine An instance of the Automation_Engine class.
 	 */

@@ -19,6 +19,8 @@ class Update_Contact extends Base_Action {
 	/**
 	 * Get the slug name of the step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The slug name of the step.
 	 */
 	public static function get_slug(): string {
@@ -28,7 +30,9 @@ class Update_Contact extends Base_Action {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @return string The title of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The title of the step.
 	 */
 	public static function get_title(): ?string {
 		return 'Update Contact Action';
@@ -37,7 +41,9 @@ class Update_Contact extends Base_Action {
 	/**
 	 * Get the description of the step.
 	 *
-	 * @return string The description of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The description of the step.
 	 */
 	public static function get_description(): ?string {
 		return 'Action to update the contact';
@@ -45,6 +51,8 @@ class Update_Contact extends Base_Action {
 
 	/**
 	 * Get the type of the step.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string The type of the step.
 	 */
@@ -55,7 +63,9 @@ class Update_Contact extends Base_Action {
 	/**
 	 * Get the category of the step.
 	 *
-	 * @return string The category of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The category of the step.
 	 */
 	public static function get_category(): ?string {
 		return 'actions';
@@ -64,7 +74,9 @@ class Update_Contact extends Base_Action {
 	/**
 	 * Get the allowed triggers.
 	 *
-	 * @return array The allowed triggers.
+	 * @since $$next-version$$
+	 *
+	 * @return string[]|null The allowed triggers.
 	 */
 	public static function get_allowed_triggers(): ?array {
 		return array();
@@ -72,6 +84,8 @@ class Update_Contact extends Base_Action {
 
 	/**
 	 * Update the DAL with the new contact data.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $contact_data The contact data to be updated.
 	 */
@@ -81,5 +95,4 @@ class Update_Contact extends Base_Action {
 		$contact_data['data'] = array_replace( $contact_data['data'], $this->attributes['data'] );
 		$zbs->DAL->contacts->addUpdateContact( $contact_data ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
-
 }

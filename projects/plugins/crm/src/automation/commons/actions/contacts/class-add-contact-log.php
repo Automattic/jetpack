@@ -19,6 +19,8 @@ class Add_Contact_Log extends Base_Action {
 	/**
 	 * Get the slug name of the step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The slug name of the step.
 	 */
 	public static function get_slug(): string {
@@ -27,6 +29,8 @@ class Add_Contact_Log extends Base_Action {
 
 	/**
 	 * Get the title of the step.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string The title of the step.
 	 */
@@ -37,6 +41,8 @@ class Add_Contact_Log extends Base_Action {
 	/**
 	 * Get the description of the step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The description of the step.
 	 */
 	public static function get_description(): ?string {
@@ -45,6 +51,8 @@ class Add_Contact_Log extends Base_Action {
 
 	/**
 	 * Get the type of the step.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string The type of the step.
 	 */
@@ -55,6 +63,8 @@ class Add_Contact_Log extends Base_Action {
 	/**
 	 * Get the category of the step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The category of the step.
 	 */
 	public static function get_category(): ?string {
@@ -64,7 +74,9 @@ class Add_Contact_Log extends Base_Action {
 	/**
 	 * Get the allowed triggers.
 	 *
-	 * @return array The allowed triggers.
+	 * @since $$next-version$$
+	 *
+	 * @return string[] The allowed triggers.
 	 */
 	public static function get_allowed_triggers(): ?array {
 		return array();
@@ -72,6 +84,8 @@ class Add_Contact_Log extends Base_Action {
 
 	/**
 	 * Add the log to the contact via the DAL.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $contact_data The contact data on which the log is to be added.
 	 */

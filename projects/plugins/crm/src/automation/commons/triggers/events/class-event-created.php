@@ -19,6 +19,8 @@ class Event_Created extends Base_Trigger {
 	/**
 	 * Get the slug name of the trigger.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string {
@@ -27,6 +29,8 @@ class Event_Created extends Base_Trigger {
 
 	/**
 	 * Get the title of the trigger.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string The title of the trigger.
 	 */
@@ -37,6 +41,8 @@ class Event_Created extends Base_Trigger {
 	/**
 	 * Get the description of the trigger.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The description of the trigger.
 	 */
 	public static function get_description(): string {
@@ -46,6 +52,8 @@ class Event_Created extends Base_Trigger {
 	/**
 	 * Get the category of the trigger.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): string {
@@ -54,6 +62,9 @@ class Event_Created extends Base_Trigger {
 
 	/**
 	 * Listen to this trigger's target event.
+	 *
+	 * @since $$next-version$$
+	 * @return void
 	 */
 	protected function listen_to_event(): void {
 		add_action(

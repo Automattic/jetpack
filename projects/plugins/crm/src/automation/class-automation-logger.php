@@ -15,27 +15,40 @@ namespace Automattic\Jetpack\CRM\Automation;
 class Automation_Logger {
 
 	/**
-	 * @var Automation_Logger An instance of the Automation_Logger class.
+	 * Instance singleton.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Logger
 	 */
 	private static $instance = null;
 
 	/**
-	 * @var array An array of logged outputs.
+	 * The log list.
+	 *
+	 * @var array
 	 */
 	private $log = array();
 
 	/**
-	 * @var bool Whether or not the log is set to output.
+	 * Whether or not the log is set to output.
+	 *
+	 * @since $$next-version$$
+	 * @var bool
 	 */
 	private $output = false;
 
 	/**
-	 * @var bool Whether or not the logger is set to be active.
+	 * Whether or not the logger is set to be active.
+	 *
+	 * @since $$next-version$$
+	 * @var bool
 	 */
 	private $is_active = true;
 
 	/**
 	 * Initialize the logger.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param bool $force Force a new instance.
 	 * @return Automation_Logger An instance of the Automation_Logger class.
@@ -50,6 +63,8 @@ class Automation_Logger {
 
 	/**
 	 * Set is_active to true to indicate the logger is active.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function turn_on() {
 		$this->is_active = true;
@@ -57,6 +72,8 @@ class Automation_Logger {
 
 	/**
 	 * Set is_active to false to indicate the logger is not active.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function turn_off() {
 		$this->is_active = false;
@@ -64,6 +81,8 @@ class Automation_Logger {
 
 	/**
 	 * Set if output the log or not.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param bool $output Whether or not the log is set to output.
 	 */
@@ -73,6 +92,10 @@ class Automation_Logger {
 
 	/**
 	 * Get log list.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array The log list.
 	 */
 	public function get_log(): array {
 		return $this->log;
@@ -80,6 +103,8 @@ class Automation_Logger {
 
 	/**
 	 * Add a log entry.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $message The message to be output in the log.
 	 */
@@ -95,6 +120,8 @@ class Automation_Logger {
 
 	/**
 	 * Reset the log.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function reset_log() {
 		$this->log = array();

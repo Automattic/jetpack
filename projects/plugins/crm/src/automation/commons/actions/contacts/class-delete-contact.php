@@ -19,6 +19,8 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the slug name of the step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The slug name of the step.
 	 */
 	public static function get_slug(): string {
@@ -28,7 +30,9 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the title of the step.
 	 *
-	 * @return string The title of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The title of the step.
 	 */
 	public static function get_title(): ?string {
 		return __( 'Delete Contact Action', 'zero-bs-crm' );
@@ -37,7 +41,9 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the description of the step.
 	 *
-	 * @return string The description of the step.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The description of the step.
 	 */
 	public static function get_description(): ?string {
 		return __( 'Action to delete the contact', 'zero-bs-crm' );
@@ -45,6 +51,8 @@ class Delete_Contact extends Base_Action {
 
 	/**
 	 * Get the type of the step.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string The type of the step.
 	 */
@@ -55,6 +63,8 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the category of the step.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The category of the step.
 	 */
 	public static function get_category(): ?string {
@@ -64,7 +74,9 @@ class Delete_Contact extends Base_Action {
 	/**
 	 * Get the allowed triggers.
 	 *
-	 * @return array The allowed triggers.
+	 * @since $$next-version$$
+	 *
+	 * @return string[]|null The allowed triggers.
 	 */
 	public static function get_allowed_triggers(): ?array {
 		return array();
@@ -72,6 +84,8 @@ class Delete_Contact extends Base_Action {
 
 	/**
 	 * Update the DAL - deleting the given contact.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $contact_data The contact data to be passed into the DAL's delete function.
 	 */

@@ -17,6 +17,8 @@ interface Trigger {
 	/**
 	 * Get the slug name of the trigger.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string;
@@ -24,26 +26,34 @@ interface Trigger {
 	/**
 	 * Get the title of the trigger.
 	 *
-	 * @return string The title of the trigger.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The title of the trigger.
 	 */
 	public static function get_title(): ?string;
 
 	/**
 	 * Get the description of the trigger.
 	 *
-	 * @return string The description of the trigger.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The description of the trigger.
 	 */
 	public static function get_description(): ?string;
 
 	/**
 	 * Get the category of the trigger.
 	 *
-	 * @return string The category of the trigger.
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The category of the trigger.
 	 */
 	public static function get_category(): ?string;
 
 	/**
 	 * Execute the workflow.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array|null $data The data to pass to the workflow.
 	 */
@@ -52,12 +62,16 @@ interface Trigger {
 	/**
 	 * Set the workflow to execute by this trigger.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param Automation_Workflow $workflow The workflow to execute by this trigger.
 	 */
 	public function set_workflow( Automation_Workflow $workflow );
 
 	/**
 	 * Init the trigger.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param Automation_Workflow $workflow The workflow to which the trigger belongs.
 	 */
