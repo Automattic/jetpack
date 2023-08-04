@@ -2,7 +2,7 @@
 /**
  * Base Trigger implementation
  *
- * @package Automattic\Jetpack\CRM
+ * @package Automattic\Jetpack\CRM\Automation
  */
 
 namespace Automattic\Jetpack\CRM\Automation;

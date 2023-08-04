@@ -2,7 +2,7 @@
 /**
  * Defines Jetpack CRM Automation engine.
  *
- * @package Automattic\Jetpack\CRM
+ * @package Automattic\Jetpack\CRM\Automation
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\CRM\Automation;
  * Automation Engine.
  *
  * @since $$next-version$$
- * @package Automattic\Jetpack\CRM\Automation
  */
 class Automation_Engine {
 

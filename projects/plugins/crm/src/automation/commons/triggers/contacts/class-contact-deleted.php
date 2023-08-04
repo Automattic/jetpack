@@ -2,7 +2,7 @@
 /**
  * Jetpack CRM Automation Contact_Deleted trigger.
  *
- * @package Automattic\Jetpack\CRM
+ * @package Automattic\Jetpack\CRM\Automation
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
