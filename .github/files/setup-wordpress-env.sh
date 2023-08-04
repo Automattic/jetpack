@@ -135,7 +135,6 @@ done
 # Todo: what PHP_VERSION variable is considered "default"?
 if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "8.2" ]]; then
 	echo "::group::Installing plugin WooCommerce into WordPress"
-	start_time=$(date +%s)
 
 	WOO_REPO_URL="https://github.com/woocommerce/woocommerce"
 	WOO_GH_API_URL="https://api.github.com/repos/woocommerce/woocommerce/releases/latest"
@@ -147,8 +146,6 @@ if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "8.2" ]]; then
 	WOO_DL_URL=$(jq -r ".assets[0].browser_download_url" <<< "$RESPONSE")
 
 	if [[ -n "$WOO_LATEST_TAG" && -n "$WOO_DL_URL" ]]; then
-		echo "WOO_LATEST_TAG: $WOO_LATEST_TAG"
-		echo "WOO_DL_URL: $WOO_DL_URL"
 		cd "/tmp"
 
 		# Download the built Woo plugin.
@@ -164,9 +161,6 @@ if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "8.2" ]]; then
 		EXIT=1
 	fi
 
-	end_time=$(date +%s)
-	elapsed_time=$((end_time - start_time))
-	echo "Woo elapsed install time: $elapsed_time seconds"
 	cd "$BASE"
 	echo "::endgroup::"
 fi
