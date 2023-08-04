@@ -31,7 +31,12 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '3.2.2-alpha';
+	const PACKAGE_VERSION = '3.3.0-alpha';
+
+	/**
+	 * HTML container ID for the IDC screen on My Jetpack page.
+	 */
+	const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
 
 	/**
 	 * Initialize My Jetpack
@@ -117,6 +122,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
+		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		// Product statuses are constantly changing, so we never want to cache the page.
 		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
@@ -170,6 +176,7 @@ class Initializer {
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
 				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
 				'adminUrl'              => esc_url( admin_url() ),
+				'IDCContainerID'        => static::get_idc_container_id(),
 			)
 		);
 
@@ -327,6 +334,15 @@ class Initializer {
 		set_transient( 'my_jetpack_write_access', $write_access, 30 * MINUTE_IN_SECONDS );
 
 		return $write_access;
+	}
+
+	/**
+	 * Get container IDC for the IDC screen.
+	 *
+	 * @return string
+	 */
+	public static function get_idc_container_id() {
+		return static::IDC_CONTAINER_ID;
 	}
 
 }
