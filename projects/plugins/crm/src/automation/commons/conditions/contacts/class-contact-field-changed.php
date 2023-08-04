@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Contact_Status_Changed condition.
+ * Jetpack CRM Automation Contact_Field_Changed condition.
  *
  * @package automattic/jetpack-crm
  */
@@ -12,11 +12,11 @@ use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 
 /**
- * Contact_Status_Changed condition class.
+ * Contact_Field_Changed condition class.
  *
  * @since $$next-version$$
  */
-class Contact_Status_Changed extends Base_Condition {
+class Contact_Field_Changed extends Base_Condition {
 
 	/**
 	 * The Automation logger.
@@ -44,13 +44,12 @@ class Contact_Status_Changed extends Base_Condition {
 	 * @var string[] $valid_operators Valid attributes.
 	 */
 	private $valid_attributes = array(
-		'field',
 		'operator',
 		'value',
 	);
 
 	/**
-	 * Contact_Status_Changed constructor.
+	 * Contact_Field_Changed constructor.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -74,9 +73,10 @@ class Contact_Status_Changed extends Base_Condition {
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
 	public function execute( array $data ) {
-		if ( ! $this->is_valid_contact_status_changed_data( $data ) ) {
-			$this->logger->log( 'Invalid contact status changed data', $data );
+		if ( ! $this->is_valid_contact_field_changed_data( $data ) ) {
+			$this->logger->log( 'Invalid contact field changed data', $data );
 			$this->condition_met = false;
+
 			return;
 		}
 
@@ -85,7 +85,6 @@ class Contact_Status_Changed extends Base_Condition {
 		$value    = $this->get_attributes()['value'];
 
 		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
-
 		switch ( $operator ) {
 			case 'is':
 				$this->condition_met = ( $data['data'][ $field ] === $value );
@@ -105,53 +104,53 @@ class Contact_Status_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Checks if the contact has at least the necessary keys to detect a status
+	 * Checks if the contact has at least the necessary keys to detect a field
 	 * change.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param array $contact_data The contact data.
-	 * @return bool True if the data is valid to detect a status change, false otherwise
+	 * @return bool True if the data is valid to detect a field change, false otherwise
 	 */
-	private function is_valid_contact_status_changed_data( array $contact_data ): bool {
-		return isset( $contact_data['id'] ) && isset( $contact_data['data'] ) && isset( $contact_data['data']['status'] );
+	private function is_valid_contact_field_changed_data( array $contact_data ): bool {
+		return isset( $contact_data['id'] ) && isset( $contact_data['data'] ) && isset( $contact_data['data'][ $this->get_attributes()['field'] ] );
 	}
 
 	/**
-	 * Get the slug for the contact status changed condition.
+	 * Get the slug for the contact field changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The slug 'contact_status_changed'.
+	 * @return string The slug 'contact_field_changed'.
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/condition/contact_status_changed';
+		return 'jpcrm/condition/contact_field_changed';
 	}
 
 	/**
-	 * Get the title for the contact status changed condition.
+	 * Get the title for the contact field changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The title 'Contact Status Changed'.
+	 * @return string The title 'Contact Field Changed'.
 	 */
 	public static function get_title(): string {
-		return __( 'Contact Status Changed', 'zero-bs-crm' );
+		return __( 'Contact Field Changed', 'zero-bs-crm' );
 	}
 
 	/**
-	 * Get the description for the contact status changed condition.
+	 * Get the description for the contact field changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string The description for the condition.
 	 */
 	public static function get_description(): string {
-		return __( 'Checks if a contact status change matches an expected value', 'zero-bs-crm' );
+		return __( 'Checks if a contact field change matches an expected value', 'zero-bs-crm' );
 	}
 
 	/**
-	 * Get the type of the contact status changed condition.
+	 * Get the type of the contact field changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -162,7 +161,7 @@ class Contact_Status_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Get the category of the contact status changed condition.
+	 * Get the category of the contact field changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -173,7 +172,7 @@ class Contact_Status_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Get the allowed triggers for the contact status changed condition.
+	 * Get the allowed triggers for the contact field changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
