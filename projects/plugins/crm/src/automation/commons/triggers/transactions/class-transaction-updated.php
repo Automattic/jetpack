@@ -69,7 +69,7 @@ class Transaction_Updated extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_transaction_update',
+			'jpcrm_transaction_updated',
 			array( $this, 'execute_workflow' )
 		);
 	}

@@ -85,6 +85,6 @@ class Transaction_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the transaction_updated action.
-		do_action( 'jpcrm_transaction_update', $transaction_data );
+		do_action( 'jpcrm_transaction_updated', $transaction_data );
 	}
 }
