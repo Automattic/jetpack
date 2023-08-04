@@ -34,7 +34,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'design_edited',
 				'site_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'free'                   => array(
 			'title'               => 'Free',
@@ -47,7 +47,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'design_edited',
 				'site_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'link-in-bio'            => array(
 			'title'               => 'Link In Bio',
@@ -58,7 +58,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'links_added',
 				'link_in_bio_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'link-in-bio-tld'        => array(
 			'title'               => 'Link In Bio',
@@ -69,7 +69,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'links_added',
 				'link_in_bio_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'newsletter'             => array(
 			'title'               => 'Newsletter',
@@ -82,7 +82,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'newsletter_plan_created',
 				'first_post_published_newsletter',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'videopress'             => array(
 			'title'               => 'Videopress',
@@ -92,7 +92,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'videopress_upload',
 				'videopress_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'write'                  => array(
 			'title'               => 'Write',
@@ -103,7 +103,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'first_post_published',
 				'site_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'start-writing'          => array(
 			'title'               => 'Start Writing',
@@ -114,7 +114,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'plan_completed',
 				'blog_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'design-first'           => array(
 			'title'               => 'Pick a Design',
@@ -126,7 +126,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'first_post_published',
 				'blog_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
 		'intent-build'           => array(
 			'title'               => 'Keep Building',
@@ -584,7 +584,7 @@ function wpcom_log_launchpad_being_enabled_for_test_sites( $option, $value ) {
  *
  * @return bool True if the launchpad is enabled, false otherwise.
  */
-function wpcom_get_launchpad_is_enabled() {
+function wpcom_launchpad_get_fullscreen_enabled() {
 	return wpcom_launchpad_checklists()->is_fullscreen_launchpad_enabled();
 }
 
