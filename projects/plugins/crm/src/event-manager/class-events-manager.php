@@ -2,7 +2,7 @@
 /**
  * Events_Manager class.
  *
- * @package Automattic\Jetpack\CRM\Event_Manager
+ * @package automattic/jetpack-crm
  */
 
 namespace Automattic\Jetpack\CRM\Event_Manager;
