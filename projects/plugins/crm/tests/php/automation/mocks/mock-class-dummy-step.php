@@ -4,16 +4,17 @@ namespace Automattic\Jetpack\CRM\Automation\Tests\Mocks;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Step;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
 
 class Dummy_Step extends Base_Step {
 
 	/**
 	 * Execute the step
 	 *
-	 * @param array $data
+	 * @param Data_Type_Base $data
 	 * @return void
 	 */
-	public function execute( array $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( Data_Type_Base $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		Automation_Logger::instance()->log( 'Dummy step executed' );
 	}
 
@@ -29,7 +30,7 @@ class Dummy_Step extends Base_Step {
 		return 'Dummy step for testing purposes';
 	}
 
-	public static function get_type(): string {
+	public static function get_data_type(): string {
 		return 'dummy';
 	}
 

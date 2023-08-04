@@ -5,6 +5,8 @@ namespace Automattic\Jetpack\CRM\Automation\Tests\Mocks;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 class Contact_Condition extends Base_Condition {
 
@@ -102,11 +104,12 @@ class Contact_Condition extends Base_Condition {
 	/**
 	 * Execute the step
 	 *
-	 * @param array $data
+	 * @param Data_Type_Base $data
 	 * @return void
 	 * @throws Automation_Exception
 	 */
-	public function execute( array $data ) {
+	public function execute( Data_Type_Base $data ) {
+		$data = $data->get_entity();
 
 		if ( ! $this->is_valid_contact_data( $data ) ) {
 			$this->logger->log( 'Invalid contact data', $data );
@@ -149,8 +152,8 @@ class Contact_Condition extends Base_Condition {
 		return 'Check if a contact has a specific status';
 	}
 
-	public static function get_type(): string {
-		return 'condition';
+	public static function get_data_type(): string {
+		return Data_Type_Contact::get_slug();
 	}
 
 	public static function get_category(): ?string {
