@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
 
 /**
  * Adds the Invoice_Updated class.
@@ -67,7 +68,7 @@ class Invoice_Updated extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_data_type(): string {
-		return 'invoice';
+		return Data_Type_Invoice::get_slug();
 	}
 
 	/**

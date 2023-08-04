@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 /**
  * Adds the Contact_Before_Deleted class.
@@ -76,7 +77,7 @@ class Contact_Before_Deleted extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_data_type(): string {
-		return 'contact';
+		return Data_Type_Contact::get_slug();
 	}
 
 	/**

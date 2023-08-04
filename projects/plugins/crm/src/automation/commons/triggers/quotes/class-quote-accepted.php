@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
 
 /**
  * Adds the Quote_Accepted class.
@@ -67,7 +68,7 @@ class Quote_Accepted extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_data_type(): string {
-		return 'quote';
+		return Data_Type_Quote::get_slug();
 	}
 
 	/**

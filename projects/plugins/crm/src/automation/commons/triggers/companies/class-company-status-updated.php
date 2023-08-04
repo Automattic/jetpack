@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company;
 
 /**
  * Adds the Company_Status_Updated class.
@@ -67,7 +68,7 @@ class Company_Status_Updated extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_data_type(): string {
-		return 'company';
+		return Data_Type_Company::get_slug();
 	}
 
 	/**
