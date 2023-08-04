@@ -122,7 +122,7 @@ class Contact_Status_Changed extends Base_Condition {
 	 * @return string The title 'Contact Status Changed'.
 	 */
 	public static function get_title(): string {
-		return 'Contact Status Changed';
+		return __( 'Contact Status Changed', 'zero-bs-crm' );
 	}
 
 	/**
