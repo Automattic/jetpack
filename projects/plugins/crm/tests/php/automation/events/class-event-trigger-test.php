@@ -118,6 +118,6 @@ class Event_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the event_updated action.
-		do_action( 'jpcrm_event_update', $event_data );
+		do_action( 'jpcrm_event_updated', $event_data );
 	}
 }
