@@ -54,21 +54,19 @@
 	};
 </script>
 
-<div class="jb-container">
-	<div class="jb-performance-history" class:loading={isLoading}>
-		{#if loadError}
-			<ErrorNotice
-				title={__( 'Failed to load performance history', 'jetpack-boost' )}
-				error={loadError}
-				suggestion={__( '<action name="retry">Try again</action>', 'jetpack-boost' )}
-				on:retry={() => refresh()}
-			/>
-		{/if}
-		<ReactComponent
-			this={PerformanceHistory}
-			onToggle={onToggleHistory}
-			isOpen={$panelStore}
-			{periods}
+<div class="jb-performance-history" class:loading={isLoading}>
+	{#if loadError}
+		<ErrorNotice
+			title={__( 'Failed to load performance history', 'jetpack-boost' )}
+			error={loadError}
+			suggestion={__( '<action name="retry">Try again</action>', 'jetpack-boost' )}
+			on:retry={() => refresh()}
 		/>
-	</div>
+	{/if}
+	<ReactComponent
+		this={PerformanceHistory}
+		onToggle={onToggleHistory}
+		isOpen={$panelStore}
+		{periods}
+	/>
 </div>
