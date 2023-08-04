@@ -3,6 +3,7 @@
  * Jetpack CRM Automation Quote_Status_Updated trigger.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
@@ -11,12 +12,17 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 
 /**
  * Adds the Quote_Status_Updated class.
+ *
+ * @since $$next-version$$
  */
 class Quote_Status_Updated extends Base_Trigger {
 
 	/**
 	 * Get the slug name of the trigger.
-	 * @return string
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/quote_status_updated';
@@ -24,7 +30,10 @@ class Quote_Status_Updated extends Base_Trigger {
 
 	/**
 	 * Get the title of the trigger.
-	 * @return string
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The title of the trigger.
 	 */
 	public static function get_title(): ?string {
 		return __( 'Quote Status Updated', 'zero-bs-crm' );
@@ -32,7 +41,10 @@ class Quote_Status_Updated extends Base_Trigger {
 
 	/**
 	 * Get the description of the trigger.
-	 * @return string
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The description of the trigger.
 	 */
 	public static function get_description(): ?string {
 		return __( 'Triggered when a quote status is updated', 'zero-bs-crm' );
@@ -40,7 +52,10 @@ class Quote_Status_Updated extends Base_Trigger {
 
 	/**
 	 * Get the category of the trigger.
-	 * @return string
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The category of the trigger.
 	 */
 	public static function get_category(): ?string {
 		return __( 'quote', 'zero-bs-crm' );
@@ -57,6 +72,8 @@ class Quote_Status_Updated extends Base_Trigger {
 
 	/**
 	 * Listen to this trigger's target event.
+	 *
+	 * @since $$next-version$$
 	 */
 	protected function listen_to_event() {
 		add_action(
@@ -64,4 +81,5 @@ class Quote_Status_Updated extends Base_Trigger {
 			array( $this, 'execute_workflow' )
 		);
 	}
+
 }

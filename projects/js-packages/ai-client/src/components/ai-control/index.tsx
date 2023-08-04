@@ -98,7 +98,7 @@ export default function AIControl( {
 					'is-opaque': isOpaque,
 				} ) }
 			>
-				<AiStatusIndicator requestingState={ requestingState } />
+				<AiStatusIndicator state={ requestingState } />
 
 				<div className="jetpack-components-ai-control__input-wrapper">
 					<PlainText

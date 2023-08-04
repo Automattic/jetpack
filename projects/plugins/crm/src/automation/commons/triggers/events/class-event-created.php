@@ -3,6 +3,7 @@
  * Jetpack CRM Automation Event_Created trigger.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
@@ -19,7 +20,9 @@ class Event_Created extends Base_Trigger {
 	/**
 	 * Get the slug name of the trigger.
 	 *
-	 * @return string
+	 * @since $$next-version$$
+	 *
+	 * @return string The slug name of the trigger.
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/event_created';
@@ -28,7 +31,9 @@ class Event_Created extends Base_Trigger {
 	/**
 	 * Get the title of the trigger.
 	 *
-	 * @return string
+	 * @since $$next-version$$
+	 *
+	 * @return string The title of the trigger.
 	 */
 	public static function get_title(): string {
 		return __( 'New Event', 'zero-bs-crm' );
@@ -37,7 +42,9 @@ class Event_Created extends Base_Trigger {
 	/**
 	 * Get the description of the trigger.
 	 *
-	 * @return string
+	 * @since $$next-version$$
+	 *
+	 * @return string The description of the trigger.
 	 */
 	public static function get_description(): string {
 		return __( 'Triggered when a new event status is added', 'zero-bs-crm' );
@@ -46,7 +53,9 @@ class Event_Created extends Base_Trigger {
 	/**
 	 * Get the category of the trigger.
 	 *
-	 * @return string
+	 * @since $$next-version$$
+	 *
+	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): string {
 		return 'event';
@@ -63,6 +72,9 @@ class Event_Created extends Base_Trigger {
 
 	/**
 	 * Listen to this trigger's target event.
+	 *
+	 * @since $$next-version$$
+	 * @return void
 	 */
 	protected function listen_to_event(): void {
 		add_action(
@@ -70,4 +82,5 @@ class Event_Created extends Base_Trigger {
 			array( $this, 'execute_workflow' )
 		);
 	}
+
 }

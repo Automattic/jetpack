@@ -2,15 +2,16 @@
 /**
  * Bootstrap the Jetpack CRM Automation engine.
  *
- * @package Automattic\Jetpack\CRM
+ * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
- * Bootstrap the Jetpack CRM Automation engine
+ * Bootstrap the Jetpack CRM Automation engine.
  *
- * @package Automattic\Jetpack\CRM\Automation
+ * @since $$next-version$$
  */
 final class Automation_Boostrap {
 
@@ -125,10 +126,20 @@ final class Automation_Boostrap {
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Created::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Deleted::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Event_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Deleted::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Created::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Status_Updated::class,
 			\Automattic\Jetpack\CRM\Automation\Triggers\Invoice_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Quote_Accepted::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Quote_Created::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Quote_Deleted::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Quote_Status_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Quote_Updated::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created::class,
+			\Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Updated::class,
 		);
 
 		/**
@@ -159,7 +170,10 @@ final class Automation_Boostrap {
 	 * @return void
 	 */
 	protected function register_conditions(): void {
-		$conditions = array();
+		$conditions = array(
+			\Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed::class,
+			\Automattic\Jetpack\CRM\Automation\Conditions\Invoice_Status_Changed::class,
+		);
 
 		/**
 		 * Filter list of available conditions for automations.
