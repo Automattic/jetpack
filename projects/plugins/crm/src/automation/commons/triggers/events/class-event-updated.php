@@ -21,7 +21,7 @@ class Event_Updated extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string
+	 * @return string The trigger slug.
 	 */
 	public static function get_slug(): string {
 		return 'jpcrm/event_updated';
@@ -32,7 +32,7 @@ class Event_Updated extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string
+	 * @return string The title.
 	 */
 	public static function get_title(): string {
 		return __( 'Event Updated', 'zero-bs-crm' );
@@ -43,7 +43,7 @@ class Event_Updated extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string
+	 * @return string The description.
 	 */
 	public static function get_description(): string {
 		return __( 'Triggered when an event is updated', 'zero-bs-crm' );
@@ -54,7 +54,7 @@ class Event_Updated extends Base_Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string
+	 * @return string The category.
 	 */
 	public static function get_category(): string {
 		return __( 'event', 'zero-bs-crm' );
