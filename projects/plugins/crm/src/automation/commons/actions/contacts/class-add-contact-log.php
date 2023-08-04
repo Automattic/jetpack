@@ -2,7 +2,7 @@
 /**
  * Jetpack CRM Automation Add_Contact_Log action.
  *
- * @package Automattic\Jetpack\CRM\Automation
+ * @package automattic/jetpack-crm
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;

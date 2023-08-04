@@ -2,7 +2,7 @@
 /**
  * Jetpack CRM Automation Invoice_Created trigger.
  *
- * @package Automattic\Jetpack\CRM\Automation
+ * @package automattic/jetpack-crm
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;

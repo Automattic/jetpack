@@ -2,7 +2,7 @@
 /**
  * Interface to define Step in a automation workflow.
  *
- * @package Automattic\Jetpack\CRM\Automation
+ * @package automattic/jetpack-crm
  */
 
 namespace Automattic\Jetpack\CRM\Automation;

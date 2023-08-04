@@ -2,7 +2,7 @@
 /**
  * Defines Jetpack CRM Automation exceptions.
  *
- * @package Automattic\Jetpack\CRM\Automation
+ * @package automattic/jetpack-crm
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
