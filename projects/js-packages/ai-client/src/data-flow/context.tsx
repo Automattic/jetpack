@@ -7,6 +7,7 @@ import React from 'react';
  * Types & Constants
  */
 import SuggestionsEventSource from '../suggestions-event-source';
+import type { AskQuestionOptionsArgProps } from '../ask-question';
 import type { RequestingErrorProps } from '../hooks/use-ai-suggestions';
 import type { PromptProp } from '../types';
 import type { RequestingStateProp } from '../types';
@@ -30,7 +31,7 @@ export type AiDataContextProps = {
 	/*
 	 * Request suggestion function
 	 */
-	requestSuggestion: ( prompt: PromptProp ) => void;
+	requestSuggestion: ( prompt: PromptProp, options?: AskQuestionOptionsArgProps ) => void;
 
 	/*
 	 * The Suggestions Event Source instance
