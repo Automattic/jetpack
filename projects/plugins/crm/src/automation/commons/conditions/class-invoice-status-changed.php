@@ -122,7 +122,7 @@ class Invoice_Status_Changed extends Base_Condition {
 	 * @return string The title 'Invoice Status Changed'.
 	 */
 	public static function get_title(): string {
-		return 'Invoice Status Changed';
+		return __( 'Invoice Status Changed', 'zero-bs-crm' );
 	}
 
 	/**
