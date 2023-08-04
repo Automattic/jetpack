@@ -3549,7 +3549,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
      *
      * @return array (clean obj)
      */
-    private function tidy_contact($obj=false,$withCustomFields=false){
+    public function tidy_contact( $obj = false, $withCustomFields = false ) { // phpcs:ignore
 
         global $zbs;
 
