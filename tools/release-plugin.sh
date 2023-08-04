@@ -275,3 +275,10 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 done
 
 gh pr create --title "Backport $PR_TITLE Changes" --body "$(cat .github/BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
+
+yellow "Release script complete! Next steps: "
+echo -e "\t1. Merge the above PR into trunk."
+echo -e "\t2. On trunk, start a new branch and make any changes you want to CHANGELOG.md."
+echo -e "\t3. After merging the changelog edit PR, cherry pick that to the release branch."
+echo -e "\t4. After the changes make it to the mirror repo, conduct a GitHub release."
+echo -e "\t5. Then run ./tools/deploy-to-svn.sh <plugin-name> <tag> to deploy to SVN."
