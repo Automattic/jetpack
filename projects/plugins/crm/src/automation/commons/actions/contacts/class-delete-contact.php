@@ -3,6 +3,7 @@
  * Jetpack CRM Automation Delete_Contact action.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
@@ -99,4 +100,5 @@ class Delete_Contact extends Base_Action {
 		);
 		$zbs->DAL->contacts->deleteContact( $contact_data_for_deletion ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
+
 }

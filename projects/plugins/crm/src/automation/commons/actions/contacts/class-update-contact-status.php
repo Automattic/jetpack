@@ -3,6 +3,7 @@
  * Jetpack CRM Automation Update_Contact_Status action.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
@@ -95,4 +96,5 @@ class Update_Contact_Status extends Base_Action {
 		$contact_data['data']['status'] = $this->attributes['new_status'];
 		$zbs->DAL->contacts->addUpdateContact( $contact_data ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
+
 }

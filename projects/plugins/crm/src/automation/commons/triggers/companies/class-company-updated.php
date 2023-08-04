@@ -3,6 +3,7 @@
  * Jetpack CRM Automation Company_Updated trigger.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;

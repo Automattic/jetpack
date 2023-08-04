@@ -3,6 +3,7 @@
  * Defines Jetpack CRM Automation engine.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -50,7 +51,7 @@ class Automation_Engine {
 	 * The list of registered workflows.
 	 *
 	 * @since $$next-version$$
-	 * @var array
+	 * @var Automation_Workflow[]
 	 */
 	private $workflows = array();
 
@@ -304,4 +305,5 @@ class Automation_Engine {
 	public function get_registered_triggers(): array {
 		return $this->triggers_map;
 	}
+
 }

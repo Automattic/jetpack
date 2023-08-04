@@ -3,6 +3,7 @@
  * Jetpack CRM Automation Contact_Before_Deleted trigger.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
@@ -80,4 +81,5 @@ class Contact_Before_Deleted extends Base_Trigger {
 			array( $this, 'execute_workflow' )
 		);
 	}
+
 }

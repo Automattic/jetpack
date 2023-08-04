@@ -3,6 +3,7 @@
  * Defines the Jetpack CRM Automation workflow base.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -50,7 +51,7 @@ class Automation_Workflow {
 	 * The workflow triggers.
 	 *
 	 * @since $$next-version$$
-	 * @var array
+	 * @var string[]
 	 */
 	public $triggers;
 
@@ -71,12 +72,6 @@ class Automation_Workflow {
 	public $active;
 
 	/**
-	 * The automation engine.
-	 *
-	 * @since $$next-version$$
-	 * @var Automation_Engine
-	 */
-	/**
 	 * The version of the workflow.
 	 *
 	 * @since $$next-version$$
@@ -84,7 +79,12 @@ class Automation_Workflow {
 	 */
 	public $version = 1;
 
-	/** @var Automation_Engine */
+	/**
+	 * The automation engine.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Engine
+	 */
 	private $automation_engine;
 
 	/**
@@ -198,9 +198,8 @@ class Automation_Workflow {
 	 *
 	 * @return array The workflow as an array.
 	 */
-	public function get_workflow_array() {
-
-		$workflow = array(
+	public function get_workflow_array(): array {
+		return array(
 			'name'         => $this->name,
 			'description'  => $this->description,
 			'category'     => $this->category,
@@ -208,8 +207,6 @@ class Automation_Workflow {
 			'triggers'     => $this->triggers,
 			'initial_step' => $this->initial_step,
 		);
-
-		return $workflow;
 	}
 
 	/**
@@ -360,4 +357,5 @@ class Automation_Workflow {
 	public function set_automation_engine( Automation_Engine $automation_engine ) {
 		$this->automation_engine = $automation_engine;
 	}
+
 }

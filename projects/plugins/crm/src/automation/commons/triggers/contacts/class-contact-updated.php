@@ -3,6 +3,7 @@
  * Jetpack CRM Automation Contact_Updated trigger.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
@@ -80,4 +81,5 @@ class Contact_Updated extends Base_Trigger {
 			array( $this, 'execute_workflow' )
 		);
 	}
+
 }

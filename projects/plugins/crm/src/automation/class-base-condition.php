@@ -3,6 +3,7 @@
  * Base Condition implementation
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -22,6 +23,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	 * @var array|null
 	 */
 	protected $next_step_true = null;
+
 	/**
 	 * The next step if the condition is not met.
 	 *
@@ -29,6 +31,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	 * @var array|null
 	 */
 	protected $next_step_false = null;
+
 	/**
 	 * If the condition is met or not.
 	 *
@@ -72,4 +75,5 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	public function condition_met(): bool {
 		return $this->condition_met;
 	}
+
 }

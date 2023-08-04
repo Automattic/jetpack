@@ -3,6 +3,7 @@
  * Defines the Jetpack CRM Automation workflow exception.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -13,6 +14,7 @@ namespace Automattic\Jetpack\CRM\Automation;
  * @since $$next-version$$
  */
 class Workflow_Exception extends \Exception {
+
 	/**
 	 * Invalid Workflow error code.
 	 *
@@ -20,6 +22,7 @@ class Workflow_Exception extends \Exception {
 	 * @var int
 	 */
 	const INVALID_WORKFLOW = 10;
+
 	/**
 	 * Workflow require a trigger error code.
 	 *
@@ -27,6 +30,7 @@ class Workflow_Exception extends \Exception {
 	 * @var int
 	 */
 	const WORKFLOW_REQUIRE_A_TRIGGER = 11;
+
 	/**
 	 * Workflow require a initial step error code.
 	 *
@@ -34,6 +38,7 @@ class Workflow_Exception extends \Exception {
 	 * @var int
 	 */
 	const WORKFLOW_REQUIRE_A_INITIAL_STEP = 12;
+
 	/**
 	 * Error initializing trigger error code.
 	 *
@@ -41,4 +46,5 @@ class Workflow_Exception extends \Exception {
 	 * @var int
 	 */
 	const ERROR_INITIALIZING_TRIGGER = 13;
+
 }

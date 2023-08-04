@@ -3,6 +3,7 @@
  * Base Step
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -22,6 +23,7 @@ abstract class Base_Step implements Step {
 	 * @var array
 	 */
 	protected $attributes;
+
 	/**
 	 * Next linked step.
 	 *

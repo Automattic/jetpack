@@ -1,8 +1,9 @@
 <?php
 /**
- * Interface to define Step in a automation workflow.
+ * Interface to define Step in an automation workflow.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -112,4 +113,5 @@ interface Step {
 	 * @return array|null The allowed triggers for the step.
 	 */
 	public static function get_allowed_triggers(): ?array;
+
 }

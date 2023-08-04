@@ -3,6 +3,7 @@
  * Jetpack CRM Automation Company_Deleted trigger.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
@@ -72,4 +73,5 @@ class Company_Deleted extends Base_Trigger {
 			array( $this, 'execute_workflow' )
 		);
 	}
+
 }

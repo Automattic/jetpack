@@ -3,6 +3,7 @@
  * Defines the Jetpack CRM Automation logger.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -25,7 +26,7 @@ class Automation_Logger {
 	/**
 	 * The log list.
 	 *
-	 * @var array
+	 * @var string[]
 	 */
 	private $log = array();
 
@@ -95,7 +96,7 @@ class Automation_Logger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array The log list.
+	 * @return string[] The log list.
 	 */
 	public function get_log(): array {
 		return $this->log;
@@ -126,4 +127,5 @@ class Automation_Logger {
 	public function reset_log() {
 		$this->log = array();
 	}
+
 }

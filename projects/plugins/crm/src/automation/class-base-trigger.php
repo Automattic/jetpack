@@ -3,6 +3,7 @@
  * Base Trigger implementation
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -104,4 +105,5 @@ abstract class Base_Trigger implements Trigger {
 	 * @since $$next-version$$
 	 */
 	abstract protected function listen_to_event();
+
 }

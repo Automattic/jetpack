@@ -3,6 +3,7 @@
  * Jetpack CRM Automation Add_Remove_Contact_Tag action.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
@@ -94,4 +95,5 @@ class Add_Remove_Contact_Tag extends Base_Action {
 
 		$zbs->DAL->contacts->addUpdateContactTags( $this->attributes ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
+
 }
