@@ -22,7 +22,7 @@ class Contact_Event implements Event {
 	/**
 	 * @var array Properties that should not be notified.
 	 */
-	private $not_notifiable_fields = array(
+	private $not_notifiable_props = array(
 		'created',
 		'lastupdated',
 		'lastcontacted',
@@ -47,7 +47,7 @@ class Contact_Event implements Event {
 	 * @param array $contact_data The created contact data.
 	 * @return void
 	 */
-	public function created( array $contact_data ) {
+	public function created( array $contact_data ): void {
 		do_action( 'jpcrm_contact_created', $contact_data );
 	}
 
@@ -58,7 +58,7 @@ class Contact_Event implements Event {
 	 * @param array $old_contact_data The old contact data.
 	 * @return void
 	 */
-	public function updated( array $contact_data, array $old_contact_data ) {
+	public function updated( array $contact_data, array $old_contact_data ): void {
 
 		// Note: Custom fields are not present in $dataArr. It's handled by addUpdateCustomField.
 
@@ -91,7 +91,7 @@ class Contact_Event implements Event {
 				$has_update = true;
 
 				// Notify only for notifiable fields
-				if ( ! in_array( $field, $this->not_notifiable_fields, true ) ) {
+				if ( ! in_array( $field, $this->not_notifiable_props, true ) ) {
 					do_action( 'jpcrm_contact_' . $field . '_updated', $contact_data, $old_contact_data[ $field ] );
 				}
 			}
@@ -109,7 +109,7 @@ class Contact_Event implements Event {
 	 * @param int $contact_id The contact ID.
 	 * @return void
 	 */
-	public function deleted( int $contact_id ) {
+	public function deleted( int $contact_id ): void {
 		do_action( 'jpcrm_contact_deleted', $contact_id );
 	}
 
@@ -119,7 +119,7 @@ class Contact_Event implements Event {
 	 * @param int $contact_id The contact ID.
 	 * @return void
 	 */
-	public function before_delete( int $contact_id ) {
+	public function before_delete( int $contact_id ): void {
 		do_action( 'jpcrm_contact_before_delete', $contact_id );
 	}
 }

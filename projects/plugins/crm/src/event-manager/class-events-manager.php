@@ -33,21 +33,11 @@ class Events_Manager {
 	}
 
 	/**
-	 * Set the Events_Manager instance for testing purposes.
-	 *
-	 * @param Events_Manager $instance The Events_Manager instance.
-	 * @return void
-	 */
-	public static function set_instance( Events_Manager $instance ) {
-		self::$instance = $instance;
-	}
-
-	/**
 	 * Return the Contact_Event instance.
 	 *
 	 * @return Contact_Event A Contact_Event instance.
 	 */
 	public function contact(): Contact_Event {
-		return Contact_Event::get_instance();
+		return new Contact_Event();
 	}
 }
