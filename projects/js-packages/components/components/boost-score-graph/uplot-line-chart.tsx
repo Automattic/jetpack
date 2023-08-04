@@ -34,13 +34,19 @@ function createSerieInfo( label: string, score ) {
 	return {
 		label: label,
 		stroke: getColor( score ),
-		fill: getColor( score, true ),
+		fill: u => {
+			const gradient = u.ctx.createLinearGradient( 0, 0, 0, DEFAULT_DIMENSIONS.height );
+			gradient.addColorStop( 0, getColor( score, '33' ) );
+			gradient.addColorStop( 0.8, getColor( score, '00' ) );
+
+			return gradient;
+		}, // use the gradient as fill for the series
 		width: 2,
 		paths: ( u, seriesIdx, idx0, idx1 ) => {
 			return spline?.()( u, seriesIdx, idx0, idx1 ) || null;
 		},
 		points: {
-			show: false,
+			show: true,
 		},
 		value: ( self: uPlot, rawValue: number ) => {
 			if ( ! rawValue ) {
@@ -56,10 +62,10 @@ function createSerieInfo( label: string, score ) {
  * Get the color value based on the score.
  *
  * @param {number} score - The score to get the color for.
- * @param {boolean} transparent - Whether to return a transparent color.
+ * @param {string} opacity - Whether to return a transparent color.
  * @returns {string} The color value.
  */
-function getColor( score: number, transparent = false ) {
+function getColor( score: number, opacity = 'FF' ) {
 	let color = '#D63638'; // bad
 
 	if ( score > 70 ) {
@@ -68,11 +74,7 @@ function getColor( score: number, transparent = false ) {
 		color = '#faa754'; //mediocre
 	}
 
-	if ( transparent ) {
-		return color + '22';
-	}
-
-	return color;
+	return `${ color }${ opacity }`;
 }
 
 /**
@@ -114,7 +116,7 @@ export default function UplotLineChart( { data }: UplotChartProps ) {
 					side: 1,
 					gap: 8,
 					space: 50,
-					size: 50,
+					size: 100,
 					grid: {
 						stroke: 'rgba(220, 220, 222, 0.5)', // #DCDCDE with 0.5 opacity
 						width: 1,
@@ -143,6 +145,15 @@ export default function UplotLineChart( { data }: UplotChartProps ) {
 				createSerieInfo( __( 'Desktop', 'jetpack' ), desktopScore ),
 				createSerieInfo( __( 'Mobile', 'jetpack' ), mobileScore ),
 			],
+			scales: {
+				x: {
+					time: true,
+				},
+				y: {
+					range: [ 0, 100 ],
+					auto: false,
+				},
+			},
 			legend: {
 				show: false,
 			},
