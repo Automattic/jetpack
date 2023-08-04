@@ -24,7 +24,7 @@ class Automation_Workflow {
 	/** @var string */
 	public $category;
 
-	/** @var string[] */
+	/** @var array */
 	public $triggers;
 
 	/** @var array */
@@ -78,7 +78,7 @@ class Automation_Workflow {
 	/**
 	 * Get the trigger names of this workflow
 	 *
-	 * @return string[]
+	 * @return array
 	 */
 	public function get_triggers(): array {
 		return $this->triggers;

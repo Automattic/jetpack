@@ -15,5 +15,14 @@ class Workflow_Exception extends \Exception {
 	const WORKFLOW_REQUIRE_A_TRIGGER      = 11;
 	const WORKFLOW_REQUIRE_A_INITIAL_STEP = 12;
 	const ERROR_INITIALIZING_TRIGGER      = 13;
-	const MISSING_ENGINE_INSTANCE         = 14;
+
+	/**
+	 * Missing engine instance.
+	 *
+	 * This exception should be thrown if a workflow is attempted to be executed without an engine instance.
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	const MISSING_ENGINE_INSTANCE = 14;
 }
