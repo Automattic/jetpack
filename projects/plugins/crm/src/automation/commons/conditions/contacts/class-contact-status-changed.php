@@ -21,6 +21,7 @@ class Contact_Status_Changed extends Base_Condition {
 	/**
 	 * The Automation logger.
 	 *
+	 * @since $$next-version$$
 	 * @var Automation_Logger $logger The Automation logger.
 	 */
 	private $logger;
@@ -28,6 +29,7 @@ class Contact_Status_Changed extends Base_Condition {
 	/**
 	 * All valid operators for this condition.
 	 *
+	 * @since $$next-version$$
 	 * @var string[] $valid_operators Valid operators.
 	 */
 	private $valid_operators = array(
@@ -38,6 +40,7 @@ class Contact_Status_Changed extends Base_Condition {
 	/**
 	 * All valid attributes for this condition.
 	 *
+	 * @since $$next-version$$
 	 * @var string[] $valid_operators Valid attributes.
 	 */
 	private $valid_attributes = array(
@@ -48,6 +51,8 @@ class Contact_Status_Changed extends Base_Condition {
 
 	/**
 	 * Contact_Status_Changed constructor.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $step_data The step data for the condition.
 	 */
@@ -60,6 +65,8 @@ class Contact_Status_Changed extends Base_Condition {
 	/**
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $data The data this condition has to evaluate.
 	 * @return void
@@ -100,6 +107,8 @@ class Contact_Status_Changed extends Base_Condition {
 	 * Checks if the contact has at least the necessary keys to detect a status
 	 * change.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array $contact_data The contact data.
 	 * @return bool True if the data is valid to detect a status change, false otherwise
 	 */
@@ -110,6 +119,8 @@ class Contact_Status_Changed extends Base_Condition {
 	/**
 	 * Get the slug for the contact status changed condition.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The slug 'contact_status_changed'.
 	 */
 	public static function get_slug(): string {
@@ -118,6 +129,8 @@ class Contact_Status_Changed extends Base_Condition {
 
 	/**
 	 * Get the title for the contact status changed condition.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string The title 'Contact Status Changed'.
 	 */
@@ -128,6 +141,8 @@ class Contact_Status_Changed extends Base_Condition {
 	/**
 	 * Get the description for the contact status changed condition.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The description for the condition.
 	 */
 	public static function get_description(): string {
@@ -136,6 +151,8 @@ class Contact_Status_Changed extends Base_Condition {
 
 	/**
 	 * Get the type of the contact status changed condition.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string The type 'condition'.
 	 */
@@ -146,6 +163,8 @@ class Contact_Status_Changed extends Base_Condition {
 	/**
 	 * Get the category of the contact status changed condition.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string The category 'jpcrm/contact_condition'.
 	 */
 	public static function get_category(): string {
@@ -154,6 +173,8 @@ class Contact_Status_Changed extends Base_Condition {
 
 	/**
 	 * Get the allowed triggers for the contact status changed condition.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return array An array of allowed triggers:
 	 *               - 'jpcrm/contact_status_updated'
