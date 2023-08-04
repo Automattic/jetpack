@@ -2,7 +2,8 @@
 /**
  * Invoice Data Type.
  *
- * @package Automattic\Jetpack\CRM
+ * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
@@ -10,9 +11,8 @@ namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 /**
  * Invoice Data Type
  *
+ * @package Automattic\Jetpack\CRM
  * @since $$next-version$$
- *
- * @package Automattic\Jetpack\CRM\Automation
  */
 class Data_Type_Invoice extends Data_Type_Base {
 

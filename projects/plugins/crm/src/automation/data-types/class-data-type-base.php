@@ -2,7 +2,8 @@
 /**
  * Base Data Type class.
  *
- * @package Automattic\Jetpack\CRM
+ * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
@@ -12,9 +13,8 @@ use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 /**
  * Abstract Data Type base class.
  *
+ * @package Automattic\Jetpack\CRM
  * @since $$next-version$$
- *
- * @package Automattic\Jetpack\CRM\Automation
  */
 abstract class Data_Type_Base {
 

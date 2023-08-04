@@ -61,6 +61,15 @@ class Transaction_Updated extends Base_Trigger {
 	}
 
 	/**
+	 * Get the date type.
+	 *
+	 * @return string
+	 */
+	public static function get_data_type(): string {
+		return 'transaction';
+	}
+
+	/**
 	 * Listen to this trigger's target event.
 	 *
 	 * @since $$next-version$$

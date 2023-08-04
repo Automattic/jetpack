@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
 
 /**
  * Invoice_Status_Changed condition class.
@@ -67,13 +69,16 @@ class Invoice_Status_Changed extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data The data this condition has to evaluate.
+	 * @param Data_Type_Base $data The data this condition has to evaluate.
 	 * @return void
+	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( array $data ) {
-		if ( ! $this->is_valid_invoice_status_changed_data( $data ) ) {
-			$this->logger->log( 'Invalid invoice status changed data', $data );
+	public function execute( Data_Type_Base $data ) {
+		$invoice_data = $data->get_entity();
+
+		if ( ! $this->is_valid_invoice_status_changed_data( $invoice_data ) ) {
+			$this->logger->log( 'Invalid invoice status changed data', $invoice_data );
 			$this->condition_met = false;
 			return;
 		}
@@ -82,16 +87,16 @@ class Invoice_Status_Changed extends Base_Condition {
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $invoice_data['data'][ $field ] );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $data['data'][ $field ] === $value );
+				$this->condition_met = ( $invoice_data['data'][ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
 			case 'is_not':
-				$this->condition_met = ( $data['data'][ $field ] !== $value );
+				$this->condition_met = ( $invoice_data['data'][ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
@@ -149,17 +154,6 @@ class Invoice_Status_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Get the type of the invoice status changed condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The type 'condition'.
-	 */
-	public static function get_type(): string {
-		return 'condition';
-	}
-
-	/**
 	 * Get the category of the invoice status changed condition.
 	 *
 	 * @since $$next-version$$
@@ -168,6 +162,17 @@ class Invoice_Status_Changed extends Base_Condition {
 	 */
 	public static function get_category(): string {
 		return __( 'invoice', 'zero-bs-crm' );
+	}
+
+	/**
+	 * Get the data type.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The type of the step.
+	 */
+	public static function get_data_type(): string {
+		return Data_Type_Invoice::get_slug();
 	}
 
 	/**
