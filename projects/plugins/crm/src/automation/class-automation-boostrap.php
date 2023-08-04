@@ -2,7 +2,7 @@
 /**
  * Bootstrap the Jetpack CRM Automation engine.
  *
- * @package Automattic\Jetpack\CRM
+ * @package automattic/jetpack-crm
  * @since $$next-version$$
  */
 
