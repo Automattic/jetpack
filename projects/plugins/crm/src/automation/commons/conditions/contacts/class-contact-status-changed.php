@@ -149,7 +149,7 @@ class Contact_Status_Changed extends Base_Condition {
 	 * @return string The category 'jpcrm/contact_condition'.
 	 */
 	public static function get_category(): string {
-		return 'jpcrm/contact_condition';
+		return __( 'contact', 'zero-bs-crm' );
 	}
 
 	/**
