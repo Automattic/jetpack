@@ -2,13 +2,15 @@
 /**
  * Defines the Jetpack CRM Automation logger.
  *
- * @package automattic/jetpack-crm
+ * @package Automattic\Jetpack\CRM
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
  * Adds the Automation_Logger class.
+ *
+ * @since $$next-version$$
  */
 class Automation_Logger {
 

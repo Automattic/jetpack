@@ -2,13 +2,15 @@
 /**
  * Defines the Jetpack CRM Automation workflow base.
  *
- * @package automattic/jetpack-crm
+ * @package Automattic\Jetpack\CRM
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
  * Adds the Automation_Workflow class.
+ *
+ * @since $$next-version$$
  */
 class Automation_Workflow {
 

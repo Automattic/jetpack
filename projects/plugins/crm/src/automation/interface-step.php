@@ -7,6 +7,12 @@
 
 namespace Automattic\Jetpack\CRM\Automation;
 
+/**
+ * Interface Step.
+ *
+ * @since $$next-version$$
+ * @package Automattic\Jetpack\CRM\Automation
+ */
 interface Step {
 
 	/**

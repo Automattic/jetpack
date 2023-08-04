@@ -2,7 +2,7 @@
 /**
  * Jetpack CRM Automation Quote_Updated trigger.
  *
- * @package automattic/jetpack-crm
+ * @package Automattic\Jetpack\CRM
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
@@ -11,6 +11,8 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 
 /**
  * Adds the Quote_Updated class.
+ *
+ * @since $$next-version$$
  */
 class Quote_Updated extends Base_Trigger {
 

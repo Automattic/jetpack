@@ -2,7 +2,7 @@
 /**
  * Jetpack CRM Automation Update_Contact_Status action.
  *
- * @package automattic/jetpack-crm
+ * @package Automattic\Jetpack\CRM
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;

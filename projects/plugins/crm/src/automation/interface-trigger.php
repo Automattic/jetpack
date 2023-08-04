@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\CRM\Automation;
 /**
  * Interface Trigger.
  *
+ * @since $$next-version$$
  * @package Automattic\Jetpack\CRM\Automation
  */
 interface Trigger {

@@ -2,13 +2,15 @@
 /**
  * Defines Jetpack CRM Automation exceptions.
  *
- * @package automattic/jetpack-crm
+ * @package Automattic\Jetpack\CRM
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
  * Adds the Automation_Exception class.
+ *
+ * @since $$next-version$$
  */
 class Automation_Exception extends \Exception {
 	const STEP_CLASS_NOT_FOUND    = 10;

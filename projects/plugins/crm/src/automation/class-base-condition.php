@@ -2,7 +2,7 @@
 /**
  * Base Condition implementation
  *
- * @package automattic/jetpack-crm
+ * @package Automattic\Jetpack\CRM
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\CRM\Automation;
 /**
  * Base Condition Step.
  *
+ * @since $$next-version$$
  * @inheritDoc
  */
 abstract class Base_Condition extends Base_Step implements Condition {

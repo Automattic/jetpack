@@ -2,13 +2,15 @@
 /**
  * Defines the Jetpack CRM Automation workflow exception.
  *
- * @package automattic/jetpack-crm
+ * @package Automattic\Jetpack\CRM
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
  * Adds the Workflow_Exception class.
+ *
+ * @since $$next-version$$
  */
 class Workflow_Exception extends \Exception {
 	const INVALID_WORKFLOW                = 10;

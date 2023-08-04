@@ -2,7 +2,7 @@
 /**
  * Jetpack CRM Automation Add_Remove_Contact_Tag action.
  *
- * @package automattic/jetpack-crm
+ * @package Automattic\Jetpack\CRM
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Actions;
