@@ -54,6 +54,8 @@ class Transaction_Created extends Base_Trigger {
 
 	/**
 	 * Listen to this trigger's target event.
+	 *
+	 * @return void
 	 */
 	protected function listen_to_event(): void {
 		add_action(
