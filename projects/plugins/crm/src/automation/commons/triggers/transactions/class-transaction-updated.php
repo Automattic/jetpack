@@ -19,6 +19,8 @@ class Transaction_Updated extends Base_Trigger {
 	/**
 	 * Get the slug name of the trigger.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string
 	 */
 	public static function get_slug(): string {
@@ -27,6 +29,8 @@ class Transaction_Updated extends Base_Trigger {
 
 	/**
 	 * Get the title of the trigger.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return string
 	 */
@@ -37,6 +41,8 @@ class Transaction_Updated extends Base_Trigger {
 	/**
 	 * Get the description of the trigger.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string
 	 */
 	public static function get_description(): string {
@@ -46,6 +52,8 @@ class Transaction_Updated extends Base_Trigger {
 	/**
 	 * Get the category of the trigger.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return string
 	 */
 	public static function get_category(): string {
@@ -54,6 +62,8 @@ class Transaction_Updated extends Base_Trigger {
 
 	/**
 	 * Listen to this trigger's target event.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */
