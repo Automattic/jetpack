@@ -17,7 +17,7 @@ export default {
 	title: 'JS Packages/AI Client/AiStatusIndicator',
 	component: AiStatusIndicator,
 	argTypes: {
-		requestingState: {
+		state: {
 			control: {
 				type: 'select',
 			},
@@ -40,7 +40,7 @@ export default {
 
 const DefaultTemplate = ( args: AiStatusIndicatoryStoryProps ) => {
 	const props: AiStatusIndicatorProps = {
-		requestingState: args.requestingState,
+		state: args.state,
 		size: args.size,
 	};
 
@@ -49,36 +49,36 @@ const DefaultTemplate = ( args: AiStatusIndicatoryStoryProps ) => {
 
 export const _default = DefaultTemplate.bind( {} );
 _default.args = {
-	requestingState: 'init',
+	state: 'init',
 	size: 24,
 };
 
 export const Init = DefaultTemplate.bind( {} );
 Init.args = {
-	requestingState: 'init',
+	state: 'init',
 	size: 48,
 };
 
 export const Requesting = DefaultTemplate.bind( {} );
 Requesting.args = {
-	requestingState: 'requesting',
+	state: 'requesting',
 	size: 48,
 };
 
 export const Suggesting = DefaultTemplate.bind( {} );
 Suggesting.args = {
-	requestingState: 'suggesting',
+	state: 'suggesting',
 	size: 48,
 };
 
 export const Error = DefaultTemplate.bind( {} );
 Error.args = {
-	requestingState: 'error',
+	state: 'error',
 	size: 48,
 };
 
 export const Done = DefaultTemplate.bind( {} );
 Done.args = {
-	requestingState: 'done',
+	state: 'done',
 	size: 48,
 };
