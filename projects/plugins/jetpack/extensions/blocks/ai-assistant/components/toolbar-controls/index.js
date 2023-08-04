@@ -68,10 +68,10 @@ const ToolbarControls = ( {
 						onPromptSelect={ prompt => {
 							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
 								type: 'prompt-template',
-								prompt,
+								prompt: prompt.original,
 							} );
 
-							setUserPrompt( prompt );
+							setUserPrompt( prompt.translated );
 						} }
 						onSuggestionSelect={ suggestion => {
 							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
