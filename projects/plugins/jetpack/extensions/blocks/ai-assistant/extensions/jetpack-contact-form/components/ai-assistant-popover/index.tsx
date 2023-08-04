@@ -104,7 +104,7 @@ export const AiAssistantPopover = ( {
 			content: getSerializedContentFromBlock( clientId ),
 		} );
 
-		requestSuggestion( prompt );
+		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
 	}, [ clientId, inputValue, requestSuggestion ] );
 
 	if ( ! isVisible ) {
