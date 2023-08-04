@@ -15,11 +15,15 @@ import {
 	PluginPostPublishPanel,
 } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState, createInterpolateElement } from '@wordpress/element';
+import { useState, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
+import {
+	useAccessLevel,
+	accessOptions,
+	isNewsletterFeatureEnabled,
+} from '../../../extensions/shared/memberships-edit';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import EmailPreview from './email-preview';
 import {
 	Link,
@@ -27,7 +31,7 @@ import {
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessPrePublishSettings,
 } from './settings';
-import { getShowMisconfigurationWarning, isNewsletterFeatureEnabled } from './utils';
+import { getShowMisconfigurationWarning } from './utils';
 import { name } from './';
 
 import './panel.scss';
@@ -51,11 +55,7 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 	);
 };
 
-function NewsletterEditorSettingsPanel( { accessLevel, setPostMeta, isModuleActive } ) {
-	if ( ! isModuleActive ) {
-		return null;
-	}
-
+function NewsletterEditorSettingsPanel( { accessLevel, setPostMeta } ) {
 	return (
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
@@ -169,7 +169,7 @@ function NewsletterPrePublishSettingsPanel( {
 	);
 }
 
-function NewsletterPostPublishSettingsPanel( { accessLevel, isModuleActive } ) {
+function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 	const { emailSubscribers, paidSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
@@ -190,10 +190,6 @@ function NewsletterPostPublishSettingsPanel( { accessLevel, isModuleActive } ) {
 	} );
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
-
-	if ( ! isModuleActive ) {
-		return null;
-	}
 
 	const reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
 
@@ -281,24 +277,11 @@ function NewsletterPostPublishSettingsPanel( { accessLevel, isModuleActive } ) {
 export default function SubscribePanels() {
 	const { isModuleActive } = useModuleStatus( name );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
-	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
+	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
+
 	const { tracks } = useAnalytics();
-
-	// Set the accessLevel to "everybody" when one is not defined
-	let accessLevel =
-		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? accessOptions.everybody.key;
-
-	// If accessLevel is ''
-	if ( ! accessLevel ) {
-		accessLevel = accessOptions.everybody.key;
-	}
-
-	useEffect( () => {
-		if ( ! isModuleActive ) {
-			return;
-		}
-	}, [ isModuleActive ] );
+	const accessLevel = useAccessLevel( postType );
 
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.
 	// TODO: Make it available for pages later.
@@ -319,11 +302,9 @@ export default function SubscribePanels() {
 
 	return (
 		<>
-			<NewsletterEditorSettingsPanel
-				accessLevel={ accessLevel }
-				setPostMeta={ setPostMeta }
-				isModuleActive={ isModuleActive }
-			/>
+			{ isModuleActive && (
+				<NewsletterEditorSettingsPanel accessLevel={ accessLevel } setPostMeta={ setPostMeta } />
+			) }
 			<NewsletterPrePublishSettingsPanel
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
@@ -333,11 +314,12 @@ export default function SubscribePanels() {
 					setIsModalOpen( true );
 				} }
 			/>
-			<NewsletterPostPublishSettingsPanel
-				accessLevel={ accessLevel }
-				setPostMeta={ setPostMeta }
-				isModuleActive={ isModuleActive }
-			/>
+			{ isModuleActive && (
+				<NewsletterPostPublishSettingsPanel
+					accessLevel={ accessLevel }
+					setPostMeta={ setPostMeta }
+				/>
+			) }
 			<EmailPreview isModalOpen={ isModalOpen } closeModal={ () => setIsModalOpen( false ) } />
 		</>
 	);

@@ -33,6 +33,11 @@ class Automation_Workflow {
 	/** @var bool */
 	public $active;
 
+	/**
+	 * @var int The version of the workflow.
+	 */
+	public $version = 1;
+
 	/** @var Automation_Engine */
 	private $automation_engine;
 

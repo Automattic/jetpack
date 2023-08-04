@@ -1,4 +1,4 @@
-
+@import '@automattic/jetpack-base-styles/style';
 
 .jetpack-ai-assistant__popover {
 	z-index: 31;
@@ -15,5 +15,32 @@
 			padding: 7px 14px;
 			width: 100%;
 		}
+	}
+}
+
+.jetpack-ai-assistant-bar-is-fixed .block-editor-block-contextual-toolbar {
+	margin-bottom: 46px;
+}
+
+.jetpack-components-ai-control__wrapper .jetpack-ai-status-indicator__icon-wrapper {
+	color: var( --jp-green-60 );
+	&.is-init {
+		color: var( --jp-green-60 );
+	}
+
+	&.is-requesting {
+		color: var( --jp-green-40 );
+	}
+
+	&.is-suggesting {
+		color: var( --jp-green-20 );
+	}
+
+	&.is-done {
+		color: var( --jp-green-40 );
+	}
+
+	&.is-error {
+		color: var( --jp-orange-20 );
 	}
 }

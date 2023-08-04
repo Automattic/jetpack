@@ -147,6 +147,9 @@ importers:
       '@storybook/addon-actions':
         specifier: 7.1.0
         version: 7.1.0(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/blocks':
+        specifier: 7.1.0
+        version: 7.1.0(react-dom@18.2.0)(react@18.2.0)
       '@storybook/react':
         specifier: 7.1.0
         version: 7.1.0(react-dom@18.2.0)(react@18.2.0)(typescript@5.0.4)
@@ -1505,6 +1508,8 @@ importers:
         version: 4.9.1(webpack@5.76.0)
 
   projects/packages/boost-core: {}
+
+  projects/packages/chatbot: {}
 
   projects/packages/connection:
     devDependencies:
