@@ -424,7 +424,7 @@ class Launchpad_Task_Lists {
 			return null;
 		}
 
-		if ( ! $this->is_valid_url_or_path( $calypso_path ) ) {
+		if ( ! $this->is_valid_admin_url_or_absolute_path( $calypso_path ) ) {
 			return null;
 		}
 
@@ -432,12 +432,12 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Checks if a string is a valid URL or path.
+	 * Checks if a string is a valid admin URL or an absolute path.
 	 *
 	 * @param string $input The string to check.
 	 * @return boolean
 	 */
-	private function is_valid_url_or_path( $input ) {
+	private function is_valid_admin_url_or_absolute_path( $input ) {
 		// Checks if the string is URL starting with the admin URL
 		if ( strpos( $input, admin_url() ) === 0 ) {
 			return true;
