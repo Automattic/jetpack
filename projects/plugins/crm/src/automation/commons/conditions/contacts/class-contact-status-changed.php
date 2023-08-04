@@ -70,6 +70,7 @@ class Contact_Status_Changed extends Base_Condition {
 	 *
 	 * @param array $data The data this condition has to evaluate.
 	 * @return void
+	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
 	public function execute( array $data ) {
