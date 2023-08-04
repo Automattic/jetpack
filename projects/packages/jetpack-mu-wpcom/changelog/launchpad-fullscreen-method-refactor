@@ -1,5 +1,3 @@
 Significance: patch
 Type: changed
-Comment: simple refactor
-
-
+Comment: Rename 'wpcom_get_launchpad_is_enabled()' to 'wpcom_launchpad_get_fullscreen_enabled()'
