@@ -12,6 +12,7 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
+import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
 import { AiAssistantPopover } from '../components/ai-assistant-popover';
 import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
 /**
@@ -225,7 +226,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
 					''
 				);
-				const newContentBlocks = parse( processedContent );
+
+				// Fix HTML tags that are not closed properly.
+				const fixedContent = fixIncompleteHTML( processedContent );
+
+				const newContentBlocks = parse( fixedContent );
 
 				// Check if the generated blocks are valid.
 				const validBlocks = newContentBlocks.filter( block => {
