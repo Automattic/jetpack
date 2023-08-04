@@ -33,30 +33,30 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		// This is taken from WooCommerce's bootstrap.php file
 
 		// framework
-		require_once $woo_tests_dir . '/framework/class-wc-unit-test-factory.php';
-		require_once $woo_tests_dir . '/framework/class-wc-mock-session-handler.php';
-		require_once $woo_tests_dir . '/framework/class-wc-mock-wc-data.php';
-		require_once $woo_tests_dir . '/framework/class-wc-mock-wc-object-query.php';
-		require_once $woo_tests_dir . '/framework/class-wc-mock-payment-gateway.php';
-		require_once $woo_tests_dir . '/framework/class-wc-payment-token-stub.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-unit-test-factory.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-session-handler.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-wc-data.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-wc-object-query.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-payment-gateway.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-payment-token-stub.php';
 		// commenting this out for now. require_once( $woo_tests_dir . '/framework/vendor/class-wp-test-spy-rest-server.php' );
 
 		// test cases
-		require_once $woo_tests_dir . '/includes/wp-http-testcase.php';
-		require_once $woo_tests_dir . '/framework/class-wc-unit-test-case.php';
-		require_once $woo_tests_dir . '/framework/class-wc-api-unit-test-case.php';
-		require_once $woo_tests_dir . '/framework/class-wc-rest-unit-test-case.php';
+		require_once $woo_tests_dir . '/legacy/includes/wp-http-testcase.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-unit-test-case.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-api-unit-test-case.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-rest-unit-test-case.php';
 
 		// Helpers
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-product.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-coupon.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-fee.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-shipping.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-customer.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-order.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-shipping-zones.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-payment-token.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-settings.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-product.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-coupon.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-fee.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-shipping.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-customer.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-order.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-shipping-zones.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-payment-token.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-settings.php';
 	}
 
 	/**
