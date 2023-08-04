@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\CRM\Automation;
  * Base Trigger implementation.
  *
  * @since $$next-version$$
- * @inheritDoc
+ * {@inheritDoc}
  */
 abstract class Base_Trigger implements Trigger {
 

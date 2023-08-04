@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\CRM\Automation;
  * Base Condition Step.
  *
  * @since $$next-version$$
- * @inheritDoc
+ * {@inheritDoc}
  */
 abstract class Base_Condition extends Base_Step implements Condition {
 

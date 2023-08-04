@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\CRM\Automation;
  * Base Step.
  *
  * @since $$next-version$$
- * @inheritDoc
+ * {@inheritDoc}
  */
 abstract class Base_Step implements Step {
 
