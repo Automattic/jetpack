@@ -153,7 +153,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 						$updated[ $key ] = $value;
 					}
 					// This will check if we have completed all the tasks and disable Launchpad if so.
-					wpcom_launchpad_checklists()->maybe_disable_launchpad();
+					wpcom_launchpad_checklists()->maybe_disable_fullscreen_launchpad();
 					break;
 
 				default:

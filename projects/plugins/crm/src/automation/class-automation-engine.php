@@ -3,37 +3,65 @@
  * Defines Jetpack CRM Automation engine.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
- * Automation Engine
+ * Automation Engine.
  *
- * @package Automattic\Jetpack\CRM\Automation
+ * @since $$next-version$$
  */
 class Automation_Engine {
 
-	/** @var Automation_Engine Instance singleton */
+	/**
+	 * Instance singleton.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Engine
+	 */
 	private static $instance = null;
 
-	/** @var array triggers map name => classname */
+	/**
+	 * The triggers map name => classname.
+	 *
+	 * @since $$next-version$$
+	 * @var string[]
+	 */
 	private $triggers_map = array();
 
-	/** @var array steps map name => classname */
+	/**
+	 * The steps map name => classname.
+	 *
+	 * @since $$next-version$$
+	 * @var string[]
+	 */
 	private $steps_map = array();
 
-	/** @var ?Automation_Logger Automation logger */
-	private $automation_logger;
+	/**
+	 * The Automation logger.
+	 *
+	 * @since $$next-version$$
+	 * @var ?Automation_Logger
+	 */
+	private $automation_logger = null;
 
-	/** @var array */
+	/**
+	 * The list of registered workflows.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Workflow[]
+	 */
 	private $workflows = array();
 
 	/**
-	 *  Instance singleton object
+	 *  Instance singleton object.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param bool $force Whether to force a new Automation_Engine instance.
-	 * @return Automation_Engine
+	 * @return Automation_Engine The Automation_Engine instance.
 	 */
 	public static function instance( bool $force = false ): Automation_Engine {
 		if ( ! self::$instance || $force ) {
@@ -44,7 +72,9 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Set the automation logger
+	 * Set the automation logger.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param Automation_Logger $logger The automation logger.
 	 */
@@ -53,9 +83,12 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Register a trigger
+	 * Register a trigger.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $trigger_classname Trigger classname to add to the mapping.
+	 *
 	 * @throws Automation_Exception Throws an exception if the trigger class does not match the expected conditions.
 	 */
 	public function register_trigger( string $trigger_classname ) {
@@ -99,10 +132,13 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Register a step in the automation engine
+	 * Register a step in the automation engine.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $step_name The name of the step to be registered.
 	 * @param string $class_name The name of the class in which the step should belong.
+	 *
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
 	public function register_step( string $step_name, string $class_name ) {
@@ -117,10 +153,13 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get a step class by name
+	 * Get a step class by name.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $step_name The name of the step whose class we will be retrieving.
-	 * @return string
+	 * @return string The name of the step class.
+	 *
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
 	public function get_step_class( string $step_name ): string {
@@ -135,11 +174,13 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Add a workflow
+	 * Add a workflow.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param Automation_Workflow $workflow The workflow class instance to be added.
 	 * @param bool                $init_workflow Whether or not to initialize the workflow.
-	 * @return void
+	 *
 	 * @throws Workflow_Exception Throws an exception if the workflow is not valid.
 	 */
 	public function add_workflow( Automation_Workflow $workflow, bool $init_workflow = false ) {
@@ -151,11 +192,14 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Build and add a workflow
+	 * Build and add a workflow.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param array $workflow_data The workflow data to be added.
 	 * @param bool  $init_workflow Whether or not to initialize the workflow.
-	 * @return Automation_Workflow
+	 * @return Automation_Workflow The workflow class instance to be added.
+	 *
 	 * @throws Workflow_Exception Throws an exception if the workflow is not valid.
 	 */
 	public function build_add_workflow( array $workflow_data, bool $init_workflow = false ): Automation_Workflow {
@@ -168,7 +212,8 @@ class Automation_Engine {
 	/**
 	 * Init automation workflows.
 	 *
-	 * @return void
+	 * @since $$next-version$$
+	 *
 	 * @throws Workflow_Exception Throws an exception if the workflow is not valid.
 	 */
 	public function init_workflows() {
@@ -180,11 +225,14 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get step instance
+	 * Get step instance.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $step_name The name of the step to be registered.
 	 * @param array  $step_data The step data to be registered.
-	 * @return Step
+	 * @return Step The step class instance.
+	 *
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
 	public function get_registered_step( $step_name, array $step_data = array() ): Step {
@@ -203,19 +251,24 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get registered steps
+	 * Get registered steps.
 	 *
-	 * @return array
+	 * @since $$next-version$$
+	 *
+	 * @return string[] The registered steps.
 	 */
 	public function get_registered_steps(): array {
 		return $this->steps_map;
 	}
 
 	/**
-	 * Get trigger instance
+	 * Get trigger instance.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $trigger_slug The name of the trigger slug with which to retrieve the trigger class.
-	 * @return string
+	 * @return string The name of the trigger class.
+	 *
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
 	public function get_trigger_class( string $trigger_slug ): string {
@@ -232,7 +285,9 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get Automation logger
+	 * Get Automation logger.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return Automation_Logger Return an instance of the Automation_Logger class.
 	 */
@@ -241,9 +296,14 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Get the registered triggers
+	 * Get the registered triggers.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[] The registered triggers.
 	 */
 	public function get_registered_triggers(): array {
 		return $this->triggers_map;
 	}
+
 }

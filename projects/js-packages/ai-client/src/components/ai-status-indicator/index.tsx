@@ -17,7 +17,7 @@ import type React from 'react';
 import './style.scss';
 
 export type AiStatusIndicatorProps = {
-	requestingState?: RequestingStateProp;
+	state?: RequestingStateProp;
 	size?: AiStatusIndicatorIconSize;
 };
 
@@ -28,13 +28,13 @@ export type AiStatusIndicatorProps = {
  * @returns {React.ReactElement} - rendered component.
  */
 export default function AiStatusIndicator( {
-	requestingState,
+	state,
 	size = 24,
 }: AiStatusIndicatorProps ): React.ReactElement {
 	return (
 		<div
 			className={ classNames( 'jetpack-ai-status-indicator__icon-wrapper', {
-				[ `is-${ requestingState }` ]: true,
+				[ `is-${ state }` ]: true,
 			} ) }
 		>
 			<Icon icon={ aiAssistantIcon } size={ size } />
