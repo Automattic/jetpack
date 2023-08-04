@@ -153,30 +153,30 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Check if a task list is enabled by checking its is_enabled_callback callback.
+	 * Check if a task list was dismissed by the user.
 	 *
 	 * @param string $id Task List id.
-	 * @return bool|null True if visible, false if not.
+	 * @return bool|null True if dismissed, false if not.
 	 */
-	public function is_task_list_visible( $id ) {
-		$task_list_visibility = $this->get_task_list_visibility_status();
+	public function is_task_list_dismissed( $id ) {
+		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
 
-		// Return true if the task list is not in the visibility option or if it is and the value is true.
-		return ! isset( $task_list_visibility[ $id ] ) || $task_list_visibility[ $id ];
+		// Return true if the task list is on the dismissed status array and its value is true.
+		return isset( $task_list_dismissed_status[ $id ] ) && $task_list_dismissed_status[ $id ];
 	}
 
 	/**
-	 * Set wether a task list is visible or not for a site.
+	 * Set wether a task list is dismissed or not for a site.
 	 *
 	 * @param string $id Task List id.
-	 * @param bool   $is_visible True if visible, false if not.
+	 * @param bool   $is_dismissed True if dismissed, false if not.
 	 */
-	public function set_task_list_visibility( $id, $is_visible ) {
-		$task_list_visibility        = $this->get_task_list_visibility_status();
-		$task_list_visibility[ $id ] = $is_visible;
+	public function set_task_list_dismissed( $id, $is_dismissed ) {
+		$task_list_dismissed_status        = $this->get_task_list_dismissed_status();
+		$task_list_dismissed_status[ $id ] = $is_dismissed;
 
-		$launchpad_config                         = get_option( 'wpcom_launchpad_config', array() );
-		$launchpad_config['task_list_visibility'] = $task_list_visibility;
+		$launchpad_config                               = get_option( 'wpcom_launchpad_config', array() );
+		$launchpad_config['task_list_dismissed_status'] = $task_list_dismissed_status;
 		update_option( 'wpcom_launchpad_config', $launchpad_config );
 	}
 
@@ -185,9 +185,9 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return array
 	 */
-	protected function get_task_list_visibility_status() {
+	protected function get_task_list_dismissed_status() {
 		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
-		return isset( $launchpad_config['task_list_visibility'] ) ? $launchpad_config['task_list_visibility'] : array();
+		return isset( $launchpad_config['task_list_dismissed_status'] ) ? $launchpad_config['task_list_dismissed_status'] : array();
 	}
 
 	/**

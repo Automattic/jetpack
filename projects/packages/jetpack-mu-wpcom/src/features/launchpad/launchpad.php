@@ -603,23 +603,23 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
 }
 
 /**
- * Checks if a specific task list is visible.
+ * Checks if a specific task list is dismissed.
  *
  * @param string $checklist_slug The slug of the launchpad task list to check.
- * @return bool True if the task list is visible, false otherwise.
+ * @return bool True if the task list is dismissed, false otherwise.
  */
-function wpcom_launchpad_is_task_list_visible( $checklist_slug ) {
-	return wpcom_launchpad_checklists()->is_task_list_visible( $checklist_slug );
+function wpcom_launchpad_is_task_list_dismissed( $checklist_slug ) {
+	return wpcom_launchpad_checklists()->is_task_list_dismissed( $checklist_slug );
 }
 
 /**
- * Sets a specific task list visibility.
+ * Sets a specific task list dismissed state.
  *
  * @param string $checklist_slug The slug of the launchpad task list to check.
- * @param bool   $is_visible True if the task list is visible, false otherwise.
+ * @param bool   $is_dismissed True if the task list is dismissed, false otherwise.
  */
-function wpcom_launchpad_set_task_list_visibility( $checklist_slug, $is_visible ) {
-	wpcom_launchpad_checklists()->set_task_list_visibility( $checklist_slug, $is_visible );
+function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed ) {
+	wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed );
 }
 
 /**
