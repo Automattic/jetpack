@@ -147,6 +147,7 @@ if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "8.2" ]]; then
 
 	if [[ -n "$WOO_LATEST_TAG" && -n "$WOO_DL_URL" ]]; then
 		cd "/tmp"
+		echo "Fetching latest WooCommerce tag: $WOO_LATEST_TAG"
 
 		# Download the built Woo plugin.
 		curl -s -L "$WOO_DL_URL" -o "woocommerce.zip"
