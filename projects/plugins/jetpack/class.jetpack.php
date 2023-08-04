@@ -10,6 +10,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
+use Automattic\Jetpack\Chatbot;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -941,6 +942,8 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
+
+		Chatbot::init();
 	}
 
 	/**

@@ -19,6 +19,7 @@ function die {
 SPECIFIC_PROJECTS=(
 	"packages/chatbot"
 	"plugins/starter-plugin"
+	"plugins/jetpack"
 )
 
 JSON_PROJECTS=()
