@@ -177,7 +177,7 @@ class Contact_Status_Changed extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array An array of allowed triggers:
+	 * @return string[] An array of allowed triggers:
 	 *               - 'jpcrm/contact_status_updated'
 	 *               - 'jpcrm/contact_updated'
 	 */
