@@ -15,12 +15,12 @@ namespace Automattic\Jetpack\CRM\Event_Manager;
 class Contact_Event implements Event {
 
 	/**
-	 * @var null The Contact_Event instance.
+	 * @var Contact_Event The Contact_Event instance.
 	 */
 	private static $instance = null;
 
 	/**
-	 * @var array Field updates that should not be notified.
+	 * @var array Properties that should not be notified.
 	 */
 	private $not_notifiable_fields = array(
 		'created',
@@ -31,7 +31,7 @@ class Contact_Event implements Event {
 	/**
 	 * Get the singleton instance of this class.
 	 *
-	 * @return Contact_Event
+	 * @return Contact_Event The Contact_Event instance.
 	 */
 	public static function get_instance(): Contact_Event {
 		if ( ! self::$instance ) {

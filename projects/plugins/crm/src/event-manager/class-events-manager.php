@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\CRM\Event_Manager;
 class Events_Manager {
 
 	/**
-	 * @var null The Events_Manager instance.
+	 * @var Events_Manager The Events_Manager instance.
 	 */
 	private static $instance = null;
 
@@ -45,7 +45,7 @@ class Events_Manager {
 	/**
 	 * Return the Contact_Event instance.
 	 *
-	 * @return Contact_Event
+	 * @return Contact_Event A Contact_Event instance.
 	 */
 	public function contact(): Contact_Event {
 		return Contact_Event::get_instance();
