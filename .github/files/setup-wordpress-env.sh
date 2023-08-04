@@ -144,7 +144,7 @@ if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "8.2" ]]; then
 
 	RESPONSE=$(curl -s "$WOO_GH_API_URL")
 	WOO_LATEST_TAG=$(jq -r ".tag_name" <<< "$RESPONSE")
-	WOO_DL_URL=$(jq -r ".zipball_url" <<< "$RESPONSE")
+	WOO_DL_URL=$(jq -r ".assets[0].browser_download_url" <<< "$RESPONSE")
 
 	if [[ -n "$WOO_LATEST_TAG" && -n "$WOO_DL_URL" ]]; then
 		echo "WOO_LATEST_TAG: $WOO_LATEST_TAG"
@@ -152,12 +152,11 @@ if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "8.2" ]]; then
 		cd "/tmp"
 
 		# Download the built Woo plugin.
-		curl -s -L "$WOO_DL_URL" -o "woocommerce-$WOO_LATEST_TAG.zip"
-		unzip -q "woocommerce-$WOO_LATEST_TAG.zip"
-		mv woocommerce-woocommerce-* "woocommerce-$WOO_LATEST_TAG"
-		cp -r "woocommerce-$WOO_LATEST_TAG/plugins/woocommerce" "wordpress-$WP_BRANCH/src/wp-content/plugins"
+		curl -s -L "$WOO_DL_URL" -o "woocommerce.zip"
+		unzip -q "woocommerce.zip"
+		mv woocommerce "wordpress-$WP_BRANCH/src/wp-content/plugins"
 
-    	# Add the '/tests' directory not present in the built Woo download.
+		# Add the '/tests' directory not present in the built Woo download.
 		git clone --depth 1 --branch "$WOO_LATEST_TAG" "$WOO_REPO_URL" &> /dev/null
 		cp -r "woocommerce/plugins/woocommerce/tests" "wordpress-$WP_BRANCH/src/wp-content/plugins/woocommerce"
 	else
