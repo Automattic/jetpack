@@ -1252,7 +1252,7 @@ function wpcom_launchpad_has_translation( $string, $domain = 'jetpack-mu-wpcom' 
  * @return bool True if we should show the task, false otherwise.
  */
 function wpcom_launchpad_is_add_about_page_visible() {
-	return ! wpcom_is_update_about_page_task_visible();
+	return ! wpcom_is_update_about_page_task_visible() && registered_meta_key_exists( 'post', '_wpcom_template_layout_category', 'page' );
 }
 
 /**
@@ -1277,6 +1277,11 @@ function wpcom_launchpad_add_about_page_check( $post_id, $post ) {
 		return;
 	}
 
+	// Don't do anything if we don't have the page category post_meta field registered.
+	if ( ! registered_meta_key_exists( 'post', '_wpcom_template_layout_category', 'page' ) ) {
+		return;
+	}
+
 	// Don't do anything if the task is already complete.
 	if ( wpcom_is_task_option_completed( array( 'id' => 'add_about_page' ) ) ) {
 		return;
@@ -1288,8 +1293,8 @@ function wpcom_launchpad_add_about_page_check( $post_id, $post ) {
 		return;
 	}
 
-	$is_about_page = 'about' === get_post_meta( $post->ID, '_wp_layout_category', true );
-	if ( ! $is_about_page ) {
+	$stored_page_categories = get_post_meta( $post->ID, '_wpcom_template_layout_category', true );
+	if ( ! is_array( $stored_page_categories ) || ! in_array( 'about', $stored_page_categories, true ) ) {
 		return;
 	}
 
