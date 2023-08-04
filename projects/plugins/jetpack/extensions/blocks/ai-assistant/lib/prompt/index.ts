@@ -48,6 +48,112 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 export const delimiter = '````';
 
+export const compressSerializedBlockComposition = block => {
+	const tagReplacements = {
+		'<!-- wp:jetpack/contact-form': '<!-- ¢',
+		'<!-- wp:jetpack/field-text': '<!-- £',
+		'<!-- wp:jetpack/field-name': '<!-- ¥',
+		'<!-- wp:jetpack/field-email': '<!-- €',
+		'<!-- wp:jetpack/field-url': '<!-- §',
+		'<!-- wp:jetpack/field-date': '<!-- ¶',
+		'<!-- wp:jetpack/field-telephone': '<!-- ¤',
+		'<!-- wp:jetpack/field-textarea': '<!-- ¦',
+		'<!-- wp:jetpack/field-checkbox': '<!-- ³',
+		'<!-- wp:jetpack/field-consent': '<!-- ¨',
+		'<!-- wp:jetpack/field-radio': '<!-- ´',
+		'<!-- wp:jetpack/field-option-radio': '<!-- ª',
+		'<!-- wp:jetpack/field-select': '<!-- «',
+		'<!-- wp:jetpack/button': '<!-- ¬',
+		'<!-- /wp:jetpack/contact-form': '<!-- °',
+		'<!-- /wp:jetpack/field-radio': '<!-- ²',
+	};
+
+	const keyReplacements = {
+		'"subject"': '"¢"',
+		'"to"': '"£"',
+		'"style"': '"¥"',
+		'"spacing"': '"€"',
+		'"padding"': '"§"',
+		'"top"': '"¶"',
+		'"right"': '"¤"',
+		'"bottom"': '"¦"',
+		'"left"': '"³"',
+		'"required"': '"¨"',
+		'"requiredText"': '"´"',
+		'"label"': '"ª"',
+		'"element"': '"«"',
+		'"text"': '"¬"',
+		'"lock"': '"°"',
+		'"remove"': '"²"',
+		'"toggleLabel"': '"»"',
+	};
+
+	let compressedBlock = block;
+	for ( const original in tagReplacements ) {
+		const replacement = tagReplacements[ original ];
+		compressedBlock = compressedBlock.split( original ).join( replacement );
+	}
+	for ( const original in keyReplacements ) {
+		const replacement = keyReplacements[ original ];
+		compressedBlock = compressedBlock.split( original ).join( replacement );
+	}
+
+	return compressedBlock;
+};
+
+export const uncompressSerializedBlockComposition = block => {
+	const tagReplacements = {
+		'<!-- ¢': '<!-- wp:jetpack/contact-form',
+		'<!-- £': '<!-- wp:jetpack/field-text',
+		'<!-- ¥': '<!-- wp:jetpack/field-name',
+		'<!-- €': '<!-- wp:jetpack/field-email',
+		'<!-- §': '<!-- wp:jetpack/field-url',
+		'<!-- ¶': '<!-- wp:jetpack/field-date',
+		'<!-- ¤': '<!-- wp:jetpack/field-telephone',
+		'<!-- ¦': '<!-- wp:jetpack/field-textarea',
+		'<!-- ³': '<!-- wp:jetpack/field-checkbox',
+		'<!-- ¨': '<!-- wp:jetpack/field-consent',
+		'<!-- ´': '<!-- wp:jetpack/field-radio',
+		'<!-- ª': '<!-- wp:jetpack/field-option-radio',
+		'<!-- «': '<!-- wp:jetpack/field-select',
+		'<!-- ¬': '<!-- wp:jetpack/button',
+		'<!-- °': '<!-- /wp:jetpack/contact-form',
+		'<!-- ²': '<!-- /wp:jetpack/field-radio',
+	};
+
+	const keyReplacements = {
+		'"¢"': '"subject"',
+		'"£"': '"to"',
+		'"¥"': '"style"',
+		'"€"': '"spacing"',
+		'"§"': '"padding"',
+		'"¶"': '"top"',
+		'"¤"': '"right"',
+		'"¦"': '"bottom"',
+		'"³"': '"left"',
+		'"¨"': '"required"',
+		'"´"': '"requiredText"',
+		'"ª"': '"label"',
+		'"«"': '"element"',
+		'"¬"': '"text"',
+		'"°"': '"lock"',
+		'"²"': '"remove"',
+		'"»"': '"toggleLabel"',
+	};
+
+	let uncompressedBlock = block;
+	for ( const original in tagReplacements ) {
+		const replacement = tagReplacements[ original ];
+		uncompressedBlock = uncompressedBlock.split( original ).join( replacement );
+	}
+	for ( const original in keyReplacements ) {
+		const replacement = keyReplacements[ original ];
+		uncompressedBlock = uncompressedBlock.split( original ).join( replacement );
+	}
+
+	return uncompressedBlock;
+};
+
 /**
  * Helper function to get the initial system prompt.
  * It defines the `context` value in case it isn't provided.
@@ -243,7 +349,7 @@ function getJetpackFormCustomPrompt( {
 	return [
 		{
 			role: 'system',
-			content: `You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature.
+			content: `You are an expert developer in Gutenberg, the WordPress block editor.
 Strictly follow those rules:
 - Do not wrap the response in any block, element or any kind of delimiter.
 - DO NOT add any addtional feedback to the "user", just generate the requested block structure.
@@ -254,10 +360,9 @@ Strictly follow those rules:
 		},
 		{
 			role,
-			content: `Handle the following request: ${ request }
+			content: compressSerializedBlockComposition( `Handle the following request: ${ request }
 
 Strong requirements:
-- Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
 - Always add, at the end, exactly one jetpack/button for the form submission. Forms require one button to be valid.
 - Replace placeholders (like FIELD_LABEL, IS_REQUIRED, etc.) with the user's specifications.
 - Use syntax templates for blocks as follows:
@@ -277,7 +382,7 @@ Strong requirements:
 
 - When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column), like so: \`Name Field\`:
 	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
-Jetpack Form to modify:\n${ content }`,
+Jetpack Form to modify:\n${ content }` ),
 		},
 	];
 }

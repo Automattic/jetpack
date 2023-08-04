@@ -12,6 +12,7 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
+import { uncompressSerializedBlockComposition } from '../../../lib/prompt';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
 import { AiAssistantPopover } from '../components/ai-assistant-popover';
 import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
@@ -221,11 +222,15 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 		const setContent = useCallback(
 			( newContent: string ) => {
+				newContent = uncompressSerializedBlockComposition( newContent );
 				// Remove the Jetpack Form block from the content.
 				const processedContent = newContent.replace(
 					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
 					''
 				);
+
+				// Remove line breaks.
+				newContent = newContent.replace( /(\r\n|\n|\r)/gm, '' );
 
 				// Fix HTML tags that are not closed properly.
 				const fixedContent = fixIncompleteHTML( processedContent );
