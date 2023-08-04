@@ -197,6 +197,15 @@ export class NavigationSettings extends React.Component {
 							{ _x( 'Traffic', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
+					{ this.props.hasAnyOfTheseModules( [ 'subscriptions' ] ) && (
+						<NavItem
+							path="#newsletter"
+							onClick={ this.handleClickForTracking( 'newsletter' ) }
+							selected={ this.props.location.pathname === '/newsletter' }
+						>
+							{ _x( 'Newsletter', 'Navigation item.', 'jetpack' ) }
+						</NavItem>
+					) }
 					{ this.props.hasAnyOfTheseModules( [ 'wordads' ] ) && (
 						<NavItem
 							path="#earn"

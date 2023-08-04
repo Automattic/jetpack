@@ -12,7 +12,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { isSubscriptionModalEnabled } from 'state/initial-state';
 
-class SubscriptionsComponent extends React.Component {
+class SubscriptionsSettingsComponent extends React.Component {
 	/**
 	 * Get options for initial state.
 	 *
@@ -202,11 +202,11 @@ class SubscriptionsComponent extends React.Component {
 	}
 }
 
-export const UnwrappedComponent = SubscriptionsComponent;
+export const UnwrappedComponent = SubscriptionsSettingsComponent;
 export default withModuleSettingsFormHelpers(
 	connect( state => {
 		return {
 			isSubscriptionModalEnabled: isSubscriptionModalEnabled( state ),
 		};
-	} )( SubscriptionsComponent )
+	} )( SubscriptionsSettingsComponent )
 );
