@@ -221,6 +221,9 @@ export default function PublicizeForm( {
 									/>
 								);
 							} ) }
+							<li>
+								<AddConnectionButton href={ connectionsAdminUrl } />
+							</li>
 						</ul>
 					</PanelRow>
 					{ numberOfSharesRemaining !== null && (
@@ -357,3 +360,33 @@ export default function PublicizeForm( {
 		</Wrapper>
 	);
 }
+
+const AddConnectionButton = ( { href } ) => {
+	return (
+		<a href={ href } target="_blank" rel="noreferrer">
+			<svg
+				width="24"
+				height="24"
+				viewBox="0 0 28 28"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<rect x="0.375" y="0.375" width="27.25" height="27.25" rx="1.125" fill="#F6F7F7" />
+				<path
+					d="M19 13.3333H14.6667V9H13.3333V13.3333H9V14.6667H13.3333V19H14.6667V14.6667H19V13.3333Z"
+					fill="black"
+				/>
+				<rect
+					x="0.375"
+					y="0.375"
+					width="27.25"
+					height="27.25"
+					rx="1.125"
+					stroke="#A7AAAD"
+					stroke-width="0.75"
+					stroke-dasharray="2 2"
+				/>
+			</svg>
+		</a>
+	);
+};
