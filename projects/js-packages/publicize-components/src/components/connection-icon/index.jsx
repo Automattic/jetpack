@@ -5,23 +5,37 @@ import PropTypes from 'prop-types';
 import './style.scss';
 
 const ConnectionIcon = props => {
-	const { id, serviceName, label, profilePicture } = props;
+	const { checked, serviceName, label, onClick, profilePicture } = props;
 	const [ hasDisplayPicture, setHasDisplayPicture ] = useState( !! profilePicture );
 
 	const onError = useCallback( () => setHasDisplayPicture( false ), [] );
 
+	const handleKeyDown = useCallback(
+		ev => {
+			if ( ev.keyCode === 13 ) {
+				onClick();
+			}
+		},
+		[ onClick ]
+	);
+
 	return (
-		<label htmlFor={ id } className="jetpack-publicize-connection-label">
-			<div className={ hasDisplayPicture ? 'components-connection-icon__picture' : '' }>
-				{ hasDisplayPicture && <img src={ profilePicture } alt={ label } onError={ onError } /> }
-				<SocialServiceIcon
-					serviceName={ 'instagram-business' === serviceName ? 'instagram' : serviceName }
-					className="jetpack-publicize-gutenberg-social-icon"
-					invert={ 'tumblr' === serviceName }
-				/>
-			</div>
-			<span className="jetpack-publicize-connection-label-copy">{ label }</span>
-		</label>
+		<div
+			onClick={ onClick }
+			onKeyDown={ handleKeyDown }
+			role="switch"
+			aria-checked={ checked }
+			tabindex="0"
+			className={ hasDisplayPicture ? 'components-connection-icon__picture' : '' }
+		>
+			{ hasDisplayPicture && <img src={ profilePicture } alt={ label } onError={ onError } /> }
+			<SocialServiceIcon
+				alt={ label }
+				serviceName={ 'instagram-business' === serviceName ? 'instagram' : serviceName }
+				className="jetpack-publicize-gutenberg-social-icon"
+				invert={ 'tumblr' === serviceName }
+			/>
+		</div>
 	);
 };
 
