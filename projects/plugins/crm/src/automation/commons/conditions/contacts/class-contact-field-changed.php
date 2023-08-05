@@ -79,7 +79,7 @@ class Contact_Field_Changed extends Base_Condition {
 		$contact_data = $data->get_entity();
 
 		if ( ! $this->is_valid_contact_field_changed_data( $contact_data ) ) {
-			$this->logger->log( 'Invalid contact field changed data', $contact_data );
+			$this->logger->log( 'Invalid contact field changed data' );
 			$this->condition_met = false;
 
 			return;
@@ -89,15 +89,15 @@ class Contact_Field_Changed extends Base_Condition {
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $contact_data['data'][ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $contact_data[ $field ] );
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $contact_data['data'][ $field ] === $value );
+				$this->condition_met = ( $contact_data[ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
 			case 'is_not':
-				$this->condition_met = ( $contact_data['data'][ $field ] !== $value );
+				$this->condition_met = ( $contact_data[ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
@@ -118,7 +118,7 @@ class Contact_Field_Changed extends Base_Condition {
 	 * @return bool True if the data is valid to detect a field change, false otherwise
 	 */
 	private function is_valid_contact_field_changed_data( array $contact_data ): bool {
-		return isset( $contact_data['id'] ) && isset( $contact_data['data'] ) && isset( $contact_data['data'][ $this->get_attributes()['field'] ] );
+		return isset( $contact_data[ $this->get_attributes()['field'] ] );
 	}
 
 	/**

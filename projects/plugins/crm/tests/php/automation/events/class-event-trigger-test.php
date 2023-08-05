@@ -23,7 +23,7 @@ class Event_Trigger_Test extends BaseTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->automation_faker = Automation_Faker::instance();
+		$this->automation_faker = Automation_Faker::instance( $this );
 	}
 
 	/**

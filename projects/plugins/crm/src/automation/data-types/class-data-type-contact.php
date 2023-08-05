@@ -93,15 +93,12 @@ class Data_Type_Contact extends Data_Type_Base {
 	 * This method attempts to unify the formatting, so we only have to work
 	 * with a single version of the formatting (the most recent one).
 	 *
-	 * @global \ZeroBSCRM $zbs
 	 * @since $$next-version$$
 	 *
 	 * @param mixed $entity The data we want to potentially prepare.
 	 * @return array The unified data.
 	 */
 	public function unify_data( $entity ): array {
-		global $zbs;
-
 		if ( ! is_array( $entity ) ) {
 			return $entity;
 		}
@@ -113,7 +110,8 @@ class Data_Type_Contact extends Data_Type_Base {
 		$new_entity       = $entity['customerMeta'];
 		$new_entity['ID'] = $entity['id'];
 
-		return $zbs->DAL->contacts->tidy_contact( (object) $new_entity ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$contacts_dal = new \zbsDAL_contacts();
+		return $contacts_dal->tidy_contact( (object) $new_entity );
 	}
 
 }

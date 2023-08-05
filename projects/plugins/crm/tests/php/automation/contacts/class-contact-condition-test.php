@@ -19,7 +19,7 @@ class Contact_Condition_Test extends BaseTestCase {
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->automation_faker = Automation_Faker::instance();
+		$this->automation_faker = Automation_Faker::instance( $this );
 		$this->automation_faker->reset_all();
 	}
 
@@ -76,12 +76,12 @@ class Contact_Condition_Test extends BaseTestCase {
 	 */
 	public function test_field_changed_invalid_operator_throws_exception() {
 		$contact_field_changed_condition = $this->get_contact_field_changed_condition( 'wrong_operator', 'customer' );
-		$contact_data                    = $this->automation_faker->contact_data();
+		$contact_data_type               = $this->automation_faker->contact_data();
 
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
 
-		$contact_field_changed_condition->execute( $contact_data );
+		$contact_field_changed_condition->execute( $contact_data_type );
 	}
 
 }
