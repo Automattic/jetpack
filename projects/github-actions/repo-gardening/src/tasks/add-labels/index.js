@@ -1,3 +1,4 @@
+const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getFiles = require( '../../utils/get-files' );
 
@@ -136,6 +137,19 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			if ( project.groups.ptype === 'js-packages' ) {
 				keywords.add( 'RNA' );
 			}
+		}
+
+		// Custom [{ "path": "label" }] values passed from a workflow.
+		const addLabelsString = getInput( 'add_labels' );
+		if ( addLabelsString ) {
+			debug( `GOT addLabelsString: ${ addLabelsString }` );
+			const addedLabels = JSON.parse( addLabelsString );
+			addedLabels.forEach( passed => {
+				if ( file.startsWith( passed.path ) ) {
+					debug( `passing: ${ passed.label } for ${ passed.path }` );
+					keywords.add( passed.label );
+				}
+			} );
 		}
 
 		// Modules.
@@ -278,7 +292,7 @@ async function addLabels( payload, octokit ) {
 		return;
 	}
 
-	debug( `add-labels: Adding labels to PR #${ number }` );
+	debug( `add-labels: Adding labels ${ labels } to PR #${ number }` );
 
 	await octokit.rest.issues.addLabels( {
 		owner: owner.login,
