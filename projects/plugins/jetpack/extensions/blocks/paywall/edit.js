@@ -1,5 +1,5 @@
 import './editor.scss';
-import { JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
@@ -47,7 +47,7 @@ function PaywallEdit( { className } ) {
 				<PanelBody
 					className="jetpack-subscribe-newsletters-panel"
 					title={ __( 'Newsletter visibility', 'jetpack' ) }
-					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+					icon={ <JetpackEditorPanelLogo /> }
 					initialOpen={ true }
 				>
 					<NewsletterAccessDocumentSettings
