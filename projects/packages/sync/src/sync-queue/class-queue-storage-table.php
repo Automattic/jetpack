@@ -142,7 +142,8 @@ class Queue_Storage_Table {
 		if ( $wpdb->last_error ) {
 			// There was an error reading, that's not necessarily failing the query.
 			// TODO check if we need this error check.
-			return false;
+			// TODO add more information about the erorr in the return value.
+			return new \WP_Error( 'custom_table_unable_to_read_sql_error', 'Jetpack Sync Custom table: Unable to read from table - SQL error' );
 		}
 
 		// Check if we can write in the table
@@ -491,8 +492,8 @@ class Queue_Storage_Table {
 			$custom_table_instance->create_table();
 		}
 
-		if ( ! $custom_table_instance->is_custom_table_healthy() ) {
-
+		if ( is_wp_error( $custom_table_instance->is_custom_table_healthy() ) ) {
+			// TODO: send error to WPCOM
 			// TODO: clean up the table.
 			return false;
 		}
