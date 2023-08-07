@@ -1,6 +1,8 @@
 
 # AI Assistant Data Flow
 
+Data Flow is a seamless and robust implementation designed to manage the state and functionality of an AI Assistant within a React application. By leveraging a React context, Higher Order Components (HOCs), and custom hooks, this implementation streamlines the interaction with the AI, handles suggestions, manages error states, and efficiently controls request functionality.
+
 ```jsx
 import { withAiAssistantData, useAiContext } from '@automattic/jetpack-ai-client';
 
