@@ -1,7 +1,7 @@
 import { Button, ToolbarButton, Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { _x, __ } from '@wordpress/i18n';
-import { accessOptions } from '../../shared/memberships-edit';
+import { accessOptions } from './constants';
 
 /**
  * Apply HTML encoding for special characters inside shortcode attributes.

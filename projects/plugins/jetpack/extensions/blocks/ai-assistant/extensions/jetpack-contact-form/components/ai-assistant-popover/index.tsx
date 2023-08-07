@@ -90,7 +90,7 @@ export const AiAssistantPopover = ( {
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
-	const placeholder = __( 'Which form do you need?', 'jetpack' );
+	const placeholder = __( 'Ask Jetpack AI to create your form', 'jetpack' );
 
 	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
 

@@ -401,6 +401,16 @@ function wpcom_launchpad_get_task_definitions() {
 				return '/earn/payments-plans/' . $data['site_slug_encoded'];
 			},
 		),
+		'add_about_page'                  => array(
+			'get_title'            => function () {
+				return __( 'Add your About page', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_launchpad_is_add_about_page_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/page/' . $data['site_slug_encoded'];
+			},
+		),
 	);
 
 	$extended_task_definitions = apply_filters( 'wpcom_launchpad_extended_task_definitions', array() );
@@ -1235,6 +1245,62 @@ function wpcom_launchpad_has_translation( $string, $domain = 'jetpack-mu-wpcom' 
 
 	return $translated_string !== $string;
 }
+
+/**
+ * Determine `add_new_page` task visibility. The task is visible if there is no 'About' page on the site.
+ *
+ * @return bool True if we should show the task, false otherwise.
+ */
+function wpcom_launchpad_is_add_about_page_visible() {
+	return ! wpcom_is_update_about_page_task_visible() && registered_meta_key_exists( 'post', '_wpcom_template_layout_category', 'page' );
+}
+
+/**
+ * Completion hook for the `add_about_page` task.
+ *
+ * @param int    $post_id The post ID.
+ * @param object $post    The post object.
+ */
+function wpcom_launchpad_add_about_page_check( $post_id, $post ) {
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	// We only care about pages, ignore other post types.
+	if ( $post->post_type !== 'page' ) {
+		return;
+	}
+
+	// We only care about published pages. Pages added via the API are not published by default.
+	if ( $post->post_status !== 'publish' ) {
+		return;
+	}
+
+	// Don't do anything if we don't have the page category post_meta field registered.
+	if ( ! registered_meta_key_exists( 'post', '_wpcom_template_layout_category', 'page' ) ) {
+		return;
+	}
+
+	// Don't do anything if the task is already complete.
+	if ( wpcom_is_task_option_completed( array( 'id' => 'add_about_page' ) ) ) {
+		return;
+	}
+
+	// If the page is the previously located About page, ignore it.
+	$about_page_id = wpcom_get_site_about_page_id();
+	if ( null !== $about_page_id && $post->ID === $about_page_id ) {
+		return;
+	}
+
+	$stored_page_categories = get_post_meta( $post->ID, '_wpcom_template_layout_category', true );
+	if ( ! is_array( $stored_page_categories ) || ! in_array( 'about', $stored_page_categories, true ) ) {
+		return;
+	}
+
+	wpcom_mark_launchpad_task_complete( 'add_about_page' );
+}
+add_action( 'wp_insert_post', 'wpcom_launchpad_add_about_page_check', 10, 3 );
 
 /**
  * Determine `update_about_page` task visibility. The task is visible if there is an 'About' page on the site.

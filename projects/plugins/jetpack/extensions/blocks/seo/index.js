@@ -1,4 +1,4 @@
-import { JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { Fragment } from '@wordpress/element';
@@ -19,7 +19,7 @@ export const settings = {
 		};
 
 		const jetpackSeoPrePublishPanelProps = {
-			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
+			icon: <JetpackEditorPanelLogo />,
 			title: __( 'SEO', 'jetpack' ),
 		};
 
