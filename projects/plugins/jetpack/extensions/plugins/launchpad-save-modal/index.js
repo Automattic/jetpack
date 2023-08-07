@@ -165,7 +165,7 @@ export const settings = {
 						</div>
 						<div className="launchpad__save-modal-controls">
 							<CheckboxControl
-								label={ __( "Don't show this again.", 'jetpack' ) }
+								label={ __( "Don't show TEST this again.", 'jetpack' ) }
 								checked={ isChecked }
 								onChange={ () => setIsChecked( ! isChecked ) }
 							/>
