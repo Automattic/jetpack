@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix race condition where post gets published before meta gets updated."
