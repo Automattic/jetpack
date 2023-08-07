@@ -167,6 +167,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'manage_subscribers',
 				'write_3_posts',
 				'connect_social_media',
+				'earn_money',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
