@@ -2,6 +2,7 @@ import './editor.scss';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
+import { arrowDown, Icon } from '@wordpress/icons';
 import { accessOptions, useAccessLevel } from '../../shared/memberships-edit';
 
 function PaywallEdit( { className } ) {
@@ -29,7 +30,10 @@ function PaywallEdit( { className } ) {
 
 	return (
 		<div className={ className }>
-			<span style={ style }>{ text }</span>
+			<span style={ style }>
+				{ text }
+				<Icon icon={ arrowDown } size={ 16 } />
+			</span>
 		</div>
 	);
 }
