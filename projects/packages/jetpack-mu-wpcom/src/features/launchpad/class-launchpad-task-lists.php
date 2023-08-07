@@ -172,8 +172,14 @@ class Launchpad_Task_Lists {
 	 * @param bool   $is_dismissed True if dismissed, false if not.
 	 */
 	public function set_task_list_dismissed( $id, $is_dismissed ) {
-		$task_list_dismissed_status        = $this->get_task_list_dismissed_status();
-		$task_list_dismissed_status[ $id ] = $is_dismissed;
+		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
+		$is_dismissed               = (bool) $is_dismissed;
+
+		if ( $is_dismissed ) {
+			$task_list_dismissed_status[ $id ] = true;
+		} else {
+			unset( $task_list_dismissed_status[ $id ] );
+		}
 
 		$launchpad_config                               = get_option( 'wpcom_launchpad_config', array() );
 		$launchpad_config['task_list_dismissed_status'] = $task_list_dismissed_status;
