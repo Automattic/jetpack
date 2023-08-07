@@ -36,11 +36,10 @@
 	&::before {
 		content: "";
 		position: absolute;
-		top: calc(50%);
+		top: calc(50% + 1px);
 		left: 0;
 		right: 0;
 		height: 1px;
-		margin-top: 1px; // Center align the line
 		background-color: $gray-700;
 	}
 }
