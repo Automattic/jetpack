@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-AI Extension: Stop handling popover close event to prevent the AI Control from hiding when it loses focus.
