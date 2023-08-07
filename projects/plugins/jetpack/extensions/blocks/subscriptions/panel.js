@@ -19,22 +19,18 @@ import { store as editorStore } from '@wordpress/editor';
 import { useState, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
-import {
-	useAccessLevel,
-	accessOptions,
-	isNewsletterFeatureEnabled,
-} from '../../../extensions/shared/memberships-edit';
-import { store as membershipProductsStore } from '../../store/membership-products';
-import EmailPreview from './email-preview';
+import { accessOptions } from '../../shared/memberships/constants';
+import { useAccessLevel, isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import {
 	Link,
 	getReachForAccessLevelKey,
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessPrePublishSettings,
-} from './settings';
-import { getShowMisconfigurationWarning } from './utils';
+} from '../../shared/memberships/settings';
+import { getShowMisconfigurationWarning } from '../../shared/memberships/utils';
+import { store as membershipProductsStore } from '../../store/membership-products';
+import EmailPreview from './email-preview';
 import { name } from './';
-
 import './panel.scss';
 
 const SubscriptionsPanelPlaceholder = ( { children } ) => {

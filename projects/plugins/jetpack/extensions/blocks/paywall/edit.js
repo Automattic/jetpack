@@ -1,13 +1,20 @@
 import './editor.scss';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
+import { InspectorControls } from '@wordpress/block-editor';
+import { PanelBody } from '@wordpress/components';
+import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon } from '@wordpress/icons';
-import { accessOptions, useAccessLevel } from '../../shared/memberships-edit';
+import { accessOptions } from '../../shared/memberships/constants';
+import { useAccessLevel } from '../../shared/memberships/edit';
+import { NewsletterAccessDocumentSettings } from '../../shared/memberships/settings';
 
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
+	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
 	const getText = key => {
 		switch ( key ) {
@@ -29,12 +36,27 @@ function PaywallEdit( { className } ) {
 	};
 
 	return (
-		<div className={ className }>
-			<span style={ style }>
-				{ text }
-				<Icon icon={ arrowDown } size={ 16 } />
-			</span>
-		</div>
+		<>
+			<div className={ className }>
+				<span style={ style }>
+					{ text }
+					<Icon icon={ arrowDown } size={ 16 } />
+				</span>
+			</div>
+			<InspectorControls>
+				<PanelBody
+					className="jetpack-subscribe-newsletters-panel"
+					title={ __( 'Newsletter visibility', 'jetpack' ) }
+					icon={ <JetpackEditorPanelLogo /> }
+					initialOpen={ true }
+				>
+					<NewsletterAccessDocumentSettings
+						accessLevel={ accessLevel }
+						setPostMeta={ setPostMeta }
+					/>
+				</PanelBody>
+			</InspectorControls>
+		</>
 	);
 }
 
