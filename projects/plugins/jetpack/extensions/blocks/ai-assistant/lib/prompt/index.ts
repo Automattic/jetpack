@@ -259,26 +259,132 @@ Strictly follow those rules:
 			) }
 
 Strong requirements:
-- Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
+- When the user provides instructions, translate them into appropriate Gutenberg Jetpack form blocks in the allowed list.
+- Do not wrap the generated structure with any block, element, or delimiters of any kind.
+- Never use the wp:jetpack/contact-form block nor any containing elements. The existing form already has a containing block and appropriate elements.
+- There is no wp:jetpack/form block. Never use it.
+- When asked to add or modify something in the form, always respond with the full form with the modified or added part in it, not just the new part. This is to ensure no data is lost.
+- Fill in the user's specification with the appropriate fields and options in the blocks.
 - Always add, at the end, exactly one jetpack/button for the form submission. Forms require one button to be valid.
-- Replace placeholders (like FIELD_LABEL, IS_REQUIRED, etc.) with the user's specifications.
-- Use syntax templates for blocks as follows:
-	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Text Input Field\`: <!-- wp:jetpack/field-text {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Multi-line Text Field \`: <!-- wp:jetpack/field-textarea {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Checkbox\`: <!-- wp:jetpack/field-checkbox {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT} /-->
-	- \`Date Picker\`: <!-- wp:jetpack/field-date {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Phone Number Field\`: <!-- wp:jetpack/field-telephone {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`URL Field\`: <!-- wp:jetpack/field-url {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Multiple Choice (Checkbox)\`: <!-- wp:jetpack/field-checkbox-multiple {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
-	- \`Single Choice (Radio)\`: <!-- wp:jetpack/field-radio {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
-	- \`Dropdown Field\`: <!-- wp:jetpack/field-select {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE],"toggleLabel":TOGGLE_LABEL} /-->
-	- \`Terms Consent\`:  <!-- wp:jetpack/field-consent {"consentType":"CONSENT_TYPE","implicitConsentMessage":"IMPLICIT_CONSENT_MESSAGE","explicitConsentMessage":"EXPLICIT_CONSENT_MESSAGE", /-->
-	- \`Button\`: <!-- wp:jetpack/button {"label":FIELD_LABEL,"element":"button","text":BUTTON_TEXT,"borderRadius":BORDER_RADIUS,"lock":{"remove":true}} /-->
+- Use only the allowed blocks with their allowed fields with the given syntax.
+- If rounded corners are requested, use the same border radius for all fields and buttons and use a positive value.
 
-- When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column), like so: \`Name Field\`:
-	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
+- Fields list:
+  label:
+    type: string
+    description: The label of the field.
+  required:
+    type: boolean
+    description: Whether the field is required or not.
+  requiredText:
+    type: string
+    description: The text to display when the field is required.
+  placeholder:
+    type: string
+    description: The placeholder of the field.
+  options:
+    type: array[string]
+    description: The options of the field.
+  toggleLabel:
+    type: string
+    description: The label of the toggle.
+  consentType:
+    type: string
+    description: The type of consent.
+  implicitConsentMessage:
+    type: string
+    description: The implicit consent message.
+  explicitConsentMessage:
+    type: string
+    description: The explicit consent message.
+  borderRadius:
+    type: number
+    description: The border radius of the button or field.
+  labelColor:
+    type: string
+    description: The color of the field label, in hex format.
+  inputColor:
+    type: string
+    description: The color of the field input, in hex format.
+  fieldBackgroundColor:
+    type: string
+    description: The color of the field background, in hex format.
+  borderColor:
+    type: string
+    description: The color of the field border, in hex format.
+  borderWidth:
+    type: number
+    description: The width of the field border.
+  labelFontSize:
+    type: string
+    description: The font size of the field label including unit (px).
+  fieldFontSize:
+    type: string
+    description: The font size of the field input including unit (px).
+  lineHeight:
+    type: number
+    description: The line height of the field.
+  labelLineHeight:
+    type: number
+    description: The line height of the field label.
+  element:
+    type: string
+    description: The element of the button.
+  text:
+    type: string
+    description: The text of the button.
+  customTextColor:
+    type: string
+    description: The color of the button text.
+  customBackgroundColor:
+    type: string
+    description: The color of the button background.
+
+- Allowed blocks:
+  Name Field
+    code: wp:jetpack/field-name
+    fields: label, required, requiredText, placeholder, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  Email Field
+    code: wp:jetpack/field-email
+    fields: label, required, requiredText, placeholder, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  Text Input Field
+    code: wp:jetpack/field-text
+    fields: label, required, requiredText, placeholder, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  Multi-line Text Field
+    code: wp:jetpack/field-textarea
+    fields: label, required, requiredText, placeholder, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  Checkbox
+    code: wp:jetpack/field-checkbox
+    fields: label, required, requiredText, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  Date Picker
+    code: wp:jetpack/field-date
+    fields: label, required, requiredText, placeholder, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  Phone Number Field
+    code: wp:jetpack/field-telephone
+    fields: label, required, requiredText, placeholder, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  URL Field
+    code: wp:jetpack/field-url
+    fields: label, required, requiredText, placeholder, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  Multiple Choice (Checkbox)
+    code: wp:jetpack/field-checkbox-multiple
+    fields: label, required, requiredText, options, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  Single Choice (Radio)
+    code: wp:jetpack/field-radio
+    fields: label, required, requiredText, options, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  Dropdown Field
+    code: wp:jetpack/field-select
+    fields: label, required, requiredText, options, toggleLabel, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  Terms Consent
+    code: wp:jetpack/field-consent
+    fields: consentType, implicitConsentMessage, explicitConsentMessage, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+  Button
+    code: wp:jetpack/button
+    fields: label, element, text, borderRadius, labelColor, customTextColor, customBackgroundColor
+
+- Syntax examples:
+  Required name field with a border radius of 60px: <!-- wp:jetpack/field-name {"label":"Name","required":true,"requiredText":"(required)","placeholder":"Insert your name","borderRadius":56} /-->
+  Optional email field with a pure red label: <!-- wp:jetpack/field-email {"label":"Email","placeholder":"Insert your email","labelColor":"#FF0000"} /-->
+  Optional checkbox field with a pure blue 3px thick border with a field font size of 20px: <!-- wp:jetpack/field-checkbox {"label":"Include peppers","borderColor":"#0000FF","borderWidth":3 } /-->
 
 Jetpack Form to modify or add content to, delimited with ${ delimiter }: ${ getDelimitedContent(
 				content
