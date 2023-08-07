@@ -5,9 +5,7 @@
 
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { useEntityProp } from '@wordpress/core-data';
-import { __ } from '@wordpress/i18n';
-
-export const META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS = '_jetpack_newsletter_access';
+import { accessOptions, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 
 export const useAccessLevel = postType => {
 	const [ postMeta = [] ] = useEntityProp( 'postType', postType, 'meta' );
@@ -20,24 +18,6 @@ export const useAccessLevel = postType => {
 		accessLevel = accessOptions.everybody.key;
 	}
 	return accessLevel;
-};
-
-export const accessOptions = {
-	everybody: {
-		key: 'everybody',
-		label: __( 'Everyone', 'jetpack' ),
-		panelHeading: __( 'Everyone', 'jetpack' ),
-	},
-	subscribers: {
-		key: 'subscribers',
-		label: __( 'Anyone subscribed', 'jetpack' ),
-		panelHeading: __( 'All subscribers', 'jetpack' ),
-	},
-	paid_subscribers: {
-		key: 'paid_subscribers',
-		label: __( 'Paid subscribers only', 'jetpack' ),
-		panelHeading: __( 'Paid subscribers', 'jetpack' ),
-	},
 };
 
 export const isNewsletterFeatureEnabled = () => {

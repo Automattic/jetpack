@@ -167,6 +167,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'manage_subscribers',
 				'write_3_posts',
 				'connect_social_media',
+				'update_about_page',
+				'add_about_page',
+				'earn_money',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
@@ -184,6 +187,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'write_3_posts',
 				'connect_social_media',
 				'manage_paid_newsletter_plan',
+				'update_about_page',
+				'add_about_page',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
@@ -600,6 +605,26 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
 	}
 
 	return false;
+}
+
+/**
+ * Checks if a specific task list is dismissed.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to check.
+ * @return bool True if the task list is dismissed, false otherwise.
+ */
+function wpcom_launchpad_is_task_list_dismissed( $checklist_slug ) {
+	return wpcom_launchpad_checklists()->is_task_list_dismissed( $checklist_slug );
+}
+
+/**
+ * Sets a specific task list dismissed state.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to check.
+ * @param bool   $is_dismissed True if the task list is dismissed, false otherwise.
+ */
+function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed ) {
+	wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed );
 }
 
 /**
