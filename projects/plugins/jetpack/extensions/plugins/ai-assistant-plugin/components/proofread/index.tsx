@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { aiAssistantIcon, useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { serialize } from '@wordpress/blocks';
 import { Modal, Button, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -44,6 +45,7 @@ const ModalHeader = ( { loading, onClose } ) => {
 export default function Proofread() {
 	const [ isProofreadModalVisible, setIsProofreadModalVisible ] = useState( false );
 	const [ suggestion, setSuggestion ] = useState( null );
+	const { tracks } = useAnalytics();
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 	const postContent = usePostContent();
@@ -102,6 +104,9 @@ export default function Proofread() {
 
 		request( messages );
 		toggleProofreadModal();
+		tracks.recordEvent( 'jetpack_ai_get_feedback', {
+			post_id: postId,
+		} );
 	};
 
 	return (
