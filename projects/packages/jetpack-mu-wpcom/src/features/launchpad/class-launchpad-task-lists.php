@@ -187,7 +187,11 @@ class Launchpad_Task_Lists {
 	 */
 	protected function get_task_list_dismissed_status() {
 		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
-		return isset( $launchpad_config['task_list_dismissed_status'] ) ? $launchpad_config['task_list_dismissed_status'] : array();
+		if ( ! isset( $launchpad_config['task_list_dismissed_status'] ) || ! is_array( $launchpad_config['task_list_dismissed_status'] ) ) {
+			return array();
+		}
+
+		return $launchpad_config['task_list_dismissed_status'];
 	}
 
 	/**
