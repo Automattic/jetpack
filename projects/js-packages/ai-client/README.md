@@ -42,7 +42,7 @@ Data Flow offers a streamlined way to manage an AI Assistant's state and functio
 ### [Icons](./src/icons/Readme.md)
 ## Contribute
 
-React components useful to when you need to create some UI implemetations.
+React components useful for when you need to create some UI implementations.
 
 We welcome contributions from the community. Please submit your pull requests on the GitHub repository.
 
