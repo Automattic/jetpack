@@ -14,7 +14,7 @@
 		font-size: $default-font-size;
 		text-transform: uppercase;
 		font-family: $default-font;
-		color: $gray-300;
+		color: $gray-700;
 		border: none;
 		box-shadow: none;
 		white-space: nowrap;
@@ -39,6 +39,8 @@
 		top: calc(50%);
 		left: 0;
 		right: 0;
-		border-top: 1px solid $gray-300;
+		height: 1px;
+		margin-top: 1px; // Center align the line
+		background-color: $gray-700;
 	}
 }
