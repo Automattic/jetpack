@@ -153,6 +153,59 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Check if a task list was dismissed by the user.
+	 *
+	 * @param string $id Task List id.
+	 * @return bool|null True if dismissed, false if not.
+	 */
+	public function is_task_list_dismissed( $id ) {
+		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
+
+		// Return true if the task list is on the dismissed status array and its value is true.
+		return isset( $task_list_dismissed_status[ $id ] ) && true === $task_list_dismissed_status[ $id ];
+	}
+
+	/**
+	 * Set wether a task list is dismissed or not for a site.
+	 *
+	 * @param string $id Task List id.
+	 * @param bool   $is_dismissed True if dismissed, false if not.
+	 */
+	public function set_task_list_dismissed( $id, $is_dismissed ) {
+		$task_list = $this->get_task_list( $id );
+		if ( empty( $id ) || empty( $task_list ) ) {
+			return;
+		}
+
+		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
+		$is_dismissed               = (bool) $is_dismissed;
+
+		if ( $is_dismissed ) {
+			$task_list_dismissed_status[ $id ] = true;
+		} else {
+			unset( $task_list_dismissed_status[ $id ] );
+		}
+
+		$launchpad_config                               = get_option( 'wpcom_launchpad_config', array() );
+		$launchpad_config['task_list_dismissed_status'] = $task_list_dismissed_status;
+		update_option( 'wpcom_launchpad_config', $launchpad_config );
+	}
+
+	/**
+	 * Get the task list visibility status for a site.
+	 *
+	 * @return array
+	 */
+	protected function get_task_list_dismissed_status() {
+		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+		if ( ! isset( $launchpad_config['task_list_dismissed_status'] ) || ! is_array( $launchpad_config['task_list_dismissed_status'] ) ) {
+			return array();
+		}
+
+		return $launchpad_config['task_list_dismissed_status'];
+	}
+
+	/**
 	 * See if the task list registry has any task lists.
 	 *
 	 * @return bool True if there are task lists, false if not.
