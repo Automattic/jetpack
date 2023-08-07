@@ -12,6 +12,8 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import UpgradePrompt from '../../../../components/upgrade-prompt';
+import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 /*
@@ -70,6 +72,8 @@ export const AiAssistantPopover = ( {
 
 	const { requestSuggestion, requestingState, eventSource } = useAiContext();
 
+	const { requireUpgrade } = useAIFeature();
+
 	const stopSuggestion = useCallback( () => {
 		if ( ! eventSource ) {
 			return;
@@ -127,14 +131,17 @@ export const AiAssistantPopover = ( {
 			/>
 
 			<div style={ { width } }>
+				{ requireUpgrade && <UpgradePrompt /> }
 				<AIControl
 					loading={ isLoading }
+					disabled={ requireUpgrade }
 					value={ isLoading ? undefined : inputValue }
 					placeholder={ isLoading ? loadingPlaceholder : placeholder }
 					onChange={ setInputValue }
 					onSend={ onSend }
 					onStop={ onStop }
 					requestingState={ requestingState }
+					isOpaque={ requireUpgrade }
 				/>
 			</div>
 		</Popover>
