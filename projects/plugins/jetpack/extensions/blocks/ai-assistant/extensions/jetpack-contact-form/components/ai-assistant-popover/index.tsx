@@ -28,7 +28,7 @@ type AiAssistantPopoverProps = {
 const debug = debugFactory( 'jetpack-ai-assistant:form-assistant' );
 
 /**
- * Return the serialized content from the childrens block.
+ * Return the serialized content of a block.
  *
  * @param {string} clientId - The block client ID.
  * @returns {string}          The serialized content.
@@ -43,14 +43,7 @@ function getSerializedContentFromBlock( clientId: string ): string {
 		return '';
 	}
 
-	const { innerBlocks } = block;
-	if ( ! innerBlocks?.length ) {
-		return '';
-	}
-
-	return innerBlocks.reduce( ( acc, innerBlock ) => {
-		return acc + serialize( innerBlock ) + '\n\n';
-	}, '' );
+	return serialize( block );
 }
 
 /**
