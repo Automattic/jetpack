@@ -1308,8 +1308,6 @@ add_action( 'wp_insert_post', 'wpcom_launchpad_add_about_page_check', 10, 3 );
  * @return bool True if we should show the task, false otherwise.
  */
 function wpcom_is_update_about_page_task_visible() {
-	// TODO - Need to make this visible in the case that add_about_page has happened. We need to get that page id somehow.
-
 	// The task isn't visible if the task title hasn't been translated into the current locale.
 	if ( ! wpcom_launchpad_has_translation( 'Update your About page', 'jetpack-mu-wpcom' ) ) {
 		return false;
