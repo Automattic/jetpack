@@ -149,6 +149,18 @@ class Automation_Faker {
 	}
 
 	/**
+	 * Return dummy transaction triggers name list
+	 *
+	 * @return array
+	 */
+	public function transaction_triggers(): array {
+		return array(
+			'jpcrm/transaction_created',
+			'jpcrm/transaction_updated',
+		);
+	}
+
+	/**
 	 * Return a workflow with a condition and an action
 	 * @return array
 	 */
@@ -303,6 +315,28 @@ class Automation_Faker {
 				'complete'       => false,
 				'show_on_portal' => true,
 				'show_on_cal'    => true,
+				'created'        => 1675000000,
+				'lastupdated'    => 1675000000,
+			),
+		);
+	}
+
+	/**
+	 * Return data for a dummy transaction
+	 *
+	 * @return array
+	 */
+	public function transaction_data() {
+		return array(
+			'id'   => 1,
+			'data' => array(
+				'title'          => 'Some transaction title',
+				'desc'           => 'Some desc',
+				'hash'           => 'mASOpAnf334Pncl1px4',
+				'status'         => 'Completed',
+				'type'           => 'Sale',
+				'date'           => 1676000000,
+				'date_completed' => 1676923766,
 				'created'        => 1675000000,
 				'lastupdated'    => 1675000000,
 			),

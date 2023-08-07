@@ -123,7 +123,7 @@ export class MeasurableImage {
 	}
 
 	/**
-	 * Checks if the image is too small and should be ignored. Will return false on images
+	 * Checks if the image is too small and should be ignored. Will return true on images
 	 * that don't load at all - we can't establish they're tiny!
 	 *
 	 * @returns {boolean} - if the image is smaller than 65 pixels width and height return true
@@ -134,7 +134,7 @@ export class MeasurableImage {
 			const dimensions = await this.fetchFileDimensions( this.getURL() );
 			return dimensions.width < minSize || dimensions.height < minSize;
 		} catch ( err ) {
-			return false;
+			return true;
 		}
 	}
 }
