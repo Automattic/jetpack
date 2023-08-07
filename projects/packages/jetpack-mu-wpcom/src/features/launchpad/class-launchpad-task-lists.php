@@ -172,6 +172,11 @@ class Launchpad_Task_Lists {
 	 * @param bool   $is_dismissed True if dismissed, false if not.
 	 */
 	public function set_task_list_dismissed( $id, $is_dismissed ) {
+		$task_list = $this->get_task_list( $id );
+		if ( empty( $id ) || empty( $task_list ) ) {
+			return;
+		}
+
 		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
 		$is_dismissed               = (bool) $is_dismissed;
 
