@@ -23,7 +23,7 @@ import './style.scss';
 const turndownService = new TurndownService();
 
 const usePostContent = () => {
-	const blocks = useSelect( select => select( 'core/editor' ).getBlocks(), [] );
+	const blocks = useSelect( select => select( 'core/block-editor' ).getBlocks(), [] );
 	return blocks?.length ? turndownService.turndown( serialize( blocks ) ) : '';
 };
 
