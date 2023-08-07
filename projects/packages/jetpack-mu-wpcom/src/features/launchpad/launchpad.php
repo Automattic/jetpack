@@ -169,6 +169,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'connect_social_media',
 				'update_about_page',
 				'add_about_page',
+				'earn_money',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
