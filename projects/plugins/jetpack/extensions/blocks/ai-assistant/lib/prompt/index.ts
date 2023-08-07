@@ -87,7 +87,7 @@ ${ extraRules }${
 	}
 - Execute the request without any acknowledgement to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+- If you cannot generate a meaningful response to a user's request, reply with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.
 `;
 
 	// POC for layout prompts:
@@ -98,7 +98,7 @@ ${ extraRules }- Format your responses in Gutenberg HTML format including HTML c
 - Use only WordPress core blocks
 - Execute the request without any acknowledgement to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+- If you cannot generate a meaningful response to a user's request, reply with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.
 `;
 	}
 
@@ -243,7 +243,7 @@ function getJetpackFormCustomPrompt( {
 	return [
 		{
 			role: 'system',
-			content: `You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature.
+			content: `You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature. Your content will be used inside a Jetpack Form block that already exists.
 Strictly follow those rules:
 - Do not wrap the response in any block, element or any kind of delimiter.
 - DO NOT add any addtional feedback to the "user", just generate the requested block structure.
@@ -254,7 +254,9 @@ Strictly follow those rules:
 		},
 		{
 			role,
-			content: `Handle the following request: ${ request }
+			content: `Handle the following request, delimited with ${ delimiter }: ${ getDelimitedContent(
+				request
+			) }
 
 Strong requirements:
 - Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
@@ -277,7 +279,10 @@ Strong requirements:
 
 - When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column), like so: \`Name Field\`:
 	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
-Jetpack Form to modify:\n${ content }`,
+
+Jetpack Form to modify or add content to, delimited with ${ delimiter }: ${ getDelimitedContent(
+				content
+			) }`,
 		},
 	];
 }
@@ -525,7 +530,7 @@ export function getPrompt(
 Writing rules:
 - Execute the request without any acknowledgment or explanation to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+- If you cannot generate a meaningful response to a user's request, reply with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.
 `,
 	};
 
