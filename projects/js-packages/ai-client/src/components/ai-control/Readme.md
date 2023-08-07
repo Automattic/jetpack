@@ -3,6 +3,7 @@
 #### Properties
 
 - `loading` (**boolean**) (Optional): Determines the loading state. Default value is `false`.
+- `disabled` (**boolean**) (Optional): Disables the ai control. Default value is `false`.
 - `value` (**string**): Current input value. Default value is `''`.
 - `placeholder` (**string**) (Optional): Placeholder text for the input field. Default value is `''`.
 - `showAccept` (**boolean**) (Optional): Determines if the accept button is shown. Default value is `false`.
