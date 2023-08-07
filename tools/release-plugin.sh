@@ -269,12 +269,15 @@ git fetch
 git merge origin/trunk
 tools/fixup-project-versions.sh
 git push
-PR_TITLE=
+PLUGINS_CHANGED=
 for PLUGIN in "${!PROJECTS[@]}"; do
-	PR_TITLE+="$(basename "$PLUGIN") ${PROJECTS[$PLUGIN]}, "
+	PLUGINS_CHANGED+="$(basename "$PLUGIN") ${PROJECTS[$PLUGIN]}, "
 done
-
-gh pr create --title "Backport $PR_TITLE Changes" --body "$(cat .github/BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
+# Remove the trailing comma and space
+PLUGINS_CHANGED=${PLUGINS_CHANGED%, }
+sed "s/%RELEASED_PLUGINS%/$PLUGINS_CHANGED/g" .github/files/BACKPORT_RELEASE_CHANGES.md > .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
+gh pr create --title "Backport $PLUGINS_CHANGED Changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
+rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
 
 yellow "Release script complete! Next steps: "
 echo -e "\t1. Merge the above PR into trunk."

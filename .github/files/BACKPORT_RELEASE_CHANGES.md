@@ -2,7 +2,7 @@
 
 ## Proposed changes:
 <!--- Explain what functional changes your PR includes -->
-Backports changes from PLUGIN_RELEASE X.Y
+Backports changes for %RELEASED_PLUGINS%
 
 ### Other information:
 
