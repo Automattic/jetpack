@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.0] - 2023-08-07
+### Added
+- Add add_about_page Launchpad task [#32245]
+- Add new Launchpad task [#32204]
+- Add the path for the Write 3 posts and Enable subscriber modal tasks [#32233]
+- Launchpad: add 'Get your first 10 subscribers' task for newsletters and add general repeated task completion logic [#32075]
+
+### Changed
+- Refactors is_launchpad_enabled method to make it clear they are related to the fullscreen launchpad [#32269]
+- Refactors disable_launchpad & maybe_disable_launchpad to make it clear they are related to the fullscreen launchpad [#32268]
+
+### Fixed
+- Fix the new get_calypso_path for the customize_welcome_message task [#32195]
+
 ## [4.2.0] - 2023-08-01
 ### Added
 - Add manage subscribers task. [#32064]
@@ -270,6 +284,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[4.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.7.0...v4.0.0
