@@ -11,7 +11,7 @@ import {
 import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
-import { useSelect, useEffect } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
@@ -69,33 +69,11 @@ export function SubscriptionEdit( props ) {
 		setBorderColor,
 		fontSize,
 		hasNewsletterPlans,
+		subscriberCount,
+		subscriberCountString,
 	} = props;
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( name );
-
-	const { subscriberCount, subscriberCountString } = useSelect( select => {
-		if ( ! isModuleActive ) {
-			return {
-				subscriberCounts: 0,
-				subscriberCountString: '',
-			};
-		}
-		const { emailSubscribers, socialFollowers } =
-			select( membershipProductsStore ).getSubscriberCounts();
-		let count = emailSubscribers;
-		if ( includeSocialFollowers ) {
-			count += socialFollowers;
-		}
-
-		return {
-			subscriberCounts: count,
-			subscriberCountString: sprintf(
-				/* translators: Placeholder is a number of subscribers. */
-				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
-				count
-			),
-		};
-	} );
 
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
@@ -319,11 +297,33 @@ const withThemeProvider = WrappedComponent => props =>
 	);
 
 export default compose( [
-	withSelect( select => {
-		const newsletterPlans = select( 'jetpack/membership-products' )
+	withSelect( ( select, ownProps ) => {
+		const { isModuleActive } = useModuleStatus( name );
+		const newsletterPlans = select( membershipProductsStore )
 			?.getProducts()
 			?.filter( product => product.subscribe_as_site_subscriber );
+
+		let subscriberCounts = 0;
+		let subscriberCountString = '';
+		if ( isModuleActive ) {
+			const { emailSubscribers, socialFollowers } =
+				select( membershipProductsStore ).getSubscriberCounts();
+			let count = emailSubscribers;
+			if ( ownProps.includeSocialFollowers ) {
+				count += socialFollowers;
+			}
+
+			subscriberCounts = count;
+			subscriberCountString = sprintf(
+				/* translators: Placeholder is a number of subscribers. */
+				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
+				count
+			);
+		}
+
 		return {
+			subscriberCounts: subscriberCounts,
+			subscriberCountString: subscriberCountString,
 			hasNewsletterPlans: newsletterPlans?.length !== 0,
 		};
 	} ),
