@@ -968,6 +968,7 @@ class WPCOM_Features {
 		self::STATS_PAID                       => array(
 			self::JETPACK_STATS_PWYW,
 			self::JETPACK_STATS_MONTHLY,
+			self::JETPACK_COMPLETE_PLANS,
 		),
 
 		// Importing subscribers to the site without limits.
