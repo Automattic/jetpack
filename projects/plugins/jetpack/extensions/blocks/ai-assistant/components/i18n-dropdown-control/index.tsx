@@ -113,7 +113,7 @@ const I18nMenuGroup = ( {
 }: Pick< LanguageDropdownControlProps, 'value' | 'onChange' > ) => {
 	const languageList = [ ...LANGUAGE_LIST.filter( language => language !== defaultLanguage ) ];
 	// Move the default language to the top of the list if it is included on LANGUAGE_LIST.
-	if ( languageList.includes( defaultLanguage ) ) {
+	if ( LANGUAGE_LIST.includes( defaultLanguage ) ) {
 		languageList.unshift( defaultLanguage );
 	}
 
