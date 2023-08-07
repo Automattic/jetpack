@@ -2,5 +2,35 @@ export type Trigger = {
 	slug: string;
 	title: string;
 	description?: string;
-	category: string; // TODO: these can be a type
+	category: Category;
 };
+
+export type Step = {
+	attributes: Step[];
+	nextStep?: Step;
+	slug: string;
+	title: string;
+	description: string;
+	type: Type;
+	category: Category;
+	allowedTriggers: Trigger[];
+};
+
+export type Action = Step;
+
+export type Condition = Step;
+
+export type Workflow = {
+	id: number;
+	name: string;
+	description: string;
+	category: Category;
+	triggers: Trigger[];
+	initial_step: Step;
+	active: boolean;
+	verion: number;
+};
+
+export type Type = 'contacts';
+
+export type Category = string;
