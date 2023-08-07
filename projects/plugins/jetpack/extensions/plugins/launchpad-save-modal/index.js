@@ -2,6 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
+import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useRef, useState } from '@wordpress/element';
@@ -36,7 +37,6 @@ export const settings = {
 		const [ isInitialPostPublish, setIsInitialPostPublish ] = useState( false );
 
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
-		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
 
 		const { launchpadScreenOption, hasNeverPublishedPostOption, siteIntentOption } =
@@ -51,6 +51,14 @@ export const settings = {
 			query: `siteSlug=${ siteFragment }`,
 		} );
 		const { tracks } = useAnalytics();
+
+		const [ launchpadConfig, setLaunchpadConfig ] = useEntityProp(
+			'root',
+			'site',
+			'wpcom_launchpad_config'
+		);
+
+		console.log( 'launchpadConfig', launchpadConfig );
 
 		const recordTracksEvent = eventName =>
 			tracks.recordEvent( eventName, {
