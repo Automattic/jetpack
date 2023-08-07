@@ -1,10 +1,11 @@
-import { JetpackLogo, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
+	getSiteFragment,
 	isComingSoon,
 	isPrivateSite,
-	useModuleStatus,
+	JetpackEditorPanelLogo,
 	useAnalytics,
-	getSiteFragment,
+	useModuleStatus,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Flex, FlexItem, Notice, PanelRow } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
@@ -60,7 +61,7 @@ function NewsletterEditorSettingsPanel( { accessLevel, setPostMeta } ) {
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterAccessDocumentSettings accessLevel={ accessLevel } setPostMeta={ setPostMeta } />
 		</PluginDocumentSettingPanel>
@@ -78,21 +79,21 @@ const NewsletterDisabledPanels = () => (
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginDocumentSettingPanel>
 		<PluginPrePublishPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginPrePublishPanel>
 		<PluginPostPublishPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter visibility', 'jetpack' ) }
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterDisabledNotice />
 		</PluginPostPublishPanel>
@@ -133,7 +134,7 @@ function NewsletterPrePublishSettingsPanel( {
 					) }
 				</>
 			}
-			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			icon={ <JetpackEditorPanelLogo /> }
 		>
 			{ isModuleActive && (
 				<>
@@ -226,7 +227,7 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 					</>
 				}
 				className="jetpack-subscribe-newsletters-panel jetpack-subscribe-post-publish-panel"
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				icon={ <JetpackEditorPanelLogo /> }
 			>
 				{ ! showMisconfigurationWarning && (
 					<Notice className="jetpack-subscribe-post-publish-panel__notice" isDismissible={ false }>
@@ -243,7 +244,7 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 					initialOpen
 					className="jetpack-subscribe-newsletters-panel paid-newsletters-post-publish-panel"
 					title={ __( 'Set up a paid newsletter', 'jetpack' ) }
-					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+					icon={ <JetpackEditorPanelLogo /> }
 				>
 					<PanelRow>
 						<p>
