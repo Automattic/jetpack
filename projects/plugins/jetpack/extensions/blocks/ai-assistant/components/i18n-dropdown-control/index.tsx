@@ -123,10 +123,12 @@ const I18nMenuGroup = ( {
 				return (
 					<MenuItem
 						key={ `key-${ language }` }
-						onClick={ () => onChange( language + ' (' + LANGUAGE_MAP[ language ].label + ')' ) }
+						onClick={ () =>
+							onChange( language + ' (' + ( LANGUAGE_MAP[ language ]?.label || '' ) + ')' )
+						}
 						isSelected={ value === language }
 					>
-						{ LANGUAGE_MAP[ language ].label }
+						{ LANGUAGE_MAP[ language ]?.label || '' }
 					</MenuItem>
 				);
 			} ) }
