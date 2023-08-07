@@ -10,8 +10,8 @@ import {
 } from '@wordpress/block-editor';
 import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
-import { useSelect, useEffect } from '@wordpress/element';
+import { useSelect, withSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
