@@ -104,7 +104,7 @@ export default function Proofread() {
 
 		request( messages );
 		toggleProofreadModal();
-		tracks.recordEvent( 'jetpack_ai_get_feedabck', {
+		tracks.recordEvent( 'jetpack_ai_get_feedback', {
 			post_id: postId,
 		} );
 	};
