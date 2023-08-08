@@ -1787,10 +1787,12 @@ abstract class Publicize_Base {
 	/**
 	 * Check if the auto-conversion feature is one of the active features.
 	 *
+	 * @param string $type Whether image or video.
+	 *
 	 * @return bool
 	 */
-	public function has_social_auto_conversion_feature() {
-		return Current_Plan::supports( 'jetpack-social-image-auto-convert' );
+	public function has_social_auto_conversion_feature( $type ) {
+		return Current_Plan::supports( "social-$type-auto-convert" );
 	}
 
 	/**

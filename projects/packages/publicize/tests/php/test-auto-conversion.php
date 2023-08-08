@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Current_Plan;
-use Automattic\Jetpack\Publicize\Auto_Conversion\Auto_Conversion_Settings;
+use Automattic\Jetpack\Publicize\Auto_Conversion\Settings as Auto_Conversion_Settings;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -17,7 +17,7 @@ use WorDBless\Users as WorDBless_Users;
 /**
  * Testing the Settings class.
  */
-class Autoconversion_Settings_Test extends BaseTestCase {
+class Auto_Conversion_Test extends BaseTestCase {
 	/**
 	 * Instance of the Settings class.
 	 *
@@ -38,7 +38,7 @@ class Autoconversion_Settings_Test extends BaseTestCase {
 		}
 
 		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array( 'jetpack-social-image-auto-convert' );
+		$plan['features']['active'] = array( 'social-image-auto-convert', 'social-image-generator', 'social-video-auto-convert' );
 		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 		$this->settings = new Auto_Conversion_Settings();
 	}
@@ -68,10 +68,11 @@ class Autoconversion_Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that Auto-Conversion is available based on the plan check.
+	 * Test that SIG is available based on the plan check.
 	 */
 	public function test_correctly_returns_available_status() {
-		$this->assertTrue( $this->settings->is_available() );
+		$this->assertTrue( $this->settings->is_available( 'image' ) );
+		$this->assertTrue( $this->settings->is_available( 'video' ) );
 	}
 
 	/**
@@ -92,15 +93,12 @@ class Autoconversion_Settings_Test extends BaseTestCase {
 
 		$this->settings->enable_or_disable( 'image', false );
 		$this->assertFalse( $this->settings->is_enabled( 'image' ) );
-		$this->assertFalse( $this->settings->is_enabled( 'video' ) );
-
 		$this->settings->enable_or_disable( 'video', true );
 		$this->assertTrue( $this->settings->is_enabled( 'video' ) );
 		$this->assertFalse( $this->settings->is_enabled( 'image' ) );
 
 		$this->settings->enable_or_disable( 'image', true );
-		$this->assertTrue( $this->settings->is_enabled( 'video' ) );
 		$this->assertTrue( $this->settings->is_enabled( 'image' ) );
+		$this->assertTrue( $this->settings->is_enabled( 'video' ) );
 	}
-
 }

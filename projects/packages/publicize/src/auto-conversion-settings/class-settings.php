@@ -12,7 +12,7 @@ use Automattic\Jetpack\Modules;
 /**
  * This class is used to get and update Auto_Conversion_Settings.
  */
-class Auto_Conversion_Settings {
+class Settings {
 	/**
 	 * Name of the database option.
 	 *
@@ -66,16 +66,18 @@ class Auto_Conversion_Settings {
 	/**
 	 * Check if the auto conversion feature is available.
 	 *
+	 * @param string $type Whether video or image.
+
 	 * @return bool True if available, false otherwise.
 	 */
-	public function is_available() {
+	public function is_available( $type ) {
 		global $publicize;
 
 		if ( ! $publicize ) {
 			return false;
 		}
 
-		return $publicize->has_social_auto_conversion_feature();
+		return $publicize->has_social_auto_conversion_feature( $type );
 	}
 
 	/**
@@ -87,7 +89,7 @@ class Auto_Conversion_Settings {
 	 */
 	public function is_enabled( $type ) {
 		// If the feature isn't available it should never be enabled.
-		if ( ! $this->is_available() ) {
+		if ( ! $this->is_available( $type ) ) {
 			return false;
 		}
 

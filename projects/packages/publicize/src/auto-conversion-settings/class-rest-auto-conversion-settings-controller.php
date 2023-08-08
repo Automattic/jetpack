@@ -1,6 +1,6 @@
 <?php
 /**
- * Class used to register REST API settings endpoints used by Social Image Generator.
+ * Class used to register REST API auto-conversion settings endpoints.
  *
  * @package automattic/jetpack-publicize
  */
@@ -27,12 +27,12 @@ class REST_Auto_Conversion_Settings_Controller extends WP_REST_Controller {
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_settings' ),
+					'callback'            => array( $this, 'get_auto_coversion_settings' ),
 					'permission_callback' => array( $this, 'settings_permissions_callback' ),
 				),
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'update_settings' ),
+					'callback'            => array( $this, 'update_auto_coversion_settings' ),
 					'permission_callback' => array( $this, 'settings_permissions_callback' ),
 					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::CREATABLE ),
 				),
@@ -46,8 +46,8 @@ class REST_Auto_Conversion_Settings_Controller extends WP_REST_Controller {
 	 *
 	 * @return WP_REST_Response
 	 */
-	public function get_settings() {
-		$settings   = new Auto_Conversion_Settings();
+	public function get_auto_coversion_settings() {
+		$settings   = new Settings();
 		$response   = array();
 		$schema     = $this->get_item_schema();
 		$properties = array_keys( $schema['properties'] );
@@ -70,8 +70,8 @@ class REST_Auto_Conversion_Settings_Controller extends WP_REST_Controller {
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function update_settings( $request ) {
-		$settings = new Auto_Conversion_Settings();
+	public function update_auto_coversion_settings( $request ) {
+		$settings = new Settings();
 
 		if ( isset( $request['image'] ) ) {
 			$settings->enable_or_disable( 'image', $request['image'] );
@@ -81,7 +81,7 @@ class REST_Auto_Conversion_Settings_Controller extends WP_REST_Controller {
 			$settings->enable_or_disable( 'video', $request['video'] );
 		}
 
-		return rest_ensure_response( $this->get_settings() );
+		return rest_ensure_response( $this->get_auto_coversion_settings() );
 	}
 
 	/**
