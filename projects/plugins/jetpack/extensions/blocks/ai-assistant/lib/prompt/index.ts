@@ -277,23 +277,35 @@ Strong requirements:
 - Do not add any element other than the Gutenberg blocks described below. If a block is not in the list, do not add it, as it will not be recognized by the Jetpack Form block.
 - By default, do not add any block attributes that are not specified in the request.
 - Use syntax templates for blocks as follows:
-	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":"TEXT_VALUE","required":BOOLEAN_VALUE,"requiredText":"TEXT_VALUE","placeholder":"TEXT_VALUE","width":NUMBER_VALUE,"borderRadius":NUMBER_VALUE,"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","fieldBackgroundColor":"HEX_VALUE","borderColor":"HEX _VALUE","borderWidth":NUMBER_VALUE,"labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":"TEXT_VALUE","required":BOOLEAN_VALUE,"requiredText":"TEXT_VALUE","placeholder":"TEXT_VALUE","width":NUMBER_VALUE,"borderRadius":NUMBER_VALUE,"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","fieldBackgroundColor":"HEX_VALUE","borderColor":"HEX _VALUE","borderWidth":NUMBER_VALUE,"labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`Text Input Field\`: <!-- wp:jetpack/field-text {"label":"TEXT_VALUE","required":BOOLEAN_VALUE,"requiredText":"TEXT_VALUE","placeholder":"TEXT_VALUE","width":NUMBER_VALUE,"borderRadius":NUMBER_VALUE,"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","fieldBackgroundColor":"HEX_VALUE","borderColor":"HEX _VALUE","borderWidth":NUMBER_VALUE,"labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`Multi-line Text Field \`: <!-- wp:jetpack/field-textarea {"label":"TEXT_VALUE","required":BOOLEAN_VALUE,"requiredText":"TEXT_VALUE","placeholder":"TEXT_VALUE","width":NUMBER_VALUE,"borderRadius":NUMBER_VALUE,"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","fieldBackgroundColor":"HEX_VALUE","borderColor":"HEX _VALUE","borderWidth":NUMBER_VALUE,"labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`Checkbox\`: <!-- wp:jetpack/field-checkbox {"label":"TEXT_VALUE","required":BOOLEAN_VALUE,"requiredText":"TEXT_VALUE","width":NUMBER_VALUE,"borderRadius":NUMBER_VALUE,"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","fieldBackgroundColor":"HEX_VALUE","borderColor":"HEX _VALUE","borderWidth":NUMBER_VALUE,"labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`Date Picker\`: <!-- wp:jetpack/field-date {"label":"TEXT_VALUE","required":BOOLEAN_VALUE,"requiredText":"TEXT_VALUE","placeholder":"TEXT_VALUE","width":NUMBER_VALUE,"borderRadius":NUMBER_VALUE,"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","fieldBackgroundColor":"HEX_VALUE","borderColor":"HEX _VALUE","borderWidth":NUMBER_VALUE,"labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`Phone Number Field\`: <!-- wp:jetpack/field-telephone {"label":"TEXT_VALUE","required":BOOLEAN_VALUE,"requiredText":"TEXT_VALUE","placeholder":"TEXT_VALUE","width":NUMBER_VALUE,"borderRadius":NUMBER_VALUE,"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","fieldBackgroundColor":"HEX_VALUE","borderColor":"HEX _VALUE","borderWidth":NUMBER_VALUE,"labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`URL Field\`: <!-- wp:jetpack/field-url {"label":"TEXT_VALUE","required":BOOLEAN_VALUE,"requiredText":"TEXT_VALUE","placeholder":"TEXT_VALUE","width":NUMBER_VALUE,"borderRadius":NUMBER_VALUE,"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","fieldBackgroundColor":"HEX_VALUE","borderColor":"HEX _VALUE","borderWidth":NUMBER_VALUE,"labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`Multiple Choice (Checkbox)\`: <!-- wp:jetpack/field-checkbox-multiple {"label":"TEXT_VALUE","required":BOOLEAN_VALUE,"requiredText":"TEXT_VALUE","options": [OPTION, OPTION, OPTION],"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`Single Choice (Radio)\`: <!-- wp:jetpack/field-radio {"label":"TEXT_VALUE","required":BOOLEAN_VALUE,"requiredText":"TEXT_VALUE","options": [OPTION, OPTION, OPTION],"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`Dropdown Field\`: <!-- wp:jetpack/field-select {"label":"TEXT_VALUE","required":BOOLEAN_VALUE,"requiredText":"TEXT_VALUE","options": [OPTION, OPTION, OPTION],"toggleLabel":"TEXT_VALUE","width":NUMBER_VALUE,"borderRadius":NUMBER_VALUE,"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","fieldBackgroundColor":"HEX_VALUE","borderColor":"HEX _VALUE","borderWidth":NUMBER_VALUE,"labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`Terms Consent\`:  <!-- wp:jetpack/field-consent {"consentType":"TEXT_VALUE","implicitConsentMessage":"TEXT_VALUE","explicitConsentMessage":"TEXT_VALUE","width":NUMBER_VALUE,"borderRadius":NUMBER_VALUE,"labelColor":"HEX_VALUE","inputColor":"HEX_VALUE","fieldBackgroundColor":"HEX_VALUE","borderColor":"HEX _VALUE","borderWidth":NUMBER_VALUE,"labelFontSize":"SIZE_VALUE","fieldFontSize":"SIZE_VALUE","lineHeight":NUMBER_VALUE,"labelLineHeight":NUMBER_VALUE} /-->
-	- \`Button\`: <!-- wp:jetpack/button {"label":"TEXT_VALUE","text":"TEXT_VALUE","borderRadius":NUMBER_VALUE,"customTextColor":"HEX_VALUE","customBackgroundColor":"HEX_VALUE"} /-->
+	- <!-- [block code] { "attribute1": "value", "attribute2": "value" } /-->
+
+- Blocks to use:
+	- Name field: wp:jetpack/field-name
+	- Email field: wp:jetpack/field-email
+	- Text input field: wp:jetpack/field-text
+	- Multi-line text field: wp:jetpack/field-textarea
+	- Date picker: wp:jetpack/field-date
+	- Phone number field: wp:jetpack/field-telephone
+	- URL field: wp:jetpack/field-url
+	- Checkbox: wp:jetpack/field-checkbox
+	- Multiple choice (checkbox): wp:jetpack/field-checkbox-multiple
+	- Single choice (radio): wp:jetpack/field-radio
+	- Dropdown field: wp:jetpack/field-select
+	- Terms consent: wp:jetpack/field-consent
+	- Button: wp:jetpack/button
+
+- Attributes for each block:
+	- Name, Email, Text input, Multi-line text, Date picker, Phone number and URL fields: label, required, requiredText, placeholder, width, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+	- Checkbox: label, required, requiredText, width,labelColor, labelFontSize, labelLineHeight
+	- Multiple choice (checkbox) and Single choice (radio): label, required, requiredText, options, labelColor, inputColor, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+	- Dropdown field: label, required, requiredText, options, toggleLabel, width, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+	- Terms consent: consentType, implicitConsentMessage, explicitConsentMessage, width, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
+	- Button: label, text, borderRadius, customTextColor, customBackgroundColor
 
 - Example syntax:
 	- <!-- wp:jetpack/field-name {"label":"Name","required":true,"requiredText":"(required)","borderRadius":56,"borderWidth":32,"labelFontSize":"20px","fieldFontSize":"20px","lineHeight":1.7,"labelLineHeight":1.7,"inputColor":"#FF0000","labelColor":"#00FF00","fieldBackgroundColor":"#0000FF","borderColor":"#FFFF00"} /-->
 	- <!-- wp:jetpack/field-email {"label":"Email","placeholder":"Insert your email","labelColor":"#BB5700"} /-->
+	- <!-- wp:jetpack/field-checkbox-multiple {"label":"Vegetables","options":["Kale","Spinach"]} /-->
 - Notice that color names were translated to HEX values and optional fields were omitted in the second example.
 
 Jetpack Form to modify or add content to, delimited with ${ delimiter }: ${ getDelimitedContent(
