@@ -999,7 +999,7 @@ class Sender {
 		wp_clear_scheduled_hook( 'jetpack_sync_cron' );
 		wp_clear_scheduled_hook( 'jetpack_sync_full_cron' );
 
-		// Drom Sync queue custom table.
+		// Drop Sync queue custom table.
 		// Instantiate table storage, so we can drop the custom table. Queue ID is just a placeholder here.
 		$queue_table_storage = new Queue_Storage_Table( 'test_queue' );
 		$queue_table_storage->drop_table();
