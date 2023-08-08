@@ -164,6 +164,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				...prev,
 				anchor: blockDomElement,
 				placement: 'bottom-start',
+				variant: null,
 				offset: 12,
 			} ) );
 
