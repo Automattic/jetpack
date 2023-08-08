@@ -228,6 +228,15 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			keywords.add( '[CRM] API' );
 		}
 
+		// mu wpcom features.
+		const muWpcomFeatures = file.match(
+			/^projects\/packages\/jetpack-mu-wpcom\/src\/features\/(?<muWpcomFeature>[^/]*)\//
+		);
+		const muWpcomFeatureName = muWpcomFeatures && muWpcomFeatures.groups.muWpcomFeature;
+		if ( muWpcomFeatureName ) {
+			keywords.add( `[mu wpcom Feature] ${ cleanName( muWpcomFeatureName ) }` );
+		}
+
 		// Boost Critical CSS.
 		const boostModules = file.match(
 			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?<boostModule>[^/]*)\//
