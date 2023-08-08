@@ -29,7 +29,7 @@ function register_block() {
 		array(
 			'render_callback' => __NAMESPACE__ . '\render',
 		),
-		$json_dir,
+		$json_dir
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );

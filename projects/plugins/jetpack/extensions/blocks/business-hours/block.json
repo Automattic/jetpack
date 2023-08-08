@@ -22,7 +22,5 @@
 			"lineHeight": true
 		},
 		"align": [ "wide", "full" ]
-	},
-	"editorScript": "file:./editor.js",
-	"editorStyle": "file:./editor.css"
+	}
 }

@@ -19,12 +19,23 @@ const editorSetup = path.join( __dirname, '../extensions', 'editor' );
 const viewSetup = path.join( __dirname, '../extensions', 'view' );
 const blockEditorDirectories = [ 'plugins', 'blocks' ];
 const noop = function () {};
+
 const presetPath = path.join( __dirname, '../extensions', 'index.json' );
 const presetIndex = require( presetPath );
+const presetProductionBlocks = presetIndex.production || [];
+const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
+const presetExperimentalBlocks = [
+	...presetProductionBlocks,
+	...( presetIndex.experimental || [] ),
+];
+// Beta Blocks include all blocks: beta, experimental, and production blocks.
+const presetBetaBlocks = [ ...presetExperimentalBlocks, ...( presetIndex.beta || [] ) ];
+// Bundled blocks are built individually or grouped together in bundles.
 const presetBundles = presetIndex._bundles || {};
-const bundledBlocks = Object.keys( presetBundles ).reduce( ( blocks, bundle ) => {
-	return blocks.concat( presetBundles[ bundle ] );
-}, [] );
+const bundledBlocks = Object.keys( presetBundles ).reduce(
+	( blocks, bundle ) => [ ...blocks, ...presetBundles[ bundle ] ],
+	[]
+);
 
 /**
  * Filters block editor scripts
@@ -35,27 +46,20 @@ const bundledBlocks = Object.keys( presetBundles ).reduce( ( blocks, bundle ) =>
  * @returns {Array} list of block scripts
  */
 function presetProductionExtensions( type, inputDir, presetBlocks ) {
-	return presetBlocks
-		.filter( block => ! bundledBlocks.includes( block ) )
-		.flatMap( block =>
-			blockEditorDirectories.map( dir => path.join( inputDir, dir, block, `${ type }.js` ) )
-		)
-		.filter( fs.existsSync )
-		.filter( block => ! bundledBlocks.includes( block ) );
+	return (
+		presetBlocks
+			// Exclude blocks that are bundled separately from the production/experimental/beta bundles.
+			.filter( block => ! bundledBlocks.includes( block ) )
+			.flatMap( block =>
+				blockEditorDirectories.map( dir => path.join( inputDir, dir, block, `${ type }.js` ) )
+			)
+			.filter( fs.existsSync )
+	);
 }
-
-const presetProductionBlocks = presetIndex.production || [];
-const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
-
-const presetExperimentalBlocks = [
-	...presetProductionBlocks,
-	...( presetIndex.experimental || [] ),
-];
-// Beta Blocks include all blocks: beta, experimental, and production blocks.
-const presetBetaBlocks = [ ...presetExperimentalBlocks, ...( presetIndex.beta || [] ) ];
 
 // Helps split up each block into its own folder view script
 const viewBlocksScripts = presetBetaBlocks
+	// Exclude blocks that are bundled separately from the production/experimental/beta bundles.
 	.filter( block => ! bundledBlocks.includes( block ) )
 	.reduce( ( viewBlocks, block ) => {
 		const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
@@ -103,22 +107,6 @@ const editorNoPostEditorScript = [
 		presetNoPostEditorBlocks
 	),
 ];
-
-const editorSingleBlocksScripts = bundledBlocks.reduce( ( editorBlocks, block ) => {
-	const editorScriptPath = path.join( __dirname, '../extensions/blocks', block, 'editor.js' );
-	if ( fs.existsSync( editorScriptPath ) ) {
-		editorBlocks[ block + '/editor' ] = [ editorScriptPath ];
-	}
-	return editorBlocks;
-}, {} );
-
-const viewSingleBlocksScripts = bundledBlocks.reduce( ( viewBlocks, block ) => {
-	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
-	if ( fs.existsSync( viewScriptPath ) ) {
-		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
-	}
-	return viewBlocks;
-}, {} );
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -194,8 +182,77 @@ const sharedWebpackConfig = {
 	},
 };
 
-// We export two configuration files: One for admin.js, and one for components.jsx.
-// The latter produces pre-rendered components HTML.
+/**
+ * Bundles logic
+ */
+
+const bundles = {};
+const bundlesPlugins = [];
+
+Object.keys( presetBundles ).forEach( bundleName => {
+	const blocks = presetBundles[ bundleName ];
+
+	// Bundle editor assets
+	bundles[ bundleName + '/editor' ] = blocks.reduce( ( arr, block ) => {
+		const editorScriptPath = path.join( __dirname, '../extensions/blocks', block, 'editor.js' );
+
+		if ( fs.existsSync( editorScriptPath ) ) {
+			arr.push( editorScriptPath );
+		}
+
+		return arr;
+	}, [] );
+
+	// Bundle view assets
+	bundles[ bundleName + '/view' ] = blocks.reduce( ( arr, block ) => {
+		const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
+
+		if ( fs.existsSync( viewScriptPath ) ) {
+			arr.push( viewScriptPath );
+		}
+
+		return arr;
+	}, [] );
+
+	// Copy block.json files and set assets paths
+	blocks.forEach( block => {
+		bundlesPlugins.push(
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: `${ block }/block.json`,
+						to: `${ block }/[path][name][ext]`,
+						context: path.join( __dirname, '../extensions/blocks' ),
+						transform( content ) {
+							let metadata = {};
+
+							try {
+								metadata = JSON.parse( content.toString() );
+							} catch ( e ) {}
+
+							return JSON.stringify( {
+								...metadata,
+								editorScript: `file:../${ bundleName }/editor.js`,
+								editorStyle: `file:../${ bundleName }/editor.css`,
+								viewScript: `file:../${ bundleName }/view.js`,
+								style: `file:../${ bundleName }/view.css`,
+							} );
+						},
+						noErrorOnMissing: true,
+					},
+				],
+			} )
+		);
+	} );
+} );
+
+const bundlesConfig = {
+	...sharedWebpackConfig,
+	entry: bundles,
+	plugins: [ ...sharedWebpackConfig.plugins, ...bundlesPlugins ],
+};
+
+// We export three configuration files: One for admin.js, one for components.jsx (produces pre-rendered components HTML), and one for bundles.
 module.exports = [
 	{
 		...sharedWebpackConfig,
@@ -216,12 +273,17 @@ module.exports = [
 					},
 				],
 			} ),
+			// Copy the block.json files to the matching block folder in the build directory.
 			new CopyWebpackPlugin( {
 				patterns: [
 					{
 						from: '**/block.json',
 						to: '[path][name][ext]',
 						context: path.join( __dirname, '../extensions/blocks' ),
+						globOptions: {
+							ignore: bundledBlocks.map( block => `**/${ block }/**` ),
+						},
+						noErrorOnMissing: true,
 					},
 				],
 			} ),
@@ -301,11 +363,5 @@ module.exports = [
 			} ),
 		],
 	},
-	{
-		...sharedWebpackConfig,
-		entry: {
-			...editorSingleBlocksScripts,
-			...viewSingleBlocksScripts,
-		},
-	},
+	bundlesConfig,
 ];

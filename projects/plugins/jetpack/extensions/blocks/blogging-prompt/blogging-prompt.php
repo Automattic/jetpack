@@ -30,7 +30,7 @@ function register_block() {
 			array(
 				'render_callback' => __NAMESPACE__ . '\load_assets',
 			),
-			$json_dir,
+			$json_dir
 		);
 	}
 }

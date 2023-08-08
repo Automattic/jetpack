@@ -29,7 +29,5 @@
 			"padding": true,
 			"blockGap": false
 		}
-	},
-	"editorScript": "file:./editor.js",
-	"editorStyle": "file:./editor.css"
+	}
 }
