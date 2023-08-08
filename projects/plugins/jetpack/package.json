@@ -128,7 +128,7 @@
 		"@testing-library/react": "13.4.0",
 		"@testing-library/user-event": "14.4.3",
 		"@types/jest": "29.2.5",
-		"@types/react": "18.2.14",
+		"@types/react": "18.2.19",
 		"@types/wordpress__block-editor": "11.5.1",
 		"@wordpress/api-fetch": "6.35.0",
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.21.0",
