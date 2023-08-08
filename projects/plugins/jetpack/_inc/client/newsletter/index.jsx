@@ -2,15 +2,9 @@ import { __ } from '@wordpress/i18n';
 import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
-import {
-	hasConnectedOwner as hasConnectedOwnerSelector,
-	isOfflineMode,
-	isUnavailableInOfflineMode as isUnavailableInOfflineModeSelector,
-} from 'state/connection';
-import { isAtomicSite as isAtomicSiteSelector } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
-import { SubscriptionsSettings } from './subscriptions-settings';
+import SubscriptionsSettings from './subscriptions-settings';
 
 /**
  * Newsletter Section.
@@ -19,7 +13,7 @@ import { SubscriptionsSettings } from './subscriptions-settings';
  * @returns {React.Component} Newsletter settings component.
  */
 function Subscriptions( props ) {
-	const { active, isModuleFound, searchTerm } = props;
+	const { active, isModuleFound, searchTerm, siteAdminUrl, siteRawUrl } = props;
 
 	const foundSubscriptions = isModuleFound( 'subscriptions' );
 
@@ -45,11 +39,7 @@ function Subscriptions( props ) {
 					  ) }
 			</h2>
 			{ foundSubscriptions && (
-				<SubscriptionsSettings
-					isLinked={ this.props.isLinked }
-					connectUrl={ this.props.connectUrl }
-					siteRawUrl={ this.props.siteRawUrl }
-				/>
+				<SubscriptionsSettings siteAdminUrl={ siteAdminUrl } siteRawUrl={ siteRawUrl } />
 			) }
 		</div>
 	);
@@ -57,12 +47,7 @@ function Subscriptions( props ) {
 
 export default connect( state => {
 	return {
-		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		module: module_name => getModule( state, module_name ),
-		isOffline: isOfflineMode( state ),
 		isModuleFound: module_name => isModuleFoundSelector( state, module_name ),
-		isUnavailableInOfflineMode: module_name =>
-			isUnavailableInOfflineModeSelector( state, module_name ),
-		isAtomicSite: isAtomicSiteSelector( state ),
 	};
 } )( Subscriptions );
