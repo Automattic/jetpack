@@ -1,3 +1,4 @@
+import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { __, sprintf } from '@wordpress/i18n';
 import { type FunctionComponent } from 'react';
 import './style-tooltip.scss';
@@ -8,7 +9,7 @@ type TooltipProps = {
 	mobileScore: number;
 };
 export const Tooltip: FunctionComponent = ( { date, desktopScore, mobileScore }: TooltipProps ) => {
-	const scoreLetter = 'A';
+	const scoreLetter = getScoreLetter( mobileScore, desktopScore );
 
 	if ( ! desktopScore || ! mobileScore ) {
 		return null;

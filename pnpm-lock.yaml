@@ -216,6 +216,9 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
+      '@automattic/jetpack-boost-score-api':
+        specifier: workspace:0.1.6-alpha
+        version: link:../boost-score-api
       '@babel/runtime':
         specifier: ^7
         version: 7.22.6
