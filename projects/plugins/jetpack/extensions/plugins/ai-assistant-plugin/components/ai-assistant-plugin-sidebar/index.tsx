@@ -11,12 +11,20 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
-import useAIFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import useAIFeature, {
+	UpgradeTypeProp,
+} from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import Proofread from '../proofread';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Upgrade = ( { onClick }: { onClick: ( event: any ) => void } ) => {
+const Upgrade = ( {
+	onClick,
+	type,
+}: {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	onClick: ( event: any ) => void;
+	type: UpgradeTypeProp;
+} ) => {
 	const { tracks } = useAnalytics();
 
 	const handleClick = useCallback(
@@ -27,23 +35,31 @@ const Upgrade = ( { onClick }: { onClick: ( event: any ) => void } ) => {
 		[ onClick, tracks ]
 	);
 
-	return (
-		<div>
-			{ createInterpolateElement(
-				__(
-					'You have reached the limit of 20 free requests. <button>Upgrade to continue generating feedback.</button>',
-					'jetpack'
-				),
-				{
-					button: <Button variant="link" onClick={ handleClick } />,
-				}
-			) }
-		</div>
+	const messageForVip = createInterpolateElement(
+		__(
+			"You've reached the Jetpack AI rate limit. <strong>Please reach out to your VIP account team.</strong>",
+			'jetpack'
+		),
+		{
+			strong: <strong />,
+		}
 	);
+
+	const defaultUpgradeMessage = createInterpolateElement(
+		__(
+			'You have reached the limit of 20 free requests. <button>Upgrade to continue generating feedback.</button>',
+			'jetpack'
+		),
+		{
+			button: <Button variant="link" onClick={ handleClick } />,
+		}
+	);
+
+	return <div>{ type === 'vip' ? messageForVip : defaultUpgradeMessage }</div>;
 };
 
 export default function AiAssistantPluginSidebar() {
-	const { requireUpgrade } = useAIFeature();
+	const { requireUpgrade, upgradeType } = useAIFeature();
 	const { autosaveAndRedirect, isRedirecting } = useAICheckout();
 
 	const title = __( 'AI Assistant', 'jetpack' );
@@ -57,7 +73,7 @@ export default function AiAssistantPluginSidebar() {
 					</PanelRow>
 					{ requireUpgrade && (
 						<PanelRow>
-							<Upgrade onClick={ autosaveAndRedirect } />
+							<Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } />
 						</PanelRow>
 					) }
 				</PanelBody>
@@ -68,7 +84,7 @@ export default function AiAssistantPluginSidebar() {
 				initialOpen={ false }
 			>
 				<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
-				{ requireUpgrade && <Upgrade onClick={ autosaveAndRedirect } /> }
+				{ requireUpgrade && <Upgrade onClick={ autosaveAndRedirect } type={ upgradeType } /> }
 			</PluginPrePublishPanel>
 		</>
 	);
