@@ -6,6 +6,7 @@ use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Callables;
+use Automattic\Jetpack\Sync\Queue\Queue_Storage_Table;
 use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
@@ -39,8 +40,11 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * Tear down.
 	 */
 	public function tear_down() {
-		parent::tear_down();
+		global $wpdb;
 
+		parent::tear_down();
+		// Restore $wpdb supress errors.
+		$wpdb->suppress_errors( false );
 		// Restore default setting.
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
 
@@ -739,6 +743,24 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( $this->dedicated_sync_request_spawned );
 		$this->assertTrue( $result );
+	}
+
+	public function test_uninstall_will_drop_queue_custom_table() {
+		global $wpdb;
+
+		$wpdb->suppress_errors();
+
+		$queue_table_storage = new Queue_Storage_Table( 'test_queue' );
+
+		Queue_Storage_Table::initialize_custom_sync_table();
+
+		$result_with_existing_custom_table = $queue_table_storage->insert_item( 'test', 'test' );
+		$this->assertTrue( $result_with_existing_custom_table );
+		$this->assertEmpty( $wpdb->last_error );
+		$this->sender->uninstall();
+
+		$queue_table_storage->insert_item( 'test', 'test' );
+		$this->assertSame( "Table 'wordpress." . $queue_table_storage->table_name . "' doesn't exist", $wpdb->last_error );
 	}
 
 	public function run_filter( $data ) {
