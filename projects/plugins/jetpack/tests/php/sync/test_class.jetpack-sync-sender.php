@@ -760,6 +760,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->uninstall();
 
 		$queue_table_storage->insert_item( 'test', 'test' );
+		// phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
 		$this->assertSame( "Table 'wordpress." . $queue_table_storage->table_name . "' doesn't exist", $wpdb->last_error );
 	}
 
