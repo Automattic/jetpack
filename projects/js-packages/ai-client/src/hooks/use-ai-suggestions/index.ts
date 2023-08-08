@@ -7,22 +7,23 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import askQuestion, { AskQuestionOptionsArgProps } from '../../ask-question';
+import askQuestion from '../../ask-question';
 import {
 	ERROR_MODERATION,
 	ERROR_NETWORK,
 	ERROR_QUOTA_EXCEEDED,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
-	type PromptItemProps,
-	type SuggestionErrorCode,
 } from '../../types';
 /**
  * Types & constants
  */
+import type { AskQuestionOptionsArgProps } from '../../ask-question';
 import type SuggestionsEventSource from '../../suggestions-event-source';
+import type { PromptProp, SuggestionErrorCode } from '../../types';
+import type { RequestingStateProp } from '../../types';
 
-export type SuggestionErrorProps = {
+export type RequestingErrorProps = {
 	/*
 	 * A string code to refer to the error.
 	 */
@@ -43,18 +44,12 @@ type useAiSuggestionsOptions = {
 	/*
 	 * Request prompt.
 	 */
-	prompt?: PromptItemProps[];
+	prompt?: PromptProp;
 
 	/*
 	 * Whether to request suggestions automatically.
 	 */
 	autoRequest?: boolean;
-
-	/*
-	 * The post ID.
-	 * It's value, when defined, will be passed to the askQuestion function.
-	 */
-	postId?: number;
 
 	/**
 	 * AskQuestion options.
@@ -74,10 +69,8 @@ type useAiSuggestionsOptions = {
 	/*
 	 * onError callback.
 	 */
-	onError?: ( error: SuggestionErrorProps ) => void;
+	onError?: ( error: RequestingErrorProps ) => void;
 };
-
-export type RequestingStateProp = 'init' | 'requesting' | 'suggesting' | 'done' | 'error';
 
 type useAiSuggestionsProps = {
 	/*
@@ -88,7 +81,7 @@ type useAiSuggestionsProps = {
 	/*
 	 * The error.
 	 */
-	error: SuggestionErrorProps | undefined;
+	error: RequestingErrorProps | undefined;
 
 	/*
 	 * Whether the request is in progress.
@@ -103,7 +96,7 @@ type useAiSuggestionsProps = {
 	/*
 	 * The request handler.
 	 */
-	request: ( prompt: Array< PromptItemProps > ) => Promise< void >;
+	request: ( prompt: PromptProp, options?: AskQuestionOptionsArgProps ) => Promise< void >;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
@@ -112,9 +105,9 @@ const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
  * Get the error data for a given error code.
  *
  * @param {SuggestionErrorCode} errorCode - The error code.
- * @returns {SuggestionErrorProps}          The error data.
+ * @returns {RequestingErrorProps}          The error data.
  */
-function getErrorData( errorCode: SuggestionErrorCode ): SuggestionErrorProps {
+export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorProps {
 	switch ( errorCode ) {
 		case ERROR_QUOTA_EXCEEDED:
 			return {
@@ -178,14 +171,13 @@ export default function useAiSuggestions( {
 	prompt,
 	autoRequest = false,
 	askQuestionOptions = {},
-	postId,
 	onSuggestion,
 	onDone,
 	onError,
 }: useAiSuggestionsOptions = {} ): useAiSuggestionsProps {
 	const [ requestingState, setRequestingState ] = useState< RequestingStateProp >( 'init' );
 	const [ suggestion, setSuggestion ] = useState< string >( '' );
-	const [ error, setError ] = useState< SuggestionErrorProps >();
+	const [ error, setError ] = useState< RequestingErrorProps >();
 
 	// Store the event source in a ref, so we can handle it if needed.
 	const eventSourceRef = useRef< SuggestionsEventSource | undefined >( undefined );
@@ -247,25 +239,25 @@ export default function useAiSuggestions( {
 	/**
 	 * Request handler.
 	 *
+	 * @param {PromptProp} promptArg               - The messages array of the prompt.
+	 * @param {AskQuestionOptionsArgProps} options - The options for the askQuestion request. Uses the hook's askQuestionOptions by default.
 	 * @returns {Promise<void>} The promise.
 	 */
 	const request = useCallback(
-		async ( promptArg: Array< PromptItemProps > ) => {
-			promptArg.forEach( ( { role, content: promptContent }, i ) =>
-				debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
-			);
+		async (
+			promptArg: PromptProp,
+			options: AskQuestionOptionsArgProps = { ...askQuestionOptions }
+		) => {
+			if ( Array.isArray( promptArg ) && promptArg?.length ) {
+				promptArg.forEach( ( { role, content: promptContent }, i ) =>
+					debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
+				);
+			} else {
+				debug( '%o', promptArg );
+			}
+
 			// Set the request status.
 			setRequestingState( 'requesting' );
-
-			const options = {
-				...askQuestionOptions,
-			};
-
-			// Pass the post ID to the askQuestion function, when defined.
-			if ( postId ) {
-				debug( 'Post ID: %s', postId );
-				options.postId = postId;
-			}
 
 			try {
 				eventSourceRef.current = await askQuestion( promptArg, options );
@@ -295,7 +287,6 @@ export default function useAiSuggestions( {
 			}
 		},
 		[
-			postId,
 			handleDone,
 			handleErrorQuotaExceededError,
 			handleUnclearPromptError,
@@ -315,7 +306,7 @@ export default function useAiSuggestions( {
 
 		// Trigger the request.
 		if ( autoRequest ) {
-			request( prompt );
+			request( prompt, askQuestionOptions );
 		}
 
 		return () => {

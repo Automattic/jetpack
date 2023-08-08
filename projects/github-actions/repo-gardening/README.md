@@ -75,6 +75,7 @@ The action relies on the following parameters.
 
 - (Required) `github_token` is a GitHub Access Token used to access GitHub's API. The user account associated with the token is the one that will be seen as posting the checkDescription comment, adding and removing labels, and so on. If omitted, the standard token for the github-actions bot will be used.
 - (Optional) `tasks` allows for running selected tasks instead of the full suite. The value is a comma-separated list of task identifiers. You can find the list of the different tasks (and what event it's attached to) in `src/index.js`.
+- (Optional) `add_labels`. Pass custom labels to add. Defaults to an empty string. Only applies for the [addLabel](src/tasks/add-labels/readme.md) task.
 - (Optional) `slack_token` is the Auth token of a bot that is installed on your Slack workspace. The token should be stored in a [secret](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository). See the instructions below to create a bot.
 - (Optional) `slack_design_channel` is the Slack public channel ID where messages for the design team will be posted. Again, the value should be stored in a secret.
 - (Optional) `slack_editorial_channel` is the Slack public channel ID where messages for the Editorial team will be posted. Again, the value should be stored in a secret.
