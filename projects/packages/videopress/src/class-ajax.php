@@ -123,7 +123,6 @@ class AJAX {
 	 * @return bool
 	 */
 	private function can_access_restricted_content( $guid, $embedded_post_id, $selected_plan_id ) {
-		// "just" private content.
 		$default_auth = current_user_can( 'read' );
 
 		if ( class_exists( '\Jetpack_Memberships' ) ) {
@@ -138,8 +137,9 @@ class AJAX {
 			if ( file_exists( $subscription_service_file_path ) ) {
 				require_once $subscription_service_file_path;
 				if ( $selected_plan_id > 0 ) {
-					$paywall      = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-					$access_level = \Automattic\Jetpack\Extensions\Premium_Content\Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS; // Only paid subscribers should be granted access to the premium content
+					$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+					// Only paid subscribers should be granted access to the premium content.
+					$access_level = \Automattic\Jetpack\Extensions\Premium_Content\Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
 					$can_view     = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );
 
 					if ( ! $can_view ) {
