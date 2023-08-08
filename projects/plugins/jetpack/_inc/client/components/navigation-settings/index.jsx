@@ -171,7 +171,6 @@ export class NavigationSettings extends React.Component {
 						'comments',
 						'gravatar-hovercards',
 						'markdown',
-						'subscriptions',
 					] ) && (
 						<NavItem
 							path="#discussion"
