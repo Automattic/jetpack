@@ -119,13 +119,13 @@ class Queue_Storage_Table {
 	/**
 	 * Check if the table is healthy, and we can read and write from/to it.
 	 *
-	 * @return bool If the custom table is available, and we can read and write from/to it.
+	 * @return true|\WP_Error If the custom table is available, and we can read and write from/to it.
 	 */
 	private function is_custom_table_healthy() {
 		global $wpdb;
 
 		if ( ! $this->custom_table_exists() ) {
-			return false;
+			return new \WP_Error( 'custom_table_not_exist', 'Jetpack Sync Custom table: Table does not exist' );
 		}
 
 		// Try to read from the table
@@ -136,13 +136,34 @@ class Queue_Storage_Table {
 
 		if ( $query === false ) {
 			// The query failed to select anything from the table, so there must be an issue reading from it.
-			return false;
+			return new \WP_Error( 'custom_table_unable_to_read', 'Jetpack Sync Custom table: Unable to read from table' );
 		}
 
 		if ( $wpdb->last_error ) {
 			// There was an error reading, that's not necessarily failing the query.
 			// TODO check if we need this error check.
-			return false;
+			// TODO add more information about the erorr in the return value.
+			return new \WP_Error( 'custom_table_unable_to_read_sql_error', 'Jetpack Sync Custom table: Unable to read from table - SQL error' );
+		}
+
+		// Check if we can write in the table
+		if ( ! $this->insert_item( 'test', 'test' ) ) {
+			return new \WP_Error( 'custom_table_unable_to_writeread', 'Jetpack Sync Custom table: Unable to write into table' );
+		}
+
+		// See if we can read the item back
+		$items = $this->fetch_items_by_ids( 'test' );
+		if ( empty( $items ) || ! is_object( $items[0] ) || $items[0]->value !== 'test' ) {
+			return new \WP_Error( 'custom_table_unable_to_writeread', 'Jetpack Sync Custom table: Unable to read item after writing' );
+		}
+
+		// Try to insert an item, read it back and then delete it.
+		$this->delete_items_by_ids( 'test' );
+
+		// Try to fetch the item back. It should not exist.
+		$items = $this->fetch_items_by_ids( 'test' );
+		if ( ! empty( $items ) ) {
+			return new \WP_Error( 'custom_table_unable_to_writeread', 'Jetpack Sync Custom table: Unable to delete from table' );
 		}
 
 		return true;
@@ -455,5 +476,191 @@ class Queue_Storage_Table {
 				array_merge( array( $this->queue_id ), $ids )
 			)
 		);
+	}
+
+	/**
+	 * Table initialization
+	 */
+	public static function initialize_custom_sync_table() {
+		/**
+		 * Initialize an instance of the class with a test name, so we can use table prefix and then test if the table is healthy.
+		 */
+		$custom_table_instance = new Queue_Storage_Table( 'test_queue' );
+
+		// Check if the table exists
+		if ( ! $custom_table_instance->custom_table_exists() ) {
+			$custom_table_instance->create_table();
+		}
+
+		if ( is_wp_error( $custom_table_instance->is_custom_table_healthy() ) ) {
+			// TODO: send error to WPCOM
+			// TODO: clean up the table.
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Migrates the existing Sync events from the options table to the Custom table
+	 *
+	 * @return void
+	 */
+	public static function migrate_from_options_table_to_custom_table() {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count_result = $wpdb->get_row(
+			"
+				SELECT
+					COUNT(*) as item_count
+				FROM
+				    {$wpdb->options}
+				WHERE
+				    option_name LIKE 'jpsq_%'
+			"
+		);
+
+		$item_count = $count_result->item_count;
+
+		$limit  = 100;
+		$offset = 0;
+
+		do {
+			// get all the records from the options table
+			$query = "
+				SELECT
+					option_name as event_id,
+					option_value as event_payload
+				FROM
+				    {$wpdb->options}
+				WHERE
+				    option_name LIKE 'jpsq_%'
+				ORDER BY
+				    option_name ASC
+				LIMIT $offset, $limit
+			";
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+			$rows = $wpdb->get_results( $query );
+
+			$insert_rows = array();
+
+			foreach ( $rows as $event ) {
+				$event_id = $event->event_id;
+
+				// Parse the event
+				if (
+					preg_match(
+						'!jpsq_(?P<queue_id>[^-]+)-(?P<timestamp>[^-]+)-.+!',
+						$event_id,
+						$events_matches
+					)
+				) {
+					$queue_id  = $events_matches['queue_id'];
+					$timestamp = $events_matches['timestamp'];
+
+					$insert_rows[] = $wpdb->prepare(
+						'(%s, %s, %s, %s)',
+						array(
+							$queue_id,
+							$event_id,
+							$event->event_payload,
+							(int) $timestamp,
+						)
+					);
+				}
+			}
+
+			// Instantiate table storage, so we can get the table name. Queue ID is just a placeholder here.
+			$queue_table_storage = new Queue_Storage_Table( 'test_queue' );
+
+			if ( ! empty( $insert_rows ) ) {
+				$insert_query = 'INSERT INTO ' . $queue_table_storage->table_name . ' (queue_id, event_id, event_payload, timestamp) VALUES ';
+
+				$insert_query .= implode( ',', $insert_rows );
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+				$wpdb->query( $insert_query );
+			}
+
+			$offset += $limit;
+		} while ( $offset < $item_count );
+
+		// Clear out the options queue
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+				'jpsq_%-%'
+			)
+		);
+	}
+
+	/**
+	 * Migrates the existing Sync events from the Custom table to the Options table
+	 *
+	 * @return void
+	 */
+	public static function migrate_from_custom_table_to_options_table() {
+		global $wpdb;
+
+		// Instantiate table storage, so we can get the table name. Queue ID is just a placeholder here.
+		$queue_table_storage = new Queue_Storage_Table( 'test_queue' );
+		$custom_table_name   = $queue_table_storage->table_name;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$count_result = $wpdb->get_row( "SELECT COUNT(*) as item_count FROM {$custom_table_name}" );
+
+		$item_count = $count_result->item_count;
+
+		$limit  = 100;
+		$offset = 0;
+
+		do {
+			// get all the records from the options table
+			$query = "
+				SELECT
+					event_id,
+					event_payload
+				FROM
+				    {$custom_table_name}
+				ORDER BY
+				    event_id ASC
+				LIMIT $offset, $limit
+			";
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+			$rows = $wpdb->get_results( $query );
+
+			$insert_rows = array();
+
+			foreach ( $rows as $event ) {
+				$insert_rows[] = $wpdb->prepare(
+					'(%s, %s, "no")',
+					array(
+						$event->event_id,
+						$event->event_payload,
+					)
+				);
+			}
+
+			if ( ! empty( $insert_rows ) ) {
+				$insert_query = "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES ";
+
+				$insert_query .= implode( ',', $insert_rows );
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared
+				$wpdb->query( $insert_query );
+			}
+
+			$offset += $limit;
+		} while ( $offset < $item_count );
+
+		// Clear the custom table
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM {$custom_table_name}" );
+
+		// TODO should we drop the table here instead?
 	}
 }
