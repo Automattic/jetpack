@@ -114,9 +114,9 @@ export const AiAssistantPopover = ( {
 	const [ anchor, setAnchor ] = useState< HTMLElement | null >( null );
 
 	/*
-	 * Hack to deal with a reac condition
-	 * where the popover anchor changes.
-	 * - Keeps the anchor reference in a local state of the component.
+	 * Hack to deal with a race condition
+	 * that happens where the popover anchor changes:
+	 * - Keeps the anchor reference in the local state of the component.
 	 * - When the popoverProps.anchor changes, it updates the local state.
 	 */
 	useEffect( () => {
