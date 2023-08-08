@@ -111,11 +111,11 @@ const I18nMenuGroup = ( {
 	value,
 	onChange,
 }: Pick< LanguageDropdownControlProps, 'value' | 'onChange' > ) => {
-	// Move the default language to the top of the list.
-	const languageList = [
-		defaultLanguage,
-		...LANGUAGE_LIST.filter( language => language !== defaultLanguage ),
-	];
+	const languageList = [ ...LANGUAGE_LIST.filter( language => language !== defaultLanguage ) ];
+	// Move the default language to the top of the list if it is included on LANGUAGE_LIST.
+	if ( LANGUAGE_LIST.includes( defaultLanguage ) ) {
+		languageList.unshift( defaultLanguage );
+	}
 
 	return (
 		<MenuGroup label={ __( 'Select language', 'jetpack' ) }>

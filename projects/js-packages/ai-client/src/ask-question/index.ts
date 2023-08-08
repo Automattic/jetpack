@@ -7,7 +7,7 @@ import SuggestionsEventSource from '../suggestions-event-source';
 /*
  * Types & constants
  */
-import type { PromptItemProps } from '../types';
+import type { PromptProp } from '../types';
 
 export type AskQuestionOptionsArgProps = {
 	/*
@@ -24,6 +24,16 @@ export type AskQuestionOptionsArgProps = {
 	 * Allows to use a specific AI assistant feature. Default value is undefined.
 	 */
 	feature?: 'ai-assistant-experimental' | string | undefined;
+
+	/*
+	 * Allows the use of function calling. Default value is undefined.
+	 */
+	functions?: Array< {
+		name?: string;
+		arguments?: string;
+		// eslint-disable-next-line @typescript-eslint/ban-types
+		implementation?: Function;
+	} >;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:ask-question' );
@@ -32,7 +42,7 @@ const debug = debugFactory( 'jetpack-ai-client:ask-question' );
  * An asynchronous function that asks a question
  * and returns an event source with suggestions.
  *
- * @param {string|PromptItemProps[]} question - The question to ask. It can be a simple string or an array of PromptItemProps objects.
+ * @param {PromptProp} question - The question to ask. It can be a simple string or an array of PromptMessageItemProps objects.
  * @param {AskQuestionOptionsArgProps} options - An optional object for additional configuration:
  * @returns {Promise<SuggestionsEventSource>}    A promise that resolves to an instance of the SuggestionsEventSource
  * @example
@@ -47,12 +57,16 @@ const debug = debugFactory( 'jetpack-ai-client:ask-question' );
  *  } );
  */
 export default async function askQuestion(
-	question: string | PromptItemProps[],
-	{ postId = null, fromCache = false, feature }: AskQuestionOptionsArgProps = {}
+	question: PromptProp,
+	{ postId = null, fromCache = false, feature, functions }: AskQuestionOptionsArgProps = {}
 ): Promise< SuggestionsEventSource > {
-	debug( 'Asking question: %o. options: %o', question, { postId, fromCache, feature } );
+	debug( 'Asking question: %o. options: %o', question, { postId, fromCache, feature, functions } );
 
 	const { token } = await requestJwt();
 
-	return new SuggestionsEventSource( { question, token, options: { postId, feature, fromCache } } );
+	return new SuggestionsEventSource( {
+		question,
+		token,
+		options: { postId, feature, fromCache, functions },
+	} );
 }

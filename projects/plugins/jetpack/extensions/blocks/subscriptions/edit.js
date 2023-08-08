@@ -16,6 +16,8 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import { isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
+import GetAddPaidPlanButton from '../../shared/memberships/utils';
 import { getSubscriberCounts } from './api';
 import './view.scss';
 import defaultAttributes from './attributes';
@@ -29,7 +31,6 @@ import {
 import SubscriptionControls from './controls';
 import { SubscriptionsPlaceholder } from './subscription-placeholder';
 import SubscriptionSkeletonLoader from './subscription-skeleton-loader';
-import GetAddPaidPlanButton, { isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
 
 const { getComputedStyle } = window;

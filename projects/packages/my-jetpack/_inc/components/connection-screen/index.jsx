@@ -27,7 +27,7 @@ const ConnectionScreenFooter = () => {
 				<img
 					src={ wordpressLogo }
 					className={ styles.wordpress }
-					alt={ __( 'Wordpress Logo', 'jetpack-my-jetpack' ) }
+					alt={ __( 'WordPress Logo', 'jetpack-my-jetpack' ) }
 				/>
 				<img
 					src={ googleLogo }

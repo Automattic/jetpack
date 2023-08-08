@@ -507,7 +507,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "640cb33156d6f6790aae0c86d86f372108e7a9e6"
+                "reference": "0e8a0b39c3fa3d9788f6460f0f2e84cae52fde19"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -536,7 +536,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.9.x-dev"
+                    "dev-trunk": "0.10.x-dev"
                 }
             },
             "autoload": {
@@ -811,7 +811,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "d5b04f8d45d0f213dbb195f443687183eea9ba7e"
+                "reference": "92aff9c10872fef5db1c67fd4cea807e4821fc28"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -841,7 +841,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1278,7 +1278,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "fda86158dd21cc3af2b680986ac4fa164f26dd35"
+                "reference": "fd9734d237e0584140256d54cc791fc23284546f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1309,7 +1309,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.52.x-dev"
+                    "dev-trunk": "1.53.x-dev"
                 }
             },
             "autoload": {

@@ -766,7 +766,7 @@ class Jetpack_XMLRPC_Server {
 	 * IDC mitigation to decide whether sync should be allowed if the home and siteurl values differ between WPCOM
 	 * and the remote Jetpack site.
 	 *
-	 * @since $$next-version$$ Additional data may be added via filter `jetpack_connection_validate_urls_for_idc_mitigation_response`.
+	 * @since 1.56.0 Additional data may be added via filter `jetpack_connection_validate_urls_for_idc_mitigation_response`.
 	 *
 	 * @return array
 	 */
@@ -779,7 +779,7 @@ class Jetpack_XMLRPC_Server {
 		/**
 		 * Allows modifying the response.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.56.0
 		 *
 		 * @param array $response
 		 */
