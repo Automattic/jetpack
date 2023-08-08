@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed WooCommerce integration unit tests that have broken over time due to disuse.
