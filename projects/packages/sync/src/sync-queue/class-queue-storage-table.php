@@ -177,9 +177,11 @@ class Queue_Storage_Table {
 	public function drop_table() {
 		global $wpdb;
 
-		// Ignoring the linting warning, as there's still no placeholder replacement for DB field name.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.SchemaChange
-		return (bool) $wpdb->query( "DROP TABLE {$this->table_name}" );
+		if ( $this->custom_table_exists() ) {
+			// Ignoring the linting warning, as there's still no placeholder replacement for DB field name.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.SchemaChange
+			return (bool) $wpdb->query( "DROP TABLE {$this->table_name}" );
+		}
 	}
 
 	/**
