@@ -55,7 +55,7 @@ class Company_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the company_update action.
-		do_action( 'jpcrm_automation_company_update', $company_data );
+		do_action( 'jpcrm_company_updated', $company_data );
 	}
 
 	/**
@@ -88,7 +88,7 @@ class Company_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the company_status_update action.
-		do_action( 'jpcrm_automation_company_status_update', $company_data );
+		do_action( 'jpcrm_company_status_updated', $company_data );
 	}
 
 	/**
@@ -120,8 +120,8 @@ class Company_Trigger_Test extends BaseTestCase {
 			$this->equalTo( $company_data )
 		);
 
-		// Notify the company_created event.
-		do_action( 'jpcrm_automation_company_created', $company_data );
+		// Run the company_created action.
+		do_action( 'jpcrm_company_created', $company_data );
 	}
 
 	/**
@@ -154,7 +154,7 @@ class Company_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the company_deleted action.
-		do_action( 'jpcrm_automation_company_delete', $company_data );
+		do_action( 'jpcrm_company_deleted', $company_data );
 	}
 
 }
