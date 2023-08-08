@@ -42,7 +42,13 @@ const ModalHeader = ( { loading, onClose } ) => {
 	);
 };
 
-export default function Proofread() {
+export default function Proofread( {
+	disabled = false,
+	busy = false,
+}: {
+	disabled?: boolean;
+	busy?: boolean;
+} ) {
 	const [ isProofreadModalVisible, setIsProofreadModalVisible ] = useState( false );
 	const [ suggestion, setSuggestion ] = useState( null );
 	const { tracks } = useAnalytics();
@@ -129,7 +135,12 @@ export default function Proofread() {
 					'jetpack'
 				) }
 			</p>
-			<Button onClick={ handleRequest } variant="secondary" disabled={ ! postContent }>
+			<Button
+				onClick={ handleRequest }
+				variant="secondary"
+				disabled={ ! postContent || disabled }
+				isBusy={ busy }
+			>
 				{ __( 'Generate feedback', 'jetpack' ) }
 			</Button>
 		</div>
