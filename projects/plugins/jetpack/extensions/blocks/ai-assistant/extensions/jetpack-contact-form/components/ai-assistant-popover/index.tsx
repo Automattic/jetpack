@@ -83,7 +83,7 @@ export const AiAssistantPopover = ( {
 	}, [ eventSource ] );
 
 	useEffect( () => {
-		/**
+		/*
 		 * Cleanup function to remove the event listeners
 		 * and close the event source.
 		 */
