@@ -1,0 +1,36 @@
+.jb-score-tooltip {
+    background-color: #101517;
+    color: #ffffff;
+    width: fit-content;
+    padding: 16px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 17em;
+    position: relative;
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+
+    &__date {
+        font-size: 1em;
+        font-weight: 600;
+        line-height: 1.6em;
+    }
+
+    &__row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin: 0.9em 0;
+    }
+
+    &__pointer {
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid #101517;
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}

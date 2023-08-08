@@ -1,4 +1,7 @@
+import { dateI18n } from '@wordpress/date';
+import ReactDOM from 'react-dom';
 import uPlot from 'uplot';
+import { Tooltip } from './tooltip';
 
 /**
  * Custom tooltips plugin for uPlot.
@@ -6,72 +9,36 @@ import uPlot from 'uplot';
  * @returns {object} The uPlot plugin object with hooks.
  */
 export function tooltipsPlugin() {
-	let cursortt;
-	let seriestt;
-	const context = {
-		cursorMemo: new Map(),
-	};
+	const reactRoot = document.createElement( 'div' );
+	let reactDom;
 
 	/**
 	 * Initializes the tooltips plugin.
 	 *
 	 * @param {uPlot} u - The uPlot instance.
-	 * @param {object} opts - Options for the uPlot instance.
+	 * @param {object} _opts - Options for the uPlot instance.
 	 */
-	function init( u, opts ) {
+	function init( u, _opts ) {
 		const over = u.over;
+		reactDom = ReactDOM.createRoot( reactRoot );
+		reactRoot.style.position = 'absolute';
+		reactRoot.style.bottom = -20 + 'px';
+		reactRoot.style.translate = '-50% calc( 100% - 20px )';
 
-		const tooltipCursor = ( cursortt = document.createElement( 'div' ) );
-		tooltipCursor.className = 'tooltip';
-		tooltipCursor.textContent = '(x,y)';
-		tooltipCursor.style.pointerEvents = 'none';
-		tooltipCursor.style.position = 'absolute';
-		tooltipCursor.style.background = 'rgba(0,0,255,0.1)';
-		over.appendChild( tooltipCursor );
-
-		seriestt = opts.series.map( ( s, i ) => {
-			if ( i === 0 ) {
-				return;
-			}
-
-			const tt = document.createElement( 'div' );
-			tt.className = 'tooltip';
-			tt.textContent = 'Tooltip!';
-			tt.style.pointerEvents = 'none';
-			tt.style.position = 'absolute';
-			tt.style.background = 'rgba(0,0,0,0.1)';
-			tt.style.color = s.color;
-			over.appendChild( tt );
-			return tt;
-		} );
+		over.appendChild( reactRoot );
 
 		/**
 		 * Hides all tooltips.
 		 */
 		function hideTips() {
-			cursortt.style.display = 'none';
-			seriestt.forEach( ( tt, i ) => {
-				if ( i === 0 ) {
-					return;
-				}
-
-				tt.style.display = 'none';
-			} );
+			reactRoot.style.display = 'none';
 		}
 
 		/**
 		 * Shows all tooltips.
 		 */
 		function showTips() {
-			cursortt.style.display = null;
-			seriestt.forEach( ( tt, i ) => {
-				if ( i === 0 ) {
-					return;
-				}
-
-				const s = u.series[ i ];
-				tt.style.display = s.show ? null : 'none';
-			} );
+			reactRoot.style.display = null;
 		}
 
 		over.addEventListener( 'mouseleave', () => {
@@ -97,30 +64,34 @@ export function tooltipsPlugin() {
 	 * @param {uPlot} u - The uPlot instance.
 	 */
 	function setCursor( u ) {
-		const { left, top, idx } = u.cursor;
-		context?.cursorMemo?.set( left, top );
-		cursortt.style.left = left + 'px';
-		cursortt.style.top = top + 'px';
-		cursortt.textContent =
-			'(' + u.posToVal( left, 'x' ).toFixed( 2 ) + ', ' + u.posToVal( top, 'y' ).toFixed( 2 ) + ')';
+		const { left } = u.cursor;
 
-		seriestt.forEach( ( tt, i ) => {
-			if ( i === 0 ) {
-				return;
-			}
+		// Timestamp of the cursor position
+		const timestamp = u.posToVal( left, 'x' );
 
-			const s = u.series[ i ];
+		// Find start and end of day for the cursor position
+		const startOfDay = timestamp - ( timestamp % 86400 );
+		const endOfDay = startOfDay + 86400;
 
-			if ( s.show ) {
-				const xVal = u.data[ 0 ][ idx ];
-				const yVal = u.data[ i ][ idx ];
+		// Find the left position, and width of the box, bounded by the range of the graph
+		const boxLeft = u.valToPos( Math.max( startOfDay, u.scales.x.min ), 'x' );
+		const boxWidth = u.valToPos( Math.min( endOfDay, u.scales.x.max ), 'x' ) - boxLeft;
+		const boxCenter = boxLeft + boxWidth / 2;
 
-				tt.textContent = '(' + xVal + ', ' + yVal + ')';
+		reactRoot.style.left = boxCenter + 'px';
 
-				tt.style.left = Math.round( u.valToPos( xVal, 'x' ) ) + 'px';
-				tt.style.top = Math.round( u.valToPos( yVal, s.scale ) ) + 'px';
-			}
-		} );
+		const { idx } = u.cursor;
+
+		const mobileScore = u.data[ 1 ][ idx ];
+		const desktopScore = u.data[ 2 ][ idx ];
+
+		reactDom.render(
+			Tooltip( {
+				date: dateI18n( 'F j, Y', new Date( timestamp * 1000 ), false ),
+				desktopScore,
+				mobileScore,
+			} )
+		);
 	}
 
 	return {
