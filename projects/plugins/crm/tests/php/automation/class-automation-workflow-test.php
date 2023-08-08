@@ -258,7 +258,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'dummy_action', Dummy_Step::class );
+		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
 
@@ -296,7 +296,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'dummy_action', Dummy_Step::class );
+		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
 
