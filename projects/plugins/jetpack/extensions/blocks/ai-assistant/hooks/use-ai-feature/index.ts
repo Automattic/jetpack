@@ -4,7 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from 'react';
 
-type UpgradeTypeProp = 'vip' | 'default';
+export type UpgradeTypeProp = 'vip' | 'default';
 
 export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'has-feature': boolean;
