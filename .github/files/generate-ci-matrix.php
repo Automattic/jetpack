@@ -68,7 +68,7 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 	$phpver = $versions['PHP_VERSION'];
 	if ( $wp === 'previous' ) {
 		$matrix[] = array(
-			'name'    => "PHP tests: PHP {$phpver} WP $wp",
+			'name'    => "PHP tests: PHP 5.6 WP $wp",
 			'script'  => 'test-php',
 			'php'     => '5.6', // 2023-08-09 now that 5.6 is excluded from latest tests, we test it on 'previous'.
 			'wp'      => $wp,
