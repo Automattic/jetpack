@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: Start handling errors that happened outside the event source object.
