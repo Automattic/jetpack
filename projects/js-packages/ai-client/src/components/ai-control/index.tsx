@@ -112,15 +112,15 @@ export default function AIControl( {
 						disabled={ loading || disabled }
 						ref={ promptUserInputRef }
 					/>
-
-					{ value?.length > 0 && (
-						<Icon
-							icon={ closeSmall }
-							className="jetpack-components-ai-control__clear"
-							onClick={ () => onChange( '' ) }
-						/>
-					) }
 				</div>
+
+				{ value?.length > 0 && (
+					<Button
+						icon={ closeSmall }
+						className="jetpack-components-ai-control__clear"
+						onClick={ () => onChange( '' ) }
+					/>
+				) }
 
 				<div className="jetpack-components-ai-control__controls">
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
