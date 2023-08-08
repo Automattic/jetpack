@@ -3,22 +3,31 @@
  * Base Trigger implementation
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
- * Base Trigger implementation
+ * Base Trigger implementation.
  *
- * @inheritDoc
+ * @since $$next-version$$
+ * {@inheritDoc}
  */
 abstract class Base_Trigger implements Trigger {
 
-	/** @var Automation_Workflow The workflow to execute by this trigger */
+	/**
+	 * The workflow to execute by this trigger.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Workflow
+	 */
 	protected $workflow = null;
 
 	/**
-	 * Set the workflow to execute by this trigger
+	 * Set the workflow to execute by this trigger.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param Automation_Workflow $workflow The workflow to execute by this trigger.
 	 */
@@ -27,10 +36,13 @@ abstract class Base_Trigger implements Trigger {
 	}
 
 	/**
-	 * Execute the workflow
+	 * Execute the workflow.
 	 *
-	 * @param array $data The data to pass to the workflow.
-	 * @throws Automation_Exception Throws an exception if no workflow is defined.
+	 * @since $$next-version$$
+	 *
+	 * @param array|null $data The data to pass to the workflow.
+	 *
+	 * @throws Automation_Exception Exception when the workflow is executed.
 	 */
 	public function execute_workflow( array $data = null ) {
 		if ( $this->workflow ) {
@@ -39,7 +51,9 @@ abstract class Base_Trigger implements Trigger {
 	}
 
 	/**
-	 * Initialize the trigger to listen to the desired event
+	 * Initialize the trigger to listen to the desired event.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param Automation_Workflow $workflow The workflow to execute by this trigger.
 	 */
@@ -49,36 +63,47 @@ abstract class Base_Trigger implements Trigger {
 	}
 
 	/**
-	 * Get the trigger slug
+	 * Get the trigger slug.
 	 *
-	 * @return string
+	 * @since $$next-version$$
+	 *
+	 * @return string The trigger slug.
 	 */
 	abstract public static function get_slug(): string;
 
 	/**
-	 * Get the trigger title
+	 * Get the trigger title.
 	 *
-	 * @return string
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The trigger title.
 	 */
 	abstract public static function get_title(): ?string;
 
 	/**
-	 * Get the trigger description
+	 * Get the trigger description.
 	 *
-	 * @return string|null
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The trigger description.
 	 */
 	abstract public static function get_description(): ?string;
 
 	/**
-	 * Get the trigger category
+	 * Get the trigger category.
 	 *
-	 * @return string
+	 * @since $$next-version$$
+	 *
+	 * @return string|null The trigger category.
 	 */
 	abstract public static function get_category(): ?string;
 
 	/**
 	 * Listen to the desired event. It will be called by init(), it should
 	 * call the execute_workflow method when the event happens.
+	 *
+	 * @since $$next-version$$
 	 */
 	abstract protected function listen_to_event();
+
 }

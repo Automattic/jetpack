@@ -5,13 +5,10 @@ import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import {
-	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
-	accessOptions,
-} from '../../../extensions/shared/memberships-edit';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 import './settings.scss';
+import { accessOptions, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 export function Link( { href, children } ) {
 	return (

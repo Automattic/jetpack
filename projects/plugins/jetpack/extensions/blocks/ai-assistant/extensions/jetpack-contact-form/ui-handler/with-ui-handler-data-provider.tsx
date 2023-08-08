@@ -6,12 +6,13 @@ import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
-import { useState, useMemo, useCallback, useEffect } from '@wordpress/element';
+import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
+import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
 import { AiAssistantPopover } from '../components/ai-assistant-popover';
 import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
 /**
@@ -46,7 +47,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const [ inputValue, setInputValue ] = useState( '' );
 
 		// AI Assistant component visibility
-		const [ isVisible, setAssistantVisibility ] = useState( false );
+		const [ isVisible, setAssistantVisibility ] = useState( true );
 
 		// AI Assistant component is-fixed state
 		const [ isFixed, setAssistantFixed ] = useState( false );
@@ -62,6 +63,9 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			placement: 'bottom-start',
 			offset: 12,
 		} );
+
+		// Keep track of the current list of valid blocks between renders.
+		const currentListOfValidBlocks = useRef( [] );
 
 		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as {
@@ -144,15 +148,14 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 			/*
 			 * Get the DOM element of the block,
-			 * keeping in mind that the block element is rendered into the `editor-canvas` iframe.
+			 * keeping in mind that the block element may be rendered into the `editor-canvas`
+			 * iframe if it is present.
 			 */
 			const iFrame: HTMLIFrameElement = document.querySelector( 'iframe[name="editor-canvas"]' );
 			const iframeDocument = iFrame && iFrame.contentWindow.document;
-			if ( ! iframeDocument ) {
-				return;
-			}
 
-			const blockDomElement = iframeDocument.getElementById( idAttribute );
+			const blockDomElement = ( iframeDocument ?? document ).getElementById( idAttribute );
+
 			if ( ! blockDomElement ) {
 				return;
 			}
@@ -161,6 +164,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				...prev,
 				anchor: blockDomElement,
 				placement: 'bottom-start',
+				variant: null,
 				offset: 12,
 			} ) );
 
@@ -200,20 +204,36 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
 			() => ( {
+				// Value of the input element.
 				inputValue,
-				isVisible,
-				isFixed,
-				popoverProps,
-				width,
-
 				setInputValue,
+
+				// Assistant bar visibility.
+				isVisible,
 				show,
 				hide,
 				toggle,
+
+				// Assistant bar position and size.
+				isFixed,
+				popoverProps,
+				width,
 				setAssistantFixed,
 				setPopoverProps,
 			} ),
-			[ inputValue, isVisible, isFixed, popoverProps, width, show, hide, toggle ]
+			[
+				inputValue,
+				setInputValue,
+				isVisible,
+				show,
+				hide,
+				toggle,
+				isFixed,
+				popoverProps,
+				width,
+				setAssistantFixed,
+				setPopoverProps,
+			]
 		);
 
 		const setContent = useCallback(
@@ -223,14 +243,25 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
 					''
 				);
-				const newContentBlocks = parse( processedContent );
+
+				// Fix HTML tags that are not closed properly.
+				const fixedContent = fixIncompleteHTML( processedContent );
+
+				const newContentBlocks = parse( fixedContent );
 
 				// Check if the generated blocks are valid.
 				const validBlocks = newContentBlocks.filter( block => {
 					return block.isValid && block.name !== 'core/freeform';
 				} );
-				// Only update the valid blocks
-				replaceInnerBlocks( clientId, validBlocks );
+
+				// Only update the blocks when the valid list changed, meaning a new block arrived.
+				if ( validBlocks.length !== currentListOfValidBlocks.current.length ) {
+					// Only update the valid blocks
+					replaceInnerBlocks( clientId, validBlocks );
+
+					// Update the list of current valid blocks
+					currentListOfValidBlocks.current = validBlocks;
+				}
 			},
 			[ clientId, replaceInnerBlocks ]
 		);

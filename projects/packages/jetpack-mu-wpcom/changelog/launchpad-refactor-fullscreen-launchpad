@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Refactors refactor disable_launchpad & maybe_disable_launchpad to make it clear they are related to the fullscreen launchpad

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Extension: Send custom feature name for requesting form completions so they can be handled differently on the backend.
