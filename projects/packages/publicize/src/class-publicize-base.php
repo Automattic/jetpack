@@ -1785,6 +1785,15 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Check if the auto-conversion feature is one of the active features.
+	 *
+	 * @return bool
+	 */
+	public function has_social_auto_conversion_feature() {
+		return Current_Plan::supports( 'jetpack-social-image-auto-convert' );
+	}
+
+	/**
 	 * Check if Instagram connection is enabled.
 	 *
 	 * @return bool
