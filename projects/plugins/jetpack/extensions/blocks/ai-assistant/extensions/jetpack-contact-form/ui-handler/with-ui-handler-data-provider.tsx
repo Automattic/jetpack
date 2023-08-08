@@ -203,20 +203,36 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
 			() => ( {
+				// Value of the input element.
 				inputValue,
-				isVisible,
-				isFixed,
-				popoverProps,
-				width,
-
 				setInputValue,
+
+				// Assistant bar visibility.
+				isVisible,
 				show,
 				hide,
 				toggle,
+
+				// Assistant bar position and size.
+				isFixed,
+				popoverProps,
+				width,
 				setAssistantFixed,
 				setPopoverProps,
 			} ),
-			[ inputValue, isVisible, isFixed, popoverProps, width, show, hide, toggle ]
+			[
+				inputValue,
+				setInputValue,
+				isVisible,
+				show,
+				hide,
+				toggle,
+				isFixed,
+				popoverProps,
+				width,
+				setAssistantFixed,
+				setPopoverProps,
+			]
 		);
 
 		const setContent = useCallback(
