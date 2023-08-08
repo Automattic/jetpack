@@ -8,6 +8,10 @@ inputs:
     description: "GitHub access token"
     required: true
     default: ${{ github.token }}
+  add_labels:
+    description: 'Labels and paths to match from a workflow.'
+    required: false
+    default: ""
   reply_to_customers_threshold:
     description: "Minimum of support references needed to trigger a reminder to batch-reply to customers. Default to 10."
     required: false

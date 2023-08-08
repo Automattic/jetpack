@@ -30,7 +30,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.10.0-alpha';
+	const PACKAGE_VERSION = '0.10.0';
 
 	/**
 	 * Instance of the object.
