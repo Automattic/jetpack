@@ -30,12 +30,14 @@ const presetExperimentalBlocks = [
 ];
 // Beta Blocks include all blocks: beta, experimental, and production blocks.
 const presetBetaBlocks = [ ...presetExperimentalBlocks, ...( presetIndex.beta || [] ) ];
+
 // Bundled blocks are built individually or grouped together in bundles.
-const presetBundles = presetIndex._bundles || {};
-const bundledBlocks = Object.keys( presetBundles ).reduce(
-	( blocks, bundle ) => [ ...blocks, ...presetBundles[ bundle ] ],
-	[]
-);
+const bundlesPath = path.join( __dirname, '../extensions', 'bundles.json' );
+const bundlesIndex = require( bundlesPath );
+const bundles = bundlesIndex || [];
+const bundledBlocks = bundles
+	.reduce( ( blocks, bundle ) => [ ...blocks, ...bundle.blocks ], [] )
+	.filter( Boolean );
 
 /**
  * Filters block editor scripts
@@ -186,14 +188,12 @@ const sharedWebpackConfig = {
  * Bundles logic
  */
 
-const bundles = {};
+const bundlesEntry = {};
 const bundlesPlugins = [];
 
-Object.keys( presetBundles ).forEach( bundleName => {
-	const blocks = presetBundles[ bundleName ];
-
+bundles.forEach( ( { name, blocks } ) => {
 	// Bundle editor assets
-	bundles[ bundleName + '/editor' ] = blocks.reduce( ( arr, block ) => {
+	bundlesEntry[ name + '/editor' ] = blocks.reduce( ( arr, block ) => {
 		const editorScriptPath = path.join( __dirname, '../extensions/blocks', block, 'editor.js' );
 
 		if ( fs.existsSync( editorScriptPath ) ) {
@@ -204,7 +204,7 @@ Object.keys( presetBundles ).forEach( bundleName => {
 	}, [] );
 
 	// Bundle view assets
-	bundles[ bundleName + '/view' ] = blocks.reduce( ( arr, block ) => {
+	bundlesEntry[ name + '/view' ] = blocks.reduce( ( arr, block ) => {
 		const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
 
 		if ( fs.existsSync( viewScriptPath ) ) {
@@ -232,10 +232,10 @@ Object.keys( presetBundles ).forEach( bundleName => {
 
 							return JSON.stringify( {
 								...metadata,
-								editorScript: `file:../${ bundleName }/editor.js`,
-								editorStyle: `file:../${ bundleName }/editor.css`,
-								viewScript: `file:../${ bundleName }/view.js`,
-								style: `file:../${ bundleName }/view.css`,
+								editorScript: `file:../${ name }/editor.js`,
+								editorStyle: `file:../${ name }/editor.css`,
+								viewScript: `file:../${ name }/view.js`,
+								style: `file:../${ name }/view.css`,
 							} );
 						},
 						noErrorOnMissing: true,
@@ -248,7 +248,7 @@ Object.keys( presetBundles ).forEach( bundleName => {
 
 const bundlesConfig = {
 	...sharedWebpackConfig,
-	entry: bundles,
+	entry: bundlesEntry,
 	plugins: [ ...sharedWebpackConfig.plugins, ...bundlesPlugins ],
 };
 

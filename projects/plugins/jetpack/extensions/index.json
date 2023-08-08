@@ -93,6 +93,5 @@
 		"tock",
 		"videopress",
 		"wordads"
-	],
-	"_bundles": { "test": [ "blogging-prompt", "business-hours" ] }
+	]
 }

@@ -1,0 +1,9 @@
+[
+	{
+		"name": "first-bundle",
+		"title": "First Bundle",
+		"description": "This is a proof of concept",
+		"blocks": [ "blogging-prompt", "business-hours" ],
+		"version": "1.0.0"
+	}
+]
