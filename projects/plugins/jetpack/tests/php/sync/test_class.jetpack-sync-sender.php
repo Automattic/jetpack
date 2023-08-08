@@ -39,7 +39,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * Tear down.
 	 */
 	public function tear_down() {
-
 		parent::tear_down();
 
 		// Restore default setting.
