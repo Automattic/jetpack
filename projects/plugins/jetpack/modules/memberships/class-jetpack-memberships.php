@@ -29,7 +29,7 @@ class Jetpack_Memberships {
 	 */
 	public static $post_type_plan = 'jp_mem_plan';
 
-    /**
+	/**
 	 * Option that will store currently set up account (Stripe etc) id for memberships.
 	 *
 	 *  TODO: remove
