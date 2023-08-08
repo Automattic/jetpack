@@ -13,6 +13,8 @@
 	let loadError;
 	let isLoading = false;
 	let periods = [];
+	let startDate;
+	let endDate;
 
 	// Load the history
 	refresh();
@@ -37,6 +39,8 @@
 				wpApiSettings.nonce
 			);
 			periods = response.data.periods;
+			startDate = response.data._meta.start;
+			endDate = response.data._meta.end;
 		} catch ( err ) {
 			recordBoostEvent( 'speed_history_request_error', {
 				error_message: castToString( err.message ),
@@ -68,5 +72,7 @@
 		onToggle={onToggleHistory}
 		isOpen={$panelStore}
 		{periods}
+		{startDate}
+		{endDate}
 	/>
 </div>
