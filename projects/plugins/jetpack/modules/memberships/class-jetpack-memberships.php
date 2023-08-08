@@ -454,9 +454,7 @@ class Jetpack_Memberships {
 			return true;
 		}
 
-		// This is the fallback solution.
-		// TODO: Remove this once the has_connected_account_option is migrated to all sites.
-		return get_option( 'jetpack-memberships-connected-account-id', false ) ? true : false;
+		return false;
 	}
 
 	/**
