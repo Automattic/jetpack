@@ -1354,7 +1354,7 @@ function zeroBSCRM_IA_DeleteCustomerWPHook( $obj = array() ) {
 	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
 		do_action( 'jpcrm_before_delete_contact', $obj );
 	}
-	}
+}
 
 /**
  * Fires on 'company.new' IA.
