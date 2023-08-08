@@ -5,13 +5,15 @@ import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
 import { KeyboardShortcuts, Popover } from '@wordpress/components';
 import { select } from '@wordpress/data';
-import { useContext, useCallback, useEffect } from '@wordpress/element';
+import { useContext, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import UpgradePrompt from '../../../../components/upgrade-prompt';
+import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 /*
@@ -65,10 +67,12 @@ function getSerializedContentFromBlock( clientId: string ): string {
 export const AiAssistantPopover = ( {
 	clientId = '',
 }: AiAssistantPopoverProps ): React.ReactNode => {
-	const { isVisible, isFixed, toggle, popoverProps, inputValue, setInputValue, width } =
+	const { isVisible, isFixed, toggle, show, hide, popoverProps, inputValue, setInputValue, width } =
 		useContext( AiAssistantUiContext );
 
 	const { requestSuggestion, requestingState, eventSource } = useAiContext();
+
+	const { requireUpgrade } = useAIFeature();
 
 	const stopSuggestion = useCallback( () => {
 		if ( ! eventSource ) {
@@ -79,7 +83,7 @@ export const AiAssistantPopover = ( {
 	}, [ eventSource ] );
 
 	useEffect( () => {
-		/**
+		/*
 		 * Cleanup function to remove the event listeners
 		 * and close the event source.
 		 */
@@ -107,6 +111,20 @@ export const AiAssistantPopover = ( {
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
 	}, [ clientId, inputValue, requestSuggestion ] );
 
+	const [ anchor, setAnchor ] = useState< HTMLElement | null >( null );
+
+	/*
+	 * Hack to deal with a race condition
+	 * that happens where the popover anchor changes:
+	 * - Keeps the anchor reference in the local state of the component.
+	 * - When the popoverProps.anchor changes, it updates the local state.
+	 */
+	useEffect( () => {
+		setTimeout( () => {
+			setAnchor( popoverProps.anchor );
+		}, 0 );
+	}, [ popoverProps.anchor, show, hide ] );
+
 	if ( ! isVisible ) {
 		return null;
 	}
@@ -114,6 +132,7 @@ export const AiAssistantPopover = ( {
 	return (
 		<Popover
 			{ ...popoverProps }
+			anchor={ anchor }
 			animate={ false }
 			className={ classNames( 'jetpack-ai-assistant__popover', {
 				'is-fixed': isFixed,
@@ -127,14 +146,17 @@ export const AiAssistantPopover = ( {
 			/>
 
 			<div style={ { width } }>
+				{ requireUpgrade && <UpgradePrompt /> }
 				<AIControl
 					loading={ isLoading }
+					disabled={ requireUpgrade }
 					value={ isLoading ? undefined : inputValue }
 					placeholder={ isLoading ? loadingPlaceholder : placeholder }
 					onChange={ setInputValue }
 					onSend={ onSend }
 					onStop={ onStop }
 					requestingState={ requestingState }
+					isOpaque={ requireUpgrade }
 				/>
 			</div>
 		</Popover>
