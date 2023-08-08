@@ -3,7 +3,8 @@
 		"name": "first-bundle",
 		"title": "First Bundle",
 		"description": "This is a proof of concept",
-		"blocks": [ "blogging-prompt", "business-hours" ],
+		"blocks": [ "blogging-prompt" ],
 		"version": "1.0.0"
-	}
+	},
+	"business-hours"
 ]

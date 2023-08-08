@@ -36,7 +36,11 @@ const bundlesPath = path.join( __dirname, '../extensions', 'bundles.json' );
 const bundlesIndex = require( bundlesPath );
 const bundles = bundlesIndex || [];
 const bundledBlocks = bundles
-	.reduce( ( blocks, bundle ) => [ ...blocks, ...bundle.blocks ], [] )
+	.reduce(
+		( blocks, bundle ) =>
+			'string' === typeof bundle ? [ ...blocks, bundle ] : [ ...blocks, ...bundle.blocks ],
+		[]
+	)
 	.filter( Boolean );
 
 /**
@@ -191,7 +195,10 @@ const sharedWebpackConfig = {
 const bundlesEntry = {};
 const bundlesPlugins = [];
 
-bundles.forEach( ( { name, blocks } ) => {
+bundles.forEach( bundle => {
+	const name = 'string' === typeof bundle ? bundle : bundle.name;
+	const blocks = 'string' === typeof bundle ? [ bundle ] : bundle.blocks;
+
 	// Bundle editor assets
 	bundlesEntry[ name + '/editor' ] = blocks.reduce( ( arr, block ) => {
 		const editorScriptPath = path.join( __dirname, '../extensions/blocks', block, 'editor.js' );
