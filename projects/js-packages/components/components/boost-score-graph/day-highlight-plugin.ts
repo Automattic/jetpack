@@ -6,7 +6,7 @@ import uPlot from 'uplot';
  * @returns {object} The uPlot plugin object with hooks.
  */
 export function dayHighlightPlugin() {
-	let overEl, highlightEl, currIdx;
+	let overEl, highlightEl;
 
 	/**
 	 * Initialize the plugin
@@ -47,24 +47,22 @@ export function dayHighlightPlugin() {
 	 * @param {uPlot} u - The uPlot instance.
 	 */
 	function update( u ) {
-		if ( currIdx !== u.cursor.idx ) {
-			const { left } = u.cursor;
+		const { left } = u.cursor;
 
-			// Timestamp of the cursor position
-			const timestamp = u.posToVal( left, 'x' );
+		// Timestamp of the cursor position
+		const timestamp = u.posToVal( left, 'x' );
 
-			// Find start and end of day for the cursor position
-			const startOfDay = timestamp - ( timestamp % 86400 );
-			const endOfDay = startOfDay + 86400;
+		// Find start and end of day for the cursor position
+		const startOfDay = timestamp - ( timestamp % 86400 );
+		const endOfDay = startOfDay + 86400;
 
-			// Find the left position, and width of the box, bounded by the range of the graph
-			const boxLeft = u.valToPos( Math.max( startOfDay, u.scales.x.min ), 'x' );
-			const boxWidth = u.valToPos( Math.min( endOfDay, u.scales.x.max ), 'x' ) - boxLeft;
+		// Find the left position, and width of the box, bounded by the range of the graph
+		const boxLeft = u.valToPos( Math.max( startOfDay, u.scales.x.min ), 'x' );
+		const boxWidth = u.valToPos( Math.min( endOfDay, u.scales.x.max ), 'x' ) - boxLeft;
 
-			// Update the highlight box
-			highlightEl.style.transform = 'translateX(' + Math.round( boxLeft ) + 'px)';
-			highlightEl.style.width = Math.round( boxWidth ) + 'px';
-		}
+		// Update the highlight box
+		highlightEl.style.transform = 'translateX(' + Math.round( boxLeft ) + 'px)';
+		highlightEl.style.width = Math.round( boxWidth ) + 'px';
 	}
 
 	return {
