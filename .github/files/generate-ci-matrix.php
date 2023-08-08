@@ -74,9 +74,8 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 			'wp'      => $wp,
 			'timeout' => 20, // 2022-01-25: 5.6 tests have started timing out at 15 minutes. Previously: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
 		);
-		// PHP 8.2+ compatibility only comes in with WP 6.3.
-		// @TODO: Remove this when 6.3 is "previous".
-		$phpver = '8.1';
+		// PHP 8.1+ seems to fail on WordPress 6.2.
+		$phpver = '8.0';
 	}
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP {$phpver} WP $wp",
