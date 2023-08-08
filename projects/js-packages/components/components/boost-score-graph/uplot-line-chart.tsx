@@ -4,6 +4,7 @@ import uPlot from 'uplot';
 import UplotReact from 'uplot-react';
 import { getUserLocale } from '../../lib/locale';
 import numberFormat from '../number-format';
+import { dayHighlightPlugin } from './day-highlight-plugin';
 import getDateFormat from './get-date-format';
 import { tooltipsPlugin } from './tooltips-plugin';
 import useResize from './use-resize';
@@ -20,6 +21,7 @@ interface UplotChartProps {
 	legendContainer?: React.RefObject< HTMLDivElement >;
 	solidFill?: boolean;
 	period?: string;
+	range?: { startDate: number; endDate: number };
 }
 
 /**
@@ -82,9 +84,10 @@ function getColor( score: number, opacity = 'FF' ) {
  *
  * @param {object} props - The props object for the UplotLineChart component.
  * @param {uPlot.AlignedData} props.data - The data for the uPlot chart.
+ * @param {{ startDate: number, endDate: number }} props.range - The date range of the chart.
  * @returns {React.Element} The JSX element representing the UplotLineChart component.
  */
-export default function UplotLineChart( { data }: UplotChartProps ) {
+export default function UplotLineChart( { data, range }: UplotChartProps ) {
 	const uplot = useRef< uPlot | null >( null );
 	const uplotContainer = useRef( null );
 
@@ -148,6 +151,8 @@ export default function UplotLineChart( { data }: UplotChartProps ) {
 			scales: {
 				x: {
 					time: true,
+					auto: false,
+					range: [ range.startDate / 1000, range.endDate / 1000 ],
 				},
 				y: {
 					range: [ 0, 100 ],
@@ -157,12 +162,12 @@ export default function UplotLineChart( { data }: UplotChartProps ) {
 			legend: {
 				show: false,
 			},
-			plugins: [ tooltipsPlugin() ],
+			plugins: [ tooltipsPlugin(), dayHighlightPlugin() ],
 		};
 		return {
 			...defaultOptions,
 		};
-	}, [ desktopScore, mobileScore ] );
+	}, [ desktopScore, mobileScore, range ] );
 
 	useResize( uplot, uplotContainer );
 	const onCreate = useCallback( chart => {

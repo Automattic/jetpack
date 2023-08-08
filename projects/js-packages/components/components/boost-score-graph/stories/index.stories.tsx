@@ -4,8 +4,8 @@ import type { Meta } from '@storybook/react';
 const exampleRawResponse = {
 	data: {
 		_meta: {
-			start: 1687802957811,
-			end: 1690394957811,
+			start: 1689772803000,
+			end: 1690647000000,
 		},
 		periods: [
 			{
@@ -357,7 +357,8 @@ const meta: Meta< typeof BoostScoreGraph > = {
 	title: 'JS Packages/Components/Boost Score Graph',
 	component: BoostScoreGraph,
 	argTypes: {
-		data: { control: 'object' },
+		startDate: { control: 'date' },
+		endDate: { control: 'date' },
 		title: { control: 'string', defaultValue: 'Title' },
 		isLoading: { control: 'boolean', defaultValue: false },
 	},
@@ -371,6 +372,8 @@ const meta: Meta< typeof BoostScoreGraph > = {
 };
 
 const defaultValues = {
+	startDate: exampleRawResponse.data._meta.start,
+	endDate: exampleRawResponse.data._meta.end,
 	periods: exampleRawResponse.data.periods,
 	isLoading: false,
 };

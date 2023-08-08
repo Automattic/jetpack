@@ -32,6 +32,8 @@ export interface Period {
 }
 export interface BoostScoreGraphProps {
 	periods: Period[];
+	startDate: number;
+	endDate: number;
 	title?: string;
 	isLoading?: boolean;
 }
@@ -64,6 +66,8 @@ function LegendCell( { label, value } ) {
  */
 export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	periods,
+	startDate,
+	endDate,
 	title,
 	isLoading = false,
 } ) => {
@@ -74,7 +78,7 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	return (
 		<div className="jb-score-graph">
 			{ title && <Text variant="title-medium">{ title }</Text> }
-			<UplotLineChart data={ data } />
+			<UplotLineChart data={ data } range={ { startDate, endDate } } />
 			<div className="jb-score-graph__table">
 				<div className="jb-score-graph__table-row">
 					<LegendCell label={ __( 'Overall score', 'jetpack' ) } value="A" />
