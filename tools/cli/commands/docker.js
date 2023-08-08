@@ -360,6 +360,28 @@ const buildExecCmd = argv => {
 			'--configuration=/var/www/html/wp-content/plugins/jetpack/tests/php.multisite.xml',
 			...unitArgs
 		);
+	} else if ( cmd === 'phpunit-woocommerce' ) {
+		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
+		console.warn(
+			chalk.yellow(
+				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
+			)
+		);
+		const unitArgs = argv._.slice( 2 );
+
+		opts.splice(
+			1,
+			0,
+			'-w',
+			'/var/www/html/wp-content/plugins/jetpack',
+			'-e',
+			'JETPACK_TEST_WOOCOMMERCE=1'
+		); // Need to add this option to `exec` before the container name.
+		opts.push(
+			'vendor/bin/phpunit',
+			'--configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist',
+			...unitArgs
+		);
 	} else if ( cmd === 'wp' ) {
 		const wpArgs = argv._.slice( 2 );
 		// Ugly solution to allow interactive shell work in dev context
@@ -636,6 +658,12 @@ export function dockerDefine( yargs ) {
 					command: 'phpunit-multisite',
 					alias: 'phpunit:multisite',
 					description: 'Run multisite PHPUnit tests inside container ',
+					builder: yargExec => defaultOpts( yargExec ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'phpunit-woocommerce',
+					description: 'Run WooCommerce PHPUnit tests inside container ',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

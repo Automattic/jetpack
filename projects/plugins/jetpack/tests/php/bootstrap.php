@@ -78,8 +78,11 @@ if ( '1' !== getenv( 'WP_MULTISITE' ) && ( ! defined( 'WP_TESTS_MULTISITE' ) || 
 
 if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 	echo 'To run Jetpack woocommerce tests, prefix phpunit with JETPACK_TEST_WOOCOMMERCE=1' . PHP_EOL;
+} elseif ( is_dir( __DIR__ . '/../../../woocommerce/plugins/woocommerce' ) ) {
+		define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', __DIR__ . '/../../../woocommerce/plugins/woocommerce' );
 } else {
-	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', __DIR__ . '/../../../woocommerce' );
+	echo 'Error: Clone the WooCommerce GitHub repo (https://github.com/WooCommerce/woocommerce) to jetpack/projects/plugins/woocommerce in order to run these tests.' . PHP_EOL;
+	exit( 1 );
 }
 
 require __DIR__ . '/lib/mock-functions.php';

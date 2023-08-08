@@ -165,6 +165,11 @@ This command runs the tests as a multi site install
 jetpack docker phpunit-multisite -- --filter=Protect
 ```
 
+This command enables Jetpack's WooCommerce tests
+```sh
+jetpack docker phpunit-woocommerce
+```
+
 To run tests for specific packages, you can run the tests locally, from within the package's directory:
 ```sh
 cd projects/packages/assets
