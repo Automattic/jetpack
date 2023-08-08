@@ -136,12 +136,11 @@ class Automation_Engine {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string $step_name The name of the step to be registered.
 	 * @param string $class_name The name of the class in which the step should belong.
 	 *
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
-	public function register_step( string $step_name, string $class_name ) {
+	public function register_step( string $class_name ) {
 		if ( ! class_exists( $class_name ) ) {
 			throw new Automation_Exception(
 				/* Translators: %s is the name of the step class that does not exist. */
@@ -149,6 +148,16 @@ class Automation_Engine {
 				Automation_Exception::STEP_CLASS_NOT_FOUND
 			);
 		}
+
+		if ( ! in_array( Step::class, class_implements( $class_name ), true ) ) {
+			throw new Automation_Exception(
+				/* Translators: %s is the name of the step class that does not implement the Step interface. */
+				sprintf( __( 'Step class %s does not implement the Base_Step interface', 'zero-bs-crm' ), $class_name ),
+				Automation_Exception::TRIGGER_CLASS_NOT_FOUND
+			);
+		}
+
+		$step_name                     = $class_name::get_slug();
 		$this->steps_map[ $step_name ] = $class_name;
 	}
 
