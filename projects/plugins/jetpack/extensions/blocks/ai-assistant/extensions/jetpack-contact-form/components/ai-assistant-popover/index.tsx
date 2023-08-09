@@ -16,7 +16,7 @@ import './style.scss';
 
 type AiAssistantPopoverProps = {
 	clientId?: string;
-	anchor?: HTMLElement | null;
+	blockListBlockRef?: React.RefObject< HTMLElement >;
 };
 
 /**
@@ -29,23 +29,21 @@ type AiAssistantPopoverProps = {
  */
 
 export const AiAssistantPopover = ( {
-	anchor = null,
 	clientId = '',
 }: AiAssistantPopoverProps ): React.ReactNode => {
-	const { toggle } = useContext( AiAssistantUiContext );
+	const { isVisible, isFixed, toggle, width } = useContext( AiAssistantUiContext );
 
-	if ( ! anchor ) {
+	if ( ! isVisible || isFixed ) {
 		return null;
 	}
 
 	return (
 		<Popover
-			anchor={ anchor }
-			variant="toolbar"
-			placement="bottom"
-			offset={ 0 }
+			placement="bottom-start"
+			variant={ null }
+			offset={ 70 }
 			animate={ false }
-			className="jetpack-ai-assistant-bar is-fixed"
+			className="jetpack-ai-assistant__popover"
 		>
 			<KeyboardShortcuts
 				bindGlobal
@@ -54,7 +52,7 @@ export const AiAssistantPopover = ( {
 				} }
 			/>
 
-			<div style={ { width: '100%' } }>
+			<div style={ { width } }>
 				<AiAssistantBar clientId={ clientId } />
 			</div>
 		</Popover>

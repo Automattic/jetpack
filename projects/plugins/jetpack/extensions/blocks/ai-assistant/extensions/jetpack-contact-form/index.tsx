@@ -6,21 +6,17 @@ import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { select } from '@wordpress/data';
-import { useEffect, useCallback, useContext, useState } from '@wordpress/element';
+import { useEffect, useCallback } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
  */
 import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
-import AiAssistantBar from './components/ai-assistant-bar';
 import { AiAssistantPopover } from './components/ai-assistant-popover';
 import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
-import { AiAssistantUiContext } from './ui-handler/context';
 import withUiHandlerDataProvider from './ui-handler/with-ui-handler-data-provider';
-
-import './style.scss';
 
 /**
  * Check if it is possible to extend the block.
@@ -73,11 +69,10 @@ export function isPossibleToExtendJetpackFormBlock( blockName: string | undefine
 
 const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
+		if ( ! isPossibleToExtendJetpackFormBlock( props?.name ) ) {
+			return <BlockEdit { ...props } />;
+		}
 		const { eventSource } = useAiContext();
-		const { isVisible, isFixed } = useContext( AiAssistantUiContext );
-
-		// Toolbar ref.
-		const [ toolbarRef, setToolbarRef ] = useState( null );
 
 		const stopSuggestion = useCallback( () => {
 			if ( ! eventSource ) {
@@ -100,32 +95,15 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 			group: 'block',
 		};
 
-		if ( ! isPossibleToExtendJetpackFormBlock( props?.name ) ) {
-			return <BlockEdit { ...props } />;
-		}
-
 		return (
 			<>
 				<BlockEdit { ...props } />
 
-				<BlockControls { ...blockControlsProps }>
-					<AiAssistantToolbarButton ref={ setToolbarRef } />
-				</BlockControls>
+				<AiAssistantPopover clientId={ props.clientId } />
 
-				{ isVisible && (
-					<>
-						{ isFixed ? (
-							<AiAssistantPopover clientId={ props.clientId } anchor={ toolbarRef } />
-						) : (
-							<div className="jetpack-ai-assistant__bar-anchor">
-								<AiAssistantBar
-									clientId={ props.clientId }
-									className="jetpack-ai-assistant__bar-floating"
-								/>
-							</div>
-						) }
-					</>
-				) }
+				<BlockControls { ...blockControlsProps }>
+					<AiAssistantToolbarButton />
+				</BlockControls>
 			</>
 		);
 	};
