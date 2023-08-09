@@ -13,7 +13,6 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
-import { AiAssistantPopover } from '../components/ai-assistant-popover';
 import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
 /**
  * Types
@@ -56,23 +55,14 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const [ width, setWidth ] = useState< number | string >( 400 );
 
 		// AI Assistant popover props
-		const [ popoverProps, setPopoverProps ] = useState<
-			AiAssistantUiContextProps[ 'popoverProps' ]
-		>( {
+		const [ popoverProps ] = useState< AiAssistantUiContextProps[ 'popoverProps' ] >( {
 			anchor: null,
 			placement: 'bottom-start',
 			offset: 12,
 		} );
 
-		const rootBlock = useSelect(
-			select => select( 'core/block-editor' ).getBlock( clientId ),
-			[ clientId ]
-		);
-
 		// Keep track of the current list of valid blocks between renders.
-		const currentListOfValidBlocks = useRef( rootBlock?.innerBlocks ?? [] );
-		const startedSuggestions = useRef( false );
-		const lastValidBlocksSize = useRef( 0 );
+		const currentListOfValidBlocks = useRef( [] );
 
 		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as {
@@ -167,14 +157,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
-			setPopoverProps( prev => ( {
-				...prev,
-				anchor: blockDomElement,
-				placement: 'bottom-start',
-				variant: null,
-				offset: 12,
-			} ) );
-
 			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
 		}, [ clientId, isFixed, isVisible ] );
 
@@ -226,7 +208,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				popoverProps,
 				width,
 				setAssistantFixed,
-				setPopoverProps,
 			} ),
 			[
 				inputValue,
@@ -239,14 +220,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				popoverProps,
 				width,
 				setAssistantFixed,
-				setPopoverProps,
 			]
 		);
 
 		const setContent = useCallback(
 			( newContent: string ) => {
-				startedSuggestions.current = true;
-
 				// Remove the Jetpack Form block from the content.
 				const processedContent = newContent.replace(
 					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
@@ -263,62 +241,23 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					return block.isValid && block.name !== 'core/freeform';
 				} );
 
-				// Avoid to replace the blocks if there are no new valid blocks.
-				if ( ! ( validBlocks?.length > lastValidBlocksSize.current ) ) {
-					return;
+				// Only update the blocks when the valid list changed, meaning a new block arrived.
+				if ( validBlocks.length !== currentListOfValidBlocks.current.length ) {
+					// Only update the valid blocks
+					replaceInnerBlocks( clientId, validBlocks );
+
+					// Update the list of current valid blocks
+					currentListOfValidBlocks.current = validBlocks;
 				}
-
-				lastValidBlocksSize.current = validBlocks.length;
-
-				// Find the index of the last valid block.
-				const lastBlockIndex = validBlocks.reduceRight( ( acc, block ) => {
-					const blockIndex = currentListOfValidBlocks.current.findLastIndex( validBlock => {
-						return validBlock.name === block.name;
-					} );
-
-					// If block is found and it is the first one.
-					if ( blockIndex !== -1 && acc === -1 ) {
-						return blockIndex;
-					}
-
-					return acc;
-				}, -1 );
-
-				let blocks = [ ...currentListOfValidBlocks.current ];
-
-				if ( lastBlockIndex === -1 ) {
-					blocks = [ ...validBlocks, ...currentListOfValidBlocks.current ];
-				} else {
-					blocks = [
-						...validBlocks,
-						...currentListOfValidBlocks.current.slice( lastBlockIndex + 1 ),
-					];
-				}
-
-				// Update the blocks.
-				replaceInnerBlocks( clientId, blocks );
-
-				// Update the list of current valid blocks
-				currentListOfValidBlocks.current = blocks;
 			},
 			[ clientId, replaceInnerBlocks ]
 		);
 
-		// Update the list of current valid blocks when the block is updated.
-		useEffect( () => {
-			if ( ! startedSuggestions.current ) {
-				currentListOfValidBlocks.current = rootBlock?.innerBlocks ?? [];
-			}
-		}, [ clientId, rootBlock?.innerBlocks ] );
-
 		useAiContext( {
 			askQuestionOptions: { postId },
+			onDone: setContent,
 			onSuggestion: setContent,
 			onError: showSuggestionError,
-			onDone: () => {
-				lastValidBlocksSize.current = 0;
-				startedSuggestions.current = false;
-			},
 		} );
 
 		/*
@@ -340,7 +279,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 						},
 					} }
 				>
-					<AiAssistantPopover clientId={ clientId } />
 					<BlockListBlock { ...props } />
 				</KeyboardShortcuts>
 			</AiAssistantUiContextProvider>
