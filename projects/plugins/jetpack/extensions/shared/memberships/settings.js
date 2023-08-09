@@ -266,7 +266,10 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 								isDismissible={ false }
 								className="edit-post-post-visibility__notice"
 							>
-								{ __( 'The content below the paywall block is exclusive to the selected audience', 'jetpack' ) }
+								{ __(
+									'The content below the paywall block is exclusive to the selected audience',
+									'jetpack'
+								) }
 							</Notice>
 						) }
 						<FlexBlock direction="row" justify="flex-start">
