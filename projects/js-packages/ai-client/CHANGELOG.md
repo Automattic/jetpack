@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2023-08-07
+### Added
+- AI Assistant: Add options parameter to request function on useAiSuggestions hook [#32198]
+- AI Client: add @wordpress/compose dependency [#32228]
+- AI Client: Add clear button in AI Control component [#32274]
+- AI Client: Add keyboard shortcut to AIControl [#32239]
+- AI Client: add onError() response support [#32223]
+- AI Client: Export types [#32209]
+- AI Client: Start supporting request options on requestSuggestion callback. [#32303]
+- AI Control: introduce AiStatusIndicator component [#32258]
+
+### Changed
+- AI Client: complete/update/improve doc [#32311]
+- AI Client: rename the prop name of the requesting state of the AiStatusIndicator component [#32279]
+
+### Fixed
+- AI Client: Fix wrong disabled state condition. [#32210]
+
 ## [0.1.1] - 2023-08-01
 ### Added
 - Add AI Client icon components [#32079]
@@ -36,4 +54,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.1.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.1.0...v0.1.1
