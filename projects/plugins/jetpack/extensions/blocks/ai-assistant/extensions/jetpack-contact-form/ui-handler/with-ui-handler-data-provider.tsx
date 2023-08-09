@@ -271,19 +271,17 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				lastValidBlocksSize.current = validBlocks.length;
 
 				// Find the index of the last valid block.
-				const lastBlockIndex = validBlocks.reduce( ( acc, block ) => {
-					const blockIndex = currentListOfValidBlocks.current.findIndex( validBlock => {
-						return (
-							validBlock.name === block.name &&
-							validBlock?.attributes?.label === block?.attributes?.label
-						);
+				const lastBlockIndex = validBlocks.reduceRight( ( acc, block ) => {
+					const blockIndex = currentListOfValidBlocks.current.findLastIndex( validBlock => {
+						return validBlock.name === block.name;
 					} );
 
-					if ( blockIndex === -1 ) {
-						return acc;
+					// If block is found and it is the first one.
+					if ( blockIndex !== -1 && acc === -1 ) {
+						return blockIndex;
 					}
 
-					return blockIndex;
+					return acc;
 				}, -1 );
 
 				let blocks = [ ...currentListOfValidBlocks.current ];
