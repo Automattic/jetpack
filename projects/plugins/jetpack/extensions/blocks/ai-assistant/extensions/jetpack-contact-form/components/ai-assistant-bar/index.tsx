@@ -44,7 +44,7 @@ function getSerializedContentFromBlock( clientId: string ): string {
 export default function AiAssistantBar( { clientId } ) {
 	const { requireUpgrade } = useAIFeature();
 
-	const { inputValue, setInputValue } = useContext( AiAssistantUiContext );
+	const { inputValue, setInputValue, isFixed } = useContext( AiAssistantUiContext );
 
 	const { requestSuggestion, requestingState } = useAiContext();
 
@@ -79,6 +79,7 @@ export default function AiAssistantBar( { clientId } ) {
 				onStop={ onStop }
 				state={ requestingState }
 				isOpaque={ requireUpgrade }
+				showButtonsLabel={ ! isFixed }
 			/>
 		</div>
 	);
