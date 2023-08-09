@@ -14,7 +14,7 @@ use WP_REST_Server;
 /**
  * Defines our endpoints.
  */
-class REST_Auto_Conversion_Settings_Controller extends WP_REST_Controller {
+class REST_Settings_Controller extends WP_REST_Controller {
 	/**
 	 * Register REST API endpoints.
 	 *

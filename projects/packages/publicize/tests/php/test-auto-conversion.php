@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Auto_Conversion\Settings as Auto_Conversion_Settings;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -32,14 +31,11 @@ class Auto_Conversion_Test extends BaseTestCase {
 	 */
 	public function set_up() {
 		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
-		global $publicize_ui;
-		if ( ! isset( $publicize_ui ) ) {
-			$publicize_ui = new Publicize_UI();
-		}
-
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array( 'social-image-auto-convert', 'social-image-generator', 'social-video-auto-convert' );
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+		global $publicize;
+		$publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'has_social_auto_conversion_feature' ) )->getMock();
+		$publicize->method( 'has_social_auto_conversion_feature' )
+		->withAnyParameters()
+		->willReturn( true );
 		$this->settings = new Auto_Conversion_Settings();
 	}
 
@@ -49,10 +45,12 @@ class Auto_Conversion_Test extends BaseTestCase {
 	 * @after
 	 */
 	public function tear_down() {
+		wp_set_current_user( 0 );
+
+		global $publicize;
+		$publicize = new Publicize();
+
 		remove_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array();
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
@@ -84,21 +82,20 @@ class Auto_Conversion_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that it correctly updates the enabled status.
+	 * Test that it correctly returns enabled or disabled.
 	 */
 	public function test_correctly_updates_enabled_status() {
 		$this->settings->enable_or_disable( 'image', true );
 		$this->assertTrue( $this->settings->is_enabled( 'image' ) );
 		$this->assertFalse( $this->settings->is_enabled( 'video' ) );
+		$this->settings->enable_or_disable( 'video', true );
+		$this->assertTrue( $this->settings->is_enabled( 'image' ) );
+		$this->assertTrue( $this->settings->is_enabled( 'video' ) );
 
 		$this->settings->enable_or_disable( 'image', false );
 		$this->assertFalse( $this->settings->is_enabled( 'image' ) );
-		$this->settings->enable_or_disable( 'video', true );
 		$this->assertTrue( $this->settings->is_enabled( 'video' ) );
-		$this->assertFalse( $this->settings->is_enabled( 'image' ) );
-
-		$this->settings->enable_or_disable( 'image', true );
-		$this->assertTrue( $this->settings->is_enabled( 'image' ) );
-		$this->assertTrue( $this->settings->is_enabled( 'video' ) );
+		$this->settings->enable_or_disable( 'video', false );
+		$this->assertFalse( $this->settings->is_enabled( 'video' ) );
 	}
 }
