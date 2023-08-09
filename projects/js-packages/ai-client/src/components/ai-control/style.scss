@@ -106,7 +106,7 @@
 	display: flex;
 	align-items: center;
 
-	.components-button.is-small {
+	.components-button.is-small:not(.has-label) {
 		padding: 0;
 	}
 }

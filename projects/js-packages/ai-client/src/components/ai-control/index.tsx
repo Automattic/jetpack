@@ -94,6 +94,10 @@ export default function AIControl( {
 		}
 	);
 
+	const actionButtonClasses = classNames( 'jetpack-components-ai-control__controls-prompt_button', {
+		'has-label': showButtonsLabel,
+	} );
+
 	return (
 		<div className="jetpack-components-ai-control__container">
 			<div
@@ -125,7 +129,7 @@ export default function AIControl( {
 				<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 					{ ! loading ? (
 						<Button
-							className="jetpack-components-ai-control__controls-prompt_button"
+							className={ actionButtonClasses }
 							onClick={ () => onSend( value ) }
 							isSmall={ true }
 							disabled={ ! value?.length || disabled }
@@ -136,7 +140,7 @@ export default function AIControl( {
 						</Button>
 					) : (
 						<Button
-							className="jetpack-components-ai-control__controls-prompt_button"
+							className={ actionButtonClasses }
 							onClick={ onStop }
 							isSmall={ true }
 							label={ __( 'Stop request', 'jetpack-ai-client' ) }
@@ -150,7 +154,7 @@ export default function AIControl( {
 				{ showAccept && (
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
 						<Button
-							className="jetpack-components-ai-control__controls-prompt_button"
+							className={ actionButtonClasses }
 							onClick={ onAccept }
 							isSmall={ true }
 							label={ acceptLabel }
