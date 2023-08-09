@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: Handle token fetching errors by dispatching an event from the SuggestionsEventSource class.
