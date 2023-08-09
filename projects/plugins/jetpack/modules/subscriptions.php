@@ -17,6 +17,7 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -1101,13 +1102,17 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
-		$domain = $status->get_site_suffix();
+		$link = Redirect::get_url(
+			'calypso-subscribers',
+			array( 'site' => $status->get_site_suffix() )
+		);
+
 		add_submenu_page(
 			'jetpack',
 			esc_attr__( 'Subscribers', 'jetpack' ),
 			__( 'Subscribers', 'jetpack' ),
 			'manage_options',
-			'https://wordpress.com/subscribers/' . $domain,
+			esc_url( $link ),
 			null
 		);
 	}
