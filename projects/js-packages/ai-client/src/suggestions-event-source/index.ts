@@ -3,10 +3,14 @@
  */
 import { EventSourceMessage, fetchEventSource } from '@microsoft/fetch-event-source';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
+import { getErrorData } from '../hooks/use-ai-suggestions';
+import requestJwt from '../jwt';
 /*
  * Types & constants
  */
-import { getErrorData } from '../hooks/use-ai-suggestions';
 import {
 	ERROR_MODERATION,
 	ERROR_NETWORK,
@@ -124,6 +128,23 @@ export default class SuggestionsEventSource extends EventTarget {
 		if ( options?.functions?.length ) {
 			debug( 'Functions: %o', options.functions );
 			bodyData.functions = options.functions;
+		}
+
+		// If the token is not provided, try to get one
+		if ( ! token ) {
+			try {
+				debug( 'Token was not provided, requesting one...' );
+				token = ( await requestJwt() ).token;
+			} catch ( err ) {
+				debug( 'Error getting token: %o', err );
+				this.dispatchEvent(
+					new CustomEvent( ERROR_RESPONSE, {
+						detail: getErrorData( ERROR_NETWORK ),
+					} )
+				);
+
+				return;
+			}
 		}
 
 		await fetchEventSource( url, {
