@@ -39,12 +39,6 @@ export type AiAssistantUiContextProps = {
 	toggle: () => void;
 
 	setAssistantFixed: ( isFixed: boolean ) => void;
-
-	setPopoverProps: (
-		props:
-			| AiAssistantUiContextProps[ 'popoverProps' ]
-			| ( ( prev: AiAssistantUiContextProps[ 'popoverProps' ] ) => void )
-	) => void;
 };
 
 type AiAssistantUiContextProviderProps = {
