@@ -3,6 +3,7 @@
  */
 import { aiAssistantIcon, useAiContext } from '@automattic/jetpack-ai-client';
 import { KeyboardShortcuts, Popover, ToolbarButton } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useContext, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
@@ -19,10 +20,12 @@ export default function AiAssistantToolbarButton( {
 }: {
 	clientId: string;
 } ): React.ReactElement {
-	const { isVisible, toggle, setPopoverProps, setAssistantFixed, isFixed } =
-		useContext( AiAssistantUiContext );
+	const { isVisible, toggle, setAssistantFixed, isFixed } = useContext( AiAssistantUiContext );
 	const { requestingState } = useAiContext();
 
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
+
+	useViewportMatch;
 	const [ barAnchor, setBarAnchor ] = React.useState< HTMLElement | null >( null );
 
 	/*
@@ -44,12 +47,13 @@ export default function AiAssistantToolbarButton( {
 			return;
 		}
 
+		// Set the anxhor where the Assistant Bar will be rendered.
 		setBarAnchor( toolbar );
 
-		const isToolbarBlockFixed = toolbar.classList.contains( 'is-fixed' );
-		setAssistantFixed( isToolbarBlockFixed );
-		handleAiExtensionsBarBodyClass( isToolbarBlockFixed, isVisible );
-	}, [ setAssistantFixed, setPopoverProps, isVisible ] );
+		// Fix the Assistant Bar if the Toolbar Block is fixed and the viewport is mobile.
+		setAssistantFixed( isMobileViewport );
+		handleAiExtensionsBarBodyClass( isMobileViewport, isVisible );
+	}, [ setAssistantFixed, isVisible, isMobileViewport ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 	return (
