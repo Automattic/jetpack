@@ -17,9 +17,6 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
-use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Stats\Options as Stats_Options;
-use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -1078,8 +1075,7 @@ class Jetpack_Subscriptions {
 	 * Create a Subscribers menu displayed on self-hosted sites.
 	 *
 	 * - It is not displayed on WordPress.com sites.
-	 * - If you have stats and the new Stats experience enabled, it directs you there.
-	 * - If you do not, it directs you to Calypso to the existing Subscribers page.
+	 * - It directs you to Calypso to the existing Subscribers page.
 	 *
 	 * @return void
 	 */
@@ -1106,31 +1102,14 @@ class Jetpack_Subscriptions {
 		}
 
 		$domain = $status->get_site_suffix();
-
-		if (
-			( new Modules() )->is_active( 'stats' )
-			&& Stats_Options::get_option( 'enable_odyssey_stats' )
-		) {
-			$stats_dashboard = new Stats_Dashboard();
-			$hook            = add_submenu_page(
-				'jetpack',
-				esc_attr__( 'Subscribers', 'jetpack' ),
-				__( 'Subscribers', 'jetpack' ),
-				'view_stats',
-				'stats#!/stats/subscribers/' . $domain,
-				array( $stats_dashboard, 'render' )
-			);
-			add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
-		} else {
-			add_submenu_page(
-				'jetpack',
-				esc_attr__( 'Subscribers', 'jetpack' ),
-				__( 'Subscribers', 'jetpack' ),
-				'manage_options',
-				'https://wordpress.com/subscribers/' . $domain,
-				null
-			);
-		}
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Subscribers', 'jetpack' ),
+			__( 'Subscribers', 'jetpack' ),
+			'manage_options',
+			'https://wordpress.com/subscribers/' . $domain,
+			null
+		);
 	}
 }
 

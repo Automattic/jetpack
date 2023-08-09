@@ -110,51 +110,6 @@ class Dashboard {
 						return false;
 					}
 				});
-
-				// Monitor any changes to the page hash. If the hash changes, we need to update the current menu item.
-				$( window ).on( 'hashchange', highlightCurrentMenuItem );
-
-				// Also trigger the potential change when folks click to switch between menus.
-				$( '#toplevel_page_jetpack' ).on( 'click', 'li', highlightCurrentMenuItem );
-
-				// Also trigger the highlight on initial load.
-				highlightCurrentMenuItem();
-
-				/**
-				 * Highlight the current menu item in the admin menu.
-				 * This is done by adding the 'current' class to the menu item.
-				 * It's important as the Stats app includes a "Subscribers" tab.
-				 * When it's selected, the "Subscribers" menu item should be highlighted.
-				 *
-				 * @return void
-				 */
-				function highlightCurrentMenuItem() {
-					const hash = location.hash;
-
-					const currentHash = hash.split( '/' )[ 2 ];
-					if ( ! currentHash ) {
-						return;
-					}
-
-					// Find the sub-nav item currently selected.
-					const currentSubNavItem = $( '#toplevel_page_jetpack li.current' );
-					const currentSubNavItemText = currentSubNavItem.text().toLowerCase();
-
-					switch ( currentHash ) {
-						case 'subscribers':
-							if ( currentSubNavItemText !== 'subscribers' ) {
-								$( '#toplevel_page_jetpack li:contains("Subscribers")' ).toggleClass( 'current' );
-								currentSubNavItem.toggleClass( 'current' );
-							}
-							break;
-						default:
-							if ( currentSubNavItemText !== 'stats' ) {
-								$( '#toplevel_page_jetpack li:contains("Stats")' ).toggleClass( 'current' );
-								$( '#toplevel_page_jetpack li:contains("Subscribers")' ).toggleClass( 'current' );
-							}
-							break;
-					}
-				}
 			});
 		</script>
 		<?php
