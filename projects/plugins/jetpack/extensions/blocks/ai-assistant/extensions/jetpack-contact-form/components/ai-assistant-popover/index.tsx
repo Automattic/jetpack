@@ -3,7 +3,6 @@
  */
 import { KeyboardShortcuts, Popover } from '@wordpress/components';
 import { useContext } from '@wordpress/element';
-import classNames from 'classnames';
 /**
  * Internal dependencies
  */
@@ -34,7 +33,7 @@ export const AiAssistantPopover = ( {
 }: AiAssistantPopoverProps ): React.ReactNode => {
 	const { isVisible, isFixed, toggle, width } = useContext( AiAssistantUiContext );
 
-	if ( ! isVisible ) {
+	if ( ! isVisible || isFixed ) {
 		return null;
 	}
 
@@ -44,9 +43,7 @@ export const AiAssistantPopover = ( {
 			variant={ null }
 			offset={ 70 }
 			animate={ false }
-			className={ classNames( 'jetpack-ai-assistant__popover', {
-				'is-fixed': isFixed,
-			} ) }
+			className="jetpack-ai-assistant__popover"
 		>
 			<KeyboardShortcuts
 				bindGlobal
