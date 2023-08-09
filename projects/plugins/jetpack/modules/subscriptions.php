@@ -1110,7 +1110,7 @@ class Jetpack_Subscriptions {
 		add_submenu_page(
 			'jetpack',
 			esc_attr__( 'Subscribers', 'jetpack' ),
-			__( 'Subscribers', 'jetpack' ),
+			__( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
 			'manage_options',
 			esc_url( $link ),
 			null
