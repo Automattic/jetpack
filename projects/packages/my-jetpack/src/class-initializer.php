@@ -31,7 +31,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '3.3.1';
+	const PACKAGE_VERSION = '3.3.2-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -67,7 +67,7 @@ class Initializer {
 			'manage_options',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
-			0
+			999
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );

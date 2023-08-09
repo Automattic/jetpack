@@ -14,7 +14,7 @@ test.beforeEach( async ( { page } ) => {
 		.withWpComLoggedIn( true )
 		.build();
 	await DashboardPage.visit( page );
-	await ( await Sidebar.init( page ) ).selectJetpackSubMenuItem();
+	await ( await Sidebar.init( page ) ).selectJetpack();
 } );
 
 test( 'Site only connection', async ( { page } ) => {
