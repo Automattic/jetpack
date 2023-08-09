@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Blocks: avoid hardcoding the version number when creating a new block via the CLI command
