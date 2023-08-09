@@ -1,11 +1,12 @@
 /*
  * External dependencies
  */
-import { withAiDataProvider } from '@automattic/jetpack-ai-client';
+import { useAiContext, withAiDataProvider } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { select } from '@wordpress/data';
+import { useEffect, useCallback } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
@@ -71,6 +72,24 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 		if ( ! isPossibleToExtendJetpackFormBlock( props?.name ) ) {
 			return <BlockEdit { ...props } />;
 		}
+		const { eventSource } = useAiContext();
+
+		const stopSuggestion = useCallback( () => {
+			if ( ! eventSource ) {
+				return;
+			}
+			eventSource?.close();
+		}, [ eventSource ] );
+
+		useEffect( () => {
+			/*
+			 * Cleanup function to remove the event listeners
+			 * and close the event source.
+			 */
+			return () => {
+				stopSuggestion();
+			};
+		}, [ stopSuggestion ] );
 
 		const blockControlsProps = {
 			group: 'block',
