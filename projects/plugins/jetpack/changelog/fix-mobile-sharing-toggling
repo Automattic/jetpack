@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Social: Fix race condition in mobile app's post request

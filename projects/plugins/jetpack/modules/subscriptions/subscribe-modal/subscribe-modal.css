@@ -19,23 +19,15 @@
 .jetpack-subscribe-modal__modal-content {
 	position: relative;
 	visibility: hidden;
+	overflow: hidden;
 	top: 100%;
 	background-color: #fefefe;
 	margin: 15% auto;
-	border: 1px solid #ddd;
-	width: 600px;
+	width: 100%;
+	max-width: 600px;
 	border-radius: 10px;
 	box-sizing: border-box;
 	transition: all 0.4s;
-}
-
-.jetpack-subscribe-modal__modal-content > .wp-block-group {
-    max-width: 450px;
-	margin: 0 auto;
-}
-
-.jetpack-subscribe-modal__modal-content > .wp-block-group a {
-    text-decoration: none;
 }
 
 .jetpack-subscribe-modal.open .jetpack-subscribe-modal__modal-content {

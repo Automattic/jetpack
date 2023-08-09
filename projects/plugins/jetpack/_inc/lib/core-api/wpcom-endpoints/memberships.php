@@ -272,7 +272,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			require_lib( 'memberships' );
 			$blog_id = get_current_blog_id();
-			return (array) get_memberships_settings_for_site( $blog_id, $product_type, $is_editable );
+			return (array) get_memberships_settings_for_site( $blog_id, $product_type, $is_editable, $source );
 		} else {
 			$payload = array(
 				'type'   => $request['type'],

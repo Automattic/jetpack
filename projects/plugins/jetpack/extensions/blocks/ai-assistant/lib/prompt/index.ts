@@ -243,24 +243,24 @@ function getJetpackFormCustomPrompt( {
 	return [
 		{
 			role: 'system',
-			content: `You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature. Your content will be used inside a Jetpack Form block that already exists.
-Writing rules:
-- Execute the request without any acknowledgment or explanation to the user.
-- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+			content: `You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature.
+Strictly follow those rules:
+- Do not wrap the response in any block, element or any kind of delimiter.
+- DO NOT add any addtional feedback to the "user", just generate the requested block structure.
+- Do not refer to yourself, the user or the response in any way.
+- When the user provides instructions, translate them into appropriate Gutenberg blocks and Jetpack form structure.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- DO NOT add any addtional feedback to the user, just generate the requested block structure and nothing else.`,
+- If you cannot generate a meaningful response to a user's request, reply only with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.`,
 		},
 		{
 			role,
-			content: `Handle the following request, delimited with ${ delimiter }: ${ getDelimitedContent(
-				request
-			) }
+			content: `Handle the following request: ${ request }
+
 Strong requirements:
-- When the user provides instructions, translate them into appropriate Gutenberg blocks and Jetpack form structure.
-- Do not wrap the generated structure with any block, element, or delimiters of any kind.
-- Do not use the \`<!-- wp:jetpack/contact-form -->\` block nor any containing elements. The existing form already has a containing block and appropriate elements.
+- Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
+- Always add, at the end, exactly one jetpack/button for the form submission. Forms require one button to be valid.
 - Replace placeholders (like FIELD_LABEL, IS_REQUIRED, etc.) with the user's specifications.
-- Use only the following blocks with the following syntax templates:
+- Use syntax templates for blocks as follows:
 	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
 	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
 	- \`Text Input Field\`: <!-- wp:jetpack/field-text {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
@@ -275,7 +275,9 @@ Strong requirements:
 	- \`Terms Consent\`:  <!-- wp:jetpack/field-consent {"consentType":"CONSENT_TYPE","implicitConsentMessage":"IMPLICIT_CONSENT_MESSAGE","explicitConsentMessage":"EXPLICIT_CONSENT_MESSAGE", /-->
 	- \`Button\`: <!-- wp:jetpack/button {"label":FIELD_LABEL,"element":"button","text":BUTTON_TEXT,"borderRadius":BORDER_RADIUS,"lock":{"remove":true}} /-->
 
-Jetpack Form to modify, delimited with ${ delimiter }: ${ getDelimitedContent( content ) }`,
+- When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column), like so: \`Name Field\`:
+	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
+Jetpack Form to modify:\n${ content }`,
 		},
 	];
 }

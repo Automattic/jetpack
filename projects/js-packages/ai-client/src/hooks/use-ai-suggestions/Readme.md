@@ -35,7 +35,7 @@ An object with the following properties:
 - `error: RequestingErrorProps | undefined`: An error object if an error occurs.
 - `requestingState: RequestingStateProp`: The state of the request.
 - `eventSource: SuggestionsEventSource | undefined`: The event source of the request.
-- `request: ( prompt: Array< PromptItemProps > ) => Promise< void >`: The request handler.
+- `request: ( prompt: Array< PromptItemProps >, options: AskQuestionOptionsArgProps ) => Promise< void >`: The request handler.
 
 ### `PromptItemProps`
 
