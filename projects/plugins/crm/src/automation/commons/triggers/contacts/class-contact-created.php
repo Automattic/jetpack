@@ -77,7 +77,7 @@ class Contact_Created extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_contact_created',
+			'jpcrm_contact_created',
 			array( $this, 'execute_workflow' )
 		);
 	}
