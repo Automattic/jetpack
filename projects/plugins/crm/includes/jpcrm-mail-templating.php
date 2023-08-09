@@ -878,7 +878,21 @@ function zeroBSCRM_Event_generateNotificationHTML( $return = true, $email = fals
 		$replacements['task-link-button'] = '<div style="text-align:center;margin:1em;margin-top:2em">' . __( 'You can view your task at the following URL: ', 'zero-bs-crm' ) . '<br />' . zeroBSCRM_mailTemplate_emailSafeButton( $eventURL, __( 'View Task', 'zero-bs-crm' ) ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// replacements
-		$html = $placeholder_templating->replace_placeholders( array( 'global', 'event', 'contact', 'company' ), $html, $replacements, array( ZBS_TYPE_EVENT => $event ) );
+		$html = $placeholder_templating->replace_placeholders(
+			array(
+				'global',
+				'event',
+				'contact',
+				'company',
+			),
+			$html,
+			$replacements,
+			array(
+				ZBS_TYPE_EVENT   => $event,
+				ZBS_TYPE_CONTACT => isset( $event['contact'] ) ? $event['contact'][0] : null,
+				ZBS_TYPE_COMPANY => isset( $event['company'] ) ? $event['company'][0] : null,
+			)
+		);
 
 		// return
 		if ( !$return ) {
