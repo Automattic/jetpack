@@ -1103,7 +1103,7 @@ class Jetpack_Subscriptions {
 		}
 
 		$link = Redirect::get_url(
-			'calypso-subscribers',
+			'jetpack-menu-calypso-subscribers',
 			array( 'site' => $status->get_site_suffix() )
 		);
 
