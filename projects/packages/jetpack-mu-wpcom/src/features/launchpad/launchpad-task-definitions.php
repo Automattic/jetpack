@@ -106,7 +106,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'verify_email'                    => array(
 			'get_title'           => function () {
-				return __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' );
+				return __( 'Verify email address', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
 			'get_task_url'        => function () {
