@@ -434,9 +434,13 @@ class Launchpad_Task_Lists_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function provide_get_calypso_path_validation_test_cases() {
 		return array(
-			'Full URL is rejected'                       => array(
+			'External absolute URL should be invalid'    => array(
 				'https://example.com/invalid-full-url',
 				null,
+			),
+			'Admin URL should be valid'                  => array(
+				'http://example.org/wp-admin/admin.php?page=jetpack#/discussion',
+				'http://example.org/wp-admin/admin.php?page=jetpack#/discussion',
 			),
 			'Same-protocol URL is rejected'              => array(
 				'//example.com/invalid-protocol-url',

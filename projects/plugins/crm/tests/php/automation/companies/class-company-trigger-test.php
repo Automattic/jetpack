@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
-use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\Company_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Company_Deleted;
@@ -37,7 +36,7 @@ class Company_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -56,7 +55,7 @@ class Company_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the company_update action.
-		do_action( 'jpcrm_automation_company_update', $company_data );
+		do_action( 'jpcrm_company_updated', $company_data );
 	}
 
 	/**
@@ -70,7 +69,7 @@ class Company_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -89,7 +88,7 @@ class Company_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the company_status_update action.
-		do_action( 'jpcrm_automation_company_status_update', $company_data );
+		do_action( 'jpcrm_company_status_updated', $company_data );
 	}
 
 	/**
@@ -103,7 +102,7 @@ class Company_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -121,8 +120,8 @@ class Company_Trigger_Test extends BaseTestCase {
 			$this->equalTo( $company_data )
 		);
 
-		// Notify the company_created event.
-		do_action( 'jpcrm_automation_company_created', $company_data );
+		// Run the company_created action.
+		do_action( 'jpcrm_company_created', $company_data );
 	}
 
 	/**
@@ -136,7 +135,7 @@ class Company_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -155,7 +154,7 @@ class Company_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the company_deleted action.
-		do_action( 'jpcrm_automation_company_delete', $company_data );
+		do_action( 'jpcrm_company_deleted', $company_data );
 	}
 
 }

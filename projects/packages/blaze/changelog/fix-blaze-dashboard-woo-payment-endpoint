@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixes missing controller for DSP /woo/wpcom-payment-methods request

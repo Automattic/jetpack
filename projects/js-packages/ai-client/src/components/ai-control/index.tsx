@@ -13,6 +13,7 @@ import classNames from 'classnames';
  */
 import './style.scss';
 import AiStatusIndicator from '../ai-status-indicator';
+import { GuidelineMessage } from './message';
 /**
  * Types
  */
@@ -26,6 +27,7 @@ const noop = () => {};
  *
  * @param {object} props - component props
  * @param {boolean} props.loading - loading state
+ * @param {boolean} props.disabled - is disabled
  * @param {string} props.value - input value
  * @param {string} props.placeholder - input placeholder
  * @param {boolean} props.showAccept - show accept button
@@ -41,6 +43,7 @@ const noop = () => {};
  */
 export default function AIControl( {
 	loading = false,
+	disabled = false,
 	value = '',
 	placeholder = '',
 	showAccept = false,
@@ -54,6 +57,7 @@ export default function AIControl( {
 	onAccept = noop,
 }: {
 	loading?: boolean;
+	disabled?: boolean;
 	value: string;
 	placeholder?: string;
 	showAccept?: boolean;
@@ -67,6 +71,14 @@ export default function AIControl( {
 	onAccept?: () => void;
 } ) {
 	const promptUserInputRef = useRef( null );
+	const showGuideLine = ! (
+		loading ||
+		disabled ||
+		value?.length ||
+		isOpaque ||
+		requestingState === 'suggesting' ||
+		requestingState === 'requesting'
+	);
 
 	useKeyboardShortcut(
 		'mod+enter',
@@ -106,7 +118,7 @@ export default function AIControl( {
 						onChange={ onChange }
 						placeholder={ placeholder }
 						className="jetpack-components-ai-control__input"
-						disabled={ loading }
+						disabled={ loading || disabled }
 						ref={ promptUserInputRef }
 					/>
 
@@ -126,7 +138,7 @@ export default function AIControl( {
 								className="jetpack-components-ai-control__controls-prompt_button"
 								onClick={ () => onSend( value ) }
 								isSmall={ true }
-								disabled={ ! value?.length }
+								disabled={ ! value?.length || disabled }
 								label={ __( 'Send request', 'jetpack-ai-client' ) }
 							>
 								<Icon icon={ arrowUp } />
@@ -160,6 +172,7 @@ export default function AIControl( {
 					) }
 				</div>
 			</div>
+			{ showGuideLine && <GuidelineMessage /> }
 		</div>
 	);
 }

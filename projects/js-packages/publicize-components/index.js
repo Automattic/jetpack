@@ -21,5 +21,6 @@ export { default as useSocialMediaMessage } from './src/hooks/use-social-media-m
 export { default as usePublicizeConfig } from './src/hooks/use-publicize-config';
 export { default as useSharePost } from './src/hooks/use-share-post';
 export { default as useDismissNotice } from './src/hooks/use-dismiss-notice';
+export * from './src/social-store';
 export * from './src/components/share-post';
 export * from './src/hooks/use-saving-post';

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.10.9",
+	"version": "0.11.0-alpha",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/shared-extension-utils/#readme",
 	"bugs": {
@@ -18,13 +18,14 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"@wordpress/api-fetch": "6.34.0",
-		"@wordpress/compose": "6.14.0",
-		"@wordpress/element": "5.14.0",
-		"@wordpress/i18n": "4.37.0",
-		"@wordpress/plugins": "6.5.0",
-		"@wordpress/url": "3.38.0",
+		"@wordpress/api-fetch": "6.35.0",
+		"@wordpress/compose": "6.15.0",
+		"@wordpress/element": "5.15.0",
+		"@wordpress/i18n": "4.38.0",
+		"@wordpress/plugins": "6.6.0",
+		"@wordpress/url": "3.39.0",
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
@@ -37,7 +38,7 @@
 		"react-dom": "18.2.0",
 		"jetpack-js-tools": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@wordpress/babel-plugin-import-jsx-pragma": "4.20.0",
+		"@wordpress/babel-plugin-import-jsx-pragma": "4.21.0",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "13.4.0",
 		"@testing-library/user-event": "14.4.3",

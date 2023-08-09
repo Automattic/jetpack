@@ -43,18 +43,12 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 			return;
 		}
 
-		/*
-		 * There is a race condition between the toolbar and component onMount.
-		 * We need to wait a bit to set the popover props.
-		 */
-		setTimeout( () => {
-			setPopoverProps( prev => ( {
-				...prev,
-				anchor: toolbar,
-				offset: 0,
-				variant: 'toolbar',
-			} ) );
-		}, 100 );
+		setPopoverProps( prev => ( {
+			...prev,
+			anchor: toolbar,
+			offset: 0,
+			variant: 'toolbar',
+		} ) );
 	}, [ setAssistantFixed, setPopoverProps, isVisible ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
