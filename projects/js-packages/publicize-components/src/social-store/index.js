@@ -4,8 +4,8 @@ import reducer from './reducer';
 import resolvers from './resolvers';
 import selectors from './selectors';
 
-export const STORE_ID = 'jetpack-social-plugin';
-export const storeConfig = {
+export const SOCIAL_STORE_ID = 'jetpack-social-plugin';
+export const SOCIAL_STORE_CONFIG = {
 	reducer,
 	actions,
 	selectors,
