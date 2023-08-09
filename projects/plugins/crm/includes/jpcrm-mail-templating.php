@@ -213,8 +213,11 @@ function zeroBSCRM_mailTemplate_emailPreview($templateID=-1){
 		// event
 		if ( $templateID == 5 ){
 
-			$replacements['task-title'] = __( 'Example Task #101', 'zero-bs-crm' );
-			$replacements['task-link']  = '<div style="text-align:center;margin:1em;margin-top:2em">' . zeroBSCRM_mailTemplate_emailSafeButton( admin_url(), __( 'View Task', 'zero-bs-crm' ) ) . '</div>';
+			$replacements['task-title']       = __( 'Example Task #101', 'zero-bs-crm' );
+			$replacements['task-link']        = '<div style="text-align:center;margin:1em;margin-top:2em">' . zeroBSCRM_mailTemplate_emailSafeButton( admin_url(), __( 'View Task', 'zero-bs-crm' ) ) . '</div>';
+			$replacements['contact-fname']    = __( 'First-Name', 'zero-bs-crm' );
+			$replacements['contact-lname']    = __( 'Last-Name', 'zero-bs-crm' );
+			$replacements['contact-fullname'] = __( 'Full-Name', 'zero-bs-crm' );
 
 	        // replace vars
 	        $html = $placeholder_templating->replace_placeholders( array( 'global', 'event' ), $html, $replacements );
