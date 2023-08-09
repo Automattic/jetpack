@@ -2,6 +2,25 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.5-a.5 - 2023-08-09
+### Enhancements
+- AI Assistant: change tracked event to English instead of translated value and track language and tone change [#32291]
+- AI Assistant: fix grammar and typos on Proofread feature [#32321]
+- AI Extension: fix visual issue in Assistant bar when switching viewport size. [#32344] [#32330]
+- AI Extension: Introduce AI Assistant bar. [#32359]
+- Paywall block: add transforms for "more" and "nextpage" core blocks. [#32338]
+
+### Bug fixes
+- Add subscribe button on premium content block on self-hosted [#32318]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: avoid hardcoding the version number when creating a new block via the CLI command [#32110]
+- AI Control: clean up props [#32360]
+- AI Extension: add UpgradePrompt if upgrade is required. [#32326] 
+- AI Plugin: Add upgrade path. [#32327]
+- Move out of api.js [#32273]
+- Updated package dependencies. [#32307]
+
 ## 12.5-a.3 - 2023-08-07
 ### Enhancements
 - Added SIG modal ui [#31665]
