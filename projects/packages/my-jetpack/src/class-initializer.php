@@ -67,7 +67,7 @@ class Initializer {
 			'manage_options',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
-			0
+			999
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
