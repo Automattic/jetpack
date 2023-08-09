@@ -234,7 +234,7 @@ export default function useAiSuggestions( {
 
 	const handleModerationError = useCallback( () => handleError( ERROR_MODERATION ), [] );
 
-	const handleNetwotkError = useCallback( () => handleError( ERROR_NETWORK ), [] );
+	const handleNetworkError = useCallback( () => handleError( ERROR_NETWORK ), [] );
 
 	/**
 	 * Request handler.
@@ -278,7 +278,7 @@ export default function useAiSuggestions( {
 				eventSource.addEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
 				eventSource.addEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
 				eventSource.addEventListener( ERROR_MODERATION, handleModerationError );
-				eventSource.addEventListener( ERROR_NETWORK, handleNetwotkError );
+				eventSource.addEventListener( ERROR_NETWORK, handleNetworkError );
 
 				eventSource.addEventListener( 'done', handleDone );
 			} catch ( e ) {
@@ -292,7 +292,7 @@ export default function useAiSuggestions( {
 			handleUnclearPromptError,
 			handleServiceUnavailableError,
 			handleModerationError,
-			handleNetwotkError,
+			handleNetworkError,
 			handleSuggestion,
 		]
 	);
@@ -327,7 +327,7 @@ export default function useAiSuggestions( {
 			eventSource.removeEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
 			eventSource.removeEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
 			eventSource.removeEventListener( ERROR_MODERATION, handleModerationError );
-			eventSource.removeEventListener( ERROR_NETWORK, handleNetwotkError );
+			eventSource.removeEventListener( ERROR_NETWORK, handleNetworkError );
 
 			eventSource.removeEventListener( 'done', handleDone );
 		};

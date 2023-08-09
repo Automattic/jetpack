@@ -13,7 +13,6 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
-import { AiAssistantPopover } from '../components/ai-assistant-popover';
 import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
 /**
  * Types
@@ -56,9 +55,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const [ width, setWidth ] = useState< number | string >( 400 );
 
 		// AI Assistant popover props
-		const [ popoverProps, setPopoverProps ] = useState<
-			AiAssistantUiContextProps[ 'popoverProps' ]
-		>( {
+		const [ popoverProps ] = useState< AiAssistantUiContextProps[ 'popoverProps' ] >( {
 			anchor: null,
 			placement: 'bottom-start',
 			offset: 12,
@@ -160,14 +157,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
-			setPopoverProps( prev => ( {
-				...prev,
-				anchor: blockDomElement,
-				placement: 'bottom-start',
-				variant: null,
-				offset: 12,
-			} ) );
-
 			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
 		}, [ clientId, isFixed, isVisible ] );
 
@@ -219,7 +208,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				popoverProps,
 				width,
 				setAssistantFixed,
-				setPopoverProps,
 			} ),
 			[
 				inputValue,
@@ -232,7 +220,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				popoverProps,
 				width,
 				setAssistantFixed,
-				setPopoverProps,
 			]
 		);
 
@@ -292,7 +279,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 						},
 					} }
 				>
-					<AiAssistantPopover clientId={ clientId } />
 					<BlockListBlock { ...props } />
 				</KeyboardShortcuts>
 			</AiAssistantUiContextProvider>
