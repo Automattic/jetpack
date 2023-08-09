@@ -46,7 +46,7 @@ export default function AiAssistantBar( { clientId } ) {
 
 	const { inputValue, setInputValue } = useContext( AiAssistantUiContext );
 
-	const { requestSuggestion, requestingState } = useAiContext();
+	const { requestSuggestion, requestingState, stopSuggestion } = useAiContext();
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
@@ -55,7 +55,7 @@ export default function AiAssistantBar( { clientId } ) {
 	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
 
 	const onStop = () => {
-		// TODO: Implement onStop
+		stopSuggestion();
 	};
 
 	const onSend = useCallback( () => {
