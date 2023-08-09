@@ -7,7 +7,8 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import askQuestion from '../../ask-question';
+import { replayRequest } from '../../../../../plugins/jetpack/extensions/blocks/ai-assistant/lib/replay-request';
+// import askQuestion from '../../ask-question';
 import {
 	ERROR_MODERATION,
 	ERROR_NETWORK,
@@ -260,7 +261,8 @@ export default function useAiSuggestions( {
 			setRequestingState( 'requesting' );
 
 			try {
-				eventSourceRef.current = await askQuestion( promptArg, options );
+				// eventSourceRef.current = await askQuestion( promptArg, options );
+				eventSourceRef.current = await replayRequest( promptArg, options );
 
 				if ( ! eventSourceRef?.current ) {
 					return;
