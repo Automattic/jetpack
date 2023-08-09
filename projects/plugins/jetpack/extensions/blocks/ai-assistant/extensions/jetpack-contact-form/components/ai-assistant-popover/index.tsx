@@ -148,14 +148,13 @@ export const AiAssistantPopover = ( {
 			<div style={ { width } }>
 				{ requireUpgrade && <UpgradePrompt /> }
 				<AIControl
-					loading={ isLoading }
 					disabled={ requireUpgrade }
 					value={ isLoading ? undefined : inputValue }
 					placeholder={ isLoading ? loadingPlaceholder : placeholder }
 					onChange={ setInputValue }
 					onSend={ onSend }
 					onStop={ onStop }
-					requestingState={ requestingState }
+					state={ requestingState }
 					isOpaque={ requireUpgrade }
 				/>
 			</div>

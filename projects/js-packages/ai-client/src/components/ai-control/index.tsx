@@ -26,7 +26,6 @@ const noop = () => {};
  * AI Control component.
  *
  * @param {object} props - component props
- * @param {boolean} props.loading - loading state
  * @param {boolean} props.disabled - is disabled
  * @param {string} props.value - input value
  * @param {string} props.placeholder - input placeholder
@@ -34,15 +33,14 @@ const noop = () => {};
  * @param {string} props.acceptLabel - accept button label
  * @param {boolean} props.showButtonsLabel - show buttons label
  * @param {boolean} props.isOpaque - is opaque
+ * @param {string} props.state - requesting state
  * @param {Function} props.onChange - input change handler
  * @param {Function} props.onSend - send request handler
  * @param {Function} props.onStop - stop request handler
  * @param {Function} props.onAccept - accept handler
- * @param {string} props.requestingState - requesting state
  * @returns {object} - AI Control component
  */
 export default function AIControl( {
-	loading = false,
 	disabled = false,
 	value = '',
 	placeholder = '',
@@ -50,13 +48,12 @@ export default function AIControl( {
 	acceptLabel = __( 'Accept', 'jetpack-ai-client' ),
 	showButtonsLabel = true,
 	isOpaque = false,
-	requestingState = 'init',
+	state = 'init',
 	onChange = noop,
 	onSend = noop,
 	onStop = noop,
 	onAccept = noop,
 }: {
-	loading?: boolean;
 	disabled?: boolean;
 	value: string;
 	placeholder?: string;
@@ -64,21 +61,15 @@ export default function AIControl( {
 	acceptLabel?: string;
 	showButtonsLabel?: boolean;
 	isOpaque?: boolean;
-	requestingState?: RequestingStateProp;
+	state?: RequestingStateProp;
 	onChange?: ( newValue: string ) => void;
 	onSend?: ( currentValue: string ) => void;
 	onStop?: () => void;
 	onAccept?: () => void;
 } ) {
 	const promptUserInputRef = useRef( null );
-	const showGuideLine = ! (
-		loading ||
-		disabled ||
-		value?.length ||
-		isOpaque ||
-		requestingState === 'suggesting' ||
-		requestingState === 'requesting'
-	);
+	const loading = state === 'requesting' || state === 'suggesting';
+	const showGuideLine = ! ( loading || disabled || value?.length || isOpaque );
 
 	useKeyboardShortcut(
 		'mod+enter',
@@ -110,7 +101,7 @@ export default function AIControl( {
 					'is-opaque': isOpaque,
 				} ) }
 			>
-				<AiStatusIndicator state={ requestingState } />
+				<AiStatusIndicator state={ state } />
 
 				<div className="jetpack-components-ai-control__input-wrapper">
 					<PlainText
