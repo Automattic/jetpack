@@ -1,5 +1,5 @@
 import { select } from '@wordpress/data';
-import { STORE_ID } from '../../store';
+import { SOCIAL_STORE_ID } from '../../social-store';
 import {
 	fetchSocialImageGeneratorSettings,
 	updateSocialImageGeneratorSettings as updateSocialImageGeneratorSettingsControl,
@@ -23,7 +23,7 @@ export function* updateSocialImageGeneratorSettings( settings ) {
 		yield setSocialImageGeneratorSettings( updatedSettings );
 		return true;
 	} catch ( e ) {
-		const oldSettings = select( STORE_ID ).getSocialImageGeneratorSettings();
+		const oldSettings = select( SOCIAL_STORE_ID ).getSocialImageGeneratorSettings();
 		yield setSocialImageGeneratorSettings( oldSettings );
 		return false;
 	} finally {

@@ -1,5 +1,5 @@
 import { select } from '@wordpress/data';
-import { STORE_ID } from '../../store';
+import { SOCIAL_STORE_ID } from '../../social-store';
 import {
 	fetchJetpackSettings,
 	updateJetpackSettings as updateJetpackSettingsControl,
@@ -24,7 +24,7 @@ export function* updateJetpackSettings( settings ) {
 		yield setJetpackSettings( updatedSettings );
 		return true;
 	} catch ( e ) {
-		const oldSettings = select( STORE_ID ).getJetpackSettings();
+		const oldSettings = select( SOCIAL_STORE_ID ).getJetpackSettings();
 		yield setJetpackSettings( oldSettings );
 		return false;
 	} finally {
