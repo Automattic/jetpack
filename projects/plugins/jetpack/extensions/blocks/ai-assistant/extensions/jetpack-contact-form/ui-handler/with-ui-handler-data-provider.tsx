@@ -55,9 +55,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const [ width, setWidth ] = useState< number | string >( 400 );
 
 		// AI Assistant popover props
-		const [ popoverProps, setPopoverProps ] = useState<
-			AiAssistantUiContextProps[ 'popoverProps' ]
-		>( {
+		const [ popoverProps ] = useState< AiAssistantUiContextProps[ 'popoverProps' ] >( {
 			anchor: null,
 			placement: 'bottom-start',
 			offset: 12,
@@ -166,14 +164,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				return;
 			}
 
-			setPopoverProps( prev => ( {
-				...prev,
-				anchor: blockDomElement,
-				placement: 'bottom-start',
-				variant: null,
-				offset: 12,
-			} ) );
-
 			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
 		}, [ clientId, isFixed, isVisible ] );
 
@@ -225,7 +215,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				popoverProps,
 				width,
 				setAssistantFixed,
-				setPopoverProps,
 			} ),
 			[
 				inputValue,
@@ -238,7 +227,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				popoverProps,
 				width,
 				setAssistantFixed,
-				setPopoverProps,
 			]
 		);
 
