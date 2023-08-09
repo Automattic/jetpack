@@ -13,7 +13,6 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
-import { AiAssistantPopover } from '../components/ai-assistant-popover';
 import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
 /**
  * Types
@@ -340,7 +339,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 						},
 					} }
 				>
-					<AiAssistantPopover clientId={ clientId } />
 					<BlockListBlock { ...props } />
 				</KeyboardShortcuts>
 			</AiAssistantUiContextProvider>

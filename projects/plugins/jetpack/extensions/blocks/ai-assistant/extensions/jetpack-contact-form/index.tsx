@@ -12,6 +12,7 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
+import { AiAssistantPopover } from './components/ai-assistant-popover';
 import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
 import withUiHandlerDataProvider from './ui-handler/with-ui-handler-data-provider';
@@ -65,7 +66,7 @@ export function isPossibleToExtendJetpackFormBlock( blockName: string | undefine
 	return true;
 }
 
-const withAiAssistantToolbarButton = createHigherOrderComponent( BlockEdit => {
+const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
 		if ( ! isPossibleToExtendJetpackFormBlock( props?.name ) ) {
 			return <BlockEdit { ...props } />;
@@ -79,20 +80,17 @@ const withAiAssistantToolbarButton = createHigherOrderComponent( BlockEdit => {
 			<>
 				<BlockEdit { ...props } />
 
+				<AiAssistantPopover clientId={ props.clientId } />
+
 				<BlockControls { ...blockControlsProps }>
 					<AiAssistantToolbarButton />
 				</BlockControls>
 			</>
 		);
 	};
-}, 'withAiAssistantToolbarButton' );
+}, 'withAiAssistantComponents' );
 
-addFilter(
-	'editor.BlockEdit',
-	'jetpack/jetpack-form-block-edit',
-	withAiAssistantToolbarButton,
-	100
-);
+addFilter( 'editor.BlockEdit', 'jetpack/jetpack-form-block-edit', withAiAssistantComponents, 100 );
 
 // Provide the UI Handler data context to the block.
 addFilter(
