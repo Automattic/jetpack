@@ -102,7 +102,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Retrieves the Social Image Generator's settings schema, conforming to JSON Schema.
+	 * Retrieves the settings schema, conforming to JSON Schema.
 	 *
 	 * @return array Schema data.
 	 */
