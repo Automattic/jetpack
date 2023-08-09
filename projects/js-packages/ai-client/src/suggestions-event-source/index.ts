@@ -85,6 +85,18 @@ export default class SuggestionsEventSource extends EventTarget {
 		token,
 		options = {},
 	}: SuggestionsEventSourceConstructorArgs ) {
+		// If the token is not provided, try to get one
+		if ( ! token ) {
+			try {
+				debug( 'Token was not provided, requesting one...' );
+				token = ( await requestJwt() ).token;
+			} catch ( err ) {
+				this.processErrorEvent( err );
+
+				return;
+			}
+		}
+
 		const bodyData: {
 			post_id?: number;
 			messages?: PromptMessagesProp;
@@ -128,18 +140,6 @@ export default class SuggestionsEventSource extends EventTarget {
 		if ( options?.functions?.length ) {
 			debug( 'Functions: %o', options.functions );
 			bodyData.functions = options.functions;
-		}
-
-		// If the token is not provided, try to get one
-		if ( ! token ) {
-			try {
-				debug( 'Token was not provided, requesting one...' );
-				token = ( await requestJwt() ).token;
-			} catch ( err ) {
-				this.processErrorEvent( err );
-
-				return;
-			}
 		}
 
 		await fetchEventSource( url, {
