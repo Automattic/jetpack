@@ -13,6 +13,7 @@ import UpgradePrompt from '../../../../components/upgrade-prompt';
 import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
+import './style.scss';
 
 /**
  * Return the serialized content from the childrens block.
@@ -67,7 +68,7 @@ export default function AiAssistantBar( { clientId } ) {
 	}, [ clientId, inputValue, requestSuggestion ] );
 
 	return (
-		<>
+		<div className="jetpack-ai-assistant__bar">
 			{ requireUpgrade && <UpgradePrompt /> }
 			<AIControl
 				disabled={ requireUpgrade }
@@ -79,6 +80,6 @@ export default function AiAssistantBar( { clientId } ) {
 				state={ requestingState }
 				isOpaque={ requireUpgrade }
 			/>
-		</>
+		</div>
 	);
 }
