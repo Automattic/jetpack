@@ -13,6 +13,7 @@ import classNames from 'classnames';
  */
 import './style.scss';
 import AiStatusIndicator from '../ai-status-indicator';
+import { GuidelineMessage } from './message';
 /**
  * Types
  */
@@ -70,6 +71,14 @@ export default function AIControl( {
 	onAccept?: () => void;
 } ) {
 	const promptUserInputRef = useRef( null );
+	const showGuideLine = ! (
+		loading ||
+		disabled ||
+		value?.length ||
+		isOpaque ||
+		requestingState === 'suggesting' ||
+		requestingState === 'requesting'
+	);
 
 	useKeyboardShortcut(
 		'mod+enter',
@@ -163,6 +172,7 @@ export default function AIControl( {
 					) }
 				</div>
 			</div>
+			{ showGuideLine && <GuidelineMessage /> }
 		</div>
 	);
 }
