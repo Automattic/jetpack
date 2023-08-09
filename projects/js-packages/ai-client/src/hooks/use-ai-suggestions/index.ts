@@ -282,8 +282,8 @@ export default function useAiSuggestions( {
 
 				eventSource.addEventListener( 'done', handleDone );
 			} catch ( e ) {
-				debug( 'Error outside the event source object: %o', e );
-				handleNetwotkError();
+				// eslint-disable-next-line no-console
+				console.error( e );
 			}
 		},
 		[

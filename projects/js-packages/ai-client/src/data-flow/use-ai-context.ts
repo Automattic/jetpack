@@ -49,7 +49,7 @@ export default function useAiContext( {
 	onError,
 }: UseAiContextOptions = {} ): AiDataContextProps {
 	const context = useContext( AiDataContext );
-	const { eventSource, requestingError } = context;
+	const { eventSource } = context;
 
 	const done = useCallback( ( event: CustomEvent ) => onDone?.( event?.detail ), [ onDone ] );
 	const suggestion = useCallback(
@@ -59,20 +59,6 @@ export default function useAiContext( {
 	const error = useCallback( ( event: CustomEvent ) => {
 		onError?.( event?.detail );
 	}, [] );
-
-	/*
-	 * Trigger error handling for errors
-	 * that happened before the event source was created.
-	 */
-	useEffect( () => {
-		if ( ! requestingError ) {
-			return;
-		}
-
-		if ( onError ) {
-			onError( requestingError );
-		}
-	}, [ requestingError ] );
 
 	useEffect( () => {
 		if ( ! eventSource ) {
