@@ -38,6 +38,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-wc-data.php';
 		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-wc-object-query.php';
 		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-payment-gateway.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-enhanced-payment-gateway.php';
 		require_once $woo_tests_dir . '/legacy/framework/class-wc-payment-token-stub.php';
 		// commenting this out for now. require_once( $woo_tests_dir . '/framework/vendor/class-wp-test-spy-rest-server.php' );
 
@@ -57,6 +58,19 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-shipping-zones.php';
 		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-payment-token.php';
 		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-settings.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-reports.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-admin-notes.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-test-action-queue.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-queue.php';
+
+		// Traits.
+		require_once $woo_tests_dir . '/legacy/framework/traits/trait-wc-rest-api-complex-meta.php';
+		require_once $woo_tests_dir . '/php/helpers/HPOSToggleTrait.php';
+
+		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/deprecated/ActionScheduler_Store_Deprecated.php';
+		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler_Store.php';
+		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler.php';
+		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/functions.php';
 	}
 
 	/**
