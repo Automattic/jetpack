@@ -253,60 +253,71 @@ Strictly follow those rules:
 - If you cannot generate a meaningful response to a user's request, reply only with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.`,
 		},
 		{
+			role: 'user',
+			content: `Strong requirements:
+- Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
+- Always add, at the end, exactly one jetpack/button for the form submission. Forms require one button to be valid.
+- When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column)
+- When a label color is requested, add "labelColor" attribute with a hexadecimal color value.
+- When a text color is requested, add "inputColor" attribute with a hexadecimal color value for fields and "customTextColor" attribute with a color name for buttons.
+- When a background color is requested, add "fieldBackgroundColor" attribute with a hexadecimal color value for fields and "customBackgroundColor" attribute with a color name for buttons.
+- Always yse hexadecimal color values for fields and the following color names for buttons: black, cyan-bluish-gray, white, pale-pink, vivid-red, luminous-vivid-orange, luminous-vivid-amber, light-green-cyan, vivid-green-cyan, pale-cyan-blue, vivid-cyan-blue, vivid-purple, base, contrast, primary, secondary and tertiary.
+- When a border color is requested, add "borderColor" attribute with a hexadecimal color value.
+- When a border width is requested, add "borderWidth" attribute with a number value.
+- When a label font size is requested, add "labelFontSize" attribute with a string value with px units.
+- When a font size is requested, add "fieldFontSize" attribute with a string value with px units.
+- When a line height is requested, add "lineHeight" attribute with a number value.
+- When a label line height is requested, add "labelLineHeight" attribute with a number value.
+- When a border radius or rounded corners are requested, add "borderRadius" attribute with a number value.
+- When a toggle label is requested, add "toggleLabel" attribute with a string value.
+- Unless specified, use the same style for all fields and buttons. Notice that the form fields and the button have different attribute names. Background color is "fieldBackgroundColor" for fields and "customBackgroundColor" for buttons. Font color is "inputColor" for fields and "customTextColor" for buttons. Border color and label color are only used for fields.
+- Always add labels and placeholder text to all fields. Other fields are generally optional.
+- If an attribute is not necessary, do not add it. If it is already there and it is not necessary to change it, do not change or remove it.
+- If a change is requested, only change the requested field or relevant attributes. Do not change or remove anything that was not requested.
+- Do not add any element other than the Gutenberg blocks described below. If a block is not in the list, do not add it, as it will not be recognized by the Jetpack Form block.
+- Options must be strings, not objects. For example, use "options": ["Option 1", "Option 2", "Option 3"] instead of "options": [{"label": "Option 1"}, {"label": "Option 2"}, {"label": "Option 3"}]
+- Replace placeholders (like FIELD_LABEL, IS_REQUIRED, etc.) with the user's specifications.
+- Use syntax templates for blocks as follows:
+	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Text Input Field\`: <!-- wp:jetpack/field-text {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Multi-line Text Field \`: <!-- wp:jetpack/field-textarea {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Checkbox\`: <!-- wp:jetpack/field-checkbox {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT} /-->
+	- \`Date Picker\`: <!-- wp:jetpack/field-date {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Phone Number Field\`: <!-- wp:jetpack/field-telephone {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`URL Field\`: <!-- wp:jetpack/field-url {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Multiple Choice (Checkbox)\`: <!-- wp:jetpack/field-checkbox-multiple {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
+	- \`Single Choice (Radio)\`: <!-- wp:jetpack/field-radio {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
+	- \`Dropdown Field\`: <!-- wp:jetpack/field-select {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE],"toggleLabel":TOGGLE_LABEL} /-->
+	- \`Terms Consent\`:  <!-- wp:jetpack/field-consent {"consentType":"CONSENT_TYPE","implicitConsentMessage":"IMPLICIT_CONSENT_MESSAGE","explicitConsentMessage":"EXPLICIT_CONSENT_MESSAGE", /-->
+	- \`Button\`: <!-- wp:jetpack/button {"label":FIELD_LABEL,"text":BUTTON_TEXT} /-->`,
+		},
+		{
+			role: 'user',
+			content:
+				'Give me a form with a required email field, red background with white text, and a submit button that says "Submit"',
+		},
+		{
+			role: 'assistant',
+			content: `<!-- wp:jetpack/field-email {"required":true,"requiredText":"(required)","placeholder":"Insert your email","inputColor":"#ffffff","labelColor":"#ffffff","fieldBackgroundColor":"#cf2e2e"} /-->
+<!-- wp:jetpack/button {"text":"Submit","textColor":"white","backgroundColor":"vivid-red"} /-->`,
+		},
+		{
+			role: 'user',
+			content:
+				'Make the borders rounded, change the background color to blue, and add an optional name field in the same row as the email',
+		},
+		{
+			role: 'assistant',
+			content: `<!-- wp:jetpack/field-email {"required":true,"requiredText":"(required)","placeholder":"Insert your email","width":50,"borderRadius":8,"inputColor":"#ffffff","labelColor":"#ffffff","fieldBackgroundColor":"#0693e3"} /-->
+<!-- wp:jetpack/field-text {"label":"Name","requiredText":"(required)","placeholder":"Insert your name","width":50,"borderRadius":8,"inputColor":"#ffffff","labelColor":"#ffffff","fieldBackgroundColor":"#0693e3"} /-->
+<!-- wp:jetpack/button {"text":"Submit","textColor":"white","backgroundColor":"vivid-cyan-blue","borderRadius":8} /-->`,
+		},
+		{
 			role,
 			content: `Handle the following request, delimited with ${ delimiter }: ${ getDelimitedContent(
 				request
 			) }
-
-Strong requirements:
-- Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
-- Always add, at the end, exactly one jetpack/button for the form submission. Forms require one button to be valid.
-- When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column)
-- When colors or other styles are requested, add attributes to stylize the blocks: Radius, Width and Line Height must be in numbers, font sizes must be strings with px units and colors must always be hexadecimal values.
-- Do not use non-hexadecimal color names, like "red" or "blue".
-- Unless specified, use the same style for all fields and buttons. Notice that the form fields and the button have different attribute names. Background color is "fieldBackgroundColor" for fields and "customBackgroundColor" for buttons. Font color is "inputColor" for fields and "customTextColor" for buttons. Border color and label color are only used for fields.
-- Always add labels and placeholder text to the fields. Other fields are generally optional.
-- If a field is not necessary, do not add it.
-- If rounded corners are requested, use the same border radius for all fields and buttons and use a positive value. If not, do not add the attribute.
-- If a style is not requested and was not already present, do not add the attribute.
-- Unless otherwise specified, keep the values for the fields as they were previously. Do not change anything that was not requested.
-- If a change is requested, only change the requested field or relevant style. Do not change anything else.
-- If a field or attribute is requested to be removed, remove it and do not add any replacement.
-- Replace placeholders (like TEXT_VALUE, OPTION, HEX_VALUE, etc.) with the user's specifications.
-- Do not include the value placeholder in the final response.
-- Do not add any element other than the Gutenberg blocks described below. If a block is not in the list, do not add it, as it will not be recognized by the Jetpack Form block.
-- By default, do not add any block attributes that are not specified in the request.
-- Use syntax templates for blocks as follows:
-	- <!-- [block code] { "attribute1": "value", "attribute2": "value" } /-->
-
-- Blocks to use:
-	- Name field: wp:jetpack/field-name
-	- Email field: wp:jetpack/field-email
-	- Text input field: wp:jetpack/field-text
-	- Multi-line text field: wp:jetpack/field-textarea
-	- Date picker: wp:jetpack/field-date
-	- Phone number field: wp:jetpack/field-telephone
-	- URL field: wp:jetpack/field-url
-	- Checkbox: wp:jetpack/field-checkbox
-	- Multiple choice (checkbox): wp:jetpack/field-checkbox-multiple
-	- Single choice (radio): wp:jetpack/field-radio
-	- Dropdown field: wp:jetpack/field-select
-	- Terms consent: wp:jetpack/field-consent
-	- Button: wp:jetpack/button
-
-- Attributes for each block:
-	- Name, Email, Text input, Multi-line text, Date picker, Phone number and URL fields: label, required, requiredText, placeholder, width, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
-	- Checkbox: label, required, requiredText, width,labelColor, labelFontSize, labelLineHeight
-	- Multiple choice (checkbox) and Single choice (radio): label, required, requiredText, options, labelColor, inputColor, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
-	- Dropdown field: label, required, requiredText, options, toggleLabel, width, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
-	- Terms consent: consentType, implicitConsentMessage, explicitConsentMessage, width, borderRadius, labelColor, inputColor, fieldBackgroundColor, borderColor, borderWidth, labelFontSize, fieldFontSize, lineHeight, labelLineHeight
-	- Button: label, text, borderRadius, customTextColor, customBackgroundColor
-
-- Example syntax:
-	- <!-- wp:jetpack/field-name {"label":"Name","required":true,"requiredText":"(required)","borderRadius":56,"borderWidth":32,"labelFontSize":"20px","fieldFontSize":"20px","lineHeight":1.7,"labelLineHeight":1.7,"inputColor":"#FF0000","labelColor":"#00FF00","fieldBackgroundColor":"#0000FF","borderColor":"#FFFF00"} /-->
-	- <!-- wp:jetpack/field-email {"label":"Email","placeholder":"Insert your email","labelColor":"#BB5700"} /-->
-	- <!-- wp:jetpack/field-checkbox-multiple {"label":"Vegetables","options":["Kale","Spinach"]} /-->
-- Notice that color names were translated to HEX values and optional fields were omitted in the second example.
 
 Jetpack Form to modify or add content to, delimited with ${ delimiter }: ${ getDelimitedContent(
 				content
