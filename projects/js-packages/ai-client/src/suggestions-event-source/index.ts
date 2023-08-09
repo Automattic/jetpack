@@ -20,7 +20,7 @@ import type { PromptMessagesProp, PromptProp, SuggestionErrorCode } from '../typ
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;
 	question: PromptProp;
-	token: string;
+	token?: string;
 	options?: {
 		postId?: number;
 		feature?: 'ai-assistant-experimental' | string | undefined;
