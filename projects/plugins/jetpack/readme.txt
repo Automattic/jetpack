@@ -293,19 +293,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.5-a.1 - 2023-08-01
+### 12.5-a.7 - 2023-08-09
 #### Enhancements
-- AI Assistant: various backend improvements.
-- AI Assistant: Disable feedback button if post is empty
-- Block editor: add Google Photo integration to Gutenberg's Media Sidebar for Jetpack connected sites.
-- Dashboard: update the SEO hide page control from a checkbox to a toggle.
-- Donation block: display the default Stripe currency in the Donation block and add a "check" icon next to the selected currency in the currency dropdown
-- Dashboard: update the likes and sharing button controls in the Jetpack sidebarffrom checkboxes to toggles.
-- Paywall block: update the block styles.
-
-#### Bug fixes
-- Dashboard: do not allow toggling the Subscriptions feature on or off when not connected to Jetpack.
-- Donation block: fix issue where an invalid amount entered would persist when switching tabs in the block editor.
+- AI Extension: fix AI Assistant bar position in the Top toolbar mode.
+- AI Extension: update view of AI assistant bar on mobile.
+- SSO: enable "Match by Email" by default.
 
 --------
 
