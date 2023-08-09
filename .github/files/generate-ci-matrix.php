@@ -55,7 +55,7 @@ $default_matrix_vars = array(
 $matrix = array();
 
 // Add PHP tests.
-foreach ( array( '5.6', '7.0', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2' ) as $php ) {
+foreach ( array( '7.0', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2' ) as $php ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP $php WP latest",
 		'script'  => 'test-php',
@@ -65,10 +65,16 @@ foreach ( array( '5.6', '7.0', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2' ) as $ph
 	);
 }
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
-	// PHP 8.1+ compatibility only came in with WP 6.2.
-	// @todo Remove this when 6.2 is "previous".
 	$phpver = $versions['PHP_VERSION'];
 	if ( $wp === 'previous' ) {
+		$matrix[] = array(
+			'name'    => "PHP tests: PHP 5.6 WP $wp",
+			'script'  => 'test-php',
+			'php'     => '5.6', // 2023-08-09 now that 5.6 is excluded from latest tests, we test it on 'previous'.
+			'wp'      => $wp,
+			'timeout' => 20, // 2022-01-25: 5.6 tests have started timing out at 15 minutes. Previously: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
+		);
+		// PHP 8.1+ seems to fail on WordPress 6.2.
 		$phpver = '8.0';
 	}
 	$matrix[] = array(
