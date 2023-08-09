@@ -21,6 +21,7 @@ import {
 import type { AskQuestionOptionsArgProps } from '../../ask-question';
 import type SuggestionsEventSource from '../../suggestions-event-source';
 import type { PromptProp, SuggestionErrorCode } from '../../types';
+import type { RequestingStateProp } from '../../types';
 
 export type RequestingErrorProps = {
 	/*
@@ -71,8 +72,6 @@ type useAiSuggestionsOptions = {
 	onError?: ( error: RequestingErrorProps ) => void;
 };
 
-export type RequestingStateProp = 'init' | 'requesting' | 'suggesting' | 'done' | 'error';
-
 type useAiSuggestionsProps = {
 	/*
 	 * The suggestion.
@@ -108,7 +107,7 @@ const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
  * @param {SuggestionErrorCode} errorCode - The error code.
  * @returns {RequestingErrorProps}          The error data.
  */
-function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorProps {
+export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorProps {
 	switch ( errorCode ) {
 		case ERROR_QUOTA_EXCEEDED:
 			return {

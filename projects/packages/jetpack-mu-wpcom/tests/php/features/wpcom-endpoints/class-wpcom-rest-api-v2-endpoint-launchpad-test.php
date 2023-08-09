@@ -58,6 +58,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$this->assertFalse( $result->get_data()['launchpad_screen'] );
 		$this->assertEmpty( $result->get_data()['checklist_statuses'] );
 		$this->assertIsArray( $result->get_data()['checklist_statuses'] );
+		$this->assertFalse( $result->get_data()['is_dismissed'] );
 	}
 
 	/**
@@ -77,6 +78,31 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$result  = rest_do_request( $request );
 
 		$this->assertSame( 401, $result->get_status() );
+	}
+
+	/**
+	 * Test updating checklist dismissed state.
+	 */
+	public function test_update_checklist_dismissed_state() {
+		wp_set_current_user( $this->admin_id );
+
+		$values = array(
+			'slug'         => 'intent-build',
+			'is_dismissed' => true,
+		);
+		$data   = array( 'is_checklist_dismissed' => $values );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $data ) );
+
+		$this->assertFalse( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ) );
+
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( array( 'updated' => array() ), $result->get_data() );
+		$this->assertTrue( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ) );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: rename the prop name of the requesting state of the AiStatusIndicator component

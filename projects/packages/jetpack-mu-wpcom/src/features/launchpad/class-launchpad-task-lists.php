@@ -153,6 +153,59 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Check if a task list was dismissed by the user.
+	 *
+	 * @param string $id Task List id.
+	 * @return bool|null True if dismissed, false if not.
+	 */
+	public function is_task_list_dismissed( $id ) {
+		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
+
+		// Return true if the task list is on the dismissed status array and its value is true.
+		return isset( $task_list_dismissed_status[ $id ] ) && true === $task_list_dismissed_status[ $id ];
+	}
+
+	/**
+	 * Set wether a task list is dismissed or not for a site.
+	 *
+	 * @param string $id Task List id.
+	 * @param bool   $is_dismissed True if dismissed, false if not.
+	 */
+	public function set_task_list_dismissed( $id, $is_dismissed ) {
+		$task_list = $this->get_task_list( $id );
+		if ( empty( $id ) || empty( $task_list ) ) {
+			return;
+		}
+
+		$task_list_dismissed_status = $this->get_task_list_dismissed_status();
+		$is_dismissed               = (bool) $is_dismissed;
+
+		if ( $is_dismissed ) {
+			$task_list_dismissed_status[ $id ] = true;
+		} else {
+			unset( $task_list_dismissed_status[ $id ] );
+		}
+
+		$launchpad_config                               = get_option( 'wpcom_launchpad_config', array() );
+		$launchpad_config['task_list_dismissed_status'] = $task_list_dismissed_status;
+		update_option( 'wpcom_launchpad_config', $launchpad_config );
+	}
+
+	/**
+	 * Get the task list visibility status for a site.
+	 *
+	 * @return array
+	 */
+	protected function get_task_list_dismissed_status() {
+		$launchpad_config = get_option( 'wpcom_launchpad_config', array() );
+		if ( ! isset( $launchpad_config['task_list_dismissed_status'] ) || ! is_array( $launchpad_config['task_list_dismissed_status'] ) ) {
+			return array();
+		}
+
+		return $launchpad_config['task_list_dismissed_status'];
+	}
+
+	/**
 	 * See if the task list registry has any task lists.
 	 *
 	 * @return bool True if there are task lists, false if not.
@@ -306,7 +359,7 @@ class Launchpad_Task_Lists {
 
 		if ( isset( $task['target_repetitions'] ) ) {
 			$built_task['target_repetitions'] = $task['target_repetitions'];
-			$built_task['repetition_count']   = $this->load_repetition_count( $task );
+			$built_task['repetition_count']   = min( $this->load_repetition_count( $task ), $task['target_repetitions'] );
 		}
 
 		if ( isset( $task['get_calypso_path'] ) ) {
@@ -399,7 +452,7 @@ class Launchpad_Task_Lists {
 	 * @return int|null The repetition count for the task.
 	 */
 	private function load_repetition_count( $task ) {
-		return $this->load_value_from_callback( $task, 'repetition_count_callback' );
+		return $this->load_value_from_callback( $task, 'repetition_count_callback', 0 );
 	}
 
 	/**
@@ -424,12 +477,31 @@ class Launchpad_Task_Lists {
 			return null;
 		}
 
-		// Require that the string start with `/`, but don't allow `//`.
-		if ( '/' !== substr( $calypso_path, 0, 1 ) || '/' === substr( $calypso_path, 1, 1 ) ) {
+		if ( ! $this->is_valid_admin_url_or_absolute_path( $calypso_path ) ) {
 			return null;
 		}
 
 		return $calypso_path;
+	}
+
+	/**
+	 * Checks if a string is a valid admin URL or an absolute path.
+	 *
+	 * @param string $input The string to check.
+	 * @return boolean
+	 */
+	private function is_valid_admin_url_or_absolute_path( $input ) {
+		// Checks if the string is URL starting with the admin URL
+		if ( strpos( $input, admin_url() ) === 0 ) {
+			return true;
+		}
+
+		// Require that the string start with a slash, but not two slashes
+		if ( '/' === substr( $input, 0, 1 ) && '/' !== substr( $input, 1, 1 ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -591,7 +663,7 @@ class Launchpad_Task_Lists {
 	 */
 	public function add_hooks_for_active_tasks( $task_list_id = null ) {
 		// leave things alone if Launchpad is not enabled.
-		if ( ! $this->is_launchpad_enabled() ) {
+		if ( ! $this->is_fullscreen_launchpad_enabled() ) {
 			return;
 		}
 
@@ -636,7 +708,7 @@ class Launchpad_Task_Lists {
 		$statuses[ $key ] = true;
 		$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
 
-		$this->maybe_disable_launchpad();
+		$this->maybe_disable_fullscreen_launchpad();
 
 		return $result;
 	}
@@ -659,15 +731,15 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Disables Launchpad if all tasks are complete.
+	 * Disables fullscreen Launchpad if all tasks are complete.
 	 *
 	 * @return void
 	 */
-	public function maybe_disable_launchpad() {
+	public function maybe_disable_fullscreen_launchpad() {
 		if ( $this->has_active_tasks() ) {
 			return;
 		}
-		$this->disable_launchpad();
+		$this->disable_fullscreen_launchpad();
 	}
 
 	/**
@@ -716,7 +788,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return boolean
 	 */
-	public function is_launchpad_enabled() {
+	public function is_fullscreen_launchpad_enabled() {
 		$launchpad_screen = get_option( 'launchpad_screen' );
 		if ( 'full' !== $launchpad_screen ) {
 			return false;
@@ -729,7 +801,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return bool True if successful, false if not.
 	 */
-	private function disable_launchpad() {
+	private function disable_fullscreen_launchpad() {
 		return update_option( 'launchpad_screen', 'off' );
 	}
 

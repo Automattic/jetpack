@@ -8,9 +8,14 @@ export type AiAssistantUiContextProps = {
 
 	isVisible: boolean;
 
+	isFixed: boolean;
+
+	width?: number | string;
+
 	popoverProps?: {
-		anchor: HTMLElement | null;
+		anchor?: HTMLElement | null;
 		offset?: number;
+		variant?: 'toolbar' | 'unstyled';
 		placement?:
 			| 'top'
 			| 'top-start'
@@ -33,7 +38,13 @@ export type AiAssistantUiContextProps = {
 	hide: () => void;
 	toggle: () => void;
 
-	setPopoverProps: ( props: AiAssistantUiContextProps[ 'popoverProps' ] ) => void;
+	setAssistantFixed: ( isFixed: boolean ) => void;
+
+	setPopoverProps: (
+		props:
+			| AiAssistantUiContextProps[ 'popoverProps' ]
+			| ( ( prev: AiAssistantUiContextProps[ 'popoverProps' ] ) => void )
+	) => void;
 };
 
 type AiAssistantUiContextProviderProps = {

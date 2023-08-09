@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
-use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Before_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
@@ -40,7 +39,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -59,7 +58,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the contact_update action.
-		do_action( 'jpcrm_automation_contact_update', $contact_data );
+		do_action( 'jpcrm_contact_updated', $contact_data );
 	}
 
 	/**
@@ -73,7 +72,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -92,7 +91,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the contact_status_update action.
-		do_action( 'jpcrm_automation_contact_status_update', $contact_data );
+		do_action( 'jpcrm_contact_status_updated', $contact_data );
 	}
 
 	/**
@@ -106,7 +105,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -124,8 +123,8 @@ class Contact_Trigger_Test extends BaseTestCase {
 			$this->equalTo( $contact_data )
 		);
 
-		// Notify the contact_created event.
-		do_action( 'jpcrm_automation_contact_created', $contact_data );
+		// Run the contact_created action.
+		do_action( 'jpcrm_contact_created', $contact_data );
 	}
 
 	/**
@@ -139,7 +138,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -158,7 +157,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the contact_email_update action.
-		do_action( 'jpcrm_automation_contact_email_update', $contact_data );
+		do_action( 'jpcrm_contact_email_updated', $contact_data );
 	}
 
 	/**
@@ -172,7 +171,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -191,7 +190,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the contact_deleted action.
-		do_action( 'jpcrm_automation_contact_delete', $contact_data );
+		do_action( 'jpcrm_contact_deleted', $contact_data );
 	}
 
 	/**
@@ -205,7 +204,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -224,7 +223,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the contact_before_deleted action.
-		do_action( 'jpcrm_automation_contact_before_delete', $contact_data );
+		do_action( 'jpcrm_contact_before_deleted', $contact_data );
 	}
 
 }
