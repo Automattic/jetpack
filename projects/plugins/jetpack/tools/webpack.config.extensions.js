@@ -38,63 +38,27 @@ function presetProductionExtensions( type, inputDir, presetBlocks ) {
 
 const presetPath = path.join( __dirname, '../extensions', 'index.json' );
 const presetIndex = require( presetPath );
-const presetProductionBlocks = presetIndex.production || [];
-const presetNoPostEditorBlocks = presetIndex[ 'no-post-editor' ] || [];
 
-const presetExperimentalBlocks = [
-	...presetProductionBlocks,
-	...( presetIndex.experimental || [] ),
-];
-// Beta Blocks include all blocks: beta, experimental, and production blocks.
-const presetBetaBlocks = [ ...presetExperimentalBlocks, ...( presetIndex.beta || [] ) ];
-
-// Helps split up each block into its own folder view script
-const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
-	const viewScriptPath = path.join( __dirname, '../extensions/blocks', block, 'view.js' );
-	if ( fs.existsSync( viewScriptPath ) ) {
-		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
-	}
-	return viewBlocks;
+const editorProductionScripts = Object.keys( presetIndex ).reduce( ( acc, envr ) => {
+	Object.keys( presetIndex[ envr ] ).forEach( bundleName => {
+		const bundle = presetIndex[ envr ][ bundleName ];
+		const blockPath = path.join( __dirname, '../extensions' );
+		acc[ `${ bundleName }/editor` ] = [
+			editorSetup,
+			...presetProductionExtensions( 'editor', blockPath, bundle ),
+		];
+		for ( const blockName of bundle ) {
+			if ( acc[ blockName + '/view' ] ) {
+				continue;
+			}
+			const viewScriptPath = path.join( __dirname, '../extensions/blocks', blockName, 'view.js' );
+			if ( fs.existsSync( viewScriptPath ) ) {
+				acc[ blockName + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
+			}
+		}
+	} );
+	return acc;
 }, {} );
-
-// Combines all the different production blocks into one editor.js script
-const editorScript = [
-	editorSetup,
-	...presetProductionExtensions(
-		'editor',
-		path.join( __dirname, '../extensions' ),
-		presetProductionBlocks
-	),
-];
-
-// Combines all the different Experimental blocks into one editor.js script
-const editorExperimentalScript = [
-	editorSetup,
-	...presetProductionExtensions(
-		'editor',
-		path.join( __dirname, '../extensions' ),
-		presetExperimentalBlocks
-	),
-];
-
-// Combines all the different blocks into one editor-beta.js script
-const editorBetaScript = [
-	editorSetup,
-	...presetProductionExtensions(
-		'editor',
-		path.join( __dirname, '../extensions' ),
-		presetBetaBlocks
-	),
-];
-
-const editorNoPostEditorScript = [
-	editorSetup,
-	...presetProductionExtensions(
-		'editor',
-		path.join( __dirname, '../extensions' ),
-		presetNoPostEditorBlocks
-	),
-];
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -176,11 +140,8 @@ module.exports = [
 	{
 		...sharedWebpackConfig,
 		entry: {
-			editor: editorScript,
-			'editor-experimental': editorExperimentalScript,
-			'editor-beta': editorBetaScript,
-			'editor-no-post-editor': editorNoPostEditorScript,
-			...viewBlocksScripts,
+			...editorProductionScripts,
+			'editor-core': path.join( __dirname, '../extensions/editor.js' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
@@ -193,6 +154,15 @@ module.exports = [
 				],
 			} ),
 			new CopyBlockEditorAssetsPlugin(),
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: '**/block.json',
+						to: '[path][name][ext]',
+						context: path.join( __dirname, '../extensions/blocks' ),
+					},
+				],
+			} ),
 		],
 	},
 	{
