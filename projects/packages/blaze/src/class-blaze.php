@@ -300,7 +300,7 @@ class Blaze {
 		}
 
 		$blaze_url = self::get_campaign_management_url( $post_id );
-		$text      = _x( 'Blaze', 'Verb', 'jetpack-blaze' );
+		$text      = __( 'Promote with Blaze', 'jetpack-blaze' );
 		$title     = get_the_title( $post );
 		$label     = sprintf(
 			/* translators: post title */

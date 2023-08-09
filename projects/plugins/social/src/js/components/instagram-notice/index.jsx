@@ -4,14 +4,11 @@ import {
 	Notice,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import { useDismissNotice } from '@automattic/jetpack-publicize-components';
+import { useDismissNotice, SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
-
-const INSTAGRAM_NOTICE = 'instagram';
 
 const freePlanNoticeText = __(
 	'Share featured images directly to your Instagram Business account for free, or share unlimited photos with Jetpack Social Advanced.',
@@ -23,11 +20,11 @@ const paidPlanNoticeText = __(
 );
 
 const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
-	const { shouldShowNotice, dismissNotice } = useDismissNotice();
+	const { shouldShowNotice, dismissNotice, NOTICES } = useDismissNotice();
 
 	const { connectionsAdminUrl, isInstagramConnectionSupported, isEnhancedPublishingEnabled } =
 		useSelect( select => {
-			const store = select( STORE_ID );
+			const store = select( SOCIAL_STORE_ID );
 			return {
 				connectionsAdminUrl: store.getConnectionsAdminUrl(),
 				isInstagramConnectionSupported: store.isInstagramConnectionSupported(),
@@ -36,10 +33,10 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 		} );
 
 	const handleDismiss = useCallback( () => {
-		dismissNotice( INSTAGRAM_NOTICE );
-	}, [ dismissNotice ] );
+		dismissNotice( NOTICES.instagram );
+	}, [ dismissNotice, NOTICES ] );
 
-	if ( ! shouldShowNotice( INSTAGRAM_NOTICE ) || ! isInstagramConnectionSupported ) {
+	if ( ! shouldShowNotice( NOTICES.instagram ) || ! isInstagramConnectionSupported ) {
 		return null;
 	}
 

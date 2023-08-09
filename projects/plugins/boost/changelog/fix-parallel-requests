@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Improved the regenerate button to eleminate the possibility of accidental parallel regeneration

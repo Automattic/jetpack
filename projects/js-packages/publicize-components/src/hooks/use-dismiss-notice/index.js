@@ -2,7 +2,18 @@ import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useMemo, useState } from 'react';
 
-export const INSTAGRAM_NOTICE = 'instagram';
+/**
+ * @typedef {object} NoticeTypes
+ * @property {string} instagram - The name of the Instagram notice.
+ * @property {string} advancedUpgradeEditor - The name of the advanced upgrade nudge in the editor.
+ * @property {string} advancedUpgradeAdmin - The name of the advanced upgrade nudge in the admin page.
+ */
+
+const NOTICES = {
+	instagram: 'instagram',
+	advancedUpgradeEditor: 'advanced-upgrade-nudge-editor',
+	advancedUpgradeAdmin: 'advanced-upgrade-nudge-admin',
+};
 
 const calculateReappearanceTime = seconds => {
 	if ( seconds === -1 ) {
@@ -15,6 +26,8 @@ const calculateReappearanceTime = seconds => {
  * @typedef {object} DismissNoticeHook
  * @property {Array} dismissedNotices - Array of names of dismissed notices.
  * @property {Function} dismissNotice - Callback used to dismiss a notice.
+ * @property {Function} shouldShowNotice - Callback used to check if a notice should be shown.
+ * @property {NoticeTypes} NOTICES - Object containing the names of the supported notices.
  */
 
 /**
@@ -70,7 +83,7 @@ export default function useDismissNotice() {
 	);
 
 	return useMemo(
-		() => ( { dismissedNotices, shouldShowNotice, dismissNotice } ),
+		() => ( { dismissedNotices, shouldShowNotice, dismissNotice, NOTICES } ),
 		[ dismissedNotices, shouldShowNotice, dismissNotice ]
 	);
 }

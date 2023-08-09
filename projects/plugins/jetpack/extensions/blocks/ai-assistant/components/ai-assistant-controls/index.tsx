@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import {
 	MenuItem,
 	MenuGroup,
@@ -15,7 +16,6 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import aiAssistant from '../../icons/ai-assistant';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -30,7 +30,6 @@ import './style.scss';
 /**
  * Types and constants
  */
-import type { RequestingStateProp } from '../../hooks/use-suggestions-from-ai';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
 
@@ -109,7 +108,7 @@ type AiAssistantControlComponentProps = {
 	/*
 	 * Whether the dropdown is requesting suggestions from AI.
 	 */
-	requestingState?: RequestingStateProp;
+	requestingState?: string;
 
 	/*
 	 * Whether the dropdown is disabled.
@@ -152,7 +151,7 @@ export default function AiAssistantDropdown( {
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
 						label={ toolbarLabel }
-						icon={ aiAssistant }
+						icon={ aiAssistantIcon }
 						disabled={ disabled }
 					/>
 				);
@@ -161,7 +160,7 @@ export default function AiAssistantDropdown( {
 				<MenuGroup label={ label }>
 					{ ! exclude.includes( KEY_ASK_AI_ASSISTANT ) && (
 						<MenuItem
-							icon={ aiAssistant }
+							icon={ aiAssistantIcon }
 							iconPosition="left"
 							key="key-ai-assistant"
 							onClick={ onReplace }

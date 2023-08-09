@@ -1,0 +1,130 @@
+.jetpack-components-ai-control__container {
+	color: var( --jp-gray-80 );
+	background-color: var( --jp-white );
+	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
+	font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	width: 100%;
+}
+
+.jetpack-components-ai-control__wrapper {
+	display: flex;
+	padding: 12px 14px;
+	gap: 8px;
+	align-items: center;
+
+	&.is-opaque {
+		opacity: 0.4;
+	}
+}
+
+.jetpack-components-ai-control__input-wrapper {
+	position: relative;
+	display: flex;
+	flex-grow: 1;
+	width: 100%;
+
+	.jetpack-components-ai-control__clear {
+		position: absolute;
+		right: 8px;
+		top: calc( 50% - 12px );
+		border-radius: 50%;
+		background-color: black;
+		opacity: 0.2;
+		fill: white;
+		cursor: pointer;
+
+		&:hover {
+			opacity: 0.4;
+		}
+	}
+
+	textarea.jetpack-components-ai-control__input {
+		width: 100%;
+		min-height: 20px;
+		border-radius: 2px;
+		padding: 6px 38px 6px 8px;
+
+		resize: none !important;
+		border: none;
+		box-shadow: none;
+		color: var( --jp-gray-80 );
+
+		font-size: 16px;
+		font-weight: 400;
+		line-height: 20px;
+
+		transition: box-shadow 0.1s linear 0s;
+
+		&:focus {
+			box-shadow: none;
+			color: var( --jp-gray-80 );
+		}
+
+		@media (min-width: 600px) {
+			font-size: 13px;
+		}
+
+		&::placeholder {
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			opacity: 0.75;
+		}
+	}
+}
+
+.jetpack-components-ai-controlton__icon {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	
+	.input-icon {
+		// Brand green regardless of theme
+		color: var( --jp-green-40 );
+	}
+	
+	.input-spinner {
+		margin: 0;
+		width: 24px;
+		height: 24px;
+
+		path {
+			color: var( --jp-green-40 );
+		}
+	}
+}
+
+.jetpack-components-ai-control__controls {
+	display: flex;
+	align-items: center;
+}
+
+.jetpack-components-ai-control__controls-prompt_button_wrapper {
+	text-transform: uppercase;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 16px;
+	user-select: none;
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
+}
+
+.jetpack-components-ai-control__controls-prompt_button {
+	color: var( --jp-gray-80 );
+	text-transform: uppercase;
+
+	> SVG {
+		margin-right: 4px;
+	}
+
+	&:hover,
+	&:active {
+		color: var( --wp-components-color-accent, var( --wp-admin-theme-color ) );
+	}
+
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}
