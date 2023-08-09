@@ -54,10 +54,6 @@ export default function AiAssistantBar( { clientId } ) {
 
 	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
 
-	const onStop = () => {
-		stopSuggestion();
-	};
-
 	const onSend = useCallback( () => {
 		const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
 			request: inputValue,
@@ -76,7 +72,7 @@ export default function AiAssistantBar( { clientId } ) {
 				placeholder={ isLoading ? loadingPlaceholder : placeholder }
 				onChange={ setInputValue }
 				onSend={ onSend }
-				onStop={ onStop }
+				onStop={ stopSuggestion }
 				state={ requestingState }
 				isOpaque={ requireUpgrade }
 			/>
