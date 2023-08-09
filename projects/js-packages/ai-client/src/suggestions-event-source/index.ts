@@ -136,12 +136,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				debug( 'Token was not provided, requesting one...' );
 				token = ( await requestJwt() ).token;
 			} catch ( err ) {
-				debug( 'Error getting token: %o', err );
-				this.dispatchEvent(
-					new CustomEvent( ERROR_RESPONSE, {
-						detail: getErrorData( ERROR_NETWORK ),
-					} )
-				);
+				this.processErrorEvent( err );
 
 				return;
 			}
