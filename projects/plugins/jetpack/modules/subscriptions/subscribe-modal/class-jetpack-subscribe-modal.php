@@ -217,10 +217,10 @@ HTML;
 			return false;
 		}
 
-		// Don't show if subscribe query param is set.
-		// It is set when user submits the subscribe form.
+		// Don't show if one of subscribe query params is set.
+		// They are set when user submits the subscribe form.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['subscribe'] ) ) {
+		if ( isset( $_GET['subscribe'] ) || isset( $_GET['blogsub'] ) ) {
 			return false;
 		}
 
