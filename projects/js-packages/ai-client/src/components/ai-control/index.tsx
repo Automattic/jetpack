@@ -4,10 +4,11 @@
 import { PlainText } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
-import { useRef } from '@wordpress/element';
+import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall, check, arrowUp } from '@wordpress/icons';
 import classNames from 'classnames';
+import React from 'react';
 /**
  * Internal dependencies
  */
@@ -38,38 +39,45 @@ const noop = () => {};
  * @param {Function} props.onSend - send request handler
  * @param {Function} props.onStop - stop request handler
  * @param {Function} props.onAccept - accept handler
+ * @param {object} ref - Auto injected ref from react
  * @returns {object} - AI Control component
  */
-export default function AIControl( {
-	disabled = false,
-	value = '',
-	placeholder = '',
-	showAccept = false,
-	acceptLabel = __( 'Accept', 'jetpack-ai-client' ),
-	showButtonsLabel = true,
-	isOpaque = false,
-	state = 'init',
-	onChange = noop,
-	onSend = noop,
-	onStop = noop,
-	onAccept = noop,
-}: {
-	disabled?: boolean;
-	value: string;
-	placeholder?: string;
-	showAccept?: boolean;
-	acceptLabel?: string;
-	showButtonsLabel?: boolean;
-	isOpaque?: boolean;
-	state?: RequestingStateProp;
-	onChange?: ( newValue: string ) => void;
-	onSend?: ( currentValue: string ) => void;
-	onStop?: () => void;
-	onAccept?: () => void;
-} ) {
+export function AIControl(
+	{
+		disabled = false,
+		value = '',
+		placeholder = '',
+		showAccept = false,
+		acceptLabel = __( 'Accept', 'jetpack-ai-client' ),
+		showButtonsLabel = true,
+		isOpaque = false,
+		state = 'init',
+		onChange = noop,
+		onSend = noop,
+		onStop = noop,
+		onAccept = noop,
+	}: {
+		disabled?: boolean;
+		value: string;
+		placeholder?: string;
+		showAccept?: boolean;
+		acceptLabel?: string;
+		showButtonsLabel?: boolean;
+		isOpaque?: boolean;
+		state?: RequestingStateProp;
+		onChange?: ( newValue: string ) => void;
+		onSend?: ( currentValue: string ) => void;
+		onStop?: () => void;
+		onAccept?: () => void;
+	},
+	ref
+) {
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
 	const showGuideLine = ! ( loading || disabled || value?.length || isOpaque );
+
+	// Pass the ref to forwardRef.
+	useImperativeHandle( ref, () => promptUserInputRef.current );
 
 	useKeyboardShortcut(
 		'mod+enter',
@@ -169,3 +177,5 @@ export default function AIControl( {
 		</div>
 	);
 }
+
+export default forwardRef( AIControl );
