@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import classNames from 'classnames';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
 import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
@@ -41,7 +42,13 @@ function getSerializedContentFromBlock( clientId: string ): string {
 	}, '' );
 }
 
-export default function AiAssistantBar( { clientId } ) {
+export default function AiAssistantBar( {
+	clientId,
+	className = '',
+}: {
+	clientId: string;
+	className?: string;
+} ) {
 	const { requireUpgrade } = useAIFeature();
 
 	const { inputValue, setInputValue, isFixed } = useContext( AiAssistantUiContext );
@@ -64,7 +71,7 @@ export default function AiAssistantBar( { clientId } ) {
 	}, [ clientId, inputValue, requestSuggestion ] );
 
 	return (
-		<div className="jetpack-ai-assistant__bar">
+		<div className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
 			{ requireUpgrade && <UpgradePrompt /> }
 			<AIControl
 				disabled={ requireUpgrade }
