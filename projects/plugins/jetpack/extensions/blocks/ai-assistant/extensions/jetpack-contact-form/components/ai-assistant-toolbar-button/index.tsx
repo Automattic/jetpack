@@ -8,6 +8,7 @@ import { useSelect } from '@wordpress/data';
 import { useContext, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 /*
  * Internal dependencies
  */
@@ -64,8 +65,16 @@ export default function AiAssistantToolbarButton( {
 	const showAiToolbar = isVisible && isFixed && barAnchor && ! isSidebarOpened;
 	return (
 		<>
+			{ createPortal(
+				<Popover.Slot name="ai-form-toolbar-slot" />,
+				document.querySelector(
+					'.interface-navigable-region.interface-interface-skeleton__content'
+				)
+			) }
+
 			{ showAiToolbar && (
 				<Popover
+					__unstableSlotName="ai-form-toolbar-slot"
 					anchor={ barAnchor }
 					variant="toolbar"
 					placement="bottom"
