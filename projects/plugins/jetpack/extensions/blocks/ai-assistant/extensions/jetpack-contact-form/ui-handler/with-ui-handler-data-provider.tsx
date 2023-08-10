@@ -13,7 +13,7 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
-import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
+import { AiAssistantUiContextProvider } from './context';
 /**
  * Types
  */
@@ -30,7 +30,7 @@ const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
  * @param {boolean} isVisible - Is the AI Assistant visible?
  * @returns {void}
  */
-export function handleAiExtensionsBarBodyClass( isFixed: boolean, isVisible: boolean ) {
+export function handleAiExtensionsBarBodyClass( isFixed: boolean, isVisible: boolean ): void {
 	if ( isFixed && isVisible ) {
 		return document.body.classList.add( 'jetpack-ai-assistant-bar-is-fixed' );
 	}
@@ -50,13 +50,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 		// AI Assistant component is-fixed state
 		const [ isFixed, setAssistantFixed ] = useState( false );
-
-		// AI Assistant popover props
-		const [ popoverProps ] = useState< AiAssistantUiContextProps[ 'popoverProps' ] >( {
-			anchor: null,
-			placement: 'bottom-start',
-			offset: 12,
-		} );
 
 		// Keep track of the current list of valid blocks between renders.
 		const currentListOfValidBlocks = useRef( [] );
@@ -144,20 +137,9 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 				// Assistant bar position and size.
 				isFixed,
-				popoverProps,
 				setAssistantFixed,
 			} ),
-			[
-				inputValue,
-				setInputValue,
-				isVisible,
-				show,
-				hide,
-				toggle,
-				isFixed,
-				popoverProps,
-				setAssistantFixed,
-			]
+			[ inputValue, setInputValue, isVisible, show, hide, toggle, isFixed, setAssistantFixed ]
 		);
 
 		const setContent = useCallback(
