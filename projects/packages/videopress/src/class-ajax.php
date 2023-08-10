@@ -117,21 +117,55 @@ class AJAX {
 	}
 
 	/**
-	 * Determines if the current user can access restricted content.
+	 * Returns the default restriction_details for a video.
+	 *
+	 * @return array
+	 **/
+	private function get_default_video_restriction_details() {
+		$default_auth        = current_user_can( 'read' );
+		$restriction_details = array(
+			'version'              => '1',
+			'provider'             => 'auth',
+			'unauthorized_message' => __( 'Unauthorized', 'jetpack-videopress-pkg' ),
+			'can_access'           => $default_auth,
+		);
+
+		return $restriction_details;
+	}
+
+	/**
+	 * Filers restriction details.
+	 *
+	 * @param array $video_restriction_details The restriction details.
+	 *
+	 * @return array
+	 */
+	private function filter_video_restriction_details( array $video_restriction_details ) {
+		return (array) apply_filters( 'videopress_video_restriction_details', $video_restriction_details );
+	}
+
+	/**
+	 * Determines if the current user can access restricted content and builds the restriction_details array.
 	 *
 	 * @param string $guid the video guid.
 	 * @param int    $embedded_post_id the post id.
 	 * @param int    $selected_plan_id the selected plan id.
 	 *
-	 * @return bool
+	 * @return array
 	 */
-	private function can_access_restricted_content( $guid, $embedded_post_id, $selected_plan_id ) {
-		$default_auth = current_user_can( 'read' );
+	private function build_restriction_details( $guid, $embedded_post_id, $selected_plan_id ) {
+		$restriction_details = $this->get_default_video_restriction_details();
 
 		if ( class_exists( '\Jetpack_Memberships' ) ) {
 			$memberships_can_view_post = \Jetpack_Memberships::user_can_view_post( $embedded_post_id );
 			if ( ! $memberships_can_view_post ) {
-				return false;
+				return $this->filter_video_restriction_details(
+					array(
+						'provider'             => 'jetpack_memberships',
+						'unauthorized_message' => __( 'You need to be subscribed to view this video', 'jetpack-videopress-pkg' ),
+						'can_access'           => false,
+					)
+				);
 			}
 		}
 
@@ -142,17 +176,23 @@ class AJAX {
 				if ( $selected_plan_id > 0 ) {
 					$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 					// Only paid subscribers should be granted access to the premium content.
-					$access_level = \Automattic\Jetpack\Extensions\Premium_Content\Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
+					$access_level = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
 					$can_view     = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );
 
 					if ( ! $can_view ) {
-						return false;
+						return $this->filter_video_restriction_details(
+							array(
+								'provider'             => 'jetpack_subscription',
+								'unauthorized_message' => __( 'You need to be subscribed to view this video', 'jetpack-videopress-pkg' ),
+								'can_access'           => false,
+							)
+						);
 					}
 				}
 			}
 		}
 
-		return $default_auth;
+		return $this->filter_video_restriction_details( $restriction_details );
 	}
 
 	/**
@@ -183,17 +223,21 @@ class AJAX {
 				$is_user_authed = true;
 				break;
 			case VIDEOPRESS_PRIVACY::IS_PRIVATE:
-				$is_user_authed = $this->can_access_restricted_content( $guid, $embedded_post_id, $selected_plan_id );
+				$restriction_details = $this->build_restriction_details( $guid, $embedded_post_id, $selected_plan_id );
+				$is_user_authed      = $restriction_details['can_access'];
 				break;
 			case VIDEOPRESS_PRIVACY::SITE_DEFAULT:
 			default:
 				$is_videopress_private_for_site = Data::get_videopress_videos_private_for_site();
 				$is_user_authed                 = true;
 				if ( $is_videopress_private_for_site ) {
-					$is_user_authed = $this->can_access_restricted_content( $guid, $embedded_post_id, $selected_plan_id );
+					$restriction_details = $this->build_restriction_details( $guid, $embedded_post_id, $selected_plan_id );
+					$is_user_authed      = $restriction_details['can_access'];
 				}
 				break;
 		}
+
+		$this->update_video_restriction_details_on_wpcom( $guid, $restriction_details );
 
 		/**
 		 * Overrides video view authorization for current user.
@@ -212,6 +256,37 @@ class AJAX {
 		 * @return bool
 		 */
 		return (bool) apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid, $embedded_post_id );
+	}
+
+	/**
+	 * Updates a video's privacy details on wpcom.
+	 *
+	 * @param string $guid    The video guid that needs updated privacy details.
+	 * @param array  $details The details.
+	 */
+	private function update_video_restriction_details_on_wpcom( $guid, $details = array() ) {
+		$video_blog_id   = $this->get_videopress_blog_id();
+		$args            = array(
+			'headers' => array( 'content-type' => 'application/json' ),
+			'method'  => 'POST',
+		);
+		$default_details = array(
+			'version'              => '1',
+			'provider'             => 'auth',
+			'unauthorized_message' => 'Unauthorized',
+		);
+
+		$body = array_merge( $default_details, $details );
+
+		$endpoint = "sites/{$video_blog_id}/media/videopress-restriction-details/{$guid}";
+		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, wp_json_encode( $body ), 'wpcom' );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$response = json_decode( $result['body'], true );
+
+		return $response;
 	}
 
 	/**
