@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-AI Assistance plugin: do not pass postId to suggestions hook. It isn't required.

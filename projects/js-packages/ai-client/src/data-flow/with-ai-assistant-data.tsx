@@ -25,6 +25,7 @@ const withAiDataProvider = createHigherOrderComponent( ( WrappedComponent: React
 			error: requestingError,
 			requestingState,
 			request: requestSuggestion,
+			stopSuggestion,
 			eventSource,
 		} = useAiSuggestions();
 
@@ -37,8 +38,16 @@ const withAiDataProvider = createHigherOrderComponent( ( WrappedComponent: React
 				eventSource,
 
 				requestSuggestion,
+				stopSuggestion,
 			} ),
-			[ suggestion, requestingError, requestingState, eventSource, requestSuggestion ]
+			[
+				suggestion,
+				requestingError,
+				requestingState,
+				eventSource,
+				requestSuggestion,
+				stopSuggestion,
+			]
 		);
 
 		return (

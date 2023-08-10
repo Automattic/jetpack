@@ -116,7 +116,7 @@ class Automation_Faker {
 	 */
 	public function quote_triggers(): array {
 		return array(
-			'jpcrm/quote_new',
+			'jpcrm/quote_created',
 			'jpcrm/quote_accepted',
 			'jpcrm/quote_updated',
 			'jpcrm/quote_status_updated',
@@ -143,8 +143,20 @@ class Automation_Faker {
 	 */
 	public function event_triggers(): array {
 		return array(
-			'jpcrm/event_new',
+			'jpcrm/event_created',
 			'jpcrm/event_deleted',
+		);
+	}
+
+	/**
+	 * Return dummy transaction triggers name list
+	 *
+	 * @return array
+	 */
+	public function transaction_triggers(): array {
+		return array(
+			'jpcrm/transaction_created',
+			'jpcrm/transaction_updated',
 		);
 	}
 
@@ -303,6 +315,28 @@ class Automation_Faker {
 				'complete'       => false,
 				'show_on_portal' => true,
 				'show_on_cal'    => true,
+				'created'        => 1675000000,
+				'lastupdated'    => 1675000000,
+			),
+		);
+	}
+
+	/**
+	 * Return data for a dummy transaction
+	 *
+	 * @return array
+	 */
+	public function transaction_data() {
+		return array(
+			'id'   => 1,
+			'data' => array(
+				'title'          => 'Some transaction title',
+				'desc'           => 'Some desc',
+				'hash'           => 'mASOpAnf334Pncl1px4',
+				'status'         => 'Completed',
+				'type'           => 'Sale',
+				'date'           => 1676000000,
+				'date_completed' => 1676923766,
 				'created'        => 1675000000,
 				'lastupdated'    => 1675000000,
 			),

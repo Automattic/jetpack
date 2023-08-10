@@ -3,6 +3,11 @@
  */
 import { EventSourceMessage, fetchEventSource } from '@microsoft/fetch-event-source';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
+import { getErrorData } from '../hooks/use-ai-suggestions';
+import requestJwt from '../jwt';
 /*
  * Types & constants
  */
@@ -10,20 +15,27 @@ import {
 	ERROR_MODERATION,
 	ERROR_NETWORK,
 	ERROR_QUOTA_EXCEEDED,
+	ERROR_RESPONSE,
 	ERROR_SERVICE_UNAVAILABLE,
 	ERROR_UNCLEAR_PROMPT,
 } from '../types';
-import type { PromptMessagesProp, PromptProp } from '../types';
+import type { PromptMessagesProp, PromptProp, SuggestionErrorCode } from '../types';
 
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;
 	question: PromptProp;
-	token: string;
+	token?: string;
 	options?: {
 		postId?: number;
 		feature?: 'ai-assistant-experimental' | string | undefined;
 		fromCache?: boolean;
+		functions?: Array< object >;
 	};
+};
+
+type FunctionCallProps = {
+	name?: string;
+	arguments?: string;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:suggestions-event-source' );
@@ -48,12 +60,17 @@ const debug = debugFactory( 'jetpack-ai-client:suggestions-event-source' );
  */
 export default class SuggestionsEventSource extends EventTarget {
 	fullMessage: string;
+	fullFunctionCall: FunctionCallProps;
 	isPromptClear: boolean;
 	controller: AbortController;
 
 	constructor( data: SuggestionsEventSourceConstructorArgs ) {
 		super();
 		this.fullMessage = '';
+		this.fullFunctionCall = {
+			name: '',
+			arguments: '',
+		};
 		this.isPromptClear = false;
 
 		// The AbortController is used to close the fetchEventSource connection
@@ -68,11 +85,24 @@ export default class SuggestionsEventSource extends EventTarget {
 		token,
 		options = {},
 	}: SuggestionsEventSourceConstructorArgs ) {
+		// If the token is not provided, try to get one
+		if ( ! token ) {
+			try {
+				debug( 'Token was not provided, requesting one...' );
+				token = ( await requestJwt() ).token;
+			} catch ( err ) {
+				this.processErrorEvent( err );
+
+				return;
+			}
+		}
+
 		const bodyData: {
 			post_id?: number;
 			messages?: PromptMessagesProp;
 			question?: PromptProp;
 			feature?: string;
+			functions?: Array< object >;
 		} = {};
 
 		// Populate body data with post id
@@ -106,6 +136,12 @@ export default class SuggestionsEventSource extends EventTarget {
 			bodyData.feature = options.feature;
 		}
 
+		// Propagate the functions option
+		if ( options?.functions?.length ) {
+			debug( 'Functions: %o', options.functions );
+			bodyData.functions = options.functions;
+		}
+
 		await fetchEventSource( url, {
 			openWhenHidden: true,
 			method: 'POST',
@@ -132,6 +168,9 @@ export default class SuggestionsEventSource extends EventTarget {
 				if ( response.ok ) {
 					return;
 				}
+
+				let errorCode: SuggestionErrorCode;
+
 				if (
 					response.status >= 400 &&
 					response.status <= 500 &&
@@ -145,6 +184,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * service unavailable
 				 */
 				if ( response.status === 503 ) {
+					errorCode = ERROR_SERVICE_UNAVAILABLE;
 					this.dispatchEvent( new CustomEvent( ERROR_SERVICE_UNAVAILABLE ) );
 				}
 
@@ -153,6 +193,7 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * you exceeded your current quota please check your plan and billing details
 				 */
 				if ( response.status === 429 ) {
+					errorCode = ERROR_QUOTA_EXCEEDED;
 					this.dispatchEvent( new CustomEvent( ERROR_QUOTA_EXCEEDED ) );
 				}
 
@@ -161,8 +202,16 @@ export default class SuggestionsEventSource extends EventTarget {
 				 * request flagged by moderation system
 				 */
 				if ( response.status === 422 ) {
+					errorCode = ERROR_MODERATION;
 					this.dispatchEvent( new CustomEvent( ERROR_MODERATION ) );
 				}
+
+				// Always dispatch a global ERROR_RESPONSE event
+				this.dispatchEvent(
+					new CustomEvent( ERROR_RESPONSE, {
+						detail: getErrorData( errorCode ),
+					} )
+				);
 
 				throw new Error();
 			},
@@ -186,6 +235,11 @@ export default class SuggestionsEventSource extends EventTarget {
 		if ( replacedMessage.startsWith( 'JETPACK_AI_ERROR' ) ) {
 			// The unclear prompt marker was found, so we dispatch an error event
 			this.dispatchEvent( new CustomEvent( ERROR_UNCLEAR_PROMPT ) );
+			this.dispatchEvent(
+				new CustomEvent( ERROR_RESPONSE, {
+					detail: getErrorData( ERROR_UNCLEAR_PROMPT ),
+				} )
+			);
 		} else if ( 'JETPACK_AI_ERROR'.startsWith( replacedMessage ) ) {
 			// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
 			debug( this.fullMessage );
@@ -201,14 +255,31 @@ export default class SuggestionsEventSource extends EventTarget {
 
 	processEvent( e: EventSourceMessage ) {
 		if ( e.data === '[DONE]' ) {
-			// Dispatch an event with the full content
-			this.dispatchEvent( new CustomEvent( 'done', { detail: this.fullMessage } ) );
-			debug( 'Done: %o', this.fullMessage );
-			return;
+			if ( this.fullMessage.length ) {
+				// Dispatch an event with the full content
+				this.dispatchEvent( new CustomEvent( 'done', { detail: this.fullMessage } ) );
+				debug( 'Done: %o', this.fullMessage );
+				return;
+			}
+
+			if ( this.fullFunctionCall.name.length ) {
+				this.dispatchEvent( new CustomEvent( 'function_done', { detail: this.fullFunctionCall } ) );
+				debug( 'Done: %o', this.fullFunctionCall );
+				return;
+			}
 		}
 
-		const data = JSON.parse( e.data );
-		const chunk = data.choices[ 0 ].delta.content;
+		let data;
+		try {
+			data = JSON.parse( e.data );
+		} catch ( err ) {
+			debug( 'Error parsing JSON', e, err );
+			return;
+		}
+		const { delta } = data?.choices?.[ 0 ] ?? { delta: { content: null, function_call: null } };
+		const chunk = delta.content;
+		const functionCallChunk = delta.function_call;
+
 		if ( chunk ) {
 			this.fullMessage += chunk;
 			this.checkForUnclearPrompt();
@@ -221,11 +292,31 @@ export default class SuggestionsEventSource extends EventTarget {
 				this.dispatchEvent( new CustomEvent( 'suggestion', { detail: this.fullMessage } ) );
 			}
 		}
+
+		if ( functionCallChunk ) {
+			if ( functionCallChunk.name != null ) {
+				this.fullFunctionCall.name += functionCallChunk.name;
+			}
+
+			if ( functionCallChunk.arguments != null ) {
+				this.fullFunctionCall.arguments += functionCallChunk.arguments;
+			}
+
+			// Dispatch an event with the function call
+			this.dispatchEvent(
+				new CustomEvent( 'functionCallChunk', { detail: this.fullFunctionCall } )
+			);
+		}
 	}
 
 	processConnectionError( response ) {
 		debug( 'Connection error: %o', response );
 		this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: response } ) );
+		this.dispatchEvent(
+			new CustomEvent( ERROR_RESPONSE, {
+				detail: getErrorData( ERROR_NETWORK ),
+			} )
+		);
 	}
 
 	processErrorEvent( e ) {
@@ -233,5 +324,10 @@ export default class SuggestionsEventSource extends EventTarget {
 
 		// Dispatch a generic network error event
 		this.dispatchEvent( new CustomEvent( ERROR_NETWORK, { detail: e } ) );
+		this.dispatchEvent(
+			new CustomEvent( ERROR_RESPONSE, {
+				detail: getErrorData( ERROR_NETWORK ),
+			} )
+		);
 	}
 }

@@ -14,6 +14,7 @@ export enum ISAStatus {
 	New = 'new',
 	Queued = 'queued',
 	Completed = 'completed',
+	Error = 'error',
 	Stuck = 'error_stuck',
 }
 
