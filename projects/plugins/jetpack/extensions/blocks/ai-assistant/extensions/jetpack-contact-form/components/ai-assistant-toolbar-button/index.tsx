@@ -12,7 +12,6 @@ import React, { useEffect } from 'react';
  * Internal dependencies
  */
 import { AiAssistantUiContext } from '../../ui-handler/context';
-import { handleAiExtensionsBarBodyClass } from '../../ui-handler/with-ui-handler-data-provider';
 import AiAssistantBar from '../ai-assistant-bar';
 import './style.scss';
 
@@ -55,9 +54,8 @@ export default function AiAssistantToolbarButton( {
 		// Set the anxhor where the Assistant Bar will be rendered.
 		setBarAnchor( toolbar );
 
-		// Fix the Assistant Bar if the Toolbar Block is fixed and the viewport is mobile.
+		// Fix the assistant toolbar in mobile
 		setAssistantFixed( isMobileViewport );
-		handleAiExtensionsBarBodyClass( isMobileViewport, isVisible );
 	}, [ setAssistantFixed, isVisible, isMobileViewport ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';

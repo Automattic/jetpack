@@ -4,7 +4,7 @@
 import { useAiContext } from '@automattic/jetpack-ai-client';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
-import { createHigherOrderComponent } from '@wordpress/compose';
+import { createHigherOrderComponent, useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
@@ -121,6 +121,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			}
 			hide();
 		}, [ isSelected, hide ] );
+
+		const isMobileViewport = useViewportMatch( 'medium', '<' );
+		useEffect( () => {
+			handleAiExtensionsBarBodyClass( isMobileViewport, isVisible );
+		}, [ isMobileViewport, isVisible ] );
 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
