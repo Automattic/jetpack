@@ -139,7 +139,7 @@ function NewsletterPrePublishSettingsPanel( {
 						setPostMeta={ setPostMeta }
 					/>
 					<Button variant="secondary" onClick={ showPreviewModal }>
-						{ __( 'Preview', 'jetpack' ) }
+						{ __( 'Send Test Email', 'jetpack' ) }
 					</Button>
 				</>
 			) }
