@@ -64,10 +64,13 @@ export function tooltipsPlugin() {
 	 * @param {uPlot} u - The uPlot instance.
 	 */
 	function setCursor( u ) {
-		const { left } = u.cursor;
+		const { idx } = u.cursor;
+
+		const mobileScore = u.data[ 1 ][ idx ];
+		const desktopScore = u.data[ 2 ][ idx ];
 
 		// Timestamp of the cursor position
-		const timestamp = u.posToVal( left, 'x' );
+		const timestamp = u.data[ 0 ][ idx ];
 
 		// Find start and end of day for the cursor position
 		const startOfDay = timestamp - ( timestamp % 86400 );
@@ -79,15 +82,9 @@ export function tooltipsPlugin() {
 		const boxCenter = boxLeft + boxWidth / 2;
 
 		reactRoot.style.left = boxCenter + 'px';
-
-		const { idx } = u.cursor;
-
-		const mobileScore = u.data[ 1 ][ idx ];
-		const desktopScore = u.data[ 2 ][ idx ];
-
 		reactDom.render(
 			Tooltip( {
-				date: dateI18n( 'F j, Y', new Date( timestamp * 1000 ), false ),
+				date: dateI18n( 'F j, Y', new Date( u.data[ 0 ][ idx ] * 1000 ), false ),
 				desktopScore,
 				mobileScore,
 			} )

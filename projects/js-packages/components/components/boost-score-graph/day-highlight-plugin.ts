@@ -47,10 +47,10 @@ export function dayHighlightPlugin() {
 	 * @param {uPlot} u - The uPlot instance.
 	 */
 	function update( u ) {
-		const { left } = u.cursor;
+		const { idx } = u.cursor;
 
 		// Timestamp of the cursor position
-		const timestamp = u.posToVal( left, 'x' );
+		const timestamp = u.data[ 0 ][ idx ];
 
 		// Find start and end of day for the cursor position
 		const startOfDay = timestamp - ( timestamp % 86400 );
