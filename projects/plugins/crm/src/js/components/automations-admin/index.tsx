@@ -96,7 +96,10 @@ export const AutomationsAdmin = () => {
 			<Route
 				path="/automations/test-workflow-row"
 				element={
-					<table id="workflow-test" style={ { padding: '20px', background: 'white' } }>
+					<table
+						id="workflow-test"
+						style={ { padding: '20px', background: 'white', width: '100%' } }
+					>
 						<tr style={ { padding: '5px 10px' } }>
 							<th style={ { padding: '5px 10px' } }>check</th>
 							<th style={ { padding: '5px 10px' } }>Name</th>
