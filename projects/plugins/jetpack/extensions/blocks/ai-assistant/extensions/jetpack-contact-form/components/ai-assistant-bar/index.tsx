@@ -14,7 +14,6 @@ import UpgradePrompt from '../../../../components/upgrade-prompt';
 import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
-import './style.scss';
 
 /**
  * Return the serialized content from the childrens block.
