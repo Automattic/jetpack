@@ -177,6 +177,7 @@ class Initializer {
 				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
 				'adminUrl'              => esc_url( admin_url() ),
 				'IDCContainerID'        => static::get_idc_container_id(),
+				'userIsAdmin'           => current_user_can( 'manage_options' ),
 			)
 		);
 
