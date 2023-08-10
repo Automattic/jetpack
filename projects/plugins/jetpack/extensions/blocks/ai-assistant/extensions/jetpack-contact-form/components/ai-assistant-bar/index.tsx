@@ -4,7 +4,7 @@
 import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import { useContext, useCallback } from '@wordpress/element';
+import { useContext, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -48,11 +48,19 @@ export default function AiAssistantBar( {
 	clientId: string;
 	className?: string;
 } ) {
+	const inputRef = useRef< HTMLInputElement >( null );
+
 	const { requireUpgrade } = useAIFeature();
 
 	const { inputValue, setInputValue, isFixed } = useContext( AiAssistantUiContext );
 
-	const { requestSuggestion, requestingState, stopSuggestion } = useAiContext();
+	const { requestSuggestion, requestingState, stopSuggestion } = useAiContext( {
+		onDone: () => {
+			setTimeout( () => {
+				inputRef.current?.focus?.();
+			}, 10 );
+		},
+	} );
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
@@ -73,6 +81,7 @@ export default function AiAssistantBar( {
 		<div className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
 			{ requireUpgrade && <UpgradePrompt /> }
 			<AIControl
+				ref={ inputRef }
 				disabled={ requireUpgrade }
 				value={ isLoading ? undefined : inputValue }
 				placeholder={ isLoading ? loadingPlaceholder : placeholder }
