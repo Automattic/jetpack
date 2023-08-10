@@ -61,7 +61,6 @@ class Settings extends React.Component {
 					/>
 					<Subscriptions
 						siteRawUrl={ siteRawUrl }
-						siteAdminUrl={ siteAdminUrl }
 						active={ '/newsletter' === pathname }
 						{ ...commonProps }
 					/>

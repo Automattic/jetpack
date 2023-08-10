@@ -11,19 +11,11 @@ import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
-import {
-	isSubscriptionModalEnabled,
-	isWoASite as getIsWoASite,
-	isOdysseyStatsEnabled,
-} from 'state/initial-state';
+import { isSubscriptionModalEnabled } from 'state/initial-state';
 import { getModule } from 'state/modules';
 
 const trackViewSubsClick = () => {
 	analytics.tracks.recordJetpackClick( 'manage-subscribers' );
-};
-
-const trackViewSubsStatsClick = () => {
-	analytics.tracks.recordJetpackClick( 'subscribers-stats' );
 };
 
 /**
@@ -39,14 +31,10 @@ function SubscriptionsSettings( props ) {
 		isLinked,
 		isOffline,
 		isSavingAnyOption,
-		isStatsActive,
 		isStbEnabled,
 		isStcEnabled,
 		isSmEnabled,
 		isSubscriptionsActive,
-		isWoASite,
-		odysseyStatsEnabled,
-		siteAdminUrl,
 		siteRawUrl,
 		subscriptions,
 		toggleModuleNow,
@@ -68,19 +56,6 @@ function SubscriptionsSettings( props ) {
 	const getSubClickableCard = () => {
 		if ( unavailableInOfflineMode || ! isSubscriptionsActive || ! isLinked ) {
 			return '';
-		}
-
-		if ( isStatsActive && odysseyStatsEnabled && ! isWoASite ) {
-			return (
-				<Card
-					compact
-					className="jp-settings-card__configure-link"
-					onClick={ trackViewSubsStatsClick }
-					href={ `${ siteAdminUrl }admin.php?page=stats#!/stats/subscribers/${ siteRawUrl }` }
-				>
-					{ __( 'View your Subscribers', 'jetpack' ) }
-				</Card>
-			);
 		}
 
 		return (
@@ -199,12 +174,9 @@ export default withModuleSettingsFormHelpers(
 			isLinked: isCurrentUserLinked( state ),
 			isOffline: isOfflineMode( state ),
 			isSubscriptionsActive: ownProps.getOptionValue( 'subscriptions' ),
-			isStatsActive: ownProps.getOptionValue( 'stats' ),
-			odysseyStatsEnabled: isOdysseyStatsEnabled( state ),
 			hasSubscriptionModal: isSubscriptionModalEnabled( state ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, 'subscriptions' ),
 			subscriptions: getModule( state, 'subscriptions' ),
-			isWoASite: getIsWoASite( state ),
 			isStbEnabled: ownProps.getOptionValue( 'stb_enabled' ),
 			isStcEnabled: ownProps.getOptionValue( 'stc_enabled' ),
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),
