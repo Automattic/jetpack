@@ -1,4 +1,5 @@
 import { Button, ToggleControl } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
 import { Workflow } from '../../types';
 import styles from './styles.module.scss';
@@ -40,7 +41,7 @@ export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 			<td className={ styles[ 'added-date' ] }>{ workflow.added }</td>
 			<td className={ styles[ 'trigger-description' ] }>{ workflow.triggers[ 0 ].description }</td>
 			<td className={ styles[ 'edit-button' ] }>
-				<Button variant={ 'secondary' }>Edit</Button>
+				<Button variant={ 'secondary' }>{ __( 'Edit', 'zero-bs-crm' ) }</Button>
 			</td>
 		</tr>
 	);
