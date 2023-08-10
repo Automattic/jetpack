@@ -6,7 +6,7 @@ export type Trigger = {
 };
 
 export type Step = {
-	attributes: Step[];
+	attributes: string[];
 	nextStep?: Step;
 	slug: string;
 	title: string;
