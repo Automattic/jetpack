@@ -9,6 +9,7 @@ import getDateFormat from './get-date-format';
 import { tooltipsPlugin } from './tooltips-plugin';
 import useResize from './use-resize';
 import 'uplot/dist/uPlot.min.css';
+import { Period } from '.';
 
 const DEFAULT_DIMENSIONS = {
 	height: 300,
@@ -17,6 +18,7 @@ const DEFAULT_DIMENSIONS = {
 
 interface UplotChartProps {
 	data: uPlot.AlignedData;
+	periods: Period[];
 	options?: Partial< uPlot.Options >;
 	legendContainer?: React.RefObject< HTMLDivElement >;
 	solidFill?: boolean;
@@ -85,9 +87,10 @@ function getColor( score: number, opacity = 'FF' ) {
  * @param {object} props - The props object for the UplotLineChart component.
  * @param {uPlot.AlignedData} props.data - The data for the uPlot chart.
  * @param {{ startDate: number, endDate: number }} props.range - The date range of the chart.
+ * @param {Period[]} props.periods - The periods to display in the chart.
  * @returns {React.Element} The JSX element representing the UplotLineChart component.
  */
-export default function UplotLineChart( { data, range }: UplotChartProps ) {
+export default function UplotLineChart( { data, range, periods }: UplotChartProps ) {
 	const uplot = useRef< uPlot | null >( null );
 	const uplotContainer = useRef( null );
 
@@ -162,12 +165,12 @@ export default function UplotLineChart( { data, range }: UplotChartProps ) {
 			legend: {
 				show: false,
 			},
-			plugins: [ tooltipsPlugin(), dayHighlightPlugin() ],
+			plugins: [ tooltipsPlugin( periods ), dayHighlightPlugin() ],
 		};
 		return {
 			...defaultOptions,
 		};
-	}, [ lastDesktopScore, lastMobileScore, range ] );
+	}, [ lastDesktopScore, lastMobileScore, periods, range.endDate, range.startDate ] );
 
 	useResize( uplot, uplotContainer );
 	const onCreate = useCallback( chart => {

@@ -7,27 +7,17 @@ import { useBoostScoreTransform } from './use-boost-score-transform';
 
 import './style.scss';
 
-interface ScoreValuePair {
-	score: number;
-	value: number;
-}
 export interface Period {
 	timestamp: number;
 	dimensions: {
 		desktop_overall_score: number;
-		desktop_fcp: ScoreValuePair;
-		desktop_tbt: ScoreValuePair;
-		desktop_tti: ScoreValuePair;
-		desktop_cls: ScoreValuePair;
-		desktop_lcp: ScoreValuePair;
-		desktop_si: ScoreValuePair;
+		desktop_lcp: number;
+		desktop_cls: number;
+		desktop_tbt: number;
 		mobile_overall_score: number;
-		mobile_fcp: ScoreValuePair;
-		mobile_tbt: ScoreValuePair;
-		mobile_tti: ScoreValuePair;
-		mobile_cls: ScoreValuePair;
-		mobile_lcp: ScoreValuePair;
-		mobile_si: ScoreValuePair;
+		mobile_lcp: number;
+		mobile_cls: number;
+		mobile_tbt: number;
 	};
 }
 export interface BoostScoreGraphProps {
@@ -71,6 +61,9 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	title,
 	isLoading = false,
 } ) => {
+	// Sort periods by timestamp
+	periods.sort( ( a, b ) => a.timestamp - b.timestamp );
+
 	const data = useBoostScoreTransform( periods );
 	if ( isLoading || ! data?.length ) {
 		return null;
@@ -78,7 +71,7 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	return (
 		<div className="jb-score-graph">
 			{ title && <Text variant="title-medium">{ title }</Text> }
-			<UplotLineChart data={ data } range={ { startDate, endDate } } />
+			<UplotLineChart data={ data } periods={ periods } range={ { startDate, endDate } } />
 			<div className="jb-score-graph__table">
 				<div className="jb-score-graph__table-row">
 					<LegendCell label={ __( 'Overall score', 'jetpack' ) } value="A" />

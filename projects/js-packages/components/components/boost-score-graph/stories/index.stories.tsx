@@ -9,344 +9,146 @@ const exampleRawResponse = {
 		},
 		periods: [
 			{
+				timestamp: 1690636803,
+				dimensions: {
+					desktop_overall_score: 86,
+					mobile_overall_score: 52,
+					desktop_cls: 0.088,
+					desktop_lcp: 3.2,
+					desktop_tbt: 0,
+					mobile_cls: 0.088,
+					mobile_lcp: 3.2,
+					mobile_tbt: 0,
+				},
+			},
+			{
 				timestamp: 1689772803,
 				dimensions: {
 					desktop_overall_score: 75,
-					desktop_cls: {
-						score: 0.92,
-						value: 0.088,
-					},
-					desktop_tbt: {
-						score: 1,
-						value: 0,
-					},
-					desktop_fcp: {
-						score: 0.25,
-						value: 2.1,
-					},
-					desktop_si: {
-						score: 0.46,
-						value: 2.4,
-					},
-					desktop_lcp: {
-						score: 0.29,
-						value: 3.2,
-					},
-					desktop_tti: {
-						score: 0.95,
-						value: 2.1,
-					},
 					mobile_overall_score: 52,
+					desktop_cls: 0.088,
+					desktop_lcp: 3.2,
+					desktop_tbt: 0,
+					mobile_cls: 0.088,
+					mobile_lcp: 3.2,
+					mobile_tbt: 0,
 				},
 			},
 			{
 				timestamp: 1689859203,
 				dimensions: {
 					desktop_overall_score: 72,
-					desktop_cls: {
-						score: 0.92,
-						value: 0.088,
-					},
-					desktop_tbt: {
-						score: 1,
-						value: 0,
-					},
-					desktop_fcp: {
-						score: 0.25,
-						value: 2.1,
-					},
-					desktop_si: {
-						score: 0.46,
-						value: 2.4,
-					},
-					desktop_lcp: {
-						score: 0.29,
-						value: 3.2,
-					},
-					desktop_tti: {
-						score: 0.95,
-						value: 2.1,
-					},
 					mobile_overall_score: 49,
+					desktop_cls: 0.088,
+					desktop_lcp: 3.2,
+					desktop_tbt: 0,
+					mobile_cls: 0.088,
+					mobile_lcp: 3.2,
+					mobile_tbt: 0,
 				},
 			},
 			{
 				timestamp: 1689945603,
 				dimensions: {
 					desktop_overall_score: 20,
-					desktop_cls: {
-						score: 0.92,
-						value: 0.088,
-					},
-					desktop_tbt: {
-						score: 1,
-						value: 0,
-					},
-					desktop_fcp: {
-						score: 0.25,
-						value: 2.1,
-					},
-					desktop_si: {
-						score: 0.46,
-						value: 2.4,
-					},
-					desktop_lcp: {
-						score: 0.29,
-						value: 3.2,
-					},
-					desktop_tti: {
-						score: 0.95,
-						value: 2.1,
-					},
 					mobile_overall_score: 30,
+					desktop_cls: 0.088,
+					desktop_lcp: 3.2,
+					desktop_tbt: 0,
+					mobile_cls: 0.088,
+					mobile_lcp: 3.2,
+					mobile_tbt: 0,
 				},
 			},
 			{
 				timestamp: 1690032003,
 				dimensions: {
 					desktop_overall_score: 72,
-					desktop_cls: {
-						score: 0.92,
-						value: 0.088,
-					},
-					desktop_tbt: {
-						score: 1,
-						value: 0,
-					},
-					desktop_fcp: {
-						score: 0.25,
-						value: 2.1,
-					},
-					desktop_si: {
-						score: 0.46,
-						value: 2.4,
-					},
-					desktop_lcp: {
-						score: 0.29,
-						value: 3.2,
-					},
-					desktop_tti: {
-						score: 0.95,
-						value: 2.1,
-					},
 					mobile_overall_score: 40,
+					desktop_cls: 0.088,
+					desktop_lcp: 3.2,
+					desktop_tbt: 0,
+					mobile_cls: 0.088,
+					mobile_lcp: 3.2,
+					mobile_tbt: 0,
 				},
 			},
 			{
 				timestamp: 1690118403,
 				dimensions: {
 					desktop_overall_score: 55,
-					desktop_cls: {
-						score: 0.92,
-						value: 0.088,
-					},
-					desktop_tbt: {
-						score: 1,
-						value: 0,
-					},
-					desktop_fcp: {
-						score: 0.25,
-						value: 2.1,
-					},
-					desktop_si: {
-						score: 0.46,
-						value: 2.4,
-					},
-					desktop_lcp: {
-						score: 0.29,
-						value: 3.2,
-					},
-					desktop_tti: {
-						score: 0.95,
-						value: 2.1,
-					},
 					mobile_overall_score: 45,
+					desktop_cls: 0.088,
+					desktop_lcp: 3.2,
+					desktop_tbt: 0,
+					mobile_cls: 0.088,
+					mobile_lcp: 3.2,
+					mobile_tbt: 0,
 				},
 			},
 			{
 				timestamp: 1690204803,
 				dimensions: {
 					desktop_overall_score: 75,
-					desktop_cls: {
-						score: 0.92,
-						value: 0.088,
-					},
-					desktop_tbt: {
-						score: 1,
-						value: 0,
-					},
-					desktop_fcp: {
-						score: 0.25,
-						value: 2.1,
-					},
-					desktop_si: {
-						score: 0.46,
-						value: 2.4,
-					},
-					desktop_lcp: {
-						score: 0.29,
-						value: 3.2,
-					},
-					desktop_tti: {
-						score: 0.95,
-						value: 2.1,
-					},
 					mobile_overall_score: 52,
+					desktop_cls: 0.088,
+					desktop_lcp: 3.2,
+					desktop_tbt: 0,
+					mobile_cls: 0.088,
+					mobile_lcp: 3.2,
+					mobile_tbt: 0,
 				},
 			},
 			{
 				timestamp: 1690291203,
 				dimensions: {
 					desktop_overall_score: 70,
-					desktop_cls: {
-						score: 0.92,
-						value: 0.088,
-					},
-					desktop_tbt: {
-						score: 1,
-						value: 0,
-					},
-					desktop_fcp: {
-						score: 0.25,
-						value: 2.1,
-					},
-					desktop_si: {
-						score: 0.46,
-						value: 2.4,
-					},
-					desktop_lcp: {
-						score: 0.29,
-						value: 3.2,
-					},
-					desktop_tti: {
-						score: 0.95,
-						value: 2.1,
-					},
 					mobile_overall_score: 50,
+					desktop_cls: 0.088,
+					desktop_lcp: 3.2,
+					desktop_tbt: 0,
+					mobile_cls: 0.088,
+					mobile_lcp: 3.2,
+					mobile_tbt: 0,
 				},
 			},
 			{
 				timestamp: 1690377603,
 				dimensions: {
 					desktop_overall_score: 75,
-					desktop_cls: {
-						score: 0.92,
-						value: 0.088,
-					},
-					desktop_tbt: {
-						score: 1,
-						value: 0,
-					},
-					desktop_fcp: {
-						score: 0.25,
-						value: 2.1,
-					},
-					desktop_si: {
-						score: 0.46,
-						value: 2.4,
-					},
-					desktop_lcp: {
-						score: 0.29,
-						value: 3.2,
-					},
-					desktop_tti: {
-						score: 0.95,
-						value: 2.1,
-					},
 					mobile_overall_score: 90,
+					desktop_cls: 0.088,
+					desktop_lcp: 3.2,
+					desktop_tbt: 0,
+					mobile_cls: 0.088,
+					mobile_lcp: 3.2,
+					mobile_tbt: 0,
 				},
 			},
 			{
 				timestamp: 1690464003,
 				dimensions: {
 					desktop_overall_score: 80,
-					desktop_cls: {
-						score: 0.92,
-						value: 0.088,
-					},
-					desktop_tbt: {
-						score: 1,
-						value: 0,
-					},
-					desktop_fcp: {
-						score: 0.25,
-						value: 2.1,
-					},
-					desktop_si: {
-						score: 0.46,
-						value: 2.4,
-					},
-					desktop_lcp: {
-						score: 0.29,
-						value: 3.2,
-					},
-					desktop_tti: {
-						score: 0.95,
-						value: 2.1,
-					},
 					mobile_overall_score: 60,
+					desktop_cls: 0.088,
+					desktop_lcp: 3.2,
+					desktop_tbt: 0,
+					mobile_cls: 0.088,
+					mobile_lcp: 3.2,
+					mobile_tbt: 0,
 				},
 			},
 			{
 				timestamp: 1690550403,
 				dimensions: {
 					desktop_overall_score: 85,
-					desktop_cls: {
-						score: 0.92,
-						value: 0.088,
-					},
-					desktop_tbt: {
-						score: 1,
-						value: 0,
-					},
-					desktop_fcp: {
-						score: 0.25,
-						value: 2.1,
-					},
-					desktop_si: {
-						score: 0.46,
-						value: 2.4,
-					},
-					desktop_lcp: {
-						score: 0.29,
-						value: 3.2,
-					},
-					desktop_tti: {
-						score: 0.95,
-						value: 2.1,
-					},
 					mobile_overall_score: 60,
-				},
-			},
-			{
-				timestamp: 1690636803,
-				dimensions: {
-					desktop_overall_score: 86,
-					desktop_cls: {
-						score: 0.92,
-						value: 0.088,
-					},
-					desktop_tbt: {
-						score: 1,
-						value: 0,
-					},
-					desktop_fcp: {
-						score: 0.25,
-						value: 2.1,
-					},
-					desktop_si: {
-						score: 0.46,
-						value: 2.4,
-					},
-					desktop_lcp: {
-						score: 0.29,
-						value: 3.2,
-					},
-					desktop_tti: {
-						score: 0.95,
-						value: 2.1,
-					},
-					mobile_overall_score: 52,
+					desktop_cls: 0.088,
+					desktop_lcp: 3.2,
+					desktop_tbt: 0,
+					mobile_cls: 0.088,
+					mobile_lcp: 3.2,
+					mobile_tbt: 0,
 				},
 			},
 		],

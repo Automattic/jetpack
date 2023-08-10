@@ -1,14 +1,15 @@
-import { dateI18n } from '@wordpress/date';
 import ReactDOM from 'react-dom/client';
 import uPlot from 'uplot';
 import { Tooltip } from './tooltip';
+import { Period } from '.';
 
 /**
  * Custom tooltips plugin for uPlot.
  *
+ * @param {Period[]} periods - The periods to display in the tooltip.
  * @returns {object} The uPlot plugin object with hooks.
  */
-export function tooltipsPlugin() {
+export function tooltipsPlugin( periods ) {
 	const reactRoot = document.createElement( 'div' );
 	let reactDom;
 
@@ -66,8 +67,7 @@ export function tooltipsPlugin() {
 	function setCursor( u ) {
 		const { idx } = u.cursor;
 
-		const mobileScore = u.data[ 1 ][ idx ];
-		const desktopScore = u.data[ 2 ][ idx ];
+		const period = periods[ idx ];
 
 		// Timestamp of the cursor position
 		const timestamp = u.data[ 0 ][ idx ];
@@ -84,9 +84,7 @@ export function tooltipsPlugin() {
 		reactRoot.style.left = boxCenter + 'px';
 		reactDom.render(
 			Tooltip( {
-				date: dateI18n( 'F j, Y', new Date( u.data[ 0 ][ idx ] * 1000 ), false ),
-				desktopScore,
-				mobileScore,
+				period,
 			} )
 		);
 	}
