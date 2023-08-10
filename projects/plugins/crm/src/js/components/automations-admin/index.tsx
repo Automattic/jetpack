@@ -4,8 +4,30 @@ import React from 'react';
 import { Link, Routes, Route } from 'react-router-dom';
 import AdminPage from '../admin-page';
 import { RedirectHome } from './components/redirect-home';
+import { WorkflowRow } from './components/workflow-row';
+import { Workflow } from './types';
 
 export const AutomationsAdmin = () => {
+	const workflowOne: Workflow = {
+		id: 0,
+		name: 'Workflow name',
+		description: '',
+		category: '',
+		triggers: [ { slug: '', title: '', category: '', description: 'Trigger description here' } ],
+		initial_step: {
+			attributes: [],
+			slug: '',
+			title: '',
+			description: '',
+			type: 'contacts',
+			category: '',
+			allowedTriggers: [],
+		},
+		active: true,
+		version: 0,
+		added: '01/23/4567',
+	};
+
 	return (
 		<Routes>
 			<Route
@@ -69,6 +91,23 @@ export const AutomationsAdmin = () => {
 							</Container>
 						</AdminSection>
 					</AdminPage>
+				}
+			/>
+			<Route
+				path="/automations/test-workflow-row"
+				element={
+					<table id="workflow-test" style={ { padding: '20px', background: 'white' } }>
+						<tr style={ { padding: '5px 10px' } }>
+							<th style={ { padding: '5px 10px' } }>check</th>
+							<th style={ { padding: '5px 10px' } }>Name</th>
+							<th style={ { padding: '5px 10px' } }>Status</th>
+							<th style={ { padding: '5px 10px' } }>Added</th>
+							<th style={ { padding: '5px 10px' } }>Trigger</th>
+							<th style={ { padding: '5px 10px' } }>Edit</th>
+						</tr>
+						<WorkflowRow workflow={ workflowOne } />
+						<WorkflowRow workflow={ workflowOne } />
+					</table>
 				}
 			/>
 			<Route path="*" element={ <RedirectHome /> } />
