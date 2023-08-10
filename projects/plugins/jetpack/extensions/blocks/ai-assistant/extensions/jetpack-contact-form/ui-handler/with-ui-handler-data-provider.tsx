@@ -20,7 +20,7 @@ import { AiAssistantUiContextProvider } from './context';
 import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 
 // An identifier to use on the extension error notices,
-const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
+export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 
 /**
  * Add the `jetpack-ai-assistant-bar-is-fixed` class to the body

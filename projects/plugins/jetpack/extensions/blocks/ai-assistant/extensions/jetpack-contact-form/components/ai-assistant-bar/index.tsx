@@ -4,8 +4,10 @@
 import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { useContext, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
@@ -14,6 +16,7 @@ import UpgradePrompt from '../../../../components/upgrade-prompt';
 import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
+import { AI_ASSISTANT_JETPACK_FORM_NOTICE_ID } from '../../ui-handler/with-ui-handler-data-provider';
 
 /**
  * Return the serialized content from the childrens block.
@@ -68,14 +71,19 @@ export default function AiAssistantBar( {
 
 	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
 
+	const { removeNotice } = useDispatch( noticesStore );
+
 	const onSend = useCallback( () => {
+		// Remove previous error notice.
+		removeNotice( AI_ASSISTANT_JETPACK_FORM_NOTICE_ID );
+
 		const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
 			request: inputValue,
 			content: getSerializedContentFromBlock( clientId ),
 		} );
 
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
-	}, [ clientId, inputValue, requestSuggestion ] );
+	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
 
 	return (
 		<div className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
