@@ -97,6 +97,11 @@ type useAiSuggestionsProps = {
 	 * The request handler.
 	 */
 	request: ( prompt: PromptProp, options?: AskQuestionOptionsArgProps ) => Promise< void >;
+
+	/*
+	 * The handler to stop a suggestion.
+	 */
+	stopSuggestion: () => void;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
@@ -234,7 +239,7 @@ export default function useAiSuggestions( {
 
 	const handleModerationError = useCallback( () => handleError( ERROR_MODERATION ), [] );
 
-	const handleNetwotkError = useCallback( () => handleError( ERROR_NETWORK ), [] );
+	const handleNetworkError = useCallback( () => handleError( ERROR_NETWORK ), [] );
 
 	/**
 	 * Request handler.
@@ -278,7 +283,7 @@ export default function useAiSuggestions( {
 				eventSource.addEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
 				eventSource.addEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
 				eventSource.addEventListener( ERROR_MODERATION, handleModerationError );
-				eventSource.addEventListener( ERROR_NETWORK, handleNetwotkError );
+				eventSource.addEventListener( ERROR_NETWORK, handleNetworkError );
 
 				eventSource.addEventListener( 'done', handleDone );
 			} catch ( e ) {
@@ -292,10 +297,50 @@ export default function useAiSuggestions( {
 			handleUnclearPromptError,
 			handleServiceUnavailableError,
 			handleModerationError,
-			handleNetwotkError,
+			handleNetworkError,
 			handleSuggestion,
 		]
 	);
+
+	/**
+	 * Stop suggestion handler.
+	 *
+	 * @returns {void}
+	 */
+	const stopSuggestion = useCallback( () => {
+		if ( ! eventSourceRef?.current ) {
+			return;
+		}
+
+		// Alias
+		const eventSource = eventSourceRef?.current;
+
+		// Close the connection.
+		eventSource.close();
+
+		// Clean up the event listeners.
+		eventSource.removeEventListener( 'suggestion', handleSuggestion );
+
+		eventSource.removeEventListener( ERROR_QUOTA_EXCEEDED, handleErrorQuotaExceededError );
+		eventSource.removeEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
+		eventSource.removeEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
+		eventSource.removeEventListener( ERROR_MODERATION, handleModerationError );
+		eventSource.removeEventListener( ERROR_NETWORK, handleNetworkError );
+
+		eventSource.removeEventListener( 'done', handleDone );
+
+		// Set requesting state to done since the suggestion stopped.
+		setRequestingState( 'done' );
+	}, [
+		eventSourceRef,
+		handleSuggestion,
+		handleErrorQuotaExceededError,
+		handleUnclearPromptError,
+		handleServiceUnavailableError,
+		handleModerationError,
+		handleNetworkError,
+		handleDone,
+	] );
 
 	// Request suggestions automatically when ready.
 	useEffect( () => {
@@ -310,38 +355,10 @@ export default function useAiSuggestions( {
 		}
 
 		return () => {
-			if ( ! eventSourceRef?.current ) {
-				return;
-			}
-
-			// Alias
-			const eventSource = eventSourceRef.current;
-
-			// Close the connection.
-			eventSource.close();
-
-			// Clean up the event listeners.
-			eventSource.removeEventListener( 'suggestion', handleSuggestion );
-
-			eventSource.removeEventListener( ERROR_QUOTA_EXCEEDED, handleErrorQuotaExceededError );
-			eventSource.removeEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
-			eventSource.removeEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
-			eventSource.removeEventListener( ERROR_MODERATION, handleModerationError );
-			eventSource.removeEventListener( ERROR_NETWORK, handleNetwotkError );
-
-			eventSource.removeEventListener( 'done', handleDone );
+			// Stop the suggestion if the component unmounts.
+			stopSuggestion();
 		};
-	}, [
-		autoRequest,
-		handleDone,
-		handleErrorQuotaExceededError,
-		handleModerationError,
-		handleServiceUnavailableError,
-		handleSuggestion,
-		handleUnclearPromptError,
-		prompt,
-		request,
-	] );
+	}, [ autoRequest, prompt, request, stopSuggestion ] );
 
 	return {
 		// Data
@@ -349,8 +366,9 @@ export default function useAiSuggestions( {
 		error,
 		requestingState,
 
-		// Request handler
+		// Request/stop handlers
 		request,
+		stopSuggestion,
 
 		// SuggestionsEventSource
 		eventSource: eventSourceRef.current,
