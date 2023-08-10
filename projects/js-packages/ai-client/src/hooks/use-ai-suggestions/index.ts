@@ -145,14 +145,6 @@ export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorP
 				severity: 'info',
 			};
 		case ERROR_NETWORK:
-			return {
-				code: ERROR_NETWORK,
-				message: __(
-					'It was not possible to process your request. Mind trying again?',
-					'jetpack-ai-client'
-				),
-				severity: 'info',
-			};
 		default:
 			return {
 				code: ERROR_NETWORK,
