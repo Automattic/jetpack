@@ -389,6 +389,35 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 }
 
 /**
+ * Add a label to the issue, if it does not exist yet.
+ *
+ * @param {GitHub} octokit       - Initialized Octokit REST client.
+ * @param {string} ownerLogin    - Repository owner login.
+ * @param {string} repo          - Repository name.
+ * @param {number} number        - Issue number.
+ * @returns {Promise<void>}
+ */
+async function addHappinessLabel( octokit, ownerLogin, repo, number ) {
+	const happinessLabel = '[Type] Happiness Request';
+
+	const labels = await getLabels( octokit, ownerLogin, repo, number );
+	if ( labels.includes( happinessLabel ) ) {
+		debug(
+			`gather-support-references: Issue #${ number } already has the "${ happinessLabel }" label.`
+		);
+		return;
+	}
+
+	debug( `gather-support-references: Adding ${ happinessLabel } label to issue #${ number }` );
+	await octokit.rest.issues.addLabels( {
+		owner: ownerLogin,
+		repo,
+		issue_number: number,
+		labels: [ happinessLabel ],
+	} );
+}
+
+/**
  * Post or update a comment with a to-do list of all support references on that issue.
  *
  * @param {WebhookPayloadIssue} payload - Issue or issue comment event payload.
@@ -404,6 +433,7 @@ async function gatherSupportReferences( payload, octokit ) {
 	if ( issueReferences.length > 0 ) {
 		debug( `gather-support-references: Found ${ issueReferences.length } references.` );
 		await createOrUpdateComment( payload, octokit, issueReferences, issueComments );
+		await addHappinessLabel( octokit, owner.login, repo, number );
 	}
 }
 

@@ -3,10 +3,14 @@
  */
 import { EventSourceMessage, fetchEventSource } from '@microsoft/fetch-event-source';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
+import { getErrorData } from '../hooks/use-ai-suggestions';
+import requestJwt from '../jwt';
 /*
  * Types & constants
  */
-import { getErrorData } from '../hooks/use-ai-suggestions';
 import {
 	ERROR_MODERATION,
 	ERROR_NETWORK,
@@ -20,7 +24,7 @@ import type { PromptMessagesProp, PromptProp, SuggestionErrorCode } from '../typ
 type SuggestionsEventSourceConstructorArgs = {
 	url?: string;
 	question: PromptProp;
-	token: string;
+	token?: string;
 	options?: {
 		postId?: number;
 		feature?: 'ai-assistant-experimental' | string | undefined;
@@ -81,6 +85,18 @@ export default class SuggestionsEventSource extends EventTarget {
 		token,
 		options = {},
 	}: SuggestionsEventSourceConstructorArgs ) {
+		// If the token is not provided, try to get one
+		if ( ! token ) {
+			try {
+				debug( 'Token was not provided, requesting one...' );
+				token = ( await requestJwt() ).token;
+			} catch ( err ) {
+				this.processErrorEvent( err );
+
+				return;
+			}
+		}
+
 		const bodyData: {
 			post_id?: number;
 			messages?: PromptMessagesProp;

@@ -13,6 +13,7 @@ import classNames from 'classnames';
  */
 import './style.scss';
 import AiStatusIndicator from '../ai-status-indicator';
+import { GuidelineMessage } from './message';
 /**
  * Types
  */
@@ -25,7 +26,6 @@ const noop = () => {};
  * AI Control component.
  *
  * @param {object} props - component props
- * @param {boolean} props.loading - loading state
  * @param {boolean} props.disabled - is disabled
  * @param {string} props.value - input value
  * @param {string} props.placeholder - input placeholder
@@ -33,15 +33,14 @@ const noop = () => {};
  * @param {string} props.acceptLabel - accept button label
  * @param {boolean} props.showButtonsLabel - show buttons label
  * @param {boolean} props.isOpaque - is opaque
+ * @param {string} props.state - requesting state
  * @param {Function} props.onChange - input change handler
  * @param {Function} props.onSend - send request handler
  * @param {Function} props.onStop - stop request handler
  * @param {Function} props.onAccept - accept handler
- * @param {string} props.requestingState - requesting state
  * @returns {object} - AI Control component
  */
 export default function AIControl( {
-	loading = false,
 	disabled = false,
 	value = '',
 	placeholder = '',
@@ -49,13 +48,12 @@ export default function AIControl( {
 	acceptLabel = __( 'Accept', 'jetpack-ai-client' ),
 	showButtonsLabel = true,
 	isOpaque = false,
-	requestingState = 'init',
+	state = 'init',
 	onChange = noop,
 	onSend = noop,
 	onStop = noop,
 	onAccept = noop,
 }: {
-	loading?: boolean;
 	disabled?: boolean;
 	value: string;
 	placeholder?: string;
@@ -63,13 +61,15 @@ export default function AIControl( {
 	acceptLabel?: string;
 	showButtonsLabel?: boolean;
 	isOpaque?: boolean;
-	requestingState?: RequestingStateProp;
+	state?: RequestingStateProp;
 	onChange?: ( newValue: string ) => void;
 	onSend?: ( currentValue: string ) => void;
 	onStop?: () => void;
 	onAccept?: () => void;
 } ) {
 	const promptUserInputRef = useRef( null );
+	const loading = state === 'requesting' || state === 'suggesting';
+	const showGuideLine = ! ( loading || disabled || value?.length || isOpaque );
 
 	useKeyboardShortcut(
 		'mod+enter',
@@ -94,6 +94,10 @@ export default function AIControl( {
 		}
 	);
 
+	const actionButtonClasses = classNames( 'jetpack-components-ai-control__controls-prompt_button', {
+		'has-label': showButtonsLabel,
+	} );
+
 	return (
 		<div className="jetpack-components-ai-control__container">
 			<div
@@ -101,7 +105,7 @@ export default function AIControl( {
 					'is-opaque': isOpaque,
 				} ) }
 			>
-				<AiStatusIndicator state={ requestingState } />
+				<AiStatusIndicator state={ state } />
 
 				<div className="jetpack-components-ai-control__input-wrapper">
 					<PlainText
@@ -112,57 +116,56 @@ export default function AIControl( {
 						disabled={ loading || disabled }
 						ref={ promptUserInputRef }
 					/>
+				</div>
 
-					{ value?.length > 0 && (
-						<Icon
-							icon={ closeSmall }
-							className="jetpack-components-ai-control__clear"
-							onClick={ () => onChange( '' ) }
-						/>
+				{ value?.length > 0 && (
+					<Button
+						icon={ closeSmall }
+						className="jetpack-components-ai-control__clear"
+						onClick={ () => onChange( '' ) }
+					/>
+				) }
+
+				<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
+					{ ! loading ? (
+						<Button
+							className={ actionButtonClasses }
+							onClick={ () => onSend( value ) }
+							isSmall={ true }
+							disabled={ ! value?.length || disabled }
+							label={ __( 'Send request', 'jetpack-ai-client' ) }
+						>
+							<Icon icon={ arrowUp } />
+							{ showButtonsLabel && __( 'Send', 'jetpack-ai-client' ) }
+						</Button>
+					) : (
+						<Button
+							className={ actionButtonClasses }
+							onClick={ onStop }
+							isSmall={ true }
+							label={ __( 'Stop request', 'jetpack-ai-client' ) }
+						>
+							<Icon icon={ closeSmall } />
+							{ showButtonsLabel && __( 'Stop', 'jetpack-ai-client' ) }
+						</Button>
 					) }
 				</div>
 
-				<div className="jetpack-components-ai-control__controls">
+				{ showAccept && (
 					<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
-						{ ! loading ? (
-							<Button
-								className="jetpack-components-ai-control__controls-prompt_button"
-								onClick={ () => onSend( value ) }
-								isSmall={ true }
-								disabled={ ! value?.length || disabled }
-								label={ __( 'Send request', 'jetpack-ai-client' ) }
-							>
-								<Icon icon={ arrowUp } />
-								{ showButtonsLabel && __( 'Send', 'jetpack-ai-client' ) }
-							</Button>
-						) : (
-							<Button
-								className="jetpack-components-ai-control__controls-prompt_button"
-								onClick={ onStop }
-								isSmall={ true }
-								label={ __( 'Stop request', 'jetpack-ai-client' ) }
-							>
-								<Icon icon={ closeSmall } />
-								{ showButtonsLabel && __( 'Stop', 'jetpack-ai-client' ) }
-							</Button>
-						) }
+						<Button
+							className={ actionButtonClasses }
+							onClick={ onAccept }
+							isSmall={ true }
+							label={ acceptLabel }
+						>
+							<Icon icon={ check } />
+							{ showButtonsLabel && acceptLabel }
+						</Button>
 					</div>
-
-					{ showAccept && (
-						<div className="jetpack-components-ai-control__controls-prompt_button_wrapper">
-							<Button
-								className="jetpack-components-ai-control__controls-prompt_button"
-								onClick={ onAccept }
-								isSmall={ true }
-								label={ acceptLabel }
-							>
-								<Icon icon={ check } />
-								{ acceptLabel }
-							</Button>
-						</div>
-					) }
-				</div>
+				) }
 			</div>
+			{ showGuideLine && <GuidelineMessage /> }
 		</div>
 	);
 }

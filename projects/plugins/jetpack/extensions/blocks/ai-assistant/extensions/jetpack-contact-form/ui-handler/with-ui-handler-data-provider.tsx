@@ -13,7 +13,6 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
-import { AiAssistantPopover } from '../components/ai-assistant-popover';
 import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
 /**
  * Types
@@ -52,13 +51,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// AI Assistant component is-fixed state
 		const [ isFixed, setAssistantFixed ] = useState( false );
 
-		// AI Assistant width
-		const [ width, setWidth ] = useState< number | string >( 400 );
-
 		// AI Assistant popover props
-		const [ popoverProps, setPopoverProps ] = useState<
-			AiAssistantUiContextProps[ 'popoverProps' ]
-		>( {
+		const [ popoverProps ] = useState< AiAssistantUiContextProps[ 'popoverProps' ] >( {
 			anchor: null,
 			placement: 'bottom-start',
 			offset: 12,
@@ -127,50 +121,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			[ createNotice ]
 		);
 
-		/*
-		 * Set the anchor element for the popover.
-		 * For now, let's use the block representation in the canvas,
-		 * but we can change it in the future.
-		 */
-		useEffect( () => {
-			if ( ! clientId ) {
-				return;
-			}
-
-			handleAiExtensionsBarBodyClass( isFixed, isVisible );
-
-			// Do not anchor the popover if the toolbar is fixed.
-			if ( isFixed ) {
-				return setWidth( '100%' ); // ensure to use the full width.
-			}
-
-			const idAttribute = `block-${ clientId }`;
-
-			/*
-			 * Get the DOM element of the block,
-			 * keeping in mind that the block element may be rendered into the `editor-canvas`
-			 * iframe if it is present.
-			 */
-			const iFrame: HTMLIFrameElement = document.querySelector( 'iframe[name="editor-canvas"]' );
-			const iframeDocument = iFrame && iFrame.contentWindow.document;
-
-			const blockDomElement = ( iframeDocument ?? document ).getElementById( idAttribute );
-
-			if ( ! blockDomElement ) {
-				return;
-			}
-
-			setPopoverProps( prev => ( {
-				...prev,
-				anchor: blockDomElement,
-				placement: 'bottom-start',
-				variant: null,
-				offset: 12,
-			} ) );
-
-			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
-		}, [ clientId, isFixed, isVisible ] );
-
 		// Show/hide the assistant based on the block selection.
 		useEffect( () => {
 			if ( isSelected ) {
@@ -178,28 +128,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			}
 			hide();
 		}, [ isSelected, hide ] );
-
-		// Update width when the anchor resize change.
-		useEffect( () => {
-			if ( ! popoverProps.anchor ) {
-				return;
-			}
-
-			// Do not observe the anchor resize if the toolbar is fixed.
-			if ( isFixed ) {
-				return;
-			}
-
-			const resizeObserver = new ResizeObserver( () => {
-				setWidth( popoverProps.anchor?.getBoundingClientRect?.()?.width );
-			} );
-
-			resizeObserver.observe( popoverProps.anchor );
-
-			return () => {
-				resizeObserver.disconnect();
-			};
-		}, [ popoverProps.anchor, isFixed ] );
 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
@@ -217,9 +145,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				// Assistant bar position and size.
 				isFixed,
 				popoverProps,
-				width,
 				setAssistantFixed,
-				setPopoverProps,
 			} ),
 			[
 				inputValue,
@@ -230,9 +156,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				toggle,
 				isFixed,
 				popoverProps,
-				width,
 				setAssistantFixed,
-				setPopoverProps,
 			]
 		);
 
@@ -292,7 +216,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 						},
 					} }
 				>
-					<AiAssistantPopover clientId={ clientId } />
 					<BlockListBlock { ...props } />
 				</KeyboardShortcuts>
 			</AiAssistantUiContextProvider>

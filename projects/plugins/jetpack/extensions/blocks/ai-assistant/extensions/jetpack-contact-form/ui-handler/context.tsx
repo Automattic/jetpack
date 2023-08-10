@@ -10,8 +10,6 @@ export type AiAssistantUiContextProps = {
 
 	isFixed: boolean;
 
-	width?: number | string;
-
 	popoverProps?: {
 		anchor?: HTMLElement | null;
 		offset?: number;
@@ -39,12 +37,6 @@ export type AiAssistantUiContextProps = {
 	toggle: () => void;
 
 	setAssistantFixed: ( isFixed: boolean ) => void;
-
-	setPopoverProps: (
-		props:
-			| AiAssistantUiContextProps[ 'popoverProps' ]
-			| ( ( prev: AiAssistantUiContextProps[ 'popoverProps' ] ) => void )
-	) => void;
 };
 
 type AiAssistantUiContextProviderProps = {
