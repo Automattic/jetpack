@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16a5d962841875d5db3309dc17c095ec",
+    "content-hash": "92f198e9aed057e91b0d5dfceae716da",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -328,16 +328,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.2.6",
+            "version": "v2.2.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "06258e58345396ccc3730bbb9982959986af357c"
+                "reference": "7306131fa963ab6c705e353a42f908349b860b93"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/06258e58345396ccc3730bbb9982959986af357c",
-                "reference": "06258e58345396ccc3730bbb9982959986af357c",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/7306131fa963ab6c705e353a42f908349b860b93",
+                "reference": "7306131fa963ab6c705e353a42f908349b860b93",
                 "shasum": ""
             },
             "require": {
@@ -349,6 +349,7 @@
                 "squizlabs/php_codesniffer": "*",
                 "wimg/php-compatibility": "9.0.0",
                 "woocommerce/woocommerce-sniffs": "*",
+                "wp-cli/wp-cli-bundle": "^2.8.1",
                 "wp-coding-standards/wpcs": "1.1.0",
                 "yoast/phpunit-polyfills": "^1.0"
             },
@@ -376,7 +377,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2023-08-01T09:40:47+00:00"
+            "time": "2023-08-10T02:42:50+00:00"
         },
         {
             "name": "composer/installers",
