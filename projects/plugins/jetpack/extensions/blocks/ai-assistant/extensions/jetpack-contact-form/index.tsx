@@ -4,9 +4,9 @@
 import { useAiContext, withAiDataProvider } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
-import { createHigherOrderComponent } from '@wordpress/compose';
+import { createHigherOrderComponent, useViewportMatch } from '@wordpress/compose';
 import { select } from '@wordpress/data';
-import { useEffect, useCallback } from '@wordpress/element';
+import { useEffect, useCallback, useContext } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
@@ -16,7 +16,10 @@ import { isUserConnected } from '../../lib/connection';
 import AiAssistantAnchor from './components/ai-assistant-anchor';
 import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
-import withUiHandlerDataProvider from './ui-handler/with-ui-handler-data-provider';
+import { AiAssistantUiContext } from './ui-handler/context';
+import withUiHandlerDataProvider, {
+	handleAiExtensionsBarBodyClass,
+} from './ui-handler/with-ui-handler-data-provider';
 
 /**
  * Check if it is possible to extend the block.
@@ -73,6 +76,7 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 			return <BlockEdit { ...props } />;
 		}
 		const { eventSource } = useAiContext();
+		const { isVisible } = useContext( AiAssistantUiContext );
 
 		const stopSuggestion = useCallback( () => {
 			if ( ! eventSource ) {
@@ -94,6 +98,11 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 		const blockControlsProps = {
 			group: 'block',
 		};
+
+		const isMobileViewport = useViewportMatch( 'medium', '<' );
+		useEffect( () => {
+			handleAiExtensionsBarBodyClass( isMobileViewport, isVisible );
+		}, [ isMobileViewport, isVisible ] );
 
 		return (
 			<>
