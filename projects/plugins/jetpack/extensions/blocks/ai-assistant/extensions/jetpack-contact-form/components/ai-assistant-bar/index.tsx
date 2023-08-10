@@ -51,19 +51,15 @@ export default function AiAssistantBar( {
 } ) {
 	const { requireUpgrade } = useAIFeature();
 
-	const { inputValue, setInputValue } = useContext( AiAssistantUiContext );
+	const { inputValue, setInputValue, isFixed } = useContext( AiAssistantUiContext );
 
-	const { requestSuggestion, requestingState } = useAiContext();
+	const { requestSuggestion, requestingState, stopSuggestion } = useAiContext();
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
 	const placeholder = __( 'Ask Jetpack AI to create your form', 'jetpack' );
 
 	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
-
-	const onStop = () => {
-		// TODO: Implement onStop
-	};
 
 	const onSend = useCallback( () => {
 		const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
@@ -83,9 +79,10 @@ export default function AiAssistantBar( {
 				placeholder={ isLoading ? loadingPlaceholder : placeholder }
 				onChange={ setInputValue }
 				onSend={ onSend }
-				onStop={ onStop }
+				onStop={ stopSuggestion }
 				state={ requestingState }
 				isOpaque={ requireUpgrade }
+				showButtonsLabel={ ! isFixed }
 			/>
 		</div>
 	);

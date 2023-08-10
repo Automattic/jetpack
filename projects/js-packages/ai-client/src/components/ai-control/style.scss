@@ -27,26 +27,11 @@
 	flex-grow: 1;
 	width: 100%;
 
-	.jetpack-components-ai-control__clear {
-		position: absolute;
-		right: 8px;
-		top: calc( 50% - 12px );
-		border-radius: 50%;
-		background-color: black;
-		opacity: 0.2;
-		fill: white;
-		cursor: pointer;
-
-		&:hover {
-			opacity: 0.4;
-		}
-	}
-
 	textarea.jetpack-components-ai-control__input {
 		width: 100%;
 		min-height: 20px;
 		border-radius: 2px;
-		padding: 6px 38px 6px 8px;
+		padding: 6px 8px;
 
 		resize: none !important;
 		border: none;
@@ -76,6 +61,21 @@
 	}
 }
 
+.jetpack-components-ai-control__clear.components-button.has-icon {
+	width: 24px;
+	min-width: 24px;
+	height: 24px;
+	padding: 0;
+	border-radius: 50%;
+	background-color: black;
+	opacity: 0.2;
+	color: white;
+
+	&:hover {
+		opacity: 0.4;
+	}
+}
+
 .jetpack-components-ai-controlton__icon {
 	flex-shrink: 0;
 	display: flex;
@@ -98,11 +98,6 @@
 	}
 }
 
-.jetpack-components-ai-control__controls {
-	display: flex;
-	align-items: center;
-}
-
 .jetpack-components-ai-control__controls-prompt_button_wrapper {
 	text-transform: uppercase;
 	font-size: 11px;
@@ -112,15 +107,15 @@
 	white-space: nowrap;
 	display: flex;
 	align-items: center;
+
+	.components-button.is-small:not(.has-label) {
+		padding: 0;
+	}
 }
 
 .jetpack-components-ai-control__controls-prompt_button {
 	color: var( --jp-gray-80 );
 	text-transform: uppercase;
-
-	> SVG {
-		margin-right: 4px;
-	}
 
 	&:hover,
 	&:active {

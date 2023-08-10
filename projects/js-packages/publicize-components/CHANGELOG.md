@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.0] - 2023-08-09
+### Changed
+- Moved store to publicize-components package [#32317]
+- Updated package dependencies. [#32166]
+
 ## [0.32.0] - 2023-08-07
 ### Added
 - ADded new notice for admin page for Advanced plan upsell [#32128]
@@ -379,6 +384,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.33.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.32.0...v0.33.0
 [0.32.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.29.1...v0.30.0
