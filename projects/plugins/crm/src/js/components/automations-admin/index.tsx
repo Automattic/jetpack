@@ -5,29 +5,9 @@ import { Link, Routes, Route } from 'react-router-dom';
 import AdminPage from '../admin-page';
 import { RedirectHome } from './components/redirect-home';
 import { WorkflowRow } from './components/workflow-row';
-import { Workflow } from './types';
+import { workflowOne, workflowTwo } from './test/test-data';
 
 export const AutomationsAdmin = () => {
-	const workflowOne: Workflow = {
-		id: 0,
-		name: 'Workflow name',
-		description: '',
-		category: '',
-		triggers: [ { slug: '', title: '', category: '', description: 'Trigger description here' } ],
-		initial_step: {
-			attributes: [],
-			slug: '',
-			title: '',
-			description: '',
-			type: 'contacts',
-			category: '',
-			allowedTriggers: [],
-		},
-		active: true,
-		version: 0,
-		added: '01/23/4567',
-	};
-
 	return (
 		<Routes>
 			<Route
@@ -109,7 +89,7 @@ export const AutomationsAdmin = () => {
 							<th style={ { padding: '5px 10px' } }>Edit</th>
 						</tr>
 						<WorkflowRow workflow={ workflowOne } />
-						<WorkflowRow workflow={ workflowOne } />
+						<WorkflowRow workflow={ workflowTwo } />
 					</table>
 				}
 			/>
