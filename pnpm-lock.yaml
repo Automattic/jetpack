@@ -98,6 +98,9 @@ importers:
 
   projects/js-packages/ai-client:
     dependencies:
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../base-styles
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../connection
