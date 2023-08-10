@@ -10,26 +10,6 @@ export type AiAssistantUiContextProps = {
 
 	isFixed: boolean;
 
-	popoverProps?: {
-		anchor?: HTMLElement | null;
-		offset?: number;
-		variant?: 'toolbar' | 'unstyled';
-		placement?:
-			| 'top'
-			| 'top-start'
-			| 'top-end'
-			| 'right'
-			| 'right-start'
-			| 'right-end'
-			| 'bottom'
-			| 'bottom-start'
-			| 'bottom-end'
-			| 'left'
-			| 'left-start'
-			| 'left-end'
-			| 'overlay';
-	};
-
 	setInputValue: ( value: string ) => void;
 
 	show: () => void;
