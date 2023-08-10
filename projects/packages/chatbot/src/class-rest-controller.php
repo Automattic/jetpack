@@ -45,6 +45,34 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'permissions_check' ),
 			)
 		);
+
+		// Get migration status from source site.
+		register_rest_route(
+			static::$namespace,
+			'/odie/get_or_create_xmpp_user_creds',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'get_or_create_xmpp_user_creds' ),
+				'permission_callback' => array( $this, 'permissions_check' ),
+			)
+		);
+	}
+
+	/**
+	 * Initiates a chat session.
+	 *
+	 * GET `jetpack/v4/chat/odie/get_or_create_xmpp_user_creds`
+	 */
+	public function get_or_create_xmpp_user_creds() {
+		$response = Client::wpcom_json_api_request_as_user(
+			'/odie/get_or_create_xmpp_user_creds',
+			'2',
+			array( 'method' => 'POST' ),
+			null,
+			'wpcom'
+		);
+
+		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
 
 	/**
