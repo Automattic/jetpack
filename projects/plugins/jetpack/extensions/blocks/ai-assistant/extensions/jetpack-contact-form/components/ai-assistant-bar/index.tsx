@@ -4,16 +4,19 @@
 import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import { useContext, useCallback } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
+import { useContext, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
+import classNames from 'classnames';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
 import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
-import './style.scss';
+import { AI_ASSISTANT_JETPACK_FORM_NOTICE_ID } from '../../ui-handler/with-ui-handler-data-provider';
 
 /**
  * Return the serialized content from the childrens block.
@@ -41,12 +44,26 @@ function getSerializedContentFromBlock( clientId: string ): string {
 	}, '' );
 }
 
-export default function AiAssistantBar( { clientId } ) {
+export default function AiAssistantBar( {
+	clientId,
+	className = '',
+}: {
+	clientId: string;
+	className?: string;
+} ) {
+	const inputRef = useRef< HTMLInputElement >( null );
+
 	const { requireUpgrade } = useAIFeature();
 
 	const { inputValue, setInputValue, isFixed } = useContext( AiAssistantUiContext );
 
-	const { requestSuggestion, requestingState } = useAiContext();
+	const { requestSuggestion, requestingState, stopSuggestion } = useAiContext( {
+		onDone: () => {
+			setTimeout( () => {
+				inputRef.current?.focus?.();
+			}, 10 );
+		},
+	} );
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
@@ -54,29 +71,31 @@ export default function AiAssistantBar( { clientId } ) {
 
 	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
 
-	const onStop = () => {
-		// TODO: Implement onStop
-	};
+	const { removeNotice } = useDispatch( noticesStore );
 
 	const onSend = useCallback( () => {
+		// Remove previous error notice.
+		removeNotice( AI_ASSISTANT_JETPACK_FORM_NOTICE_ID );
+
 		const prompt = getPrompt( PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, {
 			request: inputValue,
 			content: getSerializedContentFromBlock( clientId ),
 		} );
 
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
-	}, [ clientId, inputValue, requestSuggestion ] );
+	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
 
 	return (
-		<div className="jetpack-ai-assistant__bar">
+		<div className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
 			{ requireUpgrade && <UpgradePrompt /> }
 			<AIControl
+				ref={ inputRef }
 				disabled={ requireUpgrade }
 				value={ isLoading ? undefined : inputValue }
 				placeholder={ isLoading ? loadingPlaceholder : placeholder }
 				onChange={ setInputValue }
 				onSend={ onSend }
-				onStop={ onStop }
+				onStop={ stopSuggestion }
 				state={ requestingState }
 				isOpaque={ requireUpgrade }
 				showButtonsLabel={ ! isFixed }
