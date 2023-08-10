@@ -1,5 +1,5 @@
 import { dateI18n } from '@wordpress/date';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import uPlot from 'uplot';
 import { Tooltip } from './tooltip';
 
