@@ -333,6 +333,7 @@ class WPCOM_Features {
 	public const SOCIAL_ENHANCED_PUBLISHING       = 'social-enhanced-publishing';
 	public const SOCIAL_MASTODON_CONNECTION       = 'social-mastodon-connection';
 	public const SOCIAL_INSTAGRAM_CONNECTION      = 'social-instagram-connection';
+	public const SOCIAL_IMAGE_AUTO_CONVERT        = 'social-image-auto-convert';
 	public const SOCIAL_MULTI_CONNECTIONS         = 'social-multi-connections';
 	public const SPACE                            = 'space';
 	public const SPACE_UPGRADED_STORAGE           = 'space-upgraded-storage';
@@ -919,6 +920,14 @@ class WPCOM_Features {
 			),
 		),
 		self::SOCIAL_INSTAGRAM_CONNECTION      => array(
+			array(
+				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
+				'before' => '1900-01-01',
+				self::WPCOM_ALL_SITES,
+				self::JETPACK_ALL_SITES,
+			),
+		),
+		self::SOCIAL_IMAGE_AUTO_CONVERT        => array(
 			array(
 				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
 				'before' => '1900-01-01',
