@@ -91,8 +91,8 @@ export default function UplotLineChart( { data, range }: UplotChartProps ) {
 	const uplot = useRef< uPlot | null >( null );
 	const uplotContainer = useRef( null );
 
-	const desktopScore = data[ 1 ][ data[ 1 ].length - 1 ];
-	const mobileScore = data[ 2 ][ data[ 2 ].length - 1 ];
+	const lastDesktopScore = data[ 1 ][ data[ 1 ].length - 1 ];
+	const lastMobileScore = data[ 2 ][ data[ 2 ].length - 1 ];
 
 	const options: uPlot.Options = useMemo( () => {
 		const defaultOptions: uPlot.Options = {
@@ -145,8 +145,8 @@ export default function UplotLineChart( { data, range }: UplotChartProps ) {
 						return date.toLocaleDateString( getUserLocale() );
 					},
 				},
-				createSerieInfo( __( 'Desktop', 'jetpack' ), desktopScore ),
-				createSerieInfo( __( 'Mobile', 'jetpack' ), mobileScore ),
+				createSerieInfo( __( 'Desktop', 'jetpack' ), lastDesktopScore ),
+				createSerieInfo( __( 'Mobile', 'jetpack' ), lastMobileScore ),
 			],
 			scales: {
 				x: {
@@ -167,7 +167,7 @@ export default function UplotLineChart( { data, range }: UplotChartProps ) {
 		return {
 			...defaultOptions,
 		};
-	}, [ desktopScore, mobileScore, range ] );
+	}, [ lastDesktopScore, lastMobileScore, range ] );
 
 	useResize( uplot, uplotContainer );
 	const onCreate = useCallback( chart => {
