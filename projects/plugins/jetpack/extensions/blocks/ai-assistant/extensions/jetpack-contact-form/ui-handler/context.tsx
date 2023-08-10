@@ -10,8 +10,6 @@ export type AiAssistantUiContextProps = {
 
 	isFixed: boolean;
 
-	width?: number | string;
-
 	popoverProps?: {
 		anchor?: HTMLElement | null;
 		offset?: number;

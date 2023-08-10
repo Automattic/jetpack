@@ -13,7 +13,7 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
-import { AiAssistantPopover } from './components/ai-assistant-popover';
+import AiAssistantAnchor from './components/ai-assistant-anchor';
 import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
 import withUiHandlerDataProvider from './ui-handler/with-ui-handler-data-provider';
@@ -99,7 +99,7 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 			<>
 				<BlockEdit { ...props } />
 
-				<AiAssistantPopover clientId={ props.clientId } />
+				<AiAssistantAnchor clientId={ props.clientId } />
 
 				<BlockControls { ...blockControlsProps }>
 					<AiAssistantToolbarButton />
