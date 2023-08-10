@@ -28,7 +28,7 @@ export type Workflow = {
 	triggers: Trigger[];
 	initial_step: Step;
 	active: boolean;
-	verion: number;
+	version: number;
 };
 
 export type Type = 'contacts';
