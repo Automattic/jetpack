@@ -29,6 +29,7 @@ export type Workflow = {
 	initial_step: Step;
 	active: boolean;
 	version: number;
+	added: string;
 };
 
 export type Type = 'contacts';
