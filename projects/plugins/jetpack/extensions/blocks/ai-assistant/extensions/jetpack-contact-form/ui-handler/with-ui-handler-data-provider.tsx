@@ -88,8 +88,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 * @returns {void}
 		 */
 		const selectFormBlock = useCallback( () => {
-			dispatch( 'core/block-editor' ).selectBlock( props.clientId );
-		}, [ props.clientId ] );
+			dispatch( 'core/block-editor' ).selectBlock( clientId ).then( toggle );
+		}, [ clientId, toggle ] );
 
 		const { createNotice } = useDispatch( noticesStore );
 
@@ -191,10 +191,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			<AiAssistantUiContextProvider value={ contextValue }>
 				<KeyboardShortcuts
 					shortcuts={ {
-						'mod+/': () => {
-							toggle();
-							selectFormBlock();
-						},
+						'mod+/': selectFormBlock,
 					} }
 				>
 					<BlockListBlock { ...props } />

@@ -4,10 +4,8 @@
 import { useAiContext, withAiDataProvider } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
-import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { select } from '@wordpress/data';
-import { useContext } from '@wordpress/element';
 import { useEffect, useCallback } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
@@ -18,7 +16,6 @@ import { isUserConnected } from '../../lib/connection';
 import AiAssistantBar from './components/ai-assistant-bar';
 import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
-import { AiAssistantUiContext } from './ui-handler/context';
 import withUiHandlerDataProvider from './ui-handler/with-ui-handler-data-provider';
 
 /**
@@ -94,19 +91,12 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 			};
 		}, [ stopSuggestion ] );
 
-		const { toggle } = useContext( AiAssistantUiContext );
-
 		const blockControlsProps = {
 			group: 'block',
 		};
 
 		return (
-			<KeyboardShortcuts
-				bindGlobal
-				shortcuts={ {
-					'mod+/': toggle,
-				} }
-			>
+			<>
 				<BlockEdit { ...props } />
 
 				<AiAssistantBar clientId={ props.clientId } />
@@ -114,7 +104,7 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 				<BlockControls { ...blockControlsProps }>
 					<AiAssistantToolbarButton />
 				</BlockControls>
-			</KeyboardShortcuts>
+			</>
 		);
 	};
 }, 'withAiAssistantComponents' );
