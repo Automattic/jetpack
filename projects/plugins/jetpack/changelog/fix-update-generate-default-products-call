@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Membership API: update function call to match server-side API
