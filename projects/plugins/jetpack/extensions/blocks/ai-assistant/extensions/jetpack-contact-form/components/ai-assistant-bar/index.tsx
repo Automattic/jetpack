@@ -3,9 +3,10 @@
  */
 import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
+import { debounce } from '@wordpress/compose';
 import { select } from '@wordpress/data';
 import { useDispatch } from '@wordpress/data';
-import { useContext, useCallback, useRef } from '@wordpress/element';
+import { useContext, useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
@@ -17,6 +18,19 @@ import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import { AI_ASSISTANT_JETPACK_FORM_NOTICE_ID } from '../../ui-handler/with-ui-handler-data-provider';
+
+/*
+ * Core viewport breakpoints.
+ * @see https://github.com/WordPress/gutenberg/blob/d5d8533cf2cc04bb005bda147114cf00782d6c38/packages/base-styles/_breakpoints.scss#L5-L14
+ */
+const BREAKPOINTS = {
+	huge: 1440,
+	wide: 1280,
+	large: 960,
+	medium: 782,
+	small: 600,
+	mobile: 480,
+};
 
 /**
  * Return the serialized content from the childrens block.
@@ -85,6 +99,44 @@ export default function AiAssistantBar( {
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
 	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
 
+	/*
+	 * Auto-resize mode.
+	 * Update the bar layout depending on the component width.
+	 */
+	const [ isMobileMode, setMobileMode ] = useState( isFixed );
+
+	const observerRef = useRef( null );
+
+	// Debounce the resize event.
+	const debounceUpdateIsMobileMode = debounce( setMobileMode, 300 );
+
+	useEffect( () => {
+		// Get the Assistant bar DOM element.
+		const barElement = inputRef.current.closest( '.jetpack-ai-assistant__bar' );
+		if ( ! barElement ) {
+			return;
+		}
+
+		// Only create a new observer if there isn't one already
+		if ( ! observerRef.current ) {
+			observerRef.current = new ResizeObserver( entries => {
+				const barWidth = entries[ 0 ].contentRect.width;
+				debounceUpdateIsMobileMode( barWidth < BREAKPOINTS.mobile );
+			} );
+		}
+
+		// Start observing the Assistant bar element.
+		observerRef.current.observe( barElement );
+
+		return () => {
+			// Disconnect the observer when the component is unmounted.
+			observerRef.current?.disconnect();
+
+			// Also, cancel any pending debounce.
+			debounceUpdateIsMobileMode.cancel();
+		};
+	}, [ debounceUpdateIsMobileMode ] );
+
 	return (
 		<div className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
 			{ requireUpgrade && <UpgradePrompt /> }
@@ -98,7 +150,7 @@ export default function AiAssistantBar( {
 				onStop={ stopSuggestion }
 				state={ requestingState }
 				isOpaque={ requireUpgrade }
-				showButtonsLabel={ ! isFixed }
+				showButtonsLabel={ isMobileMode || isFixed }
 			/>
 		</div>
 	);
