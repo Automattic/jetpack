@@ -153,6 +153,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
 		),
+		'migrate_content'                 => array(
+			'get_title'            => function () {
+				return __( 'Migrate content', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
+		),
 
 		// Link in bio tasks.
 		'link_in_bio_launched'            => array(

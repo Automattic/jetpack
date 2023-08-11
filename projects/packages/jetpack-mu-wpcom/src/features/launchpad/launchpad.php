@@ -80,6 +80,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'verify_email',
 				'set_up_payments',
 				'newsletter_plan_created',
+				'migrate_content',
 				'first_post_published_newsletter',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
