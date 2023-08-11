@@ -2,10 +2,10 @@
  * External dependencies
  */
 import { aiAssistantIcon, useAiContext } from '@automattic/jetpack-ai-client';
-import { KeyboardShortcuts, Popover, ToolbarButton } from '@wordpress/components';
+import { KeyboardShortcuts, ToolbarButton } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import { useContext, useRef } from '@wordpress/element';
+import { createPortal, useContext, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 /*
@@ -63,27 +63,20 @@ export default function AiAssistantToolbarButton( {
 	const showAiToolbar = isVisible && isFixed && barAnchor && ! isSidebarOpened;
 	return (
 		<>
-			{ showAiToolbar && (
-				<Popover
-					anchor={ barAnchor }
-					variant="toolbar"
-					placement="bottom"
-					offset={ 0 }
-					animate={ false }
-					className="jetpack-ai-assistant-bar is-fixed"
-				>
-					<KeyboardShortcuts
-						bindGlobal
-						shortcuts={ {
-							'mod+/': toggle,
-						} }
-					/>
+			<KeyboardShortcuts
+				bindGlobal
+				shortcuts={ {
+					'mod+/': toggle,
+				} }
+			/>
 
-					<div style={ { width: '100%' } }>
+			{ showAiToolbar &&
+				createPortal(
+					<div className="jetpack-ai-assistant-bar is-fixed">
 						<AiAssistantBar clientId={ clientId } />
-					</div>
-				</Popover>
-			) }
+					</div>,
+					barAnchor
+				) }
 
 			<ToolbarButton
 				ref={ anchorRef }

@@ -2,10 +2,9 @@
 
 .jetpack-ai-assistant-bar {
 	&.is-fixed {
-		z-index: 31;
 		border-bottom: 1px solid #e0e0e0;
-
 		width: 100%;
+
 		.components-popover__content,
 		.jetpack-components-ai-control__container {
 			width: 100%;
@@ -17,8 +16,4 @@
 			width: 100%;
 		}
 	}
-}
-
-.jetpack-ai-assistant-bar-is-fixed .block-editor-block-contextual-toolbar {
-	margin-bottom: 46px;
 }

@@ -22,22 +22,6 @@ import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 // An identifier to use on the extension error notices,
 export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 
-/**
- * Add the `jetpack-ai-assistant-bar-is-fixed` class to the body
- * when the toolbar is fixed and the AI Assistant is visible.
- *
- * @param {boolean} isFixed - Is the toolbar fixed?
- * @param {boolean} isVisible - Is the AI Assistant visible?
- * @returns {void}
- */
-export function handleAiExtensionsBarBodyClass( isFixed: boolean, isVisible: boolean ): void {
-	if ( isFixed && isVisible ) {
-		return document.body.classList.add( 'jetpack-ai-assistant-bar-is-fixed' );
-	}
-
-	document.body.classList.remove( 'jetpack-ai-assistant-bar-is-fixed' );
-}
-
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { clientId, isSelected } = props;
