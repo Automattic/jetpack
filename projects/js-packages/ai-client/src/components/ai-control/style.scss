@@ -15,6 +15,7 @@
 	padding: 12px 14px;
 	gap: 8px;
 	align-items: center;
+	box-sizing: border-box;
 
 	&.is-opaque {
 		opacity: 0.4;
