@@ -24,9 +24,10 @@ export default function AiAssistantToolbarButton( {
 	const { requestingState } = useAiContext();
 
 	// Check if the sidebar is Opened
-	const isSidebarOpened = useSelect( select => {
-		return select( 'core/edit-post' ).isEditorSidebarOpened();
-	}, [] );
+	const isSidebarOpened = useSelect(
+		select => select( 'core/edit-post' )?.isEditorSidebarOpened(), // 'core/edit-post' could not exist in some cases (P2s, full site editing)
+		[]
+	);
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
