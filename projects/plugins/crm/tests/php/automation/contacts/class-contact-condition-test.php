@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
+use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
@@ -11,7 +12,8 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
 /**
  * Test Automation Workflow functionalities
  *
- * @covers Automattic\Jetpack\CRM\Automation
+ * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed
+ * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status
  */
 class Contact_Condition_Test extends BaseTestCase {
 
