@@ -11,7 +11,6 @@ import React, { useEffect } from 'react';
  * Internal dependencies
  */
 import { AiAssistantUiContext } from '../../ui-handler/context';
-import './style.scss';
 
 export default function AiAssistantToolbarButton(): React.ReactElement {
 	const { isVisible, toggle, setAssistantFixed, setAnchor } = useContext( AiAssistantUiContext );
