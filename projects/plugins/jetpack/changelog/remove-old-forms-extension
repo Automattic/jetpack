@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Remove extensions/blocks/contact-form directory, it is now handled by packages/forms
