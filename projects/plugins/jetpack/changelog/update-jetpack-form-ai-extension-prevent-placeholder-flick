@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Extension: Prevent the JP Form placeholder from showing while the first field is not present, by using a generic, temporary paragraph.
