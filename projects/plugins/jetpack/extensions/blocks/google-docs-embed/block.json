@@ -1,0 +1,60 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/google-docs-embed",
+	"title": "Google Docs",
+	"description": "Embed a Google Document.",
+	"keywords": [ "document", "gsuite", "doc" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "document",
+	"supports": {
+		"align": [ "left", "right", "center", "wide", "full" ],
+		"anchor": true
+	},
+	"attributes": {
+		"url": {
+			"type": "string",
+			"default": ""
+		},
+		"aspectRatio": {
+			"type": "string"
+		},
+		"variation": {
+			"type": "string"
+		}
+	},
+	"variations": [
+		{
+			"name": "google-docs",
+			"isDefault": true,
+			"title": "Google Docs",
+			"description": "Embed a Google Document.",
+			"icon": "document",
+			"keywords": [ "document", "gsuite", "doc" ],
+			"attributes": { "variation": "google-docs" },
+			"isActive": [ "variation" ]
+		},
+		{
+			"name": "google-sheets",
+			"isDefault": true,
+			"title": "Google Sheets",
+			"description": "Embed a Google Sheet.",
+			"icon": "spreadsheet",
+			"keywords": [ "sheet", "spreadsheet" ],
+			"attributes": { "variation": "google-sheets" },
+			"isActive": [ "variation" ]
+		},
+		{
+			"name": "google-slides",
+			"isDefault": true,
+			"title": "Google Slides",
+			"description": "Embed a Google Slides presentation.",
+			"icon": "interactive",
+			"keywords": [ "slide", "presentation", "deck" ],
+			"attributes": { "variation": "google-slides" },
+			"isActive": [ "variation" ]
+		}
+	]
+}
