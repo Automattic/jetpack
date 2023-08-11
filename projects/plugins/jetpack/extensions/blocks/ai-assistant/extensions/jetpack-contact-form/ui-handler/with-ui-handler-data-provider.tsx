@@ -35,6 +35,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// AI Assistant component is-fixed state
 		const [ isFixed, setAssistantFixed ] = useState( false );
 
+		const [ assistantAnchor, setAssistantAnchor ] = useState< HTMLElement | null >( null );
+
 		// Keep track of the current list of valid blocks between renders.
 		const currentListOfValidBlocks = useRef( [] );
 
@@ -72,13 +74,22 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		}, [ isVisible ] );
 
 		/**
+		 * Set the AI Assistant anchor
+		 *
+		 * @param {HTMLElement} anchor
+		 */
+		const setAnchor = useCallback( ( anchor: HTMLElement | null ) => {
+			setAssistantAnchor( anchor );
+		}, [] );
+
+		/**
 		 * Select the Jetpack Form block
 		 *
 		 * @returns {void}
 		 */
 		const selectFormBlock = useCallback( () => {
-			dispatch( 'core/block-editor' ).selectBlock( props.clientId );
-		}, [ props.clientId ] );
+			dispatch( 'core/block-editor' ).selectBlock( clientId ).then( toggle );
+		}, [ clientId, toggle ] );
 
 		const { createNotice } = useDispatch( noticesStore );
 
@@ -122,8 +133,12 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				// Assistant bar position and size.
 				isFixed,
 				setAssistantFixed,
+
+				// Assistant bar anchor.
+				assistantAnchor,
+				setAnchor,
 			} ),
-			[ inputValue, setInputValue, isVisible, show, hide, toggle, isFixed, setAssistantFixed ]
+			[ inputValue, isVisible, show, hide, toggle, isFixed, assistantAnchor, setAnchor ]
 		);
 
 		const setContent = useCallback(
@@ -176,10 +191,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			<AiAssistantUiContextProvider value={ contextValue }>
 				<KeyboardShortcuts
 					shortcuts={ {
-						'mod+/': () => {
-							toggle();
-							selectFormBlock();
-						},
+						'mod+/': selectFormBlock,
 					} }
 				>
 					<BlockListBlock { ...props } />
