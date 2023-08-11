@@ -1,7 +1,7 @@
 import { Button, ToggleControl } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
 import { Workflow } from '../../types';
+import { Checkbox } from '../checkbox';
 import styles from './styles.module.scss';
 
 type WorkflowRowProps = {
@@ -26,10 +26,8 @@ export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 	return (
 		<tr className={ styles.row }>
 			<td>
-				<input
+				<Checkbox
 					id={ 'workflow_' + workflow.id }
-					className={ styles.checkbox }
-					type="checkbox"
 					checked={ selected }
 					onChange={ toggleSelected }
 				/>
@@ -41,7 +39,7 @@ export const WorkflowRow: React.FC< WorkflowRowProps > = props => {
 			<td className={ styles[ 'added-date' ] }>{ workflow.added }</td>
 			<td className={ styles[ 'trigger-description' ] }>{ workflow.triggers[ 0 ].description }</td>
 			<td className={ styles[ 'edit-button' ] }>
-				<Button variant={ 'secondary' }>{ __( 'Edit', 'zero-bs-crm' ) }</Button>
+				<Button variant={ 'secondary' }>Edit</Button>
 			</td>
 		</tr>
 	);
