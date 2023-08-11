@@ -122,7 +122,7 @@ export default function UplotLineChart( { data, range, periods }: UplotChartProp
 					side: 1,
 					gap: 8,
 					space: 50,
-					size: 100,
+					size: 30,
 					grid: {
 						stroke: 'rgba(220, 220, 222, 0.5)', // #DCDCDE with 0.5 opacity
 						width: 1,
