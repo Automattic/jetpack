@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
+import { useAiContext, AIControl, ERROR_QUOTA_EXCEEDED } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import { useDispatch } from '@wordpress/data';
@@ -13,7 +13,6 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import classNames from 'classnames';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
-import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import { AI_ASSISTANT_JETPACK_FORM_NOTICE_ID } from '../../ui-handler/with-ui-handler-data-provider';
@@ -67,17 +66,17 @@ export default function AiAssistantBar( {
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const inputRef = useRef< HTMLInputElement >( null );
 
-	const { requireUpgrade } = useAIFeature();
-
 	const { inputValue, setInputValue, isFixed } = useContext( AiAssistantUiContext );
 
-	const { requestSuggestion, requestingState, stopSuggestion } = useAiContext( {
+	const { requestSuggestion, requestingState, stopSuggestion, requestingError } = useAiContext( {
 		onDone: () => {
 			setTimeout( () => {
 				inputRef.current?.focus?.();
 			}, 10 );
 		},
 	} );
+
+	const requireUpgrade = requestingError?.code === ERROR_QUOTA_EXCEEDED;
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
