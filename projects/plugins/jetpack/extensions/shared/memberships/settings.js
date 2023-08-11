@@ -267,7 +267,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 								className="edit-post-post-visibility__notice"
 							>
 								{ __(
-									'The content below the paywall block is exclusive to the selected audience',
+									'The content below the paywall block is exclusive to the selected audience.',
 									'jetpack'
 								) }
 							</Notice>
