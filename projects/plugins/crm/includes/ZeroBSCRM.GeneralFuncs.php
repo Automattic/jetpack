@@ -904,7 +904,8 @@ function zeroBSCRM_isJson( $str ) {
 	            $d[$k] = zeroBSCRM_utf8ize($v);
 	        }
 	    } else if (is_string ($d)) {
-	        return utf8_encode($d);
+			// TODO: utf8_encode has been deprecated in PHP 8.2, and needs to be replaced.
+	        return utf8_encode($d); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.utf8_encodeDeprecated
 	    }
 	    return $d;
 	}
