@@ -24,6 +24,7 @@ import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import { AI_ASSISTANT_JETPACK_FORM_NOTICE_ID } from '../../ui-handler/with-ui-handler-data-provider';
+import './style.scss';
 
 /*
  * Core viewport breakpoints.
@@ -155,9 +156,18 @@ export default function AiAssistantBar( {
 		return null;
 	}
 
+	const shouldAnchorToBlockToolbar = isFixed && assistantAnchor;
+
 	// Assistant bar component.
 	const AiAssistantBarComponent = (
-		<div ref={ wrapperRef } className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
+		<div
+			ref={ wrapperRef }
+			className={ classNames( 'jetpack-ai-assistant__bar', {
+				[ className ]: className,
+				'is-fixed': shouldAnchorToBlockToolbar,
+				'is-mobile-mode': isMobileMode,
+			} ) }
+		>
 			{ requireUpgrade && <UpgradePrompt /> }
 			<AIControl
 				ref={ inputRef }
@@ -169,13 +179,13 @@ export default function AiAssistantBar( {
 				onStop={ stopSuggestion }
 				state={ requestingState }
 				isOpaque={ requireUpgrade }
-				showButtonsLabel={ ! isMobileMode }
+				showButtonsLabel={ ! isMobileMode && ! isFixed }
 			/>
 		</div>
 	);
 
 	// Check if the Assistant bar should be rendered in the Assistant anchor (fixed mode)
-	if ( isFixed && assistantAnchor ) {
+	if ( shouldAnchorToBlockToolbar ) {
 		return createPortal( AiAssistantBarComponent, assistantAnchor );
 	}
 

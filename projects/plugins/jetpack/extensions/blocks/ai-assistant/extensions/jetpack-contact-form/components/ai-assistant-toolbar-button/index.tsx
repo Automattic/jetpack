@@ -4,6 +4,7 @@
 import { aiAssistantIcon, useAiContext } from '@automattic/jetpack-ai-client';
 import { KeyboardShortcuts, ToolbarButton } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
+import { useContext, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 /*
