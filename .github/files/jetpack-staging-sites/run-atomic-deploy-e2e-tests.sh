@@ -10,11 +10,11 @@ fi
 echo "Starting atomic deploy E2E tests..."
 
 REQUEST_SIGNATURE=$(echo -n | openssl dgst -sha256 -hmac "$SIGNATURE_KEY")
-curl --fail-with-body -X POST -H "X-Jetpack-Atomic-Deploy-E2E-Signature: $REQUEST_SIGNATURE" "$TRIGGER_URL"
+curl --fail-with-body -s -X POST -H "X-Jetpack-Atomic-Deploy-E2E-Signature: $REQUEST_SIGNATURE" "$TRIGGER_URL"
 
 if [ $? -eq 0 ]; then
-  echo "Atomic deploy E2E tests started successfully."
+  echo -e "\nAtomic deploy E2E tests started successfully."
 else
-  echo "Atomic deploy E2E tests failed to start."
+  echo -e "\nAtomic deploy E2E tests failed to start."
   exit 1
 fi
