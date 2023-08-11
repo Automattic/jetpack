@@ -143,6 +143,9 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			[ inputValue, isVisible, show, hide, toggle, isFixed, assistantAnchor, setAnchor ]
 		);
 
+		// A temporary content to show while the blocks are loading.
+		const temporaryContent = parse( '<p>Loading, please wait...</p>' );
+
 		const setContent = useCallback(
 			( newContent: string ) => {
 				// Remove the Jetpack Form block from the content.
@@ -161,6 +164,11 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					return block.isValid && block.name !== 'core/freeform';
 				} );
 
+				// Set a "loading" message if there are no valid blocks yet.
+				if ( validBlocks.length === 0 ) {
+					replaceInnerBlocks( clientId, temporaryContent );
+				}
+
 				// Only update the blocks when the valid list changed, meaning a new block arrived.
 				if ( validBlocks.length !== currentListOfValidBlocks.current.length ) {
 					// Only update the valid blocks
@@ -170,7 +178,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					currentListOfValidBlocks.current = validBlocks;
 				}
 			},
-			[ clientId, replaceInnerBlocks ]
+			[ clientId, replaceInnerBlocks, temporaryContent ]
 		);
 
 		useAiContext( {
