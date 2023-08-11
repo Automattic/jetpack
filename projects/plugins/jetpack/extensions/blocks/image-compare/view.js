@@ -10,14 +10,8 @@
  * original MPL 2.0 license if you wish.
  */
 
-/**
- * WordPress dependencies
- */
 import domReady from '@wordpress/dom-ready';
 
-/**
- * Internal dependencies
- */
 import './view.scss';
 
 domReady( function () {

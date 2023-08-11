@@ -1,25 +1,18 @@
-/**
- * External dependencies
- */
 /*eslint lodash/import-scope: [2, "method"]*/
-import pick from 'lodash/pick';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import {
-	fetchJetpackSettings,
-	updateJetpackSettings as updateJetpackSettingsControl,
-} from '../controls';
 import {
 	removeUpdatingNotice,
 	updatingNotice,
 	errorNotice,
 	successNotice,
 } from 'components/global-notices/store/actions';
+import pick from 'lodash/pick';
 import { STORE_ID } from '../../store';
+import {
+	fetchJetpackSettings,
+	updateJetpackSettings as updateJetpackSettingsControl,
+} from '../controls';
 
 export const SET_JETPACK_SETTINGS = 'SET_JETPACK_SETTINGS';
 export const TOGGLE_SEARCH_MODULE = 'TOGGLE_SEARCH_MODULE';

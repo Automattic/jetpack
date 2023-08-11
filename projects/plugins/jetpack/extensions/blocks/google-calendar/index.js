@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
+import icon from './icon';
 import { extractAttributesFromIframe, URL_REGEX, IFRAME_REGEX } from './utils';
 import './editor.scss';
-import icon from './icon';
-import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'google-calendar';
 export const title = __( 'Google Calendar', 'jetpack' );
@@ -84,8 +77,7 @@ export const settings = {
 	},
 	example: {
 		attributes: {
-			url:
-				'https://calendar.google.com/calendar/embed?src=jb4bu80jirp0u11a6niie21pp4%40group.calendar.google.com&ctz=America/New_York',
+			url: 'https://calendar.google.com/calendar/embed?src=jb4bu80jirp0u11a6niie21pp4%40group.calendar.google.com&ctz=America/New_York',
 		},
 	},
 };

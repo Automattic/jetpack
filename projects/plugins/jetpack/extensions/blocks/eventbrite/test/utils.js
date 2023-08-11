@@ -1,27 +1,21 @@
-/**
- * External dependencies
- */
-
-/**
- * Internal dependencies
- */
 import { convertToLink, eventIdFromUrl, normalizeUrlInput } from '../utils';
 
-
 jest.mock( '@wordpress/blocks', () => ( {
-	createBlock: ( blockName, contentObj ) => ( { blockName, contentObj  } ),
+	createBlock: ( blockName, contentObj ) => ( { blockName, contentObj } ),
 } ) );
 
 describe( 'Eventbrite utils', () => {
 	describe( 'eventIdFromUrl', () => {
 		test( 'parses id from Eventbrite URL', () => {
-			const validIUrl = 'https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445';
-			expect( eventIdFromUrl( validIUrl ) ).toEqual( 122642642445 );
+			const validIUrl =
+				'https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445';
+			expect( eventIdFromUrl( validIUrl ) ).toBe( 122642642445 );
 		} );
 
 		test( 'checks end of URL string for id only', () => {
-			const validIUrl = 'https://www.eventbrite.com.au/e/1119993333-nsw-open-championship-tickets-122642642445';
-			expect( eventIdFromUrl( validIUrl ) ).toEqual( 122642642445 );
+			const validIUrl =
+				'https://www.eventbrite.com.au/e/1119993333-nsw-open-championship-tickets-122642642445';
+			expect( eventIdFromUrl( validIUrl ) ).toBe( 122642642445 );
 		} );
 
 		test( 'returns null when url is falsy', () => {
@@ -43,8 +37,8 @@ describe( 'Eventbrite utils', () => {
 			expect( onReplace ).toHaveBeenCalledWith( {
 				blockName: 'core/paragraph',
 				contentObj: {
-					content: '<a href=\"https://test.com\">https://test.com</a>',
-				}
+					content: '<a href="https://test.com">https://test.com</a>',
+				},
 			} );
 		} );
 	} );
@@ -56,12 +50,14 @@ describe( 'Eventbrite utils', () => {
 		} );
 
 		test( 'does not modify valid argument', () => {
-			const validUrl = 'https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445';
+			const validUrl =
+				'https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445';
 			expect( normalizeUrlInput( validUrl ) ).toEqual( validUrl );
 		} );
 
 		test( 'trims URL string', () => {
-			const paddedURl = '   https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445   ';
+			const paddedURl =
+				'   https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445   ';
 			expect( normalizeUrlInput( paddedURl ) ).toEqual( paddedURl.trim() );
 		} );
 	} );

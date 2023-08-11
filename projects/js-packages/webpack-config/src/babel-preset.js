@@ -1,3 +1,5 @@
+const path = require( 'path' );
+
 const PresetEnv = ( options = {} ) => {
 	if ( typeof options.targets === 'undefined' ) {
 		const browserslist = require( 'browserslist' );
@@ -52,7 +54,7 @@ module.exports = ( api, opts = {} ) => {
 			{
 				corejs: false, // We polyfill so we don't need core-js.
 				regenerator: false,
-				absoluteRuntime: true, // Required when workspace projects are symlinked.
+				absoluteRuntime: path.dirname( __dirname ), // Required when workspace projects are symlinked.
 				version: require( '@babel/runtime/package.json' )?.version,
 				...opts.pluginTransformRuntime,
 			},

@@ -1,20 +1,10 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import { getProductGroup } from '../../activation-screen/utils';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const ProductLink = props => {

@@ -1,35 +1,17 @@
-/**
- * External dependencies
- */
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
+import { __ } from '@wordpress/i18n';
+import DashSectionHeader from 'components/dash-section-header';
+import QueryRecommendationsData from 'components/data/query-recommendations-data';
+import QueryScanStatus from 'components/data/query-scan-status';
+import QuerySite from 'components/data/query-site';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import analytics from 'lib/analytics';
+import { chunk, get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-import { chunk, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import DashSectionHeader from 'components/dash-section-header';
-import DashActivity from './activity';
-import DashBoost from './boost';
-import DashCRM from './crm';
-import DashStats from './stats/index.jsx';
-import DashProtect from './protect';
-import DashMonitor from './monitor';
-import DashScan from './scan';
-import DashAkismet from './akismet';
-import DashBackups from './backups';
-import DashBlocks from './blocks';
-import DashPhoton from './photon';
-import DashSearch from './search';
-import DashSecurityBundle from './security-bundle';
-import DashVideoPress from './videopress';
-import DashConnections from './connections';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import QuerySite from 'components/data/query-site';
-import QueryScanStatus from 'components/data/query-scan-status';
+import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import {
 	isAtomicSite,
 	getApiNonce,
@@ -44,10 +26,22 @@ import {
 	userCanViewStats,
 	userIsSubscriber,
 } from 'state/initial-state';
-import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
-import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
+import DashActivity from './activity';
+import DashAkismet from './akismet';
+import DashBackups from './backups';
+import DashBoost from './boost';
+import DashConnections from './connections';
+import DashCRM from './crm';
+import DashMonitor from './monitor';
+import DashPhoton from './photon';
+import DashProtect from './protect';
+import DashScan from './scan';
+import DashSearch from './search';
+import DashSecurityBundle from './security-bundle';
+import DashStats from './stats/index.jsx';
+import DashVideoPress from './videopress';
 
 class AtAGlance extends Component {
 	trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
@@ -132,6 +126,7 @@ class AtAGlance extends Component {
 			const canDisplaybundleCard =
 				! this.props.multisite && ! this.props.isOfflineMode && this.props.hasConnectedOwner;
 			const performanceCards = [];
+
 			if ( 'inactive' !== this.props.getModuleOverride( 'photon' ) ) {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
 			}
@@ -153,14 +148,8 @@ class AtAGlance extends Component {
 			}
 
 			if ( this.props.userCanManagePlugins ) {
-				performanceCards.push(
-					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
-					<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
-				);
+				performanceCards.push( <DashCRM siteAdminUrl={ this.props.siteAdminUrl } /> );
 			}
-
-			// Add Blocks card.
-			performanceCards.push( <DashBlocks /> );
 
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
 				<PartnerCouponRedeem
@@ -189,24 +178,37 @@ class AtAGlance extends Component {
 				</div>
 			) : null;
 
-			return (
-				<div className="jp-at-a-glance">
-					<QuerySitePlugins />
-					<QuerySite />
-					<QueryScanStatus />
-					{ redeemPartnerCoupon }
-					<DashStats { ...settingsProps } { ...urls } />
-					<Section
-						header={ securityHeader }
-						cards={ securityCards }
-						pinnedBundle={ pinnedBundle }
-					/>
-					<Section
-						header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
-						cards={ performanceCards }
-					/>
-					{ connections }
+			const boostSpeedScore = this.props.userCanManagePlugins ? (
+				<div className="jp-at-a-glance__pinned-bundle">
+					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />
 				</div>
+			) : undefined;
+
+			return (
+				<ThemeProvider>
+					<div className="jp-at-a-glance">
+						<h1 className="screen-reader-text">
+							{ __( 'Jetpack At A Glance Dashboard', 'jetpack' ) }
+						</h1>
+						<QuerySitePlugins />
+						<QuerySite />
+						<QueryRecommendationsData />
+						<QueryScanStatus />
+						{ redeemPartnerCoupon }
+						<DashStats { ...settingsProps } { ...urls } />
+						<Section
+							header={ securityHeader }
+							cards={ securityCards }
+							pinnedBundle={ pinnedBundle }
+						/>
+						<Section
+							header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
+							cards={ performanceCards }
+							pinnedBundle={ boostSpeedScore }
+						/>
+						{ connections }
+					</div>
+				</ThemeProvider>
 			);
 		}
 

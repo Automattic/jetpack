@@ -1,19 +1,14 @@
-/**
- * External dependencies
- */
 import React, { useState } from 'react';
 
 export const NavigationContext = React.createContext();
 
-const useMenuNavigation = () => {
+const useMenuNavigation = ( { selected, onSelect } ) => {
 	const [ items, setItems ] = useState( [] );
-	const [ selectedItem, setSelectedItem ] = useState();
 	const [ refs, setRef ] = useState( [] );
 	const [ focusedItem, setFocusedItem ] = useState();
-	const defaultItem = items.find( item => item?.initial )?.id || items[ 0 ]?.id;
 
 	const handleClickItem = id => {
-		setSelectedItem( id );
+		onSelect( id );
 	};
 
 	const handleFocusItem = id => {
@@ -36,7 +31,7 @@ const useMenuNavigation = () => {
 
 	const handleKeyDownItem = input => {
 		const code = input?.code;
-		const current = items.findIndex( item => item?.id === selectedItem );
+		const current = items.findIndex( item => item?.id === selected );
 		const lastIndex = items.length - 1;
 
 		let nextId;
@@ -54,7 +49,7 @@ const useMenuNavigation = () => {
 		if ( nextId ) {
 			const element = refs[ nextId ];
 			element?.focus();
-			setSelectedItem( nextId );
+			onSelect( nextId );
 		}
 	};
 
@@ -84,12 +79,13 @@ const useMenuNavigation = () => {
 	};
 
 	return {
-		selectedItem: selectedItem || defaultItem,
+		selectedItem: selected,
 		handleClickItem,
 		handleKeyDownItem,
 		handleFocusItem,
 		registerRef,
 		registerItem,
+		items,
 	};
 };
 

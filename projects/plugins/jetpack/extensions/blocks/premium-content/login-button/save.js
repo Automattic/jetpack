@@ -1,16 +1,5 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { RichText, useBlockProps } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
 import getColorAndStyleProps from './color-props';
 
 export default function save( { attributes } ) {

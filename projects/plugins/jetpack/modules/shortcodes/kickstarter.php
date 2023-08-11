@@ -64,7 +64,7 @@ function jetpack_kickstarter_embed_to_shortcode( $content ) {
 			$params = $match[1] . $match[3];
 
 			if ( 'regexp_ent' === $reg ) {
-				$params = html_entity_decode( $params );
+				$params = html_entity_decode( $params, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 			}
 
 			$params = wp_kses_hair( $params, array( 'http' ) );

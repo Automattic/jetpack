@@ -1,0 +1,13 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			// fallback to resolving imports relative to _inc/client
+			"*": [ "*", "./_inc/client/*" ]
+		}
+	},
+	"include": [ "./_inc" ],
+	// Jetpack puts build files into `_inc`, so we need exclude rules to skip those.
+	"exclude": [ "**/build/*", "_inc/blocks/*" ]
+}

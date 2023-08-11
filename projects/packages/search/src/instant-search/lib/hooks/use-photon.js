@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import photon from 'photon';
 import { useEffect, useState } from 'react';
 

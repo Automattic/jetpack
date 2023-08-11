@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 const { getInput, setFailed } = require( '@actions/core' );
-
-/**
- * Internal dependencies
- */
-const debug = require( '../../debug' );
-const getLabels = require( '../../get-labels' );
-const sendSlackMessage = require( '../../send-slack-message' );
+const debug = require( '../../utils/debug' );
+const getLabels = require( '../../utils/get-labels' );
+const sendSlackMessage = require( '../../utils/send-slack-message' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 

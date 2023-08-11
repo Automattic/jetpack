@@ -1,21 +1,12 @@
-/**
- * External dependencies
- */
+import { createBlock } from '@wordpress/blocks';
+import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { ExternalLink, Path, SVG } from '@wordpress/components';
-import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
+import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
-import save from './save';
 import SubscribePanels from './panel';
-import { getIconColor } from '../../shared/block-icons';
-
 export const name = 'subscriptions';
 export const icon = (
 	<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -31,16 +22,11 @@ export const settings = {
 	title: __( 'Subscribe', 'jetpack' ),
 	description: (
 		<>
-			<p>
-				{ __(
-					'Allow readers to receive a newsletter with future posts in their inbox.',
-					'jetpack'
-				) }
-			</p>
+			<p>{ __( "Let readers subscribe to this blog's posts as a newsletter.", 'jetpack' ) }</p>
 			<p>
 				{ createInterpolateElement(
 					__(
-						'Subscribers can get notifications through email or <ExternalLink>the Reader app</ExternalLink>.',
+						'Subscribers can read the posts in their email inbox or <ExternalLink>the Reader app</ExternalLink>.',
 						'jetpack'
 					),
 					{ ExternalLink: <ExternalLink href={ 'https://wordpress.com/read' } /> }
@@ -60,7 +46,6 @@ export const settings = {
 	],
 	attributes,
 	edit,
-	save,
 	styles: [
 		{
 			name: 'compact',
@@ -109,5 +94,9 @@ export const settings = {
 };
 
 export const pluginSettings = {
-	render: SubscribePanels,
+	render: () => (
+		<>
+			<SubscribePanels />
+		</>
+	),
 };

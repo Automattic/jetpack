@@ -1,12 +1,9 @@
-/**
- * Internal dependencies
- */
+import restApi from '@automattic/jetpack-api';
 import {
 	SCAN_STATUS_FETCH,
 	SCAN_STATUS_FETCH_RECEIVE,
 	SCAN_STATUS_FETCH_FAIL,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
 
 export const fetchScanStatus = () => {
 	return dispatch => {

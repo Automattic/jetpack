@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/trait.http-request-cache.php';
-require_jetpack_file( 'extensions/blocks/slideshow/slideshow.php' );
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/slideshow.php';
 
 class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_slideshow_exists() {
-		$this->assertEquals( shortcode_exists( 'slideshow' ), true );
+		$this->assertTrue( shortcode_exists( 'slideshow' ) );
 	}
 
 	/**
@@ -162,6 +162,11 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	 * @param string $expected  The expected markup, after processing the shortcode.
 	 */
 	public function test_shortcodes_slideshow_amp( $shortcode, $expected ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
+			return;
+		}
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
 		$this->assertStringContainsString( $expected, do_shortcode( $shortcode ) );

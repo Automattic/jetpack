@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection\Webhooks;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Tracking;
 use GP_Locales;
 use Jetpack_Network;
@@ -41,9 +42,9 @@ class Authorize_Redirect {
 				$domains[] = 'jetpack.wordpress.com';
 				$domains[] = 'wordpress.com';
 				// Calypso envs.
-				$domains[] = 'http://calypso.localhost:3000/';
-				$domains[] = 'https://wpcalypso.wordpress.com/';
-				$domains[] = 'https://horizon.wordpress.com/';
+				$domains[] = 'calypso.localhost';
+				$domains[] = 'wpcalypso.wordpress.com';
+				$domains[] = 'horizon.wordpress.com';
 				return array_unique( $domains );
 			}
 		);
@@ -56,8 +57,12 @@ class Authorize_Redirect {
 			exit;
 		}
 
+		// The user is either already connected, or finished the connection process.
 		if ( $this->connection->is_connected() && $this->connection->is_user_connected() ) {
-			// The user is either already connected, or finished the connection process.
+			if ( class_exists( '\Automattic\Jetpack\Licensing' ) && method_exists( '\Automattic\Jetpack\Licensing', 'handle_user_connected_redirect' ) ) {
+				Licensing::instance()->handle_user_connected_redirect( $dest_url );
+			}
+
 			wp_safe_redirect( $dest_url );
 			exit;
 		} elseif ( ! empty( $_GET['done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended

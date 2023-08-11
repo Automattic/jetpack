@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title></title>
+    <style>
+        
+        /* Globals */
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'NotoSansGlobal', sans-serif;
+            font-weight: normal;
+        }
+        table th {
+            padding: 10px 7px;
+            text-transform: uppercase;
+            border-radius: 0px;
+            border-top: 2px solid #111;
+            border-bottom: 2px solid #111;
+        }
+        table thead {
+            background-color: transparent;
+            color: #111;            
+        }
+        table td {
+            padding: 8px 8px;
+            line-height: 1;
+        }
+        table tr {
+            margin: 0;
+        }   
+        table.striped {
+            border-bottom: 1px solid #e1def3;
+        }
+        table.striped th {
+            text-align: center;
+        }
+        table.striped tbody tr:nth-child(odd) {
+            background: #f6f5fb;
+        }
+        .zbs-rounded-block {
+            display: inline-block;
+            float: right;
+            background: #111;
+            padding: 4px 8px;
+            padding-top: 0;
+            height: 24px;
+            color: #fff;
+            border-radius: 0px;
+        }     
+
+        /* Invoice Page specific - some are re-used here. */ 
+        .zbs-document-title div {
+            font-size:2.2em !important;
+            text-align: center;
+            padding-bottom: 0.8em;
+        }
+        .zbs-top-right-box {
+            line-height:1.4em;
+            font-size: 1em !important;
+        }
+        .zbs-invoice-number {
+            display: inline-block;
+            float: right;
+            border-bottom: 2px solid #e1def3;
+        }       
+        .zbs-invoice-number {
+            display: inline-block;
+            float: right;
+            border-bottom: 2px solid #111;
+        }   
+        .item-name {
+            font-weight: 700;
+            display: inline-block;
+        }
+        .item-description {
+            font-style: italic;
+        }
+        .invoice-header {
+            background: transparent;
+            border-bottom: 3px solid #000;
+            padding: 20px;
+            padding-bottom: 20px;           
+            margin-bottom: 20px;
+            border-radius: 0px;
+        }
+        .invoice-header td {
+            padding: 0 !important;
+            font-size: 9pt;
+            margin: 0;
+            font-weight: 300;
+        }
+        .invoice-title4 {
+            text-transform: uppercase;
+            font-weight: 700;
+            display: inline-block;
+            padding: 6px 40px;
+            padding-left: 0;
+            border-bottom: 3px solid #111;
+            font-size: 13px;
+            margin-bottom: 0;
+            margin-top: 0;
+        }
+        .zbs-line-info {
+            font-weight: 300!important;
+            margin: 0;
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-style: italic;
+            padding-left: 3px;
+            line-height: 1;
+            padding: 0 !important;
+            height: auto;
+        }
+        .zbs-line-info-title {
+            font-size: 18px;
+            height: 19px;
+            font-style: normal;
+            font-weight: 700!important;
+        }
+        .invoice-infos {
+            padding-left: 20px;
+        }
+        .table-title {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 0;
+            text-transform: uppercase;
+        }
+        .item-name {
+            display: block;
+            margin-bottom: 8px;
+        }
+        .item-description {
+            font-style: italic;
+            font-weight: 300;
+            font-size: 12px;
+            display: block;
+        }
+        .cen {
+            font-size: 12px;
+            font-style: italic;
+        }
+        .row-amount {
+            font-size: 12px;
+            font-weight: 300;
+        }
+        .table-totals {
+            margin-top: 8px;
+        }        
+        .table-totals td {
+            font-size: 12px;
+        }
+        .zbs-totals {
+        }
+        .zbs-total {
+            font-size: 16px;
+            font-style: normal;
+            text-transform: uppercase;
+        }
+        .bord {
+            border-bottom: 2px solid #eee;
+        }
+        .bord-l {
+            border-bottom: 0!important;
+        }        
+
+
+        /*Payment Details*/
+        .zbs-payment-details {
+            margin-top: 20px;
+        }
+        .deets {            
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #111;
+            width: 100%;
+        }
+        .deets h2 {
+            margin-top: 0;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #111;
+        }
+        .deets-line {
+            font-weight: 300;
+            font-size: 12px;
+        }
+        .deets-title {
+            font-weight: 700;
+        }
+        .deets-content {
+            font-style: italic;
+        }
+
+        /* Statement stuff */
+        h2.zbs-statement{
+            font-size:28px;
+            font-weight:800;
+        }
+        .zbs-biz-info {
+            text-align:right;
+        }
+        #zbs-statement-table table th {
+            text-align:left;
+        }
+        .zbs-statement-date {
+            font-size:14px;
+            text-align:center;
+        }
+        table tr.zbs-statement-footer td {
+            text-align:right;
+            font-weight:800;
+            font-size:12px;
+            padding: 10px 7px;
+            text-transform: uppercase;
+            border-radius: 0px;
+            border-top: 3px solid #111;
+            border-bottom: 3px solid #111;
+
+        }
+        td.zbs-accountant-td, th.zbs-accountant-td {
+            text-align:right;
+        }
+
+
+        /* viewport-size specific - catchalls */
+        @media screen and (min-width: 1280px) {
+            body {
+                background: #ccc;
+            }
+            .zbs-statement {
+                max-width: 795px;
+                margin: 0 auto;
+                background: #fff;
+                padding: 20px;
+                position: relative;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="zbs-statement" style="position: relative;">
+
+        <div class="zbs-statement-wrap">##INVOICE-STATEMENT-HTML##</div>
+        <div style="clear: both;"></div>
+        <!-- =============/statement============= -->
+        
+    </div>
+</body>
+</html>

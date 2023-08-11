@@ -1,35 +1,33 @@
 {
 	"name": "@automattic/jetpack-idc",
-	"version": "0.10.8-alpha",
+	"version": "0.10.44",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
-		"@automattic/jetpack-api": "workspace:* || ^0.13",
-		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@automattic/jetpack-components": "workspace:* || ^0.11",
-		"@wordpress/base-styles": "4.3.0",
-		"@wordpress/components": "19.8.0",
-		"@wordpress/compose": "5.4.0",
-		"@wordpress/data": "6.6.0",
-		"@wordpress/element": "4.4.0",
-		"@wordpress/i18n": "4.6.0",
-		"@wordpress/url": "3.7.0",
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@wordpress/base-styles": "4.29.0",
+		"@wordpress/components": "25.4.0",
+		"@wordpress/compose": "6.15.0",
+		"@wordpress/data": "9.8.0",
+		"@wordpress/element": "5.15.0",
+		"@wordpress/i18n": "4.38.0",
+		"@wordpress/url": "3.39.0",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
-		"@babel/core": "7.17.9",
-		"@babel/preset-react": "7.16.7",
-		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0",
-		"react": "17.0.2",
-		"react-dom": "17.0.2",
-		"react-test-renderer": "17.0.2"
+		"@babel/core": "7.22.9",
+		"@babel/preset-react": "7.22.5",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"react-test-renderer": "18.2.0"
 	},
 	"peerDependencies": {
-		"react": "^17.0.2",
-		"react-dom": "^17.0.2"
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0"
 	},
 	"type": "module",
 	"exports": {
@@ -39,12 +37,9 @@
 		"*.css",
 		"*.scss"
 	],
-	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
-	},
+	"scripts": {},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

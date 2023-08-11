@@ -81,6 +81,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'subscription_options'                         => 'pineapple',
 			'stb_enabled'                                  => true,
 			'stc_enabled'                                  => false,
+			'sm_enabled'                                   => false,
 			'comment_registration'                         => 'pineapple',
 			'show_avatars'                                 => 'pineapple',
 			'avatar_default'                               => 'pineapple',
@@ -218,6 +219,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_connection_active_plugins'            => array( 'jetpack' ),
 			'jetpack_sync_non_blocking'                    => false,
 			'jetpack_sync_settings_dedicated_sync_enabled' => false,
+			'jetpack_sync_settings_custom_queue_table_enabled' => false,
 			'jetpack_sync_settings_comment_meta_whitelist' => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_post_meta_whitelist'    => array( 'jetpack', 'pineapple' ),
 			'jetpack_sync_settings_post_types_blacklist'   => array( 'jetpack', 'pineapple' ),
@@ -225,6 +227,14 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'ce4wp_referred_by'                            => array(),
 			'wpcom_is_fse_activated'                       => '1',
 			'videopress_private_enabled_for_site'          => false,
+			'wpcom_featured_image_in_email'                => false,
+			'wpcom_gifting_subscription'                   => true,
+			'launch-status'                                => 'unlaunched',
+			'wpcom_subscription_emails_use_excerpt'        => false,
+			'launchpad_checklist_tasks_statuses'           => array(),
+			'launchpad_screen'                             => 'full',
+			'wpcom_reader_views_enabled'                   => true,
+			'wpcom_site_setup'                             => '',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
@@ -248,7 +258,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$unique_whitelist = array_unique( $whitelist );
 
 		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
-		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
+		$this->assertEmpty( $whitelist_and_option_keys_difference, 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
 	}
 
 	public function test_sync_default_contentless_options() {
@@ -281,8 +291,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			count( $contentless_options ),
 			'The duplicate keys are: ' . print_r( array_diff_key( $contentless_options, array_unique( $contentless_options ) ), 1 )
 		);
-		$this->assertTrue(
-			empty( $contentless_options_difference ),
+		$this->assertEmpty(
+			$contentless_options_difference,
 			'Some contentless options don\'t have a test: ' . print_r( $contentless_options_difference, 1 )
 		);
 	}

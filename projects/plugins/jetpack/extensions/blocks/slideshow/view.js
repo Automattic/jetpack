@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import { forEach } from 'lodash';
 import domReady from '@wordpress/dom-ready';
 import ResizeObserver from 'resize-observer-polyfill';
-
-/**
- * Internal dependencies
- */
 import createSwiper from './create-swiper';
+import { paginationCustomRender } from './pagination';
 import {
 	swiperApplyAria,
 	swiperInit,
@@ -19,7 +12,8 @@ import {
 if ( typeof window !== 'undefined' ) {
 	domReady( function () {
 		const slideshowBlocks = document.getElementsByClassName( 'wp-block-jetpack-slideshow' );
-		forEach( slideshowBlocks, slideshowBlock => {
+
+		Array.from( slideshowBlocks ).forEach( slideshowBlock => {
 			if ( slideshowBlock.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
 				return;
 			}
@@ -45,6 +39,12 @@ if ( typeof window !== 'undefined' ) {
 					keyboard: {
 						enabled: true,
 						onlyInViewport: true,
+					},
+					pagination: {
+						el: '.swiper-pagination',
+						clickable: true,
+						type: 'custom',
+						renderCustom: paginationCustomRender,
 					},
 				},
 				{

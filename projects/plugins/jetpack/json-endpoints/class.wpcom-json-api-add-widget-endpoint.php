@@ -7,6 +7,49 @@
 
 new WPCOM_JSON_API_Add_Widgets_Endpoint(
 	array(
+		'description'          => 'Activate a group of widgets on a site. The bulk version of using the /new endpoint',
+		'group'                => '__do_not_document',
+		'stat'                 => 'widgets:new:bulk',
+		'force'                => 'wpcom',
+		'method'               => 'POST',
+		'min_version'          => '1.1',
+		'path'                 => '/sites/%s/widgets',
+		'path_labels'          => array(
+			'$site' => '(string) Site ID or domain.',
+		),
+		'request_format'       => array(
+			'widgets' => '(array:widget) An array of widget objects to add.',
+		),
+		'response_format'      => array(
+			'widgets' => '(array:widget) An array of widget objects added.',
+		),
+		'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/12345678/widgets',
+		'example_request_data' => array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN',
+			),
+			'body'    => array(
+				'id_base'  => 'text',
+				'sidebar'  => 'sidebar-2',
+				'position' => '0',
+				'settings' => array( 'title' => 'hello world' ),
+			),
+		),
+		'example_response'     => '
+	{
+		"id": "text-3",
+		"id_base": "text",
+		"settings": {
+			"title": "hello world"
+		},
+		"sidebar": "sidebar-2",
+		"position": 0
+	}',
+	)
+);
+
+new WPCOM_JSON_API_Add_Widgets_Endpoint(
+	array(
 		'description'          => 'Activate a widget on a site.',
 		'group'                => 'sites',
 		'stat'                 => 'widgets:new',
@@ -62,7 +105,6 @@ class WPCOM_JSON_API_Add_Widgets_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 *
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
-	 * @uses jetpack_require_lib
 	 * @uses Jetpack_Widgets
 	 *
 	 * @return array|WP_Error
@@ -78,7 +120,7 @@ class WPCOM_JSON_API_Add_Widgets_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unauthorized', 'User is not authorized to access widgets', 403 );
 		}
 
-		jetpack_require_lib( 'widgets' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/widgets.php';
 		$args = $this->input( false, false ); // Don't filter the input.
 		if ( empty( $args ) || ! is_array( $args ) ) {
 			return new WP_Error( 'no_data', 'No data was provided.', 400 );

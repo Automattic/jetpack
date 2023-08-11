@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 // Register the hook that customize the core Twitter embed block.
 import './editor';
 

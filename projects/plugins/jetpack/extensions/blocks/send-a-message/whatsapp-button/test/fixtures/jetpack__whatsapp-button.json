@@ -1,36 +1,27 @@
 [
-    {
-        "clientId": "_clientId_0",
-        "name": "jetpack/send-a-message",
-        "isValid": true,
-        "attributes": {},
-        "innerBlocks": [
-            {
-                "clientId": "_clientId_0",
-                "name": "jetpack/whatsapp-button",
-                "isValid": true,
-                "attributes": {
-                    "countryCode": "61CX",
-                    "phoneNumber": "267 8888",
-                    "firstMessage": "My Message",
-                    "buttonText": [
-                        {
-                            "type": "div",
-                            "props": {
-                                "children": [
-                                    "Chat on WhatsApp"
-                                ]
-                            }
-                        }
-                    ],
-                    "backgroundColor": "#25D366",
-                    "colorClass": "dark",
-                    "openInNewTab": false
-                },
-                "innerBlocks": [],
-                "originalContent": "<div class=\"wp-block-jetpack-whatsapp-button is-color-dark\"><a class=\"whatsapp-block__button\" href=\"https://api.whatsapp.com/send?phone=612678888&amp;text=My%20Message\" style=\"background-color:#25D366\" target=\"_self\" rel=\"noopener noreferrer\"><div>Chat on WhatsApp</div></a></div>"
-            }
-        ],
-        "originalContent": "<div class=\"wp-block-jetpack-send-a-message\"></div>"
-    }
+	{
+		"clientId": "_clientId_0",
+		"name": "jetpack/send-a-message",
+		"isValid": true,
+		"attributes": {},
+		"innerBlocks": [
+			{
+				"clientId": "_clientId_0",
+				"name": "jetpack/whatsapp-button",
+				"isValid": true,
+				"attributes": {
+					"countryCode": "61CX",
+					"phoneNumber": "267 8888",
+					"firstMessage": "My Message",
+					"buttonText": "<div>Chat on WhatsApp</div>",
+					"backgroundColor": "#25D366",
+					"colorClass": "dark",
+					"openInNewTab": false
+				},
+				"innerBlocks": [],
+				"originalContent": "<div class=\"wp-block-jetpack-whatsapp-button is-color-dark\"><a class=\"whatsapp-block__button\" href=\"https://api.whatsapp.com/send?phone=612678888&amp;text=My%20Message\" style=\"background-color:#25D366\" target=\"_self\" rel=\"noopener noreferrer\"><div>Chat on WhatsApp</div></a></div>"
+			}
+		],
+		"originalContent": "<div class=\"wp-block-jetpack-send-a-message\"></div>"
+	}
 ]

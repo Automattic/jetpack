@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Class to manage the sync settings.
  */
@@ -57,6 +59,7 @@ class Settings {
 		'full_sync_limits'                       => true,
 		'checksum_disable'                       => true,
 		'dedicated_sync_enabled'                 => true,
+		'custom_queue_table_enabled'             => true,
 	);
 
 	/**
@@ -199,10 +202,10 @@ class Settings {
 
 			if ( self::is_network_setting( $setting ) ) {
 				if ( is_multisite() && is_main_site() ) {
-					update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
+					$updated = update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
 				}
 			} else {
-				update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+				$updated = update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
 			}
 
 			// If we set the disabled option to true, clear the queues.
@@ -210,6 +213,13 @@ class Settings {
 				$listener = Listener::get_instance();
 				$listener->get_sync_queue()->reset();
 				$listener->get_full_sync_queue()->reset();
+			}
+
+			// Do not enable Dedicated Sync if we cannot spawn a Dedicated Sync request.
+			if ( 'dedicated_sync_enabled' === $setting && $updated && (bool) $value ) {
+				if ( ! Dedicated_Sender::can_spawn_dedicated_sync_request() ) {
+					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
+				}
 			}
 		}
 	}
@@ -237,7 +247,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_blacklisted_post_types_sql() {
-		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
+		return 'post_type NOT IN (\'' . implode( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
 	}
 
 	/**
@@ -267,7 +277,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_blacklisted_taxonomies_sql() {
-		return "taxonomy NOT IN ('" . join( "', '", array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ) ) . "')";
+		return "taxonomy NOT IN ('" . implode( "', '", array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ) ) . "')";
 	}
 
 	/**
@@ -280,7 +290,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_whitelisted_post_meta_sql() {
-		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ) ) . '\')';
+		return 'meta_key IN (\'' . implode( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ) ) . '\')';
 	}
 
 	/**
@@ -348,7 +358,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_whitelisted_comment_meta_sql() {
-		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ) ) . '\')';
+		return 'meta_key IN (\'' . implode( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ) ) . '\')';
 	}
 
 	/**
@@ -501,7 +511,7 @@ class Settings {
 	 * @return boolean Whether we are currently syncing.
 	 */
 	public static function is_syncing() {
-		return (bool) self::$is_syncing || ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST );
+		return (bool) self::$is_syncing || Constants::is_true( 'REST_API_REQUEST' );
 	}
 
 	/**
@@ -576,6 +586,18 @@ class Settings {
 	 */
 	public static function is_dedicated_sync_enabled() {
 		return (bool) self::get_setting( 'dedicated_sync_enabled' );
+	}
+
+	/**
+	 * Whether custom queue table is enabled.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return boolean Whether custom queue table is enabled.
+	 */
+	public static function is_custom_queue_table_enabled() {
+		return (bool) self::get_setting( 'custom_queue_table_enabled' );
 	}
 
 }

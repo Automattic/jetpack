@@ -1,18 +1,11 @@
-/**
- * WordPress dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
-import save from './save';
-import deprecatedV1 from './deprecated/v1';
+import { __, _x } from '@wordpress/i18n';
 import icon from './_inc/icon';
 import { blockContainsPremiumBlock, blockHasParentPremiumBlock } from './_inc/premium';
 import { transformToCoreGroup } from './_inc/transform-to-core-group';
+import deprecatedV1 from './deprecated/v1';
+import edit from './edit';
+import save from './save';
 
 /**
  * A list of blocks that should be disallowed to be transformed to Premium content block since they are mostly markup blocks.
@@ -60,7 +53,7 @@ const blocksCanBeTransformed = blocks => {
 
 export const name = 'premium-content/container';
 export const settings = {
-	title: __( 'Premium Content', 'jetpack' ),
+	title: __( 'Paid Content', 'jetpack' ),
 	description: __( 'Restrict access to your content for paying subscribers.', 'jetpack' ),
 	icon,
 	category: 'grow',
@@ -80,6 +73,7 @@ export const settings = {
 		_x( 'pay', 'block search term', 'jetpack' ),
 		_x( 'payments', 'block search term', 'jetpack' ),
 		_x( 'paywall', 'block search term', 'jetpack' ),
+		_x( 'premium content', 'block search term', 'jetpack' ),
 		_x( 'purchase', 'block search term', 'jetpack' ),
 		_x( 'recurring', 'block search term', 'jetpack' ),
 		_x( 'repeat', 'block search term', 'jetpack' ),

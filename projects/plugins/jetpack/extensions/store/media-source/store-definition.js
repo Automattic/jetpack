@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
 
 const DEFAULT_STATE = {

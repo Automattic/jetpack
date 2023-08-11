@@ -7,6 +7,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * Register the widget.
  */
@@ -116,7 +118,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	 * @return void Echoes it's output
 	 */
 	public function widget( $args, $instance ) {
-		jetpack_require_lib( 'icalendar-reader' );
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/icalendar-reader.php';
 
 		$ical           = new iCalendarReader();
 		$events         = $ical->get_events( $instance['feed-url'], $instance['count'] );
@@ -168,7 +170,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
-		do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
+		do_action( 'jetpack_stats_extra', 'widget_view', 'upcoming_events' );
 	}
 
 	/**
@@ -178,9 +180,8 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	 * @param array|false $events Array of events, false on failure.
 	 */
 	private function apply_timezone_offset( $events ) {
-		jetpack_require_lib( 'icalendar-reader' );
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/icalendar-reader.php';
 
-		$ical = new iCalendarReader();
-		return $ical->apply_timezone_offset( $events );
+		return ( new iCalendarReader() )->apply_timezone_offset( $events );
 	}
 }

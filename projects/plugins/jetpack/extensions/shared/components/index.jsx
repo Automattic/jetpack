@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import { renderToStaticMarkup } from 'react-dom/server';
-
-/**
- * Internal dependencies
- */
-import { Nudge } from './upgrade-nudge';
 import {
 	UPGRADE_NUDGE_BUTTON_TEXT,
 	UPGRADE_NUDGE_DESCRIPTION,
 } from '../../extended-blocks/paid-blocks/upgrade-plan-banner';
+import { Nudge } from './upgrade-nudge';
 import './style.scss';
 
 // Use dummy props that can be overwritten by a str_replace() on the server.

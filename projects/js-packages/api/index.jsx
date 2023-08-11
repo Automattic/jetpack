@@ -1,9 +1,5 @@
-/**
- * External dependencies
- */
-import { assign } from 'lodash';
-import { addQueryArgs } from '@wordpress/url';
 import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -35,6 +31,7 @@ export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
  */
 function JetpackRestApiClient( root, nonce ) {
 	let apiRoot = root,
+		wpcomOriginApiUrl = root,
 		headers = {
 			'X-WP-Nonce': nonce,
 		},
@@ -45,7 +42,7 @@ function JetpackRestApiClient( root, nonce ) {
 		postParams = {
 			method: 'post',
 			credentials: 'same-origin',
-			headers: assign( {}, headers, {
+			headers: Object.assign( {}, headers, {
 				'Content-type': 'application/json',
 			} ),
 		},
@@ -54,6 +51,17 @@ function JetpackRestApiClient( root, nonce ) {
 	const methods = {
 		setApiRoot( newRoot ) {
 			apiRoot = newRoot;
+		},
+		/**
+		 * Sets API root for search endpoints.
+		 * They are routed through wpcom API for wpcom simple sites,
+		 * so we add `/wp-json/wpcom-origin/` to this path on wpcom.
+		 * For non-wpcom sites, this is the same as apiRoot.
+		 *
+		 * @param {string} newRoot - API root for search endpoints.
+		 */
+		setWpcomOriginApiUrl( newRoot ) {
+			wpcomOriginApiUrl = newRoot;
 		},
 		setApiNonce( newNonce ) {
 			headers = {
@@ -66,7 +74,7 @@ function JetpackRestApiClient( root, nonce ) {
 			postParams = {
 				method: 'post',
 				credentials: 'same-origin',
-				headers: assign( {}, headers, {
+				headers: Object.assign( {}, headers, {
 					'Content-type': 'application/json',
 				} ),
 			};
@@ -408,11 +416,6 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		sendMobileLoginEmail: () =>
-			postRequest( `${ apiRoot }jetpack/v4/mobile/send-login-email`, postParams )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
 		submitSurvey: surveyResponse =>
 			postRequest( `${ apiRoot }jetpack/v4/marketing/survey`, postParams, {
 				body: JSON.stringify( surveyResponse ),
@@ -486,21 +489,31 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchSearchPlanInfo: () =>
-			getRequest( `${ apiRoot }jetpack/v4/search/plan`, getParams )
+			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/plan`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchSearchSettings: () =>
-			getRequest( `${ apiRoot }jetpack/v4/search/settings`, getParams )
+			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/settings`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		updateSearchSettings: newSettings =>
-			postRequest( `${ apiRoot }jetpack/v4/search/settings`, postParams, {
+			postRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/settings`, postParams, {
 				body: JSON.stringify( newSettings ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchSearchStats: () =>
-			getRequest( `${ apiRoot }jetpack/v4/search/stats`, getParams )
+			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/stats`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchWafSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/waf`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		updateWafSettings: newSettings =>
+			postRequest( `${ apiRoot }jetpack/v4/waf`, postParams, {
+				body: JSON.stringify( newSettings ),
+			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchWordAdsSettings: () =>
@@ -512,7 +525,11 @@ function JetpackRestApiClient( root, nonce ) {
 				body: JSON.stringify( newSettings ),
 			} ),
 		fetchSearchPricing: () =>
-			getRequest( `${ apiRoot }jetpack/v4/search/pricing`, getParams )
+			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/pricing`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+		fetchMigrationStatus: () =>
+			getRequest( `${ apiRoot }jetpack/v4/migration/status`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 	};
@@ -553,7 +570,7 @@ function JetpackRestApiClient( root, nonce ) {
 	 * @returns {Promise<Response>} - the http response promise
 	 */
 	function postRequest( route, params, body ) {
-		return fetch( route, assign( {}, params, body ) ).catch( catchNetworkErrors );
+		return fetch( route, Object.assign( {}, params, body ) ).catch( catchNetworkErrors );
 	}
 
 	/**
@@ -588,7 +605,7 @@ function JetpackRestApiClient( root, nonce ) {
 		return responseOk ? statsData : {};
 	}
 
-	assign( this, methods );
+	Object.assign( this, methods );
 }
 
 const restApi = new JetpackRestApiClient();

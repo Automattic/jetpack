@@ -14,6 +14,7 @@ use Automattic\Jetpack\Sync\Settings;
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	protected $post;
+	protected $post_id;
 	protected $test_already = false;
 
 	/**
@@ -21,10 +22,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$user_id = $this->factory->user->create();
+		$user_id = self::factory()->user->create();
 
 		// create a post
-		$post_id    = $this->factory->post->create( array( 'post_author' => $user_id ) );
+		$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
 		$this->post = get_post( $post_id );
 
 		$this->sender->do_sync();
@@ -44,7 +45,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->post->post_content = str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH );
 		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEmpty( $filtered_post->post_content, 'Filtered post content is not truncated (empty) for stings larger than allowed length.' );
-
 	}
 
 	public function test_add_post_syncs_event() {
@@ -76,8 +76,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		Constants::set_constant( 'DOING_AUTOSAVE', true );
 
 		// Performing sync here (even though set_up() does it) to sync REQUEST_URI.
-		$user_id = $this->factory->user->create();
-		$this->factory->post->create( array( 'post_author' => $user_id ) );
+		$user_id = self::factory()->user->create();
+		self::factory()->post->create( array( 'post_author' => $user_id ) );
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
@@ -134,7 +134,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		wp_delete_post( $this->post->ID, true );
 
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event();
+
+		// Only getting the deleted_post event types because the latest might be
+		// an option update for post counts.
+		// @see https://core.trac.wordpress.org/changeset/55419/trunk
+		$event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
 
 		$this->assertEquals( 'deleted_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
@@ -166,7 +170,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_new_page() {
 		$this->post->post_type = 'page';
-		$this->post_id         = wp_insert_post( $this->post );
+		wp_insert_post( $this->post );
 
 		$this->sender->do_sync();
 
@@ -351,13 +355,12 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$should_not_be_there = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 		$this->assertFalse( (bool) $should_not_be_there );
-
 	}
 
 	public function test_sync_attachment_delete_is_synced() {
 		$filename      = __DIR__ . '/../files/jetpack.jpg';
 		$filename_copy = __DIR__ . '/../files/jetpack-copy.jpg';
-		@copy( $filename, $filename_copy );
+		@copy( $filename, $filename_copy ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 		// Check the type of file. We'll use this as the 'post_mime_type'.
 		$filetype = wp_check_filetype( basename( $filename_copy ), null );
@@ -389,13 +392,12 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$attachment        = get_post( $attach_id );
 
 		$this->assertEquals( $attachment, $remote_attachment );
-
 	}
 
 	public function test_sync_attachment_force_delete_is_synced() {
 		$filename      = __DIR__ . '/../files/jetpack.jpg';
 		$filename_copy = __DIR__ . '/../files/jetpack-copy.jpg';
-		@copy( $filename, $filename_copy );
+		@copy( $filename, $filename_copy ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
 		// Check the type of file. We'll use this as the 'post_mime_type'.
 		$filetype = wp_check_filetype( basename( $filename_copy ), null );
@@ -439,7 +441,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( '[foo]', $post_on_server->post_content );
-		$this->assertEquals( trim( $post_on_server->post_content_filtered ), 'bar' );
+		$this->assertEquals( 'bar', trim( $post_on_server->post_content_filtered ) );
 	}
 
 	public function test_sync_disabled_post_filtered_content() {
@@ -453,7 +455,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( '[foo]', $post_on_server->post_content );
-		$this->assertTrue( empty( $post_on_server->post_content_filtered ) );
+		$this->assertEmpty( $post_on_server->post_content_filtered );
 
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 	}
@@ -470,7 +472,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( '[foo]', $post_on_server->post_excerpt );
 		// The excerpt by default should not contain shortcodes so we do not expand them.
-		$this->assertEquals( trim( $post_on_server->post_excerpt_filtered ), '[foo]' );
+		$this->assertEquals( '[foo]', trim( $post_on_server->post_excerpt_filtered ) );
 	}
 
 	public function test_sync_post_filter_do_not_expand_jetpack_shortcodes() {
@@ -488,7 +490,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( '[foo]', $post_on_server->post_content );
-		$this->assertEquals( trim( $post_on_server->post_content_filtered ), '<p>[foo]</p>' );
+		$this->assertEquals( '<p>[foo]</p>', trim( $post_on_server->post_content_filtered ) );
 	}
 
 	public function do_not_expand_shortcode( $shortcodes ) {
@@ -507,10 +509,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
 		// Change the password from the original
-		$this->assertNotEquals( $post_on_server->post_password, 'bob' );
+		$this->assertNotEquals( 'bob', $post_on_server->post_password );
 		// Make sure it is not empty
 		$this->assertNotEmpty( $post_on_server->post_password );
-
 	}
 
 	public function test_sync_post_includes_permalink_and_shortlink() {
@@ -530,7 +531,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertObjectNotHasAttribute( 'amp_permalink', $post );
 
-		function amp_get_permalink( $post_id ) {
+		function amp_get_permalink( $post_id ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 			return "http://example.com/?p=$post_id&amp";
 		}
 
@@ -544,8 +545,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
-		$post_id       = $this->factory->post->create();
-		$attachment_id = $this->factory->post->create(
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->post->create(
 			array(
 				'post_type'      => 'attachment',
 				'post_mime_type' => 'image/png',
@@ -563,7 +564,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_post_not_includes_feature_image_meta_when_featured_image_not_set() {
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$this->sender->do_sync();
 
@@ -577,7 +578,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 			'label'  => 'unregister post type',
 		);
 		register_post_type( 'unregister_post_type', $args );
-		$post_id = $this->factory->post->create( array( 'post_type' => 'unregister_post_type' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'unregister_post_type' ) );
 		unregister_post_type( 'unregister_post_type' );
 
 		$this->sender->do_sync();
@@ -590,7 +591,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'unregister_post_type', $synced_post->post_type );
 
 		// Also works for post type that was never registed
-		$post_id = $this->factory->post->create( array( 'post_type' => 'does_not_exist' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'does_not_exist' ) );
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
@@ -645,7 +646,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		register_post_type( 'snitch', $args );
 		$this->server_event_storage->reset();
 
-		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'snitch' ) );
 
 		$this->sender->do_sync();
 
@@ -668,7 +669,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		register_post_type( 'snitch', $args );
 		$this->server_event_storage->reset();
 
-		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'snitch' ) );
 
 		$this->sender->do_sync();
 
@@ -691,7 +692,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		register_post_type( 'snitch', $args );
 		$this->server_event_storage->reset();
 
-		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'snitch' ) );
 		wp_delete_post( $post_id, true );
 
 		$this->sender->do_sync();
@@ -710,7 +711,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		);
 		register_post_type( 'snitch', $args );
 
-		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'snitch' ) );
 		add_post_meta( $post_id, 'hello', 123 );
 
 		$this->sender->do_sync();
@@ -731,7 +732,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 				'label'  => 'Filter Me',
 			)
 		);
-		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'filter_me' ) );
 		$this->sender->do_sync();
 		unregister_post_type( 'filter_me' );
 
@@ -747,7 +748,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 				'label'  => 'Filter Me',
 			)
 		);
-		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'filter_me' ) );
 		$this->sender->do_sync();
 		unregister_post_type( 'filter_me' );
 
@@ -771,7 +772,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 				'label'  => 'Filter Me',
 			)
 		);
-		$post_id = $this->factory->post->create( array( 'post_type' => 'dont_publicize_me' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'dont_publicize_me' ) );
 
 		// Clean up.
 		unregister_post_type( 'dont_publicize_me' );
@@ -782,7 +783,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
 
-		$good_post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$good_post_id = self::factory()->post->create( array( 'post_type' => 'post' ) );
 
 		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $good_post_id ) ) );
 	}
@@ -790,7 +791,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function test_returns_post_object_by_id() {
 		$post_sync_module = Modules::get_module( 'posts' );
 
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 
 		$this->sender->do_sync();
 
@@ -981,8 +982,8 @@ POST_CONTENT;
 		);
 
 		// create a post.
-		$user_id = $this->factory->user->create();
-		$this->factory->post->create(
+		$user_id = self::factory()->user->create();
+		self::factory()->post->create(
 			array(
 				'post_author'  => $user_id,
 				'post_type'    => 'customize_changeset',
@@ -1043,7 +1044,7 @@ POST_CONTENT;
 		);
 		register_post_type( 'non_public', $args );
 
-		$post_id = $this->factory->post->create( array( 'post_type' => 'non_public' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'non_public' ) );
 		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.
 		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 		$this->sender->do_sync();
@@ -1133,8 +1134,8 @@ That was a cool video.';
 	}
 
 	public function test_sync_jetpack_published_post_raw() {
-		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
-		$user_id = $this->factory->user->create();
+		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+		$user_id = self::factory()->user->create();
 
 		$post              = get_post( $post_id );
 		$post->post_author = $user_id;
@@ -1188,7 +1189,7 @@ That was a cool video.';
 		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
 		new Jetpack_Subscriptions(); // call instead of Jetpack_Subscriptions::init() so that actions get reinitialized
 
-		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
 
 		update_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', 1 );
 
@@ -1260,22 +1261,22 @@ That was a cool video.';
 		$this->server_event_storage->reset();
 		$this->test_already = false;
 		add_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
-		$this->factory->post->create( array( 'post_type' => 'post' ) );
+		self::factory()->post->create( array( 'post_type' => 'post' ) );
 		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
 
 		$this->sender->do_sync();
 
 		$events = $this->server_event_storage->get_all_events();
 
-		$events = array_slice( $events, -4 );
+		$events = array_slice( $events, -6 );
 
-		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
+		$this->assertEquals( $events[0]->args[0], $events[2]->args[0] );
 		$this->assertEquals( 'jetpack_sync_save_post', $events[0]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[1]->action );
+		$this->assertEquals( 'jetpack_published_post', $events[2]->action );
 
-		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
-		$this->assertEquals( 'jetpack_sync_save_post', $events[2]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[3]->action );
+		$this->assertEquals( $events[3]->args[0], $events[5]->args[0] );
+		$this->assertEquals( 'jetpack_sync_save_post', $events[3]->action );
+		$this->assertEquals( 'jetpack_published_post', $events[5]->action );
 	}
 
 	/**
@@ -1284,10 +1285,11 @@ That was a cool video.';
 	 * @return array[] Test parameters.
 	 */
 	public function provider_jetpack_published_post_no_action() {
+		// @todo This seems somewhat broken, $this->post isn't set yet when this runs.
 		return array(
 			array( null, $this->post ),
 			array( 'alpha', $this->post ),
-			array( $this->post_id, null ),
+			array( isset( $this->post->ID ) ? $this->post->ID : null, null ),
 			array( -1111, $this->post ),
 		);
 	}
@@ -1301,7 +1303,7 @@ That was a cool video.';
 	 */
 	public function test_sync_jetpack_published_post_no_action( $post_ID, $post ) {
 		$this->server_event_storage->reset();
-		do_action( 'wp_after_insert_post', $post_ID, $post, false );
+		do_action( 'wp_after_insert_post', $post_ID, $post, false, null );
 
 		$this->sender->do_sync();
 
@@ -1402,7 +1404,7 @@ That was a cool video.';
 	public function add_a_hello_post_type() {
 		if ( ! $this->test_already ) {
 			$this->test_already = true;
-			$this->factory->post->create( array( 'post_type' => 'hello' ) );
+			self::factory()->post->create( array( 'post_type' => 'hello' ) );
 			return;
 		}
 	}

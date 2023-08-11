@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
-import tinycolor from 'tinycolor2';
-import { __ } from '@wordpress/i18n';
-
-/**
- * WordPress dependencies
- */
 import { ContrastChecker, InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
+import { getBlockDefaultClassName } from '@wordpress/blocks';
 import {
 	Button,
 	ExternalLink,
@@ -17,14 +9,11 @@ import {
 	ToggleControl,
 	withNotices,
 } from '@wordpress/components';
-import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import icon from './icon';
+import { __ } from '@wordpress/i18n';
+import tinycolor from 'tinycolor2';
 import data from './dummy-data';
+import icon from './icon';
 import './editor.scss';
 
 function AmazonEdit( {
@@ -163,14 +152,8 @@ function AmazonEdit( {
 	);
 
 	const blockPreview = () => {
-		const {
-			title,
-			detailPageUrl,
-			listPrice,
-			imageUrlMedium,
-			imageWidthMedium,
-			imageHeightMedium,
-		} = data.products.filter( productDataItem => productDataItem.asin === asin )[ 0 ];
+		const { title, detailPageUrl, listPrice, imageUrlMedium, imageWidthMedium, imageHeightMedium } =
+			data.products.filter( productDataItem => productDataItem.asin === asin )[ 0 ];
 
 		// TODO - we should be able to get this from API in a neater way once we have access
 		const seller = 'TODO';

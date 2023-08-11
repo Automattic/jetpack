@@ -1,20 +1,14 @@
-/**
- * External dependencies
- */
 const fs = require( 'fs' );
-const moment = require( 'moment' );
 const path = require( 'path' );
-
-/**
- * Internal dependencies
- */
-const debug = require( '../../debug' );
-const getAffectedChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
-const getFiles = require( '../../get-files' );
-const getLabels = require( '../../get-labels' );
-const getNextValidMilestone = require( '../../get-next-valid-milestone' );
-const getPluginNames = require( '../../get-plugin-names' );
-const getPrWorkspace = require( '../../get-pr-workspace' );
+const moment = require( 'moment' );
+const debug = require( '../../utils/debug' );
+const getAffectedChangeloggerProjects = require( '../../utils/get-affected-changelogger-projects' );
+const getComments = require( '../../utils/get-comments' );
+const getFiles = require( '../../utils/get-files' );
+const getLabels = require( '../../utils/get-labels' );
+const getNextValidMilestone = require( '../../utils/get-next-valid-milestone' );
+const getPluginNames = require( '../../utils/get-plugin-names' );
+const getPrWorkspace = require( '../../utils/get-pr-workspace' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -100,7 +94,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
 
 		// Look for a code freeze date in the milestone description.
-		const dateRegex = /^Code Freeze: (\d{4}-\d{2}-\d{2})\s*$/m;
+		const dateRegex = /^(?:Code Freeze|Branch Cut): (\d{4}-\d{2}-\d{2})\s*$/m;
 		const freezeDateDescription = nextMilestone.description.match( dateRegex );
 
 		// If we have a date and it is valid, use it, otherwise set code freeze to a week before the release.
@@ -180,20 +174,15 @@ async function getCheckComment( octokit, owner, repo, number ) {
 
 	debug( `check-description: Looking for a previous comment from this task in our PR.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
-		owner,
-		repo,
-		issue_number: +number,
-	} ) ) {
-		response.data.map( comment => {
-			if (
-				comment.user.login === 'github-actions[bot]' &&
-				comment.body.includes( '**Thank you for your PR!**' )
-			) {
-				commentID = comment.id;
-			}
-		} );
-	}
+	const comments = await getComments( octokit, owner, repo, number );
+	comments.map( comment => {
+		if (
+			comment.user.login === 'github-actions[bot]' &&
+			comment.body.includes( '**Thank you for your PR!**' )
+		) {
+			commentID = comment.id;
+		}
+	} );
 
 	return commentID;
 }
@@ -236,7 +225,7 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 	return affectedProjects.reduce( ( acc, project ) => {
 		const composerFile = `${ baseDir }/projects/${ project }/composer.json`;
 		const json = JSON.parse( fs.readFileSync( composerFile ) );
-		// Changelog directory could customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
+		// Changelog directory could be customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
 		const changelogDir =
 			path.relative(
 				baseDir,
@@ -246,7 +235,16 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 						'changelog'
 				)
 			) + '/';
-		const found = files.find( file => file.startsWith( changelogDir ) );
+		// Changelog file could also be customized via .extra.changelogger.changelog in composer.json. Lets check for it.
+		const changelogFile = path.relative(
+			baseDir,
+			path.resolve(
+				`${ baseDir }/projects/${ project }`,
+				( json.extra && json.extra.changelogger && json.extra.changelogger.changelog ) ||
+					'CHANGELOG.md'
+			)
+		);
+		const found = files.find( file => file === changelogFile || file.startsWith( changelogDir ) );
 		if ( ! found ) {
 			acc.push( `projects/${ project }` );
 		}
@@ -360,13 +358,13 @@ function renderRecommendations( statusChecks ) {
 			'Please edit your PR description and explain what functional changes your PR includes, and why those changes are needed.',
 		hasPrivacy: `We would recommend that you add a section to the PR description to specify whether this PR includes any changes to data or privacy, like so:
 ~~~
-#### Does this pull request change what data or activity we track or use?
+## Does this pull request change what data or activity we track or use?
 
 My PR adds *x* and *y*.
 ~~~`,
 		hasTesting: `Please include detailed testing steps, explaining how to test your change, like so:
 ~~~
-#### Testing instructions:
+## Testing instructions:
 
 * Go to '..'
 *
@@ -375,8 +373,8 @@ My PR adds *x* and *y*.
 			'`, `'
 		) }\`
 
-Use [the Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/master/docs/monorepo.md#first-time) to generate changelog entries by running the following command: \`jetpack changelog add\`.
-Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md)
+Use [the Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/trunk/docs/monorepo.md#first-time) to generate changelog entries by running the following command: \`jetpack changelog add\`.
+Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/trunk/docs/writing-a-good-changelog-entry.md)
 `,
 	};
 
@@ -495,7 +493,7 @@ async function checkDescription( payload, octokit ) {
 	// We'll add any remarks we may have about the PR to that comment body.
 	let comment = `**Thank you for your PR!**
 
-When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
+When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/trunk/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
 
 	comment += renderStatusChecks( statusChecks );
 	comment += `
@@ -518,8 +516,8 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 		comment += `
 
 Once your PR is ready for review, check one last time that all required checks (other than "Required review") appearing at the bottom of this PR are passing or skipped.
-Then, add the "[Status] Needs Team review" label and ask someone from your team review the code.
-Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
+Then, add the "[Status] Needs Team Review" label and ask someone from your team review the code. Once reviewed, it can then be merged.
+If you need an extra review from someone familiar with the codebase, you can update the labels from "[Status] Needs Team Review" to "[Status] Needs Review", and in that case Jetpack Approvers will do a final review of your PR.`;
 	}
 
 	// Gather info about the next release for that plugin.

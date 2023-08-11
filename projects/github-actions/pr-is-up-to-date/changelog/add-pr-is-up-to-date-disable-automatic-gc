@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Disable automatic garbage collection, like GitHub's checkout action does for its own checkouts.

@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
 	export let id: string;
 	export let checked = false;
 	export let disabled = false;
@@ -6,7 +6,7 @@
 
 <div class="components-base-control components-toggle-control">
 	<div class="components-base-control__field">
-		<span class="components-form-toggle" class:is-checked={checked}>
+		<span class="components-form-toggle" class:is-checked={checked} class:is-disabled={disabled}>
 			<input
 				{id}
 				class="components-form-toggle__input"

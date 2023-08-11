@@ -43,6 +43,5 @@ class Jetpack_JSON_API_Updates_Status extends Jetpack_JSON_API_Endpoint {
 		$result['jp_version'] = JETPACK__VERSION;
 
 		return $result;
-
 	}
 }

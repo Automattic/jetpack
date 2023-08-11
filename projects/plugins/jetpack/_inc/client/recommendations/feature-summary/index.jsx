@@ -1,30 +1,21 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-import React, { useCallback, useState } from 'react';
-import { connect } from 'react-redux';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import {
-	getStepContent,
-	mapDispatchToProps,
-	mapStateToSummaryFeatureProps,
-} from '../feature-utils';
+import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import InstallButton from 'components/install-button';
 import analytics from 'lib/analytics';
-import { isFeatureActive } from 'state/recommendations';
-
-/**
- * Style dependencies
- */
+import React, { useCallback, useMemo } from 'react';
+import { connect } from 'react-redux';
+import {
+	startFeatureInstall as startFeatureInstallAction,
+	endFeatureInstall as endFeatureInstallAction,
+	isFeatureActive,
+	isInstallingRecommendedFeature,
+	stepToRoute,
+} from 'state/recommendations';
+import { mapDispatchToProps, mapStateToSummaryFeatureProps } from '../feature-utils';
 import './style.scss';
-import { __ } from '@wordpress/i18n';
 
 const FeatureSummaryComponent = props => {
 	const {
@@ -33,21 +24,16 @@ const FeatureSummaryComponent = props => {
 		configureButtonLabel,
 		displayName,
 		featureSlug,
-		learnMoreLink,
+		stepRoute,
 		summaryActivateButtonLabel,
 		isNew,
+		isInstalling,
+		startFeatureInstall,
+		endFeatureInstall,
 	} = props;
-
-	const [ isInstalling, setIsInstalling ] = useState( false );
 
 	const onConfigureClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_configure_click', {
-			feature: featureSlug,
-		} );
-	}, [ featureSlug ] );
-
-	const onLearnMoreClick = useCallback( () => {
-		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_learn_more_click', {
 			feature: featureSlug,
 		} );
 	}, [ featureSlug ] );
@@ -56,18 +42,41 @@ const FeatureSummaryComponent = props => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_enable_click', {
 			feature: featureSlug,
 		} );
-		setIsInstalling( true );
+		startFeatureInstall( featureSlug );
 		activateFeature().finally( () => {
-			setIsInstalling( false );
+			endFeatureInstall( featureSlug );
 		} );
-	}, [ activateFeature, featureSlug, setIsInstalling ] );
+	}, [ activateFeature, featureSlug, startFeatureInstall, endFeatureInstall ] );
+
+	const onStepNameClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_step_name_click', {
+			feature: featureSlug,
+		} );
+	}, [ featureSlug ] );
+
+	const configLinkIsExternal = useMemo( () => {
+		return configLink.match( /^https:\/\/jetpack.com\/redirect/ );
+	}, [ configLink ] );
 
 	const ctaButton = (
 		<div className="jp-recommendations-feature-summary__cta">
 			{ props.isFeatureActive ? (
-				<Button rna href={ configLink } onClick={ onConfigureClick }>
-					{ configureButtonLabel }
-				</Button>
+				<>
+					{ configLinkIsExternal ? (
+						<ExternalLink
+							type="button"
+							className="dops-button is-rna"
+							href={ configLink }
+							onClick={ onConfigureClick }
+						>
+							{ configureButtonLabel }
+						</ExternalLink>
+					) : (
+						<Button rna href={ configLink } onClick={ onConfigureClick }>
+							{ configureButtonLabel }
+						</Button>
+					) }
+				</>
 			) : (
 				<InstallButton primary rna isInstalling={ isInstalling } onClick={ onInstallClick }>
 					{ summaryActivateButtonLabel }
@@ -87,15 +96,20 @@ const FeatureSummaryComponent = props => {
 					<Gridicon icon="checkmark-circle" size={ 24 } />
 				</div>
 			) }
-			<div className="jp-recommendations-feature-summary__display-name">
-				<ExternalLink href={ learnMoreLink } onClick={ onLearnMoreClick } rel="noopener noreferrer">
+			<Button
+				borderless
+				href={ stepRoute }
+				onClick={ onStepNameClick }
+				className="jp-recommendations-feature-summary__display-name"
+			>
+				<span className="jp-recommendations-feature-summary__display-name-text">
 					{ displayName }
-				</ExternalLink>
+				</span>
 				{ isNew && (
 					/* translators: 'New' is shown as a badge to indicate that this content has not been viewed before. */
 					<span className="jp-recommendations__new-badge">{ __( 'New', 'jetpack' ) }</span>
 				) }
-			</div>
+			</Button>
 			<div className="jp-recommendations-feature-summary__actions">{ ctaButton }</div>
 		</div>
 	);
@@ -103,12 +117,15 @@ const FeatureSummaryComponent = props => {
 
 const FeatureSummary = connect(
 	( state, ownProps ) => ( {
+		isInstalling: isInstallingRecommendedFeature( state, ownProps.featureSlug ),
 		isFeatureActive: isFeatureActive( state, ownProps.featureSlug ),
 		...mapStateToSummaryFeatureProps( state, ownProps.featureSlug ),
-		learnMoreLink: getStepContent( ownProps.featureSlug ).descriptionLink,
+		stepRoute: stepToRoute[ ownProps.featureSlug ],
 	} ),
 	( dispatch, ownProps ) => ( {
 		...mapDispatchToProps( dispatch, ownProps.featureSlug ),
+		startFeatureInstall: step => dispatch( startFeatureInstallAction( step ) ),
+		endFeatureInstall: step => dispatch( endFeatureInstallAction( step ) ),
 	} )
 )( FeatureSummaryComponent );
 

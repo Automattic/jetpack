@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * Social Icons Widget.
  */
@@ -78,7 +80,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		wp_enqueue_script(
 			'jetpack-widget-social-icons-script',
 			plugins_url( 'social-icons/social-icons-admin.js', __FILE__ ),
-			array( 'jquery-ui-sortable' ),
+			array( 'jquery', 'jquery-ui-sortable' ),
 			'20170506',
 			true
 		);
@@ -173,7 +175,19 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 							foreach ( $social_icons as $social_icon ) {
 								foreach ( $social_icon['url'] as $url_fragment ) {
-									if ( false !== stripos( $icon['url'], $url_fragment ) ) {
+									/*
+									 * url_fragment can be a URL host, or a regex, starting with #.
+									 * Let's check for both scenarios.
+									 */
+									if (
+										// First Regex.
+										(
+											'#' === substr( $url_fragment, 0, 1 ) && '#' === substr( $url_fragment, -1 )
+											&& preg_match( $url_fragment, $icon['url'] )
+										)
+										// Then, regular host name.
+										|| false !== strpos( $icon['url'], $url_fragment )
+									) {
 										printf(
 											'<span class="screen-reader-text">%1$s</span>%2$s',
 											esc_attr( $social_icon['label'] ),
@@ -443,16 +457,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			),
 			array(
 				'url'   => array(
-					'amazon.cn',
-					'amazon.in',
-					'amazon.fr',
-					'amazon.de',
-					'amazon.it',
-					'amazon.nl',
-					'amazon.es',
-					'amazon.co',
-					'amazon.ca',
-					'amazon.com',
+					'#https?:\/\/(www\.)?amazon\.(com|cn|in|fr|de|it|nl|es|co|ca)\/#',
 				),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
@@ -501,7 +506,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Digg',
 			),
 			array(
-				'url'   => array( 'discord.gg', 'discordapp.com' ),
+				'url'   => array( '#discord\.gg|discordapp\.com#' ),
 				'icon'  => 'discord',
 				'label' => 'Discord',
 			),
@@ -551,7 +556,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Goodreads',
 			),
 			array(
-				'url'   => array( 'google.com', 'google.co.uk', 'google.ca', 'google.cn', 'google.it' ),
+				'url'   => array( '#google\.(com|co\.uk|ca|cn|it)#' ),
 				'icon'  => 'google',
 				'label' => 'Google',
 			),
@@ -576,6 +581,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => __( 'Email', 'jetpack' ),
 			),
 			array(
+				'url'   => jetpack_mastodon_get_instance_list(),
+				'icon'  => 'mastodon',
+				'label' => 'Mastodon',
+			),
+			array(
 				'url'   => array( 'meetup.com' ),
 				'icon'  => 'meetup',
 				'label' => 'Meetup',
@@ -584,6 +594,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => array( 'medium.com' ),
 				'icon'  => 'medium',
 				'label' => 'Medium',
+			),
+			array(
+				'url'   => array( 'nextdoor.com' ),
+				'icon'  => 'nextdoor',
+				'label' => 'Nextdoor',
 			),
 			array(
 				'url'   => array( 'patreon.com' ),
@@ -656,9 +671,14 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'StumbleUpon',
 			),
 			array(
-				'url'   => array( 'telegram.me', 't.me' ),
+				'url'   => array( '#https?:\/\/(www\.)?(telegram|t)\.me#' ),
 				'icon'  => 'telegram',
 				'label' => 'Telegram',
+			),
+			array(
+				'url'   => array( 'threads.net' ),
+				'icon'  => 'threads',
+				'label' => 'Threads',
 			),
 			array(
 				'url'   => array( 'tiktok.com' ),
@@ -701,7 +721,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'WooCommerce',
 			),
 			array(
-				'url'   => array( 'wordpress.com', 'wordpress.org' ),
+				'url'   => array( '#wordpress\.(com|org)#' ),
 				'icon'  => 'wordpress',
 				'label' => 'WordPress',
 			),
@@ -752,7 +772,17 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			),
 		);
 
-		return $social_links_icons;
+		/**
+		 * Filter the list of services matching Social Media Icons available in the Social Icons SVG sprite.
+		 *
+		 * @since 12.3
+		 *
+		 * @param array $social_links_icons Array of social links icons.
+		 */
+		return apply_filters(
+			'jetpack_social_icons_supported_icons',
+			$social_links_icons
+		);
 	}
 } // Jetpack_Widget_Social_Icons
 

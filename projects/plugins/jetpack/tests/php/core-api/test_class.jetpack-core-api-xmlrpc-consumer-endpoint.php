@@ -9,8 +9,8 @@ class WP_Test_Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint extends WP_UnitTestCase 
 	 */
 	public function test_Jetpack_Core_API_XMLRPC_Consumer_Endpoint_privacy_check( $query_success, $result ) {
 		$xmlrpc_mock = $this->getMockBuilder( 'Jetpack_IXR_Client' )
-					 ->setMethods( array( 'query', 'getResponse' ) )
-					 ->getMock();
+					->setMethods( array( 'query', 'getResponse' ) )
+					->getMock();
 
 		$endpoint = new WP_Test_Dummy_Xmlrpc_Consumer_Endpoint( $xmlrpc_mock );
 
@@ -43,14 +43,15 @@ class WP_Test_Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint extends WP_UnitTestCase 
 
 /**
  * Dummy testing class that will extend the testable endpoint and try to execute a privacy check
+ * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 class WP_Test_Dummy_Xmlrpc_Consumer_Endpoint extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
-	public function __construct( $xmlrpc ) {
+	public function __construct( $xmlrpc ) { // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
 		parent::__construct( $xmlrpc );
 	}
 
-	public function process( $data ) {
+	public function process( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// Running a protected method in order to test that it's doing what it needs to do
 		return $this->is_site_public();

@@ -18,6 +18,7 @@ use PHPUnit\Framework\TestCase;
  * @preserveGlobalState disabled
  */
 class PluginsHandlerTest extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * A dependency mock for the handler.
@@ -277,7 +278,7 @@ class PluginsHandlerTest extends TestCase {
 
 		$plugin_paths = $this->plugins_handler->get_cached_plugins();
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertEmpty( $plugin_paths );
 	}
 

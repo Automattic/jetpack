@@ -1,79 +1,40 @@
-/**
- * External dependencies
- */
+import { ActionButton, Notice } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
-import classNames from 'classnames';
 
-/**
- * Internal dependencies
- */
-import Banner from 'components/banner';
-import Card from 'components/card';
-import ConnectButton from 'components/connect-button';
-import Gridicon from 'components/gridicon';
-
-class ConnectionBanner extends Banner {
+export class ConnectionBanner extends React.Component {
 	static propTypes = {
 		title: PropTypes.string.isRequired,
-		className: PropTypes.string,
 		description: PropTypes.node,
-		icon: PropTypes.oneOfType( [ PropTypes.element, PropTypes.string ] ),
-		connectUser: PropTypes.bool,
 		from: PropTypes.string,
-		asLink: PropTypes.bool,
-		connectInPlace: PropTypes.bool,
 	};
 
-	getIcon() {
-		const icon = this.props.icon;
-
-		if ( icon && 'object' === typeof icon ) {
-			return <div className="jp-connection-banner__icon">{ icon }</div>;
+	handleClick() {
+		let fromQuery = '';
+		if ( this.props.from ) {
+			fromQuery = '&from=' + encodeURIComponent( this.props.from );
 		}
-		return (
-			<div className="dops-banner__icons">
-				<div className="dops-banner__icon">
-					<Gridicon icon={ icon || 'info-outline' } size={ 18 } />
-				</div>
-				<div className="dops-banner__icon-circle">
-					<Gridicon icon={ icon || 'info-outline' } size={ 18 } />
-				</div>
-			</div>
-		);
-	}
 
-	getContent() {
-		const { description, title, connectUser, from, asLink, connectInPlace } = this.props;
-
-		const connectButtonProps = {
-			connectUser: connectUser,
-			from: from,
-			asLink: asLink,
-			connectInPlace: connectInPlace,
-		};
-
-		return (
-			<div className="dops-banner__content">
-				<div className="dops-banner__info">
-					<div className="dops-banner__title">{ title }</div>
-					{ description && <div className="dops-banner__description">{ description }</div> }
-				</div>
-				<div className="dops-banner__action">
-					<ConnectButton { ...connectButtonProps } />
-				</div>
-			</div>
-		);
+		window.location.href = '/wp-admin/admin.php?page=jetpack' + fromQuery + '#/connect-user';
 	}
 
 	render() {
-		const classes = classNames( 'dops-banner', this.props.className );
+		const { description, title } = this.props;
+
+		const connectButtonProps = {
+			label: __( 'Connect your WordPress.com account', 'jetpack' ),
+			onClick: () => this.handleClick(),
+		};
 
 		return (
-			<Card className={ classes }>
-				{ this.getIcon() }
-				{ this.getContent() }
-			</Card>
+			<Notice
+				title={ title }
+				hideCloseButton
+				actions={ [ <ActionButton { ...connectButtonProps } /> ] }
+			>
+				{ description }
+			</Notice>
 		);
 	}
 }

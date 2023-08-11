@@ -1,17 +1,20 @@
 @import '../../scss/calypso-colors';
+@import '../../scss/mixins/ui';
 
 .jp-dash-item {
-	.jp-dash-item__content a {
-		font-style: italic;
-	}
+	@include dashboard-card-shadow;
+
 	.dops-section-header__actions {
 		.form-toggle__label {
 			position: relative;
-			top: 6px;
 			right: 0;
 		}
 		.form-toggle__label-content {
 			margin: 0;
+		}
+
+		a:hover {
+			text-decoration: underline;
 		}
 	}
 }
@@ -25,20 +28,18 @@
 
 .jp-dash-item__card {
 	margin: 0;
+	box-shadow: none;
+	padding: rem( 18px ) rem( 24px ) rem( 16px );
 }
 
 .jp-dash-item__count {
-	margin-top: 0;
-	margin-bottom: 6px;
-	margin-right: 8px;
-	color: $blue-medium;
-	font-weight: 500;
-	font-size: rem( 32px );
+	margin: 0;
+	color: $black;
+	font-weight: 400;
+	font-size: $font-headline-small;
+	line-height: 40px;
 	display: inline-block;
-	border: 1px solid $light-gray-700;
-	border-radius: 4px;
-	padding: 0 4px;
-	min-width: 36px;
+	padding: 0;
 	text-align: center;
 
 	@include breakpoint( "<660px" ) {
@@ -46,12 +47,10 @@
 	}
 
 	+ .jp-dash-item__description {
-		max-width: 61%;
+		flex-basis: 100%
 	}
 	&.is-alert {
-		color: $white;
-		background: $alert-red;
-		border-color: $alert-red;
+		color: var( --jp-red-50 );
 	}
 }
 
@@ -68,12 +67,40 @@
 }
 
 .jp-dash-item__description {
-	margin: 0;
+	margin: 0 50px 0 0;
 	font-size: rem( 14px );
 	max-width: calc( 100% - 18px ); // For the support icon
+	color: $gray-80;
+	letter-spacing: -0.02em;
+	line-height: 24px;
+	font-weight: 400;
 
 	&.jp-dash-item__connect {
 		margin-top: 20px;
+	}
+
+	.jp-link-button {
+		border: none;
+		box-shadow: none;
+		color: $black;
+		font-weight: 400;
+		font-size: $font-body-small;
+		text-decoration: underline;
+		transition-duration: .05s;
+		transition-property: border,background,color;
+		transition-timing-function: ease-in-out;
+		background: none;
+		padding: 0;
+
+		&:hover {
+			text-decoration-thickness: 3px;
+		}
+		&:focus {
+			text-decoration-line: none;
+			border-radius: 2px;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+			outline: 3px solid transparent;
+		}
 	}
 }
 
@@ -102,7 +129,6 @@
 }
 .jp-dash-item__active-label {
 	display: inline-block;
-	padding: rem( 6px ) 0 0;
 	color: darken( $gray, 10% );
 	color: $gray;
 	font-size: rem( 12px );
@@ -112,6 +138,25 @@
 
 // conditional styles for content when items are inactive
 .jp-dash-item__is-inactive {
+	.jp-at-a-glance__left &,
+	.jp-at-a-glance__right & {
+		border: 1px solid $gray-5;
+		background: #F9F9F6;
+		box-shadow: none;
+
+		.dops-card {
+			background: none;
+
+			.dops-section-header__label-text:before {
+				background: none;
+			}
+		}
+	}
+
+	.dops-section-header {
+		border-bottom: 0;
+	}
+
 	.dops-section-header__label {
 		padding-right: rem( 8px );
 	}
@@ -119,10 +164,6 @@
 		&:before {
 			@include long-content-fade( $size: 8px, $color : $white );
 		}
-	}
-	.jp-dash-item__description {
-		font-style: italic;
-		color: darken( $gray, 20% );
 	}
 }
 
@@ -140,9 +181,4 @@
 		left: 0;
 		z-index: 1;
 	}
-}
-
-.jp-dash-item__recently-activated .jp-dash-item__description {
-	font-style: italic;
-	box-sizing: border-box;
 }

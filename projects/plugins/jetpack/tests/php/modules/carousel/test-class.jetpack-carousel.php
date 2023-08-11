@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/carousel/jetpack-carousel.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/carousel/jetpack-carousel.php';
 
 /**
  * Class WP_Test_Jetpack_Carousel

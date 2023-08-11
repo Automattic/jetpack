@@ -21,7 +21,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 	// GET
 	public function test_get_services_api_key_mapbox() {
 		wp_set_current_user( self::$subscriber_user_id );
-		$request  = wp_rest_request( 'GET', '/wpcom/v2/service-api-keys/mapbox' );
+		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/service-api-keys/mapbox' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -33,7 +33,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 
 	public function test_get_404_services_api_key_unknow_service() {
 		wp_set_current_user( self::$editor_user_id );
-		$request  = wp_rest_request( 'GET', '/wpcom/v2/service-api-keys/foo' );
+		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/service-api-keys/foo' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -44,7 +44,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 	// UPDATE
 	public function test_update_services_api_key_mapbox_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
 		$request->set_body_params(
 			array(
 				'service_api_key' => 'ABC',
@@ -59,7 +59,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 
 	public function test_update_services_api_key_mapbox_without_permission() {
 		wp_set_current_user( self::$subscriber_user_id );
-		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/service-api-keys/mapbox' );
 		$request->set_body_params(
 			array(
 				'service_api_key' => 'ABC',
@@ -74,7 +74,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 
 	public function test_update_404_update_services_api_key_unknow_service_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/foo' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/service-api-keys/foo' );
 		$request->set_body_params(
 			array(
 				'service_api_key' => 'ABC',
@@ -89,7 +89,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 
 	public function test_update_404_services_api_key_unknow_service_without_permission() {
 		wp_set_current_user( self::$subscriber_user_id );
-		$request = wp_rest_request( 'POST', '/wpcom/v2/service-api-keys/foo' );
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/service-api-keys/foo' );
 		$request->set_body_params(
 			array(
 				'service_api_key' => 'ABC',
@@ -105,7 +105,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 	// DELETE
 	public function test_delete_service_api_key_mapbox_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		$request  = wp_rest_request( 'DELETE', '/wpcom/v2/service-api-keys/mapbox' );
+		$request  = new WP_REST_Request( 'DELETE', '/wpcom/v2/service-api-keys/mapbox' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -117,7 +117,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 
 	public function test_delete_service_api_key_mapbox_without_permission() {
 		wp_set_current_user( self::$subscriber_user_id );
-		$request  = wp_rest_request( 'DELETE', '/wpcom/v2/service-api-keys/mapbox' );
+		$request  = new WP_REST_Request( 'DELETE', '/wpcom/v2/service-api-keys/mapbox' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -127,7 +127,7 @@ class Test_WPCOM_REST_API_V2_Service_API_Keys_Endpoint extends WP_Test_Jetpack_R
 
 	public function test_delete_404_services_api_key_unknow_service_with_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		$request  = wp_rest_request( 'DELETE', '/wpcom/v2/service-api-keys/foo' );
+		$request  = new WP_REST_Request( 'DELETE', '/wpcom/v2/service-api-keys/foo' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 

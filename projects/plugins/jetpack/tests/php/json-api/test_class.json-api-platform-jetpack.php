@@ -1,6 +1,6 @@
 <?php
 
-require_jetpack_file( 'sal/class.json-api-platform.php' );
+require_once JETPACK__PLUGIN_DIR . 'sal/class.json-api-platform.php';
 
 class SalSiteTest extends WP_UnitTestCase {
 	public static $token;

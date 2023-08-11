@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import definedAttributes from './attributes';
 import getSubscriptionsShortcode from './get-subscriptions-shortcode';
 

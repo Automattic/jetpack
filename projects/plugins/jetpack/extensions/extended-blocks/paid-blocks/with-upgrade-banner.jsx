@@ -1,36 +1,27 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
 import {
 	isStillUsableWithFreePlan,
 	getRequiredPlan,
 	getUsableBlockProps,
+	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
+import { useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useState, useEffect, useMemo, useContext } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import UpgradePlanBanner from './upgrade-plan-banner';
+import { useState, useEffect, useMemo, useContext } from '@wordpress/element';
 import { PaidBlockContext, PaidBlockProvider } from './components';
+import UpgradePlanBanner from './upgrade-plan-banner';
 import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 
 export default createHigherOrderComponent(
-	BlockListBlock => props => {
-		const { name, className, clientId, isSelected, attributes, setAttributes } = props || {};
-		const { onChildBannerVisibilityChange, hasParentBanner } = useContext( PaidBlockContext ) || {};
+	BlockEdit => props => {
+		const { name, clientId, isSelected, attributes, setAttributes } = props || {};
+		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
+		const { tracks } = useAnalytics();
 
 		const requiredPlan = getRequiredPlan( name );
 
 		if ( ! requiredPlan ) {
-			return <BlockListBlock { ...props } />;
+			return <BlockEdit { ...props } />;
 		}
 
 		const isDualMode = isStillUsableWithFreePlan( name );
@@ -38,7 +29,6 @@ export default createHigherOrderComponent(
 
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
 		const [ hasBannerAlreadyShown, setBannerAlreadyShown ] = useState( false );
-		const [ isChildBannerVisible, setIsChildBannerVisible ] = useState( false );
 
 		const bannerContext = 'editor-canvas';
 		const hasChildrenSelected = useSelect(
@@ -46,17 +36,17 @@ export default createHigherOrderComponent(
 			[]
 		);
 
-		// Banner should be not be displayed if one of its children is already displaying a banner.
-		const isBannerVisible =
-			( isSelected || hasChildrenSelected ) && isVisible && ! isChildBannerVisible;
+		// Banner should be not be displayed if one of its parents is already displaying a banner.
+		const isBannerVisible = ( isSelected || hasChildrenSelected ) && isVisible && ! hasParentBanner;
 
 		const trackEventData = useMemo(
 			() => ( {
 				plan: requiredPlan,
 				blockName: name,
 				context: bannerContext,
+				tracks,
 			} ),
-			[ requiredPlan, name, bannerContext ]
+			[ requiredPlan, name, tracks ]
 		);
 
 		// Record event just once, the first time.
@@ -84,38 +74,26 @@ export default createHigherOrderComponent(
 			setAttributes( { shouldDisplayFrontendBanner: ! hasParentBanner } );
 		}, [ setAttributes, hasParentBanner ] );
 
-		// Set isChildBannerVisible for parent block.
-		useEffect( () => {
-			// onChildBannerVisibilityChange sets isChildBannerVisible for our parent paid block.
-			// It is undefined if this block has no parent paid block.
-			if ( onChildBannerVisibilityChange ) {
-				onChildBannerVisibilityChange( isBannerVisible || isChildBannerVisible );
-			}
-		}, [ isBannerVisible, isChildBannerVisible, onChildBannerVisibilityChange ] );
-
-		// Set banner CSS classes depending on its visibility.
-		const listBlockCSSClass = classNames( className, {
-			'is-upgradable': isBannerVisible,
-		} );
+		const blockProps = useBlockProps();
 
 		return (
 			<PaidBlockProvider
 				onBannerVisibilityChange={ setIsVisible }
-				onChildBannerVisibilityChange={ setIsChildBannerVisible }
-				hasParentBanner
+				hasParentBanner={ isBannerVisible }
 			>
-				<UpgradePlanBanner
-					className={ `is-${ props.name.replace( /\//, '-' ) }-paid-block` }
-					title={ null }
-					align={ props?.attributes?.align }
-					visible={ isBannerVisible }
-					description={ usableBlocksProps?.description }
-					requiredPlan={ requiredPlan }
-					context={ bannerContext }
-					onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
-				/>
-
-				<BlockListBlock { ...props } className={ listBlockCSSClass } />
+				<div ref={ blockProps.ref }>
+					<UpgradePlanBanner
+						className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
+						title={ null }
+						align={ attributes?.align }
+						visible={ isBannerVisible }
+						description={ usableBlocksProps?.description }
+						requiredPlan={ requiredPlan }
+						context={ bannerContext }
+						onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
+					/>
+					<BlockEdit { ...props } />
+				</div>
 			</PaidBlockProvider>
 		);
 	},

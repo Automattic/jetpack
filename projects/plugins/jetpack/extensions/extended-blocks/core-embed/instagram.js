@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { addFilter } from '@wordpress/hooks';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { getIconColor } from '../../shared/block-icons';
 import isActive from '../../shared/is-active';
 

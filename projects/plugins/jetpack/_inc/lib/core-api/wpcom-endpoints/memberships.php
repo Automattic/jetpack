@@ -49,7 +49,18 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							'type'              => 'string',
 							'required'          => false,
 							'validate_callback' => function ( $param ) {
-								return in_array( $param, array( 'calypso', 'earn', 'gutenberg', 'gutenberg-wpcom' ), true );
+								return in_array(
+									$param,
+									array(
+										'calypso',
+										'earn',
+										'earn-newsletter',
+										'gutenberg',
+										'gutenberg-wpcom',
+										'launchpad',
+									),
+									true
+								);
 							},
 						),
 						'is_editable' => array(
@@ -145,7 +156,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		}
 
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-			jetpack_require_lib( 'memberships' );
+			require_lib( 'memberships' );
 			$connected_destination_account_id = Jetpack_Memberships::get_connected_account_id();
 			if ( ! $connected_destination_account_id ) {
 				return new WP_Error( 'no-destination-account', __( 'Please set up a Stripe account for this site first', 'jetpack' ) );
@@ -196,8 +207,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		$is_editable = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-			jetpack_require_lib( 'memberships' );
-			$connected_destination_account_id = Jetpack_Memberships::get_connected_account_id();
+			require_lib( 'memberships' );
+			$connected_destination_account_id = get_connected_account_id_for_site( get_current_blog_id() );
 			if ( ! $connected_destination_account_id ) {
 				return new WP_Error( 'no-destination-account', __( 'Please set up a Stripe account for this site first', 'jetpack' ) );
 			}
@@ -251,7 +262,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 *
 	 * @param \WP_REST_Request $request - request passed from WP.
 	 *
-	 * @return WP_Error|array ['products','connected_account_id','connect_url','should_upgrade_to_access_memberships','upgrade_url']
+	 * @return WP_Error|array ['products','connected_account_id','connect_url']
 	 */
 	public function get_status( \WP_REST_Request $request ) {
 		$product_type = $request['type'];
@@ -259,9 +270,9 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		$is_editable  = ! isset( $request['is_editable'] ) ? null : (bool) $request['is_editable'];
 
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-			jetpack_require_lib( 'memberships' );
+			require_lib( 'memberships' );
 			$blog_id = get_current_blog_id();
-			return (array) get_memberships_settings_for_site( $blog_id, $product_type, $is_editable );
+			return (array) get_memberships_settings_for_site( $blog_id, $product_type, $is_editable, $source );
 		} else {
 			$payload = array(
 				'type'   => $request['type'],

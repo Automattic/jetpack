@@ -1,14 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 /* global myJetpackInitialState */
 
-/**
- * External dependencies
- */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import { MY_JETPACK_MY_PLANS_PURCHASE_SOURCE } from '../constants';
 
 /**
@@ -18,5 +11,8 @@ import { MY_JETPACK_MY_PLANS_PURCHASE_SOURCE } from '../constants';
  */
 export default function () {
 	const site = window?.myJetpackInitialState?.siteSuffix;
-	return getRedirectUrl( MY_JETPACK_MY_PLANS_PURCHASE_SOURCE, { site } );
+	const query = window?.myJetpackInitialState?.myJetpackUrl
+		? `redirect_to=${ window?.myJetpackInitialState?.myJetpackUrl }`
+		: null;
+	return getRedirectUrl( MY_JETPACK_MY_PLANS_PURCHASE_SOURCE, { site, query } );
 }

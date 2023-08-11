@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { createSlotFill, PanelBody } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
-
-/**
- * Internal dependencies
- */
 import JetpackPluginSidebar from './jetpack-plugin-sidebar';
 
 const { Fill, Slot } = createSlotFill( 'JetpackLikesAndSharingPanel' );
@@ -25,7 +18,9 @@ registerPlugin( 'jetpack-likes-and-sharing-panel', {
 
 					return (
 						<JetpackPluginSidebar>
-							<PanelBody title={ __( 'Likes and Sharing', 'jetpack' ) }>{ fills }</PanelBody>
+							<PanelBody title={ __( 'Likes and Sharing', 'jetpack' ) } initialOpen={ false }>
+								{ fills }
+							</PanelBody>
 						</JetpackPluginSidebar>
 					);
 				} }

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import Slideshow from './slideshow';
 
 export default ( { attributes: { align, autoplay, delay, effect, images }, className } ) => (

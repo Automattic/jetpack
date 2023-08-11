@@ -6,13 +6,10 @@
  * and we can load it using `Assets::register_module()` instead of the ad hoc manner it's done currently.
  */
 
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const glob = require( 'glob' );
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const glob = require( 'glob' );
 
 const webpack = jetpackWebpackConfig.webpack;
 const sharedWebpackConfig = {
@@ -50,7 +47,7 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: { autoprefixer: {} } },
+							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
 						},
 					},
 					{
@@ -154,6 +151,7 @@ const weirdRtlEntries = {
 		'modules/widgets/simple-payments/style.css',
 		'modules/widgets/social-icons/social-icons.css',
 		'modules/widgets/milestone/milestone-widget.css',
+		'modules/subscriptions/subscribe-modal/subscribe-modal.css',
 	].map( n => path.join( __dirname, '..', n ) ),
 };
 
@@ -172,10 +170,7 @@ for ( const name of [
 	'modules/custom-css/csstidy/cssparse',
 	'modules/custom-css/csstidy/cssparsed',
 	'modules/custom-css/custom-css/css/codemirror',
-	'modules/custom-css/custom-css/css/css-editor',
-	'modules/custom-css/custom-css/css/use-codemirror',
 	'modules/post-by-email/post-by-email',
-	'modules/protect/protect-dashboard-widget',
 	'modules/sharedaddy/admin-sharing',
 	'modules/videopress/videopress-admin',
 	'modules/videopress/css/editor',

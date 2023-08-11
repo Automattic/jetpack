@@ -1,28 +1,13 @@
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
-// this is necessary because block editor store becomes unregistered during jest initialization
-import { register } from '@wordpress/data';
-import { store as blockEditorStore } from '@wordpress/block-editor';
-register( blockEditorStore );
-
-/**
- * Internal dependencies
- */
+import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
 import { SimplePaymentsEdit } from '../edit';
 
 const setAttributes = jest.fn();
+const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );
 beforeEach( () => {
-	Intl.NumberFormat = jest
-		.fn()
+	intlNumberFormatSpy
+		.mockReset()
 		.mockImplementation( () => ( { format: value => `A$${ value.toString() }.00` } ) );
-} );
-afterEach( () => {
-	jest.resetAllMocks();
 } );
 
 const props = {
@@ -52,9 +37,13 @@ describe( 'Edit component', () => {
 		expect( screen.getByLabelText( 'Email' ) ).toBeInTheDocument();
 	} );
 
-	test( 'updates item name attribute if item name input updated', () => {
+	test( 'updates item name attribute if item name input updated', async () => {
+		const user = userEvent.setup( {
+			// The pointer event check is apparently buggy (as of @testing-library/user-event 14.1.1).
+			pointerEventsCheck: PointerEventsCheckLevel.Never,
+		} );
 		render( <SimplePaymentsEdit { ...props } /> );
-		userEvent.type( screen.getByLabelText( 'Item name' ), 'A' );
+		await user.type( screen.getByLabelText( 'Item name' ), 'A' );
 		expect( setAttributes ).toHaveBeenCalledWith( { title: 'A' } );
 	} );
 
@@ -71,15 +60,24 @@ describe( 'Edit component', () => {
 		expect( screen.getByText( 'Please add a brief title', { exact: false } ) ).toBeInTheDocument();
 	} );
 
-	test( 'updates description attribute if description input updated', () => {
+	test( 'updates description attribute if description input updated', async () => {
+		const user = userEvent.setup( {
+			// The pointer event check is apparently buggy (as of @testing-library/user-event 14.1.1).
+			pointerEventsCheck: PointerEventsCheckLevel.Never,
+		} );
 		render( <SimplePaymentsEdit { ...props } /> );
-		userEvent.type( screen.getByLabelText( 'Describe your item in a few words' ), 'B' );
+		await user.type( screen.getByLabelText( 'Describe your item in a few words' ), 'B' );
 		expect( setAttributes ).toHaveBeenCalledWith( { content: 'B' } );
 	} );
 
-	test( 'updates price attribute if price input updated', () => {
+	test( 'updates price attribute if price input updated', async () => {
+		const user = userEvent.setup( {
+			// The pointer event check is apparently buggy (as of @testing-library/user-event 14.1.1).
+			pointerEventsCheck: PointerEventsCheckLevel.Never,
+		} );
 		render( <SimplePaymentsEdit { ...props } /> );
-		userEvent.paste( screen.getByLabelText( 'Price' ), 1 );
+		await user.click( screen.getByLabelText( 'Price' ) );
+		await user.paste( '1' );
 		expect( setAttributes ).toHaveBeenCalledWith( { price: 1 } );
 	} );
 
@@ -98,23 +96,33 @@ describe( 'Edit component', () => {
 		).toBeInTheDocument();
 	} );
 
-	test( 'sets currency attribute', () => {
+	test( 'sets currency attribute', async () => {
+		const user = userEvent.setup();
 		render( <SimplePaymentsEdit { ...props } /> );
-		userEvent.selectOptions( screen.getByLabelText( 'Currency' ), [ 'AUD' ] );
+		await user.selectOptions( screen.getByLabelText( 'Currency' ), [ 'AUD' ] );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { currency: 'AUD' } );
 	} );
 
-	test( 'toggles allow multiple', () => {
+	test( 'toggles allow multiple', async () => {
+		const user = userEvent.setup( {
+			// The pointer event check is apparently buggy (as of @testing-library/user-event 14.1.1).
+			pointerEventsCheck: PointerEventsCheckLevel.Never,
+		} );
 		render( <SimplePaymentsEdit { ...props } /> );
-		userEvent.click( screen.getByLabelText( 'Allow people to buy more than one item at a time' ) );
+		await user.click( screen.getByLabelText( 'Allow people to buy more than one item at a time' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { multiple: true } );
 	} );
 
-	test( 'updates email attribute if email input updated', () => {
+	test( 'updates email attribute if email input updated', async () => {
+		const user = userEvent.setup( {
+			// The pointer event check is apparently buggy (as of @testing-library/user-event 14.1.1).
+			pointerEventsCheck: PointerEventsCheckLevel.Never,
+		} );
 		render( <SimplePaymentsEdit { ...props } /> );
-		userEvent.paste( screen.getByPlaceholderText( 'Email' ), 'bob@bob.com' );
+		await user.click( screen.getByPlaceholderText( 'Email' ) );
+		await user.paste( 'bob@bob.com' );
 		expect( setAttributes ).toHaveBeenCalledWith( { email: 'bob@bob.com' } );
 	} );
 
@@ -132,7 +140,6 @@ describe( 'Edit component', () => {
 	} );
 
 	test( 'displays title and price fields when not selected', () => {
-
 		const notSelectedProps = {
 			...props,
 			isSelected: false,

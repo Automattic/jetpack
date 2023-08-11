@@ -1,21 +1,12 @@
-/**
- * External dependencies
- */
-
-import React from 'react';
-import { connect } from 'react-redux';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLegend, FormLabel, FormSelect } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import React from 'react';
+import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 
@@ -54,13 +45,13 @@ function WritingMedia( props ) {
 	 * @returns {object} A compact toggle component.
 	 */
 	const renderToggle = ( checked, optionName, onChangeHandler, label ) => (
-		<CompactFormToggle
+		<ToggleControl
 			checked={ checked }
-			disabled={ ! isCarouselActive || props.isSavingAnyOption( [ 'carousel', optionName ] ) }
+			disabled={ ! isCarouselActive || props.isSavingAnyOption( [ 'carousel' ] ) }
+			toggling={ props.isSavingAnyOption( [ optionName ] ) }
 			onChange={ onChangeHandler /* eslint-disable-line */ }
-		>
-			<span className="jp-form-toggle-explanation">{ label }</span>
-		</CompactFormToggle>
+			label={ label }
+		/>
 	);
 
 	return (
@@ -128,6 +119,7 @@ function WritingMedia( props ) {
 							}
 							{ ...props }
 							validValues={ props.validValues( 'carousel_background_color', 'carousel' ) }
+							rna
 						/>
 					</FormLabel>
 				</FormFieldset>

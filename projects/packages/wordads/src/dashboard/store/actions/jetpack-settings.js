@@ -1,25 +1,18 @@
-/**
- * External dependencies
- */
 /*eslint lodash/import-scope: [2, "method"]*/
-import pick from 'lodash/pick';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import {
-	fetchWordAdsSettings,
-	updateWordAdsSettings as updateJetpackSettingsControl,
-} from '../controls';
 import {
 	removeUpdatingNotice,
 	updatingNotice,
 	errorNotice,
 	successNotice,
 } from 'components/global-notices/store/actions';
+import pick from 'lodash/pick';
 import { STORE_ID } from '../../store';
+import {
+	fetchWordAdsSettings,
+	updateWordAdsSettings as updateJetpackSettingsControl,
+} from '../controls';
 
 export const SET_WORDADS_SETTINGS = 'SET_WORDADS_SETTINGS';
 export const TOGGLE_WORDADS_MODULE = 'TOGGLE_WORDADS_MODULE';

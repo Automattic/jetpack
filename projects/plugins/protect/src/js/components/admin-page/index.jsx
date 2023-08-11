@@ -1,164 +1,75 @@
-/**
- * External dependencies
- */
+import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import apiFetch from '@wordpress/api-fetch';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import {
-	AdminPage,
-	AdminSectionHero,
-	AdminSection,
-	Container,
-	Col,
-} from '@automattic/jetpack-components';
+import { addQueryArgs, getQueryArg } from '@wordpress/url';
+import React, { useEffect } from 'react';
+import { JETPACK_SCAN_SLUG } from '../../constants';
+import useWafData from '../../hooks/use-waf-data';
+import { STORE_ID } from '../../state/store';
+import InterstitialPage from '../interstitial-page';
+import Logo from '../logo';
+import Tabs, { Tab } from '../tabs';
+import styles from './styles.module.scss';
+import useRegistrationWatcher from './use-registration-watcher';
 
-import { useSelect } from '@wordpress/data';
-import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import React from 'react';
+const AdminPage = ( { children } ) => {
+	useRegistrationWatcher();
 
-/**
- * Internal dependencies
- */
-import Summary from '../summary';
-import VulnerabilitiesList from '../vulnerabilities-list';
+	const { isSeen: wafSeen } = useWafData();
+	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
+	const { adminUrl } = window.jetpackProtectInitialState || {};
+	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug: JETPACK_SCAN_SLUG,
+		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
+		siteProductAvailabilityHandler: async () =>
+			apiFetch( {
+				path: 'jetpack-protect/v1/check-plan',
+				method: 'GET',
+			} ).then( hasRequiredPlan => hasRequiredPlan ),
+	} );
 
-const coreListMock = [
-	{
-		name: 'WordPress',
-		version: '5.4.1',
-		vulnerabilities: [
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f416',
-				title: 'Vulnerability Title 1',
-				description: 'Vulnerability Description 1',
-				fixedIn: '5.4.2',
-			},
-		],
-	},
-];
+	useEffect( () => {
+		if ( getQueryArg( window.location.search, 'checkPlan' ) ) {
+			startScanOptimistically();
+			setTimeout( () => {
+				refreshPlan();
+				refreshStatus( true );
+			}, 5000 );
+		}
+	}, [ refreshPlan, refreshStatus, startScanOptimistically ] );
 
-const pluginsListMock = [
-	{
-		name: 'Jetpack Backup',
-		version: '1.0.1',
-		vulnerabilities: [
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f420',
-				title: 'Vulnerability Title 1',
-				description: 'Vulnerability Description 1',
-				fixedIn: '1.1.0',
-			},
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f410',
-				title: 'Vulnerability Title 2',
-				description: 'Vulnerability Description 2',
-				fixedIn: '1.1.0',
-			},
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f411',
-				title: 'Vulnerability Title 3',
-				description: 'Vulnerability Description 3',
-				fixedIn: '1.1.0',
-			},
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f412',
-				title: 'Vulnerability Title 4',
-				description: 'Vulnerability Description 4',
-				fixedIn: '1.1.0',
-			},
-		],
-	},
-];
+	/*
+	 * Show interstital page when
+	 * - Site is not registered
+	 * - Checkout workflow has started
+	 */
+	if ( ! isRegistered || hasCheckoutStarted ) {
+		return <InterstitialPage onScanAdd={ run } />;
+	}
 
-const themeListMock = [
-	{
-		name: 'Famous Theme',
-		version: '1.0.2',
-		vulnerabilities: [
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f413',
-				title: 'Vulnerability Title 1',
-				description: 'Vulnerability Description 1',
-				fixedIn: '1.1.0',
-			},
-			{
-				id: '1fd6742e-1a32-446d-be3d-7cce44f8f414',
-				title: 'Vulnerability Title 2',
-				description: 'Vulnerability Description 2',
-				fixedIn: '1.1.0',
-			},
-		],
-	},
-];
-
-const Admin = () => {
-	const connectionStatus = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
-		[]
-	);
-	const { isRegistered } = connectionStatus;
-	const showConnectionCard = ! isRegistered;
 	return (
-		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }>
-			{ showConnectionCard ? (
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col sm={ 4 } md={ 8 } lg={ 12 }>
-							<ConnectionSection />
-						</Col>
-					</Container>
-				</AdminSectionHero>
-			) : (
-				<>
-					<AdminSectionHero>
-						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-							<Col>
-								<Summary />
-							</Col>
-						</Container>
-					</AdminSectionHero>
-					<AdminSection>
-						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-							<Col>
-								<VulnerabilitiesList title="WordPress" list={ coreListMock } />
-							</Col>
-							<Col>
-								<VulnerabilitiesList title="Plugins" list={ pluginsListMock } />
-							</Col>
-							<Col>
-								<VulnerabilitiesList title="Themes" list={ themeListMock } />
-							</Col>
-						</Container>
-					</AdminSection>
-				</>
-			) }
-		</AdminPage>
+		<JetpackAdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+			<Container horizontalSpacing={ 0 }>
+				<Tabs className={ styles.navigation }>
+					<Tab link="/" label={ __( 'Scan', 'jetpack-protect' ) } />
+					<Tab
+						link="/firewall"
+						label={
+							<>
+								{ __( 'Firewall', 'jetpack-protect' ) }
+								{ wafSeen === false && (
+									<span className={ styles.badge }>{ __( 'New', 'jetpack-protect' ) }</span>
+								) }
+							</>
+						}
+					/>
+				</Tabs>
+			</Container>
+			{ children }
+		</JetpackAdminPage>
 	);
 };
 
-export default Admin;
-
-const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackProtectInitialState;
-	return (
-		<ConnectScreen
-			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
-			apiRoot={ apiRoot }
-			// images={ [ '/images/jetpack-protect-connect.png' ] }
-			// assetBaseUrl={ assetBaseUrl }
-			from={ 'jetpack-protect' }
-			title={ __(
-				'Security tools that keep your site safe and sound, from posts to plugins.',
-				'jetpack-protect'
-			) }
-			buttonLabel={ __( 'Set up Jetpack Protect', 'jetpack-protect' ) }
-			//redirectUri="admin.php?page=jetpack-protect"
-			skipUserConnection
-		>
-			<h3>{ __( 'Jetpack’s security features include', 'jetpack-protect' ) }</h3>
-			<ul>
-				<li>{ __( 'Scan for known plugin & theme vulnerabilities', 'jetpack-protect' ) }</li>
-				<li>{ __( 'Database of vulnerabilities manually updated daily', 'jetpack-protect' ) }</li>
-			</ul>
-		</ConnectScreen>
-	);
-};
+export default AdminPage;

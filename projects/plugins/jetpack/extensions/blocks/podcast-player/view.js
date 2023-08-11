@@ -1,16 +1,5 @@
-/**
- * External dependencies
- */
-import debugFactory from 'debug';
-
-/**
- * WordPress dependencies
- */
 import { render, createElement, unmountComponentAtNode } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import debugFactory from 'debug';
 import '../../store/media-source';
 import PodcastPlayer from './components/podcast-player';
 

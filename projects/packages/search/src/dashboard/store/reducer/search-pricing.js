@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { SET_SEARCH_PRICING } from '../actions/search-pricing';
 
 const sitePricing = ( state = {}, action ) => {

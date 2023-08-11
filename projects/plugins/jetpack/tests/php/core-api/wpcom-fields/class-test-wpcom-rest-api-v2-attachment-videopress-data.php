@@ -14,6 +14,8 @@
  */
 require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
 
+use Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Field;
+
 /**
  * VideoPress Data field tests.
  */
@@ -22,7 +24,7 @@ class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WP_Test_Jetpack_
 	 * Checks that the jetpack_videopress field is included in the schema
 	 */
 	public function test_attachment_fields_videopress_get_schema() {
-		$plugin = new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+		$plugin = new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
 		$schema = $plugin->get_schema();
 
 		$this->assertSame(
@@ -42,7 +44,7 @@ class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WP_Test_Jetpack_
 	 * Checks that the jetpack_videopress field is filled with the VideoPress GUID
 	 */
 	public function test_attachment_fields_videopress_get() {
-		$mock = $this->getMockBuilder( 'WPCOM_REST_API_V2_Attachment_VideoPress_Data' )
+		$mock = $this->getMockBuilder( 'Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Data' )
 						->setMethods( array( 'get_videopress_data' ) )
 						->getMock();
 
@@ -57,7 +59,7 @@ class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WP_Test_Jetpack_
 					)
 				);
 
-		$attachment_id = $this->factory->attachment->create_upload_object( dirname( dirname( __DIR__ ) ) . '/jetpack-icon.jpg', 0 );
+		$attachment_id = self::factory()->attachment->create_upload_object( dirname( dirname( __DIR__ ) ) . '/jetpack-icon.jpg', 0 );
 		$object        = array(
 			'id' => $attachment_id,
 		);

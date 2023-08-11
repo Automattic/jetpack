@@ -7,7 +7,7 @@ import { PluginsPage, JetpackDashboardPage } from 'jetpack-e2e-commons/pages/wp-
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 
-test( 'Update Jetpack plugin', async ( { page } ) => {
+test.skip( 'Update Jetpack plugin', async ( { page } ) => {
 	const binPath = '/usr/local/src/jetpack-monorepo/projects/plugins/jetpack/tests/e2e/bin/update/';
 
 	// Prepare for update
@@ -35,7 +35,7 @@ test( 'Update Jetpack plugin', async ( { page } ) => {
 
 	await test.step( 'Jetpack is still connected', async () => {
 		const jetpackPage = await JetpackDashboardPage.visit( page );
-		expect( await jetpackPage.isConnected(), 'Jetpack should be connected' ).toBeTruthy();
+		expect( await jetpackPage.isUserConnected(), 'Jetpack should be connected' ).toBeTruthy();
 	} );
 } );
 

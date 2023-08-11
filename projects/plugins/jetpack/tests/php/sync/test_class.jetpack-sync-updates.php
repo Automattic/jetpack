@@ -170,7 +170,6 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		// last update we only want to see 1 sync event.
 		$events = $this->server_event_storage->get_all_events( 'jetpack_update_core_change' );
 		$this->assertCount( 1, $events );
-
 	}
 
 	public function test_sync_wp_version() {
@@ -201,7 +200,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_automatic_updates_complete_sync_action() {
-		// wp_maybe_auto_update();
+		// Commenting this out for now. wp_maybe_auto_update();
 		do_action(
 			'automatic_updates_complete',
 			array(

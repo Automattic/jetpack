@@ -3,7 +3,7 @@
 Utility functions used by the block editor extensions.
 
 This package is the new home for the code in [the `extensions/shared`
-directory](https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions/shared)
+directory](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/jetpack/extensions/shared)
 of the Jetpack plugin, so that plugins can share it. To begin with, we moving
 the code used by the Publicize editor extension, but the goal is to bring over
 all the shared code.

@@ -1,14 +1,7 @@
-/**
- * WordPress dependencies
- */
 import { BlockIcon } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
 import { svg as jetpackColophonSvg } from 'instant-search/components/jetpack-colophon';
 
 /**
@@ -23,7 +16,7 @@ export default function SidebarDescription() {
 			<div>
 				<p>
 					{ __(
-						'Jetpack Instant Search will allow your visitors to get search results as soon as they start typing. Customize this experience to offer better results that match your site.',
+						'Jetpack Search will allow your visitors to get search results as soon as they start typing. Customize this experience to offer better results that match your site.',
 						'jetpack-search-pkg'
 					) }
 				</p>

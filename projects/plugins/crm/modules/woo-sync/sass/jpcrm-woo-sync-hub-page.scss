@@ -1,0 +1,214 @@
+/*!
+ * Jetpack CRM Extension: WooSync
+ * https://jetpackcrm.com
+ */
+
+#jpcrm-woosync-hub-page {
+	
+    margin-top: 4em;
+
+	#jpcrm-woo-logo{
+
+	    text-align: center;
+	    margin: 1.5em auto;
+	    display: table;
+
+		img {
+
+		   vertical-align: middle;
+
+		}
+		
+		#jpcrm-woosync-jpcrm-logo {
+			max-width: 250px;
+		}
+
+		#jpcrm-woosync-woo-logo {
+			max-width: 230px;
+		}
+
+		i {
+
+		    vertical-align: middle;
+		    display: table-cell;
+		    padding: 0px 1em;
+		    font-size: 1.5em;
+    		color: #069e08;
+
+		}
+
+
+
+	}
+
+	#jpcrm-woosync-messages {
+
+	    max-width: 800px;
+	    margin: auto;
+    	margin-bottom: 1em;
+
+	}
+
+	#jpcrm-woosync-page-body {
+
+	    max-width: 800px;
+	    margin: auto;
+
+	    .jpcrm-woosync-settings-button {
+
+		    font-size: 1.3em;
+		    margin-right: 0.5em;
+
+	    }
+
+		.jpcrm-woosync-stats-header {
+
+		    font-size: 1.3em;
+		    margin: 0.5em 1em;	
+			display: flex;
+			align-items: center;
+
+		    span {
+
+				color: #8594a2;
+			    margin-right: 5px;
+			    margin-left: 5px;
+
+		    }
+
+		    i {
+
+	    		margin-left: 0.5em;
+
+		    }
+
+		    .jpcrm-woosync-stats-url {
+		    	
+		    	line-height: 0.8em;
+
+		    }
+
+		}
+
+		h2.ui.header {
+
+    		margin: 1em;
+
+		}
+
+		.jpcrm-woosync-recap {		
+		    margin: 0;
+		    opacity: 0.5;
+		}
+
+		#jpcrm-woo-stats {
+			position: relative;
+			margin: 5px;
+		}
+
+
+		#jpcrm-woo-stats-nothing-yet {
+
+    		display: table;
+
+    		div {
+
+    			display: table-cell;
+    			vertical-align: middle;
+
+				div {
+
+			    display: block;
+
+				}
+
+			    p {
+			    
+			    	color: #FFF;
+			    
+			    }
+			    
+
+			}
+
+		}
+
+		#jpcrm-woosync-stats-container {
+			
+			.jpcrm-woosync-stat {
+
+				display: table;
+				min-height: 230px;
+				width: 100%;
+				border: solid 2px #2185D0 !important;
+				color: #2185D0 !important;
+				background-color: #FFFFFF !important;
+
+				div.jpcrm-woosync-stat-container {
+	    			
+	    			display: table-cell;
+	    			vertical-align: middle;
+	    			text-align: center;
+
+    				// numbers
+    				font-size: 3em;
+    				font-weight: bold;
+
+    				// ico
+    				i {
+					    display: inline-block;
+					    margin: 0 0 0.4em 0;
+					}
+
+    				// labels
+    				div.jpcrm-woosync-stat-label {
+
+    					font-size: 0.5em;
+    					margin-top: 1.0em;
+    					line-height: 1.2em;
+    				}
+
+    			}
+			}
+		
+		}
+
+		// debug mode output:
+		#jpcrm-woosync-debug-output {
+
+			background: #f1e9e9;
+		    color: #000;
+		    line-height: 2em;
+		    overflow-x: scroll;
+    		padding: 0.5em 1em;
+
+		}
+
+	}
+
+	// low key grey links for admin admins really
+	#jpcrm-woosync-quiet-restart-link {
+
+	    margin-top: 1.2em;
+	    text-align: center;
+    	opacity: 0.6;
+
+	    a {
+		    text-decoration: underline;
+		}
+	}
+
+	.status.green {
+		color: #069e08!important;
+	}
+	.status.orange {
+		color: #f2711c!important;
+	}
+	.status.red {
+		color: #db2828!important;
+	}
+
+	.jpcrm-clickable:hover {
+		cursor: pointer;
+	}
+}

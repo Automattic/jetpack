@@ -1,32 +1,30 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
 import { __ } from '@wordpress/i18n';
 // NOTE: We only import the debounce function here for reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
-
-/**
- * Internal dependencies
- */
-import { OVERLAY_CLASS_NAME } from '../lib/constants';
+import React, { Component } from 'react';
+import { SEARCH_RESULTS_CLASS_NAME, SEARCH_RESULTS_LOAD_MORE_OFFSET } from '../lib/constants';
 import './scroll-button.scss';
 
 class ScrollButton extends Component {
-	overlayElement = document.getElementsByClassName( OVERLAY_CLASS_NAME )[ 0 ];
+	scrollElement = document.getElementsByClassName( SEARCH_RESULTS_CLASS_NAME )[ 0 ];
 	componentDidMount() {
-		this.overlayElement.addEventListener( 'scroll', this.checkScroll );
+		this.scrollElement.addEventListener( 'scroll', this.checkScroll );
 	}
 	componentDidUnmount() {
-		this.overlayElement.removeEventListener( 'scroll', this.checkScroll );
+		this.scrollElement.removeEventListener( 'scroll', this.checkScroll );
 	}
 
 	checkScroll = debounce( () => {
+		const visibleHeightToLoadMore =
+			this.scrollElement.clientHeight +
+			this.scrollElement.scrollTop +
+			SEARCH_RESULTS_LOAD_MORE_OFFSET;
+
 		if (
 			this.props.enableLoadOnScroll &&
-			window.innerHeight + this.overlayElement.scrollTop >= this.overlayElement.scrollHeight
+			visibleHeightToLoadMore >= this.scrollElement.scrollHeight
 		) {
 			this.props.onLoadNextPage();
 		}

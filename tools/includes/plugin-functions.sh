@@ -50,9 +50,15 @@ function process_plugin_arg {
 		find_plugin_file
 	elif [[ -d "$1" ]]; then
 		PLUGIN_DIR="${1%/}"
+		if [[ "${PLUGIN_DIR:0:1}" != '/' ]]; then
+			PLUGIN_DIR="$PWD/${PLUGIN_DIR}"
+		fi
 		find_plugin_file
 	elif [[ -f "$1" ]]; then
 		PLUGIN_FILE="$1"
+		if [[ "${PLUGIN_FILE:0:1}" != '/' ]]; then
+			PLUGIN_FILE="$PWD/${PLUGIN_FILE}"
+		fi
 		PLUGIN_DIR=$(dirname "$1")
 		if ! is_wp_plugin_file "$PLUGIN_FILE"; then
 			error "File $1 does not appear to be a WordPress plugin file."

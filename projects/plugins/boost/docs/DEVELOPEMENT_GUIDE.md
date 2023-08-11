@@ -20,7 +20,7 @@
 
 # Prerequisite
 
-If you have not yet done so, please review first all of the [Jetpack Monorepo documentation](https://github.com/Automattic/jetpack/tree/master/docs) documentation. It does provide all the required information to get you started and acquainted with the different processes.
+If you have not yet done so, please review first all of the [Jetpack Monorepo documentation](https://github.com/Automattic/jetpack/tree/trunk/docs) documentation. It does provide all the required information to get you started and acquainted with the different processes.
 
 The following sections will just highlight some additional tips information specific to Jetpack Boost.
 
@@ -28,7 +28,7 @@ The following sections will just highlight some additional tips information spec
 
 ## Setting up your environment
 
-Because Jetpack Boost as some feature which requires connection to WordPress.com, it is highly recommended that you are running your WordPress site using the [Docker setup](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md) with the [Jurassic Tube Tunneling Service](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md#jurassic-tube-tunneling-service) or [Ngrok](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md#using-ngrok-with-jetpack).
+Because Jetpack Boost as some feature which requires connection to WordPress.com, it is highly recommended that you are running your WordPress site using the [Docker setup](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md) with the [Jurassic Tube Tunneling Service](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md#jurassic-tube-tunneling-service) or [Ngrok](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md#using-ngrok-with-jetpack).
 
 If not, you might need as a prerequisite to [bypass the Jetpack connection](#bypassing-the-jetpack-connection).
 
@@ -105,7 +105,7 @@ To automatically fix some JavaScript related issues, you can run:
 
 # Module architectural overview 101
 
-The Jetpack Boost plugin implements a custom [module system](https://github.com/Automattic/jetpack/tree/master/projects/plugins/boost/app/modules) for optional modules.
+The Jetpack Boost plugin implements a custom [module system](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/boost/app/modules) for optional modules.
 
 ## Creating a new module
 
@@ -146,9 +146,9 @@ class Foo extends State {
 
 3.  Add `foo` to the array in `ENABLED_MODULES_DEFAULT` method in `class-jetpack-boost.php` to make it enabled by default if wanted.
 
-Every available modules are getting [instanciated](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/app/class-jetpack-boost.php#L234) in the [prepare_modules](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/app/class-jetpack-boost.php#L234) method of the [Jetpack Boost class](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/app/class-jetpack-boost.php).
+Every available modules are getting [instanciated](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/boost/app/class-jetpack-boost.php#L234) in the [prepare_modules](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/boost/app/class-jetpack-boost.php#L234) method of the [Jetpack Boost class](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/boost/app/class-jetpack-boost.php).
 
-Check out the inline documentation in the [Module class](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/app/modules/class-module.php) for methods you can optionally override to support extra functionality like REST API endpoints.
+Check out the inline documentation in the [Module class](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/boost/app/modules/class-module.php) for methods you can optionally override to support extra functionality like REST API endpoints.
 
 # Hooks and filters
 

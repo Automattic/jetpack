@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
-/**
- * Internal dependencies
- */
 import { isFetchingAkismetData, fetchAkismetData } from 'state/at-a-glance';
 
 class QueryAkismetData extends Component {

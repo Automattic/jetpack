@@ -1,15 +1,16 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button, Spinner } from '@wordpress/components';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
-
 /**
  * Internal dependencies
  */
-import './style.scss';
+import React from 'react';
+import Button from '../button';
+import styles from './style.module.scss';
 
 /**
  * The Jetpack Action button.
@@ -22,24 +23,26 @@ import './style.scss';
  * @returns {React.Component} The `ActionButton` component.
  */
 const ActionButton = props => {
-	const { label, onClick, isLoading, displayError, errorMessage } = props;
+	const { label, onClick, isLoading, isDisabled, displayError, errorMessage } = props;
 
 	return (
-		<div className="jp-action-button">
+		<>
 			{
 				<Button
-					className="jp-action-button--button"
+					className={ classNames( styles.button, 'jp-action-button--button' ) }
 					label={ label }
 					onClick={ onClick }
 					variant="primary"
-					disabled={ isLoading }
+					disabled={ isLoading || isDisabled }
 				>
 					{ isLoading ? <Spinner /> : label }
 				</Button>
 			}
 
-			{ displayError && <p className="jp-action-button__error">{ errorMessage }</p> }
-		</div>
+			{ displayError && (
+				<p className={ classNames( styles.error, 'jp-action-button__error' ) }>{ errorMessage }</p>
+			) }
+		</>
 	);
 };
 
@@ -50,10 +53,12 @@ ActionButton.propTypes = {
 	onClick: PropTypes.func,
 	/** Will disable the button and display a spinner if set to true. */
 	isLoading: PropTypes.bool,
+	/** Will disable the button with no spinner. */
+	isDisabled: PropTypes.bool,
 	/** Displays an error message */
 	displayError: PropTypes.bool,
 	/** The error message string */
-	errorMessage: PropTypes.string,
+	errorMessage: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 };
 
 ActionButton.defaultProps = {

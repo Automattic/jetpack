@@ -1,5 +1,35 @@
 # Changelog
 
+## 3.1.5 - 2023-04-27
+### Security
+- Disable HTML-style tags in the markdown renderer, the library used doesn't always handle them properly. [#30339]
+
+### Changed
+- Updated package dependencies. [#28910]
+
+## 3.1.4 - 2023-01-11
+### Changed
+- Admin menu: ensure that the Jetpack Beta menu always lives under the main Jetpack menu.
+
+## 3.1.3 - 2022-09-20
+### Changed
+- Renaming `master` references to `trunk` [#24712]
+- Updated package dependencies.
+
+## 3.1.2 - 2022-06-08
+### Added
+- Adding trunk branch cases in preparation for monorepo branch renaming
+- Set `Update URI` in the plugin header.
+
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+- Updated package dependencies.
+
+### Fixed
+- Download from the correct URL when updating to a version tagged like "v3.1.1" rather than "3.1.1".
+- Ensure that WP CLI is present before extending the class.
+- Fixed testing tips links
+
 ## 3.1.1 - 2022-03-01
 ### Added
 - Added docs to JS file.

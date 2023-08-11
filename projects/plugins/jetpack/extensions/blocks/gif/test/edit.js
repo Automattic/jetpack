@@ -1,19 +1,7 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
 import { render, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import GifEdit from '../edit';
-import { getUrl, getPaddingTop, getEmbedUrl } from '../utils';
 import useFetchGiphyData from '../hooks/use-fetch-giphy-data';
+import { getUrl, getPaddingTop, getEmbedUrl } from '../utils';
 
 const setAttributes = jest.fn();
 
@@ -44,7 +32,7 @@ const GIPHY_DATA = [
 				height: 10,
 				width: 10,
 			},
-		}
+		},
 	},
 	{
 		id: '99',
@@ -57,13 +45,13 @@ const GIPHY_DATA = [
 				height: 12,
 				width: 12,
 			},
-		}
-	}
+		},
+	},
 ];
 
 const fetchGiphyData = jest.fn();
 
-jest.mock('./../hooks/use-fetch-giphy-data' );
+jest.mock( './../hooks/use-fetch-giphy-data' );
 
 describe( 'GifEdit', () => {
 	beforeEach( () => {
@@ -72,7 +60,7 @@ describe( 'GifEdit', () => {
 				fetchGiphyData,
 				giphyData: [],
 				isFetching: false,
-			}
+			};
 		} );
 	} );
 
@@ -83,13 +71,20 @@ describe( 'GifEdit', () => {
 	} );
 
 	test( 'adds class names', () => {
-		const { container } = render( <GifEdit { ...defaultProps }  /> );
-		expect( container.querySelector( `.${ defaultProps.className }.align${ defaultProps.attributes.align }` ) ).toBeInTheDocument();
+		const { container } = render( <GifEdit { ...defaultProps } /> );
+		expect(
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			container.querySelector(
+				`.${ defaultProps.className }.align${ defaultProps.attributes.align }`
+			)
+		).toBeInTheDocument();
 	} );
 
 	test( 'loads default search form and not the gallery where there is no giphy URL', () => {
-		const { container } = render( <GifEdit { ...defaultProps }  /> );
+		const { container } = render( <GifEdit { ...defaultProps } /> );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( '.wp-block-jetpack-gif_placeholder' ) ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( 'figure' ) ).not.toBeInTheDocument();
 	} );
 
@@ -99,7 +94,7 @@ describe( 'GifEdit', () => {
 				fetchGiphyData,
 				giphyData: GIPHY_DATA,
 				isFetching: false,
-			}
+			};
 		} );
 		const newProps = {
 			...defaultProps,
@@ -110,22 +105,31 @@ describe( 'GifEdit', () => {
 				searchText: 'a sausage roll',
 			},
 		};
-		const { container, screen } = render( <GifEdit { ...newProps } /> );
+		const { container } = render( <GifEdit { ...newProps } /> );
 
-		expect( container.querySelector( 'form input' ).value ).toEqual( newProps.attributes.searchText );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		expect( container.querySelector( 'form input' ).value ).toEqual(
+			newProps.attributes.searchText
+		);
 
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		fireEvent.submit( container.querySelector( 'form' ) );
 
 		expect( fetchGiphyData ).toHaveBeenCalledWith( getUrl( newProps.attributes.searchText ) );
-		expect( setAttributes.mock.calls[0][0] ).toStrictEqual( {
-			giphyUrl: getEmbedUrl( GIPHY_DATA[0] ),
-			paddingTop: getPaddingTop( GIPHY_DATA[0] ),
+		expect( setAttributes.mock.calls[ 0 ][ 0 ] ).toStrictEqual( {
+			giphyUrl: getEmbedUrl( GIPHY_DATA[ 0 ] ),
+			paddingTop: getPaddingTop( GIPHY_DATA[ 0 ] ),
 		} );
 
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( 'figure' ) ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( 'figcaption' ) ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( '.wp-block-jetpack-gif-wrapper iframe' ) ).toBeInTheDocument();
-		expect( container.querySelectorAll( '.wp-block-jetpack-gif_thumbnail-container' ) ).toHaveLength( 2 );
-
+		expect(
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			container.querySelectorAll( '.wp-block-jetpack-gif_thumbnail-container' )
+		).toHaveLength( 2 );
 	} );
 } );

@@ -19,6 +19,10 @@ class Plan {
 	const JETPACK_SEARCH_PLAN_INFO_OPTION_KEY  = 'jetpack_search_plan_info';
 	const JETPACK_SEARCH_EVER_SUPPORTED_SEARCH = 'jetpack_search_ever_supported_search';
 
+	// The pricing update starting from August 2022.
+	const JETPACK_SEARCH_NEW_PRICING_VERSION = '202208';
+	const JETPACK_SEARCH_FREE_PRODUCT_SLUG   = 'jetpack_search_free';
+
 	/**
 	 * Whether we have hooked the actions.
 	 *
@@ -99,6 +103,14 @@ class Plan {
 	}
 
 	/**
+	 * Returns true if the plan usage is exceeded and search should no longer work.
+	 */
+	public function must_upgrade() {
+		$plan_info = $this->get_plan_info();
+		return isset( $plan_info['plan_usage']['must_upgrade'] ) && $plan_info['plan_usage']['must_upgrade'];
+	}
+
+	/**
 	 * Returns true if the plan only supports Classic Search.
 	 */
 	public function supports_only_classic_search() {
@@ -111,6 +123,14 @@ class Plan {
 	 */
 	public function ever_supported_search() {
 		return (bool) get_option( self::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH ) || $this->supports_search();
+	}
+
+	/**
+	 * Returns true if the site is on free plan.
+	 */
+	public function is_free_plan() {
+		$plan_info = $this->get_plan_info();
+		return Helper::is_forced_free_plan() || ( isset( $plan_info['effective_subscription']['product_slug'] ) && $plan_info['effective_subscription']['product_slug'] === self::JETPACK_SEARCH_FREE_PRODUCT_SLUG );
 	}
 
 	/**

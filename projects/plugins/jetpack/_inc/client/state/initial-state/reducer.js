@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { assign, get, merge } from 'lodash';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { assign, get, merge } from 'lodash';
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
-import { getPlanDuration } from 'state/plans/reducer';
-import { getProducts } from 'state/products';
 import { isCurrentUserLinked } from 'state/connection';
+import { getPlanDuration } from 'state/plans/reducer';
+import { getSiteProducts } from 'state/site-products';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -245,6 +238,16 @@ export function isSiteVisibleToSearchEngines( state ) {
 	return get( state.jetpack.initialState.siteData, [ 'siteVisibleToSearchEngines' ], true );
 }
 
+/**
+ * Returns the site's boost speed scores from the last time it was checked
+ *
+ * @param {object} state - Global state tree
+ * @returns {object}        the boost speed scores and timestamp
+ */
+export function getLatestBoostSpeedScores( state ) {
+	return get( state.jetpack.initialState.siteData, [ 'latestBoostSpeedScores' ] );
+}
+
 export function getApiNonce( state ) {
 	return get( state.jetpack.initialState, 'WP_API_nonce' );
 }
@@ -367,6 +370,16 @@ export function isAtomicPlatform( state ) {
  */
 export function currentThemeSupports( state, feature ) {
 	return get( state.jetpack.initialState.themeData, [ 'support', feature ], false );
+}
+
+/**
+ * Check that the current theme is a block theme.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the current theme is a block theme, false otherwise.
+ */
+export function currentThemeIsBlockTheme( state ) {
+	return get( state.jetpack.initialState.themeData, [ 'isBlockTheme' ], false );
 }
 
 /**
@@ -537,6 +550,16 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 };
 
 /**
+ * Returns the list of products that are available for purchase in the initial state.
+ *
+ * @param {object} state - Global state tree
+ * @returns {Array} - Array of Products that you can purchase.
+ */
+export function getStaticProductsForPurchase( state ) {
+	return get( state.jetpack.initialState, 'products', {} );
+}
+
+/**
  * Returns the list of products that are available for purchase.
  *
  * @param state
@@ -544,7 +567,7 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
  */
 export function getProductsForPurchase( state ) {
 	const staticProducts = get( state.jetpack.initialState, 'products', {} );
-	const jetpackProducts = getProducts( state );
+	const jetpackProducts = getSiteProducts( state );
 	const products = {};
 
 	for ( const [ key, product ] of Object.entries( staticProducts ) ) {
@@ -554,12 +577,14 @@ export function getProductsForPurchase( state ) {
 			key: key,
 			description: product.description,
 			features: product.features,
+			disclaimer: product.disclaimer,
 			available: get( jetpackProducts, [ product.slug, 'available' ], false ),
 			currencyCode: get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
 			showPromotion: product.show_promotion,
 			promotionPercentage: product.discount_percent,
 			includedInPlans: product.included_in_plans,
 			fullPrice: get( jetpackProducts, [ product.slug, 'cost' ], '' ),
+			saleCoupon: get( jetpackProducts, [ product.slug, 'sale_coupon' ], undefined ),
 			upgradeUrl: getRedirectUrl( 'jetpack-product-description-checkout', {
 				path: product.slug,
 			} ),
@@ -622,4 +647,65 @@ export function doNotUseConnectionIframe( state ) {
  */
 export function isWooCommerceActive( state ) {
 	return !! state.jetpack.initialState.isWooCommerceActive;
+}
+
+/**
+ * Returns the Jetpack Cloud URL for the specified resource for the current site.
+ *
+ * @param {object} state - Global state tree.
+ * @param {string} slug - Jetpack Cloud resource slug.
+ * @returns {string} The valid Jetpack Cloud URL
+ */
+export function getJetpackCloudUrl( state, slug ) {
+	return `https://cloud.jetpack.com/${ slug }/${ getSiteRawUrl( state ) }`;
+}
+
+/**
+ * Returns if the new Stats experience is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the new Stats experience is enabled.
+ */
+export function isOdysseyStatsEnabled( state ) {
+	return !! state.jetpack.initialState.isOdysseyStatsEnabled;
+}
+
+/**
+ * Returns true if Blaze can be used on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if Blaze is available on the site.
+ */
+export function shouldInitializeBlaze( state ) {
+	return !! state.jetpack.initialState.shouldInitializeBlaze;
+}
+
+/**
+ * Returns true if the wp-admin Blaze dashboard is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the Blaze dashboard is enabled.
+ */
+export function isBlazeDashboardEnabled( state ) {
+	return !! state.jetpack.initialState.isBlazeDashboardEnabled;
+}
+
+/**
+ * Returns true if Subscribe Modal can be used on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if Subscription Modal is available on the site.
+ */
+export function isSubscriptionModalEnabled( state ) {
+	return !! state.jetpack.initialState.isSubscriptionModalEnabled;
+}
+
+/**
+ * Returns true if Jetpack's Pre-connection helpers are enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if pre-connection helpers are enabled.
+ */
+export function arePreConnectionHelpersEnabled( state ) {
+	return !! state.jetpack.initialState.preConnectionHelpers;
 }

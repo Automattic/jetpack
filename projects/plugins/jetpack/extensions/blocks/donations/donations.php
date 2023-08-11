@@ -25,11 +25,10 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-			'plan_check'      => true,
 			'attributes'      => array(
 				'currency'         => array(
 					'type'    => 'string',
-					'default' => 'USD',
+					'default' => '',
 				),
 				'oneTimeDonation'  => array(
 					'type'    => 'object',
@@ -109,7 +108,7 @@ function render_block( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 	add_thickbox();
 
-	jetpack_require_lib( 'class-jetpack-currencies' );
+	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
 
 	$donations = array(
 		'one-time' => array_merge(

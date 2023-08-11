@@ -1,0 +1,155 @@
+/*!
+ * Jetpack CRM
+ * http://zerobscrm.com
+ * V2.2
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 29/07/2017
+ */
+
+#zbs-list-col-editor {
+
+    margin-bottom: 46px;
+    margin-top: 16px;
+    margin-right:1em;
+
+	#zbs-column-manager-current-cols {
+		
+		// needed to drop into empty list:
+		min-height:34px;
+
+		.ui.basic.button {
+			margin-top:4px;
+		}
+
+	}
+	#zbs-column-manager-available-cols {
+
+		// needed to drop into empty list:
+		min-height:34px;
+
+		.ui.basic.button {
+			margin-top:4px;
+		}
+
+	}
+
+}
+
+// ==========  bulk actions bits
+
+// this corrects a glitch in labels + checkboxes
+.zbs-select-tag.ui.label {
+
+    margin-right: 0.5em;
+    margin-bottom: 0.4em;
+
+	.ui.checkbox {
+
+		    margin-top: 0;
+		    margin-bottom: 0;
+		    padding-left: 0 !important;
+
+		    label {
+
+    			margin-bottom: 0;
+
+		    }
+	
+	}
+
+}
+
+// blue labels = white text
+.zbs-select-tag.ui.label.blue .ui.checkbox label {
+ 	
+ 	   color: #FFF;
+ 	   
+}
+
+
+// ==========  / bulk actions bits
+
+//ui header stuff
+// company list contacts HTML..
+
+.zero-bs-crm_page_manage-companies-crm{
+	.zbs-co-img{
+		img{
+			width:30px;
+			height:auto;
+			float:left;
+			margin-right:2px;
+			border-radius:50%;
+		}
+	}
+
+}
+
+// avatar's fixed size 
+.jpcrm-listview-table {
+
+	.jpcrm_name_and_avatar {
+		display: flex;
+		align-items: center;
+
+		img {
+			max-width: 40px;
+			border-radius: 50%;
+			margin-right: 5px;
+		}
+
+		div {
+			overflow-x: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.icon {
+			font-size: 2em;
+			padding-top: .14285714em;
+		}
+	}
+}
+
+// err msg fix
+#zbs-list-warnings-wrap .ui.message {
+	
+    max-width: 80%;
+    margin-bottom: 5em;
+    margin-top: 4em;
+    margin-left: auto;
+    margin-right: Auto;
+    
+}
+
+// drop target for col manager
+.zbs-column-manager-droptarget {
+	width:90px;
+	height:26px !important;
+	margin-top:4px !important;
+	vertical-align: top;
+}
+// always ready for drop
+.zbs-column-manager-connected {
+	min-height:2em;
+}
+
+/* 
+		INLINE Editing
+*/
+.jpcrm-listview-table td.zbs-inline-edit:hover {
+     border-bottom: 2px dashed #8bb7de;
+     cursor:pointer;
+}
+// when editing:
+.jpcrm-listview-table td.zbs-inline-editing {
+	border-bottom: 2px dashed orange;
+	text-align: center;
+	padding-top: 0.6em;
+}
+
+.jpcrm-listview-table-container .jpcrm-pagination-container {
+	text-align: right;
+	margin-bottom: 10px;
+}

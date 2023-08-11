@@ -67,7 +67,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 	);
 
 	if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
-		\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-instagram-gallery-helper.php';
 	}
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
 
@@ -116,6 +116,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 				<img
 					alt="<?php echo esc_attr( $image->title ? $image->title : $image->link ); ?>"
 					src="<?php echo esc_url( $image->url ); ?>"
+					loading="lazy"
 				/>
 			</a>
 		<?php endforeach; ?>

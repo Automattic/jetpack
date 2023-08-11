@@ -2,22 +2,15 @@
  *WARNING: No ES6 modules here. Not transpiled! ****
  */
 
-/**
- * External dependencies
- */
 const fs = require( 'fs' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const webpack = jetpackWebpackConfig.webpack;
-const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const jsdom = require( 'jsdom' );
-
-/**
- * Internal dependencies
- */
 const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
+const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plugin' );
 
 /**
  * Internal variables
@@ -122,6 +115,12 @@ const sharedWebpackConfig = {
 			DependencyExtractionPlugin: { injectPolyfill: true },
 		} ),
 	],
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack',
+		} ),
+	},
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -156,6 +155,14 @@ const sharedWebpackConfig = {
 					'sass-loader',
 				],
 			} ),
+
+			// Allow importing .svg files as React components by appending `?component` to the import, e.g. `import Logo from './logo.svg?component';`
+			{
+				test: /\.svg$/i,
+				issuer: /\.[jt]sx?$/,
+				resourceQuery: /component/,
+				use: [ '@svgr/webpack' ],
+			},
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),

@@ -74,7 +74,7 @@ class Jetpack_Untappd {
 		$html .= 'PreloadEmbedMenu( "menu-container-untappd-' . $untappd_menu . '",' . $atts['location'] . ',' . $atts['theme'] . ' )});' . PHP_EOL;
 		$html .= '</script>';
 
-		$untappd_menu++;
+		++$untappd_menu;
 
 		return $html;
 	}

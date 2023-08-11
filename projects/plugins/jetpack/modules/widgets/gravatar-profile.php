@@ -1,5 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 add_action( 'widgets_init', 'jetpack_gravatar_profile_widget_init' );
 /**
@@ -159,10 +160,8 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			</a></p>
 
 			<?php
-		} else {
-			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo '<p>' . esc_html__( 'Error loading profile', 'jetpack' ) . '</p>';
-			}
+		} elseif ( current_user_can( 'edit_theme_options' ) ) {
+			echo '<p>' . esc_html__( 'Error loading profile', 'jetpack' ) . '</p>';
 		}
 
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

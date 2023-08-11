@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import AddressEdit from '../edit';
 
 const defaultAttributes = {
@@ -89,7 +81,7 @@ describe( 'Address', () => {
 		};
 		render( <AddressEdit { ...propsSelected } /> );
 
-		expect( screen.getByPlaceholderText( 'Street Address' ).value ).toEqual( '987 Photon Drive' );
+		expect( screen.getByPlaceholderText( 'Street Address' ).value ).toBe( '987 Photon Drive' );
 		expect( screen.getByPlaceholderText( 'Address Line 2' ) ).toBeInTheDocument();
 		expect( screen.getByPlaceholderText( 'Address Line 3' ) ).toBeInTheDocument();
 		expect( screen.getByPlaceholderText( 'City' ) ).toBeInTheDocument();
@@ -99,70 +91,85 @@ describe( 'Address', () => {
 		expect( screen.getByLabelText( 'Link address to Google Maps' ) ).toBeInTheDocument();
 	} );
 
-	test( 'updates Google Maps setting when selected', () => {
+	test( 'updates Google Maps setting when selected', async () => {
+		const user = userEvent.setup();
 		const propsSelected = {
 			...defaultProps,
 			attributes: { ...defaultAttributes, ...completeAddress },
 			isSelected: true,
 		};
 		render( <AddressEdit { ...propsSelected } /> );
-		userEvent.click( screen.getByLabelText( 'Link address to Google Maps' ) );
+		await user.click( screen.getByLabelText( 'Link address to Google Maps' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { linkToGoogleMaps: true } );
 	} );
 
-	test( 'entering value into the address field updates the address', () => {
+	test( 'entering value into the address field updates the address', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <AddressEdit { ...propsSelected } /> );
-		userEvent.paste( screen.getByPlaceholderText( 'Street Address' ), 'ATTN: Test Person' );
+		await user.click( screen.getByPlaceholderText( 'Street Address' ) );
+		await user.paste( 'ATTN: Test Person' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { address: completeAddress.addressLine1 } );
 	} );
 
-	test( 'entering value into the addressLine2 field updates the address', () => {
+	test( 'entering value into the addressLine2 field updates the address', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <AddressEdit { ...propsSelected } /> );
-		userEvent.paste( screen.getByPlaceholderText( 'Address Line 2' ), '987 Photon Drive' );
+		await user.click( screen.getByPlaceholderText( 'Address Line 2' ) );
+		await user.paste( '987 Photon Drive' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { addressLine2: completeAddress.addressLine2 } );
 	} );
 
-	test( 'entering value into the addressLine3 field updates the address', () => {
+	test( 'entering value into the addressLine3 field updates the address', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <AddressEdit { ...propsSelected } /> );
-		userEvent.paste( screen.getByPlaceholderText( 'Address Line 3' ), 'Apartment 5' );
+		await user.click( screen.getByPlaceholderText( 'Address Line 3' ) );
+		await user.paste( 'Apartment 5' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { addressLine3: completeAddress.addressLine3 } );
 	} );
 
-	test( 'entering value into the city field updates the city', () => {
+	test( 'entering value into the city field updates the city', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <AddressEdit { ...propsSelected } /> );
-		userEvent.paste( screen.getByPlaceholderText( 'City' ), 'Speedyville' );
+		await user.click( screen.getByPlaceholderText( 'City' ) );
+		await user.paste( 'Speedyville' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { city: completeAddress.city } );
 	} );
 
-	test( 'entering value into the region field updates the region', () => {
+	test( 'entering value into the region field updates the region', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <AddressEdit { ...propsSelected } /> );
-		userEvent.paste( screen.getByPlaceholderText( 'State/Province/Region' ), 'CA' );
+		await user.click( screen.getByPlaceholderText( 'State/Province/Region' ) );
+		await user.paste( 'CA' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { region: completeAddress.region } );
 	} );
 
-	test( 'entering value into the postal field updates the postal code', () => {
+	test( 'entering value into the postal field updates the postal code', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <AddressEdit { ...propsSelected } /> );
-		userEvent.paste( screen.getByPlaceholderText( 'Postal/Zip Code' ), '12345' );
+		await user.click( screen.getByPlaceholderText( 'Postal/Zip Code' ) );
+		await user.paste( '12345' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { postal: completeAddress.postal } );
 	} );
 
-	test( 'entering value into the country field updates the country', () => {
+	test( 'entering value into the country field updates the country', async () => {
+		const user = userEvent.setup();
 		const propsSelected = { ...defaultProps, isSelected: true };
 		render( <AddressEdit { ...propsSelected } /> );
-		userEvent.paste( screen.getByPlaceholderText( 'Country' ), 'USA' );
+		await user.click( screen.getByPlaceholderText( 'Country' ) );
+		await user.paste( 'USA' );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { country: completeAddress.country } );
 	} );

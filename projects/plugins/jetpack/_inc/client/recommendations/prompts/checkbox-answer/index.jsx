@@ -1,29 +1,18 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
+import InfoPopover from 'components/info-popover';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import InfoPopover from 'components/info-popover';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import { getDataByKey, updateRecommendationsData } from 'state/recommendations';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheckboxAnswer } ) => {
-	const toggleCheckbox = useCallback( () => updateCheckboxAnswer( { [ answerKey ]: ! checked } ), [
-		answerKey,
-		checked,
-		updateCheckboxAnswer,
-	] );
+	const toggleCheckbox = useCallback(
+		() => updateCheckboxAnswer( { [ answerKey ]: ! checked } ),
+		[ answerKey, checked, updateCheckboxAnswer ]
+	);
 
 	const onPopoverClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_site_type_popover_click', {
@@ -33,7 +22,10 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 
 	return (
 		<div className="jp-checkbox-answer__container">
-			<div className={ classNames( 'jp-checkbox-answer__checkbox', { checked } ) }>
+			<label
+				htmlFor={ answerKey }
+				className={ classNames( 'jp-checkbox-answer__title', { checked } ) }
+			>
 				<input
 					id={ answerKey }
 					className="jp-checkbox-answer__checkbox-input"
@@ -41,10 +33,8 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 					checked={ checked }
 					onChange={ toggleCheckbox }
 				/>
-				<label htmlFor={ answerKey } className="jp-checkbox-answer__title">
-					{ title }
-				</label>
-			</div>
+				{ title }
+			</label>
 			<div className="jp-checkbox-answer__info">
 				<InfoPopover position="top right" onClick={ onPopoverClick }>
 					{ info }

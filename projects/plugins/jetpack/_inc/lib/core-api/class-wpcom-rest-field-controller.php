@@ -67,6 +67,9 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 	 */
 	public function register_fields() {
 		foreach ( (array) $this->object_type as $object_type ) {
+			if ( $this->is_registered( $object_type ) ) {
+				continue;
+			}
 			register_rest_field(
 				$object_type,
 				$this->field_name,
@@ -77,6 +80,18 @@ abstract class WPCOM_REST_API_V2_Field_Controller {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Checks if the field is already registered for the object_type
+	 *
+	 * @param string $object_type The name of the object type.
+	 * @return boolean Whether the field has been registered for the type.
+	 */
+	public function is_registered( $object_type ) {
+		global $wp_rest_additional_fields;
+
+		return ! empty( $wp_rest_additional_fields[ $object_type ][ $this->field_name ] );
 	}
 
 	/**

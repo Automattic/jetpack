@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<ruleset>
+
+	<!-- This doesn't run inside of WordPress, do we don't need to use WordPress's alternative functions. -->
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<severity>0</severity>
+	</rule>
+
+</ruleset>

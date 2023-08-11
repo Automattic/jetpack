@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Updated .gitattributes file so it is able to build properly by the CI build jobs

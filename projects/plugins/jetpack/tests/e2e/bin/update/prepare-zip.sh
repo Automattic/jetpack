@@ -25,9 +25,9 @@ find -L jetpack ! -path '**/node_modules/*' ! -path '**/\.cache/*' ! -path '**/t
 printf "\nZip file created: %s\n" "$ZIP_FILE"
 
 printf "\nCopying zip file to docker container\n"
-pnpx jetpack docker --type e2e --name t1 exec-silent mkdir -- -p /var/www/html/wp-content/uploads
+pnpm jetpack docker --type e2e --name t1 exec-silent mkdir -- -p /var/www/html/wp-content/uploads
 
 # Get container's ID. Cannot use hardcoded container name because it's different in MacOs vs Linux: https://github.com/docker/for-mac/issues/6035
 CONTAINER_ID=$(docker ps -f "name=jetpack_t1" -f "ancestor=automattic/jetpack-wordpress-dev" --format "{{.ID}}")
 docker cp "$ZIP_FILE" "$CONTAINER_ID":/var/www/html/wp-content/uploads/jetpack-next.zip
-pnpx jetpack docker --type e2e --name t1 exec-silent ls /var/www/html/wp-content/uploads
+pnpm jetpack docker --type e2e --name t1 exec-silent ls /var/www/html/wp-content/uploads

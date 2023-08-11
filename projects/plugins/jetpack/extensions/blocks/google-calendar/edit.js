@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
-import { useEffect, useState } from '@wordpress/element';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { InspectorControls } from '@wordpress/block-editor';
+import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { Placeholder, SandBox, Button, ExternalLink, withNotices } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
-import { InspectorControls } from '@wordpress/block-editor';
+import { useEffect, useState } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import { withViewportMatch } from '@wordpress/viewport';
-import { getBlockDefaultClassName } from '@wordpress/blocks';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import GoogleCalendarInspectorControls from './controls';
 import icon from './icon';
 import { URL_REGEX, parseEmbed } from './utils';

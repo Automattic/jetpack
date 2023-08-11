@@ -21,6 +21,13 @@ class Test_Terms_Of_Service extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
+	 * Terms_Of_Service mock object.
+	 *
+	 * @var Terms_Of_Service
+	 */
+	public $terms_of_service;
+
+	/**
 	 * Test setup.
 	 *
 	 * @before

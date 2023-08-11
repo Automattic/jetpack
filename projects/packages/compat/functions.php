@@ -19,7 +19,7 @@ if ( function_exists( 'add_filter' ) ) {
 			'function'      => $cb,
 		);
 	};
-	$add_action                                    = $add_filter;
+	$add_action = $add_filter;
 }
 
 /**

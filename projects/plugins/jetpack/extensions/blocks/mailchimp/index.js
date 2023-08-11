@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Path, SVG, G } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import './editor.scss';
-import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'mailchimp';
 

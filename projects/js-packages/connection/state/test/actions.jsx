@@ -1,11 +1,3 @@
-/**
- * External dependencies
- */
-import { expect } from 'chai';
-
-/**
- * Internal dependencies
- */
 import actions, {
 	SET_USER_IS_CONNECTING,
 	CONNECT_USER,
@@ -23,11 +15,11 @@ describe( 'actions', () => {
 			const redirectFunc = () => {};
 			const from = 'FROM';
 			const action = actions.connectUser( { from, redirectFunc } );
-			expect( action.next().value ).to.be.eql( {
+			expect( action.next().value ).toEqual( {
 				isConnecting: true,
 				type: SET_USER_IS_CONNECTING,
 			} );
-			expect( action.next().value ).to.be.eql( {
+			expect( action.next().value ).toEqual( {
 				type: CONNECT_USER,
 				from,
 				redirectFunc,
@@ -40,11 +32,11 @@ describe( 'actions', () => {
 			const from = 'FROM';
 			const redirectUri = 'REDIRECT';
 			const action = actions.connectUser( { from, redirectFunc, redirectUri } );
-			expect( action.next().value ).to.be.eql( {
+			expect( action.next().value ).toEqual( {
 				isConnecting: true,
 				type: SET_USER_IS_CONNECTING,
 			} );
-			expect( action.next().value ).to.be.eql( {
+			expect( action.next().value ).toEqual( {
 				type: CONNECT_USER,
 				from,
 				redirectFunc,
@@ -60,29 +52,29 @@ describe( 'actions', () => {
 			const redirectUri = 'REDIRECT_URI';
 			const action = actions.registerSite( { registrationNonce, redirectUri } );
 
-			expect( action.next().value ).to.be.eql( { type: CLEAR_REGISTRATION_ERROR } );
-			expect( action.next().value ).to.be.eql( {
+			expect( action.next().value ).toEqual( { type: CLEAR_REGISTRATION_ERROR } );
+			expect( action.next().value ).toEqual( {
 				type: SET_SITE_IS_REGISTERING,
 				isRegistering: true,
 			} );
-			expect( action.next().value ).to.be.eql( {
+			expect( action.next().value ).toEqual( {
 				type: REGISTER_SITE,
 				registrationNonce,
 				redirectUri,
 			} );
 
-			expect( action.next( response ).value ).to.be.eql( {
+			expect( action.next( response ).value ).toEqual( {
 				type: SET_CONNECTION_STATUS,
 				connectionStatus: {
 					isRegistered: true,
 				},
 			} );
 
-			expect( action.next().value ).to.be.eql( {
+			expect( action.next().value ).toEqual( {
 				type: SET_AUTHORIZATION_URL,
 				authorizationUrl: response.authorizeUrl,
 			} );
-			expect( action.next().value ).to.be.eql( {
+			expect( action.next().value ).toEqual( {
 				type: SET_SITE_IS_REGISTERING,
 				isRegistering: false,
 			} );
@@ -94,23 +86,23 @@ describe( 'actions', () => {
 			const redirectUri = 'REDIRECT_URI';
 			const action = actions.registerSite( { registrationNonce, redirectUri } );
 
-			expect( action.next().value ).to.be.eql( { type: CLEAR_REGISTRATION_ERROR } );
-			expect( action.next().value ).to.be.eql( {
+			expect( action.next().value ).toEqual( { type: CLEAR_REGISTRATION_ERROR } );
+			expect( action.next().value ).toEqual( {
 				type: SET_SITE_IS_REGISTERING,
 				isRegistering: true,
 			} );
-			expect( action.next().value ).to.be.eql( {
+			expect( action.next().value ).toEqual( {
 				type: REGISTER_SITE,
 				registrationNonce,
 				redirectUri,
 			} );
 
-			expect( action.throw( error ).value ).to.be.eql( {
+			expect( action.throw( error ).value ).toEqual( {
 				type: SET_REGISTRATION_ERROR,
 				registrationError: error,
 			} );
 
-			expect( action.next().value ).to.be.eql( {
+			expect( action.next().value ).toEqual( {
 				type: SET_SITE_IS_REGISTERING,
 				isRegistering: false,
 			} );

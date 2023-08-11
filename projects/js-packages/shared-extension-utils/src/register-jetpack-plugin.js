@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { registerPlugin } from '@wordpress/plugins';
-
-/**
- * Internal dependencies
- */
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 
 /**

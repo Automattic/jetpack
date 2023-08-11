@@ -1,15 +1,8 @@
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 
-/**
- * External Dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-
-/**
- * Internal Dependencies
- */
 import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React from 'react';
 import '../../disconnect-survey/_jp-connect_disconnect-survey-card.scss';
 import DisconnectSurvey from '../../disconnect-survey';
 

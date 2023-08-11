@@ -8,7 +8,7 @@ source "$BASE/tests/funcs.sh"
 test_init_repo
 test_make_commits ROOT A B C PR1
 test_make_commits A PR2
-test_make_branch master C
+test_make_branch main C
 test_make_pr 1 PR1
 test_make_pr 2 PR2
 test_make_tag tagA A

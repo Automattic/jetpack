@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { PlainText } from '@wordpress/block-editor';
 import { View } from 'react-native';
 

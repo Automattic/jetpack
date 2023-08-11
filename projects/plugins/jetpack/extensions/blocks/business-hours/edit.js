@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-import classNames from 'classnames';
-import { __ } from '@wordpress/i18n';
-import { __experimentalGetSettings } from '@wordpress/date';
-import { Component } from '@wordpress/element';
 import { Placeholder } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { getSettings } from '@wordpress/date';
+import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import DayEdit from './components/day-edit';
 import DayPreview from './components/day-preview';
 import { icon } from '.';
@@ -63,7 +56,7 @@ class BusinessHours extends Component {
 		}
 
 		if ( ! isSelected ) {
-			const settings = __experimentalGetSettings();
+			const settings = getSettings();
 			const {
 				formats: { time },
 			} = settings;

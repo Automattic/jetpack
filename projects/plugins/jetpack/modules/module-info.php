@@ -97,7 +97,7 @@ function wpme_more_info() {
 add_action( 'jetpack_module_more_info_shortlinks', 'wpme_more_info' );
 
 /**
- * Site Stats support link.
+ * Jetpack Stats support link.
  */
 function stats_load_more_link() {
 	echo esc_url( Redirect::get_url( 'jetpack-support-wordpress-com-stats' ) );
@@ -105,11 +105,11 @@ function stats_load_more_link() {
 add_filter( 'jetpack_learn_more_button_stats', 'stats_load_more_link' );
 
 /**
- * Site Stats description.
+ * Jetpack Stats description.
  */
 function stats_more_info() {
 	esc_html_e(
-		'Simple and concise statistics about your traffic. Jetpack collects data about pageviews, likes, comments,
+		'Simple and concise statistics about your traffic. Jetpack Stats collects data on page views, likes, comments,
 		locations, and top posts. View them in your dashboard or on WordPress.com.',
 		'jetpack'
 	);
@@ -129,7 +129,7 @@ add_filter( 'jetpack_learn_more_button_publicize', 'publicize_load_more_link' );
  */
 function publicize_more_info() {
 	esc_html_e(
-		'Automatically share and promote newly published posts to Facebook, Twitter, Tumblr,
+		'Automatically share and promote newly published posts to Facebook, Tumblr,
 		and LinkedIn. You can add connections for yourself or for all users on your site.',
 		'jetpack'
 	);
@@ -724,6 +724,25 @@ function jetpack_custom_jetpack_manage() {
 add_action( 'jetpack_module_more_info_manage', 'jetpack_custom_jetpack_manage' );
 
 /**
+ * Post list info.
+ */
+function jetpack_post_list_link() {
+	echo esc_url( Redirect::get_url( 'jetpack-support-post-list' ) );
+}
+add_action( 'jetpack_learn_more_button_post-list', 'jetpack_post_list_link' );
+
+/**
+ * Post List description.
+ */
+function jetpack_post_list_info() {
+	esc_html_e(
+		'Display extra information alongside each post in your dashboard’s Posts screen.',
+		'jetpack'
+	);
+}
+add_action( 'jetpack_module_more_info_post-list', 'jetpack_post_list_info' );
+
+/**
  * Sitemaps support link.
  */
 function jetpack_sitemaps_more_link() {
@@ -889,3 +908,35 @@ function jetpack_more_info_google_fonts() {
 	esc_html_e( 'A selection of Google fonts for block enabled themes.  This feature is still being developed.', 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_google-fonts', 'jetpack_more_info_google_fonts' );
+
+/**
+ * WAF support link.
+ */
+function jetpack_waf_more_link() {
+	echo esc_url( Redirect::get_url( 'jetpack-support-waf' ) );
+}
+add_action( 'jetpack_learn_more_button_waf', 'jetpack_waf_more_link' );
+
+/**
+ * WAF description.
+ */
+function jetpack_more_info_waf() {
+	esc_html_e( 'The Jetpack Firewall is a web application firewall designed to protect your WordPress site from malicious requests.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_waf', 'jetpack_more_info_waf' );
+
+/**
+ * Blaze support link.
+ */
+function jetpack_blaze_more_link() {
+	echo esc_url( Redirect::get_url( 'jetpack-support-blaze' ) );
+}
+add_action( 'jetpack_learn_more_button_blaze', 'jetpack_blaze_more_link' );
+
+/**
+ * Blaze description.
+ */
+function jetpack_more_info_blaze() {
+	esc_html_e( 'Grow your audience by promoting your content across Tumblr and WordPress.com.', 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_blaze', 'jetpack_more_info_blaze' );

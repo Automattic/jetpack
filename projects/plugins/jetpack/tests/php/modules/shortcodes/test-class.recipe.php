@@ -65,6 +65,11 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	public function test_add_scripts_amp() {
 		global $posts;
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
+			return;
+		}
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$post               = new stdClass();
 		$post->post_content = '[recipe]';
@@ -82,12 +87,12 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_exists() {
-		$this->assertEquals( shortcode_exists( 'recipe' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-notes' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-ingredients' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-directions' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-nutrition' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-image' ), true );
+		$this->assertTrue( shortcode_exists( 'recipe' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-notes' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-ingredients' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-directions' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-nutrition' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-image' ) );
 	}
 
 	/**
@@ -169,7 +174,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_recipe_image_valid_attachment() {
 		// Create a mock attachment.
-		$attachment_id = $this->factory->attachment->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
+		$attachment_id = self::factory()->attachment->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
 		$url           = wp_get_attachment_url( $attachment_id );
 
 		// Get shortcode with new attachment.
@@ -182,16 +187,16 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 			function_exists( 'wp_lazy_loading_enabled' )
 			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
 		) {
-			$this->assertStringContainsString(
-				'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" loading="lazy" itemprop="image" />',
-				$shortcode_content
-			);
+			// WP 6.3 changes the order of the attributes.
+			if ( function_exists( 'wp_img_tag_add_loading_optimization_attrs' ) ) {
+				$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" loading="lazy" />';
+			} else {
+				$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" loading="lazy" itemprop="image" />';
+			}
 		} else {
-			$this->assertStringContainsString(
-				'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />',
-				$shortcode_content
-			);
+			$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />';
 		}
+		$this->assertStringContainsString( $expect, $shortcode_content );
 	}
 
 	/**
@@ -332,7 +337,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_recipe_image_shortcode_attachment() {
 		// Create a mock attachment.
-		$attachment_id = $this->factory->attachment->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
+		$attachment_id = self::factory()->attachment->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
 		$url           = wp_get_attachment_url( $attachment_id );
 
 		// Get shortcode with new attachment.
@@ -349,7 +354,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_recipe_image_shortcode_attachment_attr() {
 		// Create a mock attachment.
-		$attachment_id = $this->factory->attachment->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
+		$attachment_id = self::factory()->attachment->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
 		$url           = wp_get_attachment_url( $attachment_id );
 
 		// Get shortcode with new attachment.
@@ -442,6 +447,11 @@ EOT;
 	 * @since 8.5.0
 	 */
 	public function test_shortcodes_recipe_amp( $shortcode, $expected ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
+			return;
+		}
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
 		$expected = preg_replace( '/\s+/', ' ', $expected );

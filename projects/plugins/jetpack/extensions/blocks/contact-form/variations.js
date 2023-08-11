@@ -1,93 +1,152 @@
-/**
- * External dependencies
- */
-import { compact } from 'lodash';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import renderMaterialIcon from '../../shared/render-material-icon';
+import { __ } from '@wordpress/i18n';
+import { compact } from 'lodash';
 import { getIconColor } from '../../shared/block-icons';
+import renderMaterialIcon from '../../shared/render-material-icon';
+
+const defaultBlockStyling = {
+	style: {
+		spacing: {
+			padding: {
+				top: '16px',
+				right: '16px',
+				bottom: '16px',
+				left: '16px',
+			},
+		},
+	},
+};
 
 const variations = compact( [
 	{
 		name: 'contact-form',
 		title: __( 'Contact Form', 'jetpack' ),
-		description: __( 'Add a contact form to your page.', 'jetpack' ),
+		description: __( 'Add a contact form to your page', 'jetpack' ),
 		icon: renderMaterialIcon(
-			<Path
-				fill={ getIconColor() }
-				d="M21.99 8c0-.72-.37-1.35-.94-1.7l-8.04-4.71c-.62-.37-1.4-.37-2.02 0L2.95 6.3C2.38 6.65 2 7.28 2 8v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2l-.01-10zm-11.05 4.34l-7.2-4.5 7.25-4.25c.62-.37 1.4-.37 2.02 0l7.25 4.25-7.2 4.5c-.65.4-1.47.4-2.12 0z"
-			/>,
-			48,
-			48,
-			'-4 -4 32 32'
+			<>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M12 5.3203L6.6477 9L12 12.6797L17.3523 9L12 5.3203ZM12 3.5L4 9L12 14.5L20 9L12 3.5Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M4 18V9H5.5V18C5.5 18.4142 5.83579 18.75 6.25 18.75H17.75C18.1642 18.75 18.5 18.4142 18.5 18V9H20V18C20 19.2426 18.9926 20.25 17.75 20.25H6.25C5.00736 20.25 4 19.2426 4 18Z"
+					fill={ getIconColor() }
+				/>
+			</>,
+			24,
+			24,
+			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
-			[ 'jetpack/field-textarea', {} ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-textarea', { label: __( 'Message', 'jetpack' ) } ],
 			[
 				'jetpack/button',
 				{
 					text: __( 'Contact Us', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],
+		attributes: {
+			...defaultBlockStyling,
+		},
 	},
 	! isSimpleSite() && {
 		name: 'newsletter-form',
-		title: __( 'Newsletter Sign-up', 'jetpack' ),
+		title: __( 'Sign-up', 'jetpack' ),
 		description: __(
-			'A simple way to collect information from folks visiting your site.',
+			'A simple way to collect information from folks visiting your site',
 			'jetpack'
 		),
+		keywords: [ __( 'subscribe', 'jetpack' ), __( 'email', 'jetpack' ), __( 'signup', 'jetpack' ) ],
 		icon: renderMaterialIcon(
-			<Path
-				fill={ getIconColor() }
-				d="M37.9999 7.59998C49.3999 7.59998 68.3999 26.6 68.3999 26.6V68.4H7.59985V26.6C7.59985 26.6 26.5999 7.59998 37.9999 7.59998ZM64.5999 63.536L50.4259 52.44L64.5999 41.8L62.9659 40.394L54.3779 45.334L55.2899 28.956L21.9639 26.98L20.2159 44.232L12.6539 40.622L11.3999 41.8L25.5739 52.44L12.5019 63.27L14.0219 64.904L37.9999 49.4L62.8139 65.17L64.5999 63.536Z"
-			/>,
-			48,
-			48,
-			'-6 -6 92 92'
+			<>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M7 8C7 7.72386 7.22386 7.5 7.5 7.5H19.5C19.7761 7.5 20 7.72386 20 8V16C20 16.2761 19.7761 16.5 19.5 16.5H10.5V18H19.5C20.6046 18 21.5 17.1046 21.5 16V8C21.5 6.89543 20.6046 6 19.5 6H7.5C6.39543 6 5.5 6.89543 5.5 8V9.5H7V8Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M9 15.25H3V13.75H9V15.25Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M9 12.5H4V11H9V12.5Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M9 18H2V16.5H9V18Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M6.01196 7.56955L6.98815 6.43066L13.5001 12.0123L20.012 6.43066L20.9881 7.56955L13.5001 13.9879L6.01196 7.56955Z"
+					fill={ getIconColor() }
+				/>
+			</>,
+			24,
+			24,
+			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
 			[ 'jetpack/field-consent', {} ],
 			[
 				'jetpack/button',
 				{
 					text: __( 'Subscribe', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],
+		attributes: {
+			...defaultBlockStyling,
+		},
 	},
 	{
 		name: 'rsvp-form',
 		title: __( 'RSVP Form', 'jetpack' ),
 		description: __( 'Add an RSVP form to your page', 'jetpack' ),
 		icon: renderMaterialIcon(
-			<Path
-				fill={ getIconColor() }
-				d="M10 9V7.41c0-.89-1.08-1.34-1.71-.71L3.7 11.29c-.39.39-.39 1.02 0 1.41l4.59 4.59c.63.63 1.71.19 1.71-.7V14.9c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"
-			/>,
-			48,
-			48,
-			'-4 -3 32 32'
+			<>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M7.87868 15.5L5.5 17.8787L5.5 6C5.5 5.72386 5.72386 5.5 6 5.5L18 5.5C18.2761 5.5 18.5 5.72386 18.5 6L18.5 15C18.5 15.2761 18.2761 15.5 18 15.5L7.87868 15.5ZM8.5 17L18 17C19.1046 17 20 16.1046 20 15L20 6C20 4.89543 19.1046 4 18 4L6 4C4.89543 4 4 4.89543 4 6L4 18.9393C4 19.5251 4.47487 20 5.06066 20C5.34196 20 5.61175 19.8883 5.81066 19.6893L8.5 17Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M15.6087 7.93847L11.4826 13.6692L8.45898 10.5196L9.54107 9.48084L11.3175 11.3313L14.3914 7.06201L15.6087 7.93847Z"
+					fill={ getIconColor() }
+				/>
+			</>,
+			24,
+			24,
+			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
 			[
 				'jetpack/field-radio',
 				{
@@ -102,10 +161,12 @@ const variations = compact( [
 				{
 					text: __( 'Send RSVP', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'A new RSVP from your website', 'jetpack' ),
 		},
 	},
@@ -114,18 +175,32 @@ const variations = compact( [
 		title: __( 'Registration Form', 'jetpack' ),
 		description: __( 'Add a Registration form to your page', 'jetpack' ),
 		icon: renderMaterialIcon(
-			<Path
-				fill={ getIconColor() }
-				d="M11.34 15.02c.39.39 1.02.39 1.41 0l6.36-6.36c.39-.39.39-1.02 0-1.41L14.16 2.3c-.38-.4-1.01-.4-1.4-.01L6.39 8.66c-.39.39-.39 1.02 0 1.41l4.95 4.95zm2.12-10.61L17 7.95l-4.95 4.95-3.54-3.54 4.95-4.95zm6.95 11l-2.12-2.12c-.18-.18-.44-.29-.7-.29h-.27l-2 2h1.91L19 17H5l1.78-2h2.05l-2-2h-.42c-.27 0-.52.11-.71.29l-2.12 2.12c-.37.38-.58.89-.58 1.42V20c0 1.1.9 2 2 2h14c1.1 0 2-.89 2-2v-3.17c0-.53-.21-1.04-.59-1.42z"
-			/>,
-			48,
-			48,
-			'-4 -3 32 32'
+			<>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M18.5 5.5V8H20V5.5H22.5V4H20V1.5H18.5V4H16V5.5H18.5ZM12 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V12H18.5V18C18.5 18.2761 18.2761 18.5 18 18.5H6C5.72386 18.5 5.5 18.2761 5.5 18V6C5.5 5.72386 5.72386 5.5 6 5.5H12V4Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					d="M16.75 17.5V15.5C16.75 13.9812 15.5188 12.75 14 12.75H10C8.48122 12.75 7.25 13.9812 7.25 15.5V17.5H8.75V15.5C8.75 14.8096 9.30964 14.25 10 14.25H14C14.6904 14.25 15.25 14.8096 15.25 15.5V17.5H16.75Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M14.5 9C14.5 10.3807 13.3807 11.5 12 11.5C10.6193 11.5 9.5 10.3807 9.5 9C9.5 7.61929 10.6193 6.5 12 6.5C13.3807 6.5 14.5 7.61929 14.5 9ZM13 9C13 9.55228 12.5523 10 12 10C11.4477 10 11 9.55228 11 9C11 8.44772 11.4477 8 12 8C12.5523 8 13 8.44772 13 9Z"
+					fill={ getIconColor() }
+				/>
+			</>,
+			24,
+			24,
+			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
-			[ 'jetpack/field-telephone', { label: __( 'Phone Number', 'jetpack' ) } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-telephone', { label: __( 'Phone', 'jetpack' ) } ],
 			[
 				'jetpack/field-select',
 				{
@@ -145,10 +220,12 @@ const variations = compact( [
 				{
 					text: __( 'Send', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'A new registration from your website', 'jetpack' ),
 		},
 	},
@@ -157,18 +234,39 @@ const variations = compact( [
 		title: __( 'Appointment Form', 'jetpack' ),
 		description: __( 'Add an Appointment booking form to your page', 'jetpack' ),
 		icon: renderMaterialIcon(
-			<Path
-				fill={ getIconColor() }
-				d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V8c0-.55-.45-1-1-1s-1 .45-1 1v2H2c-.55 0-1 .45-1 1s.45 1 1 1h2v2c0 .55.45 1 1 1s1-.45 1-1v-2h2c.55 0 1-.45 1-1s-.45-1-1-1H6zm9 4c-2.67 0-8 1.34-8 4v1c0 .55.45 1 1 1h14c.55 0 1-.45 1-1v-1c0-2.66-5.33-4-8-4z"
-			/>,
-			48,
-			48,
-			'-4 -3 32 32'
+			<>
+				<Path
+					d="M4 6C4 4.89543 4.89543 4 6 4H18C19.1046 4 20 4.89543 20 6V8H4V6Z"
+					fill={ getIconColor() }
+				/>
+				<Path d="M7 9.25H11V13.25H7V9.25Z" fill={ getIconColor() } />
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M6 5.5H18C18.2761 5.5 18.5 5.72386 18.5 6V12H20V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20H12V18.5H6C5.72386 18.5 5.5 18.2761 5.5 18V6C5.5 5.72386 5.72386 5.5 6 5.5Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M17.25 21V15H18.75V21H17.25Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M15 17.25L21 17.25L21 18.75L15 18.75L15 17.25Z"
+					fill={ getIconColor() }
+				/>
+			</>,
+			24,
+			24,
+			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
-			[ 'jetpack/field-telephone', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-telephone', { required: true, label: __( 'Phone', 'jetpack' ) } ],
 			[ 'jetpack/field-date', { label: __( 'Date', 'jetpack' ), required: true } ],
 			[
 				'jetpack/field-radio',
@@ -184,10 +282,12 @@ const variations = compact( [
 				{
 					text: __( 'Book Appointment', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'A new appointment booked from your website', 'jetpack' ),
 		},
 	},
@@ -196,17 +296,43 @@ const variations = compact( [
 		title: __( 'Feedback Form', 'jetpack' ),
 		description: __( 'Add a Feedback form to your page', 'jetpack' ),
 		icon: renderMaterialIcon(
-			<Path
-				fill={ getIconColor() }
-				d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.03 0 3.8-1.11 4.75-2.75.19-.33-.05-.75-.44-.75H7.69c-.38 0-.63.42-.44.75.95 1.64 2.72 2.75 4.75 2.75z"
-			/>,
-			48,
-			48,
-			'-4 -3 32 32'
+			<>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M12 18.5C15.5899 18.5 18.5 15.5899 18.5 12C18.5 8.41015 15.5899 5.5 12 5.5C8.41015 5.5 5.5 8.41015 5.5 12C5.5 15.5899 8.41015 18.5 12 18.5ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M9.5 11C10.3284 11 11 10.3284 11 9.5C11 8.67157 10.3284 8 9.5 8C8.67157 8 8 8.67157 8 9.5C8 10.3284 8.67157 11 9.5 11Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					d="M16 9.5C16 10.3284 15.3284 11 14.5 11C13.6716 11 13 10.3284 13 9.5C13 8.67157 13.6716 8 14.5 8C15.3284 8 16 8.67157 16 9.5Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M14.5 11C15.3284 11 16 10.3284 16 9.5C16 8.67157 15.3284 8 14.5 8C13.6716 8 13 8.67157 13 9.5C13 10.3284 13.6716 11 14.5 11Z"
+					fill={ getIconColor() }
+				/>
+				<Path
+					fillRule="evenodd"
+					clipRule="evenodd"
+					d="M8.16492 14.6566L7.41431 13.7183L8.58561 12.7812L9.33622 13.7195C9.98358 14.5287 10.9637 14.9998 12 14.9998C13.0362 14.9998 14.0163 14.5287 14.6637 13.7195L15.4143 12.7812L16.5856 13.7183L15.835 14.6566C14.903 15.8216 13.4919 16.4998 12 16.4998C10.508 16.4998 9.09693 15.8216 8.16492 14.6566Z"
+					fill={ getIconColor() }
+				/>
+			</>,
+			24,
+			24,
+			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
 			[
 				'jetpack/field-radio',
 				{
@@ -227,10 +353,12 @@ const variations = compact( [
 				{
 					text: __( 'Send Feedback', 'jetpack' ),
 					element: 'button',
+					lock: { remove: true },
 				},
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'New feedback received from your website', 'jetpack' ),
 		},
 	},

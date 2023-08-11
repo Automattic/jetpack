@@ -1,21 +1,12 @@
-/**
- * External dependencies
- */
-import React, { useContext, useEffect, useCallback } from 'react';
-import { Icon, check } from '@wordpress/icons';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
+import React, { useContext, useEffect, useCallback } from 'react';
+import ItemBadge from './badge';
+import ItemLabel from './label';
 import styles from './styles.module.scss';
 import { NavigationContext } from './use-menu-navigation';
-import ItemLabel from './label';
-import ItemBadge from './badge';
 
 const NavigationItem = ( {
 	id,
-	initial,
 	label,
 	icon,
 	badge,
@@ -23,6 +14,7 @@ const NavigationItem = ( {
 	onClick,
 	onKeyDown,
 	onFocus,
+	checked,
 } ) => {
 	const context = useContext( NavigationContext );
 
@@ -32,8 +24,6 @@ const NavigationItem = ( {
 	const handleClickItem = context?.handleClickItem;
 	const handleKeyDownItem = context?.handleKeyDownItem;
 	const handleFocusItem = context?.handleFocusItem;
-
-	const hasBadge = Number.isFinite( badge );
 
 	const wrapperClassName = classNames( styles[ 'navigation-item' ], {
 		[ styles.clickable ]: ! disabled,
@@ -72,19 +62,9 @@ const NavigationItem = ( {
 	);
 
 	useEffect( () => {
-		registerItem( { id, initial, disabled } );
+		registerItem( { id, disabled, label, icon } );
 		// eslint-disable-next-line
 	}, [] );
-
-	const badgeElement = hasBadge && (
-		<>
-			{ badge > 0 ? (
-				<ItemBadge>{ badge }</ItemBadge>
-			) : (
-				<Icon icon={ check } size={ 28 } className={ styles[ 'navigation-item-check-badge' ] } />
-			) }
-		</>
-	);
 
 	return (
 		<li
@@ -97,7 +77,7 @@ const NavigationItem = ( {
 			ref={ handleRef }
 		>
 			<ItemLabel icon={ icon }>{ label }</ItemLabel>
-			{ badgeElement }
+			<ItemBadge count={ badge } checked={ checked } />
 		</li>
 	);
 };

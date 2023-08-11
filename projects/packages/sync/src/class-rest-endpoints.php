@@ -306,6 +306,27 @@ class REST_Endpoints {
 			)
 		);
 
+		// Trigger Dedicated Sync request.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/spawn-sync',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::spawn_sync',
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		// Reset Sync locks.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/locks',
+			array(
+				'methods'             => WP_REST_Server::DELETABLE,
+				'callback'            => __CLASS__ . '::reset_locks',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+			)
+		);
 	}
 
 	/**
@@ -332,7 +353,7 @@ class REST_Endpoints {
 				$modules['users'] = 'initial';
 			} elseif ( is_array( $request->get_param( $module_name ) ) ) {
 				$ids = $request->get_param( $module_name );
-				if ( count( $ids ) > 0 ) {
+				if ( array() !== $ids ) {
 					$modules[ $module_name ] = $ids;
 				}
 			}
@@ -679,11 +700,9 @@ class REST_Endpoints {
 			if ( in_array( $queue_name, array( 'full_sync', 'immediate' ), true ) ) {
 				// Send Full Sync Actions.
 				Sender::get_instance()->do_full_sync();
-			} else {
+			} elseif ( $queue->has_any_items() ) {
 				// Send Incremental Sync Actions.
-				if ( $queue->has_any_items() ) {
-					Sender::get_instance()->do_sync();
-				}
+				Sender::get_instance()->do_sync();
 			}
 		}
 
@@ -721,6 +740,55 @@ class REST_Endpoints {
 		return rest_ensure_response(
 			array(
 				'ranges' => $module->get_min_max_object_ids_for_batches( $batch_size ),
+			)
+		);
+	}
+
+	/**
+	 * This endpoint is used by Sync to spawn a
+	 * dedicated Sync request which will trigger Sync to run.
+	 *
+	 * If Dedicated Sync is enabled, this callback should never run as
+	 * processing of Sync actions will occur earlier and exit.
+	 *
+	 * @see Actions::init
+	 * @see Sender::do_dedicated_sync_and_exit
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function spawn_sync() {
+		nocache_headers();
+
+		if ( ! Settings::is_dedicated_sync_enabled() ) {
+			return new WP_Error(
+				'dedicated_sync_disabled',
+				'Dedicated Sync flow is disabled.',
+				array( 'status' => 422 )
+			);
+		}
+
+		return new WP_Error(
+			'dedicated_sync_failed',
+			'Failed to process Dedicated Sync request',
+			array( 'status' => 500 )
+		);
+	}
+
+	/**
+	 * Reset Sync locks.
+	 *
+	 * @since 1.43.0
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function reset_locks() {
+		Actions::reset_sync_locks();
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
 			)
 		);
 	}

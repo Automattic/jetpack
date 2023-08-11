@@ -98,7 +98,7 @@ class Full_Sync_Immediately extends Module {
 			)
 		);
 
-		$range = $this->get_content_range( $full_sync_config );
+		$range = $this->get_content_range();
 		/**
 		 * Fires when a full sync begins. This action is serialized
 		 * and sent to the server so that it knows a full sync is coming.
@@ -246,7 +246,10 @@ class Full_Sync_Immediately extends Module {
 		// Set default configuration, calculate totals, and save configuration if totals > 0.
 		$status = array();
 		foreach ( $full_sync_config as $name => $config ) {
-			$module          = Modules::get_module( $name );
+			$module = Modules::get_module( $name );
+			if ( ! $module ) {
+				continue;
+			}
 			$status[ $name ] = array(
 				'total'    => $module->total( $config ),
 				'sent'     => 0,

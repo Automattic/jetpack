@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
+import Footer from 'components/footer';
+import LoadingPlaceholder from 'components/loading-placeholder';
+import Masthead from 'components/masthead';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
-/**
- * Internal dependencies
- */
-import Masthead from 'components/masthead';
-import LoadingPlaceholder from 'components/loading-placeholder';
 import { setInitialState } from 'state/initial-state';
-import Footer from 'components/footer';
 
 class StaticMain extends React.Component {
 	UNSAFE_componentWillMount() {
@@ -21,7 +14,11 @@ class StaticMain extends React.Component {
 	render() {
 		return (
 			<div id="jp-plugin-container">
-				<Masthead { ...this.props } />
+				<div className="jp-top">
+					<div className="jp-top-inside">
+						<Masthead { ...this.props } />
+					</div>
+				</div>
 				<LoadingPlaceholder { ...this.props } />
 				<Footer { ...this.props } />
 				<style type="text/css">{ '.vp-deactivated{ display: none; }' }</style>

@@ -46,11 +46,44 @@
 	min-height: 7.5rem;
 }
 
+.jp-recommendations-product-card-upsell__price {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.jp-recommendations-product-card-upsell__final-price,
 .jp-recommendations-product-card-upsell__raw-price {
-	h2 {
-		display: flex;
-		margin: 0;
+	display: flex;
+
+	margin: 0;
+}
+
+.jp-recommendations-product-card-upsell__raw-price {
+	position: relative;
+
+	margin-inline-end: 0.75rem;
+
+	color: var( --jp-gray-20 );
+
+	&:before {
+		content: "";
+
+		position: absolute;
+		top: 50%;
+
+		display: block;
+
+		width: 100%;
+		height: 3px;
+
+		background-color: var( --jp-pink );
 	}
+}
+
+.jp-recommendations-product-card-upsell__final-price {
+	margin-inline-end: 1rem;
+	
+	color: var( --jp-gray-100 );
 }
 
 .jp-recommendations-product-card-upsell__currency-symbol {
@@ -67,6 +100,12 @@
 .jp-recommendations-product-card-upsell__price-fraction {
 	font-size: 0.75rem;
 	margin-top: -0.25rem;
+}
+
+.jp-recommendations-product-card-upsell__discount {
+	align-self: flex-end;
+
+	margin-top: 1rem;
 }
 
 .jp-recommendations-product-card-upsell__billing-time-frame {

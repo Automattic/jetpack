@@ -1,19 +1,20 @@
-/**
- * External dependencies
- */
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
-/**
- * Internal dependencies
- */
-import { isFetchingVaultPressData, fetchVaultPressData } from 'state/at-a-glance';
+import {
+	fetchVaultPressData,
+	hasLoadedVaultPressData,
+	isFetchingVaultPressData,
+} from 'state/at-a-glance';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
 class QueryVaultPressData extends Component {
-	UNSAFE_componentWillMount() {
-		if ( ! this.props.fetchingVaultPressData && this.props.isModuleActivated( 'vaultpress' ) ) {
+	componentDidMount() {
+		if (
+			! this.props.fetchingVaultPressData &&
+			! this.props.hasLoadedVaultPressData &&
+			this.props.isModuleActivated( 'vaultpress' )
+		) {
 			this.props.fetchVaultPressData();
 		}
 	}
@@ -33,6 +34,7 @@ export default connect(
 			fetchVaultPressData: fetchVaultPressData(),
 			fetchingVaultPressData: isFetchingVaultPressData( state ),
 			isModuleActivated: slug => _isModuleActivated( state, slug ),
+			hasLoadedVaultPressData: hasLoadedVaultPressData( state ),
 		};
 	},
 	dispatch => {

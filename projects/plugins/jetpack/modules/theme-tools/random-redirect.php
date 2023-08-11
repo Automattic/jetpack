@@ -37,7 +37,7 @@ function jetpack_matt_random_redirect() {
 	}
 
 	// Persistent AppEngine abuse.  ORDER BY RAND is expensive.
-	if ( strstr( $_SERVER['HTTP_USER_AGENT'], 'AppEngine-Google' ) ) {
+	if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && strstr( filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 'AppEngine-Google' ) ) {
 		wp_die( 'Please <a href="https://en.support.wordpress.com/contact/" rel="noopener noreferrer" target="_blank">contact support</a>' );
 	}
 
@@ -51,8 +51,8 @@ function jetpack_matt_random_redirect() {
 	$post_type = get_post_type();
 
 	// Change the post type if the parameter is set.
-	if ( isset( $_GET['random_post_type'] ) && post_type_exists( $_GET['random_post_type'] ) ) {
-		$post_type = $_GET['random_post_type'];
+	if ( isset( $_GET['random_post_type'] ) && post_type_exists( sanitize_key( $_GET['random_post_type'] ) ) ) {
+		$post_type = sanitize_key( $_GET['random_post_type'] );
 	}
 
 	// Don't show a random page if 'page' isn't specified as the post type specifically.
@@ -84,7 +84,7 @@ function jetpack_matt_random_redirect() {
 
 	global $wpdb;
 
-	$where = join( ' AND ', $where );
+	$where = implode( ' AND ', $where );
 	if ( isset( $random_cat_id ) ) {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts AS p INNER JOIN $wpdb->term_relationships AS tr ON (p.ID = tr.object_id AND tr.term_taxonomy_id = %s) INNER JOIN  $wpdb->term_taxonomy AS tt ON(tr.term_taxonomy_id = tt.term_taxonomy_id AND taxonomy = 'category') WHERE $where ORDER BY RAND() LIMIT 1", $random_cat_id, ...$where_args ) );

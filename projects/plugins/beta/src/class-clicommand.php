@@ -98,7 +98,7 @@ class CliCommand extends WP_CLI_Command {
 		$manifest      = $plugin->get_manifest();
 		$dev_info      = $plugin->dev_info();
 		$active_branch = $dev_info ? $dev_info->branch : null;
-		$branches      = array( 'stable', 'master', 'rc' );
+		$branches      = array( 'stable', 'trunk', 'rc' );
 		foreach ( $manifest->pr as $pr ) {
 			$branches[] = $pr->branch;
 		}
@@ -122,7 +122,8 @@ class CliCommand extends WP_CLI_Command {
 	 *
 	 * ## Examples
 	 *
-	 *     wp jetpack-beta activate jetpack master
+	 *     wp jetpack-beta activate jetpack trunk
+	 *     wp jetpack-beta activate jetpack master (deprecated alias for trunk)
 	 *     wp jetpack-beta activate jetpack stable
 	 *     wp jetpack-beta activate jetpack rc
 	 *     wp jetpack-beta activate jetpack 9.8
@@ -139,13 +140,13 @@ class CliCommand extends WP_CLI_Command {
 			WP_CLI::error( sprintf( __( 'Plugin \'%s\' is not known. Use `wp jetpack-beta list` to list known plugins', 'jetpack-beta' ), $args[0] ) );
 		}
 
-		if ( 'master' === $args[1] ) {
-			$source = 'master';
+		if ( 'trunk' === $args[1] || 'master' === $args[1] ) {
+			$source = 'trunk';
 			$id     = '';
 			// translators: %1$s: Plugin name.
-			$premsg = __( 'Activating %1$s master branch', 'jetpack-beta' );
+			$premsg = __( 'Activating %1$s trunk branch', 'jetpack-beta' );
 			// translators: %1$s: Plugin name.
-			$postmsg = __( '%1$s is now on the master branch', 'jetpack-beta' );
+			$postmsg = __( '%1$s is now on the trunk branch', 'jetpack-beta' );
 		} elseif ( 'stable' === $args[1] ) {
 			$source = 'stable';
 			$id     = '';

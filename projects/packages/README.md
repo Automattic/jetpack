@@ -4,7 +4,7 @@ These Composer packages offer a unified code base that we will share among proje
 
 ## Installing Composer
 
-You need Composer to use the packages. If you don't have it installed, go and check how to [install Composer](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#installing-composer) and then continue here.
+You need Composer to use the packages. If you don't have it installed, go and check how to [install Composer](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#composer) and then continue here.
 
 ## Defining required packages
 
@@ -68,12 +68,12 @@ While the script we use to deploy the package takes care of everything, we might
 1. Before you merge the PR introducing the new package in Jetpack, run through the steps below.
 2. Create an online repository in GitHub for the package. In this case, it's https://github.com/Automattic/jetpack-autoloader.
 3. Add an initial valid `composer.json` to the repository. You can copy it from your PR in the Jetpack repo.
-4. You'll want to update the repository settings to be just like the Autoloader repo; check the repository description, disable issues, set up branch protection rules for the `master` branch.
+4. You'll want to update the repository settings to be just like the Autoloader repo; check the repository description, disable issues, set up branch protection rules for the `trunk` branch.
 5. Go to https://packagist.org/packages/submit and insert the URL of the GitHub repository.
 6. Upon submission, add Crew members as package maintainers, as well as the `automattic` account.
 
 
-Once this is all done, you can merge your PR in the Jetpack repo. When you do so, the changes will be automatically pushed to the new package repo, and your changes will become available in the `dev-master` version of the package available to the public.
+Once this is all done, you can merge your PR in the Jetpack repo. When you do so, the changes will be automatically pushed to the new package repo, and your changes will become available in the `dev-trunk` version of the package available to the public.
 
 ## Unit Tests
 You may run unit tests locally for any given package by running `composer phpunit` within the package directory.

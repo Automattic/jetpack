@@ -1,37 +1,23 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/**
- * External dependencies
- */
-import React from 'react';
-
-import PureRenderMixin from 'react-pure-render/mixin';
-import createReactClass from 'create-react-class';
-
-/**
- * Internal dependencies
- */
-import ButtonGroup from 'components/button-group';
 
 import Button from 'components/button';
+import ButtonGroup from 'components/button-group';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
+import React from 'react';
 
-const Buttons = createReactClass( {
-	displayName: 'ButtonGroup',
+class Buttons extends React.PureComponent {
+	static displayName = 'ButtonGroup';
 
-	mixins: [ PureRenderMixin ],
+	state = {
+		compact: false,
+	};
 
-	getInitialState: function () {
-		return {
-			compact: false,
-		};
-	},
-
-	toggleButtons: function () {
+	toggleButtons = () => {
 		this.setState( { compact: ! this.state.compact } );
-	},
+	};
 
-	render: function () {
+	render() {
 		return (
 			<div>
 				<a
@@ -87,7 +73,7 @@ const Buttons = createReactClass( {
 				</Card>
 			</div>
 		);
-	},
-} );
+	}
+}
 
 export default Buttons;

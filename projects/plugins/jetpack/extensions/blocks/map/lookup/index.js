@@ -1,13 +1,10 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-import { __, _n, sprintf } from '@wordpress/i18n';
 import { Button, Popover, withFocusOutside, withSpokenMessages } from '@wordpress/components';
-import { Component } from '@wordpress/element';
-import { debounce, map } from 'lodash';
-import { ENTER, ESCAPE, UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 import { withInstanceId, compose } from '@wordpress/compose';
+import { Component } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { ENTER, ESCAPE, UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
+import classnames from 'classnames';
+import { debounce, map } from 'lodash';
 
 function filterOptions( options = [], maxResults = 10 ) {
 	const filtered = [];

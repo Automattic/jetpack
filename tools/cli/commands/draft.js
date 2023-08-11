@@ -2,18 +2,11 @@
  * The `jetpack draft enable|disable|new` command
  */
 
-/**
- * External dependencies
- */
-import path from 'path';
-import inquirer from 'inquirer';
-import chalk from 'chalk';
-import fs from 'fs';
 import child_process from 'child_process';
-
-/**
- * Internal dependencies
- */
+import fs from 'fs';
+import path from 'path';
+import chalk from 'chalk';
+import inquirer from 'inquirer';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 
 /**

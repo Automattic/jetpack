@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * Widget to display blog authors with avatars and recent posts.
  *
@@ -124,13 +126,6 @@ class Jetpack_Widget_Authors extends WP_Widget {
 				'exclude'    => (array) $excluded_authors,
 			)
 		);
-
-		// To-do: remove this once Jetpack requires WordPress 5.9.
-		global $wp_version;
-		if ( version_compare( $wp_version, '5.9-alpha', '<' ) ) {
-			$get_author_params['who'] = 'authors';
-			unset( $get_author_params['capability'] );
-		}
 
 		$authors = get_users( $get_author_params );
 

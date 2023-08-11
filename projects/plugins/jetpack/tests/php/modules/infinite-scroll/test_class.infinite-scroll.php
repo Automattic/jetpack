@@ -8,6 +8,8 @@ require __DIR__ . '/../../../../modules/infinite-scroll/infinity.php';
  */
 class WP_Test_The_Neverending_Home_Page extends WP_UnitTestCase {
 
+	private $infinite_scroll;
+
 	/**
 	 * Set up.
 	 */

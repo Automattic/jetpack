@@ -5,7 +5,10 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -22,6 +25,7 @@
 		}
 	],
 	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-config",
@@ -30,7 +34,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.7.x-dev"
+			"dev-trunk": "1.15.x-dev"
 		}
 	}
 }

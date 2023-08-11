@@ -12,11 +12,22 @@
 				"messageId": "unusedVar",
 				"endLine": 1,
 				"endColumn": 6
+			},
+			{
+				"ruleId": "something something",
+				"severity": 1,
+				"message": "something",
+				"line": 5,
+				"column": 0,
+				"nodeType": "Identifier",
+				"messageId": "something",
+				"endLine": 5,
+				"endColumn": 0
 			}
 		],
 		"errorCount": 1,
 		"fatalErrorCount": 0,
-		"warningCount": 0,
+		"warningCount": 1,
 		"fixableErrorCount": 0,
 		"fixableWarningCount": 0,
 		"source": "var x;\n",

@@ -7,9 +7,9 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 
+		usage: $0
 
-		Installs all the required tooling for the Jetpack Monorepo. 
+		Installs all the required tooling for the Jetpack Monorepo.
 	EOH
 	exit 1
 }
@@ -81,7 +81,7 @@ nvm install && nvm use
 
 # Install our requirements
 echo "Checking Bash version..."
-if [[ -z "${BASH_VERSINFO}" || -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then	
+if [[ -z "${BASH_VERSINFO}" || -z "${BASH_VERSINFO[0]}" || ${BASH_VERSINFO[0]} -lt 4 ]]; then
 	brew install bash
 fi
 
@@ -95,7 +95,7 @@ echo "Checking if pnpm is installed..."
 if ! command -v pnpm &>/dev/null; then
 	echo "Installing pnpm"
 	curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
-fi 
+fi
 
 source .github/versions.sh
 echo "Installing and linking PHP $PHP_VERSION"
@@ -119,8 +119,9 @@ if ! command -v composer &>/dev/null; then
 	php composer-setup.php --version=$COMPOSER_VERSION --quiet
 	RESULT=$?
 	rm composer-setup.php
+	sudo mkdir -p /usr/local/bin
 	sudo mv composer.phar /usr/local/bin/composer
-fi 
+fi
 
 # Setup the Jetpack CLI
 echo "Setting up the Jetpack CLI"
@@ -137,6 +138,6 @@ if [[ "$SHELL" == "/bin/zsh" ]]; then
 elif [[ "$SHELL" == "/bin/bash" ]]; then
 	echo "Refreshing terminal"
 	exec bash
-else 
+else
 	echo "Note: You may have to restart your terminal for monorepo tools to work properly."
 fi

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
 

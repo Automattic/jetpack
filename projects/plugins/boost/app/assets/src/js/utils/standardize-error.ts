@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import type { JSONValue } from './json-types';
 
 /**

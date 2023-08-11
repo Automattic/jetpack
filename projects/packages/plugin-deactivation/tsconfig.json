@@ -1,0 +1,9 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"include": [ "./src/assets/js" ],
+	"compilerOptions": {
+		"typeRoots": [ "./node_modules/@types/", "src/assets/js" ],
+		"sourceMap": true,
+		"forceConsistentCasingInFileNames": true
+	}
+}

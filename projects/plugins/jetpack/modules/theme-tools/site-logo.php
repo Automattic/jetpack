@@ -31,7 +31,12 @@ function site_logo_init() {
 	// Only load our code if our theme declares support, and the standalone plugin is not activated.
 	if ( current_theme_supports( 'site-logo' ) && ! class_exists( 'Site_Logo', false ) ) {
 		// Load our class for namespacing.
-		require __DIR__ . '/site-logo/inc/class-site-logo.php';
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// wpcom handles the image sizes differently.
+			require_once WPMU_PLUGIN_DIR . '/site-logo/inc/class-site-logo.php';
+		} else {
+			require __DIR__ . '/site-logo/inc/class-site-logo.php';
+		}
 
 		// Load template tags.
 		require __DIR__ . '/site-logo/inc/functions.php';

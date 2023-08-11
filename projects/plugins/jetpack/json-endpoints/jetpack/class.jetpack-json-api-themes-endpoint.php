@@ -1,4 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * Base class for working with themes, has useful helper functions.
  */
@@ -47,6 +50,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		'author_uri'             => '(string) The website of the theme author.',
 		'tags'                   => '(array) Tags indicating styles and features of the theme.',
 		'log'                    => '(array) An array of log strings',
+		'update'                 => '(array|null) An object containing information about the available update if there is an update available, null otherwise.',
 		'autoupdate'             => '(bool) Whether the theme is automatically updated',
 		'autoupdate_translation' => '(bool) Whether the theme is automatically updating translations',
 	);
@@ -63,7 +67,6 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		}
 
 		return array( 'themes' => $themes );
-
 	}
 
 	/**
@@ -139,7 +142,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		$id              = $theme->get_stylesheet();
 		$formatted_theme = array(
 			'id'         => $id,
-			'screenshot' => jetpack_photon_url( $theme->get_screenshot(), array(), 'network_path' ),
+			'screenshot' => Image_CDN_Core::cdn_url( $theme->get_screenshot(), array(), 'network_path' ),
 			'active'     => $id === $this->current_theme_id,
 		);
 

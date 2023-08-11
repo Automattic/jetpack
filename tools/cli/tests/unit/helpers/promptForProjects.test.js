@@ -1,38 +1,35 @@
-/**
- * External dependencies
- */
-import chai from 'chai';
-
-/**
- * Internal dependencies
- */
+import { fileURLToPath } from 'url';
 import promptForProject, { promptForType } from '../../../helpers/promptForProject.js';
 
-describe( 'promptForProject', function () {
-	it( 'should be a function', function () {
-		chai.expect( promptForProject ).to.be.an( 'function' );
+const oldCwd = process.cwd();
+beforeAll( () => process.chdir( fileURLToPath( new URL( '../../../../../', import.meta.url ) ) ) );
+afterAll( () => process.chdir( oldCwd ) );
+
+describe( 'promptForProject', () => {
+	test( 'should be a function', () => {
+		expect( promptForProject ).toBeInstanceOf( Function );
 	} );
-	it( 'should fail when an invalid project is passed', async function () {
-		chai.expect( await promptForProject( { project: 'test' } ) ).to.be.an( 'Error' );
+	test( 'should fail when an invalid project is passed', async () => {
+		await expect( promptForProject( { project: 'test' } ) ).rejects.toThrow();
 	} );
 
-	it( 'should passthrough when type is passed', async function () {
-		chai
-			.expect( await promptForProject( { project: 'plugins/jetpack' } ) )
-			.to.include( { project: 'plugins/jetpack' } );
+	test( 'should passthrough when type is passed', async () => {
+		await expect( promptForProject( { project: 'plugins/jetpack' } ) ).resolves.toEqual( {
+			project: 'plugins/jetpack',
+		} );
 	} );
 } );
 
-describe( 'promptForType', function () {
-	it( 'should be a function', function () {
-		chai.expect( promptForType ).to.be.an( 'function' );
+describe( 'promptForType', () => {
+	test( 'should be a function', () => {
+		expect( promptForType ).toBeInstanceOf( Function );
 	} );
 
-	it( 'should fail when an invalid type is passed', async function () {
-		chai.expect( await promptForType( { type: 'test' } ) ).to.be.an( 'Error' );
+	test( 'should fail when an invalid type is passed', async () => {
+		await expect( promptForType( { type: 'test' } ) ).rejects.toThrow();
 	} );
 
-	it( 'should passthrough when valid type is passed', async function () {
-		chai.expect( await promptForType( { type: 'plugins' } ) ).to.include( { type: 'plugins' } );
+	test( 'should passthrough when valid type is passed', async () => {
+		await expect( promptForType( { type: 'plugins' } ) ).resolves.toEqual( { type: 'plugins' } );
 	} );
 } );

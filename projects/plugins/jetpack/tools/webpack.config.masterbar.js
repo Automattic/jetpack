@@ -1,29 +1,15 @@
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const glob = require( 'glob' );
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
-const webpack = jetpackWebpackConfig.webpack;
+const glob = require( 'glob' );
 
 const masterbarCssEntries = {};
-if ( process.env.MASTERBAR_ENV === 'wpcom' ) {
-	// prettier-ignore
-	for ( const file of glob
-		.sync( '../masterbar/admin-color-schemes/colors/**/*.scss' )
-		.filter( n => ! path.basename( n ).startsWith( '_' ) )
-	) {
-		masterbarCssEntries[ file.substring( 13, file.length - 5 ) ] = file;
-	}
-} else {
-	// prettier-ignore
-	for ( const file of glob
-		.sync( 'modules/masterbar/admin-color-schemes/colors/**/*.scss' )
-		.filter( n => ! path.basename( n ).startsWith( '_' ) )
-	) {
-		masterbarCssEntries[ file.substring( 18, file.length - 5 ) ] = './' + file;
-	}
+// prettier-ignore
+for ( const file of glob
+	.sync( 'modules/masterbar/admin-color-schemes/colors/**/*.scss' )
+	.filter( n => ! path.basename( n ).startsWith( '_' ) )
+) {
+	masterbarCssEntries[ file.substring( 18, file.length - 5 ) ] = './' + file;
 }
 
 module.exports = {
@@ -32,27 +18,10 @@ module.exports = {
 	entry: masterbarCssEntries,
 	output: {
 		...jetpackWebpackConfig.output,
-		path: path.join(
-			__dirname,
-			process.env.MASTERBAR_ENV === 'wpcom' ? '../../masterbar' : '../_inc/build/masterbar'
-		),
+		path: path.join( __dirname, '../_inc/build/masterbar' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
-		minimizer: [
-			jetpackWebpackConfig.CssMinimizerPlugin( {
-				minimizerOptions: {
-					preset: [
-						'default',
-						{
-							discardComments: {
-								remove: comment => comment !== 'NOAUTORTL' && ! comment.startsWith( '!' ),
-							},
-						},
-					],
-				},
-			} ),
-		],
 	},
 	module: {
 		strictExportPresence: true,
@@ -64,7 +33,7 @@ module.exports = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: { autoprefixer: {} } },
+							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
 						},
 					},
 					'sass-loader',
@@ -83,11 +52,6 @@ module.exports = {
 		// Delete the dummy JS files Webpack would otherwise create.
 		new RemoveAssetWebpackPlugin( {
 			assets: /\.js(\.map)?$/,
-		} ),
-		// Add wpcom's "NOAUTORTL" comment.
-		new webpack.BannerPlugin( {
-			banner: '/* NOAUTORTL */\n',
-			raw: true,
 		} ),
 	],
 };

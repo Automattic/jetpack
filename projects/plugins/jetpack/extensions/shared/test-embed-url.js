@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { noop } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
+import { noop } from 'lodash';
 
 /**
  * Test if a URL is accessible and respond with status code < 400.

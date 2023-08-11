@@ -1,9 +1,11 @@
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import '../mixin';
 @import '../../scss/mixin_breakpoint.scss';
 @import '../../scss/calypso-colors';
+@import '../../scss/mixins/rna';
 @import '../../scss/typography';
 
-.jp-recommendations-summary {
+.jp-recommendations-summary__main {
 	display: grid;
 	grid-template-columns: 54% 46%;
 
@@ -12,7 +14,7 @@
 	box-shadow: 0px 2px 6px rgba( 0, 0, 0, 0.03 ), 0px 1px 2px rgba( 0, 0, 0, 0.03 );
 	border: 1px solid $gray-lighten-20;
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( '<782px' ) {
 		display: flex;
 		flex-direction: column;
 	}
@@ -42,7 +44,7 @@
 
 	h1 {
 		font-size: $font-title-medium;
-	
+
 		color: var( --jp-gray-80 );
 	}
 
@@ -62,18 +64,72 @@
 }
 
 .jp-recommendations-summary__sidebar {
-	padding: 2rem 2.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	flex-direction: column;
 
-	@include breakpoint( '<660px' ) {
+	@include recommendation-sidebar-blob;
+
+	padding: 2rem 2.5rem 4.5rem;
+
+	@include breakpoint( '<782px' ) {
 		padding: 1rem;
 	}
 
 	&.isLoading {
 		min-height: 430px;
 		display: flex;
-		align-items: center;
 		justify-content: center;
 	}
+
+	.jp-recommendations-product-card-upsell__cta-button {
+		width: 100%;
+	}
+}
+
+.jp-recommendations-summary__underside {
+	margin-top: 1rem;
+}
+
+.jp-recommendations-summary__discount {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+
+	padding: 1.5rem 0;
+
+	border-bottom: 1px solid var( --jp-gray-5 );
+
+	font-size: 1rem;
+
+	.jp-recommendations-summary__reco-link {
+		color: var( --jp-black );
+
+		text-align: right;
+		text-decoration: underline;
+
+		&:active,
+		&:hover {
+			text-decoration: none;
+		}
+	}
+}
+
+.jp-recommendations-summary__timer {
+	display: flex;
+	flex-direction: column;
+
+	color: var( --jp-gray-60 );
+
+	font-size: 0.875rem;
+}
+
+.jp-recommendations-summary__time {
+	margin-top: 0.25rem;
+
+	font-size: 1.125rem;
 }
 
 .jp-recommendations-summary__footer {

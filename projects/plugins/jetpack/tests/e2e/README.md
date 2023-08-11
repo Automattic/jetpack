@@ -20,12 +20,12 @@ These tests are using the [e2e commons package](../../../../../tools/e2e-commons
 
 ## Pre-requisites
 
-- Make sure you built Jetpack first `pnpm install && pnpx jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
+- Make sure you built Jetpack first `pnpm install && pnpm jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
 
 ```shell
 # run in the monorepo root
 pnpm install
-pnpx jetpack build plugins/jetpack
+pnpm jetpack build plugins/jetpack
 ```
 
 ## Environment setup
@@ -37,6 +37,7 @@ Jetpack E2E tests relies on 2 encrypted configuration files, one included in thi
 To decrypt the config files (a8c only):
 
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
+- Go to the e2e directory you want to test: `cd projects/plugins/jetpack/tests/e2e`
 - Run `CONFIG_KEY=YOUR_KEY pnpm config:decrypt`. This command should create a new file [`config/local.cjs`](./config/local.cjs)
 
 ### Docker environment
@@ -85,26 +86,26 @@ Run all tests: `pnpm test:run`
 Playwright runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window, and the running tests you can use the `--headed` flag:
 
 ```bash
-pnpm test:run -- --headed
+pnpm test:run --headed
 ```
 
 To run an individual test, use the direct path to the spec. For example:
 
 ```bash
-pnpm test:run -- ./specs/dummy.test.js
+pnpm test:run ./specs/dummy.test.js
 ```
 
 To run in debug mode, use the `--debug` flag. Debug mode uses a headed browser and opens the [Playwright inspector](https://playwright.dev/docs/inspector/).
 
 ```bash
-pnpm test:run -- --debug
+pnpm test:run --debug
 ```
 
 ### Selecting tests to run
 
 ```bash
 # One test file
-pnpm test:run -- ./specs/some.test.js
+pnpm test:run ./specs/some.test.js
 
 # All tests having 'blocks' in their name
 pnpm test:run blocks

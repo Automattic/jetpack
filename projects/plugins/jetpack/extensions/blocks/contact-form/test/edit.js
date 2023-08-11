@@ -1,22 +1,7 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
 import { JetpackContactFormEdit } from '../edit';
-import defaultVariations from '../variations';
 
-
-describe( '', () => {
+describe( 'Contact form', () => {
 	const defaultAttributes = {
 		subject: '',
 		to: '',
@@ -51,7 +36,7 @@ describe( '', () => {
 				icon: 'book',
 				attributes: {
 					className: 'wp-variation-susan',
-				}
+				},
 			},
 			{
 				name: 'barry',
@@ -59,8 +44,8 @@ describe( '', () => {
 				icon: 'edit',
 				attributes: {
 					className: 'wp-variation-barry',
-				}
-			}
+				},
+			},
 		],
 		defaultVariation: null,
 	};
@@ -69,9 +54,9 @@ describe( '', () => {
 		setAttributes.mockClear();
 	} );
 
-
 	test( 'renders a variation selector list', () => {
 		render( <JetpackContactFormEdit { ...defaultProps } /> );
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( screen.getByRole( 'list' ).children ).toHaveLength( 2 );
 	} );
 } );

@@ -6,19 +6,24 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/alpha-tag.sh"
+. "$BASE/tools/includes/changelogger.sh"
+. "$BASE/tools/includes/proceed_p.sh"
 
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-v] [-a|-b] <slug>
+		usage: $0 [-v] [-p] [-R] [-a|-b|-r <version>] <slug>
 
 		Prepare a release of the specified project and everything it depends on.
 		 - Run \`changelogger write\`
 		 - Run \`tools/replace-next-version-tag.sh\`
 		 - Run \`tools/project-version.sh\`
 
+		Pass \`-p\` to add PR numbers to change entries by passing \`--add-pr-num\` to changelogger.
 		Pass \`-a\` to prepare a developer release by passing \`--prerelease=a.N\` to changelogger.
 		Pass \`-b\` to prepare a beta release by passing \`--prerelease=beta\` to changelogger.
+		Pass \`-r <version>\` to prepare a release for a specific version number, passing \`--use-version=<version>\` to changelogger.
+		Pass \`-R\` if doing a package release on a plugin release branch.
 	EOH
 	exit 1
 }
@@ -29,8 +34,10 @@ fi
 
 # Sets options.
 VERBOSE=
+ADDPRNUM=
 ALPHABETA=
-while getopts ":vabh" opt; do
+RELEASEBRANCH=
+while getopts ":vpabhHRr:" opt; do
 	case ${opt} in
 		v)
 			if [[ -n "$VERBOSE" ]]; then
@@ -39,11 +46,21 @@ while getopts ":vabh" opt; do
 				VERBOSE="-v"
 			fi
 			;;
+		p)
+			ADDPRNUM="--add-pr-num"
+			;;
 		a)
 			ALPHABETA=alpha
 			;;
 		b)
 			ALPHABETA=beta
+			;;
+		r)
+			ALPHABETA=$OPTARG
+			;;
+		H|R)
+			# -H is an old name, kept for back compat.
+			RELEASEBRANCH=-R
 			;;
 		h)
 			usage
@@ -68,6 +85,7 @@ fi
 
 # Determine the project
 [[ -z "$1" ]] && die "A project slug must be specified."
+[[ $# -gt 1 ]] && die "Only one project slug must be specified, got:$(printf ' "%s"' "$@")"$'\n'"(note all options must come before the project slug)"
 SLUG="${1#projects/}" # DWIM
 SLUG="${SLUG%/}" # Sanitize
 if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
@@ -75,9 +93,9 @@ if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
 fi
 
 cd "$BASE"
-pnpx jetpack install --all
+init_changelogger
 
-DEPS="$(pnpx jetpack dependencies json)"
+DEPS="$(pnpm jetpack dependencies json)"
 declare -A RELEASED
 
 # Release a project
@@ -92,47 +110,55 @@ function releaseProject {
 	local I="$4"
 
 	cd "$BASE/projects/$SLUG"
+
+	# If it's being depended on by something (and not a js-package), check that it has a mirror repo set up.
+	# Can't do the release without one.
+	if [[ -n "$FROM" && "$SLUG" != js-packages/* ]] &&
+		! jq -e '.extra["mirror-repo"] // null' composer.json > /dev/null
+	then
+		error "${I}Cannot release $SLUG as it has no mirror repo configured!"
+		info "${I}See https://github.com/Automattic/jetpack/blob/trunk/docs/monorepo.md#mirror-repositories for details."
+		exit 1
+	fi
+
 	local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
 		if [[ -z "$FROM" ]]; then
-			info "Project $SLUG has no changes, skipping."
+			proceed_p "Project $SLUG has no changes." 'Do a release anyway?' || return
+			changelogger_add 'Internal updates.' '' --filename=force-a-release
 		else
 			debug "${I}Project $SLUG has no changes, skipping."
+			return
 		fi
-		return
 	fi
 
 	info "${I}Processing $SLUG..."
 	RELEASED[$SLUG]=1
-
-	# Find changelogger.
-	local CL
-	if [[ -x vendor/bin/changelogger ]]; then
-		CL=vendor/bin/changelogger
-	else
-		yellow "${I}No changelogger! Skipping."
-		return
-	fi
 
 	# Changelogger write.
 	local ARGS=( write )
 	if [[ -n "$VERBOSE" ]]; then
 		ARGS+=( "$VERBOSE" )
 	fi
+	if [[ -n "$ADDPRNUM" ]]; then
+		ARGS+=( "$ADDPRNUM" )
+	fi
 	ARGS+=( "--default-first-version" )
 	if [[ "$ALPHABETA" == "alpha" ]]; then
-		local P=$(alpha_tag "$CL" composer.json 1)
+		local P=$(alpha_tag composer.json 1)
 		[[ "$P" == "alpha" ]] && die "Cannot use -a with $SLUG"
 		ARGS+=( "--prerelease=$P" )
 	elif [[ "$ALPHABETA" == "beta" ]]; then
 		ARGS+=( "--prerelease=beta" )
+	elif [[ -n "$ALPHABETA" ]]; then
+		ARGS+=( "--use-version=$ALPHABETA" )
 	fi
-	debug "${I}  $CL ${ARGS[*]}"
-	$CL "${ARGS[@]}"
+	debug "${I}  changelogger ${ARGS[*]}"
+	changelogger "${ARGS[@]}"
 
 	# Fetch version from changelogger.
-	debug "${I}  $CL version current"
-	local VER=$($CL version current)
+	debug "${I}  changelogger version current"
+	local VER=$(changelogger version current)
 
 	# Replace $$next-version$$
 	"$BASE"/tools/replace-next-version-tag.sh "$SLUG" "$(sed -E -e 's/-(beta|a\.[0-9]+)$//' <<<"$VER")"
@@ -161,17 +187,23 @@ cd "$BASE"
 info "Updating dependencies..."
 SLUGS=()
 # Use a temp variable so pipefail works
-TMP="$(pnpx jetpack dependencies build-order --pretty)"
+TMP="$(pnpm jetpack dependencies build-order --pretty)"
 mapfile -t SLUGS <<<"$TMP"
-for SLUG in "${SLUGS[@]}"; do
-	if [[ -n "${RELEASED[$SLUG]}" ]]; then
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE -U $SLUG"
-		tools/check-intra-monorepo-deps.sh $VERBOSE -U "$SLUG"
+
+TMPDIR="${TMPDIR:-/tmp}"
+TEMP=$(mktemp "${TMPDIR%/}/changelogger-release-XXXXXXXX")
+
+for DEPENDENCY_SLUG in "${SLUGS[@]}"; do
+	if [[ -n "${RELEASED[$DEPENDENCY_SLUG]}" ]]; then
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U $DEPENDENCY_SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U "$DEPENDENCY_SLUG"
 	else
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE -u $SLUG"
-		tools/check-intra-monorepo-deps.sh $VERBOSE -u "$SLUG"
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -u $DEPENDENCY_SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -u "$DEPENDENCY_SLUG"
 	fi
 done
+
+rm "$TEMP"
 
 debug "  Updating pnpm.lock..."
 pnpm install --silent
@@ -182,16 +214,13 @@ cat <<-EOM
 
 	  git diff '**/CHANGELOG.md'
 
-	Feel free to edit them as needed. Then commit and push a PR, and have it merged.
+	Feel free to edit them as needed. Then commit and push those changes.
 
 EOM
 
 if [[ "$SLUG" == plugins/* ]]; then
 	cd "$BASE"
-	VER=
-	if [[ -x "projects/$SLUG/vendor/bin/changelogger" ]]; then
-		VER=$(cd "projects/$SLUG" && vendor/bin/changelogger version current)
-	fi
+	VER=$(cd "projects/$SLUG" && changelogger version current)
 	if [[ -n "$VER" ]]; then
 		cat <<-EOM
 			When ready, you can create the release branch with

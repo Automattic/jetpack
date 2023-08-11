@@ -1,20 +1,10 @@
-/**
- * External dependencies
- */
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow } from '@wordpress/components';
-import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
+import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar.js';
-
-/**
- * Internal dependencies
- */
 import { QRPostButton } from './components/qr-post.js';
 import './editor.scss';
 
@@ -26,8 +16,7 @@ export const settings = {
 			name: 'post-publish-qr-post-panel',
 			title: __( 'QR Code', 'jetpack' ),
 			className: 'post-publish-qr-post-panel',
-			icon: null,
-			initialOpen: true,
+			initialOpen: false,
 		};
 
 		const isPostPublished = useSelect(
@@ -53,7 +42,7 @@ export const settings = {
 
 		return (
 			<>
-				<PluginPostPublishPanel { ...panelBodyProps }>
+				<PluginPostPublishPanel { ...panelBodyProps } icon={ <JetpackEditorPanelLogo /> }>
 					<QRPostPanelBodyContent />
 				</PluginPostPublishPanel>
 

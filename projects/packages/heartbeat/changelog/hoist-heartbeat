@@ -1,4 +1,0 @@
-Significance: minor
-Type: deprecated
-
-Removed Heartbeat by hoisting it into Connection.

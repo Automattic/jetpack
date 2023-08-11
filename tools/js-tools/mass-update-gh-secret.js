@@ -2,8 +2,8 @@
 
 /* eslint-disable no-console */
 
-const { Octokit } = require( '@octokit/rest' );
 const { createTokenAuth } = require( '@octokit/auth-token' );
+const { Octokit } = require( '@octokit/rest' );
 const chalk = require( 'chalk' );
 const inquirer = require( 'inquirer' );
 const sodium = require( 'libsodium-wrappers' );

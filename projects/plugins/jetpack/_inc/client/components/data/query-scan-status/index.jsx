@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
-import { fetchScanStatus, isFetchingScanStatus } from 'state/scan';
 import { isOfflineMode } from 'state/connection';
+import { fetchScanStatus, isFetchingScanStatus } from 'state/scan';
 
 class QueryScanStatus extends Component {
 	static propTypes = {

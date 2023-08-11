@@ -1,12 +1,9 @@
-/**
- * Internal dependencies
- */
+import restApi from '@automattic/jetpack-api';
 import {
 	JETPACK_PLUGINS_DATA_FETCH,
 	JETPACK_PLUGINS_DATA_FETCH_RECEIVE,
 	JETPACK_PLUGINS_DATA_FETCH_FAIL,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
 
 export const fetchPluginsData = () => {
 	return dispatch => {

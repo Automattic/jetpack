@@ -1,24 +1,18 @@
-/**
- * External dependencies
- */
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-
-/**
- * Internal dependencies
- */
 import * as buildCommand from './commands/build.js';
-import { watchDefine } from './commands/watch.js';
-import * as installCommand from './commands/install.js';
+import { changelogDefine } from './commands/changelog.js';
 import { cleanDefine } from './commands/clean.js';
 import { cliDefine } from './commands/cli.js';
-import { generateDefine } from './commands/generate.js';
-import { draftDefine } from './commands/draft.js';
-import { changelogDefine } from './commands/changelog.js';
-import { dockerDefine } from './commands/docker.js';
-import { testDefine } from './commands/test.js';
-import { releaseDefine } from './commands/release.js';
 import * as dependenciesCommand from './commands/dependencies.js';
+import { dockerDefine } from './commands/docker.js';
+import { draftDefine } from './commands/draft.js';
+import { generateDefine } from './commands/generate.js';
+import * as installCommand from './commands/install.js';
+import { releaseDefine } from './commands/release.js';
+import { rsyncDefine } from './commands/rsync.js';
+import { testDefine } from './commands/test.js';
+import { watchDefine } from './commands/watch.js';
 
 /**
  * The main CLI router function.
@@ -47,6 +41,7 @@ export async function cli() {
 	argv = generateDefine( argv );
 	argv.command( installCommand );
 	argv = releaseDefine( argv );
+	argv = rsyncDefine( argv );
 	argv = testDefine( argv );
 	argv = watchDefine( argv );
 

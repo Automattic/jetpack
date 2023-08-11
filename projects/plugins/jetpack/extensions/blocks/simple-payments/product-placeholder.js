@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import './product-placeholder.scss';
-import paypalImage from './paypal-button.png';
 import paypalImage2x from './paypal-button-2x.png';
+import paypalImage from './paypal-button.png';
+
+import './product-placeholder.scss';
 
 export default ( {
 	title = '',

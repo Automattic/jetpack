@@ -2,17 +2,9 @@
  * @jest-environment jsdom
  */
 
-/**
- * External dependencies
- */
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
+import React from 'react';
 
 describe( 'Button', function () {
 	const testProps = {
@@ -20,14 +12,14 @@ describe( 'Button', function () {
 	};
 	it( 'can render', () => {
 		render( <Button /> );
-		expect( screen.queryByRole( 'button' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button' ) ).toBeInTheDocument();
 	} );
 	it( 'can render compact button', () => {
 		render( <Button compact={ true } /> );
-		expect( screen.queryByRole( 'button' ).className ).toContain( 'is-compact' );
+		expect( screen.getByRole( 'button' ) ).toHaveClass( 'is-compact' );
 	} );
 	it( 'can render with class name passed in', () => {
 		render( <Button { ...testProps } /> );
-		expect( screen.queryByRole( 'button' ).className ).toContain( 'test-class' );
+		expect( screen.getByRole( 'button' ) ).toHaveClass( 'test-class' );
 	} );
 } );

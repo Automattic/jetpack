@@ -1,17 +1,6 @@
-/**
- * External dependencies
- */
 import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
-
-/**
- * WordPress dependencies
- */
 import { RichText } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { minimumTransactionAmountForCurrency } from '../../../../shared/currencies';
 
 export default {

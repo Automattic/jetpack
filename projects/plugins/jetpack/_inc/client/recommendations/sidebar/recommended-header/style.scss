@@ -3,6 +3,7 @@
 
 .jp-recommendations-recommended-header {
 	display: flex;
+	align-items: center;
 
 	padding: 0.5rem;
 
@@ -13,9 +14,7 @@
 
 	font-weight: $bold;
 
-	img {
-		margin-right: 0.5rem;
-		
-		filter: brightness(0);
+	.gridicon {
+		margin-inline-end: 0.5rem;
 	}
 }

@@ -1,5 +1,5 @@
 module.exports = {
-	extends: [ '../../../tools/js-tools/eslintrc/react.js' ],
+	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/react' ) ],
 	parserOptions: {
 		babelOptions: {
 			configFile: require.resolve( './babel.config.js' ),

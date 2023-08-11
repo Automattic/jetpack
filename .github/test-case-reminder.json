@@ -2,5 +2,5 @@
 	"tests_dir": "docs/testing/regression-checklist/test-suites/",
 	"mapping_file": "docs/testing/regression-checklist/mapping.json",
 	"tests_repo": "automattic/jetpack",
-	"comment_footer": "\n\nIf you think that suggestions should be improved please edit the configuration file [here](https://github.com/Automattic/jetpack/tree/master/docs/testing/regression-checklist/mapping.json). You can also modify/add [test-suites](https://github.com/Automattic/jetpack/tree/master/docs/testing/regression-checklist/test-suites) to be used in the configuration file."
+	"comment_footer": "\n\nIf you think that suggestions should be improved please edit the configuration file [here](https://github.com/Automattic/jetpack/tree/trunk/docs/testing/regression-checklist/mapping.json). You can also modify/add [test-suites](https://github.com/Automattic/jetpack/tree/trunk/docs/testing/regression-checklist/test-suites) to be used in the configuration file."
 }

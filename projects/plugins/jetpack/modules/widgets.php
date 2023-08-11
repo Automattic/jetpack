@@ -71,7 +71,7 @@ function jetpack_widgets_customizer_assets_preview() {
 	wp_enqueue_script(
 		'jetpack-customizer-widget-utils',
 		plugins_url( '/widgets/customizer-utils.js', __FILE__ ),
-		array( 'customize-base' ),
+		array( 'jquery', 'customize-base' ),
 		JETPACK__VERSION,
 		false
 	);

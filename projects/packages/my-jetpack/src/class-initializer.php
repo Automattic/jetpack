@@ -13,6 +13,10 @@ use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Constants as Jetpack_Constants;
+use Automattic\Jetpack\JITMS\JITM as JITM;
+use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
@@ -27,10 +31,15 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '1.1.1-alpha';
+	const PACKAGE_VERSION = '3.3.3-alpha';
 
 	/**
-	 * Initialize My Jetapack
+	 * HTML container ID for the IDC screen on My Jetpack page.
+	 */
+	const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
+
+	/**
+	 * Initialize My Jetpack
 	 *
 	 * @return void
 	 */
@@ -45,19 +54,26 @@ class Initializer {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		if ( self::is_licensing_ui_enabled() ) {
+			Licensing::instance()->initialize();
+		}
+
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			'manage_options',
+			'edit_posts',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
 			999
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+
+		// Sets up JITMS.
+		JITM::configure();
 
 		/**
 		 * Fires after the My Jetpack package is initialized
@@ -68,11 +84,45 @@ class Initializer {
 	}
 
 	/**
+	 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return boolean
+	 */
+	public static function is_licensing_ui_enabled() {
+		// Default changed to true in 1.5.0.
+		$is_enabled = true;
+
+		/*
+		 * Bail if My Jetpack is not enabled,
+		 * and thus the licensing UI shouldn't be enabled either.
+		 */
+		if ( ! self::should_initialize() ) {
+			$is_enabled = false;
+		}
+
+		/**
+		 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
+		 *
+		 * @param bool $is_enabled Defaults to true.
+		 *
+		 * @since 1.2.0
+		 * @since 1.5.0 Update default value to true.
+		 */
+		return apply_filters(
+			'jetpack_my_jetpack_should_enable_add_license_screen',
+			$is_enabled
+		);
+	}
+
+	/**
 	 * Callback for the load my jetpack page hook.
 	 *
 	 * @return void
 	 */
 	public static function admin_init() {
+		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		// Product statuses are constantly changing, so we never want to cache the page.
 		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
@@ -117,15 +167,17 @@ class Initializer {
 				'purchases'             => array(
 					'items' => array(),
 				),
-				'redirectUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
+				'plugins'               => Plugins_Installer::get_plugins(),
+				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
+				'myJetpackFlags'        => self::get_my_jetpack_flags(),
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
-				'loadAddLicenseScreen'  => apply_filters(
-					'jetpack_my_jetpack_should_enable_add_license_screen',
-					defined( 'JETPACK_ENABLE_MY_JETPACK_LICENSE' ) && JETPACK_ENABLE_MY_JETPACK_LICENSE
-				),
+				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
+				'adminUrl'              => esc_url( admin_url() ),
+				'IDCContainerID'        => static::get_idc_container_id(),
+				'userIsAdmin'           => current_user_can( 'manage_options' ),
 			)
 		);
 
@@ -148,6 +200,20 @@ class Initializer {
 	}
 
 	/**
+	 *  Build flags for My Jetpack UI
+	 *
+	 *  @return array
+	 */
+	public static function get_my_jetpack_flags() {
+		$flags = array(
+			'videoPressStats'      => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
+			'showJetpackStatsCard' => class_exists( 'Jetpack' ),
+		);
+
+		return $flags;
+	}
+
+	/**
 	 * Echoes the admin page content.
 	 *
 	 * @return void
@@ -164,6 +230,8 @@ class Initializer {
 	public static function register_rest_endpoints() {
 		new REST_Products();
 		new REST_Purchases();
+		new REST_Zendesk_Chat();
+		new REST_AI();
 
 		register_rest_route(
 			'my-jetpack/v1',
@@ -195,11 +263,6 @@ class Initializer {
 		$should = true;
 
 		if ( is_multisite() ) {
-			$should = false;
-		}
-
-		// Do not initialize My Jetpack if site is not connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			$should = false;
 		}
 
@@ -272,6 +335,15 @@ class Initializer {
 		set_transient( 'my_jetpack_write_access', $write_access, 30 * MINUTE_IN_SECONDS );
 
 		return $write_access;
+	}
+
+	/**
+	 * Get container IDC for the IDC screen.
+	 *
+	 * @return string
+	 */
+	public static function get_idc_container_id() {
+		return static::IDC_CONTAINER_ID;
 	}
 
 }

@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-jetpack_require_lib( 'class-jetpack-podcast-helper' );
+require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
 require_once __DIR__ . '/mocks/class-simplepie.php';
 require_once __DIR__ . '/mocks/class-simplepie-item.php';
 

@@ -16,8 +16,8 @@ class Jetpack_Attachment_Test_Case extends WP_UnitTestCase {
 	 * The $factory here is an instance of WP_UnitTest_Factory and is passed as an argument
 	 * to wpSetUpBeforeClass method.
 	 *
-	 * @param String $file file path
-	 * @param Integer $parent the ID of the parent object
+	 * @param String  $file file path.
+	 * @param Integer $parent the ID of the parent object.
 	 * @return Integer $id
 	 */
 	protected static function create_upload_object( $file, $parent = 0, $generate_meta = false ) {

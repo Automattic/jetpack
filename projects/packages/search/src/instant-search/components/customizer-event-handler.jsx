@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { Component } from 'react';
-
-/**
- * Internal dependencies
- */
 import { bindCustomizerChanges, bindCustomizerMessages } from '../lib/customize';
 
 // This component is used to bind WordPress Customizer events to the Jetpack Search application.

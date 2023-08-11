@@ -1,22 +1,18 @@
-/**
- * External dependencies
- */
-import chalk from 'chalk';
 import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { fileURLToPath } from 'url';
+import chalk from 'chalk';
 import inquirer from 'inquirer';
-
-/**
- * Internal dependencies
- */
-import promptForProject from '../helpers/promptForProject.js';
-import { chalkJetpackGreen } from '../helpers/styling.js';
+import { readComposerJson } from '../helpers/json.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
 import { projectTypes, allProjects } from '../helpers/projectHelpers.js';
-import { readComposerJson } from '../helpers/json.js';
+import promptForProject from '../helpers/promptForProject.js';
 import { runCommand } from '../helpers/runCommand.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
+
+let changeloggerPath = null;
 
 /**
  * Comand definition for changelog subcommand.
@@ -165,6 +161,10 @@ export function changelogDefine( yargs ) {
 							.option( 'link', {
 								describe: 'Link for the new changelog entry',
 								type: 'string',
+							} )
+							.option( 'add-pr-num', {
+								describe: 'Append the GH PR number to each entry',
+								type: 'boolean',
 							} );
 					},
 					async argv => {
@@ -408,9 +408,14 @@ async function changelogArgs( argv ) {
 		argv.args.push( ...argv.pass );
 	}
 
-	// Check for required command specific arguements.
+	// Check for required command specific arguments.
 	switch ( argv.args[ 0 ] ) {
 		case 'add':
+			console.log(
+				"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
+					'Here is an example of a good changelog entry:\n' +
+					'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
+			);
 			if ( ( argv.s && argv.t && argv.e ) || argv.auto ) {
 				argv.args.push( '--no-interaction' );
 			} else if ( argv.s || argv.t || argv.e ) {
@@ -500,7 +505,29 @@ async function removeArgs( argv, removeArg ) {
  * @param {object} argv - arguments passed as cli.
  */
 export async function changeloggerCli( argv ) {
-	const data = child_process.spawnSync( `${ argv.cmdPath }`, argv.args, {
+	if ( ! changeloggerPath ) {
+		changeloggerPath = path.resolve( 'projects/packages/changelogger/bin/changelogger' );
+		let data = child_process.spawnSync( changeloggerPath, [], {
+			stdio: 'ignore',
+		} );
+		if ( data.status !== 0 ) {
+			console.debug( 'Preparing changelogger...' );
+			child_process.spawnSync( 'composer', [ 'update' ], {
+				cwd: path.resolve( 'projects/packages/changelogger' ),
+				stdio: 'ignore',
+			} );
+			data = child_process.spawnSync( changeloggerPath, [], {
+				stdio: 'ignore',
+			} );
+			if ( data.status !== 0 ) {
+				throw new Error(
+					"Failed to prepare changelogger. Try running 'jetpack install -v packages/changelogger'."
+				);
+			}
+		}
+	}
+
+	const data = child_process.spawnSync( changeloggerPath, argv.args, {
 		cwd: argv.cwd,
 		stdio: 'inherit',
 	} );
@@ -546,7 +573,7 @@ async function checkChangelogFiles() {
 	// Bail if we're pushing to a release branch, like boost/branch-1.3.0
 	let currentBranch = child_process.spawnSync( 'git', [ 'branch', '--show-current' ] );
 	currentBranch = currentBranch.stdout.toString().trim();
-	const branchReg = /\/branch-(\d+)\.(\d+)(\.(\d+))?/; // match example: jetpack/branch-1.2.3
+	const branchReg = /\/branch-/; // match example: jetpack/branch-1.2.3
 	if ( currentBranch.match( branchReg ) ) {
 		console.log( chalk.green( 'Release branch detected. No changelog required.' ) );
 		return [];
@@ -562,7 +589,7 @@ async function checkChangelogFiles() {
 		`--no-renames`,
 		`--name-only`,
 		`--merge-base`,
-		`origin/master`,
+		`origin/trunk`,
 	] );
 	touchedFiles = touchedFiles.stdout.toString().trim().split( '\n' );
 
@@ -595,9 +622,9 @@ async function checkChangelogFiles() {
 function doesFilenameExist( fileName, needChangelog ) {
 	let fileExists = false;
 	for ( const proj of needChangelog ) {
-		const projPath = new URL(
-			`../../../projects/${ proj }/changelog/${ fileName }`,
-			import.meta.url
+		const projPath = path.join(
+			fileURLToPath( new URL( './', import.meta.url ) ),
+			`../../../projects/${ proj }/changelog/${ fileName }`
 		);
 		try {
 			if ( fs.existsSync( projPath ) ) {
@@ -629,7 +656,7 @@ export async function validateProject( argv ) {
 }
 
 /**
- * Validate that the vendor/bin/changelogger file exists
+ * Validate that the project exists
  *
  * @param {object} argv - arguments passed to the wizard.
  * @param {string} dir - path to file we're adding changlog too.
@@ -638,15 +665,6 @@ function validatePath( argv, dir ) {
 	if ( ! fs.existsSync( dir ) ) {
 		throw new Error( chalk.red( `Project doesn't exist! Typo?` ) );
 	}
-	if ( fs.existsSync( dir + `/vendor/bin/changelogger` ) ) {
-		argv.cmdPath = 'vendor/bin/changelogger';
-		return;
-	}
-	throw new Error(
-		chalk.red(
-			`Path to changelogger script doesn't exist. Try running 'jetpack install ${ argv.project }' first!`
-		)
-	);
 }
 
 /**
@@ -717,7 +735,7 @@ async function promptChangelog( argv, needChangelog ) {
 		{
 			type: 'string',
 			name: 'changelogName',
-			message: 'Name your change file:',
+			message: 'Name your changelog file:',
 			default: gitBranch,
 			validate: input => {
 				const fileExists = doesFilenameExist( input, needChangelog );

@@ -68,8 +68,7 @@ class Connection {
 	 * Deactivate the connection on plugin disconnect.
 	 */
 	public function deactivate_disconnect() {
-		$this->manager->disconnect_site_wpcom();
-		$this->manager->delete_all_connection_tokens();
+		$this->manager->remove_connection();
 	}
 
 	/**
@@ -120,14 +119,7 @@ class Connection {
 			return true;
 		}
 
-		// Temporary hack for Jetpack < 9.2 compatibility without notices.
-		if ( method_exists( $this->manager, 'is_connected' ) ) {
-			$is_connected = $this->manager->is_connected();
-		} else {
-			$is_connected = $this->manager->is_registered();
-		}
-
-		return $is_connected && $this->manager->is_plugin_enabled();
+		return $this->manager->is_connected();
 	}
 
 	/**
@@ -136,18 +128,16 @@ class Connection {
 	 * @return true|\WP_Error The error object.
 	 */
 	public function register() {
-		$this->manager->enable_plugin();
-
 		if ( $this->is_connected() ) {
-			Analytics::record_user_event( 'connect_site' );
-
+			Analytics::record_user_event( 'using_existing_connection' );
 			return true;
 		}
 
 		$result = $this->manager->register();
 
 		if ( ! is_wp_error( $result ) ) {
-			Analytics::record_user_event( 'connect_site' );
+			Analytics::record_user_event( 'established_connection' );
+			Premium_Features::clear_cache();
 		}
 
 		return $result;
@@ -164,24 +154,6 @@ class Connection {
 
 		$this->manager->remove_connection();
 
-		// @todo: implement clearing of IDC options
-		// Jetpack_IDC::clear_all_idc_options();
-
-		// @todo: implement check of updating activated state?
-		// if ( $update_activated_state ) {
-		// Jetpack_Options::update_option( 'activated', 4 );
-		// }
-
-		// @todo: implement check of unique connection increment/decrement
-		// if ( $jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' ) ) {
-		// ...
-		// }
-
-		// @todo: Delete all the sync related data. Since it could be taking up space.
-		// Sender::get_instance()->uninstall();
-
-		// @todo: Disable the Heartbeat cron
-		// Jetpack_Heartbeat::init()->deactivate();
 		return true;
 	}
 
@@ -223,9 +195,14 @@ class Connection {
 
 		$response = $this->register();
 
+		// Clear premium features cache to force a refresh.
+		Premium_Features::clear_cache();
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
+
+		do_action( 'jetpack_boost_connection_established' );
 
 		return rest_ensure_response( $this->get_connection_api_response() );
 	}
@@ -249,10 +226,13 @@ class Connection {
 	public function get_connection_api_response() {
 		$force_connected = apply_filters( 'jetpack_boost_connection_bypass', false );
 
-		return array(
-			'connected'   => $force_connected || $this->is_connected(),
-			'wpcomBlogId' => ( $force_connected || $this->is_connected() ) ? self::wpcom_blog_id() : null,
+		$response = array(
+			'connected'     => $force_connected || $this->is_connected(),
+			'wpcomBlogId'   => ( $force_connected || $this->is_connected() ) ? self::wpcom_blog_id() : null,
+			'userConnected' => $this->manager->is_user_connected(),
 		);
+
+		return $response;
 	}
 
 	/**

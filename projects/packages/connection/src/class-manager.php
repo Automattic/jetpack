@@ -12,9 +12,11 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_IXR_Client;
+use Jetpack_Options;
 use WP_Error;
 use WP_User;
 
@@ -43,6 +45,20 @@ class Manager {
 	 * @var Plugin
 	 */
 	private $plugin = null;
+
+	/**
+	 * Error handler object.
+	 *
+	 * @var Error_Handler
+	 */
+	public $error_handler = null;
+
+	/**
+	 * Jetpack_XMLRPC_Server object
+	 *
+	 * @var Jetpack_XMLRPC_Server
+	 */
+	public $xmlrpc_server = null;
 
 	/**
 	 * Holds extra parameters that will be sent along in the register request body.
@@ -116,6 +132,12 @@ class Manager {
 		if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
 			( new Server_Sandbox() )->init();
 		}
+
+		// Initialize connection notices.
+		new Connection_Notice();
+
+		// Initialize token locks.
+		new Tokens_Locks();
 	}
 
 	/**
@@ -185,7 +207,6 @@ class Manager {
 			// The jetpack.authorize method should be available for unauthenticated users on a site with an
 			// active Jetpack connection, so that additional users can link their account.
 			$callback = array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' );
-
 		} else {
 			// Any other unsigned request should expose the bootstrap methods.
 			$callback = array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' );
@@ -363,6 +384,8 @@ class Manager {
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
+		$error_type = 'xmlrpc';
+
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -373,7 +396,7 @@ class Manager {
 			empty( $token_key )
 		||
 			empty( $version ) || (string) $jetpack_api_version !== $version ) {
-			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
+			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details', 'error_type' ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -385,7 +408,7 @@ class Manager {
 				return new \WP_Error(
 					'malformed_user_id',
 					'Malformed user_id in request',
-					compact( 'signature_details' )
+					compact( 'signature_details', 'error_type' )
 				);
 			}
 			$user_id = (int) $user_id;
@@ -395,20 +418,20 @@ class Manager {
 				return new \WP_Error(
 					'unknown_user',
 					sprintf( 'User %d does not exist', $user_id ),
-					compact( 'signature_details' )
+					compact( 'signature_details', 'error_type' )
 				);
 			}
 		}
 
 		$token = $this->get_tokens()->get_access_token( $user_id, $token_key, false );
 		if ( is_wp_error( $token ) ) {
-			$token->add_data( compact( 'signature_details' ) );
+			$token->add_data( compact( 'signature_details', 'error_type' ) );
 			return $token;
 		} elseif ( ! $token ) {
 			return new \WP_Error(
 				'unknown_token',
 				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -450,7 +473,7 @@ class Manager {
 			return new \WP_Error(
 				'could_not_sign',
 				'Unknown signature error',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		} elseif ( is_wp_error( $signature ) ) {
 			return $signature;
@@ -466,7 +489,7 @@ class Manager {
 			return new \WP_Error(
 				'invalid_nonce',
 				'Could not add nonce',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -480,7 +503,7 @@ class Manager {
 			return new \WP_Error(
 				'signature_mismatch',
 				'Signature mismatch',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -765,6 +788,25 @@ class Manager {
 			$connection_owner = get_userdata( $user_token->external_user_id );
 		}
 
+		if ( $connection_owner === false ) {
+			Error_Handler::get_instance()->report_error(
+				new WP_Error(
+					'invalid_connection_owner',
+					'Invalid connection owner',
+					array(
+						'user_id'           => $user_id,
+						'has_user_token'    => (bool) $user_token,
+						'error_type'        => 'connection',
+						'signature_details' => array(
+							'token' => '',
+						),
+					)
+				),
+				false,
+				true
+			);
+		}
+
 		return $connection_owner;
 	}
 
@@ -829,7 +871,12 @@ class Manager {
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false, $force_disconnect_locally = false ) {
-		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
+		$user_id         = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
+		$is_primary_user = Jetpack_Options::get_option( 'master_user' ) === $user_id;
+
+		if ( $is_primary_user && ! $can_overwrite_primary_user ) {
+			return false;
+		}
 
 		// Attempt to disconnect the user from WordPress.com.
 		$is_disconnected_from_wpcom = $this->unlink_user_from_wpcom( $user_id );
@@ -837,7 +884,7 @@ class Manager {
 		$is_disconnected_locally = false;
 		if ( $is_disconnected_from_wpcom || $force_disconnect_locally ) {
 			// Disconnect the user locally.
-			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
+			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id );
 
 			if ( $is_disconnected_locally ) {
 				// Delete cached connected user data.
@@ -853,6 +900,10 @@ class Manager {
 				 * @param int $user_id The current user's ID.
 				 */
 				do_action( 'jetpack_unlinked_user', $user_id );
+
+				if ( $is_primary_user ) {
+					Jetpack_Options::delete_option( 'master_user' );
+				}
 			}
 		}
 
@@ -862,15 +913,13 @@ class Manager {
 	/**
 	 * Request to wpcom for a user to be unlinked from their WordPress.com account
 	 *
-	 * @access public
+	 * @param int $user_id The user identifier.
 	 *
-	 * @param Integer $user_id the user identifier.
-	 *
-	 * @return Boolean Whether the disconnection of the user was successful.
+	 * @return bool Whether the disconnection of the user was successful.
 	 */
 	public function unlink_user_from_wpcom( $user_id ) {
 		// Attempt to disconnect the user from WordPress.com.
-		$xml = new Jetpack_IXR_Client( compact( 'user_id' ) );
+		$xml = new Jetpack_IXR_Client();
 
 		$xml->query( 'jetpack.unlink_user', $user_id );
 		if ( $xml->isError() ) {
@@ -890,7 +939,8 @@ class Manager {
 	 * @return true|WP_Error True if owner successfully changed, WP_Error otherwise.
 	 */
 	public function update_connection_owner( $new_owner_id ) {
-		if ( ! user_can( $new_owner_id, 'administrator' ) ) {
+		$roles = new Roles();
+		if ( ! user_can( $new_owner_id, $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			return new WP_Error(
 				'new_owner_not_admin',
 				__( 'New owner is not admin', 'jetpack-connection' ),
@@ -1018,6 +1068,11 @@ class Manager {
 	 * @return true|WP_Error The error object.
 	 */
 	public function register( $api_endpoint = 'register' ) {
+		// Clean-up leftover tokens just in-case.
+		// This fixes an edge case that was preventing users to register when the blog token was missing but
+		// there were still leftover user tokens present.
+		$this->delete_all_connection_tokens( true );
+
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
 		$secrets = ( new Secrets() )->generate( 'register', get_current_user_id(), 600 );
 
@@ -1097,7 +1152,7 @@ class Manager {
 			'timeout' => $timeout,
 		);
 
-		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
+		$args['body'] = static::apply_activation_source_to_args( $args['body'] );
 
 		// TODO: fix URLs for bad hosts.
 		$response = Client::_wp_remote_request(
@@ -1615,6 +1670,11 @@ class Manager {
 			return false;
 		}
 
+		if ( ( new Status() )->is_offline_mode() && ! apply_filters( 'jetpack_connection_disconnect_site_wpcom_offline_mode', false ) ) {
+			// Prevent potential disconnect of the live site by removing WPCOM tokens.
+			return false;
+		}
+
 		/**
 		 * Fires upon the disconnect attempt.
 		 * Return `false` to prevent the disconnect.
@@ -1636,16 +1696,15 @@ class Manager {
 	 * This function will automatically perform "soft" or "hard" disconnect depending on whether other plugins are using the connection.
 	 * This is a proxy method to simplify the Connection package API.
 	 *
-	 * @see Manager::disable_plugin()
-	 * @see Manager::disconnect_site_wpcom()
-	 * @see Manager::delete_all_connection_tokens()
+	 * @see Manager::disconnect_site()
 	 *
+	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
+	 * @param bool    $ignore_connected_plugins Delete the tokens even if there are other connected plugins.
 	 * @return bool
 	 */
-	public function remove_connection() {
-		$this->disable_plugin();
-		$this->disconnect_site_wpcom();
-		$this->delete_all_connection_tokens();
+	public function remove_connection( $disconnect_wpcom = true, $ignore_connected_plugins = false ) {
+
+		$this->disconnect_site( $disconnect_wpcom, $ignore_connected_plugins );
 
 		return true;
 	}
@@ -1659,7 +1718,6 @@ class Manager {
 		( new Tracking() )->record_user_event( 'restore_connection_reconnect' );
 
 		$this->disconnect_site_wpcom( true );
-		$this->delete_all_connection_tokens( true );
 
 		return $this->register();
 	}
@@ -1755,7 +1813,6 @@ class Manager {
 	 * Should be changed to protected.
 	 */
 	public function handle_authorization() {
-
 	}
 
 	/**
@@ -1847,8 +1904,8 @@ class Manager {
 				'scope'                 => $signed_role,
 				'user_email'            => $user->user_email,
 				'user_login'            => $user->user_login,
-				'is_active'             => $this->is_active(), // TODO Deprecate this.
-				'jp_version'            => Constants::get_constant( 'JETPACK__VERSION' ),
+				'is_active'             => $this->has_connected_owner(), // TODO Deprecate this.
+				'jp_version'            => (string) Constants::get_constant( 'JETPACK__VERSION' ),
 				'auth_type'             => $auth_type,
 				'secret'                => $secrets['secret_1'],
 				'blogname'              => get_option( 'blogname' ),
@@ -1858,10 +1915,11 @@ class Manager {
 				'site_lang'             => get_locale(),
 				'site_created'          => $this->get_assumed_site_creation_date(),
 				'allow_site_connection' => ! $this->has_connected_owner(),
+				'calypso_env'           => ( new Host() )->get_calypso_env(),
 			)
 		);
 
-		$body = $this->apply_activation_source_to_args( urlencode_deep( $body ) );
+		$body = static::apply_activation_source_to_args( urlencode_deep( $body ) );
 
 		$api_url = $this->api_url( 'authorize' );
 
@@ -1976,8 +2034,13 @@ class Manager {
 	 * Forgets all connection details and tells the Jetpack servers to do the same.
 	 *
 	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
+	 * @param bool    $ignore_connected_plugins Delete the tokens even if there are other connected plugins.
 	 */
-	public function disconnect_site( $disconnect_wpcom = true ) {
+	public function disconnect_site( $disconnect_wpcom = true, $ignore_connected_plugins = true ) {
+		if ( ! $ignore_connected_plugins && null !== $this->plugin && ! $this->plugin->is_only() ) {
+			return false;
+		}
+
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 
 		( new Nonce_Handler() )->clean_all();
@@ -1995,10 +2058,10 @@ class Manager {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$this->disconnect_site_wpcom( true );
+			$this->disconnect_site_wpcom( $ignore_connected_plugins );
 		}
 
-		$this->delete_all_connection_tokens( true );
+		$this->delete_all_connection_tokens( $ignore_connected_plugins );
 
 		// Remove tracked package versions, since they depend on the Jetpack Connection.
 		delete_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
@@ -2311,7 +2374,7 @@ class Manager {
 	 * @return array|WP_Error
 	 */
 	public function get_connected_plugins() {
-		$maybe_plugins = Plugin_Storage::get_all( true );
+		$maybe_plugins = Plugin_Storage::get_all();
 
 		if ( $maybe_plugins instanceof WP_Error ) {
 			return $maybe_plugins;
@@ -2324,14 +2387,11 @@ class Manager {
 	 * Force plugin disconnect. After its called, the plugin will not be allowed to use the connection.
 	 * Note: this method does not remove any access tokens.
 	 *
+	 * @deprecated since 1.39.0
 	 * @return bool
 	 */
 	public function disable_plugin() {
-		if ( ! $this->plugin ) {
-			return false;
-		}
-
-		return $this->plugin->disable();
+		return null;
 	}
 
 	/**
@@ -2339,28 +2399,23 @@ class Manager {
 	 * After its called, the plugin will be allowed to use the connection again.
 	 * Note: this method does not initialize access tokens.
 	 *
+	 * @deprecated since 1.39.0.
 	 * @return bool
 	 */
 	public function enable_plugin() {
-		if ( ! $this->plugin ) {
-			return false;
-		}
-
-		return $this->plugin->enable();
+		return null;
 	}
 
 	/**
 	 * Whether the plugin is allowed to use the connection, or it's been disconnected by user.
 	 * If no plugin slug was passed into the constructor, always returns true.
 	 *
+	 * @deprecated 1.42.0 This method no longer has a purpose after the removal of the soft disconnect feature.
+	 *
 	 * @return bool
 	 */
 	public function is_plugin_enabled() {
-		if ( ! $this->plugin ) {
-			return true;
-		}
-
-		return $this->plugin->is_enabled();
+		return true;
 	}
 
 	/**
@@ -2418,6 +2473,8 @@ class Manager {
 			return new WP_Error( 'jetpack_secret', '', $code );
 		}
 
+		Error_Handler::get_instance()->delete_all_errors();
+
 		return $this->get_tokens()->update_blog_token( (string) $json->jetpack_secret );
 	}
 
@@ -2465,5 +2522,23 @@ class Manager {
 			}
 		}
 		return $stats;
+	}
+
+	/**
+	 * Get the WPCOM or self-hosted site ID.
+	 *
+	 * @return int|WP_Error
+	 */
+	public static function get_site_id() {
+		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+		$site_id  = $is_wpcom ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
+		if ( ! $site_id ) {
+			return new \WP_Error(
+				'unavailable_site_id',
+				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack-connection' ),
+				403
+			);
+		}
+		return (int) $site_id;
 	}
 }

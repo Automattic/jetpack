@@ -29,6 +29,7 @@ class Mocker {
 	private $runners = array(
 		'options' => 'Options',
 		'nonces'  => 'Nonces (stored in options)',
+		'waf'     => 'Firewall blocked requests',
 	);
 
 	/**

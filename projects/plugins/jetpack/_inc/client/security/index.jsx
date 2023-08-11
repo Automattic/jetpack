@@ -1,30 +1,23 @@
-/**
- * External dependencies
- */
+import { __ } from '@wordpress/i18n';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
+import QuerySite from 'components/data/query-site';
+import { get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import Card from 'components/card';
-import { getModule } from 'state/modules';
-import { getSettings } from 'state/settings';
-import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getVaultPressData } from 'state/at-a-glance';
+import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
+import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
+import { getSettings } from 'state/settings';
+import { siteHasFeature } from 'state/site';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
-import QuerySite from 'components/data/query-site';
-import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
-import { hasActiveSiteFeature } from 'state/site';
-import BackupsScan from './backups-scan';
 import Antispam from './antispam';
+import BackupsScan from './backups-scan';
 import { JetpackBackup } from './jetpack-backup';
 import { Monitor } from './monitor';
 import { Protect } from './protect';
 import { SSO } from './sso';
+import Waf from './waf';
 
 export class Security extends Component {
 	static displayName = 'SecuritySettings';
@@ -70,7 +63,8 @@ export class Security extends Component {
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
-		const foundProtect = this.props.isModuleFound( 'protect' ),
+		const foundWaf = this.props.isModuleFound( 'waf' ),
+			foundProtect = this.props.isModuleFound( 'protect' ),
 			foundSso = this.props.isModuleFound( 'sso' ),
 			foundAkismet = this.isAkismetFound(),
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
@@ -95,18 +89,16 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
-				<Card
-					title={
-						isSearchTerm
-							? __( 'Security', 'jetpack' )
-							: __(
-									'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
-									'jetpack',
-									/* dummy arg to avoid bad minification */ 0
-							  )
-					}
-					className="jp-settings-description"
-				/>
+				<h1 className="screen-reader-text">{ __( 'Jetpack Security Settings', 'jetpack' ) }</h1>
+				<h2 className="jp-settings__section-title">
+					{ isSearchTerm
+						? __( 'Security', 'jetpack' )
+						: __(
+								'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
+								'jetpack',
+								/* dummy arg to avoid bad minification */ 0
+						  ) }
+				</h2>
 				{ foundBackups && backupsContent }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet && (
@@ -115,6 +107,7 @@ export class Security extends Component {
 						<QueryAkismetKeyCheck />
 					</>
 				) }
+				{ foundWaf && <Waf { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>
@@ -124,8 +117,7 @@ export class Security extends Component {
 
 export default connect( state => {
 	return {
-		backupsOnly:
-			hasActiveSiteFeature( state, 'backups' ) && ! hasActiveSiteFeature( state, 'scan' ),
+		backupsOnly: siteHasFeature( state, 'backups' ) && ! siteHasFeature( state, 'scan' ),
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
 		isOfflineMode: isOfflineMode( state ),

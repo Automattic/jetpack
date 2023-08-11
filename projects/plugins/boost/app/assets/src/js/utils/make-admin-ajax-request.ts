@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import type { JSONObject } from './json-types';
 
 declare const ajaxurl: string;
@@ -20,10 +13,12 @@ class AdminAjaxError extends Error {
 /**
  * Prepare a wp-ajax request, returning a raw Response object.
  *
- * @param {Record< string, string >} payload Key/value pairs to send with the request.
+ * @param {Record< string, string >} payload   Key/value pairs to send with the request.
+ * @param {string}                   wpajaxurl
  */
 export async function prepareAdminAjaxRequest(
-	payload: Record< string, string >
+	payload: Record< string, string >,
+	wpajaxurl = ajaxurl
 ): Promise< Response > {
 	const args = {
 		method: 'post',
@@ -33,7 +28,7 @@ export async function prepareAdminAjaxRequest(
 		},
 	};
 
-	const response = await fetch( ajaxurl, args );
+	const response = await fetch( wpajaxurl, args );
 	if ( ! response.ok ) {
 		throw new AdminAjaxError(
 			sprintf(

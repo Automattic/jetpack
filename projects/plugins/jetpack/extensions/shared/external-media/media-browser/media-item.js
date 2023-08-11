@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
-import { useRef, useEffect } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
+import { useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 
 function MediaItem( props ) {
 	const onClick = event => {

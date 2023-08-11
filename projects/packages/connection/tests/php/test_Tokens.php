@@ -27,6 +27,13 @@ class TokensTest extends TestCase {
 	private $site_url;
 
 	/**
+	 * Tokens mock object.
+	 *
+	 * @var Tokens
+	 */
+	private $tokens;
+
+	/**
 	 * Initialize the object before running the test method.
 	 *
 	 * @before

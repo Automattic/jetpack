@@ -46,7 +46,7 @@ class AddCommandTest extends CommandTestCase {
 		// Test with no git checkout.
 		$this->assertMatchesRegularExpression( '/^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-\d{6}$/', $w->getDefaultFilename( $output ) );
 
-		// Create a git checkout, master branch.
+		// Create a git checkout, trunk branch.
 		$args = array(
 			$output,
 			new DebugFormatterHelper(),
@@ -61,7 +61,7 @@ class AddCommandTest extends CommandTestCase {
 			),
 		);
 		Utils::runCommand( array( 'git', 'init', '.' ), ...$args );
-		Utils::runCommand( array( 'git', 'checkout', '-b', 'master' ), ...$args );
+		Utils::runCommand( array( 'git', 'checkout', '-b', 'trunk' ), ...$args );
 		Utils::runCommand( array( 'git', 'commit', '--allow-empty', '-m', 'Empty' ), ...$args );
 		$this->assertMatchesRegularExpression( '/^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-\d{6}$/', $w->getDefaultFilename( $output ) );
 
@@ -388,7 +388,7 @@ class AddCommandTest extends CommandTestCase {
 			),
 			'Non-interactive use with missing entry'       => array(
 				array(
-					'--significance' => 'patch',
+					'--significance' => 'minor',
 					'--type'         => 'fixed',
 				),
 				array( 'interactive' => false ),
@@ -397,6 +397,20 @@ class AddCommandTest extends CommandTestCase {
 				null,
 				array(
 					'/Entry must be specified in non-interactive mode/',
+				),
+			),
+			'Non-interactive use with missing entry and significance of patch' => array(
+				array(
+					'--significance' => 'patch',
+					'--type'         => 'fixed',
+				),
+				array( 'interactive' => false ),
+				array(),
+				1,
+				null,
+				array(
+					'/Entry must be specified in non-interactive mode\./',
+					'/If you want to have an empty entry for this change, pass the empty string as the entry \(like --entry=\) and also please provide a comment \(using --comment\)\./',
 				),
 			),
 			'Non-interactive use with invalid entry'       => array(

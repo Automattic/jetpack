@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import ReactDOM from 'react-dom';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
 import { Provider } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import store from 'state/redux-store';
 import SearchDashboard from './search/dashboard';
 
@@ -21,12 +14,17 @@ function init() {
 		return;
 	}
 
-	ReactDOM.render(
+	// @todo: Remove fallback when we drop support for WP 6.1
+	const component = (
 		<Provider store={ store }>
 			<SearchDashboard />
-		</Provider>,
-		container
+		</Provider>
 	);
+	if ( WPElement.createRoot ) {
+		WPElement.createRoot( container ).render( component );
+	} else {
+		WPElement.render( component, container );
+	}
 }
 
 // Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.

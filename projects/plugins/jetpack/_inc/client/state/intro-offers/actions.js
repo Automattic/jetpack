@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import restApi from '@automattic/jetpack-api';
-
-/**
- * Internal dependencies
- */
 import {
 	JETPACK_INTRO_OFFERS_FETCH,
 	JETPACK_INTRO_OFFERS_FETCH_RECEIVE,

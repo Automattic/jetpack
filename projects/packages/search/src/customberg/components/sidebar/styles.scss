@@ -98,9 +98,12 @@
 	.components-base-control {
 		margin-bottom: $grid-unit-30;
 
-		&.components-checkbox-control,
+		&.components-checkbox-control {
+			margin-bottom: $grid-unit-10;
+		}
+
 		&.components-toggle-control {
-			margin-bottom: 0;
+			margin-bottom: $grid-unit-15;
 		}
 
 		&:last-child {

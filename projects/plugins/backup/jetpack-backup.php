@@ -1,11 +1,11 @@
 <?php
 /**
  *
- * Plugin Name: Jetpack Backup
+ * Plugin Name: Jetpack VaultPress Backup
  * Plugin URI: https://jetpack.com/jetpack-backup
  * Description: Easily restore or download a backup of your site from a specific moment in time.
- * Version: 1.2.1-alpha
- * Author: Automattic
+ * Version: 2.1-alpha
+ * Author: Automattic - Jetpack Backup team
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
  * Text Domain: jetpack-backup
@@ -29,21 +29,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 // Constant definitions.
 define( 'JETPACK_BACKUP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'JETPACK_BACKUP_PLUGIN_ROOT_FILE', __FILE__ );
 define( 'JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
-define( 'JETPACK_BACKUP_PLUGIN_SLUG', 'jetpack-backup' );
-define( 'JETPACK_BACKUP_PLUGIN_NAME', 'Jetpack Backup' );
-define( 'JETPACK_BACKUP_PLUGIN_URI', 'https://jetpack.com/jetpack-backup' );
 define( 'JETPACK_BACKUP_REQUIRED_JETPACK_VERSION', '10.0' );
 define( 'JETPACK_BACKUP_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
-define( 'JETPACK_BACKUP_PROMOTED_PRODUCT', 'jetpack_backup_t1_yearly' );
-define( 'JETPACK_BACKUP_DB_VERSION', '2' );
 
 /**
  * Checks if Jetpack is installed and if yes, require version 10+
@@ -63,7 +59,7 @@ function jetpack_backup_requirements_check() {
 	if ( version_compare( $jetpack_plugin_data['Version'], JETPACK_BACKUP_REQUIRED_JETPACK_VERSION, '<' ) ) {
 		return new WP_Error(
 			'incompatible_jetpack_version',
-			__( 'The Jetpack Backup plugin requires version 10 or higher of the Jetpack plugin. Please update your Jetpack plugin to continue.', 'jetpack-backup' )
+			__( 'The Jetpack VaultPress Backup plugin requires version 10 or higher of the Jetpack plugin. Please update your Jetpack plugin to continue.', 'jetpack-backup' )
 		);
 	}
 	return true;
@@ -99,7 +95,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 } else { // Something very unexpected. Error out gently with an admin_notice and exit loading.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			__( 'Error loading autoloader file for Jetpack Backup plugin', 'jetpack-backup' )
+			__( 'Error loading autoloader file for Jetpack VaultPress Backup plugin', 'jetpack-backup' )
 		);
 	}
 
@@ -113,7 +109,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Backup is incomplete. If you installed Jetpack Backup from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Backup must have Composer dependencies installed and built via the build command.', 'jetpack-backup' ),
+						__( 'Your installation of Jetpack VaultPress Backup is incomplete. If you installed Jetpack VaultPress Backup from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack VaultPress Backup must have Composer dependencies installed and built via the build command.', 'jetpack-backup' ),
 						array(
 							'a' => array(
 								'href'   => array(),
@@ -122,7 +118,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 							),
 						)
 					),
-					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#building-your-project'
+					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
 				);
 				?>
 			</p>
@@ -135,8 +131,40 @@ if ( is_readable( $jetpack_autoloader ) ) {
 }
 
 // Redirect to plugin page when the plugin is activated.
-add_action( 'activated_plugin', array( 'Jetpack_Backup', 'plugin_activation' ) );
+add_action( 'activated_plugin', 'jetpack_backup_plugin_activation' );
+
+/**
+ * Redirects to plugin page when the plugin is activated
+ *
+ * @access public
+ * @static
+ *
+ * @param string $plugin Path to the plugin file relative to the plugins directory.
+ */
+function jetpack_backup_plugin_activation( $plugin ) {
+	if (
+		JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin &&
+		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH )
+	) {
+		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) );
+		exit;
+	}
+}
+
+// Add "Settings" link to plugins page.
+add_filter(
+	'plugin_action_links_' . JETPACK_BACKUP_PLUGIN_FOLDER . '/jetpack-backup.php',
+	function ( $actions ) {
+		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) . '">' . __( 'Settings', 'jetpack-backup' ) . '</a>';
+		array_unshift( $actions, $settings_link );
+
+		return $actions;
+	}
+);
 
 register_deactivation_hook( __FILE__, array( 'Jetpack_Backup', 'plugin_deactivation' ) );
+
 // Main plugin class.
-new Jetpack_Backup();
+Jetpack_Backup::initialize();
+// My Jetpack.
+My_Jetpack_Initializer::init();

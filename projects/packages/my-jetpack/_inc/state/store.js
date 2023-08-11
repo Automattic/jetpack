@@ -1,12 +1,9 @@
-/**
- * Internal dependencies
- */
 import actions from './actions';
+import controls from './controls';
 import reducer from './reducers';
+import resolvers from './resolvers';
 import selectors from './selectors';
 import storeHolder from './store-holder';
-import resolvers from './resolvers';
-import controls from './controls';
 
 const STORE_ID = 'my-jetpack';
 

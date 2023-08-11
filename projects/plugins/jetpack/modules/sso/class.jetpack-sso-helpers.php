@@ -38,8 +38,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * @return bool
 		 */
 		public static function match_by_email() {
-			$match_by_email = ( 1 === (int) get_option( 'jetpack_sso_match_by_email', true ) ) ? true : false;
-			$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : $match_by_email;
+			$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : (bool) get_option( 'jetpack_sso_match_by_email', true );
 
 			/**
 			 * Link the local account to an account on WordPress.com using the same email address.
@@ -319,7 +318,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 				return false;
 			}
 
-			$original_request = esc_url_raw( $_COOKIE['jetpack_sso_original_request'] );
+			$original_request = esc_url_raw( wp_unslash( $_COOKIE['jetpack_sso_original_request'] ) );
 
 			$parsed_url = wp_parse_url( $original_request );
 			if ( empty( $parsed_url ) || empty( $parsed_url['query'] ) ) {

@@ -1,18 +1,28 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
-//import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
 import MapControls from '../controls';
+
+// Mock `useSetting` from `@wordpress/block-editor` to override a setting.
+// This approach was recommended at p1667855007139489-slack-C45SNKV4Z
+jest.mock( '@wordpress/block-editor/build/components/use-setting', () => {
+	const { default: useSetting } = jest.requireActual(
+		'@wordpress/block-editor/build/components/use-setting'
+	);
+	const settings = {
+		'color.defaultGradients': true,
+		'color.defaultPalette': true,
+	};
+	const aliases = {
+		'color.palette.default': 'color.palette',
+		'color.gradients.default': 'color.gradients',
+	};
+	return path => {
+		let ret = settings.hasOwnProperty( path ) ? settings[ path ] : useSetting( path );
+		if ( ret === undefined && aliases.hasOwnProperty( path ) ) {
+			ret = useSetting( aliases[ path ] );
+		}
+		return ret;
+	};
+} );
 
 const API_STATE_SUCCESS = 2;
 const setAttributes = jest.fn();
@@ -34,6 +44,7 @@ const defaultProps = {
 		apiRequestOutstanding: false,
 	},
 	setState: jest.fn(),
+	mapProvider: 'mapbox',
 };
 
 describe( 'Inspector controls', () => {
@@ -62,30 +73,59 @@ describe( 'Inspector controls', () => {
 			expect( screen.getByText( 'Zoom level' ) ).toBeInTheDocument();
 		} );
 
-		test( 'street names toggle shows correctly', () => {
+		test( 'street names toggle shows correctly when mapProvider is mapbox', () => {
 			render( <MapControls { ...defaultProps } /> );
 
 			expect( screen.getByText( 'Show street names' ) ).toBeInTheDocument();
 		} );
 
-		test( 'scroll to zoom toggle shows correctly', () => {
+		test( "street names toggle shows doesn't show when mapProvider is mapkit", () => {
+			const props = { ...defaultProps, mapProvider: 'mapkit' };
+
+			render( <MapControls { ...props } /> );
+
+			expect( screen.queryByText( 'Show street names' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'scroll to zoom toggle shows correctly when mapProvider is mapbox', () => {
 			render( <MapControls { ...defaultProps } /> );
 
 			expect( screen.getByText( 'Scroll to zoom' ) ).toBeInTheDocument();
 		} );
 
-		test( 'show fullscreen button toggle shows correctly', () => {
+		test( 'scroll to zoom toggle  shows correctly when mapProvider when mapProvider is mapkit', () => {
+			const props = { ...defaultProps, mapProvider: 'mapkit' };
+
+			render( <MapControls { ...props } /> );
+
+			expect( screen.getByText( 'Scroll to zoom' ) ).toBeInTheDocument();
+		} );
+
+		test( 'show fullscreen button toggle shows correctly when mapProvider is mapbox', () => {
 			render( <MapControls { ...defaultProps } /> );
 
 			expect( screen.getByText( 'Show Fullscreen Button' ) ).toBeInTheDocument();
 		} );
+
+		test( 'show fullscreen button toggle shows correctly', () => {
+			const props = { ...defaultProps, mapProvider: 'mapkit' };
+
+			render( <MapControls { ...props } /> );
+
+			expect( screen.queryByText( 'Show Fullscreen Button' ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'Mapbox access token panel', () => {
-		test( 'mapbox access token input shows correctly', () => {
+		test( 'mapbox access token input shows correctly when mapProvider is mapbox', () => {
 			render( <MapControls { ...defaultProps } /> );
-
 			expect( screen.getByText( 'Mapbox Access Token' ) ).toBeInTheDocument();
+		} );
+
+		test( "mapbox access token input doesn't show when mapProvider is mapkit", () => {
+			const props = { ...defaultProps, mapProvider: 'mapkit' };
+			render( <MapControls { ...props } /> );
+			expect( screen.queryByText( 'Mapbox Access Token' ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );

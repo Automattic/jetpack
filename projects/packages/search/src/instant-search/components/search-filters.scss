@@ -19,11 +19,27 @@
 }
 
 .jetpack-instant-search__clear-filters-link {
+	border: none;
+	cursor: pointer;
 	position: absolute;
-	right: 0;
-	top: 0;
 	margin: 0;
 	line-height: 1.3;
+	padding: 0 4px;
+	right: 0;
+	top: 0;
+
+	&:focus {
+		@include apply-overlay-focus-styling();
+	}
+}
+
+.jetpack-instant-search__sidebar
+	.jetpack-instant-search__search-filters
+	button.jetpack-instant-search__clear-filters-link {
+	// Extra specificity to override overly agressive theme styles.
+	// Without this, we need to use "!important" to get our default styling.
+	@include apply-default-overlay-colors();
+	@include apply-default-overlay-font-metrics();
 }
 
 .jetpack-instant-search__search-filter-sub-heading {
@@ -58,6 +74,10 @@
 		&::after,
 		&::before {
 			display: none !important; // always hide custom selected checkbox styling.
+		}
+		&:focus {
+			@include apply-overlay-focus-styling();
+			outline-offset: 2px;
 		}
 	}
 

@@ -4,25 +4,17 @@
 
 	It can include a list of failed URLs, what a user can do, and extra information.
 -->
-<script>
-	/**
-	 * External dependencies
-	 */
+<script lang="ts">
 	import { slide } from 'svelte/transition';
-
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
 	import MoreList from '../../../elements/MoreList.svelte';
-	import { createEventDispatcher } from 'svelte';
+	import NumberedList from '../../../elements/NumberedList.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import actionLinkTemplateVar from '../../../utils/action-link-template-var.ts';
+	import { regenerateCriticalCss } from '../../../stores/critical-css-state';
+	import { ErrorSet } from '../../../stores/critical-css-state-errors';
+	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
+	import { TemplateVars } from '../../../utils/copy-dom-template';
 	import {
 		describeErrorSet,
 		suggestion,
@@ -30,40 +22,54 @@
 		rawError,
 	} from '../../../utils/describe-critical-css-recommendations';
 	import supportLinkTemplateVar from '../../../utils/support-link-template-var';
-	import NumberedList from '../../../elements/NumberedList.svelte';
-
-	const dispatch = createEventDispatcher();
 
 	export let showSuggestion = true;
 	export let foldRawErrors = true;
 	export let showClosingParagraph = true;
 
 	/**
-	 * @member {ErrorSet} errorSet Error Set to display a description of, from a Recommendation or CriticalCssStatus.
+	 * A set of errors to display recommendations from, from a Recommendation or CriticalCssState.
 	 */
-	export let errorSet;
+	export let errorSet: ErrorSet;
 
+	type FormattedURL = {
+		/**
+		 * The URL to display in the list.
+		 */
+		href: string;
+		/**
+		 * The URL to link to.
+		 */
+		label: string;
+	};
 	// Keep a set of URLs in an easy-to-render {href:, label:} format.
 	// Each should show the URL in its label, but actually link to error.meta.url if available.
-	let displayUrls = [];
-	$: displayUrls = Object.entries( errorSet.byUrl ).map( ( [ url, error ] ) => ( {
-		href: error.meta.url ? error.meta.url : url,
-		label: url,
-	} ) );
+	let displayUrls: FormattedURL[] = [];
 
-	const templateVars = {
-		...actionLinkTemplateVar( () => dispatch( 'retry' ), 'retry' ),
+	$: displayUrls = Object.entries( errorSet.byUrl ).map( ( [ url, error ] ) => {
+		let href = url;
+		if ( error.meta.url && typeof error.meta.url === 'string' ) {
+			href = error.meta.url;
+		}
+		return {
+			href,
+			label: url,
+		};
+	} );
+
+	const templateVars: TemplateVars = {
+		...actionLinkTemplateVar( regenerateCriticalCss, 'retry' ),
 		...supportLinkTemplateVar(),
 	};
 </script>
 
 <div class="jb-critical-css__error-description">
 	<span class="error-description">
-		<TemplatedString template={describeErrorSet( errorSet )} vars={{ templateVars }} />
+		<TemplatedString template={describeErrorSet( errorSet )} vars={templateVars} />
 	</span>
 
 	<MoreList let:entry entries={displayUrls}>
-		<a href={entry.href} target="_blank">
+		<a href={entry.href} target="_blank" rel="noreferrer">
 			{entry.label}
 		</a>
 	</MoreList>

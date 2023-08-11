@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, image } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
 import SaveButton from 'components/save-button';
 import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from 'lib/constants';
 import SidebarDescription from './sidebar-description';

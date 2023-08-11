@@ -16,9 +16,9 @@
 
 /*
  * Register oEmbed provider
- * Example URL: http://www.mixcloud.com/oembed/?url=http://www.mixcloud.com/MalibuRum/play-6-kissy-sellouts-winter-sun-house-party-mix/
+ * Example URL: http://app.mixcloud.com/oembed/?url=http://www.mixcloud.com/MalibuRum/play-6-kissy-sellouts-winter-sun-house-party-mix/
  */
-wp_oembed_add_provider( '#https?://(?:www\.)?mixcloud\.com/\S*#i', 'https://www.mixcloud.com/oembed', true );
+wp_oembed_add_provider( '#https?://(?:www\.)?mixcloud\.com/\S*#i', 'https://app.mixcloud.com/oembed/', true );
 
 /**
  * Register mixcloud shortcode.
@@ -71,7 +71,7 @@ function mixcloud_shortcode( $atts, $content = null ) {
 	$query_args = array( 'url' => $mixcloud_url );
 	$query_args = array_merge( $query_args, $atts );
 
-	$url               = add_query_arg( urlencode_deep( $query_args ), 'https://www.mixcloud.com/oembed/' );
+	$url               = add_query_arg( urlencode_deep( $query_args ), 'https://app.mixcloud.com/oembed/' );
 	$mixcloud_response = wp_remote_get( $url, array( 'redirection' => 0 ) );
 	if ( is_wp_error( $mixcloud_response ) || 200 !== $mixcloud_response['response']['code'] || empty( $mixcloud_response['body'] ) ) {
 		return '<!-- mixcloud error: invalid mixcloud resource -->';
@@ -83,9 +83,9 @@ function mixcloud_shortcode( $atts, $content = null ) {
 
 	preg_match( '/sandbox="([^"]*)"/', $html, $matches );
 
-	if ( empty( $matches ) ) { // MixCloud doesn't use sandbox attribute.
+	if ( empty( $matches ) ) { // Mixcloud doesn't use sandbox attribute.
 		$html = preg_replace( '/>/', ' sandbox="allow-popups allow-scripts allow-same-origin allow-presentation">', $html, 1 );
-	} else { // MixCloud uses sandbox attribute.
+	} else { // Mixcloud uses sandbox attribute.
 
 		$allowed_values = array();
 		// Here we make sure that these string are not repeated in the sandbox attribute.

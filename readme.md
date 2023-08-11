@@ -1,7 +1,7 @@
 # Jetpack Monorepo
 
 [![License](https://poser.pugx.org/automattic/jetpack/license.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
-[![codecov](https://codecov.io/gh/Automattic/jetpack/branch/master/graph/badge.svg?token=GmiI6Xl10U)](https://codecov.io/gh/Automattic/jetpack)
+[![codecov](https://codecov.io/gh/Automattic/jetpack/branch/trunk/graph/badge.svg?token=GmiI6Xl10U)](https://codecov.io/gh/Automattic/jetpack)
 
 This is the Jetpack Monorepo. It contains source code for the Jetpack plugin, the Jetpack composer packages, and other things.
 
@@ -19,7 +19,7 @@ To run the Jetpack plugin from the monorepo, you'll first need to build the JS a
 
 If you're using the [Docker development environment](./docs/development-environment.md#docker-supported-recommended), you should then be all set.
 
-If not, you'll need to create a link to the Jetpack plugin from your WordPress `wp-content/plugins` folder. You'll need to know the filesystem path to the monorepo checkout and to your WordPress installation. Then, on Linux or Mac OS X, open a terminal and use `ln -s` to create the link, something like
+If not, you'll need to create a link to the Jetpack plugin from your WordPress `wp-content/plugins` folder (you cannot clone the monorepo into your WordPress plugins directory - you will see a warning on your plugins page if so saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). You'll need to know the filesystem path to the monorepo checkout and to your WordPress installation. Then, on Linux or Mac OS X, open a terminal and use `ln -s` to create the link, something like
 
 ```
 ln -s /path/to/jetpack-monorepo/projects/plugins/jetpack /path/to/wordpress/wp-content/plugins/jetpack
@@ -50,12 +50,12 @@ Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.t
 
 ## Team
 
-Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @adimoldovan, @anomiex, @bisko, @brbrr, @briancolinger, @dereksmart, @fgiannar, @jeherve, @kbrown9, @kraftbj, @leogermani, @mdbitz, @samiff, @sdixon194, @sergeymitr and @zinigor.
+Jetpack is developed and maintained by various teams at Automattic. The Jetpack Crew responsible for coordinating everything is comprised of @adimoldovan, @anomiex, @bindlegirl, @bisko, @brbrr, @briancolinger, @coder-karen, @dereksmart, @fgiannar, @jeherve, @kbrown9, @kraftbj, @leogermani, @mdbitz, @samiff, @sdixon194, @sergeymitr, and @zinigor.
 
 Contributions have been and continue to be made by dozens of other Automatticians, like:
 
-@aldavigdis, @allendav, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @chaosexanima, @ebinnion, @enejb, @eoigal, @georgestephanis, @gibrown, @gititon, @gravityrail, @jasmussen, @jblz, @jeffgolenski, @jessefriedman, @joanrho, @justinshreve, @keoshi, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @mdawaffe, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu and @yoavf.
+@aldavigdis, @allendav, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @chaosexanima, @ebinnion, @enejb, @eoigal, @georgestephanis, @gibrown, @gititon, @gravityrail, @jasmussen, @jblz, @jeffgolenski, @jessefriedman, @joanrho, @justinshreve, @keoshi, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @mdawaffe, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu, and @yoavf.
 
-Our _awesome_ happiness engineers are @a8ck3n, @aicee, @bindlegirl, @bizanimesh, @brucea8c, @cena, @coder-karen, @danjjohnson, @dericleeyy, @dkmyta, @gaurav1984, @jenhooks, @JenSwish, @julsyd, @kristinaplauche, @lizthefair, @madhattermattic, @mbhthompson, @mzakariya, @pranali333, @rcowles, @snowmads, @stefmattana, and @tmmbecker.
+Our _awesome_ Happiness Engineers are @a8ck3n, @aicee, @bizanimesh, @brucea8c, @cena, @danjjohnson, @dericleeyy, @dkmyta, @gaurav1984, @jenhooks, @JenSwish, @julsyd, @kristinaplauche, @lizthefair, @madhattermattic, @mbhthompson, @mzakariya, @pranali333, @rcowles, @snowmads, @stefmattana, and @tmmbecker.
 
 Interested in working on awesome open-source code all day? [Join us](https://automattic.com/work-with-us/)!

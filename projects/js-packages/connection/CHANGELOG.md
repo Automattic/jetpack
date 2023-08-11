@@ -2,6 +2,334 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.29.7 - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## 0.29.6 - 2023-07-25
+### Changed
+- Updated package dependencies. [#31999]
+
+## 0.29.5 - 2023-07-18
+### Fixed
+- Minor internal updates. [#31684]
+
+## 0.29.4 - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+### Fixed
+- Reset connection errors upon successful Restore request. [#31618]
+
+## 0.29.3 - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## 0.29.2 - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## 0.29.1 - 2023-06-21
+### Changed
+- Updated package dependencies. [#31468]
+
+## 0.29.0 - 2023-06-15
+### Changed
+- Connection: always display connection button on connection screen. [#31196]
+
+## 0.28.0 - 2023-06-06
+### Changed
+- Update connection module to have an RNA option that updates the design [#31201]
+- Updated package dependencies. [#31129]
+
+## 0.27.1 - 2023-05-29
+### Added
+- Add logo prop to `ConnectScreen` and `ConnectScreenVisual` so we could use produucts logos similar to `ConnectScreenRequiredPlan` component. [#30886]
+
+## 0.27.0 - 2023-05-22
+### Added
+- Offline Mode handling. [#30570]
+
+## 0.26.6 - 2023-05-02
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Bring back accidentally removed auto-trigger for connection screen. [#30373]
+
+## 0.26.5 - 2023-04-25
+### Changed
+- Updated package dependencies. [#30015]
+
+## 0.26.4 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## 0.26.3 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 0.26.2 - 2023-03-29
+### Changed
+- Minor internal updates.
+
+## 0.26.1 - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## 0.26.0 - 2023-03-27
+### Added
+- Clarified when license activation fails that a user connection is required, added a link to complete the connection, and added functionality to redirect back to license activation when the connection is done. [#29443]
+
+## 0.25.5 - 2023-03-23
+### Changed
+- Updated package dependencies.
+
+## 0.25.4 - 2023-03-20
+
+- Minor internal updates.
+
+## 0.25.3 - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## 0.25.2 - 2023-02-28
+### Fixed
+- Revise Jetpack connection agreement text to comply with our User Agreement [#28403]
+- Update React peer dependencies to match updated dev dependencies. [#28924]
+
+## 0.25.1 - 2023-02-20
+### Fixed
+- Add External link icon to links at the bottom of the disconnect modal. [#28922]
+
+## 0.25.0 - 2023-02-15
+### Added
+- Export ConnectScreenLayout component [#28770]
+
+### Changed
+- Update to React 18. [#28710]
+
+## 0.24.9 - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682, #28700]
+
+## 0.24.8 - 2023-01-26
+### Changed
+- Use `flex-start` instead of `start` for better browser compatibility. [#28530]
+
+## 0.24.7 - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## 0.24.6 - 2023-01-18
+### Fixed
+- Clean up JavaScript eslint issues. [#28441]
+
+## 0.24.5 - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Connection: Metro JS is unable to build the component SCSS files. Adding a native index file to only export the modules required for the mobile editor build. [#28154]
+
+## 0.24.4 - 2023-01-02
+### Fixed
+- Connection: Fix box-sizing layout issue on Manage Connection modal [#28101]
+
+## 0.24.3 - 2022-12-27
+### Fixed
+- Avoid warnings when disconnecting a site from WordPress.com. [#28003]
+
+## 0.24.2 - 2022-12-19
+### Added
+- Allow passing the custom logo and icon to connection screen [#27802]
+
+### Changed
+- Updated package dependencies. [#27916]
+
+## 0.24.1 - 2022-12-12
+### Changed
+- Updated package dependencies. [#27888]
+
+## 0.24.0 - 2022-12-05
+### Changed
+- Improve design of the connection error notice. [#27340]
+
+## 0.23.0 - 2022-12-02
+### Added
+- Connection: hide the "Manage Connection" modal on "Escape" press. [#27643]
+
+### Changed
+- Updated package dependencies. [#27697]
+
+## 0.22.11 - 2022-11-28
+### Changed
+- My Jetpack: move connection status card out of connection package. [#26967]
+- Updated package dependencies. [#27576]
+
+## 0.22.10 - 2022-11-22
+### Added
+- Add Manage Connection dialog to My Jetpack [#27476]
+
+### Changed
+- Updated package dependencies. [#27043]
+
+## 0.22.9 - 2022-11-17
+### Changed
+- Updated package dependencies. [#26736]
+
+## 0.22.8 - 2022-11-10
+### Changed
+- Updated package dependencies. [#27319]
+
+## 0.22.7 - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## 0.22.6 - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## 0.22.5 - 2022-10-25
+### Added
+- Connection: add getWpcomUser() and getBlogId() selectors. [#26978]
+
+## 0.22.4 - 2022-10-19
+### Changed
+- Updated package dependencies. [#26883]
+
+## 0.22.3 - 2022-10-17
+### Changed
+- Updated package dependencies. [#26851]
+
+## 0.22.2 - 2022-10-13
+### Changed
+- Updated package dependencies. [#26790]
+
+## 0.22.1 - 2022-10-11
+### Changed
+- Updated package dependencies.
+
+## 0.22.0 - 2022-10-05
+### Added
+- Trigger restore connection flow. [#26489]
+
+### Changed
+- Updated package dependencies. [#26457]
+
+## 0.21.0 - 2022-09-27
+### Added
+- Added connection hook useConnectionErrorNotice to more-easily integrate the ConnectionErrorNotice component with minimal processing logic at the point of integration. [#26400]
+
+### Changed
+- Updated package dependencies.
+- Updated the ConnectionErrorNotice react component to use a required message property. [#26305]
+
+### Removed
+- Removed connection-ui package dependency [#26381]
+
+### Fixed
+- Disconnect Dialog: Fixed the prop types to avoid warnings from React [#26340]
+
+## 0.20.0 - 2022-09-20
+### Added
+- Added the ConnectionErrorNotice React component. [#26259]
+- Add Restore Connection functionality extracted from Jetpack. [#26034]
+
+### Changed
+- Updated package dependencies. [#26081]
+
+## 0.19.0 - 2022-09-08
+### Added
+- Add React variables as part of the project to have consistent connection errors across monorepo projects. [#25934]
+
+### Changed
+- Updated package dependencies.
+
+## 0.18.12 - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## 0.18.11 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25762, #25764]
+
+## 0.18.10 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25147]
+
+## 0.18.9 - 2022-07-12
+### Changed
+- Updated package dependencies. [#25048, #25055]
+
+## 0.18.8 - 2022-07-06
+### Changed
+- Updated package dependencies. [#24923]
+
+## 0.18.7 - 2022-06-28
+### Fixed
+- Fix include loop between state/store and state/controls + state/resolvers. [#24777]
+
+## 0.18.6 - 2022-06-21
+### Added
+- JS Connection: return a Promise when registering site [#24238]
+
+## 0.18.5 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.18.4 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
+## 0.18.3 - 2022-05-30
+### Added
+- Add option to use the checkout workflow from the ConnectionScreenRequirePlan component
+
+### Changed
+- Updated package dependencies
+
+## 0.18.2 - 2022-05-24
+### Changed
+- Updated package dependencies. [#24449]
+
+## 0.18.1 - 2022-05-18
+### Changed
+- Updated package dependencies. [#23795]
+
+## 0.18.0 - 2022-05-10
+### Changed
+- Do not hard disconnect Jetpack on deactivation [#24272]
+- Updated package dependencies. [#24204]
+- Updated references to old licensing activation UI to licensing activation UI in My Jetpack [#24189]
+- Update tests for updated `@testing-library/user-event`. [#24276]
+
+## 0.17.12 - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+- JS Connection: introduce useProductCheckoutWorkflow() custom hook [#24122]
+
+### Changed
+- JS Connection: use connection global state as a fallback to be used by the useProductCheckoutWorkflow() custom hook [#24137]
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+### Fixed
+- JS Connection: fix builinfg the product checkout URL in useProductCheckoutWorkflow() custom hook [#24191]
+
+## 0.17.11 - 2022-05-03
+### Removed
+- Connection: Allowing hard disconnection on deactivation.
+
+## 0.17.10 - 2022-04-26
+### Changed
+- JS Connection: add default connection arguments for the useConnection() hook
+- Updated package dependencies.
+
+### Fixed
+- Disconnect Modal: Fix react warning
+
 ## 0.17.9 - 2022-04-19
 ### Added
 - Add connected plugins list to the initial state and add action to update it when needed

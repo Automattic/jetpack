@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
@@ -21,8 +22,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 	/**
 	 * Set up tests.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true );
@@ -31,8 +30,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 	/**
 	 * Tear down tests.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Constants::clear_constants();
@@ -982,5 +979,25 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 */
 	public function return_string_1() {
 		return '1';
+	}
+
+	/**
+	 * Test the `add_secret_to_url_validation_response()` method.
+	 *
+	 * @return void
+	 */
+	public static function test_add_secret_to_url_validation_response() {
+		$data = array(
+			'key1' => 'value1',
+			'key2' => 'value2',
+		);
+
+		$data_updated = Identity_Crisis::add_secret_to_url_validation_response( $data );
+
+		$secret_db          = Jetpack_Options::get_option( URL_Secret::OPTION_KEY );
+		$data['url_secret'] = $secret_db['secret'];
+
+		static::assertEquals( $data, $data_updated );
+		static::assertArrayNotHasKey( 'url_secret_error', $data_updated );
 	}
 }

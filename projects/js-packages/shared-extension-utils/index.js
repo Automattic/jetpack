@@ -13,3 +13,7 @@ export {
 	isStillUsableWithFreePlan,
 	getUsableBlockProps,
 } from './src/plan-utils';
+export { default as isCurrentUserConnected } from './src/is-current-user-connected';
+export { default as useAnalytics } from './src/hooks/use-analytics';
+export { default as useModuleStatus } from './src/hooks/use-module-status';
+export { default as JetpackEditorPanelLogo } from './src/components/jetpack-editor-panel-logo';

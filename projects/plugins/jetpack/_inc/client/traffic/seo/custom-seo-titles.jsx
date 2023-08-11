@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React, { useState, useCallback } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import TextInput from 'components/text-input';
-import { FormLabel } from 'components/forms';
 import Button from 'components/button';
+import { FormLabel } from 'components/forms';
+import TextInput from 'components/text-input';
+import React, { useState, useCallback } from 'react';
 
 // For context on the seo-tools module's custom SEO title formats, refer to:
 // projects/plugins/jetpack/modules/seo-tools/jetpack-seo-titles.php
@@ -158,6 +151,7 @@ const SEOTokenButton = ( {
 
 	return (
 		<Button
+			rna
 			className="jp-seo-custom-titles-input-button"
 			compact
 			onClick={ handleTokenButtonClick }
@@ -181,6 +175,7 @@ const SEOTokenButtonList = ( pageType, customSeoTitleInputRef, handleCustomSeoTi
 				customSeoTitleInputRef={ customSeoTitleInputRef }
 				handleCustomSeoTitleInput={ handleCustomSeoTitleInput }
 				token={ token }
+				key={ token }
 			/>
 		);
 	} );
@@ -194,10 +189,7 @@ const CustomSeoTitleInput = ( {
 	siteData,
 } ) => {
 	return (
-		<div
-			className={ `jp-seo-custom-titles-input-container-${ pageType.name }` }
-			key={ pageType.name }
-		>
+		<div className={ `jp-seo-custom-titles-input-container-${ pageType.name }` }>
 			<div className={ `jp-seo-custom-titles-input-controls` }>
 				<FormLabel
 					className={ `jp-seo-custom-titles-input-label` }
@@ -277,6 +269,7 @@ const CustomSeoTitles = props => {
 						handleCustomSeoTitleInput={ handleCustomSeoTitleInput }
 						customSeoTitleInputRef={ customSeoTitleInputRefs[ pageType.name ] }
 						siteData={ props.siteData }
+						key={ pageType.name }
 					/>
 				);
 			} ) }

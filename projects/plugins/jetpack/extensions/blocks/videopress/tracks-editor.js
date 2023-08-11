@@ -1,8 +1,5 @@
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-import { __, sprintf } from '@wordpress/i18n';
+import { MediaUploadCheck, store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	NavigableMenu,
 	MenuItem,
@@ -18,10 +15,10 @@ import {
 	SelectControl,
 	Spinner,
 } from '@wordpress/components';
-import { MediaUploadCheck, store as blockEditorStore } from '@wordpress/block-editor';
-import { upload } from '@wordpress/icons';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { upload } from '@wordpress/icons';
 
 const DEFAULT_KIND = 'subtitles';
 
@@ -69,7 +66,7 @@ const shouldUseJetpackVideoFetch = () => {
  * @param {string} guid - the video guid
  * @returns {Promise} the api request promise
  */
-const uploadTrackForGuid = ( track, guid ) => {
+export const uploadTrackForGuid = ( track, guid ) => {
 	if ( shouldUseJetpackVideoFetch() ) {
 		return window.videoPressUploadTrack(
 			guid,

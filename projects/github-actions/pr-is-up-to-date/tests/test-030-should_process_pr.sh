@@ -22,7 +22,7 @@ test_make_commits X3 PR4.1
 test_make_files
 test_make_commits PR4.1 PR4.2
 test_make_merge PR4 PR4.2 C
-test_make_branch master C
+test_make_branch main C
 test_make_pr 1 PR1
 test_make_pr 2 PR2
 test_make_pr 3 PR3
@@ -96,7 +96,7 @@ if should_process_pr 3; then
 fi
 
 PATHS=( xxx 'a/b/c/*.txt' xyz )
-test_begin "Paths set, master-merged PR"
+test_begin "Paths set, main-merged PR"
 init_repo
 fetch_prs 4
 if ! should_process_pr 4; then
@@ -104,7 +104,7 @@ if ! should_process_pr 4; then
 fi
 
 PATHS=( xxx bar.txt a/b/c/foo.txt xyz )
-test_begin "Paths set but not including the touched path, master-merged PR"
+test_begin "Paths set but not including the touched path, main-merged PR"
 init_repo
 fetch_prs 4
 if should_process_pr 4; then

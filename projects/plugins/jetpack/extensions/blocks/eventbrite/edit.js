@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { BlockControls, InnerBlocks } from '@wordpress/block-editor';
 import {
 	Placeholder,
 	SandBox,
@@ -11,21 +8,17 @@ import {
 	ExternalLink,
 	withNotices,
 } from '@wordpress/components';
-import { BlockControls, InnerBlocks } from '@wordpress/block-editor';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
-import { innerButtonBlock } from './';
-import attributeDetails from './attributes';
-import { convertToLink, eventIdFromUrl, normalizeUrlInput } from './utils';
-import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import { icon, URL_REGEX, EVENTBRITE_EXAMPLE_URL } from '.';
-import EventbriteInPageExample from './eventbrite-in-page-example.png';
+import { Component } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import testEmbedUrl from '../../shared/test-embed-url';
+import attributeDetails from './attributes';
 import { ToolbarControls } from './controls';
+import EventbriteInPageExample from './eventbrite-in-page-example.png';
+import { convertToLink, eventIdFromUrl, normalizeUrlInput } from './utils';
+import { icon, URL_REGEX, EVENTBRITE_EXAMPLE_URL } from '.';
+import { innerButtonBlock } from './';
 import './editor.scss';
 
 export class EventbriteEdit extends Component {

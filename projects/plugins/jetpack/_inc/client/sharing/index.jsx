@@ -1,29 +1,26 @@
-/**
- * External dependencies
- */
+import { __ } from '@wordpress/i18n';
+import QuerySite from 'components/data/query-site';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import Card from 'components/card';
-import { getModule } from 'state/modules';
-import { getSettings } from 'state/settings';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
+import {
+	getSiteRawUrl,
+	getSiteAdminUrl,
+	userCanManageModules,
+	isAtomicSite,
+} from 'state/initial-state';
+import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
-import QuerySite from 'components/data/query-site';
+import { getSettings } from 'state/settings';
+import { siteHasFeature, getActiveFeatures } from 'state/site';
+import { Likes } from './likes';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
-import { Likes } from './likes';
-
 class Sharing extends Component {
 	render() {
 		const commonProps = {
@@ -36,6 +33,10 @@ class Sharing extends Component {
 			siteRawUrl: this.props.siteRawUrl,
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
+			activeFeatures: this.props.activeFeatures,
+			hasSocialBasicFeatures: this.props.hasSocialBasicFeatures,
+			hasSocialAdvancedFeatures: this.props.hasSocialAdvancedFeatures,
+			isAtomicSite: this.props.isAtomicSite,
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
@@ -53,17 +54,15 @@ class Sharing extends Component {
 		return (
 			<div>
 				<QuerySite />
-				<Card
-					title={
-						this.props.searchTerm
-							? __( 'Sharing', 'jetpack' )
-							: __(
-									'Share your content to social media, reaching new audiences and increasing engagement.',
-									'jetpack'
-							  )
-					}
-					className="jp-settings-description"
-				/>
+				<h1 className="screen-reader-text">{ __( 'Jetpack Sharing Settings', 'jetpack' ) }</h1>
+				<h2 className="jp-settings__section-title">
+					{ this.props.searchTerm
+						? __( 'Sharing', 'jetpack' )
+						: __(
+								'Share your content to social media, reaching new audiences and increasing engagement.',
+								'jetpack'
+						  ) }
+				</h2>
 				{ foundPublicize && <Publicize { ...commonProps } /> }
 				{ foundSharing && <ShareButtons { ...commonProps } /> }
 				{ foundLikes && <Likes { ...commonProps } /> }
@@ -83,6 +82,10 @@ export default connect( state => {
 		connectUrl: getConnectUrl( state ),
 		siteRawUrl: getSiteRawUrl( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
+		hasSocialBasicFeatures: siteHasFeature( state, 'social-shares-1000' ),
+		activeFeatures: getActiveFeatures( state ),
+		hasSocialAdvancedFeatures: siteHasFeature( state, 'social-enhanced-publishing' ),
 		userCanManageModules: userCanManageModules( state ),
+		isAtomicSite: isAtomicSite( state ),
 	};
 } )( Sharing );

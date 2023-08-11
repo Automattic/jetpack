@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import { Text, View, TouchableWithoutFeedback } from 'react-native';
-/**
- * WordPress dependencies
- */
-import { Image } from '@wordpress/components';
 import {
 	MediaPlaceholder,
 	BlockMediaUpdateProgress,
 	MEDIA_TYPE_IMAGE,
 	MEDIA_TYPE_VIDEO,
 } from '@wordpress/block-editor';
-import { __ } from '@wordpress/i18n';
+import { Image } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import {
 	requestMediaFilesFailedRetryDialog,
 	requestMediaFilesSaveCancelDialog,
@@ -23,13 +16,10 @@ import {
 	mediaFilesBlockReplaceSync,
 	requestMediaFilesEditorLoad,
 } from '@wordpress/react-native-bridge';
-
-/**
- * Internal dependencies
- */
-import { icon } from '.';
+import { View, TouchableWithoutFeedback } from 'react-native';
 import styles from './editor.scss';
 import StoryEditingButton from './story-editing-button';
+import { icon } from '.';
 
 const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus } ) => {
 	const { mediaFiles } = attributes;

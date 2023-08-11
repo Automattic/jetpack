@@ -3,13 +3,19 @@
 	"description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
 	"type": "composer-plugin",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"jetpack",
+		"composer",
+		"plugin",
+		"i18n"
+	],
 	"require": {
 		"composer-plugin-api": "^2.1.0"
 	},
 	"require-dev": {
-		"composer/composer": "2.2.3",
-		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"composer/composer": "^2.2 || ^2.4",
+		"yoast/phpunit-polyfills": "1.0.4",
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -19,9 +25,6 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -47,7 +50,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-master": "1.1.x-dev"
+			"dev-trunk": "1.1.x-dev"
 		}
 	}
 }

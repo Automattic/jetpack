@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelogger\FormatterPlugin;
+use Automattic\Jetpack\Changelogger\LoadChangeFileException;
 use Automattic\Jetpack\Changelogger\Utils;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -39,7 +40,7 @@ class UtilsTest extends TestCase {
 
 		Utils::error_clear_last();
 		$err = error_get_last();
-		$this->assertTrue( empty( $err['message'] ) );
+		$this->assertTrue( empty( $err['message'] ) ); // phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertEmpty -- We need the potential error suppression, behavior varies by PHP version.
 	}
 
 	/**
@@ -175,7 +176,7 @@ class UtilsTest extends TestCase {
 				try {
 					Utils::loadChangeFile( $temp );
 					$this->fail( 'Expcected exception not thrown' );
-				} catch ( \RuntimeException $ex ) {
+				} catch ( LoadChangeFileException $ex ) {
 					$this->assertInstanceOf( get_class( $expect ), $ex );
 					$this->assertMatchesRegularExpression( $expect->getMessage(), $ex->getMessage() );
 					$this->assertObjectHasAttribute( 'fileLine', $ex );
@@ -192,7 +193,7 @@ class UtilsTest extends TestCase {
 	 */
 	public function provideLoadChangeFile() {
 		$ex = function ( $msg, $line ) {
-			$ret           = new \RuntimeException( $msg );
+			$ret           = new LoadChangeFileException( $msg );
 			$ret->fileLine = $line;
 			return $ret;
 		};
@@ -348,9 +349,9 @@ class UtilsTest extends TestCase {
 	}
 
 	/**
-	 * Test getTimestamp.
+	 * Test getRepoData with squash and merge commits.
 	 */
-	public function testGetTimestamp() {
+	public function testGetRepoData() {
 		$this->useTempDir();
 
 		if ( in_array( '--debug', $GLOBALS['argv'], true ) ) {
@@ -363,7 +364,13 @@ class UtilsTest extends TestCase {
 
 		// Create a non-git file in a non-git checkout.
 		touch( 'not-in-git.txt', 1614124800 );
-		$this->assertSame( '2021-02-24T00:00:00Z', Utils::getTimestamp( 'not-in-git.txt', $output, $helper ) );
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-24T00:00:00Z',
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'not-in-git.txt', $output, $helper )
+		);
 
 		// Create a file in a git checkout.
 		file_put_contents( 'in-git.txt', '' );
@@ -382,16 +389,52 @@ class UtilsTest extends TestCase {
 				),
 			),
 		);
-		Utils::runCommand( array( 'git', 'init', '.' ), ...$args );
+		Utils::runCommand( array( 'git', 'init', '-b', 'main', '.' ), ...$args );
 		Utils::runCommand( array( 'git', 'add', 'in-git.txt' ), ...$args );
-		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit' ), ...$args );
-		$this->assertSame( '2021-02-02T22:22:22+00:00', Utils::getTimestamp( 'in-git.txt', $output, $helper ) );
+		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit (#123)' ), ...$args );
+
+		// Let's create another branch, add a commit and merge to trunk.
+		Utils::runCommand( array( 'git', 'checkout', '-b', 'temp' ), ...$args );
+		file_put_contents( 'in-git2.txt', '' );
+		Utils::runCommand( array( 'git', 'add', 'in-git2.txt' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '-m', 'Dummy commit message.' ), ...$args );
+		Utils::runCommand( array( 'git', 'checkout', 'main' ), ...$args );
+		Utils::runCommand( array( 'git', 'merge', 'temp', '--no-ff', '-m', 'Merge pull request #124 from temp.' ), ...$args );
+
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'pr-num'    => '123',
+			),
+			Utils::getRepoData( 'in-git.txt', $output, $helper )
+		);
+
+		// Test the second commit.
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'pr-num'    => '124',
+			),
+			Utils::getRepoData( 'in-git2.txt', $output, $helper )
+		);
 
 		// Test our non-git file again.
-		$this->assertSame( '2021-02-24T00:00:00Z', Utils::getTimestamp( 'not-in-git.txt', $output, $helper ) );
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-24T00:00:00Z',
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'not-in-git.txt', $output, $helper )
+		);
 
 		// Nonexistent file.
-		$this->assertNull( Utils::getTimestamp( 'missing.txt', $output, $helper ) );
+		$this->assertSame(
+			array(
+				'timestamp' => null,
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'missing.txt', $output, $helper )
+		);
 	}
 
 	/**

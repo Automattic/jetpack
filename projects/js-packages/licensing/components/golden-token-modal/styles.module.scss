@@ -1,0 +1,408 @@
+@import '@automattic/jetpack-base-styles/style';
+
+$tablet-width: 760px;
+
+@mixin tablet {
+	@media (min-width: #{$tablet-width}) {
+		@content;
+	}
+}
+
+/*
+ * Modal Container
+ */
+.modal {
+	border-radius: var(--jp-modal-radius);
+	background: var(--jp-white);
+	box-shadow: 0 12px 16px -0.5px rgba(0, 0, 0, 0.15);
+	height: max-content;
+	margin: 3rem auto;
+	max-width: 414px;
+	overflow: hidden;
+	position: relative;
+	transition: 0.25s height cubic-bezier(0.59,0.37,0.18,1.19) 0;
+	width: 90%;
+	will-change: height;
+
+	// Hacky override for to target core's modal component .components-modal__content.
+	& > div:first-child {
+		padding: 0;
+	}
+
+	* {
+		box-sizing: border-box;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	}
+
+	p {
+		color: var(--jp-black);
+	}
+
+	.jetpack-logo {
+		display: none;
+	}
+
+	&.animating {
+		height: 614px;
+		transition-delay: 2.15s;
+
+		h2 {
+			margin-top: 0;
+		}
+	}
+}
+
+.button {
+	align-self: flex-start;
+	width: 100%;
+	/*
+	* We have to use !important to add additional styling compared to the Jetpack
+	* button component.
+	*/
+	padding: 8px var(--jp-modal-padding-small) !important;
+	margin-top: var(--jp-gap) !important;
+}
+
+.headline {
+	margin-bottom: 8px;
+	font-weight: 500;
+	line-height: 110%;
+}
+
+.paragraph {
+	line-height: 140%;
+}
+
+@include tablet {
+	.modal {
+		height: 740px;
+		max-width: 1360px;
+		position: relative;
+		width: 95%;
+
+		.jetpack-logo {
+			display: block;
+			left: 64px;
+			position: absolute;
+			top: 64px;
+			z-index: 99;
+
+			path, clipPath {
+				fill: #000;
+			}
+
+			path.jetpack-logo-triangles {
+				fill: #fff;
+			}
+		}
+
+		&.animating {
+			height: 740px;
+			transition-delay: 0;
+
+			.jetpack-logo {
+				path, clipPath {
+					transition: 2s fill ease .5s;
+					fill: #fff;
+				}
+
+				path.jetpack-logo-triangles {
+					transition: 2s fill ease .5s;
+					fill: #000;
+				}
+			}
+		}
+	}
+}
+
+/*
+ * Video wrap
+ */
+@keyframes videoMove {
+	20%  { transform: translateY(0)   scale(1); }
+	65%  { transform: translateY(16%) scale(1.4); }
+	100% { transform: translateY(0)   scale(1); }
+}
+
+.video-wrap {
+	border-radius: var(--jp-button-radius);
+	display: flex;
+	height: 50%;
+	justify-content: center;
+	min-height: 400px;
+	overflow: hidden;
+	position: relative;
+	transition: .55s height cubic-bezier(0.59,0.37,0.18,1) 0s;
+	will-change: height;
+
+	.animating & {
+		height: 100%;
+		transition-delay: 0.65s;
+
+		video {
+			animation: videoMove 1.5s ease-in-out forwards;
+			//transform: scale(1.2);
+			//transition-delay: 0.45s;
+		}
+	}
+
+	video {
+		height: 100%;
+		left: 0;
+		object-fit: cover;
+		position: absolute;
+		top: 0;
+		transform: scale(1);
+		transition: 0.85s all cubic-bezier(1,0,.39,1) 0s;
+		width: 100%;
+		will-change: transform;
+	}
+}
+
+@include tablet {
+	@keyframes slidein {
+		0% {
+			left: 60%;
+			top: 32px;
+			animation-timing-function: cubic-bezier(0.86,0,0.07,1);
+		}
+
+		50% {
+			bottom: 32px;
+			left: 32px;
+			top: 32px;
+			width: 100%;
+			animation-timing-function: cubic-bezier(0.17,0.84,0.44,1);
+		}
+
+		100% {
+			left: 32px;
+			width: 40%;
+		}
+	}
+
+	.video-wrap {
+		border-radius: 12px;
+		bottom: 32px;
+		display: block;
+		height: auto;
+		left: 60%;
+		overflow: hidden;
+		position: absolute;
+		right: 32px;
+		top: 32px;
+		transition-delay: 0;
+		transition: .55s width ease 0s;
+		z-index: 3;
+
+		video {
+			height: 100%;
+			left: 0;
+			object-fit: cover;
+			position: absolute;
+			top: 0;
+			width: 100%;
+		}
+
+		.animating & {
+			animation-delay: .25s;
+			animation-duration: 2s;
+			animation-fill-mode: forwards;
+			animation-name: slidein;
+			height: auto;
+		}
+	}
+}
+
+/*
+ * Content wrap
+ */
+.content-wrap {
+	padding: var(--jp-modal-padding);
+
+	h2 {
+		// https://clamp.font-size.app/?config=eyJyb290IjoiMTYiLCJtaW5XaWR0aCI6Ijc2MHB4IiwibWF4V2lkdGgiOiIxNDQwcHgiLCJtaW5Gb250U2l6ZSI6IjI0cHgiLCJtYXhGb250U2l6ZSI6IjU2cHgifQ%3D%3D
+		font-size: clamp(1.5rem, -0.7353rem + 4.7059vw, 3.5rem);
+	}
+
+	p {
+		// https://clamp.font-size.app/?config=eyJyb290IjoiMTYiLCJtaW5XaWR0aCI6IjQxNHB4IiwibWF4V2lkdGgiOiIxNDQwcHgiLCJtaW5Gb250U2l6ZSI6IjE2cHgiLCJtYXhGb250U2l6ZSI6IjI4cHgifQ%3D%3D
+		font-size: clamp(1rem, 0.6974rem + 1.1696vw, 1.75rem);
+	}
+
+	p.hi-user {
+		display: none;
+		// https://clamp.font-size.app/?config=eyJyb290IjoiMTYiLCJtaW5XaWR0aCI6IjQxNHB4IiwibWF4V2lkdGgiOiIxNDQwcHgiLCJtaW5Gb250U2l6ZSI6IjIwcHgiLCJtYXhGb250U2l6ZSI6IjI0cHgifQ%3D%3D
+		font-size: clamp(1.25rem, 1.1491rem + 0.3899vw, 1.5rem);
+	}
+}
+
+@include tablet {
+	.content-wrap {
+		bottom: 15%;
+		display: flex;
+		flex-direction: column;
+		gap: 64px;
+		left: 64px;
+		padding: 0 var(--jp-modal-padding) 0 0;
+		position: absolute;
+		width: 55%;
+
+		.content-wrap-text {
+			align-items: flex-start;
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+			padding: 0px 32px 0 0;
+
+			h2, p {
+				margin: 0;
+			}
+		}
+
+		p.hi-user {
+			display: block;
+		}
+
+		.button {
+			align-self: flex-start;
+			width: auto;
+			/*
+			 * We have to use !important to add additional styling compared to the Jetpack
+			 * button component.
+			 */
+			padding: 16px var(--jp-modal-padding-large) !important;
+		}
+
+		.animating & {
+			left: -20px;
+			opacity: 0;
+			transition: .55s all cubic-bezier(0.59,0.37,0.18,1) .3s;
+		}
+	}
+}
+
+/*
+ * Powers wrap
+ */
+.powers-wrap {
+	background: var(--jp-white);
+	left: 0;
+	opacity: 0;
+	position: absolute;
+	top: 100%;
+	transition: 0.45s transform cubic-bezier(0.59,0.37,0.18,1) 2s, 0.45s opacity linear;
+	width: 100%;
+	will-change: transform, opacity;
+	z-index: 2;
+
+	.animating & {
+		opacity: 1;
+		transform: translateY(-100%);
+		transition-delay: 2s;
+	}
+}
+
+@include tablet {
+	.powers-wrap {
+		align-items: flex-end;
+		container-type: inline-size;
+		display: flex;
+		flex-direction: column;
+		gap: 40px;
+		left: 45%;
+		padding: 0;
+		right: 32px;
+		bottom: 5%;
+		transform: translateY(0%);
+		transition-delay: 0;
+		transition: none;
+		width: auto;
+
+		h2 {
+			width: 100%;
+		}
+
+		.button {
+			margin-right: var(--jp-modal-padding-large);
+		}
+
+		.animating & {
+			bottom: 12%;
+			left: 45%;
+			opacity: 1;
+			right: 32px;
+			top: unset;
+			transform: translateY(0%);
+			transition: 0.45s all cubic-bezier(0.59,0.37,0.18,1) 2s, 0.45s opacity linear;
+			transition-delay: 2s;
+			width: auto;
+
+			.content-wrap-text {
+				padding-left: 32px;;
+			}
+
+			.button {
+				align-self: flex-end;
+			}
+
+		}
+	}
+}
+
+/*
+ * Powers-wrap product cards
+ */
+.jetpack-products {
+	display: flex;
+	flex-direction: column;
+	gap: var(--jp-gap);
+	background: var(--jp-gray-0);
+
+	div {
+		border-radius: var(--jp-button-radius);
+		border: 1px solid var(--jp-gray-10);
+		background-color: var(--jp-white);
+		box-shadow: 0px 0px 40px 0px rgba(0, 0, 0, 0.08);
+		flex: 1;
+		padding: var(--jp-modal-padding);
+	}
+
+	h3 {
+		font-size: 24px;
+		line-height: initial;
+		margin: 0;
+	}
+
+	p {
+		font-size: 14px;
+	}
+}
+
+@include tablet {
+	.jetpack-products {
+		flex-direction: row;
+		padding: var(--jp-modal-padding-large);
+
+		div {
+			border: none;
+			box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.08), 0px 2px 2px rgba(0, 0, 0, 0.1);
+
+			p {
+				margin: 8px 0;
+			}
+		}
+
+		svg {
+			margin-bottom: var(--jp-modal-padding-small);
+		}
+	}
+}
+
+@container (max-width: 600px) {
+	.jetpack-products {
+		div {
+			padding: var(--jp-modal-padding-small);
+		}
+	}
+}

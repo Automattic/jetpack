@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
 import React from 'react';
-import { expect } from 'chai';
 import ShallowRenderer from 'react-test-renderer/shallow';
-
-/**
- * Internal dependencies
- */
 import ConnectUser from '../index';
 
 describe( 'ConnectUser', () => {
@@ -31,7 +23,7 @@ describe( 'ConnectUser', () => {
 		);
 
 		it( 'the redirect happened', () => {
-			expect( redirectUrl ).to.be.equal( testProps.connectUrl + '&from=' + testProps.from );
+			expect( redirectUrl ).toEqual( testProps.connectUrl + '&from=' + testProps.from );
 		} );
 	} );
 } );

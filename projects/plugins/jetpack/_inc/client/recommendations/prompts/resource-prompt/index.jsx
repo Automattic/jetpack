@@ -1,26 +1,27 @@
-/**
- * External Dependencies
- */
-import React, { useEffect, useCallback } from 'react';
-import { connect } from 'react-redux';
-import { ProgressBar } from '@automattic/components';
-import { createInterpolateElement } from '@wordpress/element';
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal Dependencies
- */
+import Button from 'components/button';
+import analytics from 'lib/analytics';
+import React, { useEffect, useCallback, useMemo } from 'react';
+import { connect } from 'react-redux';
+import { ProductSpotlight } from 'recommendations/sidebar/product-spotlight';
 import {
 	addViewedRecommendation as addViewedRecommendationAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	getOnboardingStepProgressValueIfEligible,
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
+	isStepViewed,
+	getProductSlugForStep,
+	getIsOnboardingActive,
 } from 'state/recommendations';
-import analytics from 'lib/analytics';
-import { PromptLayout } from '../prompt-layout';
+import { DEFAULT_ILLUSTRATION } from '../../constants';
 import { getStepContent } from '../../feature-utils';
+import { StepProgressBar } from '../../step-progress-bar';
+import { PromptLayout } from '../prompt-layout';
 
 /**
  * Provide a recommendation step that gives a resource.
@@ -34,21 +35,25 @@ const ResourcePromptComponent = props => {
 	const {
 		isNew,
 		progressValue,
+		stepProgressValue,
 		question,
 		description,
 		descriptionList,
 		descriptionSecondary,
 		descriptionLink,
 		nextRoute,
+		illustration,
 		ctaText,
 		ctaLink,
-		illustrationPath,
-		rnaIllustration,
+		hasNoAction,
+		skipText,
 		stepSlug,
 		stateStepSlug,
 		updatingStep,
+		spotlightProduct,
 		updateRecommendationsStep,
 		addViewedRecommendation,
+		summaryViewed,
 	} = props;
 
 	useEffect( () => {
@@ -58,6 +63,9 @@ const ResourcePromptComponent = props => {
 			updateRecommendationsStep( stepSlug );
 		} else if ( stepSlug === stateStepSlug && ! updatingStep ) {
 			addViewedRecommendation( stepSlug );
+			analytics.tracks.recordEvent( 'jetpack_recommendations_recommendation_viewed', {
+				feature: stepSlug,
+			} );
 		}
 	}, [
 		stepSlug,
@@ -87,24 +95,47 @@ const ResourcePromptComponent = props => {
 		} );
 	}, [ stepSlug ] );
 
+	const onBackToSummaryClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommended_resource_back_to_summary_click', {
+			feature: stepSlug,
+		} );
+	}, [ stepSlug ] );
+
+	const progressBarComponent = useMemo( () => {
+		if ( stepProgressValue ) {
+			return <StepProgressBar { ...stepProgressValue } />;
+		}
+
+		if ( progressValue ) {
+			return <ProgressBar color={ '#00A32A' } value={ progressValue } />;
+		}
+
+		return null;
+	}, [ stepProgressValue, progressValue ] );
+
 	return (
 		<PromptLayout
-			progressBar={
-				progressValue ? <ProgressBar color={ '#00A32A' } value={ progressValue } /> : null
-			}
+			progressBar={ progressBarComponent }
 			isNew={ isNew }
 			question={ question }
-			description={ createInterpolateElement( description, {
-				strong: <strong />,
-				ExternalLink: <ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />,
-			} ) }
+			description={
+				description
+					? createInterpolateElement( description, {
+							br: <br />,
+							strong: <strong />,
+							ExternalLink: (
+								<ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />
+							),
+					  } )
+					: null
+			}
 			content={
 				descriptionList || descriptionSecondary ? (
 					<React.Fragment>
 						{ descriptionList && (
 							<ul className="jp-recommendations-question__description-list">
-								{ descriptionList.map( item => (
-									<li>{ item }</li>
+								{ descriptionList.map( ( item, index ) => (
+									<li key={ index }>{ item }</li>
 								) ) }
 							</ul>
 						) }
@@ -116,21 +147,43 @@ const ResourcePromptComponent = props => {
 			}
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<ExternalLink
-						type="button"
-						className="dops-button is-rna is-primary"
-						href={ ctaLink }
-						onClick={ onResourceLinkClick }
-					>
-						{ ctaText }
-					</ExternalLink>
-					<a href={ nextRoute } onClick={ onResourceSkipClick }>
-						{ __( 'Read Later', 'jetpack' ) }
-					</a>
+					{ ! hasNoAction ? (
+						<>
+							<ExternalLink
+								type="button"
+								className="dops-button is-rna is-primary"
+								href={ ctaLink }
+								onClick={ onResourceLinkClick }
+							>
+								{ ctaText }
+							</ExternalLink>
+							<div className="jp-recommendations-question__jump-nav">
+								<a href={ nextRoute } onClick={ onResourceSkipClick }>
+									{ skipText || __( 'Not now', 'jetpack' ) }
+								</a>
+								{ summaryViewed && ( // If the summary screen has already been reached, provide a way to get back to it.
+									<>
+										<span className="jp-recommendations-question__jump-nav-separator">|</span>
+										<a onClick={ onBackToSummaryClick } href={ '#/recommendations/summary' }>
+											{ __( 'View Recommendations', 'jetpack' ) }{ ' ' }
+										</a>
+									</>
+								) }
+							</div>
+						</>
+					) : (
+						<Button primary rna href={ nextRoute }>
+							{ ctaText }
+						</Button>
+					) }
 				</div>
 			}
-			illustrationPath={ illustrationPath }
-			rna={ rnaIllustration }
+			sidebarCard={
+				spotlightProduct ? (
+					<ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />
+				) : null
+			}
+			illustration={ illustration || DEFAULT_ILLUSTRATION }
 		/>
 	);
 };
@@ -138,9 +191,18 @@ const ResourcePromptComponent = props => {
 const ResourcePrompt = connect(
 	( state, ownProps ) => ( {
 		nextRoute: getNextRoute( state ),
-		...getStepContent( ownProps.stepSlug ),
+		...getStepContent( state, ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
+		summaryViewed: isStepViewed( state, 'summary' ),
+		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
+		...( getIsOnboardingActive( state )
+			? {
+					stepProgressValue: getOnboardingStepProgressValueIfEligible( state ),
+					progressValue: null,
+					summaryViewed: false,
+			  }
+			: {} ),
 	} ),
 	dispatch => ( {
 		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),

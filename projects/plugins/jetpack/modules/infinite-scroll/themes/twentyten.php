@@ -3,18 +3,23 @@
  * Infinite Scroll Theme Assets
  *
  * Register support for @Twenty Ten and enqueue relevant styles.
+ *
+ * @package jetpack
  */
 
 /**
  * Add theme support for infinity scroll
  */
 function jetpack_twentyten_infinite_scroll_init() {
-	add_theme_support( 'infinite-scroll', array(
-		'container'      => 'content',
-		'render'         => 'jetpack_twentyten_infinite_scroll_render',
-		'footer'         => 'wrapper',
-		'footer_widgets' => jetpack_twentyten_has_footer_widgets(),
-	) );
+	add_theme_support(
+		'infinite-scroll',
+		array(
+			'container'      => 'content',
+			'render'         => 'jetpack_twentyten_infinite_scroll_render',
+			'footer'         => 'wrapper',
+			'footer_widgets' => jetpack_twentyten_has_footer_widgets(),
+		)
+	);
 }
 add_action( 'init', 'jetpack_twentyten_infinite_scroll_init' );
 
@@ -45,7 +50,7 @@ add_action( 'wp_enqueue_scripts', 'jetpack_twentyten_infinite_scroll_enqueue_sty
 function jetpack_twentyten_has_footer_widgets() {
 	if ( is_active_sidebar( 'first-footer-widget-area' ) ||
 		is_active_sidebar( 'second-footer-widget-area' ) ||
-		is_active_sidebar( 'third-footer-widget-area'  ) ||
+		is_active_sidebar( 'third-footer-widget-area' ) ||
 		is_active_sidebar( 'fourth-footer-widget-area' ) ) {
 
 		return true;

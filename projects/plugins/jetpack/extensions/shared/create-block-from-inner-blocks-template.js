@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { createBlocksFromInnerBlocksTemplate, createBlock } from '@wordpress/blocks';
 
 /**
@@ -10,7 +7,7 @@ import { createBlocksFromInnerBlocksTemplate, createBlock } from '@wordpress/blo
  * that a WordPress site currently could get.
  *
  * @param {Array} innerBlocksOrTemplate - Nested blocks or InnerBlocks templates.
- * @returns {Object[]} Array of Block objects.
+ * @returns {object[]} Array of Block objects.
  */
 export default function createBlocksFromTemplate( innerBlocksOrTemplate = [] ) {
 	if ( typeof createBlocksFromInnerBlocksTemplate !== 'undefined' ) {

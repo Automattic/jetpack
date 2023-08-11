@@ -100,6 +100,12 @@ class Taxonomy_Provider extends Provider {
 		}
 	}
 
+	// phpcs:ignore Generic.Commenting.DocComment.MissingShort
+	/** @inheritdoc */
+	public static function get_edit_url( $_provider_key ) { // phpcs:ignore Generic.Commenting.DocComment.MissingShort
+		return null;
+	}
+
 	/**
 	 * Which taxonomies should Critical CSS be generated for.
 	 *

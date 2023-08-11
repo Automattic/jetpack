@@ -23,6 +23,7 @@ class Example_WPCOM_REST_API_V2_Field_Controller extends WPCOM_REST_API_V2_Field
 
 /**
  * @group rest-api
+ * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 class Test_WPCOM_REST_API_V2_Field_Controller extends WP_UnitTestCase {
 

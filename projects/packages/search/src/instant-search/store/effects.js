@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 /*eslint lodash/import-scope: [2, "method"]*/
 import debounce from 'lodash/debounce';
-
-/**
- * Internal dependencies
- */
 import { search } from '../lib/api';
 import {
 	DEBOUNCED_TIME_TO_SET_QUERY_MILLISECONDS,
@@ -48,7 +41,7 @@ function makeSearchAPIRequest( action, store ) {
 		} )
 		.catch( error => {
 			// eslint-disable-next-line no-console
-			console.error( 'Jetpack Search encountered an error:', error );
+			console.error( 'Jetpack Search ', error );
 			store.dispatch( recordFailedSearchRequest( error ) );
 		} );
 }

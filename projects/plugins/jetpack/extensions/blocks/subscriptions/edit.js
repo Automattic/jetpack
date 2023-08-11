@@ -1,27 +1,26 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-import { isEqual } from 'lodash';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { TextControl, withFallbackStyles } from '@wordpress/components';
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
+	BlockControls,
 	InspectorControls,
 	RichText,
 	withColors,
 	withFontSizes,
-	__experimentalUseGradient as useGradient,
+	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { useEffect, useState } from '@wordpress/element';
+import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
-import { getSubscriberCount } from './api';
-import './view.scss';
-import defaultAttributes from './attributes';
+import { useSelect, withSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
+import { _n, sprintf } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import { isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
+import GetAddPaidPlanButton from '../../shared/memberships/utils';
+import './view.scss';
+import { store as membershipProductsStore } from '../../store/membership-products';
+import defaultAttributes from './attributes';
 import {
 	DEFAULT_BORDER_RADIUS_VALUE,
 	DEFAULT_BORDER_WEIGHT_VALUE,
@@ -30,6 +29,9 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
 import SubscriptionControls from './controls';
+import { SubscriptionsPlaceholder } from './subscription-placeholder';
+import SubscriptionSkeletonLoader from './subscription-skeleton-loader';
+import { name } from './';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
@@ -66,7 +68,10 @@ export function SubscriptionEdit( props ) {
 		borderColor,
 		setBorderColor,
 		fontSize,
+		hasNewsletterPlans,
 	} = props;
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( name );
 
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
@@ -77,6 +82,7 @@ export function SubscriptionEdit( props ) {
 		borderRadius,
 		borderWeight,
 		buttonWidth,
+		includeSocialFollowers,
 		padding,
 		spacing,
 		submitButtonText,
@@ -86,8 +92,29 @@ export function SubscriptionEdit( props ) {
 		successMessage,
 	} = validatedAttributes;
 
-	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
-	const [ subscriberCount, setSubscriberCount ] = useState( '' );
+	const { subscriberCount, subscriberCountString } = useSelect( select => {
+		if ( ! isModuleActive ) {
+			return {
+				subscriberCounts: 0,
+				subscriberCountString: '',
+			};
+		}
+		const { emailSubscribers, socialFollowers } =
+			select( membershipProductsStore ).getSubscriberCounts();
+		let count = emailSubscribers;
+		if ( includeSocialFollowers ) {
+			count += socialFollowers;
+		}
+
+		return {
+			subscriberCount: count,
+			subscriberCountString: sprintf(
+				/* translators: Placeholder is a number of subscribers. */
+				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
+				count
+			),
+		};
+	} );
 
 	const emailFieldGradient = isGradientAvailable
 		? useGradient( {
@@ -173,34 +200,19 @@ export function SubscriptionEdit( props ) {
 	const getBlockClassName = () => {
 		return classnames(
 			className,
+			'wp-block-jetpack-subscriptions__container',
 			'wp-block-jetpack-subscriptions__supports-newline',
 			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,
 			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined
 		);
 	};
 
-	useEffect( () => {
-		getSubscriberCount(
-			count => {
-				setSubscriberCountString(
-					sprintf(
-						/* translators: Placeholder is a number of subscribers. */
-						_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
-						count
-					)
-				);
-				setSubscriberCount( count );
-			},
-			() => {
-				setSubscriberCountString( __( 'Subscriber count unavailable', 'jetpack' ) );
-				setSubscriberCount( 0 );
-			}
-		);
-	}, [] );
-
 	const previousButtonBackgroundColor = usePrevious( buttonBackgroundColor );
 
 	useEffect( () => {
+		if ( ! isModuleActive ) {
+			return;
+		}
 		if (
 			previousButtonBackgroundColor?.color !== borderColor?.color ||
 			borderColor?.color === buttonBackgroundColor?.color
@@ -208,7 +220,27 @@ export function SubscriptionEdit( props ) {
 			return;
 		}
 		setBorderColor( buttonBackgroundColor.color );
-	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
+	}, [
+		buttonBackgroundColor,
+		previousButtonBackgroundColor,
+		borderColor,
+		setBorderColor,
+		isModuleActive,
+	] );
+
+	if ( isLoadingModules ) {
+		return <SubscriptionSkeletonLoader />;
+	}
+
+	if ( ! isModuleActive ) {
+		return (
+			<SubscriptionsPlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
+		);
+	}
 
 	return (
 		<>
@@ -224,6 +256,7 @@ export function SubscriptionEdit( props ) {
 					fallbackButtonBackgroundColor={ fallbackButtonBackgroundColor }
 					fallbackTextColor={ fallbackTextColor }
 					fontSize={ fontSize }
+					includeSocialFollowers={ includeSocialFollowers }
 					isGradientAvailable={ isGradientAvailable }
 					padding={ padding }
 					setAttributes={ setAttributes }
@@ -238,6 +271,13 @@ export function SubscriptionEdit( props ) {
 					successMessage={ successMessage }
 				/>
 			</InspectorControls>
+			{ isNewsletterFeatureEnabled() && (
+				<BlockControls>
+					<Toolbar>
+						<GetAddPaidPlanButton context={ 'toolbar' } hasNewsletterPlans={ hasNewsletterPlans } />
+					</Toolbar>
+				</BlockControls>
+			) }
 
 			<div className={ getBlockClassName() }>
 				<div className="wp-block-jetpack-subscriptions__form" role="form">
@@ -263,16 +303,30 @@ export function SubscriptionEdit( props ) {
 						allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
 					/>
 				</div>
-
 				{ showSubscribersTotal && (
-					<p className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</p>
+					<div className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</div>
 				) }
 			</div>
 		</>
 	);
 }
 
+const withThemeProvider = WrappedComponent => props =>
+	(
+		<ThemeProvider>
+			<WrappedComponent { ...props } />
+		</ThemeProvider>
+	);
+
 export default compose( [
+	withSelect( select => {
+		const newsletterPlans = select( 'jetpack/membership-products' )
+			?.getProducts()
+			?.filter( product => product.subscribe_as_site_subscriber );
+		return {
+			hasNewsletterPlans: newsletterPlans?.length !== 0,
+		};
+	} ),
 	withColors(
 		{ emailFieldBackgroundColor: 'backgroundColor' },
 		{ buttonBackgroundColor: 'backgroundColor' },
@@ -281,4 +335,5 @@ export default compose( [
 	),
 	withFontSizes( 'fontSize' ),
 	applyFallbackStyles,
+	withThemeProvider,
 ] )( SubscriptionEdit );

@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.2.4 - 2023-07-06
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+- Updated package dependencies.
+
+## 2.2.3 - 2023-03-08
+### Changed
+- Add a note to README (visible in wordpress.org) that Jetpack VaultPress is deprecated. [#27465]
+- Compatibility: WordPress 6.1 compatibility [#27084]
+- Updated package dependencies.
+- Update README references from VaultPress to Jetpack VaultPress [#27412]
+
+## 2.2.2 - 2022-07-06
+### Changed
+- Build: do not ship PHPCS configuration file. [#22604]
+- Janitorial: require a more recent version of WordPress now that WP 6.0 is coming out. [#24083]
+- Renaming `master` references to `trunk`. [#24712]
+- Updated composer.lock [#22920]
+- Updated package dependencies.
+
 ## 2.2.1 - 2022-02-01
 ### Changed
 - Colors: update colors to match the latest iterations of our brand.
@@ -9,7 +29,6 @@ All notable changes to this project will be documented in this file.
 - Set `convertDeprecationsToExceptions` true in PHPUnit config.
 - Switch to pcov for code coverage.
 - Updated package dependencies.
-
 
 ## 2.2.0 - 2021-10-11
 ### Changed

@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.22] - 2023-05-29
+### Changed
+- FSE: remove usage of `gutenberg_is_fse_theme` for modern `wp_is_block_theme` [#30806]
+
+## [1.4.21] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.4.20] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.4.19] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [1.4.18] - 2022-12-06
+### Changed
+- Updated package dependencies. [#27688]
+
+## [1.4.17] - 2022-11-28
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.4.16] - 2022-09-20
+### Changed
+- Updated package dependencies.
+
+## [1.4.15] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [1.4.14] - 2022-06-21
+### Changed
+- Renaming master to trunk. [#24661]
+
+## [1.4.13] - 2022-06-08
+### Fixed
+- Update method checking for block-based themes to use latest core function. [#24622]
+
+## [1.4.12] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
 ## [1.4.11] - 2022-01-25
 ### Changed
 - Updated package dependencies.
@@ -100,6 +144,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Blocks: introduce new package for block management
 
+[1.4.22]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.21...v1.4.22
+[1.4.21]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.20...v1.4.21
+[1.4.20]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.19...v1.4.20
+[1.4.19]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.18...v1.4.19
+[1.4.18]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.17...v1.4.18
+[1.4.17]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.16...v1.4.17
+[1.4.16]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.15...v1.4.16
+[1.4.15]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.14...v1.4.15
+[1.4.14]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.13...v1.4.14
+[1.4.13]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.12...v1.4.13
+[1.4.12]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.11...v1.4.12
 [1.4.11]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.10...v1.4.11
 [1.4.10]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/Automattic/jetpack-blocks/compare/v1.4.8...v1.4.9

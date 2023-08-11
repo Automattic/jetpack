@@ -1,22 +1,14 @@
-/**
- * WordPress dependencies
- */
-
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { GooglePhotosIcon, OpenverseIcon, PexelsIcon } from '../../icons';
-import GooglePhotosMedia from './google-photos';
-import OpenverseMedia from './openverse';
-import PexelsMedia from './pexels';
 import {
 	SOURCE_WORDPRESS,
 	SOURCE_GOOGLE_PHOTOS,
 	SOURCE_OPENVERSE,
 	SOURCE_PEXELS,
 } from '../constants';
+import GooglePhotosMedia from './google-photos';
+import OpenverseMedia from './openverse';
+import PexelsMedia from './pexels';
 
 export const mediaSources = [
 	{

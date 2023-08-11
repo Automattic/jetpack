@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title></title>
+    <style>
+
+        /* Globals */
+        * { box-sizing: border-box; }
+        body {
+            font-family: NotoSansGlobal, sans-serif;
+            font-weight: normal;
+        }
+        table {
+            width: 100%;
+        }
+        table th {
+            padding: 10px 7px;
+            text-transform: uppercase;
+            border-radius: 0px;
+            border-top: 2px solid #111;
+            border-bottom: 2px solid #111;
+        }
+        table thead {
+            background-color: transparent;
+            color: #111;            
+        }
+        table td {
+            padding: 8px 8px;
+            line-height: 1;
+        }
+        table tr {
+            margin: 0;
+        }   
+        table.striped {
+            border-bottom: 1px solid #e1def3;
+        }
+        table.striped th {
+            text-align: center;
+        }
+        table.striped tbody tr:nth-child(odd) {
+            background: #f6f5fb;
+        }
+
+
+        /* Invoice Page specific */ 
+        .zbs-document-title div {
+            font-size:2.2em !important;
+            text-align: center;
+            padding-bottom: 0.8em;
+        }
+        .zbs-top-right-box-line td {
+            line-height:1.4em;
+        }
+        .zbs-top-right-box {
+            line-height:1.4em;
+        }
+        .zbs-invoice-number {
+            display: inline-block;
+            float: right;
+            border-bottom: 2px solid #e1def3;
+        }     
+        .item-name {
+            font-weight: bold;
+            display: inline-block;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .item-description {
+            font-size: 12px;
+            display: block;
+        }
+        .invoice-header {
+            background: transparent;
+            border-bottom: 3px solid #000;
+            padding: 20px;
+            padding-bottom: 20px;           
+            margin-bottom: 20px;
+            border-radius: 0px;
+        }
+        .invoice-header td {
+            padding: 0 !important;
+            font-size: 9pt;
+            margin: 0;
+        }
+        .business-to{
+            /* leave as is */
+        }
+        .invoice-addressed-label {
+            text-transform: uppercase;
+            font-weight: bold;
+            display: inline-block;
+            padding: 6px 0px;
+            padding-left: 0;
+            border-bottom: 2px solid #e1def3;
+            font-size: 13px;
+            margin-bottom: 0;
+            margin-top: 0;
+            text-align:right !important;
+        }
+        .zbs-line-info {
+            margin: 0;
+            margin-bottom: 5px;
+            font-size: 12px;
+            /* removed as leaned out font support to regular + bold font-style: italic; */
+            padding-left: 3px;
+            line-height: 1;
+            padding: 0 !important;
+            height: auto;
+        }
+        .zbs-line-info-title {
+            font-size: 18px;
+            height: 19px;
+            font-style: normal;
+            font-weight: bold !important;
+        }
+        .invoice-infos {
+            padding-left: 20px;
+        }
+        .table-title {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 0;
+            text-transform: uppercase;
+        }
+        .cen {
+            font-size: 12px;
+            /* removed as leaned out font support to regular + bold font-style: italic; */
+        }
+        .row-amount {
+            font-size: 12px;
+        }
+        .table-totals {
+            margin-top: 8px;
+        }        
+        .table-totals td {
+            font-size: 12px;
+        }
+        .zbs-total {
+            font-size: 16px;
+            font-style: normal;
+            text-transform: uppercase;
+        }
+        .zbs-minitotal {
+            font-size: 14px;
+            font-style: normal;
+            text-transform: uppercase;
+        }
+        .bord {
+            border-bottom: 2px solid #eee;
+        }
+        .bord-l {
+            border-bottom: 0!important;
+        }        
+
+        /*Payment Details*/
+        .zbs-payment-details {
+            margin-top: 20px;
+        }
+        .deets {            
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #111;
+            width: 100%;
+        }
+        .deets h2 {
+            margin-top: 0;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #111;
+        }
+        .deets-line {
+            font-size: 12px;
+        }
+        .deets-title {
+            font-weight: bold;
+        }
+        .deets-content {
+            /* removed as leaned out font support to regular + bold font-style: italic; */
+        }
+
+
+        /* viewport-size specific - catchalls */
+        @media screen and (min-width: 1280px) {
+            body {
+                background: #ccc;
+            }
+            .zbs-invoice {
+                max-width: 795px;
+                margin: 0 auto;
+                background: #fff;
+                padding: 20px;
+                position: relative;
+            }
+        }
+
+        #crm-invoice-partials table {
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="zbs-invoice" style="position: relative;">   
+
+        <!-- ============= Invoice Header =============-->
+
+        <div class="invoice-header">
+            <!-- Invoice Logo -->
+            <div id="zbs_invoice_logos" style="width:50%;float:left">
+                <div class="wh-logo-set" style="text-align: left; padding-top: 0px;">
+                    <img id="wh-logo-set-img" src="##LOGO-URL##" style="max-width:60%;max-height:140px" />
+                </div>
+            </div>
+             <!-- /Invoice Logo -->
+
+            <div style="width:50%; float:right; border-radius: 14px; padding-top: 1em;">
+                <table style="">
+                    <tbody>
+                        <tr class="wh-large zbs-top-right-box-line" style="##INVOICE-ID-STYLES##">
+                            <td>
+                                <label for="no">##INVOICE-LABEL-INV-NUMBER##</label>
+                            </td>
+                            <td class="zbs-invoice-number-line" style="text-align:right;">
+                                <div class="zbs-invoice-number">###INVOICE-NUMBER##</div>
+                            </td>
+                        </tr>
+                        <tr class="zbs-top-right-box-line" style="##INVOICE-REF-STYLES##">
+                            <td>
+                                <label for="Reference">##INVOICE-LABEL-INV-REF##</label>
+                            </td>
+                            <td style="text-align:right;">##INVOICE-REF##</td>
+                        </tr>
+                        <tr class="zbs-top-right-box-line">
+                            <td>
+                                <label for="date">##INVOICE-LABEL-INV-DATE##</label>
+                            </td>
+                            <td style="text-align:right;">##INVOICE-DATE##</td>
+                        </tr>
+                        <tr class="zbs-top-right-box-line">
+                            <td>
+                                <label for="due">##INVOICE-LABEL-DUE-DATE##</label>
+                            </td>
+                            <td style="text-align:right;">
+                                ##INVOICE-DUE-DATE##
+                            </td>
+                        </tr>
+                        <tr class="zbs-top-right-box-line">
+                            <td>
+                                <label for="due">##INVOICE-LABEL-STATUS##</label>
+                            </td>
+                            <td style="text-align:right;">
+                                ##INVOICE-HTML-STATUS##
+                            </td>
+                        </tr>                        
+                        ##INV-CUSTOM-FIELDS##
+                    </tbody>
+                </table>
+            </div>
+            <div class='clear' style="clear:both"></div>
+        </div>
+        <!-- =============/Invoice Header =============-->    
+
+        
+        <!-- =============Invoice Infos============= -->
+        <div class="invoice-infos">
+
+             <div id='zbs-person-info-wrapper' class="business-from" style="width:50%;float:left;">
+
+                <h4 class="invoice-title4">##INVOICE-LABEL-FROM##</h4>
+
+                <div style="height: 10px;"></div>
+
+                <div class="business-infos">
+                    ##BIZ-INFO##
+                </div>
+            </div>
+            
+            <div id='zbs-business-info-wrapper' class="business-to" style="width:50%;float:right;">
+
+                <h4 class="invoice-title4" style="text-align:right !important;">##INVOICE-LABEL-TO##</h4>
+
+                <div style="height: 10px;"></div>
+
+                <div class="business-infos" style="">
+                    ##INVOICE-CUSTOMER-INFO##
+                </div>
+            </div>
+           
+
+            <div class='clear' style="clear:both;margin-top:20px;margin-bottom:20px;"></div>
+
+        </div> 
+        <!-- =============/Invoice Infos============= -->
+
+        <!-- =============Invoice Description============= -->
+        <table style='width:100%; margin-top: 30px;' class='striped'>
+            <thead style='font-weight:900;padding:10px;margin-top:50px'>
+                <tr>
+                    ##INVOICE-TABLE-HEADERS##
+                </tr>
+            </thead>
+            <tbody class='zbs-div-block'>
+
+                ##INVOICE-LINE-ITEMS##
+    
+            </tbody>
+        </table>
+        <!-- =============/Invoice Description============= -->
+
+        <!-- =============Invoice Totals============= -->
+        <div>
+
+                    ##INVOICE-TOTALS-TABLE##
+
+        </div>  
+        <div id="crm-invoice-partials">
+            <table style="width:100%; margin-top: 30px;">
+                <tr>
+                    <td style="width:50%">##PRE-INVOICE-PAYMENT-DETAILS##</td>
+                    <td>##INVOICE-PARTIALS-TABLE##</td>
+                </tr>
+            </table>
+        </div>
+
+
+
+        <div style="">
+            <!-- =============Payment Details============= -->
+            <div class="zbs-payment-details">
+                ##INVOICE-PAYMENT-DETAILS##
+                <div class="clear" style="clear: both;"></div>
+            </div>
+            <!-- =============/Payment Details============= -->
+        </div>
+         
+        <div style="clear: both;"></div>    
+        <!-- =============/Invoice Totals============= -->
+        
+    </div>
+</body>
+</html>

@@ -35,7 +35,7 @@ $tmp = function ( $plugin ) {
 		return;
 	}
 
-	wp_enqueue_script( 'jetpack-beta-updates', plugins_url( 'updates.js', __FILE__ ), array( 'updates' ), JPBETA_VERSION, true );
+	wp_enqueue_script( 'jetpack-beta-updates', plugins_url( 'updates.js', __FILE__ ), array( 'jquery', 'updates' ), JPBETA_VERSION, true );
 	wp_localize_script(
 		'jetpack-beta-updates',
 		'JetpackBetaUpdates',

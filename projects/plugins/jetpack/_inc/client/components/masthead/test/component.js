@@ -1,33 +1,21 @@
-/**
- * External dependencies
- */
 import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-
-/**
- * Internal dependencies
- */
+import { render, screen } from 'test/test-utils';
 import { Masthead } from '../index';
 
 describe( 'Masthead', () => {
-
-	let component = shallow( <Masthead /> );
-
-	it( 'renders main nav', () => {
-		expect( component.find( 'Masthead' ) ).to.exist;
-	} );
-
 	it( 'finds selector .jp-masthead in main nav', () => {
-		expect( component.find( '.jp-masthead' ) ).to.have.length( 1 );
+		const { container } = render( <Masthead /> );
+		// eslint-disable-next-line testing-library/no-container
+		expect( container.querySelector( '.jp-masthead' ) ).toBeInTheDocument();
 	} );
 
 	it( 'does not display the Offline Mode badge when connected', () => {
-		expect( component.find( 'code' ) ).to.have.length( 0 );
+		render( <Masthead /> );
+		expect( screen.queryByText( 'Offline Mode', { selector: 'code' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'displays the badge in Offline Mode', () => {
-		component = shallow( <Masthead siteConnectionStatus="offline"/> );
-		expect( component.find( 'code' ) ).to.have.length( 1 );
+		render( <Masthead siteConnectionStatus="offline" /> );
+		expect( screen.getByText( 'Offline Mode', { selector: 'code' } ) ).toBeInTheDocument();
 	} );
 } );

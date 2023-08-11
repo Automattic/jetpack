@@ -1,22 +1,11 @@
-<script>
-	/**
-	 * Internal dependencies
-	 */
+<script lang="ts">
+	import { useNavigate } from 'svelte-navigator';
+	import { __ } from '@wordpress/i18n';
 	import LeftArrow from '../svg/left-arrow.svg';
 
-	/**
-	 * External dependencies
-	 */
-	import routerHistory from '../utils/router-history.ts';
+	const navigate = useNavigate();
 
-	/**
-	 * WordPress dependencies
-	 */
-	import { __ } from '@wordpress/i18n';
-
-	const { navigate } = routerHistory;
-
-	export let route = -1;
+	export let route: number | string = -1;
 </script>
 
 <button

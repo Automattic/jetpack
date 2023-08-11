@@ -1,13 +1,13 @@
-/**
- * External dependencies
- */
-import { connect } from 'react-redux';
-import { get } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { get } from 'lodash';
+import { connect } from 'react-redux';
+import { isCurrentUserLinked } from 'state/connection';
+import {
+	getCurrentIp,
+	getSiteAdminUrl,
+	getSiteRoles,
+	getAdminEmailAddress,
+} from 'state/initial-state';
 import { getModuleOption, getModuleOptionValidValues } from 'state/modules';
 import {
 	fetchSettings,
@@ -17,13 +17,6 @@ import {
 	setUnsavedSettingsFlag,
 	clearUnsavedSettingsFlag,
 } from 'state/settings';
-import {
-	getCurrentIp,
-	getSiteAdminUrl,
-	getSiteRoles,
-	getAdminEmailAddress,
-} from 'state/initial-state';
-import { isCurrentUserLinked } from 'state/connection';
 
 /**
  * High order component that connects to Jetpack modules'options
@@ -44,8 +37,8 @@ export function connectModuleOptions( Component ) {
 				},
 				getOptionCurrentValue: ( module_slug, option_name ) =>
 					getModuleOption( state, module_slug, option_name ),
-				getSettingCurrentValue: ( setting_name, moduleName = '' ) =>
-					getSetting( state, setting_name, moduleName ),
+				getSettingCurrentValue: ( setting_name, moduleName = '', ignoreDisabledModules = true ) =>
+					getSetting( state, setting_name, moduleName, ignoreDisabledModules ),
 				getSiteRoles: () => getSiteRoles( state ),
 				isUpdating: settingName => isUpdatingSetting( state, settingName ),
 				adminEmailAddress: getAdminEmailAddress( state ),

@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
 
 export const Image = ( { title, alt, className, id, mediaRef, mime, sizes, srcset, url } ) => (

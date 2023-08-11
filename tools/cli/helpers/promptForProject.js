@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import inquirer from 'inquirer';
-
-/**
- * Internal dependencies
- */
 import { dirs, projectTypes, allProjects } from './projectHelpers.js';
 
 /**
@@ -35,7 +28,7 @@ export default async function promptForProject( options ) {
 			choices: dirs( './projects/' + typeAnswer.type ),
 		} );
 	} else if ( ! allProjects().includes( options.project ) ) {
-		return new Error( 'Must be an existing project.' );
+		throw new Error( 'Must be an existing project.' );
 	}
 
 	const finalAnswers = await inquirer.prompt( questions );
@@ -64,7 +57,7 @@ export async function promptForType( options = { type: '' } ) {
 			choices: projectTypes.sort(),
 		} );
 	} else if ( ! projectTypes.includes( options.type ) ) {
-		return new Error( 'Must be an accepted project type.' );
+		throw new Error( 'Must be an accepted project type.' );
 	}
 
 	return {

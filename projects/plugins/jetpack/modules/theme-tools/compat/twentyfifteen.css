@@ -259,6 +259,20 @@ iframe[id*="twitter-widget-"] {
 	margin-bottom: 1.6em;
 }
 
+/**
+ * Responsive Videos
+ */
+
+ .jetpack-video-wrapper {
+	margin-bottom: 1.6em;
+}
+
+.jetpack-video-wrapper > embed,
+.jetpack-video-wrapper > iframe,
+.jetpack-video-wrapper > object,
+.jetpack-video-wrapper > .wp-video {
+	margin-bottom: 0;
+}
 
 /**
  * Jetpack Comments

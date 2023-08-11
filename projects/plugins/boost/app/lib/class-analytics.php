@@ -9,6 +9,8 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Tracking;
+use Jetpack_Options;
+use Jetpack_Tracks_Client;
 
 /**
  * Class Analytics
@@ -43,5 +45,32 @@ class Analytics {
 		}
 
 		return self::get_tracking()->record_user_event( $slug, $data );
+	}
+
+	public static function init_tracks_scripts() {
+		$tracks = self::get_tracking();
+
+		$tracks::register_tracks_functions_scripts();
+
+		wp_enqueue_script( 'jp-tracks' );
+	}
+
+	public static function get_tracking_data() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$user      = wp_get_current_user();
+			$user_data = array(
+				'userid'   => $user->ID,
+				'username' => $user->user_login,
+			);
+			$blog_id   = get_current_blog_id();
+		} else {
+			$user_data = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+			$blog_id   = Jetpack_Options::get_option( 'id', 0 );
+		}
+
+		return array(
+			'userData' => $user_data,
+			'blogId'   => $blog_id,
+		);
 	}
 }

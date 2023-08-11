@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-master"
+  COMPOSER_ROOT_VERSION: "dev-trunk"
 
 jobs:
   changed_files:
@@ -68,8 +68,12 @@ jobs:
             echo "::error file=.github/workflows/phpcompatibility-dev.yml,line=4,col=1::It looks like PHPCompatibility is already at version 10.0, making this Github Action obsolete. Please remove it."
             exit 1
           fi
-          composer remove --dev automattic/jetpack-codesniffer
-          composer require --dev phpcompatibility/php-compatibility=dev-develop
+          composer remove --dev --no-update automattic/jetpack-codesniffer
+          composer require --dev --no-update phpcompatibility/php-compatibility=dev-develop
+          # Update any other packages needing update now too.
+          composer update
+          # Even though we uninstalled our codesniffer package, we need the compat rulesets to be found.
+          vendor/bin/phpcs --config-set installed_paths "$(vendor/bin/phpcs --config-show | sed -n 's/^installed_paths: //p'),../../../projects/packages/codesniffer"
 
       - name: Run phpcs for PHPCompatibility
         run: |

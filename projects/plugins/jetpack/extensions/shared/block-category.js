@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import { JetpackLogo } from './icons';
 
 const isWpcom = isSimpleSite() || isAtomicSite();
@@ -19,6 +12,17 @@ if ( ! isWpcom ) {
 		icon: <JetpackLogo />,
 	} );
 }
+
+// We're moving Form specific blocks to a new 'Forms' category
+// that should appear before the 'earn' and 'grow' categories
+setCategories( [
+	...getCategories().filter( ( { slug } ) => slug !== 'contact-form' ),
+	{
+		slug: 'contact-form',
+		title: __( 'Forms', 'jetpack' ),
+		icon: <JetpackLogo />,
+	},
+] );
 
 setCategories( [
 	...getCategories().filter( ( { slug } ) => slug !== 'earn' ),

@@ -1,0 +1,141 @@
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import TimestampControl from '../index';
+import * as TimestampControlStories from './index.stories';
+
+<Meta of={TimestampControlStories} />
+
+# Timestamp Control
+
+React component to set a timestamp value.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-timestamp-control--default" />
+</Canvas>
+
+## TimestampControl API
+
+### value
+
+- type `number`
+
+The timestamp value in milliseconds
+
+### disabled
+
+- type `boolean`
+
+<Canvas withSource="false">
+  <Story id="packages-videopress-timestamp-control--disabled" />
+</Canvas>
+
+### label
+
+- type `ReactNode`
+
+If this property is added, a label will be generated using label property as the content.
+ReactNode
+
+### help
+
+- type `ReactNode`
+
+If this property is added, a help text will be added after the component using the help property as the content.
+
+### onChange
+
+- type: `Function`
+
+Use this property to pass a callback function, where the API provides the selected time in milliseconds.
+
+### onDebounceChange
+
+- type: `Function`
+
+Similar to `onChange` property, but the call is debouncing in time according to the `wait` property value.
+
+### wait
+
+- type: `Number`
+
+Time, in milliseconds, that the `onDebounceChange` function will be debounced.
+
+###
+
+### max
+
+- type: `number`
+
+Maximum time value, in milliseconds, expected by the component.
+Also, if it's bigger than one hour, the hour input will be rendered into the Timestamp Input component.
+
+### decimalPlaces
+
+- type: 1 | 2 | 3
+- optional
+
+The decimalPlaces property is used to add fractions of a second.
+This property allows the user to specify the number of digits to be displayed after the seconds separator,
+thus allowpackages-videopress-timestamp-control--with-marksing for a customizable level of precision.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-timestamp-control--decimal-places" />
+</Canvas>
+
+The example above shows how to configure two decimal places for the control. The max value is five seconds (5000).
+
+### fineAdjustment
+
+- type: `number`
+- default: `50`
+
+Time, in milliseconds, for every step of the Range control.
+
+### autoHideTimeInput
+
+- type: `boolean`
+- default: `True`
+
+### renderTooltip
+
+- type: `function`
+- optional
+
+Optional option that when True renders a tooltip in the Range control, with a default time format.
+
+<Canvas>
+  <Story id="packages-videopress-timestamp-control--show-tooltip" />
+</Canvas>
+
+It also accepts a function. The example below shows how to customize what the tooltip shows.
+
+<Canvas>
+  <Story id="packages-videopress-timestamp-control--custom-tooltip" />
+</Canvas>
+
+### marksEvery
+
+- type: `number`
+- optional
+
+Pass a time value, in milliseconds, to generate a mark set to add to the Range control.
+
+<Canvas>
+  <Story id="packages-videopress-timestamp-control--with-marks" />
+</Canvas>
+
+## Handling the value property
+
+By default, the component will handle its value internally through a local state.
+The `value` property will define its initial value.
+It simplifies its usage since consumers 
+won't be concerned about storing and propagating the updated value.
+
+However, updating the `value` property externally is possible if you need it.
+The TimestampControl component will follow the new value provided.
+
+In the example below, it's possible to update the Timestamp value internally,
+but also it's doable by using the additional range control.
+
+<Canvas>
+  <Story id="packages-videopress-timestamp-control--changing-value-externally" />
+</Canvas>

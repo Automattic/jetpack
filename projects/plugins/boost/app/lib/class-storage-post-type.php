@@ -199,21 +199,57 @@ class Storage_Post_Type {
 	}
 
 	/**
-	 * We're not using any taxonomies with our storage post type at the moment,
-	 * so it's not necessary to do anything more complex
-	 * than a simple delete DB Query.
-	 *
-	 * @return false|int
+	 * Clear all data stored in post types. On systems which support it, this
+	 * will use wp_cache_flush_group and a db query to efficiently flush the
+	 * cache. Otherwise, it will fall back to deleting each item.
 	 */
 	public function clear() {
+		if (
+			function_exists( 'wp_cache_flush_group' ) &&
+			function_exists( 'wp_cache_supports' ) &&
+			wp_cache_supports( 'flush_group' )
+		) {
+			$this->clear_bulk();
+		} else {
+			$this->clear_manually();
+		}
+	}
+
+	/**
+	 * Clear all data stored in post types using wp_cache_flush_group and a db
+	 * query. This is more efficient than deleting each item individually.
+	 * Make sure that wp_cache_supports( 'flush_group' ) returns true before
+	 * calling this method.
+	 */
+	private function clear_bulk() {
 		global $wpdb;
 
-		wp_cache_delete( null, $this->post_type_slug() );
-
-		return $wpdb->delete(
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
 			$wpdb->posts,
 			array( 'post_type' => $this->post_type_slug() ),
 			array( '%s' )
 		);
+
+		wp_cache_flush_group( $this->post_type_slug() );
+	}
+
+	/**
+	 * Clear all data stored in post types by deleting each item individually.
+	 * This is less efficient than using wp_cache_flush_group and a db query,
+	 * but works on all systems.
+	 */
+	private function clear_manually() {
+		$posts = get_posts(
+			array(
+				'post_type'      => $this->post_type_slug(),
+				'posts_per_page' => -1,
+			)
+		);
+
+		foreach ( $posts as $post ) {
+			wp_delete_post( $post->ID, true );
+			wp_cache_delete( $post->post_name, $this->post_type_slug() );
+		}
 	}
 }

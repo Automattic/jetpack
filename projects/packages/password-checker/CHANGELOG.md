@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.13] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [0.2.12] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29480]
+
+## [0.2.11] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [0.2.10] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [0.2.9] - 2022-12-02
+### Changed
+- Updated package dependencies. [#27688]
+
+## [0.2.8] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [0.2.7] - 2022-09-20
+### Changed
+- Updated package dependencies.
+
+## [0.2.6] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [0.2.5] - 2022-06-21
+### Changed
+- Renaming master to trunk. [#24661]
+
+## [0.2.4] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
 ## [0.2.3] - 2022-03-29
 ### Changed
 - Microperformance: Use === null instead of is_null
@@ -64,6 +104,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Use `composer update` rather than `install` in scripts, as composer.lock isn't checked in.
 
+[0.2.13]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.12...v0.2.13
+[0.2.12]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.11...v0.2.12
+[0.2.11]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.10...v0.2.11
+[0.2.10]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.9...v0.2.10
+[0.2.9]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.8...v0.2.9
+[0.2.8]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.7...v0.2.8
+[0.2.7]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.6...v0.2.7
+[0.2.6]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.5...v0.2.6
+[0.2.5]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.4...v0.2.5
+[0.2.4]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Automattic/jetpack-password-checker/compare/v0.2.0...v0.2.1

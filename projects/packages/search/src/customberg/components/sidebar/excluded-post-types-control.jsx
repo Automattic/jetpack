@@ -1,13 +1,7 @@
-/**
- * WordPress dependencies
- */
-import { useMemo } from '@wordpress/element';
 import { CheckboxControl, Notice } from '@wordpress/components';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-/**
- * Internal dependencies
- */
 import './excluded-post-types-control.scss';
 
 /* eslint-disable react/jsx-no-bind */

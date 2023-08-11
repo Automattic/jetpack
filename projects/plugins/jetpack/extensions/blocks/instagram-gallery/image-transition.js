@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { useEffect, useState, useRef } from '@wordpress/element';
+import classnames from 'classnames';
 
 export default function ImageTransition( { src, alt, spacing } ) {
 	const [ loaded, setLoaded ] = useState( false );

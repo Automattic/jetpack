@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { addQueryArgs } from '@wordpress/url';
 
 export const getVideoPressUrl = (

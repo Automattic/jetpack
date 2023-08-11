@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.26] - 2023-06-12
+### Fixed
+- Catch PHP notice if User Agent is not available [#31279]
+
+## [1.4.25] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.4.24] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.4.23] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [1.4.22] - 2022-12-02
+### Changed
+- Updated package dependencies. [#27688]
+
+## [1.4.21] - 2022-11-22
+### Added
+- Add a guard in `functions.php` against being loaded twice from different copies of the package. [#27475]
+
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.4.20] - 2022-11-07
+### Fixed
+- Ensure that User_Agent is loaded in environments without autoload enabled. (e.g.: WordPress.com and Super Cache) [#27223]
+
+## [1.4.19] - 2022-10-25
+### Changed
+- Update `wp_unslash` wrapper to possibly run on wpcom before WordPress is loaded. [#26971]
+
+## [1.4.18] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [1.4.17] - 2022-06-21
+### Changed
+- Renaming master to trunk.
+
+## [1.4.16] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
 ## [1.4.15] - 2022-04-19
 ### Changed
 - PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
@@ -112,6 +159,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Moving jetpack_is_mobile into a package
 
+[1.4.26]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.25...v1.4.26
+[1.4.25]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.24...v1.4.25
+[1.4.24]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.23...v1.4.24
+[1.4.23]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.22...v1.4.23
+[1.4.22]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.21...v1.4.22
+[1.4.21]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.20...v1.4.21
+[1.4.20]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.19...v1.4.20
+[1.4.19]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.18...v1.4.19
+[1.4.18]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.17...v1.4.18
+[1.4.17]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.16...v1.4.17
+[1.4.16]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.15...v1.4.16
 [1.4.15]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.14...v1.4.15
 [1.4.14]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.13...v1.4.14
 [1.4.13]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.12...v1.4.13

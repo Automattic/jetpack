@@ -1,20 +1,12 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
+import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import ConnectUserBar from 'components/connect-user-bar';
 import { FormFieldset } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import ConnectUserBar from 'components/connect-user-bar';
+import React, { Component } from 'react';
 
 export const SSO = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -24,10 +16,15 @@ export const SSO = withModuleSettingsFormHelpers(
 		 * @returns {{jetpack_sso_match_by_email: *, jetpack_sso_require_two_step: *}}
 		 */
 		state = {
-			jetpack_sso_match_by_email: this.props.getOptionValue( 'jetpack_sso_match_by_email', 'sso' ),
+			jetpack_sso_match_by_email: this.props.getOptionValue(
+				'jetpack_sso_match_by_email',
+				'sso',
+				false
+			),
 			jetpack_sso_require_two_step: this.props.getOptionValue(
 				'jetpack_sso_require_two_step',
-				'sso'
+				'sso',
+				false
 			),
 		};
 
@@ -42,7 +39,7 @@ export const SSO = withModuleSettingsFormHelpers(
 		/**
 		 * Update state so toggles are updated.
 		 *
-		 * @param {string} optionName The slug of the option to update
+		 * @param {string} optionName - The slug of the option to update
 		 */
 		updateOptions = optionName => {
 			this.setState(
@@ -94,35 +91,37 @@ export const SSO = withModuleSettingsFormHelpers(
 							</span>
 						</ModuleToggle>
 						<FormFieldset>
-							<CompactFormToggle
-								checked={ this.state.jetpack_sso_match_by_email }
+							<ToggleControl
+								checked={
+									isSSOActive &&
+									this.props.getOptionValue( 'jetpack_sso_match_by_email', 'sso', false )
+								}
 								disabled={
 									! isSSOActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_match_by_email' ] )
+									this.props.isSavingAnyOption( [ 'sso' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'jetpack_sso_match_by_email' ] ) }
 								onChange={ this.handleMatchByEmailToggleChange }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Match accounts using email addresses', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-							<CompactFormToggle
-								checked={ this.state.jetpack_sso_require_two_step }
+								label={ __( 'Match accounts using email addresses', 'jetpack' ) }
+							/>
+							<ToggleControl
+								checked={
+									isSSOActive &&
+									this.props.getOptionValue( 'jetpack_sso_require_two_step', 'sso', false )
+								}
 								disabled={
 									! isSSOActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_require_two_step' ] )
+									this.props.isSavingAnyOption( [ 'sso' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'jetpack_sso_require_two_step' ] ) }
 								onChange={ this.handleTwoStepToggleChange }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __(
-										'Require accounts to use WordPress.com Two-Step Authentication',
-										'jetpack'
-									) }
-								</span>
-							</CompactFormToggle>
+								label={ __(
+									'Require accounts to use WordPress.com Two-Step Authentication',
+									'jetpack'
+								) }
+							/>
 						</FormFieldset>
 					</SettingsGroup>
 

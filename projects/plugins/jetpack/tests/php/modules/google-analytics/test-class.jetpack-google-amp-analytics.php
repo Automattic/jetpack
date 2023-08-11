@@ -112,7 +112,7 @@ class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
 				$event['ga_params'][ 'pr' . $i . 'id' ] = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 				$event['ga_params'][ 'pr' . $i . 'nm' ] = $item->get_name();
 				$event['ga_params'][ 'pr' . $i . 'qt' ] = $item->get_quantity();
-				$i++;
+				++$i;
 			}
 		}
 

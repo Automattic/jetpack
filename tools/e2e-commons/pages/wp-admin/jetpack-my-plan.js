@@ -10,19 +10,19 @@ export default class JetpackMyPlanPage extends WpPage {
 
 	async isFree() {
 		logger.step( 'Checking if Free plan is active' );
-		const freePlanImage = ".my-plan-card__icon img[src*='free']";
+		const freePlanImage = ".my-plan-card__icon img[alt*='Jetpack Free']";
 		return await this.isElementVisible( freePlanImage );
 	}
 
 	async isComplete() {
 		logger.step( 'Checking if Complete plan is active' );
-		const premiumPlanImage = ".my-plan-card__icon img[src*='complete']";
+		const premiumPlanImage = ".my-plan-card__icon img[alt*='Jetpack Complete']";
 		return await this.isElementVisible( premiumPlanImage );
 	}
 
 	async isSecurity() {
 		logger.step( 'Checking if Security plan is active' );
-		const proPlanImage = ".my-plan-card__icon img[src*='security']";
+		const proPlanImage = ".my-plan-card__icon img[alt*='Jetpack Security']";
 		return await this.isElementVisible( proPlanImage );
 	}
 

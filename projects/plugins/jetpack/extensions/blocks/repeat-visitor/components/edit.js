@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { Notice, TextControl, RadioControl, Placeholder } from '@wordpress/components';
-import { Component } from '@wordpress/element';
 import { InnerBlocks } from '@wordpress/block-editor';
+import { Notice, TextControl, RadioControl, Placeholder } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
+import { Component } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import { CRITERIA_AFTER, CRITERIA_BEFORE } from '../constants';
 import { icon } from '../index';
 

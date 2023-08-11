@@ -11,6 +11,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 
@@ -83,7 +85,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 					'_inc/build/widgets/twitter-timeline-admin.min.js',
 					'modules/widgets/twitter-timeline-admin.js'
 				),
-				array(),
+				array( 'jquery' ),
 				JETPACK__VERSION,
 				true
 			);
@@ -166,7 +168,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		if ( ! empty( $instance['chrome'] ) && is_array( $instance['chrome'] ) ) {
-			$data_attrs .= ' data-chrome="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
+			$data_attrs .= ' data-chrome="' . esc_attr( implode( ' ', $instance['chrome'] ) ) . '"';
 		}
 
 		$timeline_placeholder = __( 'My Tweets', 'jetpack' );

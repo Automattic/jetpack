@@ -7,10 +7,8 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
-use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -38,7 +36,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Security', 'jetpack-my-jetpack' );
+		return _x( 'Security', 'Jetpack product name', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -47,7 +45,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Security', 'jetpack-my-jetpack' );
+		return _x( 'Security', 'Jetpack product name', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -56,7 +54,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Comprehensive site security, including Backup, Scan, and Anti-spam.', 'jetpack-my-jetpack' );
+		return __( 'Comprehensive site security, including VaultPress Backup, Scan, and Akismet Anti-spam.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -65,7 +63,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Comprehensive site security, including Backup, Scan, and Anti-spam.', 'jetpack-my-jetpack' );
+		return __( 'Comprehensive site security, including VaultPress Backup, Scan, and Akismet Anti-spam.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -120,11 +118,12 @@ class Security extends Module_Product {
 	/**
 	 * Activates the product by installing and activating its plugin
 	 *
+	 * @param bool|WP_Error $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
 	 * @return boolean|\WP_Error
 	 */
-	public static function activate() {
+	public static function do_product_specific_activation( $current_result ) {
 
-		$product_activation = parent::activate();
+		$product_activation = parent::do_product_specific_activation( $current_result );
 
 		if ( is_wp_error( $product_activation ) && 'module_activation_failed' === $product_activation->get_error_code() ) {
 			// A bundle is not a module. There's nothing in the plugin to be activated, so it's ok to fail to activate the module.
@@ -148,7 +147,6 @@ class Security extends Module_Product {
 		}
 
 		return $activation;
-
 	}
 
 	/**
@@ -163,44 +161,12 @@ class Security extends Module_Product {
 	}
 
 	/**
-	 * Hits the wpcom api to check scan status.
-	 *
-	 * @todo Maybe add caching.
-	 *
-	 * @return Object|WP_Error
-	 */
-	private static function get_state_from_wpcom() {
-		static $status = null;
-
-		if ( $status !== null ) {
-			return $status;
-		}
-
-		$site_id = Jetpack_Options::get_option( 'id' );
-
-		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/purchases', $site_id ),
-			'1.1',
-			array(
-				'method' => 'GET',
-			)
-		);
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'purchases_state_fetch_failed' );
-		}
-
-		$body   = wp_remote_retrieve_body( $response );
-		$status = json_decode( $body );
-		return $status;
-	}
-
-	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
 	 * @return boolean
 	 */
 	public static function has_required_plan() {
-		$purchases_data = static::get_state_from_wpcom();
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;
 		}

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
-
-/**
- * Internal dependencies
- */
 import reducer from 'state/reducer-minimal';
 
 export default createJetpackStore();

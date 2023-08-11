@@ -1,9 +1,16 @@
 @import '../../scss/calypso-mixins';
+@import '../../scss/mixins/ui';
+@import '../../scss/typography';
 
 .dash-security-bundle {
 	display: flex;
 	flex-direction: column;
-	padding: 32px;
+	padding: 36px 30px 36px 36px;
+
+	background: rgb(249, 249, 246);
+	background: linear-gradient(133deg, rgb(206, 217, 242) 0%, rgb(249, 249, 246) 10%, rgb(249, 249, 246) 80%, rgb(245, 230, 179) 100%);
+
+	@include dashboard-card-shadow;
 
 	// match aag responsive styling
 	@include breakpoint( '>660px' ) {
@@ -40,35 +47,15 @@
 			flex-direction: column;
 
 			h3 {
-				font-size: 22px;
-				font-weight: 700;
-				margin-bottom: 0;
+				font-size: $font-title-medium;
+				line-height: 32px;
+				font-weight: 500;
+				margin: 8px 0 0 0;
 			}
 
 			p {
-				font-size: 14px;
-			}
-
-			.dash-security-bundle--content-info-features {
-				display: flex;
-				flex-direction: row;
-		
-				.dash-security-bundle--content-info-features-single-feature {
-					display: flex;
-					flex-direction: row;
-		
-					img {
-						width: 24px;
-					}
-		
-					p {
-						font-weight: 700;
-					}
-		
-					&:not(:last-child) {
-						margin-right: 16px;
-					}
-				}
+				font-size: $font-body;
+				margin: 8px 0 0 0;
 			}
 		}
 
@@ -82,6 +69,15 @@
 			@include breakpoint( '>660px' ) {
 				margin-top: 0;
 				margin-left: 16px;
+			}
+
+			.dash-security-bundle--content-cta-button {
+				white-space: nowrap;
+
+				&:not( .is-primary ) {
+					padding: 8px 16px;
+					margin-left: 8px;
+				}
 			}
 		}
 	}

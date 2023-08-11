@@ -17,3 +17,6 @@
 @import "@wordpress/block-library/src/theme.scss";
 @import "@wordpress/block-library/src/editor.scss";
 @import "@wordpress/format-library/src/style.scss";
+
+// Root variables from js-packages base styles
+@import "../../base-styles/root-variables.scss";

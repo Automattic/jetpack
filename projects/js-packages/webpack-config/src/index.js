@@ -1,5 +1,5 @@
-const webpackConfig = require( './webpack.js' );
 const babelConfig = require( './babel.js' );
+const webpackConfig = require( './webpack.js' );
 
 // Note: For this cjs module to be used with named exports in an mjs context, modules.exports
 // needs to contain only simple variables like `a` or `a: b`. Define anything more complex

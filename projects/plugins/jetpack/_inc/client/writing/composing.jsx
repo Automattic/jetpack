@@ -1,23 +1,15 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import CompactCard from 'components/card/compact';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
-import { isModuleFound as _isModuleFound } from 'state/search';
-import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import { getModule } from 'state/modules';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import React from 'react';
+import { connect } from 'react-redux';
+import { getModule } from 'state/modules';
+import { isModuleFound as _isModuleFound } from 'state/search';
 
 export class Composing extends React.Component {
 	/**
@@ -86,7 +78,6 @@ export class Composing extends React.Component {
 							slug="copy-post"
 							activated={ !! this.props.getOptionValue( 'copy-post' ) }
 							toggling={ this.props.isSavingAnyOption( 'copy-post' ) }
-							disabled={ this.props.isSavingAnyOption( 'copy-post' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">{ copyPost.description }</span>
@@ -115,10 +106,6 @@ export class Composing extends React.Component {
 								'markdown',
 								'wpcom_publish_posts_with_markdown',
 							] ) }
-							disabled={ this.props.isSavingAnyOption( [
-								'markdown',
-								'wpcom_publish_posts_with_markdown',
-							] ) }
 							toggleModule={ this.updateFormStateByMarkdown }
 						>
 							<span className="jp-form-toggle-explanation">{ markdown.description }</span>
@@ -142,7 +129,6 @@ export class Composing extends React.Component {
 							slug="latex"
 							activated={ !! this.props.getOptionValue( 'latex' ) }
 							toggling={ this.props.isSavingAnyOption( [ 'latex' ] ) }
-							disabled={ this.props.isSavingAnyOption( [ 'latex' ] ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">{ latex.description }</span>
@@ -163,7 +149,6 @@ export class Composing extends React.Component {
 							slug="shortcodes"
 							activated={ !! this.props.getOptionValue( 'shortcodes' ) }
 							toggling={ this.props.isSavingAnyOption( [ 'shortcodes' ] ) }
-							disabled={ this.props.isSavingAnyOption( [ 'shortcodes' ] ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
@@ -186,26 +171,29 @@ export class Composing extends React.Component {
 						} }
 					>
 						<FormFieldset>
-							<CompactFormToggle
+							<ToggleControl
 								checked={ ! this.props.getOptionValue( 'jetpack_blocks_disabled' ) }
-								disabled={ this.props.isSavingAnyOption( [ 'jetpack_blocks_disabled' ] ) }
+								toggling={ this.props.isSavingAnyOption( [ 'jetpack_blocks_disabled' ] ) }
 								onChange={ this.toggleBlocks }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __(
-										'Jetpack Blocks give you the power to deliver quality content that hooks website visitors without needing to hire a developer or learn a single line of code.',
-										'jetpack'
-									) }
-								</span>
-								{ ! this.props.getOptionValue( 'jetpack_blocks_disabled' ) && (
-									<span className="jp-form-setting-explanation">
-										{ __(
-											'Caution: if there are Jetpack blocks used in existing posts or pages, disabling this setting will cause those blocks to stop working.',
-											'jetpack'
+								label={
+									<>
+										<span className="jp-form-toggle-explanation">
+											{ __(
+												'Jetpack Blocks give you the power to deliver quality content that hooks website visitors without needing to hire a developer or learn a single line of code.',
+												'jetpack'
+											) }
+										</span>
+										{ ! this.props.getOptionValue( 'jetpack_blocks_disabled' ) && (
+											<span className="jp-form-setting-explanation">
+												{ __(
+													'Caution: if there are Jetpack blocks used in existing posts or pages, disabling this setting will cause those blocks to stop working.',
+													'jetpack'
+												) }
+											</span>
 										) }
-									</span>
-								) }
-							</CompactFormToggle>
+									</>
+								}
+							/>
 						</FormFieldset>
 					</SettingsGroup>
 					<CompactCard

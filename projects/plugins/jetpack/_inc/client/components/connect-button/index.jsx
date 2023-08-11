@@ -1,24 +1,15 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { DisconnectDialog } from '@automattic/jetpack-connection';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getFragment } from '@wordpress/url';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Button from 'components/button';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	isDisconnectingSite as _isDisconnectingSite,
@@ -47,7 +38,6 @@ import {
 import { getSiteBenefits } from 'state/site';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import './style.scss';
-import { DisconnectDialog } from '@automattic/jetpack-connection';
 import JetpackBenefits from '../jetpack-benefits';
 
 export class ConnectButton extends React.Component {
@@ -61,6 +51,8 @@ export class ConnectButton extends React.Component {
 		connectInPlace: PropTypes.bool,
 		customConnect: PropTypes.func,
 		autoOpenInDisconnectRoute: PropTypes.bool,
+		rna: PropTypes.bool,
+		compact: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -69,6 +61,8 @@ export class ConnectButton extends React.Component {
 		asLink: false,
 		connectInPlace: true,
 		autoOpenInDisconnectRoute: false,
+		rna: false,
+		compact: false,
 	};
 
 	constructor( props ) {
@@ -171,7 +165,9 @@ export class ConnectButton extends React.Component {
 		return this.props.asLink ? (
 			<a { ...buttonProps }>{ connectLegend }</a>
 		) : (
-			<Button { ...buttonProps }>{ connectLegend }</Button>
+			<Button rna={ this.props.rna } compact={ this.props.compact } { ...buttonProps }>
+				{ connectLegend }
+			</Button>
 		);
 	};
 
@@ -225,18 +221,10 @@ export class ConnectButton extends React.Component {
 								'jetpack'
 							),
 							{
-								tosLink: (
-									<a
-										href={ getRedirectUrl( 'wpcom-tos' ) }
-										rel="noopener noreferrer"
-										target="_blank"
-									/>
-								),
+								tosLink: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
 								shareDetailsLink: (
-									<a
+									<ExternalLink
 										href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-										rel="noopener noreferrer"
-										target="_blank"
 									/>
 								),
 							}
@@ -244,7 +232,6 @@ export class ConnectButton extends React.Component {
 					</p>
 				) }
 				{ this.renderContent() }
-				{ this.props.children }
 				<DisconnectDialog
 					apiNonce={ this.props.apiNonce }
 					apiRoot={ this.props.apiRoot }

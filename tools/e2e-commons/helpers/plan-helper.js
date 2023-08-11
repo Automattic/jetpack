@@ -235,7 +235,6 @@ function getPlanData(
 
 /**
  * Returns a JSON representation of Jetpack plan data.
- * TODO: Share the mock data with methods in jetpack/tests/php/general/test_class.jetpack-plan.php somehow.
  *
  * @param {string} type Jetpack plan slug.
  * @return {JSON} JSON Jetpack plan object.
@@ -252,7 +251,7 @@ function getPlan( type ) {
 				user_is_owner: false,
 				is_free: true,
 				features: {
-					active: [ 'akismet' ],
+					active: [ 'akismet', 'donations', 'recurring-payments', 'premium-content/container' ],
 					available: {
 						akismet: [
 							'jetpack_free',
@@ -317,9 +316,11 @@ function getPlan( type ) {
 						'social-previews',
 						'donations',
 						'core/audio',
-						'premium-content/container',
 						'support',
 						'wordads-jetpack',
+						'donations',
+						'recurring-payments',
+						'premium-content/container',
 					],
 					available: {
 						akismet: [
@@ -425,6 +426,7 @@ function getPlan( type ) {
 							'jetpack_business_monthly',
 						],
 						donations: [
+							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_business',
 							'jetpack_personal',
@@ -475,6 +477,7 @@ function getPlan( type ) {
 							'jetpack_security_realtime_monthly',
 						],
 						'premium-content/container': [
+							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_business',
 							'jetpack_personal',
@@ -525,21 +528,18 @@ function getPlan( type ) {
 
 export async function syncPlanData( page ) {
 	let isSame = false;
-	let frPlan = null;
-	let bkPlan = null;
+	let fePlan = null;
 
-	// todo set a limit here to avoid infinite loop in case plans are never the same?
+	const planJson = await execWpCommand( 'option get jetpack_active_plan --format=json' );
+	const bePlan = JSON.parse( planJson );
+
+	let i = 0;
 	do {
 		await page.reload( { waitFor: 'domcontentloaded' } );
-
 		// eslint-disable-next-line no-undef, camelcase
-		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-		const planJson = await execWpCommand( 'option get jetpack_active_plan --format=json' );
-		bkPlan = JSON.parse( planJson );
-
-		logger.info( `PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );
-		isSame = frPlan.trim() === bkPlan.product_slug.trim();
-	} while ( ! isSame );
-
-	await page.waitForTimeout( 1000 );
+		fePlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+		logger.debug( `PLANS: frontend: ${ fePlan }, backend: ${ bePlan.product_slug }` );
+		isSame = fePlan.trim() === bePlan.product_slug.trim();
+		i = i + 1;
+	} while ( ! isSame && i < 5 );
 }

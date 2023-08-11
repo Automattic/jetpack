@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React, { useEffect, useRef, useState } from 'react';
-
-/**
- * Internal dependencies
- */
 import { usePhoton } from '../lib/hooks/use-photon';
 
 const PhotonImage = props => {

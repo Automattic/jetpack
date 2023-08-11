@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-jetpack_require_lib( 'class.media' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
 new WPCOM_JSON_API_Get_Media_v1_2_Endpoint(
 	array(

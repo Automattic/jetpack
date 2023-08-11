@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
@@ -18,7 +19,6 @@ use GP_Locale;
 use GP_Locales;
 use Jetpack;
 use Jetpack_AMP_Support;
-use Jetpack_Plan;
 use WP_Admin_Bar;
 
 /**
@@ -84,6 +84,12 @@ class Masterbar {
 	 */
 	private $primary_site_slug;
 	/**
+	 * Site URL displayed in the UI.
+	 *
+	 * @var string
+	 */
+	private $primary_site_url;
+	/**
 	 * Whether the text direction is RTL (based on connected WordPress.com user's interface settings).
 	 *
 	 * @var boolean
@@ -114,12 +120,12 @@ class Masterbar {
 		}
 
 		$this->user_data       = $connection_manager->get_connected_user_data( $this->user_id );
-		$this->user_login      = $this->user_data['login'];
-		$this->user_email      = $this->user_data['email'];
-		$this->display_name    = $this->user_data['display_name'];
-		$this->user_site_count = $this->user_data['site_count'];
-		$this->is_rtl          = 'rtl' === $this->user_data['text_direction'];
-		$this->user_locale     = $this->user_data['user_locale'];
+		$this->user_login      = isset( $this->user_data['login'] ) ? $this->user_data['login'] : '';
+		$this->user_email      = isset( $this->user_data['email'] ) ? $this->user_data['email'] : '';
+		$this->display_name    = isset( $this->user_data['display_name'] ) ? $this->user_data['display_name'] : '';
+		$this->user_site_count = isset( $this->user_data['site_count'] ) ? $this->user_data['site_count'] : '';
+		$this->is_rtl          = isset( $this->user_data['text_direction'] ) && 'rtl' === $this->user_data['text_direction'];
+		$this->user_locale     = isset( $this->user_data['user_locale'] ) ? $this->user_data['user_locale'] : '';
 		$this->site_woa        = ( new Host() )->is_woa_site();
 
 		// Store part of the connected user data as user options so it can be used
@@ -474,7 +480,7 @@ class Masterbar {
 	 * Hide language dropdown on user edit form.
 	 */
 	public function hide_language_dropdown() {
-		add_filter( 'get_available_languages', '__return_null' );
+		add_filter( 'get_available_languages', '__return_empty_array' );
 	}
 
 	/**
@@ -620,7 +626,6 @@ class Masterbar {
 				),
 			)
 		);
-
 	}
 
 	/**
@@ -1257,11 +1262,12 @@ class Masterbar {
 				)
 			);
 
+			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 			if ( is_admin() ) {
 				// In wp-admin the `return` query arg will return to that page after closing the Customizer.
 				$customizer_url = add_query_arg(
 					array(
-						'return' => rawurlencode( site_url( $_SERVER['REQUEST_URI'] ) ),
+						'return' => rawurlencode( site_url( $request_uri ) ),
 					),
 					wp_customize_url()
 				);
@@ -1272,7 +1278,7 @@ class Masterbar {
 				 * non-home URLs won't work unless we undo domain mapping
 				 * since the Customizer preview is unmapped to always have HTTPS.
 				 */
-				$current_page   = '//' . $this->primary_site_slug . $_SERVER['REQUEST_URI'];
+				$current_page   = '//' . $this->primary_site_slug . $request_uri;
 				$customizer_url = add_query_arg( array( 'url' => rawurlencode( $current_page ) ), wp_customize_url() );
 			}
 
@@ -1289,8 +1295,7 @@ class Masterbar {
 				)
 			);
 			$meta        = array(
-				'class' => 'mb-icon',
-				'class' => 'inline-action',
+				'class' => 'mb-icon inline-action',
 			);
 			$href        = false;
 

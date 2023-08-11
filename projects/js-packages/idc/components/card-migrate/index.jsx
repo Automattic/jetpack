@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
+import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
 import { Button, Dashicon } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl, Spinner } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import PropTypes from 'prop-types';
+import React from 'react';
 import { STORE_ID } from '../../state/store';
-import extractHostname from '../../tools/extract-hostname';
 import customContentShape from '../../tools/custom-content-shape';
+import extractHostname from '../../tools/extract-hostname';
 import ErrorMessage from '../error-message';
 
 /**

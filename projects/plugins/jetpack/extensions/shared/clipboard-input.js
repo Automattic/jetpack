@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
 import { ClipboardButton, TextControl } from '@wordpress/components';
+import { Component } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 
-/**
- * Internal dependencies
- */
 import './clipboard-input.scss';
 
 class ClipboardInput extends Component {

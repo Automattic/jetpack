@@ -5,6 +5,96 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.0] - 2023-07-18
+### Added
+- Transferred 'get_calypso_env()' method from Jetpack plugin. [#31906]
+
+## [1.17.2] - 2023-06-19
+### Changed
+- Use Plans package to detect feature support. [#31213]
+
+## [1.17.1] - 2023-05-11
+### Changed
+- PHP 8.1 compatibility updates [#30517]
+
+## [1.17.0] - 2023-04-17
+### Changed
+- When Jetpack is available, `Modules::get()` no longer translates `module_tags`. Use Jetpack's `jetpack_get_module_i18n_tag()` function if you need translations. [#30067]
+
+## [1.16.4] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.16.3] - 2023-03-28
+### Changed
+- Move brute force protection into WAF package. [#28401]
+
+## [1.16.2] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.16.1] - 2023-01-23
+### Added
+- Add new filters for the latest status methods [#28328]
+
+## [1.16.0] - 2023-01-16
+### Added
+- Add 2 new methods to detect whether a site is private or not. [#28322]
+
+## [1.15.4] - 2023-01-11
+### Changed
+- Modules: Allow for deactivating multiple plugins when activating a module. [#28181]
+
+## [1.15.3] - 2022-12-19
+### Changed
+- Updated package dependencies.
+
+## [1.15.2] - 2022-12-02
+### Changed
+- Updated package dependencies. [#27688]
+
+## [1.15.1] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.15.0] - 2022-11-07
+### Added
+- WordPress.com: add checks for Simple or either Simple/WoA. [#27278]
+
+## [1.14.3] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [1.14.2] - 2022-07-19
+### Changed
+- Update logic in `is_woa_site` function for host changes [#25067]
+
+## [1.14.1] - 2022-06-21
+### Changed
+- Renaming master to trunk.
+
+## [1.14.0] - 2022-06-14
+### Fixed
+- Moved the connection_url_redirect action handling to the connection package. [#24529]
+
+## [1.13.6] - 2022-05-24
+### Added
+- Allow plugins to filter the list of available modules. Only activate and consider active modules that are available [#24454]
+
+## [1.13.5] - 2022-05-20
+### Changed
+- Modules: Make activate() method Jetpack plugin agnostic. Allowing standalone plugins to use it without Jetpack.
+
+## [1.13.4] - 2022-05-19
+### Added
+- PHPCS updates. [#24418]
+
+## [1.13.3] - 2022-05-10
+
+## [1.13.2] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
 ## [1.13.1] - 2022-04-19
 ### Changed
 - PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
@@ -174,6 +264,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[1.18.0]: https://github.com/Automattic/jetpack-status/compare/v1.17.2...v1.18.0
+[1.17.2]: https://github.com/Automattic/jetpack-status/compare/v1.17.1...v1.17.2
+[1.17.1]: https://github.com/Automattic/jetpack-status/compare/v1.17.0...v1.17.1
+[1.17.0]: https://github.com/Automattic/jetpack-status/compare/v1.16.4...v1.17.0
+[1.16.4]: https://github.com/Automattic/jetpack-status/compare/v1.16.3...v1.16.4
+[1.16.3]: https://github.com/Automattic/jetpack-status/compare/v1.16.2...v1.16.3
+[1.16.2]: https://github.com/Automattic/jetpack-status/compare/v1.16.1...v1.16.2
+[1.16.1]: https://github.com/Automattic/jetpack-status/compare/v1.16.0...v1.16.1
+[1.16.0]: https://github.com/Automattic/jetpack-status/compare/v1.15.4...v1.16.0
+[1.15.4]: https://github.com/Automattic/jetpack-status/compare/v1.15.3...v1.15.4
+[1.15.3]: https://github.com/Automattic/jetpack-status/compare/v1.15.2...v1.15.3
+[1.15.2]: https://github.com/Automattic/jetpack-status/compare/v1.15.1...v1.15.2
+[1.15.1]: https://github.com/Automattic/jetpack-status/compare/v1.15.0...v1.15.1
+[1.15.0]: https://github.com/Automattic/jetpack-status/compare/v1.14.3...v1.15.0
+[1.14.3]: https://github.com/Automattic/jetpack-status/compare/v1.14.2...v1.14.3
+[1.14.2]: https://github.com/Automattic/jetpack-status/compare/v1.14.1...v1.14.2
+[1.14.1]: https://github.com/Automattic/jetpack-status/compare/v1.14.0...v1.14.1
+[1.14.0]: https://github.com/Automattic/jetpack-status/compare/v1.13.6...v1.14.0
+[1.13.6]: https://github.com/Automattic/jetpack-status/compare/v1.13.5...v1.13.6
+[1.13.5]: https://github.com/Automattic/jetpack-status/compare/v1.13.4...v1.13.5
+[1.13.4]: https://github.com/Automattic/jetpack-status/compare/v1.13.3...v1.13.4
+[1.13.3]: https://github.com/Automattic/jetpack-status/compare/v1.13.2...v1.13.3
+[1.13.2]: https://github.com/Automattic/jetpack-status/compare/v1.13.1...v1.13.2
 [1.13.1]: https://github.com/Automattic/jetpack-status/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/Automattic/jetpack-status/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/Automattic/jetpack-status/compare/v1.11.2...v1.12.0

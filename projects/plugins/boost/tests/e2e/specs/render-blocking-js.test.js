@@ -14,12 +14,12 @@ test.describe( 'Render Blocking JS module', () => {
 	} );
 
 	test( 'JavaScript on a post should be at its original position in the document when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'render-blocking-js' ] ).build();
+		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'render_blocking_js' ] ).build();
 		const frontend = await PostFrontendPage.visit( page );
 		await frontend.click( `text=${ testPostTitle }` );
 		// For this test we are checking if the JavaScript from the test content is still inside its original parent element
 		// which has the "render-blocking-js" class.
-		const script = await page.locator( '#blockingScript' );
+		const script = page.locator( '#blockingScript' );
 		expect(
 			await script.evaluate( element =>
 				element.parentElement.classList.contains( 'render-blocking-js' )
@@ -33,10 +33,10 @@ test.describe( 'Render Blocking JS module', () => {
 		// Since the render blocking js module grab all JavaScript from a document and pushed it at the bottom of the DOM.
 		// For this test we are checking if the JavaScript from the test content is not anymore in its parent element.
 		// which has the "render-blocking-js" class.
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'render-blocking-js' ] ).build();
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'render_blocking_js' ] ).build();
 		const frontend = await PostFrontendPage.visit( page );
 		await frontend.click( `text=${ testPostTitle }` );
-		const script = await page.locator( '#blockingScript' );
+		const script = page.locator( '#blockingScript' );
 		expect(
 			await script.evaluate( element =>
 				element.parentElement.classList.contains( 'render-blocking-js' )

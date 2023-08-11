@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import {
 	initializeTracks,
 	identifySite as identifySiteTracks,

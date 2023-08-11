@@ -23,7 +23,10 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+		array(
+			'render_callback' => __NAMESPACE__ . '\render_block',
+			'uses_context'    => array( 'jetpack/parentBlockWidth' ),
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
@@ -102,6 +105,12 @@ function get_button_classes( $attributes ) {
 	$has_named_gradient          = array_key_exists( 'gradient', $attributes );
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
+	$has_font_size               = array_key_exists( 'fontSize', $attributes );
+
+	if ( $has_font_size ) {
+		$classes[] = 'has-' . $attributes['fontSize'] . '-font-size';
+		$classes[] = 'has-custom-font-size';
+	}
 
 	if ( $has_class_name ) {
 		$classes[] = $attributes['className'];
@@ -154,6 +163,22 @@ function get_button_styles( $attributes ) {
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
 	$has_width                   = array_key_exists( 'width', $attributes );
+	$has_font_family             = array_key_exists( 'fontFamily', $attributes );
+	$has_typography_styles       = array_key_exists( 'style', $attributes ) && array_key_exists( 'typography', $attributes['style'] );
+	$has_custom_font_size        = $has_typography_styles && array_key_exists( 'fontSize', $attributes['style']['typography'] );
+	$has_custom_text_transform   = $has_typography_styles && array_key_exists( 'textTransform', $attributes['style']['typography'] );
+
+	if ( $has_font_family ) {
+		$styles[] = sprintf( 'font-family: %s;', $attributes['fontFamily'] );
+	}
+
+	if ( $has_custom_font_size ) {
+		$styles[] = sprintf( 'font-size: %s;', $attributes['style']['typography']['fontSize'] );
+	}
+
+	if ( $has_custom_text_transform ) {
+		$styles[] = sprintf( 'text-transform: %s;', $attributes['style']['typography']['textTransform'] );
+	}
 
 	if ( ! $has_named_text_color && $has_custom_text_color ) {
 		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );

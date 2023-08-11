@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * Class Jetpack_Media_Summary
  *
@@ -60,11 +62,7 @@ class Jetpack_Media_Summary {
 		}
 
 		if ( ! class_exists( 'Jetpack_Media_Meta_Extractor' ) ) {
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				jetpack_require_lib( 'class.wpcom-media-meta-extractor' );
-			} else {
-				jetpack_require_lib( 'class.media-extractor' );
-			}
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-extractor.php';
 		}
 
 		$post      = get_post( $post_id );
@@ -100,6 +98,7 @@ class Jetpack_Media_Summary {
 			if ( $switched ) {
 				restore_current_blog();
 			}
+			self::$cache[ $cache_key ] = $return;
 			return $return;
 		}
 
@@ -143,7 +142,7 @@ class Jetpack_Media_Summary {
 								$return['secure']['video'] = $return['video'];
 							}
 						}
-						$return['count']['video']++;
+						++$return['count']['video'];
 						break;
 					case 'youtube':
 						if ( 0 === $return['count']['video'] ) {
@@ -153,7 +152,7 @@ class Jetpack_Media_Summary {
 							$return['secure']['video'] = self::https( $return['video'] );
 							$return['secure']['image'] = self::https( $return['image'] );
 						}
-						$return['count']['video']++;
+						++$return['count']['video'];
 						break;
 					case 'vimeo':
 						if ( 0 === $return['count']['video'] ) {
@@ -168,7 +167,7 @@ class Jetpack_Media_Summary {
 								$return['secure']['image'] = 'https://secure-a.vimeocdn.com' . $poster_url_parts['path'];
 							}
 						}
-						$return['count']['video']++;
+						++$return['count']['video'];
 						break;
 				}
 			}
@@ -203,7 +202,7 @@ class Jetpack_Media_Summary {
 							$return['secure']['image'] = self::https( $return['image'] );
 						}
 					}
-					$return['count']['video']++;
+					++$return['count']['video'];
 				}
 			}
 		}
@@ -220,7 +219,7 @@ class Jetpack_Media_Summary {
 					unset( $paragraphs[ $i ] );
 					continue;
 				}
-				$number_of_paragraphs++;
+				++$number_of_paragraphs;
 			}
 
 			$number_of_paragraphs = $number_of_paragraphs - $return['count']['video']; // subtract amount for videos.
@@ -239,7 +238,7 @@ class Jetpack_Media_Summary {
 				$return['images'] = $extract['image'];
 				foreach ( $return['images'] as $image ) {
 					$return['secure']['images'][] = array( 'url' => self::ssl_img( $image['url'] ) );
-					$return['count']['image']++;
+					++$return['count']['image'];
 				}
 			} elseif ( ! empty( $extract['has']['image'] ) ) {
 				// ... Or we try and select a single image that would make sense.
@@ -258,14 +257,14 @@ class Jetpack_Media_Summary {
 						unset( $paragraphs[ $i ] );
 						continue;
 					}
-					$number_of_paragraphs++;
+					++$number_of_paragraphs;
 				}
 
 				$return['image']           = $extract['image'][0]['url'];
 				$return['secure']['image'] = self::ssl_img( $return['image'] );
-				$return['count']['image']++;
+				++$return['count']['image'];
 
-				if ( $number_of_paragraphs <= 2 && 1 === count( $extract['image'] ) ) {
+				if ( $number_of_paragraphs <= 2 && is_countable( $extract['image'] ) && 1 === count( $extract['image'] ) ) {
 					// If we have lots of text or images, let's not treat it as an image post, but return its first image.
 					$return['type'] = 'image';
 				}
@@ -313,7 +312,7 @@ class Jetpack_Media_Summary {
 		if ( false !== strpos( $url, 'files.wordpress.com' ) ) {
 			return self::https( $url );
 		} else {
-			return self::https( jetpack_photon_url( $url ) );
+			return self::https( Image_CDN_Core::cdn_url( $url ) );
 		}
 	}
 

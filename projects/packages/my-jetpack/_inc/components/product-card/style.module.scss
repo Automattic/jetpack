@@ -17,14 +17,6 @@
 		background-color: var( --jp-white-off );
 		color: var( --jp-black-80 );
 
-		&:hover {
-			background-color: var( --jp-white );
-
-			.action-link-button {
-				text-decoration-thickness: var(--jp-underline-thickness);
-			}
-		}
-
 		&:focus {
 			box-shadow: 0 0 0 1.5px var( --jp-black );
 			background-color: var( --jp-white );
@@ -37,23 +29,25 @@
 	}
 }
 
-.name {
+.title {
 	width: 100%;
 	display: flex;
+	gap: var(--spacing-base);
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: var(--spacing-base); // 8px
+	margin-bottom: calc( var(--spacing-base) * 3 ); // 24px
+}
+
+.name {
+	display: flex;
+	height: 100%;
+	gap: var(--spacing-base);
+	align-items: center;
+	flex-wrap: wrap-reverse;
 }
 
 .description {
 	flex-grow: 1;
-}
-
-.button {
-	font-size: var(--font-body-extra-small);
-	border-radius: var(--jp-border-radius);
-	height: var(--actions-size);
-	line-height: var(--actions-size);
 }
 
 .actions {
@@ -66,12 +60,7 @@
 	flex-wrap: wrap;
 }
 
-.action-link-button{
-	text-decoration: underline;
-}
-
 .status {
-	margin-left: var(--spacing-base); // 8px
 	white-space: nowrap;
 	height: var(--actions-size);
 	display: flex;

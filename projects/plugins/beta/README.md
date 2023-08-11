@@ -1,7 +1,7 @@
 # Jetpack Beta Tester
 
 This plugin can be used **alongside [the Jetpack plugin](https://wordpress.org/plugins/jetpack/)**, and will allow you run specific versions of Jetpack on your site:
-- Bleeding Edge (`master`)
+- Bleeding Edge (`master` or `trunk`)
 - Release Candidates (latest Beta releases)
 - Feature branches ([branches currently being worked on in the Jetpack repository](https://github.com/Automattic/Jetpack/pulls))
 - SVN Tags ([any existing tag in Jetpack's SVN repo](https://plugins.svn.wordpress.org/jetpack/tags/)): this allows you to install past versions of Jetpack on your site if necessary.

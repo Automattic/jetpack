@@ -13,8 +13,6 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 
 	/**
 	 * Setup.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		add_filter( 'lazyload_images_placeholder_image', array( $this, 'override_image_placeholder' ) );
@@ -41,7 +39,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 					'img',
 					' src="image.jpg"',
 				),
-				'<img src="image.jpg" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" /></noscript>',
+				'<img src="image.jpg" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img data-lazy-fallback="1" src="image.jpg" /></noscript>',
 			),
 			'img_with_other_attributes' => array(
 				array(
@@ -49,7 +47,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 					'img',
 					' src="image.jpg" alt="Alt!"',
 				),
-				'<img src="image.jpg" alt="Alt!" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" alt="Alt!" /></noscript>',
+				'<img src="image.jpg" alt="Alt!" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img data-lazy-fallback="1" src="image.jpg" alt="Alt!" /></noscript>',
 			),
 			'img_with_srcset'           => array(
 				array(
@@ -58,7 +56,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 					' src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w"',
 
 				),
-				'<img src="image.jpg" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" /></noscript>',
+				'<img src="image.jpg" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img data-lazy-fallback="1" src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" /></noscript>',
 			),
 			'img_with_sizes'            => array(
 				array(
@@ -67,7 +65,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 					' src="image.jpg" sizes="(min-width: 36em) 33.3vw, 100vw"',
 
 				),
-				'<img src="image.jpg" data-lazy-sizes="(min-width: 36em) 33.3vw, 100vw" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img src="image.jpg" sizes="(min-width: 36em) 33.3vw, 100vw" /></noscript>',
+				'<img src="image.jpg" data-lazy-sizes="(min-width: 36em) 33.3vw, 100vw" data-lazy-src="http://image.jpg?is-pending-load=1" srcset="placeholder.jpg" class=" jetpack-lazy-image"><noscript><img data-lazy-fallback="1" src="image.jpg" sizes="(min-width: 36em) 33.3vw, 100vw" /></noscript>',
 			),
 		);
 	}
@@ -277,7 +275,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	 * @dataProvider get_process_image_attributes_data
 	 */
 	public function test_process_image_attributes( $input, $expected_output ) {
-		$this->assertSame( Jetpack_Lazy_Images::process_image_attributes( $input ), $expected_output );
+		$this->assertSame( $expected_output, Jetpack_Lazy_Images::process_image_attributes( $input ) );
 	}
 
 	/**
@@ -468,6 +466,55 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 				'jetpack_lazy_images_skip_image_with_attributes',
 			),
 		);
+	}
+
+	/**
+	 * Test that processing the_content handles adding lazy image support and removing the loading attribute.
+	 */
+	public function test_processing_removes_loading_attribute() {
+		$instance = Jetpack_Lazy_Images::instance();
+		$instance->setup_filters();
+
+		$src = '<img loading="lazy" src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>';
+
+		$processed = apply_filters( 'the_content', $src );
+		$img_tag   = preg_replace( '/<noscript>.*<\/noscript>/', '', $processed );
+
+		$this->assertStringContainsString( 'srcset="placeholder.jpg"', $img_tag );
+		$this->assertStringContainsString( 'src="image.jpg"', $img_tag );
+		$this->assertStringNotContainsString( 'loading="', $img_tag );
+
+		$instance->remove_filters();
+	}
+
+	/**
+	 * Test that processing more than once results in the same output.
+	 */
+	public function test_processing_more_than_once() {
+		$instance = Jetpack_Lazy_Images::instance();
+		$instance->setup_filters();
+
+		$src = '<img loading="lazy" src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>';
+
+		$processed = apply_filters( 'the_content', $src );
+
+		$processed_again = apply_filters( 'the_content', $processed );
+
+		$this->assertSame( $processed, $processed_again );
+
+		$attributes = array(
+			'src'    => 'image.jpg',
+			'srcset' => 'medium.jpg 1000w, large.jpg 2000w',
+		);
+
+		$processed_attrs = $instance->process_image_attributes( $attributes );
+
+		$processed_attrs_again = $instance->process_image_attributes( $processed_attrs );
+
+		// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.PHP.StrictComparisons.LooseEqual.
+		$this->assertTrue( $processed_attrs == $processed_attrs_again, 'Attributes are not the same after processing twice.' );
+
+		$instance->remove_filters();
 	}
 
 	/*

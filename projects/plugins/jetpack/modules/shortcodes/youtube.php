@@ -68,7 +68,7 @@ function youtube_embed_to_short_code( $content ) {
 				$params = $match[1];
 
 				if ( in_array( $reg, array( 'ifr_regexp_ent', 'regexp_ent' ), true ) ) {
-					$params = html_entity_decode( $params );
+					$params = html_entity_decode( $params, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 				}
 
 				$params = wp_kses_hair( $params, array( 'http' ) );
@@ -85,7 +85,7 @@ function youtube_embed_to_short_code( $content ) {
 			} else {
 				$match[1] = str_replace( '?', '&', $match[1] );
 
-				$url = esc_url_raw( 'https://www.youtube.com/watch?v=' . html_entity_decode( $match[1] ) );
+				$url = esc_url_raw( 'https://www.youtube.com/watch?v=' . html_entity_decode( $match[1], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) );
 			}
 
 			$content = str_replace( $match[0], "[youtube $url]", $content );
@@ -452,6 +452,7 @@ add_shortcode( 'youtube', 'youtube_shortcode' );
  * @return array The width and height of the shortcode.
  */
 function jetpack_shortcode_youtube_dimensions( $query_args ) {
+	$h = null;
 	global $content_width;
 
 	$input_w = ( isset( $query_args['w'] ) && (int) $query_args['w'] ) ? (int) $query_args['w'] : 0;
@@ -483,13 +484,11 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 	} elseif ( $input_w > 0 ) {
 		$w = $input_w;
 		$h = ceil( ( $w / 16 ) * 9 );
+	} elseif ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
+		$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
 	} else {
-		if ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
-			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
-		} else {
-			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
-			$h = $input_h;
-		}
+		$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
+		$h = $input_h;
 	}
 
 	/**

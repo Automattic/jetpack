@@ -50,7 +50,7 @@ jQuery( function ( $ ) {
 		requestOptions[ nonceName ] = nonce;
 
 		$.post( ajaxurl, requestOptions )
-			.fail( function ( result ) {
+			.fail( function () {
 				// An error is only returned in the case of a missing nonce or invalid permissions, so we don't need the actual error message.
 				window.location.href = failureUrl;
 				return;
@@ -121,4 +121,193 @@ jQuery( function ( $ ) {
 				}
 			} );
 	}
+
+	// Async handling for response table actions
+	$( document ).ready( function () {
+		function updateStatus( postId, status, indicatorColor ) {
+			$.post(
+				ajaxurl,
+				{
+					action: 'grunion_ajax_spam',
+					post_id: postId,
+					make_it: status,
+					sub_menu: jQuery( '.subsubsub .current' ).attr( 'href' ),
+					_ajax_nonce: window.__grunionPostStatusNonce,
+				},
+				function ( response ) {
+					$( '#post-' + postId )
+						.css( { backgroundColor: indicatorColor } )
+						.fadeOut( 350, function () {
+							$( this ).remove();
+							$( '.subsubsub' ).html( response );
+						} );
+				}
+			);
+		}
+
+		$( 'tr.type-feedback .row-actions a' ).click( function ( e ) {
+			e.preventDefault();
+
+			var postRowId = $( e.target ).closest( 'tr.type-feedback' ).attr( 'id' );
+			var match = postRowId.match( /^post\-(\d+)/ );
+
+			if ( ! match ) {
+				return;
+			}
+
+			var postId = parseInt( match[ 1 ], 10 );
+
+			if ( $( e.target ).parent().hasClass( 'spam' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'spam', '#FF7979' );
+			}
+
+			if ( $( e.target ).parent().hasClass( 'trash' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'trash', '#FF7979' );
+			}
+
+			if ( $( e.target ).parent().hasClass( 'unspam' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'ham', '#59C859' );
+			}
+
+			if ( $( e.target ).parent().hasClass( 'untrash' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'publish', '#59C859' );
+			}
+		} );
+	} );
+
+	function startPollingConnection( { name, value } ) {
+		let hasConnection = false;
+		let replacementHtml = null;
+		let interval = setInterval( function () {
+			if ( hasConnection ) {
+				return;
+			}
+			$.post(
+				ajaxurl,
+				{
+					action: 'grunion_gdrive_connection',
+					[ name ]: value,
+				},
+				function ( data ) {
+					if ( data && data.connection && data.html ) {
+						clearInterval( interval );
+						hasConnection = true;
+						replacementHtml = $( data.html );
+						$( '#jetpack-form-responses-connect' ).replaceWith( replacementHtml );
+					}
+				}
+			).fail( function () {
+				clearInterval( interval );
+			} );
+		}, 5000 );
+	}
+
+	$( document ).on( 'click', '#jetpack-form-responses-connect', function () {
+		const $this = $( this );
+		const name = $this.data( 'nonce-name' );
+		const value = $( '#' + name ).attr( 'value' );
+		$this.attr( 'disabled', 'disabled' );
+		$this.text(
+			( window.exportParameters && window.exportParameters.waitingConnection ) ||
+				'Waiting for connection...'
+		);
+		startPollingConnection( { name, value } );
+	} );
+
+	// Handle export to Google Drive
+	$( document ).on( 'click', '#jetpack-export-feedback-gdrive', function ( event ) {
+		event.preventDefault();
+		var $btn = $( event.target );
+		var nonceName = $btn.data( 'nonce-name' );
+		var nonce = $( '#' + nonceName ).attr( 'value' );
+		var date = window.location.search.match( /(\?|\&)m=(\d+)/ );
+		var post = window.location.search.match( /(\?|\&)jetpack_form_parent_id=(\d+)/ );
+
+		var selected = [];
+		$( '#posts-filter .check-column input[type=checkbox]:checked' ).each( function () {
+			selected.push( parseInt( $( this ).attr( 'value' ), 10 ) );
+		} );
+
+		var errorMessage =
+			( window.exportParameters && window.exportParameters.exportError ) ||
+			'There was an error exporting your results';
+
+		$btn.attr( 'disabled', 'disabled' );
+		$.post(
+			ajaxurl,
+			{
+				action: 'grunion_export_to_gdrive',
+				year: date ? date[ 2 ].substr( 0, 4 ) : '',
+				month: date ? date[ 2 ].substr( 4, 2 ) : '',
+				post: post ? parseInt( post[ 2 ], 10 ) : 'all',
+				selected: selected,
+				[ nonceName ]: nonce,
+			},
+			function ( payload, status ) {
+				if ( status === 'success' && payload.data && payload.data.sheet_link ) {
+					window.open( payload.data.sheet_link, '_blank' );
+				}
+			}
+		)
+			.fail( function () {
+				window.alert( errorMessage );
+			} )
+			.always( function () {
+				$btn.removeAttr( 'disabled' );
+			} );
+	} );
+
+	// Handle export to CSV
+	$( document ).on( 'click', '#jetpack-export-feedback-csv', function ( e ) {
+		e.preventDefault();
+
+		var nonceName = $( e.target ).data( 'nonce-name' );
+		var nonce = $( '#' + nonceName ).attr( 'value' );
+
+		var date = window.location.search.match( /(\?|\&)m=(\d+)/ );
+		var post = window.location.search.match( /(\?|\&)jetpack_form_parent_id=(\d+)/ );
+
+		var selected = [];
+		$( '#posts-filter .check-column input[type=checkbox]:checked' ).each( function () {
+			selected.push( parseInt( $( this ).attr( 'value' ), 10 ) );
+		} );
+
+		$.post(
+			ajaxurl,
+			{
+				action: 'feedback_export',
+				year: date ? date[ 2 ].substr( 0, 4 ) : '',
+				month: date ? date[ 2 ].substr( 4, 2 ) : '',
+				post: post ? parseInt( post[ 2 ], 10 ) : 'all',
+				selected: selected,
+				[ nonceName ]: nonce,
+			},
+			function ( response, status, xhr ) {
+				var blob = new Blob( [ response ], { type: 'application/octetstream' } );
+				var a = document.createElement( 'a' );
+				a.href = window.URL.createObjectURL( blob );
+
+				// Get filename from backend headers
+				var contentDispositionHeader = xhr.getResponseHeader( 'content-disposition' );
+				a.download =
+					contentDispositionHeader.split( 'filename=' )[ 1 ] || 'Jetpack Form Responses.csv';
+
+				document.body.appendChild( a );
+				a.click();
+				document.body.removeChild( a );
+				window.URL.revokeObjectURL( a.href );
+			}
+		);
+	} );
+
+	// modal opener
+	$( document ).on( 'click', '#export-modal-opener', function ( event ) {
+		const button = $( this );
+		event.preventDefault();
+		window.tb_show( button.html(), button.attr( 'href' ) );
+	} );
 } );

@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * Useful for finding an image to display alongside/in representation of a specific post.
  *
@@ -303,7 +305,18 @@ class Jetpack_PostImages {
 				$img_src         = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
 			}
 
-			$url    = $img_src[0];
+			// Let's try to use the postmeta if we can, since it seems to be
+			// more reliable
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$featured_image = get_post_meta( $post->ID, '_jetpack_featured_image' );
+				if ( $featured_image ) {
+					$url = $featured_image[0];
+				} else {
+					$url = $img_src[0];
+				}
+			} else {
+				$url = $img_src[0];
+			}
 			$images = array(
 				array( // Other methods below all return an array of arrays.
 					'type'       => 'image',
@@ -544,6 +557,10 @@ class Jetpack_PostImages {
 		$post      = get_post( $post_id );
 		$permalink = get_permalink( $post_id );
 
+		if ( ! $post instanceof WP_Post ) {
+			return array();
+		}
+
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
 			$url = wpcom_get_avatar_url( $post->post_author, $size, $default, true );
 			if ( $url && is_array( $url ) ) {
@@ -578,10 +595,10 @@ class Jetpack_PostImages {
 	 *
 	 * @param int   $post_id Post ID.
 	 * @param array $args Other arguments (currently width and height required for images where possible to determine).
-	 * @return array containing details of the best image to be used
+	 * @return array|null containing details of the best image to be used, or null if no image is found.
 	 */
 	public static function get_image( $post_id, $args = array() ) {
-		$image = '';
+		$image = null;
 
 		/**
 		 * Fires before we find a single good image for a specific post.
@@ -624,7 +641,7 @@ class Jetpack_PostImages {
 	 */
 	public static function get_images( $post_id, $args = array() ) {
 		// Figure out which image to attach to this post.
-		$media = false;
+		$media = array();
 
 		/**
 		 * Filters the array of images that would be good for a specific post.
@@ -660,7 +677,7 @@ class Jetpack_PostImages {
 		);
 		$args     = wp_parse_args( $args, $defaults );
 
-		$media = false;
+		$media = array();
 		if ( $args['from_thumbnail'] ) {
 			$media = self::from_thumbnail( $post_id, $args['width'], $args['height'] );
 		}
@@ -709,6 +726,46 @@ class Jetpack_PostImages {
 	}
 
 	/**
+	 * Takes an image and base pixel dimensions and returns a srcset for the
+	 * resized and cropped images, based on a fixed set of multipliers.
+	 *
+	 * @param  array $image Array containing details of the image.
+	 * @param  int   $base_width Base image width (i.e., the width at 1x).
+	 * @param  int   $base_height Base image height (i.e., the height at 1x).
+	 * @return string The srcset for the image.
+	 */
+	public static function generate_cropped_srcset( $image, $base_width, $base_height ) {
+		$srcset = '';
+
+		if ( ! is_array( $image ) || empty( $image['src'] ) || empty( $image['src_width'] ) ) {
+			return $srcset;
+		}
+
+		$multipliers   = array( 1, 1.5, 2, 3, 4 );
+		$srcset_values = array();
+		foreach ( $multipliers as $multiplier ) {
+			$srcset_width  = (int) ( $base_width * $multiplier );
+			$srcset_height = (int) ( $base_height * $multiplier );
+			if ( $srcset_width < 1 || $srcset_width > $image['src_width'] ) {
+				break;
+			}
+
+			$srcset_url      = self::fit_image_url(
+				$image['src'],
+				$srcset_width,
+				$srcset_height
+			);
+			$srcset_values[] = "{$srcset_url} {$multiplier}x";
+		}
+
+		if ( count( $srcset_values ) > 1 ) {
+			$srcset = implode( ', ', $srcset_values );
+		}
+
+		return $srcset;
+	}
+
+	/**
 	 * Takes an image URL and pixel dimensions then returns a URL for the
 	 * resized and cropped image.
 	 *
@@ -752,9 +809,9 @@ class Jetpack_PostImages {
 			);
 		}
 
-		// Use Photon magic.
-		if ( function_exists( 'jetpack_photon_url' ) ) {
-			return jetpack_photon_url( $src, array( 'resize' => "$width,$height" ) );
+		// Use image cdn magic.
+		if ( class_exists( Image_CDN_Core::class ) && method_exists( Image_CDN_Core::class, 'cdn_url' ) ) {
+			return Image_CDN_Core::cdn_url( $src, array( 'resize' => "$width,$height" ) );
 		}
 
 		// Arg... no way to resize image using WordPress.com infrastructure!

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<ruleset>
+
+	<!-- Don't care about this stuff for test files. -->
+	<rule ref="Generic.Commenting.DocComment.MissingShort"><severity>0</severity></rule>
+	<rule ref="Generic.Commenting.DocComment.ShortNotCapital"><severity>0</severity></rule>
+	<rule ref="PSR2.Methods.MethodDeclaration.Underscore"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.BlockComment.CloserSameLine"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.BlockComment.NoCapital"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.ClassComment.Missing"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.ClassComment.WrongStyle"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.FileComment.Missing"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.FunctionComment.EmptyThrows"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.FunctionComment.Missing"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.FunctionComment.MissingParamComment"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.FunctionComment.MissingParamName"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.FunctionComment.MissingParamTag"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.FunctionComment.ParamCommentFullStop"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.FunctionCommentThrowTag.Missing"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.FunctionComment.WrongStyle"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.VariableComment.Missing"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.VariableComment.MissingVar"><severity>0</severity></rule>
+	<rule ref="Squiz.Commenting.VariableComment.WrongStyle"><severity>0</severity></rule>
+	<rule ref="Squiz.PHP.CommentedOutCode.Found"><severity>0</severity></rule>
+	<rule ref="Universal.Operators.DisallowShortTernary.Found"><severity>0</severity></rule>
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName"><severity>0</severity></rule>
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase"><severity>0</severity></rule>
+	<rule ref="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"><severity>0</severity></rule>
+	<rule ref="WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase"><severity>0</severity></rule>
+	<rule ref="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase"><severity>0</severity></rule>
+	<rule ref="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"><severity>0</severity></rule>
+	<rule ref="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"><severity>0</severity></rule>
+	<rule ref="WordPress.PHP.DevelopmentFunctions.error_log_print_r"><severity>0</severity></rule>
+	<rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped"><severity>0</severity></rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_fopen"><severity>0</severity></rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.parse_url_parse_url"><severity>0</severity></rule>
+
+</ruleset>

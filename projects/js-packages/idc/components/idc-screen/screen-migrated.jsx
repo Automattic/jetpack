@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
+import { Spinner } from '@automattic/jetpack-components';
 import { Button, Dashicon } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Spinner } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import extractHostname from '../../tools/extract-hostname';
+import PropTypes from 'prop-types';
+import React from 'react';
 import customContentShape from '../../tools/custom-content-shape';
+import extractHostname from '../../tools/extract-hostname';
 
 /**
  * Retrieve the migrated screen body.

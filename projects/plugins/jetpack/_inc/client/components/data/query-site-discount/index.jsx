@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import { fetchSiteDiscount, isFetchingSiteDiscount } from 'state/site';
 
 class QuerySiteDiscount extends Component {

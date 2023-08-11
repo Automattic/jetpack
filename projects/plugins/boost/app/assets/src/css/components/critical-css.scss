@@ -94,13 +94,13 @@
 		flex-grow: 1;
 		position: relative;
 
-		.successes {
+		.successes, .generating {
 			color: $gray_40;
+			margin-right: 115px;
 		}
 
 		.failures {
 			color: $gray_100;
-			max-width: 25em;
 
 			svg {
 				position: absolute;
@@ -168,6 +168,7 @@
 }
 
 .jb-premium-cta {
+	width: 100%;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -175,6 +176,8 @@
 	margin: 32px 0;
 	border: 2px solid $jetpack-green;
 	border-radius: $border-radius;
+	background-color: #ffffff;
+	text-align: left;
 	cursor: pointer;
 
 	p {

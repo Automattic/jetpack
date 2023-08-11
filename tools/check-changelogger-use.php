@@ -98,9 +98,9 @@ if ( $verbose ) {
 	 */
 	function debug( ...$args ) {
 		if ( getenv( 'CI' ) ) {
-			$args[0] = "\e[34m${args[0]}\e[0m\n";
+			$args[0] = "\e[34m{$args[0]}\e[0m\n";
 		} else {
-			$args[0] = "\e[1;30m${args[0]}\e[0m\n";
+			$args[0] = "\e[1;30m{$args[0]}\e[0m\n";
 		}
 		fprintf( STDERR, ...$args );
 	}
@@ -183,7 +183,8 @@ while ( ( $line = fgets( $pipes[1] ) ) ) {
 		continue;
 	}
 	if ( $parts[3] === $changelogger_projects[ $slug ]['changelog'] ) {
-		debug( 'Ignoring changelog file %s.', $line );
+		debug( 'PR touches changelog file %s, marking %s as having a change file.', $line, $slug );
+		$ok_projects[ $slug ] = true;
 		continue;
 	}
 	if ( $parts[3] === $changelogger_projects[ $slug ]['changes-dir'] ) {
@@ -264,7 +265,7 @@ if ( $status ) {
 // Offer to merge, if applicable.
 if ( $unmerged_projects && $maybe_merge ) {
 	echo "The following change entry files exist and are needed but are not committed.\n";
-	echo ' - ' . join( "\n - ", array_merge( ...( array_values( $unmerged_projects ) ) ) ) . "\n";
+	echo ' - ' . implode( "\n - ", array_merge( ...( array_values( $unmerged_projects ) ) ) ) . "\n";
 	echo 'Shall I merge them for you? [Y/n] ';
 	$do_merge = null;
 	while ( $do_merge === null ) {
@@ -291,7 +292,7 @@ if ( $unmerged_projects && $maybe_merge ) {
 			if ( ! $p ) {
 				exit( 1 );
 			}
-			$str = join( "\0", array_merge( ...( array_values( $unmerged_projects ) ) ) );
+			$str = implode( "\0", array_merge( ...( array_values( $unmerged_projects ) ) ) );
 			while ( $str !== '' ) {
 				$l = fwrite( $pipes[0], $str );
 				if ( $l === false ) {
@@ -326,7 +327,7 @@ foreach ( $touched_projects as $slug => $files ) {
 			$msg   = sprintf(
 				$msg,
 				$slug,
-				join( $ct > 2 ? ', ' : ' ', $unmerged_projects[ $slug ] )
+				implode( $ct > 2 ? ', ' : ' ', $unmerged_projects[ $slug ] )
 			);
 			$msg2  = '';
 			$exit |= 4;
@@ -336,7 +337,7 @@ foreach ( $touched_projects as $slug => $files ) {
 				$slug,
 				"projects/$slug/{$changelogger_projects[ $slug ]['changes-dir']}/"
 			);
-			$msg2  = sprintf( "\n\nUse `jetpack changelogger add %s` to add a change file.\nGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md", $slug );
+			$msg2  = sprintf( "\n\nUse `jetpack changelogger add %s` to add a change file.\nGuidelines: https://github.com/Automattic/jetpack/blob/trunk/docs/writing-a-good-changelog-entry.md", $slug );
 			$exit |= 2;
 		}
 
@@ -352,7 +353,7 @@ foreach ( $touched_projects as $slug => $files ) {
 }
 if ( ( $exit & 2 ) && ! getenv( 'CI' ) && ! $list ) {
 	printf( "\e[32mUse `jetpack changelogger add <slug>` to add a change file for each project.\e[0m\n" );
-	printf( "\e[32mGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md\e[0m\n" );
+	printf( "\e[32mGuidelines: https://github.com/Automattic/jetpack/blob/trunk/docs/writing-a-good-changelog-entry.md\e[0m\n" );
 }
 
 exit( $exit );

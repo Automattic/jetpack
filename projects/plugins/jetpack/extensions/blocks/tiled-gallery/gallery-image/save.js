@@ -1,8 +1,5 @@
-/**
- * External Dependencies
- */
-import classnames from 'classnames';
 import { isBlobURL } from '@wordpress/blob';
+import classnames from 'classnames';
 
 export default function GalleryImageSave( props ) {
 	const { alt, imageFilter, height, id, link, linkTo, origUrl, url, width } = props;
@@ -15,7 +12,7 @@ export default function GalleryImageSave( props ) {
 
 	switch ( linkTo ) {
 		case 'media':
-			href = url;
+			href = origUrl;
 			break;
 		case 'attachment':
 			href = link;

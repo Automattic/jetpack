@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 
-require_jetpack_file( 'modules/widget-visibility/widget-conditions.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/widget-visibility/widget-conditions.php';
 
 /**
  * Test class for Jetpack_Widget_Conditions (widget visibility)
@@ -34,7 +34,7 @@ class WP_Test_Jetpack_Widget_Conditions extends WP_UnitTestCase {
 		// Expect to see the same block. Clone it, just in case the function modifies its parameters.
 		$expected   = unserialize( serialize( $block ) );
 		$return_val = Jetpack_Widget_Conditions::filter_widget( $block );
-		$this->assertSame( $return_val, $expected );
+		$this->assertSame( $expected, $return_val );
 
 		// Block with rule for "Display only when logged in" (Will fail during unit tests).
 		// Expect to see: False ("Not allowed to display").
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Widget_Conditions extends WP_UnitTestCase {
 		$block         = array( 'content' => $block_content );
 		$expected      = false;
 		$return_val    = Jetpack_Widget_Conditions::filter_widget( $block );
-		$this->assertSame( $return_val, $expected );
+		$this->assertSame( $expected, $return_val );
 
 		// Block with no rules:.
 		$block_content = '<!-- wp:paragraph -->'
@@ -54,6 +54,6 @@ class WP_Test_Jetpack_Widget_Conditions extends WP_UnitTestCase {
 		// Expect to see the same block. Clone it, just in case the function modifies its parameters.
 		$expected   = unserialize( serialize( $block ) );
 		$return_val = Jetpack_Widget_Conditions::filter_widget( $block );
-		$this->assertSame( $return_val, $expected );
+		$this->assertSame( $expected, $return_val );
 	}
 }

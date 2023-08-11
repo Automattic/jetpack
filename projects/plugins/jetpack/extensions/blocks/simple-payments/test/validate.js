@@ -1,22 +1,11 @@
-/**
- * Internal dependencies
- */
 import { settings } from '../';
 import runBlockFixtureTests from '../../../shared/test/block-fixtures';
 
-// this is necessary because block editor store becomes unregistered during jest initialization
-import { register } from '@wordpress/data';
-import { store as blockEditorStore } from '@wordpress/block-editor';
-register( blockEditorStore );
-
+const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );
 beforeEach( () => {
-	Intl.NumberFormat = jest
-		.fn()
+	intlNumberFormatSpy
+		.mockReset()
 		.mockImplementation( () => ( { format: value => `A$${ value.toString() }.00` } ) );
-} );
-
-afterEach( () => {
-	jest.resetAllMocks();
 } );
 
 // Need to include all the blocks involved in rendering this block.

@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { Component, createRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 class JetpackOption extends Component {
 	constructor( ...args ) {
@@ -49,11 +46,11 @@ class JetpackOption extends Component {
 	}
 
 	render() {
-		const { isSelected, option, type } = this.props;
+		const { isSelected, option, type, style } = this.props;
 		return (
 			<li className="jetpack-option">
 				{ type && type !== 'select' && (
-					<input className="jetpack-option__type" type={ type } disabled />
+					<input className="jetpack-option__type" type={ type } readOnly />
 				) }
 				<input
 					type="text"
@@ -63,6 +60,7 @@ class JetpackOption extends Component {
 					onChange={ this.onChangeOption }
 					onKeyDown={ this.onKeyPress }
 					ref={ this.textInput }
+					style={ style }
 				/>
 				{ isSelected && (
 					<Button

@@ -1,12 +1,3 @@
-/**
- * External Dependencies
- */
-import { useWindowDimensions, View } from 'react-native';
-import { concat } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import {
 	store as blockEditorStore,
 	MediaPlaceholder,
@@ -14,19 +5,17 @@ import {
 	useInnerBlocksProps,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { __ } from '@wordpress/i18n';
-import { useState, useEffect, useMemo } from '@wordpress/element';
-import { useSelect, useDispatch } from '@wordpress/data';
 import { useResizeObserver } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
-import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
-import { icon } from '.';
-import styles from './styles.scss';
-import TiledGallerySettings, { DEFAULT_COLUMNS } from './settings';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useState, useEffect, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { concat } from 'lodash';
+import { useWindowDimensions, View } from 'react-native';
 import { getActiveStyleName } from '../../shared/block-styles';
+import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
+import TiledGallerySettings, { DEFAULT_COLUMNS } from './settings';
+import styles from './styles.scss';
+import { icon } from '.';
 
 const TILE_SPACING = 8;
 const MAX_DISPLAYED_COLUMNS_PORTRAIT = 2;

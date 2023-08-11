@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { Warning } from '@wordpress/block-editor';
 import { Icon, warning } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
 import { useProductManagementContext } from './context';
 import { getMessageByProductType } from './utils';
 
