@@ -65,6 +65,7 @@ export default function AiAssistantBar( {
 	clientId: string;
 	className?: string;
 } ) {
+	const wrapperRef = useRef< HTMLDivElement >( null );
 	const inputRef = useRef< HTMLInputElement >( null );
 
 	const { requireUpgrade } = useAIFeature();
@@ -113,7 +114,7 @@ export default function AiAssistantBar( {
 
 	useEffect( () => {
 		// Get the Assistant bar DOM element.
-		const barElement = inputRef.current.closest( '.jetpack-ai-assistant__bar' );
+		const barElement = wrapperRef?.current;
 		if ( ! barElement ) {
 			return;
 		}
@@ -150,7 +151,7 @@ export default function AiAssistantBar( {
 	}, [ debounceUpdateIsMobileMode, isFixed ] );
 
 	return (
-		<div className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
+		<div ref={ wrapperRef } className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
 			{ requireUpgrade && <UpgradePrompt /> }
 			<AIControl
 				ref={ inputRef }
