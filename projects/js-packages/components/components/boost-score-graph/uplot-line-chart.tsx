@@ -40,8 +40,8 @@ function createSerieInfo( label: string, score ) {
 		stroke: getColor( score ),
 		fill: u => {
 			const gradient = u.ctx.createLinearGradient( 0, 0, 0, DEFAULT_DIMENSIONS.height );
-			gradient.addColorStop( 0, getColor( score, '33' ) );
-			gradient.addColorStop( 0.8, getColor( score, '00' ) );
+			gradient.addColorStop( 0, getColor( score, '44' ) );
+			gradient.addColorStop( 1, getColor( score, '11' ) );
 
 			return gradient;
 		}, // use the gradient as fill for the series
