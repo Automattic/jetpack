@@ -51,7 +51,7 @@ class REST_Purchases {
 			);
 		}
 
-		return current_user_can( 'manage_options' );
+		return current_user_can( 'edit_posts' );
 	}
 
 	/**

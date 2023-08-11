@@ -31,6 +31,14 @@ const ActionButton = ( {
 	const { manageUrl, purchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
 
+	const isBusy = isFetching || isInstallingStandalone || isDeactivatingStandalone;
+
+	const buttonState = {
+		variant: ! isBusy ? 'primary' : undefined,
+		disabled: isBusy,
+		className,
+	};
+
 	if ( ! admin ) {
 		return (
 			<Button { ...buttonState } size="small" variant="link" weight="regular">
@@ -41,14 +49,6 @@ const ActionButton = ( {
 			</Button>
 		);
 	}
-
-	const isBusy = isFetching || isInstallingStandalone || isDeactivatingStandalone;
-
-	const buttonState = {
-		variant: ! isBusy ? 'primary' : undefined,
-		disabled: isBusy,
-		className,
-	};
 
 	switch ( status ) {
 		case PRODUCT_STATUSES.ABSENT:

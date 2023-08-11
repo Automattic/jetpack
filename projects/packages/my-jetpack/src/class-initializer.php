@@ -64,7 +64,7 @@ class Initializer {
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			'manage_options',
+			'edit_posts',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
 			0
@@ -177,6 +177,7 @@ class Initializer {
 				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
 				'adminUrl'              => esc_url( admin_url() ),
 				'IDCContainerID'        => static::get_idc_container_id(),
+				'userIsAdmin'           => current_user_can( 'manage_options' ),
 			)
 		);
 
