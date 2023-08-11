@@ -4,7 +4,7 @@
 import { PlainText } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
-import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
+import { forwardRef, useImperativeHandle, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall, check, arrowUp } from '@wordpress/icons';
 import classNames from 'classnames';
@@ -101,6 +101,10 @@ export function AIControl(
 			target: promptUserInputRef,
 		}
 	);
+
+	useEffect( () => {
+		promptUserInputRef.current?.focus();
+	} );
 
 	const actionButtonClasses = classNames( 'jetpack-components-ai-control__controls-prompt_button', {
 		'has-label': showButtonsLabel,
