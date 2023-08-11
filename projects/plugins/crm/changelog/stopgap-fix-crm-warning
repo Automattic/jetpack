@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Introduced a phpcs:ignore directive to unblock pull requests from being merged temporarily.
