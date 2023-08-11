@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
+import { useAiContext, AIControl, ERROR_QUOTA_EXCEEDED } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import { useDispatch } from '@wordpress/data';
@@ -75,18 +75,20 @@ export default function AiAssistantBar( {
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const inputRef = useRef< HTMLInputElement >( null );
 
-	const { requireUpgrade } = useAIFeature();
-
 	const { inputValue, setInputValue, isFixed, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
 
-	const { requestSuggestion, requestingState, stopSuggestion } = useAiContext( {
+	const { requestSuggestion, requestingState, stopSuggestion, requestingError } = useAiContext( {
 		onDone: () => {
 			setTimeout( () => {
 				inputRef.current?.focus?.();
 			}, 10 );
 		},
 	} );
+
+	const { requireUpgrade } = useAIFeature();
+
+	const siteRequireUpgrade = requestingError?.code === ERROR_QUOTA_EXCEEDED || requireUpgrade;
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
@@ -168,17 +170,17 @@ export default function AiAssistantBar( {
 				'is-mobile-mode': isMobileMode,
 			} ) }
 		>
-			{ requireUpgrade && <UpgradePrompt /> }
+			{ siteRequireUpgrade && <UpgradePrompt /> }
 			<AIControl
 				ref={ inputRef }
-				disabled={ requireUpgrade }
+				disabled={ siteRequireUpgrade }
 				value={ isLoading ? undefined : inputValue }
 				placeholder={ isLoading ? loadingPlaceholder : placeholder }
 				onChange={ setInputValue }
 				onSend={ onSend }
 				onStop={ stopSuggestion }
 				state={ requestingState }
-				isOpaque={ requireUpgrade }
+				isOpaque={ siteRequireUpgrade }
 				showButtonsLabel={ ! isMobileMode && ! isFixed }
 			/>
 		</div>
