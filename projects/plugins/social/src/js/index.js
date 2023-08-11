@@ -1,11 +1,10 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { SOCIAL_STORE_ID, SOCIAL_STORE_CONFIG } from '@automattic/jetpack-publicize-components';
 import { createReduxStore, register } from '@wordpress/data';
 import * as WPElement from '@wordpress/element';
 import React from 'react';
 import AdminPage from './components/admin-page';
-import { STORE_ID, storeConfig } from './store';
-
-const store = createReduxStore( STORE_ID, storeConfig );
+const store = createReduxStore( SOCIAL_STORE_ID, SOCIAL_STORE_CONFIG );
 register( store );
 
 /**

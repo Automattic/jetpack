@@ -10,58 +10,90 @@ type PromptTemplatesControlProps = {
 	hasContentBefore: boolean;
 	hasContent: boolean;
 	hasPostTitle: boolean;
-	onPromptSelect: ( prompt: string ) => void;
+	onPromptSelect: ( prompt: { original: string; translated: string } ) => void;
 	onSuggestionSelect: ( suggestion: string ) => void;
 };
 
 type PromptTemplateProps = {
-	description: string;
+	description: {
+		original: string;
+		translated: string;
+	};
 	label: string;
 };
 
 export const defaultPromptTemplate = {
 	label: __( 'Post about…', 'jetpack' ),
-	description: __( 'Write a post about ', 'jetpack' ),
+	description: {
+		original: 'Write a post about ',
+		translated: __( 'Write a post about ', 'jetpack' ),
+	},
 };
 
 const promptTemplates = [
 	defaultPromptTemplate,
-
 	// {
 	// 	label: __( 'Detailed guide on…', 'jetpack' ),
-	// 	description: __( 'Craft a detailed guide ', 'jetpack' ),
+	// 	description: {
+	// 		original: 'Craft a detailed guide ',
+	// 		translated: __( 'Craft a detailed guide ', 'jetpack' ),
+	// 	},
 	// },
 	// {
 	// 	label: __( 'Opinion on trends in…', 'jetpack' ),
-	// 	description: __( 'Write an opinion piece on the current trends in ', 'jetpack' ),
+	// 	description: {
+	// 		original: 'Write an opinion piece on the current trends in ',
+	// 		translated: __( 'Write an opinion piece on the current trends in ', 'jetpack' ),
+	// 	},
 	// },
 	// {
 	// 	label: __( 'Review about…', 'jetpack' ),
-	// 	description: __( 'Write a review about ', 'jetpack' ),
+	// 	description: {
+	// 		original: 'Write a review about ',
+	// 		translated: __( 'Write a review about ', 'jetpack' ),
+	// 	},
 	// },
 	// {
 	// 	label: __( 'Short story in…', 'jetpack' ),
-	// 	description: __( 'Write a short story set in ', 'jetpack' ),
+	// 	description: {
+	// 		original: 'Write a short story set in ',
+	// 		translated: __( 'Write a short story set in ', 'jetpack' ),
+	// 	},
 	// },
 	{
 		label: __( 'Informative article on…', 'jetpack' ),
-		description: __( 'Craft an informative article explaining ', 'jetpack' ),
+		description: {
+			original: 'Craft an informative article explaining ',
+			translated: __( 'Craft an informative article explaining ', 'jetpack' ),
+		},
 	},
 	// {
 	// 	label: __( 'Tribute to…', 'jetpack' ),
-	// 	description: __( 'Write a tribute piece about ', 'jetpack' ),
+	// 	description: {
+	// 		original: 'Write a tribute piece about ',
+	// 		translated: __( 'Write a tribute piece about ', 'jetpack' ),
+	// 	},
 	// },
 	{
 		label: __( 'Step-by-step tutorial on…', 'jetpack' ),
-		description: __( 'Write a step-by-step tutorial on ', 'jetpack' ),
+		description: {
+			original: 'Write a step-by-step tutorial on ',
+			translated: __( 'Write a step-by-step tutorial on ', 'jetpack' ),
+		},
 	},
 	{
 		label: __( 'Motivational post on…', 'jetpack' ),
-		description: __( 'Create a motivational post on ', 'jetpack' ),
+		description: {
+			original: 'Create a motivational post on ',
+			translated: __( 'Create a motivational post on ', 'jetpack' ),
+		},
 	},
 	// {
 	// 	label: __( 'Critical analysis of…', 'jetpack' ),
-	// 	description: __( 'Write a critical analysis of ', 'jetpack' ),
+	// 	description: {
+	// 		original: 'Write a critical analysis of ',
+	// 		translated: __( 'Write a critical analysis of ', 'jetpack' ),
+	// 	},
 	// },
 ];
 

@@ -151,6 +151,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'verify_email',
 				'domain_customize',
 				'drive_traffic',
+				'write_3_posts',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_intent_write_enabled',
 		),

@@ -7,6 +7,9 @@
 		<testsuite name="automation">
 			<directory suffix="test.php">tests/php/automation</directory>
 		</testsuite>
+		<testsuite name="event-manager">
+			<directory suffix="test.php">tests/php/event-manager</directory>
+		</testsuite>
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
