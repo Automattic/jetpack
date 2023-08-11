@@ -10,6 +10,9 @@ export type AiAssistantUiContextProps = {
 
 	isFixed: boolean;
 
+	assistantAnchor: HTMLElement | null;
+	setAnchor: ( anchor: HTMLElement | null ) => void;
+
 	setInputValue: ( value: string ) => void;
 
 	show: () => void;
