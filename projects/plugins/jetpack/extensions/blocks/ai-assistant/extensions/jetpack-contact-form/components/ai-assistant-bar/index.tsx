@@ -13,6 +13,7 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import classNames from 'classnames';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
+import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import { AI_ASSISTANT_JETPACK_FORM_NOTICE_ID } from '../../ui-handler/with-ui-handler-data-provider';
@@ -76,7 +77,8 @@ export default function AiAssistantBar( {
 		},
 	} );
 
-	const requireUpgrade = requestingError?.code === ERROR_QUOTA_EXCEEDED;
+	const { requireUpgrade } = useAIFeature();
+	const siteRequireUpgrade = requestingError?.code === ERROR_QUOTA_EXCEEDED || requireUpgrade;
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
@@ -144,17 +146,17 @@ export default function AiAssistantBar( {
 
 	return (
 		<div ref={ wrapperRef } className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
-			{ requireUpgrade && <UpgradePrompt /> }
+			{ siteRequireUpgrade && <UpgradePrompt /> }
 			<AIControl
 				ref={ inputRef }
-				disabled={ requireUpgrade }
+				disabled={ siteRequireUpgrade }
 				value={ isLoading ? undefined : inputValue }
 				placeholder={ isLoading ? loadingPlaceholder : placeholder }
 				onChange={ setInputValue }
 				onSend={ onSend }
 				onStop={ stopSuggestion }
 				state={ requestingState }
-				isOpaque={ requireUpgrade }
+				isOpaque={ siteRequireUpgrade }
 				showButtonsLabel={ ! isMobileMode }
 			/>
 		</div>
