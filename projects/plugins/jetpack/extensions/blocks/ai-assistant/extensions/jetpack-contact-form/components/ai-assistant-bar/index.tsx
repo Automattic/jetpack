@@ -3,7 +3,6 @@
  */
 import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
-import { debounce } from '@wordpress/compose';
 import { select } from '@wordpress/data';
 import { useDispatch } from '@wordpress/data';
 import { useContext, useCallback, useRef, useState, useEffect } from '@wordpress/element';
@@ -109,9 +108,6 @@ export default function AiAssistantBar( {
 
 	const observerRef = useRef( null );
 
-	// Debounce the resize event.
-	const debounceUpdateIsMobileMode = debounce( () => ( isMobileModeRef.current = isFixed ), 100 );
-
 	useEffect( () => {
 		// Get the Assistant bar DOM element.
 		const barElement = wrapperRef?.current;
@@ -144,11 +140,8 @@ export default function AiAssistantBar( {
 		return () => {
 			// Disconnect the observer when the component is unmounted.
 			observerRef.current?.disconnect();
-
-			// Also, cancel any pending debounce.
-			debounceUpdateIsMobileMode.cancel();
 		};
-	}, [ debounceUpdateIsMobileMode, isFixed ] );
+	}, [ isFixed ] );
 
 	return (
 		<div ref={ wrapperRef } className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
