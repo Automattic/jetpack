@@ -4,7 +4,7 @@
 	"name": "jetpack/ai-chat",
 	"title": "AI Chat (Experimental)",
 	"description": "Provides summarized chat across a site’s content, powered by AI magic.",
-	"keywords": [ "AI", "GPT", "Chat", "Search" ],
+	"keywords": ["AI", "GPT", "Chat", "Search"],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "text",

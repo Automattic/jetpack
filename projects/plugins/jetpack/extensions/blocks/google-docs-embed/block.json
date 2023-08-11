@@ -4,13 +4,13 @@
 	"name": "jetpack/google-docs-embed",
 	"title": "Google Docs",
 	"description": "Embed a Google Document.",
-	"keywords": [ "document", "gsuite", "doc" ],
+	"keywords": ["document", "gsuite", "doc"],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "embed",
 	"icon": "document",
 	"supports": {
-		"align": [ "left", "right", "center", "wide", "full" ],
+		"align": ["left", "right", "center", "wide", "full"],
 		"anchor": true
 	},
 	"attributes": {
@@ -27,14 +27,14 @@
 	},
 	"variations": [
 		{
-			"name": "jetpack/google-docs",
+			"name": "google-docs",
 			"isDefault": true,
 			"title": "Google Docs",
 			"description": "Embed a Google Document.",
 			"icon": "document",
-			"keywords": [ "document", "gsuite", "doc" ],
+			"keywords": ["document", "gsuite", "doc"],
 			"attributes": { "variation": "jetpack/google-docs" },
-			"isActive": [ "variation" ]
+			"isActive": ["variation"]
 		},
 		{
 			"name": "jetpack/google-sheets",
@@ -42,9 +42,9 @@
 			"title": "Google Sheets",
 			"description": "Embed a Google Sheet.",
 			"icon": "spreadsheet",
-			"keywords": [ "sheet", "spreadsheet" ],
+			"keywords": ["sheet", "spreadsheet"],
 			"attributes": { "variation": "jetpack/google-sheets" },
-			"isActive": [ "variation" ]
+			"isActive": ["variation"]
 		},
 		{
 			"name": "jetpack/google-slides",
@@ -52,9 +52,9 @@
 			"title": "Google Slides",
 			"description": "Embed a Google Slides presentation.",
 			"icon": "interactive",
-			"keywords": [ "slide", "presentation", "deck" ],
+			"keywords": ["slide", "presentation", "deck"],
 			"attributes": { "variation": "jetpack/google-slides" },
-			"isActive": [ "variation" ]
+			"isActive": ["variation"]
 		}
 	],
 	"editorScript": "file:../editor-beta.js"

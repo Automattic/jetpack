@@ -10,7 +10,7 @@
 	"category": "widgets",
 	"icon": "book",
 	"supports": {
-		"align": [ "full", "wide" ],
+		"align": ["full", "wide"],
 		"alignWide": true,
 		"anchor": false,
 		"customClassName": true,
