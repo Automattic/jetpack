@@ -105,6 +105,7 @@ export default function UplotLineChart( { data, range, periods }: UplotChartProp
 			fmtDate: ( chartDateStringTemplate: string ) => {
 				return date => getDateFormat( chartDateStringTemplate, date, getUserLocale() );
 			},
+			padding: [ 17, 0, 17, 0 ],
 			axes: [
 				{
 					// x-axis
@@ -121,7 +122,7 @@ export default function UplotLineChart( { data, range, periods }: UplotChartProp
 					// y-axis
 					side: 1,
 					gap: 8,
-					space: 50,
+					space: 100,
 					size: 30,
 					grid: {
 						stroke: 'rgba(220, 220, 222, 0.5)', // #DCDCDE with 0.5 opacity
