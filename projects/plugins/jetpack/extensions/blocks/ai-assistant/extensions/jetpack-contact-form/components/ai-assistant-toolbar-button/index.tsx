@@ -18,19 +18,14 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
-	/*
-	 * Let's switch the anchor when the toolbar is fixed
-	 * 1 - Pick the Dom element reference
-	 * 2 - Find the closest block-editor-block-contextual-toolbar
-	 * 3 - Check if the toolbar is fixed, based on `is-fixed` CSS class
-	 */
-	const anchorRef = useRef< HTMLElement | null >( null );
+	const toolbarButtonRef = useRef< HTMLElement | null >( null );
+
 	useEffect( () => {
-		if ( ! anchorRef.current ) {
+		if ( ! toolbarButtonRef.current ) {
 			return;
 		}
 
-		const toolbar = anchorRef.current.closest(
+		const toolbar = toolbarButtonRef.current.closest(
 			'.block-editor-block-contextual-toolbar'
 		) as HTMLElement;
 		if ( ! toolbar ) {
@@ -68,7 +63,7 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 			/>
 
 			<ToolbarButton
-				ref={ anchorRef }
+				ref={ toolbarButtonRef }
 				showTooltip
 				onClick={ toggle }
 				aria-haspopup="true"
