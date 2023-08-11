@@ -2,16 +2,16 @@
  * External dependencies
  */
 import { aiAssistantIcon, useAiContext } from '@automattic/jetpack-ai-client';
-import { KeyboardShortcuts, Popover, ToolbarButton } from '@wordpress/components';
+import { KeyboardShortcuts, ToolbarButton } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
-import { useContext, useRef } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { createPortal, useContext, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 /*
  * Internal dependencies
  */
 import { AiAssistantUiContext } from '../../ui-handler/context';
-import { handleAiExtensionsBarBodyClass } from '../../ui-handler/with-ui-handler-data-provider';
 import AiAssistantBar from '../ai-assistant-bar';
 import './style.scss';
 
@@ -23,9 +23,14 @@ export default function AiAssistantToolbarButton( {
 	const { isVisible, toggle, setAssistantFixed, isFixed } = useContext( AiAssistantUiContext );
 	const { requestingState } = useAiContext();
 
+	// Check if the sidebar is Opened
+	const isSidebarOpened = useSelect(
+		select => select( 'core/edit-post' )?.isEditorSidebarOpened(), // 'core/edit-post' could not exist in some cases (P2s, full site editing)
+		[]
+	);
+
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
-	useViewportMatch;
 	const [ barAnchor, setBarAnchor ] = React.useState< HTMLElement | null >( null );
 
 	/*
@@ -50,35 +55,28 @@ export default function AiAssistantToolbarButton( {
 		// Set the anxhor where the Assistant Bar will be rendered.
 		setBarAnchor( toolbar );
 
-		// Fix the Assistant Bar if the Toolbar Block is fixed and the viewport is mobile.
+		// Fix the assistant toolbar in mobile
 		setAssistantFixed( isMobileViewport );
-		handleAiExtensionsBarBodyClass( isMobileViewport, isVisible );
 	}, [ setAssistantFixed, isVisible, isMobileViewport ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
+	const showAiToolbar = isVisible && isFixed && barAnchor && ! isSidebarOpened;
 	return (
 		<>
-			{ isVisible && isFixed && barAnchor && (
-				<Popover
-					anchor={ barAnchor }
-					variant="toolbar"
-					placement="bottom"
-					offset={ 0 }
-					animate={ false }
-					className="jetpack-ai-assistant-bar is-fixed"
-				>
-					<KeyboardShortcuts
-						bindGlobal
-						shortcuts={ {
-							'mod+/': toggle,
-						} }
-					/>
+			<KeyboardShortcuts
+				bindGlobal
+				shortcuts={ {
+					'mod+/': toggle,
+				} }
+			/>
 
-					<div style={ { width: '100%' } }>
+			{ showAiToolbar &&
+				createPortal(
+					<div className="jetpack-ai-assistant-bar is-fixed">
 						<AiAssistantBar clientId={ clientId } />
-					</div>
-				</Popover>
-			) }
+					</div>,
+					barAnchor
+				) }
 
 			<ToolbarButton
 				ref={ anchorRef }

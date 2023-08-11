@@ -1,0 +1,11 @@
+.jetpack-ai-assistant__anchor {
+    position: relative;
+    z-index: 30;
+    width: 100%;
+
+    .jetpack-ai-assistant__anchor-bar {
+        width: 100%;
+        margin-top: 10px;
+        background-color: white;
+    }
+}
