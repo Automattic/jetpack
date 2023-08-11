@@ -33,7 +33,7 @@ const AiAssistantAnchor = ( { clientId = '' }: AiAssistantAnchorProps ): React.R
 	}
 
 	return (
-		<div className="jetpack-ai-assistant__bar-anchor">
+		<div className="jetpack-ai-assistant__anchor">
 			<KeyboardShortcuts
 				bindGlobal
 				shortcuts={ {
@@ -41,7 +41,7 @@ const AiAssistantAnchor = ( { clientId = '' }: AiAssistantAnchorProps ): React.R
 				} }
 			/>
 
-			<AiAssistantBar clientId={ clientId } className="jetpack-ai-assistant__bar-floating" />
+			<AiAssistantBar clientId={ clientId } className="jetpack-ai-assistant__anchor-bar" />
 		</div>
 	);
 };
