@@ -103,12 +103,13 @@ export default function AiAssistantBar( {
 	 * Auto-resize mode.
 	 * Update the bar layout depending on the component width.
 	 */
+	const isMobileModeRef = useRef( isFixed );
 	const [ isMobileMode, setMobileMode ] = useState( isFixed );
 
 	const observerRef = useRef( null );
 
 	// Debounce the resize event.
-	const debounceUpdateIsMobileMode = debounce( setMobileMode, 300 );
+	const debounceUpdateIsMobileMode = debounce( () => ( isMobileModeRef.current = isFixed ), 100 );
 
 	useEffect( () => {
 		// Get the Assistant bar DOM element.
@@ -120,8 +121,19 @@ export default function AiAssistantBar( {
 		// Only create a new observer if there isn't one already
 		if ( ! observerRef.current ) {
 			observerRef.current = new ResizeObserver( entries => {
+				// Bail erly if the bar is already fixed.
+				if ( isFixed ) {
+					return setMobileMode( true );
+				}
+
 				const barWidth = entries[ 0 ].contentRect.width;
-				debounceUpdateIsMobileMode( barWidth < BREAKPOINTS.mobile );
+				const isMobileModeBasedOnWidth = barWidth < BREAKPOINTS.mobile;
+
+				// Only update the state if the mode has changed.
+				if ( isMobileModeBasedOnWidth !== isMobileModeRef.current ) {
+					isMobileModeRef.current = isMobileModeBasedOnWidth; // Update the ref to be able to compare later.
+					setMobileMode( isMobileModeBasedOnWidth ); // Update the state (and re-render)
+				}
 			} );
 		}
 
@@ -135,7 +147,7 @@ export default function AiAssistantBar( {
 			// Also, cancel any pending debounce.
 			debounceUpdateIsMobileMode.cancel();
 		};
-	}, [ debounceUpdateIsMobileMode ] );
+	}, [ debounceUpdateIsMobileMode, isFixed ] );
 
 	return (
 		<div className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
@@ -150,7 +162,7 @@ export default function AiAssistantBar( {
 				onStop={ stopSuggestion }
 				state={ requestingState }
 				isOpaque={ requireUpgrade }
-				showButtonsLabel={ isMobileMode || isFixed }
+				showButtonsLabel={ ! isMobileMode }
 			/>
 		</div>
 	);
