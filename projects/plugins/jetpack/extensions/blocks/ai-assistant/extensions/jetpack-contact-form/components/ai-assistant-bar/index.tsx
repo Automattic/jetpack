@@ -1,11 +1,18 @@
 /**
  * External dependencies
  */
-import { useAiContext, AIControl } from '@automattic/jetpack-ai-client';
+import { useAiContext, AIControl, ERROR_QUOTA_EXCEEDED } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import { useDispatch } from '@wordpress/data';
-import { useContext, useCallback, useRef, useState, useEffect } from '@wordpress/element';
+import {
+	useContext,
+	useCallback,
+	useRef,
+	useState,
+	useEffect,
+	createPortal,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
@@ -17,6 +24,7 @@ import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import { AI_ASSISTANT_JETPACK_FORM_NOTICE_ID } from '../../ui-handler/with-ui-handler-data-provider';
+import './style.scss';
 
 /*
  * Core viewport breakpoints.
@@ -67,17 +75,20 @@ export default function AiAssistantBar( {
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const inputRef = useRef< HTMLInputElement >( null );
 
-	const { requireUpgrade } = useAIFeature();
+	const { inputValue, setInputValue, isFixed, isVisible, assistantAnchor } =
+		useContext( AiAssistantUiContext );
 
-	const { inputValue, setInputValue, isFixed } = useContext( AiAssistantUiContext );
-
-	const { requestSuggestion, requestingState, stopSuggestion } = useAiContext( {
+	const { requestSuggestion, requestingState, stopSuggestion, requestingError } = useAiContext( {
 		onDone: () => {
 			setTimeout( () => {
 				inputRef.current?.focus?.();
 			}, 10 );
 		},
 	} );
+
+	const { requireUpgrade } = useAIFeature();
+
+	const siteRequireUpgrade = requestingError?.code === ERROR_QUOTA_EXCEEDED || requireUpgrade;
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
@@ -143,21 +154,43 @@ export default function AiAssistantBar( {
 		};
 	}, [ isFixed ] );
 
-	return (
-		<div ref={ wrapperRef } className={ classNames( 'jetpack-ai-assistant__bar', className ) }>
-			{ requireUpgrade && <UpgradePrompt /> }
+	if ( ! isVisible ) {
+		return null;
+	}
+
+	const shouldAnchorToBlockToolbar = isFixed && assistantAnchor;
+
+	// Assistant bar component.
+	const AiAssistantBarComponent = (
+		<div
+			ref={ wrapperRef }
+			className={ classNames( 'jetpack-ai-assistant__bar', {
+				[ className ]: className,
+				'is-fixed': shouldAnchorToBlockToolbar,
+				'is-mobile-mode': isMobileMode,
+			} ) }
+		>
+			{ siteRequireUpgrade && <UpgradePrompt /> }
 			<AIControl
 				ref={ inputRef }
-				disabled={ requireUpgrade }
+				disabled={ siteRequireUpgrade }
 				value={ isLoading ? undefined : inputValue }
 				placeholder={ isLoading ? loadingPlaceholder : placeholder }
 				onChange={ setInputValue }
 				onSend={ onSend }
 				onStop={ stopSuggestion }
 				state={ requestingState }
-				isOpaque={ requireUpgrade }
-				showButtonsLabel={ ! isMobileMode }
+				isOpaque={ siteRequireUpgrade }
+				showButtonsLabel={ ! isMobileMode && ! isFixed }
 			/>
 		</div>
 	);
+
+	// Check if the Assistant bar should be rendered in the Assistant anchor (fixed mode)
+	if ( shouldAnchorToBlockToolbar ) {
+		return createPortal( AiAssistantBarComponent, assistantAnchor );
+	}
+
+	// Render in the editor canvas.
+	return AiAssistantBarComponent;
 }
