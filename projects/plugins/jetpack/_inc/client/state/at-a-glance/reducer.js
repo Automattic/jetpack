@@ -161,19 +161,21 @@ const backupUndoEvent = (
 		}
 
 		case BACKUP_UNDO_EVENT_FETCH_SUCCESS: {
+			const activity = payload.last_rewindable_event;
 			return {
 				...state,
 				isFetching: false,
 				loaded: true,
-				event: {
-					activityId: payload.last_rewindable_event.activity_id,
-					name: payload.last_rewindable_event.name,
-					summary: payload.last_rewindable_event.summary,
-					description: payload.last_rewindable_event.content?.text || '',
-					actor: payload.last_rewindable_event.actor,
-					published: payload.last_rewindable_event.published,
-					undoBackupId: payload.last_rewindable_event.undo_backup_id,
-				},
+				actorAvatarUrl: activity.actor?.icon?.url ?? '',
+				actorName: activity.actor?.name ?? '',
+				actorRole: activity.actor?.role ?? '',
+				actorType: activity.actor?.type ?? '',
+				activityDate: activity.published ?? '',
+				activityId: activity.activity_id,
+				activityName: activity.name,
+				activityTitle: activity.summary,
+				activityDescription: activity.content?.text ?? '',
+				undoBackupId: payload.undo_backup_id,
 			};
 		}
 		case BACKUP_UNDO_EVENT_FETCH_FAILURE: {
@@ -380,7 +382,7 @@ export function getPluginItems( state ) {
  * @returns {object} The last backup undo event
  */
 export function getBackupUndoEvent( state ) {
-	return state.jetpack.dashboard.backupUndoEvent.event;
+	return state.jetpack.dashboard.backupUndoEvent;
 }
 
 /**
