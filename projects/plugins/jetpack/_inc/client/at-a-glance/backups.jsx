@@ -289,8 +289,7 @@ class DashBackups extends Component {
 	}
 
 	getRewindContent() {
-		const { hasRealTimeBackups, isWoA, rewindStatus, siteRawUrl, backupUndoEventLoaded } =
-			this.props;
+		const { hasRealTimeBackups, rewindStatus, siteRawUrl, backupUndoEventLoaded } = this.props;
 		const buildAction = ( url, message, trackingName ) => (
 			<Card
 				compact
@@ -336,7 +335,7 @@ class DashBackups extends Component {
 					</React.Fragment>
 				);
 			case 'active': {
-				if ( ! isWoA && backupUndoEventLoaded ) {
+				if ( backupUndoEventLoaded ) {
 					return this.renderUndo();
 				}
 
