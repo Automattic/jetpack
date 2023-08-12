@@ -106,7 +106,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'verify_email'                    => array(
 			'get_title'           => function () {
-				return __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' );
+				return __( 'Verify email address', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
 			'get_task_url'        => function () {
@@ -149,6 +149,13 @@ function wpcom_launchpad_get_task_definitions() {
 		'subscribers_added'               => array(
 			'get_title'            => function () {
 				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
+		),
+		'migrate_content'                 => array(
+			'get_title'            => function () {
+				return __( 'Migrate content', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',

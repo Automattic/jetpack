@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiContext } from '@automattic/jetpack-ai-client';
+import { ERROR_QUOTA_EXCEEDED, useAiContext } from '@automattic/jetpack-ai-client';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -13,31 +13,14 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
-import { AiAssistantPopover } from '../components/ai-assistant-popover';
-import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
+import { AiAssistantUiContextProvider } from './context';
 /**
  * Types
  */
 import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 
 // An identifier to use on the extension error notices,
-const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
-
-/**
- * Add the `jetpack-ai-assistant-bar-is-fixed` class to the body
- * when the toolbar is fixed and the AI Assistant is visible.
- *
- * @param {boolean} isFixed - Is the toolbar fixed?
- * @param {boolean} isVisible - Is the AI Assistant visible?
- * @returns {void}
- */
-export function handleAiExtensionsBarBodyClass( isFixed: boolean, isVisible: boolean ) {
-	if ( isFixed && isVisible ) {
-		return document.body.classList.add( 'jetpack-ai-assistant-bar-is-fixed' );
-	}
-
-	document.body.classList.remove( 'jetpack-ai-assistant-bar-is-fixed' );
-}
+export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
@@ -52,17 +35,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// AI Assistant component is-fixed state
 		const [ isFixed, setAssistantFixed ] = useState( false );
 
-		// AI Assistant width
-		const [ width, setWidth ] = useState< number | string >( 400 );
-
-		// AI Assistant popover props
-		const [ popoverProps, setPopoverProps ] = useState<
-			AiAssistantUiContextProps[ 'popoverProps' ]
-		>( {
-			anchor: null,
-			placement: 'bottom-start',
-			offset: 12,
-		} );
+		const [ assistantAnchor, setAssistantAnchor ] = useState< HTMLElement | null >( null );
 
 		// Keep track of the current list of valid blocks between renders.
 		const currentListOfValidBlocks = useRef( [] );
@@ -101,13 +74,22 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		}, [ isVisible ] );
 
 		/**
+		 * Set the AI Assistant anchor
+		 *
+		 * @param {HTMLElement} anchor
+		 */
+		const setAnchor = useCallback( ( anchor: HTMLElement | null ) => {
+			setAssistantAnchor( anchor );
+		}, [] );
+
+		/**
 		 * Select the Jetpack Form block
 		 *
 		 * @returns {void}
 		 */
 		const selectFormBlock = useCallback( () => {
-			dispatch( 'core/block-editor' ).selectBlock( props.clientId );
-		}, [ props.clientId ] );
+			dispatch( 'core/block-editor' ).selectBlock( clientId ).then( toggle );
+		}, [ clientId, toggle ] );
 
 		const { createNotice } = useDispatch( noticesStore );
 
@@ -118,58 +100,16 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 * @returns {void}
 		 */
 		const showSuggestionError = useCallback(
-			( { severity, message }: RequestingErrorProps ) => {
-				createNotice( severity, message, {
-					isDismissible: true,
-					id: AI_ASSISTANT_JETPACK_FORM_NOTICE_ID,
-				} );
+			( { severity, message, code }: RequestingErrorProps ) => {
+				if ( code !== ERROR_QUOTA_EXCEEDED ) {
+					createNotice( severity, message, {
+						isDismissible: true,
+						id: AI_ASSISTANT_JETPACK_FORM_NOTICE_ID,
+					} );
+				}
 			},
 			[ createNotice ]
 		);
-
-		/*
-		 * Set the anchor element for the popover.
-		 * For now, let's use the block representation in the canvas,
-		 * but we can change it in the future.
-		 */
-		useEffect( () => {
-			if ( ! clientId ) {
-				return;
-			}
-
-			handleAiExtensionsBarBodyClass( isFixed, isVisible );
-
-			// Do not anchor the popover if the toolbar is fixed.
-			if ( isFixed ) {
-				return setWidth( '100%' ); // ensure to use the full width.
-			}
-
-			const idAttribute = `block-${ clientId }`;
-
-			/*
-			 * Get the DOM element of the block,
-			 * keeping in mind that the block element may be rendered into the `editor-canvas`
-			 * iframe if it is present.
-			 */
-			const iFrame: HTMLIFrameElement = document.querySelector( 'iframe[name="editor-canvas"]' );
-			const iframeDocument = iFrame && iFrame.contentWindow.document;
-
-			const blockDomElement = ( iframeDocument ?? document ).getElementById( idAttribute );
-
-			if ( ! blockDomElement ) {
-				return;
-			}
-
-			setPopoverProps( prev => ( {
-				...prev,
-				anchor: blockDomElement,
-				placement: 'bottom-start',
-				variant: null,
-				offset: 12,
-			} ) );
-
-			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
-		}, [ clientId, isFixed, isVisible ] );
 
 		// Show/hide the assistant based on the block selection.
 		useEffect( () => {
@@ -178,28 +118,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			}
 			hide();
 		}, [ isSelected, hide ] );
-
-		// Update width when the anchor resize change.
-		useEffect( () => {
-			if ( ! popoverProps.anchor ) {
-				return;
-			}
-
-			// Do not observe the anchor resize if the toolbar is fixed.
-			if ( isFixed ) {
-				return;
-			}
-
-			const resizeObserver = new ResizeObserver( () => {
-				setWidth( popoverProps.anchor?.getBoundingClientRect?.()?.width );
-			} );
-
-			resizeObserver.observe( popoverProps.anchor );
-
-			return () => {
-				resizeObserver.disconnect();
-			};
-		}, [ popoverProps.anchor, isFixed ] );
 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
@@ -216,24 +134,13 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 				// Assistant bar position and size.
 				isFixed,
-				popoverProps,
-				width,
 				setAssistantFixed,
-				setPopoverProps,
+
+				// Assistant bar anchor.
+				assistantAnchor,
+				setAnchor,
 			} ),
-			[
-				inputValue,
-				setInputValue,
-				isVisible,
-				show,
-				hide,
-				toggle,
-				isFixed,
-				popoverProps,
-				width,
-				setAssistantFixed,
-				setPopoverProps,
-			]
+			[ inputValue, isVisible, show, hide, toggle, isFixed, assistantAnchor, setAnchor ]
 		);
 
 		const setContent = useCallback(
@@ -286,13 +193,9 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			<AiAssistantUiContextProvider value={ contextValue }>
 				<KeyboardShortcuts
 					shortcuts={ {
-						'mod+/': () => {
-							toggle();
-							selectFormBlock();
-						},
+						'mod+/': selectFormBlock,
 					} }
 				>
-					<AiAssistantPopover clientId={ clientId } />
 					<BlockListBlock { ...props } />
 				</KeyboardShortcuts>
 			</AiAssistantUiContextProvider>

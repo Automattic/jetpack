@@ -1,13 +1,13 @@
+import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { STORE_ID } from './../../../store';
 import Logo from './../../logo';
 import styles from './styles.module.scss';
 
 const AdminPageHeader = () => {
 	const { showPricingPage, activateLicenseUrl } = useSelect( select => {
-		const store = select( STORE_ID );
+		const store = select( SOCIAL_STORE_ID );
 
 		return {
 			showPricingPage: store.showPricingPage(),

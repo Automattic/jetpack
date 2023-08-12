@@ -69,7 +69,7 @@ class Company_Deleted extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_company_delete',
+			'jpcrm_company_deleted',
 			array( $this, 'execute_workflow' )
 		);
 	}

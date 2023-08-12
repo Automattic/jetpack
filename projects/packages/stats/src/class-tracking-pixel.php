@@ -252,6 +252,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 */
 	private static function is_amp_request() {
 		$is_amp_request = ( function_exists( 'amp_is_request' ) && amp_is_request() );
+		$is_amp_request = $is_amp_request || ( function_exists( 'ampforwp_is_amp_endpoint' ) && ampforwp_is_amp_endpoint() );
 
 		/**
 		 * Returns true if the current request should return valid AMP content.

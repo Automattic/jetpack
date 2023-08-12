@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the new JPCRM Event Manager to notify events via WP hooks
