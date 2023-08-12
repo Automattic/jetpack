@@ -151,36 +151,16 @@ class Queue_Storage_Table {
 		}
 
 		// See if we can read the item back
-		$items = $this->fetch_items_by_ids( 'test' );
+		$items = $this->fetch_items_by_ids( array( 'test' ) );
 		if ( empty( $items ) || ! is_object( $items[0] ) || $items[0]->value !== 'test' ) {
 			return new \WP_Error( 'custom_table_unable_to_writeread', 'Jetpack Sync Custom table: Unable to read item after writing' );
 		}
 
 		// Try to insert an item, read it back and then delete it.
-		$this->delete_items_by_ids( 'test' );
+		$this->delete_items_by_ids( array( 'test' ) );
 
 		// Try to fetch the item back. It should not exist.
-		$items = $this->fetch_items_by_ids( 'test' );
-		if ( ! empty( $items ) ) {
-			return new \WP_Error( 'custom_table_unable_to_writeread', 'Jetpack Sync Custom table: Unable to delete from table' );
-		}
-
-		// Check if we can write in the table
-		if ( ! $this->insert_item( 'test', 'test' ) ) {
-			return new \WP_Error( 'custom_table_unable_to_writeread', 'Jetpack Sync Custom table: Unable to write into table' );
-		}
-
-		// See if we can read the item back
-		$items = $this->fetch_items_by_ids( 'test' );
-		if ( empty( $items ) || ! is_object( $items[0] ) || $items[0]->value !== 'test' ) {
-			return new \WP_Error( 'custom_table_unable_to_writeread', 'Jetpack Sync Custom table: Unable to read item after writing' );
-		}
-
-		// Try to insert an item, read it back and then delete it.
-		$this->delete_items_by_ids( 'test' );
-
-		// Try to fetch the item back. It should not exist.
-		$items = $this->fetch_items_by_ids( 'test' );
+		$items = $this->fetch_items_by_ids( array( 'test' ) );
 		if ( ! empty( $items ) ) {
 			return new \WP_Error( 'custom_table_unable_to_writeread', 'Jetpack Sync Custom table: Unable to delete from table' );
 		}
