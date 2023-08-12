@@ -401,6 +401,14 @@ class DashBackups extends Component {
 		return <div className="jp-dash-item">{ this.getRewindContent() }</div>;
 	}
 
+	trackUndoFeatureView() {
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_backup_undo_view' );
+	}
+
+	trackUndoButtonClick() {
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_backup_undo_button_click' );
+	}
+
 	renderUndo() {
 		const { backupUndoEvent } = this.props;
 		const {
@@ -441,9 +449,9 @@ class DashBackups extends Component {
 						button: (
 							<Button
 								href={ getRedirectUrl( 'jetpack-backup-undo-cta', { path: undoBackupId } ) }
-								onClick={ this.trackBackupsClick( 'backup-undo-cta' ) }
 								primary
 								target="_blank"
+								onClick={ this.trackUndoButtonClick }
 							/>
 						),
 						icon: <Icon icon={ backup } />,
@@ -451,6 +459,8 @@ class DashBackups extends Component {
 				</div>
 			</div>
 		);
+
+		this.trackUndoFeatureView();
 
 		return (
 			<>
