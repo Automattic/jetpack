@@ -70,7 +70,6 @@ class Queue_Storage_Table {
 	private function create_table() {
 		global $wpdb;
 
-		// TODO if we run this only in the context of an upgrade, we should not include this here.
 		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 
 		$charset_collate = $wpdb->get_charset_collate();
@@ -512,13 +511,7 @@ class Queue_Storage_Table {
 			$custom_table_instance->create_table();
 		}
 
-		if ( is_wp_error( $custom_table_instance->is_custom_table_healthy() ) ) {
-			// TODO: send error to WPCOM
-			// TODO: clean up the table.
-			return false;
-		}
-
-		return true;
+		return $custom_table_instance->is_custom_table_healthy();
 	}
 
 	/**
