@@ -234,16 +234,39 @@ class Settings {
 						 * Unable to initialize the table properly. Set the value to `false` as we can't enable it.
 						 */
 						$value = false;
-						// TODO send a failure event.
+
+						/**
+						 * Send error to WPCOM, so we can track and take an appropriate action.
+						 */
+						$data = array(
+							'timestamp'     => microtime( true ),
+							'error_code'    => $init_result->get_error_code(),
+							'response_body' => $init_result->get_error_message(),
+						);
+
+						$sender = Sender::get_instance();
+						$sender->send_action( 'jetpack_sync_storage_error_custom_init', $data );
+
 					} elseif ( ! Queue_Storage_Table::migrate_from_options_table_to_custom_table() ) {
 						/**
 						 * If the migration fails, do a reverse migration and set the value to `false` as we can't
 						 * safely enable the table.
 						 */
-						// TODO send a failure event
 						Queue_Storage_Table::migrate_from_custom_table_to_options_table();
 
+						// Set $value to `false` as we couldn't do the migration, and we can't continue enabling the table.
 						$value = false;
+
+						/**
+						 * Send error to WPCOM, so we can track and take an appropriate action.
+						 */
+						$data = array(
+							'timestamp' => microtime( true ),
+							// TODO: Maybe add more details here for the migration, i.e. how many items where in the queue?
+						);
+
+						$sender = Sender::get_instance();
+						$sender->send_action( 'jetpack_sync_storage_error_custom_migrate', $data );
 					}
 				} elseif ( $old_value && ! $value ) {
 					/**
