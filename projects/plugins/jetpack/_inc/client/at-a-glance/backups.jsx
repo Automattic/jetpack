@@ -497,7 +497,7 @@ class DashBackups extends Component {
 		return (
 			<div>
 				<QueryVaultPressData />
-				<QueryBackupUndoEvent />
+				{ this.props.rewindStatus === 'active' && <QueryBackupUndoEvent /> }
 				{ this.renderFromRewindStatus() }
 				{ this.renderGettingStartedVideo() }
 			</div>
