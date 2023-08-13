@@ -1,4 +1,4 @@
 Significance: minor
-Type: added
+Type: other
 
-Make the AI Assistant input to receive focus on render
+Make the AI Assistant input to receive focus on first render for forms variations
