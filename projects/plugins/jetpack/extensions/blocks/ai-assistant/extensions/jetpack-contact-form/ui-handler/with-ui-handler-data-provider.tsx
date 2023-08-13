@@ -27,10 +27,12 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const { clientId, isSelected } = props;
 
 		// AI Assistant input value
-		const [ inputValue, setInputValue ] = useState( '' );
+		const [ inputValue, setInputValue ] = useState(
+			'in three columns, put in the same one a text about Jorge Luis Borge. In the second one, a text about Mariana Enriquez. And in the third one, a contact form to get subscribed to a books site.'
+		);
 
 		// AI Assistant component visibility
-		const [ isVisible, setAssistantVisibility ] = useState( true );
+		const [ isVisible, setAssistantVisibility ] = useState( false );
 
 		// AI Assistant component is-fixed state
 		const [ isFixed, setAssistantFixed ] = useState( false );
