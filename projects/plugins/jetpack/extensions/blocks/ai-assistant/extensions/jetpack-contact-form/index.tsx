@@ -37,7 +37,7 @@ export function isPossibleToExtendJetpackFormBlock( blockName: string | undefine
 	}
 
 	// Only extend Jetpack Form block.
-	if ( blockName !== 'jetpack/contact-form' ) {
+	if ( blockName !== 'jetpack/contact-form' && blockName !== 'core/paragraph' ) {
 		return false;
 	}
 
