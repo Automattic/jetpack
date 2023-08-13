@@ -2,7 +2,7 @@
 
 use Automattic\Jetpack\Sync\Queue;
 
-require_once __DIR__ . '/class-test-jetpack-sync-queue-base-tests.php';
+require_once __DIR__ . '/class-wp-test-jetpack-sync-queue-base-tests.php';
 
 /**
  * @group jetpack-sync
@@ -18,8 +18,8 @@ class WP_Test_Jetpack_Sync_Queue_Options_Table extends WP_Test_Jetpack_Sync_Queu
 
 	// Ignoring as Dev requirement is > PHP7
 	// phpcs:ignore PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
-	public function setUp(): void {
-		parent::setUp();
+	public function set_up(): void {
+		parent::set_up();
 
 		// Disable the dedicated table, so we can run with the options table
 		\Automattic\Jetpack\Sync\Settings::update_settings(

@@ -11,11 +11,18 @@ use Automattic\Jetpack\Sync\Queue_Buffer;
 /**
  * This is abstract class to cover common test cases between testing the Options Table and Dedicated Table
  */
-abstract class WP_Test_Jetpack_Sync_Queue_Base_Tests extends PHPUnit\Framework\TestCase {
+abstract class WP_Test_Jetpack_Sync_Queue_Base_Tests extends WP_Test_Jetpack_Sync_Base {
 	/**
 	 * @var Queue
 	 */
 	public $queue;
+
+	public function set_up() {
+		parent::set_up();
+
+		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+	}
 
 	public function test_add_queue_items() {
 		$this->assertSame( 0, $this->queue->size() );
