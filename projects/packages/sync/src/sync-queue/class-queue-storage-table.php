@@ -67,7 +67,7 @@ class Queue_Storage_Table {
 	 *
 	 * @return void
 	 */
-	private function create_table() {
+	protected function create_table() {
 		global $wpdb;
 
 		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
@@ -99,7 +99,7 @@ class Queue_Storage_Table {
 	 *
 	 * @return bool
 	 */
-	private function custom_table_exists() {
+	protected function custom_table_exists() {
 		global $wpdb;
 
 		// Check if the table exists
@@ -120,7 +120,7 @@ class Queue_Storage_Table {
 	 *
 	 * @return true|\WP_Error If the custom table is available, and we can read and write from/to it.
 	 */
-	private function is_custom_table_healthy() {
+	protected function is_custom_table_healthy() {
 		global $wpdb;
 
 		if ( ! $this->custom_table_exists() ) {
