@@ -21,6 +21,7 @@ export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
 export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
 export const PROMPT_TYPE_USER_PROMPT = 'userPrompt' as const;
 export const PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT = 'jetpackFormCustomPrompt' as const;
+export const PROMPT_TYPE_GUTENBERG_SYNTAX_PROMPT = 'jetpackFormCustomPrompt' as const;
 
 export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_SUMMARY_BY_TITLE,
@@ -35,6 +36,7 @@ export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
 	PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT,
+	PROMPT_TYPE_GUTENBERG_SYNTAX_PROMPT,
 ] as const;
 
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
@@ -47,6 +49,112 @@ export type PromptItemProps = {
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 export const delimiter = '````';
+
+export const compressSerializedBlockComposition = block => {
+	const tagReplacements = {
+		'<!-- wp:jetpack/contact-form': '<!-- ¢',
+		'<!-- wp:jetpack/field-text': '<!-- £',
+		'<!-- wp:jetpack/field-name': '<!-- ¥',
+		'<!-- wp:jetpack/field-email': '<!-- €',
+		'<!-- wp:jetpack/field-url': '<!-- §',
+		'<!-- wp:jetpack/field-date': '<!-- ¶',
+		'<!-- wp:jetpack/field-telephone': '<!-- ¤',
+		'<!-- wp:jetpack/field-textarea': '<!-- ¦',
+		'<!-- wp:jetpack/field-checkbox': '<!-- ³',
+		'<!-- wp:jetpack/field-consent': '<!-- ¨',
+		'<!-- wp:jetpack/field-radio': '<!-- ´',
+		'<!-- wp:jetpack/field-option-radio': '<!-- ª',
+		'<!-- wp:jetpack/field-select': '<!-- «',
+		'<!-- wp:jetpack/button': '<!-- ¬',
+		'<!-- /wp:jetpack/contact-form': '<!-- °',
+		'<!-- /wp:jetpack/field-radio': '<!-- ²',
+	};
+
+	const keyReplacements = {
+		'"subject"': '"¢"',
+		'"to"': '"£"',
+		'"style"': '"¥"',
+		'"spacing"': '"€"',
+		'"padding"': '"§"',
+		'"top"': '"¶"',
+		'"right"': '"¤"',
+		'"bottom"': '"¦"',
+		'"left"': '"³"',
+		'"required"': '"¨"',
+		'"requiredText"': '"´"',
+		'"label"': '"ª"',
+		'"element"': '"«"',
+		'"text"': '"¬"',
+		'"lock"': '"°"',
+		'"remove"': '"²"',
+		'"toggleLabel"': '"»"',
+	};
+
+	let compressedBlock = block;
+	for ( const original in tagReplacements ) {
+		const replacement = tagReplacements[ original ];
+		compressedBlock = compressedBlock.split( original ).join( replacement );
+	}
+	for ( const original in keyReplacements ) {
+		const replacement = keyReplacements[ original ];
+		compressedBlock = compressedBlock.split( original ).join( replacement );
+	}
+
+	return compressedBlock;
+};
+
+export const uncompressSerializedBlockComposition = block => {
+	const tagReplacements = {
+		'<!-- ¢': '<!-- wp:jetpack/contact-form',
+		'<!-- £': '<!-- wp:jetpack/field-text',
+		'<!-- ¥': '<!-- wp:jetpack/field-name',
+		'<!-- €': '<!-- wp:jetpack/field-email',
+		'<!-- §': '<!-- wp:jetpack/field-url',
+		'<!-- ¶': '<!-- wp:jetpack/field-date',
+		'<!-- ¤': '<!-- wp:jetpack/field-telephone',
+		'<!-- ¦': '<!-- wp:jetpack/field-textarea',
+		'<!-- ³': '<!-- wp:jetpack/field-checkbox',
+		'<!-- ¨': '<!-- wp:jetpack/field-consent',
+		'<!-- ´': '<!-- wp:jetpack/field-radio',
+		'<!-- ª': '<!-- wp:jetpack/field-option-radio',
+		'<!-- «': '<!-- wp:jetpack/field-select',
+		'<!-- ¬': '<!-- wp:jetpack/button',
+		'<!-- °': '<!-- /wp:jetpack/contact-form',
+		'<!-- ²': '<!-- /wp:jetpack/field-radio',
+	};
+
+	const keyReplacements = {
+		'"¢"': '"subject"',
+		'"£"': '"to"',
+		'"¥"': '"style"',
+		'"€"': '"spacing"',
+		'"§"': '"padding"',
+		'"¶"': '"top"',
+		'"¤"': '"right"',
+		'"¦"': '"bottom"',
+		'"³"': '"left"',
+		'"¨"': '"required"',
+		'"´"': '"requiredText"',
+		'"ª"': '"label"',
+		'"«"': '"element"',
+		'"¬"': '"text"',
+		'"°"': '"lock"',
+		'"²"': '"remove"',
+		'"»"': '"toggleLabel"',
+	};
+
+	let uncompressedBlock = block;
+	for ( const original in tagReplacements ) {
+		const replacement = tagReplacements[ original ];
+		uncompressedBlock = uncompressedBlock.split( original ).join( replacement );
+	}
+	for ( const original in keyReplacements ) {
+		const replacement = keyReplacements[ original ];
+		uncompressedBlock = uncompressedBlock.split( original ).join( replacement );
+	}
+
+	return uncompressedBlock;
+};
 
 /**
  * Helper function to get the initial system prompt.
@@ -278,6 +386,70 @@ Strong requirements:
 - When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column), like so: \`Name Field\`:
 	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
 Jetpack Form to modify:\n${ content }`,
+		},
+	];
+}
+
+function getGuenbergSyntaxCompositionPrompt( {
+	content, // eslint-disable-line @typescript-eslint/no-unused-vars
+	role = 'user',
+	request,
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	if ( ! request ) {
+		throw new Error( 'You must provide a request' );
+	}
+
+	return [
+		{
+			role: 'system',
+			content: `
+			You are an advanced polyglot ghostwriter. Your task is to generate and modify content based on user requests.
+Also, You are an expert developer in Gutenberg, the WordPress block editor.
+
+Strictly follow those rules:
+- DO NOT add any addtional feedback to the "user", just generate the requested block structure.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- If you cannot generate a meaningful response to a user's request, reply only with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.`,
+		},
+		{
+			role,
+			// content: compressSerializedBlockComposition( `Handle the following request: ${ request }
+			content: `You are an advanced polyglot ghostwriter. Your task is to generatecontent based on user requests: ${ request }
+
+Rules to compose the content:
+Blocks for simple composition ( first column is the block name, second column is the attributes):
+Replace the camelcase attributes with the values provided by the user.
+- "core/paragraph" | { content: CONTENT }
+- "jetpack/field-text" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
+- "jetpack/field-name" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
+- "jetpack/field-email" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
+- "jetpack/field-url" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
+- "jetpack/field-date" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
+- "jetpack/field-telephone" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
+- "jetpack/field-textarea" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
+- "jetpack/field-checkbox" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
+- "jetpack/field-checkbox-multiple" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT, options: [ OPTION_ONE, OPTION_TWO, OPTION_THREE ] }
+- "jetpack/field-radio" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
+- "jetpack/field-select" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT, options: [ OPTION_ONE, OPTION_TWO, OPTION_THREE ] }
+- "jetpack/field-consent" | { consentType: CONSENT_TYPE, implicitConsentMessage: IMPLICIT_CONSENT_MESSAGE, explicitConsentMessage: EXPLICIT_CONSENT_MESSAGE }
+- "jetpack/button" | { label: LABEL, element: ELEMENT, text: TEXT, borderRadius: BORDER_RADIUS, lock: { remove: true } }
+
+Blocks to create nested compositions (first column is the block name, second column is the attributes, third column is the children):
+- "core/columns" | { columns: COLS } | [ "core/column" ]
+- "core/column"  | { width: WIDTH }  | [ LAYOUT_BLOCKS | BLOCKS ]
+- "jetpack/contact-form" | {} | [ ANY jetpack/field-<any> ]
+
+Return the array of blocks.
+[
+	[ BLOCK_NAME, BLOCK_ATTRIBUTES ],
+	[ BLOCK_NAME, BLOCK_ATTRIBUTES, [
+		[ BLOCK_NAME, BLOCK_ATTRIBUTES ],
+		[ BLOCK_NAME, BLOCK_ATTRIBUTES, [
+			[ BLOCK_NAME, BLOCK_ATTRIBUTES ],
+		],
+	],
+]
+`,
 		},
 	];
 }
@@ -554,6 +726,10 @@ Writing rules:
 
 		case PROMPT_TYPE_CHANGE_TONE:
 			return [ ...prompt, ...getTonePrompt( options ) ];
+
+		case PROMPT_TYPE_GUTENBERG_SYNTAX_PROMPT:
+			// Does not use the default system prompt.
+			return [ ...prevMessages, ...getGuenbergSyntaxCompositionPrompt( options ) ];
 
 		case PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT:
 			// Does not use the default system prompt.
