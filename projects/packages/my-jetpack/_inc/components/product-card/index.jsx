@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
-import ActionButton, { PRODUCT_STATUSES } from './action-buton';
+import ActionButton, { PRODUCT_STATUSES } from './action-button';
 import styles from './style.module.scss';
 
 const PRODUCT_STATUSES_LABELS = {
