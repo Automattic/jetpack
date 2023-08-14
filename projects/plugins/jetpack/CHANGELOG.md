@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.5-beta - 2023-08-14
+## 12.5-a.9 - 2023-08-14
 ### Enhancements
 - AI Assistant: various stylistic and back-end enhancements to the Jetpack AI Assistant.
 - AI Assistant: tweaks assistant bar in narrow spaces [#32416]
