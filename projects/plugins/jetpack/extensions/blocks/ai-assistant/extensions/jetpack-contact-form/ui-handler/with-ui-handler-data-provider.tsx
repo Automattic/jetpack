@@ -2,25 +2,45 @@
  * External dependencies
  */
 import { ERROR_QUOTA_EXCEEDED, useAiContext } from '@automattic/jetpack-ai-client';
-import { parse } from '@wordpress/blocks';
+import { parse, createBlock } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
+import { jsonrepair } from 'jsonrepair';
 /**
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
+import { decompressContent } from '../../../lib/prompt';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
 import { AiAssistantUiContextProvider } from './context';
 /**
  * Types
  */
 import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
+type BlockData = [ string, Record< string, unknown >, Array< BlockData > | undefined ];
 
 // An identifier to use on the extension error notices,
 export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
+
+function parseBlocksFromJson( jsonContent: Array< BlockData > ) {
+	const blocks = [];
+	for ( let i = 0; i < jsonContent.length; i++ ) {
+		const block = jsonContent[ i ];
+		const [ name, attributes, innerBlocks ] = block;
+		const blockData = createBlock(
+			name,
+			attributes,
+			innerBlocks ? parseBlocksFromJson( innerBlocks ) : []
+		);
+
+		blocks.push( blockData );
+	}
+
+	return blocks;
+}
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
@@ -28,7 +48,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 		// AI Assistant input value
 		const [ inputValue, setInputValue ] = useState(
-			'in three columns, put in the same one a text about Jorge Luis Borge. In the second one, a text about Mariana Enriquez. And in the third one, a contact form to get subscribed to a books site.'
+			'In three columns, put in the first one an extensive text about Jorge Luis Borge. In next one, about Mariana Enriquez. And in the third one, a form to buy books. Please add all fields you consider appropriate.'
 		);
 
 		// AI Assistant component visibility
@@ -42,7 +62,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// Keep track of the current list of valid blocks between renders.
 		const currentListOfValidBlocks = useRef( [] );
 
-		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
+		const { replaceInnerBlocks, insertBlocks } = useDispatch( 'core/block-editor' );
 		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as {
 			getCurrentPostId: () => number;
 		};
@@ -145,34 +165,51 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			[ inputValue, isVisible, show, hide, toggle, isFixed, assistantAnchor, setAnchor ]
 		);
 
+		// Create a temporary block to use like a container
+		const containerBlock = createBlock( 'core/group', { type: 'constrained', align: 'full' }, [] );
+		const { clientId: containerBlockId } = containerBlock;
+		const containerBlockWasInserted = useRef( false );
+
 		const setContent = useCallback(
 			( newContent: string ) => {
-				// Remove the Jetpack Form block from the content.
-				const processedContent = newContent.replace(
-					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
-					''
-				);
+				if ( ! containerBlockWasInserted?.current ) {
+					// Insert the container block
+					insertBlocks( containerBlock, clientId );
+					containerBlockWasInserted.current = true;
+				}
 
-				// Fix HTML tags that are not closed properly.
-				const fixedContent = fixIncompleteHTML( processedContent );
+				console.log( 'newContent', newContent );
 
-				const newContentBlocks = parse( fixedContent );
+				newContent = decompressContent( newContent );
 
-				// Check if the generated blocks are valid.
-				const validBlocks = newContentBlocks.filter( block => {
-					return block.isValid && block.name !== 'core/freeform';
-				} );
+				let parsedBlocks = [];
+				try {
+					const repairedContent = jsonrepair( newContent );
+					const jsonContent = JSON.parse( repairedContent );
+					console.log( '(2) jsonContent: ', jsonContent );
 
-				// Only update the blocks when the valid list changed, meaning a new block arrived.
-				if ( validBlocks.length !== currentListOfValidBlocks.current.length ) {
+					// convert JSON to parsed blocks
+					parsedBlocks = parseBlocksFromJson( jsonContent );
+
+					// Filter out invalid blocks
+					parsedBlocks = parsedBlocks.filter( block => {
+						return block.isValid && block.name !== 'core/freeform';
+					} );
+				} catch ( e ) {
+					// silent is gold
+				}
+
+				if ( parsedBlocks?.length ) {
+					console.log( { parsedBlocks } );
 					// Only update the valid blocks
-					replaceInnerBlocks( clientId, validBlocks );
+					replaceInnerBlocks( containerBlockId, parsedBlocks );
+					// insertBlocks( parsedBlocks, clientId );
 
 					// Update the list of current valid blocks
-					currentListOfValidBlocks.current = validBlocks;
+					// currentListOfValidBlocks.current = parsedBlocks;
 				}
 			},
-			[ clientId, replaceInnerBlocks ]
+			[ clientId, containerBlock, containerBlockId, insertBlocks, replaceInnerBlocks ]
 		);
 
 		useAiContext( {
