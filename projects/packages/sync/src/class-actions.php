@@ -87,17 +87,6 @@ class Actions {
 	const DEFAULT_SYNC_CRON_INTERVAL_VALUE = 300; // 5 * MINUTE_IN_SECONDS;
 
 	/**
-	 * Priority to use when adding the add_dedicated_sync_sender_init method
-	 * to the init action. A const is used rather than hard-coding the value
-	 * to aid unit testing.
-	 *
-	 * @access public
-	 *
-	 * @var int;
-	 */
-	const DEDICATED_SYNC_INIT_HOOK_PRIORITY = 90;
-
-	/**
 	 * Initialize Sync for cron jobs, set up listeners for WordPress Actions,
 	 * and set up a shut-down action for sending actions to WordPress.com
 	 * If dedicated Sync is enabled and this is a dedicated Sync request
@@ -119,7 +108,7 @@ class Actions {
 		// rely on 'jetpack_sync_before_send_queue_sync' are picked up and added to the queue if needed.
 		if ( Settings::is_dedicated_sync_enabled() && Dedicated_Sender::is_dedicated_sync_request() ) {
 			self::initialize_listener();
-			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), self::DEDICATED_SYNC_INIT_HOOK_PRIORITY );
+			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 90 );
 			return;
 		}
 

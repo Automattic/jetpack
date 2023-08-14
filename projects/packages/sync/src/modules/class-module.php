@@ -298,7 +298,7 @@ abstract class Module {
 		return $wpdb->get_col(
 			<<<SQL
 SELECT {$this->id_field()}
-FROM {$wpdb->{$this->table_name()}}
+FROM {$wpdb->prefix}{$this->table_name()}
 WHERE {$this->get_where_sql( $config )}
 AND {$this->id_field()} < {$status['last_sent']}
 ORDER BY {$this->id_field()}
@@ -582,7 +582,7 @@ SQL
 	 */
 	public function total( $config ) {
 		global $wpdb;
-		$table = $wpdb->{$this->table_name()};
+		$table = $wpdb->prefix . $this->table_name();
 		$where = $this->get_where_sql( $config );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

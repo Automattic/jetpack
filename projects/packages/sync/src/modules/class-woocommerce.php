@@ -60,6 +60,17 @@ class WooCommerce extends Module {
 	private $order_item_table_name;
 
 	/**
+	 * The id field in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function id_field() {
+		return 'order_item_id';
+	}
+
+	/**
 	 * The table in the database.
 	 *
 	 * @access public
@@ -67,7 +78,7 @@ class WooCommerce extends Module {
 	 * @return string
 	 */
 	public function table_name() {
-		return $this->order_item_table_name;
+		return 'woocommerce_order_items';
 	}
 
 	/**
@@ -180,7 +191,7 @@ class WooCommerce extends Module {
 	 */
 	public function init_before_send() {
 		// Full sync.
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_order_items', array( $this, 'expand_order_item_ids' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce', array( $this, 'expand_order_item_ids' ) );
 	}
 
 	/**

@@ -1,6 +1,9 @@
 <?php
 
+use Automattic\Jetpack\Sync\Dedicated_Sender;
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Testing WooCommerce Sync
@@ -23,7 +26,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		self::$woo_enabled = true;
 
-		$woo_tests_dir = __DIR__ . '/../../../../woocommerce/plugins/woocommerce/tests/legacy';
+		$woo_tests_dir = __DIR__ . '/../../../../woocommerce/tests';
 
 		if ( ! file_exists( $woo_tests_dir ) ) {
 			error_log( 'PLEASE RUN THE GIT VERSION OF WooCommerce that has the tests folder. Found at github.com/WooCommerce/woocommerce' );
@@ -32,43 +35,43 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		// This is taken from WooCommerce's bootstrap.php file
 		// framework.
-		require_once $woo_tests_dir . '/framework/class-wc-unit-test-factory.php';
-		require_once $woo_tests_dir . '/framework/class-wc-mock-session-handler.php';
-		require_once $woo_tests_dir . '/framework/class-wc-mock-wc-data.php';
-		require_once $woo_tests_dir . '/framework/class-wc-mock-wc-object-query.php';
-		require_once $woo_tests_dir . '/framework/class-wc-mock-payment-gateway.php';
-		require_once $woo_tests_dir . '/framework/class-wc-mock-enhanced-payment-gateway.php';
-		require_once $woo_tests_dir . '/framework/class-wc-payment-token-stub.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-unit-test-factory.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-session-handler.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-wc-data.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-wc-object-query.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-payment-gateway.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-mock-enhanced-payment-gateway.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-payment-token-stub.php';
 
 		// test cases.
-		require_once $woo_tests_dir . '/includes/wp-http-testcase.php';
-		require_once $woo_tests_dir . '/framework/class-wc-unit-test-case.php';
-		require_once $woo_tests_dir . '/framework/class-wc-api-unit-test-case.php';
-		require_once $woo_tests_dir . '/framework/class-wc-rest-unit-test-case.php';
+		require_once $woo_tests_dir . '/legacy/includes/wp-http-testcase.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-unit-test-case.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-api-unit-test-case.php';
+		require_once $woo_tests_dir . '/legacy/framework/class-wc-rest-unit-test-case.php';
 
 		// Helpers.
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-product.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-coupon.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-fee.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-shipping.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-customer.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-order.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-shipping-zones.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-payment-token.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-settings.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-reports.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-admin-notes.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-test-action-queue.php';
-		require_once $woo_tests_dir . '/framework/helpers/class-wc-helper-queue.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-product.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-coupon.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-fee.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-shipping.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-customer.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-order.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-shipping-zones.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-payment-token.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-settings.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-reports.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-admin-notes.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-test-action-queue.php';
+		require_once $woo_tests_dir . '/legacy/framework/helpers/class-wc-helper-queue.php';
 
 		// Traits.
-		require_once $woo_tests_dir . '/framework/traits/trait-wc-rest-api-complex-meta.php';
-		require_once dirname( $woo_tests_dir ) . '/php/helpers/HPOSToggleTrait.php';
+		require_once $woo_tests_dir . '/legacy/framework/traits/trait-wc-rest-api-complex-meta.php';
+		require_once $woo_tests_dir . '/php/helpers/HPOSToggleTrait.php';
 
-		require_once dirname( dirname( $woo_tests_dir ) ) . '/packages/action-scheduler/deprecated/ActionScheduler_Store_Deprecated.php';
-		require_once dirname( dirname( $woo_tests_dir ) ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler_Store.php';
-		require_once dirname( dirname( $woo_tests_dir ) ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler.php';
-		require_once dirname( dirname( $woo_tests_dir ) ) . '/packages/action-scheduler/functions.php';
+		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/deprecated/ActionScheduler_Store_Deprecated.php';
+		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler_Store.php';
+		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler.php';
+		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/functions.php';
 	}
 
 	/**
@@ -80,7 +83,27 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 			return;
 		}
 		parent::set_up();
-		$this->full_sync = Modules::get_module( 'full-sync' );
+
+		// Setting the Dedicated Sync check transient here to avoid making a test
+		// request every time dedicated Sync setting is updated.
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING );
+	}
+
+	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
+
+		// Restore default setting.
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
+
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
+
+		// Reset queue.
+		$this->sender->get_sync_queue()->reset();
+
+		$_SERVER['REQUEST_URI'] = '';
 	}
 
 	public function test_module_is_enabled() {
@@ -286,51 +309,99 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$order2_item  = reset( $order2_items ); // first item from order2
 		wc_update_order_item_meta( $order2_item->get_id(), '_line_subtotal', 20 );
 
-		$this->full_sync->start();
+		$limits                = \Automattic\Jetpack\Sync\Defaults::$default_full_sync_limits;
+		$limits['woocommerce'] = array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		);
+
+		Settings::update_settings( array( 'full_sync_limits' => $limits ) );
+
+		$full_sync_config                = Defaults::$default_full_sync_config;
+		$full_sync_config['woocommerce'] = 1;
+
+		$full_sync = Modules::get_module( 'full-sync' );
+		$full_sync->start( $full_sync_config );
 		$this->sender->do_full_sync();
 
-		// TODO: Fix code after this point. Currently $full_sync_order_items never has any items.
-
-		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-
-		/*
-		$full_sync_order_items = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_woocommerce_order_items' );
+		$full_sync_order_items = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_woocommerce' );
 
 		$this->assertTrue( (bool) $full_sync_order_items );
 		$synced_order_items = $full_sync_order_items->args[0];
 
+		$found_order_item_1 = false;
 		$found_order_item_2 = false;
-		$found_order_item_1 = $found_order_item_2; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		foreach ( $synced_order_items as $synced_order_item ) {
-			if ( $order1_item->get_id() === $synced_order_item->order_item_id ) {
+			if ( (string) $order1_item->get_id() === $synced_order_item->order_item_id ) {
 				$this->assertHasOrderItemProperties( $synced_order_item, $order1_item );
-				$found_order_item_1 = true; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				$found_order_item_1 = true;
 				continue;
 			}
 
-			if ( $order2_item->get_id() === $synced_order_item->order_item_id ) {
+			if ( (string) $order2_item->get_id() === $synced_order_item->order_item_id ) {
 				$this->assertHasOrderItemProperties( $synced_order_item, $order2_item );
 				$found_order_item_2 = true;
 				continue;
 			}
 		}
 
+		$this->assertTrue( $found_order_item_1 );
+		$this->assertTrue( $found_order_item_2 );
+
 		$synced_order_item_metas = $full_sync_order_items->args[1];
 
 		// find the _line_subtotal metas and assert they have the right values
-		$this->assertHasObjectMetaValue( $synced_order_item_metas, $order1_item->get_id(), '_line_subtotal', 10 );
-		$this->assertHasObjectMetaValue( $synced_order_item_metas, $order2_item->get_id(), '_line_subtotal', 20 );
-		*/
-		// phpcs:enable Squiz.PHP.CommentedOutCode.Found
+		$this->assertHasObjectMetaValue( $synced_order_item_metas, (string) $order1_item->get_id(), '_line_subtotal', 10 );
+		$this->assertHasObjectMetaValue( $synced_order_item_metas, (string) $order2_item->get_id(), '_line_subtotal', 20 );
 	}
 
-	public function test_init_hook_priorities() {
-		// If Dedicate Sync loads before the WooCommerce registrations, Sync will fail to sync
-		// WooCommerce data.
+	// Dedicated Sync
 
-		$this->assertGreaterThan( has_filter( 'init', array( 'WC_Post_Types', 'register_taxonomies' ) ), \Automattic\Jetpack\Sync\Actions::DEDICATED_SYNC_INIT_HOOK_PRIORITY );
-		$this->assertGreaterThan( has_filter( 'init', array( 'WC_Post_Types', 'register_post_types' ) ), \Automattic\Jetpack\Sync\Actions::DEDICATED_SYNC_INIT_HOOK_PRIORITY );
-		$this->assertGreaterThan( has_filter( 'init', array( 'WC_Post_Types', 'register_post_status' ) ), \Automattic\Jetpack\Sync\Actions::DEDICATED_SYNC_INIT_HOOK_PRIORITY );
+	public function test_dedicated_sync_order_items() {
+		// TODO - Find a way to adjust the tests in this function to fail if the 'init' action
+		// for add_dedicated_sync_sender_init in Automattic\Jetpack\Sync\Actions::init() has a
+		// priority below the priorities in the init actions in WooCommerce's
+		// WC_Post_Types::init() function.
+
+		$order1 = $this->createOrderWithItem();
+		$order2 = $this->createOrderWithItem();
+
+		// order items
+		$order1_items = $order1->get_items();
+		$order1_item  = reset( $order1_items ); // first item from order1
+
+		$order2_items = $order2->get_items();
+		$order2_item  = reset( $order2_items ); // first item from order2
+
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		// Current "request" is dedicated Sync request.
+		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
+
+		$this->sender->do_dedicated_sync_and_exit( false );
+
+		$dedicated_sync_order_items = $this->server_event_storage->get_all_events( 'woocommerce_new_order_item' );
+
+		$this->assertTrue( (bool) $dedicated_sync_order_items );
+		$synced_order_items = $dedicated_sync_order_items;
+
+		$found_order_item_1 = false;
+		$found_order_item_2 = false;
+		foreach ( $synced_order_items as $synced_order_item ) {
+			if ( (string) $order1_item->get_id() === $synced_order_item->args[1]->order_item_id ) {
+				$this->assertHasOrderItemProperties( $synced_order_item->args[1], $order1_item );
+				$found_order_item_1 = true;
+				continue;
+			}
+
+			if ( (string) $order2_item->get_id() === $synced_order_item->args[1]->order_item_id ) {
+				$this->assertHasOrderItemProperties( $synced_order_item->args[1], $order2_item );
+				$found_order_item_2 = true;
+				continue;
+			}
+		}
+
+		$this->assertTrue( $found_order_item_1 );
+		$this->assertTrue( $found_order_item_2 );
 	}
 
 	private function assertHasOrderItemProperties( $object, $compare = false ) {
