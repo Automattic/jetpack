@@ -103,58 +103,81 @@ export const compressSerializedBlockComposition = block => {
 	return compressedBlock;
 };
 
-export const uncompressSerializedBlockComposition = block => {
-	const tagReplacements = {
-		'<!-- ¢': '<!-- wp:jetpack/contact-form',
-		'<!-- £': '<!-- wp:jetpack/field-text',
-		'<!-- ¥': '<!-- wp:jetpack/field-name',
-		'<!-- €': '<!-- wp:jetpack/field-email',
-		'<!-- §': '<!-- wp:jetpack/field-url',
-		'<!-- ¶': '<!-- wp:jetpack/field-date',
-		'<!-- ¤': '<!-- wp:jetpack/field-telephone',
-		'<!-- ¦': '<!-- wp:jetpack/field-textarea',
-		'<!-- ³': '<!-- wp:jetpack/field-checkbox',
-		'<!-- ¨': '<!-- wp:jetpack/field-consent',
-		'<!-- ´': '<!-- wp:jetpack/field-radio',
-		'<!-- ª': '<!-- wp:jetpack/field-option-radio',
-		'<!-- «': '<!-- wp:jetpack/field-select',
-		'<!-- ¬': '<!-- wp:jetpack/button',
-		'<!-- °': '<!-- /wp:jetpack/contact-form',
-		'<!-- ²': '<!-- /wp:jetpack/field-radio',
-	};
-
-	const keyReplacements = {
-		'"¢"': '"subject"',
-		'"£"': '"to"',
-		'"¥"': '"style"',
-		'"€"': '"spacing"',
-		'"§"': '"padding"',
-		'"¶"': '"top"',
-		'"¤"': '"right"',
-		'"¦"': '"bottom"',
-		'"³"': '"left"',
-		'"¨"': '"required"',
-		'"´"': '"requiredText"',
-		'"ª"': '"label"',
-		'"«"': '"element"',
-		'"¬"': '"text"',
-		'"°"': '"lock"',
-		'"²"': '"remove"',
-		'"»"': '"toggleLabel"',
-	};
-
-	let uncompressedBlock = block;
-	for ( const original in tagReplacements ) {
-		const replacement = tagReplacements[ original ];
-		uncompressedBlock = uncompressedBlock.split( original ).join( replacement );
-	}
-	for ( const original in keyReplacements ) {
-		const replacement = keyReplacements[ original ];
-		uncompressedBlock = uncompressedBlock.split( original ).join( replacement );
-	}
-
-	return uncompressedBlock;
+const blockTypeNames = {
+	'jetpack/contact-form': '¢',
+	'jetpack/field-text': '£',
+	'jetpack/field-name': '¥',
+	'jetpack/field-email': '€',
+	'jetpack/field-url': '§',
+	'jetpack/field-date': '¶',
+	'jetpack/field-telephone': '¤',
+	'jetpack/field-textarea': '¦',
+	'jetpack/field-checkbox': '¡',
+	'jetpack/field-consent': '¿',
+	'jetpack/field-radio': '®',
+	'jetpack/field-option-radio': '©',
+	'jetpack/field-select': '÷',
+	'jetpack/button': '×',
+	'core/paragraph': '±',
+	'core/columns': '¬',
+	'core/column': '·',
 };
+
+const keyReplacements = {
+	subject: '1',
+	to: '2',
+	style: '3',
+	spacing: '4',
+	padding: '5',
+	top: '6',
+	right: '7',
+	bottom: '8',
+	left: '9',
+	required: '0',
+	requiredText: 'A',
+	label: 'B',
+	element: 'C',
+	text: 'D',
+	lock: 'E',
+	remove: 'F',
+	toggleLabel: 'G',
+};
+
+function processString( input, dictionary, mode = 'compress' ) {
+	let result = input;
+	for ( const [ key, value ] of Object.entries( dictionary ) ) {
+		const [ search, replace ] = mode === 'compress' ? [ key, value ] : [ value, key ];
+		const regex = new RegExp( `"${ search }"`, 'g' );
+		result = result.replace( regex, `"${ replace }"` );
+	}
+	return result;
+}
+
+const compressBlockString = input =>
+	processString( input, { ...blockTypeNames, ...keyReplacements }, 'compress' );
+export const decompressBlockString = compressed =>
+	processString( compressed, { ...blockTypeNames, ...keyReplacements }, 'decompress' );
+
+function extractBlockDefinitions( input ) {
+	const matches = input.match( /- ".+?" \| \{ .+? \}/g );
+	return matches ? matches.join( '\n' ) : '';
+}
+
+function replaceBlockDefinitions( input, definitions ) {
+	return input.replace( /- ".+?" \| \{ .+? \}/g, match => definitions.shift() );
+}
+
+function compressContent( input ) {
+	const blockDefinitions = extractBlockDefinitions( input );
+	const compressedDefinitions = compressBlockString( blockDefinitions );
+	return replaceBlockDefinitions( input, compressedDefinitions.split( '\n' ) );
+}
+
+export function decompressContent( compressed ) {
+	const blockDefinitions = extractBlockDefinitions( compressed );
+	const decompressedDefinitions = decompressBlockString( blockDefinitions );
+	return replaceBlockDefinitions( compressed, decompressedDefinitions.split( '\n' ) );
+}
 
 /**
  * Helper function to get the initial system prompt.
@@ -403,10 +426,11 @@ function getGuenbergSyntaxCompositionPrompt( {
 		{
 			role: 'system',
 			content: `
-			You are an advanced polyglot ghostwriter. Your task is to generate and modify content based on user requests.
+			You are an advanced polyglot ghostwriter. Your task is to generate content based on user requests.
 Also, You are an expert developer in Gutenberg, the WordPress block editor.
 
 Strictly follow those rules:
+- DO NOT add line breaks: \\n or \\r, etc.
 - DO NOT add any addtional feedback to the "user", just generate the requested block structure.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user's request, reply only with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.`,
@@ -414,7 +438,11 @@ Strictly follow those rules:
 		{
 			role,
 			// content: compressSerializedBlockComposition( `Handle the following request: ${ request }
-			content: `You are an advanced polyglot ghostwriter. Your task is to generatecontent based on user requests: ${ request }
+			content:
+				compressContent( `You are an advanced polyglot ghostwriter, and also 100% familiar with the Gutenberg editor. Help me with the following request:
+\`\`\`
+${ request }
+\`\`\`
 
 Rules to compose the content:
 Blocks for simple composition ( first column is the block name, second column is the attributes):
@@ -439,7 +467,9 @@ Blocks to create nested compositions (first column is the block name, second col
 - "core/column"  | { width: WIDTH }  | [ LAYOUT_BLOCKS | BLOCKS ]
 - "jetpack/contact-form" | {} | [ ANY jetpack/field-<any> ]
 
-Return the array of blocks.
+- DO NOT add line breaks: \\n or \\r, etc.
+- DO NOT add any addtional feedback to the "user", just generate the requested block structure.
+- Only Return the array of blocks.
 [
 	[ BLOCK_NAME, BLOCK_ATTRIBUTES ],
 	[ BLOCK_NAME, BLOCK_ATTRIBUTES, [
@@ -449,7 +479,7 @@ Return the array of blocks.
 		],
 	],
 ]
-`,
+` ),
 		},
 	];
 }
