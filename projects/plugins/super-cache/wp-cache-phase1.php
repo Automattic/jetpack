@@ -146,6 +146,11 @@ if ( function_exists( 'add_filter' ) ) { // loaded since WordPress 4.6
 
 $wp_cache_request_uri = wpsc_remove_tracking_params_from_uri( $_SERVER['REQUEST_URI'] ); // Cache this in case any plugin modifies it and filter out tracking parameters.
 
+// $wp_cache_request_uri is expected to be a string. If running from wp-cli it will be null.
+if ( $wp_cache_request_uri === null ) {
+	$wp_cache_request_uri = '';
+}
+
 if ( defined( 'DOING_CRON' ) ) {
 	// this is required for scheduled CRON jobs.
 	extract( wp_super_cache_init() ); // $key, $cache_filename, $meta_file, $cache_file, $meta_pathname
