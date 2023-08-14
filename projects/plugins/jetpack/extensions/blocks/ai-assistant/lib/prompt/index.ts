@@ -443,42 +443,34 @@ Strictly follow those rules:
 			content: compressContent( `Help me with the following request:${ request }
 
 Please, follow these rules:
-Blocks for simple composition: [ BLOCK_NAME, BLOCK_ATTRIBUTES ]
-- ["core/paragraph", { content: CONTENT}]
+Blocks for simple composition: [BLOCK_NAME,BLOCK_ATTRIBUTES]
+- ["core/paragraph",{content: CONTENT}]
 
 Blocks to create a layout (Use only when requested):
-- ["core/columns",{ columns: COLS },[ "core/column"]]
-- ["core/column" ,{ width: WIDTH },[ ANY_BLOCK ]
+- ["core/columns",{columns: COLS},["core/column"]]
+- ["core/column",{width: WIDTH},[ANY_BLOCK]]
 
-Blocks to create a form :[ BLOCK_NAME, BLOCK_ATTRIBUTES, JETPACK_FORM_BLOCKS ]
-- ["jetpack/contact-form", { subject: SUBJECT, to: TO }, [ ANY_BLOCK ] ]
-Children blocks for jetpack/contact-form: [ BLOCK_NAME, BLOCK_ATTRIBUTES ]
-- ["jetpack/field-text", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
-- ["jetpack/field-name", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
-- ["jetpack/field-email", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
-- ["jetpack/field-url", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
-- ["jetpack/field-date", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
-- ["jetpack/field-telephone", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
-- ["jetpack/field-textarea", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
-- ["jetpack/field-checkbox", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
-- ["jetpack/field-checkbox-multiple", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT, options: [ OPTION_ONE, OPTION_TWO, OPTION_THREE ]}]
-- ["jetpack/field-radio", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
-- ["jetpack/field-select", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT, options: [ OPTION_ONE, OPTION_TWO, OPTION_THREE ]}]
-- ["jetpack/field-consent", { consentType: CONSENT_TYPE, implicitConsentMessage: IMPLICIT_CONSENT_MESSAGE, explicitConsentMessage: EXPLICIT_CONSENT_MESSAGE}]
-- ["jetpack/button", { label: LABEL, element: ELEMENT, text: TEXT, borderRadius: BORDER_RADIUS, lock: { remove: true }}]
+Blocks to create a form :[BLOCK_NAME,BLOCK_ATTRIBUTES,JETPACK_FORM_BLOCKS]
+- ["jetpack/contact-form",{subject:SUBJECT,to:TO},[ANY_BLOCK]]
+Children blocks for jetpack/contact-form:[BLOCK_NAME,BLOCK_ATTRIBUTES]
+- ["jetpack/field-text",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
+- ["jetpack/field-name",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
+- ["jetpack/field-email",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
+- ["jetpack/field-url",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
+- ["jetpack/field-date",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
+- ["jetpack/field-telephone",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
+- ["jetpack/field-textarea",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
+- ["jetpack/field-checkbox",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
+- ["jetpack/field-checkbox-multiple",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT,options:[OPTION_ONE,OPTION_TWO,OPTION_THREE]}]
+- ["jetpack/field-radio",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
+- ["jetpack/field-select",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT,options:[OPTION_ONE,OPTION_TWO,OPTION_THREE]}]
+- ["jetpack/field-consent",{consentType:CONSENT_TYPE,implicitConsentMessage:IMPLICIT_CONSENT_MESSAGE,explicitConsentMessage:EXPLICIT_CONSENT_MESSAGE}]
+- ["jetpack/button",{label:LABEL,element:ELEMENT,text:TEXT,borderRadius:BORDER_RADIUS,lock:{remove:true}}]
 
 - DO NOT add line breaks: \\n or \\r, etc.
 - DO NOT add any addtional feedback to the "user", just generate the requested block structure.
 - Only Return the array of blocks.
-[
-	[ BLOCK_NAME, BLOCK_ATTRIBUTES ],
-	[ BLOCK_NAME, BLOCK_ATTRIBUTES, [
-		[ BLOCK_NAME, BLOCK_ATTRIBUTES ],
-		[ BLOCK_NAME, BLOCK_ATTRIBUTES, [
-			[ BLOCK_NAME, BLOCK_ATTRIBUTES ],
-		],
-	],
-]
+[[BLOCK_NAME,BLOCK_ATTRIBUTES],[BLOCK_NAME, BLOCK_ATTRIBUTES,[[BLOCK_NAME,BLOCK_ATTRIBUTES],[BLOCK_NAME,BLOCK_ATTRIBUTES,[[BLOCK_NAME,BLOCK_ATTRIBUTES]]]]
 ` ),
 		},
 	];
