@@ -161,8 +161,8 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'task_ids'            => array(
 				'verify_email',
 				'share_site',
-				'subscribers_added',
 				'enable_subscribers_modal',
+				'manage_subscribers',
 				'update_about_page',
 				'add_about_page',
 			),
