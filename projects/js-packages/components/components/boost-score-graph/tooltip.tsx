@@ -79,7 +79,7 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 				<div className="jb-score-tooltip__column">
 					{ __( 'Cumulative Layout Shift', 'jetpack' ) }
 				</div>
-				<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_cls ) }</div>
+				<div className="jb-score-tooltip__column">{ sprintf( '%0.2f', mobile_cls ) }</div>
 			</div>
 			<div className="jb-score-tooltip__pointer"></div>
 		</div>
