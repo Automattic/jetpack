@@ -175,7 +175,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'share_site',
 				'set_up_payments',
 				'enable_subscribers_modal',
-				'subscribers_added',
 				'manage_subscribers',
 				'manage_paid_newsletter_plan',
 				'update_about_page',
