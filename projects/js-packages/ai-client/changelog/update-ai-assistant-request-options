@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-AI Assistant: Add options parameter to request function on useAiSuggestions hook

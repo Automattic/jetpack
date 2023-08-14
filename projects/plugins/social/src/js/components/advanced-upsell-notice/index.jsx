@@ -1,5 +1,6 @@
 import { Button, Container, Notice, Text, getRedirectUrl } from '@automattic/jetpack-components';
-import { useDismissNotice } from '@automattic/jetpack-publicize-components';
+import { useDismissNotice, SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
+import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
@@ -8,6 +9,7 @@ const MONTH_IN_SECONDS = 30 * 24 * 60 * 60;
 
 const AdvancedUpsellNotice = () => {
 	const { shouldShowNotice, dismissNotice, NOTICES } = useDismissNotice();
+	const siteSuffix = useSelect( select => select( SOCIAL_STORE_ID ).getSiteSuffix() );
 
 	const handleDismiss = useCallback( () => {
 		dismissNotice( NOTICES.advancedUpgradeAdmin, 3 * MONTH_IN_SECONDS );
@@ -26,7 +28,10 @@ const AdvancedUpsellNotice = () => {
 							key="learn-more"
 							variant="link"
 							isExternalLink
-							href={ getRedirectUrl( 'jetpack-social-pricing-modal' ) }
+							href={ getRedirectUrl( 'jetpack-social-advanced-site-checkout', {
+								site: siteSuffix,
+								query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+							} ) }
 						>
 							{ __( 'Learn more', 'jetpack-social' ) }
 						</Button>,
