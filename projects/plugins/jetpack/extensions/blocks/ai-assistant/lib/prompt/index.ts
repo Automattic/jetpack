@@ -164,16 +164,18 @@ function extractBlockDefinitions( input ) {
 }
 
 function replaceBlockDefinitions( input, definitions ) {
-	return input.replace( /- ".+?" \| \{ .+? \}/g, match => definitions.shift() );
+	return input.replace( /- ".+?" \| \{ .+? \}/g, () => definitions.shift() );
 }
 
 function compressContent( input ) {
+	return input;
 	const blockDefinitions = extractBlockDefinitions( input );
 	const compressedDefinitions = compressBlockString( blockDefinitions );
 	return replaceBlockDefinitions( input, compressedDefinitions.split( '\n' ) );
 }
 
 export function decompressContent( compressed ) {
+	return compressed;
 	const blockDefinitions = extractBlockDefinitions( compressed );
 	const decompressedDefinitions = decompressBlockString( blockDefinitions );
 	return replaceBlockDefinitions( compressed, decompressedDefinitions.split( '\n' ) );
@@ -438,34 +440,32 @@ Strictly follow those rules:
 		{
 			role,
 			// content: compressSerializedBlockComposition( `Handle the following request: ${ request }
-			content:
-				compressContent( `You are an advanced polyglot ghostwriter, and also 100% familiar with the Gutenberg editor. Help me with the following request:
-\`\`\`
-${ request }
-\`\`\`
+			content: compressContent( `Help me with the following request:${ request }
 
-Rules to compose the content:
-Blocks for simple composition ( first column is the block name, second column is the attributes):
-Replace the camelcase attributes with the values provided by the user.
-- "core/paragraph" | { content: CONTENT }
-- "jetpack/field-text" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
-- "jetpack/field-name" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
-- "jetpack/field-email" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
-- "jetpack/field-url" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
-- "jetpack/field-date" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
-- "jetpack/field-telephone" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
-- "jetpack/field-textarea" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
-- "jetpack/field-checkbox" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
-- "jetpack/field-checkbox-multiple" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT, options: [ OPTION_ONE, OPTION_TWO, OPTION_THREE ] }
-- "jetpack/field-radio" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT }
-- "jetpack/field-select" | { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT, options: [ OPTION_ONE, OPTION_TWO, OPTION_THREE ] }
-- "jetpack/field-consent" | { consentType: CONSENT_TYPE, implicitConsentMessage: IMPLICIT_CONSENT_MESSAGE, explicitConsentMessage: EXPLICIT_CONSENT_MESSAGE }
-- "jetpack/button" | { label: LABEL, element: ELEMENT, text: TEXT, borderRadius: BORDER_RADIUS, lock: { remove: true } }
+Please, follow these rules:
+Blocks for simple composition: [ BLOCK_NAME, BLOCK_ATTRIBUTES ]
+- ["core/paragraph", { content: CONTENT}]
 
-Blocks to create nested compositions (first column is the block name, second column is the attributes, third column is the children):
-- "core/columns" | { columns: COLS } | [ "core/column" ]
-- "core/column"  | { width: WIDTH }  | [ LAYOUT_BLOCKS | BLOCKS ]
-- "jetpack/contact-form" | {} | [ ANY jetpack/field-<any> ]
+Blocks to create a layout (Use only when requested):
+- ["core/columns",{ columns: COLS },[ "core/column"]]
+- ["core/column" ,{ width: WIDTH },[ ANY_BLOCK ]
+
+Blocks to create a form :[ BLOCK_NAME, BLOCK_ATTRIBUTES, JETPACK_FORM_BLOCKS ]
+- ["jetpack/contact-form", { subject: SUBJECT, to: TO }, [ ANY_BLOCK ] ]
+Children blocks for jetpack/contact-form: [ BLOCK_NAME, BLOCK_ATTRIBUTES ]
+- ["jetpack/field-text", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
+- ["jetpack/field-name", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
+- ["jetpack/field-email", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
+- ["jetpack/field-url", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
+- ["jetpack/field-date", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
+- ["jetpack/field-telephone", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
+- ["jetpack/field-textarea", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
+- ["jetpack/field-checkbox", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
+- ["jetpack/field-checkbox-multiple", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT, options: [ OPTION_ONE, OPTION_TWO, OPTION_THREE ]}]
+- ["jetpack/field-radio", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT}]
+- ["jetpack/field-select", { label: LABEL, required: REQUIRED, requiredText: REQUIRED_TEXT, options: [ OPTION_ONE, OPTION_TWO, OPTION_THREE ]}]
+- ["jetpack/field-consent", { consentType: CONSENT_TYPE, implicitConsentMessage: IMPLICIT_CONSENT_MESSAGE, explicitConsentMessage: EXPLICIT_CONSENT_MESSAGE}]
+- ["jetpack/button", { label: LABEL, element: ELEMENT, text: TEXT, borderRadius: BORDER_RADIUS, lock: { remove: true }}]
 
 - DO NOT add line breaks: \\n or \\r, etc.
 - DO NOT add any addtional feedback to the "user", just generate the requested block structure.
