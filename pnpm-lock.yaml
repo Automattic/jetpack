@@ -2970,6 +2970,9 @@ importers:
       component-uid:
         specifier: 0.0.2
         version: 0.0.2
+      compress-json:
+        specifier: 2.1.2
+        version: 2.1.2
       cookie:
         specifier: 0.4.1
         version: 0.4.1
@@ -2997,6 +3000,9 @@ importers:
       jsdom:
         specifier: 20.0.3
         version: 20.0.3
+      jsonrepair:
+        specifier: 3.2.0
+        version: 3.2.0
       mapbox-gl:
         specifier: 1.13.0
         version: 1.13.0
@@ -12743,6 +12749,10 @@ packages:
     resolution: {integrity: sha512-LpbuRIGCbQpJDhyWlHmJqMNuMiR0s9nzlZ40kA8T/PC+hN2YrsBgBgOETtR9y2kE1HkbpQ0/l96kgyYKy6HzCA==}
     dev: false
 
+  /compress-json@2.1.2:
+    resolution: {integrity: sha512-91247RD8bKQXzRmXUS4zGT250mhw86+J9X8w2L2SGtRE7g0CvzjOETFaFmsDdaXPWv8T7L9iiM7kdcnnH3BH7w==}
+    dev: false
+
   /compressible@2.0.18:
     resolution: {integrity: sha512-AF3r7P5dWxL8MxyITRMlORQNaOA2IkAFaTr4k7BUumjPtRpGDTZpl0Pb1XCO6JeDCBdp126Cgs9sMxqSjgYyRg==}
     engines: {node: '>= 0.6'}
@@ -16810,6 +16820,11 @@ packages:
       universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.11
+
+  /jsonrepair@3.2.0:
+    resolution: {integrity: sha512-6eHBc2z5vipym4S8rzTcCXQBLWpkSzi9bk7I3xTdUxRzXyYvfjoVZzJ97N4C/9vcKI9NgNp3slPwHufDr0rFYw==}
+    hasBin: true
+    dev: false
 
   /jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
