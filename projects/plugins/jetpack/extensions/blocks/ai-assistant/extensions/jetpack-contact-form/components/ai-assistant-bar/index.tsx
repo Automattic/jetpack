@@ -199,6 +199,11 @@ export default function AiAssistantBar( {
 		</div>
 	);
 
+	// In mobile, do not render until the Assistant anchor is set.
+	if ( isAssistantBarFixed === null ) {
+		return null;
+	}
+
 	// Check if the Assistant bar should be rendered in the Assistant anchor (fixed mode)
 	if ( isAssistantBarFixed ) {
 		return createPortal( AiAssistantBarComponent, assistantAnchor );
