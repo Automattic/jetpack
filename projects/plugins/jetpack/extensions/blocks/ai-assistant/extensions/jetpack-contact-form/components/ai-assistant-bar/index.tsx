@@ -108,6 +108,7 @@ export default function AiAssistantBar( {
 			content: getSerializedContentFromBlock( clientId ),
 		} );
 
+		// requestSuggestion( prompt, { feature: 'ai-assistant-experimental' } );
 		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
 	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
 
