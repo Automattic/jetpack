@@ -58,7 +58,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the contact_update action.
-		do_action( 'jpcrm_automation_contact_update', $contact_data );
+		do_action( 'jpcrm_contact_updated', $contact_data );
 	}
 
 	/**
@@ -91,7 +91,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the contact_status_update action.
-		do_action( 'jpcrm_automation_contact_status_update', $contact_data );
+		do_action( 'jpcrm_contact_status_updated', $contact_data );
 	}
 
 	/**
@@ -123,8 +123,8 @@ class Contact_Trigger_Test extends BaseTestCase {
 			$this->equalTo( $contact_data )
 		);
 
-		// Notify the contact_created event.
-		do_action( 'jpcrm_automation_contact_created', $contact_data );
+		// Run the contact_created action.
+		do_action( 'jpcrm_contact_created', $contact_data );
 	}
 
 	/**
@@ -157,7 +157,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the contact_email_update action.
-		do_action( 'jpcrm_automation_contact_email_update', $contact_data );
+		do_action( 'jpcrm_contact_email_updated', $contact_data );
 	}
 
 	/**
@@ -190,7 +190,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the contact_deleted action.
-		do_action( 'jpcrm_automation_contact_delete', $contact_data );
+		do_action( 'jpcrm_contact_deleted', $contact_data );
 	}
 
 	/**
@@ -223,7 +223,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 		);
 
 		// Run the contact_before_deleted action.
-		do_action( 'jpcrm_automation_contact_before_delete', $contact_data );
+		do_action( 'jpcrm_contact_before_deleted', $contact_data );
 	}
 
 }

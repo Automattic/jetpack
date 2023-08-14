@@ -183,9 +183,7 @@ HTML;
 	}
 
 	/**
-	 * Returns true if we should load Newsletter content.
-	 * This is currently limited to lettre theme or newsletter sites.
-	 * We could open it to all themes or site intents.
+	 * Returns true if we should load Subscriber modal
 	 *
 	 * @return bool
 	 */
@@ -194,9 +192,6 @@ HTML;
 		// When ready for Jetpack release, remove this.
 		$is_wpcom = ( new Host() )->is_wpcom_platform();
 		if ( ! $is_wpcom ) {
-			return false;
-		}
-		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
 			return false;
 		}
 		if ( ! wp_is_block_theme() ) {
@@ -217,10 +212,11 @@ HTML;
 			return false;
 		}
 
-		// Don't show if subscribe query param is set.
-		// It is set when user submits the subscribe form.
+		// Don't show if one of subscribe query params is set.
+		// They are set when user submits the subscribe form.
+		// The nonce is checked elsewhere before redirect back to this page with query params.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['subscribe'] ) ) {
+		if ( isset( $_GET['subscribe'] ) || isset( $_GET['blogsub'] ) ) {
 			return false;
 		}
 

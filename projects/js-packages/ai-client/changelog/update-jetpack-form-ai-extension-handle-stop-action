@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: Expose stopSuggestion function on useAiSuggestions hook so the consumer can stop a suggestion in the middle.

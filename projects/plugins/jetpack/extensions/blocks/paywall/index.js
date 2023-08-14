@@ -3,6 +3,7 @@ import { pageBreak as icon } from '@wordpress/icons';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
+import transforms from './transforms';
 
 /**
  * Style dependencies
@@ -42,4 +43,5 @@ export const settings = {
 	example: {
 		attributes: {},
 	},
+	transforms,
 };
