@@ -26,7 +26,7 @@ QueryBackupUndoEvent.defaultProps = {
 export default connect(
 	state => {
 		return {
-			fetchBackupUndoEvent: fetchBackupUndoEvent(),
+			fetchBackupUndoEvent,
 			fetchingBackupUndoEvent: isFetchingBackupUndoEvent( state ),
 			hasLoadedBackupUndoEvent: hasLoadedBackupUndoEvent( state ),
 		};
