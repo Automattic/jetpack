@@ -44,14 +44,20 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 		}
 
 		/*
-		 * Let's create a slot just after the toolbar,
-		 * in case it was not created yet.
+		 * AI Assistant bar slot element.
+		 * When the viewport is in mobile mode,
+		 * create an element just after the contextual toolbar
+		 * to be used as the anchor for the Assistant Bar.
 		 */
-		if ( toolbar?.nextElementSibling?.classList.contains( AI_ASSISTANT_BAR_SLOT_CLASS ) ) {
-			return;
+
+		// Check if the slot already exists.
+		let slot = toolbar?.nextElementSibling as HTMLElement;
+		if ( slot?.classList.contains( AI_ASSISTANT_BAR_SLOT_CLASS ) ) {
+			return setAnchor( slot );
 		}
 
-		const slot = document.createElement( 'div' );
+		// Slot not found - create it.
+		slot = document.createElement( 'div' );
 		slot.className = AI_ASSISTANT_BAR_SLOT_CLASS;
 		toolbar.after( slot );
 
