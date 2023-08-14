@@ -24,7 +24,7 @@ require_once __DIR__ . '/launchpad-task-definitions.php';
  */
 function wpcom_launchpad_get_task_list_definitions() {
 	$core_task_list_definitions = array(
-		'build'           => array(
+		'build'                  => array(
 			'title'               => 'Build',
 			'task_ids'            => array(
 				'setup_general',
@@ -34,9 +34,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'design_edited',
 				'site_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'free'            => array(
+		'free'                   => array(
 			'title'               => 'Free',
 			'task_ids'            => array(
 				'plan_selected',
@@ -47,9 +47,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'design_edited',
 				'site_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'link-in-bio'     => array(
+		'link-in-bio'            => array(
 			'title'               => 'Link In Bio',
 			'task_ids'            => array(
 				'design_selected',
@@ -58,9 +58,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'links_added',
 				'link_in_bio_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'link-in-bio-tld' => array(
+		'link-in-bio-tld'        => array(
 			'title'               => 'Link In Bio',
 			'task_ids'            => array(
 				'design_selected',
@@ -69,9 +69,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'links_added',
 				'link_in_bio_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'newsletter'      => array(
+		'newsletter'             => array(
 			'title'               => 'Newsletter',
 			'task_ids'            => array(
 				'setup_newsletter',
@@ -82,9 +82,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'newsletter_plan_created',
 				'first_post_published_newsletter',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'videopress'      => array(
+		'videopress'             => array(
 			'title'               => 'Videopress',
 			'task_ids'            => array(
 				'videopress_setup',
@@ -92,9 +92,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'videopress_upload',
 				'videopress_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'write'           => array(
+		'write'                  => array(
 			'title'               => 'Write',
 			'task_ids'            => array(
 				'setup_write',
@@ -103,9 +103,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'first_post_published',
 				'site_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'start-writing'   => array(
+		'start-writing'          => array(
 			'title'               => 'Start Writing',
 			'task_ids'            => array(
 				'first_post_published',
@@ -114,9 +114,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'plan_completed',
 				'blog_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'design-first'    => array(
+		'design-first'           => array(
 			'title'               => 'Pick a Design',
 			'task_ids'            => array(
 				'design_completed',
@@ -126,9 +126,9 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'first_post_published',
 				'blog_launched',
 			),
-			'is_enabled_callback' => 'wpcom_get_launchpad_is_enabled',
+			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
 		),
-		'keep-building'   => array(
+		'intent-build'           => array(
 			'title'               => 'Keep Building',
 			'task_ids'            => array(
 				'site_title',
@@ -139,8 +139,59 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'drive_traffic',
 				'edit_page',
 				'share_site',
+				'update_about_page',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_keep_building_enabled',
+		),
+		'intent-write'           => array(
+			'title'               => 'Blog',
+			'task_ids'            => array(
+				'site_title',
+				'domain_claim',
+				'verify_email',
+				'domain_customize',
+				'drive_traffic',
+				'write_3_posts',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_is_intent_write_enabled',
+		),
+		'intent-free-newsletter' => array(
+			'title'               => 'Free Newsletter',
+			'task_ids'            => array(
+				'verify_email',
+				'domain_claim',
+				'domain_customize',
+				'share_site',
+				'customize_welcome_message',
+				'enable_subscribers_modal',
+				'add_10_email_subscribers',
+				'manage_subscribers',
+				'write_3_posts',
+				'connect_social_media',
+				'update_about_page',
+				'add_about_page',
+				'earn_money',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
+		),
+		'intent-paid-newsletter' => array(
+			'title'               => 'Paid Newsletter',
+			'task_ids'            => array(
+				'verify_email',
+				'domain_claim',
+				'domain_customize',
+				'share_site',
+				'customize_welcome_message',
+				'enable_subscribers_modal',
+				'add_10_email_subscribers',
+				'manage_subscribers',
+				'write_3_posts',
+				'connect_social_media',
+				'manage_paid_newsletter_plan',
+				'update_about_page',
+				'add_about_page',
+			),
+			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
 	);
 
@@ -539,8 +590,8 @@ function wpcom_log_launchpad_being_enabled_for_test_sites( $option, $value ) {
  *
  * @return bool True if the launchpad is enabled, false otherwise.
  */
-function wpcom_get_launchpad_is_enabled() {
-	return wpcom_launchpad_checklists()->is_launchpad_enabled();
+function wpcom_launchpad_get_fullscreen_enabled() {
+	return wpcom_launchpad_checklists()->is_fullscreen_launchpad_enabled();
 }
 
 /**
@@ -555,6 +606,26 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
 	}
 
 	return false;
+}
+
+/**
+ * Checks if a specific task list is dismissed.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to check.
+ * @return bool True if the task list is dismissed, false otherwise.
+ */
+function wpcom_launchpad_is_task_list_dismissed( $checklist_slug ) {
+	return wpcom_launchpad_checklists()->is_task_list_dismissed( $checklist_slug );
+}
+
+/**
+ * Sets a specific task list dismissed state.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to check.
+ * @param bool   $is_dismissed True if the task list is dismissed, false otherwise.
+ */
+function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed ) {
+	wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed );
 }
 
 /**
@@ -575,6 +646,43 @@ function wpcom_launchpad_is_keep_building_enabled() {
 	}
 
 	return false;
+}
+
+/**
+ * Checks if the Blog flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_intent_write_enabled() {
+	return apply_filters( 'is_launchpad_intent_write_enabled', false );
+}
+
+/**
+ * Checks if the Free Newsletter flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_free_newsletter_enabled() {
+	$intent = get_option( 'site_intent', false );
+	if ( 'newsletter' !== $intent ) {
+		return false;
+	}
+
+	return ! wpcom_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_free_newsletter_enabled', false );
+}
+
+/**
+ * Checks if the Paid Newsletter flow task list is enabled.
+ *
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_launchpad_is_paid_newsletter_enabled() {
+	$intent = get_option( 'site_intent', false );
+	if ( 'newsletter' !== $intent ) {
+		return false;
+	}
+
+	return wpcom_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
@@ -604,6 +712,8 @@ function add_launchpad_options_to_jetpack_sync( $allowed_options ) {
 	$launchpad_options = array(
 		'site_intent',
 		'launchpad_checklist_tasks_statuses',
+		'site_goals',
+		'sm_enabled',
 	);
 
 	return array_merge( $allowed_options, $launchpad_options );

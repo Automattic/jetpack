@@ -16,16 +16,17 @@
 	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { minifyJsExcludesStore, minifyCssExcludesStore } from '../../../stores/minify';
+	import { modulesState } from '../../../stores/modules';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import MinifyMeta from '../elements/MinifyMeta.svelte';
 	import Module from '../elements/Module.svelte';
-	import PremiumCTA from '../elements/PremiumCTA.svelte';
 	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
 	import ResizingUnavailable from '../elements/ResizingUnavailable.svelte';
 	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
+	import UpgradeCTA from '../elements/UpgradeCTA.svelte';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
@@ -98,14 +99,19 @@
 			/>
 		</div>
 
-		<div slot="cta">
-			<PremiumCTA />
-		</div>
+		<svelte:fragment slot="cta">
+			<UpgradeCTA
+				description={__(
+					'Save time by upgrading to Automatic Critical CSS generation',
+					'jetpack-boost'
+				)}
+			/>
+		</svelte:fragment>
 	</Module>
 
 	<Module
 		slug="cloud_css"
-		on:enabled={regenerateCriticalCss}
+		on:enabled={startPollingCloudStatus}
 		on:disabled={stopPollingCloudCssStatus}
 		on:mountEnabled={startPollingCloudStatus}
 	>
@@ -233,6 +239,17 @@
 			{#if false === Jetpack_Boost.site.canResizeImages}
 				<ResizingUnavailable />
 			{/if}
+
+			<svelte:fragment slot="cta">
+				{#if ! $modulesState.image_size_analysis.available}
+					<UpgradeCTA
+						description={__(
+							'Upgrade to scan your site for issues - automatically!',
+							'jetpack-boost'
+						)}
+					/>
+				{/if}
+			</svelte:fragment>
 		</Module>
 
 		<Module slug="image_size_analysis" toggle={false}>
@@ -241,7 +258,7 @@
 			</h3>
 			<p slot="description">
 				{__(
-					`This tool will search your site for images that are too large and have an impact your visitors experience, page loading times, and search rankings. Once finished, it will give you a report of all improperly sized images with suggestions on how to fix them.`,
+					`This tool will search your site for images that are too large and have an impact on your visitors' experience, page loading times, and search rankings. Once finished, it will give you a report of all improperly sized images with suggestions on how to fix them.`,
 					'jetpack-boost'
 				)}
 			</p>

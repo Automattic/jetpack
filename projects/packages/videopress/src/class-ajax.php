@@ -7,6 +7,9 @@ use \VIDEOPRESS_PRIVACY;
 
 /**
  * VideoPress AJAX action handlers and utilities.
+ *
+ * Note: this is also being used on WordPress.com.
+ * Use IS_WPCOM checks for functionality that is specific to WPCOM/Jetpack.
  */
 class AJAX {
 

@@ -8,7 +8,7 @@ import { image, update, check } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
-import { PROMPT_TYPE_CHANGE_TONE } from '../../lib/prompt';
+import { PROMPT_TYPE_CHANGE_TONE, PROMPT_TYPE_CHANGE_LANGUAGE } from '../../lib/prompt';
 import I18nDropdownControl from '../i18n-dropdown-control';
 import ImproveToolbarDropdownMenu from '../improve-dropdown-control';
 import PromptTemplatesControl from '../prompt-templates-control';
@@ -38,17 +38,31 @@ const ToolbarControls = ( {
 				<BlockControls group="block">
 					<ToneToolbarDropdownMenu
 						value="neutral"
-						onChange={ tone =>
-							getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_TONE, { tone, contentType: 'generated' } )
-						}
+						onChange={ tone => {
+							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+								type: 'suggestion',
+								suggestion: PROMPT_TYPE_CHANGE_TONE,
+							} );
+							getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_TONE, {
+								tone,
+								contentType: 'generated',
+							} );
+						} }
 						disabled={ contentIsLoaded }
 					/>
 
 					<I18nDropdownControl
 						value="en"
-						onChange={ language =>
-							getSuggestionFromOpenAI( 'changeLanguage', { language, contentType: 'generated' } )
-						}
+						onChange={ language => {
+							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+								type: 'suggestion',
+								suggestion: PROMPT_TYPE_CHANGE_LANGUAGE,
+							} );
+							getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_LANGUAGE, {
+								language,
+								contentType: 'generated',
+							} );
+						} }
 						disabled={ contentIsLoaded }
 					/>
 
@@ -68,10 +82,10 @@ const ToolbarControls = ( {
 						onPromptSelect={ prompt => {
 							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
 								type: 'prompt-template',
-								prompt,
+								prompt: prompt.original,
 							} );
 
-							setUserPrompt( prompt );
+							setUserPrompt( prompt.translated );
 						} }
 						onSuggestionSelect={ suggestion => {
 							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
@@ -94,12 +108,24 @@ const ToolbarControls = ( {
 						<BlockControls group="block">
 							<ToneToolbarDropdownMenu
 								value="neutral"
-								onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
+								onChange={ tone => {
+									recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+										type: 'suggestion',
+										suggestion: PROMPT_TYPE_CHANGE_TONE,
+									} );
+									getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_TONE, { tone } );
+								} }
 							/>
 							<I18nDropdownControl
 								value="en"
 								label={ __( 'Translate', 'jetpack' ) }
-								onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
+								onChange={ language => {
+									recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+										type: 'suggestion',
+										suggestion: PROMPT_TYPE_CHANGE_LANGUAGE,
+									} );
+									getSuggestionFromOpenAI( PROMPT_TYPE_CHANGE_LANGUAGE, { language } );
+								} }
 							/>
 						</BlockControls>
 					) }

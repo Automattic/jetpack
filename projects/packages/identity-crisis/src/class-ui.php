@@ -119,6 +119,15 @@ class UI {
 			'consumerData'                   => static::get_consumer_data(),
 			'isAdmin'                        => $is_admin,
 			'possibleDynamicSiteUrlDetected' => $possible_dynamic_site_url_detected,
+
+			/**
+			 * Use the filter to provide custom HTML elecontainer ID.
+			 *
+			 * @since 0.10.0
+			 *
+			 * @param string|null $containerID The container ID.
+			 */
+			'containerID'                    => apply_filters( 'identity_crisis_container_id', null ),
 		);
 	}
 

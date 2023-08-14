@@ -1,10 +1,10 @@
 === WP Super Cache ===
-Contributors: donncha, automattic, adnan007, mikemayhem3030, ppetrov2c, pyronaur, thingalon
+Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 6.1
 Requires PHP: 5.6
-Tested up to: 6.2
-Stable tag: 1.9.3
+Tested up to: 6.3
+Stable tag: 1.9.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,17 +268,31 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.9.4-beta - 2023-02-28
+### 1.10.0-beta - 2023-08-01
 #### Added
-- Added new filter which controls cache clearing on post edit.
-- Added a check to ensure preload cronjobs exist when updating preload settings.
+- Caching: Added support for the 'Accept' HTTP Header. Prevent caching JSON content.
+- Preload: Improved preload notification panel shows the last 5 preloaded URLs.
 
 #### Changed
-- Updated contributors list.
+- Preload: Faster and more robust preloading slower hosts.
+- General: Indicate full compatibility with the latest version of WordPress, 6.3.
+- General: Update Boost install / activate card styles.
+- General: Update documentation links to point to Jetpack.com docs.
+- General: Update the contributors list.
+
+#### Removed
+- Cleanup: Remove unused "object cache" code.
+- Cleanup: Removes unwanted development environment files from production version of the plugin.
 
 #### Fixed
-- Fixed undefined PHP variable when trying to delete a protected folder.
-- Fixed deprecation warnings on PHP 8.1+.
+- Caching: Reject unknown or malformed URIs to prevent PHP warnings.
+- Cache Compression: Fix PHP warning appearing in gzip output stream.
+- Dynamic Caching: Fixed incorrect encoding headers when using dynamic caching with compression.
+- General: Fix incorrect Debug Log URL for nested WordPress installations.
+- General: Fix links to cache directory on sites that are in a sub directory.
+- General: Updated Nginx documentation hyperlink.
+- Preload: No longer deletes child taxonomies during preload.
+- Preload: Use a constant instead of hard-coded email numbers in preload dropdown.
 
 --------
 

@@ -286,7 +286,7 @@ class Jetpack_RelatedPosts {
 			'isServerRendered'  => true,
 		);
 
-		return $this->render_block( $block_rp_settings );
+		return $this->render_block( $block_rp_settings, '' );
 	}
 
 	/**
@@ -359,7 +359,7 @@ EOT;
 	/**
 	 * Echoes out items for the Gutenberg block
 	 *
-	 * @param array $related_post The post oject.
+	 * @param array $related_post The post object.
 	 * @param array $block_attributes The block attributes.
 	 */
 	public function render_block_item( $related_post, $block_attributes ) {
@@ -382,13 +382,14 @@ EOT;
 
 		if ( ! empty( $block_attributes['show_thumbnails'] ) && ! empty( $related_post['img']['src'] ) ) {
 			$img_link = sprintf(
-				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img src="%3$s" width="%4$s" height="%5$s" alt="%6$s" loading="lazy" /></a></li>',
+				'<li class="jp-related-posts-i2__post-img-link"><a href="%1$s" %2$s><img loading="lazy" src="%3$s" width="%4$s" height="%5$s" alt="%6$s" %7$s/></a></li>',
 				esc_url( $related_post['url'] ),
 				( ! empty( $related_post['rel'] ) ? 'rel="' . esc_attr( $related_post['rel'] ) . '"' : '' ),
 				esc_url( $related_post['img']['src'] ),
 				esc_attr( $related_post['img']['width'] ),
 				esc_attr( $related_post['img']['height'] ),
-				esc_attr( $related_post['img']['alt_text'] )
+				esc_attr( $related_post['img']['alt_text'] ),
+				( ! empty( $related_post['img']['srcset'] ) ? 'srcset="' . esc_attr( $related_post['img']['srcset'] ) . '"' : '' )
 			);
 
 			$item_markup .= $img_link;
@@ -460,10 +461,15 @@ EOT;
 	/**
 	 * Render the related posts markup.
 	 *
-	 * @param array $attributes Block attributes.
+	 * @param array  $attributes Block attributes.
+	 * @param string $content    String containing the related Posts block content.
 	 * @return string
 	 */
-	public function render_block( $attributes ) {
+	public function render_block( $attributes, $content ) {
+		if ( ! jetpack_is_frontend() ) {
+			return $content;
+		}
+
 		$wrapper_attributes = array();
 		$post_id            = get_the_ID();
 		$block_attributes   = array(
@@ -1502,9 +1508,6 @@ EOT;
 
 			if ( is_array( $post_image ) ) {
 				$img_url = $post_image['src'];
-				if ( ! empty( $post_image['src_width'] ) ) {
-					$src_width = $post_image['src_width'];
-				}
 			} elseif ( class_exists( 'Jetpack_Media_Summary' ) ) {
 				$media = Jetpack_Media_Summary::get( $post_id );
 
@@ -1540,26 +1543,13 @@ EOT;
 				);
 
 				// Add a srcset to handle zoomed views and high-density screens.
-				$multipliers   = array( 1, 2, 3, 4 );
-				$srcset_values = array();
-				foreach ( $multipliers as $multiplier ) {
-					// Forcefully cast to int, in case we ever add decimal multipliers.
-					$srcset_width  = (int) ( $thumbnail_width * $multiplier );
-					$srcset_height = (int) ( $thumbnail_height * $multiplier );
-					if ( empty( $src_width ) || $srcset_width < 1 || $srcset_width > $src_width ) {
-						break;
-					}
-
-					$srcset_url      = Jetpack_PostImages::fit_image_url(
-						$img_url,
-						$srcset_width,
-						$srcset_height
-					);
-					$srcset_values[] = "{$srcset_url} {$multiplier}x";
-				}
-
-				if ( count( $srcset_values ) > 1 ) {
-					$image_params['srcset'] = implode( ', ', $srcset_values );
+				$srcset = Jetpack_PostImages::generate_cropped_srcset(
+					$post_image,
+					$thumbnail_width,
+					$thumbnail_height
+				);
+				if ( ! empty( $srcset ) ) {
+					$image_params['srcset'] = $srcset;
 				}
 			}
 		}

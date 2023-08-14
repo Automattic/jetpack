@@ -121,6 +121,17 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_chartjs', 'zeroBSCRM_admin_styles_homedash' ),
 		);
 
+		if ( apply_filters( 'jetpack_crm_automations_load_ui', false ) ) {
+			$menu['jpcrm']['subitems']['core-automations'] = array(
+				'title'      => __( 'Automations', 'zero-bs-crm' ),
+				'url'        => $zbs->slugs['core-automations'],
+				'perms'      => 'admin_zerobs_manage_options',
+				'order'      => 2,
+				'wpposition' => 2,
+				'callback'   => 'jpcrm_pages_automations',
+			);
+		}
+
 		// Contacts (sub)
 		$menu['jpcrm']['subitems']['contacts'] = array(
 			'title'      => __( 'Contacts', 'zero-bs-crm' ),
@@ -346,6 +357,17 @@ function zeroBSCRM_menu_buildMenu() {
 			'callback'   => 'zeroBSCRM_pages_dash',
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_admin_styles_chartjs', 'zeroBSCRM_admin_styles_homedash' ),
 		);
+
+		if ( apply_filters( 'jetpack_crm_automations_load_ui', false ) ) {
+			$menu['jpcrm']['subitems']['core-automations'] = array(
+				'title'      => __( 'Automations', 'zero-bs-crm' ),
+				'url'        => $zbs->slugs['core-automations'],
+				'perms'      => 'admin_zerobs_manage_options',
+				'order'      => 2,
+				'wpposition' => 2,
+				'callback'   => 'jpcrm_pages_automations',
+			);
+		}
 
 		// Core modules (sub)
 		$menu['jpcrm']['subitems']['modules'] = array(

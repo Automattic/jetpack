@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
 	import Toggle from '../../../elements/Toggle.svelte';
-	import { modulesState } from '../../../stores/modules';
+	import { modulesState, modulesStatePending } from '../../../stores/modules';
 
 	export let toggle = true;
 	export let slug: string;
@@ -12,10 +12,21 @@
 	$: isModuleAvailable = $modulesState[ slug ].available;
 
 	async function handleToggle() {
-		const toggledState = ! isModuleActive;
-		$modulesState[ slug ].active = toggledState;
-		const eventName = toggledState === true ? 'enabled' : 'disabled';
-		dispatch( eventName );
+		$modulesState[ slug ].active = ! isModuleActive;
+	}
+
+	/**
+	 * Watch for changes in state and dispatch an event when the state is no longer pending.
+	 */
+	let lastToggledState = $modulesState[ slug ].active;
+	$: {
+		if ( ! $modulesStatePending ) {
+			const newState = $modulesState[ slug ].active;
+			if ( lastToggledState !== newState ) {
+				lastToggledState = newState;
+				dispatch( newState ? 'enabled' : 'disabled' );
+			}
+		}
 	}
 
 	onMount( async () => {

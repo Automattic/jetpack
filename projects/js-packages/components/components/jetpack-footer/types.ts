@@ -1,4 +1,4 @@
-type JetpackFooterMenuItem = {
+export type JetpackFooterMenuItem = {
 	href: string;
 	label: string;
 	onClick?: () => void;
@@ -9,11 +9,6 @@ type JetpackFooterMenuItem = {
 };
 
 export type JetpackFooterProps = {
-	/**
-	 * Link for 'An Automattic Airline'.
-	 */
-	a8cLogoHref?: string;
-
 	/**
 	 * Name of the module, e.g. 'Jetpack Search'.
 	 */
@@ -33,4 +28,24 @@ export type JetpackFooterProps = {
 	 * Navigation menu to display in the footer.
 	 */
 	menu?: JetpackFooterMenuItem[];
+
+	/**
+	 * URL of the site WP Admin.
+	 */
+	siteAdminUrl?: string;
+
+	/**
+	 * Function called when the About link is clicked.
+	 */
+	onAboutClick?: () => void;
+
+	/**
+	 * Function called when the Privacy link is clicked.
+	 */
+	onPrivacyClick?: () => void;
+
+	/**
+	 * Function called when the Terms link is clicked.
+	 */
+	onTermsClick?: () => void;
 };

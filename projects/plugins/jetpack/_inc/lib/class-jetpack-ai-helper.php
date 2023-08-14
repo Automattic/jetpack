@@ -318,20 +318,14 @@ class Jetpack_AI_Helper {
 
 			$blog_id        = get_current_blog_id();
 			$is_over_limit  = \OpenAI_Limit_Usage::is_blog_over_request_limit( $blog_id );
-			$requests_limit = \OpenAI_Limit_Usage::NUM_FREE_REQUESTS_LIMIT;
+			$requests_limit = \OpenAI_Limit_Usage::get_free_requests_limit( $blog_id );
 			$requests_count = \OpenAI_Request_Count::get_count( $blog_id );
 
-			/*
-			 * Check if the site requires an upgrade.
-			 * Ideally, the feature availability
-			 * should support site-type handling.
-			 * @todo: research how to do it.
-			 */
-			$blogs_details   = get_blog_details( $blog_id );
-			$is_jetpack_site = is_blog_jetpack( $blogs_details ) && ! is_blog_atomic( $blogs_details );
-			$require_upgrade = $is_jetpack_site ?
-				$is_over_limit && ! $has_ai_assistant_feature :
-				false;
+			// Check if the site requires an upgrade.
+			$require_upgrade = $is_over_limit && ! $has_ai_assistant_feature;
+
+			// Determine the upgrade type
+			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
 
 			return array(
 				'has-feature'          => $has_ai_assistant_feature,
@@ -339,6 +333,7 @@ class Jetpack_AI_Helper {
 				'requests-count'       => $requests_count,
 				'requests-limit'       => $requests_limit,
 				'site-require-upgrade' => $require_upgrade,
+				'upgrade-type'         => $upgrade_type,
 			);
 		}
 

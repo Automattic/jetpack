@@ -143,9 +143,21 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		}
 		$product_details = $this->get_product_details( $product );
 
-		$all_props = array_merge(
-			$properties,
-			$this->get_common_properties()
+		/**
+		 * Allow defining custom event properties in WooCommerce Analytics.
+		 *
+		 * @module woocommerce-analytics
+		 *
+		 * @since 12.5
+		 *
+		 * @param array $all_props Array of event props to be filtered.
+		 */
+		$all_props = apply_filters(
+			'jetpack_woocommerce_analytics_event_props',
+			array_merge(
+				$properties,
+				$this->get_common_properties()
+			)
 		);
 
 		$js = "{

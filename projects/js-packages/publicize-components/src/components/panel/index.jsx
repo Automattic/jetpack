@@ -32,6 +32,7 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 		adminUrl,
 		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable,
+		shouldShowAdvancedPlanNudge,
 	} = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
@@ -86,6 +87,7 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 						isEnhancedPublishingEnabled={ isEnhancedPublishingEnabled }
 						isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable }
 						adminUrl={ adminUrl }
+						shouldShowAdvancedPlanNudge={ shouldShowAdvancedPlanNudge }
 					/>
 					{ enableTweetStorm && isPublicizeEnabled && (
 						<PublicizeTwitterOptions prePublish={ prePublish } />

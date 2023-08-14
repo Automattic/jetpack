@@ -58,3 +58,13 @@ add_action(
 		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
 	}
 );
+
+/**
+ * Register the `ai-assistant-form-support` extension.
+ */
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-form-support' );
+	}
+);
