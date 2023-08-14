@@ -43,32 +43,17 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 				<div className="jb-score-tooltip__column">
 					{ __( 'Largest Contentful Paint', 'jetpack' ) }
 				</div>
-				<div className="jb-score-tooltip__column">
-					{
-
-						sprintf( '%0.2fs', desktop_lcp )
-					}
-				</div>
+				<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', desktop_lcp ) }</div>
 			</div>
 			<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
 				<div className="jb-score-tooltip__column">{ __( 'Total Blocking Time', 'jetpack' ) }</div>
-				<div className="jb-score-tooltip__column">
-					{
-						/* translators: %d is the score */
-						sprintf( __( '%0.2fs', 'jetpack' ), desktop_tbt )
-					}
-				</div>
+				<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', desktop_tbt ) }</div>
 			</div>
 			<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
 				<div className="jb-score-tooltip__column">
 					{ __( 'Cumulative Layout Shift', 'jetpack' ) }
 				</div>
-				<div className="jb-score-tooltip__column">
-					{
-						/* translators: %d is the score */
-						sprintf( '%0.2f', desktop_cls )
-					}
-				</div>
+				<div className="jb-score-tooltip__column">{ sprintf( '%0.2f', desktop_cls ) }</div>
 			</div>
 			<hr />
 			<div className="jb-score-tooltip__row">
@@ -84,32 +69,17 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 				<div className="jb-score-tooltip__column">
 					{ __( 'Largest Contentful Paint', 'jetpack' ) }
 				</div>
-				<div className="jb-score-tooltip__column">
-					{
-						/* translators: %d is the score */
-						sprintf( __( '%0.2fs', 'jetpack' ), mobile_lcp )
-					}
-				</div>
+				<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_lcp ) }</div>
 			</div>
 			<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
 				<div className="jb-score-tooltip__column">{ __( 'Total Blocking Time', 'jetpack' ) }</div>
-				<div className="jb-score-tooltip__column">
-					{
-						/* translators: %d is the score */
-						sprintf( __( '%0.2fs', 'jetpack' ), mobile_tbt )
-					}
-				</div>
+				<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_tbt ) }</div>
 			</div>
 			<div className="jb-score-tooltip__row jb-score-tooltip__row--secondary">
 				<div className="jb-score-tooltip__column">
 					{ __( 'Cumulative Layout Shift', 'jetpack' ) }
 				</div>
-				<div className="jb-score-tooltip__column">
-					{
-						/* translators: %d is the score */
-						sprintf( __( '%0.2fs', 'jetpack' ), mobile_cls )
-					}
-				</div>
+				<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_cls ) }</div>
 			</div>
 			<div className="jb-score-tooltip__pointer"></div>
 		</div>
