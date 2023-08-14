@@ -3,6 +3,7 @@
  */
 import { useAiContext, AIControl, ERROR_QUOTA_EXCEEDED } from '@automattic/jetpack-ai-client';
 import { serialize } from '@wordpress/blocks';
+import { useViewportMatch } from '@wordpress/compose';
 import { select } from '@wordpress/data';
 import { useDispatch } from '@wordpress/data';
 import {
@@ -75,7 +76,7 @@ export default function AiAssistantBar( {
 	const wrapperRef = useRef< HTMLDivElement >( null );
 	const inputRef = useRef< HTMLInputElement >( null );
 
-	const { inputValue, setInputValue, isFixed, isVisible, assistantAnchor } =
+	const { inputValue, setInputValue, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
 
 	const { requestSuggestion, requestingState, stopSuggestion, requestingError } = useAiContext( {
@@ -111,13 +112,19 @@ export default function AiAssistantBar( {
 	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
 
 	/*
-	 * Auto-resize mode.
-	 * Update the bar layout depending on the component width.
+	 * Fix the assistant bar when the viewport is mobile,
+	 * and the Assistant anchor exists.
 	 */
-	const isMobileModeRef = useRef( isFixed );
-	const [ isMobileMode, setMobileMode ] = useState( isFixed );
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
+	const isAssistantBarFixed = isMobileViewport && assistantAnchor;
 
-	const observerRef = useRef( null );
+	/*
+	 * Auto-mobile-switching mode.
+	 * Update the bar layout depending on the bar component width.
+	 */
+	const observerRef = useRef< ResizeObserver | null >( null );
+	const isMobileModeRef = useRef( isMobileViewport );
+	const [ isMobileMode, setMobileMode ] = useState( isMobileViewport );
 
 	useEffect( () => {
 		// Get the Assistant bar DOM element.
@@ -127,11 +134,14 @@ export default function AiAssistantBar( {
 		}
 
 		// Only create a new observer if there isn't one already
-		if ( ! observerRef.current ) {
+		if ( ! observerRef?.current ) {
 			observerRef.current = new ResizeObserver( entries => {
-				// Bail erly if the bar is already fixed.
-				if ( isFixed ) {
-					return setMobileMode( true );
+				if ( ! isVisible ) {
+					return;
+				}
+
+				if ( isAssistantBarFixed ) {
+					return;
 				}
 
 				const barWidth = entries[ 0 ].contentRect.width;
@@ -150,15 +160,13 @@ export default function AiAssistantBar( {
 
 		return () => {
 			// Disconnect the observer when the component is unmounted.
-			observerRef.current?.disconnect();
+			observerRef?.current?.disconnect();
 		};
-	}, [ isFixed ] );
+	}, [ isAssistantBarFixed, isVisible ] );
 
 	if ( ! isVisible ) {
 		return null;
 	}
-
-	const shouldAnchorToBlockToolbar = isFixed && assistantAnchor;
 
 	// Assistant bar component.
 	const AiAssistantBarComponent = (
@@ -166,7 +174,7 @@ export default function AiAssistantBar( {
 			ref={ wrapperRef }
 			className={ classNames( 'jetpack-ai-assistant__bar', {
 				[ className ]: className,
-				'is-fixed': shouldAnchorToBlockToolbar,
+				'is-fixed': isAssistantBarFixed,
 				'is-mobile-mode': isMobileMode,
 			} ) }
 		>
@@ -181,13 +189,13 @@ export default function AiAssistantBar( {
 				onStop={ stopSuggestion }
 				state={ requestingState }
 				isOpaque={ siteRequireUpgrade }
-				showButtonsLabel={ ! isMobileMode && ! isFixed }
+				showButtonsLabel={ ! isMobileMode }
 			/>
 		</div>
 	);
 
 	// Check if the Assistant bar should be rendered in the Assistant anchor (fixed mode)
-	if ( shouldAnchorToBlockToolbar ) {
+	if ( isAssistantBarFixed ) {
 		return createPortal( AiAssistantBarComponent, assistantAnchor );
 	}
 
