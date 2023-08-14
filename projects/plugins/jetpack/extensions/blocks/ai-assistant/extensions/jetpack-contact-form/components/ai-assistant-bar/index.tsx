@@ -164,6 +164,11 @@ export default function AiAssistantBar( {
 		};
 	}, [ isAssistantBarFixed, isVisible ] );
 
+	// focus input on first render only (for a11y reasons, toggling on/off should not focus the input)
+	useEffect( () => {
+		inputRef.current?.focus();
+	}, [] );
+
 	if ( ! isVisible ) {
 		return null;
 	}
