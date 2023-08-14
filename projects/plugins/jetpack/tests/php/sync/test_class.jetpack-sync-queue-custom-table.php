@@ -115,7 +115,7 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 		$table_storage->drop_table();
 		$create_table_method->invoke( $table_storage );
 
-		$table_storage::migrate_from_options_table_to_custom_table();
+		Queue_Storage_Table::migrate_from_options_table_to_custom_table();
 
 		$this->assertEquals( 300, $table_storage->get_item_count() );
 
@@ -157,7 +157,7 @@ class WP_Test_Jetpack_Sync_Queue_Dedicated_Table extends WP_Test_Jetpack_Sync_Qu
 		$options_storage = new Queue\Queue_Storage_Options( $test_queue_id );
 		$options_storage->clear_queue();
 
-		$test_queue->queue_storage::migrate_from_custom_table_to_options_table();
+		Queue_Storage_Table::migrate_from_custom_table_to_options_table();
 
 		$this->assertEquals( 300, $options_storage->get_item_count() );
 
