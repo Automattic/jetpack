@@ -2,7 +2,7 @@
 /**
  * Paywall Block.
  *
- * @since 12.1
+ * @since 12.5
  *
  * @package automattic/jetpack
  */
@@ -21,6 +21,13 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
+	if ( ! \Jetpack::is_module_active( 'subscriptions' ) ) {
+		return;
+	}
+	if ( ! class_exists( '\Jetpack_Memberships' ) ) {
+		return;
+	}
+
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )

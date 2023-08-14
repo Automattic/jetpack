@@ -2,7 +2,6 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import requestJwt from '../jwt';
 import SuggestionsEventSource from '../suggestions-event-source';
 /*
  * Types & constants
@@ -24,6 +23,16 @@ export type AskQuestionOptionsArgProps = {
 	 * Allows to use a specific AI assistant feature. Default value is undefined.
 	 */
 	feature?: 'ai-assistant-experimental' | string | undefined;
+
+	/*
+	 * Allows the use of function calling. Default value is undefined.
+	 */
+	functions?: Array< {
+		name?: string;
+		arguments?: string;
+		// eslint-disable-next-line @typescript-eslint/ban-types
+		implementation?: Function;
+	} >;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:ask-question' );
@@ -48,11 +57,12 @@ const debug = debugFactory( 'jetpack-ai-client:ask-question' );
  */
 export default async function askQuestion(
 	question: PromptProp,
-	{ postId = null, fromCache = false, feature }: AskQuestionOptionsArgProps = {}
+	{ postId = null, fromCache = false, feature, functions }: AskQuestionOptionsArgProps = {}
 ): Promise< SuggestionsEventSource > {
-	debug( 'Asking question: %o. options: %o', question, { postId, fromCache, feature } );
+	debug( 'Asking question: %o. options: %o', question, { postId, fromCache, feature, functions } );
 
-	const { token } = await requestJwt();
-
-	return new SuggestionsEventSource( { question, token, options: { postId, feature, fromCache } } );
+	return new SuggestionsEventSource( {
+		question,
+		options: { postId, feature, fromCache, functions },
+	} );
 }

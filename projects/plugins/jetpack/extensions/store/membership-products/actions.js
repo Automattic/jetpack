@@ -103,3 +103,8 @@ export const saveProduct =
 			callback( false );
 		}
 	};
+
+export const setSubscriberCounts = subscriberCounts => ( {
+	type: 'SET_SUBSCRIBER_COUNTS',
+	subscriberCounts,
+} );

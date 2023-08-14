@@ -18,9 +18,14 @@ export * from './src/icons';
 /*
  * Components
  */
-export { default as AIControl } from './src/components/ai-control';
+export * from './src/components';
 
 /*
  * Contexts
  */
 export * from './src/data-flow';
+
+/*
+ * Types
+ */
+export * from './src/types';

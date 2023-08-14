@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed boost banner getting oversized when zoomed out
