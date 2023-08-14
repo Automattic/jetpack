@@ -293,7 +293,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.5-beta - 2023-08-14
+### 12.5-a.9 - 2023-08-14
 #### Enhancements
 - Added SIG modal ui
 - Add Inspector Panel with Newsletter visibility options to Paywall Block
