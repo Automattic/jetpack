@@ -66,7 +66,7 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 				<div className="jb-score-tooltip__column">
 					{
 						/* translators: %d is the score */
-						sprintf( __( '%0.2fs', 'jetpack' ), desktop_cls )
+						sprintf( '%0.2f', desktop_cls )
 					}
 				</div>
 			</div>
