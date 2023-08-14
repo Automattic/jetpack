@@ -18,7 +18,7 @@ class WP_Test_Jetpack_Sync_Queue_Options_Table extends WP_Test_Jetpack_Sync_Queu
 
 	// Ignoring as Dev requirement is > PHP7
 	// phpcs:ignore PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
-	public function set_up(): void {
+	public function set_up() {
 		parent::set_up();
 
 		// Disable the dedicated table, so we can run with the options table
