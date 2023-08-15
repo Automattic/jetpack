@@ -53,10 +53,6 @@ export default class RecommendationsPage extends WpPage {
 		return 'a[href*="recommendations/vaultpress-backup"] >> text="Not now"';
 	}
 
-	get skipMonitoringButtonSel() {
-		return 'a[href*="recommendations/related-posts"] >> text="Not now"';
-	}
-
 	get tryVaultPressBackup() {
 		return 'a[href*="jetpack-recommendations-product-checkout"] >> text=Get';
 	}
@@ -158,10 +154,6 @@ export default class RecommendationsPage extends WpPage {
 
 	async skipSiteAcceleratorAndContinue() {
 		return await this.click( this.skipSiteAcceleratorButtonSel );
-	}
-
-	async skipMonitoringAndContinue() {
-		return await this.click( this.skipMonitoringButtonSel );
 	}
 
 	async isTryVaultPressBackupButtonVisible() {
