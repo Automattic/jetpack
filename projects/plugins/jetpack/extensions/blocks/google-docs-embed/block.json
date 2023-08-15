@@ -27,7 +27,7 @@
 	},
 	"variations": [
 		{
-			"name": "google-docs",
+			"name": "jetpack/google-docs",
 			"isDefault": true,
 			"title": "Google Docs",
 			"description": "Embed a Google Document.",
