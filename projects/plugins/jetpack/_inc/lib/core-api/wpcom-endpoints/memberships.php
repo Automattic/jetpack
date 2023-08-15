@@ -309,6 +309,11 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			'type'                    => $type,
 		);
 
+		// If we pass directly is_editable as null, it would break API argument validation.
+		if ( null !== $is_editable ) {
+			$payload['is_editable'] = $is_editable;
+		}
+
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			require_lib( 'memberships' );
 			$product = Memberships_Product::get_from_post( get_current_blog_id(), $product_id );
@@ -325,16 +330,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			}
 			return array( 'product' => $updated_product->to_array() );
 		} else {
-			$payload = array(
-				'type'     => $request['type'],
-				'currency' => $request['currency'],
-			);
-
-			// If we pass directly is_editable as null, it would break API argument validation.
-			if ( null !== $is_editable ) {
-				$payload['is_editable'] = $is_editable;
-			}
-
 			$blog_id  = Jetpack_Options::get_option( 'id' );
 			$response = Client::wpcom_json_api_request_as_user(
 				"/sites/$blog_id/{$this->rest_base}/product/$product_id",
@@ -388,10 +383,10 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		} else {
 			$blog_id  = Jetpack_Options::get_option( 'id' );
 			$response = Client::wpcom_json_api_request_as_user(
-				"/sites/$blog_id/{$this->rest_base}/product/$product_id/delete",
+				"/sites/$blog_id/{$this->rest_base}/product/$product_id",
 				'v2',
 				array(
-					'method' => 'POST',
+					'method' => 'DELETE',
 				)
 			);
 			if ( is_wp_error( $response ) ) {
