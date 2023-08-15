@@ -182,7 +182,7 @@ class Automation_Faker {
 					'value'    => 'lead',
 				),
 				'next_step_true'  => array(
-					'slug' => 'dummy_action',
+					'slug' => 'dummy_step',
 				),
 				'next_step_false' => null,
 			),
