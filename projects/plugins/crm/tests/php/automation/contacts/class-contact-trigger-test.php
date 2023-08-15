@@ -80,18 +80,23 @@ class Contact_Trigger_Test extends BaseTestCase {
 		$trigger->init( $workflow );
 
 		// Fake event data.
-		$contact_data = $this->automation_faker->contact_data();
+		$contact    = $this->automation_faker->contact_data();
+		$old_status = 'Blacklisted';
+		$expected   = array(
+			'contact'          => $contact,
+			'old_status_value' => $old_status,
+		);
 
 		// We expect the workflow to be executed on contact_status_update event with the contact data
 		$workflow->expects( $this->once() )
 		->method( 'execute' )
 		->with(
 			$this->equalTo( $trigger ),
-			$this->equalTo( $contact_data )
+			$this->equalTo( $expected )
 		);
 
 		// Run the contact_status_update action.
-		do_action( 'jpcrm_contact_status_updated', $contact_data );
+		do_action( 'jpcrm_contact_status_updated', $contact, $old_status );
 	}
 
 	/**

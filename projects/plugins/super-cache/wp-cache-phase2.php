@@ -364,7 +364,7 @@ function wp_cache_serve_cache_file() {
 		}
 	} elseif ( $do_not_serve_gzip_data ) {
 		$cache        = wp_cache_get_legacy_cache( $cache_file );
-		$uncompressed = gzuncompress( $cache );
+		$uncompressed = @gzuncompress( $cache ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- there is a small chance the cache isn't gzipped despite being configured to be.
 		if ( $uncompressed ) {
 			$cache = $uncompressed;
 			unset( $uncompressed );
