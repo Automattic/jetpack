@@ -448,7 +448,7 @@ Please, follow these composing rules to be used in the Gutenberg editor (aka Wor
 - Image: [ "core/image", { "url": "https://pd.w.org/2022/01/21261f60ba46147b0.97888240.jpg", alt: ALT, }, ],
 
 ## Quote blocks composition:
-- Quote: [ "core/quote", { "citation": CITATION, }, [ [ ANY_BLOCK ], ], ],
+- Quote: [ "core/quote", { "citation": WHO_CITATION, }, [ [ ANY_BLOCK ], ], ],
 
 ## List blocks composition:
 - List: [ "core/list", { "ordered": ORDERED }, [ [ "core/list-item", { "content": CONTENT }, ], ], ],
