@@ -87,7 +87,7 @@ class Contact_Deleted extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_contact_delete',
+			'jpcrm_contact_deleted',
 			array( $this, 'execute_workflow' )
 		);
 	}

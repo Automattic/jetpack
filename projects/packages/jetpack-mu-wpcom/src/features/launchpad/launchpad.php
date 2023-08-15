@@ -80,6 +80,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'verify_email',
 				'set_up_payments',
 				'newsletter_plan_created',
+				'migrate_content',
 				'first_post_published_newsletter',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_get_fullscreen_enabled',
@@ -151,6 +152,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'verify_email',
 				'domain_customize',
 				'drive_traffic',
+				'write_3_posts',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_intent_write_enabled',
 		),
@@ -158,15 +160,11 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'title'               => 'Free Newsletter',
 			'task_ids'            => array(
 				'verify_email',
-				'domain_claim',
-				'domain_customize',
 				'share_site',
-				'customize_welcome_message',
 				'enable_subscribers_modal',
-				'add_10_email_subscribers',
 				'manage_subscribers',
-				'write_3_posts',
-				'connect_social_media',
+				'update_about_page',
+				'add_about_page',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
@@ -174,16 +172,13 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'title'               => 'Paid Newsletter',
 			'task_ids'            => array(
 				'verify_email',
-				'domain_claim',
-				'domain_customize',
 				'share_site',
-				'customize_welcome_message',
+				'set_up_payments',
 				'enable_subscribers_modal',
-				'add_10_email_subscribers',
 				'manage_subscribers',
-				'write_3_posts',
-				'connect_social_media',
 				'manage_paid_newsletter_plan',
+				'update_about_page',
+				'add_about_page',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_paid_newsletter_enabled',
 		),
@@ -600,6 +595,26 @@ function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
 	}
 
 	return false;
+}
+
+/**
+ * Checks if a specific task list is dismissed.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to check.
+ * @return bool True if the task list is dismissed, false otherwise.
+ */
+function wpcom_launchpad_is_task_list_dismissed( $checklist_slug ) {
+	return wpcom_launchpad_checklists()->is_task_list_dismissed( $checklist_slug );
+}
+
+/**
+ * Sets a specific task list dismissed state.
+ *
+ * @param string $checklist_slug The slug of the launchpad task list to check.
+ * @param bool   $is_dismissed True if the task list is dismissed, false otherwise.
+ */
+function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed ) {
+	wpcom_launchpad_checklists()->set_task_list_dismissed( $checklist_slug, $is_dismissed );
 }
 
 /**

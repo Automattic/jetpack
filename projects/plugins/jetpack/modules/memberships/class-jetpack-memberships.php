@@ -437,10 +437,16 @@ class Jetpack_Memberships {
 	/**
 	 * Get the post access level
 	 *
+	 * If no ID is provided, the method tries to get it from the global post object.
+	 *
+	 * @param int|null $post_id The ID of the post. Default is null.
+	 *
 	 * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/constants.js for the values).
 	 */
-	public static function get_post_access_level() {
-		$post_id = get_the_ID();
+	public static function get_post_access_level( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
 		if ( ! $post_id ) {
 			return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}

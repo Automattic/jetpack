@@ -78,7 +78,7 @@ class Invoice_Created extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_invoice_created',
+			'jpcrm_invoice_created',
 			array( $this, 'execute_workflow' )
 		);
 	}

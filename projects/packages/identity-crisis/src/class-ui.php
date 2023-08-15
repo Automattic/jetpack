@@ -123,7 +123,7 @@ class UI {
 			/**
 			 * Use the filter to provide custom HTML elecontainer ID.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.10.0
 			 *
 			 * @param string|null $containerID The container ID.
 			 */

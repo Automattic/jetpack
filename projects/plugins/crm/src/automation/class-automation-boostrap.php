@@ -188,7 +188,7 @@ final class Automation_Boostrap {
 
 		foreach ( $conditions as $condition ) {
 			try {
-				$this->engine->register_step( $condition::get_slug(), $condition );
+				$this->engine->register_step( $condition );
 			} catch ( \Exception $e ) {
 				$this->engine->get_logger()->log( $e->getMessage() );
 			}
@@ -225,7 +225,7 @@ final class Automation_Boostrap {
 
 		foreach ( $actions as $action ) {
 			try {
-				$this->engine->register_step( $action::get_slug(), $action );
+				$this->engine->register_step( $action );
 			} catch ( \Exception $e ) {
 				$this->engine->get_logger()->log( $e->getMessage() );
 			}

@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\CRM\Automation;
  *
  * @since $$next-version$$
  */
-class Step_Exception extends \Exception {
+class Step_Exception extends Automation_Exception {
 
 	/**
 	 * Step type not allowed code.
@@ -29,6 +29,14 @@ class Step_Exception extends \Exception {
 	 * @since $$next-version$$
 	 * @var int
 	 */
-	const STEP_CLASS_DOES_NOT_EXIST = 11;
+	const DO_NOT_EXIST = 11;
+
+	/**
+	 * Step class do not extend base class or interface.
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	const DO_NOT_EXTEND_BASE = 12;
 
 }

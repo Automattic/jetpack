@@ -78,7 +78,7 @@ class Company_Created extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_company_created',
+			'jpcrm_company_created',
 			array( $this, 'execute_workflow' )
 		);
 	}

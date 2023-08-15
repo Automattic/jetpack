@@ -81,14 +81,35 @@ class Contact_Status_Updated extends Base_Trigger {
 	}
 
 	/**
+	 * Called when the contact status updated event we are listening to is triggered.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array  $contact The array representing the contact that triggered this action.
+	 * @param string $old_status_value The value this contact's status had before being updated.
+	 * @return void
+	 *
+	 * @throws Automation_Exception If an invalid operator is encountered.
+	 */
+	public function on_jpcrm_contact_status_updated( $contact, $old_status_value ) {
+		$data = array(
+			'contact'          => $contact,
+			'old_status_value' => $old_status_value,
+		);
+		$this->execute_workflow( $data );
+	}
+
+	/**
 	 * Listen to the desired event.
 	 *
 	 * @since $$next-version$$
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_contact_status_update',
-			array( $this, 'execute_workflow' )
+			'jpcrm_contact_status_updated',
+			array( $this, 'on_jpcrm_contact_status_updated' ),
+			10,
+			2
 		);
 	}
 

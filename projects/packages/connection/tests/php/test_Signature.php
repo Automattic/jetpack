@@ -368,20 +368,9 @@ class SignatureTest extends TestCase {
 			// Invalid values.
 			array(
 				'',
-				new stdClass(),
-				'',
-			),
-			array(
-				'',
 				'string',
 				'',
 			),
-			array(
-				'',
-				array( 'string' ),
-				'',
-			),
-
 		);
 	}
 

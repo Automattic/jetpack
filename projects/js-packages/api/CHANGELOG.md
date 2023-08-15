@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.16.0 - 2023-08-14
+### Added
+- Add backup undo feature. [#32442]
+
+## 0.15.10 - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
 ## 0.15.9 - 2023-07-11
 ### Changed
 - Updated package dependencies. [#31785]

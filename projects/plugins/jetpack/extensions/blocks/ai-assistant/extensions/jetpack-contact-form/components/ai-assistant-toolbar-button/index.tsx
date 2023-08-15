@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { aiAssistantIcon, useAiContext } from '@automattic/jetpack-ai-client';
-import { ToolbarButton } from '@wordpress/components';
+import { KeyboardShortcuts, ToolbarButton } from '@wordpress/components';
 import { useContext, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
@@ -10,66 +10,88 @@ import React, { useEffect } from 'react';
  * Internal dependencies
  */
 import { AiAssistantUiContext } from '../../ui-handler/context';
-import { handleAiExtensionsBarBodyClass } from '../../ui-handler/with-ui-handler-data-provider';
 
+const AI_ASSISTANT_BAR_SLOT_CLASS = 'jetpack-ai-assistant-bar__slot';
+
+/**
+ * The toolbar button that toggles the Assistant Bar.
+ * Also, it creates a slot just after the contextual toolbar
+ * to be used as the anchor for the Assistant Bar.
+ *
+ * @returns {React.ReactElement} The toolbar button.
+ */
 export default function AiAssistantToolbarButton(): React.ReactElement {
-	const { isVisible, toggle, setPopoverProps, setAssistantFixed } =
-		useContext( AiAssistantUiContext );
+	const { isVisible, toggle, setAnchor } = useContext( AiAssistantUiContext );
 	const { requestingState } = useAiContext();
 
+	const toolbarButtonRef = useRef< HTMLElement | null >( null );
+
 	/*
-	 * Let's switch the anchor when the toolbar is fixed
-	 * 1 - Pick the Dom element reference
-	 * 2 - Find the closest block-editor-block-contextual-toolbar
-	 * 3 - Check if the toolbar is fixed, based on `is-fixed` CSS class
+	 * When the toolbar button is rendered, we need to find the
+	 * contextual toolbar and create a slot just after it.
+	 * This slot will be used as the anchor for the Assistant Bar.
 	 */
-	const anchorRef = useRef< HTMLElement | null >( null );
 	useEffect( () => {
-		if ( ! anchorRef.current ) {
+		if ( ! toolbarButtonRef.current ) {
 			return;
 		}
 
-		const toolbar = anchorRef.current.closest(
+		const toolbar = toolbarButtonRef.current.closest(
 			'.block-editor-block-contextual-toolbar'
 		) as HTMLElement;
 		if ( ! toolbar ) {
 			return;
 		}
-		const isFixed = toolbar.classList.contains( 'is-fixed' );
-		setAssistantFixed( isFixed );
-		handleAiExtensionsBarBodyClass( isFixed, isVisible );
-
-		if ( ! isFixed ) {
-			return;
-		}
 
 		/*
-		 * There is a race condition between the toolbar and component onMount.
-		 * We need to wait a bit to set the popover props.
+		 * AI Assistant bar slot element.
+		 * When the viewport is in mobile mode,
+		 * create an element just after the contextual toolbar
+		 * to be used as the anchor for the Assistant Bar.
 		 */
-		setTimeout( () => {
-			setPopoverProps( prev => ( {
-				...prev,
-				anchor: toolbar,
-				offset: 0,
-				variant: 'toolbar',
-			} ) );
-		}, 100 );
-	}, [ setAssistantFixed, setPopoverProps, isVisible ] );
+
+		// Check if the slot already exists.
+		let slot = toolbar?.nextElementSibling as HTMLElement;
+		if ( slot?.classList.contains( AI_ASSISTANT_BAR_SLOT_CLASS ) ) {
+			return setAnchor( slot );
+		}
+
+		// Slot not found - create it.
+		slot = document.createElement( 'div' );
+
+		// Set role="toolbar" and Aria label
+		slot.setAttribute( 'role', 'toolbar' );
+		slot.setAttribute( 'aria-label', __( 'AI Assistant', 'jetpack' ) );
+		slot.setAttribute( 'aria-orientation', 'horizontal' );
+		slot.className = AI_ASSISTANT_BAR_SLOT_CLASS;
+		toolbar.after( slot );
+
+		// Set the anchor where the Assistant Bar will be rendered.
+		setAnchor( slot );
+	}, [ setAnchor ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 
 	return (
-		<ToolbarButton
-			ref={ anchorRef }
-			showTooltip
-			onClick={ toggle }
-			aria-haspopup="true"
-			aria-expanded={ isVisible }
-			label={ __( 'Ask AI Assistant', 'jetpack' ) }
-			icon={ aiAssistantIcon }
-			disabled={ isDisabled }
-			isActive={ isVisible }
-		/>
+		<>
+			<KeyboardShortcuts
+				bindGlobal
+				shortcuts={ {
+					'mod+/': toggle,
+				} }
+			/>
+
+			<ToolbarButton
+				ref={ toolbarButtonRef }
+				showTooltip
+				onClick={ toggle }
+				aria-haspopup="true"
+				aria-expanded={ isVisible }
+				label={ __( 'Ask AI Assistant', 'jetpack' ) }
+				icon={ aiAssistantIcon }
+				disabled={ isDisabled }
+				isActive={ isVisible }
+			/>
+		</>
 	);
 }

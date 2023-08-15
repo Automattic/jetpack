@@ -1,3 +1,4 @@
+const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getFiles = require( '../../utils/get-files' );
 
@@ -138,6 +139,19 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			}
 		}
 
+		// Custom [{ "path": "label" }] values passed from a workflow.
+		const addLabelsString = getInput( 'add_labels' );
+		if ( addLabelsString ) {
+			debug( `GOT addLabelsString: ${ addLabelsString }` );
+			const addedLabels = JSON.parse( addLabelsString );
+			addedLabels.forEach( passed => {
+				if ( file.startsWith( passed.path ) ) {
+					debug( `passing: ${ passed.label } for ${ passed.path }` );
+					keywords.add( passed.label );
+				}
+			} );
+		}
+
 		// Modules.
 		const module = file.match( /^projects\/plugins\/jetpack\/modules\/(?<module>[^/]*)\// );
 		const moduleName = module && module.groups.module;
@@ -214,6 +228,15 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			keywords.add( '[CRM] API' );
 		}
 
+		// mu wpcom features.
+		const muWpcomFeatures = file.match(
+			/^projects\/packages\/jetpack-mu-wpcom\/src\/features\/(?<muWpcomFeature>[^/]*)\//
+		);
+		const muWpcomFeatureName = muWpcomFeatures && muWpcomFeatures.groups.muWpcomFeature;
+		if ( muWpcomFeatureName ) {
+			keywords.add( `[mu wpcom Feature] ${ cleanName( muWpcomFeatureName ) }` );
+		}
+
 		// Boost Critical CSS.
 		const boostModules = file.match(
 			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?<boostModule>[^/]*)\//
@@ -278,7 +301,7 @@ async function addLabels( payload, octokit ) {
 		return;
 	}
 
-	debug( `add-labels: Adding labels to PR #${ number }` );
+	debug( `add-labels: Adding labels ${ labels } to PR #${ number }` );
 
 	await octokit.rest.issues.addLabels( {
 		owner: owner.login,
