@@ -442,66 +442,41 @@ Strictly follow those rules:
 			content: compressContent( `I want you help me to create a blog post content.
 
 Please, follow these composing rules to be used in the Gutenberg editor (aka WordPress block editor):
-# Simple Blocks Composition:
+# Simple blocks:
+- Paragraph: [ "core/paragraph",{ "content": CONTENT, "fontSize": small | medium }, ],
+- Heading: [ "core/heading",{ "content": CONTENT, level: LEVEL, }, ],
+- Image: [ "core/image", { "url": "https://pd.w.org/2022/01/21261f60ba46147b0.97888240.jpg", alt: ALT, }, ],
 
-- **Paragraph**: 
-    - ["core/paragraph", {"content": CONTENT}],
-- **Heading**: 
-    - ["core/heading", {"content": CONTENT, "level": LEVEL}],
-- **Image**: 
-    - ["core/image", {"url": "https://dotcompatterns.files.wordpress.com/2023/03/mountains_portrait.jpeg?w=400", "alt": ALT}],
-- **Quote**: 
-    - ["core/quote", {"value": VALUE, "citation": CITATION}],
+## Quote blocks composition:
+- Quote: [ "core/quote", { "citation": CITATION, }, [ [ ANY_BLOCK ], ], ],
 
-## List Blocks Composition:
+## List blocks composition:
+- List: [ "core/list", { "ordered": ORDERED }, [ [ "core/list-item", { "content": CONTENT }, ], ], ],
+- List Item: [ "core/list-item", { "content": CONTENT, }, ],
 
-- **List**: 
-    - ["core/list", {"ordered": ORDERED}, [["core/list-item", {"content": CONTENT}]]],
-- **List Item**: 
-    - ["core/list-item", {"content": CONTENT}],
+## Columns blocks composition.
+- Columns (ONLY "core/column" block allowed): [ "core/columns", { "columns": COLS, }, [ [ "core/column" ], ], ],
+- Column (compute WIDTH based on the number of columns): [ "core/column", { width: WIDTH, }, [ [ ANY_BLOCK ], ], ],
 
-## Columns Blocks Composition:
-- **Columns container**: 
-    - ["core/columns", {"columns": COLS}, [["core/column"]]],
-- **Individual column** (compute WIDTH based on the number of columns): 
-    - ["core/column", {"width": WIDTH}, [[ANY_BLOCK]]],
+## Cover blocks composition (used for images with text overlay):
+- Cover: [ "core/cover", { "url": "https://pd.w.org/2022/01/21261f60ba46147b0.97888240.jpg", "backgroundColor": RGB_COLOR, dimRatio: 20, }, [ [ ANY_BLOCK ], ], ],
 
-
-## Form Block Composition:
-
-- **Main Form Container**: 
-- ["jetpack/contact-form", {"subject": SUBJECT, "to": TO}, [["jetpack/field-<ANY>"]]],
-
-### Form Field Blocks (children of the Form block):
-
-- **Text field**: 
-	- ["jetpack/field-text", {"label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT}],
-- **Name field**: 
-	- ["jetpack/field-name", {"label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT}],
-- **Email field**: 
-	- ["jetpack/field-email", {"label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT}],
-- **URL field**: 
-	- ["jetpack/field-url", {"label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT}],
-- **Date field**: 
-	- ["jetpack/field-date", {"label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT}],
-- **Telephone field**: 
-	- ["jetpack/field-telephone", {"label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT}],
-- **Textarea field**: 
-	- ["jetpack/field-textarea", {"label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT}],
-- **Checkbox field**: 
-	- ["jetpack/field-checkbox", {"label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT}],
-- **Multiple checkbox field**: 
-	- ["jetpack/field-checkbox-multiple", {"label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, "options": [OPTION_1, OPTION_2, OPTION_3]}],
-- **Radio button field**: 
-	- ["jetpack/field-radio", {"label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT}],
-- **Dropdown select field**: 
-	- ["jetpack/field-select", {"label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, "options": [OPTION_1, OPTION_2, OPTION_3]}],
-- **Consent field**: 
-	- ["jetpack/field-consent", {"consentType": CONSENT_TYPE, "implicitConsentMessage": IMPLICIT_CONSENT_MESSAGE, "explicitConsentMessage": EXPLICIT_CONSENT_MESSAGE}],
-- **Button**: 
-	- ["jetpack/button", {"label": LABEL, "element": ELEMENT, "text": TEXT, "borderRadius": BORDER_RADIUS, "lock": {"remove": true}}],
-	
-
+## Form block
+- Form: [ "jetpack/contact-form", { "subject": SUBJECT, "to": TO }, [ [ "jetpack/field-<ANY>", ], ], ],
+### Form field blocks (children of From block):
+- Text field: [ "jetpack/field-text", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
+- Name field: [ "jetpack/field-name", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
+- Email field: [ "jetpack/field-email", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
+- URL field: [ "jetpack/field-url", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
+- Date field: [ "jetpack/field-date", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
+- Telephone field: [ "jetpack/field-telephone", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
+- Textarea field: [ "jetpack/field-textarea", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
+- Checkbox field*: [ "jetpack/field-checkbox", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
+- Multiple checkbox field: [ "jetpack/field-checkbox-multiple", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, "options": [ OPTION_1, OPTION_2, OPTION_3, ], }, ],
+- Radio button field: [ "jetpack/field-radio", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
+- Dropdown/Multi Select field: [ "jetpack/field-select", { "label": LABEL, "required": REQUIRED, "requiredText":  REQUIRED_TEXT, "options": [ OPTION_1, OPTION_2, OPTION_3, ], }, ],
+- Consent field: [ "jetpack/field-consent", { "consentType": CONSENT_TYPE, "implicitConsentMessage": IMPLICIT_CONSENT_MESSAGE, "explicitConsentMessage": EXPLICIT_CONSENT_MESSAGE }, ],
+- Button field: [ "jetpack/button", { "label": LABEL, "element": ELEMENT, "text": TEXT, "borderRadius": BORDER_RADIUS, "lock": { "remove": true }, }, ],
 
 - DO NOT add any addtional feedback to the "user", just generate the requested block structure.
 - Only Return the array of blocks: [[BLOCK_NAME, BLOCK_ATTRIBUTES],[BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES],BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES]],],],
