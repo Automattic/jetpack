@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { aiAssistantIcon, origamiPlaneIcon } from '@automattic/jetpack-ai-client';
+import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { PlainText } from '@wordpress/block-editor';
 import { Button, Icon, Spinner } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { closeSmall, check } from '@wordpress/icons';
+import { closeSmall, check, arrowUp } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
@@ -186,7 +186,7 @@ const AIControl = forwardRef(
 										disabled={ ! userPrompt?.length || ! connected || requireUpgrade }
 										label={ __( 'Send request', 'jetpack' ) }
 									>
-										<Icon icon={ origamiPlaneIcon } />
+										<Icon icon={ arrowUp } />
 										{ ! isSm && __( 'Send', 'jetpack' ) }
 									</Button>
 								) : (

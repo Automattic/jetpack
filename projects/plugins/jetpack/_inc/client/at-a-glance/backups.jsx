@@ -1,9 +1,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
+import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Icon, backup } from '@wordpress/icons';
+import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
+import QueryBackupUndoEvent from 'components/data/query-backup-undo-event';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
@@ -16,7 +20,12 @@ import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getVaultPressData } from 'state/at-a-glance';
+import {
+	getBackupUndoEvent,
+	hasLoadedBackupUndoEvent,
+	isFetchingBackupUndoEvent,
+	getVaultPressData,
+} from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { isWoASite, getPartnerCoupon, showBackups } from 'state/initial-state';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
@@ -67,6 +76,7 @@ class DashBackups extends Component {
 		isWoA: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
+		backupUndoEvent: PropTypes.any.isRequired,
 	};
 
 	static defaultProps = {
@@ -78,6 +88,7 @@ class DashBackups extends Component {
 		isWoA: false,
 		rewindStatus: '',
 		trackUpgradeButtonView: noop,
+		backupUndoEvent: {},
 	};
 
 	trackBackupsClick = ( trackingName = 'backups-link' ) => {
@@ -240,8 +251,45 @@ class DashBackups extends Component {
 		return this.renderLoading();
 	}
 
+	renderManageBackupsLinks() {
+		const { isWoA, siteRawUrl } = this.props;
+		return (
+			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom">
+				<div className="jp-dash-item__action-links">
+					<ExternalLink
+						href={
+							isWoA
+								? getRedirectUrl( 'calypso-backups', {
+										site: siteRawUrl,
+								  } )
+								: getRedirectUrl( 'my-jetpack-manage-backup', {
+										site: siteRawUrl,
+								  } )
+						}
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ this.trackBackupsClick( 'backups-link' ) }
+					>
+						{ __( "View your site's backups", 'jetpack' ) }
+					</ExternalLink>
+					<ExternalLink
+						href={ getRedirectUrl( 'calypso-activity-log', {
+							site: siteRawUrl,
+							query: 'group=rewind',
+						} ) }
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ this.trackBackupsClick( 'restore-points-link' ) }
+					>
+						{ __( 'View your most recent restore points', 'jetpack' ) }
+					</ExternalLink>
+				</div>
+			</Card>
+		);
+	}
+
 	getRewindContent() {
-		const { hasRealTimeBackups, isWoA, rewindStatus, siteRawUrl } = this.props;
+		const { hasRealTimeBackups, rewindStatus, siteRawUrl, backupUndoEventLoaded } = this.props;
 		const buildAction = ( url, message, trackingName ) => (
 			<Card
 				compact
@@ -287,6 +335,10 @@ class DashBackups extends Component {
 					</React.Fragment>
 				);
 			case 'active': {
+				if ( backupUndoEventLoaded ) {
+					return this.renderUndo();
+				}
+
 				/* Avoid ternary as code minification will break translation function. :( */
 				let message = __( 'We are backing up your site daily.', 'jetpack' );
 				if ( hasRealTimeBackups ) {
@@ -311,37 +363,7 @@ class DashBackups extends Component {
 				return (
 					<React.Fragment>
 						{ buildCard( message ) }
-						<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom">
-							<div className="jp-dash-item__action-links">
-								<ExternalLink
-									href={
-										isWoA
-											? getRedirectUrl( 'calypso-backups', {
-													site: siteRawUrl,
-											  } )
-											: getRedirectUrl( 'my-jetpack-manage-backup', {
-													site: siteRawUrl,
-											  } )
-									}
-									target="_blank"
-									rel="noopener noreferrer"
-									onClick={ this.trackBackupsClick( 'backups-link' ) }
-								>
-									{ __( "View your site's backups", 'jetpack' ) }
-								</ExternalLink>
-								<ExternalLink
-									href={ getRedirectUrl( 'calypso-activity-log', {
-										site: siteRawUrl,
-										query: 'group=rewind',
-									} ) }
-									target="_blank"
-									rel="noopener noreferrer"
-									onClick={ this.trackBackupsClick( 'restore-points-link' ) }
-								>
-									{ __( 'View your most recent restore points', 'jetpack' ) }
-								</ExternalLink>
-							</div>
-						</Card>
+						{ this.renderManageBackupsLinks() }
 					</React.Fragment>
 				);
 			}
@@ -379,6 +401,80 @@ class DashBackups extends Component {
 		return <div className="jp-dash-item">{ this.getRewindContent() }</div>;
 	}
 
+	trackUndoFeatureView() {
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_backup_undo_view' );
+	}
+
+	trackUndoButtonClick() {
+		analytics.tracks.recordEvent( 'jetpack_wpa_aag_backup_undo_button_click' );
+	}
+
+	renderUndo() {
+		const { backupUndoEvent } = this.props;
+		const {
+			activityDate,
+			activityTitle,
+			activityDescription,
+			actorName,
+			actorRole,
+			actorAvatarUrl,
+			undoBackupId,
+		} = backupUndoEvent;
+
+		const activityDateFormatted = dateI18n( 'M jS, g:i a', activityDate );
+
+		const message = (
+			<div className="dops-card jp-dash-item__card dash-backup-undo">
+				<div className="jp-dash-item__description dash-backup-undo__activity-log">
+					<div className="dash-backup-undo__activity-log-date">{ activityDateFormatted }</div>
+					<div className="dash-backup-undo__activity-log-action">{ activityTitle }</div>
+					<div className="dash-backup-undo__activity-log-description">{ activityDescription }</div>
+					<div className="dash-backup-undo__activity-log-user-meta">
+						<div className="dash-backup-undo__activity-log-user-meta-avatar">
+							<img
+								alt={ actorName }
+								src={ actorAvatarUrl ?? 'https://www.gravatar.com/avatar/0?s=96&d=mm' }
+								width="30"
+								height="30"
+							/>
+						</div>
+						<div className="dash-backup-undo__activity-log-user-meta-name">
+							{ actorName }
+							{ actorRole && ' - ' + actorRole }
+						</div>
+					</div>
+				</div>
+				<div className="dash-backup-undo__cta">
+					{ createInterpolateElement( __( '<button><icon /> Undo</button>', 'jetpack' ), {
+						button: (
+							<Button
+								href={ getRedirectUrl( 'jetpack-backup-undo-cta', { path: undoBackupId } ) }
+								primary
+								target="_blank"
+								onClick={ this.trackUndoButtonClick }
+							/>
+						),
+						icon: <Icon icon={ backup } />,
+					} ) }
+				</div>
+			</div>
+		);
+
+		this.trackUndoFeatureView();
+
+		return (
+			<>
+				{ renderCard( {
+					className: 'jp-dash-item__is-active',
+					status: 'is-working',
+					feature: 'rewind',
+					overrideContent: message,
+				} ) }
+				{ this.renderManageBackupsLinks() }
+			</>
+		);
+	}
+
 	renderGettingStartedVideo() {
 		if ( this.props.rewindStatus !== 'awaiting_credentials' ) {
 			return null;
@@ -411,6 +507,7 @@ class DashBackups extends Component {
 		return (
 			<div>
 				<QueryVaultPressData />
+				{ this.props.rewindStatus === 'active' && <QueryBackupUndoEvent /> }
 				{ this.renderFromRewindStatus() }
 				{ this.renderGettingStartedVideo() }
 			</div>
@@ -432,6 +529,9 @@ export default connect(
 			hasRealTimeBackups: siteHasFeature( state, 'real-time-backups' ),
 			partnerCoupon: getPartnerCoupon( state ),
 			isWoA: isWoASite( state ),
+			backupUndoEvent: getBackupUndoEvent( state ),
+			backupUndoEventLoaded: hasLoadedBackupUndoEvent( state ),
+			backupUndoEventIsFetching: isFetchingBackupUndoEvent( state ),
 		};
 	},
 	dispatch => ( {

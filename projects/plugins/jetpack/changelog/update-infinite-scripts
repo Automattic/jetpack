@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Infinite Scroll: avoid PHP notices when using the latest version of WordPress, 6.3.

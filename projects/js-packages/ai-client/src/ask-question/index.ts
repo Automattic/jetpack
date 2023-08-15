@@ -2,7 +2,6 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import requestJwt from '../jwt';
 import SuggestionsEventSource from '../suggestions-event-source';
 /*
  * Types & constants
@@ -62,11 +61,8 @@ export default async function askQuestion(
 ): Promise< SuggestionsEventSource > {
 	debug( 'Asking question: %o. options: %o', question, { postId, fromCache, feature, functions } );
 
-	const { token } = await requestJwt();
-
 	return new SuggestionsEventSource( {
 		question,
-		token,
 		options: { postId, feature, fromCache, functions },
 	} );
 }
