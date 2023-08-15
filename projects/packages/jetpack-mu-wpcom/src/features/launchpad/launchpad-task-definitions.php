@@ -524,7 +524,8 @@ function wpcom_launchpad_update_task_status( $new_statuses ) {
 				$resolved_task_id = $requested_task_id;
 			}
 		} elseif ( isset( $reverse_id_map[ $requested_task_id ] ) ) {
-			$resolved_task_id = $reverse_id_map[ $requested_task_id ];
+			// We have some tasks that are only an id_map, but not a standalone task ID.
+			$resolved_task_id = $requested_task_id;
 		} else {
 			continue;
 		}
@@ -542,7 +543,18 @@ function wpcom_launchpad_update_task_status( $new_statuses ) {
 		array_merge( $old_values, $statuses_to_update )
 	);
 
-	$update_result = update_option( 'launchpad_checklist_tasks_statuses', $new_values );
+	// Check for a no-op where we are not actually writing anything.
+	if ( $new_values === $old_values ) {
+		return $response_statuses;
+	}
+
+	if ( empty( $new_values ) ) {
+		// If the new value is empty, but we had values before, we need to delete the option.
+		$update_result = delete_option( 'launchpad_checklist_tasks_statuses' );
+	} else {
+		$update_result = update_option( 'launchpad_checklist_tasks_statuses', $new_values );
+	}
+
 	if ( ! $update_result ) {
 		return array();
 	}
