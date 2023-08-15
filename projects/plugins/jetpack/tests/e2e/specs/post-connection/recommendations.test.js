@@ -46,8 +46,8 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 
 	await test.step( 'Enable Monitoring and continue to Related Post step', async () => {
 		await recommendationsPage.saveSiteTypeAndContinue();
-		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
+		// await recommendationsPage.reload();
+		// await recommendationsPage.waitForNetworkIdle();
 		const isMonitorStep = await recommendationsPage.isEnableMonitoringButtonVisible();
 		expect( isMonitorStep, 'Monitor step should be visible' ).toBeTruthy();
 		expect(
