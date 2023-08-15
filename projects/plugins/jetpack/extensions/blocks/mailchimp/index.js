@@ -4,6 +4,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
+import transforms from './transforms';
 import './editor.scss';
 
 export const name = 'mailchimp';
@@ -107,4 +108,5 @@ export const settings = {
 		innerBlocks: [ innerButtonBlock ],
 	},
 	deprecated: [ deprecatedV1 ],
+	transforms,
 };
