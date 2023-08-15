@@ -19,5 +19,6 @@
 		"multiple": true,
 		"reusable": false,
 		"inserter": false
-	}
+	},
+	"editorScript": "file:../editor-experimental.js"
 }
