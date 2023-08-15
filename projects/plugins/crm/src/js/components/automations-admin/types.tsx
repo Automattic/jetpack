@@ -26,7 +26,7 @@ export type Workflow = {
 	description: string;
 	category: Category;
 	triggers: Trigger[];
-	initial_step: Step;
+	initial_step: Step[];
 	active: boolean;
 	version: number;
 	added: string;
