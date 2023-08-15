@@ -83,6 +83,12 @@ class Contact_Transitional_Status extends Base_Condition {
 		$status_was = $this->get_attributes()['previous_status_was'];
 		$status_is  = $this->get_attributes()['new_status_is'];
 
+		if ( ! $this->is_valid_operator( $operator ) ) {
+			$this->condition_met = false;
+			$this->logger->log( 'Invalid operator: ' . $operator );
+			throw new Automation_Exception( 'Invalid operator: ' . $operator );
+		}
+
 		$this->logger->log( 'Condition: Contact_Transitional_Status ' . $operator . ' ' . $status_was . ' => ' . $status_is );
 		switch ( $operator ) {
 			case 'from_to':
@@ -90,12 +96,10 @@ class Contact_Transitional_Status extends Base_Condition {
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
+			default:
+				$this->condition_met = false;
+				throw new Automation_Exception( 'Valid but unimplemented operator: ' . $operator );
 		}
-
-		$this->condition_met = false;
-		$this->logger->log( 'Invalid operator: ' . $operator );
-
-		throw new Automation_Exception( 'Invalid operator: ' . $operator );
 	}
 
 	/**
@@ -105,10 +109,22 @@ class Contact_Transitional_Status extends Base_Condition {
 	 * @since $$next-version$$
 	 *
 	 * @param array $data The event data.
-	 * @return bool True if the data is valid to detect a transitional status change, false otherwise
+	 * @return bool True if the data is valid to detect a transitional status change, false otherwise.
 	 */
 	private function is_valid_contact_status_transitional_data( array $data ): bool {
 		return isset( $data['contact'] ) && isset( $data['old_status_value'] ) && isset( $data['contact']['data']['status'] );
+	}
+
+	/**
+	 * Checks if this is a valid operator for this condition.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $operator The operator.
+	 * @return bool True if the operator is valid for this condition, false otherwise.
+	 */
+	private function is_valid_operator( string $operator ): bool {
+		return in_array( $operator, $this->valid_operators, true );
 	}
 
 	/**
