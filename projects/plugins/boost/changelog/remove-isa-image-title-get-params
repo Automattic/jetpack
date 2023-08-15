@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Removed get parameters from image URLs on ISA report details page.
