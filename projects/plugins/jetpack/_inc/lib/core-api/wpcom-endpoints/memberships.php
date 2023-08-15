@@ -116,6 +116,11 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'callback'            => array( $this, 'create_products' ),
 					'permission_callback' => array( $this, 'get_status_permission_check' ),
 				),
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'list_products' ),
+					'permission_callback' => array( $this, 'get_status_permission_check' ),
+				),
 			)
 		);
 		register_rest_route(
@@ -159,6 +164,53 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				),
 			)
 		);
+	}
+
+	/**
+	 * List already-created products.
+	 *
+	 * @param \WP_REST_Request $request - request passed from WP.
+	 *
+	 * @return WP_Error|array ['products']
+	 */
+	public function list_products( WP_REST_Request $request ) {
+		$is_editable = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
+		$type        = isset( $request['type'] ) ? $request['type'] : null;
+
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+			require_lib( 'memberships' );
+			require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+			$blog_id = $request->get_param( 'blog_id' );
+			if ( is_wp_error( $blog_id ) ) {
+				return array( 'error' => 'Unknown blog' );
+			}
+			$list = Memberships_Product::get_product_list( get_current_blog_id(), $type, $is_editable );
+			if ( is_wp_error( $list ) ) {
+				return $list;
+			}
+			return array( 'products' => $list );
+		} else {
+			$blog_id  = Jetpack_Options::get_option( 'id' );
+			$response = Client::wpcom_json_api_request_as_user(
+				"/sites/$blog_id/{$this->rest_base}/products",
+				'v2',
+				array(
+					'method' => 'GET',
+				)
+			);
+			if ( is_wp_error( $response ) ) {
+				if ( $response->get_error_code() === 'missing_token' ) {
+					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );
+				}
+				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
+			}
+			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
+			// If endpoint returned error, we have to detect it.
+			if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
+				return new WP_Error( $data['code'], $data['message'], 401 );
+			}
+			return $data;
+		}
 	}
 
 	/**
