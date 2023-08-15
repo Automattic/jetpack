@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiContext } from '@automattic/jetpack-ai-client';
+import { ERROR_QUOTA_EXCEEDED, useAiContext } from '@automattic/jetpack-ai-client';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -22,22 +22,6 @@ import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 // An identifier to use on the extension error notices,
 export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 
-/**
- * Add the `jetpack-ai-assistant-bar-is-fixed` class to the body
- * when the toolbar is fixed and the AI Assistant is visible.
- *
- * @param {boolean} isFixed - Is the toolbar fixed?
- * @param {boolean} isVisible - Is the AI Assistant visible?
- * @returns {void}
- */
-export function handleAiExtensionsBarBodyClass( isFixed: boolean, isVisible: boolean ): void {
-	if ( isFixed && isVisible ) {
-		return document.body.classList.add( 'jetpack-ai-assistant-bar-is-fixed' );
-	}
-
-	document.body.classList.remove( 'jetpack-ai-assistant-bar-is-fixed' );
-}
-
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { clientId, isSelected } = props;
@@ -50,6 +34,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 		// AI Assistant component is-fixed state
 		const [ isFixed, setAssistantFixed ] = useState( false );
+
+		const [ assistantAnchor, setAssistantAnchor ] = useState< HTMLElement | null >( null );
 
 		// Keep track of the current list of valid blocks between renders.
 		const currentListOfValidBlocks = useRef( [] );
@@ -88,13 +74,22 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		}, [ isVisible ] );
 
 		/**
+		 * Set the AI Assistant anchor
+		 *
+		 * @param {HTMLElement} anchor
+		 */
+		const setAnchor = useCallback( ( anchor: HTMLElement | null ) => {
+			setAssistantAnchor( anchor );
+		}, [] );
+
+		/**
 		 * Select the Jetpack Form block
 		 *
 		 * @returns {void}
 		 */
 		const selectFormBlock = useCallback( () => {
-			dispatch( 'core/block-editor' ).selectBlock( props.clientId );
-		}, [ props.clientId ] );
+			dispatch( 'core/block-editor' ).selectBlock( clientId ).then( toggle );
+		}, [ clientId, toggle ] );
 
 		const { createNotice } = useDispatch( noticesStore );
 
@@ -105,11 +100,13 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 * @returns {void}
 		 */
 		const showSuggestionError = useCallback(
-			( { severity, message }: RequestingErrorProps ) => {
-				createNotice( severity, message, {
-					isDismissible: true,
-					id: AI_ASSISTANT_JETPACK_FORM_NOTICE_ID,
-				} );
+			( { severity, message, code }: RequestingErrorProps ) => {
+				if ( code !== ERROR_QUOTA_EXCEEDED ) {
+					createNotice( severity, message, {
+						isDismissible: true,
+						id: AI_ASSISTANT_JETPACK_FORM_NOTICE_ID,
+					} );
+				}
 			},
 			[ createNotice ]
 		);
@@ -138,8 +135,12 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				// Assistant bar position and size.
 				isFixed,
 				setAssistantFixed,
+
+				// Assistant bar anchor.
+				assistantAnchor,
+				setAnchor,
 			} ),
-			[ inputValue, setInputValue, isVisible, show, hide, toggle, isFixed, setAssistantFixed ]
+			[ inputValue, isVisible, show, hide, toggle, isFixed, assistantAnchor, setAnchor ]
 		);
 
 		const setContent = useCallback(
@@ -192,10 +193,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			<AiAssistantUiContextProvider value={ contextValue }>
 				<KeyboardShortcuts
 					shortcuts={ {
-						'mod+/': () => {
-							toggle();
-							selectFormBlock();
-						},
+						'mod+/': selectFormBlock,
 					} }
 				>
 					<BlockListBlock { ...props } />

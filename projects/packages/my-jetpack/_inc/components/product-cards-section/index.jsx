@@ -47,7 +47,7 @@ const ProductCardsSection = () => {
 		>
 			{ items.map( ( Item, index ) => (
 				<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ index }>
-					<Item admin={ true } />
+					<Item admin={ !! window?.myJetpackInitialState?.userIsAdmin } />
 				</Col>
 			) ) }
 		</Container>

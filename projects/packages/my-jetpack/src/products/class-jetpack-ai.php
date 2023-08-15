@@ -100,8 +100,9 @@ class Jetpack_Ai extends Product {
 	public static function get_features() {
 		return array(
 			__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
-			__( 'Generate text, tables, and lists', 'jetpack-my-jetpack' ),
+			__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
 			__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
+			__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
 			__( 'Seamless WordPress editor Integration', 'jetpack-my-jetpack' ),
 		);
 	}
