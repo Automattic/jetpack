@@ -1418,7 +1418,7 @@ function wpcom_mark_customize_welcome_message_complete_on_add( $value ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
-add_action( 'add_option_subscription_options', 'wpcom_mark_customize_welcome_message_complete_on_add', 10, 3 );
+add_action( 'add_option_subscription_options', 'wpcom_mark_customize_welcome_message_complete_on_add', 10, 1 );
 
 /**
  * When a page is updated, check to see if we've already completed the `add_new_page` task and mark the `edit_page` task complete accordingly.
