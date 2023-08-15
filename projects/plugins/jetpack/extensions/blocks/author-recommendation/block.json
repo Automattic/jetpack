@@ -43,5 +43,6 @@
 			"type": "boolean",
 			"default": false
 		}
-	}
+	},
+	"editorScript": "file:../editor-beta.js"
 }

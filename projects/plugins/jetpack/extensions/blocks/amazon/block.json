@@ -13,5 +13,6 @@
 		"align": true,
 		"alignWide": false,
 		"html": false
-	}
+	},
+	"editorScript": "file:../editor-beta.js"
 }

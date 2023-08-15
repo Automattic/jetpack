@@ -17,5 +17,6 @@
 		"html": false,
 		"multiple": false,
 		"reusable": false
-	}
+	},
+	"editorScript": "file:../editor-beta.js"
 }

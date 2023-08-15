@@ -24,5 +24,6 @@
 		"html": false,
 		"multiple": false
 	},
-	"parent": [ "core/post-content" ]
+	"parent": [ "core/post-content" ],
+	"editorScript": "file:../editor-beta.js"
 }

@@ -56,5 +56,6 @@
 			"attributes": { "variation": "google-slides" },
 			"isActive": [ "variation" ]
 		}
-	]
+	],
+	"editorScript": "file:../editor-beta.js"
 }
