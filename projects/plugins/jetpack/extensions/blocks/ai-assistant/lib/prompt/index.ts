@@ -440,19 +440,26 @@ Strictly follow those rules:
 		{
 			role,
 			// content: compressSerializedBlockComposition( `Handle the following request: ${ request }
-			content: compressContent( `Help me with the following request:${ request }
+			content: compressContent( `I want you help me to create a blog post content.
 
-Please, follow these rules:
-Blocks for simple composition: [BLOCK_NAME,BLOCK_ATTRIBUTES]
-- ["core/paragraph",{content: CONTENT}]
+Please, follow these composing rules to be used in the Gutenberg editor (aka WordPress block editor):
+# Simple blocks (SIMPLE_BLOCKS): [BLOCK_NAME,BLOCK_ATTRIBUTES]
+- ["core/paragraph",{"content": CONTENT}]
+- ["core/heading",{"content": CONTENT,level: LEVEL}]
+- ["core/image",{"url": URL,alt: ALT}]
+- ["core/quote",{"value": VALUE,citation: CITATION}]
 
-Blocks to create a layout (Use only when requested):
-- ["core/columns",{columns: COLS},["core/column"]]
-- ["core/column",{width: WIDTH},[ANY_BLOCK]]
+## List Blocks composition:
+- ["core/list",{ordered: ORDERED},[ [ "core/list-item",{"content": CONTENT} ], ]
+- ["core/list-item",{"content": CONTENT}]
 
-Blocks to create a form :[BLOCK_NAME,BLOCK_ATTRIBUTES,JETPACK_FORM_BLOCKS]
-- ["jetpack/contact-form",{subject:SUBJECT,to:TO},[ANY_BLOCK]]
-Children blocks for jetpack/contact-form:[BLOCK_NAME,BLOCK_ATTRIBUTES]
+## Layout Blocks composition. Use only when requested:
+- ["core/columns",{columns: COLS},[ [ "core/column" ], ], ]
+- ["core/column",{width: WIDTH},[ [ ANY_BLOCK ], ], ]
+
+## Form Block (FORM_BLOCK). Main Form Container:
+- ['jetpack/contact-form', { 'subject': SUBJECT, 'to': TO }, [ [ "jetpack/field-<ANY> ], ], ]
+### FORM_FIELD_BLOCK (children of FORM_BLOCK): [BLOCK_NAME,BLOCK_ATTRIBUTES]
 - ["jetpack/field-text",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
 - ["jetpack/field-name",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
 - ["jetpack/field-email",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT}]
@@ -467,15 +474,61 @@ Children blocks for jetpack/contact-form:[BLOCK_NAME,BLOCK_ATTRIBUTES]
 - ["jetpack/field-consent",{consentType:CONSENT_TYPE,implicitConsentMessage:IMPLICIT_CONSENT_MESSAGE,explicitConsentMessage:EXPLICIT_CONSENT_MESSAGE}]
 - ["jetpack/button",{label:LABEL,element:ELEMENT,text:TEXT,borderRadius:BORDER_RADIUS,lock:{remove:true}}]
 
-- DO NOT add line breaks: \\n or \\r, etc.
 - DO NOT add any addtional feedback to the "user", just generate the requested block structure.
-- Only Return the array of blocks.
-[[BLOCK_NAME,BLOCK_ATTRIBUTES],[BLOCK_NAME, BLOCK_ATTRIBUTES,[[BLOCK_NAME,BLOCK_ATTRIBUTES],[BLOCK_NAME,BLOCK_ATTRIBUTES,[[BLOCK_NAME,BLOCK_ATTRIBUTES]]]]
+- Only Return the array of blocks: [[BLOCK_NAME, BLOCK_ATTRIBUTES],[BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES],BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES]],],],
+
+You are an advanced polyglot ghostwriter with deep expertise in a multitude of subjects. Help me to address the following request:
+\`\`\`
+${ request }
+\`\`\`
 ` ),
 		},
 	];
 }
 
+/*
+
+## Simple Blocks
+- Paragraph: ['core/paragraph', { 'content': CONTENT }, ],
+- Heading: ['core/heading', { 'content': CONTENT, 'level': LEVEL }],
+- Image: ['core/image', { 'url': URL, 'alt': ALT }],
+- List: ['core/list', { 'ordered': ORDERED }, ['core/list-item', { 'content': CONTENT }],]
+- Quote: ['core/quote', { 'value': VALUE, 'citation': CITATION }],
+
+## Form Blocks
+- Main Form Container: ['jetpack/contact-form', { 'subject': SUBJECT, 'to': TO }, [ANY_BLOCK]]
+
+## Children Blocks for the Form
+- ['jetpack/field-text', { 'label': LABEL, 'required': REQUIRED, 'requiredText': REQUIRED_TEXT }],
+- ["jetpack/field-text",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT }],
+- ["jetpack/field-name",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT }],
+- ["jetpack/field-email",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT }],
+- ["jetpack/field-url",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT }],
+- ["jetpack/field-date",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT }],
+- ["jetpack/field-telephone",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT }],
+- ["jetpack/field-textarea",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT }],
+- ["jetpack/field-checkbox",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT }],
+- ["jetpack/field-checkbox-multiple",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT,options:[OPTION_ONE,OPTION_TWO,OPTION_THREE] }],
+- ["jetpack/field-radio",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT }],
+- ["jetpack/field-select",{label:LABEL,required:REQUIRED,requiredText:REQUIRED_TEXT,options:[OPTION_ONE,OPTION_TWO,OPTION_THREE] }],
+- ["jetpack/field-consent",{consentType:CONSENT_TYPE,implicitConsentMessage:IMPLICIT_CONSENT_MESSAGE,explicitConsentMessage:EXPLICIT_CONSENT_MESSAGE }],
+- ["jetpack/button",{label:LABEL,element:ELEMENT,text:TEXT,borderRadius:BORDER_RADIUS,lock:{remove:true}}],
+
+## Layout Blocks
+- Columns: ['core/columns', { 'columns': COLS }, ['core/column']],
+- Single Column (must be inside Columns): ['core/column', {}, [ANY_BLOCK]],
+
+# AI Feedback rules:
+- Do not include any introductory text or explanations.
+- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+
+# Gostwriter's rules:
+- Ensure that the content is meaningful and avoids generic or placeholder text.
+- Produce content that is fit for publication on a reputable blog or website.
+- You are an advanced polyglot ghostwriter with deep expertise in a multitude of subjects.
+
+# Handle the following request:
+*/
 /*
  * Builds a prompt template based on context, rules and content.
  *
