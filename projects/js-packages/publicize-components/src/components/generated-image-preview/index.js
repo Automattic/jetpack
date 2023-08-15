@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Spinner, BaseControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
@@ -111,7 +111,7 @@ export default function GeneratedImagePreview( {
 
 	return (
 		<ThemeProvider>
-			<BaseControl label={ __( 'Preview', 'jetpack' ) }>
+			<BaseControl label={ _x( 'Preview', 'Heading for the generated preview image', 'jetpack' ) }>
 				<div className={ styles.container }>
 					<img
 						className={ classNames( {
