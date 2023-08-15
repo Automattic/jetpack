@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Extract Sync Queue storage handling to an external class to prepare for Custom Table migration

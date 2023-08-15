@@ -38,10 +38,6 @@ function get_wp_cache_key( $url = false ) {
 	if ( ! $url ) {
 		$url = $wp_cache_request_uri;
 	}
-	// Prevent a PHP 8.1+ notice when passed into str_replace()
-	if ( null === $url ) {
-		$url = '';
-	}
 	$server_port = isset( $_SERVER['SERVER_PORT'] ) ? intval( $_SERVER['SERVER_PORT'] ) : 0;
 
 	// Prepare a tag to include in the cache key if the request is anything other than text/html

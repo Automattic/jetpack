@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAiContext } from '@automattic/jetpack-ai-client';
+import { ERROR_QUOTA_EXCEEDED, useAiContext } from '@automattic/jetpack-ai-client';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -100,11 +100,13 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 * @returns {void}
 		 */
 		const showSuggestionError = useCallback(
-			( { severity, message }: RequestingErrorProps ) => {
-				createNotice( severity, message, {
-					isDismissible: true,
-					id: AI_ASSISTANT_JETPACK_FORM_NOTICE_ID,
-				} );
+			( { severity, message, code }: RequestingErrorProps ) => {
+				if ( code !== ERROR_QUOTA_EXCEEDED ) {
+					createNotice( severity, message, {
+						isDismissible: true,
+						id: AI_ASSISTANT_JETPACK_FORM_NOTICE_ID,
+					} );
+				}
 			},
 			[ createNotice ]
 		);
