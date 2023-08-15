@@ -47,8 +47,9 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 	await test.step( 'Enable Monitoring and continue to Related Post step', async () => {
 		await recommendationsPage.saveSiteTypeAndContinue();
 		await recommendationsPage.reload();
-		//await recommendationsPage.waitForNetworkIdle();
-		await recommendationsPage.enableMonitoringAndContinue();
+		await recommendationsPage.waitForNetworkIdle();
+		await recommendationsPage.skipMonitoringAndContinue();
+		//await recommendationsPage.enableMonitoringAndContinue();
 		await recommendationsPage.reload();
 		await recommendationsPage.waitForNetworkIdle();
 		const isRelatedPostsStep = await recommendationsPage.isEnableRelatedPostsButtonVisible();
