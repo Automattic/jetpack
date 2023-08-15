@@ -311,7 +311,7 @@ export const JetpackContactFormEdit = forwardRef(
 								</PanelBody>
 							) }
 							<PanelBody
-								title={ __( 'Newsletter Connection', 'jetpack-forms' ) }
+								title={ __( 'CreativeMail Connection', 'jetpack-forms' ) }
 								initialOpen={ false }
 							>
 								<NewsletterIntegrationSettings />

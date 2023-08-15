@@ -62,15 +62,16 @@ const variations = compact( [
 	},
 	! isSimpleSite() && {
 		name: 'newsletter-form',
-		title: __( 'Sign-up', 'jetpack-forms' ),
+		title: __( 'CreativeMail newsletter', 'jetpack-forms' ),
 		description: __(
-			'A simple way to collect information from folks visiting your site.',
+			'A simple way to collect information from folks visiting your site using CreativeMail plugin.',
 			'jetpack-forms'
 		),
 		keywords: [
 			__( 'subscribe', 'jetpack-forms' ),
 			__( 'email', 'jetpack-forms' ),
 			__( 'signup', 'jetpack-forms' ),
+			'CreativeMail',
 		],
 		icon: renderMaterialIcon(
 			<>
