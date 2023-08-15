@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
@@ -34,6 +35,7 @@ export const withAIAssistant = createHigherOrderComponent(
 		const { name: blockType } = props;
 		const { removeBlocks, replaceBlock } = useDispatch( 'core/block-editor' );
 		const { content, clientIds, blocks } = useTextContentFromSelectedBlocks();
+		const { tracks } = useAnalytics();
 
 		/*
 		 * Set exclude dropdown options.
@@ -43,6 +45,7 @@ export const withAIAssistant = createHigherOrderComponent(
 		if ( blockType === 'core/list-item' ) {
 			exclude.push( KEY_ASK_AI_ASSISTANT );
 		}
+
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
 				const [ firstBlock ] = blocks;
@@ -90,6 +93,19 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ blocks, clientIds, content, blockType, replaceBlock, removeBlocks ]
 		);
 
+		const handleChange = useCallback(
+			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
+				tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
+					type: 'suggestion',
+					suggestion: promptType,
+					blockType,
+				} );
+
+				requestSuggestion( promptType, options );
+			},
+			[ tracks, requestSuggestion, blockType ]
+		);
+
 		const replaceWithAiAssistantBlock = useCallback( () => {
 			const [ firstClientId, ...otherBlocksIds ] = clientIds;
 			const [ firstBlock ] = blocks;
@@ -119,7 +135,7 @@ export const withAIAssistant = createHigherOrderComponent(
 				<BlockControls { ...blockControlProps }>
 					<AiAssistantDropdown
 						disabled={ ! rawContent?.length }
-						onChange={ requestSuggestion }
+						onChange={ handleChange }
 						onReplace={ replaceWithAiAssistantBlock }
 						exclude={ exclude }
 					/>
