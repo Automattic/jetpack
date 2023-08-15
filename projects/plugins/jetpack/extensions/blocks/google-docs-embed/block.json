@@ -27,33 +27,33 @@
 	},
 	"variations": [
 		{
-			"name": "google-docs",
+			"name": "jetpack/google-docs",
 			"isDefault": true,
 			"title": "Google Docs",
 			"description": "Embed a Google Document.",
 			"icon": "document",
 			"keywords": [ "document", "gsuite", "doc" ],
-			"attributes": { "variation": "google-docs" },
+			"attributes": { "variation": "jetpack/google-docs" },
 			"isActive": [ "variation" ]
 		},
 		{
-			"name": "google-sheets",
+			"name": "jetpack/google-sheets",
 			"isDefault": true,
 			"title": "Google Sheets",
 			"description": "Embed a Google Sheet.",
 			"icon": "spreadsheet",
 			"keywords": [ "sheet", "spreadsheet" ],
-			"attributes": { "variation": "google-sheets" },
+			"attributes": { "variation": "jetpack/google-sheets" },
 			"isActive": [ "variation" ]
 		},
 		{
-			"name": "google-slides",
+			"name": "jetpack/google-slides",
 			"isDefault": true,
 			"title": "Google Slides",
 			"description": "Embed a Google Slides presentation.",
 			"icon": "interactive",
 			"keywords": [ "slide", "presentation", "deck" ],
-			"attributes": { "variation": "google-slides" },
+			"attributes": { "variation": "jetpack/google-slides" },
 			"isActive": [ "variation" ]
 		}
 	],
