@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Fixed not being able to defer concatenated stylesheets, causing them to be render-blocking when used with Critical CSS.
