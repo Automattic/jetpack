@@ -47,7 +47,13 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 	await test.step( 'Enable Monitoring and continue to Related Post step', async () => {
 		await recommendationsPage.saveSiteTypeAndContinue();
 		await recommendationsPage.reload();
-		//await recommendationsPage.waitForNetworkIdle();
+		await recommendationsPage.waitForNetworkIdle();
+		const isMonitorStep = await recommendationsPage.isEnableMonitoringButtonVisible();
+		expect( isMonitorStep, 'Monitor step should be visible' ).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'monitor' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
 		await recommendationsPage.enableMonitoringAndContinue();
 		await recommendationsPage.reload();
 		await recommendationsPage.waitForNetworkIdle();
