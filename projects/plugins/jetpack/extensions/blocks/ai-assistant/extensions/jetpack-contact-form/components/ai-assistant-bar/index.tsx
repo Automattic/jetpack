@@ -21,7 +21,7 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import classNames from 'classnames';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
-import useAIFeature from '../../../../hooks/use-ai-feature';
+// import useAIFeature from '../../../../hooks/use-ai-feature';
 import { PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT, getPrompt } from '../../../../lib/prompt';
 import { AiAssistantUiContext } from '../../ui-handler/context';
 import { AI_ASSISTANT_JETPACK_FORM_NOTICE_ID } from '../../ui-handler/with-ui-handler-data-provider';
@@ -87,9 +87,9 @@ export default function AiAssistantBar( {
 		},
 	} );
 
-	const { requireUpgrade } = useAIFeature();
+	// const { requireUpgrade } = useAIFeature();
 
-	const siteRequireUpgrade = requestingError?.code === ERROR_QUOTA_EXCEEDED || requireUpgrade;
+	const siteRequireUpgrade = requestingError?.code === ERROR_QUOTA_EXCEEDED;
 
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
@@ -108,8 +108,8 @@ export default function AiAssistantBar( {
 			content: getSerializedContentFromBlock( clientId ),
 		} );
 
-		// requestSuggestion( prompt, { feature: 'ai-assistant-experimental' } );
-		requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
+		requestSuggestion( prompt, { feature: 'ai-assistant-experimental' } );
+		// requestSuggestion( prompt, { feature: 'jetpack-form-ai-extension' } );
 	}, [ clientId, inputValue, removeNotice, requestSuggestion ] );
 
 	/*
