@@ -439,31 +439,29 @@ Strictly follow those rules:
 		},
 		{
 			role,
-			content: compressContent( `I want you help me to create a blog post content.
-
-Please, follow these composing rules to be used in the Gutenberg editor (aka WordPress block editor):
-# Simple blocks:
+			content: compressContent( `Please help me to create a content for my WordPress site post.
+Follow these composing rules to be used in the Gutenberg editor (aka WordPress block editor):
+# Simple blocks - Use these blocks for a simple composition:
 - Paragraph: [ "core/paragraph",{ "content": CONTENT, "fontSize": small | medium }, ],
 - Heading: [ "core/heading",{ "content": CONTENT, level: LEVEL, }, ],
-- Image: [ "core/image", { "url": "https://pd.w.org/2022/01/21261f60ba46147b0.97888240.jpg", alt: ALT, }, ],
+- Image: [ "core/image", { "url": IMAGE_URL, alt: ALT, }, ],
 
-## Quote blocks composition:
+## Quote blocks: You can use these blocks to compose a quote. It accepts ANY_BLOCK block as a child.
 - Quote: [ "core/quote", { "citation": WHO_CITATION, }, [ [ ANY_BLOCK ], ], ],
 
-## List blocks composition:
+## List blocks: You can use these blocks to compose a list. It accepts "core/list-item" block as a child.
 - List: [ "core/list", { "ordered": ORDERED }, [ [ "core/list-item", { "content": CONTENT }, ], ], ],
 - List Item: [ "core/list-item", { "content": CONTENT, }, ],
 
-## Columns blocks composition.
-- Columns (ONLY "core/column" block allowed): [ "core/columns", { "columns": COLS, }, [ [ "core/column" ], ], ],
-- Column (compute WIDTH based on the number of columns): [ "core/column", { width: WIDTH, }, [ [ ANY_BLOCK ], ], ],
+## Columns blocks: Nice to create a layout. IMPORTANT: "core/columns" ONLY accepts "core/column" block as a child.
+- Columns: [ "core/columns", { "columns": COLS, }, [ [ "core/column" ], ], ],
+- Column: [ "core/column", {}, [ [ ANY_BLOCK ], ], ],
 
-## Cover blocks composition (used for images with text overlay):
-- Cover: [ "core/cover", { "url": "https://pd.w.org/2022/01/21261f60ba46147b0.97888240.jpg", "backgroundColor": RGB_COLOR, dimRatio: 20, }, [ [ ANY_BLOCK ], ], ],
+## Cover blocks: Nice to create a composition with a background image. It accepts ANY_BLOCK block as a child.
+- Cover: [ "core/cover", { "url": IMAGE_URL, "backgroundColor": RGB_COLOR, "dimRatio": 80, "overlayColor": "base" }, [ [ ANY_BLOCK ], ], ],
 
-## Form block
+## Form block: Use it to create a form. It accepts any "jetpack/field-<ANY>" and ANY_BLOCK block as a child.
 - Form: [ "jetpack/contact-form", { "subject": SUBJECT, "to": TO }, [ [ "jetpack/field-<ANY>", ], ], ],
-### Form field blocks (children of From block):
 - Text field: [ "jetpack/field-text", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
 - Name field: [ "jetpack/field-name", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
 - Email field: [ "jetpack/field-email", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
@@ -477,6 +475,11 @@ Please, follow these composing rules to be used in the Gutenberg editor (aka Wor
 - Dropdown/Multi Select field: [ "jetpack/field-select", { "label": LABEL, "required": REQUIRED, "requiredText":  REQUIRED_TEXT, "options": [ OPTION_1, OPTION_2, OPTION_3, ], }, ],
 - Consent field: [ "jetpack/field-consent", { "consentType": CONSENT_TYPE, "implicitConsentMessage": IMPLICIT_CONSENT_MESSAGE, "explicitConsentMessage": EXPLICIT_CONSENT_MESSAGE }, ],
 - Button field: [ "jetpack/button", { "label": LABEL, "element": ELEMENT, "text": TEXT, "borderRadius": BORDER_RADIUS, "lock": { "remove": true }, }, ],
+
+# Images to use in the composition:
+- https://pd.w.org/2022/01/84661f60659149cc8.02053291.jpg
+- https://pd.w.org/2022/01/21261f60ba46147b0.97888240.jpg
+- https://pd.w.org/2023/04/654642d52f20d6367.57324872.jpg
 
 - DO NOT add any addtional feedback to the "user", just generate the requested block structure.
 - Only Return the array of blocks: [[BLOCK_NAME, BLOCK_ATTRIBUTES],[BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES],BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES]],],],
