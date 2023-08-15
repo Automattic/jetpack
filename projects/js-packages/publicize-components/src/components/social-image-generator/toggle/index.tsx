@@ -10,6 +10,11 @@ type SocialImageGeneratorToggleProps = {
 	 * The label or content after the toggle.
 	 */
 	children: React.ReactNode;
+
+	/**
+	 * The class name to add to the toggle.
+	 */
+	toggleClass?: string;
 };
 
 /**
@@ -38,6 +43,7 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 
 	return (
 		<ToggleControl
+			className={ props.toggleClass }
 			disabled={ isUpdating }
 			checked={ isEnabled }
 			onChange={ toggleStatus }

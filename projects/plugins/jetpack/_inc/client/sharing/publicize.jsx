@@ -14,6 +14,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React, { Component } from 'react';
 import { FormFieldset } from '../components/forms';
+import './style.scss';
 
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -157,7 +158,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 								! this.props.isSavingAnyOption( 'publicize' ) &&
 								hasSocialImageGenerator && (
 									<FormFieldset>
-										<SocialImageGeneratorToggle>
+										<SocialImageGeneratorToggle toggleClass="jp-settings-sharing__sig-toggle">
 											<div>
 												<Text>
 													<strong>{ __( 'Enable Social Image Generator', 'jetpack' ) }</strong>
@@ -167,7 +168,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 													'jetpack'
 												) }
 											</div>
-											<div style={ { marginTop: 10 + 'px' } }>
+											<div className="jp-settings-sharing__template-picker">
 												<TemplatePickerButton />
 											</div>
 										</SocialImageGeneratorToggle>
