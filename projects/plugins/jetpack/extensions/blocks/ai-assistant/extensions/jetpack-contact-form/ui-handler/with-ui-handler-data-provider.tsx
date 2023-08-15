@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ERROR_QUOTA_EXCEEDED, useAiContext } from '@automattic/jetpack-ai-client';
-import { parse, createBlock } from '@wordpress/blocks';
+import { createBlock } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
@@ -13,8 +13,6 @@ import { jsonrepair } from 'jsonrepair';
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
-import { decompressContent } from '../../../lib/prompt';
-import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
 import { AiAssistantUiContextProvider } from './context';
 /**
  * Types
@@ -28,15 +26,20 @@ export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 function parseBlocksFromJson( jsonContent: Array< BlockData > ) {
 	const blocks = [];
 	for ( let i = 0; i < jsonContent.length; i++ ) {
-		const block = jsonContent[ i ];
-		const [ name, attributes, innerBlocks ] = block;
-		const blockData = createBlock(
-			name,
-			attributes,
-			innerBlocks ? parseBlocksFromJson( innerBlocks ) : []
-		);
+		const blockData = jsonContent[ i ];
+		const [ name, attributes, innerBlocks ] = blockData;
+		let block;
 
-		blocks.push( blockData );
+		try {
+			if ( innerBlocks?.length ) {
+				const parsedInnerBlocks = parseBlocksFromJson( innerBlocks );
+				block = createBlock( name, attributes, parsedInnerBlocks );
+			} else {
+				block = createBlock( name, attributes );
+			}
+
+			blocks.push( block );
+		} catch ( e ) {}
 	}
 
 	return blocks;
@@ -51,6 +54,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			'In three columns, put in the first one an extensive text about Jorge Luis Borge. In next one, about Mariana Enriquez. And in the third one, a form to buy books. Please add all fields you consider appropriate.'
 		);
 
+		// const [ inputValue, setInputValue ] = useState(
+		// 	'Write a complete article about the CZSpectrum, split in three columns. In the first one, create an introductory content. In the second one, talk about the most important companies around it. In the third one, create a list with the best ten games of it.'
+		// );
+
 		// AI Assistant component visibility
 		const [ isVisible, setAssistantVisibility ] = useState( false );
 
@@ -58,9 +65,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const [ isFixed, setAssistantFixed ] = useState( false );
 
 		const [ assistantAnchor, setAssistantAnchor ] = useState< HTMLElement | null >( null );
-
-		// Keep track of the current list of valid blocks between renders.
-		const currentListOfValidBlocks = useRef( [] );
 
 		const { replaceInnerBlocks, insertBlocks } = useDispatch( 'core/block-editor' );
 		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as {
@@ -166,7 +170,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		);
 
 		// Create a temporary block to use like a container
-		const containerBlock = createBlock( 'core/group', { type: 'constrained', align: 'full' }, [] );
+		const containerBlock = createBlock( 'core/group', { type: 'constrained', align: 'wide' }, [] );
 		const { clientId: containerBlockId } = containerBlock;
 		const containerBlockWasInserted = useRef( false );
 
@@ -177,30 +181,27 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					insertBlocks( containerBlock, clientId );
 					containerBlockWasInserted.current = true;
 				}
+				// newContent = decompressContent( newContent );
 
-				console.log( 'newContent', newContent );
-
-				newContent = decompressContent( newContent );
+				let jsonContent = [];
+				try {
+					const repairedContent = jsonrepair( newContent );
+					jsonContent = JSON.parse( repairedContent );
+				} catch ( e ) {}
 
 				let parsedBlocks = [];
 				try {
-					const repairedContent = jsonrepair( newContent );
-					const jsonContent = JSON.parse( repairedContent );
-					console.log( '(2) jsonContent: ', jsonContent );
-
-					// convert JSON to parsed blocks
 					parsedBlocks = parseBlocksFromJson( jsonContent );
-
 					// Filter out invalid blocks
-					parsedBlocks = parsedBlocks.filter( block => {
-						return block.isValid && block.name !== 'core/freeform';
-					} );
-				} catch ( e ) {
-					// silent is gold
-				}
+					parsedBlocks = parsedBlocks?.length
+						? parsedBlocks.filter( block => {
+								return block.isValid && block.name !== 'core/freeform';
+						  } )
+						: [];
+				} catch ( e ) {}
 
+				// console.log( { parsedBlocks } );
 				if ( parsedBlocks?.length ) {
-					console.log( { parsedBlocks } );
 					// Only update the valid blocks
 					replaceInnerBlocks( containerBlockId, parsedBlocks );
 					// insertBlocks( parsedBlocks, clientId );
