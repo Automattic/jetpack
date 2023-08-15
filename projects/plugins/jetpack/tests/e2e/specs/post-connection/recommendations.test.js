@@ -67,8 +67,8 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 
 	await test.step( 'Enable Related Posts and continue to Newsletter step', async () => {
 		await recommendationsPage.enableRelatedPostsAndContinue();
-		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
+		// await recommendationsPage.reload();
+		// await recommendationsPage.waitForNetworkIdle();
 		const isNewsletterStep = await recommendationsPage.isEnableNewsletterButtonVisible();
 		expect( isNewsletterStep, 'Newsletter step should be visible' ).toBeTruthy();
 		expect(
@@ -79,8 +79,8 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 
 	await test.step( 'Enable Newsletter and continue to Site Accelerator', async () => {
 		await recommendationsPage.enableNewsletterAndContinue();
-		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
+		// await recommendationsPage.reload();
+		// await recommendationsPage.waitForNetworkIdle();
 		const isSiteAcceleratorStep = await recommendationsPage.isEnableSiteAcceleratorButtonVisible();
 		expect( isSiteAcceleratorStep, 'Site Accelerator step should be visible' ).toBeTruthy();
 		expect(
@@ -91,8 +91,8 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 
 	await test.step( 'Skip Site Accelerator and continue to VaultPress Backup card', async () => {
 		await recommendationsPage.skipSiteAcceleratorAndContinue();
-		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
+		// await recommendationsPage.reload();
+		// await recommendationsPage.waitForNetworkIdle();
 		const isVaultPressBackupStep = await recommendationsPage.isTryVaultPressBackupButtonVisible();
 		expect( isVaultPressBackupStep, 'VaultPress Backup step should be visible' ).toBeTruthy();
 		expect(
@@ -103,8 +103,8 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 
 	await test.step( 'Skip VaultPress Backup card and continue to Summary', async () => {
 		await recommendationsPage.skipVaultPressBackupAndContinue();
-		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
+		// await recommendationsPage.reload();
+		// await recommendationsPage.waitForNetworkIdle();
 		const isSummaryContent = await recommendationsPage.isSummaryContentVisible();
 		const isSummarySidebar = await recommendationsPage.isSummarySidebarVisible();
 		expect(
