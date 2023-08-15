@@ -33,62 +33,130 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests wether the wpcom_mark_launchpad_task_complete works correctly.
+	 * Tests whether {@see wpcom_mark_launchpad_task_complete()} works correctly.
 	 */
 	public function test_wpcom_mark_launchpad_task_complete() {
-		wpcom_mark_launchpad_task_complete( 'test_task1' );
-		$options = get_option( 'launchpad_checklist_tasks_statuses' );
+		$bad_task_result = wpcom_mark_launchpad_task_complete( 'bad_task_id' );
+		$this->assertFalse( $bad_task_result );
+		$options = get_option( 'launchpad_checklist_tasks_statuses', array() );
+		$this->assertFalse( isset( $options['bad_task_id'] ) );
+
+		$task1_result = wpcom_mark_launchpad_task_complete( 'test_task1' );
+		$this->assertTrue( $task1_result );
+		$options = get_option( 'launchpad_checklist_tasks_statuses', array() );
 		$this->assertTrue( isset( $options['test_task1'] ) );
 		$this->assertTrue( $options['test_task1'] );
 
-		wpcom_mark_launchpad_task_complete(
-			array(
-				'test_task2',
-				'test_task3',
-			)
-		);
-		$options = get_option( 'launchpad_checklist_tasks_statuses' );
+		wpcom_mark_launchpad_task_complete( 'test_task2' );
+		$options = get_option( 'launchpad_checklist_tasks_statuses', array() );
 		$this->assertTrue( isset( $options['test_task2'] ) && $options['test_task2'] );
-		$this->assertTrue( isset( $options['test_task3'] ) && $options['test_task3'] );
+		$this->assertFalse( isset( $options['test_task3'] ) );
 
-		$this->assertTrue( count( $options ) === 3 );
+		$this->assertCount( 2, $options );
 	}
 
 	/**
-	 * Tests wether the wpcom_mark_launchpad_task_incomplete works correctly.
+	 * Tests whether {@see wpcom_mark_launchpad_task_incomplete()} works correctly.
 	 */
 	public function test_wpcom_mark_launchpad_task_incomplete() {
-		wpcom_mark_launchpad_task_incomplete( 'test_task1' );
-		$options = get_option( 'launchpad_checklist_tasks_statuses' );
-		$this->assertTrue( isset( $options['test_task1'] ) && ! $options['test_task1'] );
+		$bad_task_result = wpcom_mark_launchpad_task_incomplete( 'bad_task_id' );
+		$this->assertFalse( $bad_task_result );
 
-		wpcom_mark_launchpad_task_incomplete(
-			array(
-				'test_task2',
-				'test_task3',
-			)
-		);
+		$task1_result = wpcom_mark_launchpad_task_incomplete( 'test_task1' );
+		$this->assertTrue( $task1_result );
 		$options = get_option( 'launchpad_checklist_tasks_statuses' );
-		$this->assertTrue( isset( $options['test_task2'] ) && ! $options['test_task2'] );
-		$this->assertTrue( isset( $options['test_task3'] ) && ! $options['test_task3'] );
+		$this->assertFalse( isset( $options['test_task1'] ) );
 
-		$this->assertTrue( count( $options ) === 3 );
+		// Now set a task to be complete.
+		$task2_complete_result = wpcom_mark_launchpad_task_complete( 'test_task2' );
+		$this->assertTrue( $task2_complete_result );
+		$options = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertTrue( isset( $options['test_task2'] ) );
+		$this->assertTrue( $options['test_task2'] );
+
+		$task2_incomplete_result = wpcom_mark_launchpad_task_incomplete( 'test_task2' );
+		$this->assertTrue( $task2_incomplete_result );
+		$options = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertFalse( isset( $options['test_task2'] ) );
+
+		$this->assertEmpty( $options );
 	}
 
 	/**
-	 * Tests wether a correct amount of array elements get stored in the 'launchpad_checklist_tasks_statuses' option.
+	 * Tests {@see wpcom_launchpad_update_task_status()}.
 	 */
-	public function test_correct_task_count() {
-		wpcom_mark_launchpad_task_complete(
-			array(
-				'test_task2',
-				'test_task3',
-			)
+	public function test_wpcom_launchpad_update_task_status() {
+		$task_updates = array(
+			'test_task1' => true,
+			'test_task2' => true,
+			'test_task3' => false,
 		);
 
-		$options = get_option( 'launchpad_checklist_tasks_statuses' );
+		$update_result = wpcom_launchpad_update_task_status( $task_updates );
 
-		$this->assertTrue( count( $options ) === 2 );
+		// Confirm that the result matches what we expect, including all three requested changes.
+		$this->assertCount( 3, $update_result );
+		foreach ( $task_updates as $task_id => $new_task_status ) {
+			$this->assertTrue( isset( $update_result[ $task_id ] ) );
+			$this->assertSame( $new_task_status, $update_result[ $task_id ] );
+		}
+
+		$option_value = get_option( 'launchpad_checklist_tasks_statuses' );
+
+		$this->assertIsArray( $option_value );
+		$this->assertCount( 2, $option_value );
+
+		// Filter out incomplete tasks from $task_updates.
+		$completed_updates = array_filter( $task_updates );
+		foreach ( $completed_updates as $task_id => $new_task_status ) {
+			$this->assertTrue( isset( $option_value[ $task_id ] ) );
+			$this->assertSame( $new_task_status, $option_value[ $task_id ] );
+		}
+	}
+
+	/**
+	 * Data provider for {@see test_wpcom_launchpad_update_task_status_forces_booleans()}.
+	 *
+	 * @return array[]
+	 */
+	public function provide_non_boolean_task_status_updates() {
+		return array(
+			'Truthy string 1'   => array( '1', true ),
+			'Truthy integer 1'  => array( 1, true ),
+			'Truthy array'      => array( array( true ), true ),
+			'Falsy empty array' => array( array(), false ),
+			'Falsy null'        => array( null, false ),
+			'Falsy integer 0'   => array( 0, false ),
+			'Falsy string 0'    => array( '0', false ),
+		);
+	}
+
+	/**
+	 * Tests that {@see wpcom_launchpad_update_task_status()} correctly stores only true values.
+	 *
+	 * @dataProvider provide_non_boolean_task_status_updates
+	 * @param mixed $new_status_value New status value to specify for a task.
+	 * @param bool  $is_truthy Should the new status value be considered truthy.
+	 */
+	public function test_wpcom_launchpad_update_task_status_forces_booleans( $new_status_value, $is_truthy ) {
+		$task_update = array(
+			'test_task1' => $new_status_value,
+		);
+
+		$result = wpcom_launchpad_update_task_status( $task_update );
+		$this->assertArrayHasKey( 'test_task1', $result );
+
+		$option_value = get_option( 'launchpad_checklist_tasks_statuses', array() );
+		$this->assertIsArray( $option_value );
+
+		if ( $is_truthy ) {
+			$this->assertTrue( $result['test_task1'] );
+			$this->assertArrayHasKey( 'test_task1', $option_value );
+			$this->assertTrue( $option_value['test_task1'] );
+		} else {
+			$this->assertFalse( $result['test_task1'] );
+			$this->assertArrayNotHasKey( 'test_task1', $option_value );
+		}
 	}
 
 	/**
