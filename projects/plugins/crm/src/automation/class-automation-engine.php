@@ -145,15 +145,14 @@ class Automation_Engine {
 			throw new Automation_Exception(
 				/* Translators: %s is the name of the step class that does not exist. */
 				sprintf( __( 'Step class %s does not exist', 'zero-bs-crm' ), $class_name ),
-				Automation_Exception::STEP_CLASS_NOT_FOUND
+				Step_Exception::DO_NOT_EXIST
 			);
 		}
 
 		if ( ! in_array( Step::class, class_implements( $class_name ), true ) ) {
 			throw new Automation_Exception(
-				/* Translators: %s is the name of the step class that does not implement the Step interface. */
-				sprintf( __( 'Step class %s does not implement the Base_Step interface', 'zero-bs-crm' ), $class_name ),
-				Automation_Exception::TRIGGER_CLASS_NOT_FOUND
+				sprintf( 'Step class %s does not implement the Base_Step interface', $class_name ),
+				Step_Exception::DO_NOT_EXTEND_BASE
 			);
 		}
 
