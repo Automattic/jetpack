@@ -98,11 +98,12 @@ export const withAIAssistant = createHigherOrderComponent(
 				tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
 					type: 'suggestion',
 					suggestion: promptType,
+					blockType,
 				} );
 
 				requestSuggestion( promptType, options );
 			},
-			[ tracks, requestSuggestion ]
+			[ tracks, requestSuggestion, blockType ]
 		);
 
 		const replaceWithAiAssistantBlock = useCallback( () => {
