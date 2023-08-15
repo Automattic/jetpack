@@ -96,9 +96,8 @@ export const withAIAssistant = createHigherOrderComponent(
 		const handleChange = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
 				tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
-					type: 'suggestion',
 					suggestion: promptType,
-					blockType,
+					block_type: blockType,
 				} );
 
 				requestSuggestion( promptType, options );
