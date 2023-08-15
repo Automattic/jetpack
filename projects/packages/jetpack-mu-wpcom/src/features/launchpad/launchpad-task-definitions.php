@@ -1402,7 +1402,7 @@ function wpcom_mark_customize_welcome_message_complete_on_update( $old_value, $v
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
-add_action( 'update_option_subscription_options', 'wpcom_mark_customize_welcome_message_complete_on_update', 10, 3 );
+add_action( 'update_option_subscription_options', 'wpcom_mark_customize_welcome_message_complete_on_update', 10, 2 );
 
 /**
  * Mark the customize_welcome_message task complete
