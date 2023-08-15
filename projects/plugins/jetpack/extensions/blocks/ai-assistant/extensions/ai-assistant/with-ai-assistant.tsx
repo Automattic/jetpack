@@ -93,7 +93,7 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ blocks, clientIds, content, blockType, replaceBlock, removeBlocks ]
 		);
 
-		const onChange = useCallback(
+		const handleChange = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
 				tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
 					type: 'suggestion',
@@ -135,7 +135,7 @@ export const withAIAssistant = createHigherOrderComponent(
 				<BlockControls { ...blockControlProps }>
 					<AiAssistantDropdown
 						disabled={ ! rawContent?.length }
-						onChange={ onChange }
+						onChange={ handleChange }
 						onReplace={ replaceWithAiAssistantBlock }
 						exclude={ exclude }
 					/>
