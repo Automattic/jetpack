@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms block: rename CreativeMail integration from "Newsletter" to "CreativeMail" to avoid confusing with "Jetpack Newsletters" and subscription block.
