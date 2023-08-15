@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/root-variables';
+
 // AI CONTROL
 
 .jetpack-components-ai-control__container {
@@ -13,6 +15,7 @@
 	padding: 12px 14px;
 	gap: 8px;
 	align-items: center;
+	box-sizing: border-box;
 
 	&.is-opaque {
 		opacity: 0.4;

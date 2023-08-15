@@ -127,7 +127,7 @@ jobs:
         pnpm run config:decrypt
         echo "::endgroup::"
 
-        if [[ "${SUITE}" != atomic* ]]; then
+        if [[ "${SUITE}" != atomic* && "${SUITE}" != vip ]]; then
           echo "::group::Start docker environment"
           pnpm run env:up
           echo "::endgroup::"
