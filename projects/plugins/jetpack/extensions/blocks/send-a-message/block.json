@@ -1,0 +1,17 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/send-a-message",
+	"title": "Send A Message",
+	"description": "Let your visitors send you messages with the tap of a button.",
+	"keywords": ["whatsapp", "messenger", "contact", "support"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "format-chat",
+	"supports": {
+		"html": false
+	},
+	"attributes": {},
+	"editorScript": "file:../editor.js"
+}
