@@ -1026,12 +1026,20 @@ function jpcrm_database_server_has_ability( $ability_name ) {
    Uninstall Funcs
    ====================================================== */
 
-// dangerous, brutal, savage.
-// This one removes all data except settings & migrations
-// see zeroBSCRM_database_nuke for the full show
-function zeroBSCRM_database_reset(){
+/**
+ * dangerous, brutal, savage.
+ *
+ * This one removes all data except settings & migrations
+ * see zeroBSCRM_database_nuke for the full show.
+ *
+ * @param bool $check_permissions (default true) whether to check current user can manage_options.
+ * @return void
+ */
+function zeroBSCRM_database_reset( $check_permissions = true ) {
 
-  if (current_user_can('manage_options')){
+	if ( $check_permissions && ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
 
       #} Brutal Reset of DB settings & removal of tables
       global $wpdb, $ZBSCRM_t;
@@ -1068,21 +1076,20 @@ function zeroBSCRM_database_reset(){
 
       }
 
-  }
-
 }
 
 
-// dangerous, brutal, savage removal of all ZBS signs
-/*
-       ___________________    . , ; .
-      (___________________|~~~~~X.;' .
-                            ' `" ' `
-                  TNT
-*/
-function zeroBSCRM_database_nuke(){
+/**
+ * Dangerous, brutal, savage removal of all ZBS signs.
+ *
+ * @param bool $check_permissions (default true) whether to check current user can manage_options.
+ * @return void
+ */
+function zeroBSCRM_database_nuke( $check_permissions = true ) {
 
-  if (current_user_can('manage_options')){
+	if ( $check_permissions && ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
 
       #} Brutal Reset of DB settings & removal of tables
       global $wpdb, $ZBSCRM_t;
@@ -1122,8 +1129,6 @@ function zeroBSCRM_database_nuke(){
       #} DROP all DAL 3.0 tables
       $ZBSCRM_t['totaltrans'] = $wpdb->prefix . "zbs_global_total_trans";
       foreach ($ZBSCRM_t as $k => $v)$wpdb->query("DROP TABLE " . $v);
-
-  }
 
 }
 
