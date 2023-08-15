@@ -13,7 +13,6 @@ use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 /**
  * Abstract Data Type base class.
  *
- * @package Automattic\Jetpack\CRM
  * @since $$next-version$$
  */
 abstract class Data_Type_Base {

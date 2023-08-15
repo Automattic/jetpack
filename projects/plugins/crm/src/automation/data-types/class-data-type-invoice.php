@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 /**
  * Invoice Data Type
  *
- * @package Automattic\Jetpack\CRM
  * @since $$next-version$$
  */
 class Data_Type_Invoice extends Data_Type_Base {

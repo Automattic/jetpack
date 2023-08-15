@@ -2,7 +2,7 @@
 /**
  * Base Data Transformer class.
  *
- * @package Automattic\Jetpack\CRM
+ * @package automattic/jetpack-crm
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Data_Transformers;
@@ -13,8 +13,6 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
  * Base Data Transformer class.
  *
  * @since $$next-version$$
- *
- * @package Automattic\Jetpack\CRM\Automation
  */
 abstract class Data_Transformer_Base {
 

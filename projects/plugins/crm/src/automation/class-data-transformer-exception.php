@@ -2,7 +2,7 @@
 /**
  * Jetpack CRM Automation data transformer exception.
  *
- * @package Automattic\Jetpack\CRM
+ * @package automattic/jetpack-crm
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
@@ -11,8 +11,6 @@ namespace Automattic\Jetpack\CRM\Automation;
  * Adds a Data_Transformer specific exception.
  *
  * @since $$next-version$$
- *
- * @package Automattic\Jetpack\CRM\Automation
  */
 class Data_Transformer_Exception extends \Exception {
 	const CLASS_NOT_FOUND            = 10;

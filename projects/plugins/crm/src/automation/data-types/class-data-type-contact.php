@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 /**
  * Contact Data Type
  *
- * @package Automattic\Jetpack\CRM
  * @since $$next-version$$
  */
 class Data_Type_Contact extends Data_Type_Base {

@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 /**
  * Company Data Type
  *
- * @package Automattic\Jetpack\CRM
  * @since $$next-version$$
  */
 class Data_Type_Company extends Data_Type_Base {

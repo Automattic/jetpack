@@ -2,7 +2,7 @@
 /**
  * CRM Invoice to CRM Contact Transformer class.
  *
- * @package Automattic\Jetpack\CRM
+ * @package automattic/jetpack-crm
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Data_Transformers;
@@ -16,8 +16,6 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
  * CRM Invoice to CRM Contact Transformer class.
  *
  * @since $$next-version$$
- *
- * @package Automattic\Jetpack\CRM\Automation
  */
 class Data_Transformer_Invoice_To_Contact extends Data_Transformer_Base {
 
