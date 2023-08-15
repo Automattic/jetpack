@@ -2,7 +2,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { Button, Modal } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import TemplatePicker from '../template-picker';
+import TemplatePicker from '../picker';
 import styles from './styles.module.scss';
 
 /** @typedef {import('react').ReactNode} ReactNode */
