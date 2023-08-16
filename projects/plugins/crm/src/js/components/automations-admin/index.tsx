@@ -5,7 +5,8 @@ import { Link, Routes, Route } from 'react-router-dom';
 import AdminPage from '../admin-page';
 import { RedirectHome } from './components/redirect-home';
 import { WorkflowRow } from './components/workflow-row';
-import { workflowOne, workflowTwo } from './test/util/data';
+import { WorkflowTable } from './components/workflow-table';
+import { workflowOne, workflowTwo } from './test/test-data';
 
 export const AutomationsAdmin = () => {
 	return (
@@ -92,6 +93,10 @@ export const AutomationsAdmin = () => {
 						<WorkflowRow workflow={ workflowTwo } />
 					</table>
 				}
+			/>
+			<Route
+				path="/automations/test-workflow-table"
+				element={ <WorkflowTable workflows={ [ workflowOne, workflowTwo ] } /> }
 			/>
 			<Route path="*" element={ <RedirectHome /> } />
 		</Routes>

@@ -3,6 +3,7 @@
 	// List all sources and source-containing subdirs.
 	"include": [ "./src/js" ],
 	"compilerOptions": {
-		"strict": true
+		"strict": true,
+		"sourceMap": true
 	}
 }
