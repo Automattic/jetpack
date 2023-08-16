@@ -45,8 +45,28 @@ function parseBlocksFromJson( jsonContent: Array< BlockData > | BlockData ): Arr
 	 */
 	if ( typeof jsonContent[ 0 ] === 'string' ) {
 		console.warn( 'Single block detected. Wrapping in an array.' ); // eslint-disable-line no-console
-		jsonContent = [ jsonContent ];
-		console.warn( 'jsonContent: ', jsonContent ); // eslint-disable-line no-console
+
+		// Validate single block before wrapping it in an array
+		const [ name, attributes, innerBlocks ] = jsonContent;
+		if ( ! name ) {
+			console.error( 'Block name is missing.' ); // eslint-disable-line no-console
+			debugger;
+			return [];
+		}
+
+		if ( ! attributes ) {
+			console.error( 'Block attributes are missing.' ); // eslint-disable-line no-console
+			debugger;
+			return [];
+		}
+
+		if ( innerBlocks && ! Array.isArray( innerBlocks ) ) {
+			console.error( 'Block innerBlocks is not an array.' ); // eslint-disable-line no-console
+			debugger;
+			return [];
+		}
+
+		jsonContent = [ name, attributes, innerBlocks ];
 	}
 
 	const blocks = [];
@@ -78,11 +98,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 	return props => {
 		const { clientId, isSelected } = props;
 
-		// AI Assistant input value
-		// const [ inputValue, setInputValue ] = useState(
-		// 	'In three columns, put in the first one a large article about Mariana Enriquez. In next one, an article about Jorge Luis Borge. And in the third one, a complete form to buy books. Add a few images and also some famous quotes.'
-		// );
-
 		// const [ inputValue, setInputValue ] = useState(
 		// 	'Write a complete article about the CZSpectrum, split in three columns. In the first one, create an introductory content. In the second one, talk about the most important companies around it. In the third one, create a list with the best ten games of it. Use all resources you need to create a beautiful content.'
 		// );
@@ -91,16 +106,37 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// 	'Write a large article about Johannes Gutenberg. Please organize the content in three columns. Feel free to add Headers, Lists, quotes, etc.'
 		// );
 
+		// 		const [ inputValue, setInputValue ] = useState(
+		// 			`Generate content about Mariana Enriquez.
+		// In a first column, add a profile picture, create a large text about her biography, some quotes.
+
+		// In a second column, create a list with her best books. In a third column, create a complete form to sell her books.
+
+		// Add header, images, and other resources to make a beautiful composition. And please, the content in Spanish.`
+		// 		);
+
+// 		const [ inputValue, setInputValue ] =
+// 			useState( `Create a motivation message about reading books.
+
+// In a first column, add a title (uppercase font), some text to make the learners reflect on reading, three quotes of famous people about reading.
+// Ensure to set a background image behind the column.
+
+// In the second column, a complete form to sell books. Add a list of ten best-sellers books. Also, set background image behind the form.` );
+
 		// const [ inputValue, setInputValue ] = useState(
-		// 'Generate content about Mariana Enriquez. In a first column, create a large text about Mariana Enriquez, adding her biography, some quotes, and a few images. In a second column, create a list with her best books. In a third column, create a complete form to sell her books. Use all resources you need to create a beautiful content.'
+		// 	`Create a motivation message about reading books. Wrap the content in a Row group variant.
+
+		// In a first Stack, add a title (in uppercase) that captures the essence of the message. Then, add a thought-provoking text designed to encourage learners to think deeply about the benefits of reading. Add three quotes of famous people about reading, and ensure to put a background image behind the text.
+
+		// In the second Stack, a complete form to sell books. Add a list of ten best-sellers books. Also, ensure to put a background image behind the form.`
 		// );
-
-		const [ inputValue, setInputValue ] = useState(
-			'Create a motivation message about reading books. In a first column, add a title (uppercase), some text to make the learners reflect on reading, a few famous quotes, and a button that leads to a books page. Please add a background image. In the second column, a complete form to sell books. Add a tentative 10 books with best-sellers. Also, a background image behind the form.'
-		);
-
 		// AI Assistant component visibility
 		const [ isVisible, setAssistantVisibility ] = useState( false );
+
+		const [ inputValue, setInputValue ] = useState( `Create a motivation message about fruits.
+Share the benefits of eating fruits. Add a list of ten fruits.
+Organize the content by using a layout with two columns.
+Feel free to add some tips, quotes, and other resources to make a beautiful composition (images, headers, etc).` );
 
 		// AI Assistant component is-fixed state
 		const [ isFixed, setAssistantFixed ] = useState( false );
