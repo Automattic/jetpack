@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/payments-intro",
+	"title": "Payments",
+	"description": "Sell products and services or receive donations on your website.",
+	"keywords": [ "donations", "paid", "pay", "money", "checkout", "pay", "checkout" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "earn",
+	"icon": "money-alt",
+	"supports": {
+		"alignWide": false,
+		"className": true,
+		"customClassName": false,
+		"html": false,
+		"reusable": false
+	},
+	"attributes":{},
+	"editorScript": "file:../editor.js"
+}
