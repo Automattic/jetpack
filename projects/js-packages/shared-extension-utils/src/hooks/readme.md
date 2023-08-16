@@ -7,7 +7,7 @@ This library is only useful when the logged in user is connected to WordPress.co
 ```php
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 // Adds Connection package initial state.
-wp_add_inline_script( 'your-app-script-handle-in-editor', Connection_Initial_State::render(), 'before' );
+Connection_Initial_State::render_script( 'your-app-script-handle-in-editor' );
 ```
 
 Adding Tracks related class and including the check function in your admin ui page:

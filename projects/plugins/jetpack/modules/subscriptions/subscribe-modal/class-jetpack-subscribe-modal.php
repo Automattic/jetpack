@@ -49,8 +49,6 @@ class Jetpack_Subscribe_Modal {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
 		}
-		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
-		add_filter( 'get_block_templates', array( $this, 'get_block_templates_filter' ), 10, 3 );
 	}
 
 	/**
@@ -71,6 +69,7 @@ class Jetpack_Subscribe_Modal {
 	 * @return void
 	 */
 	public function add_subscribe_modal_to_frontend() {
+		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
 		if ( $this->should_user_see_modal() ) { ?>
 					<div class="jetpack-subscribe-modal">
 						<div class="jetpack-subscribe-modal__modal-content">
@@ -79,6 +78,7 @@ class Jetpack_Subscribe_Modal {
 					</div>
 			<?php
 		}
+		remove_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
 	}
 
 	/**
@@ -98,31 +98,6 @@ class Jetpack_Subscribe_Modal {
 		}
 
 		return $block_template;
-	}
-
-	/**
-	 * Makes get_block_templates return the WP_Block_Template within the results.
-	 *
-	 * @param WP_Block_Template $query_result The filter result.
-	 * @param string            $query The query string.
-	 * @param string            $template_type Template type: `'wp_template'` or '`wp_template_part'`.
-	 *
-	 * @return array WP_Block_Template
-	 */
-	public function get_block_templates_filter( $query_result, $query, $template_type ) {
-		if ( empty( $query ) && $template_type === 'wp_template_part' ) {
-			if ( is_array( $query_result ) ) {
-				// find the custom template and return early if we have a custom version in the results.
-				foreach ( $query_result as $template ) {
-					if ( $template->id === self::get_block_template_part_id() ) {
-						return $query_result;
-					}
-				}
-			}
-			$query_result[] = $this->get_template();
-		}
-
-		return $query_result;
 	}
 
 	/**

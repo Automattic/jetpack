@@ -182,7 +182,7 @@ class Automation_Faker {
 					'value'    => 'lead',
 				),
 				'next_step_true'  => array(
-					'slug' => 'dummy_action',
+					'slug' => 'dummy_step',
 				),
 				'next_step_false' => null,
 			),
@@ -341,6 +341,21 @@ class Automation_Faker {
 				'created'        => 1675000000,
 				'lastupdated'    => 1675000000,
 			),
+		);
+	}
+
+	/**
+	 * Returns the data for a dummy contact transitional status.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $old_status The value of the old status.
+	 * @return array An array containing a dummy contact and the value of the old status that was passed as a parameter.
+	 */
+	public function contact_transitional_status_data( $old_status ) {
+		return array(
+			'contact'          => $this->contact_data(),
+			'old_status_value' => $old_status,
 		);
 	}
 
