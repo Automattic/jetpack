@@ -370,6 +370,10 @@ class Launchpad_Task_Lists {
 			}
 		}
 
+		if ( isset( $task['id_map'] ) ) {
+			$built_task['id_map'] = $task['id_map'];
+		}
+
 		return $built_task;
 	}
 
