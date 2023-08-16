@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.1] - 2023-08-15
+### Changed
+- Reduce number of tasks in the free and paid newsletter task lists [#32459]
+
+## [4.4.0] - 2023-08-14
+### Added
+- Newsletter launchpad: add migrate content task. [#32357]
+
+## [4.3.1] - 2023-08-09
+### Added
+- Adds the 'Write 3 posts' launchpad task to the 'Write' intent [#32341]
+
+### Changed
+- Update the email verification task copy [#32364]
+
+## [4.3.0] - 2023-08-07
+### Added
+- Added add_about_page Launchpad task [#32245]
+- Added new Launchpad task [#32204]
+- Added new Launchpad task [#32250]
+- Add the path for the Write 3 posts and Enable subscriber modal tasks [#32233]
+- Launchpad: add 'Get your first 10 subscribers' task for newsletters and add general repeated task completion logic [#32075]
+- Launchpad: add a way to query and set checklist dismissed status [#32200]
+
+### Changed
+- Add the Earn money task to the Free Newsletter task list [#32315]
+- Refactors is_launchpad_enabled method  to make it clear they are related to the fullscreen launchpad [#32269]
+- Refactors refactor disable_launchpad & maybe_disable_launchpad to make it clear they are related to the fullscreen launchpad [#32268]
+
+### Fixed
+- Fix the new get_calypso_path for the customize_welcome_message task [#32195]
+
 ## [4.2.0] - 2023-08-01
 ### Added
 - Add manage subscribers task. [#32064]
@@ -270,6 +302,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[4.4.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.4.0...v4.4.1
+[4.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.3.1...v4.4.0
+[4.3.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.3.0...v4.3.1
+[4.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.7.0...v4.0.0

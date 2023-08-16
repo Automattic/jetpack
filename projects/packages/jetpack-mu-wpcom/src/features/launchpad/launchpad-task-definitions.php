@@ -106,7 +106,7 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'verify_email'                    => array(
 			'get_title'           => function () {
-				return __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' );
+				return __( 'Verify email address', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
 			'get_task_url'        => function () {
@@ -149,6 +149,13 @@ function wpcom_launchpad_get_task_definitions() {
 		'subscribers_added'               => array(
 			'get_title'            => function () {
 				return __( 'Add subscribers', 'jetpack-mu-wpcom' );
+			},
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
+		),
+		'migrate_content'                 => array(
+			'get_title'            => function () {
+				return __( 'Migrate content', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_has_goal_import_subscribers',
@@ -345,7 +352,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_visible_callback'  => 'wpcom_is_enable_subscribers_modal_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				if ( ( new Automattic\Jetpack\Status\Host() )->is_atomic_platform() ) {
-					return admin_url( '/admin.php?page=jetpack#/discussion' );
+					return admin_url( 'admin.php?page=jetpack#/discussion' );
 				}
 				return '/settings/reading/' . $data['site_slug_encoded'] . '#newsletter-settings';
 			},
@@ -1383,19 +1390,35 @@ function wpcom_is_edit_page_task_visible() {
 /**
  * Mark the customize_welcome_message task complete
  * if the subscription_options['invitation'] value
- * for the welcome message has changed.
+ * for the welcome message has changed on option update.
  *
  * @param string $old_value The old value of the welcome message.
  * @param string $value The new value of the welcome message.
  *
  * @return void
  */
-function wpcom_mark_customize_welcome_message_complete( $old_value, $value ) {
+function wpcom_mark_customize_welcome_message_complete_on_update( $old_value, $value ) {
 	if ( $value['invitation'] !== $old_value['invitation'] ) {
 		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
 	}
 }
-add_action( 'update_option_subscription_options', 'wpcom_mark_customize_welcome_message_complete', 10, 3 );
+add_action( 'update_option_subscription_options', 'wpcom_mark_customize_welcome_message_complete_on_update', 10, 2 );
+
+/**
+ * Mark the customize_welcome_message task complete
+ * if the subscription_options['invitation'] value
+ * for the welcome message has been added.
+ *
+ * @param string $value The value of the welcome message.
+ *
+ * @return void
+ */
+function wpcom_mark_customize_welcome_message_complete_on_add( $value ) {
+	if ( $value['invitation'] ) {
+		wpcom_mark_launchpad_task_complete( 'customize_welcome_message' );
+	}
+}
+add_action( 'add_option_subscription_options', 'wpcom_mark_customize_welcome_message_complete_on_add', 10, 1 );
 
 /**
  * When a page is updated, check to see if we've already completed the `add_new_page` task and mark the `edit_page` task complete accordingly.
