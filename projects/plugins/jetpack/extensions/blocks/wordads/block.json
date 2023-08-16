@@ -22,7 +22,7 @@
 			"type": "string",
 			"default": "center"
 		},
-        "format": {
+		"format": {
 			"type": "string",
 			"default": "mrec"
 		},

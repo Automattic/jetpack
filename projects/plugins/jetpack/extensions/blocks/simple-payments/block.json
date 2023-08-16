@@ -13,7 +13,7 @@
 		"className": false,
 		"customClassName": false,
 		"html": false,
-		"reusable": false,
+		"reusable": false
 	},
 	"attributes": {
 		"currency": {

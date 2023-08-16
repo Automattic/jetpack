@@ -62,7 +62,7 @@
 			"default": 3
 		}
 	},
-    "example": {
+	"example": {
 		"attributes": {
 			"postLayout": "grid",
 			"displayAuthor": false,

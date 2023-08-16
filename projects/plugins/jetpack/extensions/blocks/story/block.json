@@ -14,12 +14,12 @@
 	},
 	"attributes": {
 		"settings": {
-            "type": "object"
-        },
-        "mediaFiles": {
-            "type": "array",
-            "default": []
-        }
+			"type": "object"
+		},
+		"mediaFiles": {
+			"type": "array",
+			"default": []
+		}
 	},
 	"example": {
 		"attributes": {
