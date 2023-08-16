@@ -161,10 +161,10 @@ class Transaction_Field extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The category 'jpcrm/transaction_condition'.
+	 * @return string The category 'transaction'.
 	 */
 	public static function get_category(): string {
-		return 'transaction';
+		return __( 'transaction', 'zero-bs-crm' );
 	}
 
 	/**
