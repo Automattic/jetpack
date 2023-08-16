@@ -1,11 +1,12 @@
 <?php
 namespace Automattic\Jetpack_Boost\Data_Sync;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Generator;
 
-class Critical_CSS_State_Entry implements Entry_Can_Get, Entry_Can_Set {
+class Critical_CSS_State_Entry implements Entry_Can_Get, Entry_Can_Set, Entry_Can_Delete {
 
 	private $option_key;
 
@@ -27,6 +28,10 @@ class Critical_CSS_State_Entry implements Entry_Can_Get, Entry_Can_Set {
 
 	public function set( $value ) {
 		update_option( $this->option_key, array_diff_key( $value, $this->get_generation_metadata() ), false );
+	}
+
+	public function delete() {
+		delete_option( $this->option_key );
 	}
 
 	private function get_generation_metadata() {
