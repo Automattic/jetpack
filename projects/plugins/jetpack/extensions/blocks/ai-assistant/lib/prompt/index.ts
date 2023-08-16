@@ -372,15 +372,9 @@ Follow these composing rules to be used in the Gutenberg editor (aka WordPress b
 - Button: [ "core/button", { "text": TEXT, "url": URL, "backgroundColor", BGCOLOR, "borderRadius": BORDER_RADIUS, "fontSize" }, ],
 - Separator: [ "core/separator", { "opacity": OPACITY, "backgroundColor": BGCOLOR, "textColor": COLOR, }, ],
 
-# Columns layout composition, based on "core/columns" block.
-- Columns: [ "core/columns", { "className": "is-style-default" | "is-style-rounded" }, [ [ ANY_BLOCK ], ], ],
-
-# Group Layout composition, based on "core/group" block. Layout rules are based on the flexbox model.
-- Group: [ "core/group", { "aling": ALIGN, "layout": { "type":"flex" | "constraint", "flexWrap": FLEX_WRAP, "orientation": ORIENTATION, "justifyContent": JUSTIFY_CONTENT, "verticalAlignment": VERTICAL_ALIGNMENT }, }, [ [ ANY_BLOCK ], ], ],
-- Row - Horizontal layout (IMPORTANT: flexWrap: nowrap, orientation: horizontal): [ "core/group", { "aling": wide, "layout": { "type":"flex", "flexWrap": "nowrap", "orientation": "horizontal", "justifyContent": "left" | "center" | "right", "verticalAlignment": "top" }, }, [ [ ANY_BLOCK ], ], ],
-- Stack - Vertical layout (respect attributes): [ "core/group", { "aling": wide, "layout": { "type":"flex", "orientation": "vertical", }, }, [ [ ANY_BLOCK ], ], ],
-Nest as many rows and stacks as you need. Always respect the flexbox model, and the nesting logic.
-
+# Layout composition, based on "core/group" block. NEVER combine with "core/column" or "core/column" blocks. Nest Group-Row/Stack blocks to create complex layouts. Layout rules are based on the flexbox model.
+- Column: Horizontal layout,  (DO NOT Change the attributes here ) [ "core/group", { "aling": wide, "layout": { "type":"flex", "flexWrap": "nowrap", "orientation": "horizontal", "justifyContent": "left" | "center" | "right", "verticalAlignment": "top" }, }, [ [ ANY_BLOCK ], ], ],
+- Row: Vertical layout (DO NOT Change the attributes here): [ "core/group", { "aling": wide, "layout": { "type":"flex", "orientation": "vertical", }, }, [ [ ANY_BLOCK ], ], ],
 
 ## Quote blocks: You can use these blocks to compose a quote. It accepts ANY_BLOCK block as a child.
 - Quote: [ "core/quote", { "citation": WHO_CITATION, }, [ [ ANY_BLOCK ], ], ],
@@ -414,9 +408,9 @@ Nest as many rows and stacks as you need. Always respect the flexbox model, and 
 - Waterfall 03 (grey background): https://pd.w.org/2022/01/21261f60ba46147b0.97888240.jpg
 - Infinite stairs: https://pd.w.org/2023/04/654642d52f20d6367.57324872.jpg
 - Tokio Street: https://pd.w.org/2022/03/3866241b433db4ee2.96648572.jpeg
-- Outside https://s.w.org/images/core/5.8/outside-{n}.jpg ( n = 1 to 3 )
-- Abstract arquitecure: https://s.w.org/images/core/5.8/architecture-{n}.jpg (n = 1 to 5)
-- Nature photos: https://s.w.org/images/core/5.8/nature-above-{n}.jpg (n = 1 to 2)
+- Outside https://s.w.org/images/core/5.8/outside-{n}.jpg (n: 01, 02, 03)
+- Abstract arquitecure: https://s.w.org/images/core/5.8/architecture-{n}.jpg (n: 01, 02, 03, 04)
+- Nature photos: https://s.w.org/images/core/5.8/nature-above-{n}.jpg (n: 01, 02)
 - Iris flower (oil painting): https://s.w.org/patterns/files/2021/06/Iris-793x1024.jpg
 - Cherry Blossom flower (oil painting): https://s.w.org/patterns/files/2021/06/Cherry-Blossom-707x1024.jpg
 - Pear fruit (oil painting): https://s.w.org/patterns/files/2021/06/pear-1-1024x1024.png
