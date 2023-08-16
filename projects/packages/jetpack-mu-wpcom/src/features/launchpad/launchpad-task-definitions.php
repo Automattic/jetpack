@@ -145,7 +145,7 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Set up payment method', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback' => 'wpcom_has_goal_paid_subscribers',
-			'get_calypso_path'    => function( $task, $default, $data ) {
+			'get_calypso_path'    => function ( $task, $default, $data ) {
 				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
 					return get_memberships_connected_account_redirect(
 						get_current_user_id(),
