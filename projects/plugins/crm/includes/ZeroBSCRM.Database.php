@@ -1078,7 +1078,7 @@ function zeroBSCRM_database_reset( $check_permissions = true ) {
 				continue;
 			}
 
-			$wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %s', $v ) );
+			$wpdb->query( 'TRUNCATE TABLE ' . $v ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
 	}
 	// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect,Generic.WhiteSpace.ScopeIndent.IncorrectExact,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -1143,7 +1143,7 @@ function zeroBSCRM_database_nuke( $check_permissions = true ) {
 			continue;
 		}
 
-		$wpdb->query( $wpdb->prepare( 'DROP TABLE %s', $v ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
+		$wpdb->query( 'DROP TABLE ' . $v ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.PreparedSQL.NotPrepared
 	}
 	// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect,Generic.WhiteSpace.ScopeIndent.IncorrectExact,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
