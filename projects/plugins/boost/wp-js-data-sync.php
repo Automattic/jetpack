@@ -3,6 +3,7 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
@@ -111,13 +112,10 @@ $critical_css_state_schema = Schema::as_assoc_array(
 	)
 )->fallback(
 	array(
-		'status'               => 'not_generated',
-		'providers'            => array(),
-		'callback_passthrough' => null,
-		'proxy_nonce'          => null,
-		'viewports'            => array(),
-		'created'              => null,
-		'updated'              => null,
+		'status'    => 'not_generated',
+		'providers' => array(),
+		'created'   => null,
+		'updated'   => null,
 	)
 );
 
@@ -134,7 +132,7 @@ $critical_css_suggest_regenerate_schema = Schema::enum(
 /**
  * Register Data Sync Stores
  */
-jetpack_boost_register_option( 'critical_css_state', $critical_css_state_schema );
+jetpack_boost_register_option( 'critical_css_state', $critical_css_state_schema, new Critical_CSS_State_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE . '_critical_css_state' ) );
 jetpack_boost_register_option( 'critical_css_suggest_regenerate', $critical_css_suggest_regenerate_schema );
 
 $modules_state_schema = Schema::as_array(
