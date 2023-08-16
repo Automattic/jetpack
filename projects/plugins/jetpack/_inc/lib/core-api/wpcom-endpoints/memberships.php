@@ -157,13 +157,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			require_lib( 'memberships' );
-			$connected_destination_account_id = Jetpack_Memberships::get_connected_account_id();
-			if ( ! $connected_destination_account_id ) {
-				return new WP_Error( 'no-destination-account', __( 'Please set up a Stripe account for this site first', 'jetpack' ) );
-			}
-
-			$payload['connected_destination_account_id'] = $connected_destination_account_id;
-
 			$product = Memberships_Product::create( get_current_blog_id(), $payload );
 			if ( is_wp_error( $product ) ) {
 				return new WP_Error( $product->get_error_code(), __( 'Creating product has failed.', 'jetpack' ) );
@@ -208,12 +201,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			require_lib( 'memberships' );
-			$connected_destination_account_id = get_connected_account_id_for_site( get_current_blog_id() );
-			if ( ! $connected_destination_account_id ) {
-				return new WP_Error( 'no-destination-account', __( 'Please set up a Stripe account for this site first', 'jetpack' ) );
-			}
 
-			$result = Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $request['currency'], $connected_destination_account_id, $is_editable );
+			$result = Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $request['currency'], $is_editable );
 
 			if ( is_wp_error( $result ) ) {
 				$status = 'invalid_param' === $result->get_error_code() ? 400 : 500;

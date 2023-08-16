@@ -58,6 +58,11 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 
 		// Slot not found - create it.
 		slot = document.createElement( 'div' );
+
+		// Set role="toolbar" and Aria label
+		slot.setAttribute( 'role', 'toolbar' );
+		slot.setAttribute( 'aria-label', __( 'AI Assistant', 'jetpack' ) );
+		slot.setAttribute( 'aria-orientation', 'horizontal' );
 		slot.className = AI_ASSISTANT_BAR_SLOT_CLASS;
 		toolbar.after( slot );
 
