@@ -56,21 +56,21 @@ class Quote_Status_Changed extends Base_Condition {
 			return;
 		}
 
-		$field    = 'status';
-		$operator = $this->get_attributes()['operator'];
-		$value    = $this->get_attributes()['value'];
+		$status_value = ( $data['data']['accepted'] > 0 ) ? 'accepted' : ( $data['data']['template'] > 0 ? 'published' : 'draft' );
+		$operator     = $this->get_attributes()['operator'];
+		$value        = $this->get_attributes()['value'];
 
 		$this->check_for_valid_operator( $operator );
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
+		$this->logger->log( 'Condition: quote status ' . $operator . ' ' . $value . ' => ' . $status_value );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $data['data'][ $field ] === $value );
+				$this->condition_met = ( $status_value === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
 			case 'is_not':
-				$this->condition_met = ( $data['data'][ $field ] !== $value );
+				$this->condition_met = ( $status_value !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
@@ -94,7 +94,7 @@ class Quote_Status_Changed extends Base_Condition {
 	 * @return bool True if the data is valid to detect a status change, false otherwise
 	 */
 	private function is_valid_quote_status_changed_data( array $quote_data ): bool {
-		return isset( $quote_data['id'] ) && isset( $quote_data['data'] ) && isset( $quote_data['data']['status'] );
+		return isset( $quote_data['id'] ) && isset( $quote_data['data'] ) && isset( $quote_data['data']['accepted'] ) && isset( $quote_data['data']['template'] );
 	}
 
 	/**
