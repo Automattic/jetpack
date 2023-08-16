@@ -71,7 +71,7 @@ const variations = compact( [
 			__( 'subscribe', 'jetpack-forms' ),
 			__( 'email', 'jetpack-forms' ),
 			__( 'signup', 'jetpack-forms' ),
-			'CreativeMail',
+			__( 'lead capture', 'jetpack-forms' ),
 		],
 		icon: renderMaterialIcon(
 			<>
