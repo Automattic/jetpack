@@ -64,7 +64,7 @@ const variations = compact( [
 		name: 'newsletter-form',
 		title: __( 'Lead capture', 'jetpack-forms' ),
 		description: __(
-			'A simple way to collect information from folks visiting your site using CreativeMail plugin.',
+			'A simple way to collect leads using forms on your site.',
 			'jetpack-forms'
 		),
 		keywords: [
