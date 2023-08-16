@@ -7,6 +7,7 @@ import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
@@ -145,7 +146,9 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		);
 
 		// A temporary content to show while the blocks are loading
-		const loadingPlaceholderContent = parse( '<p>Loading, please wait...</p>' );
+		const loadingPlaceholderContent = parse(
+			`<p>${ __( 'Loading, please wait…', 'jetpack' ) }</p>`
+		);
 
 		const setContent = useCallback(
 			( newContent: string ) => {
