@@ -147,10 +147,10 @@ class Invoice_Field_Contains extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The category 'jpcrm/invoice_condition'.
+	 * @return string The category 'invoice'.
 	 */
 	public static function get_category(): string {
-		return 'invoice_condition';
+		return __( 'invoice', 'zero-bs-crm' );
 	}
 
 	/**
