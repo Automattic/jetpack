@@ -191,7 +191,7 @@ class Initializer {
 		);
 
 		// Connection Initial State.
-		wp_add_inline_script( 'my_jetpack_main_app', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'my_jetpack_main_app' );
 
 		// Required for Analytics.
 		if ( self::can_use_analytics() ) {

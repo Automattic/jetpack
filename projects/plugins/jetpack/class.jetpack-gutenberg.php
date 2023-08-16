@@ -743,7 +743,7 @@ class Jetpack_Gutenberg {
 		);
 
 		// Adds Connection package initial state.
-		wp_add_inline_script( 'jetpack-blocks-editor', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-blocks-editor' );
 	}
 
 	/**
