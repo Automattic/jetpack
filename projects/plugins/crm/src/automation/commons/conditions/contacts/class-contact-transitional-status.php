@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
-use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
@@ -19,22 +18,13 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
  * @since $$next-version$$
  */
 class Contact_Transitional_Status extends Base_Condition {
-
-	/**
-	 * The Automation logger.
-	 *
-	 * @since $$next-version$$
-	 * @var Automation_Logger $logger The Automation logger.
-	 */
-	private $logger;
-
 	/**
 	 * All valid operators for this condition.
 	 *
 	 * @since $$next-version$$
 	 * @var string[] $valid_operators Valid operators.
 	 */
-	private $valid_operators = array(
+	protected $valid_operators = array(
 		'from_to',
 	);
 
@@ -48,19 +38,6 @@ class Contact_Transitional_Status extends Base_Condition {
 		'previous_status_was',
 		'new_status_is',
 	);
-
-	/**
-	 * Contact_Transitional_Status constructor.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $step_data The step data for the condition.
-	 */
-	public function __construct( array $step_data ) {
-		parent::__construct( $step_data );
-
-		$this->logger = Automation_Logger::instance();
-	}
 
 	/**
 	 * Executes the condition. If the condition is met, the value stored in the
@@ -87,13 +64,9 @@ class Contact_Transitional_Status extends Base_Condition {
 		$status_was = $this->get_attributes()['previous_status_was'];
 		$status_is  = $this->get_attributes()['new_status_is'];
 
-		if ( ! $this->is_valid_operator( $operator ) ) {
-			$this->condition_met = false;
-			$this->logger->log( 'Invalid operator: ' . $operator );
-			throw new Automation_Exception( 'Invalid operator: ' . $operator );
-		}
-
+		$this->check_for_valid_operator( $operator );
 		$this->logger->log( 'Condition: Contact_Transitional_Status ' . $operator . ' ' . $status_was . ' => ' . $status_is );
+
 		switch ( $operator ) {
 			case 'from_to':
 				$this->condition_met = ( $contact_data['old_status_value'] === $status_was ) && ( $contact_data['contact']['data']['status'] === $status_is );
@@ -102,7 +75,11 @@ class Contact_Transitional_Status extends Base_Condition {
 				return;
 			default:
 				$this->condition_met = false;
-				throw new Automation_Exception( 'Valid but unimplemented operator: ' . $operator );
+				throw new Automation_Exception(
+					/* Translators: %s is the unimplemented operator. */
+					sprintf( __( 'Valid but unimplemented operator: %s', 'zero-bs-crm' ), $operator ),
+					Automation_Exception::CONDITION_OPERATOR_NOT_IMPLEMENTED
+				);
 		}
 	}
 
@@ -117,18 +94,6 @@ class Contact_Transitional_Status extends Base_Condition {
 	 */
 	private function is_valid_contact_status_transitional_data( array $data ): bool {
 		return isset( $data['contact'] ) && isset( $data['old_status_value'] ) && isset( $data['contact']['data']['status'] );
-	}
-
-	/**
-	 * Checks if this is a valid operator for this condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $operator The operator.
-	 * @return bool True if the operator is valid for this condition, false otherwise.
-	 */
-	private function is_valid_operator( string $operator ): bool {
-		return in_array( $operator, $this->valid_operators, true );
 	}
 
 	/**

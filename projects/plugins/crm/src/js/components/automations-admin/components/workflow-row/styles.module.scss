@@ -1,0 +1,43 @@
+.row {
+	height: auto;
+
+	font-size: var(--font-body);
+
+	td {
+		padding: 5px 10px;
+	}
+}
+
+.name {
+	min-width: 274px;
+	font-weight: 600;
+}
+
+.status-toggle {
+	margin-right: 24px;
+
+	label {
+		font-size: var(--font-body);
+		font-weight: 400;
+		margin-bottom: 0;
+	}
+
+	:global(.components-toggle-control) {
+		margin-bottom: 0 !important;
+	}
+}
+
+.added-date {
+	margin-right: 24px;
+}
+
+.trigger-description {
+	margin-right: 24px;
+}
+
+.edit-button {
+	button {
+		line-height: inherit !important;
+		padding: 6px 12px !important;
+	}
+}

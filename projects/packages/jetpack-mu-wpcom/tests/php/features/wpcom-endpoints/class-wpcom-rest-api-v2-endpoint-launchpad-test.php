@@ -167,4 +167,24 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$this->assertSame( $data, $result->get_data()['updated'] );
 		$this->assertSame( array( 'site_launched' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
 	}
+
+	/**
+	 * Test setting checklist as skipped.
+	 */
+	public function test_set_checklist_as_skipped() {
+		wp_set_current_user( $this->admin_id );
+
+		$data = array(
+			'launchpad_screen' => 'skipped',
+		);
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $data ) );
+
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 'skipped', get_option( 'launchpad_screen' ) );
+	}
 }

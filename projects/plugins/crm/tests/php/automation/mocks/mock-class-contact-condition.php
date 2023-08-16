@@ -3,15 +3,11 @@
 namespace Automattic\Jetpack\CRM\Automation\Tests\Mocks;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
-use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 class Contact_Condition extends Base_Condition {
-
-	/** @var Automation_Logger */
-	private $logger;
 
 	/** @var string[] Valid contact keys */
 	private $valid_contact_keys = array(
@@ -23,7 +19,7 @@ class Contact_Condition extends Base_Condition {
 	);
 
 	/** @var string[] Valid operators */
-	private $valid_operators = array(
+	protected $valid_operators = array(
 		'is',
 		'is_not',
 	);
@@ -34,15 +30,6 @@ class Contact_Condition extends Base_Condition {
 		'operator',
 		'value',
 	);
-
-	/**
-	 * Contact_Condition constructor.
-	 */
-	public function __construct( array $step_data ) {
-		parent::__construct( $step_data );
-
-		$this->logger = Automation_Logger::instance();
-	}
 
 	/**
 	 * Override set_attributes method to add some checks.

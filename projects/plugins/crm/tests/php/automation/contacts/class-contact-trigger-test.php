@@ -9,7 +9,7 @@ use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Email_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -18,7 +18,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
-class Contact_Trigger_Test extends BaseTestCase {
+class Contact_Trigger_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 

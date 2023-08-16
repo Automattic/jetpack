@@ -5,7 +5,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status
  */
-class Contact_Condition_Test extends BaseTestCase {
+class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 
@@ -93,7 +93,7 @@ class Contact_Condition_Test extends BaseTestCase {
 		$contact_data_type               = $this->automation_faker->contact_data();
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
 		$contact_field_changed_condition->execute( $contact_data_type );
 	}
@@ -106,7 +106,7 @@ class Contact_Condition_Test extends BaseTestCase {
 		$transitional_status_data              = $this->automation_faker->contact_transitional_status_data( 'old_status' );
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
 		$contact_transitional_status_condition->execute( $transitional_status_data );
 	}
