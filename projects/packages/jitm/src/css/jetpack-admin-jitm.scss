@@ -74,6 +74,11 @@ $jp-gray-20:             #a7aaad;
 		.gridicons-external-link {
 			fill: black;
 		}
+		&:hover{
+			.gridicons-external-link {
+				fill: $white;
+			}
+		}
 	}
 
 	&:hover,
