@@ -115,7 +115,7 @@ class Transaction_Condition_Test extends BaseTestCase {
 		$transaction_data                    = $this->automation_faker->transaction_data();
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
 		$transaction_field_changed_condition->execute( $transaction_data );
 	}
