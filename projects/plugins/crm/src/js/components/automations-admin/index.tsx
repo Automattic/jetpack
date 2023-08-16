@@ -4,6 +4,8 @@ import React from 'react';
 import { Link, Routes, Route } from 'react-router-dom';
 import AdminPage from '../admin-page';
 import { RedirectHome } from './components/redirect-home';
+import { WorkflowRow } from './components/workflow-row';
+import { workflowOne, workflowTwo } from './test/util/data';
 
 export const AutomationsAdmin = () => {
 	return (
@@ -69,6 +71,26 @@ export const AutomationsAdmin = () => {
 							</Container>
 						</AdminSection>
 					</AdminPage>
+				}
+			/>
+			<Route
+				path="/automations/test-workflow-row"
+				element={
+					<table
+						id="workflow-test"
+						style={ { padding: '20px', background: 'white', width: '100%' } }
+					>
+						<tr style={ { padding: '5px 10px' } }>
+							<th style={ { padding: '5px 10px' } }>check</th>
+							<th style={ { padding: '5px 10px' } }>Name</th>
+							<th style={ { padding: '5px 10px' } }>Status</th>
+							<th style={ { padding: '5px 10px' } }>Added</th>
+							<th style={ { padding: '5px 10px' } }>Trigger</th>
+							<th style={ { padding: '5px 10px' } }>Edit</th>
+						</tr>
+						<WorkflowRow workflow={ workflowOne } />
+						<WorkflowRow workflow={ workflowTwo } />
+					</table>
 				}
 			/>
 			<Route path="*" element={ <RedirectHome /> } />

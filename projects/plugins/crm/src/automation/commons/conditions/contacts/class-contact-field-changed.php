@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
-use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 
 /**
@@ -19,20 +18,12 @@ use Automattic\Jetpack\CRM\Automation\Base_Condition;
 class Contact_Field_Changed extends Base_Condition {
 
 	/**
-	 * The Automation logger.
-	 *
-	 * @since $$next-version$$
-	 * @var Automation_Logger $logger The Automation logger.
-	 */
-	private $logger;
-
-	/**
 	 * All valid operators for this condition.
 	 *
 	 * @since $$next-version$$
 	 * @var string[] $valid_operators Valid operators.
 	 */
-	private $valid_operators = array(
+	protected $valid_operators = array(
 		'is',
 		'is_not',
 	);
@@ -47,19 +38,6 @@ class Contact_Field_Changed extends Base_Condition {
 		'operator',
 		'value',
 	);
-
-	/**
-	 * Contact_Field_Changed constructor.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $step_data The step data for the condition.
-	 */
-	public function __construct( array $step_data ) {
-		parent::__construct( $step_data );
-
-		$this->logger = Automation_Logger::instance();
-	}
 
 	/**
 	 * Executes the condition. If the condition is met, the value stored in the
@@ -84,7 +62,9 @@ class Contact_Field_Changed extends Base_Condition {
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
+		$this->check_for_valid_operator( $operator );
 		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
+
 		switch ( $operator ) {
 			case 'is':
 				$this->condition_met = ( $data['data'][ $field ] === $value );
@@ -96,11 +76,14 @@ class Contact_Field_Changed extends Base_Condition {
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
+			default:
+				$this->condition_met = false;
+				throw new Automation_Exception(
+					/* Translators: %s is the unimplemented operator. */
+					sprintf( __( 'Valid but unimplemented operator: %s', 'zero-bs-crm' ), $operator ),
+					Automation_Exception::CONDITION_OPERATOR_NOT_IMPLEMENTED
+				);
 		}
-		$this->condition_met = false;
-		$this->logger->log( 'Invalid operator: ' . $operator );
-
-		throw new Automation_Exception( 'Invalid operator: ' . $operator );
 	}
 
 	/**

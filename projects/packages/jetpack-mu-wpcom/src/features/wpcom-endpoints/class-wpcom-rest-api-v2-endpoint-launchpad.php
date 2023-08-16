@@ -57,7 +57,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 						'launchpad_screen'       => array(
 							'description' => 'Launchpad screen',
 							'type'        => 'string',
-							'enum'        => array( 'off', 'minimized', 'full' ),
+							'enum'        => array( 'off', 'minimized', 'full', 'skipped' ),
 						),
 						'is_checklist_dismissed' => array(
 							'description'          => 'Marks a checklist as dismissed by the user',

@@ -60,6 +60,9 @@
 							{__( 'Performance scores are recalculated after each change', 'jetpack-boost' )}
 						</li>
 						<li>{__( 'Automatically scan your site for image size issues', 'jetpack-boost' )}</li>
+						<li>
+							{__( 'Historical performance scores with Core Web Vitals data', 'jetpack-boost' )}
+						</li>
 						<li>{__( 'Dedicated email support', 'jetpack-boost' )}</li>
 					</ul>
 				</div>

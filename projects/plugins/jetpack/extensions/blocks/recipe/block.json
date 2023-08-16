@@ -1,0 +1,33 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/recipe",
+	"title": "Recipe",
+	"description": "Add images, ingredients and cooking steps to display an easy to read recipe.",
+	"keywords": [],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "widgets",
+	"icon": "book",
+	"supports": {
+		"align": [ "full", "wide" ],
+		"alignWide": true,
+		"anchor": false,
+		"customClassName": true,
+		"className": true,
+		"html": false,
+		"multiple": true,
+		"reusable": true
+	},
+	"attributes": {
+		"ingredients": {
+			"type": "array",
+			"default": []
+		},
+		"steps": {
+			"type": "array",
+			"default": []
+		}
+	},
+	"editorScript": "file:../editor-beta.js"
+}

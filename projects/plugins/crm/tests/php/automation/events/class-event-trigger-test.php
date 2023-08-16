@@ -7,7 +7,7 @@ use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\Event_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Event_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Event_Updated;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -17,7 +17,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Event_Deleted
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Event_Created
  */
-class Event_Trigger_Test extends BaseTestCase {
+class Event_Trigger_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 

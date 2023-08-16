@@ -760,10 +760,14 @@ function add_paywall( $the_content ) {
 		return $the_content;
 	}
 
-	$post_access_level = Jetpack_Memberships::get_post_access_level();
-	$paywalled_content = get_paywall_blocks( $post_access_level );
-
 	if ( has_block( $block_name ) ) {
+		$post_access_level = Jetpack_Memberships::get_post_access_level();
+		if ( jetpack_is_frontend() ) {
+			$paywalled_content = get_paywall_blocks( $post_access_level );
+		} else {
+			// emails
+			$paywalled_content = get_paywall_simple();
+		}
 		$paywalled_content = strstr( $the_content, '<!-- wp:' . $block_name . ' /-->', true ) . $paywalled_content;
 	}
 
@@ -788,7 +792,7 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
 }
 
 /**
- * Gate access to exisiting comments
+ * Gate access to existing comments
  *
  * @param string $comment The comment.
  *
@@ -807,7 +811,7 @@ function maybe_gate_existing_comments( $comment ) {
 }
 
 /**
- * Placeholder text for non-subscribers
+ * Returns paywall content blocks
  *
  * @param string $newsletter_access_level The newsletter access level.
  * @return string
@@ -844,5 +848,58 @@ function get_paywall_blocks( $newsletter_access_level ) {
 
 <!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /--></div>
 <!-- /wp:group -->
+';
+}
+
+/**
+ * Return content for non frontend views like emails.
+ *
+ * @return string
+ */
+function get_paywall_simple() {
+	$access_heading = esc_html__( "You're currently a free subscriber. Upgrade your subscription to get access to the rest of this post and other paid-subscriber only content.", 'jetpack' );
+
+	$subscribe_text = esc_html__( 'Upgrade subscription', 'jetpack' );
+
+	return '
+<!-- wp:columns -->
+<div class="wp-block-columns" style="display: inline-block; width: 90%">
+    <!-- wp:column -->
+    <div class="wp-block-column" style="background-color: #F6F7F7; padding: 32px; 24px;">
+        <!-- wp:paragraph -->
+        <p class="has-text-align-center"
+           style="text-align: center;
+                  color: #50575E;
+                  font-weight: 400;
+                  font-size: 16px;
+                  font-family: \'SF Pro Text\', sans-serif;
+                  line-height: 28.8px;">
+        ' . $access_heading . '
+        </p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:buttons -->
+        <div class="wp-block-buttons" style="text-align: center;">
+            <!-- wp:button -->
+            <div class="wp-block-button" style="display: inline-block; margin: 10px 0;">
+                <a href="#" class="wp-block-button__link wp-element-button"
+                   style="display: inline-block;
+                          padding: 15px 20px;
+                          background-color: #0675C4;
+                          color: #FFFFFF;
+                          text-decoration: none;
+                          border-radius: 5px;
+                          font-family: \'SF Pro Display\', sans-serif;
+                          font-weight: 500;
+                          font-size: 16px;
+                          text-align: center;">' . $subscribe_text . '</a>
+            </div>
+            <!-- /wp:button -->
+        </div>
+        <!-- /wp:buttons -->
+    </div>
+    <!-- /wp:column -->
+</div>
+<!-- /wp:columns -->
 ';
 }
