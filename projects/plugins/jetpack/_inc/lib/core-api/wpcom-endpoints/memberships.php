@@ -235,12 +235,15 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		$buyer_can_change_amount = isset( $request['buyer_can_change_amount'] ) && (bool) $request['buyer_can_change_amount'];
 
 		$payload = array(
-			'title'                   => $request['title'],
-			'price'                   => $request['price'],
-			'currency'                => $request['currency'],
-			'buyer_can_change_amount' => $buyer_can_change_amount,
-			'interval'                => $request['interval'],
-			'type'                    => $type,
+			'title'                        => $request['title'],
+			'price'                        => $request['price'],
+			'currency'                     => $request['currency'],
+			'buyer_can_change_amount'      => $buyer_can_change_amount,
+			'interval'                     => $request['interval'],
+			'type'                         => $type,
+			'welcome_email_content'        => $request['welcome_email_content'],
+			'subscribe_as_site_subscriber' => $request['subscribe_as_site_subscriber'],
+			'multiple_per_user'            => $request['multiple_per_user'],
 		);
 
 		// If we pass directly the value "null", it will break the argument validation.
@@ -353,12 +356,15 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		$buyer_can_change_amount = isset( $request['buyer_can_change_amount'] ) && (bool) $request['buyer_can_change_amount'];
 
 		$payload = array(
-			'title'                   => $request['title'],
-			'price'                   => $request['price'],
-			'currency'                => $request['currency'],
-			'buyer_can_change_amount' => $buyer_can_change_amount,
-			'interval'                => $request['interval'],
-			'type'                    => $type,
+			'title'                        => $request['title'],
+			'price'                        => $request['price'],
+			'currency'                     => $request['currency'],
+			'buyer_can_change_amount'      => $buyer_can_change_amount,
+			'interval'                     => $request['interval'],
+			'type'                         => $type,
+			'welcome_email_content'        => $request['welcome_email_content'],
+			'subscribe_as_site_subscriber' => $request['subscribe_as_site_subscriber'],
+			'multiple_per_user'            => $request['multiple_per_user'],
 		);
 
 		// If we pass directly is_editable as null, it would break API argument validation.
