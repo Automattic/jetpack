@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Invoice_Status_Changed condition.
+ * Jetpack CRM Automation Invoice_Field_Contains condition.
  *
  * @package automattic/jetpack-crm
  */
@@ -8,23 +8,14 @@
 namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
-use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 
 /**
- * Invoice_Status_Changed condition class.
+ * Invoice_Field_Contains condition class.
  *
  * @since $$next-version$$
  */
-class Invoice_Status_Changed extends Base_Condition {
-
-	/**
-	 * The Automation logger.
-	 *
-	 * @since $$next-version$$
-	 * @var Automation_Logger $logger The Automation logger.
-	 */
-	private $logger;
+class Invoice_Field_Contains extends Base_Condition {
 
 	/**
 	 * All valid operators for this condition.
@@ -32,9 +23,9 @@ class Invoice_Status_Changed extends Base_Condition {
 	 * @since $$next-version$$
 	 * @var string[] $valid_operators Valid operators.
 	 */
-	private $valid_operators = array(
-		'is',
-		'is_not',
+	protected $valid_operators = array(
+		'contains',
+		'does_not_contain',
 	);
 
 	/**
@@ -44,22 +35,10 @@ class Invoice_Status_Changed extends Base_Condition {
 	 * @var string[] $valid_operators Valid attributes.
 	 */
 	private $valid_attributes = array(
+		'field',
 		'operator',
 		'value',
 	);
-
-	/**
-	 * Invoice_Status_Changed constructor.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $step_data The step data for the condition.
-	 */
-	public function __construct( array $step_data ) {
-		parent::__construct( $step_data );
-
-		$this->logger = Automation_Logger::instance();
-	}
 
 	/**
 	 * Executes the condition. If the condition is met, the value stored in the
@@ -72,84 +51,88 @@ class Invoice_Status_Changed extends Base_Condition {
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
 	public function execute( array $data ) {
-		if ( ! $this->is_valid_invoice_status_changed_data( $data ) ) {
-			$this->logger->log( 'Invalid invoice status changed data', $data );
+		if ( ! $this->is_valid_invoice_field_contains_data( $data ) ) {
+			$this->logger->log( 'Invalid invoice field contains data', $data );
 			$this->condition_met = false;
 			return;
 		}
 
-		$field    = 'status';
+		$field    = $this->get_attributes()['field'];
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
+		$this->check_for_valid_operator( $operator );
 		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
 
 		switch ( $operator ) {
-			case 'is':
-				$this->condition_met = ( $data['data'][ $field ] === $value );
+			case 'contains':
+				$this->condition_met = ( strpos( $data['data'][ $field ], $value ) !== false );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
-			case 'is_not':
-				$this->condition_met = ( $data['data'][ $field ] !== $value );
+			case 'does_not_contain':
+				$this->condition_met = ( strpos( $data['data'][ $field ], $value ) === false );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
+			default:
+				$this->condition_met = false;
+				throw new Automation_Exception(
+					/* Translators: %s is the unimplemented operator. */
+					sprintf( __( 'Valid but unimplemented operator: %s', 'zero-bs-crm' ), $operator ),
+					Automation_Exception::CONDITION_OPERATOR_NOT_IMPLEMENTED
+				);
 		}
-		$this->condition_met = false;
-		$this->logger->log( 'Invalid operator: ' . $operator );
-
-		throw new Automation_Exception( 'Invalid operator: ' . $operator );
 	}
 
 	/**
-	 * Checks if the invoice has at least the necessary keys to detect a status
-	 * change.
+	 * Checks if the invoice has at least the necessary keys to detect if a field
+	 * contains some value.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param array $invoice_data The invoice data.
-	 * @return bool True if the data is valid to detect a status change, false otherwise
+	 * @return bool True if the data is valid to detect if a field contains some value, false otherwise
 	 */
-	private function is_valid_invoice_status_changed_data( array $invoice_data ): bool {
-		return isset( $invoice_data['id'] ) && isset( $invoice_data['data'] ) && isset( $invoice_data['data']['status'] );
+	private function is_valid_invoice_field_contains_data( array $invoice_data ): bool {
+		return isset( $invoice_data['id'] ) && isset( $invoice_data['data'] ) && isset( $invoice_data['data'][ $this->get_attributes()['field'] ] );
 	}
 
 	/**
-	 * Get the slug for the invoice status changed condition.
+	 * Get the slug for the invoice field contains condition.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The slug 'invoice_status_changed'.
+	 * @return string The slug 'invoice_field_contains'.
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/condition/invoice_status_changed';
+		return 'jpcrm/condition/invoice_field_contains';
 	}
 
 	/**
-	 * Get the title for the invoice status changed condition.
+	 * Get the title for the invoice field contains condition.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The title 'Invoice Status Changed'.
+	 * @return string The title 'Invoice Field Contains'.
 	 */
 	public static function get_title(): string {
-		return __( 'Invoice Status Changed', 'zero-bs-crm' );
+		return __( 'Invoice Field Contains', 'zero-bs-crm' );
 	}
 
 	/**
-	 * Get the description for the invoice status changed condition.
+	 * Get the description for the invoice field contains condition.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string The description for the condition.
 	 */
 	public static function get_description(): string {
-		return __( 'Checks if a invoice status change matches an expected value', 'zero-bs-crm' );
+		return __( 'Checks if an invoice field contains an expected value', 'zero-bs-crm' );
 	}
 
 	/**
-	 * Get the type of the invoice status changed condition.
+	 * Get the type of the invoice field contains condition.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -160,28 +143,26 @@ class Invoice_Status_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Get the category of the invoice status changed condition.
+	 * Get the category of the invoice field contains condition.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The category 'jpcrm/invoice_condition'.
+	 * @return string The category 'invoice'.
 	 */
 	public static function get_category(): string {
 		return __( 'invoice', 'zero-bs-crm' );
 	}
 
 	/**
-	 * Get the allowed triggers for the invoice status changed condition.
+	 * Get the allowed triggers for the invoice field contains condition.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string[] An array of allowed triggers:
-	 *               - 'jpcrm/invoice_status_updated'
 	 *               - 'jpcrm/invoice_updated'
 	 */
 	public static function get_allowed_triggers(): array {
 		return array(
-			'jpcrm/invoice_status_updated',
 			'jpcrm/invoice_updated',
 		);
 	}

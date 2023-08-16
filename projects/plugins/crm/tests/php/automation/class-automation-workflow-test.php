@@ -201,7 +201,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'dummy_action', Dummy_Step::class );
+		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
@@ -210,7 +210,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$workflow->set_engine( $automation );
 		$workflow->set_initial_step(
 			array(
-				'slug' => 'dummy_action',
+				'slug' => 'dummy_step',
 			)
 		);
 
@@ -258,7 +258,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'dummy_action', Dummy_Step::class );
+		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
 
@@ -296,7 +296,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'dummy_action', Dummy_Step::class );
+		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
 
