@@ -4,17 +4,26 @@
 	"name": "jetpack/paywall",
 	"title": "Paywall",
 	"description": "Paywall",
-	"keywords": [ "email", "follow", "gated", "memberships", "newsletter", "signin", "subscribe", "subscription", "subscriptions"  ],
+	"keywords": [
+		"email",
+		"follow",
+		"gated",
+		"memberships",
+		"newsletter",
+		"signin",
+		"subscribe",
+		"subscription",
+		"subscriptions"
+	],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "earn",
-	"icon": "block-default",
+	"icon": "",
 	"supports": {
 		"customClassName": false,
 		"html": false,
 		"multiple": false
 	},
 	"parent": [ "core/post-content" ],
-	"attributes":{},
-	"editorScript": "file:../editor.js"
+	"editorScript": "file:../editor-beta.js"
 }

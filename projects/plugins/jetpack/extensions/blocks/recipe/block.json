@@ -10,7 +10,7 @@
 	"category": "widgets",
 	"icon": "book",
 	"supports": {
-		"align": ["full", "wide"],
+		"align": [ "full", "wide" ],
 		"alignWide": true,
 		"anchor": false,
 		"customClassName": true,
@@ -20,27 +20,14 @@
 		"reusable": true
 	},
 	"attributes": {
-		"settings": {
-            "type": "object"
-        },
-        "mediaFiles": {
-            "type": "array",
-            "default": []
-        }
-	},
-	"example": {
-		"attributes": {
-			"mediaFiles": [
-				{
-					"alt": "",
-					"caption": "",
-					"mime": "image/jpg",
-					"type": "image",
-					"id": 22,
-					"url": "./storyExample1.png"
-				}
-			]
+		"ingredients": {
+			"type": "array",
+			"default": []
+		},
+		"steps": {
+			"type": "array",
+			"default": []
 		}
 	},
-	"editorScript": "file:../editor.js"
+	"editorScript": "file:../editor-beta.js"
 }
