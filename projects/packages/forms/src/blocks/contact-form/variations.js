@@ -63,10 +63,7 @@ const variations = compact( [
 	! isSimpleSite() && {
 		name: 'newsletter-form',
 		title: __( 'Lead capture', 'jetpack-forms' ),
-		description: __(
-			'A simple way to collect leads using forms on your site.',
-			'jetpack-forms'
-		),
+		description: __( 'A simple way to collect leads using forms on your site.', 'jetpack-forms' ),
 		keywords: [
 			__( 'subscribe', 'jetpack-forms' ),
 			__( 'email', 'jetpack-forms' ),
