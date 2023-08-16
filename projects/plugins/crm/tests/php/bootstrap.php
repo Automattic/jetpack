@@ -13,7 +13,12 @@ $_plugin_root = dirname( dirname( __DIR__ ) );
 /**
  * Locate WordPress or wordpress-develop. We look in several places.
  */
-if ( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
+if ( defined( 'WP_DEV_LOCATION' ) ) {
+	$test_root = WP_DEVELOP_DIR;
+	if ( file_exists( "$test_root/tests/phpunit/" ) ) {
+		$test_root .= '/tests/phpunit/';
+	}
+} elseif ( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 	// Jetpack Monorepo environment variable defined on command line.
 	$test_root = getenv( 'WP_DEVELOP_DIR' );
 	if ( file_exists( "$test_root/tests/phpunit/" ) ) {
