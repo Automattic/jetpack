@@ -8,43 +8,10 @@
 
 namespace Automattic\Jetpack\CRM\Tests;
 
-use WorDBless\BaseTestCase;
-
 /**
  * Base class for Jetpack CRM API tests.
  */
-abstract class REST_Base_Test_Case extends BaseTestCase {
-
-	/**
-	 * Set up for individual tests.
-	 */
-	protected function set_up() {
-		parent::set_up();
-
-		zeroBSCRM_addUserRoles();
-
-		wp_set_current_user( 0 );
-		do_action( 'rest_api_init' );
-	}
-
-	/**
-	 * Reset CRM objects and other miscellaneous data between tests.
-	 *
-	 * @return void
-	 */
-	protected function tear_down() {
-		parent::tear_down();
-
-		zeroBSCRM_clearUserRoles();
-
-		// WorDBless doesn't use an actual database which means DAL doesn't work and
-		// do_action( 'init' ) is never executed, so DAL is never initialised as
-		// well, so we can strongly assume that if it's defined, then it's because
-		// we've mocked a response we need from it.
-		if ( isset( $GLOBALS['zbs']->DAL ) ) {
-			unset( $GLOBALS['zbs']->DAL );
-		}
-	}
+abstract class REST_Base_Test_Case extends JPCRM_Base_Test_Case {
 
 	/**
 	 * Create WordPress user.

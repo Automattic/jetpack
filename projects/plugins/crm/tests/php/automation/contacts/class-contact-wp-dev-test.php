@@ -2,24 +2,14 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
-use WP_UnitTestCase;
-
-require_once __DIR__ . '../../tools/class-automation-faker.php';
-require_once __DIR__ . '../../mocks/mock-zbs-dal.php';
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 /**
  * Test Automation Workflow functionalities
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
-class Contact_WP_Dev_Test extends WP_UnitTestCase {
-
-	public function set_up(): void {
-		parent::set_up();
-
-		// We have to reset the database before each test to avoid data leaking into other tests.
-		zeroBSCRM_database_reset( false );
-	}
+class Contact_WP_Dev_Test extends JPCRM_Base_Test_Case {
 
 	/**
 	 * @testdox Test the update contact status action executes the action
