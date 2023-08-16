@@ -93,7 +93,7 @@ class Contact_Condition_Test extends BaseTestCase {
 		$contact_data                    = $this->automation_faker->contact_data();
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
 		$contact_field_changed_condition->execute( $contact_data );
 	}
@@ -106,7 +106,7 @@ class Contact_Condition_Test extends BaseTestCase {
 		$transitional_status_data              = $this->automation_faker->contact_transitional_status_data( 'old_status' );
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
 		$contact_transitional_status_condition->execute( $transitional_status_data );
 	}

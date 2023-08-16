@@ -64,6 +64,22 @@ class Automation_Exception extends \Exception {
 	const TRIGGER_SLUG_EMPTY = 22;
 
 	/**
+	 * Condition invalid operator code.
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	const CONDITION_INVALID_OPERATOR = 30;
+
+	/**
+	 * Condition operator not implemented code.
+	 *
+	 * @since $$next-version$$
+	 * @var int
+	 */
+	const CONDITION_OPERATOR_NOT_IMPLEMENTED = 31;
+
+	/**
 	 * General error code.
 	 *
 	 * @since $$next-version$$

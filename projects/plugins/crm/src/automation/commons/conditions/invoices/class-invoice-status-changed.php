@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack CRM Automation Contact_Field_Changed condition.
+ * Jetpack CRM Automation Invoice_Status_Changed condition.
  *
  * @package automattic/jetpack-crm
  */
@@ -11,11 +11,11 @@ use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 
 /**
- * Contact_Field_Changed condition class.
+ * Invoice_Status_Changed condition class.
  *
  * @since $$next-version$$
  */
-class Contact_Field_Changed extends Base_Condition {
+class Invoice_Status_Changed extends Base_Condition {
 
 	/**
 	 * All valid operators for this condition.
@@ -47,18 +47,16 @@ class Contact_Field_Changed extends Base_Condition {
 	 *
 	 * @param array $data The data this condition has to evaluate.
 	 * @return void
-	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
 	public function execute( array $data ) {
-		if ( ! $this->is_valid_contact_field_changed_data( $data ) ) {
-			$this->logger->log( 'Invalid contact field changed data', $data );
+		if ( ! $this->is_valid_invoice_status_changed_data( $data ) ) {
+			$this->logger->log( 'Invalid invoice status changed data', $data );
 			$this->condition_met = false;
-
 			return;
 		}
 
-		$field    = $this->get_attributes()['field'];
+		$field    = 'status';
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
@@ -87,53 +85,53 @@ class Contact_Field_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Checks if the contact has at least the necessary keys to detect a field
+	 * Checks if the invoice has at least the necessary keys to detect a status
 	 * change.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $contact_data The contact data.
-	 * @return bool True if the data is valid to detect a field change, false otherwise
+	 * @param array $invoice_data The invoice data.
+	 * @return bool True if the data is valid to detect a status change, false otherwise
 	 */
-	private function is_valid_contact_field_changed_data( array $contact_data ): bool {
-		return isset( $contact_data['id'] ) && isset( $contact_data['data'] ) && isset( $contact_data['data'][ $this->get_attributes()['field'] ] );
+	private function is_valid_invoice_status_changed_data( array $invoice_data ): bool {
+		return isset( $invoice_data['id'] ) && isset( $invoice_data['data'] ) && isset( $invoice_data['data']['status'] );
 	}
 
 	/**
-	 * Get the slug for the contact field changed condition.
+	 * Get the slug for the invoice status changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The slug 'contact_field_changed'.
+	 * @return string The slug 'invoice_status_changed'.
 	 */
 	public static function get_slug(): string {
-		return 'jpcrm/condition/contact_field_changed';
+		return 'jpcrm/condition/invoice_status_changed';
 	}
 
 	/**
-	 * Get the title for the contact field changed condition.
+	 * Get the title for the invoice status changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The title 'Contact Field Changed'.
+	 * @return string The title 'Invoice Status Changed'.
 	 */
 	public static function get_title(): string {
-		return __( 'Contact Field Changed', 'zero-bs-crm' );
+		return __( 'Invoice Status Changed', 'zero-bs-crm' );
 	}
 
 	/**
-	 * Get the description for the contact field changed condition.
+	 * Get the description for the invoice status changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string The description for the condition.
 	 */
 	public static function get_description(): string {
-		return __( 'Checks if a contact field change matches an expected value', 'zero-bs-crm' );
+		return __( 'Checks if a invoice status change matches an expected value', 'zero-bs-crm' );
 	}
 
 	/**
-	 * Get the type of the contact field changed condition.
+	 * Get the type of the invoice status changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -144,29 +142,29 @@ class Contact_Field_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Get the category of the contact field changed condition.
+	 * Get the category of the invoice status changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The category 'jpcrm/contact_condition'.
+	 * @return string The category 'jpcrm/invoice_condition'.
 	 */
 	public static function get_category(): string {
-		return __( 'contact', 'zero-bs-crm' );
+		return __( 'invoice', 'zero-bs-crm' );
 	}
 
 	/**
-	 * Get the allowed triggers for the contact field changed condition.
+	 * Get the allowed triggers for the invoice status changed condition.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string[] An array of allowed triggers:
-	 *               - 'jpcrm/contact_status_updated'
-	 *               - 'jpcrm/contact_updated'
+	 *               - 'jpcrm/invoice_status_updated'
+	 *               - 'jpcrm/invoice_updated'
 	 */
 	public static function get_allowed_triggers(): array {
 		return array(
-			'jpcrm/contact_status_updated',
-			'jpcrm/contact_updated',
+			'jpcrm/invoice_status_updated',
+			'jpcrm/invoice_updated',
 		);
 	}
 }
