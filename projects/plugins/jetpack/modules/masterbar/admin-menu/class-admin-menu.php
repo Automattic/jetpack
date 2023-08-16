@@ -405,7 +405,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			 *
 			 * @param bool false Enable newsletter setting section? Default to false.
 			 */
-			apply_filters( 'calypso_use_newsletter_settings', '__return_false' )
+			apply_filters( 'calypso_use_newsletter_settings', false )
 		) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
 		}
@@ -419,7 +419,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			 *
 			 * @param bool false Enable podcasting setting section? Default to false.
 			 */
-			apply_filters( 'calypso_use_podcasting_settings', '__return_false' )
+			apply_filters( 'calypso_use_podcasting_settings', false )
 		) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack' ), __( 'Podcasting', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, 8 );
 		}
