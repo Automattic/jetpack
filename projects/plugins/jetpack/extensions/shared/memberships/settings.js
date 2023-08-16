@@ -223,17 +223,21 @@ function NewsletterAccessRadioButtons( {
 }
 
 export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } ) {
-	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
-			'jetpack/membership-products'
-		);
+	const { hasNewsletterPlans, stripeConnectUrl, isLoading, hasPaywallBlock } = useSelect(
+		select => {
+			const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
+				'jetpack/membership-products'
+			);
+			const { getBlocks } = select( 'core/block-editor' );
 
-		return {
-			isLoading: isApiStateLoading(),
-			stripeConnectUrl: getConnectUrl(),
-			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-		};
-	} );
+			return {
+				isLoading: isApiStateLoading(),
+				stripeConnectUrl: getConnectUrl(),
+				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+				hasPaywallBlock: getBlocks().some( block => block.name === 'jetpack/paywall' ),
+			};
+		}
+	);
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 
@@ -256,6 +260,18 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 				<PanelRow className="edit-post-post-visibility">
 					<Flex direction="column">
 						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
+						{ ! showMisconfigurationWarning && hasPaywallBlock && (
+							<Notice
+								status="info"
+								isDismissible={ false }
+								className="edit-post-post-visibility__notice"
+							>
+								{ __(
+									'The content below the paywall block is exclusive to the selected audience.',
+									'jetpack'
+								) }
+							</Notice>
+						) }
 						<FlexBlock direction="row" justify="flex-start">
 							{ canEdit && (
 								<div className="editor-post-visibility">
