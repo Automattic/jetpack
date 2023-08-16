@@ -1065,16 +1065,23 @@ function zeroBSCRM_database_reset( $check_permissions = true ) {
         );
       foreach ($options as $option)  $wpdb->query($wpdb->prepare("DELETE FROM $wpdb->options WHERE `option_name` = %s",array($option)));
 
-      #} DAL 3.0 tables
-      $ZBSCRM_t['totaltrans'] = $wpdb->prefix . "zbs_global_total_trans";
-      foreach ($ZBSCRM_t as $k => $v){
-        
-        //do not truncate the settings
-        if($k != 'settings'){  
-          $wpdb->query("TRUNCATE TABLE " . $v);
-        }
+	// phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect,Generic.WhiteSpace.ScopeIndent.IncorrectExact,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	// DAL 3.0 tables.
+	$ZBSCRM_t['totaltrans'] = $wpdb->prefix . 'zbs_global_total_trans'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-      }
+	foreach ( $ZBSCRM_t as $k => $v ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		// Do not truncate the settings.
+		if ( $k !== 'settings' ) {
+			// Copy how maybe_create_table() looks for existing tables.
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $v ) ) ) !== $v ) {
+				continue;
+			}
+
+			$wpdb->query( $wpdb->prepare( 'TRUNCATE TABLE %s', $v ) );
+		}
+	}
+	// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect,Generic.WhiteSpace.ScopeIndent.IncorrectExact,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 }
 
@@ -1126,9 +1133,19 @@ function zeroBSCRM_database_nuke( $check_permissions = true ) {
       $wpdb->query("DELETE FROM {$wpdb->options} WHERE `option_name` LIKE '%zbs-db2%'");
       $wpdb->query("DELETE FROM {$wpdb->options} WHERE `option_name` LIKE '%zbs-db3%'");
 
-      #} DROP all DAL 3.0 tables
-      $ZBSCRM_t['totaltrans'] = $wpdb->prefix . "zbs_global_total_trans";
-      foreach ($ZBSCRM_t as $k => $v)$wpdb->query("DROP TABLE " . $v);
+	// phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect,Generic.WhiteSpace.ScopeIndent.IncorrectExact,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	// DROP all DAL 3.0 tables.
+	$ZBSCRM_t['totaltrans'] = $wpdb->prefix . 'zbs_global_total_trans'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	foreach ( $ZBSCRM_t as $v ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// Copy how maybe_create_table() looks for existing tables.
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $v ) ) ) !== $v ) {
+			continue;
+		}
+
+		$wpdb->query( $wpdb->prepare( 'DROP TABLE %s', $v ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
+	}
+	// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect,Generic.WhiteSpace.ScopeIndent.IncorrectExact,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 }
 
