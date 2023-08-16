@@ -5,31 +5,34 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.10.0-beta] - 2023-08-01
+## [1.10.0-beta] - 2023-08-16
 ### Added
 - Caching: Added support for the 'Accept' HTTP Header. Prevent caching JSON content. [#29456]
 - Preload: Improved preload notification panel shows the last 5 preloaded URLs. [#31017]
 
 ### Changed
-- Preload: Faster and more robust preloading slower hosts. [#30450]
 - General: Indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
 - General: Update Boost install / activate card styles. [#31311]
 - General: Update documentation links to point to Jetpack.com docs. [#32164]
 - General: Update the contributors list. [#29241]
+- Preload: Faster and more robust preloading slower hosts. [#30450]
 
 ### Removed
-- Cleanup: Remove unused "object cache" code. [#31783]
 - Cleanup: Removes unwanted development environment files from production version of the plugin. [#30216]
+- Cleanup: Remove unused "object cache" code. [#31783]
 
 ### Fixed
-- Caching: Reject unknown or malformed URIs to prevent PHP warnings. [#31786]
 - Cache Compression: Fix PHP warning appearing in gzip output stream. [#31487]
+- Caching: Reject unknown or malformed URIs to prevent PHP warnings. [#31786]
 - Dynamic Caching: Fixed incorrect encoding headers when using dynamic caching with compression. [#32106]
+- Setting page: Fixed boost banner getting oversized when zoomed out
 - General: Fix incorrect Debug Log URL for nested WordPress installations. [#29985]
 - General: Fix links to cache directory on sites that are in a sub directory. [#30872]
 - General: Updated Nginx documentation hyperlink. [#31420]
 - Preload: No longer deletes child taxonomies during preload. [#30830]
 - Preload: Use a constant instead of hard-coded email numbers in preload dropdown. [#30713]
+- Caching: Prevent Super Cache from attempting to gunzip content which is not zipped
+- General: Fix null/false warning in PHP8.1
 
 ## [1.9.4] - 2023-02-28
 ### Added
