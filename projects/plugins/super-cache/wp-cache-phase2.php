@@ -393,6 +393,11 @@ function wp_cache_postload() {
 		return true;
 	}
 
+	if ( wpsc_is_backend() ) {
+		wp_cache_debug( 'wp_cache_postload: backend detected, not running' );
+		return true;
+	}
+
 	if ( isset( $wp_super_cache_late_init ) && true == $wp_super_cache_late_init ) {
 		wp_cache_debug( 'Supercache Late Init: add wp_cache_serve_cache_file to init', 3 );
 		add_action( 'init', 'wp_cache_late_loader', 9999 );
