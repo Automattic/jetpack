@@ -192,11 +192,7 @@ class Dashboard {
 		);
 
 		// Connection initial state.
-		wp_add_inline_script(
-			'jp-search-dashboard',
-			Connection_Initial_State::render(),
-			'before'
-		);
+		Connection_Initial_State::render_script( 'jp-search-dashboard' );
 	}
 
 	/**
