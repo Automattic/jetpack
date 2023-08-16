@@ -34,7 +34,7 @@ const projects = [
 		project: 'Jetpack blocks',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/blocks', '--retries=1' ],
-		targets: [ 'plugins/jetpack', 'monorepo' ],
+		targets: [ 'plugins/jetpack' ],
 		suite: '',
 	},
 	{
