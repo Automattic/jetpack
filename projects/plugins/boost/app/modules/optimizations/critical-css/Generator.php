@@ -28,11 +28,6 @@ class Generator {
 			return true;
 		}
 
-		// If there is an HTTP header indicating that we are generating, i.e. boost-cloud
-		if ( isset( $_SERVER['HTTP_X_GENERATE_CRITICAL_CSS'] ) ) {
-			return true;
-		}
-
 		return false;
 	}
 
