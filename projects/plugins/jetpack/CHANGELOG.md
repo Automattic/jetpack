@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.5-a.11 - 2023-08-15
+### Enhancements
+- Subscriptions: add a Subscribers menu to the Jetpack dashboard navigation. [#31718]
+
+### Improved compatibility
+- Infinite Scroll: avoid PHP notices when using the latest version of WordPress, 6.3. [#32454]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Remove unused blocks from block index [#32426]
+- Copy block.json files in Jetpack extensions build [#32431]
+
 ## 12.5-a.9 - 2023-08-14
 ### Enhancements
 - AI Assistant: various stylistic and back-end enhancements to the Jetpack AI Assistant.
