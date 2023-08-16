@@ -69,7 +69,6 @@ const variations = compact( [
 			_x( 'subscribe', 'block search term', 'jetpack-forms' ),
 			_x( 'email', 'block search term', 'jetpack-forms' ),
 			_x( 'signup', 'block search term', 'jetpack-forms' ),
-			_x( 'lead capture', 'block search term', 'jetpack-forms' ),
 		],
 		icon: people,
 		innerBlocks: [
