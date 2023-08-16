@@ -64,6 +64,16 @@ $jp-gray-20:             #a7aaad;
 	&.is-primary {
 		background: black;
 		color: $white;
+		.gridicons-external-link {
+			fill: $white;
+		}
+	}
+
+	// Secondary buttons
+	&.is-secondary {
+		.gridicons-external-link {
+			fill: black;
+		}
 	}
 
 	&:hover,
@@ -111,7 +121,6 @@ $jp-gray-20:             #a7aaad;
 		// Properly align icon with the button text
 		.gridicons-external-link {
 			margin: -3px 0 -3px 2px;
-			fill: $white;
 		}
 	}
 	&.hidden {
