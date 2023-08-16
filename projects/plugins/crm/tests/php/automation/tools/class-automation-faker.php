@@ -277,7 +277,6 @@ class Automation_Faker {
 			'data' => array(
 				'id_override' => '1',
 				'title'       => '',
-				'status'      => 'Draft',
 				'hash'        => 'V8jAlsi0#$ksm0Plsxp',
 				'accepted'    => 1676923766,
 				'created'     => 1676000000,
