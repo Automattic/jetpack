@@ -1737,6 +1737,8 @@ function jpcrm_get_mimetype( $file_path ) {
 /**
  * Retrieve an array of quote statuses with their corresponding labels.
  *
+ * @since $$next-version$$
+ *
  * @return array Associative array of quote statuses with labels.
  */
 function jpcrm_get_quote_statuses() {
