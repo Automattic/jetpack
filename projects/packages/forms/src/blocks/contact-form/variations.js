@@ -1,6 +1,6 @@
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Path } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
 import { compact } from 'lodash';
 import { salesforceLeadFormVariation } from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
@@ -66,10 +66,10 @@ const variations = compact( [
 		title: __( 'Lead capture', 'jetpack-forms' ),
 		description: __( 'A simple way to collect leads using forms on your site.', 'jetpack-forms' ),
 		keywords: [
-			__( 'subscribe', 'jetpack-forms' ),
-			__( 'email', 'jetpack-forms' ),
-			__( 'signup', 'jetpack-forms' ),
-			__( 'lead capture', 'jetpack-forms' ),
+			_x( 'subscribe', 'block search term', 'jetpack-forms' ),
+			_x( 'email', 'block search term', 'jetpack-forms' ),
+			_x( 'signup', 'block search term', 'jetpack-forms' ),
+			_x( 'lead capture', 'block search term', 'jetpack-forms' ),
 		],
 		icon: people,
 		innerBlocks: [
