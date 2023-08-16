@@ -268,7 +268,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.10.0-beta - 2023-08-16
+### 1.10.0 - 2023-08-16
 #### Added
 - Caching: Added support for the 'Accept' HTTP Header. Prevent caching JSON content.
 - Preload: Improved preload notification panel shows the last 5 preloaded URLs.
