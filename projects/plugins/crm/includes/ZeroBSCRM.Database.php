@@ -1104,8 +1104,7 @@ function zeroBSCRM_database_nuke(){
       zeroBSCRM_extensions_deactivateAll();
 
       #} DAL 2.0 CPTs
-      $post_types   = array('zerobs_transaction', 'zerobs_customer', 'zerobs_invoice', 'zerobs_company', 'zerobs_event', 
-'zerobs_log', 'zerobs_quote', 'zerobs_ticket','zerobs_quo_template');
+      $post_types   = array('zerobs_transaction', 'zerobs_customer', 'zerobs_invoice', 'zerobs_company', 'zerobs_event', 'zerobs_log', 'zerobs_quote', 'zerobs_ticket','zerobs_quo_template');
       foreach ($post_types as $post_type) $wpdb->query("DELETE FROM $wpdb->posts WHERE `post_type` = '$post_type'");    
 
       #} DAL 2.0 Taxonomies
@@ -1114,25 +1113,19 @@ function zeroBSCRM_database_nuke(){
       $wpdb->query("UPDATE $wpdb->term_taxonomy SET count = 0 WHERE `taxonomy` = 'zerobscrm_transactiontag'");
      
       #} Floating Meta
-      $post_meta    = array('zbs_woo_unique_ID', 'zbs_paypal_unique_ID', 'zbs_woo_unique_inv_ID', 'zbs_stripe_unique_inv_ID', 
-'zbs_transaction_meta', 
-'zbs_customer_meta','zbs_customer_ext_str','zbs_customer_ext_woo','zbs_event_meta','zbs_event_actions');
+      $post_meta    = array('zbs_woo_unique_ID', 'zbs_paypal_unique_ID', 'zbs_woo_unique_inv_ID', 'zbs_stripe_unique_inv_ID', 'zbs_transaction_meta', 'zbs_customer_meta','zbs_customer_ext_str','zbs_customer_ext_woo','zbs_event_meta','zbs_event_actions');
       foreach ($post_meta as $meta) $wpdb->query("DELETE FROM $wpdb->postmeta WHERE `meta_key` = '$meta'");
       $wpdb->query("DELETE FROM $wpdb->postmeta WHERE `meta_key` LIKE 'zbs_obj_ext_%';");
 
       #} WP Options - this tries to capture all, as from pre v3 we were not using formal naming conventions
       $options      = array(
         'zbs_woo_first_import_complete', 'zbs_transaction_stripe_hist', 'zbs_transaction_paypal_hist', 'zbs_pp_latest',
-        
-'zbsmigrations','zbs_teleactive','zbs_update_avail','zbscptautodraftclear','zbs_wizard_run','zbscrmcsvimpresumeerrors','zbs_crm_api_key','zbs_crm_api_secret','zbs-global-perf-test','zbsmc2indexes',
+        'zbsmigrations','zbs_teleactive','zbs_update_avail','zbscptautodraftclear','zbs_wizard_run','zbscrmcsvimpresumeerrors','zbs_crm_api_key','zbs_crm_api_secret','zbs-global-perf-test','zbsmc2indexes',
         'zbs_stripe_last_charge_added','zbs_stripe_pages_imported','zbs_stripe_total_pages',
         'widget_zbs_form_widget','zerobscrmsettings','zbsmigrationpreloadcatch','zbs_db_migration_253','zerobscrmsettings_bk',
-        
-'zbs_db_migration_300_pre_exts','zbs_db_migration_300_cftrans','zbs_db_migration_300_errstack','zbs_db_migration_300_cf','zbs_db_migration_300','zbs_children_processed','zbs_pp_latest','  
-_transient_timeout_zbs-nag-extension-update-now','_transient_zbs-nag-extension-update-now'
+        'zbs_db_migration_300_pre_exts','zbs_db_migration_300_cftrans','zbs_db_migration_300_errstack','zbs_db_migration_300_cf','zbs_db_migration_300','zbs_children_processed','zbs_pp_latest','  _transient_timeout_zbs-nag-extension-update-now','_transient_zbs-nag-extension-update-now'
         );
-      foreach ($options as $option)  $wpdb->query($wpdb->prepare("DELETE FROM $wpdb->options WHERE `option_name` = 
-%s",array($option)));
+      foreach ($options as $option)  $wpdb->query($wpdb->prepare("DELETE FROM $wpdb->options WHERE `option_name` = %s",array($option)));
 
       #} WP options - catchalls (be careful to only cull zbs settings here)
       $wpdb->query("DELETE FROM {$wpdb->options} WHERE `option_name` LIKE 'zbsmigration%'");
