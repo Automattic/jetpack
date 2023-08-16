@@ -39,6 +39,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 		// Keep track of the current list of valid blocks between renders.
 		const currentListOfValidBlocks = useRef( [] );
+		const loadingPlaceholderIsSet = useRef( false );
 
 		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as {
@@ -143,8 +144,8 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			[ inputValue, isVisible, show, hide, toggle, isFixed, assistantAnchor, setAnchor ]
 		);
 
-		// A temporary content to show while the blocks are loading.
-		const temporaryContent = parse( '<p>Loading, please wait...</p>' );
+		// A temporary content to show while the blocks are loading
+		const loadingPlaceholderContent = parse( '<p>Loading, please wait...</p>' );
 
 		const setContent = useCallback(
 			( newContent: string ) => {
@@ -165,8 +166,9 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 				} );
 
 				// Set a "loading" message if there are no valid blocks yet.
-				if ( validBlocks.length === 0 ) {
-					replaceInnerBlocks( clientId, temporaryContent );
+				if ( validBlocks.length === 0 && loadingPlaceholderIsSet.current === false ) {
+					replaceInnerBlocks( clientId, loadingPlaceholderContent );
+					loadingPlaceholderIsSet.current = true;
 				}
 
 				// Only update the blocks when the valid list changed, meaning a new block arrived.
@@ -178,7 +180,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					currentListOfValidBlocks.current = validBlocks;
 				}
 			},
-			[ clientId, replaceInnerBlocks, temporaryContent ]
+			[ clientId, replaceInnerBlocks, loadingPlaceholderContent ]
 		);
 
 		useAiContext( {
