@@ -22,7 +22,7 @@ if ( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 } elseif ( false !== getenv( 'WP_TESTS_DIR' ) ) {
 	// WordPress core environment variable.
 	$_tests_dir = getenv( 'WP_TESTS_DIR' );
-} elseif ( file_exists( dirname( dirname( $_plugin_root ) ) . '/tests/phpunit/includes/bootstrap.php' ) ) {
+} elseif ( file_exists( dirname( dirname( dirname( dirname( $_plugin_root ) ) ) ) . '/tests/phpunit/includes/bootstrap.php' ) ) {
 	// Installed inside wordpress-develop.
 	$_tests_dir = dirname( dirname( $_plugin_root ) ) . '/tests/phpunit/includes/bootstrap.php';
 } elseif ( file_exists( '/vagrant/www/wordpress-develop/public_html/tests/phpunit/includes/bootstrap.php' ) ) {
