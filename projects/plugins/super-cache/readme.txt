@@ -268,31 +268,34 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.10.0-beta - 2023-08-01
+### 1.10.0-beta - 2023-08-16
 #### Added
 - Caching: Added support for the 'Accept' HTTP Header. Prevent caching JSON content.
 - Preload: Improved preload notification panel shows the last 5 preloaded URLs.
 
 #### Changed
-- Preload: Faster and more robust preloading slower hosts.
 - General: Indicate full compatibility with the latest version of WordPress, 6.3.
 - General: Update Boost install / activate card styles.
 - General: Update documentation links to point to Jetpack.com docs.
 - General: Update the contributors list.
+- Preload: Faster and more robust preloading slower hosts.
 
 #### Removed
-- Cleanup: Remove unused "object cache" code.
 - Cleanup: Removes unwanted development environment files from production version of the plugin.
+- Cleanup: Remove unused "object cache" code.
 
 #### Fixed
-- Caching: Reject unknown or malformed URIs to prevent PHP warnings.
 - Cache Compression: Fix PHP warning appearing in gzip output stream.
+- Caching: Reject unknown or malformed URIs to prevent PHP warnings.
 - Dynamic Caching: Fixed incorrect encoding headers when using dynamic caching with compression.
+- Setting page: Fixed boost banner getting oversized when zoomed out
 - General: Fix incorrect Debug Log URL for nested WordPress installations.
 - General: Fix links to cache directory on sites that are in a sub directory.
 - General: Updated Nginx documentation hyperlink.
 - Preload: No longer deletes child taxonomies during preload.
 - Preload: Use a constant instead of hard-coded email numbers in preload dropdown.
+- Caching: Prevent Super Cache from attempting to gunzip content which is not zipped
+- General: Fix null/false warning in PHP8.1
 
 --------
 
