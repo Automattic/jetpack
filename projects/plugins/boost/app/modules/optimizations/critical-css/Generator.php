@@ -63,9 +63,6 @@ class Generator {
 			),
 		);
 
-		// Add a userless nonce to use when requesting pages for Critical CSS generation (i.e.: To turn off admin features).
-		$status['generation_nonce'] = Nonce::create( self::GENERATE_QUERY_ACTION );
-
 		// Add a user-bound nonce to use when proxying CSS for Critical CSS generation.
 		$status['proxy_nonce'] = wp_create_nonce( CSS_Proxy::NONCE_ACTION );
 

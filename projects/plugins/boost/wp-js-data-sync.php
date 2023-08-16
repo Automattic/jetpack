@@ -72,7 +72,6 @@ add_action( 'admin_init', 'jetpack_boost_initialize_datasync' );
 $critical_css_state_schema = Schema::as_assoc_array(
 	array(
 		'callback_passthrough' => Schema::any_json_data()->nullable(),
-		'generation_nonce'     => Schema::as_string()->nullable(),
 		'proxy_nonce'          => Schema::as_string()->nullable(),
 		'providers'            => Schema::as_array(
 			Schema::as_assoc_array(
@@ -115,7 +114,6 @@ $critical_css_state_schema = Schema::as_assoc_array(
 		'status'               => 'not_generated',
 		'providers'            => array(),
 		'callback_passthrough' => null,
-		'generation_nonce'     => null,
 		'proxy_nonce'          => null,
 		'viewports'            => array(),
 		'created'              => null,

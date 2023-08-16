@@ -36,7 +36,7 @@ export default async function generateCriticalCss(
 
 		// Prepare GET parameters to include with each request.
 		const requestGetParameters = {
-			'jb-generate-critical-css': cssState.generation_nonce,
+			'jb-generate-critical-css': '1',
 		};
 
 		logPreCriticalCSSGeneration();

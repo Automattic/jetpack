@@ -44,7 +44,6 @@ const ProviderSchema = z.object( {
 export const CriticalCssStateSchema = z
 	.object( {
 		callback_passthrough: z.record( z.unknown() ).optional(),
-		generation_nonce: z.coerce.string().optional(),
 		proxy_nonce: z.coerce.string().optional(),
 		// Source provider information - which URLs to generate CSS for.
 		providers: z.array( ProviderSchema ),
