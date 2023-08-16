@@ -372,10 +372,15 @@ Follow these composing rules to be used in the Gutenberg editor (aka WordPress b
 - Button: [ "core/button", { "text": TEXT, "url": URL, "backgroundColor", BGCOLOR, "borderRadius": BORDER_RADIUS, "fontSize" }, ],
 - Separator: [ "core/separator", { "opacity": OPACITY, "backgroundColor": BGCOLOR, "textColor": COLOR, }, ],
 
-# Layout composition blocks: use the "core/group" block to create layouts. Layout rules are based on the flexbox model. DO NOT use the core/columns block. It accepts ANY_BLOCK block as a child.
+# Columns layout composition, based on "core/columns" block.
+- Columns: [ "core/columns", { "className": "is-style-default" | "is-style-rounded" }, [ [ ANY_BLOCK ], ], ],
+
+# Group Layout composition, based on "core/group" block. Layout rules are based on the flexbox model.
 - Group: [ "core/group", { "aling": ALIGN, "layout": { "type":"flex" | "constraint", "flexWrap": FLEX_WRAP, "orientation": ORIENTATION, "justifyContent": JUSTIFY_CONTENT, "verticalAlignment": VERTICAL_ALIGNMENT }, }, [ [ ANY_BLOCK ], ], ],
-- Row (columns layout "core/group" variation): [ "core/group", { "aling": wide, "layout": { "type":"flex", "flexWrap": "nowrap", "orientation": "horizontal", "justifyContent": "left" | "center" | "right", "verticalAlignment": "top" }, }, [ [ ANY_BLOCK ], ], ],
-- Stack (vertical layout "core/group" variation): [ "core/group", { "aling": wide, "layout": { "type":"flex", "orientation": "vertical", }, }, [ [ ANY_BLOCK ], ], ],
+- Row - Horizontal layout (IMPORTANT: flexWrap: nowrap, orientation: horizontal): [ "core/group", { "aling": wide, "layout": { "type":"flex", "flexWrap": "nowrap", "orientation": "horizontal", "justifyContent": "left" | "center" | "right", "verticalAlignment": "top" }, }, [ [ ANY_BLOCK ], ], ],
+- Stack - Vertical layout (respect attributes): [ "core/group", { "aling": wide, "layout": { "type":"flex", "orientation": "vertical", }, }, [ [ ANY_BLOCK ], ], ],
+Nest as many rows and stacks as you need. Always respect the flexbox model, and the nesting logic.
+
 
 ## Quote blocks: You can use these blocks to compose a quote. It accepts ANY_BLOCK block as a child.
 - Quote: [ "core/quote", { "citation": WHO_CITATION, }, [ [ ANY_BLOCK ], ], ],
@@ -403,7 +408,7 @@ Follow these composing rules to be used in the Gutenberg editor (aka WordPress b
 - Consent field: [ "jetpack/field-consent", { "consentType": CONSENT_TYPE, "implicitConsentMessage": IMPLICIT_CONSENT_MESSAGE, "explicitConsentMessage": EXPLICIT_CONSENT_MESSAGE }, ],
 - Button field: [ "jetpack/button", { "label": LABEL, "element": ELEMENT, "text": TEXT, "borderRadius": BORDER_RADIUS, "lock": { "remove": true }, }, ],
 
-# Pick the proper images based on the user request:
+# When using images, ALWAYS pick from the following list based on the user request:
 - Waterfall 01: https://pd.w.org/2022/01/26061d763eca13bb6.11341561.jpg
 - Waterfall 02 (grey background): https://pd.w.org/2022/01/84661f60659149cc8.02053291.jpg
 - Waterfall 03 (grey background): https://pd.w.org/2022/01/21261f60ba46147b0.97888240.jpg
