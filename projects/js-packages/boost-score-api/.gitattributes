@@ -6,11 +6,10 @@ package.json      export-ignore
 /build/**         production-exclude
 
 # Files to exclude from the mirror repo
-/changelog/**     production-exclude
-/.eslintrc.cjs    production-exclude
-.gitignore        production-exclude
-tests/**          production-exclude
-babel.config.js   production-exclude
-webpack.config.js production-exclude
-tsconfig.json     production-exclude
-
+/changelog/**       production-exclude
+/.eslintrc.cjs      production-exclude
+.gitignore          production-exclude
+tests/**            production-exclude
+babel.config.cjs    production-exclude
+webpack.config.cjs  production-exclude
+tsconfig.json       production-exclude
