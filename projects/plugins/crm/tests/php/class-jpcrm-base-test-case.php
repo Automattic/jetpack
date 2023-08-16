@@ -37,8 +37,6 @@ class JPCRM_Base_Test_Case extends WP_UnitTestCase {
 		// we would never restore the previous state.
 		global $zbs;
 		$this->original_zbs = clone $zbs;
-
-		zeroBSCRM_database_reset( false );
 	}
 
 	/**
