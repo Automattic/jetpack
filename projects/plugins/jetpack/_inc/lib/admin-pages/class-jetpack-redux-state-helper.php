@@ -248,7 +248,7 @@ class Jetpack_Redux_State_Helper {
 	/**
 	 * Gets the initial state for the Publicize module.
 	 *
-	 * @return mixed|null
+	 * @return array|null
 	 */
 	public static function get_publicize_initial_state() {
 		$sig_settings = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
