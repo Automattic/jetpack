@@ -17,6 +17,14 @@ namespace Automattic\Jetpack\CRM\Automation;
 abstract class Base_Condition extends Base_Step implements Condition {
 
 	/**
+	 * The Automation logger.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Logger $logger The Automation logger.
+	 */
+	protected $logger;
+
+	/**
 	 * The next step if the condition is met.
 	 *
 	 * @since $$next-version$$
@@ -41,6 +49,14 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	protected $condition_met = false;
 
 	/**
+	 * All valid operators for this condition.
+	 *
+	 * @since $$next-version$$
+	 * @var string[] $valid_operators Valid operators.
+	 */
+	protected $valid_operators = array();
+
+	/**
 	 * Base_Condition constructor.
 	 *
 	 * @since $$next-version$$
@@ -52,6 +68,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 
 		$this->next_step_true  = $step_data['next_step_true'] ?? null;
 		$this->next_step_false = $step_data['next_step_false'] ?? null;
+		$this->logger          = Automation_Logger::instance();
 	}
 
 	/**
@@ -74,6 +91,25 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	 */
 	public function condition_met(): bool {
 		return $this->condition_met;
+	}
+
+	/**
+	 * Checks if this is a valid operator for this condition and throws an
+	 * exception if the operator is invalid.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $operator The operator.
+	 * @return void
+	 *
+	 * @throws Automation_Exception If the operator is invalid for this condition.
+	 */
+	protected function check_for_valid_operator( string $operator ): void {
+		if ( ! in_array( $operator, $this->valid_operators, true ) ) {
+			$this->condition_met = false;
+			$this->logger->log( 'Invalid operator: ' . $operator );
+			throw new Automation_Exception( 'Invalid operator: ' . $operator );
+		}
 	}
 
 }
