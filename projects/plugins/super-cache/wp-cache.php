@@ -3488,6 +3488,11 @@ function wp_cron_preload_cache() {
 				continue;
 			$url = get_permalink( $post_id );
 
+			if ( ! is_string( $url ) ) {
+					wp_cache_debug( "wp_cron_preload_cache: skipped $post_id. Expected a URL, received: " . gettype( $url ) );
+					continue;
+			}
+
 			if ( wp_cache_is_rejected( $url ) ) {
 				wp_cache_debug( "wp_cron_preload_cache: skipped $url per rejected strings setting" );
 				continue;
