@@ -110,7 +110,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 			$this->logger->log( 'Invalid operator: ' . $operator );
 			throw new Automation_Exception(
 				/* Translators: %s is the invalid operator. */
-				sprintf( __( 'Valid but unimplemented operator: %s', 'zero-bs-crm' ), $operator ),
+				sprintf( __( 'Invalid condition operator: %s', 'zero-bs-crm' ), $operator ),
 				Automation_Exception::CONDITION_INVALID_OPERATOR
 			);
 		}
