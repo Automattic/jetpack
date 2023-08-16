@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true" convertDeprecationsToExceptions="true">
 	<testsuites>
-<!--		<testsuite name="rest-api">-->
-<!--			<directory suffix="test.php">tests/php/rest-api</directory>-->
-<!--		</testsuite>-->
+		<testsuite name="rest-api">
+			<directory suffix="test.php">tests/php/rest-api</directory>
+		</testsuite>
 		<testsuite name="automation">
-			<directory suffix="wp-dev-test.php">tests/php/automation</directory>
-<!--			<directory suffix="test.php">tests/php/automation</directory>-->
+<!--			<directory suffix="wp-dev-test.php">tests/php/automation</directory>-->
+			<directory suffix="test.php">tests/php/automation</directory>
 		</testsuite>
 <!--		<testsuite name="event-manager">-->
 <!--			<directory suffix="test.php">tests/php/event-manager</directory>-->
