@@ -77,7 +77,11 @@ class Invoice_Field_Contains extends Base_Condition {
 				return;
 			default:
 				$this->condition_met = false;
-				throw new Automation_Exception( 'Valid but unimplemented operator: ' . $operator );
+				throw new Automation_Exception(
+					/* Translators: %s is the unimplemented operator. */
+					sprintf( __( 'Valid but unimplemented operator: %s', 'zero-bs-crm' ), $operator ),
+					Automation_Exception::CONDITION_OPERATOR_NOT_IMPLEMENTED
+				);
 		}
 	}
 

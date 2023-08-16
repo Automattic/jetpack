@@ -93,7 +93,7 @@ class Invoice_Condition_Test extends BaseTestCase {
 		$invoice_data                     = $this->automation_faker->invoice_data();
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
 		$invoice_status_changed_condition->execute( $invoice_data );
 	}
@@ -142,7 +142,7 @@ class Invoice_Condition_Test extends BaseTestCase {
 		$invoice_data                     = $this->automation_faker->invoice_data();
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
 		$invoice_field_contains_condition->execute( $invoice_data );
 	}

@@ -108,7 +108,11 @@ abstract class Base_Condition extends Base_Step implements Condition {
 		if ( ! in_array( $operator, $this->valid_operators, true ) ) {
 			$this->condition_met = false;
 			$this->logger->log( 'Invalid operator: ' . $operator );
-			throw new Automation_Exception( 'Invalid operator: ' . $operator );
+			throw new Automation_Exception(
+				/* Translators: %s is the invalid operator. */
+				sprintf( __( 'Valid but unimplemented operator: %s', 'zero-bs-crm' ), $operator ),
+				Automation_Exception::CONDITION_INVALID_OPERATOR
+			);
 		}
 	}
 
