@@ -5,8 +5,8 @@
 			<directory suffix="test.php">tests/php/rest-api</directory>
 		</testsuite>
 		<testsuite name="automation">
-<!--			<directory suffix="wp-dev-test.php">tests/php/automation</directory>-->
-			<directory suffix="test.php">tests/php/automation</directory>
+			<directory suffix="wp-dev-test.php">tests/php/automation</directory>
+<!--			<directory suffix="test.php">tests/php/automation</directory>-->
 		</testsuite>
 <!--		<testsuite name="event-manager">-->
 <!--			<directory suffix="test.php">tests/php/event-manager</directory>-->

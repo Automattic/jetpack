@@ -22,27 +22,30 @@ class REST_Contacts_Controller_Test extends REST_Base_Test_Case {
 	 * @return void
 	 */
 	public function test_get_item_success() {
-		// Mock contacts DAL service.
-		$contact  = $this->generate_contact( array( 'id' => 123 ) );
-		$dal_mock = $this->createMock( zbsDAL_contacts::class );
-		$dal_mock->method( 'getContact' )->willReturn( $contact );
-
-		$GLOBALS['zbs']->DAL           = new \stdClass();
-		$GLOBALS['zbs']->DAL->contacts = $dal_mock;
-
 		// Create and set authenticated user.
 		$wp_user_id = $this->create_wp_user();
 		wp_set_current_user( $wp_user_id );
 
+		// Create a contact we can fetch.
+		$contact_id = $this->generate_contact(
+			array(
+				'fname' => 'Joan',
+				'lname' => 'Smith',
+			)
+		);
+
 		// Make request.
 		$request  = new WP_REST_Request(
 			WP_REST_Server::READABLE,
-			sprintf( '/jetpack-crm/v4/contacts/%d', 123 )
+			sprintf( '/jetpack-crm/v4/contacts/%d', $contact_id )
 		);
 		$response = rest_do_request( $request );
-
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( $contact, $response->get_data() );
+
+		$contact = $response->get_data();
+		$this->assertIsArray( $contact );
+		$this->assertSame( 'Joan', $contact['fname'] );
+		$this->assertSame( 'Smith', $contact['lname'] );
 	}
 
 	/**
@@ -51,21 +54,14 @@ class REST_Contacts_Controller_Test extends REST_Base_Test_Case {
 	 * @return void
 	 */
 	public function test_get_item_return_404_if_contact_do_not_exist() {
-		// Mock contacts DAL service.
-		$dal_mock = $this->createMock( zbsDAL_contacts::class );
-		$dal_mock->method( 'getContact' )->willReturn( false );
-
-		$GLOBALS['zbs']->DAL           = new \stdClass();
-		$GLOBALS['zbs']->DAL->contacts = $dal_mock;
-
 		// Create and set authenticated user.
 		$wp_user_id = $this->create_wp_user();
 		wp_set_current_user( $wp_user_id );
 
-		// Make request.
+		// Make request for a contact ID that do not exist.
 		$request  = new WP_REST_Request(
 			WP_REST_Server::READABLE,
-			sprintf( '/jetpack-crm/v4/contacts/%d', 123 )
+			sprintf( '/jetpack-crm/v4/contacts/%d', 999 )
 		);
 		$response = rest_do_request( $request );
 

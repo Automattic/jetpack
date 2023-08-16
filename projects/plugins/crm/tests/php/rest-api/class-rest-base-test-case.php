@@ -33,31 +33,4 @@ abstract class REST_Base_Test_Case extends JPCRM_Base_Test_Case {
 		);
 	}
 
-	/**
-	 * Generate default contact information.
-	 *
-	 * @param array $args (Optional) A list of arguments we should use for the contact.
-	 *
-	 * @return array The contact.
-	 */
-	public function generate_contact( $args = array() ) {
-		return wp_parse_args(
-			$args,
-			array(
-				'id'       => 1,
-				'fname'    => 'John',
-				'lname'    => 'Doe',
-				'email'    => 'dev@domain.null',
-				'addr1'    => 'My Street 1',
-				'addr2'    => 'First floor',
-				'city'     => 'New York',
-				'country'  => 'US',
-				'postcode' => '10001',
-				'hometel'  => '11111111',
-				'worktel'  => '22222222',
-				'mobtel'   => '33333333',
-			)
-		);
-	}
-
 }

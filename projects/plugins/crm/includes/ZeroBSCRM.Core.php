@@ -492,15 +492,6 @@ final class ZeroBSCRM {
 	}
 
 	/**
-	 * Cloning is forbidden.
-	 *
-	 * @since 2.1
-	 */
-	public function __clone() {
-		zerobscrm_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'zero-bs-crm' ), '2.1' );
-	}
-
-	/**
 	 * Unserializing instances of this class is forbidden.
 	 *
 	 * @since 2.1
