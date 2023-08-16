@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 /**
  * Contact_Transitional_Status condition class.
@@ -66,14 +68,16 @@ class Contact_Transitional_Status extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data The data this condition has to evaluate.
+	 * @param Data_Type_Base $data An instance of the contact data type to evaluate.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( array $data ) {
-		if ( ! $this->is_valid_contact_status_transitional_data( $data ) ) {
-			$this->logger->log( 'Invalid contact status transitional data', $data );
+	public function execute( Data_Type_Base $data ) {
+		$contact_data = $data->get_entity();
+
+		if ( ! $this->is_valid_contact_status_transitional_data( $contact_data ) ) {
+			$this->logger->log( 'Invalid contact status transitional data', $contact_data );
 			$this->condition_met = false;
 
 			return;
@@ -92,7 +96,7 @@ class Contact_Transitional_Status extends Base_Condition {
 		$this->logger->log( 'Condition: Contact_Transitional_Status ' . $operator . ' ' . $status_was . ' => ' . $status_is );
 		switch ( $operator ) {
 			case 'from_to':
-				$this->condition_met = ( $data['old_status_value'] === $status_was ) && ( $data['contact']['data']['status'] === $status_is );
+				$this->condition_met = ( $contact_data['old_status_value'] === $status_was ) && ( $contact_data['contact']['data']['status'] === $status_is );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
@@ -161,17 +165,6 @@ class Contact_Transitional_Status extends Base_Condition {
 	}
 
 	/**
-	 * Get the type of the contact transitional status condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The type 'condition'.
-	 */
-	public static function get_type(): string {
-		return 'condition';
-	}
-
-	/**
 	 * Get the category of the contact transitional status condition.
 	 *
 	 * @since $$next-version$$
@@ -180,6 +173,17 @@ class Contact_Transitional_Status extends Base_Condition {
 	 */
 	public static function get_category(): string {
 		return 'contact';
+	}
+
+	/**
+	 * Get the data type.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The type of the step.
+	 */
+	public static function get_data_type(): string {
+		return Data_Type_Contact::get_slug();
 	}
 
 	/**
@@ -195,4 +199,5 @@ class Contact_Transitional_Status extends Base_Condition {
 			'jpcrm/contact_status_updated',
 		);
 	}
+
 }

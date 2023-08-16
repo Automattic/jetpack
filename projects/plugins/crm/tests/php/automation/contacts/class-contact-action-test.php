@@ -11,6 +11,7 @@ use Automattic\Jetpack\CRM\Automation\Actions\Update_Contact;
 use Automattic\Jetpack\CRM\Automation\Actions\Update_Contact_Status;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
@@ -78,6 +79,7 @@ class Contact_Action_Test extends BaseTestCase {
 		);
 
 		$automation = new Automation_Engine();
+		$automation->register_data_type( Data_Type_Contact::class );
 		$automation->register_trigger( Contact_Created_Trigger::class );
 		$automation->register_step( Update_Contact_Status::class );
 

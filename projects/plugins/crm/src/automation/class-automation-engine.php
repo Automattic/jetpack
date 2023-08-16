@@ -457,7 +457,7 @@ class Automation_Engine {
 		if ( ! isset( $this->data_transform_map[ $current_data_type ][ $new_data_type ] ) ) {
 			throw new Data_Transformer_Exception(
 				sprintf( 'Transforming from "%s" to "%s" is not supported', $current_data_type, $new_data_type ),
-				Data_Transformer_Exception
+				Data_Transformer_Exception::TRANSFORM_IS_NOT_SUPPORTED
 			);
 		}
 

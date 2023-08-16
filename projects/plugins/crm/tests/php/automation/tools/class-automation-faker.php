@@ -264,7 +264,7 @@ class Automation_Faker {
 	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Contact object.
 	 * @return array|Data_Type_Contact
 	 */
-	public function contact_data( $get_as_data_type = true ) {
+	public function contact_data( $get_as_data_type = false ) {
 		$data = array(
 			'id'           => 1,
 			'customerMeta' => array(
@@ -302,9 +302,11 @@ class Automation_Faker {
 			),
 		);
 
-		if ( $get_as_data_type ) {
-			jpcrm_mock_settings( $this->test_base_case, array( array( 'showprefix', false, false ) ) );
+		// We have to mock settings to be able to format contacts due to global dependencies.
+		// Specifically: zbsDAL_contacts::tidy_contact() needs "showprefix" when formatting the full name.
+		jpcrm_mock_settings( $this->test_base_case, array( array( 'showprefix', false, false ) ) );
 
+		if ( $get_as_data_type ) {
 			return new Data_Type_Contact( $data );
 		}
 
@@ -317,7 +319,7 @@ class Automation_Faker {
 	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Invoice object.
 	 * @return array|Data_Type_Invoice
 	 */
-	public function invoice_data( $get_as_data_type = true ) {
+	public function invoice_data( $get_as_data_type = false ) {
 		$data = array(
 			'id'   => 1,
 			'data' => array(
@@ -352,7 +354,7 @@ class Automation_Faker {
 	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Quote object.
 	 * @return array|Data_Type_Quote
 	 */
-	public function quote_data( $get_as_data_type = true ) {
+	public function quote_data( $get_as_data_type = false ) {
 		$data = array(
 			'id'   => 1,
 			'data' => array(
@@ -377,7 +379,7 @@ class Automation_Faker {
 	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Company object.
 	 * @return array|Data_Type_Company
 	 */
-	public function company_data( $get_as_data_type = true ) {
+	public function company_data( $get_as_data_type = false ) {
 		$data = array(
 			'id'     => 1,
 			'name'   => 'Dummy Company',
@@ -398,7 +400,7 @@ class Automation_Faker {
 	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Event object.
 	 * @return array
 	 */
-	public function event_data( $get_as_data_type = true ) {
+	public function event_data( $get_as_data_type = false ) {
 		$data = array(
 			'id'   => 1,
 			'data' => array(
@@ -428,7 +430,7 @@ class Automation_Faker {
 	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Transaction object.
 	 * @return array
 	 */
-	public function transaction_data( $get_as_data_type = true ) {
+	public function transaction_data( $get_as_data_type = false ) {
 		$data = array(
 			'id'   => 1,
 			'data' => array(

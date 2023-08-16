@@ -7,6 +7,7 @@ use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
 use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
 use WorDBless\BaseTestCase;
@@ -57,8 +58,11 @@ class Automation_Workflow_Test extends BaseTestCase {
 	public function test_automation_workflow_set_initial_step() {
 		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
+		$engine = new Automation_Engine();
+		$engine->register_data_type( Data_Type_Contact::class );
+
 		$workflow = new Automation_Workflow( $workflow_data );
-		$workflow->set_engine( new Automation_Engine() );
+		$workflow->set_engine( $engine );
 
 		$workflow->set_initial_step(
 			array(
@@ -199,6 +203,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$logger = Automation_Logger::instance( true );
 
 		$automation = new Automation_Engine();
+		$automation->register_data_type( Data_Type_Contact::class );
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
 		$automation->register_step( Dummy_Step::class );
@@ -256,6 +261,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$logger->reset_log();
 
 		$automation = new Automation_Engine();
+		$automation->register_data_type( Data_Type_Contact::class );
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
 		$automation->register_step( Dummy_Step::class );
@@ -294,6 +300,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$logger->reset_log();
 
 		$automation = new Automation_Engine();
+		$automation->register_data_type( Data_Type_Contact::class );
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
 		$automation->register_step( Dummy_Step::class );
@@ -307,8 +314,8 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$automation->init_workflows();
 
 		// Fake event data. Set status to customer to make the condition false
-		$contact_data                   = $this->automation_faker->contact_data();
-		$contact_data['data']['status'] = 'customer';
+		$contact_data                           = $this->automation_faker->contact_data( false );
+		$contact_data['customerMeta']['status'] = 'customer';
 
 		// Emit the contact_created event with the fake contact data
 		$event_emitter = Event_Emitter::instance();
