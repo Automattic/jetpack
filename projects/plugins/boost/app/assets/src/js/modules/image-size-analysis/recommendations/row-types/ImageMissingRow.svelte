@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
+	import { removeGetParams } from '../../../../utils/remove-get-params';
 	import Device from '../components/Device.svelte';
 	import Pill from '../components/Pill.svelte';
 	import RowTitle from '../components/RowTitle.svelte';
@@ -20,7 +21,7 @@
 		</div>
 
 		<div class="jb-table-row__title">
-			<RowTitle {title} url={details.page.url} />
+			<RowTitle title={removeGetParams( title )} url={details.page.url} />
 		</div>
 
 		<div class="jb-table-row__potential-size">

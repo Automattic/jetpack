@@ -59,4 +59,17 @@ class Initial_State {
 		return 'var JP_CONNECTION_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::get_data() ) ) . '"));';
 	}
 
+	/**
+	 * Render the initial state using an inline script.
+	 *
+	 * @param string $handle The JS script handle.
+	 *
+	 * @return void
+	 */
+	public static function render_script( $handle ) {
+		if ( ! static::$rendered ) {
+			wp_add_inline_script( $handle, static::render(), 'before' );
+		}
+	}
+
 }

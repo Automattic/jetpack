@@ -365,7 +365,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "e10b58b99b076a80696cf84909c1a6233dc544a8"
+                "reference": "55f9ab30166ee3089953a8847c960fe03a9f75ab"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -398,7 +398,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.16.x-dev"
+                    "dev-trunk": "1.17.x-dev"
                 }
             },
             "autoload": {
@@ -851,7 +851,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d20feb5a09eec141ca3a4b347da899e073a0557e"
+                "reference": "53778ab847d8271bbecebd2725029996e9c6c1db"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -882,7 +882,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.56.x-dev"
+                    "dev-trunk": "1.57.x-dev"
                 }
             },
             "autoload": {
@@ -1068,7 +1068,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "3cf6312555ea362ba5f49014d028f9e883dc6c3d"
+                "reference": "96690fdc2a9a756a0a21283910a7f6f2af5a3d5c"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1093,7 +1093,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.19.x-dev"
+                    "dev-trunk": "0.20.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -2513,7 +2513,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "fd9734d237e0584140256d54cc791fc23284546f"
+                "reference": "2e043ed46f2a6ba145d282527d4e31d1680a691a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2544,7 +2544,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.53.x-dev"
+                    "dev-trunk": "1.54.x-dev"
                 }
             },
             "autoload": {

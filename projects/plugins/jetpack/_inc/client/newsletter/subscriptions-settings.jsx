@@ -142,7 +142,7 @@ function SubscriptionsSettings( props ) {
 									}
 									toggling={ isSavingAnyOption( [ 'sm_enabled' ] ) }
 									onChange={ handleSubscribeModalToggleChange }
-									label={ __( 'Enable subscriber modal', 'jetpack' ) }
+									label={ __( 'Enable subscriber pop-up', 'jetpack' ) }
 								/>
 								<p className="jp-form-setting-explanation">
 									{ __(
