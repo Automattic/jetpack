@@ -10,8 +10,7 @@
 		"codeception/module-db": "^1.0",
 		"codeception/module-filesystem": "^1.0",
 		"codeception/util-universalframework": "^1.0",
-		"yoast/phpunit-polyfills": "1.0.4",
-		"symfony/polyfill-php81": "^1.27"
+		"yoast/phpunit-polyfills": "1.0.4"
 	},
 	"scripts": {
 		"build-development": [
