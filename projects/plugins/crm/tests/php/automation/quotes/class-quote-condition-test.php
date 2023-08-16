@@ -79,7 +79,7 @@ class Quote_Condition_Test extends BaseTestCase {
 		$quote_data                     = $this->automation_faker->quote_data();
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
 		$quote_status_changed_condition->execute( $quote_data );
 	}
