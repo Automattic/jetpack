@@ -1,0 +1,14 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/opentable",
+	"title": "OpenTable",
+	"description": "Allow visitors to book a reservation with OpenTable",
+	"keywords": [ "booking", "reservation", "restaurant" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "earn",
+	"icon": "",
+	"supports": { "align": true, "html": false },
+	"editorScript": "file:../editor.js"
+}

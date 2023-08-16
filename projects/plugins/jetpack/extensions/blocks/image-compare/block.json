@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/image-compare",
+	"title": "Image Compare",
+	"description": "Compare two images with a slider. Works best with images of the same size.",
+	"keywords": [ "juxtapose", "photos", "pictures", "side by side", "slider" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "media",
+	"icon": "gallery",
+	"supports": { "align": [ "wide", "full" ] },
+	"attributes": {
+		"imageBefore": {
+			"type": "object",
+			"default": {}
+		},
+		"imageAfter": {
+			"type": "object",
+			"default": {}
+		},
+		"caption": {
+			"type": "string"
+		},
+		"orientation": {
+			"type": "string",
+			"default": "horizontal"
+		}
+	},
+	"editorScript": "file:../editor.js"
+}
