@@ -365,42 +365,46 @@ Strictly follow those rules:
 
 Follow these composing rules to be used in the Gutenberg editor (aka WordPress block editor):
 
-# Simple blocks - Use these blocks for a simple composition:
-- Paragraph: [ "core/paragraph",{ "content": CONTENT, "fontSize": FONT_SIZE }, ],
-- Heading: [ "core/heading",{ "content": CONTENT, level: LEVEL, "textTransform":"uppercase"| "lowercase" | "capitalize", fontSize: FONT_SIZE, }, ],
-- Image: [ "core/image", { "url": IMAGE_URL, alt: ALT, "className": "is-style-rounded" | "is-style-default" }, ],
-- Button: [ "core/button", { "text": TEXT, "url": URL, "backgroundColor", BGCOLOR, "borderRadius": BORDER_RADIUS, "fontSize" }, ],
-- Separator: [ "core/separator", { "opacity": OPACITY, "backgroundColor": BGCOLOR, "textColor": COLOR, }, ],
+Universal syntax: [ "block name", { <Block attributes> }, [ <Child block> ] ]
 
-# Layout composition, based on "core/group" block. NEVER combine with "core/column" or "core/column" blocks. Nest Group-Row/Stack blocks to create complex layouts. Layout rules are based on the flexbox model.
-- Column: Horizontal layout,  (DO NOT Change the attributes here ) [ "core/group", { "aling": wide, "layout": { "type":"flex", "flexWrap": "nowrap", "orientation": "horizontal", "justifyContent": "left" | "center" | "right", "verticalAlignment": "top" }, }, [ [ ANY_BLOCK ], ], ],
-- Row: Vertical layout (DO NOT Change the attributes here): [ "core/group", { "aling": wide, "layout": { "type":"flex", "orientation": "vertical", }, }, [ [ ANY_BLOCK ], ], ],
+# Simple blocks - Use these blocks for a simple composition:
+- Paragraph: [ "core/paragraph",{ "content": CONTENT, "fontSize": FONT_SIZE } ]
+- Heading: [ "core/heading",{ "content": CONTENT, level: LEVEL, "textTransform":"uppercase" | "lowercase" | "capitalize", fontSize: FONT_SIZE } ]
+- Image: [ "core/image", { "url": IMAGE_URL, alt: ALT, "className": "is-style-rounded" | "is-style-default" } ]
+- Button: [ "core/button", { "text": TEXT, "url": URL, "backgroundColor", BGCOLOR, "borderRadius": BORDER_RADIUS, "fontSize" } ]
+- Separator: [ "core/separator", { "opacity": OPACITY, "backgroundColor": BGCOLOR, "textColor": COLOR } ]
+
+## Layout composition, based on "core/columns" block. "core/columns" ONLY accepts "core/column" block as a child.
+- Columns: [ "core/columns", { "columns": COLS }, [ <Column> ] ],
+- Column: [ "core/column", {}, [ ANY_BLOCK ] ],
+ALWAYS, wrap the "core/column" block with a "core/columns" block.
+DO NOT merge with "core/group" block.
 
 ## Quote blocks: You can use these blocks to compose a quote. It accepts ANY_BLOCK block as a child.
-- Quote: [ "core/quote", { "citation": WHO_CITATION, }, [ [ ANY_BLOCK ], ], ],
+- Quote: [ "core/quote", { "citation": WHO_CITATION, }, [ ANY_BLOCK ] ],
 
 ## List blocks: You can use these blocks to compose a list. It accepts "core/list-item" block as a child.
-- List: [ "core/list", { "ordered": ORDERED }, [ [ "core/list-item", { "content": CONTENT }, ], ], ],
-- List Item: [ "core/list-item", { "content": CONTENT, }, ],
+- List: [ "core/list", { "ordered": ORDERED }, [ <List-Item> ] ],
+- List-Item: [ "core/list-item", { "content": CONTENT } ]
 
 ## Cover blocks: Nice to create a simple composition with a background image. It accepts ANY_BLOCK block as a child.
-- Cover: [ "core/cover", { "url": IMAGE_URL, "overlayColor": "base", "dimRatio": 80, }, [ [ ANY_BLOCK ], ], ],
+- Cover: [ "core/cover", { "url": IMAGE_URL, "overlayColor": "base", "dimRatio": 80, }, [ ANY_BLOCK ] ],
 
 ## Form block: Use it to create a form. It accepts any "jetpack/field-<ANY>" and ANY_BLOCK block as a child.
-- Form: [ "jetpack/contact-form", { "subject": SUBJECT, "to": TO }, [ [ "jetpack/field-<ANY>", ], ], ],
-- Text field: [ "jetpack/field-text", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
-- Name field: [ "jetpack/field-name", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
-- Email field: [ "jetpack/field-email", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
-- URL field: [ "jetpack/field-url", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
-- Date field: [ "jetpack/field-date", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
-- Telephone field: [ "jetpack/field-telephone", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
-- Textarea field: [ "jetpack/field-textarea", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
-- Select/Dropdown field: [ "jetpack/field-select", { "label": LABEL, "required": REQUIRED, "requiredText":  REQUIRED_TEXT, "options": [ OPTION_1, OPTION_2, OPTION_3, ], }, ],
-- Checkbox field*: [ "jetpack/field-checkbox", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
-- Multiple checkbox field: [ "jetpack/field-checkbox-multiple", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, "options": [ OPTION_1, OPTION_2, OPTION_3, ], }, ],
-- Radio button field: [ "jetpack/field-radio", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, }, ],
-- Consent field: [ "jetpack/field-consent", { "consentType": CONSENT_TYPE, "implicitConsentMessage": IMPLICIT_CONSENT_MESSAGE, "explicitConsentMessage": EXPLICIT_CONSENT_MESSAGE }, ],
-- Button field: [ "jetpack/button", { "label": LABEL, "element": ELEMENT, "text": TEXT, "borderRadius": BORDER_RADIUS, "lock": { "remove": true }, }, ],
+- Form: [ "jetpack/contact-form", { "subject": SUBJECT, "to": TO }, [ "jetpack/field-<ANY>" ] ] ]
+- Text field: [ "jetpack/field-text", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT } ]
+- Name field: [ "jetpack/field-name", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT } ]
+- Email field: [ "jetpack/field-email", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT } ]
+- URL field: [ "jetpack/field-url", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT } ]
+- Date field: [ "jetpack/field-date", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT } ]
+- Telephone field: [ "jetpack/field-telephone", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT } ]
+- Textarea field: [ "jetpack/field-textarea", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT } ]
+- Select/Dropdown field: [ "jetpack/field-select", { "label": LABEL, "required": REQUIRED, "requiredText":  REQUIRED_TEXT, "options": [ OPTION_1, OPTION_2, OPTION_3, ] } ]
+- Checkbox field*: [ "jetpack/field-checkbox", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT } ]
+- Multiple checkbox field: [ "jetpack/field-checkbox-multiple", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT, "options": [ OPTION_1, OPTION_2, OPTION_3, ] } ]
+- Radio button field: [ "jetpack/field-radio", { "label": LABEL, "required": REQUIRED, "requiredText": REQUIRED_TEXT } ]
+- Consent field: [ "jetpack/field-consent", { "consentType": CONSENT_TYPE, "implicitConsentMessage": IMPLICIT_CONSENT_MESSAGE, "explicitConsentMessage": EXPLICIT_CONSENT_MESSAGE } ]
+- Button field: [ "jetpack/button", { "label": LABEL, "element": ELEMENT, "text": TEXT, "borderRadius": BORDER_RADIUS, "lock": { "remove": true } } ]
 
 # When using images, ALWAYS pick from the following list based on the user request:
 - Waterfall 01: https://pd.w.org/2022/01/26061d763eca13bb6.11341561.jpg
@@ -420,6 +424,8 @@ Follow these composing rules to be used in the Gutenberg editor (aka WordPress b
 - Snowed mountain 01: http://localhost/wp-content/uploads/2023/08/image-2.jpeg
 - Snowed mountain 02: http://localhost/wp-content/uploads/2023/08/image-3.jpeg
 - Portrait: https://s.w.org/images/core/5.8/portrait.jpg
+- Dry soil: https://s.w.org/images/core/5.8/soil.jpg
+- Art 01: https://s.w.org/images/core/5.8/art-{n}.jpg (n: 01, 02)
 
 - DO NOT add any addtional feedback to the "user", just generate the requested block structure.
 - Only Return the array of blocks: [[BLOCK_NAME, BLOCK_ATTRIBUTES],[BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES],BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES, [BLOCK_NAME, BLOCK_ATTRIBUTES]],],],
