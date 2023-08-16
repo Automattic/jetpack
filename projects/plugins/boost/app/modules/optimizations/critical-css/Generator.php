@@ -23,32 +23,17 @@ class Generator {
 	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 */
 	public static function is_generating_critical_css() {
-		static $is_generating = null;
-		if ( null !== $is_generating ) {
-			return $is_generating;
-		}
-
-		// Accept nonce via HTTP headers or GET parameters.
-		$generate_nonce = null;
-		if ( ! empty( $_GET[ self::GENERATE_QUERY_ACTION ] ) ) {
-			$generate_nonce = sanitize_key(
-				$_GET[ self::GENERATE_QUERY_ACTION ]
-			);
-		} elseif ( ! empty( $_SERVER['HTTP_X_GENERATE_CRITICAL_CSS'] ) ) {
-			$generate_nonce = sanitize_key(
-				$_SERVER['HTTP_X_GENERATE_CRITICAL_CSS']
-			);
-		}
-
 		// If GET parameter or header set, we are trying to generate.
-		$is_generating = ! empty( $generate_nonce );
-
-		// Die if the nonce is invalid.
-		if ( $is_generating && ! Nonce::verify( $generate_nonce, self::GENERATE_QUERY_ACTION ) ) {
-			die();
+		if ( isset( $_GET[ self::GENERATE_QUERY_ACTION ] ) ) {
+			return true;
 		}
 
-		return $is_generating;
+		// If there is an HTTP header indicating that we are generating, i.e. boost-cloud
+		if ( isset( $_SERVER['HTTP_X_GENERATE_CRITICAL_CSS'] ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
