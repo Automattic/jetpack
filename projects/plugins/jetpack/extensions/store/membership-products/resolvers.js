@@ -22,7 +22,8 @@ const SUBSCRIBER_COUNT_EXECUTION_KEY = 'membership-products-resolver-getSubscrib
 let hydratedFromAPI = false;
 
 const fetchMemberships = async () => {
-	const origin = getQueryArg( window.location.href, 'origin' );
+	// const origin = getQueryArg( window.location.href, 'origin' );
+	const origin = '';
 	const path = addQueryArgs( '/wpcom/v2/memberships/status', {
 		source: origin === 'https://wordpress.com' ? 'gutenberg-wpcom' : 'gutenberg',
 		type: 'all',
@@ -146,8 +147,10 @@ export const getProducts =
 		}
 
 		const lock = executionLock.acquire( EXECUTION_KEY );
+		console.log( '>>> getProducts 1' );
 		try {
 			const response = await fetchMemberships();
+			console.log( '>>> getProducts 2', response );
 			mapAPIResponseToMembershipProductsStoreData( response, registry, dispatch );
 
 			if ( shouldCreateDefaultProduct( response ) ) {
@@ -164,6 +167,7 @@ export const getProducts =
 
 			hydratedFromAPI = true;
 		} catch ( error ) {
+			console.log( '>>> getProducts 3', error );
 			dispatch( setConnectUrl( null ) );
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );
