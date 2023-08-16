@@ -11,7 +11,7 @@ use Automattic\Jetpack\CRM\Automation\Actions\Update_Contact;
 use Automattic\Jetpack\CRM\Automation\Actions\Update_Contact_Status;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 require_once __DIR__ . '../../mocks/mock-zbs-dal.php';
@@ -21,7 +21,7 @@ require_once __DIR__ . '../../mocks/mock-zbs-dal.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
-class Contact_Action_Test extends BaseTestCase {
+class Contact_Action_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 
