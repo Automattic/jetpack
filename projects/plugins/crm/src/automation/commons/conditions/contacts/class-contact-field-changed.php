@@ -62,7 +62,9 @@ class Contact_Field_Changed extends Base_Condition {
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
+		$this->check_for_valid_operator( $operator );
 		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
+
 		switch ( $operator ) {
 			case 'is':
 				$this->condition_met = ( $data['data'][ $field ] === $value );
@@ -74,11 +76,10 @@ class Contact_Field_Changed extends Base_Condition {
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
+			default:
+				$this->condition_met = false;
+				throw new Automation_Exception( 'Valid but unimplemented operator: ' . $operator );
 		}
-		$this->condition_met = false;
-		$this->logger->log( 'Invalid operator: ' . $operator );
-
-		throw new Automation_Exception( 'Invalid operator: ' . $operator );
 	}
 
 	/**

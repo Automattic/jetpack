@@ -60,13 +60,9 @@ class Contact_Transitional_Status extends Base_Condition {
 		$status_was = $this->get_attributes()['previous_status_was'];
 		$status_is  = $this->get_attributes()['new_status_is'];
 
-		if ( ! $this->is_valid_operator( $operator ) ) {
-			$this->condition_met = false;
-			$this->logger->log( 'Invalid operator: ' . $operator );
-			throw new Automation_Exception( 'Invalid operator: ' . $operator );
-		}
-
+		$this->check_for_valid_operator( $operator );
 		$this->logger->log( 'Condition: Contact_Transitional_Status ' . $operator . ' ' . $status_was . ' => ' . $status_is );
+
 		switch ( $operator ) {
 			case 'from_to':
 				$this->condition_met = ( $data['old_status_value'] === $status_was ) && ( $data['contact']['data']['status'] === $status_is );
@@ -90,18 +86,6 @@ class Contact_Transitional_Status extends Base_Condition {
 	 */
 	private function is_valid_contact_status_transitional_data( array $data ): bool {
 		return isset( $data['contact'] ) && isset( $data['old_status_value'] ) && isset( $data['contact']['data']['status'] );
-	}
-
-	/**
-	 * Checks if this is a valid operator for this condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $operator The operator.
-	 * @return bool True if the operator is valid for this condition, false otherwise.
-	 */
-	private function is_valid_operator( string $operator ): bool {
-		return in_array( $operator, $this->valid_operators, true );
 	}
 
 	/**

@@ -57,13 +57,11 @@ class Invoice_Field_Contains extends Base_Condition {
 			return;
 		}
 
-
 		$field    = $this->get_attributes()['field'];
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
 		$this->check_for_valid_operator( $operator );
-
 		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
 
 		switch ( $operator ) {
