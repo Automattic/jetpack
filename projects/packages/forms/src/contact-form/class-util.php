@@ -60,7 +60,7 @@ class Util {
                     <!-- /wp:jetpack/contact-form -->',
 			),
 			'newsletter-form'   => array(
-				'title'      => __( 'CreativeMail Sign-up Form', 'jetpack-forms' ),
+				'title'      => __( 'Lead Capture Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
 				'content'    => '<!-- wp:jetpack/contact-form {"style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
