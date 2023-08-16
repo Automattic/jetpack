@@ -1,0 +1,29 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/paywall",
+	"title": "Paywall",
+	"description": "Paywall",
+	"keywords": [
+		"email",
+		"follow",
+		"gated",
+		"memberships",
+		"newsletter",
+		"signin",
+		"subscribe",
+		"subscription",
+		"subscriptions"
+	],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "earn",
+	"icon": "",
+	"supports": {
+		"customClassName": false,
+		"html": false,
+		"multiple": false
+	},
+	"parent": [ "core/post-content" ],
+	"editorScript": "file:../editor-beta.js"
+}

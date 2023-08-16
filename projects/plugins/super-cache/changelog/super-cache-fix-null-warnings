@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache: fix null/false warning in PHP8.1
