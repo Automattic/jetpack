@@ -1,0 +1,88 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/business-hours",
+	"title": "Business Hours",
+	"description": "Display opening hours for your business.",
+	"keywords": [ "opening hours", "closing time", "schedule", "working day" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "clock",
+	"supports": {
+		"html": true,
+		"color": {
+			"gradients": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		},
+		"align": [ "wide", "full" ]
+	},
+	"attributes": {
+		"days": {
+			"type": "array",
+			"default": [
+				{
+					"name": "Sun",
+					"hours": []
+				},
+				{
+					"name": "Mon",
+					"hours": [
+						{
+							"opening": "09:00",
+							"closing": "17:00"
+						}
+					]
+				},
+				{
+					"name": "Tue",
+					"hours": [
+						{
+							"opening": "09:00",
+							"closing": "17:00"
+						}
+					]
+				},
+				{
+					"name": "Wed",
+					"hours": [
+						{
+							"opening": "09:00",
+							"closing": "17:00"
+						}
+					]
+				},
+				{
+					"name": "Thu",
+					"hours": [
+						{
+							"opening": "09:00",
+							"closing": "17:00"
+						}
+					]
+				},
+				{
+					"name": "Fri",
+					"hours": [
+						{
+							"opening": "09:00",
+							"closing": "17:00"
+						}
+					]
+				},
+				{
+					"name": "Sat",
+					"hours": []
+				}
+			]
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

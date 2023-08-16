@@ -1,0 +1,14 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/eventbrite",
+	"title": "Eventbrite Checkout",
+	"description": "Embed Eventbrite event details and ticket checkout.",
+	"keywords": [ "events", "tickets" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "",
+	"supports": { "html": false, "align": true },
+	"editorScript": "file:../editor.js"
+}

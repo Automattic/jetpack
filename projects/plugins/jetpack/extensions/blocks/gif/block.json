@@ -1,0 +1,36 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/gif",
+	"title": "GIF",
+	"description": "Search for and insert an animated image.",
+	"keywords": [ "animated", "giphy", "image" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "image",
+	"supports": {
+		"html": false,
+		"align": true
+	},
+	"attributes": {
+		"align": {
+			"type": "string",
+			"default": "center"
+		},
+		"caption": {
+			"type": "string"
+		},
+		"giphyUrl": {
+			"type": "string"
+		},
+		"searchText": {
+			"type": "string"
+		},
+		"paddingTop": {
+			"type": "string",
+			"default": "56.2%"
+		}
+	},
+	"editorScript": "file:../editor.js"
+}
