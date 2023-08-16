@@ -27,7 +27,6 @@ class Quote_Condition_Test extends BaseTestCase {
 		$condition_data = array(
 			'slug'       => 'jpcrm/condition/quote_status_changed',
 			'attributes' => array(
-				'field'    => 'status',
 				'operator' => $operator,
 				'value'    => $expected_value,
 			),
@@ -43,12 +42,14 @@ class Quote_Condition_Test extends BaseTestCase {
 		$quote_data                     = $this->automation_faker->quote_data();
 
 		// Testing when the condition has been met.
-		$quote_data['data']['status'] = 'accepted';
+		$quote_data['data']['accepted'] = '1';
+		$quote_data['data']['template'] = '1';
 		$quote_status_changed_condition->execute( $quote_data );
 		$this->assertTrue( $quote_status_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$quote_data['data']['status'] = 'draft';
+		$quote_data['data']['accepted'] = '0';
+		$quote_data['data']['template'] = '0';
 		$quote_status_changed_condition->execute( $quote_data );
 		$this->assertFalse( $quote_status_changed_condition->condition_met() );
 	}
@@ -61,12 +62,14 @@ class Quote_Condition_Test extends BaseTestCase {
 		$quote_data                     = $this->automation_faker->quote_data();
 
 		// Testing when the condition has been met.
-		$quote_data['data']['status'] = 'draft';
+		$quote_data['data']['accepted'] = '0';
+		$quote_data['data']['template'] = '0';
 		$quote_status_changed_condition->execute( $quote_data );
 		$this->assertTrue( $quote_status_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$quote_data['data']['status'] = 'accepted';
+		$quote_data['data']['accepted'] = '1';
+		$quote_data['data']['template'] = '1';
 		$quote_status_changed_condition->execute( $quote_data );
 		$this->assertFalse( $quote_status_changed_condition->condition_met() );
 	}
