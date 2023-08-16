@@ -90,9 +90,9 @@ tests_add_filter( 'muplugins_loaded', '_jpcrm_manually_load_plugin' );
 require $_tests_dir . '/includes/bootstrap.php';
 
 /**
- * Load Composer autoloader.
+ * Make Jetpack CRM test case available for all tests.
  */
-require $_plugin_root . '/vendor/autoload.php';
+require_once __DIR__ . '/class-jpcrm-base-test-case.php';
 
 /**
  * Load all feature flags, so they will be testable.
