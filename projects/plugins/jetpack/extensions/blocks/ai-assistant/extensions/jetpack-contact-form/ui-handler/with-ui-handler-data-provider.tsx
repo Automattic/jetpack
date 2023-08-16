@@ -79,12 +79,12 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const { clientId, isSelected } = props;
 
 		// AI Assistant input value
-		const [ inputValue, setInputValue ] = useState(
-			'In three columns, put in the first one a large article about Jorge Luis Borge. In next one, about Mariana Enriquez. And in the third one, a form to buy books. Please add all fields you consider appropriate.'
-		);
+		// const [ inputValue, setInputValue ] = useState(
+		// 	'In three columns, put in the first one a large article about Mariana Enriquez. In next one, an article about Jorge Luis Borge. And in the third one, a complete form to buy books. Add a few images and also some famous quotes.'
+		// );
 
 		// const [ inputValue, setInputValue ] = useState(
-		// 	'Write a complete article about the CZSpectrum, split in three columns. In the first one, create an introductory content. In the second one, talk about the most important companies around it. In the third one, create a list with the best ten games of it.'
+		// 	'Write a complete article about the CZSpectrum, split in three columns. In the first one, create an introductory content. In the second one, talk about the most important companies around it. In the third one, create a list with the best ten games of it. Use all resources you need to create a beautiful content.'
 		// );
 
 		// const [ inputValue, setInputValue ] = useState(
@@ -92,8 +92,12 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// );
 
 		// const [ inputValue, setInputValue ] = useState(
-		// 	'Create a content about Mariana Enriquez. Please add a background image to the composition. And please, in Spanish.'
+		// 'Generate content about Mariana Enriquez. In a first column, create a large text about Mariana Enriquez, adding her biography, some quotes, and a few images. In a second column, create a list with her best books. In a third column, create a complete form to sell her books. Use all resources you need to create a beautiful content.'
 		// );
+
+		const [ inputValue, setInputValue ] = useState(
+			'Create a motivation message about reading books. In a first column, add a title (uppercase), some text to make the learners reflect on reading, a few famous quotes, and a button that leads to a books page. Please add a background image. In the second column, a complete form to sell books. Add a tentative 10 books with best-sellers. Also, a background image behind the form.'
+		);
 
 		// AI Assistant component visibility
 		const [ isVisible, setAssistantVisibility ] = useState( false );
