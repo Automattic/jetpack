@@ -79,7 +79,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		$automation = new Automation_Engine();
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'jpcrm/update_contact_status', Update_Contact_Status::class );
+		$automation->register_step( Update_Contact_Status::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action( 'jpcrm/contact_created', $action_data );
 
@@ -161,7 +161,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		$automation = new Automation_Engine();
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'jpcrm/delete_contact', Delete_Contact::class );
+		$automation->register_step( Delete_Contact::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action( 'jpcrm/contact_created', $action_data );
 
@@ -255,7 +255,7 @@ class Contact_Action_Test extends BaseTestCase {
 
 		$automation = new Automation_Engine();
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'jpcrm/new_contact', New_Contact::class );
+		$automation->register_step( New_Contact::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action( 'jpcrm/contact_created', $action_data );
 		$workflow      = new Automation_Workflow( $workflow_data );
@@ -349,7 +349,7 @@ class Contact_Action_Test extends BaseTestCase {
 		$automation = new Automation_Engine();
 
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'jpcrm/add_remove_contact_tag', Add_Remove_Contact_Tag::class );
+		$automation->register_step( Add_Remove_Contact_Tag::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action( 'jpcrm/contact_created', $action_data );
 		$workflow      = new Automation_Workflow( $workflow_data );
@@ -463,7 +463,7 @@ class Contact_Action_Test extends BaseTestCase {
 		$automation = new Automation_Engine();
 
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'jpcrm/add_contact_log', Add_Contact_Log::class );
+		$automation->register_step( Add_Contact_Log::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action( 'jpcrm/contact_created', $action_data );
 		$workflow      = new Automation_Workflow( $workflow_data );
@@ -570,7 +570,7 @@ class Contact_Action_Test extends BaseTestCase {
 		$automation = new Automation_Engine();
 
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'jpcrm/update_contact', Update_Contact::class );
+		$automation->register_step( Update_Contact::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_customizable_trigger_action( 'jpcrm/contact_created', $action_data );
 		$workflow      = new Automation_Workflow( $workflow_data );

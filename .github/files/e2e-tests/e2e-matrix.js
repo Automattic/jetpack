@@ -120,6 +120,15 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 						suite: 'atomic',
 					} );
 				}
+
+				if ( refName === 'trunk' ) {
+					projects.push( {
+						project: 'Jetpack on VIP',
+						path: 'projects/plugins/jetpack/tests/e2e',
+						testArgs: [ 'blocks', '--retries=1' ],
+						suite: 'vip',
+					} );
+				}
 			}
 
 			for ( const project of projects ) {

@@ -100,10 +100,10 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 	/**
 	 * Inline footer script.
 	 *
-	 * @deprecated $$next-version$$ This widget does not enqueue scripts anymore.
+	 * @deprecated 12.5 This widget does not enqueue scripts anymore.
 	 */
 	public function footer_script() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-12.5' );
 	}
 
 	/**
@@ -145,14 +145,14 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 	/**
 	 * Display a select form field.
 	 *
-	 * @deprecated $$next-version$$ This widget only has one option now, no need for an extracted method.
+	 * @deprecated 12.5 This widget only has one option now, no need for an extracted method.
 	 *
 	 * @param string $field_name Name of the field.
 	 * @param array  $options Array of options.
 	 * @param string $default Default option.
 	 */
 	public function select( $field_name, $options, $default = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-12.5' );
 	}
 
 	/**
