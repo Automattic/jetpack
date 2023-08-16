@@ -27,7 +27,7 @@ class REST_Contacts_Controller_Test extends REST_Base_Test_Case {
 		wp_set_current_user( $wp_user_id );
 
 		// Create a contact we can fetch.
-		$contact_id = $this->generate_contact(
+		$contact_id = $this->add_contact(
 			array(
 				'fname' => 'Joan',
 				'lname' => 'Smith',

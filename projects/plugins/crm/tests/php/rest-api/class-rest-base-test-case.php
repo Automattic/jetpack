@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\CRM\Tests;
 /**
  * Base class for Jetpack CRM API tests.
  */
-abstract class REST_Base_Test_Case extends JPCRM_Base_Test_Case {
+abstract class REST_Base_Test_Case extends JPCRM_Base_Integration_Test_Case {
 
 	/**
 	 * Create WordPress user.

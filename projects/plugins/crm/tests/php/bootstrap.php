@@ -93,6 +93,7 @@ require $_tests_dir . '/includes/bootstrap.php';
  * Make Jetpack CRM test case available for all tests.
  */
 require_once __DIR__ . '/class-jpcrm-base-test-case.php';
+require_once __DIR__ . '/class-jpcrm-base-integration-test-case.php';
 
 /**
  * Load all feature flags, so they will be testable.
