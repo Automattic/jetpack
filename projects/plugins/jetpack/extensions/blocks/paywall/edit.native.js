@@ -39,8 +39,6 @@ export default function PaywallEdit() {
 		};
 	} );
 
-	console.log( '>>>', { hasNewsletterPlans, stripeConnectUrl, isLoading } );
-
 	const textStyle = usePreferredColorSchemeStyle(
 		styles[ 'paywall--text' ],
 		styles[ 'paywall--text__dark' ]
