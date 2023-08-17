@@ -57,9 +57,15 @@ export default function AiAssistantToolbarButton( {
 		 * to be used as the anchor for the Assistant Bar.
 		 */
 
-		// Check if the slot already exists.
-		let slot = toolbar?.nextElementSibling as HTMLElement;
-		if ( slot?.classList.contains( AI_ASSISTANT_BAR_SLOT_CLASS ) ) {
+		/*
+		 * Check if the slot already exists,
+		 * quering from the block-toolbar parent element.
+		 */
+		let slot = toolbar.parentElement?.querySelector(
+			`.${ AI_ASSISTANT_BAR_SLOT_CLASS }`
+		) as HTMLElement;
+
+		if ( slot ) {
 			return setAnchor( slot );
 		}
 
