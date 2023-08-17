@@ -351,9 +351,6 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_is_enable_subscribers_modal_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( ( new Automattic\Jetpack\Status\Host() )->is_atomic_platform() ) {
-					return admin_url( 'admin.php?page=jetpack#/discussion' );
-				}
 				return '/settings/newsletter/' . $data['site_slug_encoded'];
 			},
 		),
