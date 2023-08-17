@@ -6,7 +6,7 @@ import AdminPage from '../admin-page';
 import { RedirectHome } from './components/redirect-home';
 import { WorkflowRow } from './components/workflow-row';
 import { WorkflowTable } from './components/workflow-table';
-import { workflowOne, workflowTwo } from './test/test-data';
+import { workflowOne, workflowTwo } from './test/util/data';
 
 export const AutomationsAdmin = () => {
 	return (
