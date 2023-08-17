@@ -22,7 +22,7 @@ function membership_checks() {
 		return false;
 	}
 	// if stripe not connected don't show anything...
-	if ( ! Jetpack_Memberships::has_connected_account() ) {
+	if ( ! \Jetpack_Memberships::has_connected_account() ) {
 		return false;
 	}
 	return true;
