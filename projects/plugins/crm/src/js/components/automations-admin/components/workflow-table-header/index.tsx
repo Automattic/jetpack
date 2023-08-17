@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
+import classNames from 'classnames';
 import { Checkbox } from '../checkbox';
 import { SortDirection, WorkflowTableColumn } from '../workflow-table/types';
 import styles from './styles.module.scss';
@@ -24,7 +25,10 @@ export const WorkflowTableHeader: React.FC< WorkflowTableHeaderProps > = props =
 	};
 
 	return (
-		<th className={ styles.header } onClick={ onClick }>
+		<th
+			className={ classNames( styles.header, { [ styles.clickable ]: !! onClick } ) }
+			onClick={ onClick }
+		>
 			<div className={ styles.container }>
 				<div className={ styles.text }>{ columnNames[ column ] }</div>
 				{ selectedForSort && (
