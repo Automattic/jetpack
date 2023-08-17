@@ -86,12 +86,12 @@ class Automation_Engine {
 	public $data_transform_map = array();
 
 	/**
-	 *  Instance singleton object
+	 * Instance singleton object.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param bool $force Whether to force a new Automation_Engine instance.
-	 * @return Automation_Engine
+	 * @return Automation_Engine The Automation_Engine instance.
 	 */
 	public static function instance( bool $force = false ): Automation_Engine {
 		if ( ! self::$instance || $force ) {
