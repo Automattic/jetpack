@@ -3,6 +3,7 @@
  */
 import { aiAssistantIcon, useAiContext } from '@automattic/jetpack-ai-client';
 import { KeyboardShortcuts, ToolbarButton } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useContext, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
@@ -28,10 +29,12 @@ export default function AiAssistantToolbarButton( {
 }: {
 	jetpackFormClientId?: string;
 } ): React.ReactElement {
-	const { isVisible, toggle, setAnchor } = useContext( AiAssistantUiContext );
+	const { isVisible, toggle, setAnchor, assistantAnchor } = useContext( AiAssistantUiContext );
 	const { requestingState } = useAiContext();
 
 	const toolbarButtonRef = useRef< HTMLElement | null >( null );
+
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 	/*
 	 * When the toolbar button is rendered, we need to find the
@@ -60,11 +63,12 @@ export default function AiAssistantToolbarButton( {
 		/*
 		 * Check if the slot already exists,
 		 * quering from the block-toolbar parent element.
+		 * It should not happend, since the slot removes
+		 * when the viewport is not mobile.
 		 */
 		let slot = toolbar.parentElement?.querySelector(
 			`.${ AI_ASSISTANT_BAR_SLOT_CLASS }`
 		) as HTMLElement;
-
 		if ( slot ) {
 			return setAnchor( slot );
 		}
@@ -86,6 +90,15 @@ export default function AiAssistantToolbarButton( {
 		// Set the anchor where the Assistant Bar will be rendered.
 		setAnchor( slot );
 	}, [ setAnchor ] );
+
+	// Remove the slot when the view is not mobile.
+	useEffect( () => {
+		if ( isMobileViewport ) {
+			return;
+		}
+
+		assistantAnchor?.remove();
+	}, [ isMobileViewport, assistantAnchor ] );
 
 	const toggleFromToolbar = useCallback( () => {
 		if ( ! jetpackFormClientId ) {
