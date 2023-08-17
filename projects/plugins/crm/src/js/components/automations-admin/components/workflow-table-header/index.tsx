@@ -15,7 +15,7 @@ export const WorkflowTableHeader: React.FC< WorkflowTableHeaderProps > = props =
 	const { column, onClick, selectedForSort, sortDirection } = props;
 
 	const columnNames: Record< WorkflowTableColumn, React.ReactNode > = {
-		checkbox: <Checkbox id="decorative-checkbox" decorative />,
+		checkbox: <Checkbox id="decorative-checkbox" />,
 		name: __( 'Name', 'zero-bs-crm' ),
 		status: __( 'Status', 'zero-bs-crm' ),
 		added: __( 'Added', 'zero-bs-crm' ),
