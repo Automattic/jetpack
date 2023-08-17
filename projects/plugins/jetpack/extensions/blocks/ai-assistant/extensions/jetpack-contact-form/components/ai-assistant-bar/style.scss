@@ -24,5 +24,9 @@
 }
 
 .jetpack-ai-assistant-bar__slot {
-    position: sticky;
+	border: none;
+	border-radius: 0;
+	display: block;
+	position: sticky;
+	z-index: 31;
 }

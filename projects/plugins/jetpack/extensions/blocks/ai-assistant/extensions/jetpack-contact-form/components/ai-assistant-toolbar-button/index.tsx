@@ -3,13 +3,15 @@
  */
 import { aiAssistantIcon, useAiContext } from '@automattic/jetpack-ai-client';
 import { KeyboardShortcuts, ToolbarButton } from '@wordpress/components';
-import { useContext, useRef } from '@wordpress/element';
+import { useViewportMatch } from '@wordpress/compose';
+import { useContext, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 /*
  * Internal dependencies
  */
 import { AiAssistantUiContext } from '../../ui-handler/context';
+import { selectFormBlock } from '../../ui-handler/with-ui-handler-data-provider';
 
 const AI_ASSISTANT_BAR_SLOT_CLASS = 'jetpack-ai-assistant-bar__slot';
 
@@ -18,13 +20,21 @@ const AI_ASSISTANT_BAR_SLOT_CLASS = 'jetpack-ai-assistant-bar__slot';
  * Also, it creates a slot just after the contextual toolbar
  * to be used as the anchor for the Assistant Bar.
  *
- * @returns {React.ReactElement} The toolbar button.
+ * @param {object} props - The component props.
+ * @param {string} props.jetpackFormClientId - The Jetpack Form block client ID.
+ * @returns {React.ReactElement}               The toolbar button.
  */
-export default function AiAssistantToolbarButton(): React.ReactElement {
-	const { isVisible, toggle, setAnchor } = useContext( AiAssistantUiContext );
+export default function AiAssistantToolbarButton( {
+	jetpackFormClientId,
+}: {
+	jetpackFormClientId?: string;
+} ): React.ReactElement {
+	const { isVisible, toggle, setAnchor, assistantAnchor } = useContext( AiAssistantUiContext );
 	const { requestingState } = useAiContext();
 
 	const toolbarButtonRef = useRef< HTMLElement | null >( null );
+
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 	/*
 	 * When the toolbar button is rendered, we need to find the
@@ -50,9 +60,16 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 		 * to be used as the anchor for the Assistant Bar.
 		 */
 
-		// Check if the slot already exists.
-		let slot = toolbar?.nextElementSibling as HTMLElement;
-		if ( slot?.classList.contains( AI_ASSISTANT_BAR_SLOT_CLASS ) ) {
+		/*
+		 * Check if the slot already exists,
+		 * quering from the block-toolbar parent element.
+		 * It should not happend, since the slot removes
+		 * when the viewport is not mobile.
+		 */
+		let slot = toolbar.parentElement?.querySelector(
+			`.${ AI_ASSISTANT_BAR_SLOT_CLASS }`
+		) as HTMLElement;
+		if ( slot ) {
 			return setAnchor( slot );
 		}
 
@@ -66,9 +83,30 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 		slot.className = AI_ASSISTANT_BAR_SLOT_CLASS;
 		toolbar.after( slot );
 
+		// Set the top position based on the toolbar height.
+		const toolbarHeight = toolbar.offsetHeight;
+		slot.style.top = `${ toolbarHeight }px`;
+
 		// Set the anchor where the Assistant Bar will be rendered.
 		setAnchor( slot );
 	}, [ setAnchor ] );
+
+	// Remove the slot when the view is not mobile.
+	useEffect( () => {
+		if ( isMobileViewport ) {
+			return;
+		}
+
+		assistantAnchor?.remove();
+	}, [ isMobileViewport, assistantAnchor ] );
+
+	const toggleFromToolbar = useCallback( () => {
+		if ( ! jetpackFormClientId ) {
+			return toggle();
+		}
+
+		selectFormBlock( jetpackFormClientId, toggle );
+	}, [ jetpackFormClientId, toggle ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 
@@ -84,7 +122,7 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 			<ToolbarButton
 				ref={ toolbarButtonRef }
 				showTooltip
-				onClick={ toggle }
+				onClick={ toggleFromToolbar }
 				aria-haspopup="true"
 				aria-expanded={ isVisible }
 				label={ __( 'Ask AI Assistant', 'jetpack' ) }

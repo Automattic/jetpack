@@ -5,7 +5,7 @@ import { useAiContext, withAiDataProvider } from '@automattic/jetpack-ai-client'
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { select } from '@wordpress/data';
+import { select, useSelect } from '@wordpress/data';
 import { useEffect, useCallback } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
@@ -16,15 +16,20 @@ import { isUserConnected } from '../../lib/connection';
 import AiAssistantBar from './components/ai-assistant-bar';
 import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
+import { JETPACK_FORM_CHILDREN_BLOCKS } from './constants';
 import withUiHandlerDataProvider from './ui-handler/with-ui-handler-data-provider';
 
 /**
  * Check if it is possible to extend the block.
  *
- * @param {string} blockName - The block name.
- * @returns {boolean}          True if it is possible to extend the block.
+ * @param {string} blockName            - The block name.
+ * @param {boolean} checkChildrenBlocks - Check if the block is a child of a Jetpack Form block.
+ * @returns {boolean}                     True if it is possible to extend the block.
  */
-export function isPossibleToExtendJetpackFormBlock( blockName: string | undefined ): boolean {
+export function isPossibleToExtendJetpackFormBlock(
+	blockName: string | undefined,
+	checkChildrenBlocks?: boolean
+): boolean {
 	// Check if the AI Assistant block is registered.
 	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
 	if ( ! isBlockRegistered ) {
@@ -36,8 +41,14 @@ export function isPossibleToExtendJetpackFormBlock( blockName: string | undefine
 		return false;
 	}
 
-	// Only extend Jetpack Form block.
-	if ( blockName !== 'jetpack/contact-form' ) {
+	// Only extend allowed blocks.
+	if ( checkChildrenBlocks ) {
+		// First, check if it should check for children blocks. (false by default)
+		if ( ! JETPACK_FORM_CHILDREN_BLOCKS.includes( blockName ) ) {
+			return false;
+		}
+	} else if ( blockName !== 'jetpack/contact-form' ) {
+		// If it is not a child block, check if it is the Jetpack Form block.
 		return false;
 	}
 
@@ -110,6 +121,42 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 }, 'withAiAssistantComponents' );
 
 addFilter( 'editor.BlockEdit', 'jetpack/jetpack-form-block-edit', withAiAssistantComponents, 100 );
+
+/**
+ * Add the AI Assistant button to the toolbar.
+ * This HOC should be used only for children blocks of the Jetpack Form block.
+ */
+const withAiToolbarButton = createHigherOrderComponent( BlockEdit => {
+	return props => {
+		if ( ! isPossibleToExtendJetpackFormBlock( props?.name, true ) ) {
+			return <BlockEdit { ...props } />;
+		}
+
+		// Get clientId of the parent block.
+		const parentClientId = useSelect(
+			selectData => {
+				const { getBlockParentsByBlockName } = selectData( 'core/block-editor' );
+				return getBlockParentsByBlockName( props.clientId, 'jetpack/contact-form' )?.[ 0 ];
+			},
+			[ props.clientId ]
+		);
+		const blockControlsProps = {
+			group: 'parent',
+		};
+
+		return (
+			<>
+				<BlockEdit { ...props } />
+
+				<BlockControls { ...blockControlsProps }>
+					<AiAssistantToolbarButton jetpackFormClientId={ parentClientId } />
+				</BlockControls>
+			</>
+		);
+	};
+}, 'withAiToolbarButton' );
+
+addFilter( 'editor.BlockEdit', 'jetpack/jetpack-form-block-edit', withAiToolbarButton );
 
 // Provide the UI Handler data context to the block.
 addFilter(
