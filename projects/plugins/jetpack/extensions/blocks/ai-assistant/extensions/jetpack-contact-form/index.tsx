@@ -5,7 +5,7 @@ import { useAiContext, withAiDataProvider } from '@automattic/jetpack-ai-client'
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { select } from '@wordpress/data';
+import { select, useSelect } from '@wordpress/data';
 import { useEffect, useCallback } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
@@ -132,6 +132,14 @@ const withAiToolbarButton = createHigherOrderComponent( BlockEdit => {
 			return <BlockEdit { ...props } />;
 		}
 
+		// Get clientId of the parent block.
+		const parentClientId = useSelect(
+			selectData => {
+				const { getBlockParentsByBlockName } = selectData( 'core/block-editor' );
+				return getBlockParentsByBlockName( props.clientId, 'jetpack/contact-form' )?.[ 0 ];
+			},
+			[ props.clientId ]
+		);
 		const blockControlsProps = {
 			group: 'parent',
 		};
@@ -141,7 +149,7 @@ const withAiToolbarButton = createHigherOrderComponent( BlockEdit => {
 				<BlockEdit { ...props } />
 
 				<BlockControls { ...blockControlsProps }>
-					<AiAssistantToolbarButton />
+					<AiAssistantToolbarButton jetpackFormClientId={ parentClientId } />
 				</BlockControls>
 			</>
 		);
