@@ -472,7 +472,7 @@ class Automation_Engine {
 	 *
 	 * @param string $step_name The name of the step to be registered.
 	 * @param array  $step_data The step data to be registered.
-	 * @return Step
+	 * @return Step The step class instance.
 	 *
 	 * @throws Automation_Exception Throws an exception if the step class does not exist.
 	 */
