@@ -3,13 +3,14 @@
  */
 import { aiAssistantIcon, useAiContext } from '@automattic/jetpack-ai-client';
 import { KeyboardShortcuts, ToolbarButton } from '@wordpress/components';
-import { useContext, useRef } from '@wordpress/element';
+import { useContext, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
 /*
  * Internal dependencies
  */
 import { AiAssistantUiContext } from '../../ui-handler/context';
+import { selectFormBlock } from '../../ui-handler/with-ui-handler-data-provider';
 
 const AI_ASSISTANT_BAR_SLOT_CLASS = 'jetpack-ai-assistant-bar__slot';
 
@@ -18,9 +19,15 @@ const AI_ASSISTANT_BAR_SLOT_CLASS = 'jetpack-ai-assistant-bar__slot';
  * Also, it creates a slot just after the contextual toolbar
  * to be used as the anchor for the Assistant Bar.
  *
- * @returns {React.ReactElement} The toolbar button.
+ * @param {object} props - The component props.
+ * @param {string} props.jetpackFormClientId - The Jetpack Form block client ID.
+ * @returns {React.ReactElement}               The toolbar button.
  */
-export default function AiAssistantToolbarButton(): React.ReactElement {
+export default function AiAssistantToolbarButton( {
+	jetpackFormClientId,
+}: {
+	jetpackFormClientId?: string;
+} ): React.ReactElement {
 	const { isVisible, toggle, setAnchor } = useContext( AiAssistantUiContext );
 	const { requestingState } = useAiContext();
 
@@ -70,6 +77,14 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 		setAnchor( slot );
 	}, [ setAnchor ] );
 
+	const toggleFromToolbar = useCallback( () => {
+		if ( ! jetpackFormClientId ) {
+			return toggle();
+		}
+
+		selectFormBlock( jetpackFormClientId, toggle );
+	}, [ jetpackFormClientId, toggle ] );
+
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 
 	return (
@@ -84,7 +99,7 @@ export default function AiAssistantToolbarButton(): React.ReactElement {
 			<ToolbarButton
 				ref={ toolbarButtonRef }
 				showTooltip
-				onClick={ toggle }
+				onClick={ toggleFromToolbar }
 				aria-haspopup="true"
 				aria-expanded={ isVisible }
 				label={ __( 'Ask AI Assistant', 'jetpack' ) }
