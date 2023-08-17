@@ -149,7 +149,7 @@ class Quote_Status_Changed extends Base_Condition {
 	 * @return string The category 'jpcrm/quote_condition'.
 	 */
 	public static function get_category(): string {
-		return 'quote';
+		return __( 'quote', 'zero-bs-crm' );
 	}
 
 	/**
