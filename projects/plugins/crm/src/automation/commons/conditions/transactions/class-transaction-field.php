@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
 
 /**
@@ -49,16 +48,14 @@ class Transaction_Field extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type_Base  $data An instance of the contact data type to evaluate.
-	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$transaction_data = $data->get_entity();
-
-		if ( ! $this->is_valid_transaction_field_data( $transaction_data ) ) {
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! $this->is_valid_transaction_field_data( $data ) ) {
 			$this->logger->log( 'Invalid transaction field condition data' );
 			$this->condition_met = false;
 
@@ -70,28 +67,28 @@ class Transaction_Field extends Base_Condition {
 		$value    = $this->get_attributes()['value'];
 
 		$this->check_for_valid_operator( $operator );
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $transaction_data[ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data[ $field ] );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $transaction_data[ $field ] === $value );
+				$this->condition_met = ( $data[ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				break;
+
 			case 'is_not':
-				$this->condition_met = ( $transaction_data[ $field ] !== $value );
+				$this->condition_met = ( $data[ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				break;
+
 			case 'contains':
-				$this->condition_met = ( strpos( $transaction_data[ $field ], $value ) !== false );
+				$this->condition_met = ( strpos( $data[ $field ], $value ) !== false );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				break;
+
 			case 'does_not_contain':
-				$this->condition_met = ( strpos( $transaction_data[ $field ], $value ) === false );
-
+				$this->condition_met = ( strpos( $data[ $field ], $value ) === false );
 				break;
+
 			default:
 				$this->condition_met = false;
 				throw new Automation_Exception(

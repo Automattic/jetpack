@@ -43,7 +43,7 @@ class Delete_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 
 		// Create a contact and verify it was created.
 		$contact_id = $this->add_contact();
-		$contact    = $zbs->DAL->contacts->getContact( $contact_id );
+		$contact    = $this->get_contact( $contact_id );
 
 		// Setup action that is supposed to delete the contact.
 		$action_delete_contact = new Delete_Contact(
@@ -56,8 +56,7 @@ class Delete_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 		);
 
 		// Execute the action.
-		$contact_data_type = new Data_Type_Contact( $contact );
-		$action_delete_contact->execute( $contact_data_type );
+		$action_delete_contact->execute( $contact );
 
 		// Verify that the contact no longer exists.
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );

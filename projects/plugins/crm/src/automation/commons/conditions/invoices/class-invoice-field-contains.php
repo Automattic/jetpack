@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
 
 /**
@@ -48,15 +47,14 @@ class Invoice_Field_Contains extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type_Base  $data The data this condition has to evaluate.
-	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 * @return void
+	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$invoice_data = $data->get_entity();
-
-		if ( ! $this->is_valid_invoice_field_contains_data( $invoice_data ) ) {
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! $this->is_valid_invoice_field_contains_data( $data ) ) {
 			$this->logger->log( 'Invalid invoice field contains data' );
 			$this->condition_met = false;
 			return;
@@ -67,16 +65,16 @@ class Invoice_Field_Contains extends Base_Condition {
 		$value    = $this->get_attributes()['value'];
 
 		$this->check_for_valid_operator( $operator );
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $invoice_data[ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data[ $field ] );
 
 		switch ( $operator ) {
 			case 'contains':
-				$this->condition_met = ( strpos( $invoice_data[ $field ], $value ) !== false );
+				$this->condition_met = ( strpos( $data[ $field ], $value ) !== false );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
 			case 'does_not_contain':
-				$this->condition_met = ( strpos( $invoice_data[ $field ], $value ) === false );
+				$this->condition_met = ( strpos( $data[ $field ], $value ) === false );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
@@ -96,11 +94,11 @@ class Invoice_Field_Contains extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $invoice_data The invoice data.
+	 * @param array $data The invoice data.
 	 * @return bool True if the data is valid to detect if a field contains some value, false otherwise
 	 */
-	private function is_valid_invoice_field_contains_data( array $invoice_data ): bool {
-		return isset( $invoice_data[ $this->get_attributes()['field'] ] );
+	private function is_valid_invoice_field_contains_data( array $data ): bool {
+		return isset( $data[ $this->get_attributes()['field'] ] );
 	}
 
 	/**

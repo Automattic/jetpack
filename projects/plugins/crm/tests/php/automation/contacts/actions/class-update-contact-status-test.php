@@ -42,7 +42,7 @@ class Update_Contact_Status_Test extends JPCRM_Base_Integration_Test_Case {
 		global $zbs;
 
 		$contact_id = $this->add_contact( array( 'status' => 'Lead' ) );
-		$contact    = $zbs->DAL->contacts->getContact( $contact_id );
+		$contact    = $this->get_contact( $contact_id );
 		$this->assertSame( 'Lead', $contact['status'] );
 
 		$action_update_contact = new Update_Contact_Status(
@@ -54,8 +54,7 @@ class Update_Contact_Status_Test extends JPCRM_Base_Integration_Test_Case {
 			)
 		);
 
-		$contact_data_type = new Data_Type_Contact( $contact );
-		$action_update_contact->execute( $contact_data_type );
+		$action_update_contact->execute( $contact );
 
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );
 		$this->assertSame( 'Customer', $contact['status'] );

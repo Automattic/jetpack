@@ -47,7 +47,7 @@ class Update_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 				'fname' => 'This is definitely not a real first name',
 			)
 		);
-		$contact    = $zbs->DAL->contacts->getContact( $contact_id );
+		$contact    = $this->get_contact( $contact_id );
 		$this->assertSame( 'This is definitely not a real first name', $contact['fname'] );
 
 		// Define what happens when the action is executed.
@@ -63,8 +63,7 @@ class Update_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 		);
 
 		// Execute action.
-		$contact_data_type = new Data_Type_Contact( $contact );
-		$action->execute( $contact_data_type );
+		$action->execute( $contact );
 
 		// Fetch the contact again and verify the update was successful.
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );

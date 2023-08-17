@@ -318,7 +318,8 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$automation->init_workflows();
 
 		// Fake event data. Set status to customer to make the condition false
-		$contact_data           = $this->automation_faker->contact_data( false );
+		$contact_data_type      = $this->automation_faker->contact_data( true );
+		$contact_data           = $contact_data_type->get_entity();
 		$contact_data['status'] = 'customer';
 
 		// Emit the contact_created event with the fake contact data

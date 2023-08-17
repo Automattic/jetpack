@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 /**
@@ -90,17 +89,17 @@ class Add_Contact_Log extends Base_Action {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type_Base  $data An instance of the contact data type.
-	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 */
-	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
 		$zbs->DAL->logs->addUpdateLog( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
 				'data' => array(
 					'objtype'   => ZBS_TYPE_CONTACT,
-					'objid'     => $data->get_id(),
+					'objid'     => $data['id'],
 					'type'      => $this->get_attributes()['type'],
 					'shortdesc' => $this->get_attributes()['short-description'],
 					'longdesc'  => $this->get_attributes()['long-description'],

@@ -43,7 +43,7 @@ class Add_Contact_Log_Test extends JPCRM_Base_Integration_Test_Case {
 
 		// Create a contact.
 		$contact_id = $this->add_contact();
-		$contact    = $zbs->DAL->contacts->getContact( $contact_id );
+		$contact    = $this->get_contact( $contact_id );
 
 		// Prepare
 		$action = new Add_Contact_Log(
@@ -58,8 +58,7 @@ class Add_Contact_Log_Test extends JPCRM_Base_Integration_Test_Case {
 		);
 
 		// Execute the action.
-		$contact_data_type = new Data_Type_Contact( $contact );
-		$action->execute( $contact_data_type );
+		$action->execute( $contact );
 
 		// Verify that our contact has a log.
 		$logs = $zbs->DAL->logs->getLogsForObj(

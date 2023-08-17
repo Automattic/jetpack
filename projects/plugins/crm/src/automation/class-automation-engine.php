@@ -389,7 +389,7 @@ class Automation_Engine {
 		// Convert the trigger data into a data type instance.
 		// This might change while running steps if we have to transform the data
 		// to e.g. allow invoice triggers to work together with contact actions.
-		$hook_data = $this->get_data_type_instance( $trigger::get_data_type(), $trigger_data );
+		$data_type = $this->get_data_type_instance( $trigger::get_data_type(), $trigger_data );
 
 		while ( $step_data ) {
 			try {
@@ -414,8 +414,8 @@ class Automation_Engine {
 
 				$this->get_logger()->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step->get_data_type() );
 
-				$hook_data = $this->maybe_transform_data_type( $hook_data, $step::get_data_type() );
-				$step->execute( $hook_data );
+				$data_type = $this->maybe_transform_data_type( $data_type, $step::get_data_type() );
+				$step->execute( $data_type->get_entity() );
 				$step_data = $step->get_next_step();
 
 				$this->get_logger()->log( '[' . $step->get_slug() . '] Step executed!' );

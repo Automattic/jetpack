@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 /**
@@ -45,15 +44,13 @@ class Contact_Transitional_Status extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type_Base  $data An instance of the contact data type to evaluate.
-	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) {
-		$contact_data = $data->get_entity();
-
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( $previous_data === null ) {
 			$this->logger->log( 'Invalid previous contact status transitional data' );
 			$this->condition_met = false;
@@ -61,9 +58,7 @@ class Contact_Transitional_Status extends Base_Condition {
 			return;
 		}
 
-		$previous_contact_data = $previous_data->get_entity();
-
-		if ( ! $this->is_valid_contact_status_transitional_data( $contact_data ) || ! $this->is_valid_contact_status_transitional_data( $previous_contact_data ) ) {
+		if ( ! $this->is_valid_contact_status_transitional_data( $data ) || ! $this->is_valid_contact_status_transitional_data( $previous_data ) ) {
 			$this->logger->log( 'Invalid contact status transitional data' );
 			$this->condition_met = false;
 
@@ -79,7 +74,7 @@ class Contact_Transitional_Status extends Base_Condition {
 
 		switch ( $operator ) {
 			case 'from_to':
-				$this->condition_met = ( $previous_contact_data['status'] === $status_was ) && ( $contact_data['status'] === $status_is );
+				$this->condition_met = ( $previous_data['status'] === $status_was ) && ( $data['status'] === $status_is );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;

@@ -8,8 +8,6 @@
 
 namespace Automattic\Jetpack\CRM\Automation;
 
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
-
 /**
  * Interface Step.
  *
@@ -22,10 +20,10 @@ interface Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type_Base  $data Data passed from the step.
-	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 */
-	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null );
+	public function execute( $data, $previous_data = null );
 
 	/**
 	 * Get the next step.
