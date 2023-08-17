@@ -626,3 +626,9 @@ if (
 
 // Temporary feature flag for the new Reading Settings page
 add_filter( 'calypso_use_modernized_reading_settings', '__return_true' );
+
+/**
+ * Temporary feature flag for the new Newsletter Settings page,
+ * its removal should be preceded by a removal of the filter's usage in Jetpack: https://github.com/Automattic/jetpack/pull/32146
+ */
+add_filter( 'calypso_use_newsletter_settings', '__return_true' );
