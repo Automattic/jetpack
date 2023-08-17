@@ -154,8 +154,8 @@ class Automation_Engine {
 	 *
 	 * This method will convert trigger/step raw data to a Data_type instance
 	 * and return the instance.
-	 * We need this to ensure the data looks valid and to ensure we have expected
-	 * methods to work with as an adapter to the entity.
+	 * We need this to ensure the data looks valid, unified formatting, and to ensure we have
+	 * a set of expected methods to work with to transformer an object into a related object.
 	 *
 	 * @since $$next-version$$
 	 *
