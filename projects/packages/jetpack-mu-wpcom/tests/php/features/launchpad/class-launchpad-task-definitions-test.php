@@ -24,6 +24,9 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 					'test_task1'            => array(),
 					'test_task2'            => array(),
 					'test_task3'            => array(),
+					'test_task3_alias'      => array(
+						'id_map' => 'test_task3',
+					),
 					'test_task_with_id_map' => array(
 						'id_map' => 'test_task_id_map',
 					),
@@ -112,6 +115,55 @@ class Launchpad_Task_Definitions_Test extends \WorDBless\BaseTestCase {
 			$this->assertTrue( isset( $option_value[ $task_id ] ) );
 			$this->assertSame( $new_task_status, $option_value[ $task_id ] );
 		}
+	}
+
+	/**
+	 * Data provider for {@see test_wpcom_launchpad_update_task_status_id_map_handling()}.
+	 *
+	 * @return array[]
+	 */
+	public function provide_update_task_status_id_map_handling_test_cases() {
+		return array(
+			// First key is requested task ID, second key is the option we expect to update.
+			'Request for unmapped task ID updates that task ID'                         => array(
+				'test_task2',
+				'test_task2',
+			),
+			'Request for task ID with id_map for other task updates id_map'             => array(
+				'test_task3_alias',
+				'test_task3',
+			),
+			'Request for id_map where no task ID matches the id_map updates the id_map' => array(
+				'test_task_id_map',
+				'test_task_id_map',
+			),
+		);
+	}
+
+	/**
+	 * Tests {@see wpcom_launchpad_update_task_status()} to make sure we handle id_map
+	 * values correctly.
+	 *
+	 * @dataProvider provide_update_task_status_id_map_handling_test_cases()
+	 * @param string $requested_task_id The requested task ID or id_map.
+	 * @param string $expected_option_key The key we expect to be added to the underlying option.
+	 */
+	public function test_wpcom_launchpad_update_task_status_id_map_handling( $requested_task_id, $expected_option_key ) {
+		delete_option( 'launchpad_checklist_tasks_statuses' );
+
+		$update_request = array(
+			$requested_task_id => true,
+		);
+
+		$update_result = wpcom_launchpad_update_task_status( $update_request );
+
+		$this->assertSame( $update_request, $update_result );
+
+		$option_value = get_option( 'launchpad_checklist_tasks_statuses' );
+
+		$this->assertIsArray( $option_value );
+		$this->assertArrayHasKey( $expected_option_key, $option_value );
+		$this->assertTrue( $option_value[ $expected_option_key ] );
 	}
 
 	/**
