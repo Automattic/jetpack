@@ -109,7 +109,7 @@ class Settings {
 	 * Enable or disable Auto Conversion.
 	 *
 	 * @param bool $key Whether video or image.
-	 * @param bool $value True to enable SIG, false to disable.
+	 * @param bool $value True to enable auto-conversion settings, false to disable.
 	 * @return bool True if the setting was updated successfully, false otherwise.
 	 */
 	public function set_enabled( $key, $value ) {
