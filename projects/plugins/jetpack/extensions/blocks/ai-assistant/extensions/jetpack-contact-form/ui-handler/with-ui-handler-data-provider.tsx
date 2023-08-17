@@ -175,7 +175,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 		useAiContext( {
 			askQuestionOptions: { postId },
-			onDone: setContent,
+			onDone: finalContent => {
+				setContent( finalContent );
+				setInputValue( '' );
+			},
 			onSuggestion: setContent,
 			onError: showSuggestionError,
 		} );
