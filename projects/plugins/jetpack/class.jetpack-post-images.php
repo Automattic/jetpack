@@ -106,6 +106,42 @@ class Jetpack_PostImages {
 	}
 
 	/**
+	 * Filtering out images with broken URL from galleries.
+	 *
+	 * @param array $galleries Galleries.
+	 * @return array $filtered_galleries
+	 */
+	public static function filter_gallery_urls( $galleries ) {
+		$filtered_galleries = array();
+		foreach ( $galleries as $this_gallery ) {
+			if ( ! isset( $this_gallery['src'] ) ) {
+				continue;
+			}
+			$images_to_exclude = array();
+			$image_index       = 0;
+			foreach ( $this_gallery['src'] as $src_url ) {
+				if ( filter_var( $src_url, FILTER_VALIDATE_URL ) === false ) {
+					$images_to_exclude[] = $image_index;
+				}
+				++$image_index;
+			}
+			foreach ( $images_to_exclude as $key ) {
+				unset( $this_gallery['src'][ $key ] );
+			}
+			if ( isset( $this_gallery['ids'] ) ) {
+				$ids = explode( ',', $this_gallery['ids'] );
+				foreach ( $images_to_exclude as $key ) {
+					unset( $ids[ $key ] );
+				}
+				$this_gallery['ids'] = implode( ',', $ids );
+			}
+			$filtered_galleries[] = $this_gallery;
+		}
+
+		return $filtered_galleries;
+	}
+
+	/**
 	 * If a gallery is detected, then get all the images from it.
 	 *
 	 * @param int $post_id Post ID.
@@ -123,6 +159,7 @@ class Jetpack_PostImages {
 		if ( ! empty( $post->post_password ) ) {
 			return $images;
 		}
+		add_filter( 'get_post_galleries', array( __CLASS__, 'filter_gallery_urls' ), 999999 );
 
 		$permalink = get_permalink( $post->ID );
 
