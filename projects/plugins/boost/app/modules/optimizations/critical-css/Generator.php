@@ -17,8 +17,7 @@ class Generator {
 	}
 
 	/**
-	 * Returns true if this pageload is generating Critical CSS, based on GET
-	 * parameters and headers.
+	 * Return true if page is loaded to generate critical CSS
 	 *
 	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 */
