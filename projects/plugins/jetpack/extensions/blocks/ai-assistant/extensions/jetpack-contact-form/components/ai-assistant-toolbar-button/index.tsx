@@ -79,6 +79,10 @@ export default function AiAssistantToolbarButton( {
 		slot.className = AI_ASSISTANT_BAR_SLOT_CLASS;
 		toolbar.after( slot );
 
+		// Set the top position based on the toolbar height.
+		const toolbarHeight = toolbar.offsetHeight;
+		slot.style.top = `${ toolbarHeight }px`;
+
 		// Set the anchor where the Assistant Bar will be rendered.
 		setAnchor( slot );
 	}, [ setAnchor ] );
