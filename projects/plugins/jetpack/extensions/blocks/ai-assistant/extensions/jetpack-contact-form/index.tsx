@@ -154,7 +154,7 @@ const withAiToolbarButton = createHigherOrderComponent( BlockEdit => {
 			</>
 		);
 	};
-}, 'withAiAssistantComponents' );
+}, 'withAiToolbarButton' );
 
 addFilter( 'editor.BlockEdit', 'jetpack/jetpack-form-block-edit', withAiToolbarButton );
 
