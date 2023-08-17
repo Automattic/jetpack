@@ -22,8 +22,7 @@ const SUBSCRIBER_COUNT_EXECUTION_KEY = 'membership-products-resolver-getSubscrib
 let hydratedFromAPI = false;
 
 const fetchMemberships = async () => {
-	// const origin = getQueryArg( window.location.href, 'origin' );
-	const origin = '';
+	const origin = getQueryArg( window.location.href, 'origin' );
 	const path = addQueryArgs( '/wpcom/v2/memberships/status', {
 		source: origin === 'https://wordpress.com' ? 'gutenberg-wpcom' : 'gutenberg',
 		type: 'all',
