@@ -51,8 +51,12 @@ final class Automation_Boostrap {
 	 */
 	protected function register_data_types(): void {
 		$data_types = array(
+			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company::class,
 			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact::class,
+			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event::class,
 			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice::class,
+			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote::class,
+			\Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction::class,
 		);
 
 		/**
