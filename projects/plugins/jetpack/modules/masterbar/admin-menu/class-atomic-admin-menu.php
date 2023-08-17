@@ -350,9 +350,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 *
 		 * @param bool $show_wpcom_upgrades_email_menu Load the WordPress.com Emails submenu item. Default to false.
 		 */
-		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
+		// if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
 			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
-		}
+		// }
 	}
 
 	/**
