@@ -1,0 +1,44 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/rating-star",
+	"title": "Star Rating",
+	"description": "Rate movies, books, songs, recipes — anything you can put a number on.",
+	"keywords": ["star", "rating", "review"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "widgets",
+	"icon": "star-half",
+	"supports": {
+		"html": false
+	},
+	"styles": [
+		{
+			"name": "filled",
+			"label": "Filled",
+			"isDefault": true
+		},
+		{
+			"name": "outlined",
+			"label": "Outlined"
+		}
+	],
+	"attributes": {
+		"rating": {
+			"type": "number",
+			"default": 1
+		},
+		"maxRating": {
+			"type": "number",
+			"default": 5
+		},
+		"color": {
+			"type": "string"
+		},
+		"align": {
+			"type": "string",
+			"default": "left"
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

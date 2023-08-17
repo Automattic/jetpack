@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/pinterest",
+	"title": "Pinterest",
+	"description": "Embed a Pinterest pin, board, or user.",
+	"keywords": [ "social", "pinboard", "pins" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "pinterest",
+	"supports": {
+		"html": false,
+		"align": false
+	},
+	"attributes":{ 
+		"url": {
+			"type": "string"
+		}
+	},
+	"example": {
+		"attributes": {
+			"url": "https://pinterest.com/anapinskywalker/"
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

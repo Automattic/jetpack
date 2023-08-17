@@ -1,0 +1,45 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/payment-buttons",
+	"title": "Payment Buttons",
+	"description": "Prompt visitors to purchase your products and subscriptions with a group of buttons.",
+	"keywords": [
+		"buy", "contribution", "commerce", "credit card", "debit card", "donate", "Donations",
+		"earn", "ecommerce", "gofundme", "memberships", "money", "paid", "patreon", "pay",
+		"payments", "products", "purchase", "recurring", "sell", "shop", "stripe", "subscribe",
+		"subscriptions", "sponsor", "square", "toast", "venmo"
+	],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "earn",
+	"icon": "block-default",
+	"supports": {
+		"__experimentalExposeControlsToChildren": true,
+		"align": [ "wide", "full" ],
+		"spacing": {
+			"blockGap": true,
+			"margin": [ "vertical" ],
+			"__experimentalDefaultControls": {
+				"blockGap": true
+			}
+		},
+		"__experimentalLayout": {
+			"allowSwitching": false,
+			"allowInheriting": false,
+			"default": {
+				"type": "flex"
+			}
+		},
+		"typography": {
+			"fontSize": true,
+			"__experimentalFontFamily": true,
+			"__experimentalTextTransform": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	},
+	"attributes":{ },
+	"editorScript": "file:../editor.js"
+}

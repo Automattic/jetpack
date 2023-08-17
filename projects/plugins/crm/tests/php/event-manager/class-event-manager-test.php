@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\CRM\Event_Manager\Tests;
 
 use Automattic\Jetpack\CRM\Event_Manager\Contact_Event;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '/class-event-manager-faker.php';
 
@@ -12,7 +12,7 @@ require_once __DIR__ . '/class-event-manager-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Event_Manager
  */
-class Event_Manager_Test extends BaseTestCase {
+class Event_Manager_Test extends JPCRM_Base_Test_Case {
 
 	/**
 	 * @testdox Test that contact created event is fired

@@ -1,0 +1,39 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/repeat-visitor",
+	"title": "Repeat Visitor",
+	"description": "Control block visibility based on how often a visitor has viewed the page.",
+	"keywords": ["return", "visitors", "visibility"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "widgets",
+	"icon": "clock",
+	"supports": {
+		"align": [ "wide", "full" ],
+		"html": false
+	},
+	"attributes": {
+		"criteria": {
+			"type": "string",
+			"default": "after-visits"
+		},
+		"threshold": {
+			"type": "number",
+			"default": 3
+		}
+	},
+	"example": {
+		"attributes": {
+			"criteria": "after-visits",
+			"threshold": 3
+		},
+		"innerBlocks": [
+			{
+				"name": "core/paragraph",
+				"attributes": "This block will only appear to a visitor who visited the page three or more times."
+			}
+		]
+	},
+	"editorScript": "file:../editor.js"
+}
