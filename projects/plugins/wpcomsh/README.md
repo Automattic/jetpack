@@ -320,6 +320,6 @@ Allow the showing of notices on the frontend. Currently we are showing:
 
 Includes a simple REST API for the pet6gk-G-p2. Atomic sites that are connected to a GitHub repo will receive `git push` webhook events via WPCOM which are then forwarded onto the connected Atomic site so it can pull down the latest code from GitHub. The WPCOMSH code is also responsible for generating a log file which is returned back to WPCOM and displayed in the Calypso UI at `/hosting-config/:atomic-site`. 
 
-### Site Logs
+### Site Monitoring
 
-The menu item for WoA logging (`/site-logs/:siteSlug` in Calypso) is toggled on and off in wpcomsh.
+The menu item for WoA logging (`/site-monitoring/:siteSlug` in Calypso) is toggled on and off in wpcomsh.
