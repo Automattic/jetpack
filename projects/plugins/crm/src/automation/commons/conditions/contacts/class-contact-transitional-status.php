@@ -45,16 +45,26 @@ class Contact_Transitional_Status extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type_Base $data An instance of the contact data type to evaluate.
+	 * @param Data_Type_Base  $data An instance of the contact data type to evaluate.
+	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( Data_Type_Base $data ) {
+	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) {
 		$contact_data = $data->get_entity();
 
-		if ( ! $this->is_valid_contact_status_transitional_data( $contact_data ) ) {
-			$this->logger->log( 'Invalid contact status transitional data', $contact_data );
+		if ( $previous_data === null ) {
+			$this->logger->log( 'Invalid previous contact status transitional data' );
+			$this->condition_met = false;
+
+			return;
+		}
+
+		$previous_contact_data = $previous_data->get_entity();
+
+		if ( ! $this->is_valid_contact_status_transitional_data( $contact_data ) || ! $this->is_valid_contact_status_transitional_data( $previous_contact_data ) ) {
+			$this->logger->log( 'Invalid contact status transitional data' );
 			$this->condition_met = false;
 
 			return;
@@ -69,7 +79,7 @@ class Contact_Transitional_Status extends Base_Condition {
 
 		switch ( $operator ) {
 			case 'from_to':
-				$this->condition_met = ( $contact_data['old_status_value'] === $status_was ) && ( $contact_data['contact']['data']['status'] === $status_is );
+				$this->condition_met = ( $previous_contact_data['status'] === $status_was ) && ( $contact_data['status'] === $status_is );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
@@ -93,7 +103,7 @@ class Contact_Transitional_Status extends Base_Condition {
 	 * @return bool True if the data is valid to detect a transitional status change, false otherwise.
 	 */
 	private function is_valid_contact_status_transitional_data( array $data ): bool {
-		return isset( $data['contact'] ) && isset( $data['old_status_value'] ) && isset( $data['contact']['data']['status'] );
+		return is_array( $data ) && isset( $data['status'] );
 	}
 
 	/**

@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Conditions\Transaction_Field;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
@@ -44,12 +45,14 @@ class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$transaction_data['data']['status'] = 'paid';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction                        = new Data_Type_Transaction( $transaction_data );
+		$transaction_field_changed_condition->execute( $transaction );
 		$this->assertTrue( $transaction_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$transaction_data['data']['status'] = 'draft';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction                        = new Data_Type_Transaction( $transaction_data );
+		$transaction_field_changed_condition->execute( $transaction );
 		$this->assertFalse( $transaction_field_changed_condition->condition_met() );
 	}
 
@@ -62,12 +65,14 @@ class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$transaction_data['data']['status'] = 'draft';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction                        = new Data_Type_Transaction( $transaction_data );
+		$transaction_field_changed_condition->execute( $transaction );
 		$this->assertTrue( $transaction_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$transaction_data['data']['status'] = 'paid';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction                        = new Data_Type_Transaction( $transaction_data );
+		$transaction_field_changed_condition->execute( $transaction );
 		$this->assertFalse( $transaction_field_changed_condition->condition_met() );
 	}
 
@@ -80,12 +85,14 @@ class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$transaction_data['data']['status'] = 'paid';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction                        = new Data_Type_Transaction( $transaction_data );
+		$transaction_field_changed_condition->execute( $transaction );
 		$this->assertTrue( $transaction_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$transaction_data['data']['status'] = 'draft';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction                        = new Data_Type_Transaction( $transaction_data );
+		$transaction_field_changed_condition->execute( $transaction );
 		$this->assertFalse( $transaction_field_changed_condition->condition_met() );
 	}
 
@@ -98,12 +105,14 @@ class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 
 		// Testing when the condition has been met.
 		$transaction_data['data']['status'] = 'draft';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction                        = new Data_Type_Transaction( $transaction_data );
+		$transaction_field_changed_condition->execute( $transaction );
 		$this->assertTrue( $transaction_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
 		$transaction_data['data']['status'] = 'paid';
-		$transaction_field_changed_condition->execute( $transaction_data );
+		$transaction                        = new Data_Type_Transaction( $transaction_data );
+		$transaction_field_changed_condition->execute( $transaction );
 		$this->assertFalse( $transaction_field_changed_condition->condition_met() );
 	}
 
@@ -112,7 +121,7 @@ class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_field_changed_invalid_operator_throws_exception() {
 		$transaction_field_changed_condition = $this->get_transaction_field_condition( 'wrong_operator', 'paid' );
-		$transaction_data                    = $this->automation_faker->transaction_data();
+		$transaction_data                    = $this->automation_faker->transaction_data( true );
 
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );

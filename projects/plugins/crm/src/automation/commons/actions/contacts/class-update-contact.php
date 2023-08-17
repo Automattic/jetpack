@@ -90,14 +90,21 @@ class Update_Contact extends Base_Action {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type_Base $data An instance of the contact data type.
+	 * @param Data_Type_Base  $data An instance of the contact data type.
+	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
 	 */
-	public function execute( Data_Type_Base $data ) {
+	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
-		$contact_data         = $data->get_entity();
-		$contact_data['data'] = array_replace( $contact_data['data'], $this->attributes['data'] );
-		$zbs->DAL->contacts->addUpdateContact( $contact_data ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$contact_data = $data->get_entity();
+		unset( $contact_data['id'] );
+
+		$zbs->DAL->contacts->addUpdateContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'id'   => $data->get_id(),
+				'data' => array_replace( $contact_data, $this->attributes['data'] ),
+			)
+		);
 	}
 
 }

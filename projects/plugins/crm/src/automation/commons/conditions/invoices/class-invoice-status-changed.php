@@ -47,16 +47,17 @@ class Invoice_Status_Changed extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type_Base $data The data this condition has to evaluate.
+	 * @param Data_Type_Base  $data The data this condition has to evaluate.
+	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( Data_Type_Base $data ) {
+	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$invoice_data = $data->get_entity();
 
 		if ( ! $this->is_valid_invoice_status_changed_data( $invoice_data ) ) {
-			$this->logger->log( 'Invalid invoice status changed data', $invoice_data );
+			$this->logger->log( 'Invalid invoice status changed data' );
 			$this->condition_met = false;
 			return;
 		}
@@ -66,16 +67,16 @@ class Invoice_Status_Changed extends Base_Condition {
 		$value    = $this->get_attributes()['value'];
 
 		$this->check_for_valid_operator( $operator );
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $invoice_data['data'][ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $invoice_data[ $field ] );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $invoice_data['data'][ $field ] === $value );
+				$this->condition_met = ( $invoice_data[ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
 			case 'is_not':
-				$this->condition_met = ( $invoice_data['data'][ $field ] !== $value );
+				$this->condition_met = ( $invoice_data[ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
@@ -99,7 +100,7 @@ class Invoice_Status_Changed extends Base_Condition {
 	 * @return bool True if the data is valid to detect a status change, false otherwise
 	 */
 	private function is_valid_invoice_status_changed_data( array $invoice_data ): bool {
-		return isset( $invoice_data['id'] ) && isset( $invoice_data['data'] ) && isset( $invoice_data['data']['status'] );
+		return isset( $invoice_data['status'] );
 	}
 
 	/**

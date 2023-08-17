@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
 
 /**
  * Transaction_Field condition class.
@@ -47,14 +49,17 @@ class Transaction_Field extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data The data this condition has to evaluate.
+	 * @param Data_Type_Base  $data An instance of the contact data type to evaluate.
+	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( array $data ) {
-		if ( ! $this->is_valid_transaction_field_data( $data ) ) {
-			$this->logger->log( 'Invalid transaction field condition data', $data );
+	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$transaction_data = $data->get_entity();
+
+		if ( ! $this->is_valid_transaction_field_data( $transaction_data ) ) {
+			$this->logger->log( 'Invalid transaction field condition data' );
 			$this->condition_met = false;
 
 			return;
@@ -65,26 +70,26 @@ class Transaction_Field extends Base_Condition {
 		$value    = $this->get_attributes()['value'];
 
 		$this->check_for_valid_operator( $operator );
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $transaction_data[ $field ] );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $data['data'][ $field ] === $value );
+				$this->condition_met = ( $transaction_data[ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				break;
 			case 'is_not':
-				$this->condition_met = ( $data['data'][ $field ] !== $value );
+				$this->condition_met = ( $transaction_data[ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				break;
 			case 'contains':
-				$this->condition_met = ( strpos( $data['data'][ $field ], $value ) !== false );
+				$this->condition_met = ( strpos( $transaction_data[ $field ], $value ) !== false );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				break;
 			case 'does_not_contain':
-				$this->condition_met = ( strpos( $data['data'][ $field ], $value ) === false );
+				$this->condition_met = ( strpos( $transaction_data[ $field ], $value ) === false );
 
 				break;
 			default:
@@ -109,7 +114,7 @@ class Transaction_Field extends Base_Condition {
 	 * @return bool True if the data is valid to evaluate a transaction field condition, false otherwise.
 	 */
 	private function is_valid_transaction_field_data( array $transaction_data ): bool {
-		return isset( $transaction_data['id'] ) && isset( $transaction_data['data'] ) && isset( $transaction_data['data'][ $this->get_attributes()['field'] ] );
+		return isset( $transaction_data[ $this->get_attributes()['field'] ] );
 	}
 
 	/**
@@ -146,14 +151,14 @@ class Transaction_Field extends Base_Condition {
 	}
 
 	/**
-	 * Get the type of the transaction field condition.
+	 * Get the data type.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The type 'condition'.
+	 * @return string The type of the step.
 	 */
-	public static function get_type(): string {
-		return 'condition';
+	public static function get_data_type(): string {
+		return Data_Type_Transaction::get_slug();
 	}
 
 	/**

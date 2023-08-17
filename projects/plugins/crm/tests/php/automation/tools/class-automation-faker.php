@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
+use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event;
@@ -11,7 +12,6 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
-use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/class-event-emitter.php';
 
@@ -19,30 +19,18 @@ class Automation_Faker {
 
 	private static $instance;
 
-	public static function instance( BaseTestCase $base_test_case ): Automation_Faker {
+	public static function instance(): Automation_Faker {
 		if ( ! self::$instance ) {
-			self::$instance = new self( $base_test_case );
+			self::$instance = new self();
 		}
 
 		return self::$instance;
 	}
 
 	/**
-	 * An instance of test base case.
-	 *
-	 * This can be used to mock classes and methods.
-	 *
-	 * @var BaseTestCase
-	 */
-	protected $test_base_case;
-
-	/**
 	 * Automation_Faker constructor.
-	 *
-	 * @param BaseTestCase $test_base_case
 	 */
-	public function __construct( BaseTestCase $test_base_case ) {
-		$this->test_base_case = $test_base_case;
+	public function __construct() {
 		$this->load_mocks();
 	}
 
@@ -218,22 +206,21 @@ class Automation_Faker {
 	 * Return a workflow with a condition and an action
 	 * @return array
 	 */
-	public function workflow_with_condition_customizable_trigger_action( $trigger_name, $action_data ): array {
+	public function workflow_with_condition_customizable_trigger_action( $trigger_slug, $action_data ): array {
 		return array(
 			'name'         => 'Workflow Test: with_condition_customizable_trigger_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
 			'is_active'    => true,
 			'triggers'     => array(
-				$trigger_name,
+				$trigger_slug,
 			),
 			'initial_step' => array(
-				'slug'            => 'contact_status_condition',
-				'class_name'      => Contact_Condition::class,
+				'slug'            => Contact_Field_Changed::get_slug(),
 				'attributes'      => array(
 					'field'    => 'status',
 					'operator' => 'is',
-					'value'    => 'lead',
+					'value'    => 'Lead',
 				),
 				'next_step_true'  => $action_data,
 				'next_step_false' => null,
@@ -266,45 +253,39 @@ class Automation_Faker {
 	 */
 	public function contact_data( $get_as_data_type = false ) {
 		$data = array(
-			'id'           => 1,
-			'customerMeta' => array(
-				'zbs_owner'          => '-1',
-				'zbsc_status'        => 'lead',
-				'zbsc_fname'         => 'John',
-				'zbsc_lname'         => 'Doe',
-				'zbsc_email'         => 'johndoe@example.com',
-				'zbsc_prefix'        => 'Mr',
-				'zbsc_addr1'         => 'My Street 1',
-				'zbsc_addr2'         => '',
-				'zbsc_city'          => 'San Francisco',
-				'zbsc_county'        => 'CA',
-				'zbsc_postcode'      => '94110',
-				'zbsc_country'       => 'US',
-				'zbsc_secaddr1'      => '',
-				'zbsc_secaddr2'      => '',
-				'zbsc_seccity'       => '',
-				'zbsc_seccounty'     => '',
-				'zbsc_seccountry'    => '',
-				'zbsc_secpostcode'   => '',
-				'zbsc_hometel'       => '',
-				'zbsc_worktel'       => '',
-				'zbsc_mobtel'        => '(877) 273-3049',
-				'zbsc_wpid'          => '',
-				'zbsc_avatar'        => '',
-				'zbsc_tw'            => '',
-				'zbsc_li'            => '',
-				'zbsc_fb'            => '',
-				'zbsc_created'       => '1691193339',
-				'zbsc_lastupdated'   => '1691193339',
-				'zbsc_lastcontacted' => '',
-				'lastlog'            => '',
-				'lastcontactlog'     => '',
-			),
+			'id'             => 1,
+			'owner'          => '-1',
+			'status'         => 'lead',
+			'fname'          => 'John',
+			'lname'          => 'Doe',
+			'email'          => 'johndoe@example.com',
+			'prefix'         => 'Mr',
+			'addr1'          => 'My Street 1',
+			'addr2'          => '',
+			'city'           => 'San Francisco',
+			'county'         => 'CA',
+			'postcode'       => '94110',
+			'country'        => 'US',
+			'secaddr1'       => '',
+			'secaddr2'       => '',
+			'seccity'        => '',
+			'seccounty'      => '',
+			'seccountry'     => '',
+			'secpostcode'    => '',
+			'hometel'        => '',
+			'worktel'        => '',
+			'mobtel'         => '(877) 273-3049',
+			'wpid'           => '',
+			'avatar'         => '',
+			'tw'             => '',
+			'li'             => '',
+			'fb'             => '',
+			'created'        => '1691193339',
+			'lastupdated'    => '1691193339',
+			'lastcontacted'  => '',
+			'lastlog'        => '',
+			'lastcontactlog' => '',
 		);
-
-		// We have to mock settings to be able to format contacts due to global dependencies.
-		// Specifically: zbsDAL_contacts::tidy_contact() needs "showprefix" when formatting the full name.
-		jpcrm_mock_settings( $this->test_base_case, array( array( 'showprefix', false, false ) ) );
 
 		if ( $get_as_data_type ) {
 			return new Data_Type_Contact( $data );
@@ -326,6 +307,7 @@ class Automation_Faker {
 				'id_override' => '1',
 				'parent'      => '',
 				'status'      => 'Unpaid',
+				'due_date'    => 1690840800,
 				'hash'        => 'ISSQndSUjlhJ8feWj2v',
 				'lineitems'   => array(
 					array(
@@ -439,6 +421,10 @@ class Automation_Faker {
 				'hash'           => 'mASOpAnf334Pncl1px4',
 				'status'         => 'Completed',
 				'type'           => 'Sale',
+				'currency'       => 'USD',
+				'total'          => '150.00',
+				'tax'            => '10.00',
+				'lineitems'      => array(),
 				'date'           => 1676000000,
 				'date_completed' => 1676923766,
 				'created'        => 1675000000,
@@ -451,21 +437,6 @@ class Automation_Faker {
 		}
 
 		return $data;
-	}
-
-	/**
-	 * Returns the data for a dummy contact transitional status.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $old_status The value of the old status.
-	 * @return array An array containing a dummy contact and the value of the old status that was passed as a parameter.
-	 */
-	public function contact_transitional_status_data( $old_status ) {
-		return array(
-			'contact'          => $this->contact_data(),
-			'old_status_value' => $old_status,
-		);
 	}
 
 	/**

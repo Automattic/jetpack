@@ -91,15 +91,16 @@ class Contact_Condition extends Base_Condition {
 	/**
 	 * Execute the step
 	 *
-	 * @param Data_Type_Base $data
+	 * @param Data_Type_Base  $data An instance of the contact data type.
+	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
 	 * @return void
 	 * @throws Automation_Exception
 	 */
-	public function execute( Data_Type_Base $data ) {
-		$data = $data->get_entity();
+	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$contact_data = $data->get_entity();
 
-		if ( ! $this->is_valid_contact_data( $data ) ) {
-			$this->logger->log( 'Invalid contact data', $data );
+		if ( ! $this->is_valid_contact_data( $contact_data ) ) {
+			$this->logger->log( 'Invalid contact data' );
 			$this->condition_met = false;
 			return;
 		}
@@ -108,15 +109,15 @@ class Contact_Condition extends Base_Condition {
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['customerMeta'][ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $contact_data[ $field ] );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $data['data'][ $field ] === $value );
+				$this->condition_met = ( $contact_data[ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
 			case 'is_not':
-				$this->condition_met = ( $data['data'][ $field ] !== $value );
+				$this->condition_met = ( $contact_data[ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
 		}

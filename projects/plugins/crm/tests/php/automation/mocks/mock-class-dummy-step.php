@@ -12,9 +12,10 @@ class Dummy_Step extends Base_Step {
 	 * Execute the step
 	 *
 	 * @param Data_Type_Base $data
+	 * @param ?Data_Type_Base $previous_data
 	 * @return void
 	 */
-	public function execute( Data_Type_Base $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		Automation_Logger::instance()->log( 'Dummy step executed' );
 	}
 
@@ -31,7 +32,7 @@ class Dummy_Step extends Base_Step {
 	}
 
 	public static function get_data_type(): string {
-		return 'dummy';
+		return 'contact';
 	}
 
 	public static function get_category(): ?string {

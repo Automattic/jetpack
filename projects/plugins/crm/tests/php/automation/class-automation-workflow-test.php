@@ -9,13 +9,16 @@ use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
+use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
 use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
 
 /**
- * Test Automation Workflow functionalities
+ * Test Automation Workflow functionalities.
+ *
+ * @since $$next-version$$
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
@@ -25,12 +28,12 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->automation_faker = Automation_Faker::instance( $this );
+		$this->automation_faker = Automation_Faker::instance();
 		$this->automation_faker->reset_all();
 	}
 
 	/**
-	 * @testdox Automation workflow initialization
+	 * @testdox Automation workflow initialization.
 	 */
 	public function test_automation_workflow_init() {
 
@@ -42,7 +45,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Automation workflow with no triggers
+	 * @testdox Automation workflow with no triggers.
 	 */
 	public function test_automation_workflow_no_triggers() {
 		$workflow_data = $this->automation_faker->empty_workflow();
@@ -53,7 +56,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Automation workflow set initial step
+	 * @testdox Automation workflow set initial step.
 	 */
 	public function test_automation_workflow_set_initial_step() {
 		$workflow_data = $this->automation_faker->workflow_without_initial_step();
@@ -71,13 +74,14 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 			)
 		);
 
-		$automation_result = $workflow->execute( new Contact_Created_Trigger(), array() );
+		$contact_data      = $this->automation_faker->contact_data();
+		$automation_result = $workflow->execute( new Contact_Updated(), $contact_data );
 
 		$this->assertTrue( $automation_result );
 	}
 
 	/**
-	 * @testdox Automation workflow with multiple triggers
+	 * @testdox Automation workflow with multiple triggers.
 	 */
 	public function test_workflow_triggers() {
 		$workflow_data = $this->automation_faker->basic_workflow();
@@ -97,7 +101,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Testing turn on/off the workflow, to activate/deactivate it
+	 * @testdox Testing turn on/off the workflow, to activate/deactivate it.
 	 */
 	public function test_workflow_turn_on_off() {
 		$workflow_data = $this->automation_faker->basic_workflow();
@@ -112,7 +116,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Testing the workflow execution if it's not active
+	 * @testdox Testing the workflow execution if it's not active.
 	 */
 	public function test_workflow_execution_not_active() {
 
@@ -149,7 +153,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Test an automation workflow execution on contact_created event
+	 * @testdox Test an automation workflow execution on contact_created event.
 	 */
 	public function test_workflow_execution_on_contact_created() {
 
@@ -163,9 +167,9 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data ) )
-			->onlyMethods( array( 'execute' ) )
-			->getMock();
+						->setConstructorArgs( array( $workflow_data ) )
+						->onlyMethods( array( 'execute' ) )
+						->getMock();
 		$workflow->set_engine( $automation );
 
 		// Add and init the workflows
@@ -196,7 +200,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Test an automation workflow execution with a dummy action
+	 * @testdox Test an automation workflow execution with a dummy action.
 	 */
 	public function test_workflow_execution_with_dummy_action() {
 
@@ -241,7 +245,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Ensure that we throw an error if a workflow is executed without an engine
+	 * @testdox Ensure that we throw an error if a workflow is executed without an engine.
 	 */
 	public function test_workflow_execution_without_engine() {
 		$workflow_data = $this->automation_faker->basic_workflow();
@@ -254,7 +258,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Test an automation workflow execution with condition => true
+	 * @testdox Test an automation workflow execution with condition => true.
 	 */
 	public function test_workflow_execution_with_condition_true() {
 		$logger = Automation_Logger::instance( true );
@@ -293,7 +297,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 	}
 
 	/**
-	 * @testdox Test an automation workflow execution with condition => false
+	 * @testdox Test an automation workflow execution with condition => false.
 	 */
 	public function test_workflow_execution_with_condition_false() {
 		$logger = Automation_Logger::instance( true );
@@ -314,8 +318,8 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		$automation->init_workflows();
 
 		// Fake event data. Set status to customer to make the condition false
-		$contact_data                           = $this->automation_faker->contact_data( false );
-		$contact_data['customerMeta']['status'] = 'customer';
+		$contact_data           = $this->automation_faker->contact_data( false );
+		$contact_data['status'] = 'customer';
 
 		// Emit the contact_created event with the fake contact data
 		$event_emitter = Event_Emitter::instance();

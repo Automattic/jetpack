@@ -90,18 +90,19 @@ class Delete_Contact extends Base_Action {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type_Base $data An instance of the contact data type.
+	 * @param Data_Type_Base  $data An instance of the contact data type.
+	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
 	 */
-	public function execute( Data_Type_Base $data ) {
+	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
-		$contact_data              = $data->get_entity();
-		$contact_data_for_deletion = array(
-			'id'          => (int) $contact_data['id'],
-			'saveOrphans' => (bool) $this->attributes['keep_orphans'],
-
+		$contact_data = $data->get_entity();
+		$zbs->DAL->contacts->deleteContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'id'          => (int) $contact_data['id'],
+				'saveOrphans' => (bool) $this->attributes['keep_orphans'],
+			)
 		);
-		$zbs->DAL->contacts->deleteContact( $contact_data_for_deletion ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
 }

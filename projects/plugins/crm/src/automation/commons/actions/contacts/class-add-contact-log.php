@@ -90,12 +90,23 @@ class Add_Contact_Log extends Base_Action {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type_Base $data An instance of the contact data type.
+	 * @param Data_Type_Base  $data An instance of the contact data type.
+	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
 	 */
-	public function execute( Data_Type_Base $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
-		$zbs->DAL->contacts->zeroBS_addUpdateObjLog( $this->attributes ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->logs->addUpdateLog( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'data' => array(
+					'objtype'   => ZBS_TYPE_CONTACT,
+					'objid'     => $data->get_id(),
+					'type'      => $this->get_attributes()['type'],
+					'shortdesc' => $this->get_attributes()['short-description'],
+					'longdesc'  => $this->get_attributes()['long-description'],
+				),
+			)
+		);
 	}
 
 }

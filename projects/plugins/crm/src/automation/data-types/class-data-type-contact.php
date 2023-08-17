@@ -26,9 +26,9 @@ class Data_Type_Contact extends Data_Type_Base {
 	 * Constructor.
 	 *
 	 * We process the entity data before passing it to validation.
-	 * You can learn more in the "unify_contact_data" method.
+	 * You can learn more in the "unify_data" method.
 	 *
-	 * @see Data_Type_Contact::unify_data()
+	 * @see self::unify_data()
 	 *
 	 * @param mixed $entity The contact entity data.
 	 * @return void
@@ -102,15 +102,12 @@ class Data_Type_Contact extends Data_Type_Base {
 			return $entity;
 		}
 
-		if ( ! isset( $entity['customerMeta'] ) ) {
+		if ( ! isset( $entity['zbsc_status'] ) ) {
 			return $entity;
 		}
 
-		$new_entity       = $entity['customerMeta'];
-		$new_entity['ID'] = $entity['id'];
-
 		$contacts_dal = new \zbsDAL_contacts();
-		return $contacts_dal->tidy_contact( (object) $new_entity );
+		return $contacts_dal->tidy_contact( (object) $entity );
 	}
 
 }

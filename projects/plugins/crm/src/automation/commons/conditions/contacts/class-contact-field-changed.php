@@ -48,12 +48,13 @@ class Contact_Field_Changed extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param Data_Type_Base $data An instance of the contact data type to evaluate.
+	 * @param Data_Type_Base  $data An instance of the contact data type to evaluate.
+	 * @param ?Data_Type_Base $previous_data (Optional) Instance of the data before being changed.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( Data_Type_Base $data ) {
+	public function execute( Data_Type_Base $data, ?Data_Type_Base $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$contact_data = $data->get_entity();
 
 		if ( ! $this->is_valid_contact_field_changed_data( $contact_data ) ) {
@@ -74,13 +75,13 @@ class Contact_Field_Changed extends Base_Condition {
 			case 'is':
 				$this->condition_met = ( $contact_data[ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				return;
+
 			case 'is_not':
 				$this->condition_met = ( $contact_data[ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				return;
+
 			default:
 				$this->condition_met = false;
 				throw new Automation_Exception(
