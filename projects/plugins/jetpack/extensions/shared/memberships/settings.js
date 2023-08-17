@@ -39,7 +39,7 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 	}
 }
 
-export function NewsletterNotice( { accessLevel } ) {
+export function NewsletterNotice( { accessLevel, paywallBlockSettings = false } ) {
 	const { hasPostBeenPublished, hasPostBeenScheduled } = useSelect( select => {
 		const { isCurrentPostPublished, isCurrentPostScheduled } = select( editorStore );
 
@@ -85,6 +85,10 @@ export function NewsletterNotice( { accessLevel } ) {
 				</Notice>
 			</FlexBlock>
 		);
+	}
+
+	if ( paywallBlockSettings ) {
+		return;
 	}
 
 	let subscriberType = __( 'subscribers', 'jetpack' );
@@ -219,7 +223,10 @@ export function NewsletterAccessRadioButtons( {
 							</label>
 							{ key === accessLevel && key !== accessOptions.everybody.key && (
 								<p className="editor-post-visibility__notice">
-									<NewsletterNotice accessLevel={ accessLevel } />
+									<NewsletterNotice
+										accessLevel={ accessLevel }
+										paywallBlockSettings={ paywallBlockSettings }
+									/>
 								</p>
 							) }
 						</div>
