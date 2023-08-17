@@ -23,7 +23,6 @@ class Generator {
 	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
 	 */
 	public static function is_generating_critical_css() {
-		// If GET parameter or header set, we are trying to generate.
 		if ( isset( $_GET[ self::GENERATE_QUERY_ACTION ] ) ) {
 			return true;
 		}
