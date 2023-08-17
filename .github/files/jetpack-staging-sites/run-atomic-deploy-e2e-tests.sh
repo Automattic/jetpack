@@ -2,7 +2,7 @@
 # This script is ran as part of the `UpdateJetpackStaging` TeamCity build.
 # It triggers an E2E test run against pre-defined atomic sites that have been updated with the newest Jetpack build.
 
-if [ -z "$SIGNATURE_KEY" ] || [ -z "$TRIGGER_URL" ]; then
+if [[ -z "$SIGNATURE_KEY" || -z "$TRIGGER_URL" ]]; then
   echo "Missing required ENV variables: both 'SIGNATURE_KEY' and 'TRIGGER_URL' are required. Aborting."
   exit 1
 fi
