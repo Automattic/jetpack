@@ -41,7 +41,7 @@ export const WorkflowTable: React.FC< WorkflowTableProps > = props => {
 		);
 	};
 
-	const headers: SortableWorkflowTableColumn[] = [ 'name', 'status', 'added', 'trigger' ];
+	const sortableColumns: SortableWorkflowTableColumn[] = [ 'name', 'status', 'added', 'trigger' ];
 
 	const sortedWorkflows = sortWorkflows( workflows, sortedColumn, sortDirection );
 
@@ -49,7 +49,7 @@ export const WorkflowTable: React.FC< WorkflowTableProps > = props => {
 		<table className={ styles.table }>
 			<tr className={ styles[ 'header-row' ] }>
 				<WorkflowTableHeader column={ 'checkbox' } />
-				{ headers.map( column => getSortableWorkflowTableHeader( column ) ) }
+				{ sortableColumns.map( column => getSortableWorkflowTableHeader( column ) ) }
 				<WorkflowTableHeader column={ 'edit' } />
 			</tr>
 			{ sortedWorkflows.map( workflow => (
