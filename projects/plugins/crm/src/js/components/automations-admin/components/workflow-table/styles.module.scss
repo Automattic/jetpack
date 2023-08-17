@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/style';
+
 .table {
 	padding: 20px;
 	background: white;
@@ -6,9 +8,6 @@
 
 .header-row {
 	padding: 5px 10px;
-}
-
-.header {
-	padding: 5px 10px;
+	color: var(--jp-gray-60);
 }
 

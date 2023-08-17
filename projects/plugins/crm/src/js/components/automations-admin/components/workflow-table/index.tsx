@@ -1,29 +1,57 @@
-import { __ } from '@wordpress/i18n';
+import { useCallback, useState } from 'react';
 import { Workflow } from '../../types';
-import { Checkbox } from '../checkbox';
 import { WorkflowRow } from '../workflow-row';
+import { WorkflowTableHeader } from '../workflow-table-header';
 import styles from './styles.module.scss';
+import { SortDirection, SortableWorkflowTableColumn } from './types';
+import { sortWorkflows } from './util';
 
 type WorkflowTableProps = {
 	workflows: Workflow[];
 };
-
 export const WorkflowTable: React.FC< WorkflowTableProps > = props => {
 	const { workflows } = props;
+
+	const [ sortedColumn, setSortedColumn ] = useState< SortableWorkflowTableColumn >( 'name' );
+	const [ sortDirection, setSortDirection ] = useState< SortDirection >( 'ascending' );
+
+	const getSortableHeaderOnClick = ( column: SortableWorkflowTableColumn ) => {
+		return useCallback( () => {
+			if ( column !== sortedColumn ) {
+				setSortDirection( 'ascending' );
+			} else {
+				'ascending' === sortDirection
+					? setSortDirection( 'descending' )
+					: setSortDirection( 'ascending' );
+			}
+
+			setSortedColumn( column );
+		}, [ column, sortedColumn, setSortedColumn, sortDirection, setSortDirection ] );
+	};
+
+	const getSortableWorkflowTableHeader = ( column: SortableWorkflowTableColumn ) => {
+		return (
+			<WorkflowTableHeader
+				column={ column }
+				onClick={ getSortableHeaderOnClick( column ) }
+				selectedForSort={ sortedColumn === column }
+				sortDirection={ sortDirection }
+			/>
+		);
+	};
+
+	const headers: SortableWorkflowTableColumn[] = [ 'name', 'status', 'added', 'trigger' ];
+
+	const sortedWorkflows = sortWorkflows( workflows, sortedColumn, sortDirection );
 
 	return (
 		<table className={ styles.table }>
 			<tr className={ styles[ 'header-row' ] }>
-				<th className={ styles.header }>
-					<Checkbox id="decorative-checkbox" decorative />
-				</th>
-				<th className={ styles.header }>{ __( 'Name', 'zero-bs-crm' ) }</th>
-				<th className={ styles.header }>{ __( 'Status', 'zero-bs-crm' ) }</th>
-				<th className={ styles.header }>{ __( 'Added', 'zero-bs-crm' ) }</th>
-				<th className={ styles.header }>{ __( 'Trigger', 'zero-bs-crm' ) }</th>
-				<th className={ styles.header }>{ __( 'Edit', 'zero-bs-crm' ) }</th>
+				<WorkflowTableHeader column={ 'checkbox' } />
+				{ headers.map( column => getSortableWorkflowTableHeader( column ) ) }
+				<WorkflowTableHeader column={ 'edit' } />
 			</tr>
-			{ workflows.map( workflow => (
+			{ sortedWorkflows.map( workflow => (
 				<WorkflowRow workflow={ workflow } />
 			) ) }
 		</table>
