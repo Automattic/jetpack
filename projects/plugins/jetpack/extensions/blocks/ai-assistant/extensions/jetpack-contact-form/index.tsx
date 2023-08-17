@@ -48,7 +48,7 @@ export function isPossibleToExtendJetpackFormBlock(
 		return false;
 	}
 
-	// ClientId gets required
+	// clientId is required
 	if ( ! clientId?.length ) {
 		return false;
 	}
