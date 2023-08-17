@@ -1,0 +1,90 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/simple-payments",
+	"title": "Pay with PayPal",
+	"description": "Lets you add credit and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.",
+	"keywords": ["buy", "commerce", "credit card", "debit card", "earn", "ecommerce", "money", "paid", "payments", "products", "purchase", "sell", "shop", "square", "payments"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "earn",
+	"icon": "money-alt",
+	"supports": {
+		"className": false,
+		"customClassName": false,
+		"html": false,
+		"reusable": false
+	},
+	"attributes": {
+		"currency": {
+			"type": "string",
+			"default": "DEFAULT_CURRENCY"
+		},
+		"content": {
+			"type": "string",
+			"source": "html",
+			"selector": ".jetpack-simple-payments-description p",
+			"default": ""
+		},
+		"email": {
+			"type": "string",
+			"default": ""
+		},
+		"featuredMediaId": {
+			"type": "number",
+			"default": 0
+		},
+		"featuredMediaUrl": {
+			"type": "string",
+			"source": "attribute",
+			"selector": ".jetpack-simple-payments-image img",
+			"attribute": "src",
+			"default": null
+		},
+		"featuredMediaTitle": {
+			"type": "string",
+			"source": "attribute",
+			"selector": ".jetpack-simple-payments-image img",
+			"attribute": "alt",
+			"default": null
+		},
+		"multiple": {
+			"type": "boolean",
+			"default": false
+		},
+		"postLinkUrl": {
+			"type": "string",
+			"source": "attribute",
+			"selector": ".jetpack-simple-payments-purchase",
+			"attribute": "href"
+		},
+		"postLinkText": {
+			"type": "string",
+			"source": "html",
+			"selector": ".jetpack-simple-payments-purchase",
+			"default": "Click here to purchase."
+		},
+		"price": {
+			"type": "number"
+		},
+		"productId": {
+			"type": "number"
+		},
+		"title": {
+			"type": "string",
+			"source": "html",
+			"selector": ".jetpack-simple-payments-title p",
+			"default": ""
+		}
+	},
+	"example": {
+		"attributes": {
+			"price": 25.0,
+			"title": "Jetpack t-shirt",
+			"content": "Take flight in ultimate comfort with this stylish t-shirt featuring the Jetpack logo.",
+			"email": "jetpack@jetpack.com",
+			"featuredMediaUrl": "./simple-payments_example-1.jpg"
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

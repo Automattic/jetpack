@@ -1,0 +1,56 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/premium-content",
+	"title": "Paid Content",
+	"description": "Restrict access to your content for paying subscribers.",
+	"keywords": [ "buy", "credit card", "debit card", "earn", "exclusive", "gated", "gofundme", "memberships", "money", "newsletter", "paid", "patreon", "pay", "payments", "paywall", "premium content", "purchase", "recurring", "repeat", "signin", "stripe", "subscribe", "subscriptions", "support", "sponsor", "square", "toast", "venmo", "stripe", "substack"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "yes-alt",
+	"supports": {
+		"html": false
+	},
+	"providesContext": {
+		"premium-content/planId": "selectedPlanId",
+		"premium-content/isPreview": "isPreview",
+		"isPremiumContentChild": "isPremiumContentChild"
+	},
+	"attributes": {
+		"newPlanName": {
+			"type": "string",
+			"default": "Monthly Subscription"
+		},
+		"newPlanCurrency": {
+			"type": "string",
+			"default": "USD"
+		},
+		"newPlanPrice": {
+			"type": "number",
+			"default": 5
+		},
+		"newPlanInterval": {
+			"type": "string",
+			"default": "1 month"
+		},
+		"selectedPlanId": {
+			"type": "number",
+			"default": 0
+		},
+		"isPreview": {
+			"type": "boolean",
+			"default": false
+		},
+		"isPremiumContentChild": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"example": {
+		"attributes": {
+			"isPreview": true
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

@@ -59,6 +59,24 @@ describe( 'Membership products reducer testing', () => {
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, connectUrl: anyConnectUrl } );
 	} );
 
+	test( 'set default connected account currency action type adds the currency to the state object.', () => {
+		// Given
+		const defaultCurrency = 'usd';
+		const anySetConnectedAcccountDefaultCurrencyAction = {
+			type: 'SET_CONNECTED_ACCOUNT_DEFAULT_CURRENCY',
+			connectedAccountDefaultCurrency: defaultCurrency,
+		};
+
+		// When
+		const returnedState = reducer( DEFAULT_STATE, anySetConnectedAcccountDefaultCurrencyAction );
+
+		// Then
+		expect( returnedState ).toStrictEqual( {
+			...DEFAULT_STATE,
+			connectedAccountDefaultCurrency: defaultCurrency,
+		} );
+	} );
+
 	test( 'set api state action type adds the api state to the returned state.', () => {
 		// Given
 		const anyApiState = 'anyApiState';

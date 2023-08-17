@@ -39,14 +39,14 @@
 		"@storybook/react-webpack5": "7.1.0",
 		"@storybook/source-loader": "7.1.0",
 		"@storybook/theming": "7.1.0",
-		"@wordpress/babel-preset-default": "7.21.0",
-		"@wordpress/base-styles": "4.28.0",
-		"@wordpress/block-editor": "12.5.0",
-		"@wordpress/block-library": "8.14.0",
-		"@wordpress/components": "25.3.0",
-		"@wordpress/element": "5.14.0",
-		"@wordpress/format-library": "4.14.0",
-		"@wordpress/postcss-plugins-preset": "4.21.0",
+		"@wordpress/babel-preset-default": "7.22.0",
+		"@wordpress/base-styles": "4.29.0",
+		"@wordpress/block-editor": "12.6.0",
+		"@wordpress/block-library": "8.15.0",
+		"@wordpress/components": "25.4.0",
+		"@wordpress/element": "5.15.0",
+		"@wordpress/format-library": "4.15.0",
+		"@wordpress/postcss-plugins-preset": "4.22.0",
 		"autoprefixer": "10.4.14",
 		"babel-loader": "9.1.2",
 		"babel-plugin-inline-json-import": "0.3.2",
@@ -60,7 +60,7 @@
 		"react-dom": "18.2.0",
 		"remark-gfm": "3.0.1",
 		"require-from-string": "2.0.2",
-		"sass": "1.43.3",
+		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
 		"storybook": "7.1.0",
 		"storybook-addon-mock": "4.0.0",
@@ -75,6 +75,6 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"dependencies": {
-		"@wordpress/api-fetch": "6.34.0"
+		"@wordpress/api-fetch": "6.35.0"
 	}
 }

@@ -4,6 +4,8 @@ export const getApiState = state => state.apiState;
 
 export const getConnectUrl = state => state.connectUrl;
 
+export const getConnectedAccountDefaultCurrency = state => state.connectedAccountDefaultCurrency;
+
 export const getProducts = state => state.products;
 
 export const getProductsNoResolver = state => getProducts( state );
@@ -22,3 +24,5 @@ export const isApiStateLoading = state => state.apiState === API_STATE_LOADING;
 
 export const isInvalidProduct = ( state, productId ) =>
 	!! productId && ! getProduct( state, productId );
+
+export const getSubscriberCounts = state => state.subscriberCounts;

@@ -3799,7 +3799,7 @@ p {
 		wp_add_inline_script( 'jetpack-full-activation-modal-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state() ) ) . '"));', 'before' );
 
 		// Adds Connection package initial state.
-		wp_add_inline_script( 'jetpack-full-activation-modal-js', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-full-activation-modal-js' );
 
 		add_action( 'admin_notices', array( $this, 'jetpack_plugin_portal_containers' ) );
 	}
@@ -6571,12 +6571,12 @@ endif;
 	 * Return Calypso environment value; used for developing Jetpack and pairing
 	 * it with different Calypso enrionments, such as localhost.
 	 *
-	 * @deprecated $$next-version$$ Moved to the Status package.
+	 * @deprecated 12.4 Moved to the Status package.
 	 *
 	 * @return string Calypso environment
 	 */
 	public static function get_calypso_env() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', '\Automattic\Jetpack\Status\Host->get_calypso_env' );
+		_deprecated_function( __METHOD__, 'jetpack-12.4', '\Automattic\Jetpack\Status\Host->get_calypso_env' );
 		return ( new Host() )->get_calypso_env();
 	}
 

@@ -24,14 +24,14 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.0.0';
+	public $version = '6.1.0';
 
 	/**
 	 * WordPress version tested with.
 	 *
 	 * @var string
 	 */
-	public $wp_tested = '6.1';
+	public $wp_tested = '6.3';
 
 	/**
 	 * WordPress update API version.
@@ -492,15 +492,6 @@ final class ZeroBSCRM {
 	}
 
 	/**
-	 * Cloning is forbidden.
-	 *
-	 * @since 2.1
-	 */
-	public function __clone() {
-		zerobscrm_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'zero-bs-crm' ), '2.1' );
-	}
-
-	/**
 	 * Unserializing instances of this class is forbidden.
 	 *
 	 * @since 2.1
@@ -535,9 +526,6 @@ final class ZeroBSCRM {
 
 		// define constants & globals
 		$this->define_constants();
-
-		// DB MODE check (influences includes etc. - ultimately assists catching those who need to migrate data from 1.2 db)
-		$this->DBModeCheck();
 
 		// Verify we have minimum requirements (e.g. DAL3.0 and extension versions up to date)
 		if ( $this->verify_minimum_requirements() ) {
@@ -771,35 +759,6 @@ final class ZeroBSCRM {
 		}
 	}
 
-	/**
-	 * DB MODE check (influences includes etc. - ultimately assists catching those who need to migrate data from 1.2 db)
-	 *  This checks if certain migrations have been completed + maintains flags to include the right DAL legacy support
-	 */
-	private function DBModeCheck() {
-
-		// THIS one sets to DAL2 if not DAL2
-		$migration299Fini = get_option( 'zbs_db_migration_300', false );
-		if ( ! is_array( $migration299Fini ) ) {
-
-			// un-migrated DAL2 (2.53) database
-			$this->db_version              = '2.53';
-			$this->dal_version             = '2.53';
-			$this->db2CompatabilitySupport = false;
-
-		}
-
-		// .. which then cascades here, if not DAL2 + DAL3, then DAL1:
-		$migration253Fini = get_option( 'zbs_db_migration_253', false );
-		if ( ! is_array( $migration253Fini ) ) {
-
-			// un-migrated <2.53 database
-			$this->db_version              = '1.2';
-			$this->dal_version             = '1.0';
-			$this->db1CompatabilitySupport = false;
-
-		}
-	}
-
 	// shorthand for lack of presence of any DB presence
 	public function is_database_installed() {
 
@@ -913,6 +872,7 @@ final class ZeroBSCRM {
 		$this->urls['oauthdocs']         = 'https://kb.jetpackcrm.com/knowledge-base/using-gmail-with-jetpack-crm-mail-delivery-system/#setting-up-gmail-oauth-connection-and-mail-delivery-method';
 		$this->urls['woosync']           = 'https://jetpackcrm.com/woocommerce/';
 		$this->urls['woomanagingorders'] = 'https://woocommerce.com/document/managing-orders/#order-statuses';
+		$this->urls['core-automations']  = 'https://jetpackcrm.com/features/automations';
 
 		// used for ext manager:
 		$this->urls['checkoutapi']       = 'https://jetpackcrm.com/wp-json/zbsextensions/v1/extensions/0';
@@ -986,6 +946,7 @@ final class ZeroBSCRM {
 		$this->urls['kb-woosync-home']          = 'https://kb.jetpackcrm.com/knowledge-base/using-the-woocommerce-sync-hub/';
 		$this->urls['kb-pre-v5-migration-todo'] = 'https://kb.jetpackcrm.com/knowledge-base/upgrading-to-jetpack-crm-v5-0/';
 		$this->urls['kb-mailpoet']              = 'https://kb.jetpackcrm.com/knowledge-base/mailpoet-crm-sync/';
+		$this->urls['kb-automations']           = 'https://kb.jetpackcrm.com/knowledge-base/automations/';
 
 		// coming soon
 		$this->urls['soon'] = 'https://jetpackcrm.com/coming-soon/';

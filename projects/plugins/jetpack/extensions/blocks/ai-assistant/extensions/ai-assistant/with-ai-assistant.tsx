@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import React from 'react';
 /**
  * Internal dependencies
@@ -13,29 +14,17 @@ import AiAssistantDropdown, {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 	KEY_ASK_AI_ASSISTANT,
 } from '../../components/ai-assistant-controls';
-import useSuggestionsFromAI, { SuggestionError } from '../../hooks/use-suggestions-from-ai';
 import useTextContentFromSelectedBlocks from '../../hooks/use-text-content-from-selected-blocks';
 import { getRawTextFromHTML } from '../../lib/utils/block-content';
 import { transformToAIAssistantBlock } from '../../transforms';
 /*
  * Types
  */
-import type { PromptItemProps, PromptTypeProp } from '../../lib/prompt';
-
-type StoredPromptProps = {
-	messages: Array< PromptItemProps >;
-};
+import type { PromptTypeProp } from '../../lib/prompt';
 
 export function getStoreBlockId( clientId ) {
 	return `ai-assistant-block-${ clientId }`;
 }
-
-/*
- * An identifier to use on the extension error notices,
- * so a existing notice with the same ID gets replaced
- * by a new one, avoiding the stacking of notices.
- */
-const AI_ASSISTANT_NOTICE_ID = 'ai-assistant';
 
 /*
  * Extend the withAIAssistant function of the block
@@ -43,17 +32,10 @@ const AI_ASSISTANT_NOTICE_ID = 'ai-assistant';
  */
 export const withAIAssistant = createHigherOrderComponent(
 	BlockEdit => props => {
-		const [ storedPrompt, setStoredPrompt ] = useState< StoredPromptProps >( {
-			messages: [],
-		} );
-
 		const { name: blockType } = props;
-
-		const { updateBlockAttributes, removeBlocks, replaceBlock } =
-			useDispatch( 'core/block-editor' );
-		const { createNotice } = useDispatch( 'core/notices' );
-
+		const { removeBlocks, replaceBlock } = useDispatch( 'core/block-editor' );
 		const { content, clientIds, blocks } = useTextContentFromSelectedBlocks();
+		const { tracks } = useAnalytics();
 
 		/*
 		 * Set exclude dropdown options.
@@ -63,73 +45,6 @@ export const withAIAssistant = createHigherOrderComponent(
 		if ( blockType === 'core/list-item' ) {
 			exclude.push( KEY_ASK_AI_ASSISTANT );
 		}
-
-		const showSuggestionError = useCallback(
-			( suggestionError: SuggestionError ) => {
-				createNotice( suggestionError.status, suggestionError.message, {
-					isDismissible: true,
-					id: AI_ASSISTANT_NOTICE_ID,
-				} );
-			},
-			[ createNotice ]
-		);
-
-		/**
-		 * Set the content of the block.
-		 *
-		 * @param {string} newContent - The new content of the block.
-		 * @returns {void}
-		 */
-		const updateBlockContent = useCallback(
-			( newContent: string ) => {
-				/*
-				 * Pick the first client ID from the array.
-				 * This is the client ID of the block that
-				 * will updates its content.
-				 *
-				 * The rest of the items (blocks) will be removed,
-				 * in case there are more than one.
-				 */
-				const [ firstClientId, ...restClientIds ] = clientIds;
-
-				// Update the content of the new AI Assistant block instance.
-				updateBlockAttributes( firstClientId, { content: newContent } );
-
-				// Remove the rest of the block in case there are more than one.
-				if ( restClientIds.length ) {
-					removeBlocks( restClientIds );
-				}
-			},
-			[ clientIds, removeBlocks, updateBlockAttributes ]
-		);
-
-		const updateStoredPrompt = useCallback(
-			( assistantContent: string ) => {
-				setStoredPrompt( prevPrompt => {
-					const messages: Array< PromptItemProps > = [
-						/*
-						 * Do not store `system` role items,
-						 * and preserve the last 3 ones.
-						 */
-						...prevPrompt.messages.filter( message => message.role !== 'system' ).slice( -3 ),
-						{
-							role: 'assistant',
-							content: assistantContent, // + 1 `assistant` role item
-						},
-					];
-
-					return { ...prevPrompt, messages };
-				} );
-			},
-			[ setStoredPrompt ]
-		);
-
-		const { requestingState } = useSuggestionsFromAI( {
-			prompt: storedPrompt.messages,
-			onSuggestion: updateBlockContent,
-			onDone: updateStoredPrompt,
-			onError: showSuggestionError,
-		} );
 
 		const requestSuggestion = useCallback(
 			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
@@ -178,6 +93,18 @@ export const withAIAssistant = createHigherOrderComponent(
 			[ blocks, clientIds, content, blockType, replaceBlock, removeBlocks ]
 		);
 
+		const handleChange = useCallback(
+			( promptType: PromptTypeProp, options: AiAssistantDropdownOnChangeOptionsArgProps ) => {
+				tracks.recordEvent( 'jetpack_editor_ai_assistant_extension_toolbar_button_click', {
+					suggestion: promptType,
+					block_type: blockType,
+				} );
+
+				requestSuggestion( promptType, options );
+			},
+			[ tracks, requestSuggestion, blockType ]
+		);
+
 		const replaceWithAiAssistantBlock = useCallback( () => {
 			const [ firstClientId, ...otherBlocksIds ] = clientIds;
 			const [ firstBlock ] = blocks;
@@ -206,9 +133,8 @@ export const withAIAssistant = createHigherOrderComponent(
 
 				<BlockControls { ...blockControlProps }>
 					<AiAssistantDropdown
-						requestingState={ requestingState }
 						disabled={ ! rawContent?.length }
-						onChange={ requestSuggestion }
+						onChange={ handleChange }
 						onReplace={ replaceWithAiAssistantBlock }
 						exclude={ exclude }
 					/>

@@ -2585,7 +2585,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack_sso_match_by_email'           => array(
 				'description'       => esc_html__( 'Match by Email', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 0,
+				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'sso',
 			),

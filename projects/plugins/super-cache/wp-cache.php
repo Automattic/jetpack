@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 1.10.0-alpha
+ * Version: 1.10.1-alpha
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -1075,14 +1075,13 @@ table.wpsc-settings-table {
 			min-width: 40%;
 			max-width: 40%;
 			overflow: hidden;
+			text-align: right;
 		}
 
 		.wpsc-boost-banner-image-container img {
 			position: relative;
-			left: 50%;
 			top: 50%;
-			transform: translate(-50%, -50%);
-			width: 100%;
+			transform: translateY(-50%);
 		}
 
 		.wpsc-boost-banner h3 {
@@ -1261,8 +1260,28 @@ table.wpsc-settings-table {
 	<h4><?php _e( 'Need Help?', 'wp-super-cache' ); ?></h4>
 	<ol>
 	<li><?php printf( __( 'Use the <a href="%1$s">Debug tab</a> for diagnostics.', 'wp-super-cache' ), admin_url( 'options-general.php?page=wpsupercache&tab=debug' ) ); ?></li>
-	<li><?php printf( __( 'Check out the <a href="%1$s">support forum</a> and <a href="%2$s">FAQ</a>.', 'wp-super-cache' ), 'https://wordpress.org/support/plugin/wp-super-cache', 'https://wordpress.org/plugins/wp-super-cache/#faq' ); ?></li>
-	<li><?php printf( __( 'Visit the <a href="%1$s">plugin homepage</a>.', 'wp-super-cache' ), 'https://wordpress.org/plugins/wp-super-cache/' ); ?></li>
+	<li>
+		<?php
+			echo wp_kses_post(
+				sprintf(
+					/* translators: %s is the URL for the documentation. */
+					__( 'Check out the <a href="%s">plugin documentation</a>.', 'wp-super-cache' ),
+					'https://jetpack.com/support/wp-super-cache/'
+				)
+			);
+		?>
+	</li>
+	<li>
+		<?php
+			echo wp_kses_post(
+				sprintf(
+					/* translators: %1$s is the URL for the support forum. */
+					__( 'Visit the <a href="%1$s">support forum</a>.', 'wp-super-cache' ),
+					'https://wordpress.org/support/plugin/wp-super-cache/'
+				)
+			);
+		?>
+	</li>
 	<li><?php printf( __( 'Try out the <a href="%1$s">development version</a> for the latest fixes (<a href="%2$s">changelog</a>).', 'wp-super-cache' ), 'https://odd.blog/y/2o', 'https://plugins.trac.wordpress.org/log/wp-super-cache/' ); ?></li>
 	</ol>
 	<h4><?php esc_html_e( 'Rate This Plugin', 'wp-super-cache' ); ?></h4>
@@ -3467,6 +3486,11 @@ function wp_cron_preload_cache() {
 			if ( $page_on_front != 0 && ( $post_id == $page_on_front || $post_id == $page_for_posts ) )
 				continue;
 			$url = get_permalink( $post_id );
+
+			if ( ! is_string( $url ) ) {
+					wp_cache_debug( "wp_cron_preload_cache: skipped $post_id. Expected a URL, received: " . gettype( $url ) );
+					continue;
+			}
 
 			if ( wp_cache_is_rejected( $url ) ) {
 				wp_cache_debug( "wp_cron_preload_cache: skipped $url per rejected strings setting" );

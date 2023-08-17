@@ -13,6 +13,8 @@ use Automattic\Jetpack\Connection\Client as Client;
  * Registers the REST routes for Zendesk Chat.
  */
 class REST_Zendesk_Chat {
+	const TRANSIENT_EXPIRY   = 1 * MINUTE_IN_SECONDS * 60 * 24 * 7; // 1 week (JWT is actually 2 weeks, but lets be on the safe side)
+	const ZENDESK_AUTH_TOKEN = 'zendesk_auth_token';
 	/**
 	 * Constructor.
 	 */
@@ -70,6 +72,11 @@ class REST_Zendesk_Chat {
 	 * @return \WP_Error|object Object: { token: string }
 	 */
 	public static function get_chat_authentication() {
+		$authentication = get_transient( self::ZENDESK_AUTH_TOKEN );
+		if ( $authentication ) {
+			return rest_ensure_response( $authentication, 200 );
+		}
+
 		$proxied           = function_exists( 'wpcom_is_proxied_request' ) ? wpcom_is_proxied_request() : false;
 		$wpcom_endpoint    = 'help/authenticate/chat';
 		$wpcom_api_version = '2';
@@ -87,6 +94,7 @@ class REST_Zendesk_Chat {
 			return new \WP_Error( 'chat_authentication_failed', 'Chat authentication failed', array( 'status' => $response_code ) );
 		}
 
+		set_transient( self::ZENDESK_AUTH_TOKEN, $body, self::TRANSIENT_EXPIRY );
 		return rest_ensure_response( $body, 200 );
 	}
 

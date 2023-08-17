@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.56.1] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+### Removed
+- Tests: remove invalid tests for WP 6.3 [#32353]
+
+## [1.56.0] - 2023-08-01
+### Added
+- Add a filter to modify response for the `jetpack.idcUrlValidation` endpoint, add unit test. [#32005]
+
+## [1.55.0] - 2023-07-25
+### Added
+- Connection: lock tokens to prevent IDC during AIOWPM export. [#31883]
+
 ## [1.54.1] - 2023-07-18
 ### Fixed
 - Pass Calypso environment during connection to redirect users to proper Calypso URL. [#31906]
@@ -845,6 +860,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.56.1]: https://github.com/Automattic/jetpack-connection/compare/v1.56.0...v1.56.1
+[1.56.0]: https://github.com/Automattic/jetpack-connection/compare/v1.55.0...v1.56.0
+[1.55.0]: https://github.com/Automattic/jetpack-connection/compare/v1.54.1...v1.55.0
 [1.54.1]: https://github.com/Automattic/jetpack-connection/compare/v1.54.0...v1.54.1
 [1.54.0]: https://github.com/Automattic/jetpack-connection/compare/v1.53.3...v1.54.0
 [1.53.3]: https://github.com/Automattic/jetpack-connection/compare/v1.53.2...v1.53.3

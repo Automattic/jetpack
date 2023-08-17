@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.1] - 2023-08-15
+### Changed
+- Reduce number of tasks in the free and paid newsletter task lists [#32459]
+
+## [4.4.0] - 2023-08-14
+### Added
+- Newsletter launchpad: add migrate content task. [#32357]
+
+## [4.3.1] - 2023-08-09
+### Added
+- Adds the 'Write 3 posts' launchpad task to the 'Write' intent [#32341]
+
+### Changed
+- Update the email verification task copy [#32364]
+
+## [4.3.0] - 2023-08-07
+### Added
+- Added add_about_page Launchpad task [#32245]
+- Added new Launchpad task [#32204]
+- Added new Launchpad task [#32250]
+- Add the path for the Write 3 posts and Enable subscriber modal tasks [#32233]
+- Launchpad: add 'Get your first 10 subscribers' task for newsletters and add general repeated task completion logic [#32075]
+- Launchpad: add a way to query and set checklist dismissed status [#32200]
+
+### Changed
+- Add the Earn money task to the Free Newsletter task list [#32315]
+- Refactors is_launchpad_enabled method  to make it clear they are related to the fullscreen launchpad [#32269]
+- Refactors refactor disable_launchpad & maybe_disable_launchpad to make it clear they are related to the fullscreen launchpad [#32268]
+
+### Fixed
+- Fix the new get_calypso_path for the customize_welcome_message task [#32195]
+
+## [4.2.0] - 2023-08-01
+### Added
+- Add manage subscribers task. [#32064]
+- Add new subscribers modal task to newsletter launchpads. [#32042]
+- Add site_goals to the jetpack sync options. [#32068]
+- Add the Write 3 posts task for the newsletter flow. [#32012]
+- Launchpad: add calypso_url property to tasks where we know the Calypso page we want to show. [#32177]
+- Add back the update_about_page task to the intent-build list. [#32188]
+
+### Changed
+- Auto-formatted composer file. [#32005]
+
+### Removed
+- Remove duplicate task list [#32121]
+
+## [4.1.0] - 2023-07-26
+### Added
+- Add the intent check on the newsletter functions" [#32067]
+
+### Fixed
+- Added some guards around calls to wpcom_get_theme_annotation() to avoid errors [#32078]
+
+## [4.0.0] - 2023-07-25
+### Added
+- Added additional tests for launchpad tasklist validation [#31992]
+- Added the Free and Paid Newsletter task list [#31981]
+- Add new task for post-launch Newsletter task lists. [#32034]
+- Adds the count propertis to the task definitions [#31970]
+- Adds the Earn money with your newsletter task [#32000]
+- Launchpad task for updating the about page [#31966]
+- Show the correct homepage on the Site Editor when previewing a theme.
+  See https://github.com/Automattic/wp-calypso/issues/79221 in more detail. [#31929]
+
+### Changed
+- Rename the keep-building Launchpad checklist to intent-build [#31905]
+- Updated initial state of Launchpad subscribers task. [#31947]
+- Updated launchpad task list validation return types to be more useful. Previously, we just returned a simple bool. Now we return a WP_Error where appropriate. [#31834]
+
+### Fixed
+- Remove `design_edited` task from post-launch task list. [#31995]
+
 ## [3.7.0] - 2023-07-17
 ### Added
 - Launchpad: Filter tasks by newsletter import goal. [#31825]
@@ -229,6 +302,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[4.4.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.4.0...v4.4.1
+[4.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.3.1...v4.4.0
+[4.3.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.3.0...v4.3.1
+[4.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.2.0...v4.3.0
+[4.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.1.0...v4.2.0
+[4.1.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.0.0...v4.1.0
+[4.0.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.7.0...v4.0.0
 [3.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.6.0...v3.7.0
 [3.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.5.0...v3.6.0
 [3.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v3.4.0...v3.5.0

@@ -1,0 +1,55 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/whatsapp-button",
+	"title": "WhatsApp Button",
+	"description": "Let your visitors send you a message on WhatsApp with the tap of a button.",
+	"keywords": ["whatsapp", "messenger", "contact", "support"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "format-chat",
+	"supports": {
+		"html": false,
+		"reusable": false,
+		"align": [ "left", "center", "right" ]
+	},
+	"parent": [ "jetpack/send-a-message" ],
+	"attributes": {
+		"countryCode": {
+			"type": "string"
+		},
+		"phoneNumber": {
+			"type": "string"
+		},
+		"firstMessage": {
+			"type": "string",
+			"default": "Hi, I got your WhatsApp information from your website."
+		},
+		"buttonText": {
+			"type": "string",
+			"source": "html",
+			"selector": "a.whatsapp-block__button",
+			"default": "Chat on WhatsApp"
+		},
+		"backgroundColor": {
+			"type": "string",
+			"default": "#25D366"
+		},
+		"colorClass": {
+			"type": "string",
+			"default": "dark"
+		},
+		"openInNewTab": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"example": {
+		"attributes": {
+			"countryCode": "1",
+			"phoneNumber": "555-123-4567"
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

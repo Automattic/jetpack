@@ -184,7 +184,7 @@ class Jetpack_Protect {
 		// Required for Analytics.
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-protect', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-protect' );
 		wp_add_inline_script( 'jetpack-protect', $this->render_initial_state(), 'before' );
 	}
 

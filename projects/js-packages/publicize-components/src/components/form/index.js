@@ -28,6 +28,7 @@ import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
 const PUBLICIZE_STORE_ID = 'jetpack/publicize';
+const MONTH_IN_SECONDS = 30 * 24 * 60 * 60;
 
 const checkConnectionCode = ( connection, code ) =>
 	false === connection.is_healthy && code === ( connection.error_code ?? 'broken' );
@@ -43,6 +44,7 @@ const checkConnectionCode = ( connection, code ) =>
  * @param {boolean} props.isSocialImageGeneratorAvailable - Whether the Social Image Generator feature is available. Optional.
  * @param {string} props.connectionsAdminUrl              - URL to the Admin connections page
  * @param {string} props.adminUrl                         - URL af the plugin's admin page to redirect to after a plan upgrade
+ * @param {boolean} props.shouldShowAdvancedPlanNudge     - Whether the advanced plan nudge should be shown
  * @returns {object}                                      - Publicize form component.
  */
 export default function PublicizeForm( {
@@ -50,6 +52,7 @@ export default function PublicizeForm( {
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
 	isEnhancedPublishingEnabled = false,
+	shouldShowAdvancedPlanNudge = false,
 	isSocialImageGeneratorAvailable = false,
 	connectionsAdminUrl,
 	adminUrl,
@@ -58,7 +61,7 @@ export default function PublicizeForm( {
 		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
-	const { dismissedNotices, dismissNotice } = useDismissNotice();
+	const { dismissNotice, shouldShowNotice, NOTICES } = useDismissNotice();
 
 	const { isInstagramConnectionSupported } = useSelect( select => ( {
 		isInstagramConnectionSupported: select( PUBLICIZE_STORE_ID ).isInstagramConnectionSupported(),
@@ -71,11 +74,11 @@ export default function PublicizeForm( {
 	const shouldShowInstagramNotice =
 		! hasInstagramConnection &&
 		isInstagramConnectionSupported &&
-		! dismissedNotices.includes( 'instagram' );
+		shouldShowNotice( NOTICES.instagram );
 
 	const onDismissInstagramNotice = useCallback( () => {
-		dismissNotice( 'instagram' );
-	}, [ dismissNotice ] );
+		dismissNotice( NOTICES.instagram );
+	}, [ dismissNotice, NOTICES ] );
 	const shouldDisableMediaPicker =
 		isSocialImageGeneratorAvailable && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
@@ -106,6 +109,11 @@ export default function PublicizeForm( {
 			}
 		},
 		[ autosave, isEditedPostDirty ]
+	);
+
+	const onAdvancedNudgeDismiss = useCallback(
+		() => dismissNotice( NOTICES.advancedUpgradeEditor, 3 * MONTH_IN_SECONDS ),
+		[ dismissNotice, NOTICES ]
 	);
 
 	const renderNotices = () => (
@@ -337,6 +345,26 @@ export default function PublicizeForm( {
 								message={ message }
 							/>
 						</>
+					) }
+					{ shouldShowAdvancedPlanNudge && shouldShowNotice( NOTICES.advancedUpgradeEditor ) && (
+						<Notice onDismiss={ onAdvancedNudgeDismiss } type={ 'highlight' }>
+							{ createInterpolateElement(
+								__(
+									'Need more reach? Unlock custom media sharing with the <upgradeLink>Advanced Plan</upgradeLink>',
+									'jetpack'
+								),
+								{
+									upgradeLink: (
+										<ExternalLink
+											href={ getRedirectUrl( 'jetpack-social-advanced-site-checkout', {
+												site: getSiteFragment(),
+												query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+											} ) }
+										/>
+									),
+								}
+							) }
+						</Notice>
 					) }
 					{ isEnhancedPublishingEnabled && (
 						<MediaSection

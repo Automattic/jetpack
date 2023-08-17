@@ -17,7 +17,7 @@
   / Breaking Checks
    ====================================================== */
 
-
+use Automattic\Jetpack\CRM\Event_Manager\Events_Manager;
 
 /**
 * ZBS DAL >> Contacts
@@ -35,6 +35,9 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
     protected $include_in_templating = true;
 	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase, Squiz.Commenting.VariableComment.Missing -- to be refactored.
 	protected $objectModel = array();
+
+	/** @var Events_Manager To manage the CRM events */
+	private $events_manager;
 
         // hardtyped list of types this object type is commonly linked to
         protected $linkedToObjectTypes = array(
@@ -388,6 +391,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         ); foreach ($defaultArgs as $argK => $argV){ $this->$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $this->$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$this->$argK = $newData;} else { $this->$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
 
+			$this->events_manager = new Events_Manager();
 
     }
 
@@ -2395,7 +2399,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             if (is_array($limitedFields)){ 
 
                 // LIMITED UPDATE (only a few fields.)
-                if (!is_array($limitedFields) || count ($limitedFields) <= 0) return false;
+				// phpcs:ignore
+				if ( count( $limitedFields ) === 0 ) {
+					return false;
+				}
                 // REQ. ID too (can only update)
                 if (empty($id) || $id <= 0) return false;
 
@@ -2714,6 +2721,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 						// Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
 						$originalStatus = $this->getContactStatus( $id );
 
+						$previous_contact_obj = $this->getContact( $id );
+
 						// get any segments (whom counts may be affected by changes)
 						// $contactsPreUpdateSegments = $this->DAL()->segments->getSegmentsContainingContact($id,true);
 
@@ -3008,10 +3017,12 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                     'id'=>$id,
                                     'againstid' => $id,
                                     'userMeta'=> $dataArr,
-                                    'prevSegments' => $contactsPreUpdateSegments
+									'prevSegments' => $contactsPreUpdateSegments,
+									'prev_contact' => $previous_contact_obj,
                                     ));
 
-                                
+								$dataArr['id'] = $id;
+								$this->events_manager->contact()->updated( $dataArr, $previous_contact_obj );
 
                             }
 
@@ -3240,6 +3251,9 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                             'customerExtraMeta'=>$confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
                         ));
 
+						$dataArr['id'] = $newID; // phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect
+						$this->events_manager->contact()->created( $dataArr ); // phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect
+
                     }
                     
                     return $newID;
@@ -3413,7 +3427,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
      */
     public function deleteContact($args=array()){
 
-        global $ZBSCRM_t,$wpdb,$zbs;
+			global $zbs;
 
         #} ============ LOAD ARGS =============
         $defaultArgs = array(
@@ -3429,7 +3443,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             'id'=>$id,
             'saveOrphans'=>$saveOrphans
         ));
-
+			// phpcs:ignore
+			$this->events_manager->contact()->before_delete( $id );
 
         #} Check ID & Delete :)
         $id = (int)$id;
@@ -3532,6 +3547,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 'id'=>$id,
                 'saveOrphans'=>$saveOrphans
             ));
+
+					$this->events_manager->contact()->deleted( $id );
 
             return $del;
 

@@ -4,11 +4,10 @@ import {
 	Notice,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import { useDismissNotice } from '@automattic/jetpack-publicize-components';
+import { useDismissNotice, SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
 const freePlanNoticeText = __(
@@ -21,12 +20,11 @@ const paidPlanNoticeText = __(
 );
 
 const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
-	const { dismissedNotices, dismissNotice } = useDismissNotice();
-	const showNotice = ! dismissedNotices.includes( 'instagram' );
+	const { shouldShowNotice, dismissNotice, NOTICES } = useDismissNotice();
 
 	const { connectionsAdminUrl, isInstagramConnectionSupported, isEnhancedPublishingEnabled } =
 		useSelect( select => {
-			const store = select( STORE_ID );
+			const store = select( SOCIAL_STORE_ID );
 			return {
 				connectionsAdminUrl: store.getConnectionsAdminUrl(),
 				isInstagramConnectionSupported: store.isInstagramConnectionSupported(),
@@ -35,10 +33,10 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 		} );
 
 	const handleDismiss = useCallback( () => {
-		dismissNotice( 'instagram' );
-	}, [ dismissNotice ] );
+		dismissNotice( NOTICES.instagram );
+	}, [ dismissNotice, NOTICES ] );
 
-	if ( ! showNotice || ! isInstagramConnectionSupported ) {
+	if ( ! shouldShowNotice( NOTICES.instagram ) || ! isInstagramConnectionSupported ) {
 		return null;
 	}
 

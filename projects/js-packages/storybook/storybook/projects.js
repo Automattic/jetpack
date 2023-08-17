@@ -3,6 +3,7 @@
 const path = require( 'path' );
 
 const projects = [
+	'../../ai-client/src',
 	'../../components/components',
 	'../../connection/components',
 	'../../idc/components',
