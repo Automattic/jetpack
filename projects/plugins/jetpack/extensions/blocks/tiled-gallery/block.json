@@ -1,0 +1,164 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/tiled-gallery",
+	"title": "Tiled Gallery",
+	"description": "Display multiple images in an elegantly organized tiled layout.",
+	"keywords": ["columns", "images", "photos", "pictures", "square", "circle", "mosaic"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "media",
+	"icon": "block-default",
+	"supports": {
+		"align": [ "center", "wide", "full" ],
+		"color": {
+			"gradients": true,
+			"text": false
+		},
+		"customClassName": false,
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"__experimentalHideChildBlockControls": true
+	},
+	"providesContext": {
+		"imageCrop": "imageCrop"
+	},
+	"styles": [
+		{ "name": "rectangular", "label": "Tiled mosaic", "isDefault": true},
+		{ "name": "circle", "label": "Circles" },
+		{ "name": "square", "label": "Square tiles" },
+		{ "name": "columns", "label": "Tiled columns" }
+	],
+	"attributes": {
+		"align": {
+			"type": "string",
+			"default": "center"
+		},
+		"className": {
+			"type": "string",
+			"default": "is-style-rectangular"
+		},
+		"columns": {
+			"type": "number"
+		},
+		"columnWidths": {
+			"type": "array",
+			"default": []
+		},
+		"ids": {
+			"type": "array",
+			"default": []
+		},
+		"imageFilter": {
+			"type": "string"
+		},
+		"images": {
+			"type": "array",
+			"default": [],
+			"source": "query",
+			"selector": ".tiled-gallery__item",
+			"query": {
+				"alt": {
+					"attribute": "alt",
+					"default": "",
+					"selector": "img",
+					"source": "attribute"
+				},
+				"height": {
+					"attribute": "data-height",
+					"type": "number",
+					"selector": "img",
+					"source": "attribute"
+				},
+				"id": {
+					"attribute": "data-id",
+					"selector": "img",
+					"source": "attribute"
+				},
+				"link": {
+					"attribute": "data-link",
+					"selector": "img",
+					"source": "attribute"
+				},
+				"url": {
+					"attribute": "data-url",
+					"selector": "img",
+					"source": "attribute"
+				},
+				"width": {
+					"attribute": "data-width",
+					"selector": "img",
+					"source": "attribute",
+					"type": "number"
+				}
+			}
+		},
+		"imageCrop": {
+			"type": "boolean",
+			"default": true
+		},
+		"linkTo": {
+			"default": "none",
+			"type": "string"
+		},
+		"roundedCorners": {
+			"type": "integer",
+			"default": 0
+		}
+	},
+	"example": {
+		"attributes": {
+			"align": "center",
+			"className": "is-style-rectangular",
+			"images": [
+				{
+					"alt": "",
+					"link": "",
+					"url": "tiledGalleryExample1",
+					"width": 160,
+					"height": 95
+				},
+				{
+					"alt": "",
+					"link": "",
+					"url": "tiledGalleryExample2",
+					"width": 160,
+					"height": 107
+				},
+				{
+					"alt": "",
+					"link": "",
+					"url": "tiledGalleryExample3",
+					"width": 304,
+					"height": 203
+				},
+				{
+					"alt": "",
+					"link": "",
+					"url": "tiledGalleryExample4",
+					"width": 312,
+					"height": 207
+				},
+				{
+					"alt": "",
+					"link": "",
+					"url": "tiledGalleryExample5",
+					"width": 152,
+					"height": 101
+				},
+				{
+					"alt": "",
+					"link": "",
+					"url": "tiledGalleryExample6",
+					"width": 152,
+					"height": 105
+				}
+			],
+			"linkTo": "none"
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

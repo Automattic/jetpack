@@ -1,0 +1,48 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/author-recommendation",
+	"title": "Author Recommendation",
+	"description": "Select the sites you follow and share them with your users.",
+	"keywords": [],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "thumbs-up",
+	"supports": {
+		"align": false,
+		"alignWide": true,
+		"anchor": false,
+		"customClassName": true,
+		"className": true,
+		"html": false,
+		"multiple": true,
+		"reusable": true,
+		"color": {
+			"link": true,
+			"gradients": true
+		},
+		"spacing": {
+			"padding": true,
+			"margin": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		}
+	},
+	"attributes": {
+		"recommendations": {
+			"type": "array",
+			"items": {
+				"type": "object"
+			},
+			"default": []
+		},
+		"ignore_user_blogs": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"editorScript": "file:../editor-beta.js"
+}

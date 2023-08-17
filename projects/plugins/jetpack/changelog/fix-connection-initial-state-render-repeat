@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Use the new method to render Connection initial state.

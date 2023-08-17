@@ -378,11 +378,11 @@ function zeroBSCRM_segments_filterConditions($conditions=array(),$processCharact
                             $dates = explode(' - ', $val);
                             if (count($dates) == 2){
 
-								$local_date_time = new DateTime( $dates[0], new DateTimeZone( get_option( 'timezone_string' ) ) );
+								$local_date_time = new DateTime( $dates[0], wp_timezone() );
 								$local_date_time->setTimezone( new DateTimeZone( 'UTC' ) );
 								$value = $local_date_time->format( 'Y-m-d H:i' );
 
-								$local_date_time_2 = new DateTime( $dates[1], new DateTimeZone( get_option( 'timezone_string' ) ) );
+								$local_date_time_2 = new DateTime( $dates[1], wp_timezone() );
 								$local_date_time_2->setTimezone( new DateTimeZone( 'UTC' ) );
 								$value_2 = $local_date_time_2->format( 'Y-m-d H:i' );
 								// Set the converted dates to UTC.

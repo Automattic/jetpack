@@ -1,0 +1,97 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/slideshow",
+	"title": "Slideshow",
+	"description": "Display multiple images in sequential order.",
+	"keywords": ["story", "image", "video", "gallery"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "media",
+	"icon": "slides",
+	"supports": {
+		"html": false,
+        "align": [ "center", "wide", "full" ]
+	},
+	"attributes": {
+        "align": {
+            "default": "center",
+            "type": "string"
+        },
+        "autoplay": {
+            "type": "boolean",
+            "default": false
+        },
+        "delay": {
+            "type": "number",
+            "default": 3
+        },
+        "ids": {
+            "default": [],
+            "type": "array"
+        },
+        "images": {
+            "type": "array",
+            "default": [],
+            "source": "query",
+            "selector": ".swiper-slide",
+            "query": {
+                "alt": {
+                    "source": "attribute",
+                    "selector": "img",
+                    "attribute": "alt",
+                    "default": ""
+                },
+                "caption": {
+                    "type": "string",
+                    "source": "html",
+                    "selector": "figcaption"
+                },
+                "id": {
+                    "source": "attribute",
+                    "selector": "img",
+                    "attribute": "data-id"
+                },
+                "url": {
+                    "source": "attribute",
+                    "selector": "img",
+                    "attribute": "src"
+                }
+            }
+        },
+        "effect": {
+            "type": "string",
+            "default": "slide"
+        },
+        "sizeSlug": {
+            "type": "string"
+        }
+    },
+	"example": {
+        "align": "center",
+        "autoplay": true,
+        "ids": [22, 23],
+        "images": [
+            {
+                "alt": "",
+                "caption": "",
+                "id": 22,
+                "url": "./slideshowExample1.png"
+            },
+            {
+                "alt": "",
+                "caption": "",
+                "id": 23,
+                "url": "./slideshowExample2.png"
+            },
+            {
+                "alt": "",
+                "caption": "",
+                "id": 23,
+                "url": "./slideshowExample3.png"
+            }
+        ],
+        "effect": "slide"
+    },
+	"editorScript": "file:../editor.js"
+}
