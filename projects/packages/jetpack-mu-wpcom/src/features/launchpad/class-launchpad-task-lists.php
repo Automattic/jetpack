@@ -485,18 +485,23 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Checks if a string is a valid admin URL or an absolute path.
+	 * Checks if a string is a Stripe connection, valid admin URL, or absolute path.
 	 *
 	 * @param string $input The string to check.
 	 * @return boolean
 	 */
 	private function is_valid_admin_url_or_absolute_path( $input ) {
-		// Checks if the string is URL starting with the admin URL
+		// Allow Stripe connection URLs for `set_up_payments` task.
+		if ( strpos( $input, 'https://connect.stripe.com' ) === 0 ) {
+			return true;
+		}
+
+		// Checks if the string is URL starting with the admin URL.
 		if ( strpos( $input, admin_url() ) === 0 ) {
 			return true;
 		}
 
-		// Require that the string start with a slash, but not two slashes
+		// Require that the string start with a slash, but not two slashes.
 		if ( '/' === substr( $input, 0, 1 ) && '/' !== substr( $input, 1, 1 ) ) {
 			return true;
 		}
