@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import apiFetch from '@wordpress/api-fetch';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -9,6 +10,14 @@ import { __ } from '@wordpress/i18n';
 import './editor.scss';
 
 export const name = 'launchpad-save-modal';
+
+const updateHideFSENextStepsModal = async hideFSENextStepsModal => {
+	return apiFetch( {
+		path: '/wpcom/v2/launchpad',
+		method: 'POST',
+		data: { hide_fse_next_steps_modal: !! hideFSENextStepsModal },
+	} );
+};
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
@@ -35,12 +44,17 @@ export const settings = {
 		// We use this state as a flag to manually handle the modal close on first post publish
 		const [ isInitialPostPublish, setIsInitialPostPublish ] = useState( false );
 
-		const [ isModalOpen, setIsModalOpen ] = useState( false );
-		const [ dontShowAgain, setDontShowAgain ] = useState( false );
-		const [ isChecked, setIsChecked ] = useState( false );
+		const {
+			launchpadScreenOption,
+			hasNeverPublishedPostOption,
+			hideFSENextStepsModal,
+			siteIntentOption,
+		} = window?.Jetpack_LaunchpadSaveModal || {};
 
-		const { launchpadScreenOption, hasNeverPublishedPostOption, siteIntentOption } =
-			window?.Jetpack_LaunchpadSaveModal || {};
+		const [ isModalOpen, setIsModalOpen ] = useState( false );
+		const [ dontShowAgain, setDontShowAgain ] = useState( !! hideFSENextStepsModal );
+		const [ isChecked, setIsChecked ] = useState( !! hideFSENextStepsModal );
+
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
 		const prevHasNeverPublishedPostOption = useRef( hasNeverPublishedPostOption );
@@ -142,6 +156,11 @@ export const settings = {
 			! dontShowAgain &&
 			isModalOpen;
 
+		const handleDontShowAgainSetting = shouldHide => {
+			setDontShowAgain( shouldHide );
+			updateHideFSENextStepsModal( shouldHide );
+		};
+
 		return (
 			showModal && (
 				<Modal
@@ -154,7 +173,7 @@ export const settings = {
 							return;
 						}
 						setIsModalOpen( false );
-						setDontShowAgain( isChecked );
+						handleDontShowAgainSetting( isChecked );
 						recordTracksEvent( 'jetpack_launchpad_save_modal_close' );
 					} }
 				>
@@ -173,7 +192,7 @@ export const settings = {
 								<Button
 									variant="secondary"
 									onClick={ () => {
-										setDontShowAgain( isChecked );
+										handleDontShowAgainSetting( isChecked );
 										setIsModalOpen( false );
 										recordTracksEvent( 'jetpack_launchpad_save_modal_back_to_edit' );
 									} }
