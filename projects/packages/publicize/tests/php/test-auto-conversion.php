@@ -85,17 +85,17 @@ class Auto_Conversion_Test extends BaseTestCase {
 	 * Test that it correctly returns enabled or disabled.
 	 */
 	public function test_correctly_updates_enabled_status() {
-		$this->settings->enable_or_disable( 'image', true );
+		$this->settings->set_enabled( 'image', true );
 		$this->assertTrue( $this->settings->is_enabled( 'image' ) );
 		$this->assertFalse( $this->settings->is_enabled( 'video' ) );
-		$this->settings->enable_or_disable( 'video', true );
+		$this->settings->set_enabled( 'video', true );
 		$this->assertTrue( $this->settings->is_enabled( 'image' ) );
 		$this->assertTrue( $this->settings->is_enabled( 'video' ) );
 
-		$this->settings->enable_or_disable( 'image', false );
+		$this->settings->set_enabled( 'image', false );
 		$this->assertFalse( $this->settings->is_enabled( 'image' ) );
 		$this->assertTrue( $this->settings->is_enabled( 'video' ) );
-		$this->settings->enable_or_disable( 'video', false );
+		$this->settings->set_enabled( 'video', false );
 		$this->assertFalse( $this->settings->is_enabled( 'video' ) );
 	}
 }

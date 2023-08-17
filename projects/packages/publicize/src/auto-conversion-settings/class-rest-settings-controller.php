@@ -74,11 +74,11 @@ class REST_Settings_Controller extends WP_REST_Controller {
 		$settings = new Settings();
 
 		if ( isset( $request['image'] ) ) {
-			$settings->enable_or_disable( 'image', $request['image'] );
+			$settings->set_enabled( 'image', $request['image'] );
 		}
 
 		if ( isset( $request['video'] ) ) {
-			$settings->enable_or_disable( 'video', $request['video'] );
+			$settings->set_enabled( 'video', $request['video'] );
 		}
 
 		return rest_ensure_response( $this->get_auto_coversion_settings() );
@@ -90,7 +90,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	 * @return bool|WP_Error True if user can manage options.
 	 */
 	public function settings_permissions_callback() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
 				'rest_forbidden_context',
 				__( 'Sorry, you are not allowed to access this endpoint.', 'jetpack-publicize-pkg' ),

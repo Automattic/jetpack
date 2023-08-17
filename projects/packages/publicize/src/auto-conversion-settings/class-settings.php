@@ -112,7 +112,7 @@ class Settings {
 	 * @param bool $value True to enable SIG, false to disable.
 	 * @return bool True if the setting was updated successfully, false otherwise.
 	 */
-	public function enable_or_disable( $key, $value ) {
+	public function set_enabled( $key, $value ) {
 		return $this->update_setting( $key, (bool) $value );
 	}
 }
