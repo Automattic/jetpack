@@ -4,6 +4,14 @@
 	padding: 20px;
 	background: white;
 	width: 100%;
+
+	tr th:first-child {
+		padding: 5px 0 5px 10px;
+	}
+
+	tr td:first-child {
+		padding: 5px 0 5px 10px;
+	}
 }
 
 .header-row {
