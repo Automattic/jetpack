@@ -43,32 +43,19 @@ const ProviderSchema = z.object( {
 
 export const CriticalCssStateSchema = z
 	.object( {
-		callback_passthrough: z.record( z.unknown() ).optional(),
-		proxy_nonce: z.coerce.string().optional(),
 		// Source provider information - which URLs to generate CSS for.
 		providers: z.array( ProviderSchema ),
 		status: z.enum( [ 'not_generated', 'generated', 'pending', 'error' ] ),
-		updated: z.coerce.number().optional(),
 		status_error: z.union( [ z.coerce.string(), CriticalCssErrorDetailsSchema ] ).optional(),
 		created: z.coerce.number().optional(),
-		viewports: z
-			.array(
-				z.object( {
-					type: z.coerce.string(),
-					width: z.coerce.number(),
-					height: z.coerce.number(),
-				} )
-			)
-			.optional(),
+		updated: z.coerce.number().optional(),
 	} )
 	.catch( {
-		created: 0,
-		updated: 0,
-		callback_passthrough: {},
+		providers: [],
 		status: 'not_generated',
 		status_error: '',
-		viewports: [],
-		providers: [],
+		created: 0,
+		updated: 0,
 	} );
 
 /**
