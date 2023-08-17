@@ -9,6 +9,7 @@ import { sortWorkflows } from './util';
 type WorkflowTableProps = {
 	workflows: Workflow[];
 };
+
 export const WorkflowTable: React.FC< WorkflowTableProps > = props => {
 	const { workflows } = props;
 
