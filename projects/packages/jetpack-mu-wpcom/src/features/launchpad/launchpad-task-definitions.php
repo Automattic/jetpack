@@ -507,6 +507,10 @@ function wpcom_mark_launchpad_task_incomplete( $task_id ) {
  * @return bool[] Return the new values of the requested statuses with the requested task ID as the key. This will be an empty array if the option update fails, and any ignored status values will not be returned.
  */
 function wpcom_launchpad_update_task_status( $new_statuses ) {
+	if ( ! is_array( $new_statuses ) ) {
+		return array();
+	}
+
 	$task_definitions = wpcom_launchpad_get_task_definitions();
 	$reverse_id_map   = wpcom_launchpad_get_reverse_id_mappings();
 
