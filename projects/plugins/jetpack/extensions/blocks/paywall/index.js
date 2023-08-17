@@ -1,7 +1,6 @@
 import { SVG, Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
-import attributes from './attributes';
 import edit from './edit';
 import transforms from './transforms';
 
@@ -27,13 +26,17 @@ export const name = 'paywall';
 export const title = __( 'Paywall', 'jetpack' );
 export const settings = {
 	title,
-	description: __( 'Paywall', 'jetpack' ),
+	description: __(
+		'Add a paywall block to make part of your content exclusive to paid subscribers.',
+		'jetpack'
+	),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
 	},
 	category: 'earn',
 	keywords: [
+		_x( 'more', 'block search term', 'jetpack' ),
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'follow', 'block search term', 'jetpack' ),
 		_x( 'gated', 'block search term', 'jetpack' ),
@@ -52,7 +55,6 @@ export const settings = {
 	parent: [ 'core/post-content' ],
 	edit,
 	save: () => null,
-	attributes,
 	example: {
 		attributes: {},
 	},
