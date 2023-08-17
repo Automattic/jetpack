@@ -1,0 +1,29 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/contact-info",
+	"title": "Contact Info",
+	"description": "Lets you add an email address, phone number, and physical address with improved markup for better SEO results.",
+	"keywords": [ "email", "phone", "address" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "id",
+	"supports": {
+		"align": [ "wide", "full" ],
+		"html": false,
+		"color": {
+			"link": true,
+			"gradients": true
+		},
+		"spacing": {
+			"padding": true,
+			"margin": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

@@ -139,7 +139,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			}
 		}
 
-		// Custom [{ "path": "label" }] values passed from a workflow.
+		// Custom [{ "path": "...", "label": "..." }] values passed from a workflow.
 		const addLabelsString = getInput( 'add_labels' );
 		if ( addLabelsString ) {
 			debug( `GOT addLabelsString: ${ addLabelsString }` );

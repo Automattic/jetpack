@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/ai-image",
+	"title": "AI Image (Experimental)",
+	"description": "Automatically generate an illustration for your post, powered by AI magic. We are experimenting with this feature and can tweak or remove it at any point.",
+	"keywords": [ "AI", "AL", "DALLe", "Diffusion", "Magic" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "media",
+	"icon": "superhero",
+	"supports": {
+		"align": false,
+		"alignWide": false,
+		"anchor": false,
+		"customClassName": false,
+		"className": true,
+		"html": false,
+		"multiple": true,
+		"reusable": false,
+		"inserter": false
+	},
+	"editorScript": "file:../editor-experimental.js"
+}

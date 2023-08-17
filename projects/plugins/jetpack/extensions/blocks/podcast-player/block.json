@@ -1,0 +1,110 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/podcast-player",
+	"title": "Podcast Player",
+	"description": "Select and play episodes from a single podcast.",
+	"keywords": [ "audio", "embed"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "playlist-audio",
+	"supports": {
+		"align": [ "wide", "full" ],
+		"spacing": {
+			"padding": true,
+			"margin": true
+		},
+		"anchor": false,
+		"customClassName": true,
+		"className": true,
+		"html": false,
+		"multiple": true,
+		"reusable": true
+	},
+	"attributes": {
+		"url": {
+			"type": "string",
+			"validator": "isUrl"
+		},
+		"selectedEpisodes": {
+			"type": "array",
+			"default": []
+		},
+		"itemsToShow": {
+			"type": "integer",
+			"default": 5
+		},
+		"showCoverArt": {
+			"type": "boolean",
+			"default": true
+		},
+		"showEpisodeTitle": {
+			"type": "boolean",
+			"default": true
+		},
+		"showEpisodeDescription": {
+			"type": "boolean",
+			"default": true
+		},
+		"primaryColor": {
+			"type": "string"
+		},
+		"customPrimaryColor": {
+			"type": "string"
+		},
+		"hexPrimaryColor": {
+			"type": "string"
+		},
+		"secondaryColor": {
+			"type": "string"
+		},
+		"customSecondaryColor": {
+			"type": "string"
+		},
+		"hexSecondaryColor": {
+			"type": "string"
+		},
+		"backgroundColor": {
+			"type": "string"
+		},
+		"customBackgroundColor": {
+			"type": "string"
+		},
+		"hexBackgroundColor": {
+			"type": "string"
+		},
+		"exampleFeedData": {
+			"type": "object"
+		}
+	},
+	"example": {
+		"attributes": {
+			"customPrimaryColor": "GREEN",
+			"hexPrimaryColor": "GREEN",
+			"exampleFeedData": {
+				"title": "Jetpack Example Podcast",
+				"link": "https://jetpack.com",
+				"cover": "https://jetpackme.files.wordpress.com/2020/05/jetpack-example-podcast-cover.png?w=160",
+				"tracks": [
+					{
+						"id": "3",
+						"title": "3. Our third episode",
+						"duration": "14:58"
+					},
+					{
+						"id": "2",
+						"title": "2. Interview with a special guest",
+						"duration": "19:17"
+					},
+					{
+						"id": "1",
+						"title": "1. Welcome to Example Podcast",
+						"duration": "11:25"
+					}
+				]
+			}
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

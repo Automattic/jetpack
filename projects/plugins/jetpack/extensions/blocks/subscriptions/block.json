@@ -1,0 +1,114 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/subscriptions",
+	"title": "Subscribe",
+	"description": "Let readers subscribe to this blog's posts as a newsletter.",
+	"keywords": ["newsletter", "email", "follow"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "email-alt",
+	"supports": {
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"align": [ "wide", "full" ]
+	},
+	"styles": [
+		{
+			"name": "compact",
+			"label": "Compact"
+		},
+		{
+			"name": "split",
+			"label": "Split",
+			"isDefault": true
+		}
+	],
+	"attributes": {
+		"subscribePlaceholder": {
+			"type": "string",
+			"default": "Type your email…"
+		},
+		"showSubscribersTotal": {
+			"type": "boolean",
+			"default": false
+		},
+		"includeSocialFollowers": {
+			"type": "boolean",
+			"default": true
+		},
+		"buttonOnNewLine": {
+			"type": "boolean",
+			"default": false
+		},
+		"buttonWidth": {
+			"type": "string"
+		},
+		"submitButtonText": {
+			"type": "string",
+			"default": "Subscribe"
+		},
+		"emailFieldBackgroundColor": {
+			"type": "string"
+		},
+		"customEmailFieldBackgroundColor": {
+			"type": "string"
+		},
+		"emailFieldGradient": {
+			"type": "string"
+		},
+		"customEmailFieldGradient": {
+			"type": "string"
+		},
+		"buttonBackgroundColor": {
+			"type": "string"
+		},
+		"customButtonBackgroundColor": {
+			"type": "string"
+		},
+		"buttonGradient": {
+			"type": "string"
+		},
+		"customButtonGradient": {
+			"type": "string"
+		},
+		"textColor": {
+			"type": "string"
+		},
+		"customTextColor": {
+			"type": "string"
+		},
+		"fontSize": {
+			"type": "string"
+		},
+		"customFontSize": {
+			"type": "string"
+		},
+		"borderRadius": {
+			"type": "number"
+		},
+		"borderWeight": {
+			"type": "number"
+		},
+		"borderColor": {
+			"type": "string"
+		},
+		"customBorderColor": {
+			"type": "string"
+		},
+		"padding": {
+			"type": "number"
+		},
+		"spacing": {
+			"type": "number"
+		},
+		"successMessage": {
+			"type": "string",
+			"default": "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

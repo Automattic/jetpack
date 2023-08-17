@@ -1,0 +1,26 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/markdown",
+	"title": "Markdown",
+	"description": "Use regular characters and punctuation to style text, links, and lists.",
+	"keywords": [ "formatting", "syntax", "markup" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "text",
+	"icon": "",
+	"supports": {
+		"align": [ "wide", "full" ],
+		"html": false,
+		"spacing": {
+			"padding": true,
+			"margin": true,
+			"__experimentalDefaultControls": {
+				"padding": true,
+				"margin": true
+			}
+		}
+	},
+	"attributes": { "source": { "type": "string" } },
+	"editorScript": "file:../editor.js"
+}

@@ -3799,7 +3799,7 @@ p {
 		wp_add_inline_script( 'jetpack-full-activation-modal-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state() ) ) . '"));', 'before' );
 
 		// Adds Connection package initial state.
-		wp_add_inline_script( 'jetpack-full-activation-modal-js', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-full-activation-modal-js' );
 
 		add_action( 'admin_notices', array( $this, 'jetpack_plugin_portal_containers' ) );
 	}
