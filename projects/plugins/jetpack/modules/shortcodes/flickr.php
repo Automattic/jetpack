@@ -218,7 +218,7 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 		$embed_page = wp_remote_get( $embed_url );
 
 		// Bail if the request returns an error.
-		if ( is_wp_error( $embed_page ) ) {
+		if ( ! is_array( $embed_page ) ) {
 			return '';
 		}
 
