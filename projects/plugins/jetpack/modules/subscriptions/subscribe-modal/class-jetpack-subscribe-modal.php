@@ -49,6 +49,7 @@ class Jetpack_Subscribe_Modal {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
 		}
+		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
 	}
 
 	/**
@@ -69,7 +70,6 @@ class Jetpack_Subscribe_Modal {
 	 * @return void
 	 */
 	public function add_subscribe_modal_to_frontend() {
-		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
 		if ( $this->should_user_see_modal() ) { ?>
 					<div class="jetpack-subscribe-modal">
 						<div class="jetpack-subscribe-modal__modal-content">
@@ -78,7 +78,6 @@ class Jetpack_Subscribe_Modal {
 					</div>
 			<?php
 		}
-		remove_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
 	}
 
 	/**
@@ -251,3 +250,22 @@ add_filter(
 if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
 	Jetpack_Subscribe_Modal::init();
 }
+
+add_action(
+	'rest_api_switched_to_blog',
+	function () {
+		/**
+		 * Filter for enabling or disabling the Jetpack Subscribe Modal
+		 * feature. We use this filter here and in several other places
+		 * to conditionally load options and functionality related to
+		 * this feature.
+		 *
+		 * @since 12.4
+		 *
+		 * @param bool Defaults to false.
+		 */
+		if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
+			Jetpack_Subscribe_Modal::init();
+		}
+	}
+);
