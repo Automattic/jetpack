@@ -354,7 +354,7 @@ function wpcom_launchpad_get_task_definitions() {
 				if ( ( new Automattic\Jetpack\Status\Host() )->is_atomic_platform() ) {
 					return admin_url( 'admin.php?page=jetpack#/discussion' );
 				}
-				return '/settings/reading/' . $data['site_slug_encoded'] . '#newsletter-settings';
+				return '/settings/newsletter/' . $data['site_slug_encoded'];
 			},
 		),
 		'add_10_email_subscribers'        => array(
