@@ -19,6 +19,11 @@ import { isJetpackFromBlockAiCompositionAvailable } from './constants';
 import { JETPACK_FORM_CHILDREN_BLOCKS } from './constants';
 import withUiHandlerDataProvider from './ui-handler/with-ui-handler-data-provider';
 
+type IsPossibleToExtendJetpackFormBlockProps = {
+	checkChildrenBlocks?: boolean;
+	clientId?: string;
+};
+
 /**
  * Check if it is possible to extend the block.
  *
@@ -28,7 +33,7 @@ import withUiHandlerDataProvider from './ui-handler/with-ui-handler-data-provide
  */
 export function isPossibleToExtendJetpackFormBlock(
 	blockName: string | undefined,
-	checkChildrenBlocks?: boolean
+	{ checkChildrenBlocks = false }: IsPossibleToExtendJetpackFormBlockProps = {}
 ): boolean {
 	// Check if the AI Assistant block is registered.
 	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
@@ -128,7 +133,7 @@ addFilter( 'editor.BlockEdit', 'jetpack/jetpack-form-block-edit', withAiAssistan
  */
 const withAiToolbarButton = createHigherOrderComponent( BlockEdit => {
 	return props => {
-		if ( ! isPossibleToExtendJetpackFormBlock( props?.name, true ) ) {
+		if ( ! isPossibleToExtendJetpackFormBlock( props?.name, { checkChildrenBlocks: true } ) ) {
 			return <BlockEdit { ...props } />;
 		}
 
