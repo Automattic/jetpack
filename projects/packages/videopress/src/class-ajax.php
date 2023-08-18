@@ -119,15 +119,16 @@ class AJAX {
 	/**
 	 * Returns the default restriction_details for a video.
 	 *
+	 * @param bool $default_can_access The default auth.
+	 *
 	 * @return array
 	 **/
-	private function get_default_video_restriction_details() {
-		$default_auth        = current_user_can( 'read' );
+	private function default_video_restriction_details( $default_can_access = false ) {
 		$restriction_details = array(
 			'version'              => '1',
 			'provider'             => 'auth',
 			'unauthorized_message' => __( 'Unauthorized', 'jetpack-videopress-pkg' ),
-			'can_access'           => $default_auth,
+			'can_access'           => $default_can_access,
 		);
 
 		return $restriction_details;
@@ -145,6 +146,54 @@ class AJAX {
 	}
 
 	/**
+	 * Returns the default restriction_details for a video.
+	 *
+	 * @param bool $default_can_access The default auth.
+	 *
+	 * @return array
+	 **/
+	private function get_subscriber_only_restriction_details( $default_can_access = false ) {
+		return array(
+			'provider'             => 'jetpack_memberships',
+			'unauthorized_message' => __( 'You need to be subscribed to view this video', 'jetpack-videopress-pkg' ),
+			'can_access'           => $default_can_access,
+		);
+	}
+
+	/**
+	 * Determines if Jetpack Memberships are available.
+	 *
+	 * @return bool
+	 */
+	private function jetpack_memberships_available() {
+		return class_exists( '\Jetpack_Memberships' );
+	}
+
+	/**
+	 * Determines if Jetpack Subscriptions are available.
+	 *
+	 * @return bool
+	 */
+	private function jetpack_subscriptions_available() {
+		if ( function_exists( '\Automattic\Jetpack\Extensions\Premium_Content\subscription_service' ) ) {
+			return true;
+		}
+
+		if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			return false;
+		}
+
+		$subscription_service_file_path = JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		if ( ! file_exists( $subscription_service_file_path ) ) {
+			return false;
+		}
+
+		require_once $subscription_service_file_path;
+
+		return function_exists( '\Automattic\Jetpack\Extensions\Premium_Content\subscription_service' );
+	}
+
+	/**
 	 * Determines if the current user can access restricted content and builds the restriction_details array.
 	 *
 	 * @param string $guid the video guid.
@@ -154,41 +203,36 @@ class AJAX {
 	 * @return array
 	 */
 	private function build_restriction_details( $guid, $embedded_post_id, $selected_plan_id ) {
-		$restriction_details = $this->get_default_video_restriction_details();
+		global $post;
+		$default_auth        = current_user_can( 'read' );
+		$restriction_details = $this->default_video_restriction_details( $default_auth );
 
-		if ( class_exists( '\Jetpack_Memberships' ) ) {
+		$post_to_check = get_post( $embedded_post_id );
+		if ( ! empty( $post_to_check ) ) {
+			// Set the global $post so we can do proper comparisons. Maybe this should fail if no post found?
+			// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+			$post = $post_to_check;
+		}
+
+		if ( $this->jetpack_memberships_available() ) {
 			$memberships_can_view_post = \Jetpack_Memberships::user_can_view_post( $embedded_post_id );
+			$restriction_details       = $this->get_subscriber_only_restriction_details( $default_auth );
 			if ( ! $memberships_can_view_post ) {
-				return $this->filter_video_restriction_details(
-					array(
-						'provider'             => 'jetpack_memberships',
-						'unauthorized_message' => __( 'You need to be subscribed to view this video', 'jetpack-videopress-pkg' ),
-						'can_access'           => false,
-					)
-				);
+				$restriction_details['can_access'] = $memberships_can_view_post;
+				return $this->filter_video_restriction_details( $restriction_details );
 			}
 		}
 
-		if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
-			$subscription_service_file_path = JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-			if ( file_exists( $subscription_service_file_path ) ) {
-				require_once $subscription_service_file_path;
-				if ( $selected_plan_id > 0 ) {
-					$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-					// Only paid subscribers should be granted access to the premium content.
-					$access_level = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
-					$can_view     = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );
+		if ( $this->jetpack_subscriptions_available() && $selected_plan_id > 0 ) {
+			$restriction_details = $this->get_subscriber_only_restriction_details( $default_auth );
+			$paywall             = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+			// Only paid subscribers should be granted access to the premium content.
+			$access_level = \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
+			$can_view     = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );
 
-					if ( ! $can_view ) {
-						return $this->filter_video_restriction_details(
-							array(
-								'provider'             => 'jetpack_subscription',
-								'unauthorized_message' => __( 'You need to be subscribed to view this video', 'jetpack-videopress-pkg' ),
-								'can_access'           => false,
-							)
-						);
-					}
-				}
+			if ( ! $can_view ) {
+				$restriction_details['can_access'] = $can_view;
+				return $this->filter_video_restriction_details( $restriction_details );
 			}
 		}
 

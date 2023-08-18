@@ -388,7 +388,7 @@ class Initializer {
 			$videopress_video_metadata_file,
 			array(
 				'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
-				'uses_context'    => array( 'premium-content/planId', 'isPremiumContentChild' ),
+				'uses_context'    => array( 'premium-content/planId', 'isPremiumContentChild', 'selectedPlanId' ),
 			)
 		);
 	}
