@@ -1,5 +1,6 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { useCallback, useState } from '@wordpress/element';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import './style.scss';
@@ -25,8 +26,10 @@ const ConnectionIcon = props => {
 			onKeyDown={ handleKeyDown }
 			role="switch"
 			aria-checked={ checked }
-			tabindex="0"
-			className={ hasDisplayPicture ? 'components-connection-icon__picture' : '' }
+			tabIndex="0"
+			className={ classNames( 'components-connection-icon', {
+				'components-connection-icon__picture': hasDisplayPicture,
+			} ) }
 		>
 			{ hasDisplayPicture && <img src={ profilePicture } alt={ label } onError={ onError } /> }
 			<SocialServiceIcon
@@ -40,7 +43,6 @@ const ConnectionIcon = props => {
 };
 
 ConnectionIcon.propTypes = {
-	id: PropTypes.string.isRequired,
 	serviceName: PropTypes.string,
 	label: PropTypes.string,
 	profilePicture: PropTypes.string,

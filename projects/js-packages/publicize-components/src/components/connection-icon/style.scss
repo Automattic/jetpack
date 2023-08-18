@@ -3,9 +3,12 @@
 }
 
 // Icon and picture.
-.components-connection-icon__picture {
+.components-connection-icon {
 	display: grid;
 	cursor: pointer;
+}
+
+.components-connection-icon__picture {
 
 	img,
 	.placeholder {
