@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5d6f942e19949f520792bda45ae186d5",
+    "content-hash": "aa73b06144a9caf7f44c779c564b33b2",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1179,23 +1179,23 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "v1.17.2",
+            "version": "v1.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-status.git",
-                "reference": "7ca1e7a5171cef8872a39bd661c848c829fad98a"
+                "reference": "98feb85e54ec04ccd2dd37acc4df18ec521249d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/7ca1e7a5171cef8872a39bd661c848c829fad98a",
-                "reference": "7ca1e7a5171cef8872a39bd661c848c829fad98a",
+                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/98feb85e54ec04ccd2dd37acc4df18ec521249d3",
+                "reference": "98feb85e54ec04ccd2dd37acc4df18ec521249d3",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6.22"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.3.4",
+                "automattic/jetpack-changelogger": "^3.3.7",
                 "automattic/jetpack-ip": "^0.1.4",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
@@ -1211,7 +1211,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.17.x-dev"
+                    "dev-trunk": "1.18.x-dev"
                 }
             },
             "autoload": {
@@ -1225,9 +1225,9 @@
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-status/tree/v1.17.2"
+                "source": "https://github.com/Automattic/jetpack-status/tree/v1.18.0"
             },
-            "time": "2023-06-19T18:36:11+00:00"
+            "time": "2023-07-18T23:45:14+00:00"
         },
         {
             "name": "automattic/jetpack-wp-js-data-sync",
