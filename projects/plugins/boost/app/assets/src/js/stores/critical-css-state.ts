@@ -173,7 +173,7 @@ export const regenerateCriticalCss = async () => {
 	if ( isCloudCssEnabled ) {
 		startPollingCloudStatus();
 	} else {
-		await regenerateLocalCriticalCss( freshState );
+		await continueGeneratingLocalCriticalCss( freshState );
 	}
 };
 
@@ -183,7 +183,7 @@ export const regenerateCriticalCss = async () => {
  *
  * @param state
  */
-export async function regenerateLocalCriticalCss( state: CriticalCssState ) {
+export async function continueGeneratingLocalCriticalCss( state: CriticalCssState ) {
 	if ( state.status === 'generated' ) {
 		return;
 	}

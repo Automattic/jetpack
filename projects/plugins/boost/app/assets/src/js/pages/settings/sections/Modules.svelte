@@ -11,7 +11,7 @@
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
 	import {
 		criticalCssState,
-		regenerateLocalCriticalCss,
+		continueGeneratingLocalCriticalCss,
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
@@ -46,7 +46,7 @@
 		if ( ! $criticalCssState || $criticalCssState.status === 'not_generated' ) {
 			return regenerateCriticalCss();
 		}
-		await regenerateLocalCriticalCss( $criticalCssState );
+		await continueGeneratingLocalCriticalCss( $criticalCssState );
 	}
 </script>
 
