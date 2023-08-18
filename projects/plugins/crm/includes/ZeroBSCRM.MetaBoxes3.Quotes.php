@@ -111,22 +111,18 @@
                 global $zbs;
 
 				// Define Quote statuses.
-				$acceptable_quote_statuses = array(
-					'draft'     => __( 'Draft', 'zero-bs-crm' ),
-					'published' => __( 'Published, Unaccepted', 'zero-bs-crm' ),
-					'accepted'  => __( 'Accepted', 'zero-bs-crm' ),
-				);
+				$acceptable_quote_statuses = jpcrm_get_quote_statuses();
 
 				// status
-				$status = __( 'Draft', 'zero-bs-crm' );
-			if ( is_array( $quote ) && isset( $quote['status'] ) ) {
-				if ( $quote['status'] === -2 ) {
-					$status = __( 'Published, Unaccepted', 'zero-bs-crm' );
-				}
-				if ( $quote['status'] === 1 ) {
-					$status = __( 'Accepted', 'zero-bs-crm' );
-				}
+				$status = $acceptable_quote_statuses['draft'];
+		if ( is_array( $quote ) && isset( $quote['status'] ) ) {
+			if ( $quote['status'] === -2 ) {
+				$status = $acceptable_quote_statuses['published'];
 			}
+			if ( $quote['status'] === 1 ) {
+				$status = $acceptable_quote_statuses['accepted'];
+			}
+		}
                 // Debug echo 'Quote:<pre>'.print_r($quote,1).'</pre>';
     
                 ?>                
