@@ -148,7 +148,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		);
 
 		const setContent = useCallback(
-			( newContent: string ) => {
+			( newContent: string, isRequestDone = false ) => {
 				// Remove the Jetpack Form block from the content.
 				const processedContent = newContent.replace(
 					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
@@ -180,7 +180,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		useAiContext( {
 			askQuestionOptions: { postId },
 			onDone: finalContent => {
-				setContent( finalContent );
+				setContent( finalContent, true );
 				setInputValue( '' );
 			},
 			onSuggestion: setContent,
