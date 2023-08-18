@@ -85,6 +85,8 @@ jobs:
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
       - name: Setup WordPress environment for plugin tests
+        env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
         if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
         run: .github/files/setup-wordpress-env.sh
 

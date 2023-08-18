@@ -137,7 +137,9 @@ done
 # Todo: check the require paths being used by the Woo tests, they may need updating since the Woo repo structure changed.
 # Todo: what to check so this only runs when Jetpack will be tested?
 # Todo: what PHP_VERSION variable is considered "default"?
-if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "8.2" ]]; then
+if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "8.2" ]] &&
+	jq --argjson changed "$CHANGED" -ne '$changed["plugins/jetpack"] // false' > /dev/null
+then
 	echo "::group::Installing plugin WooCommerce into WordPress"
 
 	WOO_REPO_URL="https://github.com/woocommerce/woocommerce"
