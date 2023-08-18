@@ -760,6 +760,7 @@ function add_paywall( $the_content ) {
 		return $the_content;
 	}
 
+	// Partially free content with paywall
 	if ( has_block( $block_name ) ) {
 		$post_access_level = Jetpack_Memberships::get_post_access_level();
 		if ( jetpack_is_frontend() ) {
@@ -769,6 +770,9 @@ function add_paywall( $the_content ) {
 			$paywalled_content = get_paywall_simple();
 		}
 		$paywalled_content = strstr( $the_content, '<!-- wp:' . $block_name . ' /-->', true ) . $paywalled_content;
+	} else {
+		// Fully paywalled content
+		$paywalled_content = get_paywall_blocks( $post_access_level );
 	}
 
 	return $paywalled_content;
