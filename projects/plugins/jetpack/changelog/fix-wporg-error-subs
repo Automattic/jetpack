@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+REST API: ensure subscription count functions are always available.
