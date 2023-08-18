@@ -22,12 +22,15 @@ const AI_ASSISTANT_BAR_SLOT_CLASS = 'jetpack-ai-assistant-bar__slot';
  *
  * @param {object} props - The component props.
  * @param {string} props.jetpackFormClientId - The Jetpack Form block client ID.
+ * @param {React.RefObject} props.assistantBarInputRef - The Assistant Bar input ref.
  * @returns {React.ReactElement}               The toolbar button.
  */
 export default function AiAssistantToolbarButton( {
 	jetpackFormClientId,
+	assistantBarInputRef,
 }: {
 	jetpackFormClientId?: string;
+	assistantBarInputRef?: React.RefObject< HTMLInputElement >;
 } ): React.ReactElement {
 	const { isVisible, toggle, setAnchor, assistantAnchor } = useContext( AiAssistantUiContext );
 	const { requestingState } = useAiContext();
@@ -101,12 +104,13 @@ export default function AiAssistantToolbarButton( {
 	}, [ isMobileViewport, assistantAnchor ] );
 
 	const toggleFromToolbar = useCallback( () => {
+		toggle();
 		if ( ! jetpackFormClientId ) {
-			return toggle();
+			return setTimeout( () => assistantBarInputRef?.current?.focus(), 0 );
 		}
 
-		selectFormBlock( jetpackFormClientId, toggle );
-	}, [ jetpackFormClientId, toggle ] );
+		selectFormBlock( jetpackFormClientId );
+	}, [ jetpackFormClientId, toggle, assistantBarInputRef ] );
 
 	const isDisabled = requestingState === 'requesting' || requestingState === 'suggesting';
 

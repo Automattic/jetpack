@@ -31,7 +31,7 @@ export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
  * @param {Function} fn     - The function to run after selecting the block.
  * @returns {void}
  */
-export function selectFormBlock( clientId: string, fn: () => void ): void {
+export function selectFormBlock( clientId: string, fn?: () => void ): void {
 	dispatch( 'core/block-editor' ).selectBlock( clientId ).then( fn );
 }
 
