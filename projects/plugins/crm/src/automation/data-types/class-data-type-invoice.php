@@ -95,9 +95,9 @@ class Data_Type_Invoice extends Data_Type_Base {
 	 * @since $$next-version$$
 	 *
 	 * @param mixed $entity The data we want to potentially prepare.
-	 * @return array The unified data.
+	 * @return array|mixed The unified data.
 	 */
-	public function unify_data( $entity ): array {
+	public function unify_data( $entity ) {
 		if ( ! is_array( $entity ) ) {
 			return $entity;
 		}
