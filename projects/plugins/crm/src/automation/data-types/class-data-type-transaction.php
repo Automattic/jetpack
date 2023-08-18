@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 use Automattic\Jetpack\CRM\Automation\Data_Type_Exception;
 
 /**
- * Transaction Data Type
+ * Transaction Data Type.
  *
  * @since $$next-version$$
  */

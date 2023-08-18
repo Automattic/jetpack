@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 
 /**
- * Event Data Type
+ * Event Data Type.
  *
  * @since $$next-version$$
  */

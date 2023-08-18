@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 
 /**
- * Invoice Data Type
+ * Invoice Data Type.
  *
  * @since $$next-version$$
  */

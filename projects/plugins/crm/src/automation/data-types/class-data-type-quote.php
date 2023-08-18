@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 
 /**
- * Quote Data Type
+ * Quote Data Type.
  *
  * @since $$next-version$$
  */

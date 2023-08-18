@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 
 /**
- * Contact Data Type
+ * Contact Data Type.
  *
  * @since $$next-version$$
  */

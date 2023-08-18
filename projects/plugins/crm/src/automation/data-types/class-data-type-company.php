@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Data_Types;
 
 /**
- * Company Data Type
+ * Company Data Type.
  *
  * @since $$next-version$$
  */

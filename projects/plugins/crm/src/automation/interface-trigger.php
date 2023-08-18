@@ -56,7 +56,7 @@ interface Trigger {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string
+	 * @return string the trigger's data type.
 	 */
 	public static function get_data_type(): string;
 
