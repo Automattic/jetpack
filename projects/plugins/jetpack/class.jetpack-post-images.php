@@ -120,7 +120,7 @@ class Jetpack_PostImages {
 			$images_to_exclude = array();
 			$image_index       = 0;
 			foreach ( $this_gallery['src'] as $src_url ) {
-				if ( filter_var( $src_url, FILTER_VALIDATE_URL ) === false ) {
+				if ( filter_var( $src_url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED ) === false ) {
 					$images_to_exclude[] = $image_index;
 				}
 				++$image_index;
