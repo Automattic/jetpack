@@ -2,11 +2,13 @@
  * External dependencies
  */
 import { ERROR_QUOTA_EXCEEDED, useAiContext } from '@automattic/jetpack-ai-client';
+import { createBlock } from '@wordpress/blocks';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
@@ -172,6 +174,42 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 					// Update the list of current valid blocks
 					currentListOfValidBlocks.current = validBlocks;
+				}
+
+				// Final form adjustments (only when the request is done)
+				if ( isRequestDone ) {
+					/*
+					 * Inspect generated blocks list,
+					 * checking if the jetpack/button block:
+					 * - if it exists twice or more, remove the first one.
+					 * - if it does not exist, create one.
+					 */
+					const allButtonBlocks = validBlocks.filter( block => block.name === 'jetpack/button' );
+					currentListOfValidBlocks.current = currentListOfValidBlocks.current || [];
+					if ( allButtonBlocks.length > 1 ) {
+						// Remove all button blocks, less the last one.
+						currentListOfValidBlocks.current = currentListOfValidBlocks.current.filter(
+							( block, i ) => {
+								return block.name !== 'jetpack/button' || i === allButtonBlocks.length - 1;
+							}
+						);
+
+						replaceInnerBlocks( clientId, currentListOfValidBlocks.current );
+					} else if ( allButtonBlocks.length === 0 ) {
+						// One button block is required.
+						replaceInnerBlocks( clientId, [
+							...currentListOfValidBlocks.current,
+							createBlock( 'jetpack/button', {
+								label: __( 'Submit', 'jetpack' ),
+								element: 'button',
+								text: __( 'Submit', 'jetpack' ),
+								borderRadius: 8,
+								lock: {
+									remove: true,
+								},
+							} ),
+						] );
+					}
 				}
 			},
 			[ clientId, replaceInnerBlocks ]
