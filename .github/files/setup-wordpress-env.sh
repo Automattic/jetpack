@@ -134,10 +134,8 @@ for PLUGIN in projects/plugins/*/composer.json; do
 done
 
 # Install WooCommerce plugin used for some Jetpack integration tests.
-# Todo: check the require paths being used by the Woo tests, they may need updating since the Woo repo structure changed.
-# Todo: what to check so this only runs when Jetpack will be tested?
-# Todo: what PHP_VERSION variable is considered "default"?
-if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "8.2" ]] &&
+DEFAULT_PHP_VERSION=$(bash -c 'source .github/versions.sh; echo $PHP_VERSION')
+if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "$DEFAULT_PHP_VERSION" ]] &&
 	jq --argjson changed "$CHANGED" -ne '$changed["plugins/jetpack"] // false' > /dev/null
 then
 	echo "::group::Installing plugin WooCommerce into WordPress"
