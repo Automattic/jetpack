@@ -162,7 +162,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 				// Check if the generated blocks are valid.
 				const validBlocks = newContentBlocks.filter( block => {
-					return block.isValid && block.name !== 'core/freeform';
+					return block.isValid && block.name !== 'core/freeform' && block.name !== 'core/missing';
 				} );
 
 				// Only update the blocks when the valid list changed, meaning a new block arrived.
