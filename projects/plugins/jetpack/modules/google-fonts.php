@@ -140,3 +140,33 @@ add_filter( 'pre_render_block', '\Automattic\Jetpack\Fonts\Introspectors\Blocks:
 // re-registration (at priority 22) of the core blocks it de-registers (at the default priority 10),
 // otherwise Gutenberg caches an incorrect state.
 add_action( 'init', '\Automattic\Jetpack\Fonts\Introspectors\Global_Styles::enqueue_global_styles_fonts', 22 );
+
+/**
+ * Register google fonts to the default theme json data
+ *
+ * @param WP_Theme_JSON_Data_Gutenberg $theme_json The theme json data of core.
+ * @return WP_Theme_JSON_Data_Gutenberg The theme json data with registered google fonts.
+ */
+function jetpack_register_google_fonts_to_theme_json_default( $theme_json ) {
+	$google_font_families = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
+
+	$raw_data = $theme_json->get_data();
+	if ( empty( $raw_data['settings']['typography']['fontFamilies']['default'] ) ) {
+		$raw_data['settings']['typography']['fontFamilies']['default'] = array();
+	}
+
+	$default_font_families = array_map(
+		array( 'WP_Fonts_Utils', 'get_font_family_from_variation' ),
+		$raw_data['settings']['typography']['fontFamilies']['default']
+	);
+
+	$to_add = array_diff( $google_font_families, $default_font_families );
+	foreach ( $to_add as $font_family ) {
+		$font_family_handle = WP_Fonts_Utils::convert_font_family_into_handle( $font_family );
+		$raw_data['settings']['typography']['fontFamilies']['default'][] = wp_fonts()->to_theme_json( $font_family_handle );
+	}
+
+	return new WP_Theme_JSON_Data_Gutenberg( $raw_data, 'default' );
+}
+
+add_filter( 'wp_theme_json_data_default', 'jetpack_register_google_fonts_to_theme_json_default' );
