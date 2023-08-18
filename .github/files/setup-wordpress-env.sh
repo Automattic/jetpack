@@ -178,6 +178,7 @@ sed -i "s/yourusernamehere/root/" wp-tests-config.php
 sed -i "s/yourpasswordhere/root/" wp-tests-config.php
 sed -i "s/localhost/127.0.0.1/" wp-tests-config.php
 
-echo "define( 'JETPACK_AUTOLOAD_DEV', true );" | tee -a wp-tests-config.php
+# If WooCommerce is installed, be sure we get the monorepo versions rather than the versions distributed with that.
+echo "define( 'JETPACK_AUTOLOAD_DEV', true );" >> wp-tests-config.php
 
 exit $EXIT
