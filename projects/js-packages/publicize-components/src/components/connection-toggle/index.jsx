@@ -12,7 +12,7 @@ const ConnectionToggle = props => {
 	} );
 
 	return (
-		<div className={ wrapperClasses }>
+		<div className={ wrapperClasses } title={ label }>
 			<ConnectionIcon
 				checked={ checked }
 				label={ label }
