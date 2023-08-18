@@ -5,5 +5,8 @@ node_modules      export-ignore
 # Files to exclude from the mirror repo
 /changelog/**     production-exclude
 /.eslintrc.cjs    production-exclude
+/.gitignore       production-exclude
 /jest.config.cjs  production-exclude
-/jest.setup.cjs   production-exclude
+/jest.setup.js    production-exclude
+**/stories/**     production-exclude
+**/test/**        production-exclude

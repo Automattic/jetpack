@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
-import { useSelect, useDispatch } from '@wordpress/data';
+import { askQuestion } from '@automattic/jetpack-ai-client';
+import { parse } from '@wordpress/blocks';
+import { useSelect, useDispatch, dispatch } from '@wordpress/data';
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -10,8 +12,11 @@ import debugFactory from 'debug';
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
 import { buildPromptForBlock, delimiter } from '../../lib/prompt';
-import { askJetpack, askQuestion } from '../../lib/suggestions';
-import { getContentFromBlocks, getPartialContentToBlock } from '../../lib/utils/block-content';
+import {
+	getContentFromBlocks,
+	getPartialContentToBlock,
+	getTextContentFromInnerBlocks,
+} from '../../lib/utils/block-content';
 
 const debug = debugFactory( 'jetpack-ai-assistant:event' );
 const debugPrompt = debugFactory( 'jetpack-ai-assistant:prompt' );
@@ -113,6 +118,30 @@ const useSuggestionsFromOpenAI = ( {
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
 	const getStreamedSuggestionFromOpenAI = async ( type, options = {} ) => {
+		const implementedFunctions = options?.functions?.reduce( ( acc, { name, implementation } ) => {
+			return {
+				...acc,
+				[ name ]: implementation,
+			};
+		}, {} );
+
+		/*
+		 * If the site requires an upgrade to use the feature,
+		 * let's set the error and return an `undefined` event source.
+		 */
+		if ( requireUpgrade ) {
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( false );
+			setError( {
+				code: 'error_quota_exceeded',
+				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
+				status: 'info',
+			} );
+
+			return;
+		}
+
 		options = {
 			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,
@@ -138,16 +167,22 @@ const useSuggestionsFromOpenAI = ( {
 		let lastUserPrompt = {};
 
 		if ( ! options.retryRequest ) {
+			const allPostContent = ! attributes?.isLayoutBuldingModeEnable
+				? getContentFromBlocks()
+				: getTextContentFromInnerBlocks( clientId );
+
 			// If there is a content already, let's iterate over it.
 			prompt = buildPromptForBlock( {
 				generatedContent: content,
-				allPostContent: getContentFromBlocks(),
+				allPostContent,
 				postContentAbove: getPartialContentToBlock( clientId ),
 				currentPostTitle,
 				options,
 				userPrompt,
 				type,
 				isGeneratingTitle: attributes.promptType === 'generateTitle',
+				useGutenbergSyntax: !! attributes?.useGutenbergSyntax,
+				customSystemPrompt: attributes?.customSystemPrompt,
 			} );
 
 			/*
@@ -181,7 +216,12 @@ const useSuggestionsFromOpenAI = ( {
 				debugPrompt( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
 			);
 
-			source.current = await askQuestion( prompt, { postId, requireUpgrade } );
+			source.current = await askQuestion( prompt, {
+				postId,
+				requireUpgrade,
+				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : undefined,
+				functions: options?.functions,
+			} );
 		} catch ( err ) {
 			if ( err.message ) {
 				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
@@ -200,7 +240,57 @@ const useSuggestionsFromOpenAI = ( {
 			setWasCompletionJustRequested( false );
 		}
 
-		source?.current?.addEventListener( 'done', e => {
+		const onFunctionDone = async e => {
+			const { detail } = e;
+
+			// Add assistant message with the function call request
+			const assistantResponse = { role: 'assistant', content: null, function_call: detail };
+
+			const response = await implementedFunctions[ detail.name ]?.(
+				JSON.parse( detail.arguments )
+			);
+
+			// Add the function call response
+			const functionResponse = {
+				role: 'function',
+				name: detail?.name,
+				content: JSON.stringify( response ),
+			};
+
+			prompt = [ ...prompt, assistantResponse, functionResponse ];
+
+			// Remove source.current listeners
+			source?.current?.removeEventListener( 'function_done', onFunctionDone );
+			source?.current?.removeEventListener( 'done', onDone );
+			source?.current?.removeEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
+			source?.current?.removeEventListener( 'error_network', onErrorNetwork );
+			source?.current?.removeEventListener(
+				'error_service_unavailable',
+				onErrorServiceUnavailable
+			);
+			source?.current?.removeEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
+			source?.current?.removeEventListener( 'error_moderation', onErrorModeration );
+			source?.current?.removeEventListener( 'suggestion', onSuggestion );
+
+			source.current = await askQuestion( prompt, {
+				postId,
+				requireUpgrade,
+				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : null,
+				functions: options.functions,
+			} );
+
+			// Add the listeners back
+			source?.current?.addEventListener( 'function_done', onFunctionDone );
+			source?.current?.addEventListener( 'done', onDone );
+			source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
+			source?.current?.addEventListener( 'error_network', onErrorNetwork );
+			source?.current?.addEventListener( 'error_service_unavailable', onErrorServiceUnavailable );
+			source?.current?.addEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
+			source?.current?.addEventListener( 'error_moderation', onErrorModeration );
+			source?.current?.addEventListener( 'suggestion', onSuggestion );
+		};
+
+		const onDone = e => {
 			const { detail } = e;
 
 			// Remove the delimiter from the suggestion.
@@ -211,6 +301,7 @@ const useSuggestionsFromOpenAI = ( {
 				role: 'assistant',
 				content: assistantResponse,
 			};
+
 			updatedMessages.push( lastUserPrompt, lastAssistantPrompt );
 
 			debugPrompt( 'Add %o\n%s', `[${ lastUserPrompt.role }]`, lastUserPrompt.content );
@@ -226,14 +317,28 @@ const useSuggestionsFromOpenAI = ( {
 
 			stopSuggestion();
 
+			const useGutenbergSyntax = attributes?.useGutenbergSyntax;
+
 			updateBlockAttributes( clientId, {
 				content: assistantResponse,
 				messages: updatedMessages,
 			} );
-			refreshFeatureData();
-		} );
 
-		source?.current?.addEventListener( 'error_unclear_prompt', () => {
+			if ( ! useGutenbergSyntax ) {
+				return;
+			}
+
+			// POC for layout prompts:
+			// Generates the list of blocks from the generated code
+			const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
+			const blocks = parse( detail );
+			const validBlocks = blocks.filter( block => block.isValid );
+			replaceInnerBlocks( clientId, validBlocks );
+
+			refreshFeatureData();
+		};
+
+		const onErrorUnclearPrompt = () => {
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -243,9 +348,9 @@ const useSuggestionsFromOpenAI = ( {
 				status: 'info',
 			} );
 			onUnclearPrompt?.();
-		} );
+		};
 
-		source?.current?.addEventListener( 'error_network', ( { detail: error } ) => {
+		const onErrorNetwork = ( { detail: error } ) => {
 			const { name: errorName, message: errorMessage } = error;
 			if ( errorName === 'TypeError' && errorMessage === 'Failed to fetch' ) {
 				/*
@@ -272,6 +377,8 @@ const useSuggestionsFromOpenAI = ( {
 					userPrompt,
 					type,
 					isGeneratingTitle: attributes.promptType === 'generateTitle',
+					useGutenbergSyntax: !! attributes?.useGutenbergSyntax,
+					customSystemPrompt: attributes?.customSystemPrompt,
 				} );
 
 				setLastPrompt( [ ...prompt, ...updatedMessages, lastUserPrompt ] );
@@ -286,9 +393,9 @@ const useSuggestionsFromOpenAI = ( {
 				message: __( 'It was not possible to process your request. Mind trying again?', 'jetpack' ),
 				status: 'info',
 			} );
-		} );
+		};
 
-		source?.current?.addEventListener( 'error_service_unavailable', () => {
+		const onErrorServiceUnavailable = () => {
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -301,9 +408,9 @@ const useSuggestionsFromOpenAI = ( {
 				),
 				status: 'info',
 			} );
-		} );
+		};
 
-		source?.current?.addEventListener( 'error_quota_exceeded', () => {
+		const onErrorQuotaExceeded = () => {
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -313,9 +420,9 @@ const useSuggestionsFromOpenAI = ( {
 				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
 				status: 'info',
 			} );
-		} );
+		};
 
-		source?.current?.addEventListener( 'error_moderation', () => {
+		const onErrorModeration = () => {
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -329,14 +436,41 @@ const useSuggestionsFromOpenAI = ( {
 				status: 'info',
 			} );
 			onModeration?.();
-		} );
+		};
 
-		source?.current?.addEventListener( 'suggestion', e => {
+		const onSuggestion = e => {
 			setWasCompletionJustRequested( false );
 			debug( '(suggestion)', e?.detail );
+
+			/*
+			 * Progressive blocks rendering process.
+			 * ToDo: Interesting challenge. Let's comment for now.
+			 */
+
+			// let's get valid HTML by using a temporary dom element
+			// const temp = document.createElement( 'div' );
+			// temp.innerHTML = e?.detail;
+
+			// // Now, we are ready to create blocks from the valid HTML.
+			// const blocks = rawHandler( { HTML: temp.innerHTML } );
+			// const validBlocks = blocks.filter( block => block.isValid );
+
+			// const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
+			// replaceInnerBlocks( clientId, validBlocks );
+
 			// Remove the delimiter from the suggestion and update the block.
 			updateBlockAttributes( clientId, { content: e?.detail?.replaceAll( delimiter, '' ) } );
-		} );
+		};
+
+		source?.current?.addEventListener( 'function_done', onFunctionDone );
+		source?.current?.addEventListener( 'done', onDone );
+		source?.current?.addEventListener( 'error_unclear_prompt', onErrorUnclearPrompt );
+		source?.current?.addEventListener( 'error_network', onErrorNetwork );
+		source?.current?.addEventListener( 'error_service_unavailable', onErrorServiceUnavailable );
+		source?.current?.addEventListener( 'error_quota_exceeded', onErrorQuotaExceeded );
+		source?.current?.addEventListener( 'error_moderation', onErrorModeration );
+		source?.current?.addEventListener( 'suggestion', onSuggestion );
+
 		return source?.current;
 	};
 
@@ -369,8 +503,3 @@ const useSuggestionsFromOpenAI = ( {
 };
 
 export default useSuggestionsFromOpenAI;
-
-/**
- * askJetpack is exposed just for debugging purposes
- */
-window.askJetpack = askJetpack;

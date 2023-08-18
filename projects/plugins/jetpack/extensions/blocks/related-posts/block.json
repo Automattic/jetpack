@@ -1,0 +1,78 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/related-posts",
+	"title": "Related Posts",
+	"description": "Display a list of related posts.",
+	"keywords": [ "similar content", "linked", "connected" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' strokeWidth='2' strokeLinecap='square'><path d='M4,4 L4,19 M4,4 L19,4 M4,9 L19,9 M4,14 L19,14 M4,19 L19,19 M9,4 L9,19 M19,4 L19,19' /></g></svg>",
+	"supports": {
+		"html": false,
+		"multiple": false,
+		"reusable": false,
+		"color": {
+			"gradients": true,
+			"link": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"__experimentalFontFamily": true,
+			"fontSize": true,
+			"lineHeight": true
+		},
+		"align": [ "wide", "full" ]
+	},
+	"attributes": {
+		"postLayout": {
+			"type": "string",
+			"default": "grid"
+		},
+		"displayAuthor": {
+			"type": "boolean",
+			"default": false
+		},
+		"displayDate": {
+			"type": "boolean",
+			"default": true
+		},
+		"displayHeadline": {
+			"type": "boolean",
+			"default": false
+		},
+		"displayThumbnails": {
+			"type": "boolean",
+			"default": false
+		},
+		"displayContext": {
+			"type": "boolean",
+			"default": false
+		},
+		"headline": {
+			"type": "string",
+			"default": ""
+		},
+		"postsToShow": {
+			"type": "number",
+			"default": 3
+		}
+	},
+	"example": {
+		"attributes": {
+			"postLayout": "grid",
+			"displayAuthor": false,
+			"displayDate": true,
+			"displayHeadline": false,
+			"displayThumbnails": true,
+			"displayContext": false,
+			"headline": "",
+			"postsToShow": 2
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

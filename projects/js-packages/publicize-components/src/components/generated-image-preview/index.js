@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Spinner, BaseControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
@@ -33,13 +33,21 @@ export const calculateImageUrl = ( imageType, customImageId, featuredImageId, ge
 /**
  * Fetches the preview of the generated image based on the post info
  *
+ * @param {{shouldDebounce:boolean, customText: string, imageType: string, imageId: number, template: string}} props -
+ * The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
  * @returns {React.ReactNode} The generated image preview.
  */
-export default function GeneratedImagePreview() {
+export default function GeneratedImagePreview( {
+	shouldDebounce = true,
+	...generatorConfigProps
+} ) {
 	const [ generatedImageUrl, setGeneratedImageUrl ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( true );
 
-	const { customText, imageType, imageId, template, setToken } = useImageGeneratorConfig();
+	const { customText, imageType, imageId, template, setToken } = {
+		...useImageGeneratorConfig(),
+		...generatorConfigProps,
+	};
 	const { title, imageUrl } = useSelect( select => {
 		const featuredImage = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 		return {
@@ -86,7 +94,7 @@ export default function GeneratedImagePreview() {
 				setGeneratedImageUrl( url );
 			},
 			// We only want to debounce on string changes.
-			imageTitle === imageTitleRef.current ? 0 : 1500
+			imageTitle === imageTitleRef.current || ! shouldDebounce ? 0 : 1500
 		);
 
 		return () => {
@@ -103,7 +111,7 @@ export default function GeneratedImagePreview() {
 
 	return (
 		<ThemeProvider>
-			<BaseControl label={ __( 'Preview', 'jetpack' ) }>
+			<BaseControl label={ _x( 'Preview', 'Heading for the generated preview image', 'jetpack' ) }>
 				<div className={ styles.container }>
 					<img
 						className={ classNames( {
@@ -112,7 +120,7 @@ export default function GeneratedImagePreview() {
 						src={ generatedImageUrl }
 						alt={ __( 'Generated preview', 'jetpack' ) }
 						onLoad={ onImageLoad }
-					></img>
+					/>
 					{ isLoading && <Spinner data-testid="spinner" /> }
 				</div>
 			</BaseControl>

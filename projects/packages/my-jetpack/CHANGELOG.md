@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.3] - 2023-08-14
+### Added
+- Make My Jetpack the default WP-Admin page for Jetpack. [#32385]
+
+### Changed
+- Start showing My Jetpack for authors, editors, and contributors [#32420]
+
+## [3.3.2] - 2023-08-09
+### Fixed
+- Revert My Jetpack as first menu item. [#32384]
+
+## [3.3.1] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [3.3.0] - 2023-08-07
+### Added
+- Add Identity Crisis screen modal. [#32249]
+
+### Changed
+- Move 'My Jetpack' sub-menu item to first position. [#32240]
+
+### Fixed
+- Fix IDC modal height issue. [#32316]
+
+## [3.2.1] - 2023-08-01
+### Added
+- Add transient caching for zendesk jwt auth token. [#32140]
+
+### Changed
+- My Jetpack: Rename the namespace of the JWT endpoint, and register it only when it isn't already registered [#32081]
+
+## [3.2.0] - 2023-07-25
+### Added
+- My Jetpack: register jetpack-ai-jwt endpoint [#31965]
+- My Jetpack: release Paid Stats to the public [#32020]
+
+### Changed
+- My Jetpack: changed Stats features wording [#32046]
+- Updated package dependencies. [#31999]
+- Updated package dependencies. [#32040]
+
+### Fixed
+- Make Jetpack logo in footer smaller [#31627]
+- My Jetpack: enabled Stats purchase flow returning to Stats Dashboard [#31959]
+
+## [3.1.3] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+### Fixed
+- Hide connection owner information if the data is invalid
+- Don't suggest user connection if user is already connected, but connection owner is invalid [#31618]
+
+## [3.1.2] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [3.1.1] - 2023-07-10
+### Fixed
+- Make product card primary buttons links when applicable [#31611]
+
+## [3.1.0] - 2023-07-05
+### Added
+- Added Jetpack Stats card to My Jetpack [#31589]
+
+### Changed
+- Jetpack Stats: Enable skipping interstitial page [#31629]
+- Updated package dependencies. [#31659]
+
+### Fixed
+- My Jetpack: hide Stats card for standalone plugins [#31689]
+- Organize product cards in list [#31606]
+
 ## [3.0.0] - 2023-06-26
 ### Added
 - Add authentication to Zendesk chat. [#31339]
@@ -913,6 +987,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[3.3.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.3.2...3.3.3
+[3.3.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.3.1...3.3.2
+[3.3.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.3.0...3.3.1
+[3.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.2.1...3.3.0
+[3.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.2.0...3.2.1
+[3.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.3...3.2.0
+[3.1.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.2...3.1.3
+[3.1.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.1...3.1.2
+[3.1.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.0...3.1.1
+[3.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.0.0...3.1.0
 [3.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.15.0...3.0.0
 [2.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.3...2.15.0
 [2.14.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.2...2.14.3

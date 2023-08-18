@@ -175,7 +175,7 @@ class Jetpack_Social {
 
 		Assets::enqueue_script( 'jetpack-social' );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-social', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-social' );
 		wp_add_inline_script( 'jetpack-social', $this->render_initial_state(), 'before' );
 	}
 
@@ -302,7 +302,6 @@ class Jetpack_Social {
 	 */
 	public function enqueue_block_editor_scripts() {
 		global $publicize;
-
 		if (
 			class_exists( 'Jetpack' ) ||
 			! $this->should_enqueue_block_editor_scripts()
@@ -349,7 +348,7 @@ class Jetpack_Social {
 		);
 
 		// Connection initial state is expected when the connection JS package is in the bundle
-		wp_add_inline_script( 'jetpack-social-editor', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-social-editor' );
 		// Conditionally load analytics scripts
 		// The only component using analytics in the editor at the moment is the review request
 		if ( ! in_array( get_post_status(), array( 'publish', 'private', 'trash' ), true ) && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {

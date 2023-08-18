@@ -181,6 +181,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'strava.com'        => 'strava',
 			'stumbleupon.com'   => 'stumbleupon',
 			'telegram.me'       => 'telegram',
+			'threads.net'       => 'threads',
 			'tiktok.com'        => 'tiktok',
 			'tumblr.com'        => 'tumblr',
 			'twitch.tv'         => 'twitch',

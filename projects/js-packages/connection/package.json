@@ -1,7 +1,16 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.29.1",
+	"version": "0.29.8-alpha",
 	"description": "Jetpack Connection Component",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Connection"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/connection"
+	},
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
@@ -9,22 +18,22 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-config": "workspace:*",
-		"@wordpress/base-styles": "4.26.0",
-		"@wordpress/browserslist-config": "5.18.0",
-		"@wordpress/components": "25.1.0",
-		"@wordpress/data": "9.5.0",
-		"@wordpress/element": "5.12.0",
-		"@wordpress/i18n": "4.35.0",
-		"@wordpress/icons": "9.26.0",
+		"@wordpress/base-styles": "4.29.0",
+		"@wordpress/browserslist-config": "5.21.0",
+		"@wordpress/components": "25.4.0",
+		"@wordpress/data": "9.8.0",
+		"@wordpress/element": "5.15.0",
+		"@wordpress/i18n": "4.38.0",
+		"@wordpress/icons": "9.29.0",
 		"classnames": "2.3.2",
 		"debug": "4.3.4",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.21.5",
-		"@babel/preset-react": "7.18.6",
-		"@storybook/addon-actions": "7.0.5",
+		"@babel/core": "7.22.9",
+		"@babel/preset-react": "7.22.5",
+		"@storybook/addon-actions": "7.1.0",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "13.4.0",
 		"@testing-library/user-event": "14.4.3",

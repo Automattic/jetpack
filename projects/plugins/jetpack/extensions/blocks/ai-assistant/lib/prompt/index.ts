@@ -20,6 +20,7 @@ export const PROMPT_TYPE_CHANGE_TONE = 'changeTone' as const;
 export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
 export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
 export const PROMPT_TYPE_USER_PROMPT = 'userPrompt' as const;
+export const PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT = 'jetpackFormCustomPrompt' as const;
 
 export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_SUMMARY_BY_TITLE,
@@ -33,6 +34,7 @@ export const PROMPT_TYPE_LIST = [
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
 	PROMPT_TYPE_USER_PROMPT,
+	PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT,
 ] as const;
 
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
@@ -53,28 +55,56 @@ export const delimiter = '````';
  * @param {object} options - The options for the prompt.
  * @param {string} options.context - The context of the prompt.
  * @param {Array<string>} options.rules - The rules to follow.
+ * @param {boolean} options.useGutenbergSyntax - Enable prompts focused on layout building.
+ * @param {boolean} options.useMarkdown - Enable answer to be in markdown.
+ * @param {string} options.customSystemPrompt - Provide a custom system prompt that will override system.
  * @returns {PromptItemProps} The initial system prompt.
  */
 export function getInitialSystemPrompt( {
-	context = 'You are an AI assistant, your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the Wordpress editor',
+	context = 'You are an advanced polyglot ghostwriter. Your task is to generate and modify content based on user requests. This functionality is integrated into the Jetpack product developed by Automattic. Users interact with you through a Gutenberg block, you are inside the WordPress editor',
 	rules,
+	useGutenbergSyntax = false,
+	useMarkdown = true,
+	customSystemPrompt = null,
 }: {
 	context?: string;
 	rules?: Array< string >;
+	useGutenbergSyntax?: boolean;
+	useMarkdown?: boolean;
+	customSystemPrompt?: string;
 } ): PromptItemProps {
 	// Rules
 	let extraRules = '';
+
 	if ( rules?.length ) {
 		extraRules = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
 	}
-	const prompt = `${ context }.
-Strictly follow these rules:
 
-${ extraRules }- Format your responses in Markdown syntax, ready to be published.
-- Execute the request without any acknowledgment to the user.
+	let prompt = `${ context }. Strictly follow these rules:
+
+${ extraRules }${
+		useMarkdown ? '- Format your responses in Markdown syntax, ready to be published.' : ''
+	}
+- Execute the request without any acknowledgement to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `;
+
+	// POC for layout prompts:
+	if ( useGutenbergSyntax ) {
+		prompt = `${ context }. Strictly follow these rules:
+	
+${ extraRules }- Format your responses in Gutenberg HTML format including HTML comments for WordPress blocks. All responses must be valid Gutenberg HTML.
+- Use only WordPress core blocks
+- Execute the request without any acknowledgement to the user.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+`;
+	}
+
+	if ( customSystemPrompt ) {
+		prompt = customSystemPrompt;
+	}
 
 	return { role: 'system', content: prompt };
 }
@@ -104,9 +134,14 @@ type PromptOptionsProps = {
 	 * The previous messages of the same prompt. Optional.
 	 */
 	prevMessages?: Array< PromptItemProps >;
+
+	/*
+	 * A custom request prompt. Optional.
+	 */
+	request?: string;
 };
 
-function getDelimitedContent( content: string ): string {
+export function getDelimitedContent( content: string ): string {
 	return `${ delimiter }${ content.replaceAll( delimiter, '' ) }${ delimiter }`;
 }
 
@@ -196,6 +231,57 @@ function getTonePrompt( {
 	];
 }
 
+function getJetpackFormCustomPrompt( {
+	content,
+	role = 'user',
+	request,
+}: PromptOptionsProps ): Array< PromptItemProps > {
+	if ( ! request ) {
+		throw new Error( 'You must provide a custom prompt for the Jetpack Form Custom Prompt' );
+	}
+
+	return [
+		{
+			role: 'system',
+			content: `You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature.
+Strictly follow those rules:
+- Do not wrap the response in any block, element or any kind of delimiter.
+- DO NOT add any additional feedback to the "user", just generate the requested block structure.
+- Do not refer to yourself, the user or the response in any way.
+- When the user provides instructions, translate them into appropriate Gutenberg blocks and Jetpack form structure.
+- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
+- If you cannot generate a meaningful response to a user's request, reply only with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.`,
+		},
+		{
+			role,
+			content: `Handle the following request: ${ request }
+
+Strong requirements:
+- Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
+- Always add, at the end, exactly one jetpack/button for the form submission. Forms require one button to be valid.
+- Replace placeholders (like FIELD_LABEL, IS_REQUIRED, etc.) with the user's specifications.
+- Use syntax templates for blocks as follows:
+	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Text Input Field\`: <!-- wp:jetpack/field-text {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Multi-line Text Field \`: <!-- wp:jetpack/field-textarea {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Checkbox\`: <!-- wp:jetpack/field-checkbox {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT} /-->
+	- \`Date Picker\`: <!-- wp:jetpack/field-date {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Phone Number Field\`: <!-- wp:jetpack/field-telephone {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`URL Field\`: <!-- wp:jetpack/field-url {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
+	- \`Multiple Choice (Checkbox)\`: <!-- wp:jetpack/field-checkbox-multiple {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
+	- \`Single Choice (Radio)\`: <!-- wp:jetpack/field-radio {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE]} /-->
+	- \`Dropdown Field\`: <!-- wp:jetpack/field-select {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE],"toggleLabel":TOGGLE_LABEL} /-->
+	- \`Terms Consent\`:  <!-- wp:jetpack/field-consent {"consentType":"CONSENT_TYPE","implicitConsentMessage":"IMPLICIT_CONSENT_MESSAGE","explicitConsentMessage":"EXPLICIT_CONSENT_MESSAGE", /-->
+	- \`Button\`: <!-- wp:jetpack/button {"label":FIELD_LABEL,"element":"button","text":BUTTON_TEXT,"borderRadius":BORDER_RADIUS,"lock":{"remove":true}} /-->
+
+- When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column), like so: \`Name Field\`:
+	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
+Jetpack Form to modify:\n${ content }`,
+		},
+	];
+}
+
 /*
  * Builds a prompt template based on context, rules and content.
  *
@@ -221,19 +307,23 @@ export const buildPromptTemplate = ( {
 	relevantContent = null,
 	isContentGenerated = false,
 	isGeneratingTitle = false,
+	useGutenbergSyntax = false,
+	customSystemPrompt = null,
 }: {
 	rules?: Array< string >;
 	request?: string;
 	relevantContent?: string;
 	isContentGenerated?: boolean;
 	isGeneratingTitle?: boolean;
+	useGutenbergSyntax?: boolean;
+	customSystemPrompt?: string;
 } ): Array< PromptItemProps > => {
 	if ( ! request && ! relevantContent ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
 	// Add initial system prompt.
-	const messages = [ getInitialSystemPrompt( { rules } ) ];
+	const messages = [ getInitialSystemPrompt( { rules, useGutenbergSyntax, customSystemPrompt } ) ];
 
 	if ( relevantContent != null && relevantContent?.length ) {
 		const sanitizedContent = relevantContent.replaceAll( delimiter, '' );
@@ -264,7 +354,13 @@ export const buildPromptTemplate = ( {
 	return messages;
 };
 
-type BuildPromptOptions = {
+export type BuildPromptOptionsProps = {
+	contentType?: 'generated' | string;
+	tone?: ToneProp;
+	language?: string;
+};
+
+type BuildPromptProps = {
 	generatedContent: string;
 	allPostContent?: string;
 	postContentAbove?: string;
@@ -272,11 +368,9 @@ type BuildPromptOptions = {
 	type: PromptTypeProp;
 	userPrompt?: string;
 	isGeneratingTitle?: boolean;
-	options: {
-		contentType?: 'generated' | string;
-		tone?: ToneProp;
-		language?: string;
-	};
+	useGutenbergSyntax?: boolean;
+	customSystemPrompt?: string;
+	options: BuildPromptOptionsProps;
 };
 
 type GetPromptOptionsProps = {
@@ -346,7 +440,7 @@ export function promptTextFor(
  * Builds a prompt based on the type of prompt.
  * Meant for use by the block, not the extensions.
  *
- * @param {BuildPromptOptions} options - The prompt options.
+ * @param {BuildPromptProps} options - The prompt options.
  * @returns {Array< PromptItemProps >} The prompt.
  * @throws {Error} If the type is not recognized.
  */
@@ -359,7 +453,9 @@ export function buildPromptForBlock( {
 	type,
 	userPrompt,
 	isGeneratingTitle,
-}: BuildPromptOptions ): Array< PromptItemProps > {
+	useGutenbergSyntax,
+	customSystemPrompt,
+}: BuildPromptProps ): Array< PromptItemProps > {
 	const isContentGenerated = options?.contentType === 'generated';
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
 
@@ -394,6 +490,8 @@ export function buildPromptForBlock( {
 			relevantContent,
 			isContentGenerated,
 			isGeneratingTitle,
+			useGutenbergSyntax,
+			customSystemPrompt,
 		} );
 	}
 
@@ -402,6 +500,8 @@ export function buildPromptForBlock( {
 		relevantContent: generatedContent || allPostContent,
 		isContentGenerated: !! generatedContent?.length,
 		isGeneratingTitle,
+		useGutenbergSyntax,
+		customSystemPrompt,
 	} );
 }
 
@@ -417,24 +517,20 @@ export function getPrompt(
 	options: PromptOptionsProps
 ): Array< PromptItemProps > {
 	debug( 'Addressing prompt type: %o %o', type, options );
-	const { prevMessages } = options;
-
-	const context =
-		'You are an advanced polyglot ghostwriter.' +
-		'Your task is to help the user create and modify content based on their requests.';
+	const { prevMessages = [] } = options;
 
 	const systemPrompt: PromptItemProps = {
 		role: 'system',
-		content: `${ context }
+		content: `You are an advanced polyglot ghostwriter. Your task is to help the user create and modify content based on their requests.
 Writing rules:
 - Execute the request without any acknowledgment or explanation to the user.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user’s request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
+- If you cannot generate a meaningful response to a user's request, reply with “__JETPACK_AI_ERROR__“. This term should only be used in this context, it is used to generate user facing errors.
 `,
 	};
 
 	// Prompt starts with the previous messages, if any.
-	const prompt: Array< PromptItemProps > = prevMessages;
+	const prompt: Array< PromptItemProps > = [ ...prevMessages ];
 
 	// Then, add the `system` prompt to clarify the context.
 	prompt.push( systemPrompt );
@@ -459,9 +555,11 @@ Writing rules:
 		case PROMPT_TYPE_CHANGE_TONE:
 			return [ ...prompt, ...getTonePrompt( options ) ];
 
+		case PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT:
+			// Does not use the default system prompt.
+			return [ ...prevMessages, ...getJetpackFormCustomPrompt( options ) ];
+
 		default:
 			throw new Error( `Unknown prompt type: ${ type }` );
 	}
-
-	return prompt;
 }

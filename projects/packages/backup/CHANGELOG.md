@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0] - 2023-08-14
+### Added
+- Add backup undo feature. [#32442]
+
+## [1.16.6] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [1.16.5] - 2023-08-01
+### Changed
+- Minor internal updates.
+
+## [1.16.4] - 2023-07-25
+### Changed
+- Updated package dependencies. [#32040]
+
+## [1.16.3] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+## [1.16.2] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
 ## [1.16.1] - 2023-06-26
 ### Changed
 - Updated package dependencies. [#31468]
@@ -437,6 +461,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.17.0]: https://github.com/Automattic/jetpack-backup/compare/v1.16.6...v1.17.0
+[1.16.6]: https://github.com/Automattic/jetpack-backup/compare/v1.16.5...v1.16.6
+[1.16.5]: https://github.com/Automattic/jetpack-backup/compare/v1.16.4...v1.16.5
+[1.16.4]: https://github.com/Automattic/jetpack-backup/compare/v1.16.3...v1.16.4
+[1.16.3]: https://github.com/Automattic/jetpack-backup/compare/v1.16.2...v1.16.3
+[1.16.2]: https://github.com/Automattic/jetpack-backup/compare/v1.16.1...v1.16.2
 [1.16.1]: https://github.com/Automattic/jetpack-backup/compare/v1.16.0...v1.16.1
 [1.16.0]: https://github.com/Automattic/jetpack-backup/compare/v1.15.0...v1.16.0
 [1.15.0]: https://github.com/Automattic/jetpack-backup/compare/v1.14.0...v1.15.0

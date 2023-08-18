@@ -1357,7 +1357,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @return mixed
 	 */
 	public function get_post_meta_for_csv_export( $post_id ) {
-		$md                     = get_post_meta( $post_id, '_feedback_extra_fields', true );
+		$md                     = (array) get_post_meta( $post_id, '_feedback_extra_fields', true );
 		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
 		$content_fields         = self::parse_fields_from_content( $post_id );
 		$md['93_ip_address']    = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
@@ -3868,17 +3868,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * Links to the feedback and the post.
 		 */
 		if ( $block_template || $block_template_part || $widget ) {
-			$url        = home_url( '/' );
-			$url_editor = home_url( '/' );
+			$url = home_url( '/' );
 		} else {
-			$url        = get_permalink( $post->ID );
-			$url_editor = add_query_arg(
-				array(
-					'action' => 'edit',
-					'post'   => $post->ID,
-				),
-				admin_url( 'post.php' )
-			);
+			$url = get_permalink( $post->ID );
 		}
 
 		// translators: the time of the form submission.
@@ -3970,7 +3962,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @param string the title of the email
 		 */
-		$title   = apply_filters( 'jetpack_forms_response_email_title', __( 'You got a new response!', 'jetpack' ) );
+		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
 		$message = self::get_compiled_form_for_email( $post_id, $this );
 
 		if ( is_user_logged_in() ) {
@@ -4026,8 +4018,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			)
 		);
 
-		$response_link = admin_url( 'edit.php?post_type=feedback' );
-
 		/**
 		 * Filters the message sent via email after a successful form submission.
 		 *
@@ -4041,7 +4031,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
 
 		// This is called after `contact_form_message`, in order to preserve back-compat
-		$message = self::wrap_message_in_html_tags( $title, $response_link, $url_editor, $message, $footer );
+		$message = self::wrap_message_in_html_tags( $title, $message, $footer );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
@@ -4230,14 +4220,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * This helps to ensure correct parsing by clients, and also helps avoid triggering spam filtering rules
 	 *
 	 * @param string $title - title of the email.
-	 * @param string $response_link - the link to the response.
-	 * @param string $form_link - the link to the form.
 	 * @param string $body - the message body.
 	 * @param string $footer - the footer containing meta information.
 	 *
 	 * @return string
 	 */
-	public static function wrap_message_in_html_tags( $title, $response_link, $form_link, $body, $footer ) {
+	public static function wrap_message_in_html_tags( $title, $body, $footer ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters
 		if ( false !== strpos( $body, '<html' ) ) {
@@ -4264,10 +4252,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'',
 				$template
 			),
-			$title,
+			( $title !== '' ? '<h1>' . $title . '</h1>' : '' ),
 			$body,
-			$response_link,
-			$form_link,
+			'',
+			'',
 			$footer
 		);
 
@@ -4316,7 +4304,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			foreach ( $vars as $key => $data ) {
 				$value->{$key} = $this->addslashes_deep( $data );
 			}
-			return $value;
+			return (array) $value;
 		}
 
 		return addslashes( $value );
@@ -5037,7 +5025,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
-			$field .= "\t\t<option>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
+			$field .= "\t\t<option value=''>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
 		}
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {

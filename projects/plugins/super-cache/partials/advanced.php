@@ -1,4 +1,9 @@
 <?php
+global $wp_cache_mod_rewrite, $wp_cache_mfunc_enabled, $wp_cache_mobile_enabled;
+
+$faq_url          = 'https://jetpack.com/support/wp-super-cache/wp-super-cache-faq/';
+$kses_allow_links = array( 'a' => array( 'href' => array() ) ); // Arguments for wp_kses to allow links.
+
 if ( isset( $wp_cache_front_page_checks ) == false ) {
 	$wp_cache_front_page_checks = true;
 }
@@ -24,7 +29,22 @@ echo '<input type="hidden" name="action" value="scupdates" />';
 		<label><input type='radio' name='wp_cache_mod_rewrite' <?php if ( $wp_cache_mod_rewrite == 1 ) echo "checked"; ?> value='1'> <?php _e( '<acronym title="Use mod_rewrite to serve cached files">Expert</acronym>', 'wp-super-cache' ); ?></label><br />
 		<em><small class='description'><?php _e( 'Expert caching requires changes to important server files and may require manual intervention if enabled.', 'wp-super-cache' ); ?></small></em>
 		<?php if ( $is_nginx ) { ?>
-			<em><small class='description'><?php printf( __( 'Nginx rules can be found <a href="%s">here</a> but are not officially supported.', 'wp-super-cache' ), 'https://codex.wordpress.org/Nginx#WP_Super_Cache_Rules' ); ?></small></em>
+			<em><small class='description'>
+				<?php
+				echo wp_kses(
+					sprintf(
+						/* Translators: placeholder is a link to a support document. */
+						__( 'Nginx rules can be found <a href="%s">here</a> but are not officially supported.', 'wp-super-cache' ),
+						'https://wordpress.org/documentation/article/nginx/#wp-super-cache-rules'
+					),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				);
+				?>
+			</small></em>
 		<?php } ?>
 		</fieldset>
 	</td>
@@ -66,8 +86,54 @@ echo '<input type="hidden" name="action" value="scupdates" />';
 	<td>
 		<fieldset>
 		<legend class="hidden">Advanced</legend>
-		<label><input <?php disabled( $wp_cache_mod_rewrite ); ?> type='checkbox' name='wp_cache_mfunc_enabled' <?php if( $wp_cache_mfunc_enabled ) echo "checked"; ?> value='1'> <?php _e( 'Enable dynamic caching. (See <a href="https://wordpress.org/plugins/wp-super-cache/faq/">FAQ</a> or wp-super-cache/plugins/dynamic-cache-test.php for example code.)', 'wp-super-cache' ); ?></label><br />
-		<label><input type='checkbox' name='wp_cache_mobile_enabled' <?php if( $wp_cache_mobile_enabled ) echo "checked"; ?> value='1'> <?php _e( 'Mobile device support. (External plugin or theme required. See the <a href="https://wordpress.org/plugins/wp-super-cache/faq/">FAQ</a> for further details.)', 'wp-super-cache' ); ?></label><br />
+
+		<label>
+			<input
+				type='checkbox'
+				name='wp_cache_mfunc_enabled'
+				value='1'
+				<?php disabled( $wp_cache_mod_rewrite ); ?>
+				<?php checked( $wp_cache_mfunc_enabled ); ?>
+			>
+			<?php
+				echo wp_kses(
+					sprintf(
+						/* translators: %s is the URL of the FAQ */
+						__(
+							'Enable dynamic caching. (See <a href="%s">FAQ</a> or wp-super-cache/plugins/dynamic-cache-test.php for example code.)',
+							'wp-super-cache'
+						),
+						$faq_url
+					),
+					$kses_allow_links
+				);
+				?>
+		</label>
+		<br />
+
+		<label>
+			<input
+				type='checkbox'
+				name='wp_cache_mobile_enabled'
+				value='1'
+				<?php checked( $wp_cache_mobile_enabled ); ?>
+			>
+			<?php
+				echo wp_kses(
+					sprintf(
+						/* translators: %s is the URL of the FAQ */
+						__(
+							'Mobile device support. (External plugin or theme required. See the <a href="https://jetpack.com/support/wp-super-cache/wp-super-cache-faq/">FAQ</a> for further details.)',
+							'wp-super-cache'
+						),
+						$faq_url
+					),
+					$kses_allow_links
+				);
+				?>
+		</label>
+		<br />
+
 <?php if ( $wp_cache_mobile_enabled ) {
 echo '<blockquote><h5>' . __( 'Mobile Browsers', 'wp-super-cache' ) . '</h5>' . esc_html( $wp_cache_mobile_browsers ) . "<br /><h5>" . __( 'Mobile Prefixes', 'wp-super-cache' ) . "</h5>" . esc_html( $wp_cache_mobile_prefixes ) . "<br /></blockquote>";
 			} ?>
@@ -97,7 +163,7 @@ echo '<blockquote><h5>' . __( 'Mobile Browsers', 'wp-super-cache' ) . '</h5>' . 
 				<li><?php _e( 'If the directory does not exist, it will be created. Please make sure your web server user has write access to the parent directory. The parent directory must exist.', 'wp-super-cache' ); ?></li>
 				<li><?php _e( 'If the new cache directory does not exist, it will be created and the contents of the old cache directory will be moved there. Otherwise, the old cache directory will be left where it is.', 'wp-super-cache' ); ?></li>
 				<li><?php _e( 'Submit a blank entry to set it to the default directory, WP_CONTENT_DIR . /cache/.', 'wp-super-cache' ); ?></li>
-<?php 
+<?php
 	if ( get_site_option( 'wp_super_cache_index_detected' ) && strlen( $cache_path ) > strlen( ABSPATH ) && ABSPATH == substr( $cache_path, 0, strlen( ABSPATH ) ) ) {
 		$msg = __( 'The plugin detected a bare directory index in your cache directory, which would let visitors see your cache files directly and might expose private posts.', 'wp-super-cache' );
 		if ( ! $is_nginx && $super_cache_enabled && $wp_cache_mod_rewrite == 1 ) {
@@ -122,7 +188,24 @@ echo '<blockquote><h5>' . __( 'Mobile Browsers', 'wp-super-cache' ) . '</h5>' . 
 	<li><?php esc_html_e( 'Uninstall this plugin on the plugins page. It will automatically clean up after itself. If manual intervention is required, then simple instructions are provided.', 'wp-super-cache' ); ?></li>
 	<li><?php printf( __( 'If uninstalling this plugin, make sure the directory <em>%s</em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable is probably a good idea!)', 'wp-super-cache' ), esc_attr( WP_CONTENT_DIR ) ); ?></li>
 	<li><?php printf( __( 'Please see the <a href="%1$s/wp-super-cache/readme.txt">readme.txt</a> for instructions on uninstalling this script. Look for the heading, "How to uninstall WP Super Cache".', 'wp-super-cache' ), plugins_url() ); ?></li>
-	<li><?php echo '<em>' . sprintf( __( 'Need help? Check the <a href="%1$s">Super Cache readme file</a>. It includes installation documentation, a FAQ and Troubleshooting tips. The <a href="%2$s">support forum</a> is also available. Your question may already have been answered.', 'wp-super-cache' ), 'https://wordpress.org/plugins/wp-super-cache/', 'https://wordpress.org/support/topic-tag/wp-super-cache/?forum_id=10' ) . '</em>'; ?></li>
+	<li>
+		<em>
+			<?php
+				echo wp_kses(
+					sprintf(
+						/* translators: %1$s is the URL for the documentation, %2$s is a link to the support forums. */
+						__(
+							'Need help? Check out <a href="%1$s">the documentation</a>. It includes installation documentation, a FAQ, and Troubleshooting tips. The <a href="%2$s">support forum</a> is also available. Your question may already have been answered.',
+							'wp-super-cache'
+						),
+						'https://jetpack.com/support/wp-super-cache/',
+						'https://wordpress.org/support/plugin/wp-super-cache/'
+					),
+					$kses_allow_links
+				);
+				?>
+		</em>
+	</li>
 	<li><?php _e( 'The location of the plugin configuration file can be changed by defining the WPCACHECONFIGPATH constant in wp-config.php. If not defined it will be set to WP_CONTENT_DIR.', 'wp-super-cache' ); ?></li>
 </ol>
 

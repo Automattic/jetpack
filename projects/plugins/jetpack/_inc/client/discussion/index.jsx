@@ -8,11 +8,11 @@ import {
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
+import { isOdysseyStatsEnabled, isWoASite, getSiteAdminUrl } from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { Comments } from './comments';
-import Subscriptions from './subscriptions';
 
 export class Discussion extends React.Component {
 	static displayName = 'DiscussionSettings';
@@ -21,27 +21,23 @@ export class Discussion extends React.Component {
 		const commonProps = {
 			settings: this.props.settings,
 			getModule: this.props.module,
+			isOdysseyStatsEnabled: this.props.isOdysseyStatsEnabled,
 			isOfflineMode: this.props.isOfflineMode,
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
+			isWoASite: this.props.isWoASite,
+			siteAdminUrl: this.props.siteAdminUrl,
 		};
 
 		const foundComments = this.props.isModuleFound( 'comments' ),
 			foundMarkdown = this.props.isModuleFound( 'markdown' ),
 			foundGravatar = this.props.isModuleFound( 'gravatar-hovercards' ),
-			foundSubscriptions = this.props.isModuleFound( 'subscriptions' ),
 			foundCommentLikes = this.props.isModuleFound( 'comment-likes' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		if (
-			! foundComments &&
-			! foundSubscriptions &&
-			! foundMarkdown &&
-			! foundGravatar &&
-			! foundCommentLikes
-		) {
+		if ( ! foundComments && ! foundMarkdown && ! foundGravatar && ! foundCommentLikes ) {
 			return null;
 		}
 
@@ -52,24 +48,13 @@ export class Discussion extends React.Component {
 				<h2 className="jp-settings__section-title">
 					{ this.props.searchTerm
 						? __( 'Discussion', 'jetpack' )
-						: __(
-								'Manage advanced comment settings and grow your audience with email subscriptions.',
-								'jetpack'
-						  ) }
+						: __( 'Manage advanced comment settings.', 'jetpack' ) }
 				</h2>
 				<Comments
 					{ ...commonProps }
 					isModuleFound={ this.props.isModuleFound }
 					getModuleOverride={ this.props.getModuleOverride }
 				/>
-				{ foundSubscriptions && (
-					<Subscriptions
-						{ ...commonProps }
-						isLinked={ this.props.isLinked }
-						connectUrl={ this.props.connectUrl }
-						siteRawUrl={ this.props.siteRawUrl }
-					/>
-				) }
 			</div>
 		);
 	}
@@ -85,5 +70,8 @@ export default connect( state => {
 		connectUrl: getConnectUrl( state ),
 		isLinked: isCurrentUserLinked( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
+		isWoASite: isWoASite( state ),
+		siteAdminUrl: getSiteAdminUrl( state ),
 	};
 } )( Discussion );

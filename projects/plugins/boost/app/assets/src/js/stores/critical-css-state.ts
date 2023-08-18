@@ -155,6 +155,9 @@ export const regenerateCriticalCss = async () => {
 	// Clear regeneration suggestions
 	suggestRegenerateDS.store.set( null );
 
+	// Immediately set the status to pending to disable the regenerate button
+	replaceCssState( { status: 'pending' } );
+
 	// This will clear the CSS from the database
 	// And return fresh nonce, provider and viewport data.
 	const freshState = await generateCriticalCssRequest();
@@ -173,7 +176,7 @@ export const regenerateCriticalCss = async () => {
 	if ( isCloudCssEnabled ) {
 		startPollingCloudStatus();
 	} else {
-		await regenerateLocalCriticalCss( freshState );
+		await continueGeneratingLocalCriticalCss( freshState );
 	}
 };
 
@@ -183,7 +186,7 @@ export const regenerateCriticalCss = async () => {
  *
  * @param state
  */
-export async function regenerateLocalCriticalCss( state: CriticalCssState ) {
+export async function continueGeneratingLocalCriticalCss( state: CriticalCssState ) {
 	if ( state.status === 'generated' ) {
 		return;
 	}

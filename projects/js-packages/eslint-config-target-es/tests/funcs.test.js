@@ -1,5 +1,15 @@
 const funcs = require( '../src/funcs.js' );
 
+test( 'getAllBrowsers', () => {
+	const browsers = funcs.getAllBrowsers( {
+		query: 'firefox 20-24, ie >= 10',
+	} );
+	expect( browsers ).toEqual( {
+		firefox: [ '20.0.0', '21.0.0', '22.0.0', '23.0.0', '24.0.0' ],
+		ie: [ '10.0.0', '11.0.0' ],
+	} );
+} );
+
 test( 'getBrowsers', () => {
 	const browsers = funcs.getBrowsers( {
 		query: 'firefox > 20, ie >= 10, chrome > 20, ios_saf > 14, op_mini all',

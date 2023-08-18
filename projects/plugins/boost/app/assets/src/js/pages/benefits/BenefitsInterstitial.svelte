@@ -50,7 +50,7 @@
 					<h1 class="my-2">{__( "Optimize your website's performance", 'jetpack-boost' )}</h1>
 					<p class="jb-card__summary my-2">
 						{__(
-							'Remove the need to manually regenerate critical CSS after site changes with automated critical CSS.',
+							'Automatically regenerate critical CSS after site changes, and hunt down image issues with ease.',
 							'jetpack-boost'
 						)}
 					</p>
@@ -58,6 +58,10 @@
 						<li>{__( 'Automatic critical CSS regeneration', 'jetpack-boost' )}</li>
 						<li>
 							{__( 'Performance scores are recalculated after each change', 'jetpack-boost' )}
+						</li>
+						<li>{__( 'Automatically scan your site for image size issues', 'jetpack-boost' )}</li>
+						<li>
+							{__( 'Historical performance scores with Core Web Vitals data', 'jetpack-boost' )}
 						</li>
 						<li>{__( 'Dedicated email support', 'jetpack-boost' )}</li>
 					</ul>

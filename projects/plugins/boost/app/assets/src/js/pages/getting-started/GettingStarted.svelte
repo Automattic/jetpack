@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { derived, writable } from 'svelte/store';
 	import { Snackbar } from '@wordpress/components';
 	import ActivateLicense from '../../elements/ActivateLicense.svelte';
@@ -53,11 +52,11 @@
 		initiatingFreePlan = true;
 
 		try {
-			// Make sure there is a Jetpack connection and record this selection.
-			await Promise.all( [
-				connection.initialize(),
-				recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} ),
-			] );
+			// Make sure there is a Jetpack connection
+			await connection.initialize();
+
+			// Record this selection. This must be done after the connection is initialized.
+			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
 
 			// Head to the settings page.
 			finishGettingStarted();
@@ -76,11 +75,11 @@
 		initiatingPaidPlan = true;
 
 		try {
-			// Make sure there is a Jetpack connection and record this selection.
-			await Promise.all( [
-				connection.initialize(),
-				recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} ),
-			] );
+			// Make sure there is a Jetpack connection
+			await connection.initialize();
+
+			// Record this selection. This must be done after the connection is initialized.
+			recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
 
 			// Check if the site is already on a premium plan and go directly to settings if so.
 			if ( $config.isPremium ) {
@@ -97,13 +96,6 @@
 			initiatingPaidPlan = false;
 		}
 	}
-
-	onMount( () => {
-		// If we don't have pricing data, we should skip the page and go directly to settings.
-		if ( typeof pricing.yearly === 'undefined' ) {
-			finishGettingStarted();
-		}
-	} );
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
@@ -111,29 +103,27 @@
 		<ActivateLicense />
 	</Header>
 
-	{#if pricing.yearly}
-		<div class="jb-section jb-section--alt">
-			<div class="jb-container">
-				<div class="jb-pricing-table">
+	<div class="jb-section jb-section--alt">
+		<div class="jb-container">
+			<div class="jb-pricing-table">
+				<ReactComponent
+					this={BoostPricingTable}
+					{pricing}
+					onPremiumCTA={choosePaidPlan}
+					onFreeCTA={chooseFreePlan}
+					chosenFreePlan={initiatingFreePlan}
+					chosenPaidPlan={initiatingPaidPlan}
+				/>
+				{#if $snackbarMessage}
 					<ReactComponent
-						this={BoostPricingTable}
-						{pricing}
-						onPremiumCTA={choosePaidPlan}
-						onFreeCTA={chooseFreePlan}
-						chosenFreePlan={initiatingFreePlan}
-						chosenPaidPlan={initiatingPaidPlan}
+						this={Snackbar}
+						children={$snackbarMessage}
+						onDismiss={() => dismissedSnackbar.set( true )}
 					/>
-					{#if $snackbarMessage}
-						<ReactComponent
-							this={Snackbar}
-							children={$snackbarMessage}
-							onDismiss={() => dismissedSnackbar.set( true )}
-						/>
-					{/if}
-				</div>
+				{/if}
 			</div>
 		</div>
-	{/if}
+	</div>
 </div>
 
 <style lang="scss">

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Extension: do not extend Jetpack Form when it's inside of a query loop

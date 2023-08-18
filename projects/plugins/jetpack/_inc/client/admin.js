@@ -65,6 +65,12 @@ function render() {
 						<Route path="/discussion">
 							<Main routeName={ getRouteName( '/discussion' ) } />
 						</Route>
+						<Route path="/earn">
+							<Main routeName={ getRouteName( '/earn' ) } />
+						</Route>
+						<Route path="/newsletter">
+							<Main routeName={ getRouteName( '/newsletter' ) } />
+						</Route>
 						<Route path="/security">
 							<Main routeName={ getRouteName( '/security' ) } />
 						</Route>
@@ -125,6 +131,10 @@ export function getRouteName( path ) {
 			return _x( 'Settings', 'Navigation item.', 'jetpack' );
 		case '/discussion':
 			return _x( 'Discussion', 'Navigation item.', 'jetpack' );
+		case '/earn':
+			return _x( 'Earn', 'Navigation item.', 'jetpack' );
+		case '/newsletter':
+			return _x( 'Newsletter', 'Navigation item.', 'jetpack' );
 		case '/security':
 			return _x( 'Security', 'Navigation item.', 'jetpack' );
 		case '/performance':

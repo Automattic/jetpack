@@ -44,16 +44,6 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	} ),
 } ) );
 
-jest.mock( '../api', () => ( {
-	__esModule: true,
-	getSubscriberCount: jest.fn( successCallback => {
-		successCallback( 100 );
-	} ),
-	getSubscriberCounts: jest.fn( successCallback => {
-		successCallback( { email_subscribers: 100, social_followers: 100 } );
-	} ),
-} ) );
-
 jest.mock( '../constants', () => ( {
 	IS_GRADIENT_AVAILABLE: true,
 } ) );
@@ -73,6 +63,14 @@ beforeEach( () => {
 		changeStatus: jest.fn(),
 	} );
 } );
+jest.mock( '@wordpress/element', () => ( {
+	...jest.requireActual( '@wordpress/element' ),
+	useSelect: () => ( {
+		subscriberCounts: 100,
+		subscriberCountString: 'Join 100 other subscribers',
+	} ),
+} ) );
+
 jest.mock( '@wordpress/notices', () => {}, { virtual: true } );
 
 describe( 'SubscriptionEdit', () => {

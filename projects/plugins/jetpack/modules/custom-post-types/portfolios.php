@@ -80,7 +80,9 @@ class Jetpack_Portfolio {
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 		add_filter( sprintf( 'manage_%s_posts_columns', self::CUSTOM_POST_TYPE ), array( $this, 'edit_admin_columns' ) );
 		add_filter( sprintf( 'manage_%s_posts_custom_column', self::CUSTOM_POST_TYPE ), array( $this, 'image_column' ), 10, 2 );
-		add_action( 'customize_register', array( $this, 'customize_register' ) );
+		if ( ! wp_is_block_theme() ) {
+			add_action( 'customize_register', array( $this, 'customize_register' ) );
+		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 

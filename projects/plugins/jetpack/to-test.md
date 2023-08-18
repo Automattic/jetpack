@@ -1,45 +1,40 @@
-## Jetpack 12.3
+## Jetpack 12.5
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### AI Assistant:
+### Newsletter
 
-Jetpack AI Assistant has received various feature enhancements and bug fixes this release. In addition to creating fresh content, you can now use the AI Assistant to revise and enhance existing blocks such as the Paragraph or List blocks.
+The Newsletter settings are moved from the Discussion settings to their own dedicated page.
+- Go to "Jetpack settings → Newsletter"
+- Ensure all toggles work
+- Go to "Discussion" settings and confirm newsletter settings aren't there anymore
 
-- Make sure your Jetpack site is connected to WordPress.com
-- To test the AI Assistant block directly, simply add the AI Assistant block to any page or post, and tell Jetpack AI what to do. Pro-tip: type “/ai” to use the block shortcut.
-- Alternatively, try leveraging the AI Assistant features from the block toolbar of the paragraph, list, or heading blocks.
-- Read more about the Jetpack AI Assistant in our previous blog post: https://jetpack.com/blog/introducing-jetpack-ai-assistant/
+### SEO and Sharing Changes
 
-### Newsletters
+There are a lot of small tweaks to the SEO and sharing modules that should be tested:
+* Enable SEO tools in Jetpack -> Settings -> Traffic
+* Draft a new post
+* Open the Jetpack sidebar in the editor
+* Confirm the SEO tools textareas width looks okay.
+* Confirm that the "hide page from search engines" is now a toggle (instead of a checkbox)
+* Confirm that the Like and Sharing options in post are now also toggles.
 
-The Newsletter functionality has received various upgrades including a new email preview feature. To test:
+### My Jetpack
 
-- In `Jetpack > Settings > Discussion`, make sure that Subscriptions are enabled.
-- Create a new test post and click on Publish. In the publishing panel you will see the "Newsletter visibility" section which has been updated to clarify the audience reach of your post.
-- Try clicking on the Preview button in that section to send a test email preview to the current user.
+The My Jetpack menu item in wp-admin has been moved to the top of the sub-menu list. Poke around and make sure things look good and links go where they're supposed to!
 
-### Tock Block
+### AI Assistant
 
-A new block is now available for the Tock reservations service:
-
-- While editing a post, search for and add the new Tock block.
-- The block will ask you to specify the business name, for testing purposes you can try `oquirrh`
-- Once your post is published, clicking on the Tock button on the frontend of your site will open a modal for booking.
-
-### Sharing Buttons
-
-We've added a new sharing button for the Nextdoor service:
-
-- In `Jetpack > Settings > Sharing`, make sure that the Sharing Buttons feature is enabled, then click on the "Configure your sharing buttons" link.
-- Try adding the Nextdoor sharing button and be sure to save the changes.
-- Open a post on the frontend of your site and make sure the Nextdoor sharing button is displayed.
+There were many tweaks and back-end changes to the AI assistant. To test it out: 
+- Add a paragraph block to a post or page
+- From the block toolbar, select the sparkling AI Assistant button.
+- Try a few of the options and make sure they work and make sense.
 
 ### And More!
 
-You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/monthly/branch-2023-06-26/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
+You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
 **Thank you for all your help!**

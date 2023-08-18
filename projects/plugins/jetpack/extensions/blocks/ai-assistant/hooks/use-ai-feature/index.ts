@@ -4,6 +4,8 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from 'react';
 
+export type UpgradeTypeProp = 'vip' | 'default';
+
 export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'has-feature': boolean;
 	'is-over-limit': boolean;
@@ -12,6 +14,8 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'site-require-upgrade': boolean;
 	'error-message': string;
 	'error-code': string;
+	'is-playground-visible': boolean;
+	'upgrade-type': UpgradeTypeProp;
 };
 
 type AIFeatureProps = {
@@ -22,6 +26,7 @@ type AIFeatureProps = {
 	requireUpgrade: boolean;
 	errorMessage: string;
 	errorCode: string;
+	upgradeType: UpgradeTypeProp;
 };
 
 const NUM_FREE_REQUESTS_LIMIT = 20;
@@ -36,6 +41,7 @@ export const AI_Assistant_Initial_State = {
 	requireUpgrade: !! aiAssistantFeature?.[ 'site-require-upgrade' ],
 	errorMessage: aiAssistantFeature?.[ 'error-message' ] || '',
 	errorCode: aiAssistantFeature?.[ 'error-code' ],
+	upgradeType: aiAssistantFeature?.[ 'upgrade-type' ] || 'default',
 };
 
 export async function getAIFeatures(): Promise< AIFeatureProps > {
@@ -52,6 +58,7 @@ export async function getAIFeatures(): Promise< AIFeatureProps > {
 			requireUpgrade: !! response[ 'site-require-upgrade' ],
 			errorMessage: response[ 'error-message' ],
 			errorCode: response[ 'error-code' ],
+			upgradeType: response[ 'upgrade-type' ],
 		};
 	} catch ( error ) {
 		console.error( error ); // eslint-disable-line no-console

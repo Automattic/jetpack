@@ -1,10 +1,10 @@
 import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
-import { SocialImageGeneratorTemplatePicker as TemplatePicker } from '@automattic/jetpack-publicize-components';
+import { SocialImageGeneratorTemplatePickerModal as TemplatePickerModal } from '@automattic/jetpack-publicize-components';
+import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { STORE_ID } from '../../store';
 import ToggleSection from '../toggle-section';
 import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
 const SocialImageGeneratorToggle: React.FC = () => {
 	const [ currentTemplate, setCurrentTemplate ] = useState( null );
 	const { isEnabled, isUpdating, defaultTemplate } = useSelect( select => {
-		const store = select( STORE_ID ) as SocialStoreSelectors;
+		const store = select( SOCIAL_STORE_ID ) as SocialStoreSelectors;
 		return {
 			isEnabled: store.isSocialImageGeneratorEnabled(),
 			isUpdating: store.isUpdatingSocialImageGeneratorSettings(),
@@ -20,7 +20,7 @@ const SocialImageGeneratorToggle: React.FC = () => {
 		};
 	}, [] );
 
-	const updateOptions = useDispatch( STORE_ID ).updateSocialImageGeneratorSettings;
+	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateSocialImageGeneratorSettings;
 
 	const toggleStatus = useCallback( () => {
 		const newOption = {
@@ -38,7 +38,7 @@ const SocialImageGeneratorToggle: React.FC = () => {
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	const renderTemplatePicker = useCallback(
+	const renderTemplatePickerModal = useCallback(
 		( { open } ) => (
 			<Button
 				fullWidth={ isSmall }
@@ -66,10 +66,10 @@ const SocialImageGeneratorToggle: React.FC = () => {
 					'jetpack-social'
 				) }
 			</Text>
-			<TemplatePicker
+			<TemplatePickerModal
 				value={ currentTemplate || defaultTemplate }
 				onSelect={ setCurrentTemplate }
-				render={ renderTemplatePicker }
+				render={ renderTemplatePickerModal }
 			/>
 		</ToggleSection>
 	);

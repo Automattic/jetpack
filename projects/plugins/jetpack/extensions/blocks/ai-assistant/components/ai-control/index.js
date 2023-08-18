@@ -1,19 +1,18 @@
 /**
  * External dependencies
  */
+import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { PlainText } from '@wordpress/block-editor';
 import { Button, Icon, Spinner } from '@wordpress/components';
 import { useKeyboardShortcut } from '@wordpress/compose';
 import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { closeSmall, check } from '@wordpress/icons';
+import { closeSmall, check, arrowUp } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
 import classNames from 'classnames';
-import aiAssistant from '../../icons/ai-assistant';
-import origamiPlane from '../../icons/origami-plane';
 import { isUserConnected } from '../../lib/connection';
 import ConnectPrompt from '../connect-prompt';
 import Message, { ASSISTANT_STATE_CONTENT_GENERATED } from '../message/block-message';
@@ -159,7 +158,7 @@ const AIControl = forwardRef(
 								<Spinner className="jetpack-ai-assistant__input-spinner" />
 							) : (
 								<Icon
-									icon={ aiAssistant }
+									icon={ aiAssistantIcon }
 									size={ 24 }
 									className="jetpack-ai-assistant__input-icon"
 								/>
@@ -187,7 +186,7 @@ const AIControl = forwardRef(
 										disabled={ ! userPrompt?.length || ! connected || requireUpgrade }
 										label={ __( 'Send request', 'jetpack' ) }
 									>
-										<Icon icon={ origamiPlane } />
+										<Icon icon={ arrowUp } />
 										{ ! isSm && __( 'Send', 'jetpack' ) }
 									</Button>
 								) : (

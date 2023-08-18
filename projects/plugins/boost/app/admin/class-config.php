@@ -48,6 +48,7 @@ class Config {
 				'assetPath'  => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 				'getStarted' => self::is_getting_started(),
 				'isAtomic'   => ( new Host() )->is_woa_site(),
+				'postTypes'  => self::get_custom_post_types(),
 			),
 			'isPremium'             => Premium_Features::has_any(),
 			'preferences'           => array(
@@ -190,5 +191,26 @@ class Config {
 	 */
 	public static function clear_getting_started() {
 		\delete_option( 'jb_get_started' );
+	}
+
+	/**
+	 * Retrieves custom post types.
+	 *
+	 * @return array Associative array of custom post types
+	 * with their labels as keys and names as values.
+	 */
+	public static function get_custom_post_types() {
+		$post_types = get_post_types(
+			array(
+				'public'   => true,
+				'_builtin' => false,
+			),
+			false
+		);
+		unset( $post_types['attachment'] );
+
+		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
+
+		return wp_list_pluck( $post_types, 'label', 'name' );
 	}
 }

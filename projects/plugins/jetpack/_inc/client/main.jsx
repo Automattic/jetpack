@@ -95,6 +95,7 @@ const recommendationsRoutes = [
 	'/recommendations/agency',
 	'/recommendations/woocommerce',
 	'/recommendations/monitor',
+	'/recommendations/newsletter',
 	'/recommendations/related-posts',
 	'/recommendations/creative-mail',
 	'/recommendations/site-accelerator',
@@ -109,6 +110,7 @@ const recommendationsRoutes = [
 	'/recommendations/vaultpress-for-woocommerce',
 ];
 
+const myJetpackRoutes = [ 'my-jetpack ' ];
 const dashboardRoutes = [ '/', '/dashboard', '/reconnect', '/my-plan', '/plans' ];
 const settingsRoutes = [
 	'/settings',
@@ -117,6 +119,8 @@ const settingsRoutes = [
 	'/writing',
 	'/sharing',
 	'/discussion',
+	'/earn',
+	'/newsletter',
 	'/traffic',
 	'/privacy',
 ];
@@ -297,6 +301,8 @@ class Main extends React.Component {
 			case '/writing':
 			case '/sharing':
 			case '/discussion':
+			case '/earn':
+			case '/newsletter':
 			case '/traffic':
 			case '/privacy':
 				return (
@@ -539,6 +545,8 @@ class Main extends React.Component {
 			case '/writing':
 			case '/sharing':
 			case '/discussion':
+			case '/earn':
+			case '/newsletter':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (
@@ -573,6 +581,7 @@ class Main extends React.Component {
 			case '/recommendations/agency':
 			case '/recommendations/woocommerce':
 			case '/recommendations/monitor':
+			case '/recommendations/newsletter':
 			case '/recommendations/related-posts':
 			case '/recommendations/creative-mail':
 			case '/recommendations/site-accelerator':
@@ -940,8 +949,9 @@ export default connect(
  *
  * @param pageOrder
  */
-window.wpNavMenuClassChange = function ( pageOrder = { dashboard: 1, settings: 2 } ) {
+window.wpNavMenuClassChange = function ( pageOrder = { myJetpack: 1, dashboard: 2, settings: 3 } ) {
 	let hash = window.location.hash;
+	let page = new URLSearchParams( window.location.search );
 
 	// Clear currently highlighted sub-nav item
 	jQuery( '.current' ).each( function ( i, obj ) {
@@ -958,7 +968,11 @@ window.wpNavMenuClassChange = function ( pageOrder = { dashboard: 1, settings: 2
 
 	// Set the current sub-nav item according to the current hash route
 	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
-	if (
+	page = page.get( 'page' );
+
+	if ( myJetpackRoutes.includes( page ) ) {
+		getJetpackSubNavItem( pageOrder.myJetpack ).classList.add( 'current' );
+	} else if (
 		dashboardRoutes.includes( hash ) ||
 		recommendationsRoutes.includes( hash ) ||
 		productDescriptionRoutes.includes( hash )

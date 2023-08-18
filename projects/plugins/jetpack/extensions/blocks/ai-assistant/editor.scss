@@ -80,6 +80,7 @@
 	}
 
 	textarea.jetpack-ai-assistant__input {
+		background-color: var( --jp-white );
 		width: 100%;
 		flex-grow: 1;
 		padding: 6px 8px;
@@ -326,4 +327,14 @@
 			}
 		}
 	}
+}
+
+.jetpack-ai-assistant__custom-prompt {
+	width: 800px;
+}
+
+.jetpack-ai-assistant__custom-prompt__footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
 }

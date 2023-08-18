@@ -42,6 +42,7 @@ class Initial_State {
 			'siteSuffix'         => $status->get_site_suffix(),
 			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
 			'isOfflineMode'      => $status->is_offline_mode(),
+			'calypsoEnv'         => ( new Status\Host() )->get_calypso_env(),
 		);
 	}
 
@@ -56,6 +57,19 @@ class Initial_State {
 		}
 		self::$rendered = true;
 		return 'var JP_CONNECTION_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::get_data() ) ) . '"));';
+	}
+
+	/**
+	 * Render the initial state using an inline script.
+	 *
+	 * @param string $handle The JS script handle.
+	 *
+	 * @return void
+	 */
+	public static function render_script( $handle ) {
+		if ( ! static::$rendered ) {
+			wp_add_inline_script( $handle, static::render(), 'before' );
+		}
 	}
 
 }

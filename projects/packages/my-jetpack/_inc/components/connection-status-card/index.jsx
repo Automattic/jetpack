@@ -165,19 +165,21 @@ const ConnectionStatusCard = props => {
 								) }
 							/>
 						) }
-						{ isUserConnected && ! userConnectionData.currentUser?.isMaster && (
-							<ConnectionListItem
-								text={ sprintf(
-									/* translators: placeholder is the username of the Jetpack connection owner */
-									__( 'Also connected: %s (Owner).', 'jetpack-my-jetpack' ),
-									userConnectionData.connectionOwner
-								) }
-							/>
-						) }
+						{ isUserConnected &&
+							userConnectionData?.connectionOwner &&
+							! userConnectionData.currentUser?.isMaster && (
+								<ConnectionListItem
+									text={ sprintf(
+										/* translators: placeholder is the username of the Jetpack connection owner */
+										__( 'Also connected: %s (Owner).', 'jetpack-my-jetpack' ),
+										userConnectionData.connectionOwner
+									) }
+								/>
+							) }
 						{ ! isUserConnected && (
 							<ConnectionListItem
 								onClick={ handleConnectUser }
-								text={ __( 'You’re not connected.', 'jetpack-my-jetpack' ) }
+								text={ __( 'User account not connected.', 'jetpack-my-jetpack' ) }
 								actionText={ __( 'Connect', 'jetpack-my-jetpack' ) }
 								status="error"
 							/>
