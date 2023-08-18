@@ -188,11 +188,18 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					currentListOfValidBlocks.current = currentListOfValidBlocks.current || [];
 					if ( allButtonBlocks.length > 1 ) {
 						// Remove all button blocks, less the last one.
-						currentListOfValidBlocks.current = currentListOfValidBlocks.current.filter(
-							( block, i ) => {
-								return block.name !== 'jetpack/button' || i === allButtonBlocks.length - 1;
+						let buttonCounter = 0;
+						currentListOfValidBlocks.current = currentListOfValidBlocks.current.filter( block => {
+							if ( block.name !== 'jetpack/button' ) {
+								return true;
 							}
-						);
+
+							buttonCounter++;
+							if ( buttonCounter === allButtonBlocks.length ) {
+								return true;
+							}
+							return false;
+						} );
 
 						replaceInnerBlocks( clientId, currentListOfValidBlocks.current );
 					} else if ( allButtonBlocks.length === 0 ) {
