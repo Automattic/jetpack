@@ -22,6 +22,19 @@ import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 // An identifier to use on the extension error notices,
 export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 
+/**
+ * Select the Jetpack Form block,
+ * based on the block client ID.
+ * Then, run the function passed as parameter (optional).
+ *
+ * @param {string} clientId - The block client ID.
+ * @param {Function} fn     - The function to run after selecting the block.
+ * @returns {void}
+ */
+export function selectFormBlock( clientId: string, fn: () => void ): void {
+	dispatch( 'core/block-editor' ).selectBlock( clientId ).then( fn );
+}
+
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { clientId, isSelected } = props;
@@ -81,15 +94,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const setAnchor = useCallback( ( anchor: HTMLElement | null ) => {
 			setAssistantAnchor( anchor );
 		}, [] );
-
-		/**
-		 * Select the Jetpack Form block
-		 *
-		 * @returns {void}
-		 */
-		const selectFormBlock = useCallback( () => {
-			dispatch( 'core/block-editor' ).selectBlock( clientId ).then( toggle );
-		}, [ clientId, toggle ] );
 
 		const { createNotice } = useDispatch( noticesStore );
 
@@ -158,7 +162,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 				// Check if the generated blocks are valid.
 				const validBlocks = newContentBlocks.filter( block => {
-					return block.isValid && block.name !== 'core/freeform';
+					return block.isValid && block.name !== 'core/freeform' && block.name !== 'core/missing';
 				} );
 
 				// Only update the blocks when the valid list changed, meaning a new block arrived.
@@ -175,7 +179,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 		useAiContext( {
 			askQuestionOptions: { postId },
-			onDone: setContent,
+			onDone: finalContent => {
+				setContent( finalContent );
+				setInputValue( '' );
+			},
 			onSuggestion: setContent,
 			onError: showSuggestionError,
 		} );
@@ -185,7 +192,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 * and the AI Assistant component (popover)
 		 * only if is't possible to extend the block.
 		 */
-		if ( ! isPossibleToExtendJetpackFormBlock( props.name ) ) {
+		if ( ! isPossibleToExtendJetpackFormBlock( props.name, { clientId: props.clientId } ) ) {
 			return <BlockListBlock { ...props } />;
 		}
 
@@ -193,7 +200,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			<AiAssistantUiContextProvider value={ contextValue }>
 				<KeyboardShortcuts
 					shortcuts={ {
-						'mod+/': selectFormBlock,
+						'mod+/': () => selectFormBlock( clientId, show ),
 					} }
 				>
 					<BlockListBlock { ...props } />

@@ -166,8 +166,26 @@ export default function AiAssistantBar( {
 
 	// focus input on first render only (for a11y reasons, toggling on/off should not focus the input)
 	useEffect( () => {
-		inputRef.current?.focus();
-	}, [] );
+		/*
+		 * Only focus the input when the Assistant bar is visible.
+		 * Also, add a small delay to avoid focus when the Assistant bar is toggled off.
+		 */
+		const timeId = setTimeout( () => {
+			if ( ! isVisible ) {
+				return;
+			}
+
+			if ( ! inputRef?.current ) {
+				return;
+			}
+
+			inputRef.current.focus();
+		}, 300 );
+
+		return function () {
+			clearTimeout( timeId );
+		};
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps -- only run on first render
 
 	if ( ! isVisible ) {
 		return null;

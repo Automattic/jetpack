@@ -1,0 +1,23 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/google-calendar",
+	"title": "Google Calendar",
+	"description": "Embed a Google Calendar",
+	"keywords": [ "events", "dates", "schedule", "appointments" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "calendar",
+	"supports": { "align": true, "alignWide": true, "html": false },
+	"attributes": {
+		"url": {
+			"type": "string"
+		},
+		"height": {
+			"type": "integer",
+			"default": 600
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

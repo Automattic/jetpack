@@ -1,0 +1,56 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/ai-assistant",
+	"title": "AI Assistant (Experimental)",
+	"description": "Automatically generate and modify content, powered by AI magic. The AI Assistant can be imprecise with information about people, places, or facts. We are experimenting with this feature and can tweak or remove it at any point.",
+	"keywords": [ "AI", "GPT", "AL", "Magic", "help", "assistant" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "text",
+	"icon": "superhero",
+	"supports": {
+		"html": false,
+		"multiple": true,
+		"reusable": false
+	},
+	"attributes": {
+		"content": {
+			"type": "string"
+		},
+
+		"originalContent": {
+			"type": "string"
+		},
+
+		"promptType": {
+			"type": "string"
+		},
+
+		"originalMessages": {
+			"type": "array",
+			"default": []
+		},
+
+		"messages": {
+			"type": "array",
+			"default": []
+		},
+
+		"useGutenbergSyntax": {
+			"type": "boolean",
+			"default": false
+		},
+
+		"useGpt4": {
+			"type": "boolean",
+			"default": false
+		},
+
+		"customSystemPrompt": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

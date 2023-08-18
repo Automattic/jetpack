@@ -2,7 +2,7 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "jetpack/recipe",
-	"title": "Recipe",
+	"title": "Recipe (Beta)",
 	"description": "Add images, ingredients and cooking steps to display an easy to read recipe.",
 	"keywords": [],
 	"version": "12.5.0",

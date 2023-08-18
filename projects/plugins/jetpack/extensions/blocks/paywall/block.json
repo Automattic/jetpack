@@ -2,9 +2,10 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "jetpack/paywall",
-	"title": "Paywall",
-	"description": "Paywall",
+	"title": "Paywall (Beta)",
+	"description": "Content before this block will be shown in the excerpt on your archives page.",
 	"keywords": [
+		"more",
 		"email",
 		"follow",
 		"gated",
