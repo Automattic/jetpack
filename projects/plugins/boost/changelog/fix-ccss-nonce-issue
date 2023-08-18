@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Fixed manual critical CSS generation failure
