@@ -5,22 +5,46 @@
 	"title": "Payment Button",
 	"description": "Button allowing you to sell products and subscriptions.",
 	"keywords": [
-		"buy", "contribution", "commerce", "credit card", "debit card", "donate", "Donations",
-		"earn", "ecommerce", "gofundme", "memberships", "money", "paid", "patreon", "pay",
-		"payments", "products", "purchase", "recurring", "sell", "shop", "stripe", "subscribe",
-		"subscriptions", "sponsor", "square", "toast", "venmo"
+		"buy",
+		"contribution",
+		"commerce",
+		"credit card",
+		"debit card",
+		"donate",
+		"Donations",
+		"earn",
+		"ecommerce",
+		"gofundme",
+		"memberships",
+		"money",
+		"paid",
+		"patreon",
+		"pay",
+		"payments",
+		"products",
+		"purchase",
+		"recurring",
+		"sell",
+		"shop",
+		"stripe",
+		"subscribe",
+		"subscriptions",
+		"sponsor",
+		"square",
+		"toast",
+		"venmo"
 	],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "earn",
-	"icon": "cart",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='M20 4H4c-1.105 0-2 .895-2 2v12c0 1.105.895 2 2 2h16c1.105 0 2-.895 2-2V6c0-1.105-.895-2-2-2zm0 2v2H4V6h16zM4 18v-6h16v6H4zm2-4h7v2H6v-2zm9 0h3v2h-3v-2z'/></svg>",
 	"supports": {
 		"html": false,
-		"__experimentalExposeControlsToChildren": true,
+		"__experimentalExposeControlsToChildren": true
 	},
 	"usesContext": [ "isPremiumContentChild" ],
 	"providesContext": {
-		"jetpack/parentBlockWidth": "width",
+		"jetpack/parentBlockWidth": "width"
 	},
 	"attributes": {
 		"planId": {

@@ -61,20 +61,21 @@ foreach ( array( '7.0', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2' ) as $php ) {
 		'script'  => 'test-php',
 		'php'     => $php,
 		'wp'      => 'latest',
-		'timeout' => 20, // 2022-01-25: 5.6 tests have started timing out at 15 minutes. Previously: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
+		'timeout' => 20, // 2023-08-17: Successful runs seem to take up to ~12 minutes.
 	);
 }
+
+// PHP 5.6 support was dropped in WP 6.3. Remove this (and everything elsewhere related to PHP 5.6) when we drop support for earlier versions.
+$matrix[] = array(
+	'name'    => 'PHP tests: PHP 5.6 WP previous',
+	'script'  => 'test-php',
+	'php'     => '5.6',
+	'wp'      => 'previous',
+	'timeout' => 20, // 2022-01-25: 5.6 tests have started timing out at 15 minutes. Previously: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
+);
+
 foreach ( array( 'previous', 'trunk', 'special' ) as $wp ) {
 	$phpver = $versions['PHP_VERSION'];
-	if ( $wp === 'previous' ) {
-		$matrix[] = array(
-			'name'    => "PHP tests: PHP 5.6 WP $wp",
-			'script'  => 'test-php',
-			'php'     => '5.6', // 2023-08-09 now that 5.6 is excluded from latest tests, we test it on 'previous'.
-			'wp'      => $wp,
-			'timeout' => 20, // 2022-01-25: 5.6 tests have started timing out at 15 minutes. Previously: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
-		);
-	}
 	if ( $wp === 'special' ) {
 		$phpver = '8.0'; // WordPress 6.1 is not ready for PHP 8.1+.
 	}
