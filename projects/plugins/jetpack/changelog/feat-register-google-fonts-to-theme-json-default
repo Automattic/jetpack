@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix the goole fonts are missing if the style variation has its font families
