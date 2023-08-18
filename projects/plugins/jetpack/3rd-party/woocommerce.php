@@ -57,7 +57,9 @@ function jetpack_woocommerce_add_to_sitemap( $post_types ) {
 function jetpack_woocommerce_skip_hidden_products_in_sitemap( $skip, $post ) {
 	if ( $post !== null && $post->post_type === 'product' ) {
 		$product = wc_get_product( $post->ID );
-		$skip    = ! $product->is_visible();
+		if ( $product ) {
+			$skip = ! $product->is_visible();
+		}
 	}
 	return $skip;
 }
