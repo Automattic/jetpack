@@ -204,15 +204,18 @@ class AJAX {
 	 */
 	private function build_restriction_details( $guid, $embedded_post_id, $selected_plan_id ) {
 		global $post;
+		$post_to_check = get_post( $embedded_post_id );
+
+		if ( empty( $post_to_check ) ) {
+			$restriction_details = $this->default_video_restriction_details( false );
+			return $this->filter_video_restriction_details( $restriction_details );
+		}
+
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
+		$post = $post_to_check;
+
 		$default_auth        = current_user_can( 'read' );
 		$restriction_details = $this->default_video_restriction_details( $default_auth );
-
-		$post_to_check = get_post( $embedded_post_id );
-		if ( ! empty( $post_to_check ) ) {
-			// Set the global $post so we can do proper comparisons. Maybe this should fail if no post found?
-			// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
-			$post = $post_to_check;
-		}
 
 		if ( $this->jetpack_memberships_available() ) {
 			$memberships_can_view_post = \Jetpack_Memberships::user_can_view_post( $embedded_post_id );
