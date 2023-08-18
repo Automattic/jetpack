@@ -8,8 +8,9 @@ import { dayHighlightPlugin } from './day-highlight-plugin';
 import getDateFormat from './get-date-format';
 import { tooltipsPlugin } from './tooltips-plugin';
 import useResize from './use-resize';
-import 'uplot/dist/uPlot.min.css';
 import { Period } from '.';
+
+import './style-uplot.scss';
 
 const DEFAULT_DIMENSIONS = {
 	height: 300,
