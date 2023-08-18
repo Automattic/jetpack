@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove the initial slash to match the pattern used throughout the project

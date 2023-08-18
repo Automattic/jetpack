@@ -1,0 +1,35 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/wordads",
+	"title": "Ad",
+	"description": "Earn income by adding high quality ads to your post.",
+	"keywords": ["ads", "WordAds", "advertisement"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "earn",
+	"icon": "megaphone",
+	"supports": {
+		"align": [ "left", "center", "right" ],
+		"alignWide": false,
+		"className": false,
+		"customClassName": false,
+		"html": false,
+		"reusable": false
+	},
+	"attributes": {
+		"align": {
+			"type": "string",
+			"default": "center"
+		},
+		"format": {
+			"type": "string",
+			"default": "mrec"
+		},
+		"hideMobile": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

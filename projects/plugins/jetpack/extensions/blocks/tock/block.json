@@ -1,0 +1,23 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/tock",
+	"title": "Tock",
+	"description": "Allow visitors to reserve a table at your restaurant with Tock.",
+	"keywords": ["booking", "reservation", "restaurant"],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "earn",
+	"icon": "calendar",
+	"supports": {
+		"align": true,
+		"html": false,
+		"multiple": false
+	},
+	"attributes": {
+		"url": {
+			"type": "string"
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

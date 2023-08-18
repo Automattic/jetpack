@@ -1075,14 +1075,13 @@ table.wpsc-settings-table {
 			min-width: 40%;
 			max-width: 40%;
 			overflow: hidden;
+			text-align: right;
 		}
 
 		.wpsc-boost-banner-image-container img {
 			position: relative;
-			left: 50%;
 			top: 50%;
-			transform: translate(-50%, -50%);
-			width: 100%;
+			transform: translateY(-50%);
 		}
 
 		.wpsc-boost-banner h3 {
@@ -3487,6 +3486,11 @@ function wp_cron_preload_cache() {
 			if ( $page_on_front != 0 && ( $post_id == $page_on_front || $post_id == $page_for_posts ) )
 				continue;
 			$url = get_permalink( $post_id );
+
+			if ( ! is_string( $url ) ) {
+					wp_cache_debug( "wp_cron_preload_cache: skipped $post_id. Expected a URL, received: " . gettype( $url ) );
+					continue;
+			}
 
 			if ( wp_cache_is_rejected( $url ) ) {
 				wp_cache_debug( "wp_cron_preload_cache: skipped $url per rejected strings setting" );

@@ -1,4 +1,8 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Text, getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	SocialImageGeneratorToggle,
+	TemplatePickerButton,
+} from '@automattic/jetpack-publicize-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -9,6 +13,8 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React, { Component } from 'react';
+import { FormFieldset } from '../components/forms';
+import './style.scss';
 
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -28,6 +34,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'publicize' ),
 				hasSocialBasicFeatures = this.props.hasSocialBasicFeatures,
 				hasSocialAdvancedFeatures = this.props.hasSocialAdvancedFeatures,
+				hasSocialImageGenerator = this.props.hasSocialImageGenerator,
 				isAtomicSite = this.props.isAtomicSite,
 				activeFeatures = this.props.activeFeatures,
 				userCanManageModules = this.props.userCanManageModules;
@@ -75,6 +82,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				>
 					{ userCanManageModules && (
 						<SettingsGroup
+							hasChild
 							disableInOfflineMode
 							disableInSiteConnectionMode
 							module={ { module: 'publicize' } }
@@ -146,6 +154,26 @@ export const Publicize = withModuleSettingsFormHelpers(
 							>
 								{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
 							</ModuleToggle>
+							{ isActive &&
+								! this.props.isSavingAnyOption( 'publicize' ) &&
+								hasSocialImageGenerator && (
+									<FormFieldset>
+										<SocialImageGeneratorToggle toggleClass="jp-settings-sharing__sig-toggle">
+											<div>
+												<Text>
+													<strong>{ __( 'Enable Social Image Generator', 'jetpack' ) }</strong>
+												</Text>
+												{ __(
+													'With Social Image Generator enabled you can automatically generate social images for your posts. You can use the button below to choose a default template for new posts.',
+													'jetpack'
+												) }
+											</div>
+											<div className="jp-settings-sharing__template-picker">
+												<TemplatePickerButton />
+											</div>
+										</SocialImageGeneratorToggle>
+									</FormFieldset>
+								) }
 						</SettingsGroup>
 					) }
 

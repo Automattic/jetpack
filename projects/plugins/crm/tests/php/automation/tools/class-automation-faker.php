@@ -149,6 +149,18 @@ class Automation_Faker {
 	}
 
 	/**
+	 * Return dummy transaction triggers name list
+	 *
+	 * @return array
+	 */
+	public function transaction_triggers(): array {
+		return array(
+			'jpcrm/transaction_created',
+			'jpcrm/transaction_updated',
+		);
+	}
+
+	/**
 	 * Return a workflow with a condition and an action
 	 * @return array
 	 */
@@ -170,7 +182,7 @@ class Automation_Faker {
 					'value'    => 'lead',
 				),
 				'next_step_true'  => array(
-					'slug' => 'dummy_action',
+					'slug' => 'dummy_step',
 				),
 				'next_step_false' => null,
 			),
@@ -266,6 +278,7 @@ class Automation_Faker {
 				'id_override' => '1',
 				'title'       => '',
 				'hash'        => 'V8jAlsi0#$ksm0Plsxp',
+				'template'    => 1676923766,
 				'accepted'    => 1676923766,
 				'created'     => 1676000000,
 			),
@@ -306,6 +319,43 @@ class Automation_Faker {
 				'created'        => 1675000000,
 				'lastupdated'    => 1675000000,
 			),
+		);
+	}
+
+	/**
+	 * Return data for a dummy transaction
+	 *
+	 * @return array
+	 */
+	public function transaction_data() {
+		return array(
+			'id'   => 1,
+			'data' => array(
+				'title'          => 'Some transaction title',
+				'desc'           => 'Some desc',
+				'hash'           => 'mASOpAnf334Pncl1px4',
+				'status'         => 'Completed',
+				'type'           => 'Sale',
+				'date'           => 1676000000,
+				'date_completed' => 1676923766,
+				'created'        => 1675000000,
+				'lastupdated'    => 1675000000,
+			),
+		);
+	}
+
+	/**
+	 * Returns the data for a dummy contact transitional status.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $old_status The value of the old status.
+	 * @return array An array containing a dummy contact and the value of the old status that was passed as a parameter.
+	 */
+	public function contact_transitional_status_data( $old_status ) {
+		return array(
+			'contact'          => $this->contact_data(),
+			'old_status_value' => $old_status,
 		);
 	}
 

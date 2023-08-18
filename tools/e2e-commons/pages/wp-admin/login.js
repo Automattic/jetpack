@@ -12,6 +12,14 @@ export default class WPLoginPage extends WpPage {
 	async login( credentials = getSiteCredentials(), { retry = true } = {} ) {
 		logger.step( 'Log in to wp-admin' );
 
+		// If the SSO login button (a tag with the jetpack-sso class) is present,
+		// click on the link (a tag with the jetpack-sso-toggle class) to log in with the default core WP login form instead.
+		if ( await this.isElementVisible( '.jetpack-sso' ) ) {
+			await this.clickAndWaitForNewPage( '.jetpack-sso-toggle', {
+				expectedSelectors: [ '#loginform' ],
+			} );
+		}
+
 		await this.fill( '#user_login', credentials.username );
 		await this.fill( '#user_pass', credentials.password );
 		await this.click( '#wp-submit' );

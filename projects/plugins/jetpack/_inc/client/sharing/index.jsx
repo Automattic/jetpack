@@ -36,6 +36,7 @@ class Sharing extends Component {
 			activeFeatures: this.props.activeFeatures,
 			hasSocialBasicFeatures: this.props.hasSocialBasicFeatures,
 			hasSocialAdvancedFeatures: this.props.hasSocialAdvancedFeatures,
+			hasSocialImageGenerator: this.props.hasSocialImageGenerator,
 			isAtomicSite: this.props.isAtomicSite,
 		};
 
@@ -85,6 +86,7 @@ export default connect( state => {
 		hasSocialBasicFeatures: siteHasFeature( state, 'social-shares-1000' ),
 		activeFeatures: getActiveFeatures( state ),
 		hasSocialAdvancedFeatures: siteHasFeature( state, 'social-enhanced-publishing' ),
+		hasSocialImageGenerator: siteHasFeature( state, 'social-image-generator' ),
 		userCanManageModules: userCanManageModules( state ),
 		isAtomicSite: isAtomicSite( state ),
 	};

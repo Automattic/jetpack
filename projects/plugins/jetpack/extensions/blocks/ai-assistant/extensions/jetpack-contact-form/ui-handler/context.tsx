@@ -3,11 +3,23 @@
  */
 import { createContext } from '@wordpress/element';
 
-type AiAssistantUiContextProps = {
+export type AiAssistantUiContextProps = {
+	inputValue: string;
+
 	isVisible: boolean;
+
+	isFixed: boolean;
+
+	assistantAnchor: HTMLElement | null;
+	setAnchor: ( anchor: HTMLElement | null ) => void;
+
+	setInputValue: ( value: string ) => void;
+
 	show: () => void;
 	hide: () => void;
 	toggle: () => void;
+
+	setAssistantFixed: ( isFixed: boolean ) => void;
 };
 
 type AiAssistantUiContextProviderProps = {

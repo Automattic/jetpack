@@ -1,0 +1,69 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/cookie-consent",
+	"title": "Cookie Consent",
+	"description": "Displays a customizable cookie consent banner. To display this block on all pages of your site, please add it inside a Template Part that is present on all your templates, like a Header or a Footer.",
+	"keywords": [ "cookie", "consent", "privacy", "GDPR", "EU" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "grow",
+	"icon": "saved",
+	"supports": {
+		"align": [ "left", "right", "wide", "full" ],
+		"alignWide": true,
+		"anchor": false,
+		"color": {
+			"gradients": true,
+			"link": true
+		},
+		"spacing": {
+			"padding": true
+		},
+		"customClassName": true,
+		"className": true,
+		"html": false,
+		"lock": false,
+		"multiple": false,
+		"reusable": false
+	},
+	"attributes": {
+		"text": {
+			"type": "string",
+			"source": "html",
+			"selector": "p",
+			"default": "Privacy &amp; Cookies: This site uses cookies. By continuing to use this website, you agree to their use. To find out more, including how to control cookies, see here: <a href=\"https://automattic.com/cookies/\">Cookie Policy</a>."
+		},
+		"style": {
+			"type": "object",
+			"default": {
+				"color": {
+					"text": "var(--wp--preset--color--contrast)",
+					"background": "var(--wp--preset--color--tertiary)",
+					"link": "var(--wp--preset--color--contrast)"
+				},
+				"spacing": {
+					"padding": {
+						"top": "1em",
+						"right": "1em",
+						"bottom": "1em",
+						"left": "1em"
+					}
+				}
+			}
+		},
+		"align": {
+			"type": "string",
+			"default": "wide"
+		},
+		"consentExpiryDays": {
+			"type": "integer",
+			"default": 365
+		},
+		"showOverlay": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

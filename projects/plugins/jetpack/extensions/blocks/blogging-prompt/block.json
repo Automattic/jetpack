@@ -1,0 +1,89 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/blogging-prompt",
+	"title": "Writing Prompt",
+	"description": "Answer a new and inspiring writing prompt each day.",
+	"keywords": [ "writing", "blogging" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "text",
+	"icon": "lightbulb",
+	"supports": {
+		"align": false,
+		"alignWide": false,
+		"anchor": false,
+		"className": true,
+		"color": {
+			"background": true,
+			"gradients": true,
+			"link": true,
+			"text": true
+		},
+		"customClassName": true,
+		"html": false,
+		"inserter": true,
+		"multiple": false,
+		"reusable": true,
+		"spacing": {
+			"margin": [ "top", "bottom" ],
+			"padding": true,
+			"blockGap": false
+		}
+	},
+	"attributes": {
+		"answersLink": {
+			"type": "string",
+			"source": "attribute",
+			"attribute": "href",
+			"selector": ".jetpack-blogging-prompt__answers-link"
+		},
+		"answersLinkText": {
+			"type": "string",
+			"source": "html",
+			"selector": ".jetpack-blogging-prompt__answers-link"
+		},
+		"gravatars": {
+			"type": "array",
+			"source": "query",
+			"selector": ".jetpack-blogging-prompt__answers-gravatar",
+			"query": {
+				"url": {
+					"type": "string",
+					"source": "attribute",
+					"attribute": "src"
+				}
+			}
+		},
+		"promptLabel": {
+			"type": "string",
+			"source": "html",
+			"selector": ".jetpack-blogging-prompt__label"
+		},
+		"promptText": {
+			"type": "string",
+			"source": "html",
+			"selector": ".jetpack-blogging-prompt__text"
+		},
+		"promptFetched": {
+			"type": "boolean",
+			"default": false
+		},
+		"promptId": {
+			"type": "number"
+		},
+		"showResponses": {
+			"type": "boolean",
+			"default": true
+		},
+		"showLabel": {
+			"type": "boolean",
+			"default": true
+		},
+		"tagsAdded": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

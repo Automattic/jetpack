@@ -760,10 +760,14 @@ function add_paywall( $the_content ) {
 		return $the_content;
 	}
 
-	$post_access_level = Jetpack_Memberships::get_post_access_level();
-	$paywalled_content = get_paywall_blocks( $post_access_level );
-
 	if ( has_block( $block_name ) ) {
+		$post_access_level = Jetpack_Memberships::get_post_access_level();
+		if ( jetpack_is_frontend() ) {
+			$paywalled_content = get_paywall_blocks( $post_access_level );
+		} else {
+			// emails
+			$paywalled_content = get_paywall_simple();
+		}
 		$paywalled_content = strstr( $the_content, '<!-- wp:' . $block_name . ' /-->', true ) . $paywalled_content;
 	}
 
@@ -788,7 +792,7 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
 }
 
 /**
- * Gate access to exisiting comments
+ * Gate access to existing comments
  *
  * @param string $comment The comment.
  *
@@ -807,34 +811,95 @@ function maybe_gate_existing_comments( $comment ) {
 }
 
 /**
- * Placeholder text for non-subscribers
+ * Returns paywall content blocks
  *
  * @param string $newsletter_access_level The newsletter access level.
  * @return string
  */
 function get_paywall_blocks( $newsletter_access_level ) {
-	// Default to subscribers
-	$access_level = __( 'subscribers', 'jetpack' );
+	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
+	$is_paid_post = $newsletter_access_level === 'paid_subscribers'
+		&& ! empty( Jetpack_Memberships::get_connected_account_id() );
 
-	// Only display this text when Stripe is connected and the post is marked for paid subscribers
-	if (
-		$newsletter_access_level === 'paid_subscribers'
-		&& ! empty( Jetpack_Memberships::get_connected_account_id() )
-	) {
-		$access_level = __( 'paid subscribers', 'jetpack' );
-	}
+	$access_heading = esc_html__( 'Subscribe to continue reading', 'jetpack' );
 
-	return '<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->
-			<div class="wp-block-group has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center","style":{"typography":{"fontSize":"24px"},"spacing":{"margin":{"bottom":"var:preset|spacing|60"}}}} -->
-			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' .
+	$subscribe_text = $is_paid_post
+		// translators: %s is the name of the site.
+		? esc_html__( 'Become a paid subscriber to get access to the rest of this post and other exclusive content.', 'jetpack' )
+		// translators: %s is the name of the site.
+		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
-			/* translators: Newsletter access. Possible values are "paid newsletters" and "subscribers" */
-			sprintf( esc_html__( 'This post is for %s', 'jetpack' ), $access_level )
+	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
-			. '</h2>
-			<!-- /wp:heading -->
+	return '
+<!-- wp:group {"style":{"border":{"width":"1px","radius":"4px"},"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"32px","right":"32px"}}},"borderColor":"primary","className":"jetpack-subscribe-paywall","layout":{"type":"constrained","contentSize":"400px"}} -->
+<div class="wp-block-group jetpack-subscribe-paywall has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--70);padding-right:32px;padding-bottom:var(--wp--preset--spacing--70);padding-left:32px">
+<!-- wp:image {"align":"center","width":24,"height":24,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image aligncenter size-large is-resized"><img src="' . $lock_svg . '" alt="" width="24" height="24"/></figure>
+<!-- /wp:image -->
 
-			<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
-			</div>
-		<!-- /wp:group -->';
+<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"24px"},"layout":{"selfStretch":"fit"}}} -->
+<h2 class="wp-block-heading has-text-align-center" style="font-size:24px;font-style:normal;font-weight:600">' . $access_heading . '</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"},"spacing":{"margin":{"top":"10px","bottom":"10px"}}}} -->
+<p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /--></div>
+<!-- /wp:group -->
+';
+}
+
+/**
+ * Return content for non frontend views like emails.
+ *
+ * @return string
+ */
+function get_paywall_simple() {
+	$access_heading = esc_html__( "You're currently a free subscriber. Upgrade your subscription to get access to the rest of this post and other paid-subscriber only content.", 'jetpack' );
+
+	$subscribe_text = esc_html__( 'Upgrade subscription', 'jetpack' );
+
+	return '
+<!-- wp:columns -->
+<div class="wp-block-columns" style="display: inline-block; width: 90%">
+    <!-- wp:column -->
+    <div class="wp-block-column" style="background-color: #F6F7F7; padding: 32px; 24px;">
+        <!-- wp:paragraph -->
+        <p class="has-text-align-center"
+           style="text-align: center;
+                  color: #50575E;
+                  font-weight: 400;
+                  font-size: 16px;
+                  font-family: \'SF Pro Text\', sans-serif;
+                  line-height: 28.8px;">
+        ' . $access_heading . '
+        </p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:buttons -->
+        <div class="wp-block-buttons" style="text-align: center;">
+            <!-- wp:button -->
+            <div class="wp-block-button" style="display: inline-block; margin: 10px 0;">
+                <a href="#" class="wp-block-button__link wp-element-button"
+                   style="display: inline-block;
+                          padding: 15px 20px;
+                          background-color: #0675C4;
+                          color: #FFFFFF;
+                          text-decoration: none;
+                          border-radius: 5px;
+                          font-family: \'SF Pro Display\', sans-serif;
+                          font-weight: 500;
+                          font-size: 16px;
+                          text-align: center;">' . $subscribe_text . '</a>
+            </div>
+            <!-- /wp:button -->
+        </div>
+        <!-- /wp:buttons -->
+    </div>
+    <!-- /wp:column -->
+</div>
+<!-- /wp:columns -->
+';
 }

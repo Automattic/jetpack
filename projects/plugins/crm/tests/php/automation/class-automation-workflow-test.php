@@ -8,7 +8,8 @@ use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
 
@@ -17,7 +18,7 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
-class Automation_Workflow_Test extends BaseTestCase {
+class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 
@@ -34,7 +35,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->basic_workflow();
 
-		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
+		$workflow = new Automation_Workflow( $workflow_data );
 
 		$this->assertEquals( 'Workflow Test: basic_workflow', $workflow->name );
 	}
@@ -45,7 +46,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 	public function test_automation_workflow_no_triggers() {
 		$workflow_data = $this->automation_faker->empty_workflow();
 
-		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
+		$workflow = new Automation_Workflow( $workflow_data );
 
 		$this->assertCount( 0, $workflow->get_triggers() );
 	}
@@ -56,7 +57,8 @@ class Automation_Workflow_Test extends BaseTestCase {
 	public function test_automation_workflow_set_initial_step() {
 		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
-		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
+		$workflow = new Automation_Workflow( $workflow_data );
+		$workflow->set_engine( new Automation_Engine() );
 
 		$workflow->set_initial_step(
 			array(
@@ -76,7 +78,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 	public function test_workflow_triggers() {
 		$workflow_data = $this->automation_faker->basic_workflow();
 
-		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
+		$workflow = new Automation_Workflow( $workflow_data );
 
 		$workflow->add_trigger( 'jpcrm/contact_updated' );
 		$workflow->add_trigger( 'jpcrm/contact_deleted' );
@@ -96,7 +98,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 	public function test_workflow_turn_on_off() {
 		$workflow_data = $this->automation_faker->basic_workflow();
 
-		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
+		$workflow = new Automation_Workflow( $workflow_data );
 
 		$workflow->turn_on();
 		$this->assertTrue( $workflow->is_active() );
@@ -118,9 +120,10 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, $automation ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
+		$workflow->set_engine( $automation );
 
 		// Turn off the workflow
 		$workflow->turn_off();
@@ -156,9 +159,10 @@ class Automation_Workflow_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Workflow
 		$workflow = $this->getMockBuilder( Automation_Workflow::class )
-			->setConstructorArgs( array( $workflow_data, $automation ) )
+			->setConstructorArgs( array( $workflow_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
+		$workflow->set_engine( $automation );
 
 		// Add and init the workflows
 		$automation->add_workflow( $workflow );
@@ -193,20 +197,20 @@ class Automation_Workflow_Test extends BaseTestCase {
 	public function test_workflow_execution_with_dummy_action() {
 
 		$logger = Automation_Logger::instance( true );
-		//$logger->with_output( true );
 
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'dummy_action', Dummy_Step::class );
+		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
-		$workflow = new Automation_Workflow( $workflow_data, $automation );
-		$workflow->set_automation_logger( $logger );
+		$workflow = new Automation_Workflow( $workflow_data );
+		$workflow->set_logger( $logger );
+		$workflow->set_engine( $automation );
 		$workflow->set_initial_step(
 			array(
-				'slug' => 'dummy_action',
+				'slug' => 'dummy_step',
 			)
 		);
 
@@ -232,22 +236,34 @@ class Automation_Workflow_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @testdox Ensure that we throw an error if a workflow is executed without an engine
+	 */
+	public function test_workflow_execution_without_engine() {
+		$workflow_data = $this->automation_faker->basic_workflow();
+		$workflow      = new Automation_Workflow( $workflow_data );
+
+		$this->expectException( Workflow_Exception::class );
+		$this->expectExceptionCode( Workflow_Exception::MISSING_ENGINE_INSTANCE );
+
+		$workflow->execute( new Contact_Created_Trigger(), array() );
+	}
+
+	/**
 	 * @testdox Test an automation workflow execution with condition => true
 	 */
 	public function test_workflow_execution_with_condition_true() {
 		$logger = Automation_Logger::instance( true );
 		$logger->reset_log();
 
-		//$logger->with_output( true );
-
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'dummy_action', Dummy_Step::class );
+		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
 
-		$workflow = new Automation_Workflow( $workflow_data, $automation );
+		$workflow = new Automation_Workflow( $workflow_data );
+		$workflow->set_engine( $automation );
 
 		$automation->add_workflow( $workflow );
 		$automation->init_workflows();
@@ -277,16 +293,15 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$logger = Automation_Logger::instance( true );
 		$logger->reset_log();
 
-		//$logger->with_output( true );
-
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'dummy_action', Dummy_Step::class );
+		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
 
-		$workflow = new Automation_Workflow( $workflow_data, $automation );
+		$workflow = new Automation_Workflow( $workflow_data );
+		$workflow->set_engine( $automation );
 
 		$automation->add_workflow( $workflow );
 		$automation->init_workflows();
@@ -308,4 +323,5 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$this->assertEquals( 'Workflow execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
 		$this->assertEquals( 'Condition met?: false', $log[ $total_log - 3 ][1] );
 	}
+
 }

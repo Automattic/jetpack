@@ -25,6 +25,7 @@ import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
 import ConnectionsSection from '../connections-section';
+import IDCModal from '../idc-modal';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import styles from './styles.module.scss';
@@ -110,6 +111,7 @@ export default function MyJetpackScreen() {
 
 	return (
 		<AdminPage>
+			<IDCModal />
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 0 }>
 					<Col>
