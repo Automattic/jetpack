@@ -1733,3 +1733,18 @@ function jpcrm_get_mimetype( $file_path ) {
 
 	return 'application/octet-stream';
 }
+
+/**
+ * Retrieve an array of quote statuses with their corresponding labels.
+ *
+ * @since $$next-version$$
+ *
+ * @return array Associative array of quote statuses with labels.
+ */
+function jpcrm_get_quote_statuses() {
+	return array(
+		'draft'     => __( 'Draft', 'zero-bs-crm' ),
+		'published' => __( 'Published, Unaccepted', 'zero-bs-crm' ),
+		'accepted'  => __( 'Accepted', 'zero-bs-crm' ),
+	);
+}

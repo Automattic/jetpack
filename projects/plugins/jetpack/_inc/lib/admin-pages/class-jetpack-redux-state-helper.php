@@ -241,6 +241,28 @@ class Jetpack_Redux_State_Helper {
 			'isBlazeDashboardEnabled'     => Blaze::is_dashboard_enabled(),
 			/** This filter is documented in plugins/jetpack/modules/subscriptions/subscribe-module/class-jetpack-subscribe-module.php */
 			'isSubscriptionModalEnabled'  => apply_filters( 'jetpack_subscriptions_modal_enabled', false ),
+			'socialInitialState'          => self::get_publicize_initial_state(),
+		);
+	}
+
+	/**
+	 * Gets the initial state for the Publicize module.
+	 *
+	 * @return array|null
+	 */
+	public static function get_publicize_initial_state() {
+		$sig_settings = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
+
+		if ( empty( $sig_settings ) ) {
+			return null;
+		}
+
+		return array(
+			'socialImageGeneratorSettings' => array(
+				'available'       => $sig_settings->is_available(),
+				'enabled'         => $sig_settings->is_enabled(),
+				'defaultTemplate' => $sig_settings->get_default_template(),
+			),
 		);
 	}
 

@@ -9,7 +9,7 @@ use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
 use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
 
@@ -18,7 +18,7 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
-class Automation_Workflow_Test extends BaseTestCase {
+class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 
@@ -201,7 +201,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'dummy_action', Dummy_Step::class );
+		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
@@ -210,7 +210,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$workflow->set_engine( $automation );
 		$workflow->set_initial_step(
 			array(
-				'slug' => 'dummy_action',
+				'slug' => 'dummy_step',
 			)
 		);
 
@@ -258,7 +258,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'dummy_action', Dummy_Step::class );
+		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
 
@@ -296,7 +296,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_step( 'dummy_action', Dummy_Step::class );
+		$automation->register_step( Dummy_Step::class );
 
 		$workflow_data = $this->automation_faker->workflow_with_condition_action();
 
