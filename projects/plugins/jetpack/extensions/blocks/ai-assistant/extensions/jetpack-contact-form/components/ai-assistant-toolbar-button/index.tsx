@@ -128,7 +128,6 @@ export default function AiAssistantToolbarButton( {
 				label={ __( 'Ask AI Assistant', 'jetpack' ) }
 				icon={ aiAssistantIcon }
 				disabled={ isDisabled }
-				isActive={ isVisible }
 			/>
 		</>
 	);
