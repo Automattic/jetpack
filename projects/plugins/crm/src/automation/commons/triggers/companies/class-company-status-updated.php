@@ -65,7 +65,7 @@ class Company_Status_Updated extends Base_Trigger {
 	/**
 	 * Get the date type.
 	 *
-	 * @return string
+	 * @return string The type of the step
 	 */
 	public static function get_data_type(): string {
 		return Data_Type_Company::get_slug();
