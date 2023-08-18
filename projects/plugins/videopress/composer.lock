@@ -1278,7 +1278,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "2e043ed46f2a6ba145d282527d4e31d1680a691a"
+                "reference": "9c2ceb892a70d7108a573859f88dcd2d099c4606"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1309,7 +1309,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.54.x-dev"
+                    "dev-trunk": "1.55.x-dev"
                 }
             },
             "autoload": {
