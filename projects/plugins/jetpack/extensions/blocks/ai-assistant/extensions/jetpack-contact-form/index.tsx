@@ -19,6 +19,11 @@ import { isJetpackFromBlockAiCompositionAvailable } from './constants';
 import { JETPACK_FORM_CHILDREN_BLOCKS } from './constants';
 import withUiHandlerDataProvider from './ui-handler/with-ui-handler-data-provider';
 
+type IsPossibleToExtendJetpackFormBlockProps = {
+	checkChildrenBlocks?: boolean;
+	clientId: string;
+};
+
 /**
  * Check if it is possible to extend the block.
  *
@@ -28,7 +33,9 @@ import withUiHandlerDataProvider from './ui-handler/with-ui-handler-data-provide
  */
 export function isPossibleToExtendJetpackFormBlock(
 	blockName: string | undefined,
-	checkChildrenBlocks?: boolean
+	{ checkChildrenBlocks = false, clientId }: IsPossibleToExtendJetpackFormBlockProps = {
+		clientId: '',
+	}
 ): boolean {
 	// Check if the AI Assistant block is registered.
 	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
@@ -38,6 +45,18 @@ export function isPossibleToExtendJetpackFormBlock(
 
 	// Check if Jetpack extension is enabled.
 	if ( ! isJetpackFromBlockAiCompositionAvailable ) {
+		return false;
+	}
+
+	// clientId is required
+	if ( ! clientId?.length ) {
+		return false;
+	}
+
+	// Do not extend when the block is inside of a core/query block.
+	const { getBlockParentsByBlockName } = select( 'core/block-editor' );
+	const isChildOfQueryBlock = getBlockParentsByBlockName( clientId, 'core/query' )?.length > 0;
+	if ( isChildOfQueryBlock ) {
 		return false;
 	}
 
@@ -80,7 +99,7 @@ export function isPossibleToExtendJetpackFormBlock(
 
 const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
-		if ( ! isPossibleToExtendJetpackFormBlock( props?.name ) ) {
+		if ( ! isPossibleToExtendJetpackFormBlock( props?.name, { clientId: props.clientId } ) ) {
 			return <BlockEdit { ...props } />;
 		}
 		const { eventSource } = useAiContext();
@@ -128,10 +147,6 @@ addFilter( 'editor.BlockEdit', 'jetpack/jetpack-form-block-edit', withAiAssistan
  */
 const withAiToolbarButton = createHigherOrderComponent( BlockEdit => {
 	return props => {
-		if ( ! isPossibleToExtendJetpackFormBlock( props?.name, true ) ) {
-			return <BlockEdit { ...props } />;
-		}
-
 		// Get clientId of the parent block.
 		const parentClientId = useSelect(
 			selectData => {
@@ -140,6 +155,16 @@ const withAiToolbarButton = createHigherOrderComponent( BlockEdit => {
 			},
 			[ props.clientId ]
 		);
+
+		if (
+			! isPossibleToExtendJetpackFormBlock( props?.name, {
+				checkChildrenBlocks: true,
+				clientId: parentClientId,
+			} )
+		) {
+			return <BlockEdit { ...props } />;
+		}
+
 		const blockControlsProps = {
 			group: 'parent',
 		};
