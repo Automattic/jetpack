@@ -114,6 +114,7 @@ class REST_Settings_Controller_Test2 extends BaseTestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertArrayHasKey( 'image', $response->data );
 		$this->assertArrayHasKey( 'video', $response->data );
+		$this->assertArrayHasKey( 'auto-conversion', $response->data );
 	}
 
 	/**
@@ -131,6 +132,7 @@ class REST_Settings_Controller_Test2 extends BaseTestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertTrue( $response->data['image'] );
 		$this->assertFalse( $response->data['video'] );
+		$this->assertFalse( $response->data['auto-conversion'] );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/auto-conversion/settings' );
 		$request->set_body_params(
@@ -143,6 +145,21 @@ class REST_Settings_Controller_Test2 extends BaseTestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertTrue( $response->data['image'] );
 		$this->assertTrue( $response->data['video'] );
+		$this->assertFalse( $response->data['auto-conversion'] );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/auto-conversion/settings' );
+		$request->set_body_params(
+			array(
+				'image'           => true,
+				'video'           => true,
+				'auto-conversion' => true,
+			)
+		);
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $response->data['image'] );
+		$this->assertTrue( $response->data['auto-conversion'] );
+		$this->assertTrue( $response->data['video'] );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/auto-conversion/settings' );
 		$request->set_body_params(
@@ -155,17 +172,21 @@ class REST_Settings_Controller_Test2 extends BaseTestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertFalse( $response->data['image'] );
 		$this->assertTrue( $response->data['video'] );
+		$this->assertTrue( $response->data['auto-conversion'] );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/auto-conversion/settings' );
 		$request->set_body_params(
 			array(
-				'image' => false,
-				'video' => false,
+				'image'           => false,
+				'video'           => false,
+				'auto-conversion' => false,
+
 			)
 		);
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertFalse( $response->data['image'] );
 		$this->assertFalse( $response->data['video'] );
+		$this->assertFalse( $response->data['auto-conversion'] );
 	}
 }

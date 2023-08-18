@@ -60,6 +60,10 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			$response['video'] = $settings->is_enabled( 'video' );
 		}
 
+		if ( in_array( 'auto-conversion', $properties, true ) ) {
+			$response['auto-conversion'] = $settings->is_enabled( 'auto-conversion' );
+		}
+
 		return rest_ensure_response( $response );
 	}
 
@@ -79,6 +83,10 @@ class REST_Settings_Controller extends WP_REST_Controller {
 
 		if ( isset( $request['video'] ) ) {
 			$settings->set_enabled( 'video', $request['video'] );
+		}
+
+		if ( isset( $request['auto-conversion'] ) ) {
+			$settings->set_enabled( 'auto-conversion', $request['auto-conversion'] );
 		}
 
 		return rest_ensure_response( $this->get_auto_coversion_settings() );
@@ -112,13 +120,18 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			'title'      => 'auto-conversion-settings',
 			'type'       => 'object',
 			'properties' => array(
-				'image' => array(
+				'image'           => array(
 					'description' => __( 'Whether or not auto-conversion for images is enabled.', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),
-				'video' => array(
+				'video'           => array(
 					'description' => __( 'Whether or not auto-conversion for videos is enabled.', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+					'context'     => array( 'view', 'edit' ),
+				),
+				'auto-conversion' => array(
+					'description' => __( 'Whether or not auto-conversion is enabled.', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
 				),

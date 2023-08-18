@@ -86,6 +86,8 @@ class Auto_Conversion_Test extends BaseTestCase {
 	 */
 	public function test_correctly_updates_enabled_status() {
 		$this->settings->set_enabled( 'image', true );
+		$this->settings->set_enabled( 'auto-conversion', true );
+		$this->assertTrue( $this->settings->is_enabled( 'auto-conversion' ) );
 		$this->assertTrue( $this->settings->is_enabled( 'image' ) );
 		$this->assertFalse( $this->settings->is_enabled( 'video' ) );
 		$this->settings->set_enabled( 'video', true );
@@ -97,5 +99,8 @@ class Auto_Conversion_Test extends BaseTestCase {
 		$this->assertTrue( $this->settings->is_enabled( 'video' ) );
 		$this->settings->set_enabled( 'video', false );
 		$this->assertFalse( $this->settings->is_enabled( 'video' ) );
+		$this->assertTrue( $this->settings->is_enabled( 'auto-conversion' ) );
+		$this->settings->set_enabled( 'auto-conversion', false );
+		$this->assertFalse( $this->settings->is_enabled( 'auto-conversion' ) );
 	}
 }
