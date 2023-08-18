@@ -6,7 +6,7 @@ import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { select, useSelect } from '@wordpress/data';
-import { useEffect, useCallback } from '@wordpress/element';
+import { useEffect, useCallback, useRef } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
@@ -125,14 +125,16 @@ const withAiAssistantComponents = createHigherOrderComponent( BlockEdit => {
 			group: 'block',
 		};
 
+		const inputRef = useRef< HTMLInputElement >( null );
+
 		return (
 			<>
 				<BlockEdit { ...props } />
 
-				<AiAssistantBar clientId={ props.clientId } />
+				<AiAssistantBar ref={ inputRef } clientId={ props.clientId } />
 
 				<BlockControls { ...blockControlsProps }>
-					<AiAssistantToolbarButton />
+					<AiAssistantToolbarButton assistantBarInputRef={ inputRef } />
 				</BlockControls>
 			</>
 		);

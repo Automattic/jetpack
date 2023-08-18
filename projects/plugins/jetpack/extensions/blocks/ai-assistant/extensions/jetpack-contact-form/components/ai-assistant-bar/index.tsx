@@ -6,6 +6,7 @@ import { serialize } from '@wordpress/blocks';
 import { useViewportMatch } from '@wordpress/compose';
 import { select } from '@wordpress/data';
 import { useDispatch } from '@wordpress/data';
+import { forwardRef } from '@wordpress/element';
 import {
 	useContext,
 	useCallback,
@@ -66,15 +67,17 @@ function getSerializedContentFromBlock( clientId: string ): string {
 	}, '' );
 }
 
-export default function AiAssistantBar( {
-	clientId,
-	className = '',
-}: {
-	clientId: string;
-	className?: string;
-} ) {
+export default forwardRef( function AiAssistantBar(
+	{
+		clientId,
+		className = '',
+	}: {
+		clientId: string;
+		className?: string;
+	},
+	inputRef: React.RefObject< HTMLInputElement >
+) {
 	const wrapperRef = useRef< HTMLDivElement >( null );
-	const inputRef = useRef< HTMLInputElement >( null );
 
 	const { inputValue, setInputValue, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
@@ -224,4 +227,4 @@ export default function AiAssistantBar( {
 
 	// Render in the editor canvas.
 	return AiAssistantBarComponent;
-}
+} );
