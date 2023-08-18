@@ -121,7 +121,7 @@ class WPCOM_Migration {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'wpcom-migration', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'wpcom-migration' );
 		wp_add_inline_script( 'wpcom-migration', $this->render_initial_state(), 'before' );
 	}
 

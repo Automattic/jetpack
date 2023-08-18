@@ -4,16 +4,18 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
 /**
  * Test Automation Workflow functionalities
  *
- * @covers Automattic\Jetpack\CRM\Automation
+ * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed
+ * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status
  */
-class Contact_Condition_Test extends BaseTestCase {
+class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 
@@ -33,6 +35,18 @@ class Contact_Condition_Test extends BaseTestCase {
 			),
 		);
 		return new Contact_Field_Changed( $condition_data );
+	}
+
+	private function get_contact_transitional_status_condition( $operator, $from_status, $to_status ) {
+		$condition_data = array(
+			'slug'       => 'jpcrm/condition/contact_status_transitional',
+			'attributes' => array(
+				'operator'            => $operator,
+				'previous_status_was' => $from_status,
+				'new_status_is'       => $to_status,
+			),
+		);
+		return new Contact_Transitional_Status( $condition_data );
 	}
 
 	/**
@@ -79,9 +93,46 @@ class Contact_Condition_Test extends BaseTestCase {
 		$contact_data                    = $this->automation_faker->contact_data();
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
 		$contact_field_changed_condition->execute( $contact_data );
+	}
+
+	/**
+	 * @testdox Test if an exception is being correctly thrown for wrong operators for transitional status.
+	 */
+	public function test_transitional_status_invalid_operator_throws_exception() {
+		$contact_transitional_status_condition = $this->get_contact_transitional_status_condition( 'wrong_operator', 'old_status', 'new_status' );
+		$transitional_status_data              = $this->automation_faker->contact_transitional_status_data( 'old_status' );
+
+		$this->expectException( Automation_Exception::class );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
+
+		$contact_transitional_status_condition->execute( $transitional_status_data );
+	}
+
+	/**
+	 * @testdox Test if transitional status correctly detects the correct statuses.
+	 */
+	public function test_transitional_status() {
+		$contact_transitional_status_condition = $this->get_contact_transitional_status_condition( 'from_to', 'old_status', 'new_status' );
+		$transitional_status_data              = $this->automation_faker->contact_transitional_status_data( 'old_status' );
+
+		// Testing when the condition has been met.
+		$transitional_status_data['contact']['data']['status'] = 'new_status';
+		$contact_transitional_status_condition->execute( $transitional_status_data );
+		$this->assertTrue( $contact_transitional_status_condition->condition_met() );
+
+		// Testing when the condition has been not been met for the to field.
+		$transitional_status_data['contact']['data']['status'] = 'wrong_to';
+		$contact_transitional_status_condition->execute( $transitional_status_data );
+		$this->assertFalse( $contact_transitional_status_condition->condition_met() );
+
+		// Testing when the condition has been not been met for the from field.
+		$transitional_status_data['contact']['data']['status'] = 'new_status';
+		$transitional_status_data['old_status_value']          = 'wrong_from';
+		$contact_transitional_status_condition->execute( $transitional_status_data );
+		$this->assertFalse( $contact_transitional_status_condition->condition_met() );
 	}
 
 }

@@ -50,7 +50,6 @@ class Jetpack_Subscribe_Modal {
 			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
 		}
 		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
-		add_filter( 'get_block_templates', array( $this, 'get_block_templates_filter' ), 10, 3 );
 	}
 
 	/**
@@ -98,31 +97,6 @@ class Jetpack_Subscribe_Modal {
 		}
 
 		return $block_template;
-	}
-
-	/**
-	 * Makes get_block_templates return the WP_Block_Template within the results.
-	 *
-	 * @param WP_Block_Template $query_result The filter result.
-	 * @param string            $query The query string.
-	 * @param string            $template_type Template type: `'wp_template'` or '`wp_template_part'`.
-	 *
-	 * @return array WP_Block_Template
-	 */
-	public function get_block_templates_filter( $query_result, $query, $template_type ) {
-		if ( empty( $query ) && $template_type === 'wp_template_part' ) {
-			if ( is_array( $query_result ) ) {
-				// find the custom template and return early if we have a custom version in the results.
-				foreach ( $query_result as $template ) {
-					if ( $template->id === self::get_block_template_part_id() ) {
-						return $query_result;
-					}
-				}
-			}
-			$query_result[] = $this->get_template();
-		}
-
-		return $query_result;
 	}
 
 	/**
@@ -217,10 +191,11 @@ HTML;
 			return false;
 		}
 
-		// Don't show if subscribe query param is set.
-		// It is set when user submits the subscribe form.
+		// Don't show if one of subscribe query params is set.
+		// They are set when user submits the subscribe form.
+		// The nonce is checked elsewhere before redirect back to this page with query params.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['subscribe'] ) ) {
+		if ( isset( $_GET['subscribe'] ) || isset( $_GET['blogsub'] ) ) {
 			return false;
 		}
 
@@ -275,3 +250,22 @@ add_filter(
 if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
 	Jetpack_Subscribe_Modal::init();
 }
+
+add_action(
+	'rest_api_switched_to_blog',
+	function () {
+		/**
+		 * Filter for enabling or disabling the Jetpack Subscribe Modal
+		 * feature. We use this filter here and in several other places
+		 * to conditionally load options and functionality related to
+		 * this feature.
+		 *
+		 * @since 12.4
+		 *
+		 * @param bool Defaults to false.
+		 */
+		if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
+			Jetpack_Subscribe_Modal::init();
+		}
+	}
+);

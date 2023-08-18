@@ -1,3 +1,4 @@
+import { createReduxStore, register } from '@wordpress/data';
 import actions from './actions';
 import controls from './controls';
 import reducer from './reducer';
@@ -11,5 +12,11 @@ export const SOCIAL_STORE_CONFIG = {
 	selectors,
 	resolvers,
 	controls,
-	initialState: window.jetpackSocialInitialState || {},
+	initialState:
+		window?.jetpackSocialInitialState || // Jetpack Social
+		window?.Initial_State?.socialInitialState || // Jetpack Dashboard
+		{},
 };
+
+const store = createReduxStore( SOCIAL_STORE_ID, SOCIAL_STORE_CONFIG );
+register( store );

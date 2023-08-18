@@ -115,6 +115,11 @@ input[type="checkbox"].jp-forms__table-checkbox {
 		width: 16px;
 	}
 
+	// visual aid for focus
+	&:focus::before {
+		box-shadow: var( --jp-forms-focus-shadow );
+	}
+
 	&:checked::before {
 		background: #000;
 		border-color: #000;
