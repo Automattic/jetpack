@@ -236,8 +236,9 @@ if ( isset( $sbupdated ) ) {
 					text: '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Are you sure you want to delete this tax rate? This will remove it from your database and existing transactions with this tax rate will not show properly. You cannot undo this.', 'zero-bs-crm' ) ) ); ?>',
 					type: 'warning',
 					showCancelButton: true,
-					confirmButtonColor: '#3085d6',
-					cancelButtonColor: '#d33',
+					confirmButtonColor: '#000',
+					cancelButtonColor: '#fff',
+					cancelButtonText: '<span style="color: #000">Cancel</span>',
 					confirmButtonText: '<?php echo esc_html( zeroBSCRM_slashOut( __( 'Yes, remove the tax rate.', 'zero-bs-crm' ) ) ); ?>',
 				})//.then((result) => {
 					.then(function (result) {

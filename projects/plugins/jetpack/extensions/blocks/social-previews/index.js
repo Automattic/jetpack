@@ -1,11 +1,10 @@
-import { JetpackLogo } from '@automattic/jetpack-components';
 import { SocialPreviewsModal, SocialPreviewsPanel } from '@automattic/jetpack-publicize-components';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
-import './editor.scss';
 
 export const name = 'social-previews';
 
@@ -26,7 +25,7 @@ export const SocialPreviews = function SocialPreviews() {
 			</JetpackPluginSidebar>
 			<PluginPrePublishPanel
 				title={ __( 'Social Previews', 'jetpack' ) }
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				icon={ <JetpackEditorPanelLogo /> }
 				initialOpen={ false }
 			>
 				<SocialPreviewsPanel openModal={ () => setIsOpened( true ) } />

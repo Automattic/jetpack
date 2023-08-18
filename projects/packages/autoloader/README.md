@@ -20,7 +20,7 @@ In your project's `composer.json`, add the following lines:
 
 ```json
 {
-    "require-dev": {
+    "require": {
         "automattic/jetpack-autoloader": "^2"
     }
 }

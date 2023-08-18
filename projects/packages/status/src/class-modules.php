@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 
 /**
@@ -426,7 +427,7 @@ class Modules {
 						}
 					}
 					if ( $deactivated ) {
-						$state->state( 'deactivated_plugins', join( ',', $deactivated ) );
+						$state->state( 'deactivated_plugins', implode( ',', $deactivated ) );
 						wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
 						exit;
 					}
@@ -441,7 +442,7 @@ class Modules {
 				}
 			}
 
-			if ( class_exists( 'Jetpack_Plan' ) && ! \Jetpack_Plan::supports( $module ) ) {
+			if ( ! Jetpack_Plan::supports( $module ) ) {
 				return false;
 			}
 

@@ -22,16 +22,16 @@ describe( 'RelatedPostsControls', () => {
 	} );
 
 	describe( 'Inspector settings', () => {
-		test( 'displays Thumbnails display toggle', () => {
+		test( 'displays Thumbnail display toggle', () => {
 			render( <RelatedPostsInspectorControls { ...defaultProps } /> );
 
-			expect( screen.getByLabelText( 'Display thumbnails' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Display thumbnail' ) ).toBeInTheDocument();
 		} );
 
 		test( 'sets displayThumbnails attribute', async () => {
 			const user = userEvent.setup();
 			render( <RelatedPostsInspectorControls { ...defaultProps } /> );
-			await user.click( screen.getByLabelText( 'Display thumbnails' ) );
+			await user.click( screen.getByLabelText( 'Display thumbnail' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { displayThumbnails: true } );
 		} );
@@ -86,14 +86,14 @@ describe( 'RelatedPostsControls', () => {
 		test( 'loads and displays layouts button in toolbar', () => {
 			render( <RelatedPostsBlockControls { ...props } /> );
 
-			expect( screen.getByLabelText( 'Grid View' ) ).toBeInTheDocument();
-			expect( screen.getByLabelText( 'List View' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Grid view' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'List view' ) ).toBeInTheDocument();
 		} );
 
 		test( 'sets the postLayout attribute', async () => {
 			const user = userEvent.setup();
 			render( <RelatedPostsBlockControls { ...props } /> );
-			await user.click( screen.getByLabelText( 'List View' ) );
+			await user.click( screen.getByLabelText( 'List view' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( { postLayout: 'list' } );
 		} );

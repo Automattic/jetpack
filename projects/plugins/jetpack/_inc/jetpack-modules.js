@@ -30,14 +30,13 @@
 
 	// Handle the filtering of modules.
 	handle_module_tag_click = function ( event ) {
+		$( '.subsubsub' ).find( 'li.current' ).removeClass( 'current' );
+
 		// Switch the item in the subsubsub list that's flagged as current.
 		$( '.subsubsub' )
 			.find( 'a[data-title="' + $( this ).data( 'title' ) + '"]' )
-			.addClass( 'current' )
 			.closest( 'li' )
-			.siblings()
-			.find( 'a.current' )
-			.removeClass( 'current' );
+			.addClass( 'current' );
 
 		event.preventDefault();
 		modules.trigger( 'change' );

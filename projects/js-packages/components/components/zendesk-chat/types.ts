@@ -1,7 +1,14 @@
 import type { FC } from 'react';
 
-export type DateFunctionType = ( currentDate: Date ) => boolean;
+declare global {
+	interface Window {
+		// eslint-disable-next-line @typescript-eslint/ban-types
+		zE: Function;
+	}
+}
 
-export type ZendeskChatScriptType = FC;
+interface ZendeskChatProps {
+	jwt_token: string;
+}
 
-export type ZendeskChatType = FC;
+export type ZendeskChatType = FC< ZendeskChatProps >;

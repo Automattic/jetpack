@@ -8,12 +8,12 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useProductInfo from '../../hooks/use-product-info';
-import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
 const UNLIMITED = __( 'Unlimited', 'jetpack-social' );
@@ -21,11 +21,11 @@ const UNLIMITED_SHARES = __( 'Unlimited shares', 'jetpack-social' );
 const UP_TO_30 = __( 'Up to 30', 'jetpack-social' );
 const UP_TO_30_SHARES = __( 'Up to 30 shares in 30 days', 'jetpack-social' );
 
-const PricingPage = () => {
+const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 	const [ productInfo ] = useProductInfo();
 
-	const siteSuffix = useSelect( select => select( STORE_ID ).getSiteSuffix() );
-	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
+	const siteSuffix = useSelect( select => select( SOCIAL_STORE_ID ).getSiteSuffix() );
+	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateJetpackSettings;
 
 	const [ isLarge ] = useBreakpointMatch( 'lg' );
 
@@ -34,7 +34,8 @@ const PricingPage = () => {
 			show_pricing_page: false,
 		};
 		updateOptions( newOption );
-	}, [ updateOptions ] );
+		onDismiss();
+	}, [ updateOptions, onDismiss ] );
 
 	const UNLIMITED_SHARES_TABLE_ITEM = (
 		<PricingTableItem

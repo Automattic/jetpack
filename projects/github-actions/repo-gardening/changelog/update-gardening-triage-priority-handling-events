@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Triage: ensure we do not trigger triaging on events when a laabel that would impact our automated triage is already being added.

@@ -19,6 +19,14 @@
 
 	.dops-info-popover {
 		white-space: nowrap;
+
+		.gridicon {
+			color: $gray-30;
+
+			&:hover {
+				color: #414141;
+			}
+		}
 	}
 }
 

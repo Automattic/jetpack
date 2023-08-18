@@ -425,7 +425,7 @@ function render_pagination( $settings ) {
 		'<div class="wp-story-pagination wp-story-pagination-bullets">
 			%s
 		</div>',
-		join( "\n", array_map( __NAMESPACE__ . '\render_pagination_bullet', range( 1, $bullet_count ) ) ) . $bullet_ellipsis
+		implode( "\n", array_map( __NAMESPACE__ . '\render_pagination_bullet', range( 1, $bullet_count ) ) ) . $bullet_ellipsis
 	);
 }
 

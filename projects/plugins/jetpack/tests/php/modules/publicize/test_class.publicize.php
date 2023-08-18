@@ -86,6 +86,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 						'id_number' => array(
 							'connection_data' => array(
 								'user_id'  => $this->user_id,
+								'id'       => '456',
 								'token_id' => 'test-unique-id456',
 								'meta'     => array(
 									'display_name' => 'test-display-name456',
@@ -98,6 +99,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 						'id_number' => array(
 							'connection_data' => array(
 								'user_id'  => 0,
+								'id'       => '123',
 								'token_id' => 'test-unique-id123',
 								'meta'     => array(
 									'display_name' => 'test-display-name123',

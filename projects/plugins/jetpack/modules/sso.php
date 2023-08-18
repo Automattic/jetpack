@@ -408,7 +408,7 @@ class Jetpack_SSO {
 		}
 
 		if ( 'jetpack-sso' === $action ) {
-			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' === $_GET['result'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET['result'] ) && isset( $_GET['user_id'] ) && isset( $_GET['sso_nonce'] ) && 'success' === $_GET['result'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$this->handle_login();
 				$this->display_sso_login_form();
 			} elseif ( ( new Status() )->is_staging_site() ) {
@@ -426,7 +426,7 @@ class Jetpack_SSO {
 		} elseif ( Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 
 			// Save cookies so we can handle redirects after SSO.
-			$this->save_cookies();
+			static::save_cookies();
 
 			/**
 			 * Check to see if the site admin wants to automagically forward the user
@@ -950,7 +950,7 @@ class Jetpack_SSO {
 						array(
 							'redirect_to'               => $redirect_to,
 							'request_redirect_to'       => $_request_redirect_to,
-							'calypso_env'               => Jetpack::get_calypso_env(),
+							'calypso_env'               => ( new Host() )->get_calypso_env(),
 							'jetpack-sso-auth-redirect' => '1',
 						),
 						admin_url()

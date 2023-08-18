@@ -29,6 +29,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-heartbeat.php';
+require_once JETPACK__PLUGIN_DIR . 'class.jetpack-boost-modules.php';
 require_once JETPACK__PLUGIN_DIR . 'class.photon.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.photon.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.global.php';

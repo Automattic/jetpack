@@ -27,9 +27,12 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 	const STYLE_PROBE_STYLE =
 		'position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden';
 	const HTML = `
-			<div class="contact-form" style="">
+			<div class="contact-form">
+				<div class="wp-block-button">
+					<div class="wp-block-button__link btn-primary">Test</div>
+				</div>
 				<div class="wp-block-button is-style-outline">
-					<div class="wp-block-button__link">Test</div>
+					<div class="wp-block-button__link btn-outline">Test</div>
 				</div>
 				<div class="jetpack-field">
 					<input class="jetpack-field__input" type="text">
@@ -49,15 +52,34 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 	styleProbe.style = STYLE_PROBE_STYLE;
 	styleProbe.innerHTML = HTML;
 
-	formNode.appendChild( styleProbe );
+	formNode.parentNode.appendChild( styleProbe );
 
-	const buttonNode = styleProbe.querySelector( '.wp-block-button__link' );
+	const buttonPrimaryNode = styleProbe.querySelector( '.btn-primary' );
+	const buttonOutlineNode = styleProbe.querySelector( '.btn-outline' );
 	const inputNode = styleProbe.querySelector( 'input[type="text"]' );
 
 	const backgroundColor = window.jetpackForms.getBackgroundColor( bodyNode );
 	const inputBackgroundFallback = window.jetpackForms.getBackgroundColor( inputNode );
 	const inputBackground = window.getComputedStyle( inputNode ).backgroundColor;
-	const primaryColor = window.getComputedStyle( buttonNode ).borderColor;
+	const {
+		border: buttonPrimaryBorder,
+		borderColor: buttonPrimaryBorderColor,
+		backgroundColor: buttonPrimaryBackgroundColor,
+		color: buttonPrimaryColor,
+	} = window.getComputedStyle( buttonPrimaryNode );
+
+	const {
+		backgroundColor: buttonOutlineBackgroundColor,
+		border: buttonOutlineBorder,
+		borderWidth: buttonOutlineBorderSize,
+		borderRadius: buttonOutlineBorderRadius,
+		color: buttonOutlineTextColor,
+		padding: buttonOutlinePadding,
+		lineHeight: buttonOutlineLineHeight,
+	} = window.getComputedStyle( buttonOutlineNode );
+
+	const buttonOutlineBackgroundColorFallback =
+		window.jetpackForms.getBackgroundColor( buttonOutlineNode );
 
 	const {
 		color: textColor,
@@ -77,7 +99,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 	styleProbe.remove();
 
 	return {
-		'--jetpack--contact-form--primary-color': primaryColor,
+		'--jetpack--contact-form--primary-color': buttonPrimaryBackgroundColor,
 		'--jetpack--contact-form--background-color': backgroundColor,
 		'--jetpack--contact-form--text-color': textColor,
 		'--jetpack--contact-form--border': border,
@@ -93,5 +115,18 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--font-size': fontSize,
 		'--jetpack--contact-form--font-family': fontFamily,
 		'--jetpack--contact-form--line-height': lineHeight,
+		'--jetpack--contact-form--button-primary--color': buttonPrimaryColor,
+		'--jetpack--contact-form--button-primary--background-color': buttonPrimaryBackgroundColor,
+		'--jetpack--contact-form--button-primary--border': buttonPrimaryBorder,
+		'--jetpack--contact-form--button-primary--border-color': buttonPrimaryBorderColor,
+		'--jetpack--contact-form--button-outline--padding': buttonOutlinePadding,
+		'--jetpack--contact-form--button-outline--border': buttonOutlineBorder,
+		'--jetpack--contact-form--button-outline--background-color': buttonOutlineBackgroundColor,
+		'--jetpack--contact-form--button-outline--background-color-fallback':
+			buttonOutlineBackgroundColorFallback,
+		'--jetpack--contact-form--button-outline--border-size': buttonOutlineBorderSize,
+		'--jetpack--contact-form--button-outline--border-radius': buttonOutlineBorderRadius,
+		'--jetpack--contact-form--button-outline--text-color': buttonOutlineTextColor,
+		'--jetpack--contact-form--button-outline--line-height': buttonOutlineLineHeight,
 	};
 };

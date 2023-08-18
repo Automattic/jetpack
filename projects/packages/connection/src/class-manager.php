@@ -12,6 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_IXR_Client;
@@ -134,6 +135,9 @@ class Manager {
 
 		// Initialize connection notices.
 		new Connection_Notice();
+
+		// Initialize token locks.
+		new Tokens_Locks();
 	}
 
 	/**
@@ -203,7 +207,6 @@ class Manager {
 			// The jetpack.authorize method should be available for unauthenticated users on a site with an
 			// active Jetpack connection, so that additional users can link their account.
 			$callback = array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' );
-
 		} else {
 			// Any other unsigned request should expose the bootstrap methods.
 			$callback = array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' );
@@ -785,6 +788,25 @@ class Manager {
 			$connection_owner = get_userdata( $user_token->external_user_id );
 		}
 
+		if ( $connection_owner === false ) {
+			Error_Handler::get_instance()->report_error(
+				new WP_Error(
+					'invalid_connection_owner',
+					'Invalid connection owner',
+					array(
+						'user_id'           => $user_id,
+						'has_user_token'    => (bool) $user_token,
+						'error_type'        => 'connection',
+						'signature_details' => array(
+							'token' => '',
+						),
+					)
+				),
+				false,
+				true
+			);
+		}
+
 		return $connection_owner;
 	}
 
@@ -1046,6 +1068,11 @@ class Manager {
 	 * @return true|WP_Error The error object.
 	 */
 	public function register( $api_endpoint = 'register' ) {
+		// Clean-up leftover tokens just in-case.
+		// This fixes an edge case that was preventing users to register when the blog token was missing but
+		// there were still leftover user tokens present.
+		$this->delete_all_connection_tokens( true );
+
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
 		$secrets = ( new Secrets() )->generate( 'register', get_current_user_id(), 600 );
 
@@ -1125,7 +1152,7 @@ class Manager {
 			'timeout' => $timeout,
 		);
 
-		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
+		$args['body'] = static::apply_activation_source_to_args( $args['body'] );
 
 		// TODO: fix URLs for bad hosts.
 		$response = Client::_wp_remote_request(
@@ -1643,6 +1670,11 @@ class Manager {
 			return false;
 		}
 
+		if ( ( new Status() )->is_offline_mode() && ! apply_filters( 'jetpack_connection_disconnect_site_wpcom_offline_mode', false ) ) {
+			// Prevent potential disconnect of the live site by removing WPCOM tokens.
+			return false;
+		}
+
 		/**
 		 * Fires upon the disconnect attempt.
 		 * Return `false` to prevent the disconnect.
@@ -1686,7 +1718,6 @@ class Manager {
 		( new Tracking() )->record_user_event( 'restore_connection_reconnect' );
 
 		$this->disconnect_site_wpcom( true );
-		$this->delete_all_connection_tokens( true );
 
 		return $this->register();
 	}
@@ -1884,10 +1915,11 @@ class Manager {
 				'site_lang'             => get_locale(),
 				'site_created'          => $this->get_assumed_site_creation_date(),
 				'allow_site_connection' => ! $this->has_connected_owner(),
+				'calypso_env'           => ( new Host() )->get_calypso_env(),
 			)
 		);
 
-		$body = $this->apply_activation_source_to_args( urlencode_deep( $body ) );
+		$body = static::apply_activation_source_to_args( urlencode_deep( $body ) );
 
 		$api_url = $this->api_url( 'authorize' );
 

@@ -17,14 +17,14 @@ export const setConnectUrl = connectUrl => ( {
 	connectUrl,
 } );
 
+export const setConnectedAccountDefaultCurrency = connectedAccountDefaultCurrency => ( {
+	type: 'SET_CONNECTED_ACCOUNT_DEFAULT_CURRENCY',
+	connectedAccountDefaultCurrency,
+} );
+
 export const setApiState = apiState => ( {
 	type: 'SET_API_STATE',
 	apiState,
-} );
-
-export const setShouldUpgrade = shouldUpgrade => ( {
-	type: 'SET_SHOULD_UPGRADE',
-	shouldUpgrade,
 } );
 
 export const setSiteSlug = siteSlug => ( {
@@ -32,17 +32,13 @@ export const setSiteSlug = siteSlug => ( {
 	siteSlug,
 } );
 
-export const setUpgradeUrl = upgradeUrl => ( {
-	type: 'SET_UPGRADE_URL',
-	upgradeUrl,
-} );
-
 export const saveProduct =
 	(
 		product,
 		productType = PRODUCT_TYPE_PAYMENT_PLAN,
 		setSelectedProductId = () => {},
-		callback = () => {}
+		callback = () => {},
+		shouldDisplayProductCreationNotice = true
 	) =>
 	async ( { dispatch, registry } ) => {
 		const { title, price, currency } = product;
@@ -92,7 +88,12 @@ export const saveProduct =
 
 			dispatch( setProducts( products.concat( [ newProduct ] ) ) );
 			setSelectedProductId( newProduct.id );
-			onSuccess( getMessageByProductType( 'successfully created product', productType ), registry );
+			if ( shouldDisplayProductCreationNotice ) {
+				onSuccess(
+					getMessageByProductType( 'successfully created product', productType ),
+					registry
+				);
+			}
 			callback( true );
 		} catch ( error ) {
 			onError(
@@ -102,3 +103,8 @@ export const saveProduct =
 			callback( false );
 		}
 	};
+
+export const setSubscriberCounts = subscriberCounts => ( {
+	type: 'SET_SUBSCRIBER_COUNTS',
+	subscriberCounts,
+} );

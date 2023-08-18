@@ -80,7 +80,7 @@ class Block_Editor_Content {
 		// Make sure "false" will be actually false.
 		foreach ( $atts as $key => $value ) {
 			if ( is_string( $value ) && 'false' === strtolower( $value ) ) {
-				$atts[ $key ] = false;
+				$atts[ $key ] = 0;
 			}
 		}
 
@@ -142,7 +142,7 @@ class Block_Editor_Content {
 	 * @return string
 	 */
 	public static function videopress_video_block_by_guid( $content, $post ) {
-		if ( isset( $_GET['videopress_guid'], $_GET['_wpnonce'] )
+		if ( isset( $_GET['videopress_guid'] ) && isset( $_GET['_wpnonce'] )
 			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'videopress-content-nonce' )
 			&& current_user_can( 'edit_post', $post->ID )
 			&& '' === $content

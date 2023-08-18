@@ -3,6 +3,10 @@ import { RelatedPostsEdit } from '../edit';
 
 const posts = [
 	{
+		block_context: {
+			link: 'https://test.com',
+			text: 'Some text',
+		},
 		classes: [],
 		context: "In 'test one'",
 		date: 'February 15, 2020',
@@ -24,6 +28,10 @@ const posts = [
 		},
 	},
 	{
+		block_context: {
+			link: 'https://test.com',
+			text: 'Some text',
+		},
 		classes: [],
 		context: "In 'test two'",
 		date: 'February 14, 2020',
@@ -144,12 +152,6 @@ describe( 'RelatedPostsEdit', () => {
 			renderRelatedPosts();
 
 			expect( screen.queryByText( "In 'test'" ) ).not.toBeInTheDocument();
-		} );
-
-		test( 'displays post context when context setting is enabled', () => {
-			renderRelatedPosts( { displayContext: true } );
-
-			expect( screen.getByText( "In 'test one'" ) ).toBeInTheDocument();
 		} );
 
 		test( 'post title links to the post', () => {

@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	 * @since  4.5.0
 	 */
 	public function test_shortcodes_gravatar_exists() {
-		$this->assertEquals( shortcode_exists( 'gravatar' ), true );
+		$this->assertTrue( shortcode_exists( 'gravatar' ) );
 	}
 
 	/**

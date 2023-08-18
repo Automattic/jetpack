@@ -53,7 +53,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_exists() {
-		$this->assertEquals( shortcode_exists( 'flickr' ), true );
+		$this->assertTrue( shortcode_exists( 'flickr' ) );
 	}
 
 	/**

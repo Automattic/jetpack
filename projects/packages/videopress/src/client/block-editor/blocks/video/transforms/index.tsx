@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { createBlobURL } from '@wordpress/blob';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
@@ -8,7 +9,16 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import { buildVideoPressURL, pickGUIDFromUrl } from '../../../../lib/url';
+import {
+	buildVideoPressURL,
+	isVideoPressUrl,
+	pickGUIDFromUrl,
+	pickVideoBlockAttributesFromUrl,
+} from '../../../../lib/url';
+/**
+ * Types
+ */
+import { filterVideoFiles, isVideoFile } from '../../../utils/video';
 import { CoreEmbedVideoPressVariationBlockAttributes, VideoBlockAttributes } from '../types';
 
 const transformFromCoreEmbed = {
@@ -38,6 +48,26 @@ const transformFromCoreEmbed = {
 
 		return createBlock( 'videopress/video', { guid, src } );
 	},
+};
+
+const transformFromFile = {
+	type: 'files',
+	// Check if the files array contains a video file.
+	isMatch: files => {
+		if ( ! files || ! files.length ) {
+			return false;
+		}
+
+		return files.some( isVideoFile );
+	},
+
+	priority: 8, // higher priority (lower number) than v5's core/video transform (9).
+	transform: ( files: File[] ) =>
+		filterVideoFiles( files ).map( ( file: File ) =>
+			createBlock( 'videopress/video', {
+				src: createBlobURL( file ),
+			} )
+		),
 };
 
 const transformToCoreEmbed = {
@@ -82,7 +112,34 @@ const transformToCoreEmbed = {
 	},
 };
 
-const from = [ transformFromCoreEmbed ];
+const transformFromPastingVideoPressURL = {
+	type: 'raw',
+	isMatch: ( node: HTMLDivElement ) => {
+		const { textContent } = node;
+		if ( ! textContent ) {
+			return false;
+		}
+
+		return isVideoPressUrl( textContent.trim() );
+	},
+	transform: ( node: HTMLDivElement ) => {
+		const { textContent } = node;
+		if ( ! textContent ) {
+			return false;
+		}
+
+		const url = textContent.trim();
+		const guid = pickGUIDFromUrl( url );
+		const attrs = pickVideoBlockAttributesFromUrl( url );
+		if ( ! guid ) {
+			return false;
+		}
+
+		return createBlock( 'videopress/video', { guid, ...attrs } );
+	},
+};
+
+const from = [ transformFromFile, transformFromCoreEmbed, transformFromPastingVideoPressURL ];
 const to = [ transformToCoreEmbed ];
 
 export default { from, to };

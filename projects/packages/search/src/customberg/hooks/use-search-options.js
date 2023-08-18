@@ -26,6 +26,11 @@ export default function useSearchOptions() {
 		'site',
 		'jetpack_search_inf_scroll'
 	);
+	const [ filteringOpensOverlay, setFilteringOpensOverlay ] = useEntityProp(
+		'root',
+		'site',
+		'jetpack_search_filtering_opens_overlay'
+	);
 	const [ showLogo, setShowLogo ] = useEntityProp(
 		'root',
 		'site',
@@ -53,10 +58,12 @@ export default function useSearchOptions() {
 		color,
 		excludedPostTypes,
 		infiniteScroll,
+		filteringOpensOverlay,
 		resultFormat,
 		setColor,
 		setExcludedPostTypes,
 		setInfiniteScroll,
+		setFilteringOpensOverlay,
 		setResultFormat,
 		setShowLogo,
 		setSort,

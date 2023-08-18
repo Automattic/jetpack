@@ -87,12 +87,12 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_exists() {
-		$this->assertEquals( shortcode_exists( 'recipe' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-notes' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-ingredients' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-directions' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-nutrition' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-image' ), true );
+		$this->assertTrue( shortcode_exists( 'recipe' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-notes' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-ingredients' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-directions' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-nutrition' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-image' ) );
 	}
 
 	/**
@@ -187,16 +187,16 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 			function_exists( 'wp_lazy_loading_enabled' )
 			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
 		) {
-			$this->assertStringContainsString(
-				'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" loading="lazy" itemprop="image" />',
-				$shortcode_content
-			);
+			// WP 6.3 changes the order of the attributes.
+			if ( function_exists( 'wp_img_tag_add_loading_optimization_attrs' ) ) {
+				$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" loading="lazy" />';
+			} else {
+				$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" loading="lazy" itemprop="image" />';
+			}
 		} else {
-			$this->assertStringContainsString(
-				'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />',
-				$shortcode_content
-			);
+			$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />';
 		}
+		$this->assertStringContainsString( $expect, $shortcode_content );
 	}
 
 	/**

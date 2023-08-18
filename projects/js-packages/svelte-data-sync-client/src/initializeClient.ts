@@ -137,6 +137,11 @@ export function initializeClient( namespace: string ) {
 		const client = {
 			endpoint,
 			...store,
+			refresh: async () => {
+				const response = await endpoint.GET();
+				store.store.set( response );
+				return response;
+			},
 		};
 
 		if ( opts.hideFromGlobalErrors !== true ) {

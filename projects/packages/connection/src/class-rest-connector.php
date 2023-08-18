@@ -521,7 +521,7 @@ class REST_Connector {
 	 */
 	public static function is_request_signed_by_jetpack_debugger( $pub_key = null ) {
 		 // phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'], $_GET['rest_route'] ) ) {
+		if ( ! isset( $_GET['signature'] ) || ! isset( $_GET['timestamp'] ) || ! isset( $_GET['url'] ) || ! isset( $_GET['rest_route'] ) ) {
 			return false;
 		}
 

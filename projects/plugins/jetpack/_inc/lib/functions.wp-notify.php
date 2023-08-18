@@ -66,7 +66,7 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
 	}
 
 	// If there's no email to send the comment to, bail, otherwise flip array back around for use below.
-	if ( ! count( $emails ) ) {
+	if ( array() === $emails ) {
 		return array(); // Original function modified. Return empty array instead of false.
 	} else {
 		$emails = array_flip( $emails );

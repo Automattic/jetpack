@@ -95,7 +95,7 @@ input.zbs-prominent {
 
 // second address / main addr
 tr.zbs-field-group-tr .zbs-field-group {
-    border-left: 3px solid #c2e1ff !important;
+    border-left: 3px solid var(--jp-gray-20) !important;
     padding-left: 2% !important;
 }
 tr.zbs-field-group-tr label.zbs-field-group-label {
@@ -114,7 +114,7 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 	    width: 44% !important;
 	    margin-right: 2% !important;
 	    display: inline-block !important;
-	    border-left: 3px solid #c2e1ff !important;
+	    border-left: 3px solid var(--jp-gray-20) !important;
 	    padding-left: 2% !important;
 	}
 
@@ -160,6 +160,7 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
     padding: 6px 12px !important;
     cursor: pointer;
 	 width: initial;
+	 font-weight: 500;
 }
 
 .jpcrm-customer-file-upload:hover, 

@@ -509,10 +509,12 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_services( $filter = 'all', $_blog_id = false, $_user_id = false ) {
 		$services = array(
-			'facebook' => array(),
-			'twitter'  => array(),
-			'linkedin' => array(),
-			'tumblr'   => array(),
+			'facebook'           => array(),
+			'twitter'            => array(),
+			'linkedin'           => array(),
+			'tumblr'             => array(),
+			'mastodon'           => array(),
+			'instagram-business' => array(),
 		);
 
 		if ( 'all' === $filter ) {
@@ -600,6 +602,9 @@ class Publicize extends Publicize_Base {
 
 		$xml_response            = $xml->getResponse();
 		$connection_test_message = $xml_response['faultString'];
+		$connection_error_code   = ( empty( $xml_response['faultCode'] ) || ! is_int( $xml_response['faultCode'] ) )
+			? -1
+			: $xml_response['faultCode'];
 
 		// Set up refresh if the user can.
 		$user_can_refresh = current_user_can( $this->GLOBAL_CAP ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -615,7 +620,7 @@ class Publicize extends Publicize_Base {
 			'refresh_url'      => $refresh_url,
 		);
 
-		$this->test_connection_results[ $id ] = new \WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
+		$this->test_connection_results[ $id ] = new \WP_Error( $connection_error_code, $connection_test_message, $error_data );
 
 		return $this->test_connection_results[ $id ];
 	}
@@ -782,7 +787,7 @@ class Publicize extends Publicize_Base {
 								<span class="category"><?php echo esc_html( $page['category'] ); ?></span>
 							</label>
 						</td>
-						<?php if ( ( $i % 2 ) || ( count( $pages ) - 1 === $i ) ) : ?>
+						<?php if ( ( $i % 2 ) || ( is_countable( $pages ) && ( count( $pages ) - 1 === $i ) ) ) : ?>
 							</tr>
 						<?php endif; ?>
 					<?php endforeach; ?>

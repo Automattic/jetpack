@@ -9,7 +9,7 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 1.8.1-alpha
+ * Version: 2.0.2-alpha
  * Author:            Automattic - Jetpack Site Speed team
  * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'JETPACK_BOOST_VERSION', '1.8.1-alpha' );
+define( 'JETPACK_BOOST_VERSION', '2.0.2-alpha' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -59,6 +59,26 @@ if ( ! defined( 'JETPACK__WPCOM_JSON_API_BASE' ) ) {
 if ( ! defined( 'JETPACK_BOOST_PLUGINS_DIR_URL' ) ) {
 	define( 'JETPACK_BOOST_PLUGINS_DIR_URL', plugin_dir_url( __FILE__ ) );
 }
+
+/**
+ * Setup Minify service.
+ */
+// Potential improvement: Make concat URL dir configurable
+// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
+
+	// Handling JETPACK_BOOST_STATIC_PREFIX constant inline to avoid loading the minify module until we know we want it.
+	$static_prefix = defined( 'JETPACK_BOOST_STATIC_PREFIX' ) ? JETPACK_BOOST_STATIC_PREFIX : '/_jb_static/';
+	if ( $static_prefix === substr( $request_path, -strlen( $static_prefix ) ) ) {
+		define( 'JETPACK_BOOST_CONCAT_USE_WP', true );
+
+		require_once JETPACK_BOOST_DIR_PATH . '/serve-minified-content.php';
+		exit;
+	}
+}
+
 /**
  * Setup autoloading
  */
@@ -148,6 +168,19 @@ function jetpack_boost_plugin_activation( $plugin ) {
 		exit;
 	}
 }
+
+/**
+ * Extra tweaks to make Jetpack Boost work better with others, that need to be loaded early.
+ */
+function include_compatibility_files_early() {
+	// Since Page Optimize allows its functionality to be disabled on plugins_loaded (10)
+	// we need to do this earlier.
+	if ( function_exists( 'page_optimize_init' ) ) {
+		require_once __DIR__ . '/compatibility/page-optimize.php';
+	}
+}
+
+add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files_early', 1 );
 
 /**
  * Extra tweaks to make Jetpack Boost work better with others.

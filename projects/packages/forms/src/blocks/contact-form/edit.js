@@ -28,9 +28,7 @@ import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
-import SalesforceLeadFormSettings, {
-	salesforceLeadFormVariation,
-} from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
+import SalesforceLeadFormSettings from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import { withStyleVariables } from './util/with-style-variables';
 import defaultVariations from './variations';
 
@@ -106,10 +104,6 @@ export const JetpackContactFormEdit = forwardRef(
 				'contact-form/salesforce-lead-form'
 			];
 
-		if ( isSalesForceExtensionEnabled ) {
-			variations = [ ...variations, salesforceLeadFormVariation ];
-		}
-
 		const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 			const blocks = map( innerBlocksTemplate, ( [ name, attr, innerBlocks = [] ] ) =>
 				createBlock( name, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
@@ -139,6 +133,18 @@ export const JetpackContactFormEdit = forwardRef(
 				setVariation( defaultVariations[ 0 ] );
 			}
 		} );
+
+		useEffect( () => {
+			if (
+				! hasInnerBlocks &&
+				registerBlockVariation &&
+				! isPatternsModalOpen &&
+				window.location.search.indexOf( 'showJetpackFormsPatterns' ) !== -1
+			) {
+				setIsPatternsModalOpen( true );
+			}
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		}, [] );
 
 		useEffect( () => {
 			if ( to === undefined && postAuthorEmail ) {
@@ -249,6 +255,7 @@ export const JetpackContactFormEdit = forwardRef(
 							onRequestClose={ () => setIsPatternsModalOpen( false ) }
 						>
 							<BlockPatternSetup
+								initialViewMode="grid"
 								filterPatternsFn={ pattern => {
 									return pattern.content.indexOf( 'jetpack/contact-form' ) !== -1;
 								} }
@@ -303,10 +310,7 @@ export const JetpackContactFormEdit = forwardRef(
 									/>
 								</PanelBody>
 							) }
-							<PanelBody
-								title={ __( 'Newsletter Connection', 'jetpack-forms' ) }
-								initialOpen={ false }
-							>
+							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
 								<NewsletterIntegrationSettings />
 							</PanelBody>
 						</Fragment>

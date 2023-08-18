@@ -389,7 +389,7 @@ class Callables extends Module {
 				$action_links = array();
 			}
 			$formatted_action_links = null;
-			if ( ! empty( $action_links ) && count( $action_links ) > 0 ) {
+			if ( $action_links ) {
 				$dom_doc = new \DOMDocument();
 				foreach ( $action_links as $action_link ) {
 					// The @ is not enough to suppress errors when dealing with libxml,

@@ -15,7 +15,7 @@ var zbsTour = {
 		{
 			title: window.zbs_tour.lang.step1.title,
 			content: window.zbs_tour.lang.step1.content,
-			target: 'zbs-main-logo',
+			target: '.logo-cube',
 			placement: 'right',
 			yOffset: -15,
 		},
@@ -25,7 +25,7 @@ var zbsTour = {
 			target: 'learn',
 			placement: 'right',
 			showPrevButton: true,
-			yOffset: -15,
+			yOffset: -23,
 			onShow: function () {
 				// highlight
 				jQuery( '#learn' ).addClass( 'green' ).removeClass( 'grey' );
@@ -41,7 +41,7 @@ var zbsTour = {
 			target: 'notifymebell',
 			placement: 'left',
 			showPrevButton: true,
-			yOffset: -15,
+			yOffset: -20,
 			onNext: function () {
 				jQuery( '#notifymebell' ).html( 1 ).addClass( 'notfications' );
 			},
@@ -54,7 +54,7 @@ var zbsTour = {
 			placement: 'left',
 			multipage: true,
 			showPrevButton: true,
-			yOffset: -15,
+			yOffset: -20,
 			onNext: function () {
 				window.location = zbs_tour.admin_url + 'admin.php?page=zerobscrm-notifications';
 			},
@@ -85,6 +85,7 @@ var zbsTour = {
 			content: window.zbs_tour.lang.step7.content,
 			target: 'top-bar-tools-menu',
 			placement: 'left',
+			yOffset: -12,
 			showPrevButton: true,
 			onShow: function () {
 				// force menu open
@@ -124,19 +125,14 @@ var zbsTour = {
 			},
 		},
 
-		// {
-		// 	title: window.zbs_tour.lang.step8.title,
-		// 	content: window.zbs_tour.lang.step8.content,
-		// 	target: "free-extensions-tour",
-		// 	placement: "top"
-		// },
-
 		{
 			title: window.zbs_tour.lang.step9.title,
 			content: window.zbs_tour.lang.step9.content,
-			target: 'zbs-admin-top-bar',
+			target: 'learn',
 			placement: 'right',
+			multipage: true,
 			showPrevButton: true,
+			yOffset: -20,
 			onNext: function () {
 				window.location = zbs_tour.admin_url + 'admin.php?page=zerobscrm-plugin-settings';
 			},
@@ -154,12 +150,7 @@ var zbsTour = {
 			target: 'zbs-settings-head-tour',
 			placement: 'bottom',
 		},
-		{
-			title: window.zbs_tour.lang.step11.title,
-			content: window.zbs_tour.lang.step11.content,
-			target: 'b2b-tour',
-			placement: 'right',
-		},
+
 		{
 			title: window.zbs_tour.lang.step12.title,
 			content: window.zbs_tour.lang.step12.content,
@@ -167,39 +158,23 @@ var zbsTour = {
 			placement: 'top',
 			xOffset: 'center',
 			onNext: function () {
-				// force open
-				// doesnt work: jQuery('#zbs-user-menu').addClass('visible').addClass('active');
-				/* also doesn't work // kill it, then reshow forced open
-				jQuery('#zbs-user-menu-item').popup('destroy');
-				jQuery('#zbs-user-menu-item').popup({
-					popup : jQuery('#zbs-user-menu'),
-					hoverable  : false,
-					on    : 'click'
-				});
-				jQuery('#zbs-user-menu-item').popup('show');
-				setTimeout(function(){
-
-					// ... just show it for now :)
-					jQuery('#zbs-user-menu-item').popup('show');
-
-				});
-				*/
 			},
 		},
 		{
 			title: window.zbs_tour.lang.step13.title,
 			content: window.zbs_tour.lang.step13.content,
-			target: 'zbs-user-menu-item',
+			target: 'jpcrm-user-menu-item',
 			placement: 'left',
+			yOffset: -10,
 			onShow: function () {
 				// highlight item
-				//jQuery('#zbs-user-menu-item').addClass('active');
+				//jQuery('#jpcrm-user-menu-item').addClass('active');
 			},
 			onNext: function () {
 				// unforce open
-				//jQuery('#zbs-user-menu').removeClass('visible').removeClass('active');
+				//jQuery('#jpcrm-user-menu').removeClass('visible').removeClass('active');
 				// re-init popup
-				//jQuery('#zbs-user-menu-item').popup('destroy');
+				//jQuery('#jpcrm-user-menu-item').popup('destroy');
 				//zbscrm_JS_initMenuPopups();
 			},
 		},

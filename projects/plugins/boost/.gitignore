@@ -8,3 +8,5 @@
 .DS_Store
 .pnpm-debug.log
 /wordpress
+.yalc
+yalc.lock

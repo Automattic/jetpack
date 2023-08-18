@@ -185,7 +185,7 @@ class Contact_Form_Shortcode {
 			$value = $this->esc_attr( $value );
 
 			if ( is_array( $value ) ) {
-				$value = join( ',', $value );
+				$value = implode( ',', $value );
 			}
 
 			if ( false === strpos( $value, "'" ) ) {

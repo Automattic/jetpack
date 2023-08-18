@@ -9,8 +9,10 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Nonce_Handler;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -19,6 +21,7 @@ use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Errors;
 use Automattic\Jetpack\Files;
@@ -93,7 +96,7 @@ class Jetpack {
 		'presentations',
 		'quiz',
 		'jetpack-subscriptions',
-		'jetpack-responsive-videos-style',
+		'jetpack-responsive-videos',
 		'jetpack-social-menu',
 		'tiled-gallery',
 		'jetpack_display_posts_widget',
@@ -112,6 +115,7 @@ class Jetpack {
 		'jetpack-widget-social-icons-styles',
 		'wpcom_instagram_widget',
 		'milestone-widget',
+		'subscribe-modal-css',
 	);
 
 	/**
@@ -487,14 +491,18 @@ class Jetpack {
 		if ( self::is_connection_ready() ) {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION !== $version ) {
-				// Prevent multiple upgrades at once - only a single process should trigger
-				// an upgrade to avoid stampedes.
-				if ( false !== get_transient( self::$plugin_upgrade_lock_key ) ) {
-					return;
-				}
+				// Prevent multiple upgrades at once - only a single process should trigger an upgrade to avoid stampedes.
+				if ( wp_using_ext_object_cache() ) {
+					if ( true !== wp_cache_add( self::$plugin_upgrade_lock_key, 1, 'transient', 10 ) ) {
+						return;
+					}
+				} else {
+					if ( false !== get_transient( self::$plugin_upgrade_lock_key ) ) {
+						return;
+					}
 
-				// Set a short lock to prevent multiple instances of the upgrade.
-				set_transient( self::$plugin_upgrade_lock_key, 1, 10 );
+					set_transient( self::$plugin_upgrade_lock_key, 1, 10 );
+				}
 
 				// check which active modules actually exist and remove others from active_modules list.
 				$unfiltered_modules = self::get_active_modules();
@@ -681,10 +689,10 @@ class Jetpack {
 		 * Prepare Gutenberg Editor functionality
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
-		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'init' ) );
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_independent_blocks' ) );
 		add_action( 'plugins_loaded', array( 'Jetpack_Gutenberg', 'load_block_editor_extensions' ), 9 );
 		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
+		add_filter( 'render_block', array( 'Jetpack_Gutenberg', 'display_deprecated_block_message' ), 10, 2 );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
@@ -769,7 +777,7 @@ class Jetpack {
 		);
 
 		// Update the site's Jetpack plan and products from API on heartbeats.
-		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_from_wpcom' ) );
+		add_action( 'jetpack_heartbeat', array( Jetpack_Plan::class, 'refresh_from_wpcom' ) );
 
 		/**
 		 * This is the hack to concatenate all css files into one.
@@ -843,7 +851,6 @@ class Jetpack {
 
 		foreach (
 			array(
-				'blaze',
 				'jitm',
 				'sync',
 				'waf',
@@ -947,6 +954,10 @@ class Jetpack {
 
 		Partner::init();
 		My_Jetpack_Initializer::init();
+
+		// Initialize Boost Speed Score
+		$modules = Jetpack_Boost_Modules::init();
+		new Speed_Score( $modules, 'jetpack-dashboard' );
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
@@ -2554,7 +2565,7 @@ class Jetpack {
 
 		if ( $deactivated ) {
 			if ( $send_state_messages ) {
-				self::state( 'deactivated_plugins', join( ',', $deactivated ) );
+				self::state( 'deactivated_plugins', implode( ',', $deactivated ) );
 			}
 
 			if ( $redirect ) {
@@ -3719,30 +3730,12 @@ p {
 	}
 
 	/**
-	 * Registers/enqueues Jetpack banner styles.
+	 * Enqueues the jetpack-icons style.
 	 *
 	 * @return void
 	 */
-	public function admin_banner_styles() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-
-		if ( ! wp_style_is( 'jetpack-dops-style' ) ) {
-			wp_register_style(
-				'jetpack-dops-style',
-				plugins_url( '_inc/build/admin.css', JETPACK__PLUGIN_FILE ),
-				array(), // Load styles for components so the modal can be used.
-				JETPACK__VERSION
-			);
-		}
-
-		wp_enqueue_style(
-			'jetpack',
-			plugins_url( "css/jetpack-banners{$min}.css", JETPACK__PLUGIN_FILE ),
-			array( 'jetpack-dops-style' ),
-			JETPACK__VERSION . '-20121016'
-		);
-		wp_style_add_data( 'jetpack', 'rtl', 'replace' );
-		wp_style_add_data( 'jetpack', 'suffix', $min );
+	public function admin_menu_css() {
+		wp_enqueue_style( 'jetpack-icons' );
 	}
 
 	/**
@@ -3764,6 +3757,51 @@ p {
 		}
 
 		return $actions;
+	}
+
+	/**
+	 * Add an activation modal to the plugins page and the main dashboard.
+	 *
+	 * @param string $hook The current admin page.
+	 *
+	 * @return void
+	 */
+	public function activate_dialog( $hook ) {
+		/*
+		 * We do not need it on other plugin pages,
+		 * or when Jetpack is already connected.
+		 */
+		if (
+			! in_array( $hook, array( 'plugins.php', 'index.php' ), true )
+			|| self::is_connection_ready()
+		) {
+			return;
+		}
+
+		// add an activation script that will pick up deactivation actions for the Jetpack plugin.
+		Assets::register_script(
+			'jetpack-full-activation-modal-js',
+			'_inc/build/activation-modal.js',
+			JETPACK__PLUGIN_FILE,
+			array(
+				'enqueue'      => true,
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack',
+				'dependencies' => array(
+					'wp-polyfill',
+					'wp-components',
+				),
+			)
+		);
+
+		// Add objects to be passed to the initial state of the app.
+		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
+		wp_add_inline_script( 'jetpack-full-activation-modal-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state() ) ) . '"));', 'before' );
+
+		// Adds Connection package initial state.
+		Connection_Initial_State::render_script( 'jetpack-full-activation-modal-js' );
+
+		add_action( 'admin_notices', array( $this, 'jetpack_plugin_portal_containers' ) );
 	}
 
 	/**
@@ -3807,7 +3845,7 @@ p {
 	}
 
 	/**
-	 * Outputs the wrapper for the plugin deactivation modal
+	 * Outputs the wrapper for the plugin modal
 	 * Contents are loaded by React script
 	 *
 	 * @return void
@@ -4054,7 +4092,7 @@ p {
 							$url = add_query_arg( 'onboarding', $token, $url );
 						}
 
-						$calypso_env = $this->get_calypso_env();
+						$calypso_env = ( new Host() )->get_calypso_env();
 						if ( ! empty( $calypso_env ) ) {
 							$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 						}
@@ -4222,7 +4260,7 @@ p {
 				$module_names[] = "<strong>{$module['name']}</strong>";
 			}
 
-			$module_slugs = join( ',', $module_slugs );
+			$module_slugs = implode( ',', $module_slugs );
 			?>
 <div id="message" class="jetpack-message jetpack-err">
 	<div class="squeezer">
@@ -4413,7 +4451,7 @@ endif;
 				$url = add_query_arg( 'is_multisite', network_admin_url( 'admin.php?page=jetpack-settings' ), $url );
 			}
 
-			$calypso_env = self::get_calypso_env();
+			$calypso_env = ( new Host() )->get_calypso_env();
 
 			if ( ! empty( $calypso_env ) ) {
 				$url = add_query_arg( 'calypso_env', $calypso_env, $url );
@@ -4516,7 +4554,7 @@ endif;
 			)
 		);
 
-		$calypso_env = self::get_calypso_env();
+		$calypso_env = ( new Host() )->get_calypso_env();
 
 		if ( ! empty( $calypso_env ) ) {
 			$args['calypso_env'] = $calypso_env;
@@ -6533,24 +6571,13 @@ endif;
 	 * Return Calypso environment value; used for developing Jetpack and pairing
 	 * it with different Calypso enrionments, such as localhost.
 	 *
-	 * @since 7.4.0
+	 * @deprecated 12.4 Moved to the Status package.
 	 *
 	 * @return string Calypso environment
 	 */
 	public static function get_calypso_env() {
-		if ( isset( $_GET['calypso_env'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is not required; only used for changing environments.
-			return sanitize_key( $_GET['calypso_env'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is not required; only used for changing environments.
-		}
-
-		if ( getenv( 'CALYPSO_ENV' ) ) {
-			return sanitize_key( getenv( 'CALYPSO_ENV' ) );
-		}
-
-		if ( defined( 'CALYPSO_ENV' ) && CALYPSO_ENV ) {
-			return sanitize_key( CALYPSO_ENV );
-		}
-
-		return '';
+		_deprecated_function( __METHOD__, 'jetpack-12.4', '\Automattic\Jetpack\Status\Host->get_calypso_env' );
+		return ( new Host() )->get_calypso_env();
 	}
 
 	/**
@@ -6562,7 +6589,7 @@ endif;
 	 * @return string Calypso host.
 	 */
 	public static function get_calypso_host() {
-		$calypso_env = self::get_calypso_env();
+		$calypso_env = ( new Host() )->get_calypso_env();
 		switch ( $calypso_env ) {
 			case 'development':
 				return 'http://calypso.localhost:3000/';

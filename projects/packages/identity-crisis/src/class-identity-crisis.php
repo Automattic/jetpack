@@ -11,7 +11,9 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack\IdentityCrisis\UI;
+use Automattic\Jetpack\IdentityCrisis\URL_Secret;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Tracking as Tracking;
 use Jetpack_Options;
@@ -28,7 +30,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.8.44';
+	const PACKAGE_VERSION = '0.10.1';
 
 	/**
 	 * Instance of the object.
@@ -87,6 +89,8 @@ class Identity_Crisis {
 
 		add_filter( 'jetpack_remote_request_url', array( $this, 'add_idc_query_args_to_url' ) );
 
+		add_filter( 'jetpack_connection_validate_urls_for_idc_mitigation_response', array( static::class, 'add_secret_to_url_validation_response' ) );
+
 		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
 			return;
@@ -144,14 +148,14 @@ class Identity_Crisis {
 		foreach ( (array) $processed_items as $item ) {
 
 			// First, is this item a jetpack_sync_callable action? If so, then proceed.
-			$callable_args = ( is_array( $item ) && isset( $item[0], $item[1] ) && 'jetpack_sync_callable' === $item[0] )
+			$callable_args = ( is_array( $item ) && isset( $item[0] ) && isset( $item[1] ) && 'jetpack_sync_callable' === $item[0] )
 				? $item[1]
 				: null;
 
 			// Second, if $callable_args is set, check if the callable was home_url or site_url. If so,
 			// clear the migrate option.
 			if (
-				isset( $callable_args, $callable_args[0] )
+				isset( $callable_args[0] )
 				&& ( 'home_url' === $callable_args[0] || 'site_url' === $callable_args[1] )
 			) {
 				Jetpack_Options::delete_option( 'migrate_for_idc' );
@@ -168,7 +172,7 @@ class Identity_Crisis {
 	public function wordpress_init() {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			if (
-					isset( $_GET['jetpack_idc_clear_confirmation'], $_GET['_wpnonce'] ) &&
+					isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
 					wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
 			) {
 				Jetpack_Options::delete_option( 'safe_mode_confirmed' );
@@ -1285,5 +1289,30 @@ class Identity_Crisis {
 		}
 
 		return $path;
+	}
+
+	/**
+	 * Adds `url_secret` to the `jetpack.idcUrlValidation` URL validation endpoint.
+	 * Adds `url_secret_error` in case of an error.
+	 *
+	 * @param array $response The endpoint response that we're modifying.
+	 *
+	 * @return array
+	 * phpcs:ignore Squiz.Commenting.FunctionCommentThrowTag -- The exception is being caught, false positive.
+	 */
+	public static function add_secret_to_url_validation_response( array $response ) {
+		try {
+			$secret = new URL_Secret();
+
+			$secret->create();
+		} catch ( Exception $e ) {
+			$response['url_secret_error'] = new WP_Error( 'unable_to_create_url_secret', $e->getMessage() );
+		}
+
+		if ( $secret->exists() ) {
+			$response['url_secret'] = $secret->get_secret();
+		}
+
+		return $response;
 	}
 }

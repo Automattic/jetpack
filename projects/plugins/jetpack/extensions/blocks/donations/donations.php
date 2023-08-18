@@ -25,11 +25,10 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
-			'plan_check'      => true,
 			'attributes'      => array(
 				'currency'         => array(
 					'type'    => 'string',
-					'default' => 'USD',
+					'default' => '',
 				),
 				'oneTimeDonation'  => array(
 					'type'    => 'object',
@@ -102,7 +101,7 @@ function render_block( $attr, $content ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 	// If stripe isn't connected don't show anything to potential donors - they can't actually make a donation.
-	if ( ! \Jetpack_Memberships::get_connected_account_id() ) {
+	if ( ! \Jetpack_Memberships::has_connected_account() ) {
 		return '';
 	}
 

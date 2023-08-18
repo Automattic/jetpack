@@ -14,7 +14,6 @@
 		"tunnel:on": "./bin/tunnel.sh up",
 		"tunnel:reset": "./bin/tunnel.sh reset",
 		"tunnel:off": "./bin/tunnel.sh down",
-		"tunnel:logs": "pm2 logs --nostream --lines 10000 > output/logs/tunnel.log",
 		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -d -in ./config/encrypted.enc -out config/local.cjs",
 		"config:encrypt": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc",
 		"jetpack-connect": "node bin/e2e-jetpack-connector.js"
@@ -29,7 +28,6 @@
 		"localtunnel": "2.0.2",
 		"lodash": "4.17.21",
 		"node-fetch": "2.6.7",
-		"pm2": "5.2.0",
 		"shell-escape": "0.2.0",
 		"winston": "3.8.1",
 		"yargs": "17.6.2"

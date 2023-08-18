@@ -12,6 +12,13 @@ use Automattic\Jetpack\Assets;
  */
 class Jetpack_Gallery_Settings {
 	/**
+	 * Available gallery types.
+	 *
+	 * @var array
+	 */
+	public $gallery_types;
+
+	/**
 	 * The constructor.
 	 */
 	public function __construct() {
@@ -34,7 +41,7 @@ class Jetpack_Gallery_Settings {
 		$this->gallery_types = apply_filters( 'jetpack_gallery_types', array( 'default' => __( 'Thumbnail Grid', 'jetpack' ) ) );
 
 		// Enqueue the media UI only if needed.
-		if ( count( $this->gallery_types ) > 1 ) {
+		if ( is_countable( $this->gallery_types ) && count( $this->gallery_types ) > 1 ) {
 			add_action( 'wp_enqueue_media', array( $this, 'wp_enqueue_media' ) );
 			add_action( 'print_media_templates', array( $this, 'print_media_templates' ) );
 		}

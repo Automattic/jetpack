@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry_Adapter;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Endpoints\Endpoint;
 
@@ -25,7 +25,7 @@ class Registry {
 	/**
 	 * Store a references for every Data_Sync_Entry instance.
 	 *
-	 * @var Data_Sync_Entry[]
+	 * @var Data_Sync_Entry_Adapter[]
 	 */
 	private $entries = array();
 
@@ -81,9 +81,9 @@ class Registry {
 	 * Register a new entry and add it to the registry.
 	 *
 	 * @param $key        string - The name of the entry. For example `widget_status`.
-	 * @param $entry      Data_Sync_Entry_Adapter
+	 * @param $entry      Data_Sync_Entry
 	 *
-	 * @return Data_Sync_Entry_Adapter
+	 * @return Data_Sync_Entry
 	 */
 	public function register( $key, $entry ) {
 

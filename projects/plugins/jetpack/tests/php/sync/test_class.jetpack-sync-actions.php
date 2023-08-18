@@ -95,7 +95,7 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 	 */
 	public function test_unknown_health_on_upgrade() {
 		Actions::cleanup_on_upgrade();
-		$this->assertEquals( Health::get_status(), Health::STATUS_UNKNOWN );
+		$this->assertEquals( Health::STATUS_UNKNOWN, Health::get_status() );
 	}
 
 	/**
@@ -103,10 +103,10 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 	 */
 	public function test_initialization_status_disabled_on_upgrade() {
 		Health::update_status( Health::STATUS_IN_SYNC );
-		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
+		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 		Settings::update_settings( array( 'disable' => true ) );
 		Actions::cleanup_on_upgrade();
-		$this->assertEquals( Health::get_status(), Health::STATUS_DISABLED );
+		$this->assertEquals( Health::STATUS_DISABLED, Health::get_status() );
 	}
 
 	/**
@@ -115,7 +115,7 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 	public function test_initialization_status_ignored_on_upgrade() {
 		Health::update_status( Health::STATUS_IN_SYNC );
 		Actions::cleanup_on_upgrade();
-		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
+		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 	}
 
 	/**

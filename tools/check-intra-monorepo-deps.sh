@@ -312,10 +312,10 @@ if $RELEASEBRANCH && [[ "${#SKIPPED[@]}" -gt 0 && "$EXIT" == "0" ]]; then
 	jetpackGreen <<-EOF
 		Due to use of \`-R\`, dependencies may not be fully updated. If you're doing a
 		package release from a release branch, next steps are:
-		 1. Commit the changes and push to the release branch. Note the
-		    "Check plugin monorepo dep versions" test will fail.
-		 2. Use the build artifact to do the package releases for any not auto-tagged.
-		 3. Update the release plugin's deps by running
+		 1. Commit the changes. Do not push yet.
+		 2. Create a prerelease branch with this commit. Wait for CI to run, and verify
+		    the new package versions are on Packagist.
+		 3. Back on this release branch, update the release plugin's deps by running
 		      tools/check-intra-monorepo-deps.sh -aU ${SKIPPED[*]}
 		    then commit and push.
 	EOF

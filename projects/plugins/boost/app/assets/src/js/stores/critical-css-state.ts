@@ -5,11 +5,14 @@ import api from '../api/api';
 import { startPollingCloudStatus } from '../utils/cloud-css';
 import generateCriticalCss from '../utils/generate-critical-css';
 import { CriticalCssStateSchema } from './critical-css-state-types';
-import { client, JSONObject, suggestRegenerateDS } from './data-sync-client';
+import { jetpack_boost_ds, JSONObject, suggestRegenerateDS } from './data-sync-client';
 import { modulesState } from './modules';
 import type { CriticalCssState, Provider } from './critical-css-state-types';
 
-const stateClient = client.createAsyncStore( 'critical_css_state', CriticalCssStateSchema );
+const stateClient = jetpack_boost_ds.createAsyncStore(
+	'critical_css_state',
+	CriticalCssStateSchema
+);
 const cssStateStore = stateClient.store;
 
 export const criticalCssState = {
@@ -150,7 +153,10 @@ export const refreshCriticalCssState = async () => {
 
 export const regenerateCriticalCss = async () => {
 	// Clear regeneration suggestions
-	suggestRegenerateDS.store.set( false );
+	suggestRegenerateDS.store.set( null );
+
+	// Immediately set the status to pending to disable the regenerate button
+	replaceCssState( { status: 'pending' } );
 
 	// This will clear the CSS from the database
 	// And return fresh nonce, provider and viewport data.
@@ -170,7 +176,7 @@ export const regenerateCriticalCss = async () => {
 	if ( isCloudCssEnabled ) {
 		startPollingCloudStatus();
 	} else {
-		await regenerateLocalCriticalCss( freshState );
+		await continueGeneratingLocalCriticalCss( freshState );
 	}
 };
 
@@ -180,7 +186,7 @@ export const regenerateCriticalCss = async () => {
  *
  * @param state
  */
-export async function regenerateLocalCriticalCss( state: CriticalCssState ) {
+export async function continueGeneratingLocalCriticalCss( state: CriticalCssState ) {
 	if ( state.status === 'generated' ) {
 		return;
 	}

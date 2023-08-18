@@ -265,10 +265,10 @@ class Render_Blocking_JS implements Pluggable {
 	 */
 	public function append_script_tags( $buffer ) {
 		if ( false !== strpos( $buffer, '</body>' ) ) {
-			return str_replace( '</body>', join( '', $this->buffered_script_tags ) . '</body>', $buffer );
+			return str_replace( '</body>', implode( '', $this->buffered_script_tags ) . '</body>', $buffer );
 		}
 
-		return $buffer . join( '', $this->buffered_script_tags );
+		return $buffer . implode( '', $this->buffered_script_tags );
 	}
 
 	/**

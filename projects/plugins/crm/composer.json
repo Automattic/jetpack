@@ -9,7 +9,8 @@
 		"codeception/module-webdriver": "^1.0",
 		"codeception/module-db": "^1.0",
 		"codeception/module-filesystem": "^1.0",
-		"codeception/util-universalframework": "^1.0"
+		"codeception/util-universalframework": "^1.0",
+		"yoast/phpunit-polyfills": "1.0.4"
 	},
 	"scripts": {
 		"build-development": [
@@ -26,29 +27,36 @@
 		"cs-security": "temp=$(git diff --diff-filter=d --name-only trunk HEAD | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --standard=phpcs.security.xml$([[ ! -f phpcs.security.xml ]] && echo .dist) --always-exit-zero --git --git-base trunk $temp || echo 'No changes found.'",
 		"cs-staged": "temp=$(git diff --diff-filter=d --name-only --cached | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-staged $temp || echo 'No changes found.'",
 		"cs-unstaged": "temp=$(git diff --diff-filter=d --name-only | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-unstaged $temp || echo 'No changes found.'",
-		"test-php": "tests/action-test-php.sh",
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"skip-test-php": "tests/action-skip-test-php.sh",
+		"test-php": [
+			"@composer phpunit",
+			"tests/action-test-php.sh"
+		],
+		"test-js": "pnpm run test",
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		]
 	},
 	"config": {
-		"platform": {
-			"php": "7.3"
-		},
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_7_1_alpha",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_2_0_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
-			"automattic/jetpack-composer-plugin": true
+			"automattic/jetpack-composer-plugin": true,
+			"roots/wordpress-core-installer": true
 		}
 	},
 	"require": {
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/woocommerce": "^3.0",
-		"dompdf/dompdf": "2.0.3",
-		"automattic/jetpack-composer-plugin": "@dev"
+		"dompdf/dompdf": "2.0.3"
 	},
 	"repositories": [
 		{
@@ -65,6 +73,7 @@
 		]
 	},
 	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"extra": {
 		"autotagger": {
 			"v": false
@@ -72,7 +81,7 @@
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-crm",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-crm/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-crm/compare/${old}...${new}"
 		},
 		"release-branch-prefix": "crm",
 		"wp-plugin-slug": "zero-bs-crm",

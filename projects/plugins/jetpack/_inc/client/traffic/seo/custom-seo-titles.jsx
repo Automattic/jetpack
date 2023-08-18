@@ -151,6 +151,7 @@ const SEOTokenButton = ( {
 
 	return (
 		<Button
+			rna
 			className="jp-seo-custom-titles-input-button"
 			compact
 			onClick={ handleTokenButtonClick }

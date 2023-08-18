@@ -34,7 +34,8 @@
 }
 
 .jp-related-posts-i2__post-heading, .jp-related-posts-i2__post-img-link,
-.jp-related-posts-i2__post-date, .jp-related-posts-i2__post-context {
+.jp-related-posts-i2__post-date, .jp-related-posts-i2__post-context,
+.jp-related-posts-i2__post-author {
 	flex-direction: row;
 	display: block;
 }

@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2023-06-06
+### Added
+- Add new task to notify Quality team of important issues
+- Add the legacy Photon label for PRs that make changes to the Image CDN package.
+- Auto labeling: add labels for common elements of the CRM plugin.
+- Create a new triageIssues task, to handle automated label triage and Slack notifications for important issues.
+
+### Changed
+- Add the Docs label whenever markdown files are edited.
+- Auto-labeling: update logic to use new [Focus] label.
+- Automated labeling: standardize how we track PRs with tests.
+- Changed the features directory to include the module directory as well.
+- Docs: Changing 'needs review' label wording for pull requests to more accurately reflect current processes
+- Don't complain about missing a changelog entry if the changelog itself is being changed.
+- Escalation task: update wording and icons.
+- Kitkat escalation task: change the name of the label applied to escalated issues.
+- Label management: do not loop through files for labels that do not require it.
+- Only send Slack notifications for bugs.
+- Triage tasks: update wording of messages and start warning folks of issues that do get any Priority label added automatically, so they can triage manually.
+- Update auto-labeling rules for Boost features.
+- Updated package dependencies.
+
+### Removed
+- The notifyKitKat and triageNewIssues tasks have been removed. The new triageIssues task now handles both of those tasks.
+
+### Fixed
+- Changelogger checks: do not error out when require or require-dev are not set.
+- Triage: ensure we do not trigger triaging on events when a laabel that would impact our automated triage is already being added.
+- Use correct emoji in Kitkat notifications
+
 ## [3.1.1] - 2023-02-07
 ### Changed
 - Changed headings in the `PULL_REQUEST_TEMPLATE`.
@@ -136,6 +166,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[4.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v3.1.1...v4.0.0
 [3.1.1]: https://github.com/Automattic/action-repo-gardening/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/Automattic/action-repo-gardening/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v2.0.2...v3.0.0

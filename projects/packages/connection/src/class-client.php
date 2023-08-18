@@ -154,7 +154,7 @@ class Client {
 			if ( is_array( $body ) ) {
 				// We cast this to a new variable, because the array form of $body needs to be
 				// maintained so it can be passed into the request later on in the code.
-				if ( count( $body ) > 0 ) {
+				if ( array() !== $body ) {
 					$body_to_hash = wp_json_encode( self::_stringify_data( $body ) );
 				} else {
 					$body_to_hash = '';
@@ -206,7 +206,7 @@ class Client {
 		$request['headers'] = array_merge(
 			$args['headers'],
 			array(
-				'Authorization' => 'X_JETPACK ' . join( ' ', $header_pieces ),
+				'Authorization' => 'X_JETPACK ' . implode( ' ', $header_pieces ),
 			)
 		);
 

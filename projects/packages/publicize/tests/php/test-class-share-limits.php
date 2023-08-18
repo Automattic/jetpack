@@ -37,7 +37,7 @@ class Share_Limits_Test extends BaseTestCase {
 		$share_limit->enforce_share_limits();
 
 		// When checking for a specific callback with has_filter, the function returns the priority of the filter.
-		$this->assertEquals( has_filter( 'publicize_checkbox_default', '__return_false' ), 10 );
+		$this->assertEquals( 10, has_filter( 'publicize_checkbox_default', '__return_false' ) );
 	}
 
 	/**

@@ -59,7 +59,7 @@ class Secrets {
 			$user_id = get_current_user_id();
 		}
 
-		$callable = apply_filters( 'jetpack_connection_secret_generator', array( get_called_class(), 'secret_callable_method' ) );
+		$callable = apply_filters( 'jetpack_connection_secret_generator', array( static::class, 'secret_callable_method' ) );
 
 		$secrets = Jetpack_Options::get_raw_option(
 			self::LEGACY_SECRETS_OPTION_NAME,

@@ -249,6 +249,31 @@ async function rsyncToDest( source, dest, pluginDestPath ) {
 			dest,
 		] );
 
+		console.log( '\n' );
+		console.log(
+			chalk.black.bgYellow(
+				'*************************************************************************************'
+			)
+		);
+		console.log(
+			chalk.black.bgYellow(
+				'**  Make sure you have set ' +
+					chalk.bold( "define( 'JETPACK_AUTOLOAD_DEV', true );" ) +
+					' in a mu-plugin  **'
+			)
+		);
+		console.log(
+			chalk.black.bgYellow(
+				'**  on the remote site. Otherwise the wrong versions of packages may be loaded!    **'
+			)
+		);
+		console.log(
+			chalk.black.bgYellow(
+				'*************************************************************************************'
+			)
+		);
+		console.log( '\n' );
+
 		await promptForRsyncConfig( pluginDestPath );
 	} catch ( e ) {
 		console.log( e );

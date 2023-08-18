@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Expand the pending state to span multiple requests to help better reflect it in the UI.

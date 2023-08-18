@@ -303,6 +303,23 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests add_users_menu
+	 *
+	 * @covers ::add_users_menu
+	 */
+	public function test_add_users_menu() {
+		global $submenu;
+
+		static::$admin_menu->add_users_menu();
+		$menu_position = 6;
+		if ( is_multisite() ) {
+			$menu_position = 5;
+		}
+
+		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][ $menu_position ][2] );
+	}
+
+	/**
 	 * Tests remove_gutenberg_menu
 	 *
 	 * @covers ::remove_gutenberg_menu

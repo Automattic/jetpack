@@ -84,7 +84,7 @@ function jetpack_matt_random_redirect() {
 
 	global $wpdb;
 
-	$where = join( ' AND ', $where );
+	$where = implode( ' AND ', $where );
 	if ( isset( $random_cat_id ) ) {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT DISTINCT ID FROM $wpdb->posts AS p INNER JOIN $wpdb->term_relationships AS tr ON (p.ID = tr.object_id AND tr.term_taxonomy_id = %s) INNER JOIN  $wpdb->term_taxonomy AS tt ON(tr.term_taxonomy_id = tt.term_taxonomy_id AND taxonomy = 'category') WHERE $where ORDER BY RAND() LIMIT 1", $random_cat_id, ...$where_args ) );

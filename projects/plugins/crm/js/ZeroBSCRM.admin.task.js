@@ -10,32 +10,6 @@
  */
 
 jQuery( function ( $ ) {
-	/*
-    $('.zbs-add-new-task').on("click", function(e){
-        console.log('Add New Task Clicked');
-        e.preventDefault();
-
-        $('#zbs-add-task-ui').toggle();
-
-        if($('.main-task-view').hasClass('zbs-adding-task')){
-            $('.main-task-view').removeClass('zbs-adding-task');
-        }else{
-            $('.main-task-view').addClass('zbs-adding-task');
-        }
-
-        //UI here for the add task side-flyout
-
-    });
-
-    $('.close-add-task').on("click",function(e){
-        $('#zbs-add-task-ui').toggle();
-        if($('.main-task-view').hasClass('zbs-adding-task')){
-            $('.main-task-view').removeClass('zbs-adding-task');
-        }else{
-            $('.main-task-view').addClass('zbs-adding-task');
-        }
-    });
-    */
 
 	$( '.mark-complete-task button' ).on( 'click', function ( e ) {
 		e.preventDefault();

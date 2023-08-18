@@ -64,6 +64,16 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Missing dep on @emotion/react.
+	// https://github.com/WordPress/gutenberg/issues/52474
+	if (
+		pkg.name === '@wordpress/block-editor' &&
+		pkg.dependencies?.[ '@emotion/styled' ] &&
+		! pkg.dependencies?.[ '@emotion/react' ]
+	) {
+		pkg.dependencies[ '@emotion/react' ] = '^11.7.1';
+	}
+
 	// Avoid annoying flip-flopping of sub-dep peer deps.
 	// https://github.com/localtunnel/localtunnel/issues/481
 	if ( pkg.name === 'localtunnel' ) {
@@ -89,7 +99,7 @@ function fixDeps( pkg ) {
 	// No upstream bug link yet.
 	if (
 		pkg.name === '@automattic/social-previews' &&
-		pkg.dependencies[ '@wordpress/components' ] === '^19.15.0'
+		pkg.dependencies[ '@wordpress/components' ] === '^22.1.0'
 	) {
 		pkg.dependencies[ '@wordpress/components' ] = '*';
 	}
@@ -98,6 +108,31 @@ function fixDeps( pkg ) {
 	// No upstream bug link yet.
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6';
+	}
+
+	// Outdated dependency.
+	// No upstream bug link yet.
+	if ( pkg.name === 'svelte-navigator' && pkg.dependencies.svelte2tsx === '^0.1.151' ) {
+		pkg.dependencies.svelte2tsx = '^0.6.10';
+	}
+
+	// Missing dep or peer dep on @babel/runtime
+	// https://github.com/zillow/react-slider/issues/296
+	if (
+		pkg.name === 'react-slider' &&
+		! pkg.dependencies?.[ '@babel/runtime' ] &&
+		! pkg.peerDependencies?.[ '@babel/runtime' ]
+	) {
+		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+	}
+
+	// To update semver dep.
+	// https://github.com/storybookjs/storybook/pull/23396
+	if (
+		pkg.name === '@storybook/cli' &&
+		pkg.dependencies[ 'simple-update-notifier' ] === '^1.0.0'
+	) {
+		pkg.dependencies[ 'simple-update-notifier' ] = '^2.0.0';
 	}
 
 	return pkg;

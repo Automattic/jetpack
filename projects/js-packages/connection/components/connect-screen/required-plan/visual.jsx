@@ -1,6 +1,12 @@
-import { ActionButton, PricingCard, TermsOfService } from '@automattic/jetpack-components';
+import {
+	ActionButton,
+	getRedirectUrl,
+	PricingCard,
+	TermsOfService,
+} from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import debugFactory from 'debug';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -27,10 +33,11 @@ const ConnectScreenRequiredPlanVisual = props => {
 		pricingCurrencyCode,
 		isLoading,
 		handleButtonClick,
-		showConnectButton,
 		displayButtonError,
 		buttonIsLoading,
 		logo,
+		isOfflineMode,
+		rna = false,
 	} = props;
 
 	debug( 'props are %o', props );
@@ -48,14 +55,28 @@ const ConnectScreenRequiredPlanVisual = props => {
 		}
 	);
 
+	const errorMessage = isOfflineMode
+		? createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack' ), {
+				a: (
+					<a
+						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
+		  } )
+		: undefined;
+
 	return (
 		<ConnectScreenLayout
 			title={ title }
-			className={
-				'jp-connection__connect-screen-required-plan' +
-				( isLoading ? ' jp-connection__connect-screen-required-plan__loading' : '' )
-			}
+			className={ classNames(
+				'jp-connection__connect-screen-required-plan',
+				isLoading ? 'jp-connection__connect-screen-required-plan__loading' : '',
+				rna ? 'rna' : ''
+			) }
 			logo={ logo }
+			rna={ rna }
 		>
 			<div className="jp-connection__connect-screen-required-plan__content">
 				{ children }
@@ -68,21 +89,19 @@ const ConnectScreenRequiredPlanVisual = props => {
 						currencyCode={ pricingCurrencyCode }
 						priceAfter={ priceAfter }
 					>
-						{ showConnectButton && (
-							<>
-								<TermsOfService agreeButtonLabel={ buttonLabel } />
-								<ActionButton
-									label={ buttonLabel }
-									onClick={ handleButtonClick }
-									displayError={ displayButtonError }
-									isLoading={ buttonIsLoading }
-								/>
-							</>
-						) }
+						<TermsOfService agreeButtonLabel={ buttonLabel } />
+						<ActionButton
+							label={ buttonLabel }
+							onClick={ handleButtonClick }
+							displayError={ displayButtonError || isOfflineMode }
+							errorMessage={ errorMessage }
+							isLoading={ buttonIsLoading }
+							isDisabled={ isOfflineMode }
+						/>
 					</PricingCard>
 				</div>
 
-				{ showConnectButton && (
+				{ ! isOfflineMode && (
 					<div className="jp-connection__connect-screen-required-plan__with-subscription">
 						{ withSubscription }
 					</div>
@@ -111,19 +130,18 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	isLoading: PropTypes.bool,
 	/** Callback that is applied into click for all buttons. */
 	handleButtonClick: PropTypes.func,
-	/** Whether the connection button is enable or not. */
-	showConnectButton: PropTypes.bool,
 	/** Whether the button error is active or not. */
 	displayButtonError: PropTypes.bool,
 	/** Whether the button loading state is active or not. */
 	buttonIsLoading: PropTypes.bool,
 	/** The logo to display at the top of the component. */
 	logo: PropTypes.element,
+	/** Whether the site is in offline mode. */
+	isOfflineMode: PropTypes.bool,
 };
 
 ConnectScreenRequiredPlanVisual.defaultProps = {
 	pricingCurrencyCode: 'USD',
-	showConnectButton: true,
 	isLoading: false,
 	buttonIsLoading: false,
 	displayButtonError: false,

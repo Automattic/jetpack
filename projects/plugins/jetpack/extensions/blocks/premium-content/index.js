@@ -53,7 +53,7 @@ const blocksCanBeTransformed = blocks => {
 
 export const name = 'premium-content/container';
 export const settings = {
-	title: __( 'Premium Content', 'jetpack' ),
+	title: __( 'Paid Content', 'jetpack' ),
 	description: __( 'Restrict access to your content for paying subscribers.', 'jetpack' ),
 	icon,
 	category: 'grow',
@@ -73,6 +73,7 @@ export const settings = {
 		_x( 'pay', 'block search term', 'jetpack' ),
 		_x( 'payments', 'block search term', 'jetpack' ),
 		_x( 'paywall', 'block search term', 'jetpack' ),
+		_x( 'premium content', 'block search term', 'jetpack' ),
 		_x( 'purchase', 'block search term', 'jetpack' ),
 		_x( 'recurring', 'block search term', 'jetpack' ),
 		_x( 'repeat', 'block search term', 'jetpack' ),

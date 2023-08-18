@@ -1,4 +1,0 @@
-Significance: minor
-Type: security
-
-Sanitize cand validate checklist slug query param

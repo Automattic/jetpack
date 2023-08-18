@@ -15,7 +15,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '0.14.0-alpha';
+	const PACKAGE_VERSION = '0.20.0-alpha';
 
 	/**
 	 * Load the contact form module.
@@ -47,6 +47,13 @@ class Jetpack_Forms {
 	}
 
 	/**
+	 * Get the assets URL.
+	 */
+	public static function assets_url() {
+		return plugin_dir_url( __DIR__ ) . 'assets';
+	}
+
+	/**
 	 * Returns true if the feedback dashboard is enabled.
 	 *
 	 * @return boolean
@@ -60,6 +67,6 @@ class Jetpack_Forms {
 		 *
 		 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
 		 */
-		return apply_filters( 'jetpack_forms_dashboard_enable', false );
+		return apply_filters( 'jetpack_forms_dashboard_enable', true );
 	}
 }

@@ -81,7 +81,9 @@ class WPCOM_JSON_API_Render_Embed_Reversal_Endpoint extends WPCOM_JSON_API_Rende
 			return new WP_Error( 'invalid_embed', 'The provided embed is not supported.', 400 );
 		}
 
-		if ( ( count( $shortcode_matches[0] ) + count( $url_matches[0] ) ) > 1 ) {
+		$shortcode_matches_count = is_countable( $shortcode_matches[0] ) ? count( $shortcode_matches[0] ) : 0;
+		$url_matches_count       = is_countable( $url_matches[0] ) ? count( $url_matches[0] ) : 0;
+		if ( ( $shortcode_matches_count + $url_matches_count ) > 1 ) {
 			return new WP_Error( 'invalid_embed', 'Only one embed/shortcode reversal can be rendered at a time.', 400 );
 		}
 

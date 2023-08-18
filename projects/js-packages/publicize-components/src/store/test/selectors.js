@@ -114,10 +114,9 @@ describe( 'getTweetStorm', () => {
 			],
 		};
 		const expected = {
-			name: 'Account Name',
-			profileImage:
-				'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
-			screenName: '',
+			name: undefined,
+			profileImage: undefined,
+			screenName: undefined,
 		};
 
 		const tweets = getTweetstormHelper( state );

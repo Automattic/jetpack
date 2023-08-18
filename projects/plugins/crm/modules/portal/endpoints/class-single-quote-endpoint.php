@@ -65,7 +65,7 @@ class Single_Quote_Endpoint extends Client_Portal_Endpoint {
 ?>
 		<div id="zerobs-proposal-<?php echo esc_attr( $quote_id ); ?> main" class="zerobs-proposal entry-content hentry" style="margin-bottom:50px;margin-top:0px;">
 
-			<div class="zerobs-proposal-body"><?php echo wp_kses( zeroBSCRM_io_WPEditor_DBToHTML( $quote_content ), $zbs->acceptable_html ); ?></div>
+			<div class="zerobs-proposal-body"><?php echo wp_kses( wpautop( $quote_content ), $zbs->acceptable_html ); ?></div>
 
 			<?php
 			if ( $acceptable ) {

@@ -184,7 +184,7 @@ class Jetpack_Backup {
 		Assets::enqueue_script( 'jetpack-backup' );
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-backup', self::get_initial_state(), 'before' );
-		wp_add_inline_script( 'jetpack-backup', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-backup' );
 
 		// Load script for analytics.
 		if ( self::can_use_analytics() ) {

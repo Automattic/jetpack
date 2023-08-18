@@ -3,6 +3,14 @@
 	"description": "Creates a custom autoloader for a plugin or theme.",
 	"type": "composer-plugin",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"autoload",
+		"autoloader",
+		"composer",
+		"plugin",
+		"jetpack",
+		"wordpress"
+	],
 	"require": {
 		"composer-plugin-api": "^1.1 || ^2.0"
 	},

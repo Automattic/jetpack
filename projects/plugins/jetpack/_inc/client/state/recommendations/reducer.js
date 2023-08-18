@@ -12,6 +12,7 @@ import {
 	ONBOARDING_JETPACK_BACKUP,
 	ONBOARDING_JETPACK_COMPLETE,
 	ONBOARDING_JETPACK_SECURITY,
+	ONBOARDING_JETPACK_STARTER,
 	ONBOARDING_JETPACK_ANTI_SPAM,
 	ONBOARDING_JETPACK_VIDEOPRESS,
 	ONBOARDING_JETPACK_SEARCH,
@@ -335,8 +336,8 @@ const stepToNextStepByPath = {
 		'product-suggestions': 'woocommerce',
 		woocommerce: 'monitor',
 		monitor: 'related-posts',
-		'related-posts': 'creative-mail',
-		'creative-mail': 'site-accelerator',
+		'related-posts': 'newsletter',
+		newsletter: 'site-accelerator',
 		'site-accelerator': 'publicize',
 		publicize: 'vaultpress-for-woocommerce',
 		'vaultpress-for-woocommerce': 'vaultpress-backup', // falls back to vaultpress-backup so it only shows one of them
@@ -363,6 +364,13 @@ const stepToNextStepByPath = {
 			'backup-activated': 'scan-activated',
 			'scan-activated': 'antispam-activated',
 			'antispam-activated': 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'server-credentials',
+			'server-credentials': 'summary',
+		},
+		[ ONBOARDING_JETPACK_STARTER ]: {
+			welcome__starter: 'backup-activated',
+			'backup-activated': 'monitor',
 			monitor: 'site-accelerator',
 			'site-accelerator': 'server-credentials',
 			'server-credentials': 'summary',
@@ -411,6 +419,7 @@ export const stepToRoute = {
 	agency: '#/recommendations/agency',
 	woocommerce: '#/recommendations/woocommerce',
 	monitor: '#/recommendations/monitor',
+	newsletter: '#/recommendations/newsletter',
 	'related-posts': '#/recommendations/related-posts',
 	'creative-mail': '#/recommendations/creative-mail',
 	'site-accelerator': '#/recommendations/site-accelerator',
@@ -427,6 +436,7 @@ export const stepToRoute = {
 	welcome__backup: '#/recommendations/welcome-backup',
 	welcome__complete: '#/recommendations/welcome-complete',
 	welcome__security: '#/recommendations/welcome-security',
+	welcome__starter: '#/recommendations/welcome-starter',
 	welcome__antispam: '#/recommendations/welcome-antispam',
 	welcome__videopress: '#/recommendations/welcome-videopress',
 	welcome__search: '#/recommendations/welcome-search',
@@ -474,6 +484,8 @@ export const isFeatureActive = ( state, featureSlug ) => {
 			);
 		case 'monitor':
 			return !! getSetting( state, 'monitor' );
+		case 'newsletter':
+			return !! getSetting( state, 'subscriptions' );
 		case 'related-posts':
 			return !! getSetting( state, 'related-posts' );
 		case 'site-accelerator':
@@ -618,6 +630,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'search-activated':
 		case 'welcome__complete':
 		case 'welcome__security':
+		case 'welcome__starter':
 		case 'welcome__antispam':
 		case 'welcome__videopress':
 		case 'welcome__search':
@@ -830,6 +843,7 @@ export const getSummaryFeatureSlugs = state => {
 		'monitor',
 		'related-posts',
 		'creative-mail',
+		'newsletter',
 		'site-accelerator',
 		'protect',
 		'publicize',

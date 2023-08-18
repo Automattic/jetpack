@@ -168,14 +168,14 @@
 
 	display:none; // init
     padding: 0.5em;
-    background: #5c97d217;
+    background: var(--jp-gray-0);
     margin-right: 2em;
     border-radius: 0.2em;
 
 }
 i.zbs-show-longdesc,
 i.zbs-hide-longdesc {
-	color: #94b4d4;
+	color: #000;
 }
 i.zbs-show-longdesc:hover,
 i.zbs-hide-longdesc:hover {
@@ -287,4 +287,8 @@ width:80%;
 
 	}
 
+}
+
+#do-not-email {
+	cursor: pointer;
 }

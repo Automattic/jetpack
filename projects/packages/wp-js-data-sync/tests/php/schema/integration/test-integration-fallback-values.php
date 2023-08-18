@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry_Adapter;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use PHPUnit\Framework\TestCase;
@@ -93,7 +93,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$this->assertSame( false, get_option( $key ) );
 
 		$schema = Schema::as_boolean()->fallback( true );
-		$entry  = new Data_Sync_Entry( new Data_Sync_Option( $key ), $schema );
+		$entry  = new Data_Sync_Entry_Adapter( new Data_Sync_Option( $key ), $schema );
 
 		// Test with a valid value
 		$this->assertSame( true, $entry->set( true ) );
@@ -117,7 +117,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$this->assertSame( false, get_option( $key ) );
 
 		$schema = Schema::as_boolean();
-		$entry  = new Data_Sync_Entry( new Data_Sync_Option( $key ), $schema );
+		$entry  = new Data_Sync_Entry_Adapter( new Data_Sync_Option( $key ), $schema );
 
 		// Test with a valid values
 		$this->assertSame( true, $entry->set( true ) );

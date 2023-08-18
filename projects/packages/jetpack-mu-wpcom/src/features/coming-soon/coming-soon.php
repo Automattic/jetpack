@@ -68,7 +68,7 @@ function get_share_code() {
 function is_accessed_by_valid_share_link( $share_code ) {
 	$preview_links_option = get_option( 'wpcom_public_preview_links' );
 
-	if ( ! is_array( $preview_links_option ) || ! count( $preview_links_option ) || ! $share_code ) {
+	if ( ! is_array( $preview_links_option ) || array() === $preview_links_option || ! $share_code ) {
 		return false;
 	}
 

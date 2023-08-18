@@ -232,7 +232,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 			return true;
 		}
 
-		if ( ! isset( $_GET['validate_jetpack_protect_recovery'], $_GET['user_id'] ) ) { // phpcs:ignore: WordPress.Security.NonceVerification.Recommended -- no changes made if this isn't set.
+		if ( ! isset( $_GET['validate_jetpack_protect_recovery'] ) || ! isset( $_GET['user_id'] ) ) { // phpcs:ignore: WordPress.Security.NonceVerification.Recommended -- no changes made if this isn't set.
 			return false;
 		}
 

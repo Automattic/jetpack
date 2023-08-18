@@ -30,10 +30,10 @@
 	}
 </script>
 
-<div id="jb-settings" class="jb-settings">
-	<div class="jb-settings-header jb-benefits-header">
+<div id="jb-dashboard" class="jb-dashboard">
+	<div class="jb-dashboard-header jb-benefits-header">
 		<div class="jb-container jb-container--fixed">
-			<div class="jb-settings-header__logo">
+			<div class="jb-dashboard-header__logo">
 				<JetpackBoostLogo />
 			</div>
 
@@ -50,7 +50,7 @@
 					<h1 class="my-2">{__( "Optimize your website's performance", 'jetpack-boost' )}</h1>
 					<p class="jb-card__summary my-2">
 						{__(
-							'Remove the need to manually regenerate critical CSS after site changes with automated critical CSS.',
+							'Automatically regenerate critical CSS after site changes, and hunt down image issues with ease.',
 							'jetpack-boost'
 						)}
 					</p>
@@ -58,6 +58,10 @@
 						<li>{__( 'Automatic critical CSS regeneration', 'jetpack-boost' )}</li>
 						<li>
 							{__( 'Performance scores are recalculated after each change', 'jetpack-boost' )}
+						</li>
+						<li>{__( 'Automatically scan your site for image size issues', 'jetpack-boost' )}</li>
+						<li>
+							{__( 'Historical performance scores with Core Web Vitals data', 'jetpack-boost' )}
 						</li>
 						<li>{__( 'Dedicated email support', 'jetpack-boost' )}</li>
 					</ul>
@@ -101,7 +105,7 @@
 		background-color: var( --jp-white );
 		height: unset;
 
-		.jb-settings-header__logo {
+		.jb-dashboard-header__logo {
 			max-width: 240px;
 			height: unset;
 		}

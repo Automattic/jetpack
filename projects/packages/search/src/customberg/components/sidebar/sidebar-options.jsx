@@ -31,10 +31,12 @@ export default function SidebarOptions() {
 		color,
 		excludedPostTypes,
 		infiniteScroll = true,
+		filteringOpensOverlay = true,
 		resultFormat,
 		setColor,
 		setExcludedPostTypes,
 		setInfiniteScroll,
+		setFilteringOpensOverlay,
 		setResultFormat,
 		setShowLogo,
 		setSort,
@@ -110,6 +112,17 @@ export default function SidebarOptions() {
 						},
 					] }
 					onChange={ setTrigger }
+				/>
+				<ToggleControl
+					className="jp-search-configure-filtering-opens-overlay-toggle"
+					checked={ filteringOpensOverlay }
+					disabled={ isDisabled }
+					help={ __(
+						'Open overlay when filters are used outside the Jetpack Sidebar',
+						'jetpack-search-pkg'
+					) }
+					label={ __( 'Open overlay from filter links', 'jetpack-search-pkg' ) }
+					onChange={ setFilteringOpensOverlay }
 				/>
 				<ExcludedPostTypesControl
 					disabled={ isDisabled }

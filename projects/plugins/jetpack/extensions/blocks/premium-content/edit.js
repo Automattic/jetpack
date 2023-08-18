@@ -106,7 +106,7 @@ function Edit( props ) {
 					{ isApiLoading && (
 						<Placeholder
 							icon="lock"
-							label={ __( 'Premium Content', 'jetpack' ) }
+							label={ __( 'Paid Content', 'jetpack' ) }
 							instructions={ __( 'Loading data…', 'jetpack' ) }
 						>
 							<Spinner />

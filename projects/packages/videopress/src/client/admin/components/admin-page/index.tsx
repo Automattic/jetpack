@@ -218,7 +218,7 @@ const Admin = () => {
 					<AdminSectionHero>
 						<Container horizontalSpacing={ 0 }>
 							<Col>
-								<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
+								<div id="jp-admin-notices" className={ styles[ 'jetpack-videopress-jitm-card' ] } />
 							</Col>
 						</Container>
 

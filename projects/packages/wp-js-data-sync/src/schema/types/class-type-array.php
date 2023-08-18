@@ -2,25 +2,39 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 
-class Type_Array implements Schema_Type {
-	private $sub_schema;
+class Type_Array implements Parser {
+	private $parser;
 
-	public function __construct( $sub_schema ) {
-		$this->sub_schema = $sub_schema;
+	/**
+	 * Array type takes in a parser in the constructor and
+	 * will parse each value in the array using the parser.
+	 *
+	 * @param Parser $parser - the parser to use.
+	 */
+	public function __construct( Parser $parser ) {
+		$this->parser = $parser;
 	}
 
+	/*
+	 * This parse method expects that the $data passed to it is
+	 * an array of other Parser instances.
+	 *
+	 * @param $data - an array of something to be parsed.
+	 *
+	 * @return array
+	 */
 	public function parse( $data ) {
 		if ( ! is_array( $data ) ) {
 			$message = "Expected an array, received '" . gettype( $data ) . "'";
 			throw new \Error( $message );
 		}
 
-		$sanitized_data = array();
+		$parsed = array();
 		foreach ( $data as $key => $value ) {
-			$sanitized_data[ $key ] = $this->sub_schema->parse( $value );
+			$parsed[ $key ] = $this->parser->parse( $value );
 		}
-		return $sanitized_data;
+		return $parsed;
 	}
 }

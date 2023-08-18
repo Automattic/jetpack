@@ -8,6 +8,7 @@
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
+	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { modulesState } from '../../../stores/modules';
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
@@ -17,6 +18,7 @@
 	export let generateText = '';
 	export let generateMoreText = '';
 	const { navigate } = routerHistory;
+	const suggestRegenerate = suggestRegenerateDS.store;
 
 	$: successCount = $criticalCssState.providers.filter(
 		provider => provider.status === 'success'
@@ -72,9 +74,32 @@
 		{/if}
 	</div>
 	{#if $criticalCssState.status !== 'pending'}
-		<button type="button" class="components-button is-link" on:click={regenerateCriticalCss}>
+		<button
+			type="button"
+			class="components-button"
+			class:is-link={! $suggestRegenerate || $modulesState.cloud_css?.available}
+			on:click={regenerateCriticalCss}
+		>
 			<RefreshIcon />
 			{__( 'Regenerate', 'jetpack-boost' )}
 		</button>
 	{/if}
 </div>
+
+<style lang="scss">
+	:global( .components-button:not( .is-link ) .gridicon ) {
+		display: none;
+	}
+
+	.components-button:not( .is-link ) {
+		color: #fff !important;
+		background-color: #000;
+		border-radius: 4px;
+		border: none;
+		font-size: 12px;
+		height: 28px;
+		padding: 7px 10px;
+		text-decoration: none;
+		display: inline-block;
+	}
+</style>

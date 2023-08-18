@@ -3,15 +3,19 @@ import { includes } from 'lodash';
 // plans constants
 export const PLAN_BUSINESS = 'business-bundle';
 export const PLAN_BUSINESS_2_YEARS = 'business-bundle-2y';
+export const PLAN_BUSINESS_3_YEARS = 'business-bundle-3y';
 export const PLAN_BUSINESS_MONTHLY = 'business-bundle-monthly';
 export const PLAN_ECOMMERCE = 'ecommerce-bundle';
 export const PLAN_ECOMMERCE_2_YEARS = 'ecommerce-bundle-2y';
+export const PLAN_ECOMMERCE_3_YEARS = 'ecommerce-bundle-3y';
 export const PLAN_ECOMMERCE_MONTHLY = 'ecommerce-bundle-monthly';
 export const PLAN_PREMIUM = 'value_bundle';
 export const PLAN_PREMIUM_2_YEARS = 'value_bundle-2y';
+export const PLAN_PREMIUM_3_YEARS = 'value_bundle-3y';
 export const PLAN_PREMIUM_MONTHLY = 'value_bundle-monthly';
 export const PLAN_PERSONAL = 'personal-bundle';
 export const PLAN_PERSONAL_2_YEARS = 'personal-bundle-2y';
+export const PLAN_PERSONAL_3_YEARS = 'personal-bundle-3y';
 export const PLAN_PERSONAL_MONTHLY = 'personal-bundle-monthly';
 export const PLAN_STARTER = 'starter-plan';
 export const PLAN_PRO = 'pro-plan';
@@ -25,6 +29,7 @@ export const PLAN_JETPACK_BUSINESS_MONTHLY = 'jetpack_business_monthly';
 export const PLAN_JETPACK_PERSONAL_MONTHLY = 'jetpack_personal_monthly';
 export const PLAN_JETPACK_BACKUP_T0_YEARLY = 'jetpack_backup_t0_yearly';
 export const PLAN_JETPACK_BACKUP_T0_MONTHLY = 'jetpack_backup_t0_monthly';
+export const PLAN_JETPACK_BACKUP_T1_BI_YEARLY = 'jetpack_backup_t1_bi_yearly';
 export const PLAN_JETPACK_BACKUP_T1_YEARLY = 'jetpack_backup_t1_yearly';
 export const PLAN_JETPACK_BACKUP_T1_MONTHLY = 'jetpack_backup_t1_monthly';
 export const PLAN_JETPACK_BACKUP_T2_YEARLY = 'jetpack_backup_t2_yearly';
@@ -32,6 +37,9 @@ export const PLAN_JETPACK_BACKUP_T2_MONTHLY = 'jetpack_backup_t2_monthly';
 export const PLAN_JETPACK_SEARCH = 'jetpack_search';
 export const PLAN_JETPACK_SEARCH_FREE = 'jetpack_search_free';
 export const PLAN_JETPACK_SEARCH_MONTHLY = 'jetpack_search_monthly';
+export const PLAN_JETPACK_STARTER = 'jetpack_starter_yearly';
+export const PLAN_JETPACK_STARTER_MONTHLY = 'jetpack_starter_monthly';
+export const PLAN_JETPACK_SECURITY_T1_BI_YEARLY = 'jetpack_security_t1_bi_yearly';
 export const PLAN_JETPACK_SECURITY_T1_YEARLY = 'jetpack_security_t1_yearly';
 export const PLAN_JETPACK_SECURITY_T1_MONTHLY = 'jetpack_security_t1_monthly';
 export const PLAN_JETPACK_SECURITY_T2_YEARLY = 'jetpack_security_t2_yearly';
@@ -40,6 +48,7 @@ export const PLAN_JETPACK_COMPLETE = 'jetpack_complete';
 export const PLAN_JETPACK_COMPLETE_MONTHLY = 'jetpack_complete_monthly';
 export const PLAN_JETPACK_BOOST = 'jetpack_boost_yearly';
 export const PLAN_JETPACK_BOOST_MONTHLY = 'jetpack_boost_monthly';
+export const PLAN_JETPACK_AI_MONTHLY = 'jetpack_ai_monthly';
 export const PLAN_WPCOM_SEARCH = 'wpcom_search';
 export const PLAN_WPCOM_SEARCH_MONTHLY = 'wpcom_search_monthly';
 export const PLAN_JETPACK_SCAN = 'jetpack_scan';
@@ -57,7 +66,6 @@ export const PLAN_JETPACK_SOCIAL_BASIC_MONTHLY = 'jetpack_social_basic_monthly';
 export const PLAN_JETPACK_SOCIAL_ADVANCED = 'jetpack_social_advanced_yearly';
 export const PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY = 'jetpack_social_advanced_monthly';
 export const PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME = 'jetpack_golden_token_lifetime';
-
 // DEPRECATED: Daily and Real-time variations will soon be retired.
 // Remove after all customers are migrated to new products.
 export const PLAN_JETPACK_BACKUP_DAILY = 'jetpack_backup_daily';
@@ -68,6 +76,9 @@ export const PLAN_JETPACK_SECURITY_DAILY = 'jetpack_security_daily';
 export const PLAN_JETPACK_SECURITY_DAILY_MONTHLY = 'jetpack_security_daily_monthly';
 export const PLAN_JETPACK_SECURITY_REALTIME = 'jetpack_security_realtime';
 export const PLAN_JETPACK_SECURITY_REALTIME_MONTHLY = 'jetpack_security_realtime_monthly';
+export const PLAN_JETPACK_STATS_MONTHLY = 'jetpack_stats_monthly';
+export const PLAN_JETPACK_STATS_PWYW_YEARLY = 'jetpack_stats_pwyw_yearly';
+export const PLAN_JETPACK_STATS_FREE = 'jetpack_stats_free_yearly';
 
 export const POPULAR_PLANS = [ PLAN_PREMIUM ];
 export const NEW_PLANS = [ PLAN_JETPACK_PERSONAL, PLAN_JETPACK_PERSONAL_MONTHLY ];
@@ -75,6 +86,7 @@ export const JETPACK_MONTHLY_PLANS = [
 	PLAN_JETPACK_PREMIUM_MONTHLY,
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
+	PLAN_JETPACK_STARTER_MONTHLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_MONTHLY,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
@@ -99,6 +111,9 @@ export const JETPACK_LEGACY_PLANS_WITH_SECURITY_FEATURES = [
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 ];
 export const JETPACK_BUNDLES = [
+	PLAN_JETPACK_STARTER,
+	PLAN_JETPACK_STARTER_MONTHLY,
+	PLAN_JETPACK_SECURITY_T1_BI_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_YEARLY,
@@ -119,6 +134,9 @@ export const JETPACK_PLANS_WITH_BACKUP = [
 	PLAN_JETPACK_PREMIUM_MONTHLY,
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
+	PLAN_JETPACK_STARTER,
+	PLAN_JETPACK_STARTER_MONTHLY,
+	PLAN_JETPACK_SECURITY_T1_BI_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_YEARLY,
@@ -135,6 +153,9 @@ export const JETPACK_PLANS_WITH_ANTI_SPAM = [
 	PLAN_JETPACK_PREMIUM_MONTHLY,
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
+	PLAN_JETPACK_STARTER,
+	PLAN_JETPACK_STARTER_MONTHLY,
+	PLAN_JETPACK_SECURITY_T1_BI_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_YEARLY,
@@ -155,6 +176,7 @@ export const JETPACK_COMPLETE_BUNDLES = [ PLAN_JETPACK_COMPLETE, PLAN_JETPACK_CO
 export const JETPACK_GOLDEN_TOKEN_BUNDLES = [ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME ];
 
 export const JETPACK_SECURITY_BUNDLES = [
+	PLAN_JETPACK_SECURITY_T1_BI_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_YEARLY,
@@ -163,9 +185,11 @@ export const JETPACK_SECURITY_BUNDLES = [
 	// WoA plans.
 	PLAN_BUSINESS,
 	PLAN_BUSINESS_2_YEARS,
+	PLAN_BUSINESS_3_YEARS,
 	PLAN_BUSINESS_MONTHLY,
 	PLAN_ECOMMERCE,
 	PLAN_ECOMMERCE_2_YEARS,
+	PLAN_ECOMMERCE_3_YEARS,
 	PLAN_ECOMMERCE_MONTHLY,
 	PLAN_PRO,
 
@@ -181,9 +205,12 @@ export const JETPACK_SECURITY_BUNDLES = [
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 ];
 
+export const JETPACK_STARTER_BUNDLES = [ PLAN_JETPACK_STARTER, PLAN_JETPACK_STARTER_MONTHLY ];
+
 export const JETPACK_BACKUP_PRODUCTS = [
 	PLAN_JETPACK_BACKUP_T0_YEARLY,
 	PLAN_JETPACK_BACKUP_T0_MONTHLY,
+	PLAN_JETPACK_BACKUP_T1_BI_YEARLY,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 	PLAN_JETPACK_BACKUP_T1_MONTHLY,
 	PLAN_JETPACK_BACKUP_T2_YEARLY,
@@ -225,6 +252,14 @@ export const JETPACK_SOCIAL_PRODUCTS = [
 ];
 
 export const JETPACK_BOOST_PRODUCTS = [ PLAN_JETPACK_BOOST, PLAN_JETPACK_BOOST_MONTHLY ];
+
+export const JETPACK_AI_PRODUCTS = [ PLAN_JETPACK_AI_MONTHLY ];
+
+export const JETPACK_STATS_PRODUCTS = [
+	PLAN_JETPACK_STATS_MONTHLY,
+	PLAN_JETPACK_STATS_PWYW_YEARLY,
+	PLAN_JETPACK_STATS_FREE,
+];
 
 export const PLAN_MONTHLY_PERIOD = 31;
 export const PLAN_ANNUAL_PERIOD = 365;
@@ -287,6 +322,7 @@ export const FEATURE_WORDADS_JETPACK = 'wordads-jetpack';
 export const FEATURE_GOOGLE_ANALYTICS_JETPACK = 'google-analytics-jetpack';
 export const FEATURE_SEARCH_JETPACK = 'search-jetpack';
 export const FEATURE_VIDEOPRESS = 'videopress-jetpack';
+export const FEATURE_SIMPLE_PAYMENTS_JETPACK = 'simple-payments-jetpack';
 
 // Upsells
 export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
@@ -300,6 +336,7 @@ export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
 	[ FEATURE_GOOGLE_ANALYTICS_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
 	[ FEATURE_SPAM_AKISMET_PLUS ]: PLAN_JETPACK_ANTI_SPAM,
 	[ FEATURE_VIDEOPRESS ]: PLAN_JETPACK_VIDEOPRESS,
+	[ FEATURE_SIMPLE_PAYMENTS_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
 };
 
 /**
@@ -421,6 +458,26 @@ export function isJetpackBoost( product ) {
 }
 
 /**
+ * Determines if a product is Jetpack AI.
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is Jetpack AI, false otherwise.
+ */
+export function isJetpackAI( product ) {
+	return JETPACK_AI_PRODUCTS.includes( product );
+}
+
+/**
+ * Determines if a product is Jetpack Stats.
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is Jetpack Stats, false otherwise.
+ */
+export function isJetpackStats( product ) {
+	return JETPACK_STATS_PRODUCTS.includes( product );
+}
+
+/**
  * Checks if a product slug is a Jetpack product.
  *
  * @param {string} product - The product id.
@@ -434,7 +491,9 @@ export function isJetpackProduct( product ) {
 		isJetpackAntiSpam( product ) ||
 		isJetpackVideoPress( product ) ||
 		isJetpackSocial( product ) ||
-		isJetpackBoost( product )
+		isJetpackBoost( product ) ||
+		isJetpackAI( product ) ||
+		isJetpackStats( product )
 	);
 }
 
@@ -446,6 +505,16 @@ export function isJetpackProduct( product ) {
  */
 export function isJetpackBundle( product ) {
 	return JETPACK_BUNDLES.includes( product );
+}
+
+/**
+ * Checks if the product slug is a Jetpack Starter bundle.
+ *
+ * @param {string} product - The product slug
+ * @returns {boolean} True if the product is Jetpack Starter bundle
+ */
+export function isJetpackStarterBundle( product ) {
+	return JETPACK_STARTER_BUNDLES.includes( product );
 }
 
 /**
@@ -501,6 +570,7 @@ export function getPlanClass( plan ) {
 			return 'is-free-plan';
 		case PLAN_PERSONAL:
 		case PLAN_PERSONAL_2_YEARS:
+		case PLAN_PERSONAL_3_YEARS:
 		case PLAN_PERSONAL_MONTHLY:
 		case PLAN_STARTER:
 		case PLAN_JETPACK_PERSONAL:
@@ -508,20 +578,27 @@ export function getPlanClass( plan ) {
 			return 'is-personal-plan';
 		case PLAN_PREMIUM:
 		case PLAN_PREMIUM_2_YEARS:
+		case PLAN_PREMIUM_3_YEARS:
 		case PLAN_PREMIUM_MONTHLY:
 		case PLAN_JETPACK_PREMIUM:
 		case PLAN_JETPACK_PREMIUM_MONTHLY:
 			return 'is-premium-plan';
 		case PLAN_BUSINESS:
 		case PLAN_BUSINESS_2_YEARS:
+		case PLAN_BUSINESS_3_YEARS:
 		case PLAN_BUSINESS_MONTHLY:
 		case PLAN_JETPACK_BUSINESS:
 		case PLAN_JETPACK_BUSINESS_MONTHLY:
 		case PLAN_ECOMMERCE:
 		case PLAN_ECOMMERCE_2_YEARS:
+		case PLAN_ECOMMERCE_3_YEARS:
 		case PLAN_ECOMMERCE_MONTHLY:
 		case PLAN_PRO:
 			return 'is-business-plan';
+		case PLAN_JETPACK_STARTER:
+		case PLAN_JETPACK_STARTER_MONTHLY:
+			return 'is-jetpack-starter-plan';
+		case PLAN_JETPACK_SECURITY_T1_BI_YEARLY:
 		case PLAN_JETPACK_SECURITY_T1_YEARLY:
 		case PLAN_JETPACK_SECURITY_T1_MONTHLY:
 			return 'is-security-t1-plan';
@@ -535,6 +612,7 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_BACKUP_T0_YEARLY:
 		case PLAN_JETPACK_BACKUP_T0_MONTHLY:
 			return 'is-backup-t0-plan';
+		case PLAN_JETPACK_BACKUP_T1_BI_YEARLY:
 		case PLAN_JETPACK_BACKUP_T1_YEARLY:
 		case PLAN_JETPACK_BACKUP_T1_MONTHLY:
 			return 'is-backup-t1-plan';
@@ -586,6 +664,17 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_BOOST:
 		case PLAN_JETPACK_BOOST_MONTHLY:
 			return 'is-jetpack-boost-plan';
+
+		case PLAN_JETPACK_AI_MONTHLY:
+			return 'is-jetpack-ai-plan';
+
+		case PLAN_JETPACK_STATS_MONTHLY:
+		case PLAN_JETPACK_STATS_PWYW_YEARLY:
+			return 'is-jetpack-stats-plan';
+
+		case PLAN_JETPACK_STATS_FREE:
+			return 'is-free-jetpack-stats-plan';
+
 		default:
 			return '';
 	}
@@ -605,6 +694,10 @@ export function getMonthlyPlanByYearly( plan ) {
 			return PLAN_JETPACK_BUSINESS_MONTHLY;
 		case PLAN_JETPACK_PERSONAL:
 			return PLAN_JETPACK_PERSONAL_MONTHLY;
+		case PLAN_JETPACK_STARTER:
+			return PLAN_JETPACK_STARTER_MONTHLY;
+		case PLAN_JETPACK_SECURITY_T1_BI_YEARLY:
+			return PLAN_JETPACK_SECURITY_T1_MONTHLY;
 		case PLAN_JETPACK_SECURITY_T1_YEARLY:
 			return PLAN_JETPACK_SECURITY_T1_MONTHLY;
 		case PLAN_JETPACK_SECURITY_T2_YEARLY:
@@ -662,6 +755,7 @@ export function containsBackupRealtime( planClass ) {
 		'is-backup-t0-plan',
 		'is-backup-t1-plan',
 		'is-backup-t2-plan',
+		'is-startup-plan',
 		'is-security-t1-plan',
 		'is-security-t2-plan',
 		'is-complete-plan',

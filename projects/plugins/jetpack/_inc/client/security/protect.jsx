@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
-import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
+import { FormLegend, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -12,6 +12,7 @@ import analytics from 'lib/analytics';
 import { includes } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import { getSetting } from '../state/settings';
 import { getWafIpAllowListInputState, updateWafIpAllowList } from '../state/waf';
 
@@ -89,6 +90,7 @@ const ProtectComponent = class extends Component {
 				header={ _x( 'Brute force protection', 'Settings header', 'jetpack' ) }
 				saveDisabled={ this.props.isSavingAnyOption( 'jetpack_waf_ip_allow_list' ) }
 			>
+				{ isProtectActive && <QueryWafSettings /> }
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
@@ -108,55 +110,55 @@ const ProtectComponent = class extends Component {
 								link: getRedirectUrl( 'jetpack-support-protect' ),
 							} }
 						>
-							<FormFieldset>
-								{ this.props.currentIp && (
-									<div>
-										<div className="jp-form-label-wide">
-											{ sprintf(
-												/* translators: placeholder is an IP address. */
-												__( 'Your current IP: %s', 'jetpack' ),
-												this.props.currentIp
-											) }
-										</div>
-										{
-											<Button
-												disabled={
-													! isProtectActive ||
-													unavailableInOfflineMode ||
-													this.currentIpIsSafelisted() ||
-													this.props.isSavingAnyOption( [ 'protect', 'jetpack_waf_ip_allow_list' ] )
-												}
-												onClick={ this.addToSafelist }
-											>
-												{ __( 'Add to Always Allowed list', 'jetpack' ) }
-											</Button>
-										}
+							{ this.props.currentIp && (
+								<div className="brute-force__current-ip">
+									<div className="jp-form-label-wide">
+										{ sprintf(
+											/* translators: placeholder is an IP address. */
+											__( 'Your current IP: %s', 'jetpack' ),
+											this.props.currentIp
+										) }
 									</div>
+									{
+										<Button
+											rna
+											compact
+											disabled={
+												! isProtectActive ||
+												unavailableInOfflineMode ||
+												this.currentIpIsSafelisted() ||
+												this.props.isSavingAnyOption( [ 'protect', 'jetpack_waf_ip_allow_list' ] )
+											}
+											onClick={ this.addToSafelist }
+										>
+											{ __( 'Add to Always Allowed list', 'jetpack' ) }
+										</Button>
+									}
+								</div>
+							) }
+							<FormLabel>
+								<FormLegend>{ __( 'Always allowed IP addresses', 'jetpack' ) }</FormLegend>
+								<Textarea
+									disabled={
+										! isProtectActive ||
+										unavailableInOfflineMode ||
+										this.props.isSavingAnyOption( [
+											'protect',
+											'jetpack_protect_global_whitelist',
+										] )
+									}
+									name={ 'jetpack_waf_ip_allow_list' }
+									placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
+									onChange={ this.updateIPAllowList }
+									value={ this.props.allowListInputState }
+								/>
+							</FormLabel>
+							<span className="jp-form-setting-explanation">
+								{ __(
+									'You may mark an IP address (or series of addresses) as "Always allowed", preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100',
+									'jetpack'
 								) }
-								<FormLabel>
-									<FormLegend>{ __( 'Always allowed IP addresses', 'jetpack' ) }</FormLegend>
-									<Textarea
-										disabled={
-											! isProtectActive ||
-											unavailableInOfflineMode ||
-											this.props.isSavingAnyOption( [
-												'protect',
-												'jetpack_protect_global_whitelist',
-											] )
-										}
-										name={ 'jetpack_waf_ip_allow_list' }
-										placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
-										onChange={ this.updateIPAllowList }
-										value={ this.props.allowListInputState }
-									/>
-								</FormLabel>
-								<span className="jp-form-setting-explanation">
-									{ __(
-										'You may mark an IP address (or series of addresses) as "Always allowed", preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100',
-										'jetpack'
-									) }
-								</span>
-							</FormFieldset>
+							</span>
 						</SettingsGroup>
 					</FoldableCard>
 				</SettingsGroup>

@@ -31,6 +31,13 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	public $day_of_year_query = 0;
 
 	/**
+	 * A year used to force one prompt per day for a specific year.
+	 *
+	 * @var integer
+	 */
+	public $force_year = 0;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -93,6 +100,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	public function get_items( $request ) {
 		if ( ! $this->is_wpcom ) {
 			return $this->proxy_request_to_wpcom( $request );
+		}
+
+		if ( $request->get_param( 'force_year' ) ) {
+			$this->force_year = $request->get_param( 'force_year' );
 		}
 
 		switch_to_blog( self::TEMPLATE_BLOG_ID );
@@ -178,18 +189,18 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	public function filter_sql( $clauses ) {
 		global $wpdb;
 		if ( $this->day_of_year_query > 0 ) {
-			$day          = $this->day_of_year_query;
-			$current_year = wp_date( 'Y' );
+			$day  = $this->day_of_year_query;
+			$year = $this->force_year ? $this->force_year : wp_date( 'Y' );
 
 			// Grab the current sort order, `ASC` or `DESC`, so we can reuse it.
 			$order = end( explode( ' ', $clauses['orderby'] ) );
 
 			// Calculate the day of year for each prompt, from 1 to 366, but use the current year so that prompts published
 			// during leap years have the correct day for non-leap years.
-			$fields = $clauses['fields'] . $wpdb->prepare( ", DAYOFYEAR(CONCAT(%d, DATE_FORMAT({$wpdb->posts}.post_date, '-%%m-%%d'))) AS day_of_year", $current_year );
+			$fields = $clauses['fields'] . $wpdb->prepare( ", DAYOFYEAR(CONCAT(%d, DATE_FORMAT({$wpdb->posts}.post_date, '-%%m-%%d'))) AS day_of_year", $year );
 
 			// When it's not a leap year, exclude posts used for Feb 29th. DAYOFYEAR will return null for Feb 29th on non-leap years.
-			$where = $clauses['where'] . $wpdb->prepare( " AND DAYOFYEAR(CONCAT(%d, DATE_FORMAT({$wpdb->posts}.post_date, '-%%m-%%d'))) IS NOT NULL", $current_year );
+			$where = $clauses['where'] . $wpdb->prepare( " AND DAYOFYEAR(CONCAT(%d, DATE_FORMAT({$wpdb->posts}.post_date, '-%%m-%%d'))) IS NOT NULL", $year );
 
 			// Order posts regardless of year: get a list of posts for each day,
 			// starting with the query date through the end of the year, then from the start of the year through the day before.
@@ -206,6 +217,26 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 				", YEAR({$wpdb->posts}.post_date) " . ( 'DESC' === $order ? 'DESC' : 'ASC' ),
 				$day
 			);
+
+			if ( $this->force_year ) {
+				// If we're forcing the year, group by day of year, so that we only get one prompt per day.
+				$clauses['groupby'] = 'day_of_year';
+
+				// Ensure we get either to newest or oldest prompt for each day of the year, depending on the sort order.
+				// GROUP BY runs and collects the prompts for each day of the year before ORDER BY is run, so we first need to use MAX/MIN on post_date
+				// to find the most recent/oldest prompt for each day and join the results to the main query.
+				$clauses['join'] = $wpdb->prepare(
+					'INNER JOIN (' .
+						// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL function cannot be escaped.
+						'SELECT ' . ( 'DESC' === $order ? 'MAX' : 'MIN' ) . "({$wpdb->posts}.post_date) AS post_date, DAYOFYEAR(CONCAT(%d, DATE_FORMAT(post_date, '-%%m-%%d'))) AS day_of_year " .
+						"FROM {$wpdb->posts} " .
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- reuses unmodified existing clause.
+						"WHERE 1=1 {$clauses['where']} " .
+						'GROUP BY day_of_year' .
+					") AS newest_prompts ON {$wpdb->posts}.post_date = newest_prompts.post_date",
+					$year
+				);
+			}
 
 			$clauses['fields']  = $fields;
 			$clauses['where']   = $where;
@@ -289,6 +320,15 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		$post_date = $date ? $date : $date_gmt;
 		$date_obj  = date_create( $post_date );
 
+		if ( $this->force_year ) {
+			$date_obj->setDate( $this->force_year, $date_obj->format( 'm' ), $date_obj->format( 'd' ) );
+
+			// If ascending by day of year, go to the next year when we pass the last day of the year.
+			if ( $date_obj->format( 'm-d' ) === '12-31' ) {
+				$this->force_year += 1;
+			}
+		}
+
 		return false !== $date_obj ? $date_obj->format( 'Y-m-d' ) : substr( $post_date, 0, 10 );
 	}
 
@@ -302,11 +342,11 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 
 		$args = array(
 			// Modify date args so that will except a YYYY-MM-DD without a time.
-			'after'  => array(
+			'after'      => array(
 				'description'       => __( 'Show prompts following a given date.', 'jetpack' ),
 				'type'              => 'string',
 				'validate_callback' => function ( $param ) {
-					// Allow month and date without year, e.g. `--02-28`
+					// Allow month and day without year, e.g. `--02-28`
 					if ( strpos( $param, '-' ) === 0 ) {
 						return false !== date_create_from_format( '--m-d', $param );
 					}
@@ -314,11 +354,18 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 					return false !== date_create( $param );
 				},
 			),
-			'before' => array(
+			'before'     => array(
 				'description'       => __( 'Show prompts before a given date.', 'jetpack' ),
 				'type'              => 'string',
 				'validate_callback' => function ( $param ) {
 					return false !== date_create( $param );
+				},
+			),
+			'force_year' => array(
+				'description'       => __( 'Force the returned prompts to be for a specific year. Returns only one prompt for each day.', 'jetpack' ),
+				'type'              => 'integer',
+				'validate_callback' => function ( $param ) {
+					return is_numeric( $param ) && intval( $param ) > 0 && intval( $param ) < 9999;
 				},
 			),
 		);

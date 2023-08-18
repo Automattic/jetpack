@@ -1,10 +1,17 @@
+/**
+ * External dependencies
+ */
 import { Gridicon, JetpackFooter } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { forEach } from 'lodash';
+/**
+ * Internal dependencies
+ */
 import { config } from '../../';
 import { STORE_NAME } from '../../state';
+import { useFeedbackQuery } from '../use-feedback-query';
 import CSVExport from './csv';
 import GoogleDriveExport from './google-drive';
 
@@ -13,13 +20,8 @@ import './style.scss';
 const ExportModal = ( { isVisible, onClose } ) => {
 	const backdrop = useRef();
 
-	const [ query, selected ] = useSelect(
-		select => [
-			select( STORE_NAME ).getResponsesQuery(),
-			select( STORE_NAME ).getSelectedResponseIds(),
-		],
-		[]
-	);
+	const selected = useSelect( select => select( STORE_NAME ).getSelectedResponseIds(), [] );
+	const { query } = useFeedbackQuery();
 
 	useEffect( () => {
 		backdrop.current?.addEventListener( 'click', event => {

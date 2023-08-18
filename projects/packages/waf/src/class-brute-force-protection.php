@@ -212,6 +212,10 @@ class Brute_Force_Protection {
 	 * @return bool
 	 */
 	public static function enable() {
+		// Return true if already enabled.
+		if ( self::is_enabled() ) {
+			return true;
+		}
 		return ( new Modules() )->activate( 'protect', false, false );
 	}
 
@@ -221,6 +225,10 @@ class Brute_Force_Protection {
 	 * @return bool
 	 */
 	public static function disable() {
+		// Return true if already disabled.
+		if ( ! self::is_enabled() ) {
+			return true;
+		}
 		return ( new Modules() )->deactivate( 'protect' );
 	}
 
@@ -276,7 +284,16 @@ class Brute_Force_Protection {
 				require_once ABSPATH . '/wp-admin/includes/plugin.php';
 			}
 
-			if ( ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_FILE ) ) ) {
+			// This warning is only relevant if either Jetpack or Jetpack Protect is active.
+			if ( defined( 'JETPACK__PLUGIN_FILE' ) ) {
+				$plugin_root_file = JETPACK__PLUGIN_FILE;
+			} elseif ( defined( 'JETPACK_PROTECT_ROOT_FILE' ) ) {
+				$plugin_root_file = JETPACK_PROTECT_ROOT_FILE;
+			} else {
+				return;
+			}
+
+			if ( ! is_plugin_active_for_network( plugin_basename( $plugin_root_file ) ) ) {
 				add_action( 'load-index.php', array( $this, 'prepare_jetpack_protect_multisite_notice' ) );
 				add_action( 'wp_ajax_jetpack-protect-dismiss-multisite-banner', array( $this, 'ajax_dismiss_handler' ) );
 			}
@@ -319,7 +336,15 @@ class Brute_Force_Protection {
 		<div class="jetpack-protect-warning notice notice-warning is-dismissible" data-dismiss-nonce="<?php echo esc_attr( wp_create_nonce( 'jetpack_protect_multisite_banner_opt_out' ) ); ?>">
 			<h2><?php esc_html_e( 'Brute Force Protection cannot keep your site secure', 'jetpack-waf' ); ?></h2>
 
-			<p><?php esc_html_e( 'Thanks for activating the Brute Force Protection feature! To start protecting your whole WordPress Multisite Network, please network activate the Jetpack plugin. Due to the way logins are handled on WordPress Multisite Networks, Jetpack must be network activated in order for the Brute Force Protection feature to work properly.', 'jetpack-waf' ); ?></p>
+			<p>
+			<?php
+			printf(
+				/* Translators: placeholder is a plugin name (Jetpack Protect or Jetpack). */
+				esc_html__( 'Thanks for activating the Brute Force Protection feature! To start protecting your whole WordPress Multisite Network, please network activate the %1$s plugin. Due to the way logins are handled on WordPress Multisite Networks, %1$s must be network activated in order for the Brute Force Protection feature to work properly.', 'jetpack-waf' ),
+				defined( 'JETPACK_PROTECT_NAME' ) ? esc_html( JETPACK_PROTECT_NAME ) : 'Jetpack'
+			);
+			?>
+			</p>
 
 			<p>
 				<a class="button-primary" href="<?php echo esc_url( network_admin_url( 'plugins.php' ) ); ?>">
@@ -823,7 +848,7 @@ class Brute_Force_Protection {
 	 */
 	public function kill_login() {
 		if (
-			isset( $_GET['action'], $_GET['_wpnonce'] ) &&
+			isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) &&
 			'logout' === $_GET['action'] &&
 			wp_verify_nonce( $_GET['_wpnonce'], 'log-out' ) && // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			wp_get_current_user()
@@ -960,6 +985,11 @@ class Brute_Force_Protection {
 		if ( defined( 'JETPACK__VERSION' ) ) {
 			$request['jetpack_version'] = constant( 'JETPACK__VERSION' );
 			$user_agent                .= ' | Jetpack/' . constant( 'JETPACK__VERSION' );
+		}
+
+		if ( defined( 'JETPACK_PROTECT_VERSION' ) && ! defined( 'JETPACK__VERSION' ) ) {
+			$request['jetpack_version'] = '12.1';
+			$user_agent                .= ' | JetpackProtect/' . constant( 'JETPACK_PROTECT_VERSION' );
 		}
 
 		if ( is_multisite() ) {

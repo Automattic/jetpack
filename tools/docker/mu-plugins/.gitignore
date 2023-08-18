@@ -5,3 +5,4 @@
 !fix-monorepo-plugin_url.php
 !jetpack-debug-helper-loader.php
 !/jetpack-debug-helper
+!offline-mode-force-wpcom-disconnect.php

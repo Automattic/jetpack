@@ -351,7 +351,6 @@ function zeroBSCRM_API_api_endpoint( $template ) {
 		'create_transaction',
 		'create_event',
 		'create_company',
-		'incoming_email',
 		'customer_search',
 		'customers',
 		'invoices',
@@ -382,49 +381,6 @@ if ( ! function_exists( 'hash_equals' ) ) {
 			return ! $ret;
 		}
 	}
-}
-
-// } avoids us writing our own Parser. In particular can use
-// } https://parser.zapier.com/
-// } Fills a void for now, and saves needing to fully write a Jetpack inbox / own parser
-// } HOWEVER, would rather have our own - like this
-// } my96ew3z@robot.jetpackcrm.com to parse and deliver the emails to
-// } their API website (managed via the licensing)
-function zeroBS_inbox_api_catch( $emailFields ) {
-	global $wpdb, $ZBSCRM_t;
-
-	$customerID = (int) zeroBS_getCustomerIDWithEmail( $emailFields['from'] );
-
-	// if we don't have a customer, we need to create one with the email send
-
-	$thread  = $emailFields['thread'];
-	$from    = $emailFields['from'];
-	$subject = $emailFields['subject'];
-
-	if ( $customerID == 0 ) {
-		$customer['zbsc_email']  = $from;
-		$customer['zbsc_status'] = 'Lead'; // default
-		$customerID              = zeroBS_addUpdateCustomer( -1, $customer );
-	}
-
-	// then if no thread ID, try and get the thread from the sender email and the subject, if a match thread it, if not new thread
-	if ( $thread == -1 ) {
-		// strip any Re:, RE: or re:
-		$subject     = trim( str_ireplace( 're:', '', $subject ) );
-		$search_text = '%' . $subject . '%';
-		$sql         = $wpdb->prepare( 'SELECT zbsmail_sender_thread FROM ' . $ZBSCRM_t['system_mail_hist'] . " WHERE zbsmail_receiver_email = '%s' AND zbsmail_subject LIKE %s", $from, $search_text );
-		$thread      = $wpdb->get_var( $sql );
-	}
-
-	// } then a new thread.
-	if ( $thread == '' ) {
-		// then we are making a new thread. Otherwise, it will be passed via the function / other send boxes
-		$sql        = 'SELECT MAX(zbsmail_sender_thread) as max_thread FROM ' . $ZBSCRM_t['system_mail_hist'];
-		$max_thread = $wpdb->get_var( $sql );
-		++$max_thread;
-		$thread = $max_thread;
-	}
-	zeroBSCRM_mailTracking_logEmail( -1, $customerID, 0, '', -1, $subject, true, $emailFields['content'], $thread, $emailFields['from'], 'inbox' );
 }
 
 // generate new API credentials

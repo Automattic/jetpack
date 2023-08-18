@@ -7,10 +7,9 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Status;
-use Jetpack_Plan;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -83,7 +82,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		$this->add_woocommerce_installation_menu();
-
 		ksort( $GLOBALS['menu'] );
 	}
 
@@ -111,6 +109,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		return parent::get_preferred_view( $screen, $fallback_global_preference );
+	}
+
+	/**
+	 * Adds Users menu.
+	 */
+	public function add_users_menu() {
+		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
+
+		return parent::add_users_menu();
 	}
 
 	/**
@@ -206,6 +213,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$is_coming_soon = ( new Status() )->is_coming_soon();
 
 		$badge = '';
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack' ) . '</span>';
+		}
+
 		if ( ( function_exists( 'site_is_private' ) && site_is_private() ) || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
@@ -367,10 +379,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
-
-		if ( Blaze::should_initialize() ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
-		}
 	}
 
 	/**

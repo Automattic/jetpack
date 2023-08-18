@@ -2,6 +2,15 @@ const path = require( 'path' );
 
 module.exports = {
 	testEnvironment: 'jsdom',
+	testEnvironmentOptions: {
+		// Note we need to repeat the environment's default conditions here too, sigh.
+		customExportConditions: [
+			'browser',
+			...( process.env.npm_config_jetpack_webpack_config_resolve_conditions
+				? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
+				: [] ),
+		],
+	},
 	transform: {
 		'\\.(gif|jpg|jpeg|png|svg|scss|sass|css|ttf|woff|woff2)$': path.join(
 			__dirname,

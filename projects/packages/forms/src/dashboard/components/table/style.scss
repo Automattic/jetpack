@@ -18,9 +18,15 @@
 	cursor: pointer;
 }
 
-.jp-forms__table-item.is-active {
+.jp-forms__table-item.is-active:not(.exit) {
 	background-color: #000;
 	color: #fff;
+}
+
+@keyframes jp-forms__table-pulse {
+	from { opacity: .2; }
+	50% { opacity: .1; }
+	to { opacity: .2 }
 }
 
 .jp-forms__table-cell {
@@ -63,6 +69,15 @@
 		justify-content: center;
 	}
 
+	.jp-forms__table-item.is-loading &::before {
+		animation: jp-forms__table-pulse 2s ease-in-out infinite;
+		content: '';
+		background-color: #000;
+		border-radius: .5em;
+		display: flex;
+		height: 1em;
+	}
+
 	.components-button.is-link {
 		font-size: inherit;
 		color: inherit;
@@ -98,6 +113,11 @@ input[type="checkbox"].jp-forms__table-checkbox {
 		text-align: center;
 		transition: background .1s ease-out, color .1s ease-out, border-color .1s ease-out;
 		width: 16px;
+	}
+
+	// visual aid for focus
+	&:focus::before {
+		box-shadow: var( --jp-forms-focus-shadow );
 	}
 
 	&:checked::before {

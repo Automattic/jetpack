@@ -420,7 +420,7 @@ $grid-size: 8px;
 		text-align: left;
 		padding-left: 12px;
 		padding-right: 12px;
-	
+
 		.jetpack-external-media-button-menu__label {
 			flex-grow: 2;
 		}
@@ -446,4 +446,11 @@ $grid-size: 8px;
 // Override DropDown component styles when warpping the "Set featured image" button.
 .editor-post-featured-image .components-dropdown {
 	display: initial;
+}
+
+.block-editor-inserter__media-panel .components-search-control input[type=search].components-search-control__input[placeholder~="Google"] {
+	display: none;
+	& + .components-search-control__icon {
+		display: none;
+	}
 }

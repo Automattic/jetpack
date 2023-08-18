@@ -737,8 +737,9 @@ class Users extends Module {
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		$user_ids = $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0 LIMIT " . ( self::MAX_INITIAL_SYNC_USERS + 1 ) );
+		$user_ids_count = is_countable( $user_ids ) ? count( $user_ids ) : 0;
 
-		if ( count( $user_ids ) <= self::MAX_INITIAL_SYNC_USERS ) {
+		if ( $user_ids_count <= self::MAX_INITIAL_SYNC_USERS ) {
 			return $user_ids;
 		} else {
 			return false;

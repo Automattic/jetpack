@@ -11,10 +11,9 @@ if ( ! isset( $wp_cache_debug_log ) || $wp_cache_debug_log == '' ) {
 	extract( wpsc_create_debug_log() ); // $wp_cache_debug_log, $wp_cache_debug_username
 }
 
-$server_root = isset( $_SERVER['DOCUMENT_ROOT'] ) ? esc_url_raw( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) : ABSPATH;
-// $wp_cache_home_path and $cache_path are declared when this file is included.
+// $cache_path and $wp_cache_debug_log is declared when this file is included.
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-$log_file_link = "<a href='" . home_url( str_replace( $server_root . $wp_cache_home_path, '', "{$cache_path}view_{$wp_cache_debug_log}?wp-admin=1&wp-json=1&filter=" ) ) . "'>$wp_cache_debug_log</a>";
+$log_file_link = "<a href='" . home_url( str_replace( get_home_path(), '', "{$cache_path}view_{$wp_cache_debug_log}?wp-admin=1&wp-json=1&filter=" ) ) . "'>$wp_cache_debug_log</a>";
 
 if ( $wp_super_cache_debug == 1 ) {
 	echo "<p>" . sprintf( __( 'Currently logging to: %s', 'wp-super-cache' ), $log_file_link ) . "</p>";

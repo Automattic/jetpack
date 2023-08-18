@@ -3,6 +3,12 @@
 	"description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
 	"type": "project",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"changelog",
+		"keepachangelog",
+		"cli",
+		"dev"
+	],
 	"require": {
 		"php": ">=5.6",
 		"symfony/console": "^3.4 || ^5.2 || ^6.0",

@@ -525,6 +525,40 @@ async function copyFileAtomic( src, dest ) {
 }
 
 /**
+ * Check for filename collisions.
+ *
+ * @param {string} basedir - Base directory.
+ * @returns {string[]} Colliding file names.
+ */
+async function checkCollisions( basedir ) {
+	// @todo Once we require Node 20.1+, use the new `recursive` option to `fs.readdir` instead of manually recursing here.
+	// Doing `const files = await fs.readdir( basedir, { recursive: true } );` should suffice.
+	const files = [];
+	const ls = async dir => {
+		for ( const file of await fs.readdir( dir, { withFileTypes: true } ) ) {
+			const path = npath.join( dir, file.name );
+			files.push( npath.relative( basedir, path ) );
+			if ( file.isDirectory() ) {
+				await ls( path );
+			}
+		}
+	};
+	await ls( basedir );
+
+	const collisions = new Set();
+	const compare = Intl.Collator( 'und', { sensitivity: 'accent' } ).compare;
+	let prev = null;
+	for ( const file of files.sort( compare ) ) {
+		if ( prev !== null && compare( file, prev ) === 0 ) {
+			collisions.add( prev );
+			collisions.add( file );
+		}
+		prev = file;
+	}
+	return [ ...collisions ];
+}
+
+/**
  * Build a project.
  *
  * @param {object} t - Task object.
@@ -536,7 +570,32 @@ async function buildProject( t ) {
 		await fs.readFile( `${ t.cwd }/composer.json`, { encoding: 'utf8' } )
 	);
 
-	if ( t.argv.forMirrors ) {
+	// Determine the composer script to run.
+	const scripts = t.argv.production
+		? [ 'build-production', 'build-development' ]
+		: [ 'build-development', 'build-production' ];
+	let script = null;
+	for ( const s of scripts ) {
+		if ( composerJson.scripts?.[ s ] ) {
+			script = s;
+			if (
+				t.argv.forMirrors &&
+				composerJson.scripts[ script ] === "echo 'Add your build step to composer.json, please!'"
+			) {
+				script = null;
+			}
+			break;
+		}
+	}
+
+	// We don't need to `composer install` if it's a CI build of a non-plugin with no build script. Except for changelogger.
+	const skipInstall =
+		t.argv.forMirrors &&
+		script === null &&
+		! t.project.startsWith( 'plugins/' ) &&
+		t.project !== 'packages/changelogger';
+
+	if ( t.argv.forMirrors && ! skipInstall ) {
 		// Mirroring needs to munge the project's composer.json to point to the built files..
 		const idx = composerJson.repositories?.findIndex( r => r.options?.monorepo );
 		if ( typeof idx === 'number' && idx >= 0 ) {
@@ -551,7 +610,7 @@ async function buildProject( t ) {
 			const versions = {};
 			for ( const dep of [ ...deps ].sort() ) {
 				if ( t.ctx.versions[ dep ] ) {
-					versions[ t.ctx.versions[ dep ].name ] = t.ctx.versions[ dep ].version;
+					versions[ t.ctx.versions[ dep ].name ] = t.ctx.versions[ dep ].runversion;
 				}
 			}
 
@@ -579,29 +638,20 @@ async function buildProject( t ) {
 				}
 			}
 		}
-		t.output( `\n=== Building ===\n\n` );
 	}
 
-	// Install.
-	await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
-		cwd: t.cwd,
-		buffer: false,
-	} );
-
-	await t.setStatus( 'building' );
-	// Determine the composer script to run.
-	const scripts = t.argv.production
-		? [ 'build-production', 'build-development' ]
-		: [ 'build-development', 'build-production' ];
-	let script = null;
-	for ( const s of scripts ) {
-		if ( composerJson.scripts?.[ s ] ) {
-			script = s;
-			break;
-		}
+	// Install. Unless we skip it.
+	if ( skipInstall ) {
+		await t.output( `Skipping composer install for CI build of non-plugin with no build script\n` );
+	} else {
+		await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
+			cwd: t.cwd,
+			buffer: false,
+		} );
 	}
 
 	// Build.
+	await t.setStatus( 'building' );
 	if ( script === null ) {
 		await t.output( `No build scripts are defined for ${ t.project }\n` );
 	} else {
@@ -809,7 +859,7 @@ async function buildProject( t ) {
 		);
 	}
 
-	// Remove engines and workspace refs from package.json.
+	// Remove engines, workspace refs, and jetpack:src from package.json.
 	let packageJson;
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
 		packageJson = JSON.parse(
@@ -842,6 +892,28 @@ async function buildProject( t ) {
 			}
 		}
 
+		if ( packageJson.exports ) {
+			const filterJetpackSrc = obj => {
+				if ( typeof obj !== 'object' ) {
+					return obj;
+				}
+				let ret = { ...obj };
+				delete ret[ 'jetpack:src' ];
+				const keys = Object.keys( ret );
+				if ( keys.length === 0 ) {
+					ret = undefined;
+				} else if ( keys.length === 1 && keys[ 0 ] === 'default' ) {
+					ret = filterJetpackSrc( ret.default );
+				} else {
+					for ( const key of keys ) {
+						ret[ key ] = filterJetpackSrc( ret[ key ] );
+					}
+				}
+				return ret;
+			};
+			packageJson.exports = filterJetpackSrc( packageJson.exports );
+		}
+
 		await writeFileAtomic(
 			`${ buildDir }/package.json`,
 			JSON.stringify( packageJson, null, '\t' ) + '\n',
@@ -871,8 +943,18 @@ async function buildProject( t ) {
 		await fs.writeFile( `${ buildDir }/.gitattributes`, rules, { encoding: 'utf8' } );
 	}
 
+	// Check directory for filenames that differ only in case, as this will likely break.
+	const collisions = await checkCollisions( buildDir );
+	if ( collisions.length > 0 ) {
+		throw new Error(
+			'Build output constains files that differ only in case. This will be a compatibility issue.\n- ' +
+				collisions.join( '\n- ' )
+		);
+	}
+
 	// Get the project version number from the changelog.md file.
-	let projectVersionNumber = '';
+	let projectVersionNumber = '',
+		projectRunVersionNumber;
 	const changelogFileName = composerJson.extra?.changelogger?.changelog || 'CHANGELOG.md';
 	const rl = rlcreateInterface( {
 		input: createReadStream( `${ t.cwd }/${ changelogFileName }`, {
@@ -884,7 +966,7 @@ async function buildProject( t ) {
 	rl.on( 'line', line => {
 		const match = line.match( /^## +(\[?[^\] ]+\]?)/ );
 		if ( match && match[ 1 ] ) {
-			projectVersionNumber = match[ 1 ].replace( /[[\]]/g, '' );
+			projectRunVersionNumber = projectVersionNumber = match[ 1 ].replace( /[[\]]/g, '' );
 			rl.close();
 			rl.removeAllListeners();
 		}
@@ -895,11 +977,24 @@ async function buildProject( t ) {
 		throw new Error( `\nError fetching latest version number from ${ changelogFileName }\n` );
 	}
 
+	if ( t.project.startsWith( 'packages/' ) && projectVersionNumber.endsWith( 'alpha' ) ) {
+		const ts = (
+			await t.execa( 'git', [ 'log', '-1', '--format=%ct', '.' ], {
+				cwd: t.cwd,
+				stdio: [ null, 'pipe', null ],
+			} )
+		 ).stdout;
+		if ( ts.match( /^\d+$/ ) ) {
+			projectRunVersionNumber += '.' + ts;
+		}
+	}
+
 	// Build succeeded! Now do some bookkeeping.
 	t.ctx.versions[ t.project ] = {
 		name: composerJson.name,
 		jsName: packageJson?.name,
 		version: projectVersionNumber,
+		runversion: projectRunVersionNumber,
 	};
 	await t.ctx.mirrorMutex( async () => {
 		// prettier-ignore

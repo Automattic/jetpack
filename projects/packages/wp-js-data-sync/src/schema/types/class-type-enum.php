@@ -2,14 +2,17 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 
-class Type_Enum implements Schema_Type {
+class Type_Enum implements Parser {
 
+	/**
+	 * @var $valid_values array The list of valid values for the enum.
+	 */
 	protected $valid_values;
 
-	public function __construct( $schema ) {
-		$this->valid_values = $schema;
+	public function __construct( $valid_values ) {
+		$this->valid_values = $valid_values;
 	}
 
 	public function parse( $data ) {

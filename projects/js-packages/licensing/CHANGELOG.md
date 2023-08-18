@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.11.3 - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## 0.11.2 - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+## 0.11.1 - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## 0.11.0 - 2023-07-10
+### Removed
+- Remove Jetpack Starter activation screen [#31751]
+
+## 0.10.4 - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## 0.10.3 - 2023-06-23
+### Changed
+- Updated package dependencies. [#31468]
+
+## 0.10.2 - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## 0.10.1 - 2023-05-02
+### Changed
+- Updated package dependencies.
+
+## 0.10.0 - 2023-05-01
+### Added
+- Added Jetpack Starter bundle post-activation screen and plan header [#30368]
+
 ## 0.9.3 - 2023-04-17
 ### Changed
 - Updated package dependencies. [#30019]

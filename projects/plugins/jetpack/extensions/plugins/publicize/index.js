@@ -8,14 +8,15 @@
  * displays the Publicize UI there.
  */
 
-import { JetpackLogo } from '@automattic/jetpack-components';
 import {
 	TwitterThreadListener,
 	PublicizePanel,
 	useSocialMediaConnections,
 	usePublicizeConfig,
 	SocialImageGeneratorPanel,
+	PostPublishReviewPrompt,
 } from '@automattic/jetpack-publicize-components';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -28,7 +29,7 @@ export const name = 'publicize';
 
 const PublicizeSettings = () => {
 	const { hasEnabledConnections } = useSocialMediaConnections();
-	const { isSocialImageGeneratorEnabled } = usePublicizeConfig();
+	const { isSocialImageGeneratorAvailable } = usePublicizeConfig();
 
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
@@ -38,7 +39,7 @@ const PublicizeSettings = () => {
 				<PublicizePanel enableTweetStorm={ true }>
 					<UpsellNotice />
 				</PublicizePanel>
-				{ isSocialImageGeneratorEnabled && <SocialImageGeneratorPanel /> }
+				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel
@@ -49,22 +50,24 @@ const PublicizeSettings = () => {
 						{ __( 'Share this post', 'jetpack' ) }
 					</span>
 				}
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				icon={ <JetpackEditorPanelLogo /> }
 			>
 				<PublicizePanel prePublish={ true } enableTweetStorm={ true }>
 					<UpsellNotice />
 				</PublicizePanel>
 			</PluginPrePublishPanel>
 
-			{ isSocialImageGeneratorEnabled && (
+			{ isSocialImageGeneratorAvailable && (
 				<PluginPrePublishPanel
 					initialOpen
 					title={ __( 'Social Image Generator', 'jetpack' ) }
-					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+					icon={ <JetpackEditorPanelLogo /> }
 				>
 					<SocialImageGeneratorPanel prePublish={ true } />
 				</PluginPrePublishPanel>
 			) }
+
+			<PostPublishReviewPrompt />
 		</PostTypeSupportCheck>
 	);
 };

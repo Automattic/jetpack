@@ -456,7 +456,8 @@ class Table_Checksum {
 			switch ( $filter['operator'] ) {
 				case 'IN':
 				case 'NOT IN':
-					$values_placeholders = implode( ',', array_fill( 0, count( $filter['values'] ), '%s' ) );
+					$filter_values_count = is_countable( $filter['values'] ) ? count( $filter['values'] ) : 0;
+					$values_placeholders = implode( ',', array_fill( 0, $filter_values_count, '%s' ) );
 					$statement           = "{$key} {$filter['operator']} ( $values_placeholders )";
 
 					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

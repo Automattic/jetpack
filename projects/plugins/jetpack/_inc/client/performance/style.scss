@@ -1,8 +1,22 @@
-.jp-form-fieldset > .jp-form-search-setting-explanation {
-	margin-left: 2.25rem;
+.jp-form-settings-group .jp-form-shortcode-setting-explanation {
+	margin-left: 60px;
+	margin-top: 0;
 }
 
 .media__videopress-storage {
 	margin-bottom: 1.5rem;
 	max-width: 50%;
+}
+
+
+.media__videopress-upgrade {
+	border-top: 1px solid #DCDCDE;
+
+	&.dops-banner.dops-card.is-product {
+		border-left: none;
+
+		.dops-banner__title {
+			font-weight: 500;
+		}
+	}
 }

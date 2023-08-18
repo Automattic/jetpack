@@ -5,6 +5,81 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.1.0] - 2023-07-24
+### Added
+- Listing pages: Add a new setting that allows listing pages to utilize the full width of the screen [#31904]
+
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.3. [#31910]
+
+### Fixed
+- API: Fixed error 200 while saving new api connections [#32003]
+- Contacts: Fix bug that prevented the creation of contacts WP user for the Client Portal [#31710]
+- Contacts: Fix Filter options not available on the main contacts listing [#31517]
+- File Uploads: Fix bug that prevented file uploads from working in environments where the PHP finfo_open function was not available [#31527]
+- Menu: Improved alignment for items in the menu [#31846]
+- OAuth/Gmail: Fix to enable sending links and images in the email content, supporting text/plain [#31943]
+- Segments: Fix bug that prevented dates to be saved in some environments [#31628]
+
+## [6.0.0] - 2023-06-21
+### Added
+- CRM: Revamped CRM User Interface - Merge the sleek aesthetics of Jetpack’s style, bringing a new level of sophistication and seamless navigation to your CRM experience [#30916]
+- API: Now it retrieves contacts with tags [#31418]
+- Contacts: Allow unsubscribe flag to be removed [#31029]
+
+### Changed
+- User roles: Further restricted capabilities on some roles [#31174]
+- Contacts: Use sha256 instead of md5 for gravatar images [#31288]
+
+### Fixed
+- Client Portal: Fix a fatal error initializing endpoints and shortcodes [#30678]
+- CRM: Fix new lines display in quote templates [#30974]
+- CRM: Fix whitelabel bug with full menu layout [#31126]
+- CRM: Page layout now has a max width of 1551px [#30961]
+- CRM: Welcome tour now goes through all steps [#31178]
+- Extensions: Catch PHP notice if offline [#31032]
+- Invoices: Show assigned contact/company link [#31153]
+- Listview: Per-page settings no longer reset
+- Listview: PHP notice no longer shows when saving settings [#31154]
+- Quotes: Fix sort by status [#31087]
+- White label: JPCRM support and resources pages no longer show [#31155]
+
+## [5.8.0] - 2023-05-18
+### Added
+- Composer: Added jetpack-forms as a required dependency to fix a Jetpack form compat issue [#30749]
+- Segments: Adding a doesnotcontain condition for email segments, for better compatibility with Advanced Segments [#30422]
+
+### Changed
+- Code cleanup: Cleaning up WP Editor helper functions and wp_editor usage [#30306]
+- General: Update link references to releases in changelog [#30634]
+- Navigation: Changed Learn More button and Learn More link to be consistent with Jetpack styles [#30135]
+- PDF generator: Objects in filenames are translated [#30295]
+- WooSync: Improved status mapping logic [#30557]
+
+### Fixed
+- Companies: Fix company name prefill so add links - transaction, invoice and tasks - prefill company name [#30752]
+- Contact / Company: Fix date styling for transactions, invoices and quotes [#30483]
+- Contact / Company: Profile summary total value and invoice count now removes deleted invoices [#30178]
+- Custom fields: Use native date pickers [#30643]
+- Quotes: Use native date pickers [#30643]
+- Export: Contact segments now export company info [#30393]
+- Logs: Facebook, Twitter, Feedback, and Other Contact log types now update last contacted timestamp [#30470]
+- Settings: Eliminate orphaned references to custom fields within field sorting settings when removing custom fields [#30114]
+- Segments: Make sure total count is updated on tag changes [#30638]
+- Tasks: Start and end times now show correctly throughout the CRM [#30431]
+- Tasks: New migration to remove timezone offset from database [#30431]
+- Tasks: Removed reliance on strftime for better PHP 8.1 compatibility [#30431]
+- Tasks: Switch to native browser date and time inputs [#30431]
+- Tasks: Catch moment.js notice due to using fallback date format [#30431]
+- Tasks: Fix ##TASK-BODY## placeholder [#30431]
+- Tooling: Allowing minification of JS files in development [#30119]
+- Transactions: Always show current status in editor [#30644]
+- WooSync: Fix the fee amount from a WooCommerce order is not added to the invoice [#29650]
+- WooSync: Fix shipping tax and discount amounts from Woocommerce orders are not calculated in invoices [#29650]
+- WooSync: Fix the subtotal amount from WooCommerce orders is not calculated in invoices [#29650]
+- WooSync: Fix PHP Warning [#30572]
+- Invoices: On invoice update the shipping tax selected is removed resulting on incorrect total amount [#29650]
+
 ## [5.7.0] - 2023-04-19
 ### Added
 - Menus: Add back to list button on add and edit pages for companies, transactions, invoices, and quotes [#29999]
@@ -129,5 +204,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added a migration to remove outdated AKA lines
 
 [5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[6.1.0]: https://github.com/Automattic/jetpack-crm/compare/6.0.0...6.1.0
+[6.0.0]: https://github.com/Automattic/jetpack-crm/compare/5.8.0...6.0.0
+[5.8.0]: https://github.com/Automattic/jetpack-crm/compare/5.7.0...5.8.0
 [5.7.0]: https://github.com/Automattic/jetpack-crm/compare/v5.6.0...v5.7.0
 [5.6.0]: https://github.com/Automattic/jetpack-crm/compare/v5.5.4-a.1...v5.6.0

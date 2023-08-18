@@ -17,7 +17,7 @@ use Automattic\Jetpack\Assets;
 class Odyssey_Assets {
 	// This is a fixed list @see https://github.com/Automattic/wp-calypso/pull/71442/
 	const JS_DEPENDENCIES = array( 'lodash', 'react', 'react-dom', 'wp-api-fetch', 'wp-components', 'wp-compose', 'wp-element', 'wp-html-entities', 'wp-i18n', 'wp-is-shallow-equal', 'wp-polyfill', 'wp-primitives', 'wp-url', 'wp-warning', 'moment' );
-	const ODYSSEY_CDN_URL = 'https://widgets.wp.com/odyssey-stats/%s/%s';
+	const ODYSSEY_CDN_URL = 'https://widgets.wp.com/odyssey-stats/%s/%s?minify=false';
 
 	/**
 	 * We bump the asset version when the Jetpack back end is not compatible anymore.
@@ -79,12 +79,14 @@ class Odyssey_Assets {
 	protected function get_cdn_asset_cache_buster() {
 		// Use cached cache buster in production.
 		$remote_asset_version = get_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
-		if ( ! empty( $remote_asset_version ) ) {
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $remote_asset_version ) && ! isset( $_GET['force_refresh'] ) ) {
 			return $remote_asset_version;
 		}
 
 		// If no cached cache buster, we fetch it from CDN and set to transient.
-		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json' ), array( 'timeout' => 5 ) );
+		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json?t=' . time() ), array( 'timeout' => 5 ) );
 
 		if ( is_wp_error( $response ) ) {
 			// fallback to the package version.

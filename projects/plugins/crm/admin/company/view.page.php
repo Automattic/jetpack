@@ -45,7 +45,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 			}
 
 			// Get screen options for user
-			$screenOpts = $zbs->userScreenOptions();
+			$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// Retrieve company
 			$company = $zbs->DAL->companies->getCompany( $id, $args );
@@ -85,21 +85,29 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 			}
 
 			// values - DAL3 we get them passed all nicely :)
-			$companyTotalValue = 0;
+			$company_total_value = 0;
 			if ( isset( $company['total_value'] ) ) {
-				$companyTotalValue = $company['total_value'];
+				$company_total_value = $company['total_value'];
 			}
 			$companyQuotesValue = 0;
 			if ( isset( $company['quotes_total'] ) ) {
 				$companyQuotesValue = $company['quotes_total'];
 			}
-			$companyInvoicesValue = 0;
+			$company_invoices_value = 0;
 			if ( isset( $company['invoices_total'] ) ) {
-				$companyInvoicesValue = $company['invoices_total'];
+				$company_invoices_value = $company['invoices_total'];
 			}
-			$companyTransactionsValue = 0;
+			$company_invoices_count = 0;
+			if ( isset( $company['invoices_count'] ) ) {
+				$company_invoices_count = $company['invoices_count'];
+			}
+			$company_invoice_count_inc_deleted = 0;
+			if ( isset( $company['invoices_count_inc_deleted'] ) ) {
+				$company_invoice_count_inc_deleted = $company['invoices_count_inc_deleted'];
+			}
+			$company_transactions_value = 0;
 			if ( isset( $company['transactions_total'] ) ) {
-				$companyTransactionsValue = $company['transactions_total'];
+				$company_transactions_value = $company['transactions_total'];
 			}
 
 			// pre dal 3 did this way
@@ -108,8 +116,8 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 				// calc'd each individually
 				// never used (pre dal3) $companyTotalValue = zeroBS_companyTotalValue($id, $company['invoices'],$company['transactions'])
 				// never used (pre dal3) $companyQuotesValue = zeroBS_companyQuotesValue($id, $company['quotes']);
-				$companyInvoicesValue     = zeroBS_companyInvoicesValue( $id, $company['invoices'] );
-				$companyTransactionsValue = zeroBS_companyTransactionsValue( $id, $company['transactions'] );
+				$company_invoices_value     = zeroBS_companyInvoicesValue( $id, $company['invoices'] );
+				$company_transactions_value = zeroBS_companyTransactionsValue( $id, $company['transactions'] );
 
 			}
 
@@ -131,46 +139,15 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 					// 1 column, no avatar card
 				?>
 					<div class="sixteen wide column zbs-view-card">
-					<?php
-					/*
-					} else {
-
-					// normal, 2 column 'contact card'
-					?><div class="three wide column" style="text-align:center">
-						<?php echo $avatar; ?>
-						<a class="ui button blue mini" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link('edit',$id,'zerobs_customer',false);?>">
-							<?php _e("Edit Contact", "zero-bs-crm"); ?>
-						</a>
-
-					</div>
-					<div class="thirteen wide column zbs-view-card"><?php
-
-
-					}*/
-					?>
-
 						<h3>
 						<?php echo esc_html( zeroBS_companyName( '', $company, false, false ) ); ?>
-						<?php
-						// } When no avatar, show edit button top right
-							// no avatars yet for co - if ($avatarMode == 3 || empty($avatar)){
-						?>
-							<a class="ui button blue mini right floated" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_company', false ); ?>">
-									<?php esc_html_e( 'Edit ' . jpcrm_label_company(), 'zero-bs-crm' ); ?>
-								</a>
-								<?php
-								// no avatars yet for co - }
-								?>
 						</h3>
-						<?php
-						/*
-						<p class="zbs-email">
-						<?php zeroBSCRM_html_sendemailto($id,$contactEmail,false); ?>
-						</p> */
-						?>
 						<p class="zbs-sentence">
 							<?php echo zeroBSCRM_html_companyIntroSentence( $company ); ?>
 						</p>
+						<a class="ui button black" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_company', false ); ?>">
+								<?php esc_html_e( 'Edit ' . jpcrm_label_company(), 'zero-bs-crm' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText ?>
+						</a>
 
 
 						<?php
@@ -310,8 +287,8 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 							if ( $useInvoices == '1' || $useTrans == '1' ) :
 								?>
 							<tr>
-							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
-							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $companyTotalValue ) ); ?></strong></td>
+							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
+							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $company_total_value ) ); ?></strong></td>
 							</tr>
 							<?php endif; ?>
 							<?php if ( $useQuotes == '1' ) : ?>
@@ -333,11 +310,11 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 						if ( $useInvoices == '1' ) :
 							?>
 						<tr class="zbs-view-vital-invoices">
-							<td class="zbs-view-vital-label"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Invoices: This shows the total sum of your invoices & count.', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
+							<td class="zbs-view-vital-label"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Invoices: This shows the total sum of your invoices & count (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
 							<td>
 							<?php
-							if ( count( $company['invoices'] ) > 0 ) {
-									echo esc_html( zeroBSCRM_formatCurrency( $companyInvoicesValue ) . ' (' . count( $company['invoices'] ) . ')' );
+							if ( $company_invoices_count > 0 ) {
+									echo esc_html( zeroBSCRM_formatCurrency( $company_invoices_value ) . ' (' . $company_invoices_count . ')' );
 							} else {
 								esc_html_e( 'None', 'zero-bs-crm' );
 							}
@@ -351,7 +328,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 							<td>
 								<?php
 								if ( count( $company['transactions'] ) > 0 ) {
-									echo esc_html( zeroBSCRM_formatCurrency( $companyTransactionsValue ) . ' (' . count( $company['transactions'] ) . ')' );
+									echo esc_html( zeroBSCRM_formatCurrency( $company_transactions_value ) . ' (' . count( $company['transactions'] ) . ')' );
 								} else {
 									esc_html_e( 'None', 'zero-bs-crm' );
 								}
@@ -584,60 +561,40 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								<tbody>
 								<?php
 								// prep link to create a new invoice
-								$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&prefillco=' . $company['id'];
+								$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&zbsprefillco=' . $company['id'];
 
-								if ( count( $company['invoices'] ) > 0 ) {
+								if ( $company_invoice_count_inc_deleted > 0 ) {
 
 									foreach ( $company['invoices'] as $invoice ) {
 										// debugecho '<pre>'; print_r($invoice); echo '</pre><hr>';
 
-										$idRefStr = '';
-										// DAL3 change of field name
-										if ( $zbs->isDAL3() ) {
+										$id_ref_str = '';
 
-											// 3.0
-											if ( isset( $invoice['id'] ) ) {
-												$idRefStr = '#' . $invoice['id'];
+										if ( isset( $invoice['id'] ) ) {
+											$id_ref_str = '#' . $invoice['id'];
+										}
+										if ( isset( $invoice['id_override'] ) && ! empty( $invoice['id_override'] ) ) {
+											if ( ! empty( $id_ref_str ) ) {
+												$id_ref_str .= ' -';
 											}
-											if ( isset( $invoice['id_override'] ) ) {
-												if ( ! empty( $idRefStr ) ) {
-													$idRefStr .= ' -';
-												}
-												$idRefStr .= ' ' . $invoice['id_override'];
-											}
-
-											$invoiceURL = jpcrm_esc_link( 'edit', $invoice['id'], ZBS_TYPE_INVOICE );
-
-											$invoiceVal = $invoice['total'];
-
-											$invoiceStatus = $invoice['status'];
-
-										} else {
-
-											// <3.0
-											if ( isset( $invoice['zbsid'] ) ) {
-												$idRefStr = '#' . $invoice['zbsid'];
-											}
-											if ( isset( $invoice['meta'] ) && isset( $invoice['meta']['ref'] ) ) {
-												if ( ! empty( $idRefStr ) ) {
-													$idRefStr .= ' -';
-												}
-												$idRefStr .= ' ' . $invoice['meta']['ref'];
-											}
-
-											$invoiceURL = jpcrm_esc_link( 'edit', $invoice['id'], ZBS_TYPE_INVOICE );// admin_url('post.php?action=edit&post='.$invoice['id']);
-
-											$invoiceVal = $invoice['meta']['val'];
-
-											$invoiceStatus = $invoice['meta']['status'];
-
+											$id_ref_str .= ' ' . $invoice['id_override'];
+										}
+										$invoice_date = '';
+										if ( isset( $invoice['date_date'] ) ) {
+											$invoice_date = $invoice['date_date'];
 										}
 
+										$invoice_url = jpcrm_esc_link( 'edit', $invoice['id'], ZBS_TYPE_INVOICE );
+
+										$invoice_val = $invoice['total'];
+
+										$invoice_status = $invoice['status'];
+
 										echo '<tr>';
-										echo '<td><a href="' . esc_url( $invoiceURL ) . '">' . esc_html( $idRefStr ) . '</a></td>';
-										echo '<td>' . esc_html( zeroBSCRM_html_InvoiceDate( $invoice ) ) . '</td>';
-										echo '<td>' . esc_html( zeroBSCRM_formatCurrency( $invoiceVal ) ) . '</td>';
-										echo "<td><span class='" . esc_attr( zeroBSCRM_html_invoiceStatusLabel( $invoice ) ) . "'>" . esc_html( ucfirst( $invoiceStatus ) ) . '</span></td>';
+										echo '<td><a href="' . esc_url( $invoice_url ) . '">' . esc_html( $id_ref_str ) . '</a></td>';
+										echo '<td>' . esc_html( $invoice_date ) . '</td>';
+										echo '<td>' . esc_html( zeroBSCRM_formatCurrency( $invoice_val ) ) . '</td>';
+										echo "<td><span class='" . esc_attr( zeroBSCRM_html_invoiceStatusLabel( $invoice ) ) . "'>" . esc_html( ucfirst( $invoice_status ) ) . '</span></td>';
 										echo '</tr>';
 									}
 								} else {
@@ -646,7 +603,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									?>
 									<tr>
 										<td colspan="4">
-											<div class="ui info icon message" id="zbsNoInvoiceResults">
+											<div class="ui icon message" id="zbsNoInvoiceResults">
 											<div class="content">
 												<div class="header"><?php esc_html_e( 'No Invoices', 'zero-bs-crm' ); ?></div>
 												<p>
@@ -667,7 +624,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 								</tbody>
 							</table>
-							<?php if ( count( $company['invoices'] ) > 0 ) : ?>
+							<?php if ( $company_invoice_count_inc_deleted > 0 ) : ?>
 								<div style="text-align: right;">
 								<a href="<?php echo esc_url( $new_invoice_url ); ?>" class="ui basic green button">
 									<i class="plus square outline icon"></i>
@@ -720,7 +677,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									<?php
 
 									// prep link to create a new transaction
-									$new_transaction_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION ) . '&prefillco=' . $company['id'];
+									$new_transaction_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION ) . '&zbsprefillco=' . $company['id'];
 
 									if ( count( $company['transactions'] ) > 0 ) {
 
@@ -753,7 +710,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 										?>
 									<tr>
 										<td colspan="<?php echo count( $activeTransactionColumns ); ?>">
-											<div class="ui info icon message" id="zbsNoTransactionResults">
+											<div class="ui icon message" id="zbsNoTransactionResults">
 											<div class="content">
 												<div class="header"><?php esc_html_e( 'No Transactions', 'zero-bs-crm' ); ?></div>
 												<p>
@@ -857,7 +814,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								?>
 								">
 									<td colspan="4">
-										<div class="ui info icon message" id="zbsNoFileResults">
+										<div class="ui icon message" id="zbsNoFileResults">
 										<div class="content">
 											<div class="header"><?php esc_html_e( 'No Files', 'zero-bs-crm' ); ?></div>
 											<p>
@@ -892,7 +849,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								<tbody>
 									<?php
 									// prep link to create a new task
-									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&prefillco=' . $company['id'];
+									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&zbsprefillco=' . $company['id'];
 
 									if ( isset( $company['tasks'] ) && is_array( $company['tasks'] ) && count( $company['tasks'] ) > 0 ) {
 
@@ -946,7 +903,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 										?>
 									<tr>
 										<td colspan="4">
-											<div class="ui info icon message" id="zbsNoTaskResults">
+											<div class="ui icon message" id="zbsNoTaskResults">
 												<div class="content">
 												<div class="header"><?php esc_html_e( 'No Tasks', 'zero-bs-crm' ); ?></div>
 												<p>
@@ -1004,7 +961,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 			</div>
 
-			<div class="six wide column" id="zbs-custom-quicklinks" style="padding-right: 30px;">
+			<div class="six wide column" id="zbs-custom-quicklinks">
 
 				<?php
 					// } Metaboxes

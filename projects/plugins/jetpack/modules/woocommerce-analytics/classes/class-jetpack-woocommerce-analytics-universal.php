@@ -143,9 +143,21 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		}
 		$product_details = $this->get_product_details( $product );
 
-		$all_props = array_merge(
-			$properties,
-			$this->get_common_properties()
+		/**
+		 * Allow defining custom event properties in WooCommerce Analytics.
+		 *
+		 * @module woocommerce-analytics
+		 *
+		 * @since 12.5
+		 *
+		 * @param array $all_props Array of event props to be filtered.
+		 */
+		$all_props = apply_filters(
+			'jetpack_woocommerce_analytics_event_props',
+			array_merge(
+				$properties,
+				$this->get_common_properties()
+			)
 		);
 
 		$js = "{
@@ -259,6 +271,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function capture_product_view() {
 		global $product;
+		if ( ! $product instanceof WC_Product ) {
+			return;
+		}
+
 		$this->record_event(
 			'woocommerceanalytics_product_view',
 			$product->get_id()
@@ -304,7 +320,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			*/
 			$product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 
-			if ( ! $product ) {
+			if ( ! $product || ! $product instanceof WC_Product ) {
 				continue;
 			}
 
@@ -333,7 +349,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				        var properties = {$properties};
 				        properties.express_checkout = args.paymentRequestType;
 				        _wca.push(properties);
-						cartItem_{$cart_item_key}_logged = true;	
+						cartItem_{$cart_item_key}_logged = true;
 				    });
 				"
 				);
@@ -361,6 +377,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function order_process( $order_id ) {
 		$order = wc_get_order( $order_id );
+
+		if (
+			! $order
+			|| ! $order instanceof WC_Order
+		) {
+			return;
+		}
 
 		$payment_option = $order->get_payment_method();
 
@@ -530,7 +553,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					$out[] = $category->name;
 				}
 			}
-			$line = join( '/', $out );
+			$line = implode( '/', $out );
 		}
 		return $line;
 	}

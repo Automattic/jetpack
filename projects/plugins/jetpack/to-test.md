@@ -1,56 +1,40 @@
-## Jetpack 12.0
+## Jetpack 12.5
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### Blocks
+### Newsletter
 
-Some blocks were moved from beta status to production and are now available to all users.
-No new features were added, so the only thing to test here is that they work as expected and show up without the beta blocks being enabled:
+The Newsletter settings are moved from the Discussion settings to their own dedicated page.
+- Go to "Jetpack settings → Newsletter"
+- Ensure all toggles work
+- Go to "Discussion" settings and confirm newsletter settings aren't there anymore
 
-**VideoPress** - add a block and try adding and playing a video.
+### SEO and Sharing Changes
 
-**Cookie Consent block** - make sure you are using a block-based theme such as "Twenty Twenty-Three". Go to the site editor and try adding a Cookie consent block.
+There are a lot of small tweaks to the SEO and sharing modules that should be tested:
+* Enable SEO tools in Jetpack -> Settings -> Traffic
+* Draft a new post
+* Open the Jetpack sidebar in the editor
+* Confirm the SEO tools textareas width looks okay.
+* Confirm that the "hide page from search engines" is now a toggle (instead of a checkbox)
+* Confirm that the Like and Sharing options in post are now also toggles.
 
-**Writing Prompt block** - create a new post and add a Writing Prompt block to it. Save or publish the post and check if appropriate tags, such as 'dailyprompt' and 'dailyprompt-1810' are added.
+### My Jetpack
 
-### The Form block
+The My Jetpack menu item in wp-admin has been moved to the top of the sub-menu list. Poke around and make sure things look good and links go where they're supposed to!
 
-**Multiple Choice and Single Choice** fields had some design updates. To test it:
+### AI Assistant
 
-- Create a post and add a Form block.
-- Include a Multiple Choice and a Single Choice field.
-- Check if they work as expected.
-- Publish the post and check if it looks as expected on the frontend.
-- Multiline feedback message support:
-- Create and publish a post that includes a contact form.
-- Submit a multi-line message through a form.
-- Look at Feedback->Form Responses and make sure the message is not showing up as a single line.
-
-### WordPress 6.2 compatibility
-
-This version of Jetpack included several small fixes to ensure compatibility with the latest WordPress. WordPress 6.2 is now available to all users, so make sure you update your site to the latest version.
-
-### Things to check:
-
-#### Twitter block
-
-- Create a new post and add a Twitter block.
-- Paste a Twitter URL for a thread (tweetstorm).
-- Click on Unroll.
-- Change Publicize options to publish a thread instead of a single tweet.
-- Observe separators being added to the post content.
-- Click on the "Social Previews" section at the bottom of the sidebar.
-- You should see previews under some of the tweets, and you should not see any notices in your error logs.
-
-### Pinterest block
-
-- Create a new post and add a Pinterest block. When adding a Pinterest URL, no errors should appear in your logs.
+There were many tweaks and back-end changes to the AI assistant. To test it out: 
+- Add a paragraph block to a post or page
+- From the block toolbar, select the sparkling AI Assistant button.
+- Try a few of the options and make sure they work and make sense.
 
 ### And More!
 
-You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-12.0/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
+You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
 **Thank you for all your help!**

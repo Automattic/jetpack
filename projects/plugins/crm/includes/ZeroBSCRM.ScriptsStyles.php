@@ -30,6 +30,9 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			wp_register_style('zerobscrmadmcss', 	plugins_url('/css/ZeroBSCRM.admin.global'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE),array('zbs-wp-semanticui'), $zbs->version );
 			wp_enqueue_script('zerobscrmadmjs', plugins_url('/js/ZeroBSCRM.admin.global'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version );
 
+			// emerald styles
+			wp_register_style( 'jpcrm-emerald', plugins_url( '/css/jpcrm-emerald' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs->version );
+
 		// ================ / Global  ================
 		// ===========================================
 
@@ -181,107 +184,120 @@ function zeroBSCRM_scriptStyles_enqueueJSRoot(){
 	// here we expose root for js /i refs etc.
 	// WH: we also give locale for datetimepickers everywhere (was zbsDateLocaleOverride, now window.zbs_root.localeOptions)
 	/*  var localeOpt = {
-        format: "DD.MM.YYYY",
-        cancelLabel: 'Clear'
-    }; */
-    // WH: We also expose our number formats (for js $ formating)
-    $zbscrm_currency_position = $zbs->settings->get('currency_position');
-    $zbscrm_currency_format_thousand_separator = $zbs->settings->get('currency_format_thousand_separator');
-    $zbscrm_currency_format_decimal_separator  = $zbs->settings->get('currency_format_decimal_separator');
-    $zbscrm_currency_format_number_of_decimals = $zbs->settings->get('currency_format_number_of_decimals');
-    $wl = -1; if (zeroBSCRM_isWL()) $wl = 1;
-    $dal = 1; if ($zbs->isDAL2()) $dal = 2; if ($zbs->isDAL3()) $dal = 3;
-    $jpcrm_root = array(
-    	'crmname' => 'Jetpack CRM',
-        'root' => ZEROBSCRM_URL,
-        'localeOptions' => zeroBSCRM_date_localeForDaterangePicker(),
-        'locale' => get_locale(),
-        'locale_short' => zeroBSCRM_getLocale(false),
-        'currencyOptions' => array(
+		format: "DD.MM.YYYY",
+		cancelLabel: 'Clear'
+	}; */
+	// WH: We also expose our number formats (for js $ formating)
+	$zbscrm_currency_position                  = $zbs->settings->get( 'currency_position' );
+	$zbscrm_currency_format_thousand_separator = $zbs->settings->get( 'currency_format_thousand_separator' );
+	$zbscrm_currency_format_decimal_separator  = $zbs->settings->get( 'currency_format_decimal_separator' );
+	$zbscrm_currency_format_number_of_decimals = $zbs->settings->get( 'currency_format_number_of_decimals' );
 
-        	'symbol' => zeroBSCRM_getCurrencyChr(),
-        	'currencyStr' => zeroBSCRM_getCurrencyStr(),
-        	'position' => $zbscrm_currency_position,
-        	'thousandSeparator' => $zbscrm_currency_format_thousand_separator,
-        	'decimalSeparator' => $zbscrm_currency_format_decimal_separator,
-        	'noOfDecimals' => $zbscrm_currency_format_number_of_decimals,
-        ),
-        'timezone_offset' => (int)get_option('gmt_offset'),
-        'timezone_offset_mins' => ((int)get_option('gmt_offset')*60),
-        'wl' => $wl,
-        'dal' => $dal
-    );
+	$jpcrm_root = array(
+		'crmname'              => 'Jetpack CRM',
+		'root'                 => ZEROBSCRM_URL,
+		'localeOptions'        => zeroBSCRM_date_localeForDaterangePicker(),
+		'locale'               => get_locale(),
+		'locale_short'         => zeroBSCRM_getLocale( false ),
+		'currencyOptions'      => array(
+			'symbol'            => zeroBSCRM_getCurrencyChr(),
+			'currencyStr'       => zeroBSCRM_getCurrencyStr(),
+			'position'          => $zbscrm_currency_position,
+			'thousandSeparator' => $zbscrm_currency_format_thousand_separator,
+			'decimalSeparator'  => $zbscrm_currency_format_decimal_separator,
+			'noOfDecimals'      => $zbscrm_currency_format_number_of_decimals,
+		),
+		'timezone_offset'      => (int) get_option( 'gmt_offset' ),
+		'timezone_offset_mins' => ( (int) get_option( 'gmt_offset' ) * 60 ),
+		'wl'                   => ( zeroBSCRM_isWL() ? 1 : -1 ),
+		'dal'                  => 3,
+	);
 
-    // this is for wl peeps, if set it'll override WYSIWYG logo + settings logo
+	// this is for wl peeps, if set it'll override WYSIWYG logo + settings logo
 	$jpcrm_root['crmlogo'] = 'i/icon-32.png';
 
 	// this is for GLOBAL js (language strings pass through)
-	$langArr = array();
+	$lang_array = array();
 
-			// WH: not 100% sure where to put this, for now, temporarily, here,
-			// WH: to decide common sense location (have made filter:)
-			$langArr['send'] = __('Send','zero-bs-crm');
-			$langArr['sent'] = __('Sent','zero-bs-crm');
-			$langArr['notsent'] = __('Not Sent','zero-bs-crm');
-			$langArr['cancel'] = __('Cancel','zero-bs-crm');
-			$langArr['contact'] = __('Contact','zero-bs-crm');
-			$langArr['company'] = __('Company','zero-bs-crm');
-			$langArr['viewall'] = __('View all','zero-bs-crm');
+	// WH: not 100% sure where to put this, for now, temporarily, here,
+	// WH: to decide common sense location (have made filter:)
+	$lang_array['send']    = __( 'Send', 'zero-bs-crm' );
+	$lang_array['sent']    = __( 'Sent', 'zero-bs-crm' );
+	$lang_array['notsent'] = __( 'Not Sent', 'zero-bs-crm' );
+	$lang_array['cancel']  = __( 'Cancel', 'zero-bs-crm' );
+	$lang_array['contact'] = __( 'Contact', 'zero-bs-crm' );
+	$lang_array['company'] = __( 'Company', 'zero-bs-crm' );
+	$lang_array['viewall'] = __( 'View all', 'zero-bs-crm' );
 
-			// statement send
-			$langArr['sendstatement'] = __('Send Statement','zero-bs-crm');
-			$langArr['sendstatementaddr'] = __('Send Statement to Email:','zero-bs-crm');
-			$langArr['enteremail'] = __('Enter an Email Address..','zero-bs-crm');
-			$langArr['statementsent'] = __('Statement was successfully sent','zero-bs-crm');
-			$langArr['statementnotsent'] = __('Statement could not be sent at this time','zero-bs-crm');
+	// statement send
+	$lang_array['sendstatement']     = __( 'Send Statement', 'zero-bs-crm' );
+	$lang_array['sendstatementaddr'] = __( 'Send Statement to Email:', 'zero-bs-crm' );
+	$lang_array['enteremail']        = __( 'Enter an Email Address..', 'zero-bs-crm' );
+	$lang_array['statementsent']     = __( 'Statement was successfully sent', 'zero-bs-crm' );
+	$lang_array['statementnotsent']  = __( 'Statement could not be sent at this time', 'zero-bs-crm' );
 
-			// totals table list view, (but generically useful)
-			$langArr['total'] = __( 'Total', 'zero-bs-crm' );
-			$langArr['totals'] = __( 'Totals', 'zero-bs-crm' );
-			$langArr['quote'] = __( 'Quote', 'zero-bs-crm' );
-			$langArr['quotes'] = __( 'Quotes', 'zero-bs-crm' );
-			$langArr['invoice'] = __( 'Invoice', 'zero-bs-crm' );
-			$langArr['invoices'] = __( 'Invoices', 'zero-bs-crm' );
-			$langArr['transaction'] = __( 'Transaction', 'zero-bs-crm' );
-			$langArr['transactions'] = __( 'Transactions', 'zero-bs-crm' );
+	// totals table list view, (but generically useful)
+	$lang_array['total']        = __( 'Total', 'zero-bs-crm' );
+	$lang_array['totals']       = __( 'Totals', 'zero-bs-crm' );
+	$lang_array['quote']        = __( 'Quote', 'zero-bs-crm' );
+	$lang_array['quotes']       = __( 'Quotes', 'zero-bs-crm' );
+	$lang_array['invoice']      = __( 'Invoice', 'zero-bs-crm' );
+	$lang_array['invoices']     = __( 'Invoices', 'zero-bs-crm' );
+	$lang_array['transaction']  = __( 'Transaction', 'zero-bs-crm' );
+	$lang_array['transactions'] = __( 'Transactions', 'zero-bs-crm' );
 
-	$langStrings = apply_filters( 'zbs_globaljs_lang', $langArr);
-	if (is_array($langStrings) && count($langStrings) > 0) $jpcrm_root['lang'] = $langStrings;
-	
-	// put the nonce into the $jpcrm_root script localisation
-	// window.zbscrmjs_globSecToken wasn't set anywhere (and only in 2 places)
-	// both in ZeroBSCRM.AJAX.php
-	//
-	//        1.)  zeroBSCRM_AJAX_logClose()
-	//        2.)  zeroBSCRM_AJAX_getCustInvs()
-	//
-	// the 2nd one is what showed up with JIRA-ZBS-384
+	$lang_array = apply_filters( 'zbs_globaljs_lang', $lang_array );
 
-	// window.zbscrmjs_globSecToken -> window.zbs_root.zbsnonce
-	// 
-	$jpcrm_root['zbsnonce'] = wp_create_nonce( "zbscrmjs-glob-ajax-nonce" );
+	if ( is_array( $lang_array ) && count( $lang_array ) > 0 ) {
+		$jpcrm_root['lang'] = $lang_array;
+	}
+
+	$jpcrm_root['zbsnonce'] = wp_create_nonce( 'zbscrmjs-glob-ajax-nonce' );
 
 	// GENERIC links for building view/edit links in JS globally:
 
-		// v3.0+ - returns a link with _TYPE_ instead of 'contact' etc. used by js func zeroBSCRMJS_obj_viewLink (globally avail)
-		$generic_view_link = str_replace('contact','_TYPE_',jpcrm_esc_link('view',-1,'zerobs_customer',true));
-		// v3.0+ - returns a link with _TYPE_ instead of 'contact' etc. used by js func zeroBSCRMJS_obj_editLink (globally avail)
-		$generic_edit_link = str_replace('contact','_TYPE_',jpcrm_esc_link('edit',-1,'zerobs_customer',true));
+	// v3.0+ - returns a link with _TYPE_ instead of 'contact' etc. used by js func zeroBSCRMJS_obj_viewLink (globally avail)
+	$generic_view_link = str_replace( 'contact', '_TYPE_', jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ) );
+	// v3.0+ - returns a link with _TYPE_ instead of 'contact' etc. used by js func zeroBSCRMJS_obj_editLink (globally avail)
+	$generic_edit_link = str_replace( 'contact', '_TYPE_', jpcrm_esc_link( 'edit', -1, 'zerobs_customer', true ) );
 
-        $jpcrm_root['links'] = array(
-        	'generic_view' => $generic_view_link,
-        	'generic_edit' => $generic_edit_link,
-        );
+	$jpcrm_root['links'] = array(
+		'generic_view' => $generic_view_link,
+		'generic_edit' => $generic_edit_link,
+	);
 
-    ##WLREMOVE
-    unset($jpcrm_root['crmlogo']);
-    ##/WLREMOVE
+	##WLREMOVE
+	unset( $jpcrm_root['crmlogo'] );
+	##/WLREMOVE
 
-    // filter jpcrm_root, allows us to pass js vars directly into the js global via filter
+	$jpcrm_root['jp_green'] = jpcrm_get_jp_green();
+
+	// filter jpcrm_root, allows us to pass js vars directly into the js global via filter
 	$jpcrm_root = apply_filters( 'zbs_globaljs_vars', $jpcrm_root );
 
-    wp_localize_script( 'zerobscrmadmjs', 'zbs_root', $jpcrm_root ); // This relies on the script being registered by zeroBSCRM_initStyleRegister() above
+	wp_localize_script( 'zerobscrmadmjs', 'zbs_root', $jpcrm_root ); // This relies on the script being registered by zeroBSCRM_initStyleRegister() above
+}
 
+/**
+ * Return an array of JP Green values
+ */
+function jpcrm_get_jp_green() {
+	$jp_green = array(
+		'0'   => '#f0f2eb',
+		'5'   => '#d0e6b8',
+		'10'  => '#9dd977',
+		'20'  => '#64ca43',
+		'30'  => '#2fb41f',
+		'40'  => '#069e08',
+		'50'  => '#008710',
+		'60'  => '#007117',
+		'70'  => '#005b18',
+		'80'  => '#004515',
+		'90'  => '#003010',
+		'100' => '#001c09',
+	);
+
+	return $jp_green;
 }
 
 #} ===============================================================================
@@ -375,8 +391,11 @@ function zeroBSCRM_global_admin_styles(){
 		wp_enqueue_style( 'zerobscrmswa' );
 		wp_enqueue_script( 'zerobsjsmodal');
 
+		// emerald styles
+		wp_enqueue_style( 'jpcrm-emerald' );
+
 		// moment everywhere (from 2.98)
-		wp_enqueue_script('wh-moment-v2-8-1-js', untrailingslashit(ZEROBSCRM_URL) .'/js/lib/moment-with-locales.min.js', array('jquery'), $zbs->version );
+		wp_enqueue_script( 'jpcrm-moment-v2-29-4', untrailingslashit( ZEROBSCRM_URL ) . '/js/lib/moment-with-locales.min.js', array( 'jquery' ), $zbs->version, false );
 
 		// semantic everywhere (on our pages)
 		wp_enqueue_style( 'zbs-wp-semanticui' );  
@@ -438,9 +457,7 @@ function zeroBSCRM_admin_styles_ui2_listview(){
 
 	// our list view css
 	wp_enqueue_script( 'zerobscrmlistviewjs');
-	
-	// 2.97.9 - wh updated moment
-	//wp_enqueue_script('wh-moment-v2-1-3-js', ZEROBSCRM_URL .'/js/lib/moment.min.js', array('jquery'));
+
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
 	// hook to allow modules etc. to add list view stylesheets
@@ -459,8 +476,7 @@ function zeroBSCRM_admin_styles_ui2_editview(){
 			wp_enqueue_script( 'zerobscrmeditviewjs');
 			wp_enqueue_script( 'zerobscrmtagmetaboxjs');
 			wp_enqueue_script( 'zerobscrmmm'); // metabox manager
-			//wp_enqueue_script('wh-moment-v2-1-3-js', ZEROBSCRM_URL .'/js/lib/moment.min.js', array('jquery'));
-			
+
 			// daterange + moment
 			zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
@@ -580,17 +596,15 @@ function zeroBSCRM_calendar_admin_styles(){
 
 	global $zbs;
 
-	//2.97.9 WH updated moment
-	//wp_enqueue_script('wh-moment-v2-1-3-js', ZEROBSCRM_URL .'js/lib/moment.min.js', array('jquery'));
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
 
 	wp_register_style('zerobscrm-events', ZEROBSCRM_URL .'css/ZeroBSCRM.admin.events'.wp_scripts_get_suffix().'.css', array(), $zbs->version );
 
-	wp_register_script('zerobscrm-calendar-js' , ZEROBSCRM_URL .'js/lib/fullcalendar.mod'.wp_scripts_get_suffix().'.js', array('jquery','wh-moment-v2-8-1-js'), $zbs->version );//2.97.9 upgraded moment array('jquery','wh-moment-v2-1-3-js'));
+	wp_register_script( 'zerobscrm-calendar-js', ZEROBSCRM_URL . 'js/lib/fullcalendar.mod' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment-v2-29-4' ), $zbs->version, false );
 	wp_register_style('zerobscrm-calendar', ZEROBSCRM_URL .'css/lib/fullcalendar.min.css', array(), $zbs->version );
 	wp_register_style('zerobscrm-calendar-print', ZEROBSCRM_URL .'css/lib/fullcalendar.print.min.css', array(), $zbs->version );
-	wp_register_script('zerobscrm-events-js' , ZEROBSCRM_URL .'js/ZeroBSCRM.admin.task'.wp_scripts_get_suffix().'.js', array('jquery','wh-moment-v2-8-1-js','zerobscrm-calendar-js'), $zbs->version );
+	wp_register_script( 'zerobscrm-events-js', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.task' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment-v2-29-4', 'zerobscrm-calendar-js' ), $zbs->version, false );
 	
 
 	// LOCALE Specific
@@ -741,27 +755,6 @@ add_action( 'wp_enqueue_scripts', 'zeroBSCRM_add_public_scripts', 10, 1 ); */
 		wp_enqueue_script( 'custom-header' );
 	}
 	add_action('admin_enqueue_scripts', 'zeroBSCRM_enqueue_media_manager');
-
-// material admin 3.5 compat
-function zeroBSCRM_admin_styles_compat_materialAdmin(){
-
-	global $zbs;
-	wp_register_style('zbs-compat-matadm', ZEROBSCRM_URL .'/css/integrations/ZeroBSCRM.MaterialAdmin'.wp_scripts_get_suffix().'.css', array(), $zbs->version );
-	wp_enqueue_style( 'zbs-compat-matadm' );
-	
-}
-
-// compat css :)
-function zeroBSCRM_add_admin_compat_scripts($hook) {
-
-	// check
-	$zbs_custom_admin = zeroBSCM_custom_admin_detect();
-	if ($zbs_custom_admin == 'material') zeroBSCRM_admin_styles_compat_materialAdmin();
-    
-}
-add_action( 'admin_enqueue_scripts', 'zeroBSCRM_add_admin_compat_scripts');
-
-
 
 function zeroBSCRM_add_admin_segmenteditor_scripts($hook) {
 

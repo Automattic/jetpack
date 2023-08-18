@@ -9,483 +9,383 @@
  * Date: 01/11/16
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
-
-
-
-/* ======================================================
-  Add Roles
-   ====================================================== */
-
-   // for changes to be enacted, need to remove them before adding them!
-   function zeroBSCRM_clearUserRoles(){
-
-   		remove_role('zerobs_admin');
-   		remove_role('zerobs_customermgr');
-   		remove_role('zerobs_quotemgr');
-   		remove_role('zerobs_invoicemgr');
-   		remove_role('zerobs_transactionmgr');
-   		remove_role('zerobs_customer');
-   		remove_role('zerobs_mailmgr');
-
-   }
-
-	#} Build User Roles
-	function zeroBSCRM_addUserRoles(){
-
-			#} ZBS Admin
-			// Add a custom user role
-			#https://managewp.com/create-custom-user-roles-wordpress
-			$result = add_role(
-				'zerobs_admin',
-				__( 'Jetpack CRM Admin (Full CRM Permissions)', 'zero-bs-crm' ),
-
-				array(
-
-				'read' => true, // true allows this capability
-				'edit_posts' => false, // Allows user to edit their own posts
-				'edit_pages' => false, // Allows user to edit pages
-				'edit_others_posts' => false, // Allows user to edit others posts not just their own
-				'create_posts' => false, // Allows user to create new posts
-				'manage_categories' => false, // Allows user to manage post categories
-				'publish_posts' => false, // Allows the user to publish, otherwise posts stays in draft mode
-
-				)
-
-			);
-
-		    // gets the author role
-		    $role = get_role( 'zerobs_admin' );
-
-		    // This only works, because it accesses the class instance.
-		    // would allow the author to edit others' posts for current theme only
-
-		    #} W Note... can't we add all these above in add_role?
-		    $role->add_cap( 'read' );
-		    $role->remove_cap( 'edit_posts' );
-		   	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
-		    $role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
-		    $role->add_cap( 'admin_zerobs_customers' );
-		    $role->add_cap( 'admin_zerobs_customers_tags' );
-		    $role->add_cap( 'admin_zerobs_quotes' );
-		    $role->add_cap( 'admin_zerobs_events' );
-		    $role->add_cap( 'admin_zerobs_invoices' );
-		    $role->add_cap( 'admin_zerobs_transactions' );
-		    $role->add_cap( 'admin_zerobs_forms' );
-		    // NOTE. Adding this adds a random "Post categories / not posts" to menu
-		    // will have to remove programattically :(
-		    	$role->add_cap( 'manage_categories' );
-		    $role->add_cap( 'manage_sales_dash' ); #mike added
-		    $role->add_cap( 'admin_zerobs_mailcampaigns' );
-		    $role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
-
-		    // added 2.4 - for settings
-		    $role->add_cap( 'admin_zerobs_manage_options' );
-		    // ... and view versions (cannot edit)
-		    $role->add_cap( 'admin_zerobs_view_customers' );
-		    $role->add_cap( 'admin_zerobs_view_quotes' );
-		    $role->add_cap( 'admin_zerobs_view_invoices' );
-		    $role->add_cap( 'admin_zerobs_view_events' );
-		   	$role->add_cap( 'admin_zerobs_view_transactions' );
-
-		   	// logs
-		    $role->add_cap( 'admin_zerobs_logs_addedit' );
-		    $role->add_cap( 'admin_zerobs_logs_delete' );
-
-		    // emails
-		    $role->add_cap( 'admin_zerobs_sendemails_contacts' );
-
-		    unset($role);
-
-
-
-
-		    #=====================================================
-		    #=====================================================
-
-		    #} ALL ADMINS TOO :)
-
-		    // gets the author role
-		    $role = get_role( 'administrator' );
-
-		    // this is for users who've removed 'administrator' role type
-		    // WH temp catch anyhow, for Nimitz.
-		    if ($role !== null){
-
-			    // Caps
-			    $role->add_cap( 'admin_zerobs_customers' );
-			    $role->add_cap( 'admin_zerobs_customers_tags' );
-			    $role->add_cap( 'admin_zerobs_quotes' );
-			    $role->add_cap( 'admin_zerobs_invoices' );
-			    $role->add_cap( 'admin_zerobs_events' );
-			   	$role->add_cap( 'admin_zerobs_transactions' );
-			    $role->add_cap( 'manage_sales_dash' );
-			    $role->add_cap( 'admin_zerobs_mailcampaigns' );
-			    $role->add_cap( 'admin_zerobs_forms' );
-			    $role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
-			    // NOPE. this shouldn't be here, _usr is to group our users $role->add_cap( 'admin_zerobs_usr' );
-
-			    // added 2.4 - for settings
-			    $role->add_cap( 'admin_zerobs_manage_options' );
-			    // ... and view versions (cannot edit)
-			    $role->add_cap( 'admin_zerobs_view_customers' );
-			    $role->add_cap( 'admin_zerobs_view_quotes' );
-			    $role->add_cap( 'admin_zerobs_view_invoices' );
-			    $role->add_cap( 'admin_zerobs_view_events' );
-			   	$role->add_cap( 'admin_zerobs_view_transactions' );
-			   	// needed for notifications
-			   	$role->add_cap( 'admin_zerobs_notifications' );
-
-			   	// logs
-			    $role->add_cap( 'admin_zerobs_logs_addedit' );
-			    $role->add_cap( 'admin_zerobs_logs_delete' );
-
-				//all users
-	            $role->add_cap('admin_zerobs_usr');
-
-			    // emails
-			    $role->add_cap( 'admin_zerobs_sendemails_contacts' );
-
-			    unset($role);
-
-			}
-
-
-
-		    #=====================================================
-		    #=====================================================
-
-		    #} Jetpack Customer Manager
-			$result = add_role(
-				'zerobs_customermgr',
-				__( 'Jetpack CRM Contact Manager', 'zero-bs-crm' ),
-
-				array(
-
-				'read' => true, // true allows this capability
-				'edit_posts' => false, // Allows user to edit their own posts
-				'edit_pages' => false, // Allows user to edit pages
-				'edit_others_posts' => false, // Allows user to edit others posts not just their own
-				'create_posts' => false, // Allows user to create new posts
-				'manage_categories' => false, // Allows user to manage post categories
-				'publish_posts' => false, // Allows the user to publish, otherwise posts stays in draft mode
-
-				)
-
-			);
-
-		    // gets the author role
-		    $role = get_role( 'zerobs_customermgr' );
-
-		    // caps
-		    $role->add_cap( 'read' );
-		    $role->remove_cap( 'edit_posts' );
-		   	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
-		    $role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
-		    $role->add_cap( 'admin_zerobs_customers' );
-		    $role->add_cap( 'admin_zerobs_customers_tags' );
-		    $role->add_cap( 'manage_categories' );
-		    $role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
-			$role->add_cap( 'admin_zerobs_events' );
-
-		    // ... and view versions (cannot edit)
-		    $role->add_cap( 'admin_zerobs_view_customers' );
-		    $role->add_cap( 'admin_zerobs_view_quotes' );
-		    $role->add_cap( 'admin_zerobs_view_invoices' );
-		    $role->add_cap( 'admin_zerobs_view_events' );
-		   	$role->add_cap( 'admin_zerobs_view_transactions' );
-		   	
-		   	// ADDING these until we have singular views for all
-		    $role->add_cap( 'admin_zerobs_quotes' );
-		    $role->add_cap( 'admin_zerobs_events' );
-		    $role->add_cap( 'admin_zerobs_invoices' );
-		    $role->add_cap( 'admin_zerobs_transactions' );
-		   	// needed for notifications
-		   	$role->add_cap( 'admin_zerobs_notifications' );
-
-		   	// logs
-		    $role->add_cap( 'admin_zerobs_logs_addedit' );
-		    //$role->add_cap( 'admin_zerobs_logs_delete' );
-            
-		    // emails
-		    $role->add_cap( 'admin_zerobs_sendemails_contacts' );
-
-		    unset($role);
-
-
-
-
-		    #=====================================================
-		    #=====================================================
-
-
-
-		    #} ZBS Quote Manager
-			$result = add_role(
-				'zerobs_quotemgr',
-				__( 'Jetpack CRM Quote Manager', 'zero-bs-crm' ),
-
-				array(
-
-				'read' => true, // true allows this capability
-				'edit_posts' => false, // Allows user to edit their own posts
-				'edit_pages' => false, // Allows user to edit pages
-				'edit_others_posts' => false, // Allows user to edit others posts not just their own
-				'create_posts' => false, // Allows user to create new posts
-				'manage_categories' => false, // Allows user to manage post categories
-				'publish_posts' => false, // Allows the user to publish, otherwise posts stays in draft mode
-
-				)
-
-			);
-
-		    // gets the author role
-		    $role = get_role( 'zerobs_quotemgr' );
-
-		    // caps
-		    $role->add_cap( 'read' );
-		    $role->remove_cap( 'edit_posts' );
-		   	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
-		    $role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
-		    $role->add_cap( 'admin_zerobs_quotes' );
-		    $role->add_cap( 'manage_categories' );
-		    $role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
-		    // ... and view versions (cannot edit)
-		    $role->add_cap( 'admin_zerobs_view_customers' );
-		    $role->add_cap( 'admin_zerobs_view_quotes' );
-		    $role->add_cap( 'admin_zerobs_view_events' );
-
-		   	// ADDING these until we have singular views for all
-		    $role->add_cap( 'admin_zerobs_customers' );
-		    $role->add_cap( 'admin_zerobs_events' );
-		   	// needed for notifications
-		   	$role->add_cap( 'admin_zerobs_notifications' );
-
-		   	// logs
-		    $role->add_cap( 'admin_zerobs_logs_addedit' );
-		    //$role->add_cap( 'admin_zerobs_logs_delete' );
-
-		    unset($role);
-
-
-
-
-		    #=====================================================
-		    #=====================================================
-
-		    #} ZBS Invoice Manager
-			$result = add_role(
-				'zerobs_invoicemgr',
-				__( 'Jetpack CRM Invoice Manager', 'zero-bs-crm' ),
-
-				array(
-
-				'read' => true, // true allows this capability
-				'edit_posts' => false, // Allows user to edit their own posts
-				'edit_pages' => false, // Allows user to edit pages
-				'edit_others_posts' => false, // Allows user to edit others posts not just their own
-				'create_posts' => false, // Allows user to create new posts
-				'manage_categories' => false, // Allows user to manage post categories
-				'publish_posts' => false, // Allows the user to publish, otherwise posts stays in draft mode
-
-				)
-
-			);
-
-		    // gets the author role
-		    $role = get_role( 'zerobs_invoicemgr' );
-
-		    // caps
-		    $role->add_cap( 'read' );
-		    $role->remove_cap( 'edit_posts' );
-		   	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
-		    $role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
-		    $role->add_cap( 'admin_zerobs_invoices' );
-		    $role->add_cap( 'manage_categories' );
-		    $role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
-		    // ... and view versions (cannot edit)
-		    $role->add_cap( 'admin_zerobs_view_customers' );
-		    $role->add_cap( 'admin_zerobs_view_events' );
-		    $role->add_cap( 'admin_zerobs_view_invoices' );
-
-		   	// ADDING these until we have singular views for all
-		    $role->add_cap( 'admin_zerobs_customers' );
-		    $role->add_cap( 'admin_zerobs_events' );
-		   	// needed for notifications
-		   	$role->add_cap( 'admin_zerobs_notifications' );
-
-		   	// logs
-		    $role->add_cap( 'admin_zerobs_logs_addedit' );
-		    //$role->add_cap( 'admin_zerobs_logs_delete' );
-
-		    unset($role);
-
-
-
-
-		    #=====================================================
-		    #=====================================================
-
-		    #} ZBS Transaction Manager
-			$result = add_role(
-				'zerobs_transactionmgr',
-				__( 'Jetpack CRM Transaction Manager', 'zero-bs-crm' ),
-
-				array(
-
-				'read' => false, // true allows this capability
-				'edit_posts' => false, // Allows user to edit their own posts
-				'edit_pages' => false, // Allows user to edit pages
-				'edit_others_posts' => false, // Allows user to edit others posts not just their own
-				'create_posts' => false, // Allows user to create new posts
-				'manage_categories' => false, // Allows user to manage post categories
-				'publish_posts' => false, // Allows the user to publish, otherwise posts stays in draft mode
-
-				)
-
-			);
-
-		    // gets the author role
-		    $role = get_role( 'zerobs_transactionmgr' );
-
-		    // caps
-		    $role->add_cap( 'read' );
-		    $role->remove_cap( 'edit_posts' );
-		   	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
-		    $role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
-		    $role->add_cap( 'admin_zerobs_transactions' );
-		    $role->add_cap( 'manage_categories' );
-		    $role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
-		    // ... and view versions (cannot edit)
-		    $role->add_cap( 'admin_zerobs_view_customers' );
-		    $role->add_cap( 'admin_zerobs_view_events' );
-		   	$role->add_cap( 'admin_zerobs_view_transactions' );
-
-		   	// ADDING these until we have singular views for all
-		    $role->add_cap( 'admin_zerobs_customers' );
-		    $role->add_cap( 'admin_zerobs_events' );
-		   	// needed for notifications
-		   	$role->add_cap( 'admin_zerobs_notifications' );
-
-		   	// logs
-		    $role->add_cap( 'admin_zerobs_logs_addedit' );
-		    //$role->add_cap( 'admin_zerobs_logs_delete' );
-
-		    unset($role);
-
-
-
-
-		    #=====================================================
-		    #=====================================================
-
-
-		    #} Jetpack Customer
-			$result = add_role(
-				'zerobs_customer',
-				__( 'Jetpack CRM Contact', 'zero-bs-crm' ),
-
-				array(
-
-					'read' => true, // true allows this capability
-					'edit_posts' => false, // Allows user to edit their own posts
-					'edit_pages' => false, // Allows user to edit pages
-					'edit_others_posts' => false, // Allows user to edit others posts not just their own
-					'create_posts' => false, // Allows user to create new posts
-					'manage_categories' => false, // Allows user to manage post categories
-					'publish_posts' => false, // Allows the user to publish, otherwise posts stays in draft mode
-
-				)
-
-			);
-
-
-		    #=====================================================
-		    #=====================================================
-
-		    #} ZBS Mail Manager - Manages campaigns, customers / companies
-			$result = add_role(
-				'zerobs_mailmgr',
-				__( 'Jetpack CRM Mail Manager', 'zero-bs-crm' ),
-
-				array(
-
-				'read' => false, // true allows this capability
-				'edit_posts' => false, // Allows user to edit their own posts
-				'edit_pages' => false, // Allows user to edit pages
-				'edit_others_posts' => false, // Allows user to edit others posts not just their own
-				'create_posts' => false, // Allows user to create new posts
-				'manage_categories' => false, // Allows user to manage post categories
-				'publish_posts' => false, // Allows the user to publish, otherwise posts stays in draft mode
-
-				)
-
-			);
-
-		    // gets the author role
-		    $role = get_role( 'zerobs_mailmgr' );
-
-		    // caps
-		    $role->add_cap( 'read' );
-		    $role->remove_cap( 'edit_posts' );
-		   	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
-		    $role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
-		    $role->add_cap( 'admin_zerobs_mailcampaigns' );
-		    $role->add_cap( 'admin_zerobs_customers' );
-		    $role->add_cap( 'admin_zerobs_customers_tags' );
-		    $role->add_cap( 'manage_categories' );
-		    $role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
-
-		    // ... and view versions (cannot edit)
-		    $role->add_cap( 'admin_zerobs_view_customers' );
-		    $role->add_cap( 'admin_zerobs_view_quotes' );
-		    $role->add_cap( 'admin_zerobs_view_invoices' );
-		    $role->add_cap( 'admin_zerobs_view_events' );
-		   	$role->add_cap( 'admin_zerobs_view_transactions' );
-
-		   	// ADDING these until we have singular views for all
-		    $role->add_cap( 'admin_zerobs_quotes' );
-		    $role->add_cap( 'admin_zerobs_events' );
-		    $role->add_cap( 'admin_zerobs_invoices' );
-		    $role->add_cap( 'admin_zerobs_transactions' );
-		   	// needed for notifications
-		   	$role->add_cap( 'admin_zerobs_notifications' );
-            
-		    // emails
-		    $role->add_cap( 'admin_zerobs_sendemails_contacts' );
-
-		    unset($role);
-
-
-
-
-		    #=====================================================
-		    #=====================================================
-
-
+if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
+	exit;
+}
+
+/**
+ * Remove user roles
+ */
+function zeroBSCRM_clearUserRoles() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	remove_role( 'zerobs_admin' );
+	remove_role( 'zerobs_customermgr' );
+	remove_role( 'zerobs_quotemgr' );
+	remove_role( 'zerobs_invoicemgr' );
+	remove_role( 'zerobs_transactionmgr' );
+	remove_role( 'zerobs_customer' );
+	remove_role( 'zerobs_mailmgr' );
+}
+
+/**
+ * Build User Roles
+ */
+function zeroBSCRM_addUserRoles() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+
+	// Jetpack CRM Admin
+	add_role(
+		'zerobs_admin',
+		__( 'Jetpack CRM Admin (Full CRM Permissions)', 'zero-bs-crm' ),
+		array(
+			'read'              => true,  // true allows this capability
+			'edit_posts'        => false, // Allows user to edit their own posts
+			'edit_pages'        => false, // Allows user to edit pages
+			'edit_others_posts' => false, // Allows user to edit others posts not just their own
+			'create_posts'      => false, // Allows user to create new posts
+			'manage_categories' => false, // Allows user to manage post categories
+			'publish_posts'     => false, // Allows the user to publish, otherwise posts stays in draft mode
+		)
+	);
+
+	// gets the role from WP
+	$role = get_role( 'zerobs_admin' );
+
+	$role->add_cap( 'read' );
+	$role->remove_cap( 'edit_posts' );
+	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
+	$role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
+	// NOTE. Adding this adds a random "Post categories / not posts" to menu
+	// will have to remove programattically :(
+	$role->add_cap( 'manage_categories' );
+	$role->add_cap( 'manage_sales_dash' ); #mike added
+	$role->add_cap( 'admin_zerobs_mailcampaigns' );
+	$role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
+
+	// give permission to edit settings
+	$role->add_cap( 'admin_zerobs_manage_options' );
+
+	// CRM object view capabilities
+	$role->add_cap( 'admin_zerobs_view_customers' );
+	$role->add_cap( 'admin_zerobs_view_quotes' );
+	$role->add_cap( 'admin_zerobs_view_invoices' );
+	$role->add_cap( 'admin_zerobs_view_events' );
+	$role->add_cap( 'admin_zerobs_view_transactions' );
+
+	// CRM object edit capabilities
+	$role->add_cap( 'admin_zerobs_customers' );
+	$role->add_cap( 'admin_zerobs_customers_tags' );
+	$role->add_cap( 'admin_zerobs_quotes' );
+	$role->add_cap( 'admin_zerobs_events' );
+	$role->add_cap( 'admin_zerobs_invoices' );
+	$role->add_cap( 'admin_zerobs_transactions' );
+	$role->add_cap( 'admin_zerobs_forms' );
+
+	// logs
+	$role->add_cap( 'admin_zerobs_logs_addedit' );
+	$role->add_cap( 'admin_zerobs_logs_delete' );
+
+	// emails
+	$role->add_cap( 'admin_zerobs_sendemails_contacts' );
+
+	// paranoia
+	unset( $role );
+
+	// give WP admins extra capabilities
+	$role = get_role( 'administrator' );
+
+	// this is for users who've removed 'administrator' role type
+	// WH temp catch anyhow, for Nimitz.
+	if ( $role !== null ) {
+
+		// Caps
+		$role->add_cap( 'manage_sales_dash' );
+		$role->add_cap( 'admin_zerobs_mailcampaigns' );
+		$role->add_cap( 'admin_zerobs_forms' );
+		$role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
+
+		// give permission to edit settings
+		$role->add_cap( 'admin_zerobs_manage_options' );
+
+		// CRM object view capabilities
+		$role->add_cap( 'admin_zerobs_view_customers' );
+		$role->add_cap( 'admin_zerobs_view_quotes' );
+		$role->add_cap( 'admin_zerobs_view_invoices' );
+		$role->add_cap( 'admin_zerobs_view_events' );
+		$role->add_cap( 'admin_zerobs_view_transactions' );
+
+		// CRM object edit capabilities
+		$role->add_cap( 'admin_zerobs_customers' );
+		$role->add_cap( 'admin_zerobs_customers_tags' );
+		$role->add_cap( 'admin_zerobs_quotes' );
+		$role->add_cap( 'admin_zerobs_invoices' );
+		$role->add_cap( 'admin_zerobs_events' );
+		$role->add_cap( 'admin_zerobs_transactions' );
+
+		// needed for notifications
+		$role->add_cap( 'admin_zerobs_notifications' );
+
+		// logs
+		$role->add_cap( 'admin_zerobs_logs_addedit' );
+		$role->add_cap( 'admin_zerobs_logs_delete' );
+
+		// all users
+		$role->add_cap( 'admin_zerobs_usr' );
+
+		// emails
+		$role->add_cap( 'admin_zerobs_sendemails_contacts' );
+
+		// paranoia
+		unset( $role );
 
 	}
 
-	#function zeroBSCRM_RemoveUserRoles(){
+	// CRM Contact Manager
+	add_role(
+		'zerobs_customermgr',
+		__( 'Jetpack CRM Contact Manager', 'zero-bs-crm' ),
+		array(
+			'read'              => true,  // true allows this capability
+			'edit_posts'        => false, // Allows user to edit their own posts
+			'edit_pages'        => false, // Allows user to edit pages
+			'edit_others_posts' => false, // Allows user to edit others posts not just their own
+			'create_posts'      => false, // Allows user to create new posts
+			'manage_categories' => false, // Allows user to manage post categories
+			'publish_posts'     => false, // Allows the user to publish, otherwise posts stays in draft mode
+		)
+	);
 
-	/*
-		    // gets the author role
-		    $role = get_role( 'zerobs_user' );
+	// gets the role from WP
+	$role = get_role( 'zerobs_customermgr' );
 
-		    // This only works, because it accesses the class instance.
-		    // would allow the author to edit others' posts for current theme only
-		    $role->remove_cap( 'admin_zerobs_customers' );
-		    $role->remove_cap( 'admin_zerobs_quotes' );
-		    $role->remove_cap( 'admin_zerobs_invoices' );
+	// caps
+	$role->add_cap( 'read' );
+	$role->remove_cap( 'edit_posts' );
+	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
+	$role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
+	$role->add_cap( 'manage_categories' );
+	$role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
 
-	*/
+	// CRM object view capabilities
+	$role->add_cap( 'admin_zerobs_view_customers' );
+	$role->add_cap( 'admin_zerobs_view_quotes' );
+	$role->add_cap( 'admin_zerobs_view_invoices' );
+	$role->add_cap( 'admin_zerobs_view_events' );
+	$role->add_cap( 'admin_zerobs_view_transactions' );
 
+	// CRM object edit capabilities
+	$role->add_cap( 'admin_zerobs_customers' );
+	$role->add_cap( 'admin_zerobs_customers_tags' );
+	$role->add_cap( 'admin_zerobs_quotes' );
+	$role->add_cap( 'admin_zerobs_events' );
+	$role->add_cap( 'admin_zerobs_invoices' );
+	$role->add_cap( 'admin_zerobs_transactions' );
+
+	// needed for notifications
+	$role->add_cap( 'admin_zerobs_notifications' );
+
+	// logs
+	$role->add_cap( 'admin_zerobs_logs_addedit' );
+
+	// emails
+	$role->add_cap( 'admin_zerobs_sendemails_contacts' );
+
+	unset( $role );
+
+	// CRM Quote Manager
+	add_role(
+		'zerobs_quotemgr',
+		__( 'Jetpack CRM Quote Manager', 'zero-bs-crm' ),
+		array(
+			'read'              => true,  // true allows this capability
+			'edit_posts'        => false, // Allows user to edit their own posts
+			'edit_pages'        => false, // Allows user to edit pages
+			'edit_others_posts' => false, // Allows user to edit others posts not just their own
+			'create_posts'      => false, // Allows user to create new posts
+			'manage_categories' => false, // Allows user to manage post categories
+			'publish_posts'     => false, // Allows the user to publish, otherwise posts stays in draft mode
+		)
+	);
+
+	// gets the role from WP
+	$role = get_role( 'zerobs_quotemgr' );
+
+	// caps
+	$role->add_cap( 'read' );
+	$role->remove_cap( 'edit_posts' );
+	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
+	$role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
+	$role->add_cap( 'manage_categories' );
+	$role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
+
+	// CRM object view capabilities
+	$role->add_cap( 'admin_zerobs_view_customers' );
+	$role->add_cap( 'admin_zerobs_view_quotes' );
+
+	// CRM object edit capabilities
+	$role->add_cap( 'admin_zerobs_customers' );
+	$role->add_cap( 'admin_zerobs_quotes' );
+
+	// needed for notifications
+	$role->add_cap( 'admin_zerobs_notifications' );
+
+	// logs
+	$role->add_cap( 'admin_zerobs_logs_addedit' );
+
+	// paranoia
+	unset( $role );
+
+	// CRM Invoice Manager
+	add_role(
+		'zerobs_invoicemgr',
+		__( 'Jetpack CRM Invoice Manager', 'zero-bs-crm' ),
+		array(
+			'read'              => true,  // true allows this capability
+			'edit_posts'        => false, // Allows user to edit their own posts
+			'edit_pages'        => false, // Allows user to edit pages
+			'edit_others_posts' => false, // Allows user to edit others posts not just their own
+			'create_posts'      => false, // Allows user to create new posts
+			'manage_categories' => false, // Allows user to manage post categories
+			'publish_posts'     => false, // Allows the user to publish, otherwise posts stays in draft mode
+		)
+	);
+
+	// gets the role from WP
+	$role = get_role( 'zerobs_invoicemgr' );
+
+	// caps
+	$role->add_cap( 'read' );
+	$role->remove_cap( 'edit_posts' );
+	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
+	$role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
+	$role->add_cap( 'manage_categories' );
+	$role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
+
+	// CRM object view capabilities
+	$role->add_cap( 'admin_zerobs_view_customers' );
+	$role->add_cap( 'admin_zerobs_view_invoices' );
+	$role->add_cap( 'admin_zerobs_view_transactions' );
+
+	// CRM object edit capabilities
+	$role->add_cap( 'admin_zerobs_customers' );
+	$role->add_cap( 'admin_zerobs_invoices' );
+	$role->add_cap( 'admin_zerobs_transactions' );
+
+	// needed for notifications
+	$role->add_cap( 'admin_zerobs_notifications' );
+
+	// logs
+	$role->add_cap( 'admin_zerobs_logs_addedit' );
+
+	// paranoia
+	unset( $role );
+
+	// CRM Transaction Manager
+	add_role(
+		'zerobs_transactionmgr',
+		__( 'Jetpack CRM Transaction Manager', 'zero-bs-crm' ),
+		array(
+			'read'              => false, // true allows this capability
+			'edit_posts'        => false, // Allows user to edit their own posts
+			'edit_pages'        => false, // Allows user to edit pages
+			'edit_others_posts' => false, // Allows user to edit others posts not just their own
+			'create_posts'      => false, // Allows user to create new posts
+			'manage_categories' => false, // Allows user to manage post categories
+			'publish_posts'     => false, // Allows the user to publish, otherwise posts stays in draft mode
+		)
+	);
+
+	// gets the role from WP
+	$role = get_role( 'zerobs_transactionmgr' );
+
+	// caps
+	$role->add_cap( 'read' );
+	$role->remove_cap( 'edit_posts' );
+	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
+	$role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
+	$role->add_cap( 'manage_categories' );
+	$role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
+
+	// CRM object view capabilities
+	$role->add_cap( 'admin_zerobs_view_customers' );
+	$role->add_cap( 'admin_zerobs_view_transactions' );
+
+	// CRM object edit capabilities
+	$role->add_cap( 'admin_zerobs_customers' );
+	$role->add_cap( 'admin_zerobs_transactions' );
+
+	// needed for notifications
+	$role->add_cap( 'admin_zerobs_notifications' );
+
+	// logs
+	$role->add_cap( 'admin_zerobs_logs_addedit' );
+
+	// paranoia
+	unset( $role );
+
+	// CRM Customer
+	add_role(
+		'zerobs_customer',
+		__( 'Jetpack CRM Contact', 'zero-bs-crm' ),
+		array(
+			'read'              => true,  // true allows this capability
+			'edit_posts'        => false, // Allows user to edit their own posts
+			'edit_pages'        => false, // Allows user to edit pages
+			'edit_others_posts' => false, // Allows user to edit others posts not just their own
+			'create_posts'      => false, // Allows user to create new posts
+			'manage_categories' => false, // Allows user to manage post categories
+			'publish_posts'     => false, // Allows the user to publish, otherwise posts stays in draft mode
+		)
+	);
+
+	// paranoia
+	unset( $role );
+
+	// CRM Mail Manager - Manages campaigns, customers / companies
+	add_role(
+		'zerobs_mailmgr',
+		__( 'Jetpack CRM Mail Manager', 'zero-bs-crm' ),
+		array(
+			'read'              => false, // true allows this capability
+			'edit_posts'        => false, // Allows user to edit their own posts
+			'edit_pages'        => false, // Allows user to edit pages
+			'edit_others_posts' => false, // Allows user to edit others posts not just their own
+			'create_posts'      => false, // Allows user to create new posts
+			'manage_categories' => false, // Allows user to manage post categories
+			'publish_posts'     => false, // Allows the user to publish, otherwise posts stays in draft mode
+		)
+	);
+
+	// gets the role from WP
+	$role = get_role( 'zerobs_mailmgr' );
+
+	// caps
+	$role->add_cap( 'read' );
+	$role->remove_cap( 'edit_posts' );
+	$role->add_cap( 'upload_files' ); // added 21/5/18 to ensure can upload media
+	$role->add_cap( 'admin_zerobs_usr' ); #} For all zerobs users :)
+	$role->add_cap( 'admin_zerobs_mailcampaigns' );
+	$role->add_cap( 'manage_categories' );
+	$role->add_cap( 'zbs_dash' ); # WH added 1.2 - has rights to view ZBS Dash
+
+	// CRM object view capabilities
+	$role->add_cap( 'admin_zerobs_view_customers' );
+	$role->add_cap( 'admin_zerobs_view_quotes' );
+	$role->add_cap( 'admin_zerobs_view_invoices' );
+	$role->add_cap( 'admin_zerobs_view_events' );
+	$role->add_cap( 'admin_zerobs_view_transactions' );
+
+	// CRM object edit capabilities
+	$role->add_cap( 'admin_zerobs_customers' );
+	$role->add_cap( 'admin_zerobs_customers_tags' );
+	$role->add_cap( 'admin_zerobs_events' );
+
+	// needed for notifications
+	$role->add_cap( 'admin_zerobs_notifications' );
+
+	// emails
+	$role->add_cap( 'admin_zerobs_sendemails_contacts' );
+
+	unset( $role );
+}
 
 /* ======================================================
   / Add + Remove Roles
@@ -692,12 +592,51 @@
 		return false;
 	}
 
-	function zeroBSCRM_permsCustomers(){
+/**
+ * Determine if a user is allowed to manage contacts.
+ *
+ * @since 6.1.0
+ *
+ * @param WP_User $user The WP User to check permission access for.
+ * @param int     $contact_id (Optional) The ID of the CRM contact.
+ * @return bool Returns a bool representing a user permission state.
+ */
+function jpcrm_can_user_manage_contacts( WP_User $user, $contact_id = null ) {
+	/**
+	 * Allow third party plugins to modify the permission conditions for contacts.
+	 *
+	 * @since 6.1.0
+	 *
+	 * @param boolean  $allowed A boolean that represents the permission state.
+	 * @param WP_User  $user The WP User to check permission access for.
+	 * @param int|null $contact_id (Optional) The ID of the CRM contact.
+	 */
+	return (bool) apply_filters(
+		'jpcrm_can_user_manage_contacts',
+		$user->has_cap( 'admin_zerobs_customers' ),
+		$user,
+		$contact_id
+	);
+}
 
-	    $cu = wp_get_current_user();
-	    if ($cu->has_cap('admin_zerobs_customers')) return true;
-	    return false;
+/**
+ * Determine if the current user is allowed to manage contacts.
+ *
+ * @deprecated 6.1.0 Use jpcrm_can_user_manage_contacts()
+ *
+ * @return bool
+ *
+ * @phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+ */
+function zeroBSCRM_permsCustomers() {
+	$current_user = wp_get_current_user();
+
+	if ( ! $current_user instanceof WP_User ) {
+		return false;
 	}
+
+	return jpcrm_can_user_manage_contacts( $current_user ) === true;
+}
 
 	function zeroBSCRM_permsSendEmailContacts(){
 

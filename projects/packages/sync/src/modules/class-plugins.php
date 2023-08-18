@@ -332,8 +332,8 @@ class Plugins extends Module {
 
 		$real_file = WP_PLUGIN_DIR . '/' . $file;
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writeable
-		if ( ! is_writeable( $real_file ) ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+		if ( ! is_writable( $real_file ) ) {
 			return;
 		}
 

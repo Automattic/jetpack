@@ -12,6 +12,7 @@ const ALLOWED_BLOCKS = [ 'jetpack/field-option' ];
 
 function JetpackFieldMultiple( props ) {
 	const {
+		className,
 		clientId,
 		id,
 		type,
@@ -34,7 +35,7 @@ function JetpackFieldMultiple( props ) {
 		[ clientId ]
 	);
 
-	const classes = classnames( 'jetpack-field jetpack-field-multiple', {
+	const classes = classnames( className, 'jetpack-field jetpack-field-multiple', {
 		'is-selected': isSelected,
 		'has-placeholder': ( options && options.length ) || innerBlocks.length,
 	} );
@@ -67,6 +68,8 @@ function JetpackFieldMultiple( props ) {
 			</div>
 
 			<JetpackFieldControls
+				blockClassNames={ classes }
+				clientId={ clientId }
 				id={ id }
 				required={ required }
 				attributes={ attributes }
@@ -90,6 +93,9 @@ export default compose(
 		'inputColor',
 		'labelColor',
 		'fieldBackgroundColor',
+		'buttonBackgroundColor',
+		'buttonBorderRadius',
+		'buttonBorderWidth',
 		'borderColor',
 	] ),
 	withInstanceId

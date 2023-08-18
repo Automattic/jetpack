@@ -59,7 +59,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 				$modules['users'] = 'initial';
 			} elseif ( isset( $args[ $module_name ] ) ) {
 				$ids = explode( ',', $args[ $module_name ] );
-				if ( count( $ids ) > 0 ) {
+				if ( is_countable( $ids ) && count( $ids ) > 0 ) {
 					$modules[ $module_name ] = $ids;
 				}
 			}

@@ -1,14 +1,29 @@
 <?php
 
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
+
 function wpsc_preload_notification_scripts() {
-	global $cache_path;
 	if (
 		isset( $_GET['page'] ) && $_GET['page'] === 'wpsupercache' &&
-		isset( $_GET['tab'] ) && $_GET['tab'] === 'preload' &&
-		@file_exists( $cache_path . 'preload_permalink.txt' )
+		isset( $_GET['tab'] ) && $_GET['tab'] === 'preload'
 	) {
-		wp_enqueue_script( 'preload-notification', plugins_url( '/preload-notification.js', __FILE__ ), array('jquery'), '1.0', 1 );
-		wp_localize_script( 'preload-notification', 'wpsc_preload_ajax', array( 'preload_permalink_url' => home_url( str_replace( $_SERVER['DOCUMENT_ROOT'], '', $cache_path ) . '/preload_permalink.txt' ) ) );
+		wp_enqueue_script(
+			'preload-notification',
+			plugins_url( '/js/preload-notification.js', __DIR__ ),
+			array( 'jquery', 'wp-i18n' ),
+			WPSC_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'preload-notification',
+			'wpsc_preload_ajax',
+			array(
+				'ajax_url'       => admin_url( 'admin-ajax.php' ),
+				'preload_status' => wpsc_get_preload_status( true ),
+			)
+		);
 	}
 }
-add_action( 'admin_enqueue_scripts', 'wpsc_preload_notification_scripts' );
+
+add_action( 'admin_footer', 'wpsc_preload_notification_scripts' );

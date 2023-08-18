@@ -36,7 +36,7 @@ class Options {
 	 */
 	public static function get_options() {
 		// Make sure we only get options from the database and services once per connection.
-		if ( count( self::$options ) > 0 ) {
+		if ( array() !== self::$options ) {
 			return self::$options;
 		}
 

@@ -165,19 +165,14 @@ $zeroBSCRM_Conf_Def = array(
 
 	/* === Field Sorts === */
 	'fieldsorts'                         => array(
-		'address'      => false,
-		'customers'    => false,
-		'quotes'       => false,
-		'invoices'     => false,
-		'transactions' => false,
+		'address'  => array(),
+		'customer' => array(),
+		'company'  => array(),
 	),
 	'fieldhides'                         => array(
-		'address'      => false,
-		'customers'    => false,
-		'company'      => false,
-		'quotes'       => false,
-		'invoices'     => false,
-		'transactions' => false,
+		'address'  => array(),
+		'customer' => array(),
+		'company'  => array(),
 	),
 
 	/*
@@ -257,7 +252,7 @@ $zeroBSCRM_Conf_Def = array(
 	// 'customisedfields' contains additional settings spread across multiple tabs
 	'shippingfortransactions'            => -1,
 	'paiddatestransaction'               => -1,
-	'transinclude_status'                => array( 'Succeeded', 'Completed', 'Failed', 'Refunded', 'Processing', 'Pending', 'Hold' ),
+	'transinclude_status'                => array( 'Succeeded', 'Completed', 'Failed', 'Refunded', 'Processing', 'Pending', 'Hold', 'Draft' ),
 	'transaction_fee'                    => -1,
 	'transaction_tax'                    => -1,
 	'transaction_discount'               => -1,
@@ -329,7 +324,7 @@ $zeroBSCRM_Conf_Def = array(
 			// Note: Changes here should be reflected in `transinclude_status` as well
 			'status' => array(
 				1,
-				'Succeeded,Completed,Failed,Refunded,Processing,Pending,Hold,Cancelled,Deleted',
+				'Succeeded,Completed,Failed,Refunded,Processing,Pending,Hold,Cancelled,Deleted,Draft',
 			),
 		),
 

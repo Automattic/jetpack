@@ -452,6 +452,7 @@ add_shortcode( 'youtube', 'youtube_shortcode' );
  * @return array The width and height of the shortcode.
  */
 function jetpack_shortcode_youtube_dimensions( $query_args ) {
+	$h = null;
 	global $content_width;
 
 	$input_w = ( isset( $query_args['w'] ) && (int) $query_args['w'] ) ? (int) $query_args['w'] : 0;

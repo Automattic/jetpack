@@ -424,7 +424,7 @@ abstract class Base_Admin_Menu {
 			// Menu items that don't have icons, for example separators, have less than 7
 			// elements, partly because the 7th is the icon. So, if we have less than 7,
 			// let's skip it.
-			if ( count( $menu_item ) < 7 ) {
+			if ( ! is_countable( $menu_item ) || ( count( $menu_item ) < 7 ) ) {
 				continue;
 			}
 
@@ -444,7 +444,7 @@ abstract class Base_Admin_Menu {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$menu[ $idx ] = $menu_item;
 		}
-		if ( count( $svg_items ) > 0 ) {
+		if ( $svg_items !== array() ) {
 			$styles = '.menu-svg-icon .wp-menu-image { background-repeat: no-repeat; background-position: center center } ';
 			foreach ( $svg_items as $svg_item ) {
 				$styles .= sprintf( '#%s .wp-menu-image { background-image: url( "%s" ) }', $svg_item['id'], $svg_item['icon'] );

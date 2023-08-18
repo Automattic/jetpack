@@ -35,23 +35,6 @@ describe( 'ConnectScreen', () => {
 		expect( screen.getByRole( 'button', { name: CONNECTION_BUTTON_LABEL } ) ).toBeEnabled();
 	} );
 
-	it( 'displays neither terms of service nor a connection button if `showConnectButton` is false', () => {
-		render( <ConnectScreen { ...requiredProps } showConnectButton={ false } /> );
-
-		expect(
-			screen.queryByText(
-				( content, { textContent } ) =>
-					content !== '' && // filter out parent/wrapper elements
-					textContent.startsWith(
-						`By clicking the ${ CONNECTION_BUTTON_LABEL } button, you agree to our Terms of Service`
-					)
-			)
-		).not.toBeInTheDocument();
-		expect(
-			screen.queryByRole( 'button', { name: CONNECTION_BUTTON_LABEL } )
-		).not.toBeInTheDocument();
-	} );
-
 	it( 'applies correct href to terms of service', () => {
 		render( <ConnectScreen { ...requiredProps } /> );
 		const terms = screen.getByRole( 'link', { name: 'Terms of Service' } );

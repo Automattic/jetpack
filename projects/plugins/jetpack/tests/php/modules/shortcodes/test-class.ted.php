@@ -34,7 +34,7 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 		$oembed_query      = wp_parse_url( $url, PHP_URL_QUERY );
 		$oembed_query_args = null;
 		wp_parse_str( $oembed_query, $oembed_query_args );
-		if ( ! isset( $oembed_query_args['maxheight'], $oembed_query_args['maxwidth'], $oembed_query_args['url'], $oembed_query_args['lang'] ) ) {
+		if ( ! isset( $oembed_query_args['maxheight'] ) || ! isset( $oembed_query_args['maxwidth'] ) || ! isset( $oembed_query_args['url'] ) || ! isset( $oembed_query_args['lang'] ) ) {
 			return new WP_Error( 'unexpected-http-request', 'Test is making an unexpected HTTP request.' );
 		}
 
@@ -101,7 +101,7 @@ BODY;
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_exists() {
-		$this->assertEquals( shortcode_exists( 'ted' ), true );
+		$this->assertTrue( shortcode_exists( 'ted' ) );
 	}
 
 	/**

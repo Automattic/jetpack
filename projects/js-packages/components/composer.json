@@ -25,5 +25,13 @@
 				"monorepo": true
 			}
 		}
-	]
+	],
+	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"mirror-repo": "Automattic/jetpack-components",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-components/compare/${old}...${new}"
+		}
+	}
 }

@@ -115,8 +115,8 @@ class IDC_Simulator {
 	 * @param string $hook Called hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( strpos( $hook, 'jetpack_page_broken-token' ) === 0 ) {
-			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . '/css/style.css', array(), JETPACK_DEBUG_HELPER_VERSION );
+		if ( strpos( $hook, 'jetpack-debug_page_idc-simulator' ) === 0 ) {
+			wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . 'inc/css/idc-simulator.css', array(), JETPACK_DEBUG_HELPER_VERSION );
 		}
 	}
 

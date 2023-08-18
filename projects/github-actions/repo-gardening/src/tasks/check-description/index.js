@@ -94,7 +94,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
 
 		// Look for a code freeze date in the milestone description.
-		const dateRegex = /^Code Freeze: (\d{4}-\d{2}-\d{2})\s*$/m;
+		const dateRegex = /^(?:Code Freeze|Branch Cut): (\d{4}-\d{2}-\d{2})\s*$/m;
 		const freezeDateDescription = nextMilestone.description.match( dateRegex );
 
 		// If we have a date and it is valid, use it, otherwise set code freeze to a week before the release.
@@ -225,7 +225,7 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 	return affectedProjects.reduce( ( acc, project ) => {
 		const composerFile = `${ baseDir }/projects/${ project }/composer.json`;
 		const json = JSON.parse( fs.readFileSync( composerFile ) );
-		// Changelog directory could customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
+		// Changelog directory could be customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
 		const changelogDir =
 			path.relative(
 				baseDir,
@@ -235,7 +235,16 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 						'changelog'
 				)
 			) + '/';
-		const found = files.find( file => file.startsWith( changelogDir ) );
+		// Changelog file could also be customized via .extra.changelogger.changelog in composer.json. Lets check for it.
+		const changelogFile = path.relative(
+			baseDir,
+			path.resolve(
+				`${ baseDir }/projects/${ project }`,
+				( json.extra && json.extra.changelogger && json.extra.changelogger.changelog ) ||
+					'CHANGELOG.md'
+			)
+		);
+		const found = files.find( file => file === changelogFile || file.startsWith( changelogDir ) );
 		if ( ! found ) {
 			acc.push( `projects/${ project }` );
 		}
@@ -507,8 +516,8 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 		comment += `
 
 Once your PR is ready for review, check one last time that all required checks (other than "Required review") appearing at the bottom of this PR are passing or skipped.
-Then, add the "[Status] Needs Team review" label and ask someone from your team review the code.
-Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
+Then, add the "[Status] Needs Team Review" label and ask someone from your team review the code. Once reviewed, it can then be merged.
+If you need an extra review from someone familiar with the codebase, you can update the labels from "[Status] Needs Team Review" to "[Status] Needs Review", and in that case Jetpack Approvers will do a final review of your PR.`;
 	}
 
 	// Gather info about the next release for that plugin.

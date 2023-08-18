@@ -152,7 +152,7 @@ export function useSyncMedia(
 	setAttributes: VideoBlockSetAttributesProps
 ): UseSyncMedia {
 	const { id, guid, isPrivate } = attributes;
-	const { videoData, isRequestingVideoData } = useVideoData( {
+	const { videoData, isRequestingVideoData, videoBelongToSite } = useVideoData( {
 		id,
 		guid,
 		skipRatingControl: true,
@@ -425,6 +425,7 @@ export function useSyncMedia(
 		forceInitialState: updateInitialState,
 		videoData,
 		isRequestingVideoData,
+		videoBelongToSite,
 		error,
 		isOverwriteChapterAllowed,
 		isGeneratingPoster,

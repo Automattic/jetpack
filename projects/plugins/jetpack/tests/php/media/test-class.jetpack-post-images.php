@@ -184,7 +184,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
 
-		$this->assertEquals( count( $images ), 1 );
+		$this->assertCount( 1, $images );
 	}
 
 	/**
@@ -401,7 +401,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
 
-		$this->assertEquals( count( $images ), 1 );
+		$this->assertCount( 1, $images );
 	}
 
 	/**

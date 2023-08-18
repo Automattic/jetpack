@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack;
 
 use Brain\Monkey;
-use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -245,19 +244,6 @@ class Test_Blocks extends TestCase {
 		} finally {
 			remove_filter( 'jetpack_is_fse_theme', '__return_true' );
 		}
-	}
-
-	/**
-	 * Test that we can detect an FSE theme using the provided gutenberg_is_fse_theme function.
-	 *
-	 * @since 9.8.0
-	 *
-	 * @covers Automattic\Jetpack\Blocks::is_fse_theme
-	 */
-	public function test_is_fse_theme_via_gutenberg_function() {
-		Functions\when( 'gutenberg_is_fse_theme' )->justReturn( true );
-
-		$this->assertTrue( Blocks::is_fse_theme() );
 	}
 
 	/**

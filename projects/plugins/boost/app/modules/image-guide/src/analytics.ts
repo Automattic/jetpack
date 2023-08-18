@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { recordBoostEvent } from '../../../assets/src/js/utils/analytics';
+import { recordBoostPixelEvent } from '../../../assets/src/js/utils/analytics';
 import { guideState } from './stores/GuideState';
 import { MeasurableImageStore } from './stores/MeasurableImageStore';
 
@@ -57,7 +57,7 @@ export default class ImageGuideAnalytics {
 						image_url: imageURL,
 					};
 
-					recordBoostEvent( 'image_guide_image_outcome', {
+					recordBoostPixelEvent( 'image_guide_image_outcome', {
 						...props,
 						window_width: window.innerWidth,
 						window_height: window.innerHeight,
@@ -94,7 +94,7 @@ export default class ImageGuideAnalytics {
 			return total + ( result.potential_savings || 0 );
 		}, 0 );
 
-		recordBoostEvent( 'image_guide_page_outcome', {
+		recordBoostPixelEvent( 'image_guide_page_outcome', {
 			total_potential_savings: totalPotentialSavings,
 			red_severity_count: results.filter( result => result.severity === 'red' ).length,
 			yellow_severity_count: results.filter( result => result.severity === 'yellow' ).length,
@@ -109,7 +109,7 @@ export default class ImageGuideAnalytics {
 	 * Track the state of the UI when the user loads a page.
 	 */
 	public static trackInitialState() {
-		recordBoostEvent( 'image_guide_initial_ui_state', {
+		recordBoostPixelEvent( 'image_guide_initial_ui_state', {
 			image_guide_state: get( guideState ),
 		} );
 	}
@@ -118,7 +118,7 @@ export default class ImageGuideAnalytics {
 	 * Track the state of the UI when the user changes it.
 	 */
 	public static trackUIStateChange() {
-		recordBoostEvent( 'image_guide_ui_state_change', {
+		recordBoostPixelEvent( 'image_guide_ui_state_change', {
 			image_guide_state: get( guideState ),
 		} );
 	}

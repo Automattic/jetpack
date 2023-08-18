@@ -873,17 +873,6 @@ function zeroBSCRM_updateCustomerFiles($cID=-1,$filesArray=false){
 
 }
 
-// DEPRECATED: get summarised custom fields for a contact
-function zeroBS_getContactCustomFields($cid = -1,$includeHidden=false){
-
-	zeroBSCRM_DEPRECATEDMSG('zeroBS_getContactCustomFields was deprecated in v3.0.13, please use getSingleCustomFields()');
-
-	// centralised 3.0.13
-	global $zbs;
-	return $zbs->DAL->contacts->getSingleCustomFields($id,false);
-
-}
-
 #} As of v1.1 can pass searchphrase
 #} As of v1.2 can pass tags
 #} As of v2.2 has associated func getCustomersCountIncParams for getting the TOTAL for a search (ignoring pages)
@@ -1804,90 +1793,6 @@ function zeroBSCRM_mergeCustomers($dominantID=-1,$slaveID=-1){
 
 }
 
-/* 
-
-	Raw first func, not to be used DIRECTLY... use wrapper if writing extension - see docs there 
-
-	#} Needs fully formed cFields array with prefix to cfields zbsc_ e.g. "zbsc_status" or "zbsc_fname"
-	#} Passing it an ID will update rather than insert
-	#} Passing it a non correct Post type will crap it out... not exposable function... for WOODY only for now.. lol. Use extension function above not this.
-
-	
-	#} RE: FallbackLogs
-		Passing an array like this:
-
-			array(
-				'type' => 'Form Filled',#'form_filled',
-				'shortdesc' => 'Dude filled out the form x on y',
-				'longdesc' => ''
-			)
-			
-		(Long desc is optional)
-
-	#} CURRENT Note Types: 
-
-        'note': { label: 'Note', ico: 'fa-sticky-note-o' },
-        'call': { label: 'Call', ico: 'fa-phone-square' },
-        'email': { label: 'Email', ico: 'fa-envelope-o' },
-        'meeting': { label: 'Meeting', ico: 'fa-users' },
-        'quote__sent': { label: 'Quote: Sent', ico: 'fa-share-square-o' },
-        'quote__accepted': { label: 'Quote: Accepted', ico: 'fa-thumbs-o-up' },
-        'quote__refused': { label: 'Quote: Refused', ico: 'fa-ban' },
-        'invoice__sent': { label: 'Invoice: Sent', ico: 'fa-share-square-o' },
-        'invoice__part_paid': { label: 'Invoice: Part Paid', ico: 'fa-money' },
-        'invoice__paid': { label: 'Invoice: Paid', ico: 'fa-money' },
-        'invoice__refunded': { label: 'Invoice: Refunded', ico: 'fa-money' },
-        'transaction': { label: 'Transaction', ico: 'fa-credit-card' },
-        'tweet': { label: 'Tweet', ico: 'fa-twitter' },
-        'facebook_post': { label: 'Facebook Post', ico: 'fa-facebook-official' },
-        'created': { label: 'Created', ico: 'fa-plus-circle' },
-        'updated': { label: 'Updated', ico: 'fa-pencil-square-o' },
-        'quote_created': { label: 'Quote Created', ico: 'fa-plus-circle' },
-        'invoice_created': { label: 'Invoice Created', ico: 'fa-plus-circle' },
-        'form_filled': { label: 'Form Filled', ico: 'fa-wpforms'}
-
-
-	#} RE: $extraMeta (This isn't used anywhere yet, talk to WH before using)
-
-		... this is a key value array passable to add extra values to customers
-		... should look like:
-
-		$extraMeta = array(
-
-			array('key_here',12345),
-			array('another','what')
-
-		)
-
-		... which will add the following meta to a customer:
-
-		zbs_customer_extra_key_here = 12345
-		zbs_customer_extra_another = what
-
-		... BRUTALLY - no checking, just overwrites! (so be careful)
-
-
-
-	#} Re: $automatorPassthrough
-
-		... adding anything here allows it to be passed through to the internal automator (which currently sets notes)
-		... this means you can pass an array with note str overrides... e.g.
-
-		array(
-
-			'note_override' => array(
-		
-						'type' => 'Form Filled',#'form_filled',
-						'shortdesc' => 'Dude filled out the form x on y',
-						'longdesc' => ''					
-
-			)
-
-		)
-
-		... see recipes to see what's useful :)
-
-*/
 function zeroBS_addUpdateCustomer(
 
 		$cID = -1,
@@ -2284,14 +2189,6 @@ function zeroBSCRM_getLog($lID=-1){
 	return false;
 }
 
-// NOTE This is not to be used, as LOGS can now be against other objs, not just customer etc!!!
-function zeroBSCRM_getLogs($customerID=false,$withFullDetails=false,$perPage=100,$page=0,$searchPhrase='',$argsOverride=false){
-
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_getLogs has been replaced by zeroBSCRM_getContactLogs etc. or (better still) DAL2 calls direct');
-	exit();
-
-}
-
 function zeroBSCRM_getContactLogs($customerID=-1,$withFullDetails=false,$perPage=100,$page=0,$searchPhrase='',$argsOverride=false){
 			
 
@@ -2396,22 +2293,6 @@ function zeroBSCRM_logTypeStrToDB($str=''){
 	global $zbs;
 	return $zbs->DAL->logs->logTypeIn($str);
 
-}
-
-#} Wrapper func for "logs" against customer
-/* DEPRECATED from DAL3, we no longer use CPT logs - STOP! */
-function zeroBSCRM_getCPTLogs($customerID=false,$withFullDetails=false,$perPage=100,$page=0,$searchPhrase='',$argsOverride=false){
-
-		zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. zeroBSCRM_getCPTLogs should no longer be used (no logs stored in CPT).');
-		return array();
-	
-}
-
-
-function zeroBSCRM_getMostRecentLog($objID=false,$withFullDetails=false,$restrictToTypes=false){
-
-	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_getMostRecentLog has been replaced by zeroBSCRM_getMostRecentContactLog etc. or (better still) DAL2 calls direct');
-	exit();
 }
 
 function zeroBSCRM_getMostRecentContactLog($objID=false,$withFullDetails=false,$restrictToTypes=false){
@@ -2527,7 +2408,6 @@ function zeroBS_addUpdateLog(
 		// DAL3 NO CPT LOGS: 
 			//} else 
 			// fallback
-			//return zeroBS_addUpdateCPTLog($cID,$logID,$logDate,$noteFields);
 
 		// translate zerobs_customer to 1
 		$typeID = $zbs->DAL->objTypeID($objType);
@@ -2618,21 +2498,6 @@ function zeroBS_addUpdateObjLog(
 		return false;
 
 }
-// STILL OLD STYLE, FOR NOW!
-// NOPE
-function zeroBS_addUpdateCPTLog(
-
-		$cID = -1,
-		$logID = -1,
-		$logDate = -1,
-		$noteFields = array()
-
-		){
-
-	zeroBSCRM_DEPRECATEDMSG('zeroBS_addUpdateCPTLog has been replaced by DAL3 logging. Please do no use (migrate to zeroBS_addUpdateObjLog)');		
-	return false;
-
-}
 
 
 
@@ -2641,6 +2506,7 @@ function zeroBS_addUpdateCPTLog(
 // ... here it does DAL2 equiv
 // WH Note: if using old WP method (wp_set_post_terms) can pass tags or tagIDS - DB2 currently only accepts tagIDs - to add in
 // ... to get around this I've temp added $usingTagIDS=true flag
+// still used in bulk-tagger and groove-connect extensions as of 9 May 1923
 function zeroBSCRM_DAL2_set_post_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$append=true,$usingTagIDS=true){
 
 	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_set_post_terms has been replaced by DAL3 tagging. Please do no use');		
@@ -2666,35 +2532,13 @@ function zeroBSCRM_DAL2_set_post_terms($cID=-1,$tags=array(),$taxonomy='zerobscr
 	}
 	return false;
 
-	/*
-	// we only switch out for customer tags, rest just go old way
-	if ($taxonomy == 'zerobscrm_customertag'){
-
-		global $zbs;
-
-		$mode = 'replace'; if ($append) $mode = 'append';
-
-		$fieldName = 'tagIDs'; if (!$usingTagIDS) $fieldName = 'tags';
-
-		return $zbs->DAL->addUpdateObjectTags(array(
-														'objid' 		=> $cID,
-														'objtype' 		=> ZBS_TYPE_CONTACT,
-														$fieldName		=> $tags,
-														'mode'			=> $mode
-												));
-
-	} else {
-
-		return wp_set_post_terms($cID,$tags,$taxonomy,$append);
-		
-	} */
-
 }
 
 // allows us to lazily 'hotswap' wp_set_object_terms in extensions (e.g. pre DAL2 it'll just fire wp_set_object_terms)
 // ... here it does DAL2 equiv
 // WH Note: if using old WP method (wp_set_object_terms) can pass tags or tagIDS - DB2 currently only accepts tagIDs - to add in
 // ... to get around this I've temp added $usingTagIDS=true flag
+// still used in several extensions as of 9 May 1923
 function zeroBSCRM_DAL2_set_object_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$append=true,$usingTagIDS=true){
 
 	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_set_object_terms has been replaced by DAL3 tagging. Please do no use');		
@@ -2749,6 +2593,7 @@ function zeroBSCRM_DAL2_set_object_terms($cID=-1,$tags=array(),$taxonomy='zerobs
 // ... here it does DAL2 equiv
 // WH Note: if using old WP method (wp_remove_object_terms) can pass tags or tagIDS - DB2 currently only accepts tagIDs - to add in
 // ... to get around this I've temp added $usingTagIDS=true flag
+// still used in csv-importer-pro as of 9 May 1923
 function zeroBSCRM_DAL2_remove_object_terms($cID=-1,$tags=array(),$taxonomy='zerobscrm_customertag',$usingTagIDS=true){
 
 	zeroBSCRM_DEPRECATEDMSG('zeroBSCRM_DAL2_remove_object_terms has been replaced by DAL3 tagging. Please do no use');		
@@ -3117,15 +2962,11 @@ function zeroBS___________DAL30Helpers(){return;}
 							$retArray[ $outputPrefix . $fK ] = sanitize_textarea_field( $arraySource[ $fieldPrefix . $fK ] );
 							break;
 
-		                    case 'date':
+						case 'date':
+							$safe_text = sanitize_text_field( $arraySource[ $fieldPrefix . $fK ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-		                        $retArray[$outputPrefix.$fK] = sanitize_text_field($arraySource[$fieldPrefix.$fK]);
-
-	                    		// translate "01/12/2018" to UTS (without time)
-	                    		// ... by default from DAL3.0
-	                    		$retArray[$outputPrefix.$fK] = zeroBSCRM_locale_dateToUTS($retArray[$outputPrefix.$fK],false);
-
-		                        break;
+							$retArray[ $outputPrefix . $fK ] = jpcrm_date_str_to_uts( $safe_text, '!Y-m-d', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							break;
 
 		                    case 'datetime':
 
@@ -3453,7 +3294,6 @@ function zeroBS___________DAL30Helpers(){return;}
 
 		    	} // / if has model
 
-
 	        // $removeEmpties
 	        if ($removeEmpties){
 
@@ -3473,29 +3313,6 @@ function zeroBS___________DAL30Helpers(){return;}
 	        }
 
 	    return $retArray;
-	}
-
-	/* Centralised delete func - QUITE dodgy, no checks?!*/
-	// DEPRECATED 3.0+ - this is for WP Posts
-	function zeroBS_deleteGeneric($id=-1){
-
-		zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. (zeroBS_deleteGeneric)');
-		return zeroBS_deleteGenericWPPost($id);
-
-	}
-
-	// probably shouldn't need/use this anymore. was some quickly written code from 1+
-	function zeroBS_deleteGenericWPPost($id=-1){
-
-		if (!empty($id)){
-
-			// delete actual post - not forced?
-			$res = wp_delete_post($id,false);
-
-
-		}
-
-		return false;
 	}
 
 	// generally used for list view reformatting - cleans a contact array into simple format
@@ -3648,158 +3465,12 @@ function zeroBS___________DAL30Helpers(){return;}
 
 	}
 
-	// outdated pain, use direct calls not this plz. kthx.
-	function zeroBS_getCompaniesv2(
-
-		$withFullDetails=false,
-		$perPage=10,
-		$page=0,
-		$searchPhrase='',
-		$argsOverride=false,
-		$hasTagIDs='',
-		$inArr = '',
-		$withTags=false,
-		$withAssigned=false,
-		$withLastLog=false,
-		$sortByField='',
-		$sortOrder='DESC',
-		$quickFilters=false,
-		$withTransactions=false,
-		$withInvoices=false,
-		$withQuotes=false,
-		$withValues=false
-
-	){
-
-		// $withFullDetails = irrelevant with new DB2 (always returns)
-		// $argsOverride CAN NO LONGER WORK :)
-		if ($argsOverride !== false) zeroBSCRM_DEPRECATEDMSG('Use of $argsOverride in zeroBS_getCompaniesv2 is no longer relevant (DAL3.0)');
-
-		global $zbs;			
-
-			// legacy from dal1
-			$actualPage = $page;
-			if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
-			if ($actualPage < 0) $actualPage = 0;
-
-			// make ARGS
-			$args = array(				
-
-				// Search/Filtering (leave as false to ignore)
-				'searchPhrase' 	=> $searchPhrase,
-				'inArr'			=> $inArr,
-				'isTagged'		=> $hasTagIDs,
-				'quickFilters'  => $quickFilters,
-
-				'withCustomFields'	=> true,
-				'withQuotes' 		=> $withQuotes,
-				'withInvoices' 		=> $withInvoices,
-				'withTransactions' 	=> $withTransactions,
-				'withLogs' 			=> false,
-				'withLastLog'		=> $withLastLog,
-				'withTags' 			=> $withTags,
-				'withOwner' 		=> $withAssigned,
-				'withValues'		=> $withValues,
-
-				'sortByField' 	=> $sortByField,
-				'sortOrder' 	=> $sortOrder,
-				'page'			=> $actualPage,
-				'perPage'		=> $perPage,
-
-				'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_COMPANY)
-
-
-			);
-
-			return $zbs->DAL->companies->getCompanies($args);
-
-	}
-
-	// MS Cloned from getCustomers
-	// ... WH slightly cleaned
-	// ... NEEDS DB2 to wipe these out (centralise to 1 get func per type with $args)
-	// ... THIS IS A CLONE of getCompaniesv2 which just returns a TOTAL count 
-	// DAL3: Yup. DO NOT USE THIS IN NEW CODE.
-	function zeroBS_getCompaniesv2CountIncParams(
-
-		$searchPhrase='',
-		$argsOverride=false,
-		$hasTagIDs='',
-		$inArr = '',
-		$withTags=false,
-		$withAssigned=false,
-		$withLastLog=false,
-		$sortByField='',
-		$sortOrder='DESC',
-		$quickFilters=false
-
-		){
-
-		// $withFullDetails = irrelevant with new DB2 (always returns)
-		// $argsOverride CAN NO LONGER WORK :)
-		if ($argsOverride !== false) zeroBSCRM_DEPRECATEDMSG('Use of $argsOverride in zeroBS_getCompaniesv2CountIncParams is no longer relevant (DAL3.0)');
-
-		global $zbs;			
-
-			// make ARGS
-			$args = array(				
-
-				// Search/Filtering (leave as false to ignore)
-				'searchPhrase' 	=> $searchPhrase,
-				'inArr'			=> $inArr,
-				'isTagged'		=> $hasTagIDs,
-				'quickFilters'  => $quickFilters,
-
-				// just count, don't need (even if passed above)
-				'count' 			=> true,
-				'withCustomFields'	=> false,
-				'withQuotes' 		=> false,
-				'withInvoices' 		=> false,
-				'withTransactions' 	=> false,
-				'withLogs' 			=> false,
-				'withLastLog'		=> false,
-				'withTags' 			=> false,
-				'withOwner' 		=> false,
-
-				//'sortByField' 	=> $sortByField,
-				//'sortOrder' 	=> $sortOrder,
-				'page'			=> -1,
-				'perPage'		=> -1,
-
-				'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_COMPANY)
-
-
-			);
-
-			return $zbs->DAL->companies->getCompanies($args);
-
-
-	}
-
 	// returns email for a company
 	function zeroBS_companyEmail($companyID='',$companyArr=false){
 		
 		global $zbs; return $zbs->DAL->companies->getCompanyEmail($companyID);
 
 	}
-
-	#} This is deprecated v3.0+ - no need to separately get the meta, is all one obj now :)
-	function zeroBS_getCompanyMeta($coID=-1){
-
-		zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. Please use zeroBS_getCompanyMeta()');
-
-		if (!empty($coID)){
-
-			global $zbs;
-
-			return $zbs->DAL->companies->getCompany($coID,array());
-
-		}
-
-		return false;
-
-	}
-
 
 	// get co with name? legacy shiz
 	function zeroBS_getCompanyIDWithName($coName=''){
@@ -3936,7 +3607,6 @@ function zeroBS___________DAL30Helpers(){return;}
 				if ($coID > 0){
 
 					#} Build "existing meta" to pass, (so we only update fields pushed here)
-					//$existingMeta = zeroBS_getCompanyMeta($postID);
 					$existingMeta = $zbs->DAL->companies->getCompany($coID,array());
 
 					#} need to check the dates here. If a date is passed which is BEFORE the current "created" date then overwrite the date with the new date. If a date is passed which is AFTER the current "created" date, then do not update the date..
@@ -4384,60 +4054,6 @@ function zeroBS___________DAL30Helpers(){return;}
 
 		return false;
 	}
-
-	#TRANSITIONTOMETANO - this returns by ZBSID (quote no, not wp post no)
-	function zeroBS_getQuoteByZBSID($zbsQuoteID=-1){
-
-		zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. (zeroBS_getQuoteByZBSID) Please use $zbs->DAL->quotes->getQuote()');
-
-		if ($zbsQuoteID !== -1){
-
-			#} find post id :)
-			$quoteID = zeroBS_getQuotePostIDFromZBSID($zbsQuoteID);
-			if (!empty($quoteID) && $quoteID > 0){
-			
-				/* wants to return this:
-				return array(
-					'id'=>$wpPostID,
-					'meta'=>get_post_meta($wpPostID, 'zbs_customer_quote_meta', true),
-					'customerid'=>get_post_meta($wpPostID, 'zbs_customer_quote_customer', true),
-					'zbsid' => (int)$zbsQuoteID
-					);
-				... but is gonna return this:
-				*/
-				return zeroBS_getQuote($quoteID);
-				// (which is diff format! any use of getQuoteByZBSID is now borked. - couldn't find any though + did proper search.)
-
-			}
-
-		}
-		
-		return false; 
-	}
-
-
-	// dirty old method, modernised. Avoid using directly, but is basically seaching for override id
-	function zeroBS_getQuotePostIDFromZBSID($zbsQuoteID=-1){
-
-		zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. (zeroBS_getQuotePostIDFromZBSID) Please use $zbs->DAL->quotes->getQuote()');
-
-		if ($qID !== -1){
-
-			global $zbs;
-
-			#} Super rough. Not sure where we use this, but shouldn't.
-			// this searches for override_ids
-			return $zbs->DAL->quotes->getQuote(-1,array(
-				'id_override' => $zbsQuoteID,
-				'withLineItems' => $withQuoteBuilderData,
-				'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_QUOTE))
-			);
-
-		} 
-
-		return false;
-	}
-
 
 	#} Marks a quote as "accepted" and saves as much related data as poss on accepter
 	// again, use DAL to do this in future (zbs->DAL->quotes->addUpdateQuoteStatus directly)
@@ -4920,35 +4536,6 @@ function zeroBS___________DAL30Helpers(){return;}
 		
 		return false; 
 	}
-
-	// DAL3 translated.
-	// invs model now looks diff so adapt everywhere with getInvoice
-	#TRANSITIONTOMETANO - this returns by ZBSID (invoice no, not wp post no)
-	function zeroBS_getInvoiceByZBSID($zbsInvID=-1){
-
-		if ($zbsInvID !== -1){
-
-			global $zbs;
-
-			return $zbs->DAL->invoices->getInvoice(-1,array('idOverride'=>$zbsInvID));
-
-		}
-		
-		return false; 
-	}
-
-	// shim, prolly not needed v3.0+ as can now get directly.
-	#TRANSITIONTOMETANO - this returns wppostid from a ZBSID
-	function zeroBS_getInvoicePostIDFromZBSID($zbsInvID=-1){
-
-		zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. (zeroBS_getInvoicePostIDFromZBSID) Please use $zbs->DAL->invoices->getInvoice()');
-
-			global $zbs; 
-
-			return $zbs->DAL->invoices->getInvoice(-1,array('idOverride'=>$zbsInvID,'onlyID'=>true));
-
-	}
-
 
 	// wh quick shim - checks if (Contact) has any invoices efficiently
 	function zeroBS_contactHasInvoice($contactID=-1){
@@ -5696,6 +5283,25 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 		return false;
 	}
 
+/**
+ * Helper function to calculate the number of deleted invoices for any particular contact / company.
+ *
+ * @param array $all_invoices An array of all invoice or transaction data for a contact / company.
+ *
+ * @returns int An int with the deleted invoices count.
+ */
+function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
+	if ( empty( $all_invoices ) ) {
+		return 0;
+	}
+	$count_deleted = 0;
+	foreach ( $all_invoices as $invoice ) {
+		if ( $invoice['status'] === __( 'Deleted', 'zero-bs-crm' ) ) {
+			++$count_deleted;
+		}
+	}
+	return $count_deleted;
+}
 
 /* ======================================================
   	/ Invoice helpers
@@ -6554,61 +6160,6 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 
 	}
 
-	// FOLLOWING 2 funcs should be moved to DAL2 
-	//... here's there big day...
-	function zeroBSCRM_task_getMeta($ID = -1){
-		
-			zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. zeroBSCRM_task_getMeta should now be replaced with proper zbs->DAL->calls');
-
-			return $zbs->DAL->events->getEvent($ID,array('ignoreowner' => zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_EVENT)));
-
-		/* this was messy, rather than deal with it, just gonna return the task obj.
-	  $ret = false;
-	  #} if we are on a new post, status will be auto-draft
-	  if(get_post_status($ID) == 'auto-draft'){
-	      $ret['placeholder'] = __('Task Name...', 'zero-bs-crm');
-	      $ret['title'] = '';
-	      return $ret;
-	  }
-
-
-	  if($ID > 0){
-	      $ret1           = get_post_meta($ID,'zbs_event_meta',true);
-	      $ret2           = get_post_meta($ID,'zbs_event_actions', true);
-	      $owner          = zeroBS_getOwner($ID,true,'zerobs_event');
-	      $ret3['owner']  = $owner['ID'];
-	      
-	      $ret            = array_merge($ret1,$ret2);
-
-	      $ret            = array_merge($ret,$ret3);
-	      if(!array_key_exists('title', $ret)){
-	          $ret['title'] = get_the_title($ID);
-	          if($ret['title'] == __('Auto Draft','zero-bs-crm')){
-	              $ret['title'] = '';
-	          }
-	      }
-	      $ret['placeholder'] = __('Task Name...', 'zero-bs-crm');
-	  }else{
-	      $ret['placeholder'] = __('Task Name...', 'zero-bs-crm');
-	      $ret['title'] = '';
-	  }
-	  */
-
-
-	  return $ret;
-	}
-
-	function zeroBSCRM_task_updateMeta($ID = -1, $meta = array()){
-
-				
-		zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. zeroBSCRM_task_updateMeta should now be replaced with proper zbs->DAL->calls');
-
-	  	// Don't do anything. This needs to update via $zbs->DAL now, and will be disfunctional if we pass from here.
-	  	return false;
-
-	}
-
-
 /* ======================================================
   	/ Event helpers
    ====================================================== */
@@ -6982,37 +6533,6 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 		}
 
 		return false;
-	}
-
-	// Alias "type"
-	// returns a hard-typed "type"
-	// e.g. 1 = customer, 2 = company etc.
-	// DEPRECATED In 3.0, replaced with centralisd DAL 
-	function zeroBS_getAKAType($typestr=''){
-
-		// USE DAL
-		global $zbs;
-
-		// catch some legacy use (probs never called now)
-		if ($typestr == 'customer') $typestr = 'contact';
-
-		return $zbs->DAL->objTypeID($typestr);
-
-	/*
-		switch($typestr){
-
-			case 'customer':
-
-				return ZBS_TYPE_CONTACT;
-
-				break;
-
-
-		}
-
-		return -1;
-	*/
-
 	}
 
 /* ======================================================
@@ -8515,53 +8035,15 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 		}
 
 		/// ======= / Statuses wrappers - bit antiquated  now... 
-	
 
-	// This isn't super obvious what it does, I guess it's really
-	// "Is Invoice Assigned to Contact"
-	// ... but actually returns the cid, regardless?
-	// .. adapting to dal3 in that vein
-	// ... WH renamed to zeroBSCRM_invoice_getContactAssigned() below, and marked this as deprecated.
-	// ... makes even less sense when companies can get access to portal.
-	function zeroBSCRM_invoice_canView($cID=-1, $invID=-1){
-
-		zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. zeroBSCRM_invoice_canView should now be replaced with zeroBSCRM_invoice_getContactAssigned (or DAL call better)');
-
-		/*if (!empty($cID) && !empty($invID)){
-			$accessID = get_post_meta($invID, 'zbs_customer_invoice_customer', true);
-			return $accessID;
-		}*/
-		return zeroBSCRM_invoice_getContactAssigned($invID);
-
-	}
-
-	// use this, or direct call, over zeroBSCRM_invoice_canView (naming doesn't mke sense there)
+	// use this, or direct call
 	function zeroBSCRM_invoice_getContactAssigned($invID=-1){
 
 		global $zbs;
 		return $zbs->DAL->invoices->getInvoiceContactID($invID);
 	}
 
-
-	// This isn't super obvious what it does, I guess it's really
-	// "Is Invoice Assigned to Contact"
-	// ... but actually returns the cid, regardless?
-	// .. adapting to dal3 in that vain
-	// ... WH renamed to zeroBSCRM_quote_getContactAssigned() below, and marked this as deprecated.
-	// ... makes even less sense when companies can get access to portal.
-	function zeroBSCRM_quote_canView($cID=-1, $quoteID=-1){
-
-		zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. zeroBSCRM_quote_canView should now be replaced with zeroBSCRM_quote_getContactAssigned (or DAL call better)');
-
-		/*if (!empty($cID) && !empty($invID)){
-			$accessID = get_post_meta($invID, 'zbs_customer_quote_customer', true);
-			return $accessID;
-		} */
-		return zeroBSCRM_quote_getContactAssigned($quoteID);
-
-	}
-
-	// use this, or direct call, over zeroBSCRM_quote_canView (naming doesn't mke sense there)
+	// use this, or direct call
 	function zeroBSCRM_quote_getContactAssigned($quoteID=-1){
 
 		global $zbs;
@@ -9069,355 +8551,3 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 /* ======================================================
   	/ General/WP helpers
    ====================================================== */
-
-
-
-/* ======================================================
-  	DEAD funcs :) no longer support these.
-   ====================================================== */
-
-	#} Exploring sql ver of retrieving inv,quote,trans
-   	/*
-        - note. I've left this here (4/2/19) because I believe the following/DAL3 generally might be
-        ... such a performance hike that this is irrelevant.
-        ... can later homogenise the following/these *WITHX* stuffs into 1 query, though not sure it'll produce 
-        ... much perf gains.
-    */
-	function zeroBS_getCustomerExtrasViaSQL($customerID=-1){
-
-		zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. zeroBS_getCustomerExtrasViaSQL should no longer be used.');
-
-		return array();
-	}
-
-	// WH Made this a DEAD func in DAL3, reason being has no objtype etc. 
-	// using new func so that this is exposed everywhere used.
-	// Note: if $allowNoOwnerAccess = true, if this has NO owner, it'll return true 
-	function zeroBS_checkOwner($objID=-1,$potentialOwnerID=-1,$allowNoOwnerAccess=true,$objType=false){
-
-		if (!$objType) 
-			zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. zeroBS_checkOwner should no longer be used, ESPECIALLY without 4th param (user type). Use zeroBSCRM_checkObjectOwner');
-		else {
-			global $zbs;
-			return $zbs->DAL->checkObjectOwner(array(
-
-			            'objID'         => $objID,
-			            'objTypeID'       => $objType,
-			            'potentialOwnerID'       => $potentialOwnerID,
-			            'allowNoOwnerAccess' => $allowNoOwnerAccess
-
-			        ));
-		} 
-		
-		return false;
-
-	}
-
-
-
-			/* ======================================================
-				Save [obj] overrides
-
-				... THESE ALL DIE in 3.0 - no need anymore :) 
-			   ====================================================== 
-
-			#} WH V1.1.10 - same as for customer name, but with companies
-			function zbsCustomer_saveCompanyPostdata($post_id) {
-
-			  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-			  #print($_POST['save_zbscustomer_nce']);
-			  if (!isset($_POST['save_zbscompany_nce'])) return;
-			  if (!wp_verify_nonce($_POST['save_zbscompany_nce'], 'save_zbscompany')) return;
-			  if ('page' == $_POST['post_type']) {
-			    if (!current_user_can('edit_page', $post_id)) return;
-			  } else {
-			    if (!current_user_can('edit_post', $post_id)) return;
-			  }
-
-			  #} Only for this post-type (assured by verify nonce :))
-
-			  		#} Got meta?
-			  		global $zbsCurrentCompanyPostMeta; if (isset($zbsCurrentCompanyPostMeta)) 
-			  			$zbsMeta = $zbsCurrentCompanyPostMeta;
-			  		else
-			  			#} Boo....
-			  			$zbsMeta = get_post_meta($post_id, 'zbs_company_meta', true);
-
-			    // Fire auto-update
-			    zbsCustomer_updateCompanyNameInPostTitle($post_id,$zbsMeta);
-
-
-			}
-			add_action('save_post', 'zbsCustomer_saveCompanyPostdata',200); // change priority here, change below x2
-
-			#} This is used to build a custom post title for customers, it stops any save_post and acts then re-applies 
-			global $zbsCRMCompanyUpdatingArr; $zbsCRMCompanyUpdatingArr = array();
-			function zbsCustomer_updateCompanyNameInPostTitle($post_id=-1,$zbsMetaPassThrough=false){
-
-				#} WH fix for clashing
-				global $zbsCRMCompanyUpdatingArr;
-
-				if ($post_id !== -1 && !isset($zbsCRMCompanyUpdatingArr[$post_id])){
-
-					#} Set blocker
-					if (!is_array($zbsCRMCompanyUpdatingArr))
-						$zbsCRMCompanyUpdatingArr = array($post_id);
-					else
-						$zbsCRMCompanyUpdatingArr[] = $post_id;
-
-					#} Got meta?
-					if (isset($zbsMetaPassThrough) && $zbsMetaPassThrough !== false) 
-						$zbsMeta = $zbsMetaPassThrough;
-					else
-						#} Boo....
-						$zbsMeta = get_post_meta($post_id, 'zbs_company_meta', true);
-
-					#} Check if action is gonna be an issue
-					$actionInPlace = has_action('save_post', 'zbsCustomer_saveCompanyPostdata');
-					if ($actionInPlace > 0) $actionInPlace = true; # will now be bool 
-
-				    //If calling wp_update_post, unhook this function so it doesn't loop infinitely
-				    if ($actionInPlace) remove_action('save_post', 'zbsCustomer_saveCompanyPostdata',200);
-
-				        #} Update the post name to be customer fname + lname
-				    	#} NAMECHANGES
-				        $newCName = zeroBS_companyName('',$zbsMeta,true,false);
-				        wp_update_post(array(
-				            'ID' => $post_id,
-				            'post_title' => $newCName
-				        ));
-
-				        #} Add zbs_company_nameperm meta (req. for importer) zeroBS_getCompanyIDWithName etc.
-				        #} This sets this meta to the exact name, e.g. "Dell"
-				        $simpleCName = zeroBS_companyName('',$zbsMeta,false,false);
-				        update_post_meta($post_id,'zbs_company_nameperm',$simpleCName);
-
-			            #} Is new customer? (passed from metabox html)
-			            #} Internal Automator
-			            if (isset($_POST['zbscrm_newcompany']) && $_POST['zbscrm_newcompany'] == 1){
-
-			                zeroBSCRM_FireInternalAutomator('company.new',array(
-			                    'id'=>$post_id,
-			                    'companyMeta'=>$zbsMeta
-			                    ));
-			                
-			            }
-
-
-				    // re-hook this function
-				    if ($actionInPlace) add_action('save_post', 'zbsCustomer_saveCompanyPostdata',200);
-
-				    #} clear blocker
-				    unset($zbsCRMCompanyUpdatingArr[$post_id]);
-
-				    return $newCName;
-
-				} return false;
-
-			}
-
-
-			#} WH V1.1 - compiles name into post_title when post saved :)
-			#} LOL: http://wordpress.stackexchange.com/questions/51363/how-to-avoid-infinite-loop-in-save-post-callback
-			function zbsCustomer_saveTransactionPostdata($post_id) {
-
-			  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-			  #print($_POST['save_zbscustomer_nce']);
-			  #SHOULD HAVE NONCES! MIKE! if (!isset($_POST['save_zbscustomer_nce'])) return;
-			  #if (!wp_verify_nonce($_POST['save_zbscustomer_nce'], 'save_zbscustomer')) return;
-			  if (isset($_POST['post_type']) && $_POST['post_type'] == 'page') {
-			    if (!current_user_can('edit_page', $post_id)) return;
-			  } else {
-			    if (!current_user_can('edit_post', $post_id)) return;
-			  }
-
-			  #} Only for this post-type (assured by verify nonce :))
-			  #} ... it's not by mikes! :/ quick hack....
-
-
-
-					if (isset($_POST['zbs_hidden_flag'])) {
-
-
-						$newDate = ''; if (isset($_POST['transactionDate']) && !empty($_POST['transactionDate'])) $newDate = sanitize_text_field($_POST['transactionDate']);
-					
-				
-						//this won't work with new date formatting.. :/ woes.
-
-
-						$unixtime = zeroBSCRM_locale_dateToUTS($newDate);
-						//format it this way. Saves doing the block below
-
-						$postDateStr = date('Y-m-d H:i:s', $unixtime);
-
-						if (!empty($newDate) && $unixtime > 0){ //  && strlen($newDate) == 10 // e.g. 09.11.2016
-
-							#} gross, but quick parse
-							//$year = substr($newDate,6);
-							//$month = substr($newDate,3,2);
-							//$days = substr($newDate,0,2);
-							#} make str // uses 'Y-m-d H:i:s' format
-					//		$postDateStr = $year.'-'.$month.'-'.$days.' 00:09:00';
-
-							#} ... though this isn't ideal, need to rethink inc time.
-
-							#} This needs wrapping here to avoid infinite loops
-
-
-							zbsTransaction_updatePostDate($post_id,$postDateStr);
-
-						}
-
-					
-
-				}
-
-			}
-			add_action('save_post', 'zbsCustomer_saveTransactionPostdata', 1);
-			#} updates post_date to match trans date :)
-			function zbsTransaction_updatePostDate($post_id=-1,$postDateStr=false){
-
-				if ($post_id !== -1){
-
-					#} Check if action is gonna be an issue
-					$actionInPlace = has_action('save_post', 'zbsCustomer_saveTransactionPostdata');
-					if ($actionInPlace > 0) $actionInPlace = true; # will now be bool 
-
-				    //If calling wp_update_post, unhook this function so it doesn't loop infinitely
-				    if ($actionInPlace){
-						remove_action('save_post', 'zbsCustomer_saveTransactionPostdata', 1);
-						remove_action('save_post', 'wpt_save_zbs_transaction_meta', 25, 2 );
-					}
-						#} Simple update
-						wp_update_post(array('ID'=>$post_id,'post_date'=>$postDateStr, 'post_date_gmt'=>$postDateStr));
-
-				    // re-hook this function
-				    if ($actionInPlace){
-						add_action('save_post', 'zbsCustomer_saveTransactionPostdata', 1);
-						add_action('save_post', 'wpt_save_zbs_transaction_meta', 25, 2 );
-
-					}
-
-				    return $post_id;
-
-				} return false;
-
-			}
-
-			#} WH To fix links :/ 1.2.5
-			function zbsQuote_saveQuotePostdata($post_id) {
-
-			  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-			  #print($_POST['save_zbscustomer_nce']);
-			  #SHOULD HAVE NONCES! MIKE! if (!isset($_POST['save_zbscustomer_nce'])) return;
-			  #if (!wp_verify_nonce($_POST['save_zbscustomer_nce'], 'save_zbscustomer')) return;
-			  if (isset($_POST['post_type']) && $_POST['post_type'] == 'page') {
-			    if (!current_user_can('edit_page', $post_id)) return;
-			  } else {
-			    if (!current_user_can('edit_post', $post_id)) return;
-			  }
-
-			  #} Only for this post-type (assured by verify nonce :))
-				if (isset($_POST['quo-ajax-nonce'])) {
-
-				  	#} This needs wrapping here to avoid infinite loops
-					zbsQuote_updatePostDate($post_id);		
-
-				}
-
-			}
-			add_action('save_post', 'zbsQuote_saveQuotePostdata');
-			#} updates post_date to match trans date :)
-			function zbsQuote_updatePostDate($post_id=-1){
-
-				if ($post_id !== -1){
-
-					#} Check if action is gonna be an issue
-					$actionInPlace = has_action('save_post', 'zbsQuote_saveQuotePostdata');
-					if ($actionInPlace > 0) $actionInPlace = true; # will now be bool 
-
-				    //If calling wp_update_post, unhook this function so it doesn't loop infinitely
-				    if ($actionInPlace) remove_action('save_post', 'zbsQuote_saveQuotePostdata');
-
-						#} Simple update - name to id, title override.
-						wp_update_post(array('ID'=>$post_id,'post_name'=>$post_id,'post_title'=>'Proposal'));
-
-						#} and generate a hash
-						update_post_meta($post_id,'zbshash',zeroBSCRM_GenerateHashForPost($post_id,12));
-
-				    // re-hook this function
-				    if ($actionInPlace) add_action('save_post', 'zbsQuote_saveQuotePostdata');
-
-				    return $post_id;
-
-				} return false;
-
-			}
-
-			   ======================================================
-				/ Save [obj] overrides (not used DAL3)
-			   ====================================================== */
-
-
-/* ======================================================
-  	/ DEAD funcs :) no longer support these.
-   ====================================================== */
-
-// ====================================================================================================================================
-// ====================================================================================================================================
-// ==================== / DAL 3.0 FUNCS ===============================================================================================
-// ====================================================================================================================================
-// ====================================================================================================================================
- 
-
-
-	// Following are a few functions that became defunct from v3.0 of DAL
-   	// ... they were from invoicing rewrite, but wh generificied/did away with need for:
-   	// 
-	/* function zeroBSCRM_ensureHashForPost($objID = -1){
-		
-        if($objID > 0){
-
-			$hash = zeroBSCRM_GetHashForPost($objID); // replaced with zeroBSCRM_hashes_GetHashForObj
-			//no hash so generate it
-			if ($hash == ''){
-                $hash = zeroBSCRM_GenerateHashForPost($objID, 20);
-				zeroBSCRM_saveHashForPost($objID,$hash);
-			}
-
-            if (!empty($hash)) return $hash;
-		}
-        
-        return false;
-	}
-
-
-    function zeroBSCRM_saveHashForPost($objID = -1,$hash = ''){
-
-    	global $zbs;
-    	return $zbs->DAL->invoices->updateMeta($objID,'zbshash',$hash);
-        // return update_post_meta($objID, 'zbshash', $hash);
-
-    }
-
-	//middleman for getting the invoice partials (i.e. transactions), DAL3.0 should replace this (easier query?)
-	function zeroBSCRM_get_invoice_partials($objID = -1){
-
-		global $zbs;
-		if ($objID > 0){
-
-			return $zbs->DAL()->lineitems->getLineitems(array(
-						'associatedObjType'=>ZBS_TYPE_INVOICE,
-						'associatedObjID'=>$objID,
-						'perPage'=>1000,
-						'ignoreowner'=>zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_LINEITEM)
-						));
-
-
-		}
-
-		return array();
-
-	}
-
-	*/

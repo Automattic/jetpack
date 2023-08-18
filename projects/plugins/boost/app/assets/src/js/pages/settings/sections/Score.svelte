@@ -1,23 +1,21 @@
 <script lang="ts">
-	import { __ } from '@wordpress/i18n';
 	import {
 		getScoreLetter,
 		requestSpeedScores,
 		didScoresChange,
-		scoreChangeModal,
-		ScoreChangeMessage,
-	} from '../../../api/speed-scores';
+	} from '@automattic/jetpack-boost-score-api';
+	import { BoostScoreBar } from '@automattic/jetpack-components';
+	import { __ } from '@wordpress/i18n';
+	import { scoreChangeModal, ScoreChangeMessage } from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
+	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import { criticalCssState, isGenerating } from '../../../stores/critical-css-state';
 	import { modulesState } from '../../../stores/modules';
-	import ComputerIcon from '../../../svg/computer.svg';
-	import MobileIcon from '../../../svg/mobile.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import { castToString } from '../../../utils/cast-to-string';
 	import debounce from '../../../utils/debounce';
 	import PopOut from '../elements/PopOut.svelte';
-	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
@@ -37,26 +35,43 @@
 		isStale: false,
 	};
 
-	refreshScore( false );
+	// Load the speed score. Will be cached in the plugin.
+	loadScore();
 
-	/**
-	 * The configuration that led to latest speed score.
-	 */
+	// Flat list of which modules are active; useful for tracking changes in state.
 	$: activeModules = Object.entries( $modulesState ).reduce( ( acc, [ key, value ] ) => {
 		if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
 			acc.push( value.active );
 		}
 		return acc;
 	}, [] );
-	$: lastCreatedState = $criticalCssState.created;
-	$: currentScoreConfigString = JSON.stringify( {
-		modules: activeModules,
-		criticalCss: {
-			created: lastCreatedState,
-		},
-	} );
 
-	async function refreshScore( force = false ) {
+	// Keep a string describing the settings that may affect the score. We'll use it to
+	// work out when we need a new speed score.
+	$: currentScoreConfigString = JSON.stringify( [ activeModules, $criticalCssState.created ] );
+
+	// State we had the last time we requested a speed score -- or when the page first loaded.
+	$: lastSpeedScoreConfigString = lastSpeedScoreConfigString ?? currentScoreConfigString;
+
+	// Any time the config changes, set a debounced refresh request (provided we're not already generating)
+	$: if ( currentScoreConfigString !== lastSpeedScoreConfigString && ! $isGenerating ) {
+		debouncedRefreshScore();
+	}
+
+	// Debounced function: Refresh the speed score if the config has changed.
+	const debouncedRefreshScore = debounce( async () => {
+		if ( currentScoreConfigString !== lastSpeedScoreConfigString ) {
+			await loadScore( true );
+		}
+	}, 2000 );
+
+	/**
+	 * Load the speed score from the plugin
+	 *
+	 * @param {boolean} regenerate - If true, ask for a new speed score; discarding cached values.
+	 */
+	async function loadScore( regenerate = false ) {
+		// Don't run in offline mode.
 		if ( ! siteIsOnline ) {
 			return;
 		}
@@ -65,7 +80,13 @@
 		loadError = undefined;
 
 		try {
-			scores = await requestSpeedScores( force );
+			lastSpeedScoreConfigString = currentScoreConfigString;
+			scores = await requestSpeedScores(
+				regenerate,
+				wpApiSettings.root,
+				Jetpack_Boost.site.url,
+				wpApiSettings.nonce
+			);
 			scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 			showPrevScores = didScoresChange( scores ) && ! scores.isStale;
 		} catch ( err ) {
@@ -79,16 +100,8 @@
 		}
 	}
 
-	const debouncedRefreshScore = debounce( force => {
-		refreshScore( force );
-	}, 2000 );
-
 	let modalData: ScoreChangeMessage | null = null;
 	$: modalData = ! isLoading && ! scores.isStale && scoreChangeModal( scores );
-
-	$: if ( currentScoreConfigString && $isGenerating === false ) {
-		debouncedRefreshScore( true );
-	}
 
 	function dismissModal() {
 		modalData = null;
@@ -106,7 +119,7 @@
 					{:else if loadError}
 						{__( 'Whoops, something went wrong', 'jetpack-boost' )}
 					{:else}
-						{__( 'Overall score', 'jetpack-boost' )}: {scoreLetter}
+						{__( 'Overall Score', 'jetpack-boost' )}: {scoreLetter}
 					{/if}
 				</h2>
 				{#if ! isLoading && ! loadError}
@@ -116,7 +129,7 @@
 					type="button"
 					class="components-button is-link"
 					disabled={isLoading}
-					on:click={() => refreshScore( true )}
+					on:click={() => loadScore( true )}
 				>
 					<RefreshIcon />
 					{__( 'Refresh', 'jetpack-boost' )}
@@ -141,39 +154,31 @@
 				title={__( 'Failed to load Speed Scores', 'jetpack-boost' )}
 				error={loadError}
 				suggestion={__( '<action name="retry">Try again</action>', 'jetpack-boost' )}
-				on:retry={() => refreshScore( true )}
+				on:retry={() => loadScore( true )}
 			/>
 		{/if}
 
-		<div class="jb-score-bar jb-score-bar--mobile">
-			<div class="jb-score-bar__label">
-				<MobileIcon />
-				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
-			</div>
-			<ScoreBar
-				prevScore={scores.noBoost?.mobile}
-				score={scores.current.mobile}
-				active={siteIsOnline}
-				{isLoading}
-				{showPrevScores}
-				noBoostScoreTooltip={__( 'Your mobile score without Boost', 'jetpack-boost' )}
-			/>
-		</div>
+		<ReactComponent
+			this={BoostScoreBar}
+			prevScore={scores.noBoost?.mobile}
+			score={scores.current.mobile}
+			active={siteIsOnline}
+			{isLoading}
+			{showPrevScores}
+			scoreBarType="mobile"
+			noBoostScoreTooltip={__( 'Your mobile score without Boost', 'jetpack-boost' )}
+		/>
 
-		<div class="jb-score-bar jb-score-bar--desktop">
-			<div class="jb-score-bar__label">
-				<ComputerIcon />
-				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
-			</div>
-			<ScoreBar
-				prevScore={scores.noBoost?.desktop}
-				score={scores.current.desktop}
-				active={siteIsOnline}
-				{isLoading}
-				{showPrevScores}
-				noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
-			/>
-		</div>
+		<ReactComponent
+			this={BoostScoreBar}
+			prevScore={scores.noBoost?.desktop}
+			score={scores.current.desktop}
+			active={siteIsOnline}
+			{isLoading}
+			{showPrevScores}
+			scoreBarType="desktop"
+			noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
+		/>
 	</div>
 </div>
 

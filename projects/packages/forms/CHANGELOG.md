@@ -5,6 +5,135 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.11] - 2023-08-14
+### Changed
+- Add a unified/consistent visual aid for focused elements. [#30219]
+
+## [0.19.10] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [0.19.9] - 2023-08-07
+### Added
+- Added SIG modal ui [#31665]
+
+## [0.19.8] - 2023-07-25
+### Changed
+- Updated package dependencies. [#32040]
+- Update the name of the Newsletter Sign-up Variation. [#31998]
+
+## [0.19.7] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+### Fixed
+- Avoid Fatal errors when exporting fields that were not saved with the correct value. [#31858]
+- Fix Forms dropdown required validation [#31894]
+
+## [0.19.6] - 2023-07-05
+### Changed
+- Remove the default title ("You got a new response!") added to emails sent for new feedback received. [#31667]
+- Updated package dependencies. [#31659]
+
+## [0.19.5] - 2023-06-26
+### Changed
+- Updated package dependencies.
+
+## [0.19.4] - 2023-06-12
+### Removed
+- Jetpack Forms: remove the links in the response emails sent to site owners [#31270]
+
+## [0.19.3] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+### Fixed
+- Editor view: remove duplicated Add Contact Form button. [#31158]
+
+## [0.19.2] - 2023-05-30
+### Changed
+- Jetpack Forms: added basic email template [#31026]
+
+## [0.19.1] - 2023-05-29
+### Changed
+- Internal updates.
+
+## [0.19.0] - 2023-05-22
+### Fixed
+- Forms: Attempt to fix Forms hash generation [#30764]
+
+## [0.18.0] - 2023-05-18
+### Added
+- Akismet: include current gmt time to assist in spam detection [#30755]
+- Jetpack Forms: improving the styling of response emails [#30088]
+
+### Fixed
+- Change hook parameter to what it was before (fields collection). Modify Post_To_Url hook to handle such collection instead of a form instance [#30744]
+
+## [0.17.0] - 2023-05-15
+### Added
+- Forms: Add style customization options for the MC/SC field buttons style [#30526]
+- Forms: Create dashboard landing page [#30161]
+- The new Jetpack Forms feedback WP Admin page is now enabled. The old page remains the default for the time being and all users can opt-in to see the new interface by using the 'view' swtich in the top right corner. [#30515]
+
+### Changed
+- Forms: Enable Forms landing page redirection logic [#30605]
+- Forms: Remove Forms landing page redirection logic [#30548]
+- Provide default data sets for responses data to avoid PHP warnings on undefined array keys [#30520]
+
+### Fixed
+- Add salesforce form variation alongside default variations for better discoverability. Fix private method for action trigger [#30562]
+
+## [0.16.0] - 2023-05-08
+### Added
+- Added URL-based navigation support for the new forms dashboard [#30367]
+- Add inspector ID/name settings for form fields [#30260]
+
+### Changed
+- Do not normalize feedback posts main comment when possible, allowing fexports to not guess which is the Comment and simply adding a column with the input's label [#30475]
+- Forms: Introduce Multiple Choice and Single Choice style variations [#30319]
+- Forms: Update Multiple Choice and Single Choice fields Sidebar style settings [#30437]
+- Updated border radius on forms dashboard cards [#30466]
+- Update Forms pattern modal default view to Grid [#28906]
+- We will not be re-sending emails when marking items as not-spam in the new forms dashboard. [#30356]
+
+### Fixed
+- Add necessary context to the word "Trash". [#30507]
+- Change post_type comparison on untrash filter to only affect feedback posts [#30464]
+- Ensure array is provided to array_diff_key to avoid warnings [#30317]
+- Fix dropdown menu not working due to some CSS issues [#30409]
+- Fixed class names for the response on the JP Forms dashboard. [#30468]
+- Fixed the hitbox for the source link on the forms dashboard response list. [#30469]
+- Forms: Fix Forms response meta date value [#30189]
+
+## [0.15.0] - 2023-05-02
+### Added
+- Added a 'Copy' button for emails on the Jetpack forms dashboard response tab. [#30256]
+
+### Changed
+- Rows in the forms dashboard will now be dynamically removed and appended when performing bulk actions. [#30213]
+- Updated package dependencies.
+
+### Fixed
+- Ensure IP address can be properly displayed for all form submissions. [#29491]
+- Fixed an issue causing the forms dashboard view setting not to be saved on WP.com. [#30258]
+- Fixed buggy behavior of loading placeholders in the forms dashboard. [#30353]
+- Fixed invalid totals being reported for different tabs in the forms dashboard. [#30354]
+- Forms: Fix Forms dashboard Multiple Choice response format. [#30370]
+
+## [0.14.1] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [0.14.0] - 2023-04-25
+### Added
+- Added an animation for the responses tab on the forms dashboard. [#30152]
+- Added counters on the tabs in the Jetpack Forms dashboard [#30252]
+- Reinstate salesforce integration with a generic post-to-url hook [#30191]
+
+### Fixed
+- Fixed html entities not displaying correctly in the forms dashboard [#30257]
+
 ## [0.13.0] - 2023-04-17
 ### Added
 - Added a 'Check for spam' button to the new feedback dashboard. [#29963]
@@ -175,6 +304,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.19.11]: https://github.com/automattic/jetpack-forms/compare/v0.19.10...v0.19.11
+[0.19.10]: https://github.com/automattic/jetpack-forms/compare/v0.19.9...v0.19.10
+[0.19.9]: https://github.com/automattic/jetpack-forms/compare/v0.19.8...v0.19.9
+[0.19.8]: https://github.com/automattic/jetpack-forms/compare/v0.19.7...v0.19.8
+[0.19.7]: https://github.com/automattic/jetpack-forms/compare/v0.19.6...v0.19.7
+[0.19.6]: https://github.com/automattic/jetpack-forms/compare/v0.19.5...v0.19.6
+[0.19.5]: https://github.com/automattic/jetpack-forms/compare/v0.19.4...v0.19.5
+[0.19.4]: https://github.com/automattic/jetpack-forms/compare/v0.19.3...v0.19.4
+[0.19.3]: https://github.com/automattic/jetpack-forms/compare/v0.19.2...v0.19.3
+[0.19.2]: https://github.com/automattic/jetpack-forms/compare/v0.19.1...v0.19.2
+[0.19.1]: https://github.com/automattic/jetpack-forms/compare/v0.19.0...v0.19.1
+[0.19.0]: https://github.com/automattic/jetpack-forms/compare/v0.18.0...v0.19.0
+[0.18.0]: https://github.com/automattic/jetpack-forms/compare/v0.17.0...v0.18.0
+[0.17.0]: https://github.com/automattic/jetpack-forms/compare/v0.16.0...v0.17.0
+[0.16.0]: https://github.com/automattic/jetpack-forms/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/automattic/jetpack-forms/compare/v0.14.1...v0.15.0
+[0.14.1]: https://github.com/automattic/jetpack-forms/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/automattic/jetpack-forms/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/automattic/jetpack-forms/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/automattic/jetpack-forms/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/automattic/jetpack-forms/compare/v0.10.2...v0.11.0

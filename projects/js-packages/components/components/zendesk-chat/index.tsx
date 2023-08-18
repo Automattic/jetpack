@@ -1,24 +1,34 @@
-import { useMemo } from 'react';
-import { getUserLocale } from '../../lib/locale';
-import utils from './utils';
-import ZendeskChatScript from './zendesk-chat-script';
+import { useEffect, useCallback } from 'react';
+import { chatKey } from './constants';
 import type { ZendeskChatType } from './types';
 
-export const ZendeskChat: ZendeskChatType = () => {
-	const { isWithinAvailableChatTimes, isWithinAvailableChatDays } = utils;
+export const ZendeskChat: ZendeskChatType = ( { jwt_token } ) => {
+	const authenticateUser = useCallback( () => {
+		if ( typeof window !== 'undefined' && typeof window.zE === 'function' ) {
+			window.zE( 'messenger', 'loginUser', function ( callback ) {
+				callback( jwt_token );
+			} );
+		}
+	}, [ jwt_token ] );
 
-	const shouldShowZendeskPresalesChat = useMemo( () => {
-		const currentTime = new Date();
-		const isEnglishLocale = getUserLocale().startsWith( 'en' );
+	useEffect( () => {
+		const script = document.createElement( 'script' );
+		const container = document.getElementById( 'zendesk-chat-container' );
 
-		return (
-			isEnglishLocale &&
-			isWithinAvailableChatDays( currentTime ) &&
-			isWithinAvailableChatTimes( currentTime )
-		);
-	}, [ isWithinAvailableChatDays, isWithinAvailableChatTimes ] );
+		script.src = 'https://static.zdassets.com/ekr/snippet.js?key=' + encodeURIComponent( chatKey );
+		script.type = 'text/javascript';
+		script.id = 'ze-snippet';
 
-	return shouldShowZendeskPresalesChat ? <ZendeskChatScript /> : null;
+		script.onload = () => {
+			authenticateUser();
+		};
+
+		if ( container ) {
+			container.appendChild( script );
+		}
+	}, [ authenticateUser ] );
+
+	return <div data-testid="zendesk-chat-container" id="zendesk-chat-container" />;
 };
 
 export default ZendeskChat;

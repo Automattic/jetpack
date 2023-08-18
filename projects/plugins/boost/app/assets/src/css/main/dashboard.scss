@@ -1,22 +1,3 @@
-.jb-settings {
-	font-size: 16px;
-
-	&--main {
-	  background-color: $primary-white;
-	}
-
-	min-height: calc(100vh - 60px);
-	display: flex;
-	flex-direction: column;
-  	position: relative;
-
-	h1 {
-		font-size: 36px;
-		font-weight: 700;
-		line-height: 40px;
-	}
-}
-
 .jb-feature-toggle__content h3:focus-visible, .jb-connection__title:focus-visible {
 	outline: none;
 }
@@ -25,6 +6,7 @@
 	padding-top: $padding;
 	padding-bottom: $padding;
 	isolation: isolate;
+	z-index: 10;
 
 	.jetpack-boost-jitm-card .jitm-card {
 		margin: 0 0 2.5rem auto;
@@ -44,11 +26,11 @@
 
 .jb-section--scores {
 	position: relative;
-	z-index: 10;
+	z-index: 15;
 }
 
 .jb-container {
-	width: 80%;
+	width: 87.5%;
 	max-width: 1320px;
 	margin-left: auto;
 	margin-right: auto;
@@ -66,24 +48,7 @@
 	}
 }
 
-.jb-settings-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	height: 120px;
-	position: relative;
-
-	&__logo {
-		max-width: 240px;
-		max-height: 42px;
-
-		svg {
-			height: auto;
-		}
-	}
-}
-
-.jb-settings-footer {
+.jb-dashboard-footer {
 	@extend .jb-container;
 
 	display: flex;

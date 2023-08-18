@@ -17,16 +17,19 @@ class Image_Guide implements Pluggable {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$override = isset( $_GET['jb-debug-ig'] );
 
+		if ( is_admin() || is_user_logged_in() || current_user_can( 'manage_options' ) ) {
+			Image_Guide_Proxy::init();
+		}
+
 		// Show the UI only when the user is logged in, with sufficient permissions and isn't looking at the dashboard.
 		if ( true !== $override && ( is_admin() || ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) ) {
 			return;
 		}
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-
 		// Enqueue the tracks library.
-		$tracks = Analytics::get_tracking();
-		add_action( 'wp_enqueue_scripts', array( $tracks, 'enqueue_tracks_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( Analytics::class, 'init_tracks_scripts' ) );
+
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 		/**
 		 * The priority determines where the admin bar menu item is placed.
@@ -49,6 +52,22 @@ class Image_Guide implements Pluggable {
 	public function enqueue_assets() {
 		wp_enqueue_script( 'jetpack-boost-guide', plugins_url( 'dist/guide.js', __FILE__ ), array(), JETPACK_BOOST_VERSION, true );
 		wp_enqueue_style( 'jetpack-boost-guide', plugins_url( 'dist/guide.css', __FILE__ ), array(), JETPACK_BOOST_VERSION, 'screen' );
+
+		wp_localize_script(
+			'jetpack-boost-guide',
+			'jetpackBoostAnalytics',
+			array(
+				'tracksData' => Analytics::get_tracking_data(),
+			)
+		);
+		wp_localize_script(
+			'jetpack-boost-guide',
+			'jbImageGuide',
+			array(
+				'proxyNonce' => wp_create_nonce( Image_Guide_Proxy::NONCE_ACTION ),
+				'ajax_url'   => admin_url( 'admin-ajax.php' ),
+			)
+		);
 	}
 
 	/**

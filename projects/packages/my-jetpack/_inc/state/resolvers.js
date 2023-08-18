@@ -1,9 +1,18 @@
+/**
+ * External dependencies
+ */
 import restApi from '@automattic/jetpack-api';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { PRODUCT_STATUSES } from '../components/product-card';
 import {
 	REST_API_SITE_PURCHASES_ENDPOINT,
 	REST_API_SITE_PRODUCTS_ENDPOINT,
+	REST_API_CHAT_AVAILABILITY_ENDPOINT,
+	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	PRODUCTS_THAT_NEEDS_INITIAL_FETCH,
 } from './constants';
 import resolveProductStatsRequest from './stats-resolvers';
@@ -64,6 +73,36 @@ const myJetpackResolvers = {
 			}
 		},
 
+	getChatAvailability:
+		() =>
+		async ( { dispatch } ) => {
+			dispatch.setChatAvailabilityIsFetching( true );
+
+			try {
+				dispatch.setChatAvailability(
+					await apiFetch( { path: REST_API_CHAT_AVAILABILITY_ENDPOINT } )
+				);
+				dispatch.setChatAvailabilityIsFetching( false );
+			} catch ( error ) {
+				dispatch.setChatAvailabilityIsFetching( false );
+			}
+		},
+
+	getChatAuthentication:
+		() =>
+		async ( { dispatch } ) => {
+			dispatch.setChatAuthenticationIsFetching( true );
+
+			try {
+				dispatch.setChatAuthentication(
+					await apiFetch( { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT } )
+				);
+				dispatch.setChatAuthenticationIsFetching( false );
+			} catch ( error ) {
+				dispatch.setChatAuthenticationIsFetching( false );
+			}
+		},
+
 	getAvailableLicenses:
 		() =>
 		async ( { dispatch } ) => {
@@ -77,7 +116,9 @@ const myJetpackResolvers = {
 
 				if ( result && result.items ) {
 					dispatch.setAvailableLicenses(
-						result.items.filter( ( { attached_at } ) => attached_at === null )
+						result.items.filter(
+							( { attached_at, revoked_at } ) => attached_at === null && revoked_at === null
+						)
 					);
 				} else {
 					dispatch.setAvailableLicenses( [] );
@@ -96,7 +137,16 @@ const getProductStats = {
 	},
 	fulfill:
 		productId =>
-		async ( { dispatch } ) => {
+		async ( { dispatch, select } ) => {
+			const { status } = select.getProduct( productId );
+
+			// If the product is not active, we don't need to fetch the stats.
+			if ( status !== PRODUCT_STATUSES.ACTIVE ) {
+				// Set it to null so the requester knows the stats are not available
+				dispatch.setProductStats( productId, null );
+				return Promise.resolve();
+			}
+
 			try {
 				dispatch.setIsFetchingProductStats( productId, true );
 
@@ -110,7 +160,7 @@ const getProductStats = {
 
 				return Promise.resolve();
 			} catch ( error ) {
-				// Set it to null so the requester can know the stats are not available
+				// Set it to null so the requester knows the stats are not available
 				dispatch.setProductStats( productId, null );
 				dispatch.setIsFetchingProductStats( productId, false );
 

@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Redirect;
@@ -405,7 +406,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$link       = self::get_product_description_link( 'security' );
 		$learn_link = self::get_upgrade_link( 'stats-nudges-security-learn' );
 		$text       = __( 'Comprehensive protection for your site, including Backup, Scan, and Anti-spam.', 'jetpack' );
-		self::print_item( _x( 'Security', 'Jetpack product name', 'jetpack' ), $text, 'product-jetpack-security-bundle.svg', $link, 'security', $learn_link );
+		self::print_item( _x( 'Security', 'Jetpack product name', 'jetpack' ), $text, 'product-jetpack.svg', $link, 'security', $learn_link );
 	}
 
 	/**

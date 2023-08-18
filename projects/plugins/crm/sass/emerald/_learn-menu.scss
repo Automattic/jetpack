@@ -1,0 +1,79 @@
+.jpcrm-learn-menu {
+	display: flex;
+	align-items: center;
+	max-width: 1551px;
+
+	&.jpcrm-full-width {
+		max-width: none;
+	}
+}
+
+.jpcrm-learn-menu-subdiv-75 {
+	flex-basis: 75%;
+	flex-grow: 0;
+	flex-shrink: 1;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.jpcrm-learn-menu-subdiv-25 {
+	flex-basis: 25%;
+	flex-grow: 1;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	justify-content: flex-end;
+	padding: 10px 0px;
+	gap: 10px;
+
+	& > *:first-child {
+		margin-left: 16px; /* keep the gap between the divs when subdiv-25 is shrunk down */
+	}
+}
+
+.jpcrm-learn-page-title {
+	font-style: normal;
+	font-weight: 700;
+	font-size: 36px;
+	line-height: 40px;
+	font-family: var(--jpcrm-font-family-emerald);
+	color: var(--jp-black);
+	padding-right: 4px;
+
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	margin-bottom: 5px;
+
+	.jpcrm-learn-menu-subdiv-25 {
+		align-self: flex-end;
+	}	
+}
+
+.jpcrm-info-gridicon-emerald {
+	padding: 8px;
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	cursor: pointer;
+}
+
+@media (max-width: 768px) {
+	.jpcrm-learn-menu {
+		flex-wrap: wrap;
+	}
+
+	.jpcrm-learn-menu-subdiv-75,
+	.jpcrm-learn-menu-subdiv-25 {
+		flex-grow: 1;
+		flex-wrap: wrap;
+		flex-direction: column;
+		width: 100%;
+
+		& > *:first-child {
+			margin-left: 0px; /* gap not needed anymore as the divs are centered */
+		}
+	}
+}

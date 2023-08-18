@@ -387,17 +387,43 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		 */
 		$show_greeting = apply_filters( 'jetpack_comment_form_display_greeting', true );
 
+		/**
+		 * Filter the comment title tag.
+		 *
+		 * @module comments
+		 * @since 12.4
+		 *
+		 * @param string $comment_reply_title_tag The comment title tag. Default to h3.
+		 */
+		$comment_reply_title_tag = apply_filters( 'jetpack_comment_reply_title_tag', 'h3' );
+
 		// The actual iframe (loads comment form from Jetpack server).
 
 		$is_amp = class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request();
 		?>
 
 		<div id="respond" class="comment-respond">
-			<?php if ( true === $show_greeting ) : ?>
-				<h3 id="reply-title" class="comment-reply-title"><?php comment_form_title( esc_html( $params['greeting'] ), esc_html( $params['greeting_reply'] ) ); ?>
-					<small><?php cancel_comment_reply_link( esc_html__( 'Cancel reply', 'jetpack' ) ); ?></small>
-				</h3>
-			<?php endif; ?>
+			<?php
+			if ( true === $show_greeting ) :
+				printf(
+					'<%1$s id="reply-title" class="comment-reply-title">',
+					esc_html( $comment_reply_title_tag )
+				);
+
+				comment_form_title(
+					esc_html( $params['greeting'] ),
+					esc_html( $params['greeting_reply'] )
+				);
+				echo '<small>';
+				cancel_comment_reply_link( esc_html__( 'Cancel reply', 'jetpack' ) );
+				echo '</small>';
+
+				printf(
+					'</%1$s>',
+					esc_html( $comment_reply_title_tag )
+				);
+			endif;
+			?>
 			<form id="commentform" class="comment-form">
 				<iframe
 					title="<?php esc_attr_e( 'Comment Form', 'jetpack' ); ?>"

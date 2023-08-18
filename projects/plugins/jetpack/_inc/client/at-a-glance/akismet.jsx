@@ -17,7 +17,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getAkismetData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { getApiNonce } from 'state/initial-state';
+import { getApiNonce, isAtomicSite } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 
 class DashAkismet extends Component {
@@ -94,7 +94,8 @@ class DashAkismet extends Component {
 				'Jetpack Anti-spam powered by Akismet. Comments and contact form submissions are checked against our global database of spam.',
 				'jetpack'
 			),
-			link: 'https://akismet.com/',
+			// Hide the action link from Atomic sites because it promotes purchase of Jetpack product
+			link: this.props.isAtomicSite ? null : 'https://akismet.com/',
 			privacyLink: 'https://automattic.com/privacy/',
 		};
 
@@ -128,6 +129,7 @@ class DashAkismet extends Component {
 					path="dashboard"
 					plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 					trackBannerDisplay={ this.props.trackUpgradeButtonView }
+					noIcon
 				/>
 			);
 		};
@@ -154,7 +156,7 @@ class DashAkismet extends Component {
 		};
 
 		const getAkismetCounter = () => {
-			if ( '0' !== this.props.akismetData ) {
+			if ( 0 !== this.props.akismetData ) {
 				return (
 					<>
 						<h2 className="jp-dash-item__count">{ numberFormat( this.props.akismetData ) }</h2>
@@ -169,7 +171,7 @@ class DashAkismet extends Component {
 				<div className="jp-dash-item__recently-activated">
 					<p className="jp-dash-item__description">
 						{ __(
-							'Jetpack and its Anti-spam currently monitor all comments on your site. Data will display here soon!',
+							'Akismet is now monitoring all comments on your site. Data will display here soon!',
 							'jetpack'
 						) }
 					</p>
@@ -265,6 +267,7 @@ export default connect(
 	state => {
 		return {
 			akismetData: getAkismetData( state ),
+			isAtomicSite: isAtomicSite( state ),
 			isOfflineMode: isOfflineMode( state ),
 			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),

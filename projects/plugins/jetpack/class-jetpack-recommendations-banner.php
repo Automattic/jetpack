@@ -47,7 +47,7 @@ class Jetpack_Recommendations_Banner {
 	 * @param \WP_Screen $current_screen Current WordPress screen.
 	 */
 	public function maybe_initialize_hooks( $current_screen ) {
-		if ( ! $this->can_be_displayed() ) {
+		if ( ! static::can_be_displayed() ) {
 			return;
 		}
 

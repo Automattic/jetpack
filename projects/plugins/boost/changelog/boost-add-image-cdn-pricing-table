@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Added Image CDN to the pricing table. Being cherry-picked to 1.8.0 so it shouldn't go into the 1.9 changelog
-
-

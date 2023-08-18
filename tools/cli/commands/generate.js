@@ -299,7 +299,7 @@ export async function generateProject(
 			await searchReplaceInFolder(
 				projDir,
 				'Package_Name',
-				transformToReadableName( answers.name )
+				transformToPhpClassName( answers.name, false )
 			);
 			break;
 		case 'js-package':
@@ -699,7 +699,7 @@ function createReadMeMd( answers ) {
 		'\n' +
 		'## Using this package in your WordPress plugin\n' +
 		'\n' +
-		'If you plan on using this package in your WordPress plugin, we would recommend that you use[Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.\n' +
+		'If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.\n' +
 		'\n' +
 		'## Security\n' +
 		'\n' +
@@ -752,7 +752,7 @@ function createReadMeTxt( answers ) {
 		'Tags: jetpack, stuff\n' +
 		'Requires at least: 6.1\n' +
 		'Requires PHP: 5.6\n' +
-		'Tested up to: 6.2\n' +
+		'Tested up to: 6.3\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

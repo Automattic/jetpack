@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import { PRODUCT_ID_VIDEOPRESS } from '../constants';
 import videoPressStatsResolver from './videopress';
 

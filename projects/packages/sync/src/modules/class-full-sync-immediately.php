@@ -98,7 +98,7 @@ class Full_Sync_Immediately extends Module {
 			)
 		);
 
-		$range = $this->get_content_range( $full_sync_config );
+		$range = $this->get_content_range();
 		/**
 		 * Fires when a full sync begins. This action is serialized
 		 * and sent to the server so that it knows a full sync is coming.

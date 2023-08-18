@@ -7,7 +7,6 @@ import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import copy from 'rollup-plugin-copy';
-import globals from 'rollup-plugin-node-globals';
 import postcss from 'rollup-plugin-postcss';
 import svelte from 'rollup-plugin-svelte';
 import svelteSVG from 'rollup-plugin-svelte-svg';
@@ -20,6 +19,10 @@ const cssGenPath = path.dirname(
 
 const production = ! process.env.ROLLUP_WATCH;
 const runServer = !! process.env.SERVE;
+
+const exportConditions = process.env.npm_config_jetpack_webpack_config_resolve_conditions
+	? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
+	: [];
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 function serve() {
@@ -105,10 +108,10 @@ export default [
 				browser: true,
 				preferBuiltins: false,
 				dedupe: [ 'svelte' ],
+				exportConditions,
 			} ),
 
 			commonjs(),
-			globals(),
 			json(),
 
 			babel( {
@@ -235,10 +238,10 @@ export default [
 				browser: true,
 				preferBuiltins: false,
 				dedupe: [ 'svelte' ],
+				exportConditions,
 			} ),
 
 			commonjs(),
-			globals(),
 			json(),
 
 			babel( {

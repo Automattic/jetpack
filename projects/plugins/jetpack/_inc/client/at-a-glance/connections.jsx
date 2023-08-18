@@ -74,17 +74,17 @@ export class DashConnections extends Component {
 							{ __( 'Your site is connected to WordPress.com.', 'jetpack' ) }
 							{ this.props.isConnectionOwner && (
 								<span className="jp-connection-settings__is-owner">
-									<br />
-									<em>{ __( 'You are the Jetpack owner.', 'jetpack' ) }</em>
+									{ __( 'You are the Jetpack owner.', 'jetpack' ) }
 								</span>
+							) }
+
+							{ this.props.userCanDisconnectSite && (
+								<div className="jp-connection-settings__actions">
+									<ConnectButton asLink autoOpenInDisconnectRoute={ true } />
+								</div>
 							) }
 						</div>
 					</div>
-					{ this.props.userCanDisconnectSite && (
-						<div className="jp-connection-settings__actions">
-							<ConnectButton asLink autoOpenInDisconnectRoute={ true } />
-						</div>
-					) }
 				</div>
 			);
 		}

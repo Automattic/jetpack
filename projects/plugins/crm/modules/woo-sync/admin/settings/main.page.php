@@ -38,8 +38,8 @@ function jpcrm_settings_page_html_woosync_main() {
 		$updatedSettings['enable_woo_status_mapping'] = empty( $_POST['jpcrm_enable_woo_status_mapping'] ) ? 0 : 1;
 
 		foreach ( $woo_order_mapping_types as $map_type_value ) {
-			foreach ( $woo_order_statuses as $woo_order_status_key => $woo_order_status_value ) {
-				$mapping_key                     = $map_type_value['prefix'] . $woo_order_status_key;
+			foreach ( $woo_order_statuses as $woo_order_status => $woo_order_status_value ) {
+				$mapping_key                     = $map_type_value['prefix'] . 'wc' . str_replace( '-', '', $woo_order_status );
 				$updatedSettings[ $mapping_key ] = ! empty( $_POST[ $mapping_key ] ) ? sanitize_text_field( $_POST[ $mapping_key ] ) : '';
 			}
 		}
@@ -305,7 +305,9 @@ function jpcrm_settings_page_html_woosync_main() {
 						<td class="wfieldname" colspan="2">
 							<label><?php esc_html_e( 'Order status map', 'zero-bs-crm' ); ?>:</label><br />
 							<?php esc_html_e( 'Here you can choose how you want to map WooCommerce order statuses to CRM statuses (if the above setting is enabled)', 'zero-bs-crm' ); ?>
-							<br/>
+							<div style="margin-top:10px;">
+								<a style="margin-top:10px;" href="<?php echo esc_url( $zbs->urls['woomanagingorders'] ); ?>" target="_blank"><?php esc_html_e( 'Learn more about the WooCommerce order statuses', 'zero-bs-crm' ); ?><img class="jpcrm-external-link-icon" style="margin-bottom:2px" src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/external-link.svg" /></a>
+							</div>
 							<br/>
 
 							<table style="width:100%;border-spacing: 0 15px;border-collapse: separate;table-layout: fixed;">
@@ -322,32 +324,49 @@ function jpcrm_settings_page_html_woosync_main() {
 								</tr>
 								<?php
 
-								foreach ( $woo_order_statuses as $woo_order_key => $woo_order_value ) {
+								foreach ( $woo_order_statuses as $woo_order_status => $woo_order_value ) {
 									?>
 									<tr class="jpcrm_woosync_order_status_map">
 										<td><?php echo esc_html( $woo_order_value ); ?></td>
-										<?php 
-											foreach ( $woo_order_mapping_types as $map_type_value ) :
-												$selected    = '';
-												$mapping_key = $map_type_value['prefix'] . $woo_order_key;
+										<?php
+										foreach ( $woo_order_mapping_types as $obj_type => $map_type_value ) :
+											$selected    = '';
+											$mapping_key = $map_type_value['prefix'] . 'wc' . str_replace( '-', '', $woo_order_status );
 
-												if ( is_array( $settings ) && isset( $settings[ $mapping_key ] ) ) {
-													$selected = $settings[ $mapping_key ];
-												}
+											$obj_type_id = $zbs->DAL->objTypeID( $obj_type ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-										?>
+											if ( ! isset( $settings[ $mapping_key ] ) || $settings[ $mapping_key ] === '-1' ) {
+												// use default mapping as fallback
+												$selected = $zbs->modules->woosync->get_default_status_for_order_obj( $obj_type_id, $woo_order_status );
+											} else {
+												// select mapping from settings
+												$selected = $settings[ $mapping_key ];
+											}
+
+											if ( ! $zbs->DAL->is_valid_obj_status( $obj_type_id, $selected ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+												$selected = false;
+											}
+
+											?>
 											<td>
 												<select class="winput" style="width: 90%;" name="<?php echo esc_attr( $mapping_key ); ?>" id="<?php echo esc_attr( $mapping_key ); ?>">
-													<option value="-1"><?php esc_html_e( 'Default', 'zero-bs-crm' ); ?></option>
 													<?php
-														foreach ( $map_type_value['statuses'] as $status ) {
-															printf( '<option value="%s" %s>%s</option>', esc_attr( $status ), ( $selected === $status ? 'selected' : '' ), esc_html( $status ) );
-														}
+													// if there's no default match, make user select one
+													if ( ! $selected ) {
+														?>
+														<option value="-1" selected disabled>-- <?php esc_html_e( 'Select mapped status', 'zero-bs-crm' ); ?> --</option>
+														<?php
+													}
+													?>
+													<?php
+													foreach ( $map_type_value['statuses'] as $status ) {
+														printf( '<option value="%s" %s>%s</option>', esc_attr( $status ), ( $selected === $status ? 'selected' : '' ), esc_html( $status ) );
+													}
 													?>
 												</select>
 											</td>
-										<?php
-											endforeach;
+											<?php
+										endforeach;
 										?>
 									</tr>
 									<?php

@@ -2,6 +2,9 @@
 	"extends": "./tsconfig.json",
 	"include": [
 		"../../js-packages/components/**/*",
+		"../../js-packages/image-guide/**/*",
+		"../../js-packages/boost-score-api/**/*",
+		"../../js-packages/svelte-data-sync-client/**/*",
 		"app/assets/src/js/**/*",
 		"app/modules/image-guide/src/**/*"
 	],

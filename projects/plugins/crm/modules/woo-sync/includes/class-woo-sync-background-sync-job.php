@@ -951,9 +951,10 @@ class Woo_Sync_Background_Sync_Job {
 
 			// add/update invoice
 			$invoice_id = $zbs->DAL->invoices->addUpdateInvoice( array(
-				'id'        => $invoice_id,
-				'data'      => $crm_object_data['invoice'],
-				'extraMeta' => ( isset( $crm_object_data['invoice']['extra_meta'] ) ? $crm_object_data['invoice']['extra_meta'] : -1 ),
+				'id'               => $invoice_id,
+				'data'             => $crm_object_data['invoice'],
+				'extraMeta'        => ( isset( $crm_object_data['invoice']['extra_meta'] ) ? $crm_object_data['invoice']['extra_meta'] : -1 ),
+				'calculate_totals' => true,
 			) );
 
 			// link the transaction to the invoice
@@ -1170,10 +1171,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	    }
 
-	    $order_status_to_invoice_settings     = $this->woosync()->woo_order_status_mapping( 'invoice' );
-	    $order_status_to_transaction_settings = $this->woosync()->woo_order_status_mapping( 'transaction' );
-	    $valid_transaction_statuses           = zeroBSCRM_getTransactionsStatuses( true );
-	    $valid_invoice_statuses               = zeroBSCRM_getInvoicesStatuses();
 	    // pre-processing from the $order_data
 	    $order_status   = $order_data['status'];
 	    $order_currency = $order_data['currency'];
@@ -1213,6 +1210,15 @@ class Woo_Sync_Background_Sync_Job {
 
 	    // ==== Tax Rates (on local stores only)
 	    if ( !$from_api ) {
+
+			// Force Woo order totals recalculation to ensure taxes were applied correctly
+			// Only force recalculation if the order is not paid yet
+			if ( $order->get_status() === 'pending' || $order->get_status() === 'on-hold' ) {
+				$order->calculate_totals();
+				$order->save();
+			}
+
+			$order_data = $order->get_data();
 		
 			// retrieve tax table to feed in tax links
 			$tax_rates_table = $this->woosync()->background_sync->get_tax_rates_table();
@@ -1324,7 +1330,7 @@ class Woo_Sync_Background_Sync_Job {
 				$contact_id = zeroBS_getCustomerIDWithEmail( $contact_email );
 				// If this is a new contact or the current status equals the first status (CRM's default value is 'Lead'), we are allowed to change it.
 				if ( empty( $contact_id ) || $zbs->DAL->contacts->getContactStatus( $contact_id ) === $contact_statuses[0] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					$data['contact']['status'] = $this->woosync()->woocommerce_order_status_to_contact_status( $order_status );
+					$data['contact']['status'] = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_CONTACT, $order_status );
 				}
 			}
 			$data['contact']['created']         = $contact_creation_date_uts;
@@ -1594,15 +1600,7 @@ class Woo_Sync_Background_Sync_Job {
 			$transaction_paid_date_uts = $order_data['date_paid']->date( 'U' );
 		}
 
-		$invoice_status = __( 'Unpaid', 'zero-bs-crm' );
-
-		// Look for a custom user-defined status mapping value, otherwise we keep using the default value.
-		if ( $is_status_mapping_enabled ) {
-			$candidate_invoice_status = ! empty( $settings[ $order_status_to_invoice_settings[ $order_status ] ] ) ? $settings[ $order_status_to_invoice_settings[ $order_status ] ] : -1;
-
-			// Make sure that the user-defined invoice status mapping is still in the list of allowed Contact statuses.
-			$invoice_status = in_array( $candidate_invoice_status, $valid_invoice_statuses ) ? $candidate_invoice_status : $invoice_status;
-		}
+		$invoice_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_INVOICE, $order_status );
 
 		// retrieve completed date, where available
 		if ( array_key_exists( 'date_completed', $order_data ) && !empty( $order_data['date_completed'] ) ) {
@@ -1619,15 +1617,26 @@ class Woo_Sync_Background_Sync_Job {
 
 			// Retrieve order-used tax rates
 			$tax_items_labels = array();
-			$shipping_tax_label = '';
-			foreach ( $order->get_items('tax') as $tax_item ) {
-			   
-			    $tax_items_labels[$tax_item->get_rate_id()] = $tax_item->get_label();
-			    if ( ! empty($tax_item->get_shipping_tax_total() ) ){
-			        $shipping_tax_label = $tax_item->get_label();
-			    }
 
+			foreach ( $order->get_items('tax') as $tax_item ) {
+				$rate_id                      = $tax_item->get_rate_id();
+				$tax_items_labels[ $rate_id ] = $tax_item->get_label();
+
+				if ( isset( $tax_items_labels[ $rate_id ] ) && ! empty( $tax_item->get_shipping_tax_total() ) ) {
+
+					$tax_label = $tax_items_labels[ $rate_id ];
+
+					foreach ( $tax_rates_table as $tax_rate_id => $tax_rate_detail ) {
+						// Translators: %s = tax rate name
+						if ( sprintf( __( '%s (From WooCommerce)', 'zero-bs-crm' ), $tax_label ) === $tax_rate_detail['name'] ) {
+							$shipping_tax_id = $tax_rate_id;
+							break;
+						}
+					}
+				}
 			}
+
+			$order_data['subtotal'] = 0.0;
 
 			// cycle through order items to create crm line items
 			foreach ( $order_items as $item_key => $item ) {
@@ -1648,6 +1657,8 @@ class Woo_Sync_Background_Sync_Job {
 
 				// catch cases where quantity is 0; see gh-2190
 				$price = empty( $item_data['quantity'] ) ? 0 : $item_data['subtotal'] / $item_data['quantity'];
+
+				$order_data['subtotal'] += $price;
 
 				// translate Woo taxes to CRM taxes
 				$item_woo_taxes = $item->get_taxes();
@@ -1689,13 +1700,10 @@ class Woo_Sync_Background_Sync_Job {
 				);
 
 				// add taxes, where present
-				if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ){
-					
+				if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ) {
 					$new_line_item['taxes'] = implode( ',', $item_tax_rate_ids );
-
 				}
-
-				// add
+				// Add order item line
 				$data['lineitems'][] = $new_line_item;
 
 				// add to tags where not alreday present
@@ -1703,6 +1711,39 @@ class Woo_Sync_Background_Sync_Job {
 					$order_tags[] = $tag_product_prefix . $item_data['name'];
 				}
 
+			}
+
+			// --- Process any present fee in the order --- //
+			$fees = $order->get_fees();
+
+			if ( is_array( $fees ) && count( $fees ) > 0 ) {
+				foreach ( $fees as $fee ) {
+					if ( $fee instanceof \WC_Order_Item_Fee ) {
+						$new_line_item = array(
+							'order'    => $order_post_id, // passed as parameter to this function
+							'currency' => $order_currency,
+							'quantity' => 1,
+							'price'    => $fee->get_amount( false ),
+							'fee'      => $fee->get_amount( false ),
+							'total'    => $fee->get_amount( false ),
+							'title'    => esc_html__( 'Fee', 'zero-bs-crm' ),
+							'desc'     => $fee->get_name(),
+							'tax'      => $fee->get_total_tax(),
+							'taxes'    => -1,
+							'shipping' => 0.0,
+						);
+
+						// Apply the same tax
+						if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ) {
+							$new_line_item['taxes'] = implode( ',', $item_tax_rate_ids );
+						}
+
+						$order_data['subtotal'] += $new_line_item['price'];
+
+						// Add fee as an item to the invoice
+						$data['lineitems'][] = $new_line_item;
+					}
+				}
 			}
 
 			// if the order has a coupon. Tag the contact with that coupon too, but only if from same store.
@@ -1728,15 +1769,7 @@ class Woo_Sync_Background_Sync_Job {
 
 		}
 
-		// Transactions have a "Hold" status by default, not "On-hold"
-		$transaction_status = ( $order_status == "on-hold" ? "Hold" : ucfirst( $order_status ) );
-		
-		if ( $is_status_mapping_enabled ) {
-			$candidate_transaction_status = ! empty( $settings[ $order_status_to_transaction_settings[ $order_status ] ] ) ? $settings[ $order_status_to_transaction_settings[ $order_status ] ] : -1;
-
-			// Make sure that the user-defined transaction status mapping is still in the list of allowed transaction statuses.
-			$transaction_status = in_array( $candidate_transaction_status, $valid_transaction_statuses ) ? $candidate_transaction_status : $transaction_status;
-		}
+		$transaction_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_TRANSACTION, $order_status );
 
 		// fill out transaction header (object)
 		$data['transaction'] = array(
@@ -1887,6 +1920,7 @@ class Woo_Sync_Background_Sync_Job {
 				'currency'             => $order_currency,
 				'date'                 => $invoice_creation_date_uts,
 				'due_date'             => $invoice_creation_date_uts,
+				'net'                  => $order_data['subtotal'],
 				'total'                => $order_data['total'],
 				'discount'             => $order_data['discount_total'],
 				'discount_type'        => 'm',
@@ -1911,6 +1945,13 @@ class Woo_Sync_Background_Sync_Job {
 					'api'           => $from_api,
 				),
 			);
+
+			if ( isset( $shipping_tax_id ) && ! empty( $shipping_tax_id ) ) {
+				$data['invoice']['shipping_taxes'] = $shipping_tax_id;
+			}
+			if ( isset( $data['tax'] ) && isset( $order_data['discount_tax'] ) ) {
+				$data['tax'] -= $order_data['discount_tax'];
+			}
 
 			if ( is_array( $extra_meta ) && count( $extra_meta ) > 0 ) {
 

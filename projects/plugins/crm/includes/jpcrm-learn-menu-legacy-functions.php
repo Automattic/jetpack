@@ -15,901 +15,549 @@
 * ... but is really deprecated
 */
 function zeroBS_genericLearnMenu(
-
-        $page_title = '',
-        $add_new = '',
-        $filter_str = '',
-        $show_learn = true,
-        $learn_title = '',
-        $learn_content = '',
-        $learn_more_url = '',
-        $learn_image_url = '',
-        $learn_video_url = '',
-        $extra_js = '',
-        $popup_extra_css = '',
-        $learn_video_title = ''
-
-    ){
-
-    global $zbs;
-
-    // render generic learn menu with content
-    $zbs->learn_menu->render_generic_learn_menu(
-
-        $page_title,
-        $add_new,
-        $filter_str,
-        $show_learn,
-        $learn_title,
-        $learn_content,
-        $learn_more_url,
-        $zbs->learn_menu->get_image_url( $learn_image_url ),
-        $learn_video_url,
-        $extra_js,
-        $popup_extra_css,
-        $learn_video_title
-
-    );
-}
-
-
-function jpcrm_contactlist_learn_menu(){
+	$page_title = '',
+	$left_buttons = '',
+	$right_buttons = '',
+	$show_learn = true,
+	$learn_title = '',
+	$learn_content = '',
+	$learn_more_url = '',
+	$learn_image_url = '',
+	$learn_video_url = '',
+	$extra_js = '',
+	$popup_extra_css = '',
+	$learn_video_title = ''
+) {
 
 	global $zbs;
 
-    // title
-    $title = __( 'Contacts','zero-bs-crm' );
-
-    // Add new
-    $addNew = ''; if ( zeroBSCRM_permsCustomers() ) {
-        $addNew = ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_customer',false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add new Contact',"zero-bs-crm") . '</a>';
-    }
-
-    $content      = $zbs->learn_menu->get_content_body( 'managecontacts' );
-    $links        = $zbs->learn_menu->get_content_urls( 'managecontacts' );	
-
-
-    // filter strings
-    $filterStr = '<a href="' . jpcrm_esc_link( $zbs->slugs['managecontacts'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden zbs-hide"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
-
-    #} And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    #} Admins can change columns! (globally - should each person have own views?
-    // Now everyone can see this menu (2.95.3+) - but can only edit count per page
-    //if (zeroBSCRM_isZBSAdminOrAdmin()){ 
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-    //} 
-
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-}
-
-
-function jpcrm_viewcontact_learn_menu($name=''){
-
-	global $zbs;
-
-    $title        = __( 'Viewing Contact','zero-bs-crm' );
-    $addNew = ''; if ( zeroBSCRM_permsCustomers() ) {
-        $addNew = ' <a href="' . jpcrm_esc_link( 'create' ,-1, 'zerobs_customer', false ) . '" id="zbs-contact-add-new" class="button ui blue tiny zbs-add-new">' . __( 'Add new Contact',"zero-bs-crm") . '</a>';
-    }
-    $content      = $zbs->learn_menu->get_content_body( 'viewcontact' );
-    $links        = $zbs->learn_menu->get_content_urls( 'viewcontact' );	
-
-	#} Navigation
-	$zbsid = -1;
-    if (isset($_GET['zbsid']) && !empty($_GET['zbsid'])) $zbsid = (int)sanitize_text_field($_GET['zbsid']);
-	$filterStr = '<div class="ui items right floated" style="margin:0">'.zeroBSCRM_getObjNav($zbsid,'view',ZBS_TYPE_CONTACT).'</div>';
-	
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-
-}
-
-
-function jpcrm_viewcompany_learn_menu($name=''){
-
-	global $zbs;
-
-	$learnContent = '<p>'.__(jpcrm_label_company()." information page. See key information about the ".jpcrm_label_company()."'s status and when they were added.","zero-bs-crm").'</p>
-					<p><strong>'.__("At a glance","zero-bs-crm").'</strong> '.__("you can see everything about the ".jpcrm_label_company()." and perform quick actions.","zero-bs-crm").'</p>';
-					//<p>'.__("You can add tasks, send emails and see your contacts activity here.", "zero-bs-crm").'</p>';
-						
-    $addNew = ''; 
-
-    // admin can change view setting
-    // use screenoptions model instead
-    //if ( current_user_can('admin_zerobs_manage_options') ) {
-    //	$addNew = '<button class="ui icon right floated button" type="button" id="zbs-current-page-view-settings"><i class="settings icon"></i></button>';
-    //}
-
-    $content      = $zbs->learn_menu->get_content_body( 'viewcompany' );
-    $links        = $zbs->learn_menu->get_content_urls( 'viewcompany' );
-    
-	#} Navigation
-	$zbsid = -1;
-    if (isset($_GET['zbsid']) && !empty($_GET['zbsid'])) $zbsid = (int)$_GET['zbsid'];
-	$filterStr = '<div class="ui items right floated" style="margin:0">'.zeroBSCRM_getObjNav($zbsid,'view',ZBS_TYPE_COMPANY).'</div>';
-	
-	
-	// output
-	$zbs->learn_menu->render_generic_learn_menu( __( 'Viewing '.jpcrm_label_company(),"zero-bs-crm"),$addNew,$filterStr,true,__(jpcrm_label_company().' View',"zero-bs-crm"),$content,$links['learn'],$links['img'],$links['vid'],' //none','z-index: 9999999;' );
-
-}
-
-
-// for new + edit menu :)
-function jpcrm_contactedit_learn_menu2(){
-
-    global $zbs;
-
-    $title = __("New Contact","zero-bs-crm");
-
-    $title        = __( 'New Contact','zero-bs-crm' );
-    $addNew = '';
-    $content      = $zbs->learn_menu->get_content_body( 'newedit' );
-    $links        = $zbs->learn_menu->get_content_urls( 'newedit' );
-
-	$zbsid = -1;
-
-    if (isset($_GET['zbsid']) && !empty($_GET['zbsid'])) {
-    	/* $id = (int)sanitize_text_field($_GET['zbsid']);
-    		$filterStr .= '<a class="ui icon button basic blue right floated" href="'.jpcrm_esc_link('view',$id,'zerobs_customer').'"><i class="angle left icon"></i> '.__( 'Back',"zero-bs-crm").'</a>';   	*/
-    	$title = __("Edit Contact","zero-bs-crm");   
-        $zbsid = (int)sanitize_text_field($_GET['zbsid']);
-        $content      = $zbs->learn_menu->get_content_body( 'contactedit' );
-        $links        = $zbs->learn_menu->get_content_urls( 'contactedit' );	
-    }
-
-    $metaboxMgrStr = '';
-  
-	
-	$filterStr = '<div class="ui items right floated" style="margin:0">'.zeroBSCRM_getObjNav($zbsid,'edit',ZBS_TYPE_CONTACT).$metaboxMgrStr.'</div>';
-
-	// output
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-
-
-}
-
-
-
-
-// for new + edit menu :)
-function jpcrm_companyedit_learn_menu2(){
-
-	global $zbs;
-
-	$title = __("New ".jpcrm_label_company(),"zero-bs-crm");
-    $content      = $zbs->learn_menu->get_content_body( 'newcompany' );
-    $links        = $zbs->learn_menu->get_content_urls( 'newcompany' );	
-
-    $filterStr = '';	
-
-    // pre v3
-    if (isset($_GET['post']) && !empty($_GET['post'])) {
-    	$title = __("Edit ".jpcrm_label_company(),"zero-bs-crm");
-    	$id = (int)sanitize_text_field($_GET['post']);
-    	$filterStr .= '<a class="ui icon button basic blue right floated" href="'.jpcrm_esc_link('view',$id,'zerobs_company').'"><i class="angle left icon"></i> '.__( 'Back',"zero-bs-crm").'</a>';
-    }	
-
-    // v3.0+
-    if (isset($_GET['zbsid']) && !empty($_GET['zbsid'])) {
-    	$title = __("Edit ".jpcrm_label_company(),"zero-bs-crm");
-    	$id = (int)sanitize_text_field($_GET['zbsid']);
-    	//$filterStr .= '<a class="ui icon button basic blue right floated" href="'.jpcrm_esc_link('view',$id,'zerobs_company').'"><i class="angle left icon"></i> '.__( 'Back',"zero-bs-crm").'</a>';
-		$filterStr = '<div class="ui items right floated" style="margin:0">'.zeroBSCRM_getObjNav($id,'edit',ZBS_TYPE_COMPANY).'</div>';
-
-    }
-
-	// output
-	$zbs->learn_menu->render_generic_learn_menu( $title,'',$filterStr,true,$title,$content, $links['learn'], $links['img'], $links['vid'],'' );
-
-
-}
-
-#} Forms - LIST, EDIT and NEW
-function jpcrm_formlist_learn_menu(){
-
-    global $zbs;
-
-    $title      = __("Forms","zero-bs-crm");
-	$addNew = '';
-	if ( zeroBSCRM_permsQuotes() ) {
-            $addNew = ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_form',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-	} 
-    $content    = $zbs->learn_menu->get_content_body( 'manageformscrm' );
-    $links      = $zbs->learn_menu->get_content_urls( 'manageformscrm' );
-
-	#} MSTODO - Learn hidden 
-	$hideLearn = true;
-	$alsoCo = '';
-	
-	#} ? Yup ?
-    $hopscotchCustomJS = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:11")) {hopscotch.startTour(window.zbsTour);}';
-
-    #} Filters
-	$filterStr = '<a href="' .admin_url('admin.php?page='.$zbs->slugs['manageformscrm'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden zbs-hide"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
-        
-    #} And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-
-    if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-
-    	// Column manager
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-
-        // Settings link
-        $settingLink = zeroBSCRM_getAdminURL($zbs->slugs['settings']) . '&tab=forms';
-        $filterStr .= '<a href="' . $settingLink . '" class="ui icon button right floated" title="'.__( 'Forms settings','zero-bs-crm').'"><i class="cogs icon"></i></a>';
-    }
-
-	// output
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,$hideLearn,$title,$content,$links['learn'],$links['img'],$links['vid'],$hopscotchCustomJS);
-
-}
-
-
-function jpcrm_taskedit_learn_menu(){
-
-	global $zbs;
-
-    $title      = __( 'Edit Task','zero-bs-crm' );
-    $addNew 	= '<div id="zbs-event-learn-nav"></div>';
-    $addNew     .= ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_event',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-	$addNew 	.= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="calendar alternate outline icon"></i> ' . __( 'View Calendar',"zero-bs-crm") . '</a>';
-    $addNew 	.= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events-list']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="list alternate outline icon"></i> ' . __( 'View List',"zero-bs-crm") . '</a>';
-	$content    = $zbs->learn_menu->get_content_body( 'taskedit' );
-    $links      = $zbs->learn_menu->get_content_urls( 'taskedit' );	
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,'',true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-}
-
-
-
-
-function jpcrm_tasklistview_learn_menu(){
-
-	global $zbs;
-
-    $title      = __( 'Task List','zero-bs-crm' );
-    $addNew 	= '<div id="zbs-event-learn-nav"></div>';
-    $addNew     .= ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_event',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-	$addNew 	.= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="calendar alternate outline icon"></i> ' . __( 'View Calendar',"zero-bs-crm") . '</a>';
-	$content    = $zbs->learn_menu->get_content_body( 'manage-events-list' );
-    $links      = $zbs->learn_menu->get_content_urls( 'manage-events-list' );
-
-
-    // And allow peeps also to toggl side bar:
-    $filterStr = '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    // Admins can change columns
-    $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-    
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-
-}
-
-
-
-function jpcrm_tasknew_learn_menu(){
-
-	global $zbs;
-
-    $title      = __( 'New Task','zero-bs-crm' );
-	$addNew 	= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="calendar alternate outline icon"></i> ' . __( 'View Calendar',"zero-bs-crm") . '</a>';
-    $addNew 	.= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events-list']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="list alternate outline icon"></i> ' . __( 'View List',"zero-bs-crm") . '</a>';
-    $content    = $zbs->learn_menu->get_content_body( 'tasknew' );
-    $links      = $zbs->learn_menu->get_content_urls( 'tasknew' );	
-	$zbs->learn_menu->render_generic_learn_menu( $title, $addNew,'',true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-
-}
-
-
-
-function jpcrm_quotelist_learn_menu(){
-
-    global $zbs;
-
-    $title      = __( 'Manage Quotes','zero-bs-crm' );
-    $addNew     = '';
-    $content    = $zbs->learn_menu->get_content_body( 'managequotes' );
-    $links      = $zbs->learn_menu->get_content_urls( 'managequotes' );	
-
-	$addNew = '';
-    #} Add new?
-    if ( zeroBSCRM_permsCustomers() ) {
-        $addNew = ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_quote',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-    }  
-
-	$hideLearn = true;
-	$alsoCo = '';
-	
-	#} ? Yup ?
-    $hopscotchCustomJS = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:11")) {hopscotch.startTour(window.zbsTour);}';
-
-    #} Filters
-	$filterStr = '<a href="' .admin_url('admin.php?page='.$zbs->slugs['managequotes'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
-
-    #} And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    #} Admins can change columns! (globally - should each person have own views?
-    if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-
-        // Settings link
-        $settingLink = zeroBSCRM_getAdminURL($zbs->slugs['settings']) . '&tab=quotebuilder';
-        $filterStr .= '<a href="' . $settingLink . '" class="ui icon button right floated" title="'.__( 'Quotes settings','zero-bs-crm').'"><i class="cogs icon"></i></a>';
-    }
-    
-	// output
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,$hideLearn,$title,$content,$links['learn'],$links['img'],$links['vid'],$hopscotchCustomJS);
-
-}
-
-/**
- * Output the back to list button on Quote Edit and Add New pages
- */
-function jpcrm_quoteedit_list_menu() {
-
-	global $zbs;
-
-	$title   = __( 'New Quote', 'zero-bs-crm' );
-	$zbsid   = -1;
-	$content = $zbs->learn_menu->get_content_body( 'quotenew' );
-	$links   = $zbs->learn_menu->get_content_urls( 'quotenew' );
-	$add_new = '<div id="zbs-quote-learn-nav"></div>';
-
-	if ( isset( $_GET['zbsid'] ) && ! empty( $_GET['zbsid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$title   = __( 'Edit Quote', 'zero-bs-crm' );
-		$zbsid   = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$content = $zbs->learn_menu->get_content_body( 'quoteedit' );
-		$links   = $zbs->learn_menu->get_content_urls( 'quoteedit' );
-		$add_new = '<div id="zbs-quote-learn-nav"></div>  <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_QUOTE, false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
-
-	}
-
-	$filter_str = '<div class="ui items right floated" style="margin:0">' . zeroBSCRM_getObjNav( $zbsid, 'edit', ZBS_TYPE_QUOTE ) . '</div>';
-
-	// output
+	// render generic learn menu with content
 	$zbs->learn_menu->render_generic_learn_menu(
-		$title,
-		$add_new,
-		$filter_str,
-		true,
-		$title,
-		$content,
-		$links['learn'],
-		$links['img'],
-		$links['vid'],
-		''
+		$page_title,
+		$left_buttons,
+		$right_buttons,
+		$show_learn,
+		$learn_title,
+		$learn_content,
+		$learn_more_url,
+		$zbs->learn_menu->get_image_url( $learn_image_url ),
+		$learn_video_url,
+		$extra_js,
+		$popup_extra_css,
+		$learn_video_title
 	);
 }
 
-function jpcrm_translist_learn_menu(){
-
-	global $zbs;
-
-    $title      = __( 'Transaction List','zero-bs-crm' );
-    #} Add new?
-    $addNew = ''; if ( zeroBSCRM_permsCustomers() ) {
-        $addNew = ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_transaction', false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-    }
-    $content    = $zbs->learn_menu->get_content_body( 'managetransactions' );
-    $links      = $zbs->learn_menu->get_content_urls( 'managetransactions' );
-
-    $filterStr = '<a href="' . jpcrm_esc_link( $zbs->slugs['managetransactions'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-
-    	// Column manager
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-
-        // Settings link
-        $settingLink = zeroBSCRM_getAdminURL($zbs->slugs['settings']) . '&tab=transactions';
-        $filterStr .= '<a href="' . $settingLink . '" class="ui icon button right floated" title="'.__( 'Transaction settings','zero-bs-crm').'"><i class="cogs icon"></i></a>';
-    }
-	
-    $zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-}
-
-
 /**
- * Output the navigation buttons on Transaction Edit and Add New pages
+ * Extend contact listview learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
  */
-function jpcrm_transedit_learn_menu(){
+function jpcrm_contactlist_learn_menu( $learn_menu ) {
 
-	global $zbs;
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
-	$zbsid      = -1;
-	$filter_str = '<div class="ui items right floated" style="margin:0">' . zeroBSCRM_getObjNav( $zbsid, 'edit', ZBS_TYPE_TRANSACTION ) . '</div>';
-	$title      = __( 'New Transaction', 'zero-bs-crm' );
-	$content    = $zbs->learn_menu->get_content_body( 'transnew' );
-	$links      = $zbs->learn_menu->get_content_urls( 'transnew' );
-	$add_new    = '<div id="zbs-transaction-learn-nav"></div>';
-
-	if ( isset( $_GET['zbsid'] ) && ! empty( $_GET['zbsid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$title   = __( 'Edit Transaction', 'zero-bs-crm' );
-		$zbsid   = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$content = $zbs->learn_menu->get_content_body( 'transedit' );
-		$links   = $zbs->learn_menu->get_content_urls( 'transedit' );
-
-		if ( zeroBSCRM_permsInvoices() ) {
-			$add_new = ' <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION, false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
-		}
+	if ( zeroBSCRM_permsCustomers() ) {
+		$learn_menu['right_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_customer', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new contact', 'zero-bs-crm' ) . '</a>';
 	}
 
-	// output
-	$zbs->learn_menu->render_generic_learn_menu(
-		$title,
-		$add_new,
-		$filter_str,
-		true,
-		$title,
-		$content,
-		$links['learn'],
-		$links['img'],
-		$links['vid'],
-		''
-	);
-
+	return $learn_menu;
 }
-
-
-function jpcrm_invoicelist_learn_menu(){
-
-	global $zbs; 
-	
-    $title      = __( 'Manage Invoices','zero-bs-crm' );
-    $addNew = '';
-    if ( zeroBSCRM_permsInvoices() ) {
-        $addNew =  '<a href="' . jpcrm_esc_link('create',-1,'zerobs_invoice',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-    }
-    $content    = $zbs->learn_menu->get_content_body( 'manageinvoices' );
-    $links      = $zbs->learn_menu->get_content_urls( 'manageinvoices' );
-
-    #} Filters
-	$filterStr = '<a href="' .admin_url('admin.php?page='.$zbs->slugs['manageinvoices'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
-
-    
-    #} And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    #} Admins can change columns! (globally - should each person have own views?
-    if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-
-        // Settings link
-        $settingLink = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=invbuilder';
-        $filterStr .= '<a href="' . $settingLink . '" class="ui icon button right floated" title="'.__( 'Invoice settings','zero-bs-crm').'"><i class="cogs icon"></i></a>';
-    } 
-
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-
-}
-
 
 /**
- * Output the navigation buttons on Invoice Edit and Add New pages
+ * Extend contact view learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
  */
-function jpcrm_invoiceedit_learn_menu(){
+function jpcrm_viewcontact_learn_menu( $learn_menu ) {
 
-	global $zbs;
-	
-	$zbsid      = -1;
-	$filter_str = '<div class="ui items right floated" style="margin:0">' . zeroBSCRM_getObjNav( $zbsid, 'edit', ZBS_TYPE_INVOICE ) . '</div>';
-	$title      = __( 'New Invoice', 'zero-bs-crm' );
-	$content    = $zbs->learn_menu->get_content_body( 'invoicenew' );
-	$links      = $zbs->learn_menu->get_content_urls( 'invoicenew' );
-	$add_new    = '<div id="zbs-invoice-learn-nav"></div>';
+	$contact_id                  = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$learn_menu['right_buttons'] = zeroBSCRM_getObjNav( $contact_id, 'view', ZBS_TYPE_CONTACT );
 
-	$also_in_add_new = '';
-	// if admin, show settings links too
-	// (these get appended to the zbs-invoice-learn-nav) so that they can be shared with the js-added nav
+	return $learn_menu;
+}
+
+/**
+ * Extend company view learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_viewcompany_learn_menu( $learn_menu ) {
+
+	$company_id = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	// page options likely are meant to configure object tab columns in the view profile, but they don't currently work
+	// $learn_menu['left_buttons']  = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_page_options">' . esc_html__( 'Page options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+	$learn_menu['right_buttons'] = zeroBSCRM_getObjNav( $company_id, 'view', ZBS_TYPE_COMPANY );
+
+	return $learn_menu;
+}
+
+/**
+ * Extend contact edit learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_contactedit_learn_menu( $learn_menu ) {
+	$contact_id = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	$learn_menu['left_buttons']  = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_page_options">' . esc_html__( 'Page options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+	$learn_menu['right_buttons'] = zeroBSCRM_getObjNav( $contact_id, 'edit', ZBS_TYPE_CONTACT );
+
+	return $learn_menu;
+}
+
+/**
+ * Extend form listview learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_formlist_learn_menu( $learn_menu ) {
+
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
+
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-		$also_in_add_new = '<a class="ui icon mini button" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=invbuilder title="' . __( 'Invoice Settings', 'zero-bs-crm' ) . '"><i class="options icon"></i></a> <a class="ui icon mini button" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=bizinfo title="' . __( 'Business Settings', 'zero-bs-crm' ) . '"><i class="building icon"></i></a>';
+		// Settings link
+		global $zbs;
+		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=forms';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Forms settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Forms settings', 'zero-bs-crm' ) . '</a>';
 	}
 
-	if ( isset( $_GET['zbsid'] ) && ! empty( $_GET['zbsid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$title   = __( 'Edit Invoice', 'zero-bs-crm' );
-		$zbsid   = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$content = $zbs->learn_menu->get_content_body( 'invoiceedit' );
-		$links   = $zbs->learn_menu->get_content_urls( 'invoiceedit' );
-		$add_new = '<div id="zbs-invoice-learn-nav">' . $also_in_add_new . '</div>'; // js adds/edits
-
-		if ( zeroBSCRM_permsInvoices() ) {
-			$add_new .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_invoice', false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
-		}
+	if ( zeroBSCRM_permsForms() ) {
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_form', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new form', 'zero-bs-crm' ) . '</a>';
 	}
 
-	// output
-	$zbs->learn_menu->render_generic_learn_menu(
-		$title,
-		$add_new,
-		$filter_str,
-		true,
-		$title,
-		$content,
-		$links['learn'],
-		$links['img'],
-		$links['vid'],
-		''
-	);
-}
-
-
-function jpcrm_companylist_learn_menu(){
-
-	global $zbs;
-	
-    $title      = __( 'Manage '.jpcrm_label_company(true),'zero-bs-crm' );
-    $addNew = '';
-    if ( zeroBSCRM_permsInvoices() ) {
-        $addNew =  '<a href="' .jpcrm_esc_link('create',-1,'zerobs_company',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-    }
-    $filterStr = '';
-    $content    = $zbs->learn_menu->get_content_body( 'managecompanies' );
-    $links      = $zbs->learn_menu->get_content_urls( 'managecompanies' );	
-
-    // filter strings
-    $filterStr = '<a href="' . jpcrm_esc_link( $zbs->slugs['managecompanies'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden zbs-hide"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
-
-    #} And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    #} Admins can change columns! (globally - should each person have own views?
-    if (zeroBSCRM_isZBSAdminOrAdmin()){ 
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-
-        // Settings link
-        $settingLink = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=companies';
-        $filterStr .= '<a href="' . $settingLink . '" class="ui icon button right floated" title="'.__( 'Settings','zero-bs-crm').'"><i class="cogs icon"></i></a>';
-    } 
-
-    $zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-    
+	return $learn_menu;
 }
 
 /**
- * Output the navigation buttons on Company Edit and Add New pages
+ * Extend task edit learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
  */
-function jpcrm_companyedit_learn_menu() {
+function jpcrm_taskedit_learn_menu( $learn_menu ) {
 
 	global $zbs;
 
-	$title   = sprintf( 'New %s', jpcrm_label_company( true ) );
-	$zbsid   = -1;
-	$content = $zbs->learn_menu->get_content_body( 'companynew' );
-	$links   = $zbs->learn_menu->get_content_urls( 'companynew' );
-	$add_new = '';
+	$learn_menu['left_buttons']  = '<div id="zbs-event-learn-nav"></div>';
+	$learn_menu['left_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'View calendar', 'zero-bs-crm' ) . '</a>';
+	$learn_menu['left_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events-list'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'View list', 'zero-bs-crm' ) . '</a>';
 
-	if ( isset( $_GET['zbsid'] ) && ! empty( $_GET['zbsid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$title   = sprintf( 'Edit %s', jpcrm_label_company( true ) );
-		$zbsid   = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$content = $zbs->learn_menu->get_content_body( 'copmanyedit' );
-		$links   = $zbs->learn_menu->get_content_urls( 'companyedit' );
+	return $learn_menu;
+}
+
+/**
+ * Extend task listview learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_tasklistview_learn_menu( $learn_menu ) {
+	global $zbs;
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
+
+	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'View Calendar', 'zero-bs-crm' ) . '</a>';
+
+	if ( zeroBSCRM_permsEvents() ) {
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new task', 'zero-bs-crm' ) . '</a>';
 	}
 
-	$filter_str = '<div class="ui items right floated" style="margin:0">' . zeroBSCRM_getObjNav( $zbsid, 'edit', ZBS_TYPE_COMPANY ) . '</div>';
-
-	// output
-	$zbs->learn_menu->render_generic_learn_menu(
-		$title,
-		$add_new,
-		$filter_str,
-		true,
-		$title,
-		$content,
-		$links['learn'],
-		$links['img'],
-		$links['vid'],
-		''
-	);
+	return $learn_menu;
 }
 
-function jpcrm_tasklist_learn_menu(){
+/**
+ * Extend new task learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_tasknew_learn_menu( $learn_menu ) {
 
 	global $zbs;
 
-    $title      = __( 'Task Calendar','zero-bs-crm' );
-    $addNew 	= ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_event',false) . '" class="button ui blue tiny zbs-add-new zbs-add-new-task">' . __( 'Add New',"zero-bs-crm") . '</a>';
-    $addNew 	.= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events-list']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="list alternate outline icon"></i> ' . __( 'List View',"zero-bs-crm") . '</a>'; 
-	$content    = $zbs->learn_menu->get_content_body( 'manage-events' );
-    $links      = $zbs->learn_menu->get_content_urls( 'manage-events' );	
+	$learn_menu['left_buttons']  = '<div id="zbs-event-learn-nav"></div>';
+	$learn_menu['left_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'View calendar', 'zero-bs-crm' ) . '</a>';
+	$learn_menu['left_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events-list'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'View list', 'zero-bs-crm' ) . '</a>';
 
-    // show "who's calendar" top right?
-    // adapted from what was inline output in List.Events.php
-    global $zbs;
-    $showEventsUsers = false;
-    $currentEventUserID = false; if (isset($_GET['zbsowner']) && !empty($_GET['zbsowner'])) $currentEventUserID = (int)sanitize_text_field($_GET['zbsowner']);
-    $zbsEventsUsers = zeroBS_getPossibleCustomerOwners();
-    if (count($zbsEventsUsers) > 0 && zeroBSCRM_isZBSAdminOrAdmin()) {
-        $showEventsUsers = true;
-    } else {
-        $taskOwnershipOn = zeroBSCRM_getSetting('taskownership' );
-        if ($taskOwnershipOn == "1") {
-            $currentEventUserID = get_current_user_id();
-        }
-    }
-    $eventUsersHTML = '';
-    if ($showEventsUsers){ 
-    	$eventUsersHTML = '<div style="float:right;margin-right: 1em;">'; // "width: 200px;
-            $eventUsersHTML .= '<select class="form-control" id="zerobscrm-owner" name="zerobscrm-owner">';
-        	    $eventUsersHTML .= '<option value="-1">'.__( 'All Users',"zero-bs-crm").'</option>';
-                    if (count($zbsEventsUsers) > 0) 
-                    	foreach ($zbsEventsUsers as $eventsUser){
-
-                                $eventUsersHTML .= '<option value="'.$eventsUser->ID.'"';
-                                if ($eventsUser->ID == $currentEventUserID) $eventUsersHTML .= ' selected="selected"';
-                                $eventUsersHTML .= '>'.esc_html( $eventsUser->display_name ).'</option>';
-
-                   		}
-            $eventUsersHTML .= '</select>';
-        $eventUsersHTML .= '</div> ';
-
-        $eventUsersHTML .= '<script type="text/javascript">';
-            $eventUsersHTML .= 'var zbsExistingEventsUserID = '.((!empty($currentEventUserID)) ? $currentEventUserID : '-1').';';
-            $eventUsersHTML .= "jQuery('#zerobscrm-owner').on('change',function(){";
-                $eventUsersHTML .= 'var v = jQuery(this).val();';
-                $eventUsersHTML .= "if (v != '' && v != window.zbsExistingEventsUserID){";
-					$eventUsersHTML .= "var newURL = '".jpcrm_esc_link($zbs->slugs['manage-events'])."';";
-                    $eventUsersHTML .= "if (v != -1) newURL += '&zbsowner=' + jQuery(this).val();";
-					// $eventUsersHTML .= "// reload with get var";
-						$eventUsersHTML .= "window.location = newURL;";
-                    $eventUsersHTML .= "}";
-                $eventUsersHTML .= "});";
-		$eventUsersHTML .= "</script>";
-
-    } 
-
-
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$eventUsersHTML,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-
+	return $learn_menu;
 }
 
+/**
+ * Extend quote listview learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_quotelist_learn_menu( $learn_menu ) {
 
-					
-function jpcrm_segmentlist_learn_menu(){    
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
-    global $zbs;
-    
-    $title      = __( 'Segment List','zero-bs-crm' );
-    $content    = $zbs->learn_menu->get_content_body( 'segments' );
-    $links      = $zbs->learn_menu->get_content_urls( 'segments' );	
-   
-    $addNew = ''; if ( zeroBSCRM_permsCustomers() ) {
-        $addNew = ' <a href="' . jpcrm_esc_link( 'create', -1, 'segment', false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-    }
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		// Settings link
+		global $zbs;
+		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=quotebuilder';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Quotes settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Quotes settings', 'zero-bs-crm' ) . '</a>';
+	}
 
-    // filter strings
-    $filterStr = '<a href="' .zeroBSCRM_getAdminURL($zbs->slugs['managecontacts'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
+	if ( zeroBSCRM_permsCustomers() ) {
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_quote', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new quote', 'zero-bs-crm' ) . '</a>';
+	}
 
-    // And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    // Admins can change columns! (globally - should each person have own views?
-    if (current_user_can('administrator')){ 
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-    }   
-
-	// output
-	$zbs->learn_menu->render_generic_learn_menu( 
-        $title,
-        $addNew,
-        $filterStr,
-        true,
-        $title,
-        $content,
-        $links['learn'],
-        $links['img'],
-        $links['vid'],
-        '',
-        'z-index: 9999999;',
-        __( "Introduction to Tags and Segments", 'zero-bs-crm' ),
-        'pie chart' 
-    );
-
+	return $learn_menu;
 }
 
+/**
+ * Extend transaction listview learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_transactionlist_learn_menu( $learn_menu ) {
 
-	
-// for new + edit menu :)
-function jpcrm_segmentedit_learn_menu(){
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
+
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		// Settings link
+		global $zbs;
+		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=transactions';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Transaction settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Transaction settings', 'zero-bs-crm' ) . '</a>';
+	}
+
+	if ( zeroBSCRM_permsTransactions() ) {
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_transaction', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new transaction', 'zero-bs-crm' ) . '</a>';
+	}
+
+	return $learn_menu;
+}
+
+/**
+ * Extend invoice listview learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_invoicelist_learn_menu( $learn_menu ) {
+
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
+
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		// Settings link
+		global $zbs;
+		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=invbuilder';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Invoice settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Invoice settings', 'zero-bs-crm' ) . '</a>';
+	}
+
+	if ( zeroBSCRM_permsInvoices() ) {
+		$learn_menu['right_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_invoice', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new invoice', 'zero-bs-crm' ) . '</a>';
+	}
+
+	return $learn_menu;
+}
+
+/**
+ * Extend new invoice learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_invoicenew_learn_menu( $learn_menu ) {
+	global $zbs;
+
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=invbuilder' ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Invoice settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Invoice settings', 'zero-bs-crm' ) . '</a>';
+
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=bizinfo' ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Business settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Business settings', 'zero-bs-crm' ) . '</a>';
+	}
+
+	return $learn_menu;
+}
+/**
+ * Extend invoice edit learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_invoiceedit_learn_menu( $learn_menu ) {
 
 	global $zbs;
 
-	$title = __("Segments","zero-bs-crm");
-    $newSegment = true;
-    $content    = $zbs->learn_menu->get_content_body( 'segmentedit' );
-    $links      = $zbs->learn_menu->get_content_urls( 'segmentedit' );	
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=invbuilder' ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Invoice settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Invoice settings', 'zero-bs-crm' ) . '</a>';
 
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=bizinfo' ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Business settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Business settings', 'zero-bs-crm' ) . '</a>';
+	}
 
-    $zbsid = $zbs->zbsvar('zbsid' );
-    if (isset($zbsid) && !empty($zbsid) && $zbsid !== -1) {
-    	$title = __("Edit Segment","zero-bs-crm");  
-    	$newSegment = false; 
-    }
-
-    $filterStr = '<button class="ui icon small button positive right floated';
-    	if ($newSegment) $filterStr .= ' hidden';
-    $filterStr .= '" type="button" id="zbs-segment-edit-act-save">'.__( 'Save Segment',"zero-bs-crm").'  <i class="save icon"></i></button>';
-    $filterStr .= '<button class="ui button small right floated was-inverted basic" type="button" id="zbs-segment-edit-act-back">'.__( 'Back to List',"zero-bs-crm").'</button>';
-
-	// output
-	$zbs->learn_menu->render_generic_learn_menu( 
-        $title,
-        '',
-        $filterStr,
-        true,
-        $title,
-        $content,
-        $links['learn'],
-        $links['img'],
-        $links['vid'],
-        '',
-        '',
-        '',
-        'pie chart' 
-    );
-
-
+	return $learn_menu;
 }
 
+/**
+ * Extend company listview learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_companylist_learn_menu( $learn_menu ) {
 
-function jpcrm_settings_learn_menu(){
-    
-    global $zbs;
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
-	// wh temp hack for mail delivery learn
-    $title = __("Settings","zero-bs-crm");
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		// Settings link
+		global $zbs;
+		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=companies';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Settings', 'zero-bs-crm' ) . '">' . esc_html( sprintf( __( '%s settings', 'zero-bs-crm' ), jpcrm_label_company() ) ) . '</a>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+	}
+
+	if ( zeroBSCRM_permsCustomers() ) {
+		$learn_menu['right_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_company', false ) . '" class="jpcrm-button font-14px">' . sprintf( __( 'Add new %s', 'zero-bs-crm' ), jpcrm_label_company() ) . '</a>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+	}
+
+	return $learn_menu;
+}
+
+/**
+ * Extend company edit learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_companyedit_learn_menu( $learn_menu ) {
+	$company_id = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	$learn_menu['right_buttons'] = zeroBSCRM_getObjNav( $company_id, 'edit', ZBS_TYPE_COMPANY );
+
+	return $learn_menu;
+}
+
+/**
+ * Extend task calendar learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_taskcalendar_learn_menu( $learn_menu ) {
+
+	global $zbs;
+
+	// show "who's calendar" top right
+	$selected_user_id = ( empty( $_GET['zbsowner'] ) ? -1 : (int) $_GET['zbsowner'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$task_users       = zeroBS_getPossibleCustomerOwners();
+	$task_users_html  = '';
+	if ( count( $task_users ) > 0 && zeroBSCRM_isZBSAdminOrAdmin() ) {
+		$task_users_html .= '<select id="zerobscrm-owner">';
+		$task_users_html .= '<option value="-1">' . __( 'All Users', 'zero-bs-crm' ) . '</option>';
+		foreach ( $task_users as $user ) {
+			$task_users_html .= '<option value="' . esc_attr( $user->ID ) . '"' . ( $user->ID === $selected_user_id ? ' selected' : '' ) . '>' . esc_html( $user->display_name ) . '</option>';
+		}
+		$task_users_html .= '</select>';
+
+		$url_base = jpcrm_esc_link( $zbs->slugs['manage-events'] );
+
+		$task_users_html .= <<<EOF
+		<script type="text/javascript">
+		var zbsExistingEventsUserID = $selected_user_id;
+		jQuery('#zerobscrm-owner').on('change',function(){
+			var v = jQuery(this).val();
+			if (v != '' && v != window.zbsExistingEventsUserID){
+				var newURL = '$url_base';
+				if (v != -1) newURL += '&zbsowner=' + jQuery(this).val();
+				window.location = newURL;
+			}
+		});
+		</script>
+EOF;
+
+	}
+
+	$learn_menu['right_buttons']  = $task_users_html;
+	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events-list'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'List view', 'zero-bs-crm' ) . '</a>';
+
+	if ( zeroBSCRM_permsEvents() ) {
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new task', 'zero-bs-crm' ) . '</a>';
+	}
+
+	return $learn_menu;
+}
+
+/**
+ * Extend segment listview learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_segmentlist_learn_menu( $learn_menu ) {
+
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
+
+	if ( zeroBSCRM_permsCustomers() ) {
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'segment', false ) . '" class="jpcrm-button font-14px">' . esc_html__( 'Add new segment', 'zero-bs-crm' ) . '</a>';
+	}
+
+	return $learn_menu;
+}
+
+/**
+ * Extend segment new and edit learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_segmentedit_learn_menu( $learn_menu ) {
+	$is_new_segment = ( empty( $_GET['zbsid'] ) || (int) $_GET['zbsid'] <= 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	if ( $is_new_segment ) {
+		$learn_menu['title'] = __( 'New Segment', 'zero-bs-crm' );
+	} else {
+		$learn_menu['right_buttons'] = '<button class="jpcrm-button font-14px" type="button" id="zbs-segment-edit-act-save">' . __( 'Save Segment', 'zero-bs-crm' ) . '</button>';
+	}
+	return $learn_menu;
+}
+
+/**
+ * Extend settings learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_settings_learn_menu( $learn_menu ) {
+	global $zbs;
 
 	if ( current_user_can( 'admin_zerobs_manage_options' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
-		$addNew = ' <a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '" class="button ui orange tiny zbs-add-new" id="manage-features">' . __( 'Manage modules', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$learn_menu['right_buttons'] = ' <a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '" class="jpcrm-button white-bg font-14px" id="manage-features">' . __( 'Manage modules', 'zero-bs-crm' ) . '</a>';
 	}
 
-	$tab = '';
-	if (isset($_GET['tab']) && $_GET['tab'] == 'maildelivery'){
-		$title .= ': '.__("Mail Delivery","zero-bs-crm");
-		$tab = 'maildelivery';
-	}
-	if (isset($_GET['tab']) && $_GET['tab'] == 'mail'){
-		$title .= ': '.__("Mail","zero-bs-crm");
-		$tab = 'mail';
-	}
-
-    #} If filtering this, be careful as it changes based on the tab use $_GET['tab'] in filter 
-    switch ($tab){
-        case 'mail':
-            $content    = $zbs->learn_menu->get_content_body( 'mail' );
-            $links      = $zbs->learn_menu->get_content_urls( 'mail' );	
-        break;
-        case 'maildelivery':
-            $content    = $zbs->learn_menu->get_content_body( 'maildelivery' );
-            $links      = $zbs->learn_menu->get_content_urls( 'maildelivery' );	
-        break;
-        default: 
-            $content    = $zbs->learn_menu->get_content_body( 'settings' );
-            $links      = $zbs->learn_menu->get_content_urls( 'settings' );	
-        break;
-    }
-
-    $hopscotchJS = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:10:5")) { hopscotch.startTour(window.zbsTour);}';
-
-	
-	// output
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,'',true,$title,$content,$links['learn'],$links['img'],$links['vid'],$hopscotchJS);
-
+	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:10:5")) { hopscotch.startTour(window.zbsTour);}';
+	return $learn_menu;
 }
 
-
-function jpcrm_emails_learn_menu(){
-
-	global $zbs;
-
-    $title      = __( 'Emails','zero-bs-crm' );
-	$addNew     = '';
-	$filterStr = '<a href="'.admin_url('admin.php?page=zerobscrm-send-email').'" class="ui button blue tiny zbs-inbox-compose-email"><i class="ui icon pencil"></i> ' . __("Compose Mail", "zero-bs-crm") . '</a>';
-    $content    = $zbs->learn_menu->get_content_body( 'emails' );
-    $links      = $zbs->learn_menu->get_content_urls( 'emails' );	
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
+/**
+ * Extend emails learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_emails_learn_menu( $learn_menu ) {
+	$learn_menu['right_buttons'] = '<a href="' . admin_url( 'admin.php?page=zerobscrm-send-email' ) . '" class="jpcrm-button font-14px zbs-inbox-compose-email">' . __( 'Compose Mail', 'zero-bs-crm' ) . '</a>';
+	return $learn_menu;
 }
 
-
-// Generic Delete menu
-function jpcrm_delete_learn_menu(){
-
+/**
+ * Render object delete menu
+ *
+ * Likely not used anywhere.
+ */
+function jpcrm_delete_learn_menu() {
 	global $zbs;
 
-    $title        = __( 'Delete','zero-bs-crm' );
-    $addNew = '';
-    $content      = $zbs->learn_menu->get_content_body( 'delete' );
-    $links        = $zbs->learn_menu->get_content_urls( 'delete' );	
+	$title   = __( 'Delete', 'zero-bs-crm' );
+	$content = $zbs->learn_menu->get_content_body( 'delete' );
+	$links   = $zbs->learn_menu->get_content_urls( 'delete' );
 
 	$zbstype = -1;
-    if (isset($_GET['zbstype']) && !empty($_GET['zbstype'])) {
+	if ( ! empty( $_GET['zbstype'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-    	// type specific :)
-    	$zbstype = $_GET['zbstype'];
+		// type specific :)
+		$zbstype = sanitize_text_field( $_GET['zbstype'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
-    		// try a conversion
-    		$objTypeID = $zbs->DAL->objTypeID($zbstype);
+		// try a conversion
+		$obj_type_id = $zbs->DAL->objTypeID( $zbstype ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-    		if ($objTypeID > 0){
+		if ( $obj_type_id > 0 ) {
 
-    			// got a type :D
-    			$singular = $zbs->DAL->typeStr($objTypeID);
-		    	$title = __("Delete","zero-bs-crm").' '.$singular;
-		        $content      = $zbs->learn_menu->get_content_body( $zbstype.'delete' ); // e.g. contactdelete
-		        $links        = $zbs->learn_menu->get_content_urls( $zbstype.'delete' );
+			// got a type :D
+			$singular = $zbs->DAL->typeStr( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$title    = __( 'Delete', 'zero-bs-crm' ) . ' ' . $singular;
+			$content  = $zbs->learn_menu->get_content_body( $zbstype . 'delete' );  // e.g. contactdelete
+			$links    = $zbs->learn_menu->get_content_urls( $zbstype . 'delete' );
 
-		    }
-    }
+		}
+	}
 
-    $metaboxMgrStr = '';
- 
- 	// for now...
- 	$showLearn = false; 
-	
-	$filterStr = '';
+	$show_learn = false;
 
 	// output
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,$showLearn,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-
-
+	$zbs->learn_menu->render_generic_learn_menu( $title, '', '', $show_learn, $title, $content, $links['learn'], $links['img'], $links['vid'], '' );
 }
 
-
-function jpcrm_dashboard_learn_menu(){
-
-	global $zbs;
-
-    $title = __( "Dashboard", 'zero-bs-crm' );
-    $content      = $zbs->learn_menu->get_content_body( 'dash' );
-    $links        = $zbs->learn_menu->get_content_urls( 'dash' );	
-
-	$zbs->learn_menu->render_generic_learn_menu( $title,'','',true,$title,$content,$links['learn'],$links['img'],$links['vid'],' //none','z-index: 9999999;' );
-
+/**
+ * Extend notifications learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_notifications_learn_menu( $learn_menu ) {
+	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && hopscotch.getState() === "zbs-welcome-tour:4") { hopscotch.startTour(window.zbsTour);}';
+	return $learn_menu;
 }
 
-
-function jpcrm_notifications_learn_menu(){
-
-	global $zbs;
-
-    $title = __( "Notifications", 'zero-bs-crm' );
-    $content      = $zbs->learn_menu->get_content_body( 'notifications' );
-    $links        = $zbs->learn_menu->get_content_urls( 'notifications' );	
-
-	$zbs->learn_menu->render_generic_learn_menu( $title,'','',true,$title,$content,$links['learn'],$links['img'],$links['vid'],'if (typeof hopscotch != "undefined" && hopscotch.getState() === "zbs-welcome-tour:4") { hopscotch.startTour(window.zbsTour);}' );
-
+/**
+ * Extend extensions learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_extensions_learn_menu( $learn_menu ) {
+	$learn_menu['extra_js'] = 'if (hopscotch && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:9:5")) { hopscotch.startTour(window.zbsTour);}';
+	return $learn_menu;
 }
 
-
-function jpcrm_emailtemplates_learn_menu(){
-
+/**
+ * Extend CSV Lite learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_csvlite_learn_menu( $learn_menu ) {
 	global $zbs;
 
-    // discern subpage
-    $page = 'recent-activity'; 
-    $title = __('Recent Email Activity','zero-bs-crm');
-    $content   = $zbs->learn_menu->get_content_body( 'recent-emails' );
-    $links     = $zbs->learn_menu->get_content_urls( 'recent-emails' );
+	$html  = '<p>';
+	$html .= esc_html__( 'If you have contacts you need to import to Jetpack CRM, doing so via a CSV is common way to get your data in.', 'zero-bs-crm' );
+	$html .= '</p>';
 
-    if (isset($_GET['zbs_template_editor']) && !empty($_GET['zbs_template_editor'])) {
-        $page     = 'template-editor';
-        $title    = __('Template Settings','zero-bs-crm');
-        $content  = $zbs->learn_menu->get_content_body( 'template-settings' );
-        $links     = $zbs->learn_menu->get_content_urls( 'template-settings' );
-    }
-    if (isset($_GET['zbs_template_id']) && !empty($_GET['zbs_template_id'])){
-        $page      = 'email-templates';
-        $title     = __('System Email Templates','zero-bs-crm');
-        $content   = $zbs->learn_menu->get_content_body( 'email-templates' );
-        $links     = $zbs->learn_menu->get_content_urls( 'email-templates' );
-    } 
-	
+	##WLREMOVE
+	$html .= '<p>';
+	$html .= '<strong>' . esc_html__( 'Note', 'zero-bs-crm' ) . ':</strong> ' . sprintf( __( 'It is important that you format your CSV file correctly for the upload. We have written a detailed guide on how to do this <a href="%s" target="_blank">here</a>.', 'zero-bs-crm' ), esc_url( $zbs->urls['kbcsvformat'] ) ); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+	$html .= '</p>';
 
-	$zbs->learn_menu->render_generic_learn_menu( $title, '', '', true, $title, $content, $links['learn'], $links['img'], $links['vid'], '' );
+	if ( ! empty( $zbs->urls['extcsvimporterpro'] ) ) {
+		$html .= '<p>';
+		$html .= esc_html__( 'Want to import companies as well as keep a record of your imports?', 'zero-bs-crm' );
+		$html .= ' <a href="' . esc_url( $zbs->urls['extcsvimporterpro'] ) . '" target="_blank">' . esc_html__( 'CSV importer PRO is the perfect tool.', 'zero-bs-crm' ) . '</a>';
+		$html .= '</p>';
 
+		$learn_menu['right_buttons'] = '<a href="' . esc_url( $zbs->urls['extcsvimporterpro'] ) . '" target="_blank" class="jpcrm-button font-14px">' . esc_html__( 'Get CSV Importer Pro', 'zero-bs-crm' ) . '</a>';
+	}
+	##/WLREMOVE
+
+	$learn_menu['content'] = $html;
+
+	return $learn_menu;
 }

@@ -35,52 +35,80 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_data' ),
 					'permission_callback' => array( $this, 'can_access' ),
+					'args'                => array(
+						'checklist_slug' => array(
+							'description' => 'Checklist slug',
+							'type'        => 'string',
+							'enum'        => $this->get_checklist_slug_enums(),
+						),
+					),
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_site_options' ),
 					'permission_callback' => array( $this, 'can_access' ),
 					'args'                => array(
-						'checklist_statuses' => array(
+						'checklist_statuses'     => array(
 							'description'          => 'Launchpad statuses',
 							'type'                 => 'object',
+							'properties'           => $this->get_checklist_statuses_properties(),
+							'additionalProperties' => false,
+						),
+						'launchpad_screen'       => array(
+							'description' => 'Launchpad screen',
+							'type'        => 'string',
+							'enum'        => array( 'off', 'minimized', 'full', 'skipped' ),
+						),
+						'is_checklist_dismissed' => array(
+							'description'          => 'Marks a checklist as dismissed by the user',
+							'type'                 => 'object',
 							'properties'           => array(
-								'domain_upsell_deferred' => array(
-									'type' => 'boolean',
+								'slug'         => array(
+									'description' => 'Checklist slug',
+									'type'        => 'string',
+									'enum'        => $this->get_checklist_slug_enums(),
 								),
-								'links_edited'           => array(
-									'type' => 'boolean',
-								),
-								'site_edited'            => array(
-									'type' => 'boolean',
-								),
-								'site_launched'          => array(
-									'type' => 'boolean',
-								),
-								'first_post_published'   => array(
-									'type' => 'boolean',
-								),
-								'video_uploaded'         => array(
-									'type' => 'boolean',
-								),
-								'publish_first_course'   => array(
-									'type' => 'boolean',
-								),
-								'plan_completed'         => array(
+								'is_dismissed' => array(
 									'type' => 'boolean',
 								),
 							),
 							'additionalProperties' => false,
 						),
-						'launchpad_screen'   => array(
-							'description' => 'Launchpad screen',
-							'type'        => 'string',
-							'enum'        => array( 'off', 'minimized', 'full' ),
-						),
 					),
 				),
 			)
 		);
+	}
+
+	/**
+	 * Returns all available checklist slugs.
+	 *
+	 * @return array Array of checklist slugs.
+	 */
+	public function get_checklist_slug_enums() {
+		$checklists = wpcom_launchpad_checklists()->get_all_task_lists();
+		return array_keys( $checklists );
+	}
+
+	/**
+	 * Returns all registered checklist statuses.
+	 *
+	 * @return array Associative array of checklist status properties for the REST API.
+	 */
+	public function get_checklist_statuses_properties() {
+		$tasks            = wpcom_launchpad_checklists()->get_all_tasks();
+		$allowed_task_ids = array();
+		foreach ( $tasks as $task ) {
+			$allowed_task_ids[] = wpcom_launchpad_checklists()->get_task_key( $task );
+		}
+		$allowed_task_ids = array_unique( $allowed_task_ids );
+		$properties       = array();
+		foreach ( $allowed_task_ids as $task_id ) {
+			$properties[ $task_id ] = array(
+				'type' => 'boolean',
+			);
+		}
+		return $properties;
 	}
 
 	/**
@@ -95,14 +123,22 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	/**
 	 * Returns Launchpad-related options.
 	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
 	 * @return array Associative array with `site_intent`, `launchpad_screen`,
-	 *               and `launchpad_checklist_tasks_statuses` as `checklist`.
+	 *               `launchpad_checklist_tasks_statuses` as `checklist_statuses`,
+	 *               and `checklist`.
 	 */
-	public function get_data() {
+	public function get_data( $request ) {
+		$checklist_slug = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
+
 		return array(
 			'site_intent'        => get_option( 'site_intent' ),
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
+			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug ),
+			'is_enabled'         => wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ),
+			'is_dismissed'       => wpcom_launchpad_is_task_list_dismissed( $checklist_slug ),
 		);
 	}
 
@@ -119,14 +155,18 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 		foreach ( $input as $key => $value ) {
 			switch ( $key ) {
 				case 'checklist_statuses':
-					$launchpad_checklist_tasks_statuses_option = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
-					$launchpad_checklist_tasks_statuses_option = array_merge( $launchpad_checklist_tasks_statuses_option, $value );
+					$updated[ $key ] = wpcom_launchpad_update_task_status( $value );
 
-					if ( update_option( 'launchpad_checklist_tasks_statuses', $launchpad_checklist_tasks_statuses_option ) ) {
-						$updated[ $key ] = $value;
-					}
+					// This will check if we have completed all the tasks and disable Launchpad if so.
+					wpcom_launchpad_checklists()->maybe_disable_fullscreen_launchpad();
 					break;
 
+				case 'is_checklist_dismissed':
+					$checklist_slug = $value['slug'];
+					$is_dismissed   = $value['is_dismissed'];
+
+					wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed );
+					break;
 				default:
 					if ( update_option( $key, $value ) ) {
 						$updated[ $key ] = $value;

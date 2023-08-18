@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Make sure the hook receives an array before attempting any process

@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { __ } from '@wordpress/i18n';
 import DashSectionHeader from 'components/dash-section-header';
@@ -125,6 +126,7 @@ class AtAGlance extends Component {
 			const canDisplaybundleCard =
 				! this.props.multisite && ! this.props.isOfflineMode && this.props.hasConnectedOwner;
 			const performanceCards = [];
+
 			if ( 'inactive' !== this.props.getModuleOverride( 'photon' ) ) {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
 			}
@@ -146,10 +148,7 @@ class AtAGlance extends Component {
 			}
 
 			if ( this.props.userCanManagePlugins ) {
-				performanceCards.push(
-					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
-					<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
-				);
+				performanceCards.push( <DashCRM siteAdminUrl={ this.props.siteAdminUrl } /> );
 			}
 
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
@@ -179,28 +178,37 @@ class AtAGlance extends Component {
 				</div>
 			) : null;
 
-			return (
-				<div className="jp-at-a-glance">
-					<h1 className="screen-reader-text">
-						{ __( 'Jetpack At A Glance Dashboard', 'jetpack' ) }
-					</h1>
-					<QuerySitePlugins />
-					<QuerySite />
-					<QueryRecommendationsData />
-					<QueryScanStatus />
-					{ redeemPartnerCoupon }
-					<DashStats { ...settingsProps } { ...urls } />
-					<Section
-						header={ securityHeader }
-						cards={ securityCards }
-						pinnedBundle={ pinnedBundle }
-					/>
-					<Section
-						header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
-						cards={ performanceCards }
-					/>
-					{ connections }
+			const boostSpeedScore = this.props.userCanManagePlugins ? (
+				<div className="jp-at-a-glance__pinned-bundle">
+					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />
 				</div>
+			) : undefined;
+
+			return (
+				<ThemeProvider>
+					<div className="jp-at-a-glance">
+						<h1 className="screen-reader-text">
+							{ __( 'Jetpack At A Glance Dashboard', 'jetpack' ) }
+						</h1>
+						<QuerySitePlugins />
+						<QuerySite />
+						<QueryRecommendationsData />
+						<QueryScanStatus />
+						{ redeemPartnerCoupon }
+						<DashStats { ...settingsProps } { ...urls } />
+						<Section
+							header={ securityHeader }
+							cards={ securityCards }
+							pinnedBundle={ pinnedBundle }
+						/>
+						<Section
+							header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
+							cards={ performanceCards }
+							pinnedBundle={ boostSpeedScore }
+						/>
+						{ connections }
+					</div>
+				</ThemeProvider>
 			);
 		}
 

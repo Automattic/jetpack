@@ -62,7 +62,7 @@ function jpcrm_render_userprofile_page() {
 		*/
 		?>
 		<div class="extra content" style="text-align: center">
-			<a href="<?php echo esc_url( get_edit_profile_url( $user_wp_id ) ); ?>" class="ui small blue icon button centered"><i class="user icon"></i>&nbsp;&nbsp;<?php esc_html_e( 'Edit Your Profile', 'zero-bs-crm' ); ?></a>        
+			<a href="<?php echo esc_url( get_edit_profile_url( $user_wp_id ) ); ?>" class="ui small black icon button centered"><i class="user icon"></i>&nbsp;&nbsp;<?php esc_html_e( 'Edit Your Profile', 'zero-bs-crm' ); ?></a>        
 		</div> 
 
 		<?php

@@ -478,18 +478,6 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Detect whether a site is WordPress.com Staging Site.
-	 *
-	 * @return bool
-	 */
-	public function is_wpcom_staging_site() {
-		if ( function_exists( 'is_blog_wpcom_staging' ) ) {
-			return is_blog_wpcom_staging( $this->blog_id );
-		}
-		return false;
-	}
-
-	/**
 	 * Detect whether a site is an automated transfer site and WooCommerce is active.
 	 *
 	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php.
@@ -501,13 +489,15 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Indicate whether this site was ever an eCommerce trial.
+	 * Indicate whether this site was ever a specific trial.
+	 *
+	 * @param string $trial The trial type to check for.
 	 *
 	 * @return bool
 	 */
-	public function was_ecommerce_trial() {
+	public function was_trial( $trial ) {
 		if ( function_exists( 'has_blog_sticker' ) ) {
-			return has_blog_sticker( 'had-ecommerce-trial' );
+			return has_blog_sticker( "had-{$trial}-trial" );
 		}
 		return false;
 	}
@@ -1485,6 +1475,13 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Detect whether a site is WordPress.com Staging Site.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_wpcom_staging_site();
+
+	/**
 	 * Get site option for the production blog id (if is a WP.com Staging Site).
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
@@ -1505,5 +1502,14 @@ abstract class SAL_Site {
 	 */
 	public function can_blaze() {
 		return (bool) Blaze::site_supports_blaze( $this->blog_id );
+	}
+
+	/**
+	 * Return site's setup identifier.
+	 *
+	 * @return string
+	 */
+	public function get_wpcom_site_setup() {
+		return get_option( 'wpcom_site_setup' );
 	}
 }

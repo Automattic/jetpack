@@ -6,10 +6,12 @@ require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-membership
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
+use \Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
+use const \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
@@ -25,15 +27,14 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		Jetpack_Subscriptions::init();
-		add_filter( 'test_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 		$this->set_up_users();
 	}
 
 	public function tear_down() {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
-		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
-		remove_all_filters( 'jetpack_subscriptions_newsletter_feature_enabled' );
+		remove_all_filters( 'jetpack_is_connection_ready' );
 
 		parent::tear_down();
 	}
@@ -252,17 +253,20 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	/**
 	 * Retrieves payload for JWT token
 	 *
-	 * @param bool $is_subscribed
-	 * @param bool $is_paid_subscriber
-	 * @param int  $subscription_end_date
+	 * @param bool   $is_subscribed
+	 * @param bool   $is_paid_subscriber
+	 * @param int    $subscription_end_date
+	 * @param string $status
+	 * @param int    $product_id
 	 * @return array
 	 */
-	private function get_payload( $is_subscribed, $is_paid_subscriber = false, $subscription_end_date = null, $status = null ) {
+	private function get_payload( $is_subscribed, $is_paid_subscriber = false, $subscription_end_date = null, $status = null, $product_id = 0 ) {
+		$product_id    = $product_id ? $product_id : $this->product_id;
 		$subscriptions = ! $is_paid_subscriber ? array() : array(
-			$this->product_id => array(
+			$product_id => array(
 				'status'     => $status ? $status : 'active',
 				'end_date'   => $subscription_end_date ? $subscription_end_date : time() + HOUR_IN_SECONDS,
-				'product_id' => $this->product_id,
+				'product_id' => $product_id,
 			),
 		);
 
@@ -280,8 +284,6 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	public function test_subscriber_access_level( $type_user_id, $logged, $token_set, $post_access_level, $should_email_be_sent, $should_user_access_post, $subscription_end_date = null, $status = null ) {
 		if ( $type_user_id !== null ) {
 			$user_id = $this->{$type_user_id};
-		} else {
-			$user_id = 0;
 		}
 
 		$is_blog_subscriber = $user_id === $this->paid_subscriber_id || $user_id === $this->regular_subscriber_id;
@@ -403,6 +405,50 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		$this->assertFalse( apply_filters( 'comments_open', false, $post_id ) );
 	}
 
+	public function test_posts_in_loop_have_the_right_access() {
+		/**
+		 *
+		 * This test was implemented to prvent issues in loop (either because of cache issue or other
+		 * It pre supposes that  while ( have_posts() ) : the_post(); uses the same order as the post creation
+		 */
+		$first_post_id  = $this->setup_jetpack_paid_newsletters();
+		$second_post_id = $this->factory->post->create();
+		update_post_meta( $second_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, WPCOM_Offline_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS );
+		$third_post_id = $this->factory->post->create();
+		update_post_meta( $third_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, WPCOM_Offline_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS );
+		$fourth_post_id = $this->factory->post->create();
+		update_post_meta( $fourth_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, WPCOM_Offline_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY );
+
+		wp_publish_post( $first_post_id );
+		wp_publish_post( $second_post_id );
+		wp_publish_post( $third_post_id );
+		wp_publish_post( $fourth_post_id );
+
+		$posts_ids = array(
+			$first_post_id,
+			$second_post_id,
+			$third_post_id,
+			$fourth_post_id,
+		);
+
+		foreach ( $posts_ids as $current_post_id ) {
+
+			$post            = get_post( $current_post_id );
+			$GLOBALS['post'] =& $post;
+			setup_postdata( $post );
+			$level = get_post_meta( $current_post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+			if ( empty( $level ) ) {
+				$level = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+			}
+
+			$this->assertEquals( $level, Jetpack_Memberships::get_post_access_level() );
+			$this->assertEquals( $current_post_id === $first_post_id || $current_post_id === $fourth_post_id, Jetpack_Memberships::user_can_view_post() );
+
+			wp_reset_postdata();
+
+		}
+	}
+
 	/**
 	 * Setup the newsletter post
 	 *
@@ -410,7 +456,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 */
 	private function setup_jetpack_paid_newsletters() {
 		// We create a plan
-		$this->plan_id = $this->factory->post->create(
+		$this->plan_id = WP_UnitTestCase_Base::factory()->post->create(
 			array(
 				'post_type' => Jetpack_Memberships::$post_type_plan,
 			)
@@ -421,10 +467,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		update_post_meta( $this->plan_id, 'jetpack_memberships_site_subscriber', true );
 
 		// Connect the site to Stripe
-		update_option( Jetpack_Memberships::$connected_account_id_option_name, 123 );
-
-		// Enable the newsletter feature
-		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
+		update_option( Jetpack_Memberships::$has_connected_account_option_name, true );
 
 		// Create a post
 		return $this->factory->post->create();
@@ -454,5 +497,41 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		);
 
 		return new WPCOM_Online_Subscription_Service();
+	}
+
+	/**
+	 * Verifies that a premium content JWT can't be be used to access a Paid Newsletter post
+	 *
+	 * @return void
+	 */
+	public function test_verify_a_premium_content_token_cannot_grant_access_to_paid_newsletter_post() {
+		/**
+		 * Create a premium content plan
+		 */
+		$premium_content_product_id = 5678;
+		$premium_content_plan_id    = $this->factory->post->create(
+			array(
+				'post_type' => Jetpack_Memberships::$post_type_plan,
+			)
+		);
+		update_post_meta( $premium_content_plan_id, 'jetpack_memberships_product_id', $premium_content_product_id );
+		$this->factory->post->create();
+
+		/**
+		 * Generate a payload based on the premium content product ID
+		 * and create a JWT token based on the payload
+		 */
+		$premium_content_jwt_payload = $this->get_payload( true, true, null, null, $premium_content_product_id );
+		$subscription_service        = $this->set_returned_token( $premium_content_jwt_payload );
+
+		/**
+		 * Setup a paid newsletter plan and post then verify a premium content customer cannot access a newsletter paid post
+		 */
+		$post_access_level       = 'paid_subscribers';
+		$newsletter_paid_post_id = $this->setup_jetpack_paid_newsletters();
+		update_post_meta( $newsletter_paid_post_id, '_jetpack_newsletter_access', $post_access_level );
+
+		$GLOBALS['post'] = get_post( $newsletter_paid_post_id );
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 	}
 }

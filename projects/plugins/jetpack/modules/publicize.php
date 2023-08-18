@@ -21,6 +21,12 @@
  * Class Jetpack_Publicize
  */
 class Jetpack_Publicize {
+	/**
+	 * Current status about Jetpack modules.
+	 *
+	 * @var Modules
+	 */
+	public $modules;
 
 	/**
 	 * If Publicize is executing within Jetpack.
@@ -98,7 +104,6 @@ class Jetpack_Publicize {
 				}
 			}
 		);
-		$publicize_ui->in_jetpack = $this->in_jetpack;
 	}
 }
 

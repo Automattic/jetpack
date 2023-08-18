@@ -2,4 +2,7 @@ const config = require( 'jetpack-e2e-commons/config/playwright.config.default.cj
 
 config.globalSetup = './lib/setupTests.js';
 
-module.exports = config;
+module.exports = {
+	...config,
+	actionTimeout: 40000,
+};

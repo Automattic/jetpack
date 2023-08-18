@@ -1,4 +1,9 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Text, getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	SocialImageGeneratorToggle,
+	TemplatePickerButton,
+} from '@automattic/jetpack-publicize-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
@@ -8,6 +13,8 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React, { Component } from 'react';
+import { FormFieldset } from '../components/forms';
+import './style.scss';
 
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -23,9 +30,24 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isLinked = this.props.isLinked,
 				isOfflineMode = this.props.isOfflineMode,
 				siteRawUrl = this.props.siteRawUrl,
+				siteAdminUrl = this.props.siteAdminUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
+				hasSocialBasicFeatures = this.props.hasSocialBasicFeatures,
+				hasSocialAdvancedFeatures = this.props.hasSocialAdvancedFeatures,
+				hasSocialImageGenerator = this.props.hasSocialImageGenerator,
+				isAtomicSite = this.props.isAtomicSite,
+				activeFeatures = this.props.activeFeatures,
 				userCanManageModules = this.props.userCanManageModules;
 
+			const showUpgradeLink =
+				! isAtomicSite &&
+				activeFeatures &&
+				activeFeatures.length > 0 &&
+				isActive &&
+				! hasSocialAdvancedFeatures;
+
+			// We need to strip off the trailing slash for the pricing modal to open correctly.
+			const redirectUrl = encodeURIComponent( siteAdminUrl.replace( /\/$/, '' ) );
 			const configCard = () => {
 				if ( unavailableInOfflineMode ) {
 					return;
@@ -60,6 +82,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				>
 					{ userCanManageModules && (
 						<SettingsGroup
+							hasChild
 							disableInOfflineMode
 							disableInSiteConnectionMode
 							module={ { module: 'publicize' } }
@@ -77,6 +100,51 @@ export const Publicize = withModuleSettingsFormHelpers(
 									'jetpack'
 								) }
 							</p>
+							{ showUpgradeLink && (
+								<>
+									<p>
+										{ ! hasSocialBasicFeatures
+											? createInterpolateElement(
+													__(
+														'<moreInfo>Upgrade to a Jetpack Social plan</moreInfo> to get unlimited shares and advanced media sharing options.',
+														'jetpack'
+													),
+													{
+														moreInfo: (
+															<a
+																href={ getRedirectUrl(
+																	'jetpack-plugin-admin-page-sharings-screen',
+																	{
+																		site: siteRawUrl,
+																		query: 'redirect_to=' + redirectUrl,
+																	}
+																) }
+															/>
+														),
+													}
+											  )
+											: createInterpolateElement(
+													__(
+														'<moreInfo>Upgrade to the Jetpack Social Advanced plan</moreInfo> to get advanced media sharing options.',
+														'jetpack'
+													),
+													{
+														moreInfo: (
+															<a
+																href={ getRedirectUrl(
+																	'jetpack-plugin-admin-page-sharings-screen',
+																	{
+																		site: siteRawUrl,
+																		query: 'redirect_to=' + redirectUrl,
+																	}
+																) }
+															/>
+														),
+													}
+											  ) }
+									</p>
+								</>
+							) }
 							<ModuleToggle
 								slug="publicize"
 								disabled={ unavailableInOfflineMode || ! this.props.isLinked }
@@ -86,6 +154,26 @@ export const Publicize = withModuleSettingsFormHelpers(
 							>
 								{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
 							</ModuleToggle>
+							{ isActive &&
+								! this.props.isSavingAnyOption( 'publicize' ) &&
+								hasSocialImageGenerator && (
+									<FormFieldset>
+										<SocialImageGeneratorToggle toggleClass="jp-settings-sharing__sig-toggle">
+											<div>
+												<Text>
+													<strong>{ __( 'Enable Social Image Generator', 'jetpack' ) }</strong>
+												</Text>
+												{ __(
+													'With Social Image Generator enabled you can automatically generate social images for your posts. You can use the button below to choose a default template for new posts.',
+													'jetpack'
+												) }
+											</div>
+											<div className="jp-settings-sharing__template-picker">
+												<TemplatePickerButton />
+											</div>
+										</SocialImageGeneratorToggle>
+									</FormFieldset>
+								) }
 						</SettingsGroup>
 					) }
 

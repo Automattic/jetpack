@@ -2,9 +2,9 @@
 /node_modules/
 /build/
 /.cache/
-**/css/*.css 
+/.phpunit.result.cache
+**/css/*.css
 **/css/**/*.css
-**/css/integrations/
 **/js/*.min.js.map
 **/js/**/*.min.js.map
 **/js/*.min.js
@@ -18,5 +18,11 @@
 /templates/invoices/index.html
 /templates/quotes/.htaccess
 /templates/quotes/index.html
-/tests/acceptance.suite.yml
+/tests/codeception/acceptance.suite.yml
 phpcs.security.xml
+/wordpress/
+
+# We have moved codeception acceptenace tests into a specific `tests/codeception`
+# directory, but we're keeping the old config path around for now to prevent merge
+# conflicts in existing branches and local environments that use codeception.
+/tests/acceptance.suite.yml

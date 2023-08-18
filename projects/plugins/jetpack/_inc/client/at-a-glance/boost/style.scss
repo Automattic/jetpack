@@ -1,0 +1,150 @@
+@import '../../scss/calypso-colors.scss';
+@import '../../scss/mixin_breakpoint.scss';
+
+$border: 1px solid $gray-5;
+
+.boost-grade-info,
+.boost-conversion-loss-info,
+.boost-critical-css-info {
+    display: inline-block;
+    position: relative;
+    margin-left: 0.35rem;
+    top: 2px;
+}
+
+.boost-grade-info {
+    &__grades-description {
+        margin-top: 0;
+    }
+
+    &__grades-table {
+        display: flex;
+        gap: 2rem;
+    }
+}
+
+.boost-conversion-loss-info {
+    &__source {
+        margin: 0;
+    }
+}
+
+.boost-critical-css-info {
+    &__title {
+        margin-top: 0;
+    }
+
+    &__list {
+        list-style: unset;
+        padding-left: 1.5rem;
+    }
+
+    &__bottom-text {
+        margin-bottom: 0;
+    }
+}
+
+.dash-boost-speed-score {
+    background-color: $white;
+    border: $border;
+    color: $gray-80;
+    border-radius: 0.25rem;
+
+    .dops-card {
+        margin-bottom: 0;
+        border-radius: 0.25rem;
+    }
+
+    .dops-banner__title {
+        line-height: 1.57;
+        color: $gray-80;
+    }
+
+    .jb-score-bar {
+        margin: 0;
+    }
+
+    .jb-score-bar__label,
+    .jb-score-bar__filler.fill-loading {
+        background-color: $gray-0;
+
+        @include breakpoint( "<782px" ) {
+            background-color: $white;
+        }
+    }
+
+    .warning {
+        color: $orange-warning;
+    }
+
+    &__score-bars,
+    &__summary {
+        border-bottom: $border;
+    }
+
+    &__summary {
+        display: flex;
+        justify-content: space-between;
+        
+        padding: 1rem;
+
+        @include breakpoint( "<660px" ) {
+            flex-direction: column;
+        }
+    }
+
+    &__section-header {
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    &__score-text {
+        margin: 0;
+        line-height: 1.57;
+        font-size: 0.875rem;
+    }
+
+    &__last-tested {
+        margin: 0 0 0.25rem 0;
+        
+        color: $gray-30;
+        text-align: left;
+    }
+
+    &__install-button-link {
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+
+        cursor: pointer;
+
+        color: $black;
+        text-decoration: underline;
+        text-align: right;
+
+        &:hover {
+            text-decoration-thickness: 3px;
+        }
+
+        &:disabled {
+            text-decoration: none;
+            cursor: default;
+        }
+    }
+
+    &__summary-grade {
+        font-weight: bold;
+        font-size: 1.125rem;
+        line-height: 1.17;
+        margin-bottom: 0.25rem;
+    }
+
+    &__score-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        padding: 1.5rem 1rem;
+    }
+}

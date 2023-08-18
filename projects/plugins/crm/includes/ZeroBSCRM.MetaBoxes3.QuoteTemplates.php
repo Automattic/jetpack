@@ -140,34 +140,31 @@
                         )
                 );
 
-                ?><table class="form-table wh-metatab wptbp" id="wptbpMetaBoxMainItem"><?php
+				?>
+					<div>
+						<div class="jpcrm-form-grid" id="wptbpMetaBoxMainItem">
+					<?php
 
                     // output fields
                     $skipFields = array('content'); // dealt with below
                     zeroBSCRM_html_editFields($quoteTemplate,$fields,'zbsqt_',$skipFields);
-                    
-                    // Content Box
-                    ?><tr class="wh-large">
-                    <td colspan="2"><?php
-
                         ##WLREMOVE
                         // template placeholder helper
-                        echo '<p style="text-align:right"><span class="ui basic blue label">'.esc_html__('Did you know: You can now use Quote Placeholders?','zero-bs-crm').' <a href="' . esc_url( $zbs->urls['kbquoteplaceholders'] ) . '" target="_blank">' . esc_html__('Read More','zero-bs-crm') . '</a></span></p>';
+								echo '<div class="jpcrm-form-group jpcrm-form-group-span-2" style="text-align:end;"><span class="ui basic black label">' . esc_html__( 'Did you know: You can now use Quote Placeholders?', 'zero-bs-crm' ) . ' <a href="' . esc_url( $zbs->urls['kbquoteplaceholders'] ) . '" target="_blank">' . esc_html__( 'Read More', 'zero-bs-crm' ) . '</a></span></div>';
                         ##/WLREMOVE
 
-                        #http://stackoverflow.com/questions/3493313/how-to-add-wysiwyg-editor-in-wordpress-meta-box
-                        $content = zeroBSCRM_io_WPEditor_DBToWPEditor($quoteTemplateContent);
+						$content = wp_kses( $quoteTemplateContent, $zbs->acceptable_html ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
+								echo '<div class="jpcrm-form-group jpcrm-form-group-span-2">';
                         // remove "Add contact form" button from Jetpack
                         remove_action( 'media_buttons', 'grunion_media_button', 999 );
                         wp_editor( $content, 'zbs_quotetemplate_content', array(
                             'editor_height' => 580
                         ));
-
-                    ?></td></tr><?php
-
-
-                ?></table><?php 
+								echo '</div>';
+					?>
+					</div></div>
+					<?php
               
         }
 
@@ -198,7 +195,7 @@
                 if (isset($_POST['zbs_quotetemplate_content'])) {
 
                     #} Save content
-                    $quoteTemplate['content'] = zeroBSCRM_io_WPEditor_WPEditorToDB($_POST['zbs_quotetemplate_content']);                        
+					$quoteTemplate['content'] = wp_kses( $_POST['zbs_quotetemplate_content'], $zbs->acceptable_html ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- to follow up with.
 
                     #} update templated vars
                     // Think this was here in err... if (isset($_POST['zbs_quote_template_id_used'])) $quote['template'] = (int)sanitize_text_field($_POST['zbs_quote_template_id_used']);
@@ -356,7 +353,7 @@
 
                     <div class="zbs-quotetemplate-actions-bottom zbs-objedit-actions-bottom">
 
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php esc_html_e("Template","zero-bs-crm"); ?></button>
+							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Template', 'zero-bs-crm' ); ?></button>
 
                         <?php
 
@@ -381,7 +378,7 @@
 
                     <div class="zbs-quotetemplate-actions-bottom zbs-objedit-actions-bottom">
                         
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Save","zero-bs-crm"); ?> <?php esc_html_e("Template","zero-bs-crm"); ?></button>
+							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Template', 'zero-bs-crm' ); ?></button>
 
                     </div>
 

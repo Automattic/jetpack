@@ -205,7 +205,8 @@ class csstidy_print { // phpcs:ignore
 		}
 
 		if ( ! empty( $this->import ) ) {
-			for ( $i = 0, $size = count( $this->import ); $i < $size; $i++ ) {
+			$import_count = is_countable( $this->import ) ? count( $this->import ) : 0;
+			for ( $i = 0; $i < $import_count; $i++ ) {
 				$import_components = explode( ' ', $this->import[ $i ] );
 				if ( substr( $import_components[0], 0, 4 ) === 'url(' && substr( $import_components[0], -1, 1 ) === ')' ) {
 					$import_components[0] = '\'' . trim( substr( $import_components[0], 4, -1 ), "'\"" ) . '\'';

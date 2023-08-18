@@ -76,7 +76,7 @@ class zeroBS__Metabox_Tags extends zeroBS__Metabox {
                         <div class="ui action left icon fluid input">
                           <i class="tags icon"></i>
                           <input id="zbs-add-tag-value" type="text" placeholder="<?php esc_attr_e( 'Enter tags', 'zero-bs-crm' ); ?>">
-                          <button id="zbs-add-tag-action" type="button" class="ui mini blue button">
+									<button id="zbs-add-tag-action" type="button" class="ui mini black button">
                             <?php esc_html_e('Add',"zero-bs-crm"); ?>
                           </button>
                         </div>
@@ -138,7 +138,9 @@ class zeroBS__Metabox_Tags extends zeroBS__Metabox {
                                         }
 
                                         // brutal out
-                                        ?><div class="ui small basic blue teal label zbsTagSuggestion" title="<?php esc_attr_e('Add Tag','zero-bs-crm'); ?>"><?php echo esc_html( $tagSuggest['name'] ); ?></div><?php
+									?>
+													<div class="ui small basic black label zbsTagSuggestion" title="<?php esc_attr_e( 'Add Tag', 'zero-bs-crm' ); ?>"><?php echo esc_html( $tagSuggest['name'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></div>
+													<?php
 
 
                                         $suggestionIndx++;

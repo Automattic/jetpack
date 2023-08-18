@@ -255,10 +255,10 @@ EOF
 			$input->setOption( 'link', $entries[0]->getLink() );
 		}
 		if ( $input->getOption( 'prologue' ) === null ) {
-			$input->setOption( 'prologue', join( "\n\n", $prologues ) );
+			$input->setOption( 'prologue', implode( "\n\n", $prologues ) );
 		}
 		if ( $input->getOption( 'epilogue' ) === null ) {
-			$input->setOption( 'epilogue', join( "\n\n", $epilogues ) );
+			$input->setOption( 'epilogue', implode( "\n\n", $epilogues ) );
 		}
 
 		// Add the new changelog entry.

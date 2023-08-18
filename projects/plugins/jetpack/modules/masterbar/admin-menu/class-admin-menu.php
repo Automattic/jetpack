@@ -107,7 +107,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		);
 
 		// Ordered links by ID descending, check if the first ID is more than $max_default_id.
-		if ( count( $link_manager_links ) > 0 && $link_manager_links[0]->link_id > $max_default_id ) {
+		if ( is_countable( $link_manager_links ) && count( $link_manager_links ) > 0 && $link_manager_links[0]->link_id > $max_default_id ) {
 			return false;
 		}
 
@@ -375,17 +375,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			$submenus_to_update['options-writing.php'] = 'https://wordpress.com/settings/writing/' . $this->domain;
 		}
 
-		if (
-			/**
-			 * Filter to enable the modernized Reading Settings in Calypso UI.
-			 *
-			 * @since 11.8
-			 * @module masterbar
-			 *
-			 * @param bool false Should the modernized Reading Settings be enabled? Default to false.
-			 */
-			apply_filters( 'calypso_use_modernized_reading_settings', false )
-			&& self::DEFAULT_VIEW === $this->get_preferred_view( 'options-reading.php' )
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-reading.php' )
 		) {
 			$submenus_to_update['options-reading.php'] = 'https://wordpress.com/settings/reading/' . $this->domain;
 		}
@@ -396,7 +386,35 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
-		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 1 );
+		if (
+			/**
+			 * Filter to enable the Newsletter Settings section in Calypso UI.
+			 *
+			 * @since $$next-version$$
+			 * @module masterbar
+			 *
+			 * @param bool false Enable newsletter setting section? Default to false.
+			 */
+			apply_filters( 'calypso_use_newsletter_settings', false )
+		) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack' ), __( 'Newsletter', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
+		}
+
+		if (
+			/**
+			 * Filter to enable the Podcasting Settings section in Calypso UI.
+			 *
+			 * @since $$next-version$$
+			 * @module masterbar
+			 *
+			 * @param bool false Enable podcasting setting section? Default to false.
+			 */
+			apply_filters( 'calypso_use_podcasting_settings', false )
+		) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack' ), __( 'Podcasting', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, 8 );
+		}
+
+		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 9 );
 	}
 
 	/**

@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Admin;
 
-use Automattic\Jetpack_Boost\Lib\Transient;
+use Automattic\Jetpack\Boost_Core\Lib\Transient;
 
 /**
  * Admin notice for letting users know they need to regenerate their Critical CSS.
@@ -43,7 +43,7 @@ class Regenerate_Admin_Notice {
 	public static function maybe_handle_dismissal() {
 		if ( ! is_admin()
 			|| ! current_user_can( 'manage_options' )
-			|| ! isset( $_GET[ self::$dismissal_key ], $_GET['nonce'] )
+			|| ! isset( $_GET[ self::$dismissal_key ] ) || ! isset( $_GET['nonce'] )
 			|| ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'jb_dismiss_notice' )
 		) {
 			return;

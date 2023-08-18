@@ -86,7 +86,8 @@ class SearchApp extends Component {
 		) {
 			this.getResults();
 		}
-		if ( this.props.hasActiveQuery ) {
+
+		if ( this.props.hasActiveQuery && this.props.overlayOptions.enableFilteringOpensOverlay ) {
 			this.showResults();
 		}
 	}
@@ -277,6 +278,7 @@ class SearchApp extends Component {
 						<SearchResults
 							closeOverlay={ this.hideResults }
 							enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
+							enableFilteringOpensOverlay={ this.state.overlayOptions.enableFilteringOpensOverlay }
 							enableSort={ this.state.overlayOptions.enableSort }
 							filters={ this.props.filters }
 							staticFilters={ this.props.staticFilters }

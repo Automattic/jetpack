@@ -9,6 +9,9 @@ infrastructureFileSets.base = new Set( [
 	'tools/cli/commands/dependencies.js',
 	'tools/cli/helpers/dependencyAnalysis.js',
 	'.github/actions/tool-setup/action.yml',
+	'.github/actions/tool-setup/composer-plugin/composer.json',
+	'.github/actions/tool-setup/composer-plugin/src/Plugin.php',
+	'.github/actions/tool-setup/packagist-proxy.mjs',
 	'.github/files/list-changed-projects.sh',
 	'.github/versions.sh',
 	// If pnpm stuff changed, we should build/test everything since we can't know what the change will affect.

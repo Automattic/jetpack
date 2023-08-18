@@ -5,6 +5,90 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.1] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [0.33.0] - 2023-08-07
+### Added
+- Added admin-page upsell notice [#32128]
+- Added new nudge in the editor to upgrade to the Advanced plan. Appears every 3 months [#32087]
+
+## [0.32.0] - 2023-08-01
+### Changed
+- Change dismiss notice so it can be dismissed for a given time. [#32033]
+
+## [0.31.0] - 2023-07-25
+### Added
+- Added instagram reel restrictions [#31808]
+
+## [0.30.4] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.30.3] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## [0.30.2] - 2023-06-26
+### Changed
+- Updated package dependencies. [#31468]
+
+## [0.30.1] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+### Fixed
+- Simplified i18n strings [#31185]
+
+## [0.30.0] - 2023-05-29
+### Added
+- Added account_name field to the publicize connections object. [#30937]
+- Added the Instagram service [#30803]
+- Check for featured image in the classic editor [#30769]
+- Jetpack Social: Add a notice to let users know Instagram is available [#30777]
+- Mastodon post preview [#30919]
+
+### Changed
+- Changed the enhanced publishing feature check to use Current_Plan [#29881]
+
+## [0.29.0] - 2023-05-22
+### Added
+- Added validation of featured image for Instagram connections [#30724]
+
+### Fixed
+- Added a failsafe check for error codes [#30748]
+- Publicize: Update the UI logic to properly cope with broken connections [#30687]
+
+## [0.28.0] - 2023-05-15
+### Added
+- Added Mastodon to list of supported services [#30661]
+
+### Changed
+- Changed how we update the publicize skip meta. [#30479]
+- Get Jetpack to use connection_id as the uninque identifier of the editor elements on the sidebar [#30492]
+- PHP 8 Compatibility fixes [#30692]
+
+## [0.27.0] - 2023-05-08
+### Added
+- Added support for flagging unsupported connections in the editor UI [#30280]
+
+## [0.26.0] - 2023-05-02
+### Changed
+- Updated package dependencies. [#30375]
+
+## [0.25.1] - 2023-05-01
+### Fixed
+- Jetpack Social: Render Social Image Generator panel even when SIG's default is disabled [#30358]
+
+## [0.25.0] - 2023-04-25
+### Added
+- Added new option for flagging a post as social post [#30179]
+
+### Changed
+- Added dynamic pricing to Social admin page [#30105]
+- Use attached media for the OpenGraph image [#30162]
+
 ## [0.24.2] - 2023-04-10
 ### Added
 - Add Jetpack Autoloader package suggestion. [#29988]
@@ -279,6 +363,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.33.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.33.0...v0.33.1
+[0.33.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.32.0...v0.33.0
+[0.32.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.31.0...v0.32.0
+[0.31.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.4...v0.31.0
+[0.30.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.3...v0.30.4
+[0.30.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.2...v0.30.3
+[0.30.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.1...v0.30.2
+[0.30.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.30.0...v0.30.1
+[0.30.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.29.0...v0.30.0
+[0.29.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.28.0...v0.29.0
+[0.28.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.27.0...v0.28.0
+[0.27.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.26.0...v0.27.0
+[0.26.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.25.1...v0.26.0
+[0.25.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.25.0...v0.25.1
+[0.25.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.24.2...v0.25.0
 [0.24.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.24.1...v0.24.2
 [0.24.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.23.0...v0.24.0

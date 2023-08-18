@@ -59,21 +59,9 @@ function jpcrm_render_emailbox() {
 
 
 
-	<div class="ui inbox-wrap" style="margin-left: -20px;margin-right: 0px;">
+	<div class="inbox-wrap">
 
 		<div class="ui vertical menu inverted inbox-nav">
-
-			<a class="item zbs-inbox-link">
-				<div class="nav-men">
-					<i class="ui icon inbox"></i> <?php esc_html_e( 'Inbox', 'zero-bs-crm' ); ?>
-					<?php
-					$count = jetpackcrm_get_unread_inbox_count();
-					if ( $count > 0 ) {
-						?>
-					<div class="ui blue label"><?php echo esc_html( $count ); ?></div>
-					<?php } ?>
-				</div>
-			</a>
 
 			<a class="item zbs-starred-link">
 				<div class="nav-men">
@@ -128,56 +116,6 @@ function jpcrm_render_emailbox() {
 			<?php zeroBSCRM_pages_admin_sendmail(); ?>
 		</div>
 
-
-		<div class='zbs-email-list inbox-email-list app-content'>      
-			<?php
-			$email_hist = zeroBSCRM_get_email_history( 0, 50, -1, 'inbox', -1, true );
-			// zbs_prettyprint($email_hist);
-			echo '<div class="ui celled list" style="background:white;">';
-
-			if ( count( $email_hist ) == 0 ) {
-				echo "<div class='no-emails'><i class='ui icon exclamation'></i><br/>" . esc_html__( 'No emails of this type', 'zero-bs-crm' );
-				##WLREMOVE
-				echo "<br><a href='https://jetpackcrm.com/feature/emails/#inbox' target='_blank'>" . esc_html__( 'Learn More', 'zero-bs-crm' ) . '</a>';
-				##/WLREMOVE
-				echo '</div>';
-			}
-
-			$i = 0;
-			foreach ( $email_hist as $email ) {
-					$contact_meta = zeroBS_getCustomerMeta( $email->zbsmail_target_objid );
-					// skip if contact doesn't exist (e.g. was deleted)
-				if ( ! $contact_meta ) {
-					continue;
-				}
-					echo '<div class="item zbs-email-list-item zbs-email-list-' . esc_attr( $email->zbsmail_sender_thread ) . ' zbs-unread-' . esc_attr( $email->zbsmail_opened ) . '" data-cid="' . esc_attr( $email->zbsmail_target_objid ) . '" data-emid="' . esc_attr( $email->zbsmail_sender_thread ) . '" data-fav="' . esc_attr( $email->zbsmail_starred ) . '">';
-						echo "<div class='zbs-contact'>";
-						// echo "<input type='checkbox' />";
-							echo zeroBS_customerAvatarHTML( $email->zbsmail_target_objid );
-							echo "<div class='zbs-who'>" . esc_html( $contact_meta['fname'] ) . ' ' . esc_html( $contact_meta['lname'] ) . '</div>';
-						echo '</div>';
-				// echo '<img class="ui avatar image" src="/images/avatar/small/helen.jpg">';
-					echo '<div class="content">';
-					echo '<div class="header">' . esc_html( $email->zbsmail_subject ) . '</div>';
-						echo '<div class="the_content">' . esc_html( zeroBSCRM_io_WPEditor_DBToHTMLExcerpt( $email->zbsmail_content, 200 ) ) . '</div>';
-
-				if ( $email->zbsmail_starred == 1 ) {
-					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "'></i>";
-				} else {
-					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "' style='display:none;'></i>";
-				}
-
-					echo '</div>';
-				echo '</div>';
-				++$i;
-			}
-
-			echo '</div>';
-
-			?>
-	  
-		</div>
-
 		<div class='zbs-email-list starred-email-list app-content'>
 			<?php
 			$email_hist = zeroBSCRM_get_email_history( 0, 50, -1, '', -1, true, -1, true );
@@ -202,7 +140,7 @@ function jpcrm_render_emailbox() {
 				// echo '<img class="ui avatar image" src="/images/avatar/small/helen.jpg">';
 					echo '<div class="content">';
 					echo '<div class="header">' . esc_html( $email->zbsmail_subject ) . '</div>';
-						echo '<div class="the_content">' . esc_html( zeroBSCRM_io_WPEditor_DBToHTMLExcerpt( $email->zbsmail_content, 200 ) ) . '</div>';
+						echo '<div class="the_content">' . esc_html( wp_html_excerpt( $email->zbsmail_content, 200 ) ) . '</div>';
 
 				if ( $email->zbsmail_starred == 1 ) {
 					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "'></i>";
@@ -247,7 +185,7 @@ function jpcrm_render_emailbox() {
 				// echo '<img class="ui avatar image" src="/images/avatar/small/helen.jpg">';
 					echo '<div class="content">';
 					echo '<div class="header">' . esc_html( $email->zbsmail_subject ) . '</div>';
-					echo '<div class="the_content">' . esc_html( zeroBSCRM_io_WPEditor_DBToHTMLExcerpt( $email->zbsmail_content, 200 ) ) . '</div>';
+					echo '<div class="the_content">' . esc_html( wp_html_excerpt( $email->zbsmail_content, 200 ) ) . '</div>';
 
 				if ( $email->zbsmail_starred == 1 ) {
 					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "'></i>";
@@ -291,8 +229,7 @@ function jpcrm_render_emailbox() {
 				do_action( 'zbs_email_canned_reply' );
 			?>
 			<?php
-				$content        = '';
-				$editorSettings = array(
+				$editor_settings = array(
 					'media_buttons' => false,
 					'quicktags'     => false,
 					'tinymce'       => array(
@@ -300,13 +237,13 @@ function jpcrm_render_emailbox() {
 					),
 					'editor_class'  => 'ui textarea zbs-email-thread',
 				);
-				wp_editor( htmlspecialchars_decode( $content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), 'zbs_send_email_thread', $editorSettings );
+				wp_editor( '', 'zbs_send_email_thread', $editor_settings );
 				?>
 			  
 			<?php
 				do_action( 'zbs_email_schedule_send_time' );
 			?>
-			<div class='zbs-send-email-thread-button ui button blue'><?php esc_html_e( 'Send', 'zero-bs-crm' ); ?></div>
+			<div class='zbs-send-email-thread-button ui button black'><?php esc_html_e( 'Send', 'zero-bs-crm' ); ?></div>
 			</div>
 
 
@@ -315,18 +252,18 @@ function jpcrm_render_emailbox() {
 
 		<div class='zbs-email-contact-info app-content'>
 				<?php
-				// the customer information pane - get using AJAX
-
-				// $customer_panel = zeroBSCRM_emails_customer_panel();
-
-				// defaults
-				$customer_panel['avatar']             = '';
-				$customer_panel['customer']['fname']  = 'John';
-				$customer_panel['customer']['lname']  = 'Doe';
-				$customer_panel['customer']['status'] = __( 'Lead', 'zero-bs-crm' );
-				$customer_panel['tasks']              = array();
-				$customer_panel['trans_value']        = 0;
-				$customer_panel['quote_value']        = 0;
+				// Placeholders
+				$customer_panel = array(
+					'avatar'      => '',
+					'customer'    => array(
+						'fname'  => 'John',
+						'lname'  => 'Doe',
+						'status' => __( 'Lead', 'zero-bs-crm' ),
+					),
+					'tasks'       => array(),
+					'trans_value' => 0,
+					'quote_value' => 0,
+				);
 
 				echo "<div class='customer-panel-header'>";
 					echo "<div class='panel-edit-contact'>";
@@ -335,7 +272,7 @@ function jpcrm_render_emailbox() {
 					echo "<div id='panel-customer-avatar'>" . esc_html( $customer_panel['avatar'] ) . '</div>';
 					echo "<div id='panel-name'>" . esc_html( $customer_panel['customer']['fname'] . ' ' . $customer_panel['customer']['lname'] ) . '</div>';
 
-					echo "<div id='panel-status' class='ui label " . esc_attr( $customer_panel['customer']['status'] ) . "'>" . esc_html( $customer_panel['customer']['status'] ) . '</div>';
+					echo '<div id="panel-status">' . esc_html( $customer_panel['customer']['status'] ) . '</div>';
 
 					echo "<div class='simple-actions zbs-hide'>";
 						echo "<a class='ui label circular'><i class='ui icon phone'></i></a>";
@@ -513,7 +450,7 @@ function zeroBSCRM_pages_admin_sendmail() {
 
 		}
 		?>
-			<form autocomplete="off" id="zbs-send-single-email" class="ui form" action="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['emails'] ) ); ?>" method="POST">
+			<form autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" id="zbs-send-single-email" class="ui form" action="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['emails'] ) ); ?>" method="POST">
 
 			<?php
 			if ( is_array( $customerMeta ) && array_key_exists( 'fname', $customerMeta ) ) {
@@ -545,8 +482,7 @@ function zeroBSCRM_pages_admin_sendmail() {
 				do_action( 'zbs_email_canned_reply_single' );
 			?>
 			<?php
-				$content        = '';
-				$editorSettings = array(
+				$editor_settings = array(
 					'media_buttons' => false,
 					'editor_height' => 220,
 					'quicktags'     => false,
@@ -555,11 +491,11 @@ function zeroBSCRM_pages_admin_sendmail() {
 					),
 					'editor_class'  => 'ui textarea',
 				);
-				wp_editor( htmlspecialchars_decode( $content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), 'zbs_send_email_content', $editorSettings );
+				wp_editor( '', 'zbs_send_email_content', $editor_settings );
 
 				?>
 			<br/>
-			<input type="submit" class="ui button blue large right zbs-single-send-email-button" value="<?php esc_attr_e( 'Send Email', 'zero-bs-crm' ); ?>" />
+			<input type="submit" class="jpcrm-button" value="<?php esc_attr_e( 'Send Email', 'zero-bs-crm' ); ?>" />
 
 			<?php
 			do_action( 'zbs_single_email_schedule', $customerID );
@@ -610,21 +546,4 @@ function zeroBSCRM_pages_admin_sendmail() {
 		esc_html_e( 'You do not have permissions to access this page', 'zero-bs-crm' );
 
 	}
-}
-
-/*
-* Directly queries database for number of unread emails in 'email box'
-*/
-function jetpackcrm_get_unread_inbox_count() {
-
-	global $wpdb, $ZBSCRM_t;
-	$sql           = 'SELECT count(ID) FROM  ' . $ZBSCRM_t['system_mail_hist'] . " WHERE zbsmail_opened = 0 AND zbsmail_status = 'inbox'";
-	$number_unread = $wpdb->get_var( $sql );
-	return $number_unread;
-}
-
-// backward compat (protection)
-function zeroBSCRm_get_unread_inbox_count() {
-
-	return jetpackcrm_get_unread_inbox_count();
 }

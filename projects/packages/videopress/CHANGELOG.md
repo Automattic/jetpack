@@ -5,6 +5,145 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.13] - 2023-08-09
+### Added
+- Added comment note about IS_WPCOM. [#32136]
+
+### Changed
+- Updated package dependencies. [#32166]
+
+## [0.14.12] - 2023-08-01
+### Added
+- VideoPress: handle uploading video files when dropping in the editor canvas. [#32084]
+
+### Removed
+- VideoPress: Remove HTML support. [#32123]
+
+## [0.14.11] - 2023-07-25
+### Changed
+- Updated package dependencies. [#31923]
+- Updated package dependencies. [#31999]
+- Updated package dependencies. [#32040]
+
+### Fixed
+- Fix some minor issues in Jetpack plugin codebase [#31684]
+
+## [0.14.10] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+## [0.14.9] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [0.14.8] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+- Updated package dependencies. [#31661]
+- Update storybook mdx to use `@storybook/blocks` directly rather than `@storybook/addon-docs`. [#31607]
+
+## [0.14.7] - 2023-06-23
+### Changed
+- Updated package dependencies. [#31468]
+
+## [0.14.6] - 2023-06-12
+### Added
+- RNMobile: Display no title and no description placeholder for not belonged videos [#31134]
+
+## [0.14.5] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+### Fixed
+- Fixes VideoPress ajax calls on wp.com [#30947]
+
+## [0.14.4] - 2023-05-22
+### Added
+- RNMobile: Disable VideoPress settings if video does not belong to the site [#30759]
+
+### Changed
+- PHP8 compatibility updates. [#30715]
+
+## [0.14.3] - 2023-05-15
+### Changed
+- Refactor Pressable component for the Android embed overlay [#30654]
+- VideoPress block: Disable debug logs when running unit tests [#30540]
+
+### Fixed
+- RNMobile: Turn off autoplay if poster hover effect's active [#30663]
+- Use native embed WebView for the VideoPress editor preview on Android [#30521]
+
+## [0.14.2] - 2023-05-11
+### Added
+- VideoPress block: Added test IDs to query elements in integration tests [#30486]
+
+### Fixed
+- Fixed player loading screen on Android [#30411]
+
+## [0.14.1] - 2023-05-08
+### Added
+- VideoPress: add a Notice when trying to edit a video that doesn't belong to the site [#30443]
+- VideoPress: Add a wpcom/v2/videopress `check-ownership` endpoint [#30427]
+- VideoPress: create VideoPress video block when pasting URLs [#30463]
+- VideoPress: dont allow editing video data when the video doesn't belong to the site [#30438]
+- VideoPress: introduce helper function to get VideoPress video block attributes from URL [#30484]
+
+### Changed
+- VideoPress: hide core/embed core, VideoPress variation, when video block is available [#30467]
+- VideoPress: pick video block attrs from URL when pasting/inserting [#30488]
+
+### Fixed
+- VideoPress: fix disabling Privacy and rating panel [#30471]
+- VideoPress: Fix JITM layout on video edit page [#30465]
+
+## [0.14.0] - 2023-05-02
+### Added
+- Adds Divi Builder Compatibility for VideoPress. [#28193]
+
+### Changed
+- Updated package dependencies.
+- VideoPress: change the connection message when the Jetpack VideoPress module is not active [#30345]
+- VideoPress: enqueue token bridge file in the front-end only when required [#30156]
+- VideoPress: fix playing state of poster mini-player [#30383]
+- VideoPress: move video frame poster to production [#30384]
+- VideoPress: update Preview On Hover to the IFrame API updates [#30335]
+
+### Fixed
+- Update the embed loading styles and usage [#30251]
+- VideoPress: set Preview On Hover player initial state only when it's enabled [#30380]
+
+## [0.13.10] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [0.13.9] - 2023-04-25
+### Added
+- VideoPress: add is_videopress_url() helper function [#30142]
+- VideoPress: add play button when the video block show controls and Preview On Hovwer is enabled [#30224]
+- VideoPress: autoplay video also when Preview On Hover is enabled [#30181]
+- VideoPress: integrate video poster with Preview On Hover effect [#30184]
+- VideoPress: return the player control after user interaction [#30165]
+- VideoPress block: Sync metadata when post is manually saved on native [#30131]
+
+### Changed
+- Updated package dependencies. [#30015]
+- VideoPress: change max duration of the Preview On Hover effect to ten seconds [#30183]
+- VideoPress: enqueue IFrame API file based on the embed_oembed_html filter [#30154]
+- VideoPress: fix visual issue in the poster integration with Preview On Hover [#30208]
+- VideoPress: iterated over autoplay + PreviewOnHover effect [#30214]
+- VideoPress: Move out from Stats class [#30194]
+- VideoPress: playback at beginning when Preview On Hover is enabled [#30234]
+
+### Removed
+- VideoPress: Remove poster frame update on preview play [#30217]
+
+### Fixed
+- Fix native player aspect ratio after uploading a video [#30071]
+- VideoPress: Pause poster preview video when necessary [#30123]
+- VideoPress block: Cover case of GUID being empty after upload finish. [#30130]
+- VideoPress block: Fix blocking state when stopping an upload [#30244]
+- VideoPress block: Stop saving HTML markup representation. [#30134]
+
 ## [0.13.8] - 2023-04-17
 ### Added
 - VideoPress: add Utils PHP class [#30033]
@@ -938,6 +1077,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.14.13]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.12...v0.14.13
+[0.14.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.11...v0.14.12
+[0.14.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.10...v0.14.11
+[0.14.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.9...v0.14.10
+[0.14.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.8...v0.14.9
+[0.14.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.7...v0.14.8
+[0.14.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.6...v0.14.7
+[0.14.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.5...v0.14.6
+[0.14.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.4...v0.14.5
+[0.14.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.3...v0.14.4
+[0.14.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.2...v0.14.3
+[0.14.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.10...v0.14.0
+[0.13.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.9...v0.13.10
+[0.13.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.8...v0.13.9
 [0.13.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.7...v0.13.8
 [0.13.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.6...v0.13.7
 [0.13.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.5...v0.13.6

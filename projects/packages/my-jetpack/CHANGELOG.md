@@ -5,6 +5,172 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.3] - 2023-08-14
+### Added
+- Make My Jetpack the default WP-Admin page for Jetpack. [#32385]
+
+### Changed
+- Start showing My Jetpack for authors, editors, and contributors [#32420]
+
+## [3.3.2] - 2023-08-09
+### Fixed
+- Revert My Jetpack as first menu item. [#32384]
+
+## [3.3.1] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [3.3.0] - 2023-08-07
+### Added
+- Add Identity Crisis screen modal. [#32249]
+
+### Changed
+- Move 'My Jetpack' sub-menu item to first position. [#32240]
+
+### Fixed
+- Fix IDC modal height issue. [#32316]
+
+## [3.2.1] - 2023-08-01
+### Added
+- Add transient caching for zendesk jwt auth token. [#32140]
+
+### Changed
+- My Jetpack: Rename the namespace of the JWT endpoint, and register it only when it isn't already registered [#32081]
+
+## [3.2.0] - 2023-07-25
+### Added
+- My Jetpack: register jetpack-ai-jwt endpoint [#31965]
+- My Jetpack: release Paid Stats to the public [#32020]
+
+### Changed
+- My Jetpack: changed Stats features wording [#32046]
+- Updated package dependencies. [#31999]
+- Updated package dependencies. [#32040]
+
+### Fixed
+- Make Jetpack logo in footer smaller [#31627]
+- My Jetpack: enabled Stats purchase flow returning to Stats Dashboard [#31959]
+
+## [3.1.3] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31872]
+
+### Fixed
+- Hide connection owner information if the data is invalid
+- Don't suggest user connection if user is already connected, but connection owner is invalid [#31618]
+
+## [3.1.2] - 2023-07-11
+### Changed
+- Updated package dependencies. [#31785]
+
+## [3.1.1] - 2023-07-10
+### Fixed
+- Make product card primary buttons links when applicable [#31611]
+
+## [3.1.0] - 2023-07-05
+### Added
+- Added Jetpack Stats card to My Jetpack [#31589]
+
+### Changed
+- Jetpack Stats: Enable skipping interstitial page [#31629]
+- Updated package dependencies. [#31659]
+
+### Fixed
+- My Jetpack: hide Stats card for standalone plugins [#31689]
+- Organize product cards in list [#31606]
+
+## [3.0.0] - 2023-06-26
+### Added
+- Add authentication to Zendesk chat. [#31339]
+- Stats: add stats card to my Jetpack. [#31531]
+
+## [2.15.0] - 2023-06-23
+### Added
+- My Jetpack: add Stats product [#31368]
+
+### Changed
+- Updated package dependencies. [#31468]
+
+## [2.14.3] - 2023-06-12
+### Added
+- My Jetpack: populate the Jetpack AI product with feature data [#31238]
+
+## [2.14.2] - 2023-06-06
+### Changed
+- Filter out revoked licenses from the license activation options. [#31088]
+- Updated package dependencies. [#31129]
+
+## [2.14.1] - 2023-05-29
+### Added
+- My Jetpack: Add new Jetpack AI card [#30904]
+
+### Changed
+- My Jetpack: Enable Jetpack AI card [#30988]
+- My Jetpack: Update AI class to be product and not module [#30905]
+- My Jetpack: Update AI interstitial background [#30992]
+
+## [2.14.0] - 2023-05-22
+### Added
+- Added ability to purchase Jetpack AI monthly product [#30793]
+- Added tier data to the Boost product to support a pricing table interstitial page. [#29931]
+
+## [2.13.0] - 2023-05-15
+### Added
+- Added My Jetpack interstitial for Jetpack AI [#30543]
+
+## [2.12.2] - 2023-05-11
+### Changed
+- PHP 8.1 compatibility updates [#30517]
+
+## [2.12.1] - 2023-05-08
+### Added
+- My Jetpack: Add deactivate plugin menu action on product card [#30489]
+
+### Changed
+- My Jetpack: Remove icon from plugin activation action in product card [#30458]
+- My Jetpack: Remove manage option from menu [#30440]
+- My Jetpack: Remove product card icon [#30441]
+- My Jetpack: Set a post-checkout redirect destination on the "Purchase a plan" link. [#27693]
+
+### Fixed
+- My Jetpack: Add check for product status before requesting stats [#30430]
+- My Jetpack: Reload page after successful license activation [#30364]
+- My Jetpack: Use a single column for the page title section [#30406]
+
+## [2.12.0] - 2023-05-02
+### Added
+- Add API to query Zendesk chat availability and use it to conditionally display zendesk chat. [#29942]
+- Add pricing table interstitial view for Jetpack Protect. [#29930]
+- My Jetpack: Add product detail table component for comparing product tiers. [#29759]
+
+### Changed
+- My Jetpack: Move logic out of Product Card component. [#30274]
+- Updated package dependencies.
+
+### Fixed
+- Fix activation and layout on Protect interstatial page. [#29525]
+- My Jetpack: Keep product card action button disabled while installing standalone plugin. [#30346]
+
+## [2.11.0] - 2023-05-01
+### Added
+- Added Jetpack Starter bundle post-activation screen and plan header [#30368]
+
+## [2.10.3] - 2023-04-25
+### Added
+- My Jetpack: Add flags field in initial state [#30241]
+- My Jetpack: Add Install/Activate menu actions based on the standalone plugin status. [#30153]
+- My Jetpack: Add neutral color in contextual card [#30250]
+- My Jetpack: Add side-effect action to request the standalone plugin installation on the backend. [#30143]
+- My Jetpack: Add stats to VideoPress card [#30197]
+- My Jetpack: Enable menu for all hybrid products [#30247]
+- My Jetpack: Reload page after standalone action [#30221]
+
+### Changed
+- My Jetpack: Connect the standalone plugin menu options so they trigger the installation and activation when clicked. [#30168]
+- MyJetpack: set the Social standalone page as the default admin one [#30193]
+- MyJetpack: Try to activate the product module after installing the standalone plugin [#30215]
+- Updated package dependencies. [#30015]
+
 ## [2.10.2] - 2023-04-17
 ### Added
 - Ad missing TOS in Jetpack interstitial. [#29683]
@@ -821,6 +987,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[3.3.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.3.2...3.3.3
+[3.3.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.3.1...3.3.2
+[3.3.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.3.0...3.3.1
+[3.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.2.1...3.3.0
+[3.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.2.0...3.2.1
+[3.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.3...3.2.0
+[3.1.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.2...3.1.3
+[3.1.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.1...3.1.2
+[3.1.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.1.0...3.1.1
+[3.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/3.0.0...3.1.0
+[3.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.15.0...3.0.0
+[2.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.3...2.15.0
+[2.14.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.2...2.14.3
+[2.14.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.1...2.14.2
+[2.14.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.14.0...2.14.1
+[2.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.13.0...2.14.0
+[2.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.12.2...2.13.0
+[2.12.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.12.1...2.12.2
+[2.12.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.12.0...2.12.1
+[2.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.11.0...2.12.0
+[2.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.3...2.11.0
+[2.10.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.2...2.10.3
 [2.10.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.1...2.10.2
 [2.10.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.0...2.10.1
 [2.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.9.2...2.10.0

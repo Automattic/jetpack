@@ -18,12 +18,14 @@ import PrivacyAndRatingSettings from './privacy-and-rating-settings';
  * @param {object} props.attributes - Block attributes.
  * @param {Function} props.setAttributes - Function to set block attributes.
  * @param {boolean} props.privateEnabledForSite	- True if the site's privacy is set to Private.
+ * @param {boolean} props.videoBelongToSite - Determines if the video belongs to the current site.
  * @returns {import('react').ReactElement} - Panel to contain privacy and ratings settings.
  */
 export default function PrivacyAndRatingPanel( {
 	attributes,
 	setAttributes,
 	privateEnabledForSite,
+	videoBelongToSite,
 } ) {
 	const [ showSubSheet, setShowSubSheet ] = useState( false );
 	const navigation = useNavigation();
@@ -58,7 +60,9 @@ export default function PrivacyAndRatingPanel( {
 						{ __( 'Privacy and Rating', 'jetpack-videopress-pkg' ) }
 					</BottomSheet.NavBar.Heading>
 				</BottomSheet.NavBar>
-				<PrivacyAndRatingSettings { ...{ attributes, setAttributes, privateEnabledForSite } } />
+				<PrivacyAndRatingSettings
+					{ ...{ attributes, setAttributes, privateEnabledForSite, videoBelongToSite } }
+				/>
 			</>
 		</BottomSheet.SubSheet>
 	);

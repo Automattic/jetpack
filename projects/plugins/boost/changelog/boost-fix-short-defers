@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Deferred JS: Fix for some extremely short pages (such as WooCommerce Box Office tickets being printed) from resulting in a blank page

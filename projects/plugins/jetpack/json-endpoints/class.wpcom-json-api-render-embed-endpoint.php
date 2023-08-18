@@ -58,7 +58,7 @@ class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoin
 			return new WP_Error( 'invalid_embed_url', __( 'The embed_url parameter must be a valid URL.', 'jetpack' ), 400 );
 		}
 
-		if ( count( $matches[1] ) > 1 ) {
+		if ( is_countable( $matches[1] ) && count( $matches[1] ) > 1 ) {
 			return new WP_Error( 'invalid_embed', __( 'Only one embed can be rendered at a time.', 'jetpack' ), 400 );
 		}
 

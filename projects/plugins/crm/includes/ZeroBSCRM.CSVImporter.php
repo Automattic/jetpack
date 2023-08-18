@@ -102,84 +102,11 @@ function zeroBSCRM_CSVImporterLitepages_header( $subpage = '' ) {
 
 	?>
 
-
-	<script type="text/javascript">
-
-		jQuery(function($){
-
-		jQuery('.learn')
-			.popup({
-			inline: false,
-			on:'click',
-			lastResort: 'bottom right',
-		});
-
-		});
-	</script>
-
-	<div id="zbs-admin-top-bar">
-		<div id="zbs-list-top-bar">
-			<div class="zbs-white"><span class="add-new-button">
-			<?php
-			esc_html_e( 'CSV Importer Lite', 'zero-bs-crm' );
-			if ( ! empty( $subpage ) ) {
-				echo esc_html( ': ' . $subpage );}
-			?>
-			</span>
-			<div class="ui button grey tiny learn" id="learn"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Learn</div>
-			<div class="ui special popup top left transition hidden" id="learn-pop">
-				<h3 class="learn-h3"><?php esc_html_e( 'Import contacts from CSV', 'zero-bs-crm' ); ?></h3>
-				<div class="content">
-				<p>
-					<?php esc_html_e( 'If you have contacts you need to import to Jetpack CRM, doing so via a CSV is a quick and easy way to get your data in.', 'zero-bs-crm' ); ?>
-				</p>
-				<p>
-					<strong><?php esc_html_e( 'Formatting Tips', 'zero-bs-crm' ); ?></strong> <?php esc_html_e( "it's important that you format your CSV file correctly for the upload. We have written a detailed guide on how to do this below.", 'zero-bs-crm' ); ?> 
-				</p>
-
-				<?php
-				##WLREMOVE
-				if ( ! empty( $zbs->urls['extcsvimporterpro'] ) ) {
-					?>
-
-						<p><?php esc_html_e( 'Want to import companies as well as keep a record of your imports?', 'zero-bs-crm' ); ?>
-						<a href="<?php echo esc_url( $zbs->urls['extcsvimporterpro'] ); ?>" target="_blank">
-						<?php esc_html_e( 'CSV importer PRO is the perfect tool.', 'zero-bs-crm' ); ?></a></p>
-
-					<?php
-				}
-				##/WLREMOVE
-				?>
-
-				<br/>
-				<?php
-				##WLREMOVE
-				?>
-				<a href="<?php echo esc_url( $zbs->urls['kbcsvformat'] ); ?>" target="_blank" class="ui button orange"><?php esc_html_e( 'Learn More', 'zero-bs-crm' ); ?></a>
-				<?php
-				##/WLREMOVE
-				?>
-				</div>
-				<div class="video">
-		
-					<!--
-					<iframe src="https://www.youtube.com/embed/2YAO7hEICwk?ecver=2" width="385" height="207" frameborder="0" gesture="media" allow="encrypted-media" allowfullscreen style="margin-top:-15px;"></iframe>
-					-->
-				</div>
-			</div>
-
-			<?php if ( ! empty( $zbs->urls['extcsvimporterpro'] ) ) { ?>
-				<a href="<?php echo esc_url( $zbs->urls['extcsvimporterpro'] ); ?>" target="_blank" class="ui button blue tiny" id="gopro"><?php esc_html_e( 'Get CSV Importer Pro', 'zero-bs-crm' ); ?></a>
-			<?php } ?>
-
-			</div>
-		</div>
-		</div>
-
-
 <div id="sgpBody">
 
 	<div id="ZeroBSCRMAdminPage" class="ui segment">
+
+<h1><?php echo ( empty( $subpage ) ? '' : esc_html( $subpage ) ); ?></h1>
 	<?php
 
 	// } Check for required upgrade
@@ -201,9 +128,6 @@ function zeroBSCRM_CSVImporterLitepages_app() {
 
 	if ( ! current_user_can( 'admin_zerobs_customers' ) ) {
 		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) ); }
-
-	// } Header
-	// } Moved into page to control subtitle zeroBSCRM_CSVImporterLitepages_header();
 
 	// } Homepage
 	zeroBSCRM_CSVImporterLitehtml_app();
@@ -399,7 +323,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 		case 1:
 			// } Title
-			zeroBSCRM_CSVImporterLitepages_header( '2. Map Fields' );
+			zeroBSCRM_CSVImporterLitepages_header( __( 'Step 2: Map Fields', 'zero-bs-crm' ) );
 
 			?>
 			<div class="zbscrm-csvimport-wrap">
@@ -490,7 +414,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 			break;
 		case 2:
 			// Title
-			zeroBSCRM_CSVImporterLitepages_header( '3. Run Import' );
+			zeroBSCRM_CSVImporterLitepages_header( __( 'Step 3: Run Import', 'zero-bs-crm' ) );
 
 			// Stolen from plugin-install.php?tab=upload
 			?>
@@ -598,7 +522,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 		case 3:
 			// } Title
-			zeroBSCRM_CSVImporterLitepages_header( '4. Import' );
+			zeroBSCRM_CSVImporterLitepages_header( __( 'Step 4: Import', 'zero-bs-crm' ) );
 
 			?>
 			<div class="zbscrm-csvimport-wrap">
@@ -811,7 +735,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 			break;
 		default: // } Also case 0
 			// } Title
-			zeroBSCRM_CSVImporterLitepages_header( '1. Upload' );
+			zeroBSCRM_CSVImporterLitepages_header( __( 'Step 1: Upload', 'zero-bs-crm' ) );
 
 			// } Stolen from plugin-install.php?tab=upload
 			?>
@@ -829,7 +753,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						<label class="screen-reader-text" for="zbscrmcsvfile"><?php esc_html_e( '.CSV file', 'zero-bs-crm' ); ?></label>
 						<input type="file" id="zbscrmcsvfile" name="zbscrmcsvfile">
 						<div class="csv-import__start-btn">
-							<input type="submit" name="csv-file-submit" id="csv-file-submit" class="ui button green" value="<?php esc_attr_e( 'Upload CSV file', 'zero-bs-crm' ); ?>">
+							<input type="submit" name="csv-file-submit" id="csv-file-submit" class="ui button black" value="<?php esc_attr_e( 'Upload CSV file', 'zero-bs-crm' ); ?>">
 						</div>
 					</form>
 				</div>

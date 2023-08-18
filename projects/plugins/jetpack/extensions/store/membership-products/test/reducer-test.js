@@ -59,6 +59,24 @@ describe( 'Membership products reducer testing', () => {
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, connectUrl: anyConnectUrl } );
 	} );
 
+	test( 'set default connected account currency action type adds the currency to the state object.', () => {
+		// Given
+		const defaultCurrency = 'usd';
+		const anySetConnectedAcccountDefaultCurrencyAction = {
+			type: 'SET_CONNECTED_ACCOUNT_DEFAULT_CURRENCY',
+			connectedAccountDefaultCurrency: defaultCurrency,
+		};
+
+		// When
+		const returnedState = reducer( DEFAULT_STATE, anySetConnectedAcccountDefaultCurrencyAction );
+
+		// Then
+		expect( returnedState ).toStrictEqual( {
+			...DEFAULT_STATE,
+			connectedAccountDefaultCurrency: defaultCurrency,
+		} );
+	} );
+
 	test( 'set api state action type adds the api state to the returned state.', () => {
 		// Given
 		const anyApiState = 'anyApiState';
@@ -74,21 +92,6 @@ describe( 'Membership products reducer testing', () => {
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, apiState: anyApiState } );
 	} );
 
-	test( 'set should upgrade action type adds the should upgrade property to the returned state.', () => {
-		// Given
-		const anyShouldUpgrade = 'anyUpgrade';
-		const anySetShouldUpgradeAction = {
-			type: 'SET_SHOULD_UPGRADE',
-			shouldUpgrade: anyShouldUpgrade,
-		};
-
-		// When
-		const returnedState = reducer( DEFAULT_STATE, anySetShouldUpgradeAction );
-
-		// Then
-		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, shouldUpgrade: anyShouldUpgrade } );
-	} );
-
 	test( 'set site slug action type adds the update site property to the returned state.', () => {
 		// Given
 		const anySiteSlug = 'anySiteSlug';
@@ -102,20 +105,5 @@ describe( 'Membership products reducer testing', () => {
 
 		// Then
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, siteSlug: anySiteSlug } );
-	} );
-
-	test( 'set upgrade url action type adds the update site property to the returned state.', () => {
-		// Given
-		const anyUpgradeUrl = 'anyUpgradeUrl';
-		const anyUpgradeUrlAction = {
-			type: 'SET_UPGRADE_URL',
-			upgradeUrl: anyUpgradeUrl,
-		};
-
-		// When
-		const returnedState = reducer( DEFAULT_STATE, anyUpgradeUrlAction );
-
-		// Then
-		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, upgradeUrl: anyUpgradeUrl } );
 	} );
 } );

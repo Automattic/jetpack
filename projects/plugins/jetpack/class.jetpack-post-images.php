@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * Useful for finding an image to display alongside/in representation of a specific post.
  *
@@ -724,6 +726,46 @@ class Jetpack_PostImages {
 	}
 
 	/**
+	 * Takes an image and base pixel dimensions and returns a srcset for the
+	 * resized and cropped images, based on a fixed set of multipliers.
+	 *
+	 * @param  array $image Array containing details of the image.
+	 * @param  int   $base_width Base image width (i.e., the width at 1x).
+	 * @param  int   $base_height Base image height (i.e., the height at 1x).
+	 * @return string The srcset for the image.
+	 */
+	public static function generate_cropped_srcset( $image, $base_width, $base_height ) {
+		$srcset = '';
+
+		if ( ! is_array( $image ) || empty( $image['src'] ) || empty( $image['src_width'] ) ) {
+			return $srcset;
+		}
+
+		$multipliers   = array( 1, 1.5, 2, 3, 4 );
+		$srcset_values = array();
+		foreach ( $multipliers as $multiplier ) {
+			$srcset_width  = (int) ( $base_width * $multiplier );
+			$srcset_height = (int) ( $base_height * $multiplier );
+			if ( $srcset_width < 1 || $srcset_width > $image['src_width'] ) {
+				break;
+			}
+
+			$srcset_url      = self::fit_image_url(
+				$image['src'],
+				$srcset_width,
+				$srcset_height
+			);
+			$srcset_values[] = "{$srcset_url} {$multiplier}x";
+		}
+
+		if ( count( $srcset_values ) > 1 ) {
+			$srcset = implode( ', ', $srcset_values );
+		}
+
+		return $srcset;
+	}
+
+	/**
 	 * Takes an image URL and pixel dimensions then returns a URL for the
 	 * resized and cropped image.
 	 *
@@ -767,9 +809,9 @@ class Jetpack_PostImages {
 			);
 		}
 
-		// Use Photon magic.
-		if ( function_exists( 'jetpack_photon_url' ) ) {
-			return jetpack_photon_url( $src, array( 'resize' => "$width,$height" ) );
+		// Use image cdn magic.
+		if ( class_exists( Image_CDN_Core::class ) && method_exists( Image_CDN_Core::class, 'cdn_url' ) ) {
+			return Image_CDN_Core::cdn_url( $src, array( 'resize' => "$width,$height" ) );
 		}
 
 		// Arg... no way to resize image using WordPress.com infrastructure!

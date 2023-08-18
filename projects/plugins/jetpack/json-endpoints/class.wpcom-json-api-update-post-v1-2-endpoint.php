@@ -182,6 +182,8 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 	 * @param int    $post_id Post ID.
 	 */
 	public function write_post( $path, $blog_id, $post_id ) {
+		$delete_featured_image = null;
+		$media_results         = array();
 		global $wpdb;
 
 		$new  = $this->api->ends_with( $path, '/new' );
@@ -194,7 +196,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		// unhook publicize, it's hooked again later -- without this, skipping services is impossible.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			remove_action( 'save_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ), 100, 2 );
-			add_action( 'rest_api_inserted_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ) );
 
 			if ( $this->should_load_theme_functions( $post_id ) ) {
 				$this->load_theme_functions();
@@ -534,7 +535,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$media_urls      = ! empty( $input['media_urls'] ) ? $input['media_urls'] : array();
 			$media_attrs     = ! empty( $input['media_attrs'] ) ? $input['media_attrs'] : array();
 			$media_results   = $this->handle_media_creation_v1_1( $media_files, $media_urls, $media_attrs );
-			$media_id_string = join( ',', array_filter( array_map( 'absint', $media_results['media_ids'] ) ) );
+			$media_id_string = implode( ',', array_filter( array_map( 'absint', $media_results['media_ids'] ) ) );
 		}
 
 		$is_dtp_fb_post = false;

@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
@@ -33,8 +35,11 @@ class Odyssey_Config_Data {
 	 * Return the config for the app.
 	 */
 	public function get_data() {
-		$blog_id      = Jetpack_Options::get_option( 'id' );
-		$empty_object = json_decode( '{}' );
+		global $wp_version;
+
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		$host    = new Host();
+
 		return array(
 			'admin_page_base'                => $this->get_admin_path(),
 			'api_root'                       => esc_url_raw( rest_url() ),
@@ -55,7 +60,6 @@ class Odyssey_Config_Data {
 			'features'                       => array(),
 			// Intended for apps that do not use redux.
 			'gmt_offset'                     => $this->get_gmt_offset(),
-			// TODO: check whether this works with Pressable.
 			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
 			'intial_state'                   => array(
 				'currentUser' => array(
@@ -71,24 +75,56 @@ class Odyssey_Config_Data {
 				'sites'       => array(
 					'items'    => array(
 						"$blog_id" => array(
-							'ID'            => $blog_id,
-							'URL'           => site_url(),
-							'jetpack'       => true,
-							'visible'       => true,
-							'capabilities'  => $empty_object,
-							'products'      => array(),
-							'plan'          => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
-							'options'       => array(
-								'wordads'    => ( new Modules() )->is_active( 'wordads' ),
-								'admin_url'  => admin_url(),
-								'gmt_offset' => $this->get_gmt_offset(),
+							'ID'           => $blog_id,
+							'URL'          => site_url(),
+							'jetpack'      => true,
+							'visible'      => true,
+							'capabilities' => $this->get_current_user_capabilities(),
+							'products'     => Jetpack_Plan::get_products(),
+							'plan'         => $this->get_plan(),
+							'options'      => array(
+								'wordads'               => ( new Modules() )->is_active( 'wordads' ),
+								'admin_url'             => admin_url(),
+								'gmt_offset'            => $this->get_gmt_offset(),
+								'is_automated_transfer' => $this->is_automated_transfer( $blog_id ),
+								'is_wpcom_atomic'       => $host->is_woa_site(),
+								'is_vip'                => $host->is_vip_site(),
+								'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
+								'stats_admin_version'   => Main::VERSION,
+								'software_version'      => $wp_version,
 							),
-							'stats_notices' => ( new Notices() )->get_notices_to_show(),
 						),
 					),
 					'features' => array( "$blog_id" => array( 'data' => $this->get_plan_features() ) ),
 				),
 			),
+		);
+	}
+
+	/**
+	 * Defines a filter to set whether a site is an automated_transfer site or not.
+	 *
+	 * Default is false. On Atomic, this is set to true by `wpcomsh`.
+	 *
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @return bool
+	 */
+	public function is_automated_transfer( $blog_id ) {
+		/**
+		 * Filter if a site is an automated-transfer site.
+		 *
+		 * @module json-api
+		 *
+		 * @since 6.4.0
+		 *
+		 * @param bool is_automated_transfer( $this->blog_id )
+		 * @param int  $blog_id Blog identifier.
+		 */
+		return apply_filters(
+			'jetpack_site_automated_transfer',
+			false,
+			$blog_id
 		);
 	}
 
@@ -134,14 +170,23 @@ class Odyssey_Config_Data {
 	 * Get the features of the current plan.
 	 */
 	protected function get_plan_features() {
-		if ( ! class_exists( 'Jetpack_Plan' ) ) {
-			return array();
-		}
-		$plan = \Jetpack_Plan::get();
+		$plan = Jetpack_Plan::get();
 		if ( empty( $plan['features'] ) ) {
 			return array();
 		}
 		return $plan['features'];
+	}
+
+	/**
+	 * Get the current plan.
+	 *
+	 * @return array
+	 */
+	protected function get_plan() {
+		$plan = Jetpack_Plan::get();
+		unset( $plan['features'] );
+		unset( $plan['supports'] );
+		return $plan;
 	}
 
 	/**
@@ -150,10 +195,38 @@ class Odyssey_Config_Data {
 	 * @return array An array of capabilities.
 	 */
 	protected function get_current_user_capabilities() {
-		$user = wp_get_current_user();
-		if ( ! $user || is_wp_error( $user ) ) {
-			return array();
-		}
-		return $user->allcaps;
+		return array(
+			'edit_pages'          => current_user_can( 'edit_pages' ),
+			'edit_posts'          => current_user_can( 'edit_posts' ),
+			'edit_others_posts'   => current_user_can( 'edit_others_posts' ),
+			'edit_others_pages'   => current_user_can( 'edit_others_pages' ),
+			'delete_posts'        => current_user_can( 'delete_posts' ),
+			'delete_others_posts' => current_user_can( 'delete_others_posts' ),
+			'edit_theme_options'  => current_user_can( 'edit_theme_options' ),
+			'edit_users'          => current_user_can( 'edit_users' ),
+			'list_users'          => current_user_can( 'list_users' ),
+			'manage_categories'   => current_user_can( 'manage_categories' ),
+			'manage_options'      => current_user_can( 'manage_options' ),
+			'moderate_comments'   => current_user_can( 'moderate_comments' ),
+			'activate_wordads'    => current_user_can( 'manage_options' ),
+			'promote_users'       => current_user_can( 'promote_users' ),
+			'publish_posts'       => current_user_can( 'publish_posts' ),
+			'upload_files'        => current_user_can( 'upload_files' ),
+			'delete_users'        => current_user_can( 'delete_users' ),
+			'remove_users'        => current_user_can( 'remove_users' ),
+			'own_site'            => current_user_can( 'manage_options' ), // Administrators are considered owners on site.
+			/**
+			 * Filter whether the Hosting section in Calypso should be available for site.
+			 *
+			 * @module json-api
+			 *
+			 * @since 8.2.0
+			 *
+			 * @param bool $view_hosting Can site access Hosting section. Default to false.
+			 */
+			'view_hosting'        => apply_filters( 'jetpack_json_api_site_can_view_hosting', false ),
+			'view_stats'          => current_user_can( 'view_stats' ),
+			'activate_plugins'    => current_user_can( 'activate_plugins' ),
+		);
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Shortcode embeds: avoid errors when a request to Flickr fails.

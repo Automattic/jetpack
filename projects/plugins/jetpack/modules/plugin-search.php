@@ -8,6 +8,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
 
@@ -214,7 +215,7 @@ class Jetpack_Plugin_Search {
 	 * @return bool True if $hint should be displayed.
 	 */
 	protected function should_display_hint( $hint ) {
-		$dismissed_hints = $this->get_dismissed_hints();
+		$dismissed_hints = static::get_dismissed_hints();
 		// If more than 2 hints have been dismissed, then show no more.
 		if ( 2 < count( $dismissed_hints ) ) {
 			return false;
@@ -322,6 +323,14 @@ class Jetpack_Plugin_Search {
 	 * @param object $args Search args.
 	 */
 	public function inject_jetpack_module_suggestion( $result, $action, $args ) {
+		/*
+		 * Bail if something else hooks into the Plugins' API response
+		 * and does not return results.
+		 */
+		if ( empty( $result->plugins ) || is_wp_error( $result ) ) {
+			return $result;
+		}
+
 		// Looks like a search query; it's matching time.
 		if ( ! empty( $args->search ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';

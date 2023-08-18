@@ -411,6 +411,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return mixed
 	 */
 	public function input( $return_default_values = true, $cast_and_filter = true ) {
+		$return       = null;
 		$input        = trim( (string) $this->api->post_body );
 		$content_type = (string) $this->api->content_type;
 		if ( $content_type ) {
@@ -634,11 +635,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 							}
 						}
 
-						$return[ $key ] = $files;
-						break;
+						foreach ( $files as $k => $file ) {
+							if ( ! isset( $file['tmp_name'] ) || ! is_string( $file['tmp_name'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
+								unset( $files[ $k ] );
+							}
+						}
+						if ( $files ) {
+							$return[ $key ] = $files;
+						}
+					} elseif ( isset( $value['tmp_name'] ) && is_string( $value['tmp_name'] ) && is_uploaded_file( $value['tmp_name'] ) ) {
+						$return[ $key ] = $value;
 					}
 				}
-				// no break - treat as 'array'.
+				break;
 			case 'array':
 				// Fallback array -> string.
 				if ( is_string( $value ) ) {
@@ -1127,7 +1136,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		</td>
 	</tr>
 
-			<?php endforeach; ?>
+<?php endforeach; ?>
 </tbody>
 </table>
 </section>
@@ -1250,7 +1259,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 							}
 						}
 					}
-					$type                  = '(' . join( '|', $type ) . ')';
+					$type                  = '(' . implode( '|', $type ) . ')';
 					list( , $description ) = explode( ')', $description, 2 );
 					$description           = trim( $description );
 					if ( $default ) {
@@ -1365,6 +1374,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return object
 	 */
 	public function get_author( $author, $show_email_and_ip = false ) {
+		$is_jetpack = null;
+		$login      = null;
+		$email      = null;
+		$name       = null;
+		$first_name = null;
+		$last_name  = null;
+		$nice       = null;
+		$url        = null;
 		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
 
 		if ( isset( $author->comment_author_email ) ) {
@@ -1386,10 +1403,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$$field = str_replace( '&amp;', '&', $$field );
 			}
 		} else {
-			if ( isset( $author->user_id ) && $author->user_id ) {
-				$author = $author->user_id;
-			} elseif ( isset( $author->user_email ) ) {
+			if ( $author instanceof WP_User || isset( $author->user_email ) ) {
 				$author = $author->ID;
+			} elseif ( isset( $author->user_id ) && $author->user_id ) {
+				$author = $author->user_id;
 			} elseif ( isset( $author->post_author ) ) {
 				// then $author is a Post Object.
 				if ( ! $author->post_author ) {

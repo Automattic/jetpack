@@ -5,6 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0] - 2023-08-14
+### Added
+- Add backup undo feature. [#32442]
+
+## [1.16.6] - 2023-08-09
+### Changed
+- Updated package dependencies. [#32166]
+
+## [1.16.5] - 2023-08-01
+### Changed
+- Minor internal updates.
+
+## [1.16.4] - 2023-07-25
+### Changed
+- Updated package dependencies. [#32040]
+
+## [1.16.3] - 2023-07-17
+### Changed
+- Updated package dependencies. [#31785]
+
+## [1.16.2] - 2023-07-05
+### Changed
+- Updated package dependencies. [#31659]
+
+## [1.16.1] - 2023-06-26
+### Changed
+- Updated package dependencies. [#31468]
+
+## [1.16.0] - 2023-06-15
+### Added
+- Add testimonial component and use it on the backup connect screen [#31221]
+
+## [1.15.0] - 2023-06-12
+### Added
+- Add "Why I need VaultPress Backup" section to connect page [#31285]
+- Add video section to backup connect page [#31260]
+
+## [1.14.0] - 2023-06-06
+### Changed
+- Update connection module to have an RNA option that updates the design [#31201]
+- Updated package dependencies. [#31129]
+
+## [1.13.0] - 2023-05-29
+### Added
+- Add connection screen for secondary admins [#30862]
+- Add loading placeholder in backup dashboard while fetching capabilities and backup state. [#30972]
+
+### Changed
+- Add a loading placeholder while fetching backup plan when a secondary admin (not connected) is accessing the backup page. [#30963]
+
+### Fixed
+- Fix "Over storage space" message for sites with plans that have no storage limit [#30885]
+
+## [1.12.17] - 2023-05-22
+### Added
+- Added backup storage help popover with forecast info [#30731]
+
+## [1.12.16] - 2023-05-02
+### Changed
+- Updated package dependencies.
+
+## [1.12.15] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [1.12.14] - 2023-04-25
+
+- Minor internal updates.
+
 ## [1.12.13] - 2023-04-17
 ### Changed
 - Updated package dependencies. [#30019]
@@ -392,6 +461,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.17.0]: https://github.com/Automattic/jetpack-backup/compare/v1.16.6...v1.17.0
+[1.16.6]: https://github.com/Automattic/jetpack-backup/compare/v1.16.5...v1.16.6
+[1.16.5]: https://github.com/Automattic/jetpack-backup/compare/v1.16.4...v1.16.5
+[1.16.4]: https://github.com/Automattic/jetpack-backup/compare/v1.16.3...v1.16.4
+[1.16.3]: https://github.com/Automattic/jetpack-backup/compare/v1.16.2...v1.16.3
+[1.16.2]: https://github.com/Automattic/jetpack-backup/compare/v1.16.1...v1.16.2
+[1.16.1]: https://github.com/Automattic/jetpack-backup/compare/v1.16.0...v1.16.1
+[1.16.0]: https://github.com/Automattic/jetpack-backup/compare/v1.15.0...v1.16.0
+[1.15.0]: https://github.com/Automattic/jetpack-backup/compare/v1.14.0...v1.15.0
+[1.14.0]: https://github.com/Automattic/jetpack-backup/compare/v1.13.0...v1.14.0
+[1.13.0]: https://github.com/Automattic/jetpack-backup/compare/v1.12.17...v1.13.0
+[1.12.17]: https://github.com/Automattic/jetpack-backup/compare/v1.12.16...v1.12.17
+[1.12.16]: https://github.com/Automattic/jetpack-backup/compare/v1.12.15...v1.12.16
+[1.12.15]: https://github.com/Automattic/jetpack-backup/compare/v1.12.14...v1.12.15
+[1.12.14]: https://github.com/Automattic/jetpack-backup/compare/v1.12.13...v1.12.14
 [1.12.13]: https://github.com/Automattic/jetpack-backup/compare/v1.12.12...v1.12.13
 [1.12.12]: https://github.com/Automattic/jetpack-backup/compare/v1.12.11...v1.12.12
 [1.12.11]: https://github.com/Automattic/jetpack-backup/compare/v1.12.10...v1.12.11

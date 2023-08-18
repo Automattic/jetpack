@@ -136,7 +136,7 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 		?>
 		<p>
 			<label class='label' for="<?php echo esc_attr( $fieldK ); ?>"><?php esc_html_e( $fieldV[1], 'zero-bs-crm' ); ?>:</label>
-			<input <?php echo esc_attr( $extra_attributes ); ?> type="text" name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control widetext" placeholder="<?php if (isset($fieldV[2])) echo esc_attr( $fieldV[2] ); ?>" value="<?php echo !empty( $value ) ? esc_attr( $value ) : ''; ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldK ); ?>" />
+			<input <?php echo esc_attr( $extra_attributes ); ?> type="text" name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control widetext" placeholder="<?php echo esc_attr( isset( $fieldV[2] ) ? $fieldV[2] : '' ); ?>" value="<?php echo ! empty( $value ) ? esc_attr( $value ) : ''; ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>" />
 		</p>
 		<?php
 	}
@@ -148,7 +148,7 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 		}
 		?><p>
 			<label for="<?php echo esc_attr( $fieldK ); ?>"><?php esc_html_e($fieldV[1],"zero-bs-crm"); ?>:</label>
-			<?php echo esc_html( zeroBSCRM_getCurrencyChr() ); ?> <input <?php echo esc_attr( $extra_attributes ); ?> style="width: 130px;display: inline-block;;" type="text" name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control  numbersOnly" placeholder="<?php if (isset($fieldV[2])) echo esc_attr( $fieldV[2] ); ?>" value="<?php echo !empty( $value ) ? esc_attr( $value ) : ''; ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldK ); ?>" />
+			<?php echo esc_html( zeroBSCRM_getCurrencyChr() ); ?> <input <?php echo esc_attr( $extra_attributes ); ?> style="width: 130px;display: inline-block;;" type="text" name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control  numbersOnly" placeholder="<?php echo esc_attr( isset( $fieldV[2] ) ? $fieldV[2] : '' ); ?>" value="<?php echo ! empty( $value ) ? esc_attr( $value ) : ''; ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>" />
 		</p><?php
 	}
 
@@ -169,35 +169,26 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 		?>
 		<p>
 			<label for="<?php echo esc_attr( $field_key ); ?>"><?php echo esc_html( $field_settings[1] ); ?>:</label>
-			<input <?php echo esc_attr( $extra_attributes ); ?> style="width: 130px;display: inline-block;;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control  numbersOnly" placeholder="<?php echo isset( $field_settings[2] ) ? esc_attr( $field_settings[2] ) : ''; ?>" value="<?php echo ! empty( $value ) ? esc_attr( $value ) : ''; ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>" />
+			<input <?php echo esc_attr( $extra_attributes ); ?> style="width: 130px;display: inline-block;;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control  numbersOnly" placeholder="<?php echo isset( $field_settings[2] ) ? esc_attr( $field_settings[2] ) : ''; ?>" value="<?php echo ! empty( $value ) ? esc_attr( $value ) : ''; ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" />
 		</p>
 		<?php
 	}
 
 	function render_date_field( $field_key, $field_value, $value ) {
-		$extra_attributes = "";
+		$extra_attributes = '';
 		if ( isset( $field_value[ 'read_only' ] ) && $field_value[ 'read_only' ] ) {
-			$extra_attributes .= ' readonly disabled ';
+			$extra_attributes .= ' readonly disabled';
 		}
 		$date_value = '';
 		if ( ! empty( $value ) && $value !== -99) {
-			$date_value = zeroBSCRM_date_i18n( -1, $value, false, true );
-		} 
+			$date_value = jpcrm_uts_to_date_str( $value, 'Y-m-d', true );
+		}
 		?>
 			<p>
 				<label class='label' for="<?php echo esc_attr( $field_key ); ?>">
 					<?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?>:
 				</label>
-				<input 
-				   <?php echo esc_attr( $extra_attributes ); ?> 
-					type="text"
-					name="zbsc_<?php echo esc_attr( $field_key ); ?>"
-					id="zbsc_<?php echo esc_attr( $field_key ); ?>"
-					class="form-control widetext zbs-date zbs-empty-start zbs-dc"
-					placeholder="<?php if ( isset( $field_value[2] ) ) echo esc_attr( __( $field_value[2], 'zero-bs-crm' ) ); ?>"
-					value="<?php echo esc_attr( $date_value ); ?>"
-					autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_html( $field_key ); ?>"
-				/>
+				<input<?php echo esc_attr( $extra_attributes ); ?> type="date" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="zbsc_<?php echo esc_attr( $field_key ); ?>" placeholder="yyyy-mm-dd" value="<?php echo esc_attr( $date_value ); ?>"/>
 			</p>
 		<?php
 	}
@@ -210,7 +201,7 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 		?>
 		<p>
 			<label class='label' for="<?php echo esc_attr( $fieldK ); ?>"><?php esc_html_e($fieldV[1],"zero-bs-crm"); ?>:</label>
-			<select <?php echo esc_attr( $extra_attributes ); ?> name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control zbs-watch-input" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldK ); ?>">
+			<select <?php echo esc_attr( $extra_attributes ); ?> name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control zbs-watch-input" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>">
 				<?php
 				// pre DAL 2 = $fieldV[3], DAL2 = $fieldV[2]
 				$options = array();
@@ -256,7 +247,7 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 		$click2call = 0;
 		?><p>
 		<label for="<?php echo esc_attr( $fieldK ); ?>"><?php esc_html_e($fieldV[1],"zero-bs-crm");?>:</label>
-		<input <?php echo esc_attr( $extra_attributes ); ?> type="text" name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control zbs-tel" placeholder="<?php if (isset($fieldV[2])) echo esc_attr( $fieldV[2] ); ?>" value="<?php echo !empty( $value ) ? esc_attr( $value ) : ''; ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldK ); ?>" />
+		<input <?php echo esc_attr( $extra_attributes ); ?> type="text" name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control zbs-tel" placeholder="<?php echo esc_attr( isset( $fieldV[2] ) ? $fieldV[2] : '' ); ?>" value="<?php echo ! empty( $value ) ? esc_attr( $value ) : ''; ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>" />
 		<?php if ($click2call == "1" && isset($zbsCustomer[$fieldK]) && !empty($zbsCustomer[$fieldK])) echo '<a href="' . esc_attr( zeroBSCRM_clickToCallPrefix().$zbsCustomer[$fieldK] ) . '" class="button"><i class="fa fa-phone"></i> ' . esc_html( $zbsCustomer[$fieldK] ) . '</a>'; ?>
 		<?php
 		if ($fieldK == 'mobtel'){
@@ -284,7 +275,7 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 		?><p>
 		<label for="<?php echo esc_attr( $fieldK ); ?>"><?php esc_html_e($fieldV[1],"zero-bs-crm"); ?>:</label>
 		<div class="<?php echo esc_attr( $fieldK ); ?>">
-			<input <?php echo esc_attr( $extra_attributes ); ?> type="text" name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control zbs-email" placeholder="<?php if (isset($fieldV[2])) echo esc_attr( $fieldV[2] ); ?>" value="<?php echo !empty( $value ) ? esc_attr( $value ) : ''; ?>" autocomplete="off" />
+			<input <?php echo esc_attr( $extra_attributes ); ?> type="text" name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control zbs-email" placeholder="<?php echo esc_attr( isset( $fieldV[2] ) ? $fieldV[2] : '' ); ?>" value="<?php echo ! empty( $value ) ? esc_attr( $value ) : ''; ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>" />
 		</div>
 		</p><?php
 	}
@@ -305,7 +296,7 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 		}
 		?><p>
 		<label for="<?php echo esc_attr( $field_key ); ?>"><?php echo esc_html( $field_settings[1] ); ?>:</label>
-		<textarea <?php echo esc_attr( $extra_attributes ); ?> name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control" placeholder="<?php echo isset( $field_settings[2] ) ? esc_attr( $field_settings[2] ) : ''; ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>"><?php echo ! empty( $value ) ? esc_attr( $value ) : ''; ?></textarea>
+		<textarea <?php echo esc_attr( $extra_attributes ); ?> name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control" placeholder="<?php echo isset( $field_settings[2] ) ? esc_attr( $field_settings[2] ) : ''; ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>"><?php echo ! empty( $value ) ? esc_attr( $value ) : ''; ?></textarea>
 		</p><?php
 	}
 
@@ -321,7 +312,7 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 
 			?><p>
 			<label for="<?php echo esc_attr( $fieldK ); ?>"><?php esc_html_e($fieldV[1],"zero-bs-crm"); ?>:</label>
-			<select <?php echo esc_attr( $extra_attributes ); ?> name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldK ); ?>">
+			<select <?php echo esc_attr( $extra_attributes ); ?> name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>">
 				<?php
 
 				if (isset($countries) && count($countries) > 0){

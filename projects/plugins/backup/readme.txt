@@ -1,18 +1,18 @@
 === Jetpack VaultPress Backup ===
 Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
-Tags: jetpack
+Tags: jetpack, backup, restore
 Requires at least: 6.1
 Requires PHP: 5.6
-Tested up to: 6.2
-Stable tag: 1.5
+Tested up to: 6.3
+Stable tag: 1.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-VaultPress is the most proven WordPress backup plugin with over 270 million backups. Save each change and get back online fast with one-click restores.
+Jetpack VaultPress Backup. Save each change and get back online fast with one-click restores. The most proven WordPress backup plugin with over 270 million backups.
 
 == Description ==
 
-Jetpack VaultPress Backup is a plugin that gives you cloud-based backups and one-click restores without needing to install the full Jetpack plugin.
+Jetpack VaultPress Backup is a plugin that gives you cloud-based backups and one-click restores without needing to install the full Jetpack plugin. The most proven WordPress backup plugin with over 270 million backups. Save each change and get back online fast with one-click restores.
 
 Note: To use this plugin you will need to have a paid Jetpack plan that includes Backup.
 
@@ -172,9 +172,9 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.6 - 2023-04-04
+### 2.0 - 2023-08-01
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.2.
+- General: indicate full compatibility with the latest version of WordPress, 6.3.
 - Updated package dependencies.
 
 --------

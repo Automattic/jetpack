@@ -63,7 +63,7 @@ class Defaults {
 		'image_default_link_type',
 		'infinite_scroll',
 		'infinite_scroll_google_analytics',
-		'jetpack-memberships-connected-account-id',
+		'jetpack-memberships-has-connected-account',
 		'jetpack-twitter-cards-site-tag',
 		'jetpack_activated',
 		'jetpack_allowed_xsite_search_ids',
@@ -96,6 +96,7 @@ class Defaults {
 		'jetpack_sync_settings_post_types_blacklist',
 		'jetpack_sync_settings_taxonomies_blacklist',
 		'jetpack_sync_settings_dedicated_sync_enabled', // is Dedicated Sync flow enabled.
+		'jetpack_sync_settings_custom_queue_table_enabled', // is custom queue table enabled.
 		'jetpack_testimonial',
 		'jetpack_testimonial_posts_per_page',
 		'jetpack_wga',
@@ -142,6 +143,7 @@ class Defaults {
 		'stats_options',
 		'stb_enabled',
 		'stc_enabled',
+		'sm_enabled',
 		'sticky_posts',
 		'stylesheet',
 		'subscription_options',
@@ -176,9 +178,11 @@ class Defaults {
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
+		'wpcom_reader_views_enabled',
 		'wpcom_subscription_emails_use_excerpt',
 		'videopress_private_enabled_for_site',
 		'wpcom_gifting_subscription',
+		'wpcom_site_setup',
 	);
 
 	/**
@@ -289,6 +293,7 @@ class Defaults {
 	 * @var array Default whitelist of callables.
 	 */
 	public static $default_callable_whitelist = array(
+		'get_loaded_extensions'            => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_loaded_extensions' ),
 		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
 		'get_themes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
@@ -398,6 +403,7 @@ class Defaults {
 		'flamingo_outbound',
 		'http',
 		'idx_page',
+		'jetpack_inspect_log', // Jetpack Inspect dev tool. p1HpG7-nkd-p2
 		'jetpack_migration',
 		'jp_img_sitemap',
 		'jp_img_sitemap_index',
@@ -1295,5 +1301,12 @@ class Defaults {
 	 * @var int Bool-ish. Default 0.
 	 */
 	public static $default_dedicated_sync_enabled = 0;
+
+	/**
+	 * Default for enabling custom queue table for Sync.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_custom_queue_table_enabled = 0;
 
 }

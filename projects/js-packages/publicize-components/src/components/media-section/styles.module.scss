@@ -16,6 +16,11 @@
 	}
 }
 
+.disabled {
+	opacity: 0.5;
+	filter: grayscale( 100% );
+}
+
 .preview-wrapper {
 	position: relative;
 }
@@ -23,6 +28,10 @@
 .notice.notice {
 	margin: 16px 0 8px 0;
 	padding-right: 8px;
+
+	:global( .components-base-control__label ) + & {
+		margin-top: 0;
+	}
 
 	p {
 		margin: 0 0 4px;

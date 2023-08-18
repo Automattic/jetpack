@@ -23,6 +23,9 @@ class Image_CDN_Core {
 		// Add photon compatibility.
 		require_once __DIR__ . '/compatibility/photon.php';
 
+		// Add ActivityPub compatibility.
+		require_once __DIR__ . '/compatibility/activitypub.php';
+
 		/**
 		 * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
 		 *
@@ -38,7 +41,6 @@ class Image_CDN_Core {
 		add_filter( 'jetpack_photon_pre_args', array( __CLASS__, 'parse_wpcom_query_args' ), 10, 2 );
 
 		add_filter( 'jetpack_photon_skip_for_url', array( __CLASS__, 'banned_domains' ), 9, 2 );
-		add_filter( 'widget_text', array( __CLASS__, 'support_text_widgets' ) );
 	}
 
 	/**
@@ -217,8 +219,9 @@ class Image_CDN_Core {
 		if ( $args ) {
 			if ( is_array( $args ) ) {
 				$photon_url = add_query_arg( $args, $photon_url );
+			} elseif ( strpos( $photon_url, '?' ) !== false ) {
+				$photon_url .= '&' . $args;
 			} else {
-				// You can pass a query string for complicated requests but where you still want CDN subdomain help, etc.
 				$photon_url .= '?' . $args;
 			}
 		}
@@ -338,17 +341,6 @@ class Image_CDN_Core {
 		}
 
 		return $skip;
-	}
-
-	/**
-	 * Jetpack Photon - Support Text Widgets.
-	 *
-	 * @access public
-	 * @param string $content Content from text widget.
-	 * @return string
-	 */
-	public static function support_text_widgets( $content ) {
-		return Image_CDN::filter_the_content( $content );
 	}
 
 	/**

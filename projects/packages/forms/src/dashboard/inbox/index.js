@@ -12,28 +12,30 @@ import {
 	useState,
 	useRef,
 } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
-import { find, findIndex, includes, map } from 'lodash';
+import { find, findIndex, includes, isEqual, join, keys, map, pick } from 'lodash';
+import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import { config } from '../';
 import DropdownFilter from '../components/dropdown-filter';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
 import { STORE_NAME } from '../state';
 import BulkActionsMenu from './bulk-actions-menu';
+import { RESPONSES_FETCH_LIMIT } from './constants';
 import ExportModal from './export-modal';
 import InboxList from './list';
 import InboxResponse from './response';
+import { useFeedbackQuery } from './use-feedback-query';
 import { isWpcom } from './util';
 /**
  * Style dependencies
  */
 import './style.scss';
-
-const RESPONSES_FETCH_LIMIT = 50;
 
 const TABS = [
 	{
@@ -48,45 +50,33 @@ const TABS = [
 	},
 	{
 		name: 'trash',
-		title: __( 'Trash', 'jetpack-forms' ),
+		title: _x( 'Trash', 'noun', 'jetpack-forms' ),
 		className: 'jp-forms__inbox-tab-item',
 	},
 ];
 
 const Inbox = () => {
 	const stickySentinel = useRef();
-	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
-	const [ view, setView ] = useState( 'list' );
 	const [ isSticky, setSticky ] = useState( false );
-
-	const {
-		fetchResponses,
-		setCurrentPage,
-		setMonthQuery,
-		setSearchQuery,
-		setSourceQuery,
-		setStatusQuery,
-		selectResponses,
-	} = useDispatch( STORE_NAME );
+	const navigate = useNavigate();
+	const { fetchResponses, selectResponses } = useDispatch( STORE_NAME );
 	const [
-		currentPage,
+		currentQuery,
 		monthFilter,
 		sourceFilter,
 		loading,
-		query,
 		responses,
 		selectedResponses,
 		tabTotals,
 		total,
 	] = useSelect(
 		select => [
-			select( STORE_NAME ).getCurrentPage(),
+			select( STORE_NAME ).getQuery(),
 			select( STORE_NAME ).getMonthFilter(),
 			select( STORE_NAME ).getSourceFilter(),
 			select( STORE_NAME ).isFetchingResponses(),
-			select( STORE_NAME ).getResponsesQuery(),
 			select( STORE_NAME ).getResponses(),
 			select( STORE_NAME ).getSelectedResponseIds(),
 			select( STORE_NAME ).getTabTotals(),
@@ -94,6 +84,26 @@ const Inbox = () => {
 		],
 		[]
 	);
+
+	const {
+		currentPage,
+		currentResponseId,
+		setCurrentPage,
+		setCurrentResponseId: setActiveResponse,
+		setMonthQuery,
+		setSearchQuery,
+		setSourceQuery,
+		setStatusQuery,
+		query,
+	} = useFeedbackQuery();
+
+	useEffect( () => {
+		if ( config( 'hasFeedback' ) ) {
+			return;
+		}
+
+		navigate( '/landing' );
+	}, [ navigate ] );
 
 	useEffect( () => {
 		fetchResponses( {
@@ -104,12 +114,26 @@ const Inbox = () => {
 	}, [ currentPage, fetchResponses, query ] );
 
 	useEffect( () => {
-		if ( responses.length === 0 || includes( map( responses, 'id' ), currentResponseId ) ) {
+		if (
+			! currentResponseId ||
+			loading ||
+			! isEqual( pick( currentQuery, keys( query ) ), query ) ||
+			includes( map( responses, 'id' ), currentResponseId )
+		) {
 			return;
 		}
 
-		setCurrentResponseId( responses[ 0 ].id );
-	}, [ responses, currentResponseId ] );
+		// Redirect to the list view on mobile when the response ID is invalid
+		setActiveResponse( 0 );
+	}, [ currentQuery, currentResponseId, loading, responses, setActiveResponse, query ] );
+
+	const activeResponse = useMemo( () => {
+		if ( responses.length && ! includes( map( responses, 'id' ), currentResponseId ) ) {
+			return responses[ 0 ].id;
+		}
+
+		return currentResponseId;
+	}, [ currentResponseId, responses ] );
 
 	useEffect( () => {
 		const stickySentinelRef = stickySentinel.current;
@@ -138,19 +162,21 @@ const Inbox = () => {
 
 	const selectResponse = useCallback(
 		id => {
-			setCurrentResponseId( id );
-			setView( 'response' );
+			setActiveResponse( id );
 			setResponseAnimationDirection(
-				findIndex( responses, { id } ) - findIndex( responses, { id: currentResponseId } )
+				findIndex( responses, { id } ) - findIndex( responses, { id: activeResponse } )
 			);
 		},
-		[ currentResponseId, responses ]
+		[ activeResponse, responses, setActiveResponse ]
 	);
 
-	const handleGoBack = useCallback( event => {
-		event.preventDefault();
-		setView( 'list' );
-	}, [] );
+	const handleGoBack = useCallback(
+		event => {
+			event.preventDefault();
+			setActiveResponse( 0 );
+		},
+		[ setActiveResponse ]
+	);
 
 	const toggleExportModal = useCallback(
 		() => setShowExportModal( ! showExportModal ),
@@ -169,8 +195,9 @@ const Inbox = () => {
 						) }
 					</>
 				),
+				disabled: loading,
 			} ) ),
-		[ tabTotals ]
+		[ loading, tabTotals ]
 	);
 
 	const monthList = useMemo( () => {
@@ -197,7 +224,7 @@ const Inbox = () => {
 	const sourceList = useMemo( () => {
 		const list = map( sourceFilter, item => ( {
 			label: item.title,
-			value: item.id,
+			value: `${ item.id }`,
 		} ) );
 
 		return [
@@ -209,10 +236,17 @@ const Inbox = () => {
 		];
 	}, [ sourceFilter ] );
 
+	const listKey = useMemo( () => {
+		return join(
+			map( pick( currentQuery, keys( query ) ), ( value, key ) => `${ key }-${ value }` ),
+			'-'
+		);
+	}, [ currentQuery, query ] );
+
 	const showBulkActionsMenu = !! selectedResponses.length && ! loading;
 
 	const classes = classnames( 'jp-forms__inbox', {
-		'is-response-view': view === 'response',
+		'is-response-view': !! currentResponseId,
 		'is-response-animation-reverted': responseAnimationDirection < 0,
 	} );
 
@@ -253,6 +287,7 @@ const Inbox = () => {
 			<TabPanel
 				className="jp-forms__inbox-tabs"
 				activeClass="active-tab"
+				initialTabName={ query.status }
 				onSelect={ setStatusQuery }
 				tabs={ tabs }
 			>
@@ -295,8 +330,10 @@ const Inbox = () => {
 								<div className="jp-forms__inbox-sticky-sentinel" ref={ stickySentinel } />
 								{ ! loading && isSticky && <div className="jp-forms__inbox-sticky-mark" /> }
 								<InboxList
+									key={ listKey }
 									currentPage={ currentPage }
-									currentResponseId={ currentResponseId }
+									currentResponseId={ activeResponse }
+									currentTab={ query.status }
 									loading={ loading }
 									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
 									responses={ responses }
@@ -310,7 +347,7 @@ const Inbox = () => {
 							<div className="jp-forms__inbox-content-column">
 								<InboxResponse
 									isLoading={ loading }
-									response={ find( responses, { id: currentResponseId } ) }
+									response={ find( responses, { id: activeResponse } ) }
 								/>
 							</div>
 						</div>

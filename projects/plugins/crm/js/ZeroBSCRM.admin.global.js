@@ -35,9 +35,6 @@ jQuery( function () {
 	// menu stuff
 	zbscrm_JS_adminMenuDropdown();
 
-	// compat classes
-	zbscrm_JS_compatClasses();
-
 	// screenopts
 	zeroBSCRMJS_bindScreenOptions();
 
@@ -134,21 +131,6 @@ function jpcrm_dismiss_feature_alert() {
 	} );
 }
 
-// Detects if there are any compatability classes to add against body
-// allows us to apply specific styles etc. e.g. Material Admin compat
-/**
- *
- */
-function zbscrm_JS_compatClasses() {
-	/* Now done in php with zeroBSCRM_bodyClassMods
-	... but Material admin for some reason ignores that, so leaving in */
-	// Material Admin check - adds class if using
-	var customAdmin = window.zbscrmjs_custom_admin;
-	if ( customAdmin == 'material' ) {
-		jQuery( 'body' ).addClass( 'zbs-compat-material-admin' );
-	}
-}
-
 // this is for any moment init stuff (pre date picker etc.)
 /**
  *
@@ -202,7 +184,7 @@ function zbscrm_JS_adminMenuDropdown() {
 		if (
 			window.zbscrmjs_hopscotch_virgin === 1 &&
 			typeof hopscotch !== 'undefined' &&
-			jQuery( '#zbs-admin-top-bar' ).length
+			jQuery( '.jpcrm-learn-menu-container' ).length
 		) {
 			// UNSET tour (unless somethign went wrong)
 			//console.log('state:',hopscotch.getState());
@@ -225,19 +207,19 @@ function zbscrm_JS_adminMenuDropdown() {
 
 		// if calypso, loading on an embed page, already full screen, need to run this to re-adjust/hide:
 		setTimeout( function () {
-			if ( ! jQuery( '#zbs-main-logo-wrap' ).hasClass( 'menu-open' ) ) {
-				zbscrm_JS_fullscreenModeOn( jQuery( '#zbs-main-logo-wrap' ) );
+			if ( ! jQuery( '#jpcrm-top-menu .logo-cube' ).hasClass( 'menu-open' ) ) {
+				zbscrm_JS_fullscreenModeOn( jQuery( '#jpcrm-top-menu .logo-cube' ) );
 			}
 		}, 0 );
 	}
 
 	// bind the toggle
-	jQuery( '#zbs-main-logo-wrap' )
+	jQuery( '#jpcrm-top-menu .logo-cube' )
 		.off( 'click' )
 		.on( 'click', function ( e ) {
 			if ( ! window.zbscrmjs_adminMenuBlocker ) {
 				window.zbscrmjs_adminMenuBlocker = true;
-
+console.log(this);
 				if ( jQuery( this ).hasClass( 'menu-open' ) ) {
 					// go fullscreen
 					zbscrm_JS_fullscreenModeOn( this );
@@ -342,11 +324,16 @@ function zbscrm_JS_fullscreenModeOff( wrapperElement ) {
  *
  */
 function zbscrm_JS_initMenuPopups() {
-	if ( typeof jQuery( '#zbs-user-menu-item' ).popup !== 'undefined' ) {
-		jQuery( '#zbs-user-menu-item' ).popup( {
-			popup: jQuery( '#zbs-user-menu' ),
+	if ( typeof jQuery( '#jpcrm-user-menu-item' ).popup !== 'undefined' ) {
+		jQuery( '#jpcrm-user-menu-item' ).popup( {
+			popup: jQuery( '#jpcrm-user-menu' ),
+			position: 'bottom center',
 			hoverable: true,
 			on: 'hover',
+			delay: {
+				show: 50,
+				hide: 500,
+			},
 		} );
 	}
 }
@@ -1944,15 +1931,11 @@ function jpcrm_strip_scripts( s ) {
 	return div.innerHTML;
 }
 
-/* super simple switch
-HIDES: .zbs-generic-loading
-SHOWS: .zbs-generic-loaded
-*/
 /**
  *
  */
 function zeroBSCRMJS_genericLoaded() {
-	jQuery( '.zbs-generic-loading' ).hide();
+	jQuery( '.empty-container-with-spinner' ).hide();
 	jQuery( '.zbs-generic-loaded' ).show();
 }
 
@@ -2001,20 +1984,15 @@ function zeroBSCRMJS_bindScreenOptions() {
 	} );
 
 	// show hide screen opts
-	jQuery( '#zbs-screen-options-handle' )
+	jQuery( '#jpcrm_page_options' )
 		.off( 'click' )
 		.on( 'click', function () {
-			if ( jQuery( '#zbs-screen-options' ).hasClass( 'zbs-closed' ) ) {
+			if ( jQuery( '#zbs-screen-options' ).hasClass( 'hidden' ) ) {
 				// open
-				jQuery( '#zbs-screen-options' ).removeClass( 'zbs-closed' );
+				jQuery( '#zbs-screen-options' ).removeClass( 'hidden' );
 			} else {
 				// close
-				jQuery( '#zbs-screen-options' ).addClass( 'zbs-closed' );
-
-				// if 'arrange' mode still on, turn off
-				if ( typeof zeroBSCRMJS_metaboxManagerSwitchMode === 'function' ) {
-					zeroBSCRMJS_metaboxManagerSwitchMode( 'off' );
-				}
+				jQuery( '#zbs-screen-options' ).addClass( 'hidden' );
 
 				// save
 				zeroBSCRMJS_saveScreenOptions();
@@ -2324,10 +2302,10 @@ function zeroBSCRMJS_bindGlobalContactFuncs() {
 				//text: "Are you sure you want to delete these?",
 				type: '',
 				showCancelButton: true,
-				confirmButtonColor: '#3085d6',
-				cancelButtonColor: '#d33',
+				confirmButtonColor: '#000',
+				cancelButtonColor: '#fff',
+				cancelButtonText: '<span style="color: #000">' + zeroBSCRMJS_globViewLang( 'cancel' ) + '</span>',
 				confirmButtonText: zeroBSCRMJS_globViewLang( 'send' ),
-				cancelButtonText: zeroBSCRMJS_globViewLang( 'cancel' ),
 			} ).then( function ( result ) {
 				// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
 				if ( result.value ) {
@@ -2782,7 +2760,7 @@ if ( typeof module !== 'undefined' ) {
 		zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, jpcrm_set_jpcrm_transient, jpcrm_js_bind_daterangepicker, zeroBSCRMJS_globViewLang, 
 		jpcrm_strip_scripts, zbscrm_JS_DAL, zbscrmjs_adminMenuBlocker, zbscrmjsDirtyLog, zbscrmjsPageData, zbscrmjsPageChanges, zbscrm_custcache_invoices,
 		zbsAJAXRestRetrieve, zbscrmjs_closeLogBlocker, zbsjsScreenOptsBlock, zbscrmjs_screenoptblock, zbscrm_JS_addDirty, jpcrm_dismiss_woo_notice,
-		jpcrm_dismiss_tracking_notice, jpcrm_dismiss_feature_alert, zbscrm_JS_compatClasses, zbscrm_JS_momentInit, zbscrm_JS_adminMenuDropdown, zbscrm_JS_fullscreenModeOn,
+		jpcrm_dismiss_tracking_notice, jpcrm_dismiss_feature_alert, zbscrm_JS_momentInit, zbscrm_JS_adminMenuDropdown, zbscrm_JS_fullscreenModeOn,
 		zbscrm_JS_fullscreenModeOff, zbscrm_JS_initMenuPopups, zbscrm_JS_watchInputsAndDirty, zbscrm_JS_dirtyCatch, zbscrm_JS_delDirty, zbscrm_JS_bindDateRangePicker, jpcrm_js_bind_datepicker,
 		jpcrm_js_bind_datetimerangepicker,  jpcrm_js_bind_datetimepicker, jpcrm_js_bind_datetimepicker_future, zbscrm_JS_infoBoxInit, zbscrm_JS_infoBoxInit,
 		zbscrm_JS_Bind_Typeaheads, zbscrm_JS_Bind_Typeaheads_Customers, zbscrm_JS_Bind_Typeaheads_Companies, jpcrm_bind_typeaheads_placeholders, zbscrm_JS_clone,

@@ -381,7 +381,7 @@ class The_Neverending_Home_Page {
 
 		// This is to cope with an issue in certain themes or setups where posts are returned but found_posts is 0.
 		if ( 0 === $entries ) {
-			return (bool) ( count( self::wp_query()->posts ) < $posts_per_page );
+			return (bool) ( ! is_countable( self::wp_query()->posts ) || ( count( self::wp_query()->posts ) < $posts_per_page ) );
 		}
 		$paged = max( 1, self::wp_query()->get( 'paged' ) );
 
@@ -652,7 +652,7 @@ class The_Neverending_Home_Page {
 		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
 			$search_terms = self::wp_query()->query_vars['search_terms'];
 			// if the search string has only short terms or stopwords, or is 10+ terms long, match it as sentence
-			if ( empty( $search_terms ) || count( $search_terms ) > 9 ) {
+			if ( empty( $search_terms ) || ! is_countable( $search_terms ) || count( $search_terms ) > 9 ) {
 				$search_terms = array( self::wp_query()->get( 's' ) );
 			}
 		} else {
@@ -1162,6 +1162,7 @@ class The_Neverending_Home_Page {
 
 			// If new scripts are needed, extract relevant data from $wp_scripts
 			if ( ! empty( $new_scripts ) ) {
+				global $wp_version;
 				$results['scripts'] = array();
 
 				foreach ( $new_scripts as $handle ) {
@@ -1173,13 +1174,22 @@ class The_Neverending_Home_Page {
 						continue;
 					}
 
+					// Remove conditional once WordPress 6.3 is the minimum required version.
+					if ( version_compare( $wp_version, '6.3', '>=' ) ) {
+						$before_handle = $wp_scripts->get_inline_script_data( $handle, 'before' );
+						$after_handle  = $wp_scripts->get_inline_script_data( $handle, 'after' );
+					} else {
+						$before_handle = $wp_scripts->print_inline_script( $handle, 'before', false );
+						$after_handle  = $wp_scripts->print_inline_script( $handle, 'after', false );
+					}
+
 					// Provide basic script data
 					$script_data = array(
 						'handle'        => $handle,
 						'footer'        => ( is_array( $wp_scripts->in_footer ) && in_array( $handle, $wp_scripts->in_footer, true ) ),
 						'extra_data'    => $wp_scripts->print_extra_script( $handle, false ),
-						'before_handle' => $wp_scripts->print_inline_script( $handle, 'before', false ),
-						'after_handle'  => $wp_scripts->print_inline_script( $handle, 'after', false ),
+						'before_handle' => $before_handle,
+						'after_handle'  => $after_handle,
 					);
 
 					// Base source
@@ -1971,7 +1981,7 @@ class The_Neverending_Home_Page {
 	protected function amp_footer_template() {
 		ob_start();
 		?>
-<amp-next-page max-pages="<?php echo esc_attr( $this->amp_get_max_pages() ); ?>">
+<amp-next-page max-pages="<?php echo esc_attr( static::amp_get_max_pages() ); ?>">
 	<script type="application/json">
 		[
 			<?php echo wp_json_encode( $this->amp_next_page() ); ?>

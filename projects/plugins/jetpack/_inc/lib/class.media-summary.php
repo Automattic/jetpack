@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * Class Jetpack_Media_Summary
  *
@@ -262,7 +264,7 @@ class Jetpack_Media_Summary {
 				$return['secure']['image'] = self::ssl_img( $return['image'] );
 				++$return['count']['image'];
 
-				if ( $number_of_paragraphs <= 2 && 1 === count( $extract['image'] ) ) {
+				if ( $number_of_paragraphs <= 2 && is_countable( $extract['image'] ) && 1 === count( $extract['image'] ) ) {
 					// If we have lots of text or images, let's not treat it as an image post, but return its first image.
 					$return['type'] = 'image';
 				}
@@ -310,7 +312,7 @@ class Jetpack_Media_Summary {
 		if ( false !== strpos( $url, 'files.wordpress.com' ) ) {
 			return self::https( $url );
 		} else {
-			return self::https( jetpack_photon_url( $url ) );
+			return self::https( Image_CDN_Core::cdn_url( $url ) );
 		}
 	}
 

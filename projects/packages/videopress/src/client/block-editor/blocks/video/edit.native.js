@@ -89,7 +89,7 @@ export default function VideoPressEdit( {
 		[ setAttributes ]
 	);
 
-	const { videoData } = useSyncMedia( attributes, setAttributes );
+	const { videoData, videoBelongToSite } = useSyncMedia( attributes, setAttributes );
 	const { private_enabled_for_site: privateEnabledForSite } = videoData;
 
 	const handleDoneUpload = useCallback(
@@ -213,11 +213,13 @@ export default function VideoPressEdit( {
 
 			{ isSelected && (
 				<InspectorControls>
-					<DetailsPanel { ...{ attributes, setAttributes } } />
+					<DetailsPanel { ...{ attributes, setAttributes, videoBelongToSite } } />
 					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
 						<PlaybackPanel { ...{ attributes, setAttributes } } />
 						<ColorPanel { ...{ attributes, setAttributes } } />
-						<PrivacyAndRatingPanel { ...{ attributes, setAttributes, privateEnabledForSite } } />
+						<PrivacyAndRatingPanel
+							{ ...{ attributes, setAttributes, privateEnabledForSite, videoBelongToSite } }
+						/>
 					</PanelBody>
 				</InspectorControls>
 			) }

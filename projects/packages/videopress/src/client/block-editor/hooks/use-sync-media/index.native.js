@@ -69,7 +69,7 @@ const invalidateEmbedResolutionFields = [
  */
 export function useSyncMedia( attributes, setAttributes ) {
 	const { id, guid, isPrivate } = attributes;
-	const { videoData, isRequestingVideoData } = useVideoData( {
+	const { videoData, isRequestingVideoData, videoBelongToSite } = useVideoData( {
 		id,
 		guid,
 		skipRatingControl: true,
@@ -259,6 +259,7 @@ export function useSyncMedia( attributes, setAttributes ) {
 		forceInitialState: updateInitialState,
 		videoData,
 		isRequestingVideoData,
+		videoBelongToSite,
 		error,
 	};
 }

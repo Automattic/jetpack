@@ -251,8 +251,9 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 	 * @param int    $post_id Post ID.
 	 */
 	public function write_post( $path, $blog_id, $post_id ) {
-		$new  = $this->api->ends_with( $path, '/new' );
-		$args = $this->query_args();
+		$delete_featured_image = null;
+		$new                   = $this->api->ends_with( $path, '/new' );
+		$args                  = $this->query_args();
 
 		// unhook publicize, it's hooked again later -- without this, skipping services is impossible.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -669,7 +670,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
 				}
 			}
-		} elseif ( is_array( $publicize ) && ( count( $publicize ) > 0 ) ) {
+		} elseif ( is_array( $publicize ) && ( $publicize !== array() ) ) {
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				/*
 				* We support both indexed and associative arrays:

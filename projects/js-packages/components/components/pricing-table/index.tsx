@@ -91,8 +91,11 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 					placement={ 'bottom-end' }
 					iconSize={ 14 }
 					offset={ 4 }
+					wide={ Boolean( tooltipTitle && tooltipInfo ) }
 				>
-					<Text variant="body-small">{ tooltipInfo || defaultTooltipInfo }</Text>
+					<Text variant="body-small" component="div">
+						{ tooltipInfo || defaultTooltipInfo }
+					</Text>
 				</IconTooltip>
 			) }
 		</div>
@@ -164,9 +167,10 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 										title={ item.tooltipTitle }
 										iconClassName={ styles[ 'popover-icon' ] }
 										className={ styles.popover }
-										placement={ 'bottom-end' }
+										placement={ item.tooltipPlacement ? item.tooltipPlacement : 'bottom-end' }
 										iconSize={ 14 }
 										offset={ 4 }
+										wide={ Boolean( item.tooltipTitle && item.tooltipInfo ) }
 									>
 										<Text variant="body-small">{ item.tooltipInfo }</Text>
 									</IconTooltip>

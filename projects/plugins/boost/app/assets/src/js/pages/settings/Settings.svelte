@@ -18,10 +18,8 @@
 </script>
 
 <ReRouter to="/getting-started" when={$shouldGetStarted}>
-	<div id="jb-settings" class="jb-settings jb-settings--main">
-		<div class="jb-container">
-			<Header />
-		</div>
+	<div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
+		<Header />
 
 		<div class="jb-section jb-section--alt jb-section--scores">
 			<Score />
@@ -41,3 +39,9 @@
 		<Footer />
 	</div>
 </ReRouter>
+
+<style lang="scss">
+	.jb-section--main {
+		z-index: 14;
+	}
+</style>

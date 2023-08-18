@@ -134,6 +134,7 @@
 	.wp-block-jetpack-markdown__editor {
 		font-family: $editor-html-font;
 		font-size: $text-editor-font-size;
+		color: $gray-900;
 
 		&:focus {
 			border-color: transparent;

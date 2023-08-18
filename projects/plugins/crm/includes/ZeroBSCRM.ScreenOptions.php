@@ -24,7 +24,7 @@ function zeroBSCRM_screenOptionsPanel(){
 	global $zbs;
 
 	$screenOptionsHTML = ''; $options = array(); $rights = true; // this is 'okay for everyone' - current_user_can('administrator')?
-    $screenOpts = $zbs->userScreenOptions();
+	$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	switch ($zbs->pageKey){
 
@@ -207,24 +207,21 @@ function zeroBSCRM_screenOptionsPanel(){
 
 
 	if (!empty($screenOptionsHTML)){
-			
-			?><!-- screenoptions -->
-            <div id="zbs-screen-options" class="ui segment secondary zbs-closed">
-	            <?php if ($rights){ ?>
-	            	<?php echo $screenOptionsHTML; ?>
-	            <?php } // / can ?>
-	            <div id="zbs-screen-options-handle"><?php esc_html_e('Page Layout','zero-bs-crm'); ?> <i class="caret up icon"></i><i class="caret down icon"></i></div>
-            </div>
-            <!-- / screenoptions --><?php
 
-    }
+		?>
+		<div id="zbs-screen-options" class="ui segment hidden">
+			<?php echo ( $rights ? $screenOptionsHTML : '' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>
+		</div>
+		<?php
+
+	}
 }
 
 function zeroBS_outputScreenOptions(){
 
 	global $zbs;
 
-	$screenOpts = $zbs->userScreenOptions();
+	$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	?><script type="text/javascript">var zbsPageKey = '<?php echo esc_html( $zbs->pageKey ); ?>';var zbsScreenOptions = <?php echo json_encode($screenOpts); ?>;</script><?php
 

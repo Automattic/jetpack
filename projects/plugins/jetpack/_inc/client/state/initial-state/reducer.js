@@ -238,6 +238,16 @@ export function isSiteVisibleToSearchEngines( state ) {
 	return get( state.jetpack.initialState.siteData, [ 'siteVisibleToSearchEngines' ], true );
 }
 
+/**
+ * Returns the site's boost speed scores from the last time it was checked
+ *
+ * @param {object} state - Global state tree
+ * @returns {object}        the boost speed scores and timestamp
+ */
+export function getLatestBoostSpeedScores( state ) {
+	return get( state.jetpack.initialState.siteData, [ 'latestBoostSpeedScores' ] );
+}
+
 export function getApiNonce( state ) {
 	return get( state.jetpack.initialState, 'WP_API_nonce' );
 }
@@ -360,6 +370,16 @@ export function isAtomicPlatform( state ) {
  */
 export function currentThemeSupports( state, feature ) {
 	return get( state.jetpack.initialState.themeData, [ 'support', feature ], false );
+}
+
+/**
+ * Check that the current theme is a block theme.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the current theme is a block theme, false otherwise.
+ */
+export function currentThemeIsBlockTheme( state ) {
+	return get( state.jetpack.initialState.themeData, [ 'isBlockTheme' ], false );
 }
 
 /**
@@ -648,4 +668,44 @@ export function getJetpackCloudUrl( state, slug ) {
  */
 export function isOdysseyStatsEnabled( state ) {
 	return !! state.jetpack.initialState.isOdysseyStatsEnabled;
+}
+
+/**
+ * Returns true if Blaze can be used on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if Blaze is available on the site.
+ */
+export function shouldInitializeBlaze( state ) {
+	return !! state.jetpack.initialState.shouldInitializeBlaze;
+}
+
+/**
+ * Returns true if the wp-admin Blaze dashboard is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the Blaze dashboard is enabled.
+ */
+export function isBlazeDashboardEnabled( state ) {
+	return !! state.jetpack.initialState.isBlazeDashboardEnabled;
+}
+
+/**
+ * Returns true if Subscribe Modal can be used on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if Subscription Modal is available on the site.
+ */
+export function isSubscriptionModalEnabled( state ) {
+	return !! state.jetpack.initialState.isSubscriptionModalEnabled;
+}
+
+/**
+ * Returns true if Jetpack's Pre-connection helpers are enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if pre-connection helpers are enabled.
+ */
+export function arePreConnectionHelpersEnabled( state ) {
+	return !! state.jetpack.initialState.preConnectionHelpers;
 }

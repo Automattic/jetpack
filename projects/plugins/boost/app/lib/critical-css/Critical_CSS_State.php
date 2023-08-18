@@ -122,7 +122,19 @@ class Critical_CSS_State {
 	}
 
 	public function has_errors() {
-		return self::GENERATION_STATES['error'] === $this->state['status'];
+		// Check if any of the providers have errors as well.
+		$any_provider_has_error = in_array(
+			'error',
+			array_unique(
+				wp_list_pluck(
+					$this->state['providers'],
+					'status'
+				)
+			),
+			true
+		);
+
+		return self::GENERATION_STATES['error'] === $this->state['status'] || $any_provider_has_error;
 	}
 
 	public function is_requesting() {
@@ -148,7 +160,11 @@ class Critical_CSS_State {
 		return $this;
 	}
 
+	/**
+	 * Get fresh state
+	 */
 	public function get() {
+		$this->state = jetpack_boost_ds_get( 'critical_css_state' );
 		return $this->state;
 	}
 

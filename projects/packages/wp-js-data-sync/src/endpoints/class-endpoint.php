@@ -7,12 +7,16 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Endpoints;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry_Adapter;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 
 class Endpoint {
 
 	/**
-	 * @var Data_Sync_Entry_Adapter $entry - The data sync entry to register the endpoint for.
+	 * @var Data_Sync_Entry $entry - The data sync entry to register the endpoint for.
 	 */
 	private $entry;
 
@@ -32,9 +36,9 @@ class Endpoint {
 	private $nonce;
 
 	/**
-	 * @param string                  $namespace - The namespace for the REST API endpoint.
-	 * @param string                  $route     - The route for the REST API endpoint.
-	 * @param Data_Sync_Entry_Adapter $entry     The data sync entry to register the endpoint for.
+	 * @param string          $namespace - The namespace for the REST API endpoint.
+	 * @param string          $route     - The route for the REST API endpoint.
+	 * @param Data_Sync_Entry $entry     The data sync entry to register the endpoint for.
 	 */
 	public function __construct( $namespace, $key, $entry ) {
 		$this->entry          = $entry;
@@ -55,7 +59,7 @@ class Endpoint {
 			)
 		);
 
-		if ( $this->entry->can( 'set' ) ) {
+		if ( $this->entry->is( Entry_Can_Set::class ) ) {
 			register_rest_route(
 				$this->rest_namespace,
 				$this->route_base . '/set',
@@ -67,7 +71,7 @@ class Endpoint {
 			);
 		}
 
-		if ( $this->entry->can( 'merge' ) ) {
+		if ( $this->entry->is( Entry_Can_Merge::class ) ) {
 			register_rest_route(
 				$this->rest_namespace,
 				$this->route_base . '/merge',
@@ -79,7 +83,7 @@ class Endpoint {
 			);
 		}
 
-		if ( $this->entry->can( 'delete' ) ) {
+		if ( $this->entry->is( Entry_Can_Delete::class ) ) {
 			register_rest_route(
 				$this->rest_namespace,
 				$this->route_base . '/delete',
@@ -130,15 +134,21 @@ class Endpoint {
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	private function handler( $request, $entry_method = 'get' ) {
-		$available_methods = array( 'get', 'set', 'merge', 'delete' );
-		if ( ! in_array( $entry_method, $available_methods, true ) ) {
+
+		$available_methods = array(
+			'get'    => Entry_Can_Get::class,
+			'set'    => Entry_Can_Set::class,
+			'merge'  => Entry_Can_Merge::class,
+			'delete' => Entry_Can_Delete::class,
+		);
+		if ( ! isset( $available_methods[ $entry_method ] ) ) {
 			// Set status 400 because an unsupported method was used.
 			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method.', array( 'status' => 400 ) ) );
 		}
 
-		if ( ! $this->entry->can( $entry_method ) ) {
+		if ( ! $this->entry->is( $available_methods[ $entry_method ] ) ) {
 			// Set Status 500 because the method is valid but is missing in Data_Sync_Entry.
-			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method. ' . $entry_method, array( 'status' => 500 ) ) );
+			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method. "' . $entry_method . '" ', array( 'status' => 500 ) ) );
 		}
 
 		try {

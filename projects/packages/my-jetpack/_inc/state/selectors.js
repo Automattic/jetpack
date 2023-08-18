@@ -14,14 +14,37 @@ export const getProduct = ( state, productId ) => {
 	product.pricingForUi.introductoryOffer = product.pricingForUi.isIntroductoryOffer
 		? mapObjectKeysToCamel( product.pricingForUi.introductoryOffer, true )
 		: null;
+
+	// Camelize object keys for each tier in pricingForUi
+	if ( product.pricingForUi?.tiers ) {
+		product.pricingForUi.tiers = mapObjectKeysToCamel( product.pricingForUi.tiers, true );
+		product.pricingForUi.tiers = Object.keys( product.pricingForUi.tiers ).reduce(
+			( result, tierKey ) => {
+				const tier = mapObjectKeysToCamel( product.pricingForUi.tiers[ tierKey ], true ) || {};
+				result[ tierKey ] = {
+					...tier,
+					introductoryOffer: tier?.isIntroductoryOffer
+						? mapObjectKeysToCamel( tier?.introductoryOffer, true )
+						: null,
+				};
+				return result;
+			},
+			{}
+		);
+	}
+
 	product.features = product.features || [];
 	product.supportedProducts = product.supportedProducts || [];
 
 	product.pricingForUi.fullPricePerMonth =
-		Math.ceil( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100;
+		product.pricingForUi.productTerm === 'year'
+			? Math.ceil( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100
+			: product.pricingForUi.fullPrice;
 
 	product.pricingForUi.discountPricePerMonth =
-		Math.ceil( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100;
+		product.pricingForUi.productTerm === 'year'
+			? Math.ceil( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100
+			: product.pricingForUi.discountPrice;
 
 	return product;
 };
@@ -57,6 +80,16 @@ const productSelectors = {
 const purchasesSelectors = {
 	getPurchases: state => state.purchases?.items || [],
 	isRequestingPurchases: state => state.purchases?.isFetching || false,
+};
+
+const chatAvailabilitySelectors = {
+	getChatAvailability: state => state.chatAvailability.isAvailable,
+	isRequestingChatAvailability: state => state.chatAvailability.isFetching,
+};
+
+const chatAuthenticationSelectors = {
+	getChatAuthentication: state => state.chatAuthentication.jwt,
+	isRequestingChatAuthentication: state => state.chatAuthentication.isFetching,
 };
 
 const availableLicensesSelectors = {
@@ -99,6 +132,8 @@ const productStatsSelectors = {
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
+	...chatAvailabilitySelectors,
+	...chatAuthenticationSelectors,
 	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,

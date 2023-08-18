@@ -22,7 +22,14 @@ function jetpack_bitly_og_tag() {
 		if ( method_exists( $GLOBALS['bitly'], 'og_tags' ) ) {
 			$GLOBALS['bitly']->og_tags();
 		}
-	} elseif ( isset( $GLOBALS['posts'] ) && $GLOBALS['posts'][0]->ID > 0 ) {
-		printf( "<meta property=\"bitly:url\" content=\"%s\" /> \n", esc_attr( $GLOBALS['bitly']->get_bitly_link_for_post_id( $GLOBALS['posts'][0]->ID ) ) );
+	} elseif (
+		isset( $GLOBALS['posts'] )
+		&& $GLOBALS['posts'][0]->ID > 0
+		&& method_exists( $GLOBALS['bitly'], 'get_bitly_link_for_post_id' )
+	) {
+		printf(
+			"<meta property=\"bitly:url\" content=\"%s\" /> \n",
+			esc_attr( $GLOBALS['bitly']->get_bitly_link_for_post_id( $GLOBALS['posts'][0]->ID ) )
+		);
 	}
 }

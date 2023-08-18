@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Fixed a bug where only the first option was updated and added unit tests.
