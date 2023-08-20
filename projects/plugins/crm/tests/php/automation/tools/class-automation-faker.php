@@ -343,6 +343,7 @@ class Automation_Faker {
 				'id_override' => '1',
 				'title'       => '',
 				'hash'        => 'V8jAlsi0#$ksm0Plsxp',
+				'template'    => 1676923766,
 				'accepted'    => 1676923766,
 				'created'     => 1676000000,
 			),

@@ -145,6 +145,15 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Set up payment method', 'jetpack-mu-wpcom' );
 			},
 			'is_visible_callback' => 'wpcom_has_goal_paid_subscribers',
+			'get_calypso_path'    => function ( $task, $default, $data ) {
+				if ( function_exists( 'get_memberships_connected_account_redirect' ) ) {
+					return get_memberships_connected_account_redirect(
+						get_current_user_id(),
+						get_current_blog_id()
+					);
+				}
+				return '/earn/payments/' . $data['site_slug_encoded'];
+			},
 		),
 		'subscribers_added'               => array(
 			'get_title'            => function () {
@@ -341,7 +350,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/reading/' . $data['site_slug_encoded'] . '#newsletter-settings';
+				return '/settings/newsletter/' . $data['site_slug_encoded'];
 			},
 		),
 		'enable_subscribers_modal'        => array(
@@ -351,10 +360,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_is_task_option_completed',
 			'is_visible_callback'  => 'wpcom_is_enable_subscribers_modal_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( ( new Automattic\Jetpack\Status\Host() )->is_atomic_platform() ) {
-					return admin_url( 'admin.php?page=jetpack#/discussion' );
-				}
-				return '/settings/reading/' . $data['site_slug_encoded'] . '#newsletter-settings';
+				return '/settings/newsletter/' . $data['site_slug_encoded'];
 			},
 		),
 		'add_10_email_subscribers'        => array(
@@ -451,33 +457,133 @@ function wpcom_launchpad_track_completed_task( $task_id, $extra_props = array() 
 }
 
 /**
+ * Returns a list of mappings from 'id_map' to the actual task id.
+ *
+ * @return array
+ */
+function wpcom_launchpad_get_reverse_id_mappings() {
+	$task_definitions = wpcom_launchpad_get_task_definitions();
+
+	$mapping = array();
+	foreach ( $task_definitions as $task_id => $value ) {
+		if ( ! isset( $value['id_map'] ) ) {
+			continue;
+		}
+		$mapping[ $value['id_map'] ] = $task_id;
+	}
+
+	return $mapping;
+}
+/**
  * Mark a task as complete.
  *
- * @param string $task_id The task ID.
+ * @param string $task_id The task ID that should be marked as complete.
  * @return bool True if the task was marked as complete, false otherwise.
  */
 function wpcom_mark_launchpad_task_complete( $task_id ) {
-	$task_definitions = wpcom_launchpad_get_task_definitions();
-
-	// If the task ID isn't defined, return false.
-	if ( ! isset( $task_definitions[ $task_id ] ) ) {
+	if ( empty( $task_id ) ) {
 		return false;
 	}
 
-	// If the task has an id_map, use that instead.
-	$key = $task_id;
-	if ( isset( $task_definitions[ $task_id ]['id_map'] ) ) {
-		$key = $task_definitions[ $task_id ]['id_map'];
+	$result = wpcom_launchpad_update_task_status( array( $task_id => true ) );
+
+	return isset( $result[ $task_id ] ) && $result[ $task_id ];
+}
+
+/**
+ * Mark a task as incomplete.
+ *
+ * @param string $task_id The task ID that should be marked as incomplete.
+ * @return bool True if the task was marked as incomplete, false otherwise.
+ */
+function wpcom_mark_launchpad_task_incomplete( $task_id ) {
+	if ( empty( $task_id ) ) {
+		return false;
 	}
 
-	$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
-	$statuses[ $key ] = true;
-	$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
+	$result = wpcom_launchpad_update_task_status( array( $task_id => false ) );
 
-	// Record the completion event in Tracks.
-	wpcom_launchpad_track_completed_task( $key );
+	return isset( $result[ $task_id ] ) && ! $result[ $task_id ];
+}
 
-	return $result;
+/**
+ * Updates task/s statuses. If a non-existent task is passed, it will be ignored.
+ *
+ * @param bool[] $new_statuses Array of mappings [ task_id: string => new_status: bool ].
+ * @return bool[] Return the new values of the requested statuses with the requested task ID as the key. This will be an empty array if the option update fails, and any ignored status values will not be returned.
+ */
+function wpcom_launchpad_update_task_status( $new_statuses ) {
+	if ( ! is_array( $new_statuses ) ) {
+		return array();
+	}
+
+	$task_definitions = wpcom_launchpad_get_task_definitions();
+	$reverse_id_map   = wpcom_launchpad_get_reverse_id_mappings();
+
+	$statuses_to_update = array();
+	$response_statuses  = array();
+	$option_map         = array();
+
+	foreach ( $new_statuses as $requested_task_id => $new_status ) {
+		// Work out what the underlying task ID/option is.
+		if ( isset( $task_definitions[ $requested_task_id ] ) ) {
+			// Check if the requested task has an id_map.
+			if ( isset( $task_definitions[ $requested_task_id ]['id_map'] ) ) {
+				$resolved_task_id = $task_definitions[ $requested_task_id ]['id_map'];
+			} else {
+				$resolved_task_id = $requested_task_id;
+			}
+		} elseif ( isset( $reverse_id_map[ $requested_task_id ] ) ) {
+			// We have some tasks that are only an id_map, but not a standalone task ID.
+			$resolved_task_id = $requested_task_id;
+		} else {
+			continue;
+		}
+
+		$new_status = (bool) $new_status;
+
+		$statuses_to_update[ $resolved_task_id ] = $new_status;
+		$response_statuses[ $requested_task_id ] = $new_status;
+		$option_map[ $resolved_task_id ]         = $requested_task_id;
+	}
+
+	$old_values = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+	// Only store truthy values.
+	$new_values = array_filter(
+		array_merge( $old_values, $statuses_to_update )
+	);
+
+	// Check for a no-op where we are not actually writing anything.
+	if ( $new_values === $old_values ) {
+		return $response_statuses;
+	}
+
+	if ( empty( $new_values ) ) {
+		// If the new value is empty, but we had values before, we need to delete the option.
+		$update_result = delete_option( 'launchpad_checklist_tasks_statuses' );
+	} else {
+		$update_result = update_option( 'launchpad_checklist_tasks_statuses', $new_values );
+	}
+
+	if ( ! $update_result ) {
+		return array();
+	}
+
+	// Track task completion for newly completed tasks.
+	$maybe_newly_completed_tasks = array_filter( $statuses_to_update );
+
+	foreach ( $maybe_newly_completed_tasks as $task_id => $task_status ) {
+		if ( isset( $old_values[ $task_id ] ) ) {
+			// Task was already complete - no need to mark as complete again.
+			continue;
+		}
+		// Use the requested task ID for completion tracking.
+		$requested_task_id = $option_map[ $task_id ];
+
+		wpcom_launchpad_track_completed_task( $requested_task_id );
+	}
+
+	return $response_statuses;
 }
 
 /**

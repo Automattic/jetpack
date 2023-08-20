@@ -2073,7 +2073,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "10efc36f97b5b702c10aae52a0eadac49f55fa3a"
+                "reference": "5c4f8fc81caa90bae5b809c0b5178e5ab08d72f0"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2100,7 +2100,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.33.x-dev"
+                    "dev-trunk": "0.34.x-dev"
                 }
             },
             "autoload": {
@@ -2513,7 +2513,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "2e043ed46f2a6ba145d282527d4e31d1680a691a"
+                "reference": "9c2ceb892a70d7108a573859f88dcd2d099c4606"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2544,7 +2544,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.54.x-dev"
+                    "dev-trunk": "1.55.x-dev"
                 }
             },
             "autoload": {
@@ -2580,7 +2580,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "91a575f491e00ad8c33692525bce605ccd740595"
+                "reference": "ede924f6707ed4b4e3360f93a63d63ff7e778caf"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2605,7 +2605,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.14.x-dev"
+                    "dev-trunk": "0.15.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"

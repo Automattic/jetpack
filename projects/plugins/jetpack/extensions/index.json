@@ -50,7 +50,8 @@
 		"payment-buttons",
 		"site-editor-snackbars",
 		"videopress/video",
-		"ai-assistant-support"
+		"ai-assistant-support",
+		"ai-assistant-form-support"
 	],
 	"beta": [
 		"ai-chat",
@@ -61,8 +62,7 @@
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"paywall",
-		"ai-assistant-form-support"
+		"paywall"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
