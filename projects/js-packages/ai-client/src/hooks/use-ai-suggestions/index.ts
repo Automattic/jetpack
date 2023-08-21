@@ -20,9 +20,10 @@ import {
  */
 import type { AskQuestionOptionsArgProps } from '../../ask-question';
 import type SuggestionsEventSource from '../../suggestions-event-source';
-import type { PromptItemProps, SuggestionErrorCode } from '../../types';
+import type { PromptProp, SuggestionErrorCode } from '../../types';
+import type { RequestingStateProp } from '../../types';
 
-export type SuggestionErrorProps = {
+export type RequestingErrorProps = {
 	/*
 	 * A string code to refer to the error.
 	 */
@@ -43,7 +44,7 @@ type useAiSuggestionsOptions = {
 	/*
 	 * Request prompt.
 	 */
-	prompt?: PromptItemProps[];
+	prompt?: PromptProp;
 
 	/*
 	 * Whether to request suggestions automatically.
@@ -68,10 +69,8 @@ type useAiSuggestionsOptions = {
 	/*
 	 * onError callback.
 	 */
-	onError?: ( error: SuggestionErrorProps ) => void;
+	onError?: ( error: RequestingErrorProps ) => void;
 };
-
-export type RequestingStateProp = 'init' | 'requesting' | 'suggesting' | 'done' | 'error';
 
 type useAiSuggestionsProps = {
 	/*
@@ -82,7 +81,7 @@ type useAiSuggestionsProps = {
 	/*
 	 * The error.
 	 */
-	error: SuggestionErrorProps | undefined;
+	error: RequestingErrorProps | undefined;
 
 	/*
 	 * Whether the request is in progress.
@@ -97,7 +96,12 @@ type useAiSuggestionsProps = {
 	/*
 	 * The request handler.
 	 */
-	request: ( prompt: Array< PromptItemProps > ) => Promise< void >;
+	request: ( prompt: PromptProp, options?: AskQuestionOptionsArgProps ) => Promise< void >;
+
+	/*
+	 * The handler to stop a suggestion.
+	 */
+	stopSuggestion: () => void;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
@@ -106,9 +110,9 @@ const debug = debugFactory( 'jetpack-ai-client:use-suggestion' );
  * Get the error data for a given error code.
  *
  * @param {SuggestionErrorCode} errorCode - The error code.
- * @returns {SuggestionErrorProps}          The error data.
+ * @returns {RequestingErrorProps}          The error data.
  */
-function getErrorData( errorCode: SuggestionErrorCode ): SuggestionErrorProps {
+export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorProps {
 	switch ( errorCode ) {
 		case ERROR_QUOTA_EXCEEDED:
 			return {
@@ -141,14 +145,6 @@ function getErrorData( errorCode: SuggestionErrorCode ): SuggestionErrorProps {
 				severity: 'info',
 			};
 		case ERROR_NETWORK:
-			return {
-				code: ERROR_NETWORK,
-				message: __(
-					'It was not possible to process your request. Mind trying again?',
-					'jetpack-ai-client'
-				),
-				severity: 'info',
-			};
 		default:
 			return {
 				code: ERROR_NETWORK,
@@ -178,7 +174,7 @@ export default function useAiSuggestions( {
 }: useAiSuggestionsOptions = {} ): useAiSuggestionsProps {
 	const [ requestingState, setRequestingState ] = useState< RequestingStateProp >( 'init' );
 	const [ suggestion, setSuggestion ] = useState< string >( '' );
-	const [ error, setError ] = useState< SuggestionErrorProps >();
+	const [ error, setError ] = useState< RequestingErrorProps >();
 
 	// Store the event source in a ref, so we can handle it if needed.
 	const eventSourceRef = useRef< SuggestionsEventSource | undefined >( undefined );
@@ -235,23 +231,33 @@ export default function useAiSuggestions( {
 
 	const handleModerationError = useCallback( () => handleError( ERROR_MODERATION ), [] );
 
-	const handleNetwotkError = useCallback( () => handleError( ERROR_NETWORK ), [] );
+	const handleNetworkError = useCallback( () => handleError( ERROR_NETWORK ), [] );
 
 	/**
 	 * Request handler.
 	 *
+	 * @param {PromptProp} promptArg               - The messages array of the prompt.
+	 * @param {AskQuestionOptionsArgProps} options - The options for the askQuestion request. Uses the hook's askQuestionOptions by default.
 	 * @returns {Promise<void>} The promise.
 	 */
 	const request = useCallback(
-		async ( promptArg: Array< PromptItemProps > ) => {
-			promptArg.forEach( ( { role, content: promptContent }, i ) =>
-				debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
-			);
+		async (
+			promptArg: PromptProp,
+			options: AskQuestionOptionsArgProps = { ...askQuestionOptions }
+		) => {
+			if ( Array.isArray( promptArg ) && promptArg?.length ) {
+				promptArg.forEach( ( { role, content: promptContent }, i ) =>
+					debug( '(%s/%s) %o\n%s', i + 1, promptArg.length, `[${ role }]`, promptContent )
+				);
+			} else {
+				debug( '%o', promptArg );
+			}
+
 			// Set the request status.
 			setRequestingState( 'requesting' );
 
 			try {
-				eventSourceRef.current = await askQuestion( promptArg, askQuestionOptions );
+				eventSourceRef.current = await askQuestion( promptArg, options );
 
 				if ( ! eventSourceRef?.current ) {
 					return;
@@ -269,7 +275,7 @@ export default function useAiSuggestions( {
 				eventSource.addEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
 				eventSource.addEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
 				eventSource.addEventListener( ERROR_MODERATION, handleModerationError );
-				eventSource.addEventListener( ERROR_NETWORK, handleNetwotkError );
+				eventSource.addEventListener( ERROR_NETWORK, handleNetworkError );
 
 				eventSource.addEventListener( 'done', handleDone );
 			} catch ( e ) {
@@ -283,10 +289,50 @@ export default function useAiSuggestions( {
 			handleUnclearPromptError,
 			handleServiceUnavailableError,
 			handleModerationError,
-			handleNetwotkError,
+			handleNetworkError,
 			handleSuggestion,
 		]
 	);
+
+	/**
+	 * Stop suggestion handler.
+	 *
+	 * @returns {void}
+	 */
+	const stopSuggestion = useCallback( () => {
+		if ( ! eventSourceRef?.current ) {
+			return;
+		}
+
+		// Alias
+		const eventSource = eventSourceRef?.current;
+
+		// Close the connection.
+		eventSource.close();
+
+		// Clean up the event listeners.
+		eventSource.removeEventListener( 'suggestion', handleSuggestion );
+
+		eventSource.removeEventListener( ERROR_QUOTA_EXCEEDED, handleErrorQuotaExceededError );
+		eventSource.removeEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
+		eventSource.removeEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
+		eventSource.removeEventListener( ERROR_MODERATION, handleModerationError );
+		eventSource.removeEventListener( ERROR_NETWORK, handleNetworkError );
+
+		eventSource.removeEventListener( 'done', handleDone );
+
+		// Set requesting state to done since the suggestion stopped.
+		setRequestingState( 'done' );
+	}, [
+		eventSourceRef,
+		handleSuggestion,
+		handleErrorQuotaExceededError,
+		handleUnclearPromptError,
+		handleServiceUnavailableError,
+		handleModerationError,
+		handleNetworkError,
+		handleDone,
+	] );
 
 	// Request suggestions automatically when ready.
 	useEffect( () => {
@@ -297,42 +343,14 @@ export default function useAiSuggestions( {
 
 		// Trigger the request.
 		if ( autoRequest ) {
-			request( prompt );
+			request( prompt, askQuestionOptions );
 		}
 
 		return () => {
-			if ( ! eventSourceRef?.current ) {
-				return;
-			}
-
-			// Alias
-			const eventSource = eventSourceRef.current;
-
-			// Close the connection.
-			eventSource.close();
-
-			// Clean up the event listeners.
-			eventSource.removeEventListener( 'suggestion', handleSuggestion );
-
-			eventSource.removeEventListener( ERROR_QUOTA_EXCEEDED, handleErrorQuotaExceededError );
-			eventSource.removeEventListener( ERROR_UNCLEAR_PROMPT, handleUnclearPromptError );
-			eventSource.removeEventListener( ERROR_SERVICE_UNAVAILABLE, handleServiceUnavailableError );
-			eventSource.removeEventListener( ERROR_MODERATION, handleModerationError );
-			eventSource.removeEventListener( ERROR_NETWORK, handleNetwotkError );
-
-			eventSource.removeEventListener( 'done', handleDone );
+			// Stop the suggestion if the component unmounts.
+			stopSuggestion();
 		};
-	}, [
-		autoRequest,
-		handleDone,
-		handleErrorQuotaExceededError,
-		handleModerationError,
-		handleServiceUnavailableError,
-		handleSuggestion,
-		handleUnclearPromptError,
-		prompt,
-		request,
-	] );
+	}, [ autoRequest, prompt, request, stopSuggestion ] );
 
 	return {
 		// Data
@@ -340,8 +358,9 @@ export default function useAiSuggestions( {
 		error,
 		requestingState,
 
-		// Request handler
+		// Request/stop handlers
 		request,
+		stopSuggestion,
 
 		// SuggestionsEventSource
 		eventSource: eventSourceRef.current,

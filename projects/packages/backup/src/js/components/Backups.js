@@ -84,17 +84,17 @@ export const Loading = () => {
 			<div className="lg-col-span-4 md-col-span-4 sm-col-span-4">
 				<LoadingPlaceholder width={ 344 } height={ 182 } />
 			</div>
-			<div class="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
-			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 				<LoadingPlaceholder width={ 160 } height={ 152 } />
 			</div>
-			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 				<LoadingPlaceholder width={ 160 } height={ 152 } />
 			</div>
-			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 				<LoadingPlaceholder width={ 160 } height={ 152 } />
 			</div>
-			<div class="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
 				<LoadingPlaceholder width={ 160 } height={ 152 } />
 			</div>
 		</div>

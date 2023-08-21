@@ -111,6 +111,20 @@ class Automation_Faker {
 	}
 
 	/**
+	 * Return dummy quote triggers name list
+	 * @return array
+	 */
+	public function quote_triggers(): array {
+		return array(
+			'jpcrm/quote_created',
+			'jpcrm/quote_accepted',
+			'jpcrm/quote_updated',
+			'jpcrm/quote_status_updated',
+			'jpcrm/quote_deleted',
+		);
+	}
+
+	/**
 	 * Return dummy invoice triggers name list
 	 * @return array
 	 */
@@ -119,6 +133,30 @@ class Automation_Faker {
 			'invoice_created',
 			'invoice_updated',
 			'invoice_deleted',
+		);
+	}
+
+	/**
+	 * Return dummy event triggers name list
+	 *
+	 * @return array
+	 */
+	public function event_triggers(): array {
+		return array(
+			'jpcrm/event_created',
+			'jpcrm/event_deleted',
+		);
+	}
+
+	/**
+	 * Return dummy transaction triggers name list
+	 *
+	 * @return array
+	 */
+	public function transaction_triggers(): array {
+		return array(
+			'jpcrm/transaction_created',
+			'jpcrm/transaction_updated',
 		);
 	}
 
@@ -144,7 +182,7 @@ class Automation_Faker {
 					'value'    => 'lead',
 				),
 				'next_step_true'  => array(
-					'slug' => 'dummy_action',
+					'slug' => 'dummy_step',
 				),
 				'next_step_false' => null,
 			),
@@ -230,7 +268,26 @@ class Automation_Faker {
 	}
 
 	/**
+	 * Return data for a dummy quote
+	 * @return array
+	 */
+	public function quote_data() {
+		return array(
+			'id'   => 1,
+			'data' => array(
+				'id_override' => '1',
+				'title'       => '',
+				'hash'        => 'V8jAlsi0#$ksm0Plsxp',
+				'template'    => 1676923766,
+				'accepted'    => 1676923766,
+				'created'     => 1676000000,
+			),
+		);
+	}
+
+	/**
 	 * Return data for a dummy company
+	 *
 	 * @return array
 	 */
 	public function company_data() {
@@ -243,7 +300,68 @@ class Automation_Faker {
 	}
 
 	/**
+	 * Return data for a dummy event
+	 *
+	 * @return array
+	 */
+	public function event_data() {
+		return array(
+			'id'   => 1,
+			'data' => array(
+				'title'          => 'Some event title',
+				'desc'           => 'Some desc',
+				'hash'           => 'V8jAlsi0#$ksm0Plsxp',
+				'start'          => 1676000000,
+				'end'            => 1676923766,
+				'complete'       => false,
+				'show_on_portal' => true,
+				'show_on_cal'    => true,
+				'created'        => 1675000000,
+				'lastupdated'    => 1675000000,
+			),
+		);
+	}
+
+	/**
+	 * Return data for a dummy transaction
+	 *
+	 * @return array
+	 */
+	public function transaction_data() {
+		return array(
+			'id'   => 1,
+			'data' => array(
+				'title'          => 'Some transaction title',
+				'desc'           => 'Some desc',
+				'hash'           => 'mASOpAnf334Pncl1px4',
+				'status'         => 'Completed',
+				'type'           => 'Sale',
+				'date'           => 1676000000,
+				'date_completed' => 1676923766,
+				'created'        => 1675000000,
+				'lastupdated'    => 1675000000,
+			),
+		);
+	}
+
+	/**
+	 * Returns the data for a dummy contact transitional status.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $old_status The value of the old status.
+	 * @return array An array containing a dummy contact and the value of the old status that was passed as a parameter.
+	 */
+	public function contact_transitional_status_data( $old_status ) {
+		return array(
+			'contact'          => $this->contact_data(),
+			'old_status_value' => $old_status,
+		);
+	}
+
+	/**
 	 * Return a empty workflow, without triggers and initial step
+	 *
 	 * @return array
 	 */
 	public function empty_workflow(): array {

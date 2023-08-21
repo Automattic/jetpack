@@ -82,7 +82,7 @@ function load_assets( $attr, $content ) {
 	}
 
 	$option = get_option( 'cookie_consent_template' );
-	if ( ! empty( $option ) && ! $attr['render_from_template'] ) {
+	if ( ! empty( $option ) && empty( $attr['render_from_template'] ) ) {
 		return '';
 	}
 

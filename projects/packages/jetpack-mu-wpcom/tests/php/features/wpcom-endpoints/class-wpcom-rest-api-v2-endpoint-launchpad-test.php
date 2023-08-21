@@ -58,6 +58,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$this->assertFalse( $result->get_data()['launchpad_screen'] );
 		$this->assertEmpty( $result->get_data()['checklist_statuses'] );
 		$this->assertIsArray( $result->get_data()['checklist_statuses'] );
+		$this->assertFalse( $result->get_data()['is_dismissed'] );
 	}
 
 	/**
@@ -80,6 +81,31 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	}
 
 	/**
+	 * Test updating checklist dismissed state.
+	 */
+	public function test_update_checklist_dismissed_state() {
+		wp_set_current_user( $this->admin_id );
+
+		$values = array(
+			'slug'         => 'intent-build',
+			'is_dismissed' => true,
+		);
+		$data   = array( 'is_checklist_dismissed' => $values );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $data ) );
+
+		$this->assertFalse( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ) );
+
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( array( 'updated' => array() ), $result->get_data() );
+		$this->assertTrue( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ) );
+	}
+
+	/**
 	 * Test updating checklist_statuses.
 	 *
 	 * @covers ::update_site_options
@@ -89,7 +115,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$values = array(
 			'domain_upsell_deferred' => true,
-			'site_launched'          => true,
+			'site_launched'          => false,
 		);
 		$data   = array( 'checklist_statuses' => $values );
 
@@ -103,7 +129,38 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( array( 'updated' => array( 'checklist_statuses' => $values ) ), $result->get_data() );
-		$this->assertSame( $values, get_option( 'launchpad_checklist_tasks_statuses' ) );
+
+		// The API returns the requested true|false value, but we only store true values.
+		$option_value = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertIsArray( $option_value );
+		foreach ( $values as $task_id => $task_status ) {
+			if ( $task_status ) {
+				$this->assertTrue( isset( $option_value[ $task_id ] ), "Task ID $task_id has been stored" );
+				$this->assertTrue( $option_value[ $task_id ] );
+			} else {
+				$this->assertFalse( isset( $option_value[ $task_id ] ) );
+			}
+		}
+
+		// Mark all tasks as incomplete.
+		$values = array(
+			'domain_upsell_deferred' => false,
+			'site_launched'          => false,
+		);
+		$data   = array( 'checklist_statuses' => $values );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $data ) );
+
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( array( 'updated' => array( 'checklist_statuses' => $values ) ), $result->get_data() );
+
+		// Expect the option to have been deleted.
+		$option_value = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertFalse( $option_value );
 
 		// Invalid parameter.
 		$request->set_body( wp_json_encode( array( 'checklist_statuses' => array( 'wrong_key' => true ) ) ) );
@@ -140,5 +197,25 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$this->assertSame( 'off', get_option( 'launchpad_screen' ) );
 		$this->assertSame( $data, $result->get_data()['updated'] );
 		$this->assertSame( array( 'site_launched' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
+	}
+
+	/**
+	 * Test setting checklist as skipped.
+	 */
+	public function test_set_checklist_as_skipped() {
+		wp_set_current_user( $this->admin_id );
+
+		$data = array(
+			'launchpad_screen' => 'skipped',
+		);
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $data ) );
+
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 'skipped', get_option( 'launchpad_screen' ) );
 	}
 }

@@ -13,7 +13,6 @@
 		position: relative;
 		font-size: $default-font-size;
 		text-transform: uppercase;
-		font-weight: 600;
 		font-family: $default-font;
 		color: $gray-700;
 		border: none;
@@ -23,18 +22,24 @@
 		margin: 0;
 		border-radius: 4px;
 		background: $white;
-		padding: 6px 8px;
+		padding-left: 8px;
+		padding-right: 4px;
 		height: $button-size-small;
 		max-width: 100%;
+		svg {
+			vertical-align: text-top;
+			fill: currentColor;
+		}
 	}
 
-	// Dashed line
+	// Line
 	&::before {
 		content: "";
 		position: absolute;
-		top: calc(50%);
+		top: calc(50% + 1px);
 		left: 0;
 		right: 0;
-		border-top: 3px dashed $gray-400;
+		height: 1px;
+		background-color: $gray-700;
 	}
 }

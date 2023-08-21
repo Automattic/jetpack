@@ -82,7 +82,18 @@ export class MeasurableImage {
 	}
 
 	public getOversizedRatio( fileSize: Dimensions, sizeOnPage: Dimensions ) {
+		// The image is not loaded, we can't calculate the ratio
+		if ( fileSize.width === 0 || fileSize.height === 0 ) {
+			return 1;
+		}
+
 		const { width, height } = this.getExpectedSize( sizeOnPage );
+
+		// The image is not visible on screen, we can't calculate the ratio
+		if ( width === 0 || height === 0 ) {
+			return 1;
+		}
+
 		return ( fileSize.width * fileSize.height ) / ( width * height );
 	}
 
@@ -123,7 +134,7 @@ export class MeasurableImage {
 	}
 
 	/**
-	 * Checks if the image is too small and should be ignored. Will return false on images
+	 * Checks if the image is too small and should be ignored. Will return true on images
 	 * that don't load at all - we can't establish they're tiny!
 	 *
 	 * @returns {boolean} - if the image is smaller than 65 pixels width and height return true
@@ -134,7 +145,7 @@ export class MeasurableImage {
 			const dimensions = await this.fetchFileDimensions( this.getURL() );
 			return dimensions.width < minSize || dimensions.height < minSize;
 		} catch ( err ) {
-			return false;
+			return true;
 		}
 	}
 }

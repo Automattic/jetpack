@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
@@ -11,13 +12,13 @@ import { getIconColor } from '../../shared/block-icons';
  */
 import attributes from './attributes';
 import edit from './edit';
-import Icon from './icons/ai-assistant';
 import transforms from './transforms';
 /**
  * Supports and extensions
  */
 import './supports';
 import './extensions/ai-assistant';
+import './extensions/jetpack-contact-form';
 /**
  * Style dependencies
  */
@@ -55,7 +56,7 @@ export const settings = {
 		</Fragment>
 	),
 	icon: {
-		src: Icon,
+		src: aiAssistantIcon,
 		foreground: getIconColor(),
 	},
 	category: 'text',
@@ -83,8 +84,11 @@ export const settings = {
 	transforms,
 	example: {
 		attributes: {
-			content: __( "I'm afraid I can't do that, Dave.", 'jetpack' ),
-			originalContent: __( "I'm afraid I can't do that, Dave.", 'jetpack' ),
+			// eslint-disable-next-line @wordpress/i18n-no-collapsible-whitespace
+			content: __(
+				'With **Jetpack AI Assistant**, you can provide a prompt, and it will generate high-quality blog posts, informative pages, well-organized lists, and thorough tables that meet your specific requirements.\n\nTo start using the **Jetpack AI Assistant**, type `/AI` in the block editor.',
+				'jetpack'
+			),
 		},
 	},
 };

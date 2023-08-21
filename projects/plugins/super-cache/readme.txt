@@ -1,10 +1,10 @@
 === WP Super Cache ===
-Contributors: donncha, automattic, adnan007, mikemayhem3030, ppetrov2c, pyronaur, thingalon
+Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.3
-Stable tag: 1.9.3
+Stable tag: 1.10.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,17 +268,34 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.9.4-beta - 2023-02-28
+### 1.10.0 - 2023-08-16
 #### Added
-- Added new filter which controls cache clearing on post edit.
-- Added a check to ensure preload cronjobs exist when updating preload settings.
+- Caching: Added support for the 'Accept' HTTP Header. Prevent caching JSON content.
+- Preload: Improved preload notification panel shows the last 5 preloaded URLs.
 
 #### Changed
-- Updated contributors list.
+- General: Indicate full compatibility with the latest version of WordPress, 6.3.
+- General: Update Boost install / activate card styles.
+- General: Update documentation links to point to Jetpack.com docs.
+- General: Update the contributors list.
+- Preload: Faster and more robust preloading slower hosts.
+
+#### Removed
+- Cleanup: Removes unwanted development environment files from production version of the plugin.
+- Cleanup: Remove unused "object cache" code.
 
 #### Fixed
-- Fixed undefined PHP variable when trying to delete a protected folder.
-- Fixed deprecation warnings on PHP 8.1+.
+- Cache Compression: Fix PHP warning appearing in gzip output stream.
+- Caching: Reject unknown or malformed URIs to prevent PHP warnings.
+- Dynamic Caching: Fixed incorrect encoding headers when using dynamic caching with compression.
+- Setting page: Fixed boost banner getting oversized when zoomed out
+- General: Fix incorrect Debug Log URL for nested WordPress installations.
+- General: Fix links to cache directory on sites that are in a sub directory.
+- General: Updated Nginx documentation hyperlink.
+- Preload: No longer deletes child taxonomies during preload.
+- Preload: Use a constant instead of hard-coded email numbers in preload dropdown.
+- Caching: Prevent Super Cache from attempting to gunzip content which is not zipped
+- General: Fix null/false warning in PHP8.1
 
 --------
 

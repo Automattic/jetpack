@@ -1,12 +1,18 @@
 <?php
 /**
- * Interface Action
+ * Interface Action.
  *
- * @package Automattic\Jetpack\CRM\Automation
+ * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
+/**
+ * Interface Action.
+ *
+ * @since $$next-version$$
+ */
 interface Action extends Step {
 
 }

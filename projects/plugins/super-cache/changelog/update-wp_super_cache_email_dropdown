@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-WP Super Cache: use a constant instead of hard coding email numbers in preload dropdown

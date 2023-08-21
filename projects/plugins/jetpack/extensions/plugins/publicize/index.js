@@ -8,7 +8,6 @@
  * displays the Publicize UI there.
  */
 
-import { JetpackLogo } from '@automattic/jetpack-components';
 import {
 	TwitterThreadListener,
 	PublicizePanel,
@@ -17,6 +16,7 @@ import {
 	SocialImageGeneratorPanel,
 	PostPublishReviewPrompt,
 } from '@automattic/jetpack-publicize-components';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -50,7 +50,7 @@ const PublicizeSettings = () => {
 						{ __( 'Share this post', 'jetpack' ) }
 					</span>
 				}
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				icon={ <JetpackEditorPanelLogo /> }
 			>
 				<PublicizePanel prePublish={ true } enableTweetStorm={ true }>
 					<UpsellNotice />
@@ -61,7 +61,7 @@ const PublicizeSettings = () => {
 				<PluginPrePublishPanel
 					initialOpen
 					title={ __( 'Social Image Generator', 'jetpack' ) }
-					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+					icon={ <JetpackEditorPanelLogo /> }
 				>
 					<SocialImageGeneratorPanel prePublish={ true } />
 				</PluginPrePublishPanel>

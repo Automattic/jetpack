@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 12.3
+Stable tag: 12.4
 Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.3
@@ -293,54 +293,67 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.4-beta - 2023-07-25
+### 12.5-a.9 - 2023-08-14
 #### Enhancements
-- Added Pexels integrations to the Media Sidebar of the block editor.
-- AI Assistant: add dev playground panel
-- AI Assistant: Add GPT4 endpoint parameter
-- AI Assistant: Enable custom prompt if provided
-- AI Assistant: improved the upgrade prompt logic when requesting suggestions.
-- AI Assistant: introduce sidebar and proofread components.
-- AI Assistant: Keep original content when trying again after transforming a paragraph using the "Ask AI Assistant" button.
-- AI Assistant: release the Get Feedback feature.
-- AI Assistant: update upgrade prompt message with new wording and formatting.
-- AI Assistant: various improvements to syntax parsing, formatting, and other backend enhancements.
-- AI Extension: transform block to AI Assistant when using an AI Extension suggestion.
-- Akismet: show correct logo for all Jetpack plans that include Akismet.
-- Akismet: use Akismet logo instead of Jetpack logo in masthead
-- Contact Forms: remove the default title ("You got a new response!") added to emails sent for new feedback received.
-- Cookie Consent Block: Persist markup and ensure it is rendered in the footer.
-- Custom CSS: Display a notice to recommend the use of Global Styles when you use a Block theme on your site.
-- Dashboard: add a new "Earn" section to the settings.
-- Dashboard: highlight Jetpack Newsletter in recommendations flow.
-- Dashboard: update link to configure Related Posts when you use a Block theme on your site.
-- Newsletter: Only display the "NL access" column if we have published one paid-newsletter.
-- Newsletters: add frontend subscriber modal.
-- Social Menu & Social Media Icons: add support for the Threads service.
-- Stats: show stats products in My Plan.
-- Subscribers page: Add subscribers page to menu.
-- Subscriptions: link to new Subscription management page from the Jetpack dashboard.
-
-#### Improved compatibility
-- Customizer: make the testimonial, featured content, portfolio, and related post customizer sections be shown only if current theme is not a block theme. [#31730] [#31779] [#31754]
-- General: indicate full compatibility with the latest version of WordPress, 6.3.
-- Sharing: deprecate the Skype sharing button, as Skype ddoes not support those buttons anymore.
-- Social Links: prevent social links foom being used in block themes.
-- Tiled Galleries: Fix deprecation notices that may appear in logs when using PHP 8.2.
-- WordPress.com REST API: avoid PHP notice when using PHP 8.2.
+- Added SIG modal ui
+- Add Inspector Panel with Newsletter visibility options to Paywall Block
+- AI Assistant: Add requirement for one button in forms
+- AI Assistant: Auto open AI control in form assistant
+- AI Assistant: change tracked event to English instead of translated value and track language and tone change
+- AI Assistant: disable feedback button if post is empty
+- AI Assistant: Fix form popover after changing viewport
+- AI Assistant: fix grammar and typos on Proofread feature
+- AI Assistant: Fix incomplete HTML tags and allow columns on forms
+- AI Assistant: Render response from the AI
+- AI Assistant: tweaks assistant bar in narrow spaces
+- AI Assistant: various backend improvements.
+- AI Assistant: various stylistic and back-end enhancements to the Jetpack AI Assistant.
+- AI Extension: allow AI response generation to be stopped.
+- AI Extension: Connect AI Control component on popover placement.
+- AI Extension: Connect AI Data context with components
+- AI Extension: fix AI Assistant bar position in the Top toolbar mode.
+- AI Extension: fix visual issue in Assistant bar when switching viewport size. [#32344]
+- AI Extension: handle AI assistant component in mobile
+- AI Extension: Improve undo action behavior by controlling the way received valid blocks are rendered.
+- AI Extension: increase the page height when AI Assistant bar is visible
+- AI Extension: Introduce AI Assistant bar.
+- AI Extension: relocate the Assistant component for the Jetpack From block
+- AI Extension: select Form when selecting child block
+- AI Extension: Send custom feature name for requesting form completions so they can be handled differently on the backend.
+- AI Extension: show AiStatusIndicator into the assistant bar
+- AI Extension: show a Notice when AI needs to provide feedback
+- AI Extension: stop suggestion when form block is deleted
+- AI Extension: Update placeholder copyright
+- AI Extension: update view of AI assistant bar on mobile.
+- AI Extension: use assistant to edit Jetpack Format content
+- AI Plugin: Add track for get feedback feature
+- Better Paywall Block styles
+- Block editor: add Google Photo integration to Gutenberg's Media Sidebar for Jetpack connected sites.
+- Dashboard: make My Jetpack the default WP-Admin page for Jetpack.
+- Dashboard: update the likes and sharing button controls in the Jetpack sidebar from checkboxes to toggles.
+- Dashboard: update the SEO hide page control from a checkbox to a toggle.
+- Donation block: display the default Stripe currency in the Donation block and add a "check" icon next to the selected currency in the currency dropdown
+- Fix small regression on Newsletter panels
+- Jetpack editor extensions: use shared component for the logo.
+- Make 'My Jetpack' the first sub-menu item, above 'Dashboard'.
+- Memberships: Ensure endpoint handles source param
+- Newsletter: move Newsletter settings to their own section.
+- Newsletters: update the appearance of "subscribers only" and "paid subscribers only" content wall
+- Paywall block: add transforms for "more" and "nextpage" core blocks.
+- Paywall block: update the block styles.
+- paywall dynamic copy
+- SSO: enable "Match by Email" by default.
+- Subscription modal: adjust modal template markup and styles for easier modification and mobile friendliness.
+- Subscriptions: a membership product can be created without a prior connected account
 
 #### Bug fixes
-- AI Assistant: fix crash when transforming to AI Assistant.
-- AI Assistant: Only append flag if no error
-- API: fix PHP warning in list posts endpoint.
-- Contact Form: avoid fatal errors when exporting form data to CSV.
-- Dashboard: Fix Jetpack footer accessibility issues.
-- Fixed users menu item pointing to wp-admin on Atomic sites.
-- Forms: fix Forms dropdown required validation.
-- Payments Block: update link to support documentation.
-- Related Posts: do not display related posts in emails and outside of WordPress context.
-- Search: when using a block theme, display a link to add a Search Block instead of a Search Widget in the Jetpack dashboard.
-- Sharing: fix icon font display following the addition of the Threads icon.
+- Add subscribe button on premium content block on self-hosted
+- AI Extension: fix visual issue of AI toolbar when editor sidebar is opened
+- AI Extension: Stop handling popover close event to prevent the AI Control from hiding when it loses focus.
+- Dashboard: do not allow toggling the Subscriptions feature on or off when not connected to Jetpack.
+- Donation block: fix issue where an invalid amount entered would persist when switching tabs in the block editor.
+- Social: Fix race condition in mobile app's post request
+- Subscriptions: adds more accurate check for when to show the subscribe modal
 
 --------
 

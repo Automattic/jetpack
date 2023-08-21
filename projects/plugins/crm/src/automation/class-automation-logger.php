@@ -3,40 +3,56 @@
  * Defines the Jetpack CRM Automation logger.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
 
 /**
  * Adds the Automation_Logger class.
+ *
+ * @since $$next-version$$
  */
 class Automation_Logger {
 
 	/**
-	 * @var Automation_Logger An instance of the Automation_Logger class.
+	 * Instance singleton.
+	 *
+	 * @since $$next-version$$
+	 * @var Automation_Logger
 	 */
 	private static $instance = null;
 
 	/**
-	 * @var array An array of logged outputs.
+	 * The log list.
+	 *
+	 * @var string[]
 	 */
 	private $log = array();
 
 	/**
-	 * @var bool Whether or not the log is set to output.
+	 * Whether or not the log is set to output.
+	 *
+	 * @since $$next-version$$
+	 * @var bool
 	 */
 	private $output = false;
 
 	/**
-	 * @var bool Whether or not the logger is set to be active.
+	 * Whether or not the logger is set to be active.
+	 *
+	 * @since $$next-version$$
+	 * @var bool
 	 */
 	private $is_active = true;
 
 	/**
-	 * Initialize the logger
+	 * Initialize the logger.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param bool $force Force a new instance.
-	 * @return Automation_Logger
+	 * @return Automation_Logger An instance of the Automation_Logger class.
 	 */
 	public static function instance( bool $force = false ): Automation_Logger {
 		if ( ! self::$instance || $force ) {
@@ -47,21 +63,28 @@ class Automation_Logger {
 	}
 
 	/**
-	 * Set is_active to true to indicate the logger is active
+	 * Set is_active to true to indicate the logger is active.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function turn_on() {
 		$this->is_active = true;
 	}
 
 	/**
-	 * Set is_active to false to indicate the logger is not active
+	 * Set is_active to false to indicate the logger is not active.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function turn_off() {
 		$this->is_active = false;
 	}
 
 	/**
-	 * Set if output the log or not
+	 * Set if output the log or not.
+	 *
+	 * @since $$next-version$$
+	 *
 	 * @param bool $output Whether or not the log is set to output.
 	 */
 	public function with_output( bool $output ) {
@@ -69,14 +92,20 @@ class Automation_Logger {
 	}
 
 	/**
-	 * Get log list
+	 * Get log list.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[] The log list.
 	 */
 	public function get_log(): array {
 		return $this->log;
 	}
 
 	/**
-	 * Add a log entry
+	 * Add a log entry.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param string $message The message to be output in the log.
 	 */
@@ -91,9 +120,12 @@ class Automation_Logger {
 	}
 
 	/**
-	 * Reset the log
+	 * Reset the log.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function reset_log() {
 		$this->log = array();
 	}
+
 }

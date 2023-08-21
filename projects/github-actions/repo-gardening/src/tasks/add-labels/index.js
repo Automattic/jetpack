@@ -1,3 +1,4 @@
+const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getFiles = require( '../../utils/get-files' );
 
@@ -138,11 +139,24 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			}
 		}
 
+		// Custom [{ "path": "...", "label": "..." }] values passed from a workflow.
+		const addLabelsString = getInput( 'add_labels' );
+		if ( addLabelsString ) {
+			debug( `GOT addLabelsString: ${ addLabelsString }` );
+			const addedLabels = JSON.parse( addLabelsString );
+			addedLabels.forEach( passed => {
+				if ( file.startsWith( passed.path ) ) {
+					debug( `passing: ${ passed.label } for ${ passed.path }` );
+					keywords.add( passed.label );
+				}
+			} );
+		}
+
 		// Modules.
 		const module = file.match( /^projects\/plugins\/jetpack\/modules\/(?<module>[^/]*)\// );
 		const moduleName = module && module.groups.module;
 		if ( moduleName ) {
-			keywords.add( `${ cleanName( moduleName ) }` );
+			keywords.add( `[Feature] ${ cleanName( moduleName ) }` );
 		}
 
 		// Actions.
@@ -199,7 +213,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		// WPCOM API.
 		const wpcomApi = file.match( /^projects\/plugins\/jetpack\/json-endpoints\// );
 		if ( wpcomApi !== null ) {
-			keywords.add( 'WPCOM API' );
+			keywords.add( '[Feature] WPCOM API' );
 		}
 
 		// CRM elements.
@@ -212,6 +226,15 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		const crmApi = file.match( /^projects\/plugins\/crm\/api\// );
 		if ( crmApi !== null ) {
 			keywords.add( '[CRM] API' );
+		}
+
+		// mu wpcom features.
+		const muWpcomFeatures = file.match(
+			/^projects\/packages\/jetpack-mu-wpcom\/src\/features\/(?<muWpcomFeature>[^/]*)\//
+		);
+		const muWpcomFeatureName = muWpcomFeatures && muWpcomFeatures.groups.muWpcomFeature;
+		if ( muWpcomFeatureName ) {
+			keywords.add( `[mu wpcom Feature] ${ cleanName( muWpcomFeatureName ) }` );
 		}
 
 		// Boost Critical CSS.
@@ -248,7 +271,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 	// If we're touching that package, let's add the Photon label too
 	// so we can keep track of changes to the feature.
 	if ( keywords.has( '[Package] Image Cdn' ) ) {
-		keywords.add( 'Photon' );
+		keywords.add( '[Feature] Photon' );
 	}
 
 	// Add '[Status] In Progress' for draft PRs
@@ -278,7 +301,7 @@ async function addLabels( payload, octokit ) {
 		return;
 	}
 
-	debug( `add-labels: Adding labels to PR #${ number }` );
+	debug( `add-labels: Adding labels ${ labels } to PR #${ number }` );
 
 	await octokit.rest.issues.addLabels( {
 		owner: owner.login,

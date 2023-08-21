@@ -1,11 +1,11 @@
 === Jetpack Boost - Website Speed, Performance and Critical CSS  ===
-Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, ppetrov2c, pyronaur, rheinardkorf, scruffian, thingalon
+Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 6.3
 Requires PHP: 7.0
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,20 +187,10 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 2.0.0 - 2023-07-24
-#### Added
-- Image Size Analyzer: New feature for Premium users which scans their site for image issues
-
-#### Changed
-- General: Beta tags removed from Concatenate CSS/JS and Image CDN.
-- General: Indicate full compatibility with the latest version of WordPress, 6.3.
-- Speed Scores: Update 'score dropped' card copy, with links to documentation.
-
+### 2.0.1 - 2023-08-18
 #### Fixed
-- Cloud CSS: Fixed automatic start of cloud CSS regeneration when module is toggled on
-- General: Fixed error snackbar from showing under UI separators on the Getting Started page.
-- Speed Score: Prevented page speed scores from auto refreshing on page load.
-- Super Cache Measurement Tool: Fixed the use of the donotcachepage option during tests, which may have produced understated results
+- Critical CSS: Fixed manual critical CSS generation failure
+- Concatenate CSS: Fixed concatenated CSS being render-blocking when used with Critical CSS.
 
 --------
 

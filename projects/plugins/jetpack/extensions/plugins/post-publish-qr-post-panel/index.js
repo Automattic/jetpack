@@ -1,4 +1,4 @@
-import { JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
@@ -18,7 +18,6 @@ export const settings = {
 			className: 'post-publish-qr-post-panel',
 			initialOpen: false,
 		};
-		const icon = <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />;
 
 		const isPostPublished = useSelect(
 			select => select( editorStore ).isCurrentPostPublished(),
@@ -43,7 +42,7 @@ export const settings = {
 
 		return (
 			<>
-				<PluginPostPublishPanel { ...panelBodyProps } icon={ icon }>
+				<PluginPostPublishPanel { ...panelBodyProps } icon={ <JetpackEditorPanelLogo /> }>
 					<QRPostPanelBodyContent />
 				</PluginPostPublishPanel>
 
