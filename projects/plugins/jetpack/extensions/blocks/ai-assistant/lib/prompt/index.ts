@@ -283,7 +283,7 @@ Strong requirements:
 	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
 Jetpack Form to modify:\n${ content }`,
 			context: {
-				type: 'form-extension-form-request',
+				type: 'form-extension-user-request',
 				content,
 				request,
 			},
