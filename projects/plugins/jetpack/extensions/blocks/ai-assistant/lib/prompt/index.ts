@@ -253,7 +253,7 @@ Strictly follow those rules:
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user's request, reply only with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.`,
 			context: {
-				type: 'form-extension-system-prompt',
+				type: 'form-ai-extension-system-prompt',
 			},
 		},
 		{
@@ -283,7 +283,7 @@ Strong requirements:
 	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
 Jetpack Form to modify:\n${ content }`,
 			context: {
-				type: 'form-extension-user-request',
+				type: 'form-ai-extension-user-request',
 				content,
 				request,
 			},
