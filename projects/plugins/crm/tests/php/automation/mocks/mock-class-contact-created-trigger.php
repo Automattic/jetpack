@@ -3,6 +3,7 @@
 namespace Automatic\Jetpack\CRM\Automation\Tests\Mocks;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 use Automattic\Jetpack\CRM\Automation\Tests\Event_Emitter;
 
 class Contact_Created_Trigger extends Base_Trigger {
@@ -33,6 +34,10 @@ class Contact_Created_Trigger extends Base_Trigger {
 	 */
 	public static function get_category(): ?string {
 		return __( 'contact', 'zero-bs-crm' );
+	}
+
+	public static function get_data_type(): string {
+		return Data_Type_Contact::get_slug();
 	}
 
 	/**

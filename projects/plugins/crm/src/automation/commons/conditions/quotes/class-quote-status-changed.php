@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
 
 /**
  * Quote_Status_Changed condition class.
@@ -45,18 +46,19 @@ class Quote_Status_Changed extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data The data this condition has to evaluate.
+	 * @param mixed  $data The data this condition has to evaluate.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 * @return void
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( array $data ) {
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! $this->is_valid_quote_status_changed_data( $data ) ) {
-			$this->logger->log( 'Invalid quote status changed data', $data );
+			$this->logger->log( 'Invalid quote status changed data' );
 			$this->condition_met = false;
 			return;
 		}
 
-		$status_value = ( $data['data']['accepted'] > 0 ) ? 'accepted' : ( $data['data']['template'] > 0 ? 'published' : 'draft' );
+		$status_value = ( $data['accepted'] > 0 ) ? 'accepted' : ( $data['template'] > 0 ? 'published' : 'draft' );
 		$operator     = $this->get_attributes()['operator'];
 		$value        = $this->get_attributes()['value'];
 
@@ -94,7 +96,7 @@ class Quote_Status_Changed extends Base_Condition {
 	 * @return bool True if the data is valid to detect a status change, false otherwise
 	 */
 	private function is_valid_quote_status_changed_data( array $quote_data ): bool {
-		return isset( $quote_data['id'] ) && isset( $quote_data['data'] ) && isset( $quote_data['data']['accepted'] ) && isset( $quote_data['data']['template'] );
+		return isset( $quote_data['id'] ) && isset( $quote_data['accepted'] ) && isset( $quote_data['template'] );
 	}
 
 	/**
@@ -131,14 +133,14 @@ class Quote_Status_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Get the type of the quote status changed condition.
+	 * Get the data type.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The type 'condition'.
+	 * @return string The type of the step.
 	 */
-	public static function get_type(): string {
-		return 'condition';
+	public static function get_data_type(): string {
+		return Data_Type_Quote::get_slug();
 	}
 
 	/**
