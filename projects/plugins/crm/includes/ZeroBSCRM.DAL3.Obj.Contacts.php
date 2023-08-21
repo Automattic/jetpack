@@ -3251,7 +3251,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                             'customerExtraMeta'=>$confirmedExtraMeta #} This is the "extraMeta" passed (as saved)
                         ));
 
-						$dataArr['id'] = $newID; // phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect
+						$dataArr['ID'] = $newID; // phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect
 						$this->events_manager->contact()->created( $dataArr ); // phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect
 
                     }
@@ -3565,7 +3565,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
      *
      * @return array (clean obj)
      */
-    private function tidy_contact($obj=false,$withCustomFields=false){
+    public function tidy_contact( $obj = false, $withCustomFields = false ) { // phpcs:ignore
 
         global $zbs;
 

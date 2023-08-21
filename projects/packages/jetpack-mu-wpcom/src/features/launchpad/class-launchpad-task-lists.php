@@ -485,18 +485,23 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Checks if a string is a valid admin URL or an absolute path.
+	 * Checks if a string is a Stripe connection, valid admin URL, or absolute path.
 	 *
 	 * @param string $input The string to check.
 	 * @return boolean
 	 */
 	private function is_valid_admin_url_or_absolute_path( $input ) {
-		// Checks if the string is URL starting with the admin URL
+		// Allow Stripe connection URLs for `set_up_payments` task.
+		if ( strpos( $input, 'https://connect.stripe.com' ) === 0 ) {
+			return true;
+		}
+
+		// Checks if the string is URL starting with the admin URL.
 		if ( strpos( $input, admin_url() ) === 0 ) {
 			return true;
 		}
 
-		// Require that the string start with a slash, but not two slashes
+		// Require that the string start with a slash, but not two slashes.
 		if ( '/' === substr( $input, 0, 1 ) && '/' !== substr( $input, 1, 1 ) ) {
 			return true;
 		}
@@ -698,15 +703,7 @@ class Launchpad_Task_Lists {
 	 * @return bool True if successful, false if not.
 	 */
 	public function mark_task_complete( $task_id ) {
-		$task = $this->get_task( $task_id );
-		if ( empty( $task ) ) {
-			return false;
-		}
-
-		$key              = $this->get_task_key( $task );
-		$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$statuses[ $key ] = true;
-		$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
+		$result = wpcom_mark_launchpad_task_complete( $task_id );
 
 		$this->maybe_disable_fullscreen_launchpad();
 

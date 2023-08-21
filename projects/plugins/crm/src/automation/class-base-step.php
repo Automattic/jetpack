@@ -40,7 +40,7 @@ abstract class Base_Step implements Step {
 	 * @param array $step_data An array of data for the current step.
 	 */
 	public function __construct( array $step_data ) {
-		$this->attributes = $step_data['attributes'] ?? null;
+		$this->attributes = $step_data['attributes'] ?? array();
 	}
 
 	/**
@@ -92,9 +92,10 @@ abstract class Base_Step implements Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data Data passed from the trigger.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 */
-	abstract public function execute( array $data );
+	abstract public function execute( $data, $previous_data = null );
 
 	/**
 	 * Get the slug name of the step.
@@ -130,7 +131,7 @@ abstract class Base_Step implements Step {
 	 *
 	 * @return string The type of the step.
 	 */
-	abstract public static function get_type(): string;
+	abstract public static function get_data_type(): string;
 
 	/**
 	 * Get the category of the step.
