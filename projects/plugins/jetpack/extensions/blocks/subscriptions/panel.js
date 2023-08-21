@@ -56,7 +56,7 @@ function NewsletterEditorSettingsPanel( { accessLevel, setPostMeta } ) {
 	return (
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
-			title={ __( 'Newsletter visibility', 'jetpack' ) }
+			title={ __( 'Access', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 		>
 			<NewsletterAccessDocumentSettings accessLevel={ accessLevel } setPostMeta={ setPostMeta } />
