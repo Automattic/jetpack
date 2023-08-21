@@ -265,8 +265,8 @@ class Jetpack_Redux_State_Helper {
 				'defaultTemplate' => $sig_settings->get_default_template(),
 			),
 			'autoConversionSettings'       => array(
-				'available'       => $auto_conversion_settings->is_available( 'image' ),
-				'auto-conversion' => $auto_conversion_settings->is_enabled( 'auto-conversion' ),
+				'available' => $auto_conversion_settings->is_available( 'image' ),
+				'image'     => $auto_conversion_settings->is_enabled( 'image' ),
 			),
 		);
 	}

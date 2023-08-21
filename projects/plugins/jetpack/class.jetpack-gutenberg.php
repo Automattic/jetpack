@@ -736,7 +736,7 @@ class Jetpack_Gutenberg {
 				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
 				'isAutoConversionAvailable'       => $auto_conversion_settings->is_available( 'image' ),
-				'isAutoConversionEnabled'         => $auto_conversion_settings->is_enabled( 'auto-conversion' ),
+				'isAutoConversionEnabled'         => $auto_conversion_settings->is_enabled( 'image' ),
 			);
 		}
 

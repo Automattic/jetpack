@@ -45,7 +45,7 @@ type SocialImageGeneratorSettingsSelectors = {
 type AutoConversionSettingsSelectors = {
 	getAutoConversionSettings: () => {
 		available: boolean;
-		[ 'auto-conversion' ]: boolean;
+		image: boolean;
 	};
 	isAutoConversionAvailable: () => boolean;
 	isAutoConversionEnabled: () => boolean;

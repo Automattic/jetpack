@@ -256,8 +256,8 @@ class Jetpack_Social {
 						'defaultTemplate' => $sig_settings->get_default_template(),
 					),
 					'autoConversionSettings'       => array(
-						'available'       => $auto_conversion_settings->is_available( 'image' ),
-						'auto-conversion' => $auto_conversion_settings->is_enabled( 'auto-conversion' ),
+						'available' => $auto_conversion_settings->is_available( 'image' ),
+						'image'     => $auto_conversion_settings->is_enabled( 'image' ),
 					),
 				)
 			);
@@ -347,7 +347,7 @@ class Jetpack_Social {
 					'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
 					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 					'isAutoConversionAvailable'       => $auto_conversion_settings->is_available( 'image' ),
-					'isAutoConversionEnabled'         => $auto_conversion_settings->is_enabled( 'auto-conversion' ),
+					'isAutoConversionEnabled'         => $auto_conversion_settings->is_enabled( 'image' ),
 					'dismissedNotices'                => $publicize->get_dismissed_notices(),
 					'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 					'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
