@@ -338,15 +338,13 @@ class Automation_Faker {
 	 */
 	public function quote_data( $get_as_data_type = false ) {
 		$data = array(
-			'id'   => 1,
-			'data' => array(
-				'id_override' => '1',
-				'title'       => '',
-				'hash'        => 'V8jAlsi0#$ksm0Plsxp',
-				'template'    => 1676923766,
-				'accepted'    => 1676923766,
-				'created'     => 1676000000,
-			),
+			'id'          => 1,
+			'id_override' => '1',
+			'title'       => 'Quote title',
+			'hash'        => 'V8jAlsi0#$ksm0Plsxp',
+			'template'    => 1676923766,
+			'accepted'    => 1676923766,
+			'created'     => 1676000000,
 		);
 
 		if ( $get_as_data_type ) {
