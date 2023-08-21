@@ -82,7 +82,18 @@ export class MeasurableImage {
 	}
 
 	public getOversizedRatio( fileSize: Dimensions, sizeOnPage: Dimensions ) {
+		// The image is not loaded, we can't calculate the ratio
+		if ( fileSize.width === 0 || fileSize.height === 0 ) {
+			return 1;
+		}
+
 		const { width, height } = this.getExpectedSize( sizeOnPage );
+
+		// The image is not visible on screen, we can't calculate the ratio
+		if ( width === 0 || height === 0 ) {
+			return 1;
+		}
+
 		return ( fileSize.width * fileSize.height ) / ( width * height );
 	}
 
