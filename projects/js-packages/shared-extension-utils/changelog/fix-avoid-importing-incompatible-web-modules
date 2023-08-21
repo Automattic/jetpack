@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Add a stub module to avoid the native mobile editor importing incompatible web modules.

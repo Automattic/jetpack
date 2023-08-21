@@ -390,7 +390,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			/**
 			 * Filter to enable the Newsletter Settings section in Calypso UI.
 			 *
-			 * @since $$next-version$$
+			 * @since 12.5
 			 * @module masterbar
 			 *
 			 * @param bool false Enable newsletter setting section? Default to false.
@@ -404,7 +404,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			/**
 			 * Filter to enable the Podcasting Settings section in Calypso UI.
 			 *
-			 * @since $$next-version$$
+			 * @since 12.5
 			 * @module masterbar
 			 *
 			 * @param bool false Enable podcasting setting section? Default to false.
