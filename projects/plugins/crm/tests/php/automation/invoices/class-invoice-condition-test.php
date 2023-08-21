@@ -34,6 +34,7 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 				'value'    => $expected_value,
 			),
 		);
+
 		return new Invoice_Status_Changed( $condition_data );
 	}
 
@@ -46,6 +47,7 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 				'value'    => $expected_value,
 			),
 		);
+
 		return new Invoice_Field_Contains( $condition_data );
 	}
 
@@ -54,15 +56,16 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_status_changed_is_operator() {
 		$invoice_status_changed_condition = $this->get_invoice_status_changed_condition( 'is', 'paid' );
-		$invoice_data                     = $this->automation_faker->invoice_data();
+		$invoice_data_type                = $this->automation_faker->invoice_data( true );
+		$invoice_data                     = $invoice_data_type->get_entity();
 
 		// Testing when the condition has been met.
-		$invoice_data['data']['status'] = 'paid';
+		$invoice_data['status'] = 'paid';
 		$invoice_status_changed_condition->execute( $invoice_data );
 		$this->assertTrue( $invoice_status_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$invoice_data['data']['status'] = 'unpaid';
+		$invoice_data['status'] = 'unpaid';
 		$invoice_status_changed_condition->execute( $invoice_data );
 		$this->assertFalse( $invoice_status_changed_condition->condition_met() );
 	}
@@ -72,15 +75,16 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_status_changed_is_not_operator() {
 		$invoice_status_changed_condition = $this->get_invoice_status_changed_condition( 'is_not', 'paid' );
-		$invoice_data                     = $this->automation_faker->invoice_data();
+		$invoice_data_type                = $this->automation_faker->invoice_data( true );
+		$invoice_data                     = $invoice_data_type->get_entity();
 
 		// Testing when the condition has been met.
-		$invoice_data['data']['status'] = 'unpaid';
+		$invoice_data['status'] = 'unpaid';
 		$invoice_status_changed_condition->execute( $invoice_data );
 		$this->assertTrue( $invoice_status_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$invoice_data['data']['status'] = 'paid';
+		$invoice_data['status'] = 'paid';
 		$invoice_status_changed_condition->execute( $invoice_data );
 		$this->assertFalse( $invoice_status_changed_condition->condition_met() );
 	}
@@ -90,12 +94,12 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_status_changed_invalid_operator_throws_exception() {
 		$invoice_status_changed_condition = $this->get_invoice_status_changed_condition( 'wrong_operator', 'paid' );
-		$invoice_data                     = $this->automation_faker->invoice_data();
+		$invoice_data                     = $this->automation_faker->invoice_data( true );
 
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$invoice_status_changed_condition->execute( $invoice_data );
+		$invoice_status_changed_condition->execute( $invoice_data->get_entity() );
 	}
 
 	/**
@@ -103,15 +107,16 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_field_contains_contains_operator() {
 		$invoice_field_contains_condition = $this->get_invoice_field_contains_condition( 'status', 'contains', 'ai' );
-		$invoice_data                     = $this->automation_faker->invoice_data();
+		$invoice_data_type                = $this->automation_faker->invoice_data( true );
+		$invoice_data                     = $invoice_data_type->get_entity();
 
 		// Testing when the condition has been met.
-		$invoice_data['data']['status'] = 'paid';
+		$invoice_data['status'] = 'paid';
 		$invoice_field_contains_condition->execute( $invoice_data );
 		$this->assertTrue( $invoice_field_contains_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$invoice_data['data']['status'] = 'draft';
+		$invoice_data['status'] = 'draft';
 		$invoice_field_contains_condition->execute( $invoice_data );
 		$this->assertFalse( $invoice_field_contains_condition->condition_met() );
 	}
@@ -121,15 +126,16 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_field_contains_does_not_contain_operator() {
 		$invoice_field_contains_condition = $this->get_invoice_field_contains_condition( 'status', 'does_not_contain', 'ai' );
-		$invoice_data                     = $this->automation_faker->invoice_data();
+		$invoice_data_type                = $this->automation_faker->invoice_data( true );
+		$invoice_data                     = $invoice_data_type->get_entity();
 
 		// Testing when the condition has been met.
-		$invoice_data['data']['status'] = 'draft';
+		$invoice_data['status'] = 'draft';
 		$invoice_field_contains_condition->execute( $invoice_data );
 		$this->assertTrue( $invoice_field_contains_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$invoice_data['data']['status'] = 'paid';
+		$invoice_data['status'] = 'paid';
 		$invoice_field_contains_condition->execute( $invoice_data );
 		$this->assertFalse( $invoice_field_contains_condition->condition_met() );
 	}
@@ -139,12 +145,12 @@ class Invoice_Condition_Test extends JPCRM_Base_Test_Case {
 	 */
 	public function test_field_contains_invalid_operator_throws_exception() {
 		$invoice_field_contains_condition = $this->get_invoice_field_contains_condition( 'status', 'wrong_operator', 'paid' );
-		$invoice_data                     = $this->automation_faker->invoice_data();
+		$invoice_data                     = $this->automation_faker->invoice_data( true );
 
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$invoice_field_contains_condition->execute( $invoice_data );
+		$invoice_field_contains_condition->execute( $invoice_data->get_entity() );
 	}
 
 }

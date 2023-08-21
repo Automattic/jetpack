@@ -100,6 +100,11 @@ export default function AiAssistantBar( {
 	const { removeNotice } = useDispatch( noticesStore );
 
 	const onSend = useCallback( () => {
+		// Do not send the request if the input value is empty.
+		if ( ! inputValue?.length ) {
+			return;
+		}
+
 		// Remove previous error notice.
 		removeNotice( AI_ASSISTANT_JETPACK_FORM_NOTICE_ID );
 

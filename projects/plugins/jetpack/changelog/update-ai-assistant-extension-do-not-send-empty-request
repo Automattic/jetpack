@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Extension: do not send request when AI assistant input is empty

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 /**
  * Contact_Transitional_Status condition class.
@@ -43,14 +44,22 @@ class Contact_Transitional_Status extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data The data this condition has to evaluate.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( array $data ) {
-		if ( ! $this->is_valid_contact_status_transitional_data( $data ) ) {
-			$this->logger->log( 'Invalid contact status transitional data', $data );
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( $previous_data === null ) {
+			$this->logger->log( 'Invalid previous contact status transitional data' );
+			$this->condition_met = false;
+
+			return;
+		}
+
+		if ( ! $this->is_valid_contact_status_transitional_data( $data ) || ! $this->is_valid_contact_status_transitional_data( $previous_data ) ) {
+			$this->logger->log( 'Invalid contact status transitional data' );
 			$this->condition_met = false;
 
 			return;
@@ -65,7 +74,7 @@ class Contact_Transitional_Status extends Base_Condition {
 
 		switch ( $operator ) {
 			case 'from_to':
-				$this->condition_met = ( $data['old_status_value'] === $status_was ) && ( $data['contact']['data']['status'] === $status_is );
+				$this->condition_met = ( $previous_data['status'] === $status_was ) && ( $data['status'] === $status_is );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
@@ -89,7 +98,7 @@ class Contact_Transitional_Status extends Base_Condition {
 	 * @return bool True if the data is valid to detect a transitional status change, false otherwise.
 	 */
 	private function is_valid_contact_status_transitional_data( array $data ): bool {
-		return isset( $data['contact'] ) && isset( $data['old_status_value'] ) && isset( $data['contact']['data']['status'] );
+		return is_array( $data ) && isset( $data['status'] );
 	}
 
 	/**
@@ -126,17 +135,6 @@ class Contact_Transitional_Status extends Base_Condition {
 	}
 
 	/**
-	 * Get the type of the contact transitional status condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The type 'condition'.
-	 */
-	public static function get_type(): string {
-		return 'condition';
-	}
-
-	/**
 	 * Get the category of the contact transitional status condition.
 	 *
 	 * @since $$next-version$$
@@ -145,6 +143,17 @@ class Contact_Transitional_Status extends Base_Condition {
 	 */
 	public static function get_category(): string {
 		return 'contact';
+	}
+
+	/**
+	 * Get the data type.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The type of the step.
+	 */
+	public static function get_data_type(): string {
+		return Data_Type_Contact::get_slug();
 	}
 
 	/**
@@ -160,4 +169,5 @@ class Contact_Transitional_Status extends Base_Condition {
 			'jpcrm/contact_status_updated',
 		);
 	}
+
 }
