@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 
@@ -18,26 +19,28 @@ use Automattic\Jetpack\CRM\Automation\Base_Condition;
 class Quote_Status_Changed extends Base_Condition {
 
 	/**
-	 * All valid operators for this condition.
+	 * Quote_Status_Changed constructor.
 	 *
 	 * @since $$next-version$$
-	 * @var string[] $valid_operators Valid operators.
+	 *
+	 * @param array $step_data The step data.
 	 */
-	protected $valid_operators = array(
-		'is',
-		'is_not',
-	);
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
 
-	/**
-	 * All valid attributes for this condition.
-	 *
-	 * @since $$next-version$$
-	 * @var string[] $valid_operators Valid attributes.
-	 */
-	private $valid_attributes = array(
-		'operator',
-		'value',
-	);
+		$this->valid_operators = array(
+			'is'     => __( 'Is', 'zero-bs-crm' ),
+			'is_not' => __( 'Is not', 'zero-bs-crm' ),
+		);
+
+		$this->set_title( __( 'Quote Status Changed', 'zero-bs-crm' ) );
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition( 'operator', __( 'Operator', 'zero-bs-crm' ), __( 'Determines how the status is compared to the specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $this->valid_operators ),
+				new Attribute_Definition( 'value', __( 'Value', 'zero-bs-crm' ), __( 'Value to compare with the status.', 'zero-bs-crm' ), Attribute_Definition::TEXT ),
+			)
+		);
+	}
 
 	/**
 	 * Executes the condition. If the condition is met, the value stored in the

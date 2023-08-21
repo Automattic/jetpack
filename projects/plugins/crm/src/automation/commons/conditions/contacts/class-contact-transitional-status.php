@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 
@@ -16,26 +17,30 @@ use Automattic\Jetpack\CRM\Automation\Base_Condition;
  * @since $$next-version$$
  */
 class Contact_Transitional_Status extends Base_Condition {
-	/**
-	 * All valid operators for this condition.
-	 *
-	 * @since $$next-version$$
-	 * @var string[] $valid_operators Valid operators.
-	 */
-	protected $valid_operators = array(
-		'from_to',
-	);
 
 	/**
-	 * All valid attributes for this condition.
+	 * Contact_Transitional_Status constructor.
 	 *
 	 * @since $$next-version$$
-	 * @var string[] $valid_operators Valid attributes.
+	 *
+	 * @param array $step_data The step data.
 	 */
-	private $valid_attributes = array(
-		'previous_status_was',
-		'new_status_is',
-	);
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
+
+		$this->valid_operators = array(
+			'from_to' => __( 'From (...) To (...)', 'zero-bs-crm' ),
+		);
+
+		$this->set_title( __( 'Contact Field Tag', 'zero-bs-crm' ) );
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition( 'operator', __( 'Operator', 'zero-bs-crm' ), '', Attribute_Definition::HIDDEN, 'from_to' ),
+				new Attribute_Definition( 'previous_status_was', __( 'Previous Status Was', 'zero-bs-crm' ), __( 'Value to compare with the previous status.', 'zero-bs-crm' ), Attribute_Definition::TEXT ),
+				new Attribute_Definition( 'new_status_is', __( 'New Status Is', 'zero-bs-crm' ), __( 'Value to compare with the new status.', 'zero-bs-crm' ), Attribute_Definition::TEXT ),
+			)
+		);
+	}
 
 	/**
 	 * Executes the condition. If the condition is met, the value stored in the
