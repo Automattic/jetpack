@@ -4,8 +4,6 @@ import Text from '../text';
 import UplotLineChart from './uplot-line-chart';
 import { useBoostScoreTransform } from './use-boost-score-transform';
 
-import './style.scss';
-
 export interface Period {
 	timestamp: number;
 	dimensions: {
