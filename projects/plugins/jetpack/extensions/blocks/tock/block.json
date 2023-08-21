@@ -4,11 +4,11 @@
 	"name": "jetpack/tock",
 	"title": "Tock",
 	"description": "Allow visitors to reserve a table at your restaurant with Tock.",
-	"keywords": ["booking", "reservation", "restaurant"],
+	"keywords": [ "booking", "reservation", "restaurant" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "earn",
-	"icon": "calendar",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='M10 15.619C6.84915 15.619 4.28572 13.0542 4.28572 9.90176C4.28572 7.24269 6.10957 5.00183 8.57143 4.36551V0C3.72557 0.693782 0 4.86162 0 9.90176C0 15.4274 4.47715 19.9069 10 19.9069C12.2461 19.9069 14.3193 19.1658 15.9887 17.9148L12.9003 14.825C12.0494 15.3287 11.0581 15.619 10 15.619 M15.7135 9.90176C15.7135 10.9604 15.4233 11.9522 14.9199 12.8035L18.0082 15.8935C19.2585 14.2232 19.9992 12.149 19.9992 9.90176C19.9992 4.86162 16.2736 0.693782 11.4277 0V4.36551C13.8896 5.00183 15.7135 7.24269 15.7135 9.90176'/></svg>",
 	"supports": {
 		"align": true,
 		"html": false,

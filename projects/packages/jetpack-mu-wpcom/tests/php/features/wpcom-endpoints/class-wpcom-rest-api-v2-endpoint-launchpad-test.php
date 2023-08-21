@@ -115,7 +115,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$values = array(
 			'domain_upsell_deferred' => true,
-			'site_launched'          => true,
+			'site_launched'          => false,
 		);
 		$data   = array( 'checklist_statuses' => $values );
 
@@ -129,7 +129,38 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( array( 'updated' => array( 'checklist_statuses' => $values ) ), $result->get_data() );
-		$this->assertSame( $values, get_option( 'launchpad_checklist_tasks_statuses' ) );
+
+		// The API returns the requested true|false value, but we only store true values.
+		$option_value = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertIsArray( $option_value );
+		foreach ( $values as $task_id => $task_status ) {
+			if ( $task_status ) {
+				$this->assertTrue( isset( $option_value[ $task_id ] ), "Task ID $task_id has been stored" );
+				$this->assertTrue( $option_value[ $task_id ] );
+			} else {
+				$this->assertFalse( isset( $option_value[ $task_id ] ) );
+			}
+		}
+
+		// Mark all tasks as incomplete.
+		$values = array(
+			'domain_upsell_deferred' => false,
+			'site_launched'          => false,
+		);
+		$data   = array( 'checklist_statuses' => $values );
+
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
+		$request->set_header( 'content_type', 'application/json' );
+		$request->set_body( wp_json_encode( $data ) );
+
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( array( 'updated' => array( 'checklist_statuses' => $values ) ), $result->get_data() );
+
+		// Expect the option to have been deleted.
+		$option_value = get_option( 'launchpad_checklist_tasks_statuses' );
+		$this->assertFalse( $option_value );
 
 		// Invalid parameter.
 		$request->set_body( wp_json_encode( array( 'checklist_statuses' => array( 'wrong_key' => true ) ) ) );
