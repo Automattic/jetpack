@@ -6,13 +6,15 @@ import {
 	PanelRow,
 	VisuallyHidden,
 	Spinner,
-	Tip,
+	ToolbarButton,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Icon } from '@wordpress/icons';
+import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
 import { accessOptions, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
@@ -39,7 +41,7 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 	}
 }
 
-export function NewsletterNotice( { accessLevel, paywallBlockSettings = false } ) {
+export function NewsletterNotice( { accessLevel } ) {
 	const { hasPostBeenPublished, hasPostBeenScheduled } = useSelect( select => {
 		const { isCurrentPostPublished, isCurrentPostScheduled } = select( editorStore );
 
@@ -87,10 +89,6 @@ export function NewsletterNotice( { accessLevel, paywallBlockSettings = false } 
 		);
 	}
 
-	if ( paywallBlockSettings ) {
-		return;
-	}
-
 	let subscriberType = __( 'subscribers', 'jetpack' );
 	if ( accessLevel === accessOptions.paid_subscribers.key ) {
 		subscriberType = __( 'paid subscribers', 'jetpack' );
@@ -98,7 +96,7 @@ export function NewsletterNotice( { accessLevel, paywallBlockSettings = false } 
 
 	let numberOfSubscribersText = sprintf(
 		/* translators: %1s is the number of subscribers in numerical format, %2s options are paid subscribers or subscribers */
-		__( 'This will also be sent to <br/><strong>%1$s %2$s</strong>.', 'jetpack' ),
+		__( 'This will be sent to <br/><strong>%1$s %2$s</strong>.', 'jetpack' ),
 		reachCount,
 		subscriberType
 	);
@@ -184,7 +182,6 @@ export function NewsletterAccessRadioButtons( {
 	stripeConnectUrl,
 	isEditorPanel = false,
 	hasPaywallBlock = false,
-	paywallBlockSettings = false,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons );
@@ -194,7 +191,7 @@ export function NewsletterAccessRadioButtons( {
 			<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
 			{ Object.keys( accessOptions ).map(
 				key =>
-					( ! paywallBlockSettings || key !== accessOptions.everybody.key ) && (
+					( ! hasPaywallBlock || key !== accessOptions.everybody.key ) && (
 						<div className="editor-post-visibility__choice" key={ key }>
 							<input
 								value={ key }
@@ -205,9 +202,8 @@ export function NewsletterAccessRadioButtons( {
 								name={ `editor-newsletter-access__setting-${ instanceId }` }
 								aria-describedby={ `editor-post-${ key }-${ instanceId }-description` }
 								disabled={
-									( key === accessOptions.paid_subscribers.key &&
-										( ! isStripeConnected || ! hasNewsletterPlans ) ) ||
-									( key === accessOptions.everybody.key && hasPaywallBlock )
+									key === accessOptions.paid_subscribers.key &&
+									( ! isStripeConnected || ! hasNewsletterPlans )
 								}
 								onChange={ event => {
 									const obj = {};
@@ -221,13 +217,8 @@ export function NewsletterAccessRadioButtons( {
 							>
 								{ accessOptions[ key ].label }
 							</label>
-							{ key === accessLevel && key !== accessOptions.everybody.key && (
-								<p className="editor-post-visibility__notice">
-									<NewsletterNotice
-										accessLevel={ accessLevel }
-										paywallBlockSettings={ paywallBlockSettings }
-									/>
-								</p>
+							{ ! hasPaywallBlock && key === accessLevel && key !== accessOptions.everybody.key && (
+								<NewsletterNotice accessLevel={ accessLevel } />
 							) }
 						</div>
 					)
@@ -244,7 +235,7 @@ export function NewsletterAccessRadioButtons( {
 }
 
 export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } ) {
-	const { hasNewsletterPlans, stripeConnectUrl, isLoading, hasPaywallBlock } = useSelect(
+	const { hasNewsletterPlans, stripeConnectUrl, isLoading, foundPaywallBlock } = useSelect(
 		select => {
 			const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
 				'jetpack/membership-products'
@@ -255,12 +246,13 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 				isLoading: isApiStateLoading(),
 				stripeConnectUrl: getConnectUrl(),
 				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-				hasPaywallBlock: getBlocks().some( block => block.name === 'jetpack/paywall' ),
+				foundPaywallBlock: getBlocks().find( block => block.name === paywallBlockName ),
 			};
 		}
 	);
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+	const { selectBlock } = useDispatch( 'core/block-editor' );
 
 	if ( isLoading ) {
 		return (
@@ -278,36 +270,49 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => (
-				<PanelRow className="edit-post-post-visibility">
-					<Flex direction="column">
-						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-						<FlexBlock direction="row" justify="flex-start">
-							{ canEdit && (
-								<div className="editor-post-visibility">
-									<NewsletterAccessRadioButtons
-										isEditorPanel={ true }
-										onChange={ setPostMeta }
-										accessLevel={ _accessLevel }
-										stripeConnectUrl={ stripeConnectUrl }
-										hasNewsletterPlans={ hasNewsletterPlans }
-										hasPaywallBlock={ hasPaywallBlock }
-									/>
-								</div>
-							) }
-
-							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
-							{ ! canEdit && <span>{ accessLabel }</span> }
-						</FlexBlock>
-						{ hasPaywallBlock && (
-							<Tip>
+				<>
+					{ foundPaywallBlock && (
+						<>
+							<ToolbarButton
+								className="edit-post-paywall-toolbar-button"
+								onClick={ () => {
+									selectBlock( foundPaywallBlock.clientId );
+								} }
+							>
+								<Icon icon={ paywallIcon } />
+								{ __( 'Paywall', 'jetpack' ) }
+							</ToolbarButton>
+							<p>
 								{ __(
 									'The content below the paywall block is exclusive to the selected audience.',
 									'jetpack'
 								) }
-							</Tip>
-						) }
-					</Flex>
-				</PanelRow>
+							</p>
+						</>
+					) }
+					<PanelRow className="edit-post-post-visibility">
+						<Flex direction="column">
+							{ showMisconfigurationWarning && <MisconfigurationWarning /> }
+							<FlexBlock direction="row" justify="flex-start">
+								{ canEdit && (
+									<div className="editor-post-visibility">
+										<NewsletterAccessRadioButtons
+											isEditorPanel={ true }
+											onChange={ setPostMeta }
+											accessLevel={ _accessLevel }
+											stripeConnectUrl={ stripeConnectUrl }
+											hasNewsletterPlans={ hasNewsletterPlans }
+											hasPaywallBlock={ foundPaywallBlock }
+										/>
+									</div>
+								) }
+
+								{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
+								{ ! canEdit && <span>{ accessLabel }</span> }
+							</FlexBlock>
+						</Flex>
+					</PanelRow>
+				</>
 			) }
 		/>
 	);
@@ -325,7 +330,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel, setPostMeta }
 				isLoading: isApiStateLoading(),
 				stripeConnectUrl: getConnectUrl(),
 				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-				hasPaywallBlock: getBlocks().some( block => block.name === 'jetpack/paywall' ),
+				hasPaywallBlock: getBlocks().some( block => block.name === paywallBlockName ),
 			};
 		}
 	);
@@ -368,6 +373,67 @@ export function NewsletterAccessPrePublishSettings( { accessLevel, setPostMeta }
 
 						{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
 						{ ! canEdit && <span>{ accessLabel }</span> }
+					</Flex>
+				</PanelRow>
+			) }
+		/>
+	);
+}
+
+export function PaywallBlockSettings( { accessLevel, setPostMeta } ) {
+	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
+		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
+			'jetpack/membership-products'
+		);
+		return {
+			isLoading: isApiStateLoading(),
+			stripeConnectUrl: getConnectUrl(),
+			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+		};
+	} );
+
+	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
+
+	if ( isLoading ) {
+		return (
+			<Flex direction="column" align="center">
+				<Spinner />
+			</Flex>
+		);
+	}
+
+	let _accessLevel = accessLevel ?? accessOptions.subscribers.key;
+	if ( _accessLevel === accessOptions.everybody.key ) {
+		_accessLevel = accessOptions.subscribers.key;
+	}
+
+	const accessLabel = accessOptions[ _accessLevel ]?.label;
+
+	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
+
+	return (
+		<PostVisibilityCheck
+			render={ ( { canEdit } ) => (
+				<PanelRow className="edit-post-post-visibility">
+					<Flex direction="column">
+						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
+						<FlexBlock direction="row" justify="flex-start">
+							{ canEdit && (
+								<div className="editor-post-visibility">
+									<NewsletterAccessRadioButtons
+										isEditorPanel={ true }
+										onChange={ setPostMeta }
+										accessLevel={ _accessLevel }
+										stripeConnectUrl={ stripeConnectUrl }
+										hasNewsletterPlans={ hasNewsletterPlans }
+										hasPaywallBlock={ true }
+									/>
+								</div>
+							) }
+
+							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
+							{ ! canEdit && <span>{ accessLabel }</span> }
+						</FlexBlock>
 					</Flex>
 				</PanelRow>
 			) }

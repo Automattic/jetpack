@@ -28,8 +28,6 @@
 		display: block;
 
 		&__notice {
-			margin: 0;
-
 			&.is-info {
 				background: #e9f0f5;
 				border-left-color: #e9f0f5;
@@ -67,6 +65,16 @@
 
 		&__info {
 			margin-top: -10px;
+		}
+	}
+	.edit-post-paywall-toolbar-button {
+		align-item: normal;
+		text-align: left;
+		padding-left: 0;
+		margin-bottom: 15px;
+		svg {
+			flex-shrink: 0;
+			margin-right: 16px;
 		}
 	}
 }
