@@ -170,9 +170,6 @@ HTML;
 		if ( ! $is_wpcom ) {
 			return false;
 		}
-		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
-			return false;
-		}
 		if ( ! wp_is_block_theme() ) {
 			return false;
 		}
