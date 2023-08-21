@@ -1792,6 +1792,11 @@ abstract class Publicize_Base {
 	 * @return bool
 	 */
 	public function has_social_auto_conversion_feature( $type ) {
+		// For now we only have the image conversion, and we do not have a flag for the master switch, so
+		// we use the image flag for that. TBD.
+		if ( $type === 'auto-conversion' ) {
+			return Current_Plan::supports( 'social-image-auto-convert' );
+		}
 		return Current_Plan::supports( "social-$type-auto-convert" );
 	}
 

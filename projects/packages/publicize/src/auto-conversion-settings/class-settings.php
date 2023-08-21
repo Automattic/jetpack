@@ -88,6 +88,11 @@ class Settings {
 	 * @return bool True if the feature is enabled, false otherwise.
 	 */
 	public function is_enabled( $type ) {
+		// If the master switch is off, it should be disabled.
+		if ( ! $this->is_available( 'auto-conversion' ) ) {
+			return false;
+		}
+
 		// If the feature isn't available it should never be enabled.
 		if ( ! $this->is_available( $type ) ) {
 			return false;
