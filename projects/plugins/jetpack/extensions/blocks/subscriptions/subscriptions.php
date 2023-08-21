@@ -760,15 +760,17 @@ function add_paywall( $the_content ) {
 		return $the_content;
 	}
 
+	$post_access_level = Jetpack_Memberships::get_post_access_level();
+	if ( jetpack_is_frontend() ) {
+		$paywalled_content = get_paywall_blocks( $post_access_level );
+	} else {
+		// emails
+		$paywalled_content = get_paywall_simple();
+	}
+
+	// Partially free content with paywall
 	if ( has_block( $block_name ) ) {
-		$post_access_level = Jetpack_Memberships::get_post_access_level();
-		if ( jetpack_is_frontend() ) {
-			$paywalled_content = get_paywall_blocks( $post_access_level );
-		} else {
-			// emails
-			$paywalled_content = get_paywall_simple();
-		}
-		$paywalled_content = strstr( $the_content, '<!-- wp:' . $block_name . ' /-->', true ) . $paywalled_content;
+		return strstr( $the_content, '<!-- wp:' . $block_name . ' /-->', true ) . $paywalled_content;
 	}
 
 	return $paywalled_content;
