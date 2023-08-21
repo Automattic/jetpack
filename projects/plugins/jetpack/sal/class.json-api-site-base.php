@@ -1519,6 +1519,7 @@ abstract class SAL_Site {
 	 * @return mixed
 	 */
 	public function is_commercial() {
-		return get_option( '_jetpack_site_is_commercial', null );
+		$is_commercial = get_option( '_jetpack_site_is_commercial', null );
+		return $is_commercial === null ? null : (bool) $is_commercial;
 	}
 }
