@@ -89,12 +89,23 @@ fi
 info "Checking if pnpm is installed..."
 if ! command -v pnpm &>/dev/null; then
 	info "Installing pnpm"
-	curl -fsSL https://get.pnpm.io/install.sh | sh -
+	# Don't use https://get.pnpm.io/install.sh, that doesn't play nice with different shells.
+	# And corepack will likely lose pnpm every time nvm installs a new node version.
+	curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 fi
 if [[ -z "$( pnpm bin --global )" ]]; then
 	info "Setting up pnpm"
 	if ! pnpm setup; then
 		warn 'pnpm has no bin dir set, and `pnpm setup` failed. Linking the Jetpack CLI may fail.'
+	else
+		# Try to read PNPM_HOME from the login shell after `pnpm setup`, as pnpm probably changed it.
+		P=$( "$SHELL" -i -c 'echo $PNPM_HOME' ) || true
+		if [[ -n "$P" ]]; then
+			export PNPM_HOME="$P"
+			if [[ ":$PATH:" != *":$PNPM_HOME:"* ]]; then
+				export PATH="$PNPM_HOME:$PATH"
+			fi
+		fi
 	fi
 fi
 
