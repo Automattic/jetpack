@@ -1512,4 +1512,13 @@ abstract class SAL_Site {
 	public function get_wpcom_site_setup() {
 		return get_option( 'wpcom_site_setup' );
 	}
+
+	/**
+	 * Return true if the site is a commercial site. If not determined yet, it returns null.
+	 *
+	 * @return mixed
+	 */
+	public function is_commercial() {
+		return get_option( '_jetpack_site_is_commercial', null );
+	}
 }
