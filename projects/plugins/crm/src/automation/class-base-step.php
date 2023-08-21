@@ -17,12 +17,28 @@ namespace Automattic\Jetpack\CRM\Automation;
 abstract class Base_Step implements Step {
 
 	/**
+	 * Step title.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	protected static $title;
+
+	/**
 	 * Step attributes.
 	 *
 	 * @since $$next-version$$
 	 * @var array
 	 */
 	protected $attributes;
+
+	/**
+	 * Attributes definitions.
+	 *
+	 * @since $$next-version$$
+	 * @var array
+	 */
+	protected $attribute_definitions;
 
 	/**
 	 * Next linked step.
@@ -63,6 +79,28 @@ abstract class Base_Step implements Step {
 	 */
 	public function set_attributes( array $attributes ) {
 		$this->attributes = $attributes;
+	}
+
+	/**
+	 * Get the step attribute definitions.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return Step_Attribute[] The attribute definitions of the step.
+	 */
+	public function get_attribute_definitions(): ?array {
+		return $this->attribute_definitions;
+	}
+
+	/**
+	 * Set the step attributes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Step_Attribute[] $attribute_definitions Set the step attributes.
+	 */
+	public function set_attribute_definitions( array $attribute_definitions ) {
+		$this->attribute_definitions = $attribute_definitions;
 	}
 
 	/**
@@ -112,7 +150,20 @@ abstract class Base_Step implements Step {
 	 *
 	 * @return string|null The title of the step.
 	 */
-	abstract public static function get_title(): ?string;
+	public static function get_title(): ?string {
+		return self::$title;
+	}
+
+	/**
+	 * Set the title of the step.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $title Set title of the step.
+	 */
+	public static function set_title( string $title ) {
+		self::$title = $title;
+	}
 
 	/**
 	 * Get the description of the step.
