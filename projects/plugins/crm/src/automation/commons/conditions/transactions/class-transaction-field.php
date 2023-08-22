@@ -137,17 +137,6 @@ class Transaction_Field extends Base_Condition {
 	}
 
 	/**
-	 * Get the title for the transaction field condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The title 'Transaction Field Changed'.
-	 */
-	public static function get_title(): string {
-		return __( 'Transaction Field', 'zero-bs-crm' );
-	}
-
-	/**
 	 * Get the description for the transaction field condition.
 	 *
 	 * @since $$next-version$$

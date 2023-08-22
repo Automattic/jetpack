@@ -123,17 +123,6 @@ class Contact_Field_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Get the title for the contact field changed condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The title 'Contact Field Changed'.
-	 */
-	public static function get_title(): string {
-		return __( 'Contact Field Changed', 'zero-bs-crm' );
-	}
-
-	/**
 	 * Get the description for the contact field changed condition.
 	 *
 	 * @since $$next-version$$

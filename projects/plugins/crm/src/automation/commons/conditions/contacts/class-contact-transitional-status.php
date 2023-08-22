@@ -109,17 +109,6 @@ class Contact_Transitional_Status extends Base_Condition {
 	}
 
 	/**
-	 * Get the title for the contact transitional status condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The title 'Contact Transitional Status'.
-	 */
-	public static function get_title(): string {
-		return __( 'Contact Transitional Status', 'zero-bs-crm' );
-	}
-
-	/**
 	 * Get the description for the contact transitional status condition.
 	 *
 	 * @since $$next-version$$

@@ -112,17 +112,6 @@ class Quote_Status_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Get the title for the quote status changed condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The title 'Quote Status Changed'.
-	 */
-	public static function get_title(): string {
-		return __( 'Quote Status Changed', 'zero-bs-crm' );
-	}
-
-	/**
 	 * Get the description for the quote status changed condition.
 	 *
 	 * @since $$next-version$$

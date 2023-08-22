@@ -120,17 +120,6 @@ class Invoice_Field_Contains extends Base_Condition {
 	}
 
 	/**
-	 * Get the title for the invoice field contains condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The title 'Invoice Field Contains'.
-	 */
-	public static function get_title(): string {
-		return __( 'Invoice Field Contains', 'zero-bs-crm' );
-	}
-
-	/**
 	 * Get the description for the invoice field contains condition.
 	 *
 	 * @since $$next-version$$
