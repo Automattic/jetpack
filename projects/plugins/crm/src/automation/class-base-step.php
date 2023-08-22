@@ -22,7 +22,7 @@ abstract class Base_Step implements Step {
 	 * @since $$next-version$$
 	 * @var string
 	 */
-	protected static $title;
+	protected $title;
 
 	/**
 	 * Step attributes.
@@ -150,8 +150,8 @@ abstract class Base_Step implements Step {
 	 *
 	 * @return string|null The title of the step.
 	 */
-	public static function get_title(): ?string {
-		return self::$title;
+	public function get_title(): ?string {
+		return $this->title;
 	}
 
 	/**
@@ -161,8 +161,8 @@ abstract class Base_Step implements Step {
 	 *
 	 * @param string $title Set title of the step.
 	 */
-	public static function set_title( string $title ) {
-		self::$title = $title;
+	public function set_title( string $title ) {
+		$this->title = $title;
 	}
 
 	/**
