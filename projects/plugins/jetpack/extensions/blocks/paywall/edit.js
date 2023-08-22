@@ -5,6 +5,7 @@ import { PanelBody } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon } from '@wordpress/icons';
 import {
@@ -19,9 +20,13 @@ function PaywallEdit( { className } ) {
 	const accessLevel = useAccessLevel( postType );
 	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
-	if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
-		setPostMeta( { [ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.subscribers.key } );
-	}
+	useEffect( () => {
+		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
+			setPostMeta( {
+				[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.subscribers.key,
+			} );
+		}
+	}, [ accessLevel, setPostMeta ] );
 
 	const getText = key => {
 		switch ( key ) {
