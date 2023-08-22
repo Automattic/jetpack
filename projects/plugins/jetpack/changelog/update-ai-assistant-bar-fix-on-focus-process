@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-AI Extension: fix bug when focusing on the input element when component mount

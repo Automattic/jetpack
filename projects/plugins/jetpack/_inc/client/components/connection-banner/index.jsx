@@ -2,6 +2,8 @@ import { ActionButton, Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { connect } from 'react-redux';
+import { connectUser as _connectUser } from 'state/connection';
 
 export class ConnectionBanner extends React.Component {
 	static propTypes = {
@@ -11,12 +13,7 @@ export class ConnectionBanner extends React.Component {
 	};
 
 	handleClick() {
-		let fromQuery = '';
-		if ( this.props.from ) {
-			fromQuery = '&from=' + encodeURIComponent( this.props.from );
-		}
-
-		window.location.href = '/wp-admin/admin.php?page=jetpack' + fromQuery + '#/connect-user';
+		this.props.doConnectUser( null, this.props.from );
 	}
 
 	render() {
@@ -39,4 +36,11 @@ export class ConnectionBanner extends React.Component {
 	}
 }
 
-export default ConnectionBanner;
+export default connect(
+	state => state,
+	dispatch => {
+		return {
+			doConnectUser: ( featureLabel, from ) => dispatch( _connectUser( featureLabel, from ) ),
+		};
+	}
+)( ConnectionBanner );
