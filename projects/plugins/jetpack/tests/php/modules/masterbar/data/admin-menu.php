@@ -225,14 +225,14 @@ function get_submenu_fixture() {
 				'post-new.php',
 			),
 			15 => array(
-				'Tags',
-				'manage_post_tags',
-				'edit-tags.php?taxonomy=post_tag',
-			),
-			16 => array(
 				'Categories',
 				'manage_categories',
 				'edit-tags.php?taxonomy=category',
+			),
+			16 => array(
+				'Tags',
+				'manage_post_tags',
+				'edit-tags.php?taxonomy=post_tag',
 			),
 		),
 		'edit.php?post_type=page'              => array(
