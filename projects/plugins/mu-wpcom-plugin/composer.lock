@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eec12a75b7ddd8f85b30cc58ffb814c6",
+    "content-hash": "4aa2925826a88ecb0789a4453236b5da",
     "packages": [
         {
             "name": "automattic/jetpack-mu-wpcom",
@@ -15,14 +15,15 @@
                 "reference": "3fc8ecb806aa61267c2a18808db355be5860a641"
             },
             "dist": {
-                "type": "path",
-                "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "1ebc1810c8f1f1ee6461a0199f1d7d4d55689caa"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/3fc8ecb806aa61267c2a18808db355be5860a641",
+                "reference": "3fc8ecb806aa61267c2a18808db355be5860a641",
+                "shasum": ""
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.3.7",
                 "automattic/wordbless": "0.4.2",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -68,9 +69,10 @@
                 "reference": "ac8e32bdd0a79a36ca7b73f5242408909224ba1f"
             },
             "dist": {
-                "type": "path",
-                "url": "../../packages/changelogger",
-                "reference": "7e70d6d91c99ca7224e3fe409f998b039ddc91f1"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-changelogger/zipball/ac8e32bdd0a79a36ca7b73f5242408909224ba1f",
+                "reference": "ac8e32bdd0a79a36ca7b73f5242408909224ba1f",
+                "shasum": ""
             },
             "require": {
                 "php": ">=5.6",
@@ -80,7 +82,7 @@
             },
             "require-dev": {
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "1.0.4"
             },
             "bin": [
                 "bin/changelogger"
@@ -2740,7 +2742,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "automattic/jetpack-changelogger": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
