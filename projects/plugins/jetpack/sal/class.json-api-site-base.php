@@ -1514,9 +1514,13 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Return true if the site is a commercial site. If not determined yet, it returns null.
+	 * Returns whether the site is commercial.
 	 *
 	 * @return mixed
+	 *
+	 * - `true`: the site is commercial
+	 * - `false`: the site is not commercial
+	 * - `null`: the commercial status is not yet determined
 	 */
 	public function is_commercial() {
 		$is_commercial = get_option( '_jetpack_site_is_commercial', null );
