@@ -21,7 +21,7 @@ class Dummy_Step extends Base_Step {
 		return 'dummy_step';
 	}
 
-	public static function get_title(): ?string {
+	public function get_title(): ?string {
 		return 'Dummy Step';
 	}
 
