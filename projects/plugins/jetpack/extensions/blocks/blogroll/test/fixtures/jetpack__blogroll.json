@@ -1,7 +1,7 @@
 [
 	{
 		"clientId": "_clientId_0",
-		"name": "jetpack/author-recommendation",
+		"name": "jetpack/blogroll",
 		"isValid": true,
 		"attributes": {
 			"recommendations": [],
