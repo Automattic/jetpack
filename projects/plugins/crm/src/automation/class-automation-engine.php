@@ -379,17 +379,23 @@ class Automation_Engine {
 	 * @param array               $trigger_data The data that was passed along by the trigger.
 	 * @return bool
 	 *
-	 * @throws Automation_Exception Throws exception if the step does not exist, or there is an error executing the workflow.
+	 * @throws Automation_Exception Throws exception if an error executing the workflow.
 	 */
 	public function execute_workflow( Automation_Workflow $workflow, Trigger $trigger, array $trigger_data ): bool {
 		$this->get_logger()->log( sprintf( 'Trigger activated: %s', $trigger->get_slug() ) );
 		$this->get_logger()->log( sprintf( 'Executing workflow: %s', $workflow->name ) );
 
 		$step_data = $workflow->get_initial_step();
+
 		// Convert the trigger data into a data type instance.
-		// This might change while running steps if we have to transform the data
-		// to e.g. allow invoice triggers to work together with contact actions.
-		$data_type = $this->get_data_type_instance( $trigger::get_data_type(), $trigger_data );
+		try {
+			$trigger_data_type = $this->get_data_type_instance( $trigger::get_data_type(), $trigger_data );
+		} catch ( Data_Type_Exception $e ) {
+			throw new Automation_Exception(
+				$e->getMessage(),
+				Automation_Exception::GENERAL_ERROR
+			);
+		}
 
 		while ( $step_data ) {
 			try {
@@ -414,7 +420,7 @@ class Automation_Engine {
 
 				$this->get_logger()->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step->get_data_type() );
 
-				$data_type = $this->maybe_transform_data_type( $data_type, $step::get_data_type() );
+				$data_type = $this->maybe_transform_data_type( $trigger_data_type, $step::get_data_type() );
 				$step->execute( $data_type->get_entity() );
 				$step_data = $step->get_next_step();
 
