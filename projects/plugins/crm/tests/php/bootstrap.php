@@ -71,14 +71,6 @@ require $test_root . '/includes/functions.php';
 
 /**
  * Load Jetpack CRM.
- *
- * Not all code is automatically loaded any we depend on a lot of global
- * variables, so the easiest path forward (for now at least) is to just
- * load the core plugin file so everything is initiated.
- */
-
-/**
- * Load Jetpack CRM.
  */
 function _jpcrm_manually_load_plugin() {
 	require_once __DIR__ . '/../../ZeroBSCRM.php';
@@ -106,3 +98,4 @@ require_once __DIR__ . '/class-jpcrm-base-integration-test-case.php';
  * Load all feature flags, so they will be testable.
  */
 add_filter( 'jetpack_crm_feature_flag_api_v4', '__return_true' );
+add_filter( 'jetpack_crm_feature_flag_automations', '__return_true' );

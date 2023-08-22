@@ -22,6 +22,6 @@ describe( 'PublicizeConnection', () => {
 		jest.spyOn( storeSelect, 'getFailedConnections' ).mockReset().mockReturnValue( [] );
 
 		render( <PublicizeConnection { ...props } /> );
-		expect( screen.getByText( props.label ) ).toBeInTheDocument();
+		expect( screen.getByTitle( props.label ) ).toBeInTheDocument();
 	} );
 } );

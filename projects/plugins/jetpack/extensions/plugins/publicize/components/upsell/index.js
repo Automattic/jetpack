@@ -37,6 +37,13 @@ function getPanelDescription(
 		return start_your_posts_string;
 	}
 
+	if ( isPostPublished && isPublicizeEnabled && ! hasEnabledConnections ) {
+		return __(
+			'Enable a connection to share this post by clicking on the share post button.',
+			'jetpack'
+		);
+	}
+
 	if ( ! isPublicizeEnabled || ! hasEnabledConnections ) {
 		return __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' );
 	}
@@ -71,7 +78,7 @@ export default function UpsellNotice() {
 	 */
 	if ( ! isPostPublished || ( isPostPublished && isRePublicizeFeatureAvailable ) ) {
 		return (
-			<div>
+			<div className="jetpack-publicize__upsell">
 				{ getPanelDescription(
 					isPostPublished,
 					isPublicizeEnabled,
