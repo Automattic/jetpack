@@ -198,6 +198,37 @@ module.exports = [
 						from: '**/block.json',
 						to: '[path][name][ext]',
 						context: path.join( __dirname, '../extensions/blocks' ),
+						transform( content ) {
+							let metadata = {};
+
+							try {
+								metadata = JSON.parse( content.toString() );
+							} catch ( e ) {}
+
+							const name = metadata.name.replace( 'jetpack/', '' );
+
+							if ( ! name ) {
+								return metadata;
+							}
+
+							let scriptName = 'editor';
+
+							if ( presetIndex.beta.includes( name ) ) {
+								scriptName += '-beta';
+							} else if ( presetIndex.experimental.includes( name ) ) {
+								scriptName += '-experimental';
+							}
+
+							return JSON.stringify(
+								{
+									...metadata,
+									editorScript: `file:../${ scriptName }.js`,
+									editorStyle: `file:../${ scriptName }.css`,
+								},
+								null,
+								4
+							);
+						},
 						noErrorOnMissing: true,
 					},
 				],

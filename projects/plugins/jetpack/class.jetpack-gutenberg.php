@@ -478,9 +478,19 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
-		$type = sanitize_title_with_dashes( $type );
-		self::load_styles_as_required( $type );
-		self::load_scripts_as_required( $type, $script_dependencies );
+		$slug = $type;
+
+		if ( str_starts_with( $type, '/' ) ) {
+			$feature = Blocks::get_block_feature_from_metadata( Blocks::get_block_metadata_from_file( $type ) );
+
+			if ( ! empty( $feature ) ) {
+				$slug = $feature;
+			}
+		}
+
+		$slug = sanitize_title_with_dashes( $slug );
+		self::load_styles_as_required( $slug );
+		self::load_scripts_as_required( $slug, $script_dependencies );
 	}
 
 	/**

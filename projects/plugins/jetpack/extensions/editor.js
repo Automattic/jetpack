@@ -78,10 +78,16 @@ function setBetaBlockTitle( settings, name ) {
 		return settings;
 	}
 
+	const { title, keywords } = settings;
+	const titleSuffix = '(beta)';
+	const betaKeyword = 'beta';
+
 	return {
 		...settings,
-		title: `${ settings.title } (beta)`,
-		kewords: [ ...settings.keywords, 'beta' ],
+		title: title.toLowerCase().endsWith( titleSuffix )
+			? title
+			: `${ settings.title } ${ titleSuffix }`,
+		kewords: keywords.includes( betaKeyword ) ? keywords : [ ...keywords, betaKeyword ],
 	};
 }
 

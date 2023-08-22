@@ -27,7 +27,7 @@ class Blocks {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param string $slug Slug of the block.
+	 * @param string $slug Slug of the block or absolute path to the directory containing block.json.
 	 * @param array  $args {
 	 *     Arguments that are passed into register_block_type.
 	 *     See register_block_type for full list of arguments.
@@ -40,6 +40,19 @@ class Blocks {
 	 * @return WP_Block_Type|false The registered block type on success, or false on failure.
 	 */
 	public static function jetpack_register_block( $slug, $args = array() ) {
+		$metadata_dir = '';
+
+		// If the path to block.json is passed, find the slug in the file.
+		if ( str_starts_with( $slug, '/' ) ) {
+			$metadata_dir = $slug;
+			$metadata     = self::get_block_metadata_from_file( $slug );
+			$name         = self::get_block_name_from_metadata( $metadata );
+
+			if ( ! empty( $name ) ) {
+				$slug = $name;
+			}
+		}
+
 		if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
 			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 9.0.0' );
 			$slug = 'jetpack/' . $slug;
@@ -94,12 +107,63 @@ class Blocks {
 
 			// Ensure editor styles are registered so that the site editor knows about the
 			// editor style dependency when copying styles to the editor iframe.
-			if ( ! isset( $args['editor_style'] ) ) {
+			if ( ! isset( $args['editor_style'] ) && empty( $metadata_dir ) ) {
 				$args['editor_style'] = 'jetpack-blocks-editor';
 			}
 		}
 
-		return register_block_type( $slug, $args );
+		return register_block_type( ! empty( $metadata_dir ) ? $metadata_dir : $slug, $args );
+	}
+
+	/**
+	 * Read block metadata from a block.json file.
+	 *
+	 * @param string $metadata_filename The path to the block.json file or its directory.
+	 *
+	 * @return array The block metadata.
+	 */
+	public static function get_block_metadata_from_file( $metadata_filename ) {
+		$metadata = array();
+		$filename = str_ends_with( $metadata_filename, '/block.json' ) ? $metadata_filename : $metadata_filename . '/block.json';
+
+		if ( file_exists( $filename ) ) {
+			try {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				$metadata = json_decode( file_get_contents( $filename ), true );
+			} catch ( Exception $e ) {
+				$metadata = array();
+			}
+		}
+
+		return $metadata;
+	}
+
+	/**
+	 * Get the block name from the its metadata.
+	 *
+	 * @param array $metadata The block metadata.
+	 *
+	 * @return string The block name.
+	 */
+	public static function get_block_name_from_metadata( $metadata ) {
+		$name = '';
+
+		if ( ! empty( $metadata['name'] ) ) {
+			$name = $metadata['name'];
+		}
+
+		return $name;
+	}
+
+	/**
+	 * Get the block feature name (i.e. the name without the `jetpack` prefix) from its metadata.
+	 *
+	 * @param array $metadata The block metadata.
+	 *
+	 * @return string The block feature name.
+	 */
+	public static function get_block_feature_from_metadata( $metadata ) {
+		return str_replace( 'jetpack/', '', self::get_block_name_from_metadata( $metadata ) );
 	}
 
 	/**

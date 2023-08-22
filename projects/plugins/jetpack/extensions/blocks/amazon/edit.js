@@ -14,6 +14,7 @@ import { __ } from '@wordpress/i18n';
 import tinycolor from 'tinycolor2';
 import data from './dummy-data';
 import icon from './icon';
+
 import './editor.scss';
 
 function AmazonEdit( {
