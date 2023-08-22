@@ -9,8 +9,8 @@ import icon from './icon';
  */
 import './editor.scss';
 
-export const name = 'author-recommendation';
-export const title = __( 'Author Recommendation', 'jetpack' );
+export const name = 'blogroll';
+export const title = __( 'Blogroll', 'jetpack' );
 export const description = __(
 	'Select the sites you follow and share them with your users.',
 	'jetpack'

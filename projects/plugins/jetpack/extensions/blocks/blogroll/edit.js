@@ -19,7 +19,7 @@ import './editor.scss';
 import icon from './icon';
 import useSubscriptions from './use-subscriptions';
 
-export function AuthorRecommendationEdit( { className, attributes, setAttributes, isSelected } ) {
+export function BlogRollEdit( { className, attributes, setAttributes, isSelected } ) {
 	const [ selectedSubscriptions, setSelectedSubscriptions ] = useState( [] );
 	const [ showSubscriptions, setShowSubscriptions ] = useState( false );
 	const { recommendations, ignore_user_blogs } = attributes;
@@ -61,7 +61,7 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 		<div { ...useBlockProps() } className={ className }>
 			{ showPlaceholder && (
 				<Placeholder
-					label={ __( 'Author Recommendation', 'jetpack' ) }
+					label={ __( 'Blogroll', 'jetpack' ) }
 					icon={ <BlockIcon icon={ icon } /> }
 					instructions={ __(
 						'Recommend sites that you like and follow. Select the sites you want to recommend to your visitors.',
@@ -87,7 +87,7 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 			) }
 
 			{ ! isLoading && ! showPlaceholder && (
-				<AuthorRecommendationContent
+				<BlogrollContent
 					{ ...{ isLoading, subscriptions, selectedSubscriptions, handleChecked, isSelected } }
 				/>
 			) }
@@ -105,12 +105,7 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 	);
 }
 
-function AuthorRecommendationContent( {
-	subscriptions,
-	selectedSubscriptions,
-	handleChecked,
-	isSelected,
-} ) {
+function BlogrollContent( { subscriptions, selectedSubscriptions, handleChecked, isSelected } ) {
 	const [ searchQuery, setSearchQuery ] = useState( '' );
 	const [ filteredSubscriptions, setFilteredSubscriptions ] = useState( subscriptions );
 
@@ -185,4 +180,4 @@ function AuthorRecommendationContent( {
 	);
 }
 
-export default AuthorRecommendationEdit;
+export default BlogRollEdit;

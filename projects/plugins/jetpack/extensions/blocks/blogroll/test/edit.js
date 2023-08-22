@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AuthorRecommendationEdit } from '../edit';
+import { BlogRollEdit } from '../edit';
 import mockUserSubscription from '../use-subscriptions';
 
 jest.mock( '@wordpress/block-editor', () => ( {
@@ -24,7 +24,7 @@ const mockResponse = [
 		site_icon: 'https://en.wordpress.com/i/void.gif',
 	},
 ];
-describe( 'AuthorRecommendationEdit Edit', () => {
+describe( 'BlogRollEdit Edit', () => {
 	const defaultAttributes = {
 		recommendations: [],
 	};
@@ -50,7 +50,7 @@ describe( 'AuthorRecommendationEdit Edit', () => {
 	test( 'Displays placeholder button', async () => {
 		mockUserSubscription.mockReturnValue( { subscriptions: [], isLoading: false } );
 
-		render( <AuthorRecommendationEdit { ...defaultProps } /> );
+		render( <BlogRollEdit { ...defaultProps } /> );
 
 		await waitFor( () => {
 			expect( getPlaceholderButton() ).toBeInTheDocument();
@@ -60,7 +60,7 @@ describe( 'AuthorRecommendationEdit Edit', () => {
 	test( 'Displays users subscriptions', async () => {
 		mockUserSubscription.mockReturnValue( { subscriptions: mockResponse, isLoading: false } );
 
-		render( <AuthorRecommendationEdit { ...propsWithSelected } /> );
+		render( <BlogRollEdit { ...propsWithSelected } /> );
 		await userEvent.click( getPlaceholderButton() );
 
 		await waitFor( () => {
@@ -74,7 +74,7 @@ describe( 'AuthorRecommendationEdit Edit', () => {
 	test( 'Displays users subscriptions and checkboxes after placeholder button is clicked', async () => {
 		mockUserSubscription.mockReturnValue( { subscriptions: mockResponse, isLoading: false } );
 
-		render( <AuthorRecommendationEdit { ...propsWithSelected } /> );
+		render( <BlogRollEdit { ...propsWithSelected } /> );
 		await userEvent.click( getPlaceholderButton() );
 
 		await waitFor( () => {
@@ -85,7 +85,7 @@ describe( 'AuthorRecommendationEdit Edit', () => {
 	test( 'Updates recommendations when checkbox is clicked', async () => {
 		mockUserSubscription.mockReturnValue( { subscriptions: mockResponse, isLoading: false } );
 
-		render( <AuthorRecommendationEdit { ...propsWithSelected } /> );
+		render( <BlogRollEdit { ...propsWithSelected } /> );
 		await userEvent.click( getPlaceholderButton() );
 
 		const firstCheckbox = await waitFor( () => screen.getAllByRole( 'checkbox' )[ 0 ] );
