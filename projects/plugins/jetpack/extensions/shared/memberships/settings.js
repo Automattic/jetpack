@@ -6,7 +6,7 @@ import {
 	PanelRow,
 	VisuallyHidden,
 	Spinner,
-	ToolbarButton,
+	Button,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -185,6 +185,9 @@ export function NewsletterAccessRadioButtons( {
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons );
+	const { emailSubscribers, paidSubscribers } = useSelect( select =>
+		select( membershipProductsStore ).getSubscriberCounts()
+	);
 
 	return (
 		<fieldset className="editor-post-visibility__fieldset">
@@ -216,6 +219,10 @@ export function NewsletterAccessRadioButtons( {
 								className="editor-post-visibility__label"
 							>
 								{ accessOptions[ key ].label }
+								{ sprintf(
+									' (%1$s)',
+									getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers )
+								) }{ ' ' }
 							</label>
 							{ ! hasPaywallBlock && key === accessLevel && key !== accessOptions.everybody.key && (
 								<NewsletterNotice accessLevel={ accessLevel } />
@@ -273,21 +280,29 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 				<>
 					{ foundPaywallBlock && (
 						<>
-							<ToolbarButton
-								className="edit-post-paywall-toolbar-button"
-								onClick={ () => {
-									selectBlock( foundPaywallBlock.clientId );
-								} }
-							>
-								<Icon icon={ paywallIcon } />
-								{ __( 'Paywall', 'jetpack' ) }
-							</ToolbarButton>
-							<p>
-								{ __(
-									'The content below the paywall block is exclusive to the selected audience.',
-									'jetpack'
-								) }
-							</p>
+							<div className="block-editor-block-card">
+								<span className="block-editor-block-icon has-colors">
+									<Icon icon={ paywallIcon } />
+								</span>
+								<div className="block-editor-block-card__content">
+									<h2 className="block-editor-block-card__title">{ __( 'Paywall', 'jetpack' ) }</h2>
+									<span className="block-editor-block-card__description">
+										{ __(
+											'The content below the paywall block is exclusive to the selected audience.',
+											'jetpack'
+										) }{ ' ' }
+										<Button
+											className="edit-post-paywall-toolbar-button"
+											onClick={ () => {
+												selectBlock( foundPaywallBlock.clientId );
+											} }
+											variant={ 'link' }
+										>
+											{ __( 'Click to edit.', 'jetpack' ) }
+										</Button>
+									</span>
+								</div>
+							</div>
 						</>
 					) }
 					<PanelRow className="edit-post-post-visibility">
