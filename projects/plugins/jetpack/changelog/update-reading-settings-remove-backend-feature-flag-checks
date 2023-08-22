@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Cleaning up feature flag checks which are not needed anymore - no functionality added, nor changed
-
-

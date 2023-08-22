@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Reuse completion method to make it easier to add tracking and check for list completion.
