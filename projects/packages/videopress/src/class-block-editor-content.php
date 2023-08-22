@@ -80,7 +80,7 @@ class Block_Editor_Content {
 		// Make sure "false" will be actually false.
 		foreach ( $atts as $key => $value ) {
 			if ( is_string( $value ) && 'false' === strtolower( $value ) ) {
-				$atts[ $key ] = false;
+				$atts[ $key ] = 0;
 			}
 		}
 

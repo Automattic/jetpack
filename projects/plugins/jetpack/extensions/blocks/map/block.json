@@ -1,0 +1,61 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/map",
+	"title": "Map",
+	"description": "Add an interactive map showing one or more locations.",
+	"keywords": [ "maps", "location", "navigation" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path fill='none' d='M0 0h24v24H0V0z' /><path d='M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM10 5.47l4 1.4v11.66l-4-1.4V5.47zm-5 .99l3-1.01v11.7l-3 1.16V6.46zm14 11.08l-3 1.01V6.86l3-1.16v11.84z' /></svg>",
+	"supports": { "defaultStylePicker": false, "html": false },
+	"attributes": {
+		"align": {
+			"type": "string"
+		},
+		"points": {
+			"type": "array",
+			"default": []
+		},
+		"address": {
+			"type": "string",
+			"default": ""
+		},
+		"mapDetails": {
+			"type": "boolean",
+			"default": true
+		},
+		"zoom": {
+			"type": "integer",
+			"default": 13
+		},
+		"mapCenter": {
+			"type": "object",
+			"default": {
+				"longitude": -122.41941550000001,
+				"latitude": 37.7749295
+			}
+		},
+		"markerColor": {
+			"type": "string",
+			"default": "red"
+		},
+		"preview": {
+			"type": "boolean",
+			"default": false
+		},
+		"scrollToZoom": {
+			"type": "boolean",
+			"default": false
+		},
+		"mapHeight": {
+			"type": "integer"
+		},
+		"showFullscreenButton": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

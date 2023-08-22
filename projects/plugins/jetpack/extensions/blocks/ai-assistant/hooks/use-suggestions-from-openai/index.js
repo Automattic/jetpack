@@ -219,7 +219,7 @@ const useSuggestionsFromOpenAI = ( {
 			source.current = await askQuestion( prompt, {
 				postId,
 				requireUpgrade,
-				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : undefined,
+				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : 'ai-assistant',
 				functions: options?.functions,
 			} );
 		} catch ( err ) {

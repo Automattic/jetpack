@@ -3,13 +3,14 @@
  * Jetpack CRM Automation Contact_Field_Changed condition.
  *
  * @package automattic/jetpack-crm
+ * @since $$next-version$$
  */
 
 namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
-use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 /**
  * Contact_Field_Changed condition class.
@@ -19,20 +20,12 @@ use Automattic\Jetpack\CRM\Automation\Base_Condition;
 class Contact_Field_Changed extends Base_Condition {
 
 	/**
-	 * The Automation logger.
-	 *
-	 * @since $$next-version$$
-	 * @var Automation_Logger $logger The Automation logger.
-	 */
-	private $logger;
-
-	/**
 	 * All valid operators for this condition.
 	 *
 	 * @since $$next-version$$
 	 * @var string[] $valid_operators Valid operators.
 	 */
-	private $valid_operators = array(
+	protected $valid_operators = array(
 		'is',
 		'is_not',
 	);
@@ -49,32 +42,20 @@ class Contact_Field_Changed extends Base_Condition {
 	);
 
 	/**
-	 * Contact_Field_Changed constructor.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $step_data The step data for the condition.
-	 */
-	public function __construct( array $step_data ) {
-		parent::__construct( $step_data );
-
-		$this->logger = Automation_Logger::instance();
-	}
-
-	/**
 	 * Executes the condition. If the condition is met, the value stored in the
 	 * attribute $condition_met is set to true; otherwise, it is set to false.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data The data this condition has to evaluate.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( array $data ) {
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! $this->is_valid_contact_field_changed_data( $data ) ) {
-			$this->logger->log( 'Invalid contact field changed data', $data );
+			$this->logger->log( 'Invalid contact field changed data' );
 			$this->condition_met = false;
 
 			return;
@@ -84,23 +65,28 @@ class Contact_Field_Changed extends Base_Condition {
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
+		$this->check_for_valid_operator( $operator );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data[ $field ] );
+
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $data['data'][ $field ] === $value );
+				$this->condition_met = ( $data[ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				return;
+
 			case 'is_not':
-				$this->condition_met = ( $data['data'][ $field ] !== $value );
+				$this->condition_met = ( $data[ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				return;
-		}
-		$this->condition_met = false;
-		$this->logger->log( 'Invalid operator: ' . $operator );
 
-		throw new Automation_Exception( 'Invalid operator: ' . $operator );
+			default:
+				$this->condition_met = false;
+				throw new Automation_Exception(
+				/* Translators: %s is the unimplemented operator. */
+					sprintf( __( 'Valid but unimplemented operator: %s', 'zero-bs-crm' ), $operator ),
+					Automation_Exception::CONDITION_OPERATOR_NOT_IMPLEMENTED
+				);
+		}
 	}
 
 	/**
@@ -113,7 +99,7 @@ class Contact_Field_Changed extends Base_Condition {
 	 * @return bool True if the data is valid to detect a field change, false otherwise
 	 */
 	private function is_valid_contact_field_changed_data( array $contact_data ): bool {
-		return isset( $contact_data['id'] ) && isset( $contact_data['data'] ) && isset( $contact_data['data'][ $this->get_attributes()['field'] ] );
+		return isset( $contact_data[ $this->get_attributes()['field'] ] );
 	}
 
 	/**
@@ -150,17 +136,6 @@ class Contact_Field_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Get the type of the contact field changed condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The type 'condition'.
-	 */
-	public static function get_type(): string {
-		return 'condition';
-	}
-
-	/**
 	 * Get the category of the contact field changed condition.
 	 *
 	 * @since $$next-version$$
@@ -169,6 +144,17 @@ class Contact_Field_Changed extends Base_Condition {
 	 */
 	public static function get_category(): string {
 		return __( 'contact', 'zero-bs-crm' );
+	}
+
+	/**
+	 * Get the data type.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The type of the step.
+	 */
+	public static function get_data_type(): string {
+		return Data_Type_Contact::get_slug();
 	}
 
 	/**

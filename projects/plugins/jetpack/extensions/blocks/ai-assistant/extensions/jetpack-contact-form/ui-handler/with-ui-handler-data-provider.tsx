@@ -2,11 +2,13 @@
  * External dependencies
  */
 import { ERROR_QUOTA_EXCEEDED, useAiContext } from '@automattic/jetpack-ai-client';
+import { createBlock } from '@wordpress/blocks';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
@@ -21,6 +23,19 @@ import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 
 // An identifier to use on the extension error notices,
 export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
+
+/**
+ * Select the Jetpack Form block,
+ * based on the block client ID.
+ * Then, run the function passed as parameter (optional).
+ *
+ * @param {string} clientId - The block client ID.
+ * @param {Function} fn     - The function to run after selecting the block.
+ * @returns {void}
+ */
+export function selectFormBlock( clientId: string, fn: () => void ): void {
+	dispatch( 'core/block-editor' ).selectBlock( clientId ).then( fn );
+}
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
 	return props => {
@@ -82,15 +97,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			setAssistantAnchor( anchor );
 		}, [] );
 
-		/**
-		 * Select the Jetpack Form block
-		 *
-		 * @returns {void}
-		 */
-		const selectFormBlock = useCallback( () => {
-			dispatch( 'core/block-editor' ).selectBlock( clientId ).then( toggle );
-		}, [ clientId, toggle ] );
-
 		const { createNotice } = useDispatch( noticesStore );
 
 		/**
@@ -144,7 +150,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		);
 
 		const setContent = useCallback(
-			( newContent: string ) => {
+			( newContent: string, isRequestDone = false ) => {
 				// Remove the Jetpack Form block from the content.
 				const processedContent = newContent.replace(
 					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
@@ -158,7 +164,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 				// Check if the generated blocks are valid.
 				const validBlocks = newContentBlocks.filter( block => {
-					return block.isValid && block.name !== 'core/freeform';
+					return block.isValid && block.name !== 'core/freeform' && block.name !== 'core/missing';
 				} );
 
 				// Only update the blocks when the valid list changed, meaning a new block arrived.
@@ -169,13 +175,59 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					// Update the list of current valid blocks
 					currentListOfValidBlocks.current = validBlocks;
 				}
+
+				// Final form adjustments (only when the request is done)
+				if ( isRequestDone ) {
+					/*
+					 * Inspect generated blocks list,
+					 * checking if the jetpack/button block:
+					 * - if it exists twice or more, remove the first one.
+					 * - if it does not exist, create one.
+					 */
+					const allButtonBlocks = validBlocks.filter( block => block.name === 'jetpack/button' );
+					currentListOfValidBlocks.current = currentListOfValidBlocks.current || [];
+					if ( allButtonBlocks.length > 1 ) {
+						// Remove all button blocks, less the last one.
+						let buttonCounter = 0;
+						currentListOfValidBlocks.current = currentListOfValidBlocks.current.filter( block => {
+							if ( block.name !== 'jetpack/button' ) {
+								return true;
+							}
+
+							buttonCounter++;
+							if ( buttonCounter === allButtonBlocks.length ) {
+								return true;
+							}
+							return false;
+						} );
+
+						replaceInnerBlocks( clientId, currentListOfValidBlocks.current );
+					} else if ( allButtonBlocks.length === 0 ) {
+						// One button block is required.
+						replaceInnerBlocks( clientId, [
+							...currentListOfValidBlocks.current,
+							createBlock( 'jetpack/button', {
+								label: __( 'Submit', 'jetpack' ),
+								element: 'button',
+								text: __( 'Submit', 'jetpack' ),
+								borderRadius: 8,
+								lock: {
+									remove: true,
+								},
+							} ),
+						] );
+					}
+				}
 			},
 			[ clientId, replaceInnerBlocks ]
 		);
 
 		useAiContext( {
 			askQuestionOptions: { postId },
-			onDone: setContent,
+			onDone: finalContent => {
+				setContent( finalContent, true );
+				setInputValue( '' );
+			},
 			onSuggestion: setContent,
 			onError: showSuggestionError,
 		} );
@@ -185,7 +237,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 * and the AI Assistant component (popover)
 		 * only if is't possible to extend the block.
 		 */
-		if ( ! isPossibleToExtendJetpackFormBlock( props.name ) ) {
+		if ( ! isPossibleToExtendJetpackFormBlock( props.name, { clientId: props.clientId } ) ) {
 			return <BlockListBlock { ...props } />;
 		}
 
@@ -193,7 +245,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			<AiAssistantUiContextProvider value={ contextValue }>
 				<KeyboardShortcuts
 					shortcuts={ {
-						'mod+/': selectFormBlock,
+						'mod+/': () => selectFormBlock( clientId, show ),
 					} }
 				>
 					<BlockListBlock { ...props } />

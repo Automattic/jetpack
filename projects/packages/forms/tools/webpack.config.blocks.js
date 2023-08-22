@@ -4,6 +4,7 @@
 
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 
 /**
  * Internal variables
@@ -82,6 +83,17 @@ const sharedWebpackConfig = {
 module.exports = [
 	{
 		...sharedWebpackConfig,
-		plugins: [ ...sharedWebpackConfig.plugins ],
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						from: 'src/blocks/**/block.json',
+						to: '[name][ext]',
+						noErrorOnMissing: true,
+					},
+				],
+			} ),
+		],
 	},
 ];

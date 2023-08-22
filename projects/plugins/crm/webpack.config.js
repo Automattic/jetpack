@@ -290,7 +290,21 @@ module.exports = [
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ 'sass-loader' ],
+					extraLoaders: [ 
+						{
+							loader: 'sass-loader',
+							options: {
+								sassOptions: {
+									outputStyle: 'expanded',
+								},
+							},
+						},
+					],
+					CssLoader: {
+						modules: ! jetpackWebpackConfig.isProduction ? {
+							localIdentName: '[name]__[local]--[hash:base64:5]',
+						} : {},
+					}
 				} ),
 
 				// Handle images.

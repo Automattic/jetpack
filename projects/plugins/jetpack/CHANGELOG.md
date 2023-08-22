@@ -2,6 +2,65 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.5-beta - 2023-08-21
+### Enhancements
+- AI Assistant: various backend improvements.
+- AI Extension: various improvements AI Assistant, update styles, and bug fixes.
+- AI Extension: launch Jetpack AI support for Form blocks.
+- Dashboard: add Social Image Generator options to Jetpack Social settings. [#32475]
+- Mailchimp block: allow transforming to subscribe block. [#32482]
+- Paywall Block: add a notice explaining what the Paywall block does in relationship to newsletters. [#32320]
+- Paywall Block: improve paywall rendering on emails. [#32340]
+- Paywall block: various improvements to UX and styles.
+- Social: update social connection toggles to be button switches. [#32305]
+- Subscribe Modal: make subscribe modal editable. [#32522]
+
+### Improved compatibility
+- Blocks: add block.json metadata.
+
+### Bug fixes
+- Blocks: ensure the Markdown and Repeat Visitor blocks use clear contrasting colors when using a dark theme. [#32464]
+- Publicize: prevent metadata updates for published posts [#32301]
+- Shortcode embeds: avoid errors when a request to Flickr fails. [#32531]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add Woocommerce product post type to sitemaps if WooCommerce is present [#32570]
+- AI Assistant: Specify input background color [#32527]
+- AI Assistant: Update example copyright [#32491]
+- AI Extension: Add extension toolbar click event [#32489]
+- AI Extension: be able to show AI Assistant from children Jetpack Form blocks [#32540]
+- AI Extension: Change event parameter name [#32493]
+- AI Extension: check missing blocks when parsing Jetpack Form blocks in the AI generation process [#32576]
+- AI Extension: clean the AI Assistant bar input once the suggestion is done [#32547]
+- AI Extension: consolidate Block Toolbar button style [#32584]
+- AI Extension: do not extend Jetpack Form when it's inside of a query loop [#32555]
+- AI Extension: do not send request when AI assistant input is empty [#32590]
+- AI Extension: fix bug when focusing on the input element when component mount [#32575]
+- AI Extension: handle Jetpack Form button instances when composing via AI assistant [#32581]
+- AI Extension: Move extension to production. [#32403]
+- AI Extension: Start sending ai-assistant as the default feature name for the AI Assistant on the completion request [#32592]
+- Blocks: add "Beta" suffix to Beta blocks' descriptions in block.json file. [#32536]
+- Cookie Consent Block: avoid PHP notice [#32488]
+- Created V2 edit and delete endpoints for memberships products. [#32412]
+- Remove jetpack option jetpack-memberships-connected-account-id. [#32125]
+- Subscribe modal: don't use template parts [#32480]
+- Settings menu in WP.com: add newsletter and podcasting sections. [#32146]
+- Subscribe modal: update toggle copy. [#32512]
+- Supports Jetpack AI Yearly offering. [#32130]
+- Update icons of Jetpack blocks. [#32568]
+- Use the new method to render Connection initial state. [#32499]
+
+## 12.5-a.11 - 2023-08-15
+### Enhancements
+- Subscriptions: add a Subscribers menu to the Jetpack dashboard navigation. [#31718]
+
+### Improved compatibility
+- Infinite Scroll: avoid PHP notices when using the latest version of WordPress, 6.3. [#32454]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Remove unused blocks from block index [#32426]
+- Copy block.json files in Jetpack extensions build [#32431]
+
 ## 12.5-a.9 - 2023-08-14
 ### Enhancements
 - AI Assistant: various stylistic and back-end enhancements to the Jetpack AI Assistant.
