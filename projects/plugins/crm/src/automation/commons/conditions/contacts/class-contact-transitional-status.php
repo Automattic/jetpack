@@ -60,7 +60,7 @@ class Contact_Transitional_Status extends Base_Condition {
 			return;
 		}
 
-		$operator   = 'from_to';
+		$operator   = $this->get_attributes()['operator'];
 		$status_was = $this->get_attributes()['previous_status_was'];
 		$status_is  = $this->get_attributes()['new_status_is'];
 
