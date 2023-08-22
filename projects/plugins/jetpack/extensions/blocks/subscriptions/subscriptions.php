@@ -820,8 +820,7 @@ function maybe_gate_existing_comments( $comment ) {
  */
 function get_paywall_blocks( $newsletter_access_level ) {
 	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
-	$is_paid_post = $newsletter_access_level === 'paid_subscribers'
-		&& ! empty( Jetpack_Memberships::get_connected_account_id() );
+	$is_paid_post = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
 
 	$access_heading = esc_html__( 'Subscribe to continue reading', 'jetpack' );
 
