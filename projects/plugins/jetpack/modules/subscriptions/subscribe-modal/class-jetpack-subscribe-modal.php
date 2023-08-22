@@ -158,8 +158,6 @@ HTML;
 
 	/**
 	 * Returns true if we should load Newsletter content.
-	 * This is currently limited to lettre theme or newsletter sites.
-	 * We could open it to all themes or site intents.
 	 *
 	 * @return bool
 	 */
@@ -167,16 +165,7 @@ HTML;
 		// Adding extra check/flag to load only on WP.com
 		// When ready for Jetpack release, remove this.
 		$is_wpcom = ( new Host() )->is_wpcom_platform();
-		if ( ! $is_wpcom ) {
-			return false;
-		}
-		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
-			return false;
-		}
-		if ( ! wp_is_block_theme() ) {
-			return false;
-		}
-		return true;
+		return $is_wpcom;
 	}
 
 	/**
