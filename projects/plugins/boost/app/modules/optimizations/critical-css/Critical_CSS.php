@@ -138,4 +138,18 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 	public function update_total_problem_count( $count ) {
 		return ( new Critical_CSS_State() )->has_errors() ? ++$count : $count;
 	}
+
+	/**
+	 * Add the critical css generation flag to a list.
+	 * This is mainly used by filters for compatibility.
+	 *
+	 * @var $query_args    array The list to add the arg to.
+	 *
+	 * @return $query_args array The updatest list with query args.
+	 */
+	public static function add_critical_css_query_arg_to_list( $query_args ) {
+		$query_args[] = 'jb-generate-critical-css';
+
+		return $query_args;
+	}
 }
