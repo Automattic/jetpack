@@ -4,6 +4,13 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
+use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Company;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
 
 require_once __DIR__ . '/class-event-emitter.php';
@@ -15,10 +22,16 @@ class Automation_Faker {
 	public static function instance(): Automation_Faker {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
-			self::$instance->load_mocks();
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Automation_Faker constructor.
+	 */
+	public function __construct() {
+		$this->load_mocks();
 	}
 
 	public function reset_all() {
@@ -193,22 +206,21 @@ class Automation_Faker {
 	 * Return a workflow with a condition and an action
 	 * @return array
 	 */
-	public function workflow_with_condition_customizable_trigger_action( $trigger_name, $action_data ): array {
+	public function workflow_with_condition_customizable_trigger_action( $trigger_slug, $action_data ): array {
 		return array(
 			'name'         => 'Workflow Test: with_condition_customizable_trigger_action',
 			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
 			'is_active'    => true,
 			'triggers'     => array(
-				$trigger_name,
+				$trigger_slug,
 			),
 			'initial_step' => array(
-				'slug'            => 'contact_status_condition',
-				'class_name'      => Contact_Condition::class,
+				'slug'            => Contact_Field_Changed::get_slug(),
 				'attributes'      => array(
 					'field'    => 'status',
 					'operator' => 'is',
-					'value'    => 'lead',
+					'value'    => 'Lead',
 				),
 				'next_step_true'  => $action_data,
 				'next_step_false' => null,
@@ -233,24 +245,69 @@ class Automation_Faker {
 		}
 	}
 
-	public function contact_data() {
-		return array(
-			'id'   => 1,
-			'data' => array(
-				'status' => 'lead',
-				'name'   => 'John Doe',
-				'email'  => 'johndoe@example.com',
-			),
+	/**
+	 * Return data for a dummy contact.
+	 *
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Contact object.
+	 * @return array|Data_Type_Contact
+	 */
+	public function contact_data( $get_as_data_type = false ) {
+		$data = array(
+			'id'             => 1,
+			'owner'          => '-1',
+			'status'         => 'lead',
+			'fname'          => 'John',
+			'lname'          => 'Doe',
+			'email'          => 'johndoe@example.com',
+			'prefix'         => 'Mr',
+			'addr1'          => 'My Street 1',
+			'addr2'          => '',
+			'city'           => 'San Francisco',
+			'county'         => 'CA',
+			'postcode'       => '94110',
+			'country'        => 'US',
+			'secaddr1'       => '',
+			'secaddr2'       => '',
+			'seccity'        => '',
+			'seccounty'      => '',
+			'seccountry'     => '',
+			'secpostcode'    => '',
+			'hometel'        => '',
+			'worktel'        => '',
+			'mobtel'         => '(877) 273-3049',
+			'wpid'           => '',
+			'avatar'         => '',
+			'tw'             => '',
+			'li'             => '',
+			'fb'             => '',
+			'created'        => '1691193339',
+			'lastupdated'    => '1691193339',
+			'lastcontacted'  => '',
+			'lastlog'        => '',
+			'lastcontactlog' => '',
 		);
+
+		if ( $get_as_data_type ) {
+			return new Data_Type_Contact( $data );
+		}
+
+		return $data;
 	}
 
-	public function invoice_data() {
-		return array(
+	/**
+	 * Return data for a dummy invoice.
+	 *
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Invoice object.
+	 * @return array|Data_Type_Invoice
+	 */
+	public function invoice_data( $get_as_data_type = false ) {
+		$data = array(
 			'id'   => 1,
 			'data' => array(
 				'id_override' => '1',
 				'parent'      => '',
 				'status'      => 'Unpaid',
+				'due_date'    => 1690840800,
 				'hash'        => 'ISSQndSUjlhJ8feWj2v',
 				'lineitems'   => array(
 					array(
@@ -265,47 +322,67 @@ class Automation_Faker {
 				'created'     => -1,
 			),
 		);
+
+		if ( $get_as_data_type ) {
+			return new Data_Type_Invoice( $data );
+		}
+
+		return $data;
 	}
 
 	/**
-	 * Return data for a dummy quote
-	 * @return array
-	 */
-	public function quote_data() {
-		return array(
-			'id'   => 1,
-			'data' => array(
-				'id_override' => '1',
-				'title'       => '',
-				'hash'        => 'V8jAlsi0#$ksm0Plsxp',
-				'template'    => 1676923766,
-				'accepted'    => 1676923766,
-				'created'     => 1676000000,
-			),
-		);
-	}
-
-	/**
-	 * Return data for a dummy company
+	 * Return data for a dummy quote.
 	 *
-	 * @return array
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Quote object.
+	 * @return array|Data_Type_Quote
 	 */
-	public function company_data() {
-		return array(
+	public function quote_data( $get_as_data_type = false ) {
+		$data = array(
+			'id'          => 1,
+			'id_override' => '1',
+			'title'       => 'Quote title',
+			'hash'        => 'V8jAlsi0#$ksm0Plsxp',
+			'template'    => 1676923766,
+			'accepted'    => 1676923766,
+			'created'     => 1676000000,
+		);
+
+		if ( $get_as_data_type ) {
+			return new Data_Type_Quote( $data );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Return data for a dummy company.
+	 *
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Company object.
+	 * @return array|Data_Type_Company
+	 */
+	public function company_data( $get_as_data_type = false ) {
+		$data = array(
 			'id'     => 1,
 			'name'   => 'Dummy Company',
 			'email'  => 'johndoe@dummycompany.com',
 			'status' => 'lead',
 		);
+
+		if ( $get_as_data_type ) {
+			return new Data_Type_Company( $data );
+		}
+
+		return $data;
 	}
 
 	/**
-	 * Return data for a dummy event
+	 * Return data for a dummy event.
 	 *
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Event object.
 	 * @return array
 	 */
-	public function event_data() {
-		return array(
+	public function event_data( $get_as_data_type = false ) {
+		$data = array(
 			'id'   => 1,
 			'data' => array(
 				'title'          => 'Some event title',
@@ -320,15 +397,22 @@ class Automation_Faker {
 				'lastupdated'    => 1675000000,
 			),
 		);
+
+		if ( $get_as_data_type ) {
+			return new Data_Type_Event( $data );
+		}
+
+		return $data;
 	}
 
 	/**
-	 * Return data for a dummy transaction
+	 * Return data for a dummy transaction.
 	 *
+	 * @param bool $get_as_data_type If true, return the data as a Data_Type_Transaction object.
 	 * @return array
 	 */
-	public function transaction_data() {
-		return array(
+	public function transaction_data( $get_as_data_type = false ) {
+		$data = array(
 			'id'   => 1,
 			'data' => array(
 				'title'          => 'Some transaction title',
@@ -336,27 +420,22 @@ class Automation_Faker {
 				'hash'           => 'mASOpAnf334Pncl1px4',
 				'status'         => 'Completed',
 				'type'           => 'Sale',
+				'currency'       => 'USD',
+				'total'          => '150.00',
+				'tax'            => '10.00',
+				'lineitems'      => array(),
 				'date'           => 1676000000,
 				'date_completed' => 1676923766,
 				'created'        => 1675000000,
 				'lastupdated'    => 1675000000,
 			),
 		);
-	}
 
-	/**
-	 * Returns the data for a dummy contact transitional status.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $old_status The value of the old status.
-	 * @return array An array containing a dummy contact and the value of the old status that was passed as a parameter.
-	 */
-	public function contact_transitional_status_data( $old_status ) {
-		return array(
-			'contact'          => $this->contact_data(),
-			'old_status_value' => $old_status,
-		);
+		if ( $get_as_data_type ) {
+			return new Data_Type_Transaction( $data );
+		}
+
+		return $data;
 	}
 
 	/**
