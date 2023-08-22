@@ -218,9 +218,9 @@ export function NewsletterAccessRadioButtons( {
 								htmlFor={ `editor-post-${ key }-${ instanceId }` }
 								className="editor-post-visibility__label"
 							>
-								{ accessOptions[ key ].label }
+								{ accessOptions[ key ].label }{ ' ' }
 								{ sprintf(
-									' (%1$s)',
+									'(%1$s)',
 									getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers )
 								) }{ ' ' }
 							</label>
