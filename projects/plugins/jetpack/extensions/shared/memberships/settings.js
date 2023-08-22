@@ -1,13 +1,4 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	Flex,
-	Notice,
-	FlexBlock,
-	PanelRow,
-	VisuallyHidden,
-	Spinner,
-	Button,
-} from '@wordpress/components';
+import { Flex, FlexBlock, PanelRow, VisuallyHidden, Spinner, Button } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
@@ -39,87 +30,6 @@ export function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, pai
 		default:
 			return 0;
 	}
-}
-
-export function NewsletterNotice( { accessLevel } ) {
-	const { hasPostBeenPublished, hasPostBeenScheduled } = useSelect( select => {
-		const { isCurrentPostPublished, isCurrentPostScheduled } = select( editorStore );
-
-		return {
-			hasPostBeenPublished: isCurrentPostPublished(),
-			hasPostBeenScheduled: isCurrentPostScheduled(),
-		};
-	} );
-
-	const { emailSubscribers, paidSubscribers } = useSelect( select =>
-		select( membershipProductsStore ).getSubscriberCounts()
-	);
-
-	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
-	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
-
-	// If there is a misconfiguration, we do not show the NewsletterNotice
-	if ( showMisconfigurationWarning ) {
-		return;
-	}
-
-	// Get the reach count for the access level
-	const reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
-
-	if ( 0 === reachCount ) {
-		return (
-			<FlexBlock>
-				<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-					{ createInterpolateElement(
-						__(
-							'You don’t have any subscribers yet. How about <importingLink>importing</importingLink> some? Or check out <thisGuideLink>this guide</thisGuideLink> on how to grow your audience.',
-							'jetpack'
-						),
-						{
-							importingLink: (
-								<Link href={ getRedirectUrl( 'paid-newsletter-import-subscribers' ) } />
-							),
-							thisGuideLink: (
-								<Link href={ getRedirectUrl( 'paid-newsletter-guide-grow-audience' ) } />
-							),
-						}
-					) }
-				</Notice>
-			</FlexBlock>
-		);
-	}
-
-	let subscriberType = __( 'subscribers', 'jetpack' );
-	if ( accessLevel === accessOptions.paid_subscribers.key ) {
-		subscriberType = __( 'paid subscribers', 'jetpack' );
-	}
-
-	let numberOfSubscribersText = sprintf(
-		/* translators: %1s is the number of subscribers in numerical format, %2s options are paid subscribers or subscribers */
-		__( 'This will be sent to <br/><strong>%1$s %2$s</strong>.', 'jetpack' ),
-		reachCount,
-		subscriberType
-	);
-
-	if ( hasPostBeenPublished && ! hasPostBeenScheduled ) {
-		numberOfSubscribersText = sprintf(
-			/* translators: %1s is the number of subscribers in numerical format, %2s options are paid subscribers or subscribers */
-			__( 'This was sent to <strong>%1$s %2$s</strong>.', 'jetpack' ),
-			reachCount,
-			subscriberType
-		);
-	}
-
-	return (
-		<FlexBlock>
-			<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-				{ createInterpolateElement( numberOfSubscribersText, {
-					br: <br />,
-					strong: <strong />,
-				} ) }
-			</Notice>
-		</FlexBlock>
-	);
 }
 
 function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasNewsletterPlans } ) {
@@ -222,11 +132,8 @@ export function NewsletterAccessRadioButtons( {
 								{ sprintf(
 									'(%1$s)',
 									getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers )
-								) }{ ' ' }
+								) }
 							</label>
-							{ ! hasPaywallBlock && key === accessLevel && key !== accessOptions.everybody.key && (
-								<NewsletterNotice accessLevel={ accessLevel } />
-							) }
 						</div>
 					)
 			) }
