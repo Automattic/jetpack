@@ -399,9 +399,7 @@ class Automation_Engine {
 
 		while ( $step_data ) {
 			try {
-				$step_slug = $step_data['slug'];
-
-				$step_class = $step_data['class_name'] ?? $this->get_step_class( $step_slug );
+				$step_class = $step_data['class_name'] ?? $this->get_step_class( $step_data['slug'] );
 
 				if ( ! class_exists( $step_class ) ) {
 					throw new Automation_Exception(
@@ -413,6 +411,8 @@ class Automation_Engine {
 
 				/** @var Step $step */
 				$step = new $step_class( $step_data );
+
+				$step_slug = $step->get_slug();
 
 				if ( isset( $step_data['attributes'] ) && is_array( $step_data['attributes'] ) ) {
 					$step->set_attributes( $step_data['attributes'] );
