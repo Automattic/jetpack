@@ -50,14 +50,6 @@ class Attribute_Definition {
 	const TEXT = 'text';
 
 	/**
-	* Represents a text input.
-	*
-	* @since $$next-version$$
-	* @var string
-	*/
-	const HIDDEN = 'hidden';
-
-	/**
 	* Represents a date input.
 	*
 	* @since $$next-version$$

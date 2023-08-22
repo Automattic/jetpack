@@ -35,7 +35,6 @@ class Contact_Transitional_Status extends Base_Condition {
 		$this->set_title( __( 'Contact Field Tag', 'zero-bs-crm' ) );
 		$this->set_attribute_definitions(
 			array(
-				new Attribute_Definition( 'operator', __( 'Operator', 'zero-bs-crm' ), '', Attribute_Definition::HIDDEN, 'from_to' ),
 				new Attribute_Definition( 'previous_status_was', __( 'Previous Status Was', 'zero-bs-crm' ), __( 'Value to compare with the previous status.', 'zero-bs-crm' ), Attribute_Definition::TEXT ),
 				new Attribute_Definition( 'new_status_is', __( 'New Status Is', 'zero-bs-crm' ), __( 'Value to compare with the new status.', 'zero-bs-crm' ), Attribute_Definition::TEXT ),
 			)
@@ -61,7 +60,7 @@ class Contact_Transitional_Status extends Base_Condition {
 			return;
 		}
 
-		$operator   = $this->get_attributes()['operator'];
+		$operator   = 'from_to';
 		$status_was = $this->get_attributes()['previous_status_was'];
 		$status_is  = $this->get_attributes()['new_status_is'];
 
