@@ -37,7 +37,7 @@ const AutoConversionToggle: React.FC = () => {
 			<Text className={ styles.text }>
 				{ createInterpolateElement(
 					__(
-						'Social media platforms require different image file types, and sizes. Upload one image and it will be automatically converted to ensure maximum compatibility & quality across all your connected platforms. <link>Learn more about media requirements.</link>',
+						'Social media platforms require different image file types and sizes. Upload one image and it will be automatically converted to ensure maximum compatibility & quality across all your connected platforms. <link>Learn more about media requirements.</link>',
 						'jetpack-social'
 					),
 					{
