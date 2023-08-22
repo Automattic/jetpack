@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Paywall block: avoid undefined variable warning
