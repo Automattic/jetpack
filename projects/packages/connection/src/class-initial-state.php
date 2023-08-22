@@ -53,7 +53,7 @@ class Initial_State {
 	 */
 	public static function render() {
 		if ( self::$rendered ) {
-			return null;
+			return '';
 		}
 		self::$rendered = true;
 		return 'var JP_CONNECTION_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::get_data() ) ) . '"));';

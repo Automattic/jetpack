@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Ensure Initial_State::render() always returns a string
