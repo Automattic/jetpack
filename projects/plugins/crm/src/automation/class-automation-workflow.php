@@ -228,71 +228,10 @@ class Automation_Workflow {
 	 * @param array   $data All relevant object data to be passed through the workflow.
 	 * @return bool Whether the workflow was executed successfully.
 	 *
-	 * @throws Automation_Exception Throws an exception if the step class does not exist, or there is an error executing the workflow.
+	 * @throws Workflow_Exception Throws an exception if there is an issue executing the workflow.
 	 */
 	public function execute( Trigger $trigger, array $data ): bool {
-		$this->get_logger()->log( 'Trigger activated: ' . $trigger->get_slug() );
-		$this->get_logger()->log( 'Executing workflow: ' . $this->name );
-
-		$step_data = $this->initial_step;
-
-		while ( $step_data ) {
-			try {
-				$step_slug = $step_data['slug'];
-
-				$step_class = $step_data['class_name'] ?? $this->get_engine()->get_step_class( $step_slug );
-
-				if ( ! class_exists( $step_class ) ) {
-					throw new Automation_Exception(
-						/* Translators: %s is the name of the step class that does not exist. */
-						sprintf( __( 'The step class %s does not exist.', 'zero-bs-crm' ), $step_class ),
-						Automation_Exception::STEP_CLASS_NOT_FOUND
-					);
-				}
-
-				/** @var Step $step */
-				$step = new $step_class( $step_data );
-
-				if ( isset( $step_data['attributes'] ) && is_array( $step_data['attributes'] ) ) {
-					$step->set_attributes( $step_data['attributes'] );
-				}
-
-				$this->get_logger()->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step->get_type() );
-
-				$step->execute( $data );
-				$step_data = $step->get_next_step();
-
-				$this->get_logger()->log( '[' . $step->get_slug() . '] Step executed!' );
-
-				if ( ! $step_data ) {
-					$this->get_logger()->log( 'Workflow execution finished: No more steps found.' );
-					return true;
-				}
-			} catch ( Automation_Exception $automation_exception ) {
-
-				$this->get_logger()->log( 'Error executing the workflow on step: ' . $step_slug . ' - ' . $automation_exception->getMessage() );
-
-				throw $automation_exception;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get the step classname based on the step type.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $step_data The step data with which to check the step type.
-	 * @return string The step classname.
-	 *
-	 * @throws Automation_Exception Throws an exception if the step class does not exist.
-	 */
-	private function get_step_class( array $step_data ): string {
-		$step_type = $step_data['type'];
-
-		return $this->get_engine()->get_step_class( $step_type );
+		return $this->get_engine()->execute_workflow( $this, $trigger, $data );
 	}
 
 	/**

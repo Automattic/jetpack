@@ -105,7 +105,7 @@ abstract class Base_Condition extends Base_Step implements Condition {
 	 * @throws Automation_Exception If the operator is invalid for this condition.
 	 */
 	protected function check_for_valid_operator( string $operator ): void {
-		if ( ! in_array( $operator, $this->valid_operators, true ) ) {
+		if ( ! array_key_exists( $operator, $this->valid_operators ) ) {
 			$this->condition_met = false;
 			$this->logger->log( 'Invalid operator: ' . $operator );
 			throw new Automation_Exception(

@@ -95,6 +95,18 @@ if (
 // for timing purposes for the html comments
 $wp_start_time = microtime();
 
+if ( isset( $_SERVER['REQUEST_URI'] ) ) { // Cache this in case any plugin modifies it and filter out tracking parameters.
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- none available before WordPress is loaded. Sanitized in wp_cache_postload().
+	$wp_cache_request_uri = wpsc_remove_tracking_params_from_uri( $_SERVER['REQUEST_URI'] ); // phpcs:ignore
+
+	// $wp_cache_request_uri is expected to be a string. If running from wp-cli it will be null.
+	if ( $wp_cache_request_uri === null ) {
+		$wp_cache_request_uri = '';
+	}
+} else {
+	$wp_cache_request_uri = '';
+}
+
 // don't cache in wp-admin
 if ( wpsc_is_backend() ) {
 	return true;
@@ -142,13 +154,6 @@ if ( $cache_compression ) {
 add_cacheaction( 'supercache_filename_str', 'wp_cache_check_mobile' );
 if ( function_exists( 'add_filter' ) ) { // loaded since WordPress 4.6
 	add_filter( 'supercache_filename_str', 'wp_cache_check_mobile' );
-}
-
-$wp_cache_request_uri = wpsc_remove_tracking_params_from_uri( $_SERVER['REQUEST_URI'] ); // Cache this in case any plugin modifies it and filter out tracking parameters.
-
-// $wp_cache_request_uri is expected to be a string. If running from wp-cli it will be null.
-if ( $wp_cache_request_uri === null ) {
-	$wp_cache_request_uri = '';
 }
 
 if ( defined( 'DOING_CRON' ) ) {

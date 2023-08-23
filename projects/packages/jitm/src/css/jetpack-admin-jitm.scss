@@ -33,6 +33,7 @@
 // New JITMS - modified calypso banner styles
 $blue-medium-dark:       #2271b1;
 $jp-gray:                #dcdcde;
+$jp-gray-0:              #f6f7f7;
 $jp-gray-20:             #a7aaad;
 
 .jitm-button {
@@ -64,6 +65,23 @@ $jp-gray-20:             #a7aaad;
 	&.is-primary {
 		background: black;
 		color: $white;
+		.gridicons-external-link {
+			fill: $white;
+		}
+	}
+
+	// Secondary buttons
+	&.is-secondary {
+		.gridicons-external-link {
+			fill: black;
+		}
+		&:hover{
+			color: black;
+			background: $jp-gray-0;
+			.gridicons-external-link {
+				fill: black;
+			}
+		}
 	}
 
 	&:hover,
@@ -111,7 +129,6 @@ $jp-gray-20:             #a7aaad;
 		// Properly align icon with the button text
 		.gridicons-external-link {
 			margin: -3px 0 -3px 2px;
-			fill: $white;
 		}
 	}
 	&.hidden {
