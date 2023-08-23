@@ -505,7 +505,7 @@ class Jetpack_Memberships {
 		}
 
 		$cache_key = sprintf( '%d_%d', $user_id, $post_id );
-		if ( isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
+		if ( $user_id !== 0 && isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
 			return self::$user_can_view_post_cache[ $cache_key ];
 		}
 
@@ -513,6 +513,14 @@ class Jetpack_Memberships {
 		if ( Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $post_access_level ) {
 			self::$user_can_view_post_cache[ $cache_key ] = true;
 			return true;
+		}
+
+		if ( $user_id === 0 ) {
+			if ( defined( 'WPCOM_SENDING_POST_TO_SUBSCRIBERS' ) && WPCOM_SENDING_POST_TO_SUBSCRIBERS ) {
+				if ( Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
+					return true;
+				}
+			}
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
