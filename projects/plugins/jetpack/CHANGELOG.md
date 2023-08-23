@@ -2,11 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.5-beta - 2023-08-21
+## 12.5 - 2023-08-23
 ### Enhancements
 - AI Assistant: various backend improvements.
-- AI Extension: various improvements AI Assistant, update styles, and bug fixes.
 - AI Extension: launch Jetpack AI support for Form blocks.
+- AI Extension: various improvements AI Assistant, update styles, and bug fixes.
 - Dashboard: add Social Image Generator options to Jetpack Social settings. [#32475]
 - Mailchimp block: allow transforming to subscribe block. [#32482]
 - Paywall Block: add a notice explaining what the Paywall block does in relationship to newsletters. [#32320]
@@ -17,6 +17,7 @@
 
 ### Improved compatibility
 - Blocks: add block.json metadata.
+- Theme fields: only add is_block_theme to theme response when WordPress version is < 6.3 [#31660]
 
 ### Bug fixes
 - Blocks: ensure the Markdown and Repeat Visitor blocks use clear contrasting colors when using a dark theme. [#32464]
@@ -43,8 +44,8 @@
 - Cookie Consent Block: avoid PHP notice [#32488]
 - Created V2 edit and delete endpoints for memberships products. [#32412]
 - Remove jetpack option jetpack-memberships-connected-account-id. [#32125]
-- Subscribe modal: don't use template parts [#32480]
 - Settings menu in WP.com: add newsletter and podcasting sections. [#32146]
+- Subscribe modal: don't use template parts [#32480]
 - Subscribe modal: update toggle copy. [#32512]
 - Supports Jetpack AI Yearly offering. [#32130]
 - Update icons of Jetpack blocks. [#32568]

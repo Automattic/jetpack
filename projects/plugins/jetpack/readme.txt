@@ -293,7 +293,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.5-beta - 2023-08-21
+### 12.5 - 2023-08-23
 #### Enhancements
 - Added SIG modal ui
 - Add Inspector Panel with Newsletter visibility options to Paywall Block
@@ -359,6 +359,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Improved compatibility
 - Blocks: add block.json metadata.
 - Infinite Scroll: avoid PHP notices when using the latest version of WordPress, 6.3.
+- Theme fields: only add is_block_theme to theme response when WordPress version is < 6.3
 
 #### Bug fixes
 - Add subscribe button on premium content block on self-hosted
