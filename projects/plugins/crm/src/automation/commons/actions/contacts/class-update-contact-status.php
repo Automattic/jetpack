@@ -35,7 +35,7 @@ class Update_Contact_Status extends Base_Action {
 	 *
 	 * @return string|null The title of the step.
 	 */
-	public function get_title(): ?string {
+	public static function get_title(): ?string {
 		return 'Update Contact Status Action';
 	}
 

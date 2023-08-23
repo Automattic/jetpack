@@ -35,7 +35,7 @@ class Add_Remove_Contact_Tag extends Base_Action {
 	 *
 	 * @return string The title of the step.
 	 */
-	public function get_title(): ?string {
+	public static function get_title(): ?string {
 		return 'Add / Remove Contact Tag Action';
 	}
 

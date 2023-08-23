@@ -35,7 +35,7 @@ class Add_Contact_Log extends Base_Action {
 	 *
 	 * @return string The title of the step.
 	 */
-	public function get_title(): ?string {
+	public static function get_title(): ?string {
 		return 'Add Contact Log Action';
 	}
 

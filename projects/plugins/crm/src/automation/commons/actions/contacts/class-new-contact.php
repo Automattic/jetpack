@@ -35,7 +35,7 @@ class New_Contact extends Base_Action {
 	 *
 	 * @return string|null The title of the step.
 	 */
-	public function get_title(): ?string {
+	public static function get_title(): ?string {
 		return 'New Contact Action';
 	}
 

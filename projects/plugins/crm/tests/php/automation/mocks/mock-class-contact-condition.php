@@ -128,6 +128,10 @@ class Contact_Condition extends Base_Condition {
 		return 'contact_status';
 	}
 
+	public static function get_title(): ?string {
+		return 'Contact Status';
+	}
+
 	public static function get_description(): ?string {
 		return 'Check if a contact has a specific status';
 	}
