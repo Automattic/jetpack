@@ -1337,5 +1337,5 @@ if ( ( new Host() )->is_woa_site() ) {
 	 *
 	 * @see paYJgx-1Kl-p2
 	 */
-	add_action( 'admin_init', array( 'Jetpack_Gutenberg', 'add_iframed_editor_style' ) );
+	add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'add_iframed_editor_style' ) );
 }
