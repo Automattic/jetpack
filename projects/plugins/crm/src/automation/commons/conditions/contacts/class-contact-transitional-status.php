@@ -32,7 +32,6 @@ class Contact_Transitional_Status extends Base_Condition {
 			'from_to' => __( 'From (...) To (...)', 'zero-bs-crm' ),
 		);
 
-		$this->set_title( __( 'Contact Field Tag', 'zero-bs-crm' ) );
 		$this->set_attribute_definitions(
 			array(
 				new Attribute_Definition( 'previous_status_was', __( 'Previous Status Was', 'zero-bs-crm' ), __( 'Value to compare with the previous status.', 'zero-bs-crm' ), Attribute_Definition::TEXT ),
@@ -94,6 +93,17 @@ class Contact_Transitional_Status extends Base_Condition {
 	 */
 	private function is_valid_contact_status_transitional_data( array $data ): bool {
 		return isset( $data['contact'] ) && isset( $data['old_status_value'] ) && isset( $data['contact']['data']['status'] );
+	}
+
+	/**
+	 * Get the title for the contact transitional status condition.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The title 'Contact Transitional Status'.
+	 */
+	public static function get_title(): string {
+		return __( 'Contact Transitional Status', 'zero-bs-crm' );
 	}
 
 	/**

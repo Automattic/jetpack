@@ -17,14 +17,6 @@ namespace Automattic\Jetpack\CRM\Automation;
 abstract class Base_Step implements Step {
 
 	/**
-	 * Step title.
-	 *
-	 * @since $$next-version$$
-	 * @var string
-	 */
-	protected $title;
-
-	/**
 	 * Step attributes.
 	 *
 	 * @since $$next-version$$
@@ -150,20 +142,7 @@ abstract class Base_Step implements Step {
 	 *
 	 * @return string|null The title of the step.
 	 */
-	public function get_title(): ?string {
-		return $this->title;
-	}
-
-	/**
-	 * Set the title of the step.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $title Set title of the step.
-	 */
-	public function set_title( string $title ) {
-		$this->title = $title;
-	}
+	abstract public static function get_title(): ?string;
 
 	/**
 	 * Get the description of the step.

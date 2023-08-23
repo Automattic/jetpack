@@ -44,7 +44,6 @@ class Transaction_Field extends Base_Condition {
 			'does_not_contain' => __( 'Does not contain', 'zero-bs-crm' ),
 		);
 
-		$this->set_title( __( 'Transaction Field', 'zero-bs-crm' ) );
 		$this->set_attribute_definitions(
 			array(
 				new Attribute_Definition( 'field', __( 'Field', 'zero-bs-crm' ), __( 'Check this field against a specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $transaction_fields ),
@@ -123,6 +122,17 @@ class Transaction_Field extends Base_Condition {
 	 */
 	private function is_valid_transaction_field_data( array $transaction_data ): bool {
 		return isset( $transaction_data['id'] ) && isset( $transaction_data['data'] ) && isset( $transaction_data['data'][ $this->get_attributes()['field'] ] );
+	}
+
+	/**
+	 * Get the title for the transaction field condition.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The title 'Transaction Field Changed'.
+	 */
+	public static function get_title(): string {
+		return __( 'Transaction Field', 'zero-bs-crm' );
 	}
 
 	/**

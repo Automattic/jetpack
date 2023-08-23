@@ -33,7 +33,6 @@ class Invoice_Status_Changed extends Base_Condition {
 			'is_not' => __( 'Is not', 'zero-bs-crm' ),
 		);
 
-		$this->set_title( __( 'Invoice Status Changed', 'zero-bs-crm' ) );
 		$this->set_attribute_definitions(
 			array(
 				new Attribute_Definition( 'operator', __( 'Operator', 'zero-bs-crm' ), __( 'Determines how the status is compared to the specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $this->valid_operators ),
@@ -98,6 +97,17 @@ class Invoice_Status_Changed extends Base_Condition {
 	 */
 	private function is_valid_invoice_status_changed_data( array $invoice_data ): bool {
 		return isset( $invoice_data['id'] ) && isset( $invoice_data['data'] ) && isset( $invoice_data['data']['status'] );
+	}
+
+	/**
+	 * Get the title for the invoice status changed condition.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The title 'Invoice Status Changed'.
+	 */
+	public static function get_title(): string {
+		return __( 'Invoice Status Changed', 'zero-bs-crm' );
 	}
 
 	/**

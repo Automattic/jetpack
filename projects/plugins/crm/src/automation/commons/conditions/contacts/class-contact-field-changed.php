@@ -41,7 +41,6 @@ class Contact_Field_Changed extends Base_Condition {
 			'is_not' => __( 'Is not', 'zero-bs-crm' ),
 		);
 
-		$this->set_title( __( 'Contact Field Changed', 'zero-bs-crm' ) );
 		$this->set_attribute_definitions(
 			array(
 				new Attribute_Definition( 'field', __( 'Field', 'zero-bs-crm' ), __( 'Check this field against a specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $contact_fields ),
@@ -109,6 +108,17 @@ class Contact_Field_Changed extends Base_Condition {
 	 */
 	private function is_valid_contact_field_changed_data( array $contact_data ): bool {
 		return isset( $contact_data['id'] ) && isset( $contact_data['data'] ) && isset( $contact_data['data'][ $this->get_attributes()['field'] ] );
+	}
+
+	/**
+	 * Get the title for the contact field changed condition.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The title 'Contact Field Changed'.
+	 */
+	public static function get_title(): ?string {
+		return __( 'Contact Field Changed', 'zero-bs-crm' );
 	}
 
 	/**

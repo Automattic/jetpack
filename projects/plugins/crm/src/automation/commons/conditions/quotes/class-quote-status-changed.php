@@ -33,7 +33,6 @@ class Quote_Status_Changed extends Base_Condition {
 			'is_not' => __( 'Is not', 'zero-bs-crm' ),
 		);
 
-		$this->set_title( __( 'Quote Status Changed', 'zero-bs-crm' ) );
 		$this->set_attribute_definitions(
 			array(
 				new Attribute_Definition( 'operator', __( 'Operator', 'zero-bs-crm' ), __( 'Determines how the status is compared to the specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $this->valid_operators ),
@@ -98,6 +97,17 @@ class Quote_Status_Changed extends Base_Condition {
 	 */
 	private function is_valid_quote_status_changed_data( array $quote_data ): bool {
 		return isset( $quote_data['id'] ) && isset( $quote_data['data'] ) && isset( $quote_data['data']['accepted'] ) && isset( $quote_data['data']['template'] );
+	}
+
+	/**
+	 * Get the title for the quote status changed condition.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The title 'Quote Status Changed'.
+	 */
+	public static function get_title(): string {
+		return __( 'Quote Status Changed', 'zero-bs-crm' );
 	}
 
 	/**

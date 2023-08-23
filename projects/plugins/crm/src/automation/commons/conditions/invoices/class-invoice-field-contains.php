@@ -40,7 +40,6 @@ class Invoice_Field_Contains extends Base_Condition {
 			'does_not_contain' => __( 'Does not contain', 'zero-bs-crm' ),
 		);
 
-		$this->set_title( __( 'Contact Field Tag', 'zero-bs-crm' ) );
 		$this->set_attribute_definitions(
 			array(
 				new Attribute_Definition( 'field', __( 'Field', 'zero-bs-crm' ), __( 'Check this field against a specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $invoice_fields ),
@@ -106,6 +105,17 @@ class Invoice_Field_Contains extends Base_Condition {
 	 */
 	private function is_valid_invoice_field_contains_data( array $invoice_data ): bool {
 		return isset( $invoice_data['id'] ) && isset( $invoice_data['data'] ) && isset( $invoice_data['data'][ $this->get_attributes()['field'] ] );
+	}
+
+	/**
+	 * Get the title for the invoice field contains condition.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The title 'Invoice Field Contains'.
+	 */
+	public static function get_title(): string {
+		return __( 'Invoice Field Contains', 'zero-bs-crm' );
 	}
 
 	/**
