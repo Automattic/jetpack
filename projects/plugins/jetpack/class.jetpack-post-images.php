@@ -117,24 +117,20 @@ class Jetpack_PostImages {
 			if ( ! isset( $this_gallery['src'] ) ) {
 				continue;
 			}
-			$images_to_exclude = array();
-			$image_index       = 0;
-			foreach ( $this_gallery['src'] as $src_url ) {
+			$ids = isset( $this_gallery['ids'] ) ? explode( ',', $this_gallery['ids'] ) : array();
+			// Make sure 'src' array isn't associative and has no holes.
+			$this_gallery['src'] = array_values( $this_gallery['src'] );
+			foreach ( $this_gallery['src'] as $idx => $src_url ) {
 				if ( filter_var( $src_url, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED ) === false ) {
-					$images_to_exclude[] = $image_index;
+					unset( $this_gallery['src'][ $idx ] );
+					unset( $ids[ $idx ] );
 				}
-				++$image_index;
-			}
-			foreach ( $images_to_exclude as $key ) {
-				unset( $this_gallery['src'][ $key ] );
 			}
 			if ( isset( $this_gallery['ids'] ) ) {
-				$ids = explode( ',', $this_gallery['ids'] );
-				foreach ( $images_to_exclude as $key ) {
-					unset( $ids[ $key ] );
-				}
 				$this_gallery['ids'] = implode( ',', $ids );
 			}
+			// Remove any holes we introduced.
+			$this_gallery['src'] = array_values( $this_gallery['src'] );
 			$filtered_galleries[] = $this_gallery;
 		}
 
