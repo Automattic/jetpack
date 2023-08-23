@@ -40,16 +40,18 @@ class Blocks {
 	 * @return WP_Block_Type|false The registered block type on success, or false on failure.
 	 */
 	public static function jetpack_register_block( $slug, $args = array() ) {
-		$metadata_dir = '';
+		$block_type = null;
 
 		// If the path to block.json is passed, find the slug in the file.
 		if ( str_starts_with( $slug, '/' ) ) {
-			$metadata_dir = $slug;
-			$metadata     = self::get_block_metadata_from_file( $slug );
-			$name         = self::get_block_name_from_metadata( $metadata );
+			$metadata = self::get_block_metadata_from_file( $slug );
+			$name     = self::get_block_name_from_metadata( $metadata );
 
 			if ( ! empty( $name ) ) {
 				$slug = $name;
+
+				$block_type = new \WP_Block_Type( $slug );
+				$block_type->set_props( $metadata );
 			}
 		}
 
@@ -107,12 +109,12 @@ class Blocks {
 
 			// Ensure editor styles are registered so that the site editor knows about the
 			// editor style dependency when copying styles to the editor iframe.
-			if ( ! isset( $args['editor_style'] ) && empty( $metadata_dir ) ) {
+			if ( ! isset( $args['editor_style'] ) ) {
 				$args['editor_style'] = 'jetpack-blocks-editor';
 			}
 		}
 
-		return register_block_type( ! empty( $metadata_dir ) ? $metadata_dir : $slug, $args );
+		return register_block_type( isset( $block_type ) ? $block_type : $slug, $args );
 	}
 
 	/**
