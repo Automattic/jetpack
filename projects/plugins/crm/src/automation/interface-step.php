@@ -94,7 +94,7 @@ interface Step {
 	 *
 	 * @return string|null The title of the step.
 	 */
-	public function get_title(): ?string;
+	public static function get_title(): ?string;
 
 	/**
 	 * Set the title of the step.
@@ -103,7 +103,7 @@ interface Step {
 	 *
 	 * @param string $title Set title of the step.
 	 */
-	public function set_title( string $title );
+	public static function set_title( string $title );
 
 	/**
 	 * Get the description of the step.
