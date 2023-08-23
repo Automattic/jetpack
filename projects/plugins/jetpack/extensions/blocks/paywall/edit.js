@@ -56,7 +56,7 @@ function PaywallEdit( { className } ) {
 			<InspectorControls>
 				<PanelBody
 					className="jetpack-subscribe-newsletters-panel"
-					title={ __( 'Content visibility', 'jetpack' ) }
+					title={ __( 'Content access', 'jetpack' ) }
 					icon={ <JetpackEditorPanelLogo /> }
 					initialOpen={ true }
 				>
