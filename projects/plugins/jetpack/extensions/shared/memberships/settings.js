@@ -245,22 +245,20 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 	);
 }
 
-export function NewsletterAccessPrePublishSettings( { accessLevel, setPostMeta } ) {
-	const { hasNewsletterPlans, stripeConnectUrl, isLoading, hasPaywallBlock } = useSelect(
-		select => {
-			const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
-				'jetpack/membership-products'
-			);
-			const { getBlocks } = select( 'core/block-editor' );
+export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
+	const { isLoading, hasPaywallBlock } = useSelect( select => {
+		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
+			'jetpack/membership-products'
+		);
+		const { getBlocks } = select( 'core/block-editor' );
 
-			return {
-				isLoading: isApiStateLoading(),
-				stripeConnectUrl: getConnectUrl(),
-				hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-				hasPaywallBlock: getBlocks().some( block => block.name === paywallBlockName ),
-			};
-		}
-	);
+		return {
+			isLoading: isApiStateLoading(),
+			stripeConnectUrl: getConnectUrl(),
+			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+			hasPaywallBlock: getBlocks().some( block => block.name === paywallBlockName ),
+		};
+	} );
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 
@@ -273,33 +271,25 @@ export function NewsletterAccessPrePublishSettings( { accessLevel, setPostMeta }
 	}
 
 	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
-	const accessLabel = accessOptions[ _accessLevel ]?.label;
+
+	const getText = () => {
+		if ( _accessLevel === accessOptions.paid_subscribers.key ) {
+			if ( ! hasPaywallBlock ) {
+				return __( 'This post will be sent to paid subscribers only', 'jetpack' );
+			}
+		}
+		return __( 'This post will be sent to all subscribers', 'jetpack' );
+	};
 
 	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
 
 	return (
 		<PostVisibilityCheck
-			render={ ( { canEdit } ) => (
+			render={ () => (
 				<PanelRow className="edit-post-post-visibility">
 					<Flex direction="column">
 						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-						{ canEdit && (
-							<>
-								<FlexBlock>
-									<NewsletterAccessRadioButtons
-										onChange={ setPostMeta }
-										accessLevel={ _accessLevel }
-										stripeConnectUrl={ stripeConnectUrl }
-										hasNewsletterPlans={ hasNewsletterPlans }
-										showMisconfigurationWarning={ showMisconfigurationWarning }
-										hasPaywallBlock={ hasPaywallBlock }
-									/>
-								</FlexBlock>
-							</>
-						) }
-
-						{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
-						{ ! canEdit && <span>{ accessLabel }</span> }
+						<span>{ getText() }</span>
 					</Flex>
 				</PanelRow>
 			) }
