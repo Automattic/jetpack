@@ -44,6 +44,7 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	ANTISPAM_ACTIVATED: 'antispam-activated',
 	VIDEOPRESS_ACTIVATED: 'videopress-activated',
 	SEARCH_ACTIVATED: 'search-activated',
+	NEWSLETTER_ACTIVATED: 'newsletter-activated',
 	SERVER_CREDENTIALS: 'server-credentials',
 	BOOST: 'boost',
 	SUMMARY: 'summary',
@@ -60,6 +61,7 @@ export const ONBOARDING_JETPACK_VIDEOPRESS = 'JETPACK_VIDEOPRESS';
 export const ONBOARDING_JETPACK_SEARCH = 'JETPACK_SEARCH';
 export const ONBOARDING_JETPACK_SCAN = 'JETPACK_SCAN';
 export const ONBOARDING_JETPACK_GOLDEN_TOKEN = 'JETPACK_GOLDEN_TOKEN';
+export const ONBOARDING_JETPACK_NEWSLETTER = 'JETPACK_NEWSLETTER';
 
 export const ONBOARDING_SUPPORT_START_TIMESTAMP = 1664323200000; // 2022-09-28
 
@@ -121,6 +123,10 @@ export const SUMMARY_SECTION_BY_ONBOARDING_NAME = {
 	[ ONBOARDING_JETPACK_SEARCH ]: {
 		name: 'Search',
 		slugs: [ 'search-activated' ],
+	},
+	[ ONBOARDING_JETPACK_NEWSLETTER ]: {
+		name: 'Newsletter',
+		slugs: [ 'newsletter-activated' ],
 	},
 	[ ONBOARDING_JETPACK_SCAN ]: {
 		name: 'Scan',
