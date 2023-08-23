@@ -625,5 +625,26 @@ class Jetpack_Memberships {
 
 		self::$has_registered_block = true;
 	}
+
+	/**
+	 * Transforms a number into it's short human-readable version.
+	 *
+	 * @param int $subscribers_total The extrapolated excerpt string.
+	 *
+	 * @return string Human-readable version of the number. ie. 1.9 M.
+	 */
+	public static function get_join_others_text( $subscribers_total ) {
+		if ( $subscribers_total >= 1000000 ) {
+			/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
+			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000000, 1 ) );
+		}
+		if ( $subscribers_total >= 10000 ) {
+			/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
+			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000, 1 ) );
+		}
+
+		/* translators: %s: number of folks following the blog */
+		return sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
+	}
 }
 Jetpack_Memberships::get_instance();
