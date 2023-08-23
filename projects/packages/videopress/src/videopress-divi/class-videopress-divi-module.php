@@ -5,6 +5,8 @@
  * @package VideoPress
  */
 
+use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
+
 /**
  * VideoPress Divi module
  **/
@@ -88,6 +90,8 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 		if ( ! isset( $matches[1] ) ) {
 			return '';
 		}
+
+		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 
 		$guid         = $matches[1];
 		$iframe_title = sprintf(
