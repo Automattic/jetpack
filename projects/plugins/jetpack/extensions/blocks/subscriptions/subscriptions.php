@@ -760,15 +760,17 @@ function add_paywall( $the_content ) {
 		return $the_content;
 	}
 
+	$post_access_level = Jetpack_Memberships::get_post_access_level();
+	if ( jetpack_is_frontend() ) {
+		$paywalled_content = get_paywall_blocks( $post_access_level );
+	} else {
+		// emails
+		$paywalled_content = get_paywall_simple();
+	}
+
+	// Partially free content with paywall
 	if ( has_block( $block_name ) ) {
-		$post_access_level = Jetpack_Memberships::get_post_access_level();
-		if ( jetpack_is_frontend() ) {
-			$paywalled_content = get_paywall_blocks( $post_access_level );
-		} else {
-			// emails
-			$paywalled_content = get_paywall_simple();
-		}
-		$paywalled_content = strstr( $the_content, '<!-- wp:' . $block_name . ' /-->', true ) . $paywalled_content;
+		return strstr( $the_content, '<!-- wp:' . $block_name . ' /-->', true ) . $paywalled_content;
 	}
 
 	return $paywalled_content;
@@ -819,8 +821,7 @@ function maybe_gate_existing_comments( $comment ) {
 function get_paywall_blocks( $newsletter_access_level ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
-	$is_paid_post = $newsletter_access_level === 'paid_subscribers'
-		&& ! empty( Jetpack_Memberships::get_connected_account_id() );
+	$is_paid_post = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
 
 	$access_heading = esc_html__( 'Subscribe to continue reading', 'jetpack' );
 

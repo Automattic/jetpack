@@ -25,6 +25,14 @@ abstract class Base_Step implements Step {
 	protected $attributes;
 
 	/**
+	 * Attributes definitions.
+	 *
+	 * @since $$next-version$$
+	 * @var array
+	 */
+	protected $attribute_definitions;
+
+	/**
 	 * Next linked step.
 	 *
 	 * @since $$next-version$$
@@ -40,7 +48,7 @@ abstract class Base_Step implements Step {
 	 * @param array $step_data An array of data for the current step.
 	 */
 	public function __construct( array $step_data ) {
-		$this->attributes = $step_data['attributes'] ?? null;
+		$this->attributes = $step_data['attributes'] ?? array();
 	}
 
 	/**
@@ -63,6 +71,28 @@ abstract class Base_Step implements Step {
 	 */
 	public function set_attributes( array $attributes ) {
 		$this->attributes = $attributes;
+	}
+
+	/**
+	 * Get the step attribute definitions.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return Step_Attribute[] The attribute definitions of the step.
+	 */
+	public function get_attribute_definitions(): ?array {
+		return $this->attribute_definitions;
+	}
+
+	/**
+	 * Set the step attributes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Step_Attribute[] $attribute_definitions Set the step attributes.
+	 */
+	public function set_attribute_definitions( array $attribute_definitions ) {
+		$this->attribute_definitions = $attribute_definitions;
 	}
 
 	/**
@@ -92,9 +122,10 @@ abstract class Base_Step implements Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data Data passed from the trigger.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 */
-	abstract public function execute( array $data );
+	abstract public function execute( $data, $previous_data = null );
 
 	/**
 	 * Get the slug name of the step.
@@ -130,7 +161,7 @@ abstract class Base_Step implements Step {
 	 *
 	 * @return string The type of the step.
 	 */
-	abstract public static function get_type(): string;
+	abstract public static function get_data_type(): string;
 
 	/**
 	 * Get the category of the step.
