@@ -166,6 +166,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SEARCH_ACTIVATED:
 			redirectPath = '/search-activated';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.NEWSLETTER_ACTIVATED:
+			redirectPath = '/newsletter-activated';
+			break;
 		default:
 			redirectPath = '/summary';
 			break;
@@ -297,6 +300,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/server-credentials">
 						<ResourcePrompt stepSlug="server-credentials" />
+					</Route>
+					<Route path="/recommendations/newsletter-activated">
+						<ResourcePrompt stepSlug="newsletter-activated" isNew={ isNew( 'newsletter' ) } />
 					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />
