@@ -4,7 +4,7 @@ import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import transforms from './transforms';
 
-const icon = (
+export const icon = (
 	<SVG width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 		<Path d="M4 16.7134L20 16.7134V15.106H4V16.7134Z" />
 		<Path d="M16 21H20V19.3925H16V21Z" />
@@ -20,6 +20,9 @@ const icon = (
 import './editor.scss';
 
 export const name = 'paywall';
+
+export const blockName = 'jetpack/paywall';
+
 export const title = __( 'Paywall', 'jetpack' );
 export const settings = {
 	title,
