@@ -712,7 +712,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 					<div class="wp-block-jetpack-subscriptions__subscount">
 						<?php
 						/* translators: %s: number of folks following the blog */
-						echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $data['subscribers_total'], 'jetpack' ), number_format_i18n( $data['subscribers_total'] ) ) );
+						echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $data['subscribers_total'], 'jetpack' ), human_readable_number( $data['subscribers_total'] ) ) );
 						?>
 					</div>
 				<?php endif; ?>
@@ -722,6 +722,23 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	<?php
 
 	return ob_get_clean();
+}
+
+/**
+ * Transforms a number into it's short human-readable version.
+ *
+ * @param int $num The extrapolated excerpt string.
+ *
+ * @return string Human-readable version of the number. ie. ~1.9M.
+ */
+function human_readable_number( $num ) {
+	if ( $num >= 1000000 ) {
+		return number_format_i18n( $num / 1000000, 1 ) . __( 'M', 'jetpack' );
+	} elseif ( $num >= 1000 ) {
+		return number_format_i18n( $num / 1000, 1 ) . __( 'K', 'jetpack' );
+	} else {
+		return number_format_i18n( $num );
+	}
 }
 
 /**
