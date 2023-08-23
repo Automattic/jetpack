@@ -3,7 +3,7 @@ import { useInstanceId } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -102,46 +102,45 @@ export function NewsletterAccessRadioButtons( {
 	return (
 		<fieldset className="editor-post-visibility__fieldset">
 			<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
-			{ Object.keys( accessOptions ).map(
-				key =>
-					( ! postHasPaywallBlock || key !== accessOptions.everybody.key ) && (
-						<div className="editor-post-visibility__choice" key={ key }>
-							<input
-								value={ key }
-								type="radio"
-								checked={ key === accessLevel }
-								className="editor-post-visibility__radio"
-								id={ `editor-post-${ key }-${ instanceId }` }
-								name={ `editor-newsletter-access__setting-${ instanceId }` }
-								aria-describedby={ `editor-post-${ key }-${ instanceId }-description` }
-								disabled={
-									key === accessOptions.paid_subscribers.key &&
-									( ! isStripeConnected || ! hasNewsletterPlans )
-								}
-								onChange={ event => {
-									const obj = {};
-									obj[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] = event?.target?.value;
-									return onChange && onChange( obj );
-								} }
-							/>
-							<label
-								htmlFor={ `editor-post-${ key }-${ instanceId }` }
-								className="editor-post-visibility__label"
-							>
-								{ accessOptions[ key ].label }{ ' ' }
-								{ key !== accessOptions.everybody.key && (
-									<>
-										{ ' ' }
-										{ sprintf(
-											'(%1$s)',
-											getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers )
-										) }
-									</>
-								) }
-							</label>
-						</div>
-					)
-			) }
+			{ Object.keys( accessOptions ).map( key => {
+				if ( key === accessOptions.everybody.key && postHasPaywallBlock ) {
+					return;
+				}
+				const accessLabel = accessOptions[ key ].label;
+				const reach =
+					key !== accessOptions.everybody.key
+						? ` (${ getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers ) })`
+						: '';
+				return (
+					<div className="editor-post-visibility__choice" key={ key }>
+						<input
+							value={ key }
+							type="radio"
+							checked={ key === accessLevel }
+							className="editor-post-visibility__radio"
+							id={ `editor-post-${ key }-${ instanceId }` }
+							name={ `editor-newsletter-access__setting-${ instanceId }` }
+							aria-describedby={ `editor-post-${ key }-${ instanceId }-description` }
+							disabled={
+								key === accessOptions.paid_subscribers.key &&
+								( ! isStripeConnected || ! hasNewsletterPlans )
+							}
+							onChange={ event => {
+								const obj = {};
+								obj[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] = event?.target?.value;
+								return onChange && onChange( obj );
+							} }
+						/>
+						<label
+							htmlFor={ `editor-post-${ key }-${ instanceId }` }
+							className="editor-post-visibility__label"
+						>
+							{ accessLabel }
+							{ reach }
+						</label>
+					</div>
+				);
+			} ) }
 			{ isEditorPanel && (
 				<NewsletterAccessSetupNudge
 					stripeConnectUrl={ stripeConnectUrl }
