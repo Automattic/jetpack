@@ -50,7 +50,7 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
-		add_filter( 'query_vars', array( __CLASS__, 'add_critical_css_query_arg_to_list' ) );
+		add_filter( 'query_vars', array( '\Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Generator', 'add_generate_query_action_to_list' ) );
 
 		if ( Generator::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
@@ -138,22 +138,5 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 
 	public function update_total_problem_count( $count ) {
 		return ( new Critical_CSS_State() )->has_errors() ? ++$count : $count;
-	}
-
-	/**
-	 * Add the critical css generation flag to a list if it's present in the URL.
-	 * This is mainly used by filters for compatibility.
-	 *
-	 * @var $query_args    array The list to add the arg to.
-	 *
-	 * @return $query_args array The updatest list with query args.
-	 */
-	public static function add_critical_css_query_arg_to_list( $query_args ) {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET[ Generator::GENERATE_QUERY_ACTION ] ) ) {
-			$query_args[] = Generator::GENERATE_QUERY_ACTION;
-		}
-
-		return $query_args;
 	}
 }
