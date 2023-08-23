@@ -20,7 +20,7 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "0.4.2",
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"brain/monkey": "2.6.1"
 	},
 	"autoload": {

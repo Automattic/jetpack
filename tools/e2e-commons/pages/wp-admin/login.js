@@ -15,9 +15,7 @@ export default class WPLoginPage extends WpPage {
 		// If the SSO login button (a tag with the jetpack-sso class) is present,
 		// click on the link (a tag with the jetpack-sso-toggle class) to log in with the default core WP login form instead.
 		if ( await this.isElementVisible( '.jetpack-sso' ) ) {
-			await this.clickAndWaitForNewPage( '.jetpack-sso-toggle', {
-				expectedSelectors: [ '#loginform' ],
-			} );
+			await this.click( '.jetpack-sso-toggle' );
 		}
 
 		await this.fill( '#user_login', credentials.username );

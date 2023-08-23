@@ -198,6 +198,42 @@ export default function PublicizeForm( {
 		<Wrapper>
 			{ hasConnections && (
 				<>
+					<PanelRow>
+						<ul className={ styles[ 'connections-list' ] }>
+							{ connections.map( conn => {
+								const {
+									display_name,
+									enabled,
+									id,
+									service_name,
+									toggleable,
+									profile_picture,
+									is_healthy,
+									connection_id,
+								} = conn;
+								return (
+									<PublicizeConnection
+										disabled={
+											! isPublicizeEnabled ||
+											( ! enabled && toggleable && outOfConnections ) ||
+											false === is_healthy ||
+											validationErrors[ connection_id ? connection_id : id ] !== undefined
+										}
+										enabled={ isConnectionEnabled( conn ) }
+										key={ connection_id ? connection_id : id }
+										id={ connection_id ? connection_id : id }
+										label={ display_name }
+										name={ service_name }
+										toggleConnection={ toggleById }
+										profilePicture={ profile_picture }
+									/>
+								);
+							} ) }
+							<li>
+								<PublicizeSettingsButton />
+							</li>
+						</ul>
+					</PanelRow>
 					{ numberOfSharesRemaining !== null && (
 						<PanelRow>
 							<Notice type={ numberOfSharesRemaining < connections.length ? 'warning' : 'default' }>
@@ -246,39 +282,6 @@ export default function PublicizeForm( {
 						</PanelRow>
 					) }
 					{ renderNotices() }
-					<PanelRow>
-						<ul className={ styles[ 'connections-list' ] }>
-							{ connections.map( conn => {
-								const {
-									display_name,
-									enabled,
-									id,
-									service_name,
-									toggleable,
-									profile_picture,
-									is_healthy,
-									connection_id,
-								} = conn;
-								return (
-									<PublicizeConnection
-										disabled={
-											! isPublicizeEnabled ||
-											( ! enabled && toggleable && outOfConnections ) ||
-											false === is_healthy ||
-											validationErrors[ connection_id ? connection_id : id ] !== undefined
-										}
-										enabled={ isConnectionEnabled( conn ) }
-										key={ connection_id ? connection_id : id }
-										id={ connection_id ? connection_id : id }
-										label={ display_name }
-										name={ service_name }
-										toggleConnection={ toggleById }
-										profilePicture={ profile_picture }
-									/>
-								);
-							} ) }
-						</ul>
-					</PanelRow>
 					{ showValidationNotice &&
 						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR ) ? (
 							renderInstagramNotice()
@@ -335,7 +338,6 @@ export default function PublicizeForm( {
 							{ __( 'You can now share directly to your Instagram account!', 'jetpack' ) }
 						</Notice>
 					) }
-					<PublicizeSettingsButton />
 
 					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (
 						<>

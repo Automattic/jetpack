@@ -85,6 +85,17 @@ class Dashboard_REST_Controller {
 			)
 		);
 
+		// WordAds DSP API Experiment route
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/experiments(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_dsp_experiments' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
+
 		// WordAds DSP API Campaigns routes
 		register_rest_route(
 			static::$namespace,
@@ -317,6 +328,17 @@ class Dashboard_REST_Controller {
 	 */
 	public function get_dsp_credits( $req ) {
 		return $this->get_dsp_generic( 'v1/credits', $req );
+	}
+
+	/**
+	 * Redirect GET requests to WordAds DSP Experiments endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_dsp_experiments( $req ) {
+
+		return $this->get_dsp_generic( 'v1/experiments', $req );
 	}
 
 	/**

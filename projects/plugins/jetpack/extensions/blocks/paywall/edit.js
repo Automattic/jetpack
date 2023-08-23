@@ -5,21 +5,31 @@ import { PanelBody } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon } from '@wordpress/icons';
-import { accessOptions } from '../../shared/memberships/constants';
+import {
+	accessOptions,
+	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+} from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
-import { NewsletterAccessDocumentSettings } from '../../shared/memberships/settings';
+import { PaywallBlockSettings } from '../../shared/memberships/settings';
 
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
 	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
+	useEffect( () => {
+		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
+			setPostMeta( {
+				[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.subscribers.key,
+			} );
+		}
+	}, [ accessLevel, setPostMeta ] );
+
 	const getText = key => {
 		switch ( key ) {
-			case accessOptions.everybody.key:
-				return __( 'Change visibility to enable paywall', 'jetpack' );
 			case accessOptions.subscribers.key:
 				return __( 'Subscriber-only content below', 'jetpack' );
 			case accessOptions.paid_subscribers.key:
@@ -46,14 +56,17 @@ function PaywallEdit( { className } ) {
 			<InspectorControls>
 				<PanelBody
 					className="jetpack-subscribe-newsletters-panel"
-					title={ __( 'Newsletter visibility', 'jetpack' ) }
+					title={ __( 'Content access', 'jetpack' ) }
 					icon={ <JetpackEditorPanelLogo /> }
 					initialOpen={ true }
 				>
-					<NewsletterAccessDocumentSettings
-						accessLevel={ accessLevel }
-						setPostMeta={ setPostMeta }
-					/>
+					<p>
+						{ __(
+							'Choose who will be able to read the content below the paywall block.',
+							'jetpack'
+						) }
+					</p>
+					<PaywallBlockSettings accessLevel={ accessLevel } setPostMeta={ setPostMeta } />
 				</PanelBody>
 			</InspectorControls>
 		</>

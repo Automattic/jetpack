@@ -43,6 +43,7 @@ import {
 	isReconnectingSite,
 	getConnectUrl,
 	getConnectingUserFeatureLabel,
+	getConnectingUserFrom,
 	getConnectionStatus,
 	hasConnectedOwner,
 	getHasSeenWCConnectionModal,
@@ -423,7 +424,7 @@ class Main extends React.Component {
 					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
-					from={ searchParams && searchParams.get( 'from' ) }
+					from={ ( searchParams && searchParams.get( 'from' ) ) || this.props.connectingUserFrom }
 				>
 					<ul>
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
@@ -893,6 +894,7 @@ export default connect(
 			pluginBaseUrl: getPluginBaseUrl( state ),
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
+			connectingUserFrom: getConnectingUserFrom( state ),
 			isAtomicSite: isAtomicSite( state ),
 			isWoaSite: isWoASite( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),

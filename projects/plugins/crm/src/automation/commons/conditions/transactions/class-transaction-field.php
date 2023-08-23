@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
 
 /**
  * Transaction_Field condition class.
@@ -18,28 +20,39 @@ use Automattic\Jetpack\CRM\Automation\Base_Condition;
 class Transaction_Field extends Base_Condition {
 
 	/**
-	 * All valid operators for this condition.
+	 * Transaction_Field constructor.
 	 *
 	 * @since $$next-version$$
-	 * @var string[] $valid_operators Valid operators.
+	 *
+	 * @param array $step_data The step data.
 	 */
-	protected $valid_operators = array(
-		'is',
-		'is_not',
-		'contains',
-		'does_not_contain',
-	);
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
 
-	/**
-	 * All valid attributes for this condition.
-	 *
-	 * @since $$next-version$$
-	 * @var string[] $valid_operators Valid attributes.
-	 */
-	private $valid_attributes = array(
-		'operator',
-		'value',
-	);
+		// TODO: Fetch automation fields from our DAL.
+		$transaction_fields = array(
+			'status' => __( 'Status', 'zero-bs-crm' ),
+			'type'   => __( 'Type', 'zero-bs-crm' ),
+			'ref'    => __( 'Reference', 'zero-bs-crm' ),
+			'title'  => __( 'Title', 'zero-bs-crm' ),
+			'desc'   => __( 'Description', 'zero-bs-crm' ),
+		);
+
+		$this->valid_operators = array(
+			'is'               => __( 'Is', 'zero-bs-crm' ),
+			'is_not'           => __( 'Is not', 'zero-bs-crm' ),
+			'contains'         => __( 'Contains', 'zero-bs-crm' ),
+			'does_not_contain' => __( 'Does not contain', 'zero-bs-crm' ),
+		);
+
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition( 'field', __( 'Field', 'zero-bs-crm' ), __( 'Check this field against a specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $transaction_fields ),
+				new Attribute_Definition( 'operator', __( 'Operator', 'zero-bs-crm' ), __( 'Determines how the field is compared to the specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $this->valid_operators ),
+				new Attribute_Definition( 'value', __( 'Value', 'zero-bs-crm' ), __( 'Value to compare with the transaction field.', 'zero-bs-crm' ), Attribute_Definition::TEXT ),
+			)
+		);
+	}
 
 	/**
 	 * Executes the condition. If the condition is met, the value stored in the
@@ -47,14 +60,15 @@ class Transaction_Field extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data The data this condition has to evaluate.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 * @return void
 	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( array $data ) {
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! $this->is_valid_transaction_field_data( $data ) ) {
-			$this->logger->log( 'Invalid transaction field condition data', $data );
+			$this->logger->log( 'Invalid transaction field condition data' );
 			$this->condition_met = false;
 
 			return;
@@ -65,28 +79,28 @@ class Transaction_Field extends Base_Condition {
 		$value    = $this->get_attributes()['value'];
 
 		$this->check_for_valid_operator( $operator );
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data[ $field ] );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $data['data'][ $field ] === $value );
+				$this->condition_met = ( $data[ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				break;
+
 			case 'is_not':
-				$this->condition_met = ( $data['data'][ $field ] !== $value );
+				$this->condition_met = ( $data[ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				break;
+
 			case 'contains':
-				$this->condition_met = ( strpos( $data['data'][ $field ], $value ) !== false );
+				$this->condition_met = ( strpos( $data[ $field ], $value ) !== false );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
-
 				break;
+
 			case 'does_not_contain':
-				$this->condition_met = ( strpos( $data['data'][ $field ], $value ) === false );
-
+				$this->condition_met = ( strpos( $data[ $field ], $value ) === false );
 				break;
+
 			default:
 				$this->condition_met = false;
 				throw new Automation_Exception(
@@ -109,18 +123,7 @@ class Transaction_Field extends Base_Condition {
 	 * @return bool True if the data is valid to evaluate a transaction field condition, false otherwise.
 	 */
 	private function is_valid_transaction_field_data( array $transaction_data ): bool {
-		return isset( $transaction_data['id'] ) && isset( $transaction_data['data'] ) && isset( $transaction_data['data'][ $this->get_attributes()['field'] ] );
-	}
-
-	/**
-	 * Get the slug for the transaction field condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The slug 'transaction_field'.
-	 */
-	public static function get_slug(): string {
-		return 'jpcrm/condition/transaction_field';
+		return isset( $transaction_data[ $this->get_attributes()['field'] ] );
 	}
 
 	/**
@@ -135,6 +138,17 @@ class Transaction_Field extends Base_Condition {
 	}
 
 	/**
+	 * Get the slug for the transaction field condition.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The slug 'transaction_field'.
+	 */
+	public static function get_slug(): string {
+		return 'jpcrm/condition/transaction_field';
+	}
+
+	/**
 	 * Get the description for the transaction field condition.
 	 *
 	 * @since $$next-version$$
@@ -146,14 +160,14 @@ class Transaction_Field extends Base_Condition {
 	}
 
 	/**
-	 * Get the type of the transaction field condition.
+	 * Get the data type.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string The type 'condition'.
+	 * @return string The type of the step.
 	 */
-	public static function get_type(): string {
-		return 'condition';
+	public static function get_data_type(): string {
+		return Data_Type_Transaction::get_slug();
 	}
 
 	/**

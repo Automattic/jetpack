@@ -1,7 +1,16 @@
 {
 	"name": "@automattic/jetpack-analytics",
-	"version": "0.1.25",
+	"version": "0.1.27-alpha",
 	"description": "Jetpack Analytics Package",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/analytics/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Analytics"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/analytics"
+	},
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {},

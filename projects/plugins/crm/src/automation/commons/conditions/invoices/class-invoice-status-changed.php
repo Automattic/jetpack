@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
 
 /**
  * Invoice_Status_Changed condition class.
@@ -18,26 +20,27 @@ use Automattic\Jetpack\CRM\Automation\Base_Condition;
 class Invoice_Status_Changed extends Base_Condition {
 
 	/**
-	 * All valid operators for this condition.
+	 * Invoice_Status_Changed constructor.
 	 *
 	 * @since $$next-version$$
-	 * @var string[] $valid_operators Valid operators.
+	 *
+	 * @param array $step_data The step data.
 	 */
-	protected $valid_operators = array(
-		'is',
-		'is_not',
-	);
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
 
-	/**
-	 * All valid attributes for this condition.
-	 *
-	 * @since $$next-version$$
-	 * @var string[] $valid_operators Valid attributes.
-	 */
-	private $valid_attributes = array(
-		'operator',
-		'value',
-	);
+		$this->valid_operators = array(
+			'is'     => __( 'Is', 'zero-bs-crm' ),
+			'is_not' => __( 'Is not', 'zero-bs-crm' ),
+		);
+
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition( 'operator', __( 'Operator', 'zero-bs-crm' ), __( 'Determines how the status is compared to the specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $this->valid_operators ),
+				new Attribute_Definition( 'value', __( 'Value', 'zero-bs-crm' ), __( 'Value to compare with the status.', 'zero-bs-crm' ), Attribute_Definition::TEXT ),
+			)
+		);
+	}
 
 	/**
 	 * Executes the condition. If the condition is met, the value stored in the
@@ -45,13 +48,15 @@ class Invoice_Status_Changed extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data The data this condition has to evaluate.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 * @return void
+	 *
 	 * @throws Automation_Exception If an invalid operator is encountered.
 	 */
-	public function execute( array $data ) {
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( ! $this->is_valid_invoice_status_changed_data( $data ) ) {
-			$this->logger->log( 'Invalid invoice status changed data', $data );
+			$this->logger->log( 'Invalid invoice status changed data' );
 			$this->condition_met = false;
 			return;
 		}
@@ -61,23 +66,23 @@ class Invoice_Status_Changed extends Base_Condition {
 		$value    = $this->get_attributes()['value'];
 
 		$this->check_for_valid_operator( $operator );
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data[ $field ] );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $data['data'][ $field ] === $value );
+				$this->condition_met = ( $data[ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
 			case 'is_not':
-				$this->condition_met = ( $data['data'][ $field ] !== $value );
+				$this->condition_met = ( $data[ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
 			default:
 				$this->condition_met = false;
 				throw new Automation_Exception(
-					/* Translators: %s is the unimplemented operator. */
+				/* Translators: %s is the unimplemented operator. */
 					sprintf( __( 'Valid but unimplemented operator: %s', 'zero-bs-crm' ), $operator ),
 					Automation_Exception::CONDITION_OPERATOR_NOT_IMPLEMENTED
 				);
@@ -90,22 +95,11 @@ class Invoice_Status_Changed extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $invoice_data The invoice data.
+	 * @param array $data The invoice data.
 	 * @return bool True if the data is valid to detect a status change, false otherwise
 	 */
-	private function is_valid_invoice_status_changed_data( array $invoice_data ): bool {
-		return isset( $invoice_data['id'] ) && isset( $invoice_data['data'] ) && isset( $invoice_data['data']['status'] );
-	}
-
-	/**
-	 * Get the slug for the invoice status changed condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The slug 'invoice_status_changed'.
-	 */
-	public static function get_slug(): string {
-		return 'jpcrm/condition/invoice_status_changed';
+	private function is_valid_invoice_status_changed_data( array $data ): bool {
+		return isset( $data['status'] );
 	}
 
 	/**
@@ -120,6 +114,17 @@ class Invoice_Status_Changed extends Base_Condition {
 	}
 
 	/**
+	 * Get the slug for the invoice status changed condition.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The slug 'invoice_status_changed'.
+	 */
+	public static function get_slug(): string {
+		return 'jpcrm/condition/invoice_status_changed';
+	}
+
+	/**
 	 * Get the description for the invoice status changed condition.
 	 *
 	 * @since $$next-version$$
@@ -131,17 +136,6 @@ class Invoice_Status_Changed extends Base_Condition {
 	}
 
 	/**
-	 * Get the type of the invoice status changed condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The type 'condition'.
-	 */
-	public static function get_type(): string {
-		return 'condition';
-	}
-
-	/**
 	 * Get the category of the invoice status changed condition.
 	 *
 	 * @since $$next-version$$
@@ -150,6 +144,17 @@ class Invoice_Status_Changed extends Base_Condition {
 	 */
 	public static function get_category(): string {
 		return __( 'invoice', 'zero-bs-crm' );
+	}
+
+	/**
+	 * Get the data type.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The type of the step.
+	 */
+	public static function get_data_type(): string {
+		return Data_Type_Invoice::get_slug();
 	}
 
 	/**
