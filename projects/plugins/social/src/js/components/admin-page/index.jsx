@@ -11,6 +11,7 @@ import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import React from 'react';
 import AdvancedUpsellNotice from '../advanced-upsell-notice';
+import AutoConversionToggle from '../auto-conversion-toggle';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
@@ -37,6 +38,7 @@ const Admin = () => {
 		isShareLimitEnabled,
 		pluginVersion,
 		isSocialImageGeneratorAvailable,
+		isAutoConversionAvailable,
 		shouldShowAdvancedPlanNudge,
 	} = useSelect( select => {
 		const store = select( SOCIAL_STORE_ID );
@@ -47,6 +49,7 @@ const Admin = () => {
 			isShareLimitEnabled: store.isShareLimitEnabled(),
 			pluginVersion: store.getPluginVersion(),
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
+			isAutoConversionAvailable: store.isAutoConversionAvailable(),
 			shouldShowAdvancedPlanNudge: store.shouldShowAdvancedPlanNudge(),
 		};
 	} );
@@ -84,6 +87,7 @@ const Admin = () => {
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
+						{ isModuleEnabled && isAutoConversionAvailable && <AutoConversionToggle /> }
 						{ isModuleEnabled && isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
 					</AdminSection>
 					<AdminSectionHero>

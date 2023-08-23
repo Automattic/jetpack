@@ -44,6 +44,24 @@ interface Step {
 	public function set_next_step( array $step_data );
 
 	/**
+	 * Get the step attribute definitions.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return Step_Attribute[] The attribute definitions of the step.
+	 */
+	public function get_attribute_definitions(): ?array;
+
+	/**
+	 * Set the step attribute definitions.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Step_Attribute[] $attribute_definitions Set the attribute definitions.
+	 */
+	public function set_attribute_definitions( array $attribute_definitions );
+
+	/**
 	 * Get the attributes of the step.
 	 *
 	 * @since $$next-version$$
