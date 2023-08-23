@@ -275,10 +275,10 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 	const getText = () => {
 		if ( _accessLevel === accessOptions.paid_subscribers.key ) {
 			if ( ! hasPaywallBlock ) {
-				return __( 'This post will be sent to paid subscribers only', 'jetpack' );
+				return __( 'This post will be sent to paid subscribers only.', 'jetpack' );
 			}
 		}
-		return __( 'This post will be sent to all subscribers', 'jetpack' );
+		return __( 'This post will be sent to all subscribers.', 'jetpack' );
 	};
 
 	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
