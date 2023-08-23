@@ -1,5 +1,5 @@
 import { Flex, FlexBlock, PanelRow, VisuallyHidden, Spinner, Button } from '@wordpress/components';
-import { useInstanceId } from '@wordpress/compose';
+import { useInstanceId, useViewportMatch } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
@@ -171,6 +171,9 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 	const { selectBlock } = useDispatch( 'core/block-editor' );
+	const { closeGeneralSidebar } = useDispatch( 'core/edit-post' );
+
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 	if ( isLoading ) {
 		return (
@@ -206,6 +209,9 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 											className="edit-post-paywall-toolbar-button"
 											onClick={ () => {
 												selectBlock( foundPaywallBlock.clientId );
+												if ( isMobileViewport ) {
+													closeGeneralSidebar();
+												}
 											} }
 											variant={ 'link' }
 										>
