@@ -130,7 +130,7 @@ class Jetpack_PostImages {
 				$this_gallery['ids'] = implode( ',', $ids );
 			}
 			// Remove any holes we introduced.
-			$this_gallery['src'] = array_values( $this_gallery['src'] );
+			$this_gallery['src']  = array_values( $this_gallery['src'] );
 			$filtered_galleries[] = $this_gallery;
 		}
 
