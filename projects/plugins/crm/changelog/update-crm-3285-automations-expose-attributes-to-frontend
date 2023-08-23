@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Introduce the class Attribute_Definition to better expose attributes to the frontend

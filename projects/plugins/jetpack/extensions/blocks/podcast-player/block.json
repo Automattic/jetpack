@@ -1,0 +1,110 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/podcast-player",
+	"title": "Podcast Player",
+	"description": "Select and play episodes from a single podcast.",
+	"keywords": [ "audio", "embed" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><g><rect fill='none' height='24' width='24' /><rect fill='none' height='24' width='24' /><rect fill='none' height='24' width='24' /></g><g transform='matrix(1 0 0 1 144 120)'><path d='M-122-114h-5v8.18c-0.31-0.11-0.65-0.18-1-0.18c-1.66,0-3,1.34-3,3s1.34,3,3,3s3-1.34,3-3v-9h3V-114 L-122-114z M-129-114h-12v2h12V-114L-129-114z M-129-110h-12v2h12V-110L-129-110z M-133-106h-8v2h8V-106L-133-106z M-129-103 c0-0.55,0.45-1,1-1c0.55,0,1,0.45,1,1s-0.45,1-1,1C-128.55-102-129-102.45-129-103z' /></g></svg>",
+	"supports": {
+		"align": [ "wide", "full" ],
+		"spacing": {
+			"padding": true,
+			"margin": true
+		},
+		"anchor": false,
+		"customClassName": true,
+		"className": true,
+		"html": false,
+		"multiple": true,
+		"reusable": true
+	},
+	"attributes": {
+		"url": {
+			"type": "string",
+			"validator": "isUrl"
+		},
+		"selectedEpisodes": {
+			"type": "array",
+			"default": []
+		},
+		"itemsToShow": {
+			"type": "integer",
+			"default": 5
+		},
+		"showCoverArt": {
+			"type": "boolean",
+			"default": true
+		},
+		"showEpisodeTitle": {
+			"type": "boolean",
+			"default": true
+		},
+		"showEpisodeDescription": {
+			"type": "boolean",
+			"default": true
+		},
+		"primaryColor": {
+			"type": "string"
+		},
+		"customPrimaryColor": {
+			"type": "string"
+		},
+		"hexPrimaryColor": {
+			"type": "string"
+		},
+		"secondaryColor": {
+			"type": "string"
+		},
+		"customSecondaryColor": {
+			"type": "string"
+		},
+		"hexSecondaryColor": {
+			"type": "string"
+		},
+		"backgroundColor": {
+			"type": "string"
+		},
+		"customBackgroundColor": {
+			"type": "string"
+		},
+		"hexBackgroundColor": {
+			"type": "string"
+		},
+		"exampleFeedData": {
+			"type": "object"
+		}
+	},
+	"example": {
+		"attributes": {
+			"customPrimaryColor": "GREEN",
+			"hexPrimaryColor": "GREEN",
+			"exampleFeedData": {
+				"title": "Jetpack Example Podcast",
+				"link": "https://jetpack.com",
+				"cover": "https://jetpackme.files.wordpress.com/2020/05/jetpack-example-podcast-cover.png?w=160",
+				"tracks": [
+					{
+						"id": "3",
+						"title": "3. Our third episode",
+						"duration": "14:58"
+					},
+					{
+						"id": "2",
+						"title": "2. Interview with a special guest",
+						"duration": "19:17"
+					},
+					{
+						"id": "1",
+						"title": "1. Welcome to Example Podcast",
+						"duration": "11:25"
+					}
+				]
+			}
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

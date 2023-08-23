@@ -490,7 +490,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			$this->assertIsArray( get_option( Urls::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
 		}
 
+		remove_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		remove_filter( 'query', array( $this, '_drop_temporary_tables' ) );
+
 		Sender::get_instance()->uninstall();
+
+		add_filter( 'query', array( $this, '_create_temporary_tables' ) );
+		add_filter( 'query', array( $this, '_drop_temporary_tables' ) );
 
 		foreach ( $url_callables as $callable ) {
 			$this->assertFalse( get_option( Urls::HTTPS_CHECK_OPTION_PREFIX . $callable ) );

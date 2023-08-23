@@ -14,7 +14,7 @@
 	},
 	"require-dev": {
 		"composer/composer": "^2.2 || ^2.4",
-		"yoast/phpunit-polyfills": "1.0.4",
+		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {

@@ -1,0 +1,44 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/rating-star",
+	"title": "Star Rating",
+	"description": "Rate movies, books, songs, recipes — anything you can put a number on.",
+	"keywords": [ "star", "rating", "review" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "widgets",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4V6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z'/></svg>",
+	"supports": {
+		"html": false
+	},
+	"styles": [
+		{
+			"name": "filled",
+			"label": "Filled",
+			"isDefault": true
+		},
+		{
+			"name": "outlined",
+			"label": "Outlined"
+		}
+	],
+	"attributes": {
+		"rating": {
+			"type": "number",
+			"default": 1
+		},
+		"maxRating": {
+			"type": "number",
+			"default": 5
+		},
+		"color": {
+			"type": "string"
+		},
+		"align": {
+			"type": "string",
+			"default": "left"
+		}
+	},
+	"editorScript": "file:../editor.js"
+}
