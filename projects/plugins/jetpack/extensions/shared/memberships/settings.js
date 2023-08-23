@@ -91,7 +91,7 @@ export function NewsletterAccessRadioButtons( {
 	hasNewsletterPlans,
 	stripeConnectUrl,
 	isEditorPanel = false,
-	hasPaywallBlock = false,
+	postHasPaywallBlock: postHasPaywallBlock = false,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons );
@@ -104,7 +104,7 @@ export function NewsletterAccessRadioButtons( {
 			<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
 			{ Object.keys( accessOptions ).map(
 				key =>
-					( ! hasPaywallBlock || key !== accessOptions.everybody.key ) && (
+					( ! postHasPaywallBlock || key !== accessOptions.everybody.key ) && (
 						<div className="editor-post-visibility__choice" key={ key }>
 							<input
 								value={ key }
@@ -229,7 +229,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 											accessLevel={ _accessLevel }
 											stripeConnectUrl={ stripeConnectUrl }
 											hasNewsletterPlans={ hasNewsletterPlans }
-											hasPaywallBlock={ foundPaywallBlock }
+											postHasPaywallBlock={ foundPaywallBlock }
 										/>
 									</div>
 								) }
@@ -246,7 +246,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 }
 
 export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
-	const { isLoading, hasPaywallBlock } = useSelect( select => {
+	const { isLoading, postHasPaywallBlock } = useSelect( select => {
 		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
 		);
@@ -256,7 +256,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 			isLoading: isApiStateLoading(),
 			stripeConnectUrl: getConnectUrl(),
 			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
-			hasPaywallBlock: getBlocks().some( block => block.name === paywallBlockName ),
+			postHasPaywallBlock: getBlocks().some( block => block.name === paywallBlockName ),
 		};
 	} );
 
@@ -274,7 +274,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 
 	const getText = () => {
 		if ( _accessLevel === accessOptions.paid_subscribers.key ) {
-			if ( ! hasPaywallBlock ) {
+			if ( ! postHasPaywallBlock ) {
 				return __( 'This post will be sent to paid subscribers only.', 'jetpack' );
 			}
 		}
@@ -289,7 +289,7 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 				<PanelRow className="edit-post-post-visibility">
 					<Flex direction="column">
 						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-						<span>{ getText() }</span>
+						<p>{ getText() }</p>
 					</Flex>
 				</PanelRow>
 			) }
@@ -343,7 +343,7 @@ export function PaywallBlockSettings( { accessLevel, setPostMeta } ) {
 										accessLevel={ _accessLevel }
 										stripeConnectUrl={ stripeConnectUrl }
 										hasNewsletterPlans={ hasNewsletterPlans }
-										hasPaywallBlock={ true }
+										postHasPaywallBlock={ true }
 									/>
 								</div>
 							) }
