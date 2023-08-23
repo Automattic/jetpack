@@ -209,7 +209,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel, setPostMeta } )
 											} }
 											variant={ 'link' }
 										>
-											{ __( 'Click to edit.', 'jetpack' ) }
+											{ __( 'Edit.', 'jetpack' ) }
 										</Button>
 									</span>
 								</div>
