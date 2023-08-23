@@ -10,7 +10,7 @@ import { tooltipsPlugin } from './tooltips-plugin';
 import useResize from './use-resize';
 import { Period } from '.';
 
-import 'uplot/dist/uPlot.min.css';
+import './style-uplot.scss';
 
 const DEFAULT_DIMENSIONS = {
 	height: 300,
