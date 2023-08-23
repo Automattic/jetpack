@@ -26,6 +26,7 @@
 
 	.edit-post-post-visibility {
 		display: block;
+		text-wrap: pretty;
 
 		&__notice {
 			&.is-info {
@@ -36,10 +37,6 @@
 
 		.components-notice__content {
 			margin-right: 0;
-		}
-
-		span {
-			width: auto;
 		}
 
 		.components-button {
