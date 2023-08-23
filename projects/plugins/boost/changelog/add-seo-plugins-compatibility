@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Adds the Critical CSS generation token (jb-generate-critical-css), to the allowed query args lists of Yoast SEO and All in One SEO. This prevents them from removing it and breaking Critical CSS generation.
+Critical CSS: Improved compatibility with Yoast SEO and All in One SEO to ensure smooth Critical CSS generation.
