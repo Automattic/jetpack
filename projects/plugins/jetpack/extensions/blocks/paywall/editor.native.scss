@@ -1,0 +1,18 @@
+.paywall--line {
+	background-color: $gray-lighten-20;
+	height: 2;
+}
+
+.paywall--line__dark {
+	background-color: $gray-50;
+}
+
+.paywall--text {
+	color: $gray;
+	text-decoration-style: solid;
+	text-transform: uppercase;
+}
+
+.paywall--text__dark {
+	color: $gray-20;
+}
