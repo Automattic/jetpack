@@ -26,7 +26,9 @@
 
 	.edit-post-post-visibility {
 		display: block;
-		text-wrap: pretty;
+		* {
+			text-wrap: pretty;
+		}
 
 		&__notice {
 			&.is-info {
