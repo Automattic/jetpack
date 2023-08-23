@@ -1,7 +1,7 @@
 .jetpack-subscribe-modal {
 	visibility: hidden;
 	position: fixed;
-	z-index: 1;
+	z-index: 50000; /* Same as WP.com Action bar */
 	left: 0;
 	top: 0;
 	width: 100%;

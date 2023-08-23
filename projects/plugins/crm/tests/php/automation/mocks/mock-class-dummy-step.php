@@ -10,10 +10,11 @@ class Dummy_Step extends Base_Step {
 	/**
 	 * Execute the step
 	 *
-	 * @param array $data
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 * @return void
 	 */
-	public function execute( array $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		Automation_Logger::instance()->log( 'Dummy step executed' );
 	}
 
@@ -29,8 +30,8 @@ class Dummy_Step extends Base_Step {
 		return 'Dummy step for testing purposes';
 	}
 
-	public static function get_type(): string {
-		return 'dummy';
+	public static function get_data_type(): string {
+		return 'contact';
 	}
 
 	public static function get_category(): ?string {

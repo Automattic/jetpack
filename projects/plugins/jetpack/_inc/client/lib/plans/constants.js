@@ -49,6 +49,7 @@ export const PLAN_JETPACK_COMPLETE_MONTHLY = 'jetpack_complete_monthly';
 export const PLAN_JETPACK_BOOST = 'jetpack_boost_yearly';
 export const PLAN_JETPACK_BOOST_MONTHLY = 'jetpack_boost_monthly';
 export const PLAN_JETPACK_AI_MONTHLY = 'jetpack_ai_monthly';
+export const PLAN_JETPACK_AI_YEARLY = 'jetpack_ai_yearly';
 export const PLAN_WPCOM_SEARCH = 'wpcom_search';
 export const PLAN_WPCOM_SEARCH_MONTHLY = 'wpcom_search_monthly';
 export const PLAN_JETPACK_SCAN = 'jetpack_scan';
@@ -253,7 +254,7 @@ export const JETPACK_SOCIAL_PRODUCTS = [
 
 export const JETPACK_BOOST_PRODUCTS = [ PLAN_JETPACK_BOOST, PLAN_JETPACK_BOOST_MONTHLY ];
 
-export const JETPACK_AI_PRODUCTS = [ PLAN_JETPACK_AI_MONTHLY ];
+export const JETPACK_AI_PRODUCTS = [ PLAN_JETPACK_AI_YEARLY, PLAN_JETPACK_AI_MONTHLY ];
 
 export const JETPACK_STATS_PRODUCTS = [
 	PLAN_JETPACK_STATS_MONTHLY,
@@ -666,6 +667,7 @@ export function getPlanClass( plan ) {
 			return 'is-jetpack-boost-plan';
 
 		case PLAN_JETPACK_AI_MONTHLY:
+		case PLAN_JETPACK_AI_YEARLY:
 			return 'is-jetpack-ai-plan';
 
 		case PLAN_JETPACK_STATS_MONTHLY:
