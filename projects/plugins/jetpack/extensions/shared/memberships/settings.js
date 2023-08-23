@@ -129,9 +129,14 @@ export function NewsletterAccessRadioButtons( {
 								className="editor-post-visibility__label"
 							>
 								{ accessOptions[ key ].label }{ ' ' }
-								{ sprintf(
-									'(%1$s)',
-									getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers )
+								{ key !== accessOptions.everybody.key && (
+									<>
+										{ ' ' }
+										{ sprintf(
+											'(%1$s)',
+											getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers )
+										) }
+									</>
 								) }
 							</label>
 						</div>
