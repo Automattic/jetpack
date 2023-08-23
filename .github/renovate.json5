@@ -93,6 +93,7 @@
 		// Update the renovate-version in the action itself.
 		// See also https://github.com/renovatebot/github-action/issues/756
 		{
+			customType: 'regex',
 			fileMatch: [ '^\\.github/workflows/renovate\\.yml$' ],
 			matchStrings: [ 'renovate-version: (?<currentValue>[^\\s]+)' ],
 			datasourceTemplate: 'docker',
