@@ -66,6 +66,16 @@ function PaywallEdit( { className } ) {
 		width: `${ text.length + 1.2 }em`,
 	};
 
+	const getPaidSubscribersToolbarButtonLabel = () => {
+		if ( ! isStripeConnected ) {
+			return __( 'You’ll need to connect Stripe to collect payments.', 'jetpack' );
+		}
+		if ( ! hasNewsletterPlans ) {
+			return __( 'You’ll need to create a Plan to collect payments.', 'jetpack' );
+		}
+		return '';
+	};
+
 	return (
 		<>
 			<div className={ className }>
@@ -88,6 +98,8 @@ function PaywallEdit( { className } ) {
 						isPressed={ accessLevel === accessOptions.paid_subscribers.key }
 						onClick={ switchToPaidSubscribers }
 						disabled={ ! isStripeConnected || ! hasNewsletterPlans }
+						label={ getPaidSubscribersToolbarButtonLabel() }
+						showTooltip={ true }
 					>
 						{ __( 'Paid subscribers', 'jetpack' ) }
 					</ToolbarButton>
