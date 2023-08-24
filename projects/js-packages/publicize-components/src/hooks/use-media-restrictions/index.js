@@ -19,6 +19,31 @@ export function isVideo( mime ) {
 }
 
 /**
+ * Checks whether a media is convertible so we can convert it if needed.
+ *
+ * @param {object} metaData - Media metadata, mime, fileSize and length.
+ * @returns {boolean} Whether it is convertible.
+ */
+const isMediaConvertible = metaData => {
+	if ( ! metaData?.mime || ! metaData?.fileSize ) {
+		return false;
+	}
+
+	const { mime, fileSize } = metaData;
+	if ( isVideo( mime ) ) {
+		return false;
+	}
+
+	const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : null;
+
+	if ( sizeInMb >= 55 ) {
+		return false;
+	}
+
+	return true;
+};
+
+/**
  * This function is used to check if the provided image is valid based on it's size and type.
  *
  * @param {number} sizeInMb - The fileSize in bytes.
@@ -137,10 +162,14 @@ const useMediaRestrictions = (
 					}
 					return errs;
 			  }, {} );
+
 		if ( JSON.stringify( newErrors ) !== JSON.stringify( errors.current ) ) {
 			errors.current = newErrors;
 		}
-		return errors.current;
+		return {
+			validationErrors: errors.current,
+			isConvertible: isMediaConvertible( media.metaData ),
+		};
 	}, [
 		isSocialImageGeneratorEnabledForPost,
 		connections,
