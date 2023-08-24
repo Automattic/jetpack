@@ -2,7 +2,7 @@ import { ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
 import { Disabled, ExternalLink, Notice, BaseControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Fragment } from 'react';
+import React, { Fragment } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useMediaDetails from '../../hooks/use-media-details';
 import MediaPicker from '../media-picker';
@@ -15,10 +15,15 @@ const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
  *
  * @param {object} props - The properties passed to the component.
  * @param {boolean} [props.disabled=false] - Indicates whether the MediaSection is disabled or not.
- * @param {string} [props.notice=''] - An optional notice that's displayed when the section is disabled.
+ * @param {string} [props.disabledNoticeMessage=''] - An optional notice that's displayed when the section is disabled.
+ * @param {React.FC} [props.CustomNotice=null] - An optional custom notice that's displayed.
  * @returns {object} The media section.
  */
-export default function MediaSection( { disabled = false, notice = '' } ) {
+export default function MediaSection( {
+	disabled = false,
+	disabledNoticeMessage = '',
+	CustomNotice = null,
+} ) {
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 
 	const [ mediaDetails ] = useMediaDetails( attachedMedia[ 0 ]?.id );
@@ -40,19 +45,26 @@ export default function MediaSection( { disabled = false, notice = '' } ) {
 		? { className: styles.disabled, 'data-testid': 'disabled' }
 		: {};
 
+	const renderHeaderSection = () => {
+		if ( CustomNotice ) {
+			return CustomNotice;
+		}
+
+		return disabledNoticeMessage ? (
+			<Notice className={ styles.notice } isDismissible={ false } status="warning">
+				<p data-testid="notice">{ disabledNoticeMessage }</p>
+			</Notice>
+		) : (
+			<p className={ styles.subtitle }>
+				{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
+			</p>
+		);
+	};
+
 	return (
 		<ThemeProvider>
 			<BaseControl label={ __( 'Media', 'jetpack' ) } className={ styles.wrapper }>
-				{ notice ? (
-					<Notice className={ styles.notice } isDismissible={ false } status="warning">
-						<p data-testid="notice">{ notice }</p>
-					</Notice>
-				) : (
-					<p className={ styles.subtitle }>
-						{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
-					</p>
-				) }
-
+				{ renderHeaderSection() }
 				<MediaWrapper { ...mediaWrapperProps }>
 					<MediaPicker
 						buttonLabel={ ADD_MEDIA_LABEL }

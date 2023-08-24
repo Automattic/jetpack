@@ -60,7 +60,7 @@ describe( 'MediaSection', () => {
 	} );
 
 	it( 'should render the notice if notice prop is set', async () => {
-		render( <MediaSection notice="This is a notice" /> );
+		render( <MediaSection disabledNoticeMessage="This is a notice" /> );
 
 		await expect( screen.findByTestId( 'notice' ) ).resolves.toBeInTheDocument();
 	} );
