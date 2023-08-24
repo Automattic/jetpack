@@ -32,7 +32,7 @@ function jetpack_user_content_tracking_redirect() {
 
 		// Grab the original URL from the database. The table has this structure:
 		global $wpdb;
-		$original_url = $wpdb->get_results(
+		$url_info = $wpdb->get_row(
 			$wpdb->prepare( 'SELECT url, email_link_mapping_id FROM email_link_mapping WHERE uuid = %s', $uuid )
 		);
 
@@ -44,12 +44,12 @@ function jetpack_user_content_tracking_redirect() {
 				$user_id,
 				$post_id,
 				$site_id,
-				$uuid
+				$url_info->email_link_mapping_id
 			)
 		);
 
 		// Redirect the user to the original URL.
-		wp_safe_redirect( $original_url );
+		wp_safe_redirect( $url_info->url );
 		exit;
 	}
 }
