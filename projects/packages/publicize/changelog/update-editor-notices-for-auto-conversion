@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Changed logic that disables the connections based on the auto-conversion feature
