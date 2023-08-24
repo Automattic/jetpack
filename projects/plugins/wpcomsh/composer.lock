@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dbe43818b64a6b69ec1d4b207b41971f",
+    "content-hash": "bab6d89351592fb7f8423177921822d3",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -328,16 +328,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.2.8",
+            "version": "v2.2.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "7306131fa963ab6c705e353a42f908349b860b93"
+                "reference": "2702283b0a4656c77e523bae1247add968d53c08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/7306131fa963ab6c705e353a42f908349b860b93",
-                "reference": "7306131fa963ab6c705e353a42f908349b860b93",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/2702283b0a4656c77e523bae1247add968d53c08",
+                "reference": "2702283b0a4656c77e523bae1247add968d53c08",
                 "shasum": ""
             },
             "require": {
@@ -346,6 +346,7 @@
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
                 "phpunit/phpunit": "^8.0.0",
+                "sirbrillig/phpcs-changed": "^2.11",
                 "squizlabs/php_codesniffer": "*",
                 "wimg/php-compatibility": "9.0.0",
                 "woocommerce/woocommerce-sniffs": "*",
@@ -377,7 +378,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2023-08-10T02:42:50+00:00"
+            "time": "2023-08-24T11:26:44+00:00"
         },
         {
             "name": "composer/installers",
