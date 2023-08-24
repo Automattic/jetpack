@@ -9,7 +9,7 @@ const exampleRawResponse = {
 		},
 		periods: [
 			{
-				timestamp: 1690636803,
+				timestamp: 1690636803000,
 				dimensions: {
 					desktop_overall_score: 86,
 					mobile_overall_score: 52,
@@ -22,7 +22,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1689772803,
+				timestamp: 1689772803000,
 				dimensions: {
 					desktop_overall_score: 75,
 					mobile_overall_score: 52,
@@ -35,7 +35,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1689859203,
+				timestamp: 1689859203000,
 				dimensions: {
 					desktop_overall_score: 72,
 					mobile_overall_score: 49,
@@ -48,7 +48,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1689945603,
+				timestamp: 1689945603000,
 				dimensions: {
 					desktop_overall_score: 20,
 					mobile_overall_score: 30,
@@ -61,7 +61,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690032003,
+				timestamp: 1690032003000,
 				dimensions: {
 					desktop_overall_score: 72,
 					mobile_overall_score: 40,
@@ -74,7 +74,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690118403,
+				timestamp: 1690118403000,
 				dimensions: {
 					desktop_overall_score: 55,
 					mobile_overall_score: 45,
@@ -87,7 +87,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690204803,
+				timestamp: 1690204803000,
 				dimensions: {
 					desktop_overall_score: 75,
 					mobile_overall_score: 52,
@@ -100,7 +100,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690291203,
+				timestamp: 1690291203000,
 				dimensions: {
 					desktop_overall_score: 70,
 					mobile_overall_score: 50,
@@ -113,7 +113,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690377603,
+				timestamp: 1690377603000,
 				dimensions: {
 					desktop_overall_score: 75,
 					mobile_overall_score: 90,
@@ -126,7 +126,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690464003,
+				timestamp: 1690464003000,
 				dimensions: {
 					desktop_overall_score: 80,
 					mobile_overall_score: 60,
@@ -139,7 +139,7 @@ const exampleRawResponse = {
 				},
 			},
 			{
-				timestamp: 1690550403,
+				timestamp: 1690550403000,
 				dimensions: {
 					desktop_overall_score: 85,
 					mobile_overall_score: 60,
