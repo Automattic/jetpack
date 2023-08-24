@@ -44,6 +44,15 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	// Sort periods by timestamp
 	periods.sort( ( a, b ) => a.timestamp - b.timestamp );
 
+	// @todo Remove this once we have a proper date range picker
+	const dayBeforeEndDate = endDate - 24 * 60 * 60 * 1000;
+	// Adjust the start date based on available data
+	if ( periods.length > 0 ) {
+		startDate = Math.min( periods[ 0 ].timestamp - 12 * 60 * 60 * 1000, dayBeforeEndDate );
+	} else {
+		startDate = dayBeforeEndDate;
+	}
+
 	const data = useBoostScoreTransform( periods );
 	if ( isLoading || ! data?.length ) {
 		return null;
