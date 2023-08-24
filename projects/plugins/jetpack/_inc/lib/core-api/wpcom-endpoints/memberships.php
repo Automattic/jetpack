@@ -31,7 +31,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/status',
+			$this->rest_base . '/status/?',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
@@ -73,7 +73,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		);
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/product',
+			$this->rest_base . '/product/?',
 			array(
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
@@ -109,7 +109,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		);
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/products',
+			$this->rest_base . '/products/?',
 			array(
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
@@ -125,7 +125,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		);
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/product/(?P<product_id>[0-9]+)',
+			$this->rest_base . '/product/(?P<product_id>[0-9]+)/?',
 			array(
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
