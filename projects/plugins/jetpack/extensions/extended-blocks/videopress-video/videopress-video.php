@@ -23,9 +23,11 @@ add_action(
 	function () {
 		$extensions                            = \Jetpack_Gutenberg::get_extensions();
 		$is_videopress_video_extension_enabled = in_array( 'videopress/video', $extensions, true );
+		$is_videopress_module_active           = \Jetpack::is_module_active( 'videopress' );
 
 		if (
 			$is_videopress_video_extension_enabled &&
+			$is_videopress_module_active &&
 			method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_video_block' )
 		) {
 			VideoPress_Pkg_Initializer::register_videopress_video_block();
