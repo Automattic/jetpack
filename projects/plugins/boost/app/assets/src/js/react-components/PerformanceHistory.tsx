@@ -9,6 +9,7 @@ export const PerformanceHistory = ( { periods, onToggle, isOpen, startDate, endD
 				title={ __( 'Historical Performance', 'jetpack-boost' ) }
 				initialOpen={ isOpen }
 				onToggle={ onToggle }
+				className="jb-performance-history__panel"
 			>
 				<PanelRow>
 					<div style={ { flexGrow: 1, minHeight: '300px' } }>
