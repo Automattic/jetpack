@@ -1,7 +1,7 @@
 import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { PanelBody, ToolbarButton, ToolbarGroup, Tooltip } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -95,16 +95,16 @@ function PaywallEdit( { className } ) {
 					>
 						{ __( 'Anyone subscribed', 'jetpack' ) }
 					</ToolbarButton>
-					<ToolbarButton
-						className="components-tab-button"
-						isPressed={ accessLevel === accessOptions.paid_subscribers.key }
-						onClick={ switchToPaidSubscribers }
-						disabled={ ! isStripeConnected || ! hasNewsletterPlans }
-						label={ getPaidSubscribersToolbarButtonLabel() }
-						showTooltip={ true }
-					>
-						{ __( 'Paid subscribers', 'jetpack' ) }
-					</ToolbarButton>
+					<Tooltip text={ getPaidSubscribersToolbarButtonLabel() }>
+						<ToolbarButton
+							className="components-tab-button"
+							isPressed={ accessLevel === accessOptions.paid_subscribers.key }
+							onClick={ switchToPaidSubscribers }
+							disabled={ ! isStripeConnected || ! hasNewsletterPlans }
+						>
+							{ __( 'Paid subscribers', 'jetpack' ) }
+						</ToolbarButton>
+					</Tooltip>
 					{ ! isStripeConnected && (
 						<StripeConnectToolbarButton blockName={ blockName } connectUrl={ stripeConnectUrl } />
 					) }
