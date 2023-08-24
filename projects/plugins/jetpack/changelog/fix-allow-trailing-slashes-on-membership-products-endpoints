@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Allow trailing slashes on membership products endpoints.
