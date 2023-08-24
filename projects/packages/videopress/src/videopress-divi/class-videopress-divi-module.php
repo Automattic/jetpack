@@ -24,7 +24,7 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 	 *
 	 * @var string
 	 */
-	const VIDEOPRESS_REGEX = '/^(?:http(?:s)?:\/\/)?(?:www\.)?video(?:\.word)?press\.com\/(?:v|embed)\/([a-zA-Z\d]{8,})(.+)?/i';
+	const VIDEOPRESS_REGEX = '/^(?:(?:http(?:s)?:\/\/)?(?:www\.)?video(?:\.word)?press\.com\/(?:v|embed)\/)?([a-zA-Z\d]+)(?:.*)?/i';
 
 	/**
 	 * Vd support.
