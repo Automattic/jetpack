@@ -72,7 +72,7 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 		$subscriptions      = self::abbreviate_subscriptions( $subscriptions );
 		$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
 
-		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id );
+		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id, $subscriptions );
 	}
 
 	/**
