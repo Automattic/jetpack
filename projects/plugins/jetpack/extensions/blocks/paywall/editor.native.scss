@@ -1,18 +1,47 @@
+.paywall {
+	background-color: rgba( 0, 0, 0, 0.06 );
+	border-radius: 10px;
+	padding: 12px 16px;
+}
+
+.paywall__dark {
+	background-color: rgba( 255, 255, 255, 0.15 );
+}
+
+.paywall--horizontalRule {
+	margin-bottom: 4px;
+}
+
 .paywall--line {
-	background-color: $gray-lighten-20;
-	height: 2;
+	background-color: $black;
+	height: 1;
 }
 
 .paywall--line__dark {
-	background-color: $gray-50;
+	background-color: $white;
 }
 
 .paywall--text {
-	color: $gray;
+	color: $black;
+	font-size: 13px;
+	line-height: 18px;
+	letter-spacing: -0.078px;
 	text-decoration-style: solid;
 	text-transform: uppercase;
 }
 
 .paywall--text__dark {
+	color: $white;
+}
+
+.paywall--subtext {
+	color: rgba( 60, 60, 67, 0.6 );
+	font-size: 13px;
+	line-height: 18px;
+	letter-spacing: -0.078px;
+	text-align: center;
+}
+
+.paywall--subtext__dark {
 	color: $gray-20;
 }
