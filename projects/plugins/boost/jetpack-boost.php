@@ -209,6 +209,14 @@ function include_compatibility_files() {
 	if ( function_exists( 'wp_cache_is_enabled' ) ) {
 		require_once __DIR__ . '/compatibility/wp-super-cache.php';
 	}
+
+	if ( class_exists( '\Yoast\WP\SEO\Main' ) ) {
+		require_once __DIR__ . '/compatibility/yoast.php';
+	}
+
+	if ( function_exists( 'aioseo' ) ) {
+		require_once __DIR__ . '/compatibility/aioseo.php';
+	}
 }
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );
