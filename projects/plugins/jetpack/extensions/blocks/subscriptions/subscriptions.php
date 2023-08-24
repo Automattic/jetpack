@@ -711,8 +711,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 				<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
 					<div class="wp-block-jetpack-subscriptions__subscount">
 						<?php
-						/* translators: %s: number of folks following the blog */
-						echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $data['subscribers_total'], 'jetpack' ), number_format_i18n( $data['subscribers_total'] ) ) );
+						echo esc_html( Jetpack_Memberships::get_join_others_text( $data['subscribers_total'] ) );
 						?>
 					</div>
 				<?php endif; ?>
