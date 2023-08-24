@@ -8,12 +8,14 @@ import { store as editorStore } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon } from '@wordpress/icons';
+import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { PaywallBlockSettings } from '../../shared/memberships/settings';
+import { blockName } from './index';
 
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
@@ -103,6 +105,9 @@ function PaywallEdit( { className } ) {
 					>
 						{ __( 'Paid subscribers', 'jetpack' ) }
 					</ToolbarButton>
+					{ ! isStripeConnected && (
+						<StripeConnectToolbarButton blockName={ blockName } connectUrl={ stripeConnectUrl } />
+					) }
 				</ToolbarGroup>
 			</BlockControls>
 			<InspectorControls>
