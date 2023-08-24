@@ -241,6 +241,7 @@
 
 	.error-area {
 		margin-top: 16px;
+		margin-bottom: 16px;
 	}
 
 	.button-area {
