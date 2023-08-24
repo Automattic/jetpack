@@ -17,7 +17,7 @@ export function useBoostScoreTransform(
 		if ( ! periods?.length || ! periods[ 0 ].dimensions ) {
 			return [];
 		}
-		const timestamps = periods.map( ( { timestamp } ) => timestamp );
+		const timestamps = periods.map( ( { timestamp } ) => timestamp / 1000 );
 
 		const valueArray = [];
 		for ( const key of keysToExtract ) {

@@ -146,7 +146,7 @@ export default function UplotLineChart( { data, range, periods }: UplotChartProp
 						if ( ! rawValue ) {
 							return '-';
 						}
-						const date = new Date( rawValue * 1000 );
+						const date = new Date( rawValue );
 						return date.toLocaleDateString( getUserLocale() );
 					},
 				},

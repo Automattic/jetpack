@@ -26,7 +26,7 @@ const Template = args => {
 export const _default = Template.bind( {} );
 _default.args = {
 	period: {
-		timestamp: 1689772803,
+		timestamp: 1689772803000,
 		dimensions: {
 			desktop_overall_score: 75,
 			mobile_overall_score: 52,

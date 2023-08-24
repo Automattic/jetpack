@@ -20,7 +20,7 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 		mobile_tbt,
 	} = period.dimensions;
 	const scoreLetter = getScoreLetter( mobile_overall_score, desktop_overall_score );
-	const date = dateI18n( 'F j, Y', new Date( period.timestamp * 1000 ), false );
+	const date = dateI18n( 'F j, Y', new Date( period.timestamp ), false );
 
 	return (
 		<div className="jb-score-tooltip">
