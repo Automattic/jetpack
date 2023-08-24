@@ -279,7 +279,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
 			try {
-				return $this->create_product_from_wpcom( $payload )->to_array();
+				return $this->create_product_from_wpcom( $payload );
 			} catch ( \Exception $e ) {
 				return array( 'error' => $e->getMessage() );
 			}
@@ -302,7 +302,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		if ( $this->is_wpcom() ) {
 			require_lib( 'memberships' );
 			try {
-				return array( 'product' => $this->update_product_from_wpcom( $product_id, $payload )->to_array() );
+				return array( 'product' => $this->update_product_from_wpcom( $product_id, $payload ) );
 			} catch ( \Exception $e ) {
 				return array( 'error' => $e->getMessage() );
 			}
@@ -506,7 +506,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		if ( is_wp_error( $updated_product ) ) {
 			throw new \Exception( $updated_product->get_error_message() );
 		}
-		return $updated_product;
+		return $updated_product->to_array();
 	}
 
 	/**
