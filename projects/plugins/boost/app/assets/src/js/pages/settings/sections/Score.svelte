@@ -36,8 +36,6 @@
 		isStale: false,
 	};
 
-	let refreshHistory;
-
 	// Load the speed score. Will be cached in the plugin.
 	loadScore();
 
@@ -92,9 +90,6 @@
 			);
 			scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 			showPrevScores = didScoresChange( scores ) && ! scores.isStale;
-
-			// Trigger a refresh of the performance history.
-			refreshHistory();
 		} catch ( err ) {
 			recordBoostEvent( 'speed_score_request_error', {
 				error_message: castToString( err.message ),
@@ -187,7 +182,7 @@
 		/>
 	</div>
 
-	<History bind:refresh={refreshHistory} />
+	<History />
 </div>
 
 {#if modalData}
