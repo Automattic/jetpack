@@ -87,6 +87,16 @@ class Speed_Score {
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'dispatch_speed_score_graph_history_request' ),
 				'permission_callback' => array( $this, 'can_access_speed_scores' ),
+				'args'                => array(
+					'start' => array(
+						'required' => true,
+						'type'     => 'number',
+					),
+					'end'   => array(
+						'required' => true,
+						'type'     => 'number',
+					),
+				),
 			)
 		);
 	}
@@ -142,44 +152,6 @@ class Speed_Score {
 	}
 
 	/**
-	 * Verify and normalize the parametesr for score grpah history request.
-	 *
-	 * @param \WP_REST_Request $request The request object.
-	 *
-	 * @return array|\WP_Error An error to return or an array with the parameters.
-	 */
-	private function process_score_graph_history_params( $request ) {
-		$params = $request->get_json_params();
-
-		if ( ! isset( $params['start'] ) ) {
-			return new \WP_Error(
-				'invalid_parameter',
-				__(
-					'The start parameter is required',
-					'jetpack-boost-speed-score'
-				),
-				array( 'status' => 400 )
-			);
-		}
-
-		if ( ! isset( $params['end'] ) ) {
-			return new \WP_Error(
-				'invalid_parameter',
-				__(
-					'The end parameter is required',
-					'jetpack-boost-speed-score'
-				),
-				array( 'status' => 400 )
-			);
-		}
-
-		return array(
-			'start' => $params['start'],
-			'end'   => $params['end'],
-		);
-	}
-
-	/**
 	 * Handler for POST /speed-scores-history.
 	 *
 	 * @param \WP_REST_Request $request The request object.
@@ -187,12 +159,7 @@ class Speed_Score {
 	 * @return \WP_REST_Response|\WP_Error The response.
 	 */
 	public function dispatch_speed_score_graph_history_request( $request ) {
-		$params = $this->process_score_graph_history_params( $request );
-		if ( is_wp_error( $params ) ) {
-			return $params;
-		}
-
-		$score_history_request = new Speed_Score_Graph_History_Request( $params['start'], $params['end'], array() );
+		$score_history_request = new Speed_Score_Graph_History_Request( $request->get_param( 'start' ), $request->get_param( 'end' ), array() );
 		// Send the request.
 		return $score_history_request->execute();
 	}
