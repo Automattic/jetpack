@@ -135,7 +135,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			?>
 			<img
 				src="<?php echo esc_url( $gravatar_url ); ?>"
-				<?php echo $srcset ? 'srcset="' . esc_attr( $srcset ) . '"' : ''; ?>
+				srcset="<?php echo esc_attr( $srcset ); ?>"
 				class="grofile-thumbnail no-grav"
 				alt="<?php echo esc_attr( $profile['displayName'] ); ?>"
 				loading="lazy" />
