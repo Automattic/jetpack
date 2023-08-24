@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Move "X% off" tag to pricing row and update remove promo label in favor of updated legend text.
+UI: Improve discount elements for pricing section
