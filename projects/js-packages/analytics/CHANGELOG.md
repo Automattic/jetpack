@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Analytics package releases.
 
+## [0.1.27] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
 ## [0.1.26] - 2023-08-21
 ### Added
 - Publish package to npmjs.com. [#32515]
@@ -106,4 +110,5 @@
 ### Added
 - Initial release of jetpack-api package.
 
+[0.1.27]: https://github.com/Automattic/jetpack-analytics/compare/v0.1.26...v0.1.27
 [0.1.26]: https://github.com/Automattic/jetpack-analytics/compare/v0.1.25...v0.1.26
