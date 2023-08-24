@@ -1,11 +1,11 @@
 .paywall {
-	background-color: rgba( 0, 0, 0, 0.06 );
+	background-color: $light-ultra-dim;
 	border-radius: 10px;
-	padding: 12px 16px;
+	padding: $block-edge-to-content;
 }
 
 .paywall__dark {
-	background-color: rgba( 255, 255, 255, 0.15 );
+	background-color: $dark-dim;
 }
 
 .paywall--horizontalRule {
@@ -13,16 +13,16 @@
 }
 
 .paywall--line {
-	background-color: $black;
+	background-color: $light-quaternary;
 	height: 1;
 }
 
 .paywall--line__dark {
-	background-color: $white;
+	background-color: $dark-quaternary;
 }
 
 .paywall--text {
-	color: $black;
+	color: $light-primary;
 	font-size: 13px;
 	line-height: 18px;
 	letter-spacing: -0.078px;
@@ -31,11 +31,11 @@
 }
 
 .paywall--text__dark {
-	color: $white;
+	color: $dark-primary;
 }
 
 .paywall--subtext {
-	color: rgba( 60, 60, 67, 0.6 );
+	color: $light-secondary;
 	font-size: 13px;
 	line-height: 18px;
 	letter-spacing: -0.078px;
@@ -43,5 +43,5 @@
 }
 
 .paywall--subtext__dark {
-	color: $gray-20;
+	color: $dark-secondary;
 }
