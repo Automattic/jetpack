@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Shortcodes: exclude images with broken URL from galleries.

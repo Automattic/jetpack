@@ -450,7 +450,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "4fc672d7a80a0646181a8df44950a117d63ba3a1"
+                "reference": "1ed5f1ec93e20e373beaf86551366e837360a83d"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -476,7 +476,7 @@
                     "link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.9.x-dev"
+                    "dev-trunk": "0.10.x-dev"
                 },
                 "textdomain": "jetpack-blaze",
                 "version-constants": {
@@ -2073,7 +2073,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "2f8af77c67748b04f1bed23db973271e3f45a7a0"
+                "reference": "1de83f0e55d74e8d60793d252c415ff2be27de39"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2100,7 +2100,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.34.x-dev"
+                    "dev-trunk": "0.35.x-dev"
                 }
             },
             "autoload": {

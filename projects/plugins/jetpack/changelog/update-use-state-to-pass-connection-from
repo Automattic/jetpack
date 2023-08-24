@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Connection UI: use Redux state to pass the "from" property.
