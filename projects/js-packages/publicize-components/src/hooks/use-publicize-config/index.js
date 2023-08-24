@@ -94,6 +94,12 @@ export default function usePublicizeConfig() {
 	 */
 	const isEnhancedPublishingEnabled = !! getJetpackData()?.social?.isEnhancedPublishingEnabled;
 
+	/**
+	 * isAutoConversionEnabled:
+	 * Whether the site has the auto conversion feature enabled.
+	 */
+	const isAutoConversionEnabled = !! getJetpackData()?.social?.isAutoConversionEnabled;
+
 	return {
 		isPublicizeEnabledMeta,
 		isPublicizeEnabled,
@@ -112,5 +118,6 @@ export default function usePublicizeConfig() {
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
 		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
 		adminUrl: getJetpackData()?.social?.adminUrl,
+		isAutoConversionEnabled,
 	};
 }
