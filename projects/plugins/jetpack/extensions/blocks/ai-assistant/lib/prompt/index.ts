@@ -41,7 +41,8 @@ export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
 
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant';
-	content: string;
+	content?: string;
+	context?: object;
 };
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
@@ -251,6 +252,9 @@ Strictly follow those rules:
 - When the user provides instructions, translate them into appropriate Gutenberg blocks and Jetpack form structure.
 - Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
 - If you cannot generate a meaningful response to a user's request, reply only with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.`,
+			context: {
+				type: 'form-ai-extension-system-prompt',
+			},
 		},
 		{
 			role,
@@ -260,6 +264,7 @@ Strong requirements:
 - Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
 - Always add, at the end, exactly one jetpack/button for the form submission. Forms require one button to be valid.
 - Replace placeholders (like FIELD_LABEL, IS_REQUIRED, etc.) with the user's specifications.
+- For "requiredText", use the default value "(required)".
 - Use syntax templates for blocks as follows:
 	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
 	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
@@ -278,6 +283,11 @@ Strong requirements:
 - When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column), like so: \`Name Field\`:
 	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
 Jetpack Form to modify:\n${ content }`,
+			context: {
+				type: 'form-ai-extension-user-request',
+				content,
+				request,
+			},
 		},
 	];
 }

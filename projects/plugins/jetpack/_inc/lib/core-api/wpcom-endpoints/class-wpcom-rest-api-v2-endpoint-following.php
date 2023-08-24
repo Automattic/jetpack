@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API endpoint for the Jetpack author recommendations block.
+ * REST API endpoint for the Jetpack Blogroll block.
  *
  * @package automattic/jetpack
  * @since 12.2

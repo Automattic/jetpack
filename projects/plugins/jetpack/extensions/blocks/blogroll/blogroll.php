@@ -1,18 +1,18 @@
 <?php
 /**
- * Author-recommendation Block.
+ * Blogroll Block.
  *
  * @since 12.1
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\AuthorRecommendation;
+namespace Automattic\Jetpack\Extensions\Blogroll;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'author-recommendation';
+const FEATURE_NAME = 'blogroll';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
@@ -45,10 +45,10 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Author-recommendation block registration/dependency declaration.
+ * Blogroll block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Author-recommendation block attributes.
- * @param string $content String containing the Author-recommendation block content.
+ * @param array  $attr    Array containing the Blogroll block attributes.
+ * @param string $content String containing the Blogroll block content.
  *
  * @return string
  */

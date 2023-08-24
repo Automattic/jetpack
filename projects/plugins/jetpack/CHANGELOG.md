@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.5-beta - 2023-08-21
+## 12.5 - 2023-08-23
 ### Enhancements
 - AI Assistant: various backend improvements.
 - AI Extension: various improvements AI Assistant, update styles, and bug fixes.
@@ -8654,7 +8654,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
-[11.6]: https://wp.me/p1moTy-PLI
+[12.5]: https://wp.me/p1moTy-Vab
 [12.4]: https://wp.me/p1moTy-UQY
 [12.3]: https://wp.me/p1moTy-Uk3
 [12.2]: https://wp.me/p1moTy-Tzw
@@ -8663,6 +8663,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 [11.9]: https://wp.me/p1moTy-RdX
 [11.8]: https://wp.me/p1moTy-QEM
 [11.7]: https://wp.me/p1moTy-Q9t
+[11.6]: https://wp.me/p1moTy-PLI
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I
 [11.3]: https://wp.me/p1moTy-M5i
