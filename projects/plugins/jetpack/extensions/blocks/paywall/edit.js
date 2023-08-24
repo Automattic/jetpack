@@ -1,7 +1,7 @@
 import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
-import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody } from '@wordpress/components';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { PanelBody, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -20,6 +20,15 @@ function PaywallEdit( { className } ) {
 	const accessLevel = useAccessLevel( postType );
 	const [ , setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
+	const { stripeConnectUrl, hasNewsletterPlans } = useSelect( select => {
+		const { getNewsletterProducts, getConnectUrl } = select( 'jetpack/membership-products' );
+		return {
+			stripeConnectUrl: getConnectUrl(),
+			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
+		};
+	} );
+	const isStripeConnected = stripeConnectUrl === null;
+
 	useEffect( () => {
 		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
 			setPostMeta( {
@@ -27,6 +36,18 @@ function PaywallEdit( { className } ) {
 			} );
 		}
 	}, [ accessLevel, setPostMeta ] );
+
+	function switchToAnyoneSubscribed() {
+		setPostMeta( {
+			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.subscribers.key,
+		} );
+	}
+
+	function switchToPaidSubscribers() {
+		setPostMeta( {
+			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.paid_subscribers.key,
+		} );
+	}
 
 	const getText = key => {
 		switch ( key ) {
@@ -53,6 +74,25 @@ function PaywallEdit( { className } ) {
 					<Icon icon={ arrowDown } size={ 16 } />
 				</span>
 			</div>
+			<BlockControls>
+				<ToolbarGroup>
+					<ToolbarButton
+						className="components-tab-button"
+						isPressed={ accessLevel === accessOptions.subscribers.key }
+						onClick={ switchToAnyoneSubscribed }
+					>
+						{ __( 'Anyone subscribed', 'jetpack' ) }
+					</ToolbarButton>
+					<ToolbarButton
+						className="components-tab-button"
+						isPressed={ accessLevel === accessOptions.paid_subscribers.key }
+						onClick={ switchToPaidSubscribers }
+						disabled={ ! isStripeConnected || ! hasNewsletterPlans }
+					>
+						{ __( 'Paid subscribers', 'jetpack' ) }
+					</ToolbarButton>
+				</ToolbarGroup>
+			</BlockControls>
 			<InspectorControls>
 				<PanelBody
 					className="jetpack-subscribe-newsletters-panel"
@@ -66,7 +106,12 @@ function PaywallEdit( { className } ) {
 							'jetpack'
 						) }
 					</p>
-					<PaywallBlockSettings accessLevel={ accessLevel } setPostMeta={ setPostMeta } />
+					<PaywallBlockSettings
+						accessLevel={ accessLevel }
+						setPostMeta={ setPostMeta }
+						stripeConnectUrl={ stripeConnectUrl }
+						hasNewsletterPlans={ hasNewsletterPlans }
+					/>
 				</PanelBody>
 			</InspectorControls>
 		</>

@@ -258,6 +258,9 @@ importers:
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
+      '@automattic/jetpack-boost-score-api':
+        specifier: workspace:*
+        version: link:../boost-score-api
       '@babel/runtime':
         specifier: ^7
         version: 7.22.6
@@ -297,6 +300,12 @@ importers:
       react-slider:
         specifier: 2.0.5
         version: 2.0.5(@babel/runtime@7.22.6)(react@18.2.0)
+      uplot:
+        specifier: 1.6.24
+        version: 1.6.24
+      uplot-react:
+        specifier: 1.1.4
+        version: 1.1.4(react@18.2.0)(uplot@1.6.24)
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
@@ -22097,6 +22106,21 @@ packages:
       browserslist: 4.21.9
       escalade: 3.1.1
       picocolors: 1.0.0
+
+  /uplot-react@1.1.4(react@18.2.0)(uplot@1.6.24):
+    resolution: {integrity: sha512-qO1UkQwjVKdj5vTm3O3yldvu1T6hwY4++rH4KznLhjqpnLdncq1zsRxq/zQz/HUHPVD0j7WBcEISbNM61JsuAQ==}
+    engines: {node: '>=8.10'}
+    peerDependencies:
+      react: '>=16.8.6'
+      uplot: ^1.6.7
+    dependencies:
+      react: 18.2.0
+      uplot: 1.6.24
+    dev: false
+
+  /uplot@1.6.24:
+    resolution: {integrity: sha512-WpH2BsrFrqxkMu+4XBvc0eCDsRBhzoq9crttYeSI0bfxpzR5YoSVzZXOKFVWcVC7sp/aDXrdDPbDZGCtck2PVg==}
+    dev: false
 
   /upper-case-first@2.0.2:
     resolution: {integrity: sha512-514ppYHBaKwfJRK/pNC6c/OxfGa0obSnAl106u97Ed0I625Nin96KAjttZF6ZL3e1XLtphxnqrOi9iWgm+u+bg==}
