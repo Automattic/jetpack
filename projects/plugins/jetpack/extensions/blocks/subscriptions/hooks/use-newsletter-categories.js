@@ -5,6 +5,7 @@ import { CONNECTION_STORE_ID } from '../../../../../../js-packages/connection';
 
 const useNewsletterCategories = () => {
 	const [ data, setData ] = useState( [] );
+	const [ enabled, setEnabled ] = useState( false );
 	const [ error, setError ] = useState( false );
 	const [ loading, setLoading ] = useState( true );
 
@@ -17,6 +18,7 @@ const useNewsletterCategories = () => {
 					url: `https://public-api.wordpress.com/wpcom/v2/sites/${ blogId }/newsletter-categories`,
 				} );
 				setData( newsLetterCategories?.newsletter_categories );
+				setEnabled( newsLetterCategories?.enabled ?? false );
 			} catch ( e ) {
 				setError( true );
 			} finally {
@@ -27,7 +29,7 @@ const useNewsletterCategories = () => {
 		fetchData();
 	}, [] );
 
-	return { data, enabled: data.length, error, loading };
+	return { data, enabled, error, loading };
 };
 
 export { useNewsletterCategories };
