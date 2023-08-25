@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { Link, Routes, Route } from 'react-router-dom';
 import AdminPage from '../admin-page';
+import { BulkWorkflowActions } from './components/bulk-workflow-actions';
 import { RedirectHome } from './components/redirect-home';
 import { WorkflowRow } from './components/workflow-row';
 import { WorkflowTable } from './components/workflow-table';
@@ -97,6 +98,15 @@ export const AutomationsAdmin = () => {
 			<Route
 				path="/automations/test-workflow-table"
 				element={ <WorkflowTable workflows={ [ workflowOne, workflowTwo ] } /> }
+			/>
+			<Route
+				path="/automations/test-workflow-bulk-actions"
+				element={
+					<div style={ { display: 'flex', flexDirection: 'column', background: 'white' } }>
+						<BulkWorkflowActions />
+						<WorkflowTable workflows={ [ workflowOne, workflowTwo ] } />
+					</div>
+				}
 			/>
 			<Route path="*" element={ <RedirectHome /> } />
 		</Routes>
