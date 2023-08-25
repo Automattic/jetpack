@@ -91,14 +91,9 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 }
 
 function TierSelector( { onChange } ) {
-	// TODO: filter on currency?
+	// TODO: figure out how to handle different currencies
 	const products = useSelect( select => select( membershipProductsStore ).getProducts() )
-		.filter(
-			product =>
-				product.subscribe_as_site_subscriber &&
-				product.interval === '1 month' &&
-				product.buyer_can_change_amount === false
-		)
+		.filter( product => product.subscribe_as_site_subscriber && product.interval === '1 month' )
 		.sort( product => Number( product.price ) )
 		.reverse();
 
@@ -109,10 +104,6 @@ function TierSelector( { onChange } ) {
 		postType,
 		'meta'
 	);
-	console.log( 'tierId', tierId );
-
-	// console.log( 'products', products );
-	// debugger;
 
 	// Tiers don't apply if less than 2 products
 	if ( products.length < 2 ) {
@@ -135,7 +126,9 @@ function TierSelector( { onChange } ) {
 						} }
 						id={ `editor-post-tier-${ product.id }` }
 					/>
-					<label htmlFor={ `editor-post-tier-${ product.id }` }>{ product.title }</label>
+					<label htmlFor={ `editor-post-tier-${ product.id }` }>
+						{ product.title } subscribers
+					</label>
 				</div>
 			) ) }
 		</div>
@@ -198,8 +191,9 @@ export function NewsletterAccessRadioButtons( {
 						{
 							// This adds a tier selector when:
 							// - the paid_subscribers option is selected
-							// - stripe is selected
-							// - there are newsletter plans
+							// - stripe is connected
+							// - there are newsletter plans (the component will
+							//   check for more than 1 plan)
 							// - this isn't a paywall block
 						 }
 						{ key === accessOptions.paid_subscribers.key &&
