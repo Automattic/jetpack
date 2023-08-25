@@ -6,6 +6,8 @@ import {
 import { registerBlockType } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
 
+const JETPACK_PREFIX = 'jetpack/';
+
 /**
  * Registers a gutenberg block if the availability requirements are met.
  *
@@ -16,28 +18,32 @@ import { addFilter } from '@wordpress/hooks';
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export default function registerJetpackBlock( name, settings, childBlocks = [], prefix = true ) {
-	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
+	const isNamePrefixed = name.startsWith( JETPACK_PREFIX );
+	const rawName = isNamePrefixed ? name.slice( JETPACK_PREFIX.length ) : name;
+
+	const { available, details, unavailableReason } = getJetpackExtensionAvailability( rawName );
 
 	const requiredPlan = requiresPaidPlan( unavailableReason, details );
-	const jpPrefix = prefix ? 'jetpack/' : '';
+	const jpPrefix = prefix || isNamePrefixed ? JETPACK_PREFIX : '';
 
 	if ( ! available && ! requiredPlan ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
 			// eslint-disable-next-line no-console
 			console.warn(
-				`Block ${ name } couldn't be registered because it is unavailable (${ unavailableReason }).`
+				`Block ${ rawName } couldn't be registered because it is unavailable (${ unavailableReason }).`
 			);
 		}
 		return false;
 	}
 
-	const result = registerBlockType( jpPrefix + name, settings );
+	const prefixedName = jpPrefix + rawName;
+	const result = registerBlockType( prefixedName, settings );
 
 	if ( requiredPlan ) {
 		addFilter(
 			'editor.BlockListBlock',
-			`${ jpPrefix + name }-with-has-warning-is-interactive-class-names`,
-			withHasWarningIsInteractiveClassNames( jpPrefix + name )
+			`${ prefixedName }-with-has-warning-is-interactive-class-names`,
+			withHasWarningIsInteractiveClassNames( prefixedName )
 		);
 	}
 

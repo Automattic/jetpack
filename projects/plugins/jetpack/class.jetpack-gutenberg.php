@@ -478,6 +478,15 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
+		// Retrieve the feature from block.json if its path is passed.
+		if ( '/' === substr( $type, 0, 1 ) ) {
+			$feature = Blocks::get_block_feature_from_metadata( Blocks::get_block_metadata_from_file( $type ) );
+
+			if ( ! empty( $feature ) ) {
+				$type = $feature;
+			}
+		}
+
 		$type = sanitize_title_with_dashes( $type );
 		self::load_styles_as_required( $type );
 		self::load_scripts_as_required( $type, $script_dependencies );
