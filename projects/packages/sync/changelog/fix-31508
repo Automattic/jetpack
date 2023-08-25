@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Add HPOS events to sync module.
+Woo: add HPOS (custom order tables) events to sync module.
