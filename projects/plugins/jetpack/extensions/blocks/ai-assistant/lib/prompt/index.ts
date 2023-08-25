@@ -234,7 +234,6 @@ function getTonePrompt( {
 
 function getJetpackFormCustomPrompt( {
 	content,
-	role = 'user',
 	request,
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	if ( ! request ) {
@@ -249,7 +248,6 @@ function getJetpackFormCustomPrompt( {
 				type: 'form-ai-extension',
 				content,
 				request,
-				role,
 			},
 		},
 	];
