@@ -51,7 +51,7 @@ class Blocks {
 				$slug = $name;
 
 				$block_type = new \WP_Block_Type( $slug );
-				$block_type->set_props( $metadata );
+				$block_type->set_props( array_merge( $metadata, $args ) );
 			}
 		}
 
