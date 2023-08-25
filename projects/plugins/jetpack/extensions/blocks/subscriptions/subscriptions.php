@@ -1079,7 +1079,7 @@ function get_paywall_simple() {
  * If not, it applies the 'jetpack_newsletter_categories' filter and returns the result (default is false).
  */
 function newsletter_categories_enabled_for_site() {
-	if ( function_exists( 'has_blog_sticker' ) && has_block_sticker( 'newsletter_categories' ) ) {
+	if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'newsletter_categories' ) ) {
 		return true;
 	}
 
