@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+BoostScoreGraph: add mock module to avoid the mobile editor importing incompatible web dependencies.
