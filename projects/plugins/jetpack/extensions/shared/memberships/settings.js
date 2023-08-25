@@ -85,6 +85,46 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 	}
 }
 
+function TierSelector() {
+	// TODO: filter on currency?
+	const products = useSelect( select => select( membershipProductsStore ).getProducts() )
+		.filter(
+			product =>
+				product.subscribe_as_site_subscriber &&
+				product.interval === '1 month' &&
+				product.buyer_can_change_amount === false
+		)
+		.sort( product => Number( product.price ) )
+		.reverse();
+	console.log( 'products', products );
+	debugger;
+	return (
+		<div style={ { position: 'relative', display: 'flex' } }>
+			<input
+				list="tier-selector"
+				style={ { '-webkit-appearance': 'slider-vertical', direction: 'ltr' } }
+				type="range"
+				min="0"
+				max={ ( products.length - 1 ).toString() }
+				orient="vertical"
+			/>
+			<datalist
+				id="tier-selector"
+				style={ {
+					position: 'relative',
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'space-between',
+				} }
+			>
+				{ products.map( ( product, i ) => (
+					<option key={ product.id } value={ i } label={ product.title }></option>
+				) ) }
+			</datalist>
+		</div>
+	);
+}
+
 export function NewsletterAccessRadioButtons( {
 	onChange,
 	accessLevel,
@@ -138,6 +178,18 @@ export function NewsletterAccessRadioButtons( {
 							{ accessLabel }
 							{ reach }
 						</label>
+						{ /*
+						 * This adds a tier selector when:
+						 * - the paid_subscribers option is selected
+						 * - stripe is selected
+						 * - there are newsletter plans
+						 * - this isn't a paywall block
+						 */ }
+						{ key === accessOptions.paid_subscribers.key &&
+							key === accessLevel &&
+							isStripeConnected &&
+							hasNewsletterPlans &&
+							! postHasPaywallBlock && <TierSelector></TierSelector> }
 					</div>
 				);
 			} ) }
