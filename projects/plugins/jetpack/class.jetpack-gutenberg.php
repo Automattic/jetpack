@@ -466,7 +466,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Only enqueue block assets when needed.
 	 *
-	 * @param string $type Slug of the block.
+	 * @param string $type Slug of the block or absolute path to the directory containing the block.json file.
 	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
 	 *                                    detected script dependencies from the webpack build.
 	 *
