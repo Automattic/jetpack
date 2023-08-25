@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import DayEdit from './components/day-edit';
 import DayPreview from './components/day-preview';
-import { icon } from '.';
+import icon from './icon';
 
 export const defaultLocalization = {
 	days: {
