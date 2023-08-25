@@ -302,15 +302,16 @@ export function NewsletterAccessPrePublishSettings( { accessLevel } ) {
 	);
 }
 
-export function PaywallBlockSettings( { accessLevel, setPostMeta } ) {
-	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
-		const { getNewsletterProducts, getConnectUrl, isApiStateLoading } = select(
-			'jetpack/membership-products'
-		);
+export function PaywallBlockSettings( {
+	accessLevel,
+	setPostMeta,
+	stripeConnectUrl,
+	hasNewsletterPlans,
+} ) {
+	const { isLoading } = useSelect( select => {
+		const { isApiStateLoading } = select( 'jetpack/membership-products' );
 		return {
 			isLoading: isApiStateLoading(),
-			stripeConnectUrl: getConnectUrl(),
-			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
 		};
 	} );
 

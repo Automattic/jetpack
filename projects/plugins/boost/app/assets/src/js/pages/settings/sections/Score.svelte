@@ -17,6 +17,7 @@
 	import debounce from '../../../utils/debounce';
 	import PopOut from '../elements/PopOut.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
+	import History from './History.svelte';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
 
@@ -180,6 +181,8 @@
 			noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
 		/>
 	</div>
+
+	<History />
 </div>
 
 {#if modalData}
