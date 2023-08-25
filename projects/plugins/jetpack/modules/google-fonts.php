@@ -169,4 +169,6 @@ function jetpack_register_google_fonts_to_theme_json_default( $theme_json ) {
 	return new WP_Theme_JSON_Data_Gutenberg( $raw_data, 'default' );
 }
 
-add_filter( 'wp_theme_json_data_default', 'jetpack_register_google_fonts_to_theme_json_default' );
+if ( class_exists( 'WP_Fonts_Utils' ) ) {
+	add_filter( 'wp_theme_json_data_default', 'jetpack_register_google_fonts_to_theme_json_default' );
+}
