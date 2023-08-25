@@ -95,8 +95,8 @@ export default function UplotLineChart( { data, range, periods }: UplotChartProp
 	const uplot = useRef< uPlot | null >( null );
 	const uplotContainer = useRef( null );
 
-	const lastDesktopScore = data[ 1 ][ data[ 1 ].length - 1 ];
-	const lastMobileScore = data[ 2 ][ data[ 2 ].length - 1 ];
+	const lastDesktopScore = typeof data[ 1 ] !== 'undefined' ? data[ 1 ][ data[ 1 ].length - 1 ] : 0;
+	const lastMobileScore = typeof data[ 2 ] !== 'undefined' ? data[ 2 ][ data[ 2 ].length - 1 ] : 0;
 
 	const options: uPlot.Options = useMemo( () => {
 		const defaultOptions: uPlot.Options = {

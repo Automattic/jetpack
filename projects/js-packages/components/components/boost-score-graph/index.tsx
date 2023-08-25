@@ -1,8 +1,10 @@
 import React, { type FunctionComponent } from 'react';
 import uPlot from 'uplot';
 import Text from '../text';
+import Background from './background';
 import UplotLineChart from './uplot-line-chart';
 import { useBoostScoreTransform } from './use-boost-score-transform';
+import './style.scss';
 
 export interface Period {
 	timestamp: number;
@@ -22,7 +24,7 @@ export interface BoostScoreGraphProps {
 	startDate: number;
 	endDate: number;
 	title?: string;
-	isLoading?: boolean;
+	isPlaceholder?: boolean;
 }
 
 /**
@@ -39,7 +41,7 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	startDate,
 	endDate,
 	title,
-	isLoading = false,
+	isPlaceholder = false,
 } ) => {
 	// Sort periods by timestamp
 	periods.sort( ( a, b ) => a.timestamp - b.timestamp );
@@ -54,13 +56,17 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	}
 
 	const data = useBoostScoreTransform( periods );
-	if ( isLoading || ! data?.length ) {
-		return null;
-	}
+
 	return (
 		<div className="jb-score-graph">
 			{ title && <Text variant="title-medium">{ title }</Text> }
-			<UplotLineChart data={ data } periods={ periods } range={ { startDate, endDate } } />
+			{ isPlaceholder ? (
+				<div className="jb-score-graph__placeholder">
+					<Background />
+				</div>
+			) : (
+				<UplotLineChart data={ data } periods={ periods } range={ { startDate, endDate } } />
+			) }
 		</div>
 	);
 };
