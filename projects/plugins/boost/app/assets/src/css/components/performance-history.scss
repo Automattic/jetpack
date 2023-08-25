@@ -3,9 +3,19 @@
 
     .components-panel {
         border-radius: 8px;
-
         &__body {
             border-color: transparent;
+        }
+    }
+
+    &__upgrade-notice {
+        position: relative;
+
+        .jp-popover {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
     }
 }
