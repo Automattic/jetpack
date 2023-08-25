@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Automation Engine, internal change, to keep the original trigger data through the workflow execution
+
+

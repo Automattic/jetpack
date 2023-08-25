@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Assistant: Change messages to turn content optional and start supporting a context property.
