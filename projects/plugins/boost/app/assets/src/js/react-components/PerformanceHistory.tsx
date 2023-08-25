@@ -27,7 +27,11 @@ export const PerformanceHistory = ( {
 							<div className="jb-performance-history__upgrade-notice">
 								<Popover
 									icon={ <Gridicon icon="lock" /> }
-									action={ <Button onClick={ handleUpgrade }>Okay, got it!</Button> }
+									action={
+										<Button onClick={ handleUpgrade }>
+											{ __( 'Okay, got it!', 'jetpack-boost' ) }
+										</Button>
+									}
 								>
 									<p>
 										{ __(
