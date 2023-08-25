@@ -90,7 +90,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
-	const { requireUpgrade, refresh: refreshFeatureData } = useAIFeature();
+	const { requireUpgrade: requireUpgradeOnStart, refresh: refreshFeatureData } = useAIFeature();
+
+	const requireUpgrade = requireUpgradeOnStart || errorData?.code === 'error_quota_exceeded';
 
 	const {
 		isLoadingCategories,
@@ -479,7 +481,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 			{ requireUpgrade && <UpgradePrompt /> }
 			{ ! connected && <ConnectPrompt /> }
-			{ ! isWaitingState && connected && (
+			{ ! isWaitingState && connected && ! requireUpgrade && (
 				<ToolbarControls
 					isWaitingState={ isWaitingState }
 					contentIsLoaded={ contentIsLoaded }
@@ -518,7 +520,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			) }
 			<AIControl
 				ref={ aiControlRef }
-				disabled={ requireUpgrade || errorData?.code === 'error_quota_exceeded' }
+				disabled={ requireUpgrade }
 				value={ userPrompt }
 				placeholder={ __( 'Ask Jetpack AI', 'jetpack' ) }
 				onChange={ handleChange }
@@ -526,7 +528,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				onStop={ handleStopSuggestion }
 				onAccept={ handleAccept }
 				state={ requestingState }
-				isTransparent={ requireUpgrade || errorData?.code === 'error_quota_exceeded' }
+				isTransparent={ requireUpgrade }
 				showButtonLabels={ ! isMobileViewport }
 				showAccept={ contentIsLoaded && ! isWaitingState }
 				acceptLabel={ acceptLabel }
