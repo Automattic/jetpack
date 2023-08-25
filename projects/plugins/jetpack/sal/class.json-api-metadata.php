@@ -55,10 +55,10 @@ class WPCOM_JSON_API_Metadata {
 
 		// We want to always return the `_jetpack_newsletter_access` key to
 		// display the correct newsletter access in Calypso.
-		$whitelist = [
+		$whitelist = array(
 			'_jetpack_newsletter_access',
 			'_jetpack_newsletter_tier_id',
-		];
+		);
 
 		if ( in_array( $key, $whitelist, true ) ) {
 			return false;
