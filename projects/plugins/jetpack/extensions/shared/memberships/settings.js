@@ -1,5 +1,6 @@
 import { Flex, FlexBlock, PanelRow, VisuallyHidden, Spinner, Button } from '@wordpress/components';
 import { useInstanceId, useViewportMatch } from '@wordpress/compose';
+import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
@@ -8,7 +9,11 @@ import { Icon } from '@wordpress/icons';
 import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
-import { accessOptions, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+import {
+	accessOptions,
+	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+	META_NAME_FOR_POST_TIER_ID_SETTINGS,
+} from './constants';
 import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 export function Link( { href, children } ) {
@@ -85,7 +90,7 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 	}
 }
 
-function TierSelector() {
+function TierSelector( { onChange } ) {
 	// TODO: filter on currency?
 	const products = useSelect( select => select( membershipProductsStore ).getProducts() )
 		.filter(
@@ -96,31 +101,43 @@ function TierSelector() {
 		)
 		.sort( product => Number( product.price ) )
 		.reverse();
-	console.log( 'products', products );
-	debugger;
+
+	// Find the current tier meta
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
+		'postType',
+		postType,
+		'meta'
+	);
+	console.log( 'tierId', tierId );
+
+	// console.log( 'products', products );
+	// debugger;
+
+	// Tiers don't apply if less than 2 products
+	if ( products.length < 2 ) {
+		return;
+	}
+
 	return (
-		<div style={ { position: 'relative', display: 'flex' } }>
-			<input
-				list="tier-selector"
-				style={ { '-webkit-appearance': 'slider-vertical', direction: 'ltr' } }
-				type="range"
-				min="0"
-				max={ ( products.length - 1 ).toString() }
-				orient="vertical"
-			/>
-			<datalist
-				id="tier-selector"
-				style={ {
-					position: 'relative',
-					display: 'flex',
-					flexDirection: 'column',
-					justifyContent: 'space-between',
-				} }
-			>
-				{ products.map( ( product, i ) => (
-					<option key={ product.id } value={ i } label={ product.title }></option>
-				) ) }
-			</datalist>
+		<div className="editor-post-tiers">
+			{ products.map( product => (
+				<div key={ product.id }>
+					<input
+						type="radio"
+						name="tier"
+						checked={ Number( tierId ) === product.id }
+						value={ product.id }
+						onChange={ event => {
+							const obj = {};
+							obj[ META_NAME_FOR_POST_TIER_ID_SETTINGS ] = event?.target?.value;
+							return onChange && onChange( obj );
+						} }
+						id={ `editor-post-tier-${ product.id }` }
+					/>
+					<label htmlFor={ `editor-post-tier-${ product.id }` }>{ product.title }</label>
+				</div>
+			) ) }
 		</div>
 	);
 }
@@ -178,18 +195,18 @@ export function NewsletterAccessRadioButtons( {
 							{ accessLabel }
 							{ reach }
 						</label>
-						{ /*
-						 * This adds a tier selector when:
-						 * - the paid_subscribers option is selected
-						 * - stripe is selected
-						 * - there are newsletter plans
-						 * - this isn't a paywall block
-						 */ }
+						{
+							// This adds a tier selector when:
+							// - the paid_subscribers option is selected
+							// - stripe is selected
+							// - there are newsletter plans
+							// - this isn't a paywall block
+						 }
 						{ key === accessOptions.paid_subscribers.key &&
 							key === accessLevel &&
 							isStripeConnected &&
 							hasNewsletterPlans &&
-							! postHasPaywallBlock && <TierSelector></TierSelector> }
+							! postHasPaywallBlock && <TierSelector onChange={ onChange }></TierSelector> }
 					</div>
 				);
 			} ) }
