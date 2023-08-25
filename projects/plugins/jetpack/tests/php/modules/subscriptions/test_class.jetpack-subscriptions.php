@@ -539,14 +539,14 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	/**
 	 * Create a tier
 	 *
-	 * @param int        $newsletter_plan_id Plan id.
-	 * @param int        $newsletter_annual_plan_id Annual plan ID.
+	 * @param int        $newsletter_product_id Plan id.
+	 * @param int        $newsletter_annual_product_id Annual plan ID.
 	 * @param float      $price plan price.
 	 * @param float|null $annual_price annual plan price.
 	 * @param string     $currency currency.
 	 * @return int post tier ID
 	 */
-	private function setup_jetpack_tier( $newsletter_plan_id, $newsletter_annual_plan_id, $price, $annual_price = null, $currency = 'EUR' ) {
+	private function setup_jetpack_tier( $newsletter_product_id, $newsletter_annual_product_id, $price, $annual_price = null, $currency = 'EUR' ) {
 		/**
 		 * Create a newsletter plan
 		 */
@@ -555,7 +555,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 				'post_type' => Jetpack_Memberships::$post_type_plan,
 			)
 		);
-		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_product_id', $newsletter_plan_id );
+		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_product_id', $newsletter_product_id );
 		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_site_subscriber', true );
 		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_price', $price );
 		update_post_meta( $newsletter_plan_id, 'jetpack_memberships_currency', $currency );
@@ -569,12 +569,12 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 					'post_type' => Jetpack_Memberships::$post_type_plan,
 				)
 			);
-			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_product_id', $newsletter_annual_plan_id );
+			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_product_id', $newsletter_annual_product_id );
 			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_site_subscriber', true );
 			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_price', $annual_price );
 			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_currency', $currency );
 			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_interval', '1 year' );
-			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_tier', $newsletter_plan_id );
+			update_post_meta( $newsletter_annual_plan_id, 'jetpack_memberships_tier', $newsletter_product_id );
 
 			$this->factory->post->create();
 		}
