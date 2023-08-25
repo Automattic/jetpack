@@ -59,13 +59,28 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    # Cache pnpm modules
+    - name: Cache pnpm modules
+      uses: actions/cache@v3
+      with:
+        path: ~/.pnpm-store
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+    # Setup tools
     - name: Setup tools
       uses: ./.github/actions/tool-setup
 
     - name: Install monorepo
-      run: |
-        pnpm install
+      run: pnpm install
 
+    # Cache build artifacts
+    - name: Cache build artifacts
+      uses: actions/cache@v3
+      with:
+        path: build-output
+        key: ${{ runner.os }}--${{ matrix.path }}-${{ matrix.suite }}-build-${{ hashFiles('**/package-lock.json') }}
+
+    # Download artifacts
     - name: Download artifacts
       if: github.event_name == 'workflow_run'
       uses: dawidd6/action-download-artifact@v2
@@ -89,7 +104,6 @@ jobs:
         repository: ${{ github.event.client_payload.repository }}
         ref: ${{ github.event.client_payload.ref_name }}
         path: build-output/build/${{ github.event.client_payload.repository }}
-
     - name: Prepare build
       env:
         COMPOSER_ROOT_VERSION: "dev-trunk"
