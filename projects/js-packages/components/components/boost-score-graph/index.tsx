@@ -20,9 +20,9 @@ export interface Period {
 	};
 }
 export interface BoostScoreGraphProps {
-	periods: Period[];
-	startDate: number;
-	endDate: number;
+	periods?: Period[];
+	startDate?: number;
+	endDate?: number;
 	title?: string;
 	isPlaceholder?: boolean;
 }
@@ -37,9 +37,9 @@ export interface BoostScoreGraphProps {
  * @returns {React.ReactElement} The JSX element representing the BoostScoreGraph component, or null if loading.
  */
 export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
-	periods,
-	startDate,
-	endDate,
+	periods = [],
+	startDate = 0,
+	endDate = 0,
 	title,
 	isPlaceholder = false,
 } ) => {
