@@ -5,6 +5,17 @@
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
+### WooCommerce Analytics
+
+Remove logic that prevents site admins being tracked and add store_admin property to WooCommerce analytics events
+- Ensure site is connected, WooCommerce is installed, products, payment methods, and shipping methods are available. (Cash on Delivery and Free shipping will be fine).
+- Ensure WooCommerce analytics is running.
+- As an admin user: add an item to your cart and go to the checkout.
+- Check out and then visit Tracks and find your event. (I spoofed my user agent so I could find the event easily)
+- Check the event for the `store_admin` property, which should be `1`
+- Repeat as a logged _out_ (e.g. guest) user, the event should be logged, and should have the `store_admin` property but it should be `0`
+- Repeat as a logged in, but _not_ admin user, (e.g. a customer), the event should be logged, and should have the `store_admin` property but it should be `0`
+
 ### Newsletter
 
 The Newsletter settings are moved from the Discussion settings to their own dedicated page.
