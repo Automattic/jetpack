@@ -129,7 +129,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) {
-			return $is_paid_subscriber && ! $this->is_current_user_gated_access_for_tier( $post_id, $user_abbreviated_subscriptions );
+			return $is_paid_subscriber && ! $this->maybe_gate_access_for_user_if_tier( $post_id, $user_abbreviated_subscriptions );
 		}
 
 		// This should not be a use case
@@ -144,9 +144,9 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 *
 	 * @return bool
 	 */
-	private function is_current_user_gated_access_for_tier( $post_id, $user_abbreviated_subscriptions ) {
+	private function maybe_gate_access_for_user_if_tier( $post_id, $user_abbreviated_subscriptions ) {
 		$tier_id = intval(
-			get_post_meta( META_NAME_FOR_POST_TIER_ID_SETTINGS, true )
+			get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true )
 		);
 
 		if ( ! $tier_id ) {
@@ -162,8 +162,9 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 
 		// We now need the tier price and currency, and the same for the annual price (if available)
 		$tier_meta         = get_post_meta( $tier_id );
-		$tier_price        = $tier_meta['jetpack_memberships_price'];
-		$tier_currency     = $tier_meta['jetpack_memberships_currency'];
+		$tier_price        = $tier_meta['jetpack_memberships_price'][0];
+		$tier_currency     = $tier_meta['jetpack_memberships_currency'][0];
+		$tier_product_id   = $tier_meta['jetpack_memberships_product_id'][0];
 		$annual_tier_price = $tier_price * 12;
 
 		// At this point we know the post is
@@ -171,40 +172,67 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			array(
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
-				'post_type'      => self::$post_type_plan,
+				'post_type'      => \Jetpack_Memberships::$post_type_plan,
 				'meta_key'       => 'jetpack_memberships_tier',
-				'meta_value'     => $tier_id,
+				'meta_value'     => $tier_product_id,
 			)
 		);
 
+		$annual_tier_id = false;
 		if ( count( $linked_post_tier ) !== 0 ) {
 			$annual_tier_id = (int) reset(
 				$linked_post_tier
 			);
 
 			$annual_tier_meta  = get_post_meta( $annual_tier_id );
-			$annual_tier_price = isset( $annual_tier_meta['jetpack_memberships_price'] ) ? $annual_tier_meta['jetpack_memberships_price'] : $annual_tier_price;
+			$annual_tier_price = isset( $annual_tier_meta['jetpack_memberships_price'][0] ) ? $annual_tier_meta['jetpack_memberships_price'][0] : $annual_tier_price;
 		}
 
-		foreach ( $user_abbreviated_subscriptions as $subscription_id => $details ) {
+		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
 			$end = is_int( $details->end_date ) ? $details->end_date : strtotime( $details->end_date );
 			if ( $end < time() ) {
 				// subscription not active anymore
 				continue;
 			}
 
-			$metas                 = get_post_meta( $subscription_id );
-			$subscription_price    = $metas['jetpack_memberships_price'];
-			$subscription_currency = $metas['jetpack_memberships_currency'];
-			$subscription_interval = $metas['jetpack_memberships_interval'];
+			if ( $details->status !== 'active' ) {
+				// subscription not active anymore
+				continue;
+			}
+
+			$subscription_post_id = get_posts(
+				array(
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+					'post_type'      => \Jetpack_Memberships::$post_type_plan,
+					'meta_key'       => 'jetpack_memberships_product_id',
+					'meta_value'     => $subscription_plan_id,
+				)
+			);
+
+			if ( empty( $subscription_post_id ) === 0 ) {
+				// No post linked to this plan
+				continue;
+			}
+			$subscription_post_id = $subscription_post_id[0];
+
+			if ( $subscription_post_id === $tier_id || $subscription_post_id === $annual_tier_id ) {
+				// User is subscribed to the right tier
+				return false;
+			}
+
+			$metas                 = get_post_meta( $subscription_post_id );
+			$subscription_price    = $metas['jetpack_memberships_price'][0];
+			$subscription_currency = $metas['jetpack_memberships_currency'][0];
+			$subscription_interval = $metas['jetpack_memberships_interval'][0];
 
 			if ( $tier_currency !== $subscription_currency ) {
 				// For now, we don't count if there are different currency (not sure how to convert price in a pure JP env)
 				continue;
 			}
 
-			if ( ( $subscription_interval === '1 month' && $subscription_price > $tier_price ) ||
-					( $subscription_interval === '1 year' && $subscription_price > $annual_tier_price )
+			if ( ( $subscription_interval === '1 month' && $subscription_price >= $tier_price ) ||
+					( $subscription_interval === '1 year' && $subscription_price >= $annual_tier_price )
 			) {
 				// One subscription is more expensive than the minimum set by the post' selected tier
 				return false;
