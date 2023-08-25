@@ -86,6 +86,7 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_DAILY_MONTHLY              = 'jetpack_security_daily_monthly'; // 2011
 	private const JETPACK_SECURITY_REALTIME                   = 'jetpack_security_realtime'; // 2012
 	private const JETPACK_SECURITY_REALTIME_MONTHLY           = 'jetpack_security_realtime_monthly'; // 2013
+	private const JETPACK_COMPLETE_BI_YEARLY                  = 'jetpack_complete_bi_yearly'; // 2035
 	private const JETPACK_COMPLETE                            = 'jetpack_complete'; // 2014
 	private const JETPACK_COMPLETE_MONTHLY                    = 'jetpack_complete_monthly'; // 2015
 	private const JETPACK_SECURITY_T1_BI_YEARLY               = 'jetpack_security_t1_bi_yearly'; // 2034
@@ -99,12 +100,15 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_DAILY_MONTHLY                = 'jetpack_backup_daily_monthly'; // 2101
 	private const JETPACK_BACKUP_REALTIME                     = 'jetpack_backup_realtime'; // 2102
 	private const JETPACK_BACKUP_REALTIME_MONTHLY             = 'jetpack_backup_realtime_monthly'; // 2103
+	private const JETPACK_SEARCH_BI_YEARLY                    = 'jetpack_search_bi_yearly'; // 2031
 	private const JETPACK_SEARCH                              = 'jetpack_search'; // 2104
 	private const JETPACK_SEARCH_MONTHLY                      = 'jetpack_search_monthly'; // 2105
+	private const JETPACK_SCAN_BI_YEARLY                      = 'jetpack_scan_bi_yearly'; // 2038
 	private const JETPACK_SCAN                                = 'jetpack_scan'; // 2106
 	private const JETPACK_SCAN_MONTHLY                        = 'jetpack_scan_monthly'; // 2107
 	private const JETPACK_SCAN_REALTIME                       = 'jetpack_scan_realtime'; // 2108
 	private const JETPACK_SCAN_REALTIME_MONTHLY               = 'jetpack_scan_realtime_monthly'; // 2109
+	private const JETPACK_ANTI_SPAM_BI_YEARLY                 = 'jetpack_anti_spam_bi_yearly'; // 2039
 	private const JETPACK_ANTI_SPAM                           = 'jetpack_anti_spam'; // 2110
 	private const JETPACK_ANTI_SPAM_MONTHLY                   = 'jetpack_anti_spam_monthly'; // 2111
 	private const JETPACK_BACKUP_T1_BI_YEARLY                 = 'jetpack_backup_t1_bi_yearly'; // 2123
@@ -117,12 +121,15 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_ADDON_STORAGE_1TB_MONTHLY    = 'jetpack_backup_addon_storage_1tb_monthly'; // 2048
 	private const JETPACK_BACKUP_ADDON_STORAGE_3TB_MONTHLY    = 'jetpack_backup_addon_storage_3tb_monthly'; // 2052
 	private const JETPACK_BACKUP_ADDON_STORAGE_5TB_MONTHLY    = 'jetpack_backup_addon_storage_5tb_monthly'; // 2056
+	private const JETPACK_VIDEOPRESS_BI_YEARLY                = 'jetpack_videopress_bi_yearly'; // 2119
 	private const JETPACK_VIDEOPRESS                          = 'jetpack_videopress'; // 2116
 	private const JETPACK_VIDEOPRESS_MONTHLY                  = 'jetpack_videopress_monthly'; // 2117
 	private const JETPACK_BACKUP_T0_YEARLY                    = 'jetpack_backup_t0_yearly'; // 2120
 	private const JETPACK_BACKUP_T0_MONTHLY                   = 'jetpack_backup_t0_monthly'; // 2121
 	private const JETPACK_SEARCH_FREE                         = 'jetpack_search_free'; // 2130
 	private const JETPACK_BACKUP_ONE_TIME                     = 'jetpack_backup_one_time'; // 2201
+	private const JETPACK_STATS_YEARLY                        = 'jetpack_stats_yearly'; // 2219
+	private const JETPACK_STATS_BI_YEARLY                     = 'jetpack_stats_bi_yearly'; // 2223
 	private const JETPACK_STATS_FREE                          = 'jetpack_stats_free_yearly'; // 2221
 	private const JETPACK_STATS_PWYW                          = 'jetpack_stats_pwyw_yearly'; // 2222
 	private const JETPACK_STATS_MONTHLY                       = 'jetpack_stats_monthly'; // 2220
@@ -145,13 +152,17 @@ class WPCOM_Features {
 	private const AKISMET_ENTERPRISE_2M_MONTHLY               = 'ak_ep2m_monthly_1'; // 2324
 	private const AKISMET_ENTERPRISE_GT2M_YEARLY              = 'ak_epgt2m_yearly_1'; // 2325
 	private const AKISMET_ENTERPRISE_GT2M_MONTHLY             = 'ak_epgt2m_monthly_1'; // 2326
+	private const JETPACK_BOOST_BI_YEARLY                     = 'jetpack_boost_bi_yearly'; // 2036
 	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
 	private const JETPACK_AI_MONTHLY                          = 'jetpack_ai_monthly'; // 2450
 	private const JETPACK_AI_YEARLY                           = 'jetpack_ai_yearly'; // 2451
+	private const JETPACK_AI_BI_YEARLY                        = 'jetpack_ai_bi_yearly'; // 2452
 	private const JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY         = 'jetpack_social_monthly'; // 2500
+	private const JETPACK_SOCIAL_BASIC_BI_YEARLY              = 'jetpack_social_basic_bi_yearly'; // 2037
 	private const JETPACK_SOCIAL_BASIC                        = 'jetpack_social_basic_yearly'; // 2503
 	private const JETPACK_SOCIAL_BASIC_MONTHLY                = 'jetpack_social_basic_monthly'; // 2504
+	private const JETPACK_SOCIAL_ADVANCED_BI_YEARLY           = 'jetpack_social_advanced_bi_yearly'; // 2604
 	private const JETPACK_SOCIAL_ADVANCED                     = 'jetpack_social_advanced_yearly'; // 2602
 	private const JETPACK_SOCIAL_ADVANCED_MONTHLY             = 'jetpack_social_advanced_monthly'; // 2603
 	private const JETPACK_GOLDEN_TOKEN                        = 'jetpack_golden_token_lifetime'; // 2900
@@ -187,7 +198,7 @@ class WPCOM_Features {
 	private const JETPACK_BUSINESS_PLANS = array( self::JETPACK_BUSINESS, self::JETPACK_BUSINESS_MONTHLY );
 	private const JETPACK_PREMIUM_PLANS  = array( self::JETPACK_PREMIUM, self::JETPACK_PREMIUM_MONTHLY );
 	private const JETPACK_PERSONAL_PLANS = array( self::JETPACK_PERSONAL, self::JETPACK_PERSONAL_MONTHLY );
-	private const JETPACK_COMPLETE_PLANS = array( self::JETPACK_COMPLETE, self::JETPACK_COMPLETE_MONTHLY );
+	private const JETPACK_COMPLETE_PLANS = array( self::JETPACK_COMPLETE_BI_YEARLY, self::JETPACK_COMPLETE, self::JETPACK_COMPLETE_MONTHLY );
 	private const JETPACK_STARTER_PLANS  = array( self::JETPACK_STARTER_YEARLY, self::JETPACK_STARTER_MONTHLY );
 
 	private const JETPACK_SECURITY_DAILY_PLANS    = array( self::JETPACK_SECURITY_DAILY, self::JETPACK_SECURITY_DAILY_MONTHLY );
@@ -195,12 +206,20 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_T1_PLANS       = array( self::JETPACK_SECURITY_T1_MONTHLY, self::JETPACK_SECURITY_T1_YEARLY, self::JETPACK_SECURITY_T1_BI_YEARLY );
 	private const JETPACK_SECURITY_T2_PLANS       = array( self::JETPACK_SECURITY_T2_MONTHLY, self::JETPACK_SECURITY_T2_YEARLY );
 
-	private const JETPACK_SCAN_PLANS = array( self::JETPACK_SCAN, self::JETPACK_SCAN_MONTHLY, self::JETPACK_SCAN_REALTIME, self::JETPACK_SCAN_REALTIME_MONTHLY );
+	private const JETPACK_SCAN_PLANS = array( self::JETPACK_SCAN_BI_YEARLY, self::JETPACK_SCAN, self::JETPACK_SCAN_MONTHLY, self::JETPACK_SCAN_REALTIME, self::JETPACK_SCAN_REALTIME_MONTHLY );
 
-	private const JETPACK_SOCIAL_PLANS          = array( self::JETPACK_SOCIAL_BASIC, self::JETPACK_SOCIAL_BASIC_MONTHLY, self::JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY );
-	private const JETPACK_SOCIAL_ADVANCED_PLANS = array( self::JETPACK_SOCIAL_ADVANCED, self::JETPACK_SOCIAL_ADVANCED_MONTHLY );
+	private const JETPACK_SOCIAL_PLANS          = array( self::JETPACK_SOCIAL_BASIC_BI_YEARLY, self::JETPACK_SOCIAL_BASIC, self::JETPACK_SOCIAL_BASIC_MONTHLY, self::JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY );
+	private const JETPACK_SOCIAL_ADVANCED_PLANS = array( self::JETPACK_SOCIAL_ADVANCED_BI_YEARLY, self::JETPACK_SOCIAL_ADVANCED, self::JETPACK_SOCIAL_ADVANCED_MONTHLY );
 
-	private const JETPACK_STATS_PLANS = array( self::JETPACK_STATS_MONTHLY, self::JETPACK_STATS_PWYW, self::JETPACK_STATS_FREE );
+	private const JETPACK_STATS_PLANS           = array( self::JETPACK_STATS_BI_YEARLY, self::JETPACK_STATS_YEARLY, self::JETPACK_STATS_MONTHLY, self::JETPACK_STATS_PWYW, self::JETPACK_STATS_FREE );
+
+	private const JETPACK_VIDEOPRESS_PLANS      = array( self::JETPACK_VIDEOPRESS_BI_YEARLY, self::JETPACK_VIDEOPRESS, self::JETPACK_VIDEOPRESS_MONTHLY );
+
+	private const JETPACK_SEARCH_PLANS          = array( self::JETPACK_SEARCH_FREE, self::JETPACK_SEARCH_BI_YEARLY, self::JETPACK_SEARCH, self::JETPACK_SEARCH_MONTHLY );
+
+	private const JETPACK_AI_PLANS              = array( self::JETPACK_AI_BI_YEARLY, self::JETPACK_AI_YEARLY, self::JETPACK_AI_MONTHLY );
+
+	private const JETPACK_BOOST_PLANS           = array( self::JETPACK_BOOST_BI_YEARLY, self::JETPACK_BOOST, self::JETPACK_BOOST_MONTHLY );
 
 	private const JETPACK_BACKUP_DAILY_PLANS    = array( self::JETPACK_BACKUP_DAILY, self::JETPACK_BACKUP_DAILY_MONTHLY );
 	private const JETPACK_BACKUP_REALTIME_PLANS = array( self::JETPACK_BACKUP_REALTIME, self::JETPACK_BACKUP_REALTIME_MONTHLY );
@@ -378,8 +397,7 @@ class WPCOM_Features {
 	 */
 	private const FEATURES_MAP = array(
 		self::AI_ASSISTANT                     => array(
-			self::JETPACK_AI_MONTHLY,
-			self::JETPACK_AI_YEARLY,
+			self::JETPACK_AI_PLAN,
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS               => array(
@@ -406,6 +424,7 @@ class WPCOM_Features {
 			self::WPCOM_ALL_SITES,
 		),
 		self::ANTISPAM                         => array(
+			self::JETPACK_ANTI_SPAM_BI_YEARLY,
 			self::JETPACK_ANTI_SPAM,
 			self::JETPACK_ANTI_SPAM_MONTHLY,
 			self::JETPACK_PERSONAL_AND_HIGHER,
@@ -476,9 +495,7 @@ class WPCOM_Features {
 		self::CLASSIC_SEARCH                   => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
-			self::JETPACK_SEARCH_FREE,
-			self::JETPACK_SEARCH,
-			self::JETPACK_SEARCH_MONTHLY,
+			self::JETPACK_SEARCH_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::WPCOM_SEARCH,
@@ -486,8 +503,7 @@ class WPCOM_Features {
 			self::WP_P2_PLUS_MONTHLY,
 		),
 		self::CLOUD_CRITICAL_CSS               => array(
-			self::JETPACK_BOOST,
-			self::JETPACK_BOOST_MONTHLY,
+			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::CLOUDFLARE_ANALYTICS             => array(
@@ -630,8 +646,7 @@ class WPCOM_Features {
 			self::JETPACK_SECURITY_T2_PLANS,
 		),
 		self::IMAGE_SIZE_ANALYSIS              => array(
-			self::JETPACK_BOOST,
-			self::JETPACK_BOOST_MONTHLY,
+			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::INSTALL_PLUGINS                  => array(
@@ -663,9 +678,7 @@ class WPCOM_Features {
 			self::WPCOM_SEARCH,
 			self::WPCOM_SEARCH_MONTHLY,
 			self::WP_P2_PLUS_MONTHLY,
-			self::JETPACK_SEARCH_FREE,
-			self::JETPACK_SEARCH,
-			self::JETPACK_SEARCH_MONTHLY,
+			self::JETPACK_SEARCH_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::JETPACK_DASHBOARD                => array(
@@ -978,6 +991,8 @@ class WPCOM_Features {
 		self::STATS_PAID                       => array(
 			self::JETPACK_STATS_PWYW,
 			self::JETPACK_STATS_MONTHLY,
+			self::JETPACK_STATS_BI_YEARLY,
+			self::JETPACK_STATS_YEARLY,
 			self::JETPACK_COMPLETE_PLANS,
 		),
 
@@ -1116,8 +1131,7 @@ class WPCOM_Features {
 			self::JETPACK_COMPLETE_PLANS,
 			self::JETPACK_PERSONAL_PLANS,
 			self::JETPACK_PREMIUM_PLANS,
-			self::JETPACK_VIDEOPRESS,
-			self::JETPACK_VIDEOPRESS_MONTHLY,
+			self::JETPACK_VIDEOPRESS_PLANS,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::WPCOM_VIDEOPRESS,
 			self::WPCOM_VIDEOPRESS_PRO,
@@ -1147,8 +1161,7 @@ class WPCOM_Features {
 		self::VIDEOPRESS_1TB_STORAGE           => array(
 			array(
 				self::JETPACK_COMPLETE_PLANS,
-				self::JETPACK_VIDEOPRESS,
-				self::JETPACK_VIDEOPRESS_MONTHLY,
+				self::JETPACK_VIDEOPRESS_PLANS,
 			),
 		),
 		// VIDEOPRESS_VIDEO - videopress/video requires a paid plan.
