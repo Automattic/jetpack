@@ -1,6 +1,6 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
-import { JetpackBoostPage } from '../lib/pages/index.js';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
+import { JetpackBoostPage } from '../../lib/pages/index.js';
 
 let jetpackBoostPage;
 
