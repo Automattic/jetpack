@@ -100,6 +100,11 @@ export default function AiAssistantBar( {
 	const { removeNotice } = useDispatch( noticesStore );
 
 	const onSend = useCallback( () => {
+		// Do not send the request if the input value is empty.
+		if ( ! inputValue?.length ) {
+			return;
+		}
+
 		// Remove previous error notice.
 		removeNotice( AI_ASSISTANT_JETPACK_FORM_NOTICE_ID );
 
@@ -166,8 +171,26 @@ export default function AiAssistantBar( {
 
 	// focus input on first render only (for a11y reasons, toggling on/off should not focus the input)
 	useEffect( () => {
-		inputRef.current?.focus();
-	}, [] );
+		/*
+		 * Only focus the input when the Assistant bar is visible.
+		 * Also, add a small delay to avoid focus when the Assistant bar is toggled off.
+		 */
+		const timeId = setTimeout( () => {
+			if ( ! isVisible ) {
+				return;
+			}
+
+			if ( ! inputRef?.current ) {
+				return;
+			}
+
+			inputRef.current.focus();
+		}, 300 );
+
+		return function () {
+			clearTimeout( timeId );
+		};
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps -- only run on first render
 
 	if ( ! isVisible ) {
 		return null;
@@ -193,8 +216,8 @@ export default function AiAssistantBar( {
 				onSend={ onSend }
 				onStop={ stopSuggestion }
 				state={ requestingState }
-				isOpaque={ siteRequireUpgrade }
-				showButtonsLabel={ ! isMobileMode }
+				isTransparent={ siteRequireUpgrade }
+				showButtonLabels={ ! isMobileMode }
 			/>
 		</div>
 	);

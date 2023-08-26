@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 /**
  * Adds the Add_Contact_Log class.
@@ -51,14 +52,14 @@ class Add_Contact_Log extends Base_Action {
 	}
 
 	/**
-	 * Get the type of the step.
+	 * Get the data type.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string The type of the step.
 	 */
-	public static function get_type(): string {
-		return 'contacts';
+	public static function get_data_type(): string {
+		return Data_Type_Contact::get_slug();
 	}
 
 	/**
@@ -88,12 +89,23 @@ class Add_Contact_Log extends Base_Action {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $contact_data The contact data on which the log is to be added.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 */
-	public function execute( array $contact_data = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
-		$zbs->DAL->contacts->zeroBS_addUpdateObjLog( $this->attributes ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->logs->addUpdateLog( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'data' => array(
+					'objtype'   => ZBS_TYPE_CONTACT,
+					'objid'     => $data['id'],
+					'type'      => $this->get_attributes()['type'],
+					'shortdesc' => $this->get_attributes()['short-description'],
+					'longdesc'  => $this->get_attributes()['long-description'],
+				),
+			)
+		);
 	}
 
 }

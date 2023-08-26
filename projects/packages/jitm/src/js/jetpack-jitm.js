@@ -83,6 +83,8 @@ jQuery( document ).ready( function ( $ ) {
 				var ctaClasses = 'jitm-button is-compact jptracks';
 				if ( envelope.CTA.primary && null === envelope.activate_module ) {
 					ctaClasses += ' is-primary';
+				} else {
+					ctaClasses += ' is-secondary';
 				}
 
 				var ajaxAction = envelope.CTA.ajax_action;

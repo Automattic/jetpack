@@ -128,7 +128,7 @@ class Jetpack_Ai extends Product {
 	 * @return ?string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_ai_monthly';
+		return 'jetpack_ai_yearly';
 	}
 
 	/**

@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.16.1] - 2023-08-21
+### Added
+- Publish package to npmjs.com. [#32515]
+
 ## 0.16.0 - 2023-08-14
 ### Added
 - Add backup undo feature. [#32442]
@@ -258,3 +262,5 @@
 ### Added
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
+
+[0.16.1]: https://github.com/Automattic/jetpack-api/compare/v0.16.0...v0.16.1

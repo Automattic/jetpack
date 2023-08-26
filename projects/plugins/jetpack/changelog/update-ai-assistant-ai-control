@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Extension: Use new AIControl component from AI package and remove local implementation

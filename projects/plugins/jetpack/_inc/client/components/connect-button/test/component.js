@@ -68,14 +68,14 @@ describe( 'ConnectButton', () => {
 			).toHaveAttribute( 'href', 'https://jetpack.wordpress.com/jetpack.authorize/1/' );
 		} );
 
-		it( 'when clicked, loadIframe() is called once', async () => {
+		it( 'when clicked, loadConnectionScreen() is called once', async () => {
 			const user = userEvent.setup();
-			const loadIframe = jest.fn( e => e.preventDefault() );
+			const loadConnectionScreen = jest.fn( e => e.preventDefault() );
 
 			class ConnectButtonMock extends ConnectButton {
 				constructor( props ) {
 					super( props );
-					this.loadIframe = loadIframe;
+					this.loadConnectionScreen = loadConnectionScreen;
 				}
 			}
 
@@ -83,7 +83,7 @@ describe( 'ConnectButton', () => {
 			await user.click(
 				screen.getByRole( 'link', { name: 'Link your account to WordPress.com' } )
 			);
-			expect( loadIframe ).toHaveBeenCalledTimes( 1 );
+			expect( loadConnectionScreen ).toHaveBeenCalledTimes( 1 );
 		} );
 	} );
 

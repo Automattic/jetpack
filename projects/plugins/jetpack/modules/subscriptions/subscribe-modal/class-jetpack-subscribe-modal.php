@@ -49,6 +49,7 @@ class Jetpack_Subscribe_Modal {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
 		}
+		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
 	}
 
 	/**
@@ -69,7 +70,6 @@ class Jetpack_Subscribe_Modal {
 	 * @return void
 	 */
 	public function add_subscribe_modal_to_frontend() {
-		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
 		if ( $this->should_user_see_modal() ) { ?>
 					<div class="jetpack-subscribe-modal">
 						<div class="jetpack-subscribe-modal__modal-content">
@@ -78,7 +78,6 @@ class Jetpack_Subscribe_Modal {
 					</div>
 			<?php
 		}
-		remove_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
 	}
 
 	/**
@@ -159,8 +158,6 @@ HTML;
 
 	/**
 	 * Returns true if we should load Newsletter content.
-	 * This is currently limited to lettre theme or newsletter sites.
-	 * We could open it to all themes or site intents.
 	 *
 	 * @return bool
 	 */
@@ -168,16 +165,7 @@ HTML;
 		// Adding extra check/flag to load only on WP.com
 		// When ready for Jetpack release, remove this.
 		$is_wpcom = ( new Host() )->is_wpcom_platform();
-		if ( ! $is_wpcom ) {
-			return false;
-		}
-		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
-			return false;
-		}
-		if ( ! wp_is_block_theme() ) {
-			return false;
-		}
-		return true;
+		return $is_wpcom;
 	}
 
 	/**
@@ -251,3 +239,22 @@ add_filter(
 if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
 	Jetpack_Subscribe_Modal::init();
 }
+
+add_action(
+	'rest_api_switched_to_blog',
+	function () {
+		/**
+		 * Filter for enabling or disabling the Jetpack Subscribe Modal
+		 * feature. We use this filter here and in several other places
+		 * to conditionally load options and functionality related to
+		 * this feature.
+		 *
+		 * @since 12.4
+		 *
+		 * @param bool Defaults to false.
+		 */
+		if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
+			Jetpack_Subscribe_Modal::init();
+		}
+	}
+);

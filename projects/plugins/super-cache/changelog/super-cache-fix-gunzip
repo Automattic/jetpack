@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent Super Cache from attempting to gunzip content which is not zipped
