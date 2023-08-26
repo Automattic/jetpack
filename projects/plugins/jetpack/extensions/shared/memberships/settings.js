@@ -98,13 +98,15 @@ function TierSelector( { onChange } ) {
 
 	// Find the current tier meta
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	// Destructure the tierId from the meta (set tierId using the META_NAME_FOR_POST_TIER_ID_SETTINGS constant)
 	const [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
 		'postType',
 		postType,
 		'meta'
 	);
 
-	// Tiers don't apply if less than 2 products
+	// Tiers don't apply if less than 2 products (this is called here because
+	// the hooks have to run before any early returns)
 	if ( products.length < 2 ) {
 		return;
 	}
@@ -198,8 +200,7 @@ export function NewsletterAccessRadioButtons( {
 						{ key === accessOptions.paid_subscribers.key &&
 							key === accessLevel &&
 							isStripeConnected &&
-							hasNewsletterPlans &&
-							! postHasPaywallBlock && <TierSelector onChange={ onChange }></TierSelector> }
+							hasNewsletterPlans && <TierSelector onChange={ onChange }></TierSelector> }
 					</div>
 				);
 			} ) }
