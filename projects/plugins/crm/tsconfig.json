@@ -4,6 +4,9 @@
 	"include": [ "./src/js" ],
 	"compilerOptions": {
 		"strict": true,
-		"sourceMap": true
+		"sourceMap": true,
+		"paths": {
+			"crm/*": [ "./src/js/*" ]
+		}
 	}
 }
