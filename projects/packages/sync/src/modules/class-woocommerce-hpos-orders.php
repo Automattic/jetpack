@@ -199,19 +199,50 @@ class WooCommerce_HPOS_Orders extends Module {
 		$allowed_data_keys   = WooCommerce::$wc_post_meta_whitelist;
 		$filtered_order_data = array();
 		foreach ( $allowed_data_keys as $key ) {
-			$key = trim( $key, '_' );
+			$key       = trim( $key, '_' );
+			$key_parts = explode( '_', $key );
+
+			if ( 'order' === $key_parts[0] ) {
+				if ( isset( $order_data[ $key_parts[1] ] ) && ! is_array( $order_data[ $key_parts[1] ] ) ) {
+					$filtered_order_data[ $key ] = $order_data[ $key_parts[1] ];
+					continue;
+				}
+			}
+
+			if ( in_array( $key_parts[0], array( 'billing', 'shipping' ), true ) && 2 === count( $key_parts ) ) {
+				if ( isset( $order_data[ $key_parts[0] ][ $key_parts[1] ] ) ) {
+					$filtered_order_data[ $key ] = $order_data[ $key_parts[0] ][ $key_parts[1] ];
+					continue;
+				}
+			}
+
 			if ( isset( $order_data[ $key ] ) ) {
 				$filtered_order_data[ $key ] = $order_data[ $key ];
 				continue;
 			}
 
-			$key_parts = explode( '_', $key );
-			if ( in_array( $key_parts[0], array( 'billing', 'shipping' ), true ) && 2 === count( $key_parts ) ) {
-				if ( isset( $order_data[ $key_parts[0] ][ $key_parts[1] ] ) ) {
-					$filtered_order_data[ $key ] = $order_data[ $key_parts[0] ][ $key_parts[1] ];
-				}
+			switch ( $key ) {
+				case 'cart_discount':
+					$filtered_order_data[ $key ] = isset( $order_data['discount_total'] ) ? $order_data['discount_total'] : '';
+					break;
+				case 'cart_discount_tax':
+					$filtered_order_data[ $key ] = isset( $order_data['discount_tax'] ) ? $order_data['discount_tax'] : '';
+					break;
+				case 'order_shipping':
+					$filtered_order_data[ $key ] = isset( $order_data['shipping_total'] ) ? $order_data['shipping_total'] : '';
+					break;
+				case 'order_shipping_tax':
+					$filtered_order_data[ $key ] = isset( $order_data['shipping_tax'] ) ? $order_data['shipping_tax'] : '';
+					break;
+				case 'order_tax':
+					$filtered_order_data[ $key ] = isset( $order_data['cart_tax'] ) ? $order_data['cart_tax'] : '';
+					break;
+				case 'order_total':
+					$filtered_order_data[ $key ] = isset( $order_data['total'] ) ? $order_data['total'] : '';
+					break;
 			}
 		}
+
 		return $filtered_order_data;
 	}
 
