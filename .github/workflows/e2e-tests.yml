@@ -50,6 +50,10 @@ jobs:
     needs: create-test-matrix
     timeout-minutes: 30
     concurrency: e2e-build-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}-${{ matrix.buildGroup }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     steps:
       - uses: actions/checkout@v3
 
