@@ -56,8 +56,8 @@ abstract class Data_Transformer_Base {
 	 * @since $$next-version$$
 	 *
 	 * @param Data_Type_Base $data The data type we want to transform.
-	 * @return Data_Type_Base Return a transformed data type.
+	 * @return mixed Return a transformed data type.
 	 */
-	abstract public function transform( Data_Type_Base $data ): Data_Type_Base;
+	abstract public function transform( Data_Type_Base $data );
 
 }

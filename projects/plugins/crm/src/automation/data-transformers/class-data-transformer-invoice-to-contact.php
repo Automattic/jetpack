@@ -11,6 +11,7 @@ use Automattic\Jetpack\CRM\Automation\Data_Transformer_Exception;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Base;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 /**
  * CRM Invoice to CRM Contact Transformer class.
@@ -46,11 +47,11 @@ class Data_Transformer_Invoice_To_Contact extends Data_Transformer_Base {
 	 * @since $$next-version$$
 	 *
 	 * @param Data_Type_Base $data The invoice data type we want to transform.
-	 * @return Data_Type_Base Return the Data_Type_Contact of the invoice owner.
+	 * @return mixed Return the Data_Type_Contact of the invoice owner.
 	 *
 	 * @throws Data_Transformer_Exception If the invoice is not linked to a contact.
 	 */
-	public function transform( Data_Type_Base $data ): Data_Type_Base {
+	public function transform( Data_Type_Base $data ) {
 		global $zbs;
 
 		/* @todo We should really be using getInvoiceContact() but it's broken. */
@@ -64,7 +65,7 @@ class Data_Transformer_Invoice_To_Contact extends Data_Transformer_Base {
 			);
 		}
 
-		return new Data_Type_Contact( $contact );
+		return new Contact( $contact );
 	}
 
 }
