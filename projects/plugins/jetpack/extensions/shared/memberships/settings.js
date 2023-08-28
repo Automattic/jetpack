@@ -1,5 +1,6 @@
 import { Flex, FlexBlock, PanelRow, VisuallyHidden, Spinner, Button } from '@wordpress/components';
 import { useInstanceId, useViewportMatch } from '@wordpress/compose';
+import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
@@ -8,7 +9,11 @@ import { Icon } from '@wordpress/icons';
 import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import './settings.scss';
-import { accessOptions, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+import {
+	accessOptions,
+	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+	META_NAME_FOR_POST_TIER_ID_SETTINGS,
+} from './constants';
 import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 
 export function Link( { href, children } ) {
@@ -85,6 +90,52 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 	}
 }
 
+function TierSelector( { onChange } ) {
+	// TODO: figure out how to handle different currencies
+	const products = useSelect( select => select( membershipProductsStore ).getProducts() )
+		.filter( product => product.subscribe_as_site_subscriber && product.interval === '1 month' )
+		.sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
+
+	// Find the current tier meta
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	// Destructure the tierId from the meta (set tierId using the META_NAME_FOR_POST_TIER_ID_SETTINGS constant)
+	const [ { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: tierId } ] = useEntityProp(
+		'postType',
+		postType,
+		'meta'
+	);
+
+	// Tiers don't apply if less than 2 products (this is called here because
+	// the hooks have to run before any early returns)
+	if ( products.length < 2 ) {
+		return;
+	}
+
+	return (
+		<div className="editor-post-tiers">
+			{ products.map( product => (
+				<div key={ product.id }>
+					<input
+						type="radio"
+						name="tier"
+						checked={ Number( tierId ) === product.id }
+						value={ product.id }
+						onChange={ event => {
+							const obj = {};
+							obj[ META_NAME_FOR_POST_TIER_ID_SETTINGS ] = event?.target?.value;
+							return onChange && onChange( obj );
+						} }
+						id={ `editor-post-tier-${ product.id }` }
+					/>
+					<label htmlFor={ `editor-post-tier-${ product.id }` }>
+						{ product.title } subscribers
+					</label>
+				</div>
+			) ) }
+		</div>
+	);
+}
+
 export function NewsletterAccessRadioButtons( {
 	onChange,
 	accessLevel,
@@ -138,6 +189,18 @@ export function NewsletterAccessRadioButtons( {
 							{ accessLabel }
 							{ reach }
 						</label>
+						{
+							// This adds a tier selector when:
+							// - the paid_subscribers option is selected
+							// - stripe is connected
+							// - there are newsletter plans (the component will
+							//   check for more than 1 plan)
+							// - this isn't a paywall block
+						 }
+						{ key === accessOptions.paid_subscribers.key &&
+							key === accessLevel &&
+							isStripeConnected &&
+							hasNewsletterPlans && <TierSelector onChange={ onChange }></TierSelector> }
 					</div>
 				);
 			} ) }
