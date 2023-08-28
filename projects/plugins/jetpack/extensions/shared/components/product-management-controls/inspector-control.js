@@ -85,7 +85,7 @@ export default function ProductManagementInspectorControl() {
 		if ( isCustomTitle ) {
 			return;
 		}
-		setTitle( getTitleByProps( false, interval ) );
+		setTitle( getTitleByProps( interval ) );
 		setIsCustomTitle( false );
 	}, [ interval, isCustomTitle ] );
 
