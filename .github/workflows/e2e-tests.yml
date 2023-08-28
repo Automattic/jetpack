@@ -61,7 +61,7 @@ jobs:
         id: jetpack-build-cache
         uses: actions/cache/restore@v3
         with:
-          path: ${{ matrix.path }}
+          path: .
           key: ${{ matrix.buildGroup }}-${{ github.sha }}
       - name: Checkout code
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
@@ -94,7 +94,7 @@ jobs:
         id: jetpack-build-cache-save
         uses: actions/cache/save@v3
         with:
-          path: ${{ matrix.path }}
+          path: .
           key: ${{ steps.jetpack-build-cache.outputs.cache-primary-key }}
 
   e2e-tests:
@@ -113,7 +113,7 @@ jobs:
         id: jetpack-build-cache
         uses: actions/cache/restore@v3
         with:
-          path: ${{ matrix.path }}
+          path: .
           key: ${{ matrix.buildGroup }}-${{ github.sha }}
       - name: Setup tools
         uses: ./.github/actions/tool-setup
