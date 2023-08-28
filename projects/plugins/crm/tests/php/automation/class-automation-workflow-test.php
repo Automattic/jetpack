@@ -11,6 +11,7 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Updated;
 use Automattic\Jetpack\CRM\Automation\Workflow_Exception;
+use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
@@ -75,7 +76,7 @@ class Automation_Workflow_Test extends JPCRM_Base_Test_Case {
 		);
 
 		$contact_data      = $this->automation_faker->contact_data();
-		$automation_result = $workflow->execute( new Contact_Updated(), $contact_data );
+		$automation_result = $workflow->execute( new Contact_Updated(), new Contact( $contact_data ) );
 
 		$this->assertTrue( $automation_result );
 	}
