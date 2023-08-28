@@ -1,4 +1,4 @@
 Significance: minor
-Type: enhancement
+Type: bugfix
 
-Add a new filter for disabling the block editor assets from enqueuing
+Load the Jetpack block assets in the iframe directly in WP-Admin and keep the existing behavior on the front-end, for compatibility reasons.
