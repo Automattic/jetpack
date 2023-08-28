@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Contact Entity.
  *
@@ -8,14 +7,12 @@
 
 namespace Automattic\Jetpack\CRM\Entities;
 
-use ArrayAccess;
-
 /**
  * Contact Entity class.
  *
  * @since $$next-version$$
  */
-class Contact implements ArrayAccess {
+class Contact extends Entity {
 
 	/**
 	 * This is the DB ID of the object.
@@ -172,7 +169,7 @@ class Contact implements ArrayAccess {
 	public $mobtel = '';
 
 	/**
-	 * The contact wordpress ID.
+	 * The contact WordPress ID.
 	 *
 	 * @var int
 	 */
@@ -328,6 +325,11 @@ class Contact implements ArrayAccess {
 		'zbsc_lastcontacted' => 'lastcontacted',
 	);
 
+	/**
+	 * Custom fields.
+	 *
+	 * @var array Custom fields.
+	 */
 	private $custom_fields = array();
 
 	/**
@@ -344,10 +346,15 @@ class Contact implements ArrayAccess {
 			$this->set_generic_contact_data( $contact_data );
 		}
 	}
-	// Set the contact data from a generic/tidy contact array. The fields from $tidy_contact are not prefixed by zbsc_ or zbs_ so it doesn't need the mapping
+
+	/**
+	 * Set the contact data from a generic/tidy contact array.
+	 *
+	 * @param array $tidy_contact Associative array of contact data.
+	 */
 	public function set_generic_contact_data( array $tidy_contact ) {
 		foreach ( $tidy_contact as $key => $value ) {
-			if ( in_array( $key, $this->field_map ) ) {
+			if ( in_array( $key, $this->field_map, true ) ) {
 				$this->{ $key } = $value;
 			}
 		}
@@ -356,7 +363,7 @@ class Contact implements ArrayAccess {
 	/**
 	 * Set the contact data with including the database column prefix.
 	 *
-	 * @param array $db_contact Associative array of contact data from the database
+	 * @param array $db_contact Associative array of contact data from the database.
 	 */
 	public function set_db_contact_data( array $db_contact ) {
 		foreach ( $db_contact as $key => $value ) {
@@ -369,7 +376,7 @@ class Contact implements ArrayAccess {
 	/**
 	 * Get the contact data (tidy) as an array.
 	 *
-	 * @return array
+	 * @return array The contact data array.
 	 */
 	public function get_contact_array() {
 		$contact_data = array();
@@ -379,6 +386,11 @@ class Contact implements ArrayAccess {
 		return $contact_data;
 	}
 
+	/**
+	 * Get the contact data as an array ready for the database.
+	 *
+	 * @return array The contact data array.
+	 */
 	public function get_contact_array_for_db() {
 		$contact_data = array(
 			'id'    => $this->id,
@@ -388,8 +400,8 @@ class Contact implements ArrayAccess {
 
 		$skip_fields = array( 'id', 'owner' );
 
-		foreach ( $this->field_map as $db_field => $model_field ) {
-			if ( in_array( $model_field, $skip_fields ) ) {
+		foreach ( $this->field_map as $model_field ) {
+			if ( in_array( $model_field, $skip_fields, true ) ) {
 				continue;
 			}
 			$contact_data['data'][ $model_field ] = $this->{ $model_field };
@@ -397,31 +409,10 @@ class Contact implements ArrayAccess {
 		return $contact_data;
 	}
 
-	public function get_custom_fields(): array {
-		return $this->custom_fields;
-	}
-
-	public function set_custom_fields( $custom_fields ) {
-		$this->custom_fields = $custom_fields;
-	}
-
-	public function offsetExists( $offset ): bool {
-		return in_array( $offset, $this->field_map );
-	}
-
-	public function offsetGet( $offset ): mixed {
-		return in_array( $offset, $this->field_map ) ? $this->{ $offset } : null;
-	}
-
-	public function offsetSet( $offset, $value ): void {
-		if ( in_array( $offset, $this->field_map ) ) {
-			$this->{ $offset } = $value;
-		}
-	}
-
-	public function offsetUnset( $offset ): void {
-		if ( in_array( $offset, $this->field_map ) ) {
-			$this->{ $offset } = null;
-		}
+	/**
+	 * {@inheritDoc}
+	 */
+	protected function get_field_map(): array {
+		return $this->field_map;
 	}
 }
