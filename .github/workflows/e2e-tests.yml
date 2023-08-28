@@ -99,7 +99,7 @@ jobs:
             pnpm run build
             echo "::endgroup::"
           fi
-      - name: Restore $${{ matrix.buildGroup }} build cache
+      - name: Save ${{ matrix.buildGroup }} build cache
         if: env.skip_build == 'false'
         id: jetpack-build-cache-save
         uses: actions/cache/save@v3
@@ -125,6 +125,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Restore $${{ matrix.buildGroup }} build cache
+        id: jetpack-build-cache
+        uses: actions/cache/restore@v3
+        with:
+          path: ./build-output
+          key: ${{ needs.build-projects.steps.jetpack-build-cache.outputs.cache-primary-key }}
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
@@ -140,11 +146,6 @@ jobs:
           workflow_conclusion: "success"
           run_id: ${{ github.event.workflow_run.id }}
           path: build-output
-      - name: Download ${{ matrix.group }} Build Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ matrix.buildGroup }}/build-output
-          path: ${{ matrix.path }}
       - name: Checkout jetpack-production
         if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
         uses: actions/checkout@v3
