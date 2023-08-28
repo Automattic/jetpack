@@ -742,6 +742,7 @@ class Jetpack_Gutenberg {
 				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
 				'isAutoConversionAvailable'       => $auto_conversion_settings->is_available( 'image' ),
 				'isAutoConversionEnabled'         => $auto_conversion_settings->is_enabled( 'image' ),
+				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
 			);
 		}
 

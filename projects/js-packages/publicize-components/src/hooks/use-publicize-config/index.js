@@ -119,5 +119,6 @@ export default function usePublicizeConfig() {
 		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
 		adminUrl: getJetpackData()?.social?.adminUrl,
 		isAutoConversionEnabled,
+		jetpackSharingSettingsUrl: getJetpackData()?.social?.jetpackSharingSettingsUrl,
 	};
 }

@@ -18,8 +18,10 @@ import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
+import usePageHasFocus from '../../hooks/use-page-has-focus';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { SOCIAL_STORE_ID } from '../../social-store';
 import PublicizeConnection from '../connection';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
@@ -45,7 +47,7 @@ const checkConnectionCode = ( connection, code ) =>
  * @param {string} props.connectionsAdminUrl              - URL to the Admin connections page
  * @param {string} props.adminUrl                         - URL af the plugin's admin page to redirect to after a plan upgrade
  * @param {boolean} props.shouldShowAdvancedPlanNudge     - Whether the advanced plan nudge should be shown
- * @param {boolean} props.isAutoConversionEnabled         - Whether the auto conversion feature is enabled
+ * @param {boolean} props.jetpackSharingSettingsUrl       - URL to the Jetpack Sharing settings page
  * @returns {object}                                      - Publicize form component.
  */
 export default function PublicizeForm( {
@@ -55,7 +57,7 @@ export default function PublicizeForm( {
 	isEnhancedPublishingEnabled = false,
 	shouldShowAdvancedPlanNudge = false,
 	isSocialImageGeneratorAvailable = false,
-	isAutoConversionEnabled = false,
+	jetpackSharingSettingsUrl,
 	connectionsAdminUrl,
 	adminUrl,
 } ) {
@@ -122,6 +124,18 @@ export default function PublicizeForm( {
 		() => dismissNotice( NOTICES.autoConversion ),
 		[ dismissNotice, NOTICES ]
 	);
+
+	const pageHasFocus = usePageHasFocus();
+	const refreshOptions = useDispatch( SOCIAL_STORE_ID ).refreshAutoConversionSettings;
+
+	const isAutoConversionEnabled = useSelect(
+		select => select( SOCIAL_STORE_ID ).isAutoConversionEnabled(),
+		[]
+	);
+
+	if ( pageHasFocus ) {
+		refreshOptions();
+	}
 
 	const renderNotices = () => (
 		<>
@@ -414,7 +428,7 @@ export default function PublicizeForm( {
 											</Button>,
 											<Button
 												key="change-settings"
-												href="#"
+												href={ adminUrl || jetpackSharingSettingsUrl }
 												target="_blank"
 												rel="noreferrer noopener"
 											>
