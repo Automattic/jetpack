@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Step_Exception;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 /**
  * Adds the Update_Contact class.
@@ -91,16 +93,21 @@ class Update_Contact extends Base_Action {
 	 *
 	 * @param mixed  $data Data passed from the trigger.
 	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 *
+	 * @throws Step_Exception If the data passed is not a Contact object.
 	 */
 	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
-		$zbs->DAL->contacts->addUpdateContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			array(
-				'id'   => $data['id'],
-				'data' => array_replace( $data, $this->attributes['data'] ),
-			)
-		);
-	}
+		// Check if the data is a Contact object.
+		if ( ! $data instanceof Contact ) {
+			throw new Step_Exception( 'The data passed to the Update_Contact action is not a Contact object.', Step_Exception::STEP_TYPE_NOT_ALLOWED );
+		}
 
+		$contact         = $data->get_contact_array_for_db();
+		$contact['data'] = array_replace( $contact['data'], $this->attributes['data'] );
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->contacts->addUpdateContact( $contact );
+	}
 }

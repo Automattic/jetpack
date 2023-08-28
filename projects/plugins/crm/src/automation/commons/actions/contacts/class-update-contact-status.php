@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Automation\Step_Exception;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 /**
  * Adds the Update_Contact_Status class.
@@ -87,21 +89,24 @@ class Update_Contact_Status extends Base_Action {
 	/**
 	 * Update the DAL with the new contact status.
 	 *
-	 * @since $$next-version$$
-	 *
 	 * @param mixed  $data Data passed from the trigger.
 	 * @param ?mixed $previous_data (Optional) The data before being changed.
+	 * @throws Step_Exception If the data passed is not a Contact object.
+	 * @since $$next-version$$
+	 *
 	 */
 	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
-		$data['status'] = $this->attributes['new_status'];
-		$zbs->DAL->contacts->addUpdateContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			array(
-				'id'   => $data['id'],
-				'data' => $data,
-			)
-		);
-	}
+		/** @var Contact $data */
+		// Check if the data is a Contact object.
+		if ( ! $data instanceof Contact ) {
+			throw new Step_Exception( 'The data passed to the Update_Contact action is not a Contact object.', Step_Exception::STEP_TYPE_NOT_ALLOWED );
+		}
 
+		$data->status = $this->attributes['new_status'];
+
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->contacts->addUpdateContact( $data->get_contact_array_for_db() );
+	}
 }
