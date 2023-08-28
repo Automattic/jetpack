@@ -65,7 +65,7 @@ jobs:
           key: ${{ matrix.buildGroup }}-${{ github.sha }}
       - name: Check if cache exists
         run: |
-          if [[ -z "$(ls -A ./build-output)" ]]; then
+          if [[ -z "$(ls -A build-output)" ]]; then
             echo "No cache found, proceeding with build."
             echo "skip_build=false" >> $GITHUB_ENV
           else
@@ -104,7 +104,7 @@ jobs:
         id: jetpack-build-cache-save
         uses: actions/cache/save@v3
         with:
-          path: ./build-output
+          path: build-output
           key: ${{ steps.jetpack-build-cache.outputs.cache-primary-key }}
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
@@ -129,7 +129,7 @@ jobs:
         id: jetpack-build-cache
         uses: actions/cache/restore@v3
         with:
-          path: ./build-output
+          path: build-output
           key: ${{ needs.build-projects.steps.jetpack-build-cache.outputs.cache-primary-key }}
       - name: Setup tools
         uses: ./.github/actions/tool-setup
