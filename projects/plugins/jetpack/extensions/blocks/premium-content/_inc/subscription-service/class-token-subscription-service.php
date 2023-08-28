@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
 /**
  * Class Token_Subscription_Service
@@ -94,10 +95,10 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
 		} else {
 			// Token not valid. We bail even unless the post can be accessed publicly.
-			return $this->user_has_access( $access_level, false, false, get_the_ID() );
+			return $this->user_has_access( $access_level, false, false, get_the_ID(), array() );
 		}
 
-		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID() );
+		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID(), $subscriptions );
 	}
 
 	/**
@@ -107,10 +108,11 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @param bool   $is_blog_subscriber Is user a subscriber of the blog.
 	 * @param bool   $is_paid_subscriber Is user a paid subscriber of the blog.
 	 * @param int    $post_id Post ID.
+	 * @param array  $user_abbreviated_subscriptions User subscription abbreviated.
 	 *
 	 * @return bool Whether the user has access to the content.
 	 */
-	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id ) {
+	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id, $user_abbreviated_subscriptions ) {
 
 		if ( is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
 			// Admin has access
@@ -127,11 +129,117 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) {
-			return $is_paid_subscriber;
+			return $is_paid_subscriber && ! $this->maybe_gate_access_for_user_if_tier( $post_id, $user_abbreviated_subscriptions );
 		}
 
 		// This should not be a use case
 		return false;
+	}
+
+	/**
+	 * Check post access for tiers.
+	 *
+	 * @param int   $post_id Current post id.
+	 * @param array $user_abbreviated_subscriptions User subscription abbreviated.
+	 *
+	 * @return bool
+	 */
+	private function maybe_gate_access_for_user_if_tier( $post_id, $user_abbreviated_subscriptions ) {
+		$tier_id = intval(
+			get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true )
+		);
+
+		if ( ! $tier_id ) {
+			return false;
+		}
+
+		$plan_ids = \Jetpack_Memberships::get_all_newsletter_plan_ids();
+
+		if ( ! in_array( $tier_id, $plan_ids, true ) ) {
+			// If the tier is not in the plans, we bail
+			return false;
+		}
+
+		// We now need the tier price and currency, and the same for the annual price (if available)
+		$tier_meta         = get_post_meta( $tier_id );
+		$tier_price        = $tier_meta['jetpack_memberships_price'][0];
+		$tier_currency     = $tier_meta['jetpack_memberships_currency'][0];
+		$tier_product_id   = $tier_meta['jetpack_memberships_product_id'][0];
+		$annual_tier_price = $tier_price * 12;
+
+		// At this point we know the post is
+		$linked_post_tier = get_posts(
+			array(
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'post_type'      => \Jetpack_Memberships::$post_type_plan,
+				'meta_key'       => 'jetpack_memberships_tier',
+				'meta_value'     => $tier_product_id,
+			)
+		);
+
+		$annual_tier_id = false;
+		if ( count( $linked_post_tier ) !== 0 ) {
+			$annual_tier_id = (int) reset(
+				$linked_post_tier
+			);
+
+			$annual_tier_meta  = get_post_meta( $annual_tier_id );
+			$annual_tier_price = isset( $annual_tier_meta['jetpack_memberships_price'][0] ) ? $annual_tier_meta['jetpack_memberships_price'][0] : $annual_tier_price;
+		}
+
+		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
+			$end = is_int( $details->end_date ) ? $details->end_date : strtotime( $details->end_date );
+			if ( $end < time() ) {
+				// subscription not active anymore
+				continue;
+			}
+
+			if ( $details->status !== 'active' ) {
+				// subscription not active anymore
+				continue;
+			}
+
+			$subscription_post_id = get_posts(
+				array(
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+					'post_type'      => \Jetpack_Memberships::$post_type_plan,
+					'meta_key'       => 'jetpack_memberships_product_id',
+					'meta_value'     => $subscription_plan_id,
+				)
+			);
+
+			if ( empty( $subscription_post_id ) === 0 ) {
+				// No post linked to this plan
+				continue;
+			}
+			$subscription_post_id = $subscription_post_id[0];
+
+			if ( $subscription_post_id === $tier_id || $subscription_post_id === $annual_tier_id ) {
+				// User is subscribed to the right tier
+				return false;
+			}
+
+			$metas                 = get_post_meta( $subscription_post_id );
+			$subscription_price    = $metas['jetpack_memberships_price'][0];
+			$subscription_currency = $metas['jetpack_memberships_currency'][0];
+			$subscription_interval = $metas['jetpack_memberships_interval'][0];
+
+			if ( $tier_currency !== $subscription_currency ) {
+				// For now, we don't count if there are different currency (not sure how to convert price in a pure JP env)
+				continue;
+			}
+
+			if ( ( $subscription_interval === '1 month' && $subscription_price >= $tier_price ) ||
+					( $subscription_interval === '1 year' && $subscription_price >= $annual_tier_price )
+			) {
+				// One subscription is more expensive than the minimum set by the post' selected tier
+				return false;
+			}
+		}
+
+		return true; // No user subscription is more expensive than the post's tier price...
 	}
 
 	/**
