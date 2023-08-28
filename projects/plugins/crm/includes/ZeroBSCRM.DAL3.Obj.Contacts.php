@@ -3022,12 +3022,12 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 									'prev_contact' => $previous_contact_obj,
                                     ));
 
-	                            // Generate the old Contact object from the old contact data
-	                            $old_contact_obj = new Contact( $previous_contact_obj );
-								
+								// Generate the old Contact object from the old contact data.
+								$old_contact_obj = new Contact( $previous_contact_obj );
+
 								// Generate the new contact object getting the data from the previous one.
 								$contact_obj = new Contact( $previous_contact_obj );
-								
+
 								// Overwrite the new one with the updated data.
 								$contact_obj->set_db_contact_data( $dataArr );
 
