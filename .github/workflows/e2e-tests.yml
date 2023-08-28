@@ -114,7 +114,7 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: ${{ matrix.path }}
-          key: ${{ needs.build-projects.steps.jetpack-build-cache.outputs.cache-primary-key }}
+          key: ${{ matrix.buildGroup }}-${{ github.sha }}
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
