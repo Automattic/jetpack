@@ -51,18 +51,18 @@
 		"site-editor-snackbars",
 		"videopress/video",
 		"ai-assistant-support",
-		"ai-assistant-form-support"
+		"ai-assistant-form-support",
+		"paywall"
 	],
 	"beta": [
 		"ai-chat",
 		"amazon",
-		"author-recommendation",
+		"blogroll",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"recipe",
 		"v6-video-frame-poster",
-		"videopress/video-chapters",
-		"paywall"
+		"videopress/video-chapters"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

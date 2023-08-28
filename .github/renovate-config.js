@@ -42,7 +42,6 @@ module.exports = {
 	allowedPostUpgradeCommands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh' ],
 	postUpgradeTasks: {
 		commands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh {{{branchName}}}' ],
-		fileFilters: [ '**/*' ],
 		executionMode: 'branch',
 	},
 	postUpdateOptions: [ 'pnpmDedupe' ],

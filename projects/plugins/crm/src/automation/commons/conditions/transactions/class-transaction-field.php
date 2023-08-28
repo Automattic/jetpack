@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Conditions;
 
+use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
@@ -19,28 +20,39 @@ use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Transaction;
 class Transaction_Field extends Base_Condition {
 
 	/**
-	 * All valid operators for this condition.
+	 * Transaction_Field constructor.
 	 *
 	 * @since $$next-version$$
-	 * @var string[] $valid_operators Valid operators.
+	 *
+	 * @param array $step_data The step data.
 	 */
-	protected $valid_operators = array(
-		'is',
-		'is_not',
-		'contains',
-		'does_not_contain',
-	);
+	public function __construct( array $step_data ) {
+		parent::__construct( $step_data );
 
-	/**
-	 * All valid attributes for this condition.
-	 *
-	 * @since $$next-version$$
-	 * @var string[] $valid_operators Valid attributes.
-	 */
-	private $valid_attributes = array(
-		'operator',
-		'value',
-	);
+		// TODO: Fetch automation fields from our DAL.
+		$transaction_fields = array(
+			'status' => __( 'Status', 'zero-bs-crm' ),
+			'type'   => __( 'Type', 'zero-bs-crm' ),
+			'ref'    => __( 'Reference', 'zero-bs-crm' ),
+			'title'  => __( 'Title', 'zero-bs-crm' ),
+			'desc'   => __( 'Description', 'zero-bs-crm' ),
+		);
+
+		$this->valid_operators = array(
+			'is'               => __( 'Is', 'zero-bs-crm' ),
+			'is_not'           => __( 'Is not', 'zero-bs-crm' ),
+			'contains'         => __( 'Contains', 'zero-bs-crm' ),
+			'does_not_contain' => __( 'Does not contain', 'zero-bs-crm' ),
+		);
+
+		$this->set_attribute_definitions(
+			array(
+				new Attribute_Definition( 'field', __( 'Field', 'zero-bs-crm' ), __( 'Check this field against a specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $transaction_fields ),
+				new Attribute_Definition( 'operator', __( 'Operator', 'zero-bs-crm' ), __( 'Determines how the field is compared to the specified value.', 'zero-bs-crm' ), Attribute_Definition::SELECT, $this->valid_operators ),
+				new Attribute_Definition( 'value', __( 'Value', 'zero-bs-crm' ), __( 'Value to compare with the transaction field.', 'zero-bs-crm' ), Attribute_Definition::TEXT ),
+			)
+		);
+	}
 
 	/**
 	 * Executes the condition. If the condition is met, the value stored in the
@@ -115,17 +127,6 @@ class Transaction_Field extends Base_Condition {
 	}
 
 	/**
-	 * Get the slug for the transaction field condition.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string The slug 'transaction_field'.
-	 */
-	public static function get_slug(): string {
-		return 'jpcrm/condition/transaction_field';
-	}
-
-	/**
 	 * Get the title for the transaction field condition.
 	 *
 	 * @since $$next-version$$
@@ -134,6 +135,17 @@ class Transaction_Field extends Base_Condition {
 	 */
 	public static function get_title(): string {
 		return __( 'Transaction Field', 'zero-bs-crm' );
+	}
+
+	/**
+	 * Get the slug for the transaction field condition.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The slug 'transaction_field'.
+	 */
+	public static function get_slug(): string {
+		return 'jpcrm/condition/transaction_field';
 	}
 
 	/**
