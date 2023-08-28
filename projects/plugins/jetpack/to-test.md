@@ -29,6 +29,7 @@ Ensure correct values for cart/checkout blocks/shortcode use are tracked correct
 - Feel free to change the setup so one page has the shortcode and one page doesn't and mix it up.
 - Update to WooCommerce 8.0
 - Repeat the steps above, however when you go to Pages -> Checkout and Pages -> Cart you should notice that it opens the site editor instead of the usual post editor.
+- Repeat with a classic theme, e.g Storefront
 
 ### Newsletter
 
