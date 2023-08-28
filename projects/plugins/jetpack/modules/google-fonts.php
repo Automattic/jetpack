@@ -166,9 +166,22 @@ function jetpack_register_google_fonts_to_theme_json_default( $theme_json ) {
 		$raw_data['settings']['typography']['fontFamilies']['default'][] = wp_fonts()->to_theme_json( $font_family_handle );
 	}
 
-	return new WP_Theme_JSON_Data_Gutenberg( $raw_data, 'default' );
+	if ( class_exists( 'WP_Theme_JSON_Data_Gutenberg' ) ) {
+		return new WP_Theme_JSON_Data_Gutenberg( $raw_data, 'default' );
+	}
+
+	return new WP_Theme_JSON_Data( $raw_data, 'default' );
 }
 
-if ( class_exists( 'WP_Fonts_Utils' ) ) {
-	add_filter( 'wp_theme_json_data_default', 'jetpack_register_google_fonts_to_theme_json_default' );
-}
+// Register the filter after Gutenberg's register_fonts_from_theme_json is triggered.
+// Otherwise, that function will throw an error when merging the variation settings
+// with the global settings after the de-duplication of the font families.
+// See https://github.com/WordPress/gutenberg/blob/44fc364c807e178b5c1813b27470b8fb9e1643b5/lib/experimental/fonts-api/class-wp-fonts-resolver.php#L212.
+add_action(
+	'wp_loaded',
+	function () {
+		if ( class_exists( 'WP_Fonts_Utils' ) ) {
+			add_filter( 'wp_theme_json_data_default', 'jetpack_register_google_fonts_to_theme_json_default' );
+		}
+	}
+);
