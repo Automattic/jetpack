@@ -186,13 +186,13 @@ export const settings = {
 					isDismissible={ true }
 					className="launchpad__save-modal"
 					onRequestClose={ () => {
+						handleDontShowAgainSetting( isChecked );
 						// bypass the onRequestClose function the first time it's called when you publish a post because it closes the modal immediately
 						if ( isInitialPostPublish ) {
 							setIsInitialPostPublish( false );
 							return;
 						}
 						setIsModalOpen( false );
-						handleDontShowAgainSetting( isChecked );
 						recordTracksEvent( 'jetpack_launchpad_save_modal_close' );
 					} }
 				>
@@ -221,8 +221,11 @@ export const settings = {
 								<Button
 									variant="primary"
 									href={ actionButtonHref }
-									onClick={ () => recordTracksEvent( actionButtonTracksEvent ) }
 									target="_top"
+									onClick={ () => {
+										handleDontShowAgainSetting( isChecked );
+										recordTracksEvent( actionButtonTracksEvent );
+									} }
 								>
 									{ actionButtonText }
 								</Button>
