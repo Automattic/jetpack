@@ -19,6 +19,24 @@ const updateHideFSENextStepsModal = async hideFSENextStepsModal => {
 	} );
 };
 
+const LAUNCHPAD_SAVE_MODAL_EDITABLE_PROPS = [ 'hideFSENextStepsModal' ];
+
+const updateLaunchpadSaveModalBrowserConfig = config => {
+	if ( ! config || typeof config !== 'object' ) {
+		return;
+	}
+
+	if ( ! window.Jetpack_LaunchpadSaveModal ) {
+		window.Jetpack_LaunchpadSaveModal = {};
+	}
+
+	for ( const editableProp of LAUNCHPAD_SAVE_MODAL_EDITABLE_PROPS ) {
+		if ( config.hasOwnProperty( editableProp ) ) {
+			window.Jetpack_LaunchpadSaveModal[ editableProp ] = config[ editableProp ];
+		}
+	}
+};
+
 export const settings = {
 	render: function LaunchpadSaveModal() {
 		const {
@@ -158,6 +176,7 @@ export const settings = {
 
 		const handleDontShowAgainSetting = shouldHide => {
 			setDontShowAgain( shouldHide );
+			updateLaunchpadSaveModalBrowserConfig( { hideFSENextStepsModal: shouldHide } );
 			updateHideFSENextStepsModal( shouldHide );
 		};
 
