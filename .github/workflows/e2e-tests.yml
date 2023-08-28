@@ -57,36 +57,26 @@ jobs:
       matrix:
         include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     steps:
-      - name: Restore $${{ matrix.buildGroup }} build cache
+      - name: Restore ${{ matrix.buildGroup }} build cache
         id: jetpack-build-cache
         uses: actions/cache/restore@v3
         with:
-          path: ./build-output
+          path: build-output
           key: ${{ matrix.buildGroup }}-${{ github.sha }}
-      - name: Check if cache exists
-        run: |
-          if [[ -z "$(ls -A build-output)" ]]; then
-            echo "No cache found, proceeding with build."
-            echo "skip_build=false" >> $GITHUB_ENV
-          else
-            echo "Cache exists, skipping build."
-            echo "skip_build=true" >> $GITHUB_ENV
-          fi
-
       - name: Checkout code
-        if: env.skip_build == 'false'
+        if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v3
 
       - name: Setup tools
-        if: env.skip_build == 'false'
+        if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         uses: ./.github/actions/tool-setup
 
       - name: Install monorepo
-        if: env.skip_build == 'false'
+        if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         run: pnpm install
 
       - name: Build projects
-        if: env.skip_build == 'false'
+        if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         env:
           COMPOSER_ROOT_VERSION: "dev-trunk"
           BUILD_DIR: ./build-output
@@ -100,17 +90,12 @@ jobs:
             echo "::endgroup::"
           fi
       - name: Save ${{ matrix.buildGroup }} build cache
-        if: env.skip_build == 'false'
+        if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         id: jetpack-build-cache-save
         uses: actions/cache/save@v3
         with:
           path: build-output
           key: ${{ steps.jetpack-build-cache.outputs.cache-primary-key }}
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: build-artifacts-${{ matrix.project }}
-          path: ${{ matrix.buildGroup }}/build-output
 
   e2e-tests:
     name: "${{ matrix.project }} e2e tests"
