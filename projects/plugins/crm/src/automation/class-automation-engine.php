@@ -376,12 +376,12 @@ class Automation_Engine {
 	 *
 	 * @param Automation_Workflow $workflow The workflow to be executed.
 	 * @param Trigger             $trigger The trigger that started the execution process.
-	 * @param array               $trigger_data The data that was passed along by the trigger.
+	 * @param mixed               $trigger_data The data that was passed along by the trigger.
 	 * @return bool
 	 *
 	 * @throws Automation_Exception Throws exception if an error executing the workflow.
 	 */
-	public function execute_workflow( Automation_Workflow $workflow, Trigger $trigger, array $trigger_data ): bool {
+	public function execute_workflow( Automation_Workflow $workflow, Trigger $trigger, $trigger_data ): bool {
 		$this->get_logger()->log( sprintf( 'Trigger activated: %s', $trigger->get_slug() ) );
 		$this->get_logger()->log( sprintf( 'Executing workflow: %s', $workflow->name ) );
 
