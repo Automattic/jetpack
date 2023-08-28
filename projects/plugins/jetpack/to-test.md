@@ -7,6 +7,29 @@
 
 ### WooCommerce Analytics
 
+Ensure correct values for cart/checkout blocks/shortcode use are tracked correctly when using WooCommerce Blocks templates after WC Blocks 10.6.0
+- Ensure site is connected, WooCommerce is installed, products, payment methods, and shipping methods are available. (Cash on Delivery and Free shipping will be fine).
+- Install WooCommerce 7.8.0 and a blocks theme e.g. Twenty Twenty-Three.
+- Ensure WooCommerce analytics is running.
+- Go to Pages -> Cart. Change its content to contain the shortcode block, and have it display the WooCommerce cart. (`[woocommerce_cart]`).
+- Do the same for Pages -> Checkout and enter `[woocommerce_checkout]` into the shortcode block.
+- Add an item to your cart and go to the checkout.
+- Check out and then visit Tracks and find your event. (I spoofed my user agent so I could find the event easily)
+- Check the event for the following properties:
+  - `cart_page_contains_cart_block`: `false` (or 0)
+  - `cart_page_contains_cart_shortcode`: `true` (or 1)
+  - `checkout_page_contains_checkout_block`: `false` (or 0)
+  - `checkout_page_contains_checkout_shortcode`: true (or 1)
+- Go back to the pages from the earlier steps, remove the shortcodes and replace them with the Cart and Checkout blocks.
+- Add an item to your cart and check out again, the new values should be:
+  - `cart_page_contains_cart_block`: true (or 1)
+  - `cart_page_contains_cart_shortcode`: false (or 0)
+  - `checkout_page_contains_checkout_block`: true (or 1)
+  - `checkout_page_contains_checkout_shortcode`: false (or 0)
+- Feel free to change the setup so one page has the shortcode and one page doesn't and mix it up.
+- Update to WooCommerce 8.0
+- Repeat the steps above, however when you go to Pages -> Checkout and Pages -> Cart you should notice that it opens the site editor instead of the usual post editor.
+
 Remove logic that prevents site admins being tracked and add store_admin property to WooCommerce analytics events
 - Ensure site is connected, WooCommerce is installed, products, payment methods, and shipping methods are available. (Cash on Delivery and Free shipping will be fine).
 - Ensure WooCommerce analytics is running.
