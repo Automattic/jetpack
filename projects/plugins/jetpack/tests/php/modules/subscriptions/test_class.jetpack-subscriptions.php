@@ -650,11 +650,13 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		);
 		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
+		// This was removed because subscriptions in JWT_token does not provide the subscription status
+		// See https://github.com/Automattic/jetpack/pull/32710/commits/7e874089416d4d0f6b27d03420055f4b55d3c1e2
 		// Let's make sure inactive subscriptions do not count
-		$subscription_service = $this->set_returned_token(
-			$this->get_payload( true, true, null, 'inactive', $gold_tier_annual_plan_id )
-		);
-		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+		// $subscription_service = $this->set_returned_token(
+		// $this->get_payload( true, true, null, 'inactive', $gold_tier_annual_plan_id )
+		// );
+		// $this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
 		// Let's make sure non-paid subscribers do not count
 		$subscription_service = $this->set_returned_token(
