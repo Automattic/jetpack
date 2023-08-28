@@ -50,20 +50,19 @@ jobs:
     needs: create-test-matrix
     timeout-minutes: 30
     concurrency:
-      group: e2e-build-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}-${{ matrix.buildGroup }}
+      group: e2e-build-${{ github.event_name }}-${{ github.sha }}-${{ github.event.action }}-${{ matrix.buildGroup }}
       cancel-in-progress: false
     strategy:
       fail-fast: false
       matrix:
         include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     steps:
-      - name: Cache build output
-        id: cache-build
-        uses: actions/cache@v2
+      - name: Restore $${{ matrix.buildGroup }} build cache
+        id: jetpack-build-cache
+        uses: actions/cache/restore@v3
         with:
           path: ./build-output
-          key: ${{ runner.os }}-build-${{ matrix.project }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-
+          key: ${{ matrix.buildGroup }}-${{ github.sha }}
       - name: Check if cache exists
         run: |
           if [[ -z "$(ls -A ./build-output)" ]]; then
@@ -100,9 +99,14 @@ jobs:
             pnpm run build
             echo "::endgroup::"
           fi
-
-      - name: Upload build artifacts
+      - name: Restore $${{ matrix.buildGroup }} build cache
         if: env.skip_build == 'false'
+        id: jetpack-build-cache-save
+        uses: actions/cache/save@v3
+        with:
+          path: ./build-output
+          key: ${{ steps.jetpack-build-cache.outputs.cache-primary-key }}
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:
           name: build-artifacts-${{ matrix.project }}
