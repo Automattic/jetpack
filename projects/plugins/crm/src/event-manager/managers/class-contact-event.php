@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\CRM\Event_Manager;
 
+use Automattic\Jetpack\CRM\Entities\Contact;
+
 /**
  * Contact Event class.
  *
@@ -66,45 +68,34 @@ class Contact_Event implements Event {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $contact_data The updated contact data.
-	 * @param array $old_contact_data The old contact data.
+	 * @param Contact $contact_data The updated contact data.
+	 * @param Contact $old_contact_data The old contact data.
 	 * @return void
 	 */
-	public function updated( array $contact_data, array $old_contact_data ): void {
+	public function updated( Contact $contact_data, Contact $old_contact_data ): void {
 
 		// Note: Custom fields are not present in $dataArr. It's handled by addUpdateCustomField.
 
 		// Skip social fields: tw, fb, li. They are handled/stored by the Metabox process
 		// Skip lastupdate to avoid intempestive updates
-		$fields_to_skip = array( 'tw', 'fb', 'li', 'lastupdated' );
+		$fields_to_skip = array( 'tw', 'fb', 'li', 'lastupdated', 'wpid' );
 
-		$contact_updated = array();
-		foreach ( $contact_data as $key => $value ) {
-			// Remove DB prefixes
-			$new_key = str_replace( 'zbsc_', '', $key );
-			$new_key = str_replace( 'zbs_', '', $new_key );
-
-			if ( in_array( $new_key, $fields_to_skip, true ) ) {
-				continue;
-			}
-			$contact_updated[ $new_key ] = $value;
-		}
-		// Keep contact_data as is, without prefix, to pass it to the hooks
-		$contact_data = $contact_updated;
-
-		// Clean up fields that don't exist in both arrays
-		$old_contact     = array_intersect_key( $old_contact_data, $contact_updated );
-		$contact_updated = array_intersect_key( $contact_updated, $old_contact );
+		$contact_data_arr     = $contact_data->get_contact_array();
+		$old_contact_data_arr = $old_contact_data->get_contact_array();
 
 		// Check for effective fields changes
 		$has_update = false;
-		foreach ( $contact_updated as $field => $value ) {
-			if ( $value !== $old_contact[ $field ] ) {
-				$has_update = true;
+		foreach ( $contact_data_arr as $field => $value ) {
 
+			if ( in_array( $field, $fields_to_skip, true ) ) {
+				continue;
+			}
+
+			if ( $value != $old_contact_data_arr[ $field ] ) { // phpcs:ignore
 				// Notify only for notifiable fields
 				if ( ! in_array( $field, $this->not_notifiable_props, true ) ) {
-					do_action( 'jpcrm_contact_' . $field . '_updated', $contact_data, $old_contact_data[ $field ] );
+					$has_update = true;
+					do_action( 'jpcrm_contact_' . $field . '_updated', $contact_data, $old_contact_data->{$field} );
 				}
 			}
 		}
