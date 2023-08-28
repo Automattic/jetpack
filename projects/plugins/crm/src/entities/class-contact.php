@@ -392,7 +392,7 @@ class Contact implements ArrayAccess {
 			if ( in_array( $model_field, $skip_fields ) ) {
 				continue;
 			}
-			$contact_data['data'][ $db_field ] = $this->{ $model_field };
+			$contact_data['data'][ $model_field ] = $this->{ $model_field };
 		}
 		return $contact_data;
 	}
