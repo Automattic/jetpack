@@ -1,4 +1,9 @@
-import { IdentifiedStep, Step } from 'crm/state/automations-admin/types';
+import {
+	IdentifiedStep,
+	IdentifiedWorkflow,
+	Step,
+	Workflow,
+} from 'crm/state/automations-admin/types';
 
 let stepId = 1;
 
@@ -26,3 +31,17 @@ export const getDeidentifiedStep = ( ( identifiedStep?: IdentifiedStep ) => {
 		nextStep: getDeidentifiedStep( nextStep ),
 	};
 } ) as ( identifiedStep?: IdentifiedStep ) => Step | undefined;
+
+export const getIdentifiedWorkflow = ( ( workflow: Workflow ) => {
+	return {
+		...workflow,
+		initial_step: getIdentifiedStep( workflow.initial_step ),
+	};
+} ) as ( workflow: Workflow ) => IdentifiedWorkflow;
+
+export const getDeidentifiedWorkflow = ( ( identifiedWorkflow: IdentifiedWorkflow ) => {
+	return {
+		...identifiedWorkflow,
+		initial_step: getDeidentifiedStep( identifiedWorkflow.initial_step ),
+	};
+} ) as ( identifiedWorkflow: IdentifiedWorkflow ) => Workflow;

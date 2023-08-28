@@ -1,6 +1,11 @@
 import { IdentifiedStep } from 'crm/state/automations-admin/types';
-import { getIdentifiedStep, getDeidentifiedStep } from '../util';
-import { getStep, getIdentifiedStep as getIdentifiedStepUtil } from './util/data';
+import {
+	getIdentifiedStep,
+	getDeidentifiedStep,
+	getIdentifiedWorkflow,
+	getDeidentifiedWorkflow,
+} from '../util';
+import { getStep, getIdentifiedStep as getIdentifiedStepUtil, workflowOne } from './util/data';
 
 describe( 'getIdentifiedStep', () => {
 	test( 'returns undefined if the step is undefined', () => {
@@ -87,5 +92,23 @@ describe( 'getDeidentifiedStep', () => {
 		const deidentifiedStep = getDeidentifiedStep( firstStep );
 		expect( deidentifiedStep ).not.toHaveProperty( 'id' );
 		expect( deidentifiedStep?.nextStep ).not.toHaveProperty( 'id' );
+	} );
+} );
+
+describe( 'getIdentifiedWorkflow', () => {
+	test( 'returns a workflow with identifiedSteps', () => {
+		const identifiedWorkflow = getIdentifiedWorkflow( workflowOne );
+
+		expect( identifiedWorkflow.initial_step.id ).toBeDefined();
+	} );
+} );
+
+describe( 'getDeidentifiedWorkflow', () => {
+	test( 'returns a workflow with deidentified steps', () => {
+		const identifiedWorkflow = getIdentifiedWorkflow( workflowOne );
+
+		const deidentifiedWorkflow = getDeidentifiedWorkflow( identifiedWorkflow );
+
+		expect( deidentifiedWorkflow.initial_step ).not.toHaveProperty( 'id' );
 	} );
 } );

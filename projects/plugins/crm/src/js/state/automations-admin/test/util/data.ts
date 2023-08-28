@@ -1,4 +1,9 @@
-import { IdentifiedStep, Step, Workflow } from 'crm/state/automations-admin/types';
+import {
+	IdentifiedStep,
+	IdentifiedWorkflow,
+	Step,
+	Workflow,
+} from 'crm/state/automations-admin/types';
 
 const convertToNameSlug = ( name: string ) => {
 	return name.toLowerCase().replace( /\s+/g, '_' );
@@ -81,7 +86,8 @@ export const workflowTwo = getWorkflow( 2, 'Workflow Two', {
 	initial_step: stepTwo,
 	added: '98/76/5432',
 } );
-export const workflowThree = getWorkflow( 3, 'Workflow Three', {
+
+export const identifiedWorkflowThree = getWorkflow( 3, 'Workflow Three', {
 	triggers: [ triggerThree ],
-	initial_step: stepThree,
-} );
+	initial_step: getIdentifiedStep( 'Step Three', 3 ),
+} ) as IdentifiedWorkflow;
