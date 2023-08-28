@@ -172,6 +172,9 @@ class Jetpack_Memberships {
 			'product_id'      => array(
 				'meta' => $meta_prefix . 'product_id',
 			),
+			'tier'            => array(
+				'meta' => $meta_prefix . 'tier',
+			),
 		);
 		return $properties;
 	}

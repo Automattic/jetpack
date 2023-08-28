@@ -80,7 +80,7 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	 *
 	 * @param array $subscriptions_from_bd .
 	 *
-	 * @return array<int, array>
+	 * @return array<int, object>
 	 */
 	public static function abbreviate_subscriptions( $subscriptions_from_bd ) {
 		$subscriptions = array();
