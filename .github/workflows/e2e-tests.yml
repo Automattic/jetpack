@@ -3,9 +3,9 @@ name: E2E Tests
 on:
   pull_request:
     paths-ignore:
-    - '**.md'
+      - '**.md'
   repository_dispatch:
-    types: ['e2e tests**']
+    types: [ 'e2e tests**' ]
 
 concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}
@@ -44,11 +44,46 @@ jobs:
           MATRIX="$(node .github/files/e2e-tests/e2e-matrix.js)"
           echo "$MATRIX"
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+  build-projects:
+    name: "E2E: Build ${{ matrix.buildGroup }}"
+    runs-on: ubuntu-latest
+    needs: create-test-matrix
+    timeout-minutes: 30
+    concurrency: e2e-build-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}-${{ matrix.buildGroup }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Install monorepo
+        run: pnpm install
+
+      - name: Build projects
+        env:
+          COMPOSER_ROOT_VERSION: "dev-trunk"
+          BUILD_DIR: ./build-output
+          PROJECT_PATH: ${{ matrix.path }}
+          SUITE: ${{ matrix.suite }}
+        run: |
+          if [[ "${SUITE}" != atomic* ]]; then
+            echo "::group::Build plugin(s)"
+            cd $PROJECT_PATH
+            pnpm run build
+            echo "::endgroup::"
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifacts-${{ matrix.project }}
+          path: ${{ matrix.buildGroup }}/build-output
+
 
   e2e-tests:
     name: "${{ matrix.project }} e2e tests"
     runs-on: ubuntu-latest
-    needs: create-test-matrix
+    needs: [ create-test-matrix, build-projects ]
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -57,158 +92,155 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
 
-    - name: Setup tools
-      uses: ./.github/actions/tool-setup
+      - name: Install monorepo
+        run: |
+          pnpm install
 
-    - name: Install monorepo
-      run: |
-        pnpm install
+      - name: Download artifacts
+        if: github.event_name == 'workflow_run'
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: build.yml
+          workflow_conclusion: "success"
+          run_id: ${{ github.event.workflow_run.id }}
+          path: build-output
+      - name: Download ${{ matrix.group }} Build Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artifacts
+          path: ${{ matrix.path }}
+      - name: Checkout jetpack-production
+        if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
+        uses: actions/checkout@v3
+        with:
+          repository: Automattic/jetpack-production
+          path: build-output/build/Automattic/jetpack-production
 
-    - name: Download artifacts
-      if: github.event_name == 'workflow_run'
-      uses: dawidd6/action-download-artifact@v2
-      with:
-        workflow: build.yml
-        workflow_conclusion: "success"
-        run_id: ${{ github.event.workflow_run.id }}
-        path: build-output
+      - name: Checkout mirror repo
+        if: github.event_name == 'repository_dispatch'
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.client_payload.repository }}
+          ref: ${{ github.event.client_payload.ref_name }}
+          path: build-output/build/${{ github.event.client_payload.repository }}
 
-    - name: Checkout jetpack-production
-      if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
-      uses: actions/checkout@v3
-      with:
-        repository: Automattic/jetpack-production
-        path: build-output/build/Automattic/jetpack-production
+      - name: Prepare build
+        env:
+          COMPOSER_ROOT_VERSION: "dev-trunk"
+          BUILD_DIR: ./build-output
+          PROJECT_PATH: ${{ matrix.path }}
+          SUITE: ${{ matrix.suite }}
+        run: |
+          # Only execute these steps if the event name is either 'workflow_run' or 'repository_dispatch'
+          if [ "$GITHUB_EVENT_NAME" == workflow_run ] || [ "$GITHUB_EVENT_NAME" == repository_dispatch ]; then
+            echo "::group::Prepare build artefacts"
+            tar --xz -xf "$BUILD_DIR/jetpack-build/build.tar.xz" -C "$BUILD_DIR"
+            echo "::endgroup::"
 
-    - name: Checkout mirror repo
-      if: github.event_name == 'repository_dispatch'
-      uses: actions/checkout@v3
-      with:
-        repository: ${{ github.event.client_payload.repository }}
-        ref: ${{ github.event.client_payload.ref_name }}
-        path: build-output/build/${{ github.event.client_payload.repository }}
+            echo "::group::Update volume mapping"
+            .github/files/e2e-tests/map-plugins-for-e2e-env.sh
+            echo "::endgroup::"
+          else
+            echo "Skipping build preparation; using pre-built artifacts."
+          fi
 
-    - name: Prepare build
-      env:
-        COMPOSER_ROOT_VERSION: "dev-trunk"
-        BUILD_DIR: ./build-output
-        PROJECT_PATH: ${{ matrix.path }}
-        SUITE: ${{ matrix.suite }}
-      run: |
-        if [ "$GITHUB_EVENT_NAME" == workflow_run ]; then
-          echo "::group::Prepare build artefacts"
-          tar --xz -xf "$BUILD_DIR/jetpack-build/build.tar.xz" -C "$BUILD_DIR"
+      - name: Test environment set-up
+        working-directory: ${{ matrix.path }}
+        env:
+          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+          SUITE: ${{ matrix.suite }}
+          PROJECT_NAME: ${{ matrix.project }}
+        run: |
+          echo "::group::Decrypt config"
+          pnpm run config:decrypt
           echo "::endgroup::"
-        fi
 
-        if [ "$GITHUB_EVENT_NAME" == workflow_run ] || [ "$GITHUB_EVENT_NAME" == repository_dispatch ]; then
-          echo "::group::Update volume mapping"
-          .github/files/e2e-tests/map-plugins-for-e2e-env.sh
-          echo "::endgroup::"
-        else
-          if [[ "${SUITE}" != atomic* ]]; then
-            echo "::group::Build plugin(s)"
-            cd $PROJECT_PATH
-            pnpm run build
+          if [[ "${SUITE}" != atomic* && "${SUITE}" != vip ]]; then
+            echo "::group::Start docker environment"
+            pnpm run env:up
+            echo "::endgroup::"
+
+            echo "::group::Create tunnel"
+            nohup pnpm run tunnel:up "$HOME/tunnel.log"
             echo "::endgroup::"
           fi
-        fi
 
-    - name: Test environment set-up
-      working-directory: ${{ matrix.path }}
-      env:
-        CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-        SUITE: ${{ matrix.suite }}
-        PROJECT_NAME:  ${{ matrix.project }}
-      run: |
-        echo "::group::Decrypt config"
-        pnpm run config:decrypt
-        echo "::endgroup::"
+          if [ "${SUITE}" == gutenberg ]; then
+              echo "::group::Setting up Gutenberg"
+              pnpm e2e-env gb-setup
+              echo "::endgroup::"
+          fi
 
-        if [[ "${SUITE}" != atomic* && "${SUITE}" != vip ]]; then
-          echo "::group::Start docker environment"
-          pnpm run env:up
+      - name: Wait for atomic site to be ready
+        if: ${{ startsWith(matrix.suite, 'atomic') }}
+        working-directory: ${{ matrix.path }}
+        env:
+          DISPATCH_REF_NAME: ${{ github.event.client_payload.ref_name }}
+          DISPATCH_REF_TYPE: ${{ github.event.client_payload.ref_type }}
+        run: |
+          SITE="atomic"
+
+          if [[ "${DISPATCH_REF_NAME}" != trunk ]]; then
+              SITE="atomicRc"
+          fi
+
+          echo "TEST_SITE=${SITE}" >> $GITHUB_ENV
+
+          # Wait for the site to pick up latest tag version (DISPATCH_REF_NAME)
+          TEST_SITE="${SITE}" node "$GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.cjs" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
+
+      - name: Set up VIP site
+        if: ${{ matrix.suite == 'vip' }}
+        working-directory: ${{ matrix.path }}
+        run: |
+          echo "TEST_SITE=vip" >> $GITHUB_ENV
+
+      - name: Run ${{ matrix.project }} tests
+        working-directory: ${{ matrix.path }}
+        env:
+          JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
+        run: |
+          mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
+          pnpm run test:run "${TEST_ARGS[@]}"
+
+      - name: Write report metadata
+        if: ${{ always() }}
+        env:
+          SUITE: ${{ matrix.suite }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          OUTPUT_PATH: ${{ matrix.path }}
+        run: .github/files/e2e-tests/report-metadata.sh
+
+      - name: Test environment tear-down
+        if: ${{ always() }}
+        working-directory: ${{ matrix.path }}
+        continue-on-error: true
+        run: |
+          pnpm run tunnel:down
+          echo "::group::Tunnel logs"
+          cat "$HOME/tunnel.log"
           echo "::endgroup::"
 
-          echo "::group::Create tunnel"
-          nohup pnpm run tunnel:up "$HOME/tunnel.log"
-          echo "::endgroup::"
-        fi
+          # Update permissions to workaround https://github.com/actions/cache/issues/753
+          sudo chown -R runner:docker "$GITHUB_WORKSPACE/tools/docker"
 
-        if [ "${SUITE}" == gutenberg ]; then
-            echo "::group::Setting up Gutenberg"
-            pnpm e2e-env gb-setup
-            echo "::endgroup::"
-        fi
-
-    - name: Wait for atomic site to be ready
-      if: ${{ startsWith(matrix.suite, 'atomic') }}
-      working-directory: ${{ matrix.path }}
-      env:
-        DISPATCH_REF_NAME: ${{ github.event.client_payload.ref_name }}
-        DISPATCH_REF_TYPE: ${{ github.event.client_payload.ref_type }}
-      run: |
-        SITE="atomic"
-
-        if [[ "${DISPATCH_REF_NAME}" != trunk ]]; then
-            SITE="atomicRc"
-        fi
-
-        echo "TEST_SITE=${SITE}" >> $GITHUB_ENV
-
-        # Wait for the site to pick up latest tag version (DISPATCH_REF_NAME)
-        TEST_SITE="${SITE}" node "$GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.cjs" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
-
-    - name: Set up VIP site
-      if: ${{ matrix.suite == 'vip' }}
-      working-directory: ${{ matrix.path }}
-      run: |
-        echo "TEST_SITE=vip" >> $GITHUB_ENV
-
-    - name: Run ${{ matrix.project }} tests
-      working-directory: ${{ matrix.path }}
-      env:
-        JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
-      run: |
-        mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-        pnpm run test:run "${TEST_ARGS[@]}"
-
-    - name: Write report metadata
-      if: ${{ always() }}
-      env:
-        SUITE: ${{ matrix.suite }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
-        OUTPUT_PATH: ${{ matrix.path }}
-      run: .github/files/e2e-tests/report-metadata.sh
-
-    - name: Test environment tear-down
-      if: ${{ always() }}
-      working-directory: ${{ matrix.path }}
-      continue-on-error: true
-      run: |
-        pnpm run tunnel:down
-        echo "::group::Tunnel logs"
-        cat "$HOME/tunnel.log"
-        echo "::endgroup::"
-
-        # Update permissions to workaround https://github.com/actions/cache/issues/753
-        sudo chown -R runner:docker "$GITHUB_WORKSPACE/tools/docker"
-
-    - name: Upload test artifacts
-      if: ${{ always() }}
-      continue-on-error: true
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-output-${{ matrix.project }}
-        path: ${{ matrix.path }}/output
+      - name: Upload test artifacts
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-output-${{ matrix.project }}
+          path: ${{ matrix.path }}/output
 
   test-report:
     name: "Test report"
     runs-on: ubuntu-latest
     if: ${{ success() || failure() }}
-    needs: [e2e-tests]
+    needs: [ e2e-tests ]
 
     steps:
       - name: Set report context
@@ -240,12 +272,11 @@ jobs:
           repository: automattic/jetpack-e2e-reports
           event-type: ${{ steps.report-context.outputs.event_type }}
           client-payload: ${{ steps.report-context.outputs.client_payload }}
-
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
     if: ${{ success() || failure() }}
-    needs: [e2e-tests]
+    needs: [ e2e-tests ]
 
     steps:
       - uses: actions/checkout@v3

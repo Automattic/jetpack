@@ -8,6 +8,7 @@ const projects = [
 		testArgs: [ 'specs/connection', '--retries=1' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
+		buildGroup: 'jetpack-connection',
 	},
 	{
 		project: 'Jetpack pre-connection',
@@ -15,6 +16,7 @@ const projects = [
 		testArgs: [ 'specs/pre-connection', '--retries=1' ],
 		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: '',
+		buildGroup: 'jetpack-pre-connection',
 	},
 	{
 		project: 'Jetpack post-connection',
@@ -22,6 +24,7 @@ const projects = [
 		testArgs: [ 'specs/post-connection', '--retries=1' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
+		buildGroup: 'jetpack-post-connection',
 	},
 	{
 		project: 'Jetpack sync',
@@ -29,6 +32,7 @@ const projects = [
 		testArgs: [ 'specs/sync', '--retries=1' ],
 		targets: [ 'packages/sync' ],
 		suite: '',
+		buildGroup: 'jetpack-sync',
 	},
 	{
 		project: 'Jetpack blocks',
@@ -36,6 +40,7 @@ const projects = [
 		testArgs: [ 'specs/blocks', '--retries=1' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
+		buildGroup: 'jetpack-blocks',
 	},
 	{
 		project: 'Jetpack Boost - Setup',
@@ -43,6 +48,7 @@ const projects = [
 		testArgs: [ 'specs/base', '--retries=1' ],
 		targets: [ 'plugins/boost' ],
 		suite: '',
+		buildGroup: 'jetpack-boost',
 	},
 	{
 		project: 'Jetpack Boost - Critical CSS',
@@ -50,6 +56,7 @@ const projects = [
 		testArgs: [ 'specs/critical-css', '--retries=1' ],
 		targets: [ 'plugins/boost' ],
 		suite: '',
+		buildGroup: 'jetpack-boost',
 	},
 	{
 		project: 'Jetpack Boost - Modules',
@@ -57,6 +64,7 @@ const projects = [
 		testArgs: [ 'specs/modules', '--retries=1' ],
 		targets: [ 'plugins/boost' ],
 		suite: '',
+		buildGroup: 'jetpack-boost',
 	},
 	{
 		project: 'Search',
@@ -64,6 +72,7 @@ const projects = [
 		testArgs: [],
 		targets: [ 'plugins/search' ],
 		suite: '',
+		buildGroup: 'jetpack-search',
 	},
 	{
 		project: 'VideoPress',
@@ -71,6 +80,7 @@ const projects = [
 		testArgs: [],
 		targets: [ 'plugins/videopress' ],
 		suite: '',
+		buildGroup: 'jetpack-videopress',
 	},
 	{
 		project: 'Social',
@@ -78,6 +88,7 @@ const projects = [
 		testArgs: [],
 		targets: [ 'plugins/social' ],
 		suite: '',
+		buildGroup: 'jetpack-social',
 	},
 ];
 
