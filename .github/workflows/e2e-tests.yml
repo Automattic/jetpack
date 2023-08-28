@@ -115,7 +115,7 @@ jobs:
       - name: Download ${{ matrix.group }} Build Artifacts
         uses: actions/download-artifact@v2
         with:
-          name: build-artifacts
+          name: ${{ matrix.buildGroup }}/build-output
           path: ${{ matrix.path }}
       - name: Checkout jetpack-production
         if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
