@@ -5,6 +5,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status;
+use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
@@ -60,12 +61,12 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$contact_data                    = $contact_data_type->get_entity();
 
 		// Testing when the condition has been met.
-		$contact_data['status'] = 'customer';
+		$contact_data->status = 'customer';
 		$contact_field_changed_condition->execute( $contact_data );
 		$this->assertTrue( $contact_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$contact_data['status'] = 'lead';
+		$contact_data->status = 'lead';
 		$contact_field_changed_condition->execute( $contact_data );
 		$this->assertFalse( $contact_field_changed_condition->condition_met() );
 	}
@@ -79,12 +80,12 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$contact_data                    = $contact_data_type->get_entity();
 
 		// Testing when the condition has been met.
-		$contact_data['status'] = 'lead';
+		$contact_data->status = 'lead';
 		$contact_field_changed_condition->execute( $contact_data );
 		$this->assertTrue( $contact_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$contact_data['status'] = 'customer';
+		$contact_data->status = 'customer';
 		$contact_field_changed_condition->execute( $contact_data );
 		$this->assertFalse( $contact_field_changed_condition->condition_met() );
 	}
@@ -111,10 +112,10 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$contact_data_type               = $this->automation_faker->contact_data( true );
-		$contact_data                    = $contact_data_type->get_entity();
-		$previous_contact_data           = $contact_data;
-		$previous_contact_data['status'] = 'old_status';
+		$contact_data_type             = $this->automation_faker->contact_data( true );
+		$contact_data                  = $contact_data_type->get_entity();
+		$previous_contact_data         = $contact_data;
+		$previous_contact_data->status = 'old_status';
 
 		$contact_transitional_status_condition->execute( $contact_data, $previous_contact_data );
 	}
@@ -128,22 +129,23 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$contact_data                          = $contact_data_type->get_entity();
 
 		// Create a previous state of a contact.
-		$previous_contact           = $contact_data;
-		$previous_contact['status'] = 'old_status';
+		$previous_contact         = new Contact( $contact_data->get_contact_array() );
+		$previous_contact->status = 'old_status';
 
 		// Testing when the condition has been met.
-		$contact_data['status'] = 'new_status';
+		$contact_data->status = 'new_status';
+
 		$contact_transitional_status_condition->execute( $contact_data, $previous_contact );
 		$this->assertTrue( $contact_transitional_status_condition->condition_met() );
 
 		// Testing when the condition has been not been met for the to field.
-		$contact_data['status'] = 'wrong_to';
+		$contact_data->status = 'wrong_to';
 		$contact_transitional_status_condition->execute( $contact_data, $previous_contact );
 		$this->assertFalse( $contact_transitional_status_condition->condition_met() );
 
 		// Testing when the condition has been not been met for the from field
-		$contact_data['status']     = 'new_status';
-		$previous_contact['status'] = 'wrong_from';
+		$contact_data->status     = 'new_status';
+		$previous_contact->status = 'wrong_from';
 		$contact_transitional_status_condition->execute( $contact_data, $previous_contact );
 		$this->assertFalse( $contact_transitional_status_condition->condition_met() );
 	}

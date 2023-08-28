@@ -8,6 +8,7 @@ use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
+use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 
 /**
@@ -42,8 +43,9 @@ class Update_Contact_Status_Test extends JPCRM_Base_Integration_Test_Case {
 		global $zbs;
 
 		$contact_id = $this->add_contact( array( 'status' => 'Lead' ) );
-		$contact    = $this->get_contact( $contact_id );
-		$this->assertSame( 'Lead', $contact['status'] );
+		/** @var Contact $contact */
+		$contact = $this->get_contact( $contact_id );
+		$this->assertSame( 'Lead', $contact->status );
 
 		$action_update_contact = new Update_Contact_Status(
 			array(
@@ -57,6 +59,7 @@ class Update_Contact_Status_Test extends JPCRM_Base_Integration_Test_Case {
 		$action_update_contact->execute( $contact );
 
 		$contact = $zbs->DAL->contacts->getContact( $contact_id );
+
 		$this->assertSame( 'Customer', $contact['status'] );
 	}
 

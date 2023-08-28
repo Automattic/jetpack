@@ -8,6 +8,7 @@ use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
+use Automattic\Jetpack\CRM\Entities\Contact;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Integration_Test_Case;
 
 /**
@@ -47,8 +48,10 @@ class Update_Contact_Test extends JPCRM_Base_Integration_Test_Case {
 				'fname' => 'This is definitely not a real first name',
 			)
 		);
-		$contact    = $this->get_contact( $contact_id );
-		$this->assertSame( 'This is definitely not a real first name', $contact['fname'] );
+		/** @var Contact $contact */
+		$contact = $this->get_contact( $contact_id );
+
+		$this->assertSame( 'This is definitely not a real first name', $contact->fname );
 
 		// Define what happens when the action is executed.
 		$action = new Update_Contact(
