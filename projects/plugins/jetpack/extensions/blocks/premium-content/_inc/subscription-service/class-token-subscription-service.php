@@ -195,11 +195,6 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				continue;
 			}
 
-			if ( $details->status !== 'active' ) {
-				// subscription not active anymore
-				continue;
-			}
-
 			$subscription_post_id = get_posts(
 				array(
 					'posts_per_page' => 1,
