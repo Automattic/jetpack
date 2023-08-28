@@ -225,12 +225,12 @@ class Automation_Workflow {
 	 * @since $$next-version$$
 	 *
 	 * @param Trigger $trigger An instance of the Trigger class.
-	 * @param array   $data All relevant object data to be passed through the workflow.
+	 * @param mixed   $data All relevant object data to be passed through the workflow.
 	 * @return bool Whether the workflow was executed successfully.
 	 *
 	 * @throws Workflow_Exception Throws an exception if there is an issue executing the workflow.
 	 */
-	public function execute( Trigger $trigger, array $data ): bool {
+	public function execute( Trigger $trigger, $data ): bool {
 		return $this->get_engine()->execute_workflow( $this, $trigger, $data );
 	}
 
