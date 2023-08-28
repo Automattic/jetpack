@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Cleans up the memberships class to make it more DRY.
