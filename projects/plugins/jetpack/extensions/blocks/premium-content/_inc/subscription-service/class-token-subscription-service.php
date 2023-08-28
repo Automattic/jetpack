@@ -161,7 +161,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		// We now need the tier price and currency, and the same for the annual price (if available)
-		$tier_meta         = get_post_meta( $post_id, $tier_id );
+		$tier_meta         = get_post_meta( $tier_id );
 		$tier_price        = $tier_meta['jetpack_memberships_price'][0];
 		$tier_currency     = $tier_meta['jetpack_memberships_currency'][0];
 		$tier_product_id   = $tier_meta['jetpack_memberships_product_id'][0];
@@ -184,7 +184,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				$linked_post_tier
 			);
 
-			$annual_tier_meta  = get_post_meta( $post_id, $annual_tier_id );
+			$annual_tier_meta  = get_post_meta( $annual_tier_id );
 			$annual_tier_price = isset( $annual_tier_meta['jetpack_memberships_price'][0] ) ? $annual_tier_meta['jetpack_memberships_price'][0] : $annual_tier_price;
 		}
 
