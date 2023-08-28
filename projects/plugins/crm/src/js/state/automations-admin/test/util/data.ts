@@ -1,4 +1,4 @@
-import { Step, Workflow } from 'crm/state/automations-admin/types';
+import { IdentifiedStep, Step, Workflow } from 'crm/state/automations-admin/types';
 
 const convertToNameSlug = ( name: string ) => {
 	return name.toLowerCase().replace( /\s+/g, '_' );
@@ -15,11 +15,11 @@ const getTrigger = ( name: string ) => {
 	};
 };
 
-function getStep( name: string ): Step {
+export function getStep( name: string ): Step {
 	const nameSlug = convertToNameSlug( name );
 
 	return {
-		attributes: [ `${ nameSlug }_attribute_one` ],
+		attributes: { [ `${ nameSlug }_attribute_one_key` ]: `${ nameSlug }_attribute_one_value` },
 		slug: `${ nameSlug }_slug`,
 		title: `${ name } Title`,
 		description: `This is the description of ${ name }.`,
@@ -27,6 +27,14 @@ function getStep( name: string ): Step {
 		category: `${ nameSlug }_category`,
 		allowedTriggers: [ triggerOne ],
 	};
+}
+
+export function getIdentifiedStep( name: string, id: number ): IdentifiedStep {
+	const step = getStep( name ) as IdentifiedStep;
+
+	step.id = id;
+
+	return step;
 }
 
 type PartialWorkflow = {
