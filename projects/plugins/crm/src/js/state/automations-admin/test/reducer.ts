@@ -1,29 +1,52 @@
 import { Workflow } from 'crm/state/automations-admin/types';
 import { hydrateWorkflows, activateWorkflow, deactivateWorkflow } from '../actions';
 import { workflows, WorkflowState } from '../reducer';
-import { getWorkflow, workflowOne, workflowTwo, workflowThree } from './util/data';
+import { getWorkflow, workflowOne, workflowTwo, identifiedWorkflowThree } from './util/data';
 
 describe( 'Automations Admin Reducer', () => {
 	describe( 'workflows', () => {
 		describe( 'hydrateWorkflows', () => {
 			test( 'creates the state when hydrating empty', () => {
 				const inputWorkflows = [ workflowOne, workflowTwo ];
+
 				const action = hydrateWorkflows( inputWorkflows );
 				const state = workflows( {}, action );
-				expect( state ).toEqual( {
-					[ workflowOne.id ]: workflowOne,
-					[ workflowTwo.id ]: workflowTwo,
-				} );
+
+				expect( Object.keys( state ).map( key => Number( key ) ) ).toEqual( [
+					workflowOne.id,
+					workflowTwo.id,
+				] );
+				expect( state[ workflowOne.id ] ).toMatchObject( workflowOne );
+				expect( state[ workflowTwo.id ] ).toMatchObject( workflowTwo );
+			} );
+
+			test( 'uniquely identifies the workflow steps', () => {
+				const inputWorkflows = [ workflowOne, workflowTwo ];
+
+				const action = hydrateWorkflows( inputWorkflows );
+				const state = workflows( {}, action );
+
+				const outputWorkflows = Object.values( state );
+				expect( outputWorkflows[ 0 ].initial_step.id ).toBeDefined();
+				expect( outputWorkflows[ 1 ].initial_step.id ).toBeDefined();
+				expect( outputWorkflows[ 0 ].initial_step.id ).not.toEqual(
+					outputWorkflows[ 1 ].initial_step.id
+				);
 			} );
 
 			test( 'replaces the state when hydrating with existing state', () => {
 				const inputWorkflows = [ workflowOne, workflowTwo ];
+				const initialState = { [ identifiedWorkflowThree.id ]: identifiedWorkflowThree };
+
 				const action = hydrateWorkflows( inputWorkflows );
-				const state = workflows( { [ workflowThree.id ]: workflowThree }, action );
-				expect( state ).toEqual( {
-					[ workflowOne.id ]: workflowOne,
-					[ workflowTwo.id ]: workflowTwo,
-				} );
+				const state = workflows( initialState, action );
+
+				expect( Object.keys( state ).map( key => Number( key ) ) ).toEqual( [
+					workflowOne.id,
+					workflowTwo.id,
+				] );
+				expect( state[ workflowOne.id ] ).toMatchObject( workflowOne );
+				expect( state[ workflowTwo.id ] ).toMatchObject( workflowTwo );
 			} );
 		} );
 

@@ -1,7 +1,8 @@
+import { getIdentifiedWorkflow } from './util';
 import type { AutomationsAction } from 'crm/state/automations-admin/actions';
-import type { Workflow } from 'crm/state/automations-admin/types';
+import type { IdentifiedWorkflow } from 'crm/state/automations-admin/types';
 
-export type WorkflowState = { [ index: number ]: Workflow };
+export type WorkflowState = { [ index: number ]: IdentifiedWorkflow };
 
 export const workflows = (
 	state: WorkflowState = {},
@@ -13,7 +14,10 @@ export const workflows = (
 				return state;
 			}
 			return action.workflows.reduce(
-				( newState, workflow ) => ( { ...newState, [ workflow.id ]: workflow } ),
+				( newState, workflow ) => ( {
+					...newState,
+					[ workflow.id ]: getIdentifiedWorkflow( workflow ),
+				} ),
 				{}
 			);
 		case 'ACTIVATE_WORKFLOW':
