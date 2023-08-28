@@ -5,7 +5,14 @@ import { SVG, Rect, Line, Path } from '@wordpress/components';
 import React from 'react';
 
 const mic = (
-	<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/SVG">
+	<SVG
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		color="currentColor"
+		xmlns="http://www.w3.org/2000/SVG"
+	>
 		<Rect
 			x="8.75"
 			y="2.75"
