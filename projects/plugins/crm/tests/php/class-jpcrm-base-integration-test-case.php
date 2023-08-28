@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\CRM\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 /**
  * Test case that ensures we have a clean and functioning Jetpack CRM instance.
@@ -40,9 +41,9 @@ class JPCRM_Base_Integration_Test_Case extends JPCRM_Base_Test_Case {
 	 *
 	 * @param int|string $id The ID of the contact we want to get.
 	 * @param array $args (Optional) A list of arguments we should use for the contact.
-	 * @return array|false
+	 * @return Contact The contact object
 	 */
-	public function get_contact( $id, array $args = array() ) {
+	public function get_contact( $id, array $args = array() ): Contact {
 		global $zbs;
 
 		$contact = $zbs->DAL->contacts->getContact( $id, $args );

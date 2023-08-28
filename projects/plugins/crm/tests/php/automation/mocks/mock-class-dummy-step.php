@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests\Mocks;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Base_Step;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 class Dummy_Step extends Base_Step {
 
@@ -31,7 +32,7 @@ class Dummy_Step extends Base_Step {
 	}
 
 	public static function get_data_type(): string {
-		return 'contact';
+		return Contact::class;
 	}
 
 	public static function get_category(): ?string {

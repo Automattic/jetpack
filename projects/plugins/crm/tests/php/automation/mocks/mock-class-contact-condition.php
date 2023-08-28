@@ -5,6 +5,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests\Mocks;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 class Contact_Condition extends Base_Condition {
 
@@ -97,7 +98,7 @@ class Contact_Condition extends Base_Condition {
 	 * @throws Automation_Exception
 	 */
 	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! $this->is_valid_contact_data( $data ) ) {
+		if ( ! $data instanceof Contact ) {
 			$this->logger->log( 'Invalid contact data' );
 			$this->condition_met = false;
 			return;
