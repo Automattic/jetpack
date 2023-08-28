@@ -12,6 +12,7 @@ use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 /**
  * Contact_Field_Changed condition class.
@@ -106,11 +107,11 @@ class Contact_Field_Changed extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $contact_data The contact data.
+	 * @param Contact $contact_data The contact data.
 	 * @return bool True if the data is valid to detect a field change, false otherwise
 	 */
-	private function is_valid_contact_field_changed_data( array $contact_data ): bool {
-		return isset( $contact_data[ $this->get_attributes()['field'] ] );
+	private function is_valid_contact_field_changed_data( Contact $contact_data ): bool {
+		return isset( $contact_data->{$this->get_attributes()['field']} );
 	}
 
 	/**

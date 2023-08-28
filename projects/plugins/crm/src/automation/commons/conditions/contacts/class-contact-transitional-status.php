@@ -11,6 +11,7 @@ use Automattic\Jetpack\CRM\Automation\Attribute_Definition;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Base_Condition;
 use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
+use Automattic\Jetpack\CRM\Entities\Contact;
 
 /**
  * Contact_Transitional_Status condition class.
@@ -77,7 +78,7 @@ class Contact_Transitional_Status extends Base_Condition {
 
 		switch ( $operator ) {
 			case 'from_to':
-				$this->condition_met = ( $previous_data['status'] === $status_was ) && ( $data['status'] === $status_is );
+				$this->condition_met = ( $previous_data->status === $status_was ) && ( $data->status === $status_is );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 
 				return;
@@ -97,11 +98,11 @@ class Contact_Transitional_Status extends Base_Condition {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data The event data.
+	 * @param Contact $data The event data.
 	 * @return bool True if the data is valid to detect a transitional status change, false otherwise.
 	 */
-	private function is_valid_contact_status_transitional_data( array $data ): bool {
-		return is_array( $data ) && isset( $data['status'] );
+	private function is_valid_contact_status_transitional_data( Contact $data ): bool {
+		return isset( $data->status );
 	}
 
 	/**
