@@ -333,6 +333,7 @@ class Test_Blocks extends TestCase {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Test registering a block by specifying the path to its metadata file.
 	 *
 	 * @since $$next-version$$
@@ -349,6 +350,11 @@ class Test_Blocks extends TestCase {
 	 * Test reading metadata from a block.json file by specifying its path.
 	 *
 	 * @since $$next-version$$
+=======
+	 * Test reading metadata from a block.json file by specifying its path.
+	 *
+	 * @since 1.4.23
+>>>>>>> 62f329f578 ([not verified] Add tests for blocks helpers functions)
 	 *
 	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
