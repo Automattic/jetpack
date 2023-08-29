@@ -117,7 +117,7 @@ jobs:
           else
             cp /tmp/before.txt /tmp/remove.txt
           fi
-          xargs rm < /tmp/remove.txt
+          xargs -d '\n' rm < /tmp/remove.txt
           find . -type d -empty -delete
 
       - name: Save ${{ matrix.buildGroup }} build cache
