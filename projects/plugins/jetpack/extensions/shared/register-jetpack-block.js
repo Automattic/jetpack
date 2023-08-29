@@ -11,7 +11,9 @@ const JETPACK_PREFIX = 'jetpack/';
 /**
  * Registers a gutenberg block if the availability requirements are met.
  *
- * @param {string} name - The block's name.
+ * @param {string} name - The block's name. Jetpack blocks must be registered with a name prefixed
+ * with `jetpack/`. This function accepts an unprefixed name too, though (it'd handle both
+ * `business-hours` and `jetpack/business-hours` similarly, for instance).
  * @param {object} settings - The block's settings.
  * @param {object} childBlocks - The block's child blocks.
  * @param {boolean} prefix - Should this block be prefixed with `jetpack/`?
