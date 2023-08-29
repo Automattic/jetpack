@@ -2580,11 +2580,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-<<<<<<< HEAD
-                "reference": "ede924f6707ed4b4e3360f93a63d63ff7e778caf"
-=======
                 "reference": "5f37a24f44baeeb237537d9b899007d8014b42c3"
->>>>>>> origin/trunk
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
