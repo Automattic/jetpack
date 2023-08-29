@@ -58,6 +58,49 @@ const LandingPage = () => {
 					/>
 				</div>
 			</section>
+			<section className="jp-forms__landing-section features-block">
+				<div className="jp-forms__landing-content">
+					<div className="jp-forms__block">
+						<div className="jp-forms__block-text">
+							<h1 className="mb-6">
+								{ __( 'Jetpack AI Assistant makes creating forms a breeze.', 'jetpack-forms' ) }
+							</h1>
+							<p>
+								{ __(
+									'Jetpack AI Assistant enhances the Forms Block with AI-powered features for effortless form creation:',
+									'jetpack-forms'
+								) }
+							</p>
+							<ul>
+								<li>
+									{ __(
+										'Creating a registration form for a global event? Automatically populate a country dropdown list with the AI Assistant.',
+										'jetpack-forms'
+									) }
+								</li>
+								<li>
+									{ __(
+										'Need a RSVP form for your event site? Simply ask AI Assistant to prepare a form that includes options for meal preferences, attendance status, or plus-ones.',
+										'jetpack-forms'
+									) }
+								</li>
+							</ul>
+							<button className="button button-primary" onClick={ onButtonClickHandler( false ) }>
+								{ __( 'Explore Jetpack AI', 'jetpack-forms' ) }
+							</button>
+						</div>
+						<div className="jp-forms__block-media">
+							<img
+								src={ `${ ASSETS_URL }/images/ai-forms.png` }
+								alt={ __(
+									'An illustration demonstrating how Jetpack AI can help to create forms',
+									'jetpack-forms'
+								) }
+							/>
+						</div>
+					</div>
+				</div>
+			</section>
 			<section className="jp-forms__landing-section">
 				<div className="jp-forms__landing-content">
 					<h1>{ __( 'Start with one of many beautiful form patterns.', 'jetpack-forms' ) }</h1>
