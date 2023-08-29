@@ -188,7 +188,6 @@
 	.jp-connection__disconnect-dialog,
 	.jp-connection__disconnect-dialog.components-modal__frame {
 		width: 1200px;
-		height: 900px;
 		display: flex;
 		flex-direction: column;
 	}
@@ -205,13 +204,6 @@
 
 		&__content {
 			padding: 80px;
-
-			&__confirmation {
-				position:absolute;
-				width: 100%;
-				height: 100%;
-				padding: 0;
-			}
 		}
 
 		&__actions {
