@@ -68,4 +68,3 @@ add_action(
 		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-form-support' );
 	}
 );
-
