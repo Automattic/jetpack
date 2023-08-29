@@ -883,7 +883,8 @@ function get_paywall_simple() {
         <div class="wp-block-buttons" style="text-align: center;">
             <!-- wp:button -->
             <div class="wp-block-button" style="display: inline-block; margin: 10px 0;">
-                <a href="#" class="wp-block-button__link wp-element-button"
+                <a href="' . esc_url( get_post_permalink() ) . '" class="wp-block-button__link wp-element-button"
+                   data-wpcom-track data-tracks-link-desc="paywall-email-click"
                    style="display: inline-block;
                           padding: 15px 20px;
                           background-color: #0675C4;
