@@ -77,7 +77,9 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           lookup-only: true
-          path: .
+          path: |
+            .
+            !./.github/
           key: ${{ matrix.buildGroup }}-${{ github.sha }}
 
       - name: Checkout code
@@ -151,8 +153,11 @@ jobs:
         if: needs.build-projects.result == 'success' && ! startsWith( matrix.suite, 'atomic' )
         uses: actions/cache/restore@v3
         with:
-          path: .
+          path: |
+            .
+            !./.github/
           key: ${{ matrix.buildGroup }}-${{ github.sha }}
+          fail-on-cache-miss: true
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -183,7 +188,6 @@ jobs:
           PROJECT_PATH: ${{ matrix.path }}
           SUITE: ${{ matrix.suite }}
           BUILD_JOB_RESULT: ${{ needs.build-projects.result }}
-          BUILD_ARTIFACT_FOUND: ${{ steps.jetpack-build-cache.outputs.cache-hit }}
         run: |
           # Only execute these steps if the event name is 'repository_dispatch'
           if [[ "$GITHUB_EVENT_NAME" == repository_dispatch ]]; then
@@ -199,10 +203,6 @@ jobs:
             .github/files/e2e-tests/map-plugins-for-e2e-env.sh
             echo "::endgroup::"
           elif [[ "$SUITE" != atomic* ]]; then
-            if [[ "$BUILD_ARTIFACT_FOUND" != 'true' ]]; then
-              echo "::error::Build job did not produce the needed artifact!"
-              exit 1
-            fi
             echo "Using artifact from build-projects job"
           fi
 
