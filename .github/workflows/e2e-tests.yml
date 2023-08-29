@@ -47,7 +47,7 @@ jobs:
           MATRIX="$(node .github/files/e2e-tests/e2e-matrix.js)"
           echo "matrix: $MATRIX"
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
-          if [[ "$GITHUB_EVENT_NAME" == workflow_run || "$GITHUB_EVENT_NAME" == repository_dispatch ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == repository_dispatch ]]; then
             echo "No build needed for $GITHUB_EVENT_NAME"
             BUILD_MATRIX="[]"
           else
@@ -156,15 +156,6 @@ jobs:
         run: |
           pnpm install
 
-      - name: Download artifacts
-        if: github.event_name == 'workflow_run'
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: build.yml
-          workflow_conclusion: "success"
-          run_id: ${{ github.event.workflow_run.id }}
-          path: build-output
-
       - name: Checkout jetpack-production
         if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
         uses: actions/checkout@v3
@@ -189,8 +180,8 @@ jobs:
           BUILD_JOB_RESULT: ${{ needs.build-projects.result }}
           BUILD_ARTIFACT_FOUND: ${{ steps.jetpack-build-cache.outputs.cache-hit }}
         run: |
-          # Only execute these steps if the event name is either 'workflow_run' or 'repository_dispatch'
-          if [[ "$GITHUB_EVENT_NAME" == workflow_run || "$GITHUB_EVENT_NAME" == repository_dispatch ]]; then
+          # Only execute these steps if the event name is 'repository_dispatch'
+          if [[ "$GITHUB_EVENT_NAME" == repository_dispatch ]]; then
             if [[ "$BUILD_JOB_RESULT" != 'skipped' ]]; then
               echo "::error::Build job ran but result is not being used!"
               exit 1

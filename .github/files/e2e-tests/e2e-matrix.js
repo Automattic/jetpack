@@ -119,10 +119,6 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		}
 		break;
 	}
-	case 'workflow_run': {
-		matrix.push( ...projects );
-		break;
-	}
 	case 'repository_dispatch':
 		if ( process.env.DISPATCH_REPO ) {
 			const repoName = process.env.DISPATCH_REPO.split( '/' )[ 1 ];
