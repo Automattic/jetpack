@@ -256,8 +256,8 @@ jobs:
   test-report:
     name: "Test report"
     runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs: e2e-tests
+    if: ${{ success() || failure() }}
+    needs: [ e2e-tests ]
 
     steps:
       - name: Set report context
@@ -292,8 +292,8 @@ jobs:
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs: e2e-tests
+    if: ${{ success() || failure() }}
+    needs: [ e2e-tests ]
 
     steps:
       - uses: actions/checkout@v3
