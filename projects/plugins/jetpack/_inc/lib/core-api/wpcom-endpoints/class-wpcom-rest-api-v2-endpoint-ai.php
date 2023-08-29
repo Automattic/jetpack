@@ -6,6 +6,8 @@
  * @since 11.8
  */
 
+use Automattic\Jetpack\Connection\Client as Client;
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_AI
  */
@@ -117,6 +119,63 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/jetpack-search/ai/search',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'request_chat_with_site' ),
+					'permission_callback' => '__return_true',
+				),
+				'args' => array(
+					'query'         => array(
+						'description'       => 'Your question to the site',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'answer_prompt' => array(
+						'description'       => 'Answer prompt override',
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Get a response from the Jetpack Search AI endpoint.
+	 * This is a proxy to the Jetpack Search AI endpoint.
+	 *
+	 * @param  WP_REST_Request $request The request.
+	 * @return mixed
+	 */
+	public function request_chat_with_site( $request ) {
+		$question = $request->get_param( 'query' );
+		$blog_id  = \Jetpack_Options::get_option( 'id' );
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/jetpack-search/ai/search', $blog_id ) . '?force=wpcom',
+			2,
+			array(
+				'method'  => 'GET',
+				'headers' => array( 'content-type' => 'application/json' ),
+			),
+			array(
+				'query'         => $question,
+				'answer_prompt' => 'Talk like a cowboy.',
+			),
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ) );
+
+		return $data;
 	}
 
 	/**
