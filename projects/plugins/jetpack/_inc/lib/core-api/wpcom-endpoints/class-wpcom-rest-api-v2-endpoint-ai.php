@@ -146,8 +146,8 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get a response from the Jetpack Search AI endpoint.
-	 * This is a proxy to the Jetpack Search AI endpoint.
+	 * Get a response from chatting with the site.
+	 * Uses Jetpack Search.
 	 *
 	 * @param  WP_REST_Request $request The request.
 	 * @return mixed
@@ -164,7 +164,15 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 			),
 			array(
 				'query'         => $question,
-				'answer_prompt' => 'Talk like a cowboy.',
+				/**
+				 * Filter for an answer prompt override.
+				 * Example: "Talk like a cowboy."
+				 *
+				 * @param string $prompt_override The prompt override string.
+				 *
+				 * @since $$next-version$$
+				 */
+				'answer_prompt' => apply_filters( 'jetpack_ai_chat_answer_prompt', false ),
 			),
 			'wpcom'
 		);
