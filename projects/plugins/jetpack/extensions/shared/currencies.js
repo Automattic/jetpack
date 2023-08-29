@@ -14,9 +14,13 @@ function removeTrailingDots( string ) {
  *
  * This is pulled from `Memberships_Product::SUPPORTED_CURRENCIES` in the WP.com memberships library.
  */
-export const stripeMinimumCurrency = useSelect( select =>
-	select( MEMBERSHIPS_PRODUCTS_STORE ).getConnectedAccountMinimumCurrency()
-);
+export const useStripeCurrency = () => { 
+	const stripeCurrency = useSelect( select =>
+		select( MEMBERSHIPS_PRODUCTS_STORE ).getConnectedAccountMinimumCurrency()
+	);
+
+	return stripeCurrency;
+}
 
 /**
  * Compute a list of currency value and display labels.
@@ -28,7 +32,7 @@ export const stripeMinimumCurrency = useSelect( select =>
  *
  * @type { CurrencyDetails }
  */
-export const CURRENCY_OPTIONS = Object.keys( stripeMinimumCurrency ).map( value => {
+export const CURRENCY_OPTIONS = Object.keys( useStripeCurrency ).map( value => {
 	const { symbol } = getCurrencyDefaults( value );
 	const label = symbol === value ? value : `${ value } ${ removeTrailingDots( symbol ) }`;
 	return { value, label };
@@ -42,7 +46,7 @@ export const CURRENCY_OPTIONS = Object.keys( stripeMinimumCurrency ).map( value 
  * @returns {number} Minimum charge amount for the given currency_code
  */
 export function minimumTransactionAmountForCurrency( currency_code ) {
-	return stripeMinimumCurrency( currency_code );
+	return useStripeCurrency( currency_code );
 }
 
 /**
