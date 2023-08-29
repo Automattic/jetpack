@@ -20,6 +20,7 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     outputs:
       matrix: ${{ steps.evaluate.outputs.matrix }}
+      build-matrix: ${{ steps.evaluate.outputs.build-matrix }}
     steps:
       - uses: actions/checkout@v3
 
@@ -44,21 +45,32 @@ jobs:
           REF_TYPE: ${{ github.event.client_payload.ref_type }}
         run: |
           MATRIX="$(node .github/files/e2e-tests/e2e-matrix.js)"
-          BUILD_MATRIX=$(jq -c '[ .[] | { path: .path, buildGroup: .buildGroup, suite: .suite } ] | unique' <<<"$MATRIX")
-          echo "$BUILD_MATRIX"
-          echo "matrix=$BUILD_MATRIX" >> "$GITHUB_OUTPUT"
+          echo "matrix: $MATRIX"
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_EVENT_NAME" == workflow_run || "$GITHUB_EVENT_NAME" == repository_dispatch ]]; then
+            echo "No build needed for $GITHUB_EVENT_NAME"
+            BUILD_MATRIX="[]"
+          else
+            BUILD_MATRIX=$(jq -c '[ .[] | select( .suite | startswith( "atomic" ) | not ) | { buildGroup: .buildGroup, path: .path } ] | unique' <<<"$MATRIX")
+            echo "build matrix: $BUILD_MATRIX"
+            BAD=$( jq -r '[ group_by( .buildGroup )[] | select( length > 1 ) | .[0].buildGroup ] | unique | join( "," )' <<<"$BUILD_MATRIX" )
+            if [[ -n "$BAD" ]]; then
+              echo "::error::One or more build groups have multiple paths: $BAD"
+              exit 1
+            fi
+          fi
+          echo "build-matrix=$BUILD_MATRIX" >> "$GITHUB_OUTPUT"
 
   build-projects:
     name: "E2E: Build ${{ matrix.buildGroup }}"
     runs-on: ubuntu-latest
     needs: create-test-matrix
     timeout-minutes: 30
-    outputs:
-      matrix: ${{ steps.create-test-plan.outputs.matrix }}
+    if: needs.create-test-matrix.outputs.build-matrix != '[]'
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
+        include: ${{ fromJson( needs.create-test-matrix.outputs.build-matrix ) }}
     steps:
       - name: Ensure ${{ matrix.buildGroup }} build cache
         id: jetpack-build-cache
@@ -67,6 +79,7 @@ jobs:
           lookup-only: true
           path: .
           key: ${{ matrix.buildGroup }}-${{ github.sha }}
+
       - name: Checkout code
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@v3
@@ -85,14 +98,12 @@ jobs:
           COMPOSER_ROOT_VERSION: "dev-trunk"
           BUILD_DIR: ./build-output
           PROJECT_PATH: ${{ matrix.path }}
-          SUITE: ${{ matrix.suite }}
         run: |
-          if [[ "${SUITE}" != atomic* ]]; then
-            echo "::group::Build plugin(s)"
-            cd $PROJECT_PATH
-            pnpm run build
-            echo "::endgroup::"
-          fi
+          echo "::group::Build plugin(s)"
+          cd $PROJECT_PATH
+          pnpm run build
+          echo "::endgroup::"
+
       - name: Save ${{ matrix.buildGroup }} build cache
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         id: jetpack-build-cache-save
@@ -100,35 +111,31 @@ jobs:
         with:
           path: .
           key: ${{ steps.jetpack-build-cache.outputs.cache-primary-key }}
-      - name: Create test plan
-        id: create-test-plan
-        env:
-          DISPATCH_REPO: ${{ github.event.client_payload.repository }}
-          REF_NAME: ${{ github.event.client_payload.ref_name }}
-          REF_TYPE: ${{ github.event.client_payload.ref_type }}
-        run: |
-          MATRIX="$(node .github/files/e2e-tests/e2e-matrix.js)"
-          echo "$MATRIX"
-          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
   e2e-tests:
     name: "${{ matrix.project }} e2e tests"
     runs-on: ubuntu-latest
-    if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-    needs: build-projects
+    needs: [ create-test-matrix, build-projects ]
+    # The "always() && ! cancelled() && ! failure()" bit is needed to still run if the build was skipped.
+    if: >
+      always() && ! cancelled() && ! failure() &&
+      needs.create-test-matrix.result == 'success' && needs.create-test-matrix.outputs.matrix != '[]'
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson( needs.build-projects.outputs.matrix ) }}
+        include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     steps:
       - uses: actions/checkout@v3
+
       - name: Restore $${{ matrix.buildGroup }} build cache
         id: jetpack-build-cache
+        if: needs.build-projects.result == 'success' && ! startsWith( matrix.suite, 'atomic' )
         uses: actions/cache/restore@v3
         with:
           path: .
           key: ${{ matrix.buildGroup }}-${{ github.sha }}
+
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
@@ -144,6 +151,7 @@ jobs:
           workflow_conclusion: "success"
           run_id: ${{ github.event.workflow_run.id }}
           path: build-output
+
       - name: Checkout jetpack-production
         if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
         uses: actions/checkout@v3
@@ -165,9 +173,15 @@ jobs:
           BUILD_DIR: ./build-output
           PROJECT_PATH: ${{ matrix.path }}
           SUITE: ${{ matrix.suite }}
+          BUILD_JOB_RESULT: ${{ needs.build-projects.result }}
+          BUILD_ARTIFACT_FOUND: ${{ steps.jetpack-build-cache.outputs.cache-hit }}
         run: |
           # Only execute these steps if the event name is either 'workflow_run' or 'repository_dispatch'
-          if [ "$GITHUB_EVENT_NAME" == workflow_run ] || [ "$GITHUB_EVENT_NAME" == repository_dispatch ]; then
+          if [[ "$GITHUB_EVENT_NAME" == workflow_run || "$GITHUB_EVENT_NAME" == repository_dispatch ]]; then
+            if [[ "$BUILD_JOB_RESULT" != 'skipped' ]]; then
+              echo "::error::Build job ran but result is not being used!"
+              exit 1
+            fi
             echo "::group::Prepare build artefacts"
             tar --xz -xf "$BUILD_DIR/jetpack-build/build.tar.xz" -C "$BUILD_DIR"
             echo "::endgroup::"
@@ -175,8 +189,12 @@ jobs:
             echo "::group::Update volume mapping"
             .github/files/e2e-tests/map-plugins-for-e2e-env.sh
             echo "::endgroup::"
-          else
-            echo "Skipping build preparation; using pre-built artifacts."
+          elif [[ "$SUITE" != atomic* ]]; then
+            if [[ "$BUILD_ARTIFACT_FOUND" != 'true' ]]; then
+              echo "::error::Build job did not produce the needed artifact!"
+              exit 1
+            fi
+            echo "Using artifact from build-projects job"
           fi
 
       - name: Test environment set-up
@@ -270,8 +288,8 @@ jobs:
   test-report:
     name: "Test report"
     runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs: e2e-tests
+    if: ${{ success() || failure() }}
+    needs: [e2e-tests]
 
     steps:
       - name: Set report context
@@ -303,11 +321,12 @@ jobs:
           repository: automattic/jetpack-e2e-reports
           event-type: ${{ steps.report-context.outputs.event_type }}
           client-payload: ${{ steps.report-context.outputs.client_payload }}
+
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs: e2e-tests
+    if: ${{ success() || failure() }}
+    needs: [e2e-tests]
 
     steps:
       - uses: actions/checkout@v3
