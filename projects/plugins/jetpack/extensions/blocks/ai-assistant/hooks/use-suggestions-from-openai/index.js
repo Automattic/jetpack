@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { askQuestion } from '@automattic/jetpack-ai-client';
 import { parse } from '@wordpress/blocks';
 import { useSelect, useDispatch, dispatch } from '@wordpress/data';
 import { useEffect, useState, useRef } from '@wordpress/element';
@@ -12,6 +11,7 @@ import debugFactory from 'debug';
  */
 import { DEFAULT_PROMPT_TONE } from '../../components/tone-dropdown-control';
 import { buildPromptForBlock, delimiter } from '../../lib/prompt';
+import { replayRequest } from '../../lib/replay-request';
 import {
 	getContentFromBlocks,
 	getPartialContentToBlock,
@@ -220,7 +220,7 @@ const useSuggestionsFromOpenAI = ( {
 
 			setRequestingState( 'requesting' );
 
-			source.current = await askQuestion( prompt, {
+			source.current = await replayRequest( prompt, {
 				postId,
 				requireUpgrade,
 				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : 'ai-assistant',
@@ -278,7 +278,7 @@ const useSuggestionsFromOpenAI = ( {
 			source?.current?.removeEventListener( 'error_moderation', onErrorModeration );
 			source?.current?.removeEventListener( 'suggestion', onSuggestion );
 
-			source.current = await askQuestion( prompt, {
+			source.current = await replayRequest( prompt, {
 				postId,
 				requireUpgrade,
 				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : null,
