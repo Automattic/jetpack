@@ -28,56 +28,56 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
 		case 'boost':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Get Started', 'jetpack' ),
 				displayName: __( 'Jetpack Boost', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
 				configLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-boost',
 			};
 		case 'creative-mail':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Get Started', 'jetpack' ),
 				displayName: __( 'Creative Mail', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
 				configLink: getSiteAdminUrl( state ) + 'admin.php?page=creativemail',
 			};
 		case 'monitor':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Get Started', 'jetpack' ),
 				displayName: __( 'Downtime Monitoring', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=monitor',
 			};
 		case 'newsletter':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Get Started', 'jetpack' ),
 				displayName: __( 'Newsletter', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
-				configLink: '#/settings?term=subscriptions',
+				configLink: '#/recommendations/newsletter-activated',
 			};
 		case 'related-posts':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Get Started', 'jetpack' ),
 				displayName: __( 'Related Posts', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=related%20posts',
 			};
 		case 'protect':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Get Started', 'jetpack' ),
 				displayName: __( 'Jetpack Protect', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
 				configLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-protect',
 			};
 		case 'site-accelerator':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Get Started', 'jetpack' ),
 				displayName: __( 'Site Accelerator', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=cdn',
 			};
 		case 'publicize':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Get Started', 'jetpack' ),
 				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: getRedirectUrl( 'calypso-marketing-connections', {
@@ -86,14 +86,14 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		case 'videopress':
 			return {
-				configureButtonLabel: __( 'How To', 'jetpack' ),
+				configureButtonLabel: __( 'Get Started', 'jetpack' ),
 				displayName: __( 'VideoPress', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: getRedirectUrl( 'jetpack-support-videopress-block-editor' ),
 			};
 		case 'woocommerce':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'Get Started', 'jetpack' ),
 				displayName: __( 'WooCommerce', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
 				configLink: getSiteAdminUrl( state ) + 'admin.php?page=wc-admin&path=%2Fsetup-wizard',
@@ -179,7 +179,7 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 			return {
 				displayName: __( 'Newsletter', 'jetpack' ),
 				ctaLabel: __( 'Customize', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-newsletter-configure',
+				ctaLink: getSiteAdminUrl( state ) + 'post-new.php?post_type=page',
 			};
 	}
 };
@@ -607,19 +607,36 @@ export const getStepContent = ( state, stepSlug ) => {
 			return {
 				question: __( 'Jetpack Newsletter Activated', 'jetpack' ),
 				description: __(
-					'Jetpack Newsletter is now active. Grow your subscriber list and deliver your content to subscribers inboxes.',
+					'Jetpack Newsletter is now active. You are one step closer to growing your subscribers. Start by adding a subscribe form.',
 					'jetpack'
 				),
 				descriptionList: [
-					__( 'Simple Subscriber sign up form', 'jetpack' ),
-					__( 'Lock posts for subscribers only', 'jetpack' ),
-					__( 'Build your audience of loyal fans', 'jetpack' ),
+					__( 'Create a new post or page.', 'jetpack' ),
+					__( 'Add the subscribe block by typing /subscribe', 'jetpack' ),
+					__( 'Publish and start promoting your site.', 'jetpack' ),
 				],
 				ctaText: __( 'Create Newsletter Sign Up Page', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'post-new.php?post_type=page',
 				illustration: 'assistant-newsletter',
-				summaryViewed: false,
-				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'paid-newsletter':
+			return {
+				question: __( 'Start a Paid Newsletter', 'jetpack' ),
+				description: __(
+					'Monetize your Newsletter by offering premium content to paid subscribers.',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Set up paid newsletter subscriptions.', 'jetpack' ),
+					__( 'Publish premium content.', 'jetpack' ),
+					__( 'Earn money through your Newsletter.', 'jetpack' ),
+				],
+				ctaText: __( 'Create a Paid Newsletter', 'jetpack' ),
+				ctaLink:
+					'https://wordpress.com/earn/payments-plans/' +
+					location.hostname +
+					'#add-newsletter-payment-plan',
+				illustration: 'assistant-newsletter',
 			};
 		case 'server-credentials':
 			return {
