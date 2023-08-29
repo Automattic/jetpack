@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
 import {
 	getDefaultDonationAmountsForCurrency,
-	useStripeCurrency,
+	SUPPORTED_CURRENCIES,
 } from '../../shared/currencies';
 
 const Controls = props => {
@@ -86,7 +86,7 @@ const Controls = props => {
 								} }
 								renderContent={ ( { onClose } ) => (
 									<MenuGroup>
-										{ Object.keys( useStripeCurrency ).map( ccy => (
+										{ Object.keys( SUPPORTED_CURRENCIES ).map( ccy => (
 											<MenuItem
 												isSelected={ ccy === currency }
 												icon={ ccy === currency ? 'yes' : '' }
