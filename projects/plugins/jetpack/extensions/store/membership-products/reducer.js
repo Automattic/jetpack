@@ -29,11 +29,11 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 				...state,
 				connectedAccountDefaultCurrency: action.connectedAccountDefaultCurrency,
 			};
-			case 'SET_CONNECTED_ACCOUNT_MINIMUM_CURRENCY':
-				return {
-					...state,
-					connectedAccountMinimumCurrency: action.connectedAccountMinimumCurrency,
-				};
+		case 'SET_CONNECTED_ACCOUNT_MINIMUM_CURRENCY':
+			return {
+				...state,
+				connectedAccountMinimumCurrency: action.connectedAccountMinimumCurrency,
+			};
 		case 'SET_SUBSCRIBER_COUNTS':
 			return {
 				...state,

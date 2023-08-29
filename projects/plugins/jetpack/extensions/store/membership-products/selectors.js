@@ -6,7 +6,7 @@ export const getConnectUrl = state => state.connectUrl;
 
 export const getConnectedAccountDefaultCurrency = state => state.connectedAccountDefaultCurrency;
 
-export const getConnectedAccountMinimumCurrency = state => state.connectedAccountDefaultCurrency;
+export const getConnectedAccountMinimumCurrency = state => state.connectedAccountMinimumCurrency;
 
 export const getProducts = state => state.products;
 
