@@ -34,3 +34,9 @@
 	top: 0;
 	visibility: visible;
 }
+
+@media screen and (max-width: 640px) {
+	.jetpack-subscribe-modal__modal-content {
+		width: 94%;
+	}
+}
