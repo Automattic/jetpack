@@ -100,27 +100,32 @@ jobs:
           BUILD_DIR: ./build-output
           PROJECT_PATH: ${{ matrix.path }}
         run: |
-          source .github/files/gh-funcs.sh
-          find . -type f > /tmp/before.txt
+          find . -type f | sort > /tmp/before.txt
           echo "::group::Build plugin(s)"
           cd "$PROJECT_PATH"
           pnpm run build
           cd "$GITHUB_WORKSPACE"
           echo "::endgroup::"
-          find . -type f > /tmp/after.txt
-          PATHS=$(diff /tmp/before.txt /tmp/after.txt | sed -n 's/^> //p')
-          if [[ -z "$PATHS" ]]; then
-            touch 'no-paths-built-but-we-need-to-cache-something.txt'
-            PATHS='no-paths-built-but-we-need-to-cache-something.txt'
+
+          # We only want to save the files that were actually created or changed.
+          # But we can't just list them for actions/cache/save, "Argument list too long".
+          # So instead we delete all the unchanged files so we can tell actions/cache/save
+          # to save everything that's left.
+          git -c core.quotepath=off diff --name-only | sort > /tmp/changed.txt
+          if [[ -s /tmp/changed.txt ]]; then
+            grep -F -x -v -f /tmp/changed.txt /tmp/before.txt > /tmp/remove.txt
+          else
+            cp /tmp/before.txt /tmp/remove.txt
           fi
-          gh_set_output paths "$PATHS"
+          xargs rm < /tmp/remove.txt
+          find . -type d -empty -delete
 
       - name: Save ${{ matrix.buildGroup }} build cache
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         id: jetpack-build-cache-save
         uses: actions/cache/save@v3
         with:
-          path: ${{ steps.build-step.outputs.paths }}
+          path: .
           key: ${{ steps.jetpack-build-cache.outputs.cache-primary-key }}
 
   e2e-tests:
