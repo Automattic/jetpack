@@ -12,6 +12,7 @@ import {
 	setProducts,
 	setSiteSlug,
 	setConnectedAccountDefaultCurrency,
+	setConnectedAccountMinimumCurrency,
 	setSubscriberCounts,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
