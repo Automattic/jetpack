@@ -2,7 +2,7 @@ import { findStep, getIdentifiedWorkflow } from './util';
 import type { AutomationsAction } from 'crm/state/automations-admin/actions';
 import type { IdentifiedWorkflow } from 'crm/state/automations-admin/types';
 
-export type WorkflowState = { [ index: number ]: IdentifiedWorkflow };
+export type WorkflowState = { [ workflowId: number ]: IdentifiedWorkflow };
 
 export const workflows = (
 	state: WorkflowState = {},
