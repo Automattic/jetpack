@@ -1,3 +1,4 @@
+// Mock for @automattic/jetpack-connection
 window.JP_CONNECTION_INITIAL_STATE = {
 	userConnectionData: {
 		currentUser: {
