@@ -57,10 +57,11 @@ jobs:
       matrix:
         include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     steps:
-      - name: Restore ${{ matrix.buildGroup }} build cache
+      - name: Ensure ${{ matrix.buildGroup }} build cache
         id: jetpack-build-cache
         uses: actions/cache/restore@v3
         with:
+          lookup-only: true
           path: .
           key: ${{ matrix.buildGroup }}-${{ github.sha }}
       - name: Checkout code
