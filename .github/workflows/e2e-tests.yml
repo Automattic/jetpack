@@ -41,17 +41,17 @@ jobs:
           REF_NAME: ${{ github.event.client_payload.ref_name }}
           REF_TYPE: ${{ github.event.client_payload.ref_type }}
         run: |
-          MATRIX="$(node .github/files/e2e-tests/e2e-matrix.js)"
-          echo "$MATRIX"
-          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          BUILD_MATRIX=$(jq -c '[ .[] | { path: .path, buildGroup: .buildGroup, suite: .suite } ] | unique' <<<"$MATRIX")
+          echo "$BUILD_MATRIX"
+          echo "build-matrix=$BUILD_MATRIX" >> "$GITHUB_OUTPUT"
+
   build-projects:
     name: "E2E: Build ${{ matrix.buildGroup }}"
     runs-on: ubuntu-latest
     needs: create-test-matrix
     timeout-minutes: 30
-    concurrency:
-      group: e2e-build-${{ github.event_name }}-${{ github.sha }}-${{ github.event.action }}-${{ matrix.buildGroup }}
-      cancel-in-progress: true
+    outputs:
+      matrix: ${{ steps.create-test-plan.outputs.matrix }}
     strategy:
       fail-fast: false
       matrix:
@@ -96,17 +96,27 @@ jobs:
         with:
           path: .
           key: ${{ steps.jetpack-build-cache.outputs.cache-primary-key }}
+      - name: Create test plan
+        id: create-test-plan
+        env:
+          DISPATCH_REPO: ${{ github.event.client_payload.repository }}
+          REF_NAME: ${{ github.event.client_payload.ref_name }}
+          REF_TYPE: ${{ github.event.client_payload.ref_type }}
+        run: |
+          MATRIX="$(node .github/files/e2e-tests/e2e-matrix.js)"
+          echo "$MATRIX"
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
   e2e-tests:
     name: "${{ matrix.project }} e2e tests"
     runs-on: ubuntu-latest
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-    needs: [ create-test-matrix, build-projects ]
+    needs: build-projects
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
+        include: ${{ fromJson( needs.build-projects.outputs.matrix ) }}
     steps:
       - uses: actions/checkout@v3
       - name: Restore $${{ matrix.buildGroup }} build cache
@@ -256,8 +266,8 @@ jobs:
   test-report:
     name: "Test report"
     runs-on: ubuntu-latest
-    if: ${{ success() || failure() }}
-    needs: [ e2e-tests ]
+    if: ${{ always() }}
+    needs: e2e-tests
 
     steps:
       - name: Set report context
@@ -292,8 +302,8 @@ jobs:
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
-    if: ${{ success() || failure() }}
-    needs: [ e2e-tests ]
+    if: ${{ always() }}
+    needs: e2e-tests
 
     steps:
       - uses: actions/checkout@v3
