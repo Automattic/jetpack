@@ -1,33 +1,54 @@
 import type { Workflow } from 'crm/state/automations-admin/types';
 
-export type AutomationsAction = {
-	type: 'HYDRATE_WORKFLOWS' | 'ACTIVATE_WORKFLOW' | 'DEACTIVATE_WORKFLOW' | 'SET_ATTRIBUTE';
-	id?: number;
-	workflows?: Workflow[];
-	workflowId?: number;
-	stepId?: number;
-	attribute?: { key: string; value: string };
+export type AutomationsAction =
+	| HydrateWorkflowsAction
+	| ActivateWorkflowAction
+	| DeactivateWorkflowAction
+	| SetAttributeAction;
+
+export type HydrateWorkflowsAction = {
+	type: 'HYDRATE_WORKFLOWS';
+	workflows: Workflow[];
 };
 
 export const hydrateWorkflows = ( workflows: Workflow[] ) => {
 	return {
 		type: 'HYDRATE_WORKFLOWS',
 		workflows,
-	} as AutomationsAction;
+	} as HydrateWorkflowsAction;
+};
+
+export type ActivateWorkflowAction = {
+	type: 'ACTIVATE_WORKFLOW';
+	id: number;
 };
 
 export const activateWorkflow = ( id: number ) => {
 	return {
 		type: 'ACTIVATE_WORKFLOW',
 		id,
-	} as AutomationsAction;
+	} as ActivateWorkflowAction;
+};
+
+export type DeactivateWorkflowAction = {
+	type: 'DEACTIVATE_WORKFLOW';
+	id: number;
 };
 
 export const deactivateWorkflow = ( id: number ) => {
 	return {
 		type: 'DEACTIVATE_WORKFLOW',
 		id,
-	} as AutomationsAction;
+	} as DeactivateWorkflowAction;
+};
+
+export type SetAttributeAction = {
+	type: 'SET_ATTRIBUTE';
+	workflowId: number;
+	stepId: number;
+	key: string;
+	value: string | number | boolean;
+	attribute: { key: string; value: string };
 };
 
 export const setAttribute = (
@@ -41,4 +62,4 @@ export const setAttribute = (
 		workflowId,
 		stepId,
 		attribute: { key, value },
-	} as AutomationsAction );
+	} as SetAttributeAction );
