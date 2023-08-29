@@ -44,7 +44,7 @@ jobs:
           REF_TYPE: ${{ github.event.client_payload.ref_type }}
         run: |
           MATRIX="$(node .github/files/e2e-tests/e2e-matrix.js)"
-          BUILD_MATRIX=$(jq -c '[ .[] | { project: .project, path: .path, buildGroup: .buildGroup, suite: .suite } ] | unique' <<<"$MATRIX")
+          BUILD_MATRIX=$(jq -c '[ .[] | { path: .path, buildGroup: .buildGroup, suite: .suite } ] | unique' <<<"$MATRIX")
           echo "$BUILD_MATRIX"
           echo "matrix=$BUILD_MATRIX" >> "$GITHUB_OUTPUT"
 
