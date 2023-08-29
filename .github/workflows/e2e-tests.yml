@@ -100,7 +100,7 @@ jobs:
           BUILD_DIR: ./build-output
           PROJECT_PATH: ${{ matrix.path }}
         run: |
-          find . -type f | sort > /tmp/before.txt
+          find . -path ./.github -prune -o -type f -print | sort > /tmp/before.txt
           echo "::group::Build plugin(s)"
           cd "$PROJECT_PATH"
           pnpm run build
@@ -125,7 +125,9 @@ jobs:
         id: jetpack-build-cache-save
         uses: actions/cache/save@v3
         with:
-          path: .
+          path: |
+            .
+            !./.github/
           key: ${{ steps.jetpack-build-cache.outputs.cache-primary-key }}
 
   e2e-tests:
