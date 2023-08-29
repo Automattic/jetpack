@@ -41,9 +41,13 @@ class Blocks {
 	 * @return WP_Block_Type|false The registered block type on success, or false on failure.
 	 */
 	public static function jetpack_register_block( $slug, $args = array() ) {
+<<<<<<< HEAD
 		// Slug doesn't start with `jetpack/`, isn't an absolute path, or doesn't contain a slash
 		// (synonym of a namespace) at all.
 		if ( 0 !== strpos( $slug, 'jetpack/' ) && 0 !== strpos( $slug, '/' ) && ! strpos( $slug, '/' ) ) {
+=======
+		if ( 0 !== strpos( $slug, 'jetpack/' ) && 0 !== strpos( $slug, '/' ) ) {
+>>>>>>> 8eba989a7a ([not verified] Add test for registering block by its metadata file)
 			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 9.0.0' );
 			$slug = 'jetpack/' . $slug;
 		}
