@@ -6,7 +6,7 @@ export type Trigger = {
 };
 
 export type Step = {
-	attributes: { [ key: string ]: string };
+	attributes: { [ key: string ]: string | number | boolean };
 	nextStep?: Step;
 	slug: string;
 	title: string;
