@@ -1,10 +1,12 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -17,6 +19,7 @@ import CloseSVG from './svg/close-svg';
 import ExportSVG from './svg/export-svg';
 import NotificationsSVG from './svg/notifications-svg';
 import WordpressSVG from './svg/wordpress-svg';
+
 /**
  * Style dependencies
  */
@@ -26,6 +29,10 @@ const LandingPage = () => {
 	const ASSETS_URL = config( 'pluginAssetsURL' );
 	const TEASER_IMG_PATH =
 		isAtomicSite() || isSimpleSite() ? 'responses-inbox-wp-com.png' : 'responses-inbox.png';
+
+	useEffect( () => {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_display' );
+	}, [] );
 
 	const onButtonClickHandler = showPatterns => async () => {
 		const data = new FormData();
@@ -37,17 +44,26 @@ const LandingPage = () => {
 		const { post_url } = await response.json();
 
 		if ( post_url ) {
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
+				button: 'forms',
+			} );
 			window.open( `${ post_url }${ showPatterns ? '&showJetpackFormsPatterns' : '' }` );
 		}
 	};
 
 	const onAIButtonClickHandler = () => {
-		if ( config( 'hasAI' ) ) {
+		const siteHasAI = config( 'hasAI' );
+
+		if ( siteHasAI ) {
 			onButtonClickHandler( false );
 		} else {
 			const plansPageUrl = getRedirectUrl( 'jetpack-plans', {
 				site: config( 'siteURL' ),
 				anchor: 'jetpack_ai_yearly',
+			} );
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
+				button: 'ai',
+				isAIEnabledForSite: siteHasAI,
 			} );
 			window.open( plansPageUrl );
 		}
