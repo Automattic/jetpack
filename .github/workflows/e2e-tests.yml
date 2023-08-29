@@ -45,7 +45,7 @@ jobs:
         run: |
           BUILD_MATRIX=$(jq -c '[ .[] | { path: .path, buildGroup: .buildGroup, suite: .suite } ] | unique' <<<"$MATRIX")
           echo "$BUILD_MATRIX"
-          echo "build-matrix=$BUILD_MATRIX" >> "$GITHUB_OUTPUT"
+          echo "matrix=$BUILD_MATRIX" >> "$GITHUB_OUTPUT"
 
   build-projects:
     name: "E2E: Build ${{ matrix.buildGroup }}"
