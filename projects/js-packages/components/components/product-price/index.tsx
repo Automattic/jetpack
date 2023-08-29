@@ -63,6 +63,11 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 							hidePriceFraction={ hidePriceFraction }
 						/>
 					) }
+					{ discountElt && (
+						<Text className={ classnames( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
+							{ discountElt }
+						</Text>
+					) }
 				</div>
 			</div>
 			<div className={ styles.footer }>
@@ -74,11 +79,6 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 				{ promoLabel && (
 					<Text className={ classnames( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
 						{ promoLabel }
-					</Text>
-				) }
-				{ discountElt && (
-					<Text className={ classnames( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
-						{ discountElt }
 					</Text>
 				) }
 			</div>

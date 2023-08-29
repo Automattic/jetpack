@@ -17,7 +17,7 @@
 	align-items: center;
 	box-sizing: border-box;
 
-	&.is-opaque {
+	&.is-transparent {
 		opacity: 0.4;
 	}
 }
@@ -29,6 +29,7 @@
 	width: 100%;
 
 	textarea.jetpack-components-ai-control__input {
+		background-color: var( --jp-white );
 		width: 100%;
 		min-height: 20px;
 		border-radius: 2px;

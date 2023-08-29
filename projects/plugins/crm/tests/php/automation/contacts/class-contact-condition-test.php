@@ -5,7 +5,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status
  */
-class Contact_Condition_Test extends BaseTestCase {
+class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 
@@ -34,6 +34,7 @@ class Contact_Condition_Test extends BaseTestCase {
 				'value'    => $expected_value,
 			),
 		);
+
 		return new Contact_Field_Changed( $condition_data );
 	}
 
@@ -46,6 +47,7 @@ class Contact_Condition_Test extends BaseTestCase {
 				'new_status_is'       => $to_status,
 			),
 		);
+
 		return new Contact_Transitional_Status( $condition_data );
 	}
 
@@ -54,15 +56,16 @@ class Contact_Condition_Test extends BaseTestCase {
 	 */
 	public function test_field_changed_is_operator() {
 		$contact_field_changed_condition = $this->get_contact_field_changed_condition( 'is', 'customer' );
-		$contact_data                    = $this->automation_faker->contact_data();
+		$contact_data_type               = $this->automation_faker->contact_data( true );
+		$contact_data                    = $contact_data_type->get_entity();
 
 		// Testing when the condition has been met.
-		$contact_data['data']['status'] = 'customer';
+		$contact_data['status'] = 'customer';
 		$contact_field_changed_condition->execute( $contact_data );
 		$this->assertTrue( $contact_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$contact_data['data']['status'] = 'lead';
+		$contact_data['status'] = 'lead';
 		$contact_field_changed_condition->execute( $contact_data );
 		$this->assertFalse( $contact_field_changed_condition->condition_met() );
 	}
@@ -72,15 +75,16 @@ class Contact_Condition_Test extends BaseTestCase {
 	 */
 	public function test_field_changed_is_not_operator() {
 		$contact_field_changed_condition = $this->get_contact_field_changed_condition( 'is_not', 'customer' );
-		$contact_data                    = $this->automation_faker->contact_data();
+		$contact_data_type               = $this->automation_faker->contact_data( true );
+		$contact_data                    = $contact_data_type->get_entity();
 
 		// Testing when the condition has been met.
-		$contact_data['data']['status'] = 'lead';
+		$contact_data['status'] = 'lead';
 		$contact_field_changed_condition->execute( $contact_data );
 		$this->assertTrue( $contact_field_changed_condition->condition_met() );
 
 		// Testing when the condition has not been met.
-		$contact_data['data']['status'] = 'customer';
+		$contact_data['status'] = 'customer';
 		$contact_field_changed_condition->execute( $contact_data );
 		$this->assertFalse( $contact_field_changed_condition->condition_met() );
 	}
@@ -90,12 +94,12 @@ class Contact_Condition_Test extends BaseTestCase {
 	 */
 	public function test_field_changed_invalid_operator_throws_exception() {
 		$contact_field_changed_condition = $this->get_contact_field_changed_condition( 'wrong_operator', 'customer' );
-		$contact_data                    = $this->automation_faker->contact_data();
+		$contact_data_type               = $this->automation_faker->contact_data( true );
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$contact_field_changed_condition->execute( $contact_data );
+		$contact_field_changed_condition->execute( $contact_data_type->get_entity() );
 	}
 
 	/**
@@ -103,12 +107,16 @@ class Contact_Condition_Test extends BaseTestCase {
 	 */
 	public function test_transitional_status_invalid_operator_throws_exception() {
 		$contact_transitional_status_condition = $this->get_contact_transitional_status_condition( 'wrong_operator', 'old_status', 'new_status' );
-		$transitional_status_data              = $this->automation_faker->contact_transitional_status_data( 'old_status' );
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionMessage( 'Invalid operator: wrong_operator' );
+		$this->expectExceptionCode( Automation_Exception::CONDITION_INVALID_OPERATOR );
 
-		$contact_transitional_status_condition->execute( $transitional_status_data );
+		$contact_data_type               = $this->automation_faker->contact_data( true );
+		$contact_data                    = $contact_data_type->get_entity();
+		$previous_contact_data           = $contact_data;
+		$previous_contact_data['status'] = 'old_status';
+
+		$contact_transitional_status_condition->execute( $contact_data, $previous_contact_data );
 	}
 
 	/**
@@ -116,22 +124,27 @@ class Contact_Condition_Test extends BaseTestCase {
 	 */
 	public function test_transitional_status() {
 		$contact_transitional_status_condition = $this->get_contact_transitional_status_condition( 'from_to', 'old_status', 'new_status' );
-		$transitional_status_data              = $this->automation_faker->contact_transitional_status_data( 'old_status' );
+		$contact_data_type                     = $this->automation_faker->contact_data( true );
+		$contact_data                          = $contact_data_type->get_entity();
+
+		// Create a previous state of a contact.
+		$previous_contact           = $contact_data;
+		$previous_contact['status'] = 'old_status';
 
 		// Testing when the condition has been met.
-		$transitional_status_data['contact']['data']['status'] = 'new_status';
-		$contact_transitional_status_condition->execute( $transitional_status_data );
+		$contact_data['status'] = 'new_status';
+		$contact_transitional_status_condition->execute( $contact_data, $previous_contact );
 		$this->assertTrue( $contact_transitional_status_condition->condition_met() );
 
 		// Testing when the condition has been not been met for the to field.
-		$transitional_status_data['contact']['data']['status'] = 'wrong_to';
-		$contact_transitional_status_condition->execute( $transitional_status_data );
+		$contact_data['status'] = 'wrong_to';
+		$contact_transitional_status_condition->execute( $contact_data, $previous_contact );
 		$this->assertFalse( $contact_transitional_status_condition->condition_met() );
 
-		// Testing when the condition has been not been met for the from field.
-		$transitional_status_data['contact']['data']['status'] = 'new_status';
-		$transitional_status_data['old_status_value']          = 'wrong_from';
-		$contact_transitional_status_condition->execute( $transitional_status_data );
+		// Testing when the condition has been not been met for the from field
+		$contact_data['status']     = 'new_status';
+		$previous_contact['status'] = 'wrong_from';
+		$contact_transitional_status_condition->execute( $contact_data, $previous_contact );
 		$this->assertFalse( $contact_transitional_status_condition->condition_met() );
 	}
 

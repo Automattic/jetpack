@@ -6,7 +6,7 @@ use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Updated;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -16,7 +16,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Updated
  * @covers Automattic\Jetpack\CRM\Automation\Triggers\Transaction_Created
  */
-class Transaction_Trigger_Test extends BaseTestCase {
+class Transaction_Trigger_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 

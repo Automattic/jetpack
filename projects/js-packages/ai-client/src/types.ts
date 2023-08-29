@@ -18,7 +18,8 @@ export type SuggestionErrorCode =
  */
 export type PromptItemProps = {
 	role: 'system' | 'user' | 'assistant';
-	content: string;
+	content?: string;
+	context?: object;
 };
 
 export type PromptMessagesProp = Array< PromptItemProps >;

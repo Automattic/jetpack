@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Actions;
 
 use Automattic\Jetpack\CRM\Automation\Base_Action;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Contact;
 
 /**
  * Adds the Update_Contact class.
@@ -51,14 +52,14 @@ class Update_Contact extends Base_Action {
 	}
 
 	/**
-	 * Get the type of the step.
+	 * Get the data type.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string The type of the step.
 	 */
-	public static function get_type(): string {
-		return 'contacts';
+	public static function get_data_type(): string {
+		return Data_Type_Contact::get_slug();
 	}
 
 	/**
@@ -88,13 +89,18 @@ class Update_Contact extends Base_Action {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $contact_data The contact data to be updated.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 */
-	public function execute( array $contact_data ) {
+	public function execute( $data, $previous_data = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		global $zbs;
 
-		$contact_data['data'] = array_replace( $contact_data['data'], $this->attributes['data'] );
-		$zbs->DAL->contacts->addUpdateContact( $contact_data ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$zbs->DAL->contacts->addUpdateContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'id'   => $data['id'],
+				'data' => array_replace( $data, $this->attributes['data'] ),
+			)
+		);
 	}
 
 }
