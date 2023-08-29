@@ -8,7 +8,7 @@ const projects = [
 		testArgs: [ 'specs/connection', '--retries=1' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
-		buildGroup: 'jetpack-connection',
+		buildGroup: 'jetpack-core',
 	},
 	{
 		project: 'Jetpack pre-connection',
@@ -16,7 +16,7 @@ const projects = [
 		testArgs: [ 'specs/pre-connection', '--retries=1' ],
 		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: '',
-		buildGroup: 'jetpack-pre-connection',
+		buildGroup: 'jetpack-core',
 	},
 	{
 		project: 'Jetpack post-connection',
@@ -24,7 +24,7 @@ const projects = [
 		testArgs: [ 'specs/post-connection', '--retries=1' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
-		buildGroup: 'jetpack-post-connection',
+		buildGroup: 'jetpack-core',
 	},
 	{
 		project: 'Jetpack sync',
@@ -40,7 +40,7 @@ const projects = [
 		testArgs: [ 'specs/blocks', '--retries=1' ],
 		targets: [ 'plugins/jetpack' ],
 		suite: '',
-		buildGroup: 'jetpack-blocks',
+		buildGroup: 'jetpack-core',
 	},
 	{
 		project: 'Jetpack Boost - Base',
