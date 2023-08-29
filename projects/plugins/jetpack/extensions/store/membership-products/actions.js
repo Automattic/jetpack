@@ -22,6 +22,11 @@ export const setConnectedAccountDefaultCurrency = connectedAccountDefaultCurrenc
 	connectedAccountDefaultCurrency,
 } );
 
+export const setConnectedAccountMinimumCurrency = connectedAccountMinimumCurrency => ( {
+	type: 'SET_CONNECTED_ACCOUNT_MINIMUM_CURRENCY',
+	connectedAccountMinimumCurrency,
+} );
+
 export const setApiState = apiState => ( {
 	type: 'SET_API_STATE',
 	apiState,

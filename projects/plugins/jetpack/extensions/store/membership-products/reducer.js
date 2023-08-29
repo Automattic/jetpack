@@ -6,6 +6,7 @@ export const DEFAULT_STATE = {
 	connectUrl: null,
 	siteSlug: '',
 	connectedAccountDefaultCurrency: '',
+	connectedAccountMinimumCurrency: '',
 	subscriberCounts: {
 		socialFollowers: null,
 		emailSubscribers: null,
@@ -28,6 +29,11 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 				...state,
 				connectedAccountDefaultCurrency: action.connectedAccountDefaultCurrency,
 			};
+			case 'SET_CONNECTED_ACCOUNT_MINIMUM_CURRENCY':
+				return {
+					...state,
+					connectedAccountMinimumCurrency: action.connectedAccountMinimumCurrency,
+				};
 		case 'SET_SUBSCRIBER_COUNTS':
 			return {
 				...state,
