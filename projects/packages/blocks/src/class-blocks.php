@@ -40,6 +40,11 @@ class Blocks {
 	 * @return WP_Block_Type|false The registered block type on success, or false on failure.
 	 */
 	public static function jetpack_register_block( $slug, $args = array() ) {
+		if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
+			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 9.0.0' );
+			$slug = 'jetpack/' . $slug;
+		}
+
 		$block_type = $slug;
 
 		// If the path to block.json is passed, find the slug in the file then create a block type
@@ -54,11 +59,6 @@ class Blocks {
 				$slug       = $name;
 				$block_type = new \WP_Block_Type( $slug, array_merge( $metadata, $args ) );
 			}
-		}
-
-		if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
-			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 9.0.0' );
-			$slug = 'jetpack/' . $slug;
 		}
 
 		if (
