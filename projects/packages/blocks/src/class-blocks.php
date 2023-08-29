@@ -132,7 +132,7 @@ class Blocks {
 
 		if ( file_exists( $filename ) ) {
 			try {
-				$metadata = wp_json_file_decode( $filename, true );
+				$metadata = wp_json_file_decode( $filename, array( 'associative' => true ) );
 			} catch ( Exception $e ) {
 				$metadata = array();
 			}
