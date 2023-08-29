@@ -711,8 +711,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 				<?php if ( $data['show_subscribers_total'] && $data['subscribers_total'] ) : ?>
 					<div class="wp-block-jetpack-subscriptions__subscount">
 						<?php
-						/* translators: %s: number of folks following the blog */
-						echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $data['subscribers_total'], 'jetpack' ), number_format_i18n( $data['subscribers_total'] ) ) );
+						echo esc_html( Jetpack_Memberships::get_join_others_text( $data['subscribers_total'] ) );
 						?>
 					</div>
 				<?php endif; ?>
@@ -819,6 +818,7 @@ function maybe_gate_existing_comments( $comment ) {
  * @return string
  */
 function get_paywall_blocks( $newsletter_access_level ) {
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	// Only display paid texts when Stripe is connected and the post is marked for paid subscribers
 	$is_paid_post = $newsletter_access_level === 'paid_subscribers' && Jetpack_Memberships::has_connected_account();
 
@@ -883,7 +883,8 @@ function get_paywall_simple() {
         <div class="wp-block-buttons" style="text-align: center;">
             <!-- wp:button -->
             <div class="wp-block-button" style="display: inline-block; margin: 10px 0;">
-                <a href="#" class="wp-block-button__link wp-element-button"
+                <a href="' . esc_url( get_post_permalink() ) . '" class="wp-block-button__link wp-element-button"
+                   data-wpcom-track data-tracks-link-desc="paywall-email-click"
                    style="display: inline-block;
                           padding: 15px 20px;
                           background-color: #0675C4;

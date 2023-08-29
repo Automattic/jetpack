@@ -1,5 +1,8 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
 import { FormFieldset } from 'components/forms';
@@ -11,7 +14,11 @@ import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from 'state/connection';
-import { isSubscriptionModalEnabled } from 'state/initial-state';
+import {
+	isSubscriptionModalEnabled,
+	currentThemeIsBlockTheme,
+	getSiteAdminUrl,
+} from 'state/initial-state';
 import { getModule } from 'state/modules';
 
 const trackViewSubsClick = () => {
@@ -39,7 +46,21 @@ function SubscriptionsSettings( props ) {
 		subscriptions,
 		toggleModuleNow,
 		updateFormStateModuleOption,
+		isBlockTheme,
+		siteAdminUrl,
 	} = props;
+
+	const theme = useSelect( select => select( 'core' ).getCurrentTheme() );
+	const themeSlug = theme?.stylesheet;
+
+	const subscribeModalEditorUrl =
+		siteAdminUrl && themeSlug
+			? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
+					postType: 'wp_template_part',
+					postId: `${ themeSlug }//jetpack-subscribe-modal`,
+					canvas: 'edit',
+			  } )
+			: null;
 
 	const handleSubscribeToBlogToggleChange = useCallback( () => {
 		updateFormStateModuleOption( 'subscriptions', 'stb_enabled' );
@@ -146,8 +167,16 @@ function SubscriptionsSettings( props ) {
 								/>
 								<p className="jp-form-setting-explanation">
 									{ __(
-										'Grow your subscriber list by enabling a popup modal with a subscribe form. This will show as readers scroll.',
+										'Grow subscribers by enabling a popup subscribe form that will show as readers scroll.',
 										'jetpack'
+									) }
+									{ isBlockTheme && subscribeModalEditorUrl && (
+										<>
+											{ ' ' }
+											<ExternalLink href={ subscribeModalEditorUrl }>
+												{ __( 'Preview and edit.', 'jetpack' ) }
+											</ExternalLink>
+										</>
 									) }
 								</p>
 							</>
@@ -180,6 +209,8 @@ export default withModuleSettingsFormHelpers(
 			isStbEnabled: ownProps.getOptionValue( 'stb_enabled' ),
 			isStcEnabled: ownProps.getOptionValue( 'stc_enabled' ),
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),
+			isBlockTheme: currentThemeIsBlockTheme( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
 		};
 	} )( SubscriptionsSettings )
 );

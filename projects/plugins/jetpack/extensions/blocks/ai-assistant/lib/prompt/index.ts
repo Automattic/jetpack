@@ -40,8 +40,9 @@ export const PROMPT_TYPE_LIST = [
 export type PromptTypeProp = ( typeof PROMPT_TYPE_LIST )[ number ];
 
 export type PromptItemProps = {
-	role: 'system' | 'user' | 'assistant';
-	content: string;
+	role: 'system' | 'user' | 'assistant' | 'jetpack-ai';
+	content?: string;
+	context?: object;
 };
 
 const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
@@ -233,95 +234,21 @@ function getTonePrompt( {
 
 function getJetpackFormCustomPrompt( {
 	content,
-	role = 'user',
 	request,
 }: PromptOptionsProps ): Array< PromptItemProps > {
 	if ( ! request ) {
 		throw new Error( 'You must provide a custom prompt for the Jetpack Form Custom Prompt' );
 	}
 
+	// Use a jetpack-ai expandable message.
 	return [
 		{
-			role: 'system',
-			content: `You are an expert developer in Gutenberg, the WordPress block editor, and thoroughly familiar with the Jetpack Form feature.
-Strictly follow those rules:
-- Do not wrap the response in any block, element or any kind of delimiter.
-- DO NOT add any additional feedback to the "user", just generate the requested block structure.
-- Do not refer to yourself, the user or the response in any way.
-- When the user provides instructions, translate them into appropriate Gutenberg blocks and Jetpack form structure.
-- Avoid sensitive or controversial topics and ensure your responses are grammatically correct and coherent.
-- If you cannot generate a meaningful response to a user's request, reply only with "__JETPACK_AI_ERROR__". This term should only be used in this context, it is used to generate user facing errors.`,
-		},
-		{
-			role,
-			content: `Handle the following request: ${ request }
-
-Strong requirements:
-- Do not wrap the generated structure with any block, like the \`<!-- wp:jetpack/contact-form -->\` syntax.
-- Always add, at the end, exactly one jetpack/button for the form submission. Forms require one button to be valid.
-- All block types start with "wp:jetpack/", do not skip this prefix.
-- Always add a space between the end of the form attributes object and the block closing characters, like so: "} /-->".
-- Replace placeholders (like FIELD_LABEL, IS_REQUIRED, etc.) with the user's specifications.
-- CONSENT_TYPE should be "explicit" for explicit consent, or not included for implicit consent. Prefer implicit consent unless the user explicitly requests otherwise.
-- For "requiredText", use the default value "(required)".
-- Use syntax templates for blocks as follows:
-	- \`Name Field\`: <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Email Field\`: <!-- wp:jetpack/field-email {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Text Input Field\`: <!-- wp:jetpack/field-text {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Multi-line Text Field \`: <!-- wp:jetpack/field-textarea {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Checkbox\`: <!-- wp:jetpack/field-checkbox {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT} /-->
-	- \`Date Picker\`: <!-- wp:jetpack/field-date {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Phone Number Field\`: <!-- wp:jetpack/field-telephone {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`URL Field\`: <!-- wp:jetpack/field-url {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-	- \`Multiple Choice (Checkbox)\`: <!-- wp:jetpack/field-checkbox-multiple {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": []} --><!-- wp:jetpack/field-option-checkbox {"label":"OPTION_ONE"} /--><!-- wp:jetpack/field-option-checkbox {"label":"OPTION_TWO"} /--><!-- /wp:jetpack/field-checkbox-multiple -->
-	- \`Single Choice (Radio)\`: <!-- wp:jetpack/field-radio {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": []} --><!-- wp:jetpack/field-option-radio {"label":"OPTION_ONE"} /--><!-- wp:jetpack/field-option-radio {"label":"OPTION_TWO"} /--><!-- /wp:jetpack/field-radio -->
-	- \`Dropdown Field\`: <!-- wp:jetpack/field-select {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT, "options": [OPTION_ONE, OPTION_TWO, OPTION_THREE],"toggleLabel":TOGGLE_LABEL} /-->
-	- \`Terms Consent\`:  <!-- wp:jetpack/field-consent {"consentType":"CONSENT_TYPE","implicitConsentMessage":"IMPLICIT_CONSENT_MESSAGE","explicitConsentMessage":"EXPLICIT_CONSENT_MESSAGE", /-->
-	- \`Button\`: <!-- wp:jetpack/button {"label":FIELD_LABEL,"element":"button","text":BUTTON_TEXT,"borderRadius":BORDER_RADIUS,"lock":{"remove":true}} /-->
-
-- When a column layout is requested, add "width" attribute with value 25 (4 columns), 50 (2 columns) or 100 (force single column), like so: \`Name Field\`:
-	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":IS_REQUIRED,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT, "width":25} /-->
-- When one or more fields are requested to be required or optional, use the "required" attribute as true to make a field required or false to make it optional. For example, a required name field:
-	- <!-- wp:jetpack/field-name {"label":FIELD_LABEL,"required":false,"requiredText":REQUIRED_TEXT,"placeholder":PLACEHOLDER_TEXT} /-->
-
-Now show me you understand the rules and generate the following example: A form with 4 fields, the first two in the same row. The first one has the label "Full Name", the second one "Primary Email", the third "Blog URL" and the last "Notes". Only make the email and URL fields required.`,
-		},
-		{
-			role: 'assistant',
-			content: `<!-- wp:jetpack/field-name {"label":"Full Name","required":false,"requiredText":"(required)","width":50} /-->
-<!-- wp:jetpack/field-email {"label":"Primary Email","required":true,"requiredText":"(required)","width":50} /-->
-<!-- wp:jetpack/field-url {"label":"Blog URL","required":false,"requiredText":"(required)"} /-->
-<!-- wp:jetpack/field-textarea {"label":"Notes","required":true,"requiredText":"(required)"} /-->
-<!-- wp:jetpack/button {"element":"button","text":"Submit"} /-->`,
-		},
-		{
-			role: 'user',
-			content:
-				'Now add a single choice field with the label "Preferred Color" and the options "Red", "Green" and "Blue" before the "Notes" field, in the same row. Make it required as well.',
-		},
-		{
-			role: 'assistant',
-			content: `<!-- wp:jetpack/field-name {"label":"Full Name","required":false,"requiredText":"(required)","width":50} /-->
-<!-- wp:jetpack/field-email {"label":"Primary Email","required":true,"requiredText":"(required)","width":50} /-->
-<!-- wp:jetpack/field-url {"label":"Blog URL","required":false,"requiredText":"(required)"} /-->
-<!-- wp:jetpack/field-radio {"label":"Preferred Color","required":true,"requiredText":"(required)","options":[],"width":50} -->
-<!-- wp:jetpack/field-option-radio {"label":"Red"} /-->
-<!-- wp:jetpack/field-option-radio {"label":"Green"} /-->
-<!-- wp:jetpack/field-option-radio {"label":"Blue"} /-->
-<!-- /wp:jetpack/field-radio -->
-<!-- wp:jetpack/field-textarea {"label":"Notes","required":true,"requiredText":"(required)","width":50} /-->
-<!-- wp:jetpack/button {"element":"button","text":"Submit"} /-->`,
-		},
-		{
-			role: 'user',
-			content: `Excellent. Now that you understand the rules, forget the previous example and let's get to work.
-Handle the following request: ${ request }${
-				content?.length
-					? `
-
-Jetpack Form to modify:\n${ content }`
-					: ''
-			}`,
+			role: 'jetpack-ai',
+			context: {
+				type: 'form-ai-extension',
+				content,
+				request,
+			},
 		},
 	];
 }

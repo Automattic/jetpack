@@ -19,7 +19,7 @@ export default function ProductManagementControls( {
 } ) {
 	const products = useSelect( select =>
 		select( membershipProductsStore )
-			?.getProducts()
+			?.getProducts( productType, selectedProductId, setSelectedProductId )
 			.filter( product => ! product.subscribe_as_site_subscriber )
 	);
 
