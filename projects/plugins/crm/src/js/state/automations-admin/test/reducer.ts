@@ -1,7 +1,13 @@
-import { Workflow } from 'crm/state/automations-admin/types';
-import { hydrateWorkflows, activateWorkflow, deactivateWorkflow } from '../actions';
+import { IdentifiedStep, IdentifiedWorkflow, Workflow } from 'crm/state/automations-admin/types';
+import { hydrateWorkflows, activateWorkflow, deactivateWorkflow, setAttribute } from '../actions';
 import { workflows, WorkflowState } from '../reducer';
-import { getWorkflow, workflowOne, workflowTwo, identifiedWorkflowThree } from './util/data';
+import {
+	getWorkflow,
+	workflowOne,
+	workflowTwo,
+	identifiedWorkflowThree,
+	getIdentifiedStep,
+} from './util/data';
 
 describe( 'Automations Admin Reducer', () => {
 	describe( 'workflows', () => {
@@ -117,6 +123,132 @@ describe( 'Automations Admin Reducer', () => {
 					const newState = workflows( initialState, action );
 					expect( newState[ activeWorkflowId ].active ).toBe( true );
 					expect( newState[ inactiveWorkflowId ].active ).toBe( false );
+				} );
+			} );
+		} );
+
+		describe( 'setAttribute', () => {
+			let initialState: WorkflowState;
+			let stepOne: IdentifiedStep;
+			let stepTwo: IdentifiedStep;
+			let stepThree: IdentifiedStep;
+			let workflow: IdentifiedWorkflow;
+
+			const stepOneInitialAttributes = {
+				stepOneUnchangedKey: 'stepOneUnchangedValue',
+				stepOneChangedKey: 'stepOneChangedValue',
+			};
+			const stepTwoInitialAttributes = {
+				stepTwoUnchangedKey: 'stepTwoUnchangedValue',
+				stepTwoChangedKey: 'stepTwoChangedValue',
+			};
+			const stepThreeInitialAttributes = {
+				stepThreeUnchangedKey: 'stepThreeUnchangedValue',
+				stepThreeChangedKey: 'stepThreeChangedValue',
+			};
+
+			beforeEach( () => {
+				stepOne = getIdentifiedStep( 'Step One', 1, {
+					attributes: stepOneInitialAttributes,
+				} );
+				stepTwo = getIdentifiedStep( 'Step Two', 2, {
+					attributes: stepTwoInitialAttributes,
+				} );
+				stepThree = getIdentifiedStep( 'Step Three', 3, {
+					attributes: stepThreeInitialAttributes,
+				} );
+				stepOne.nextStep = stepTwo;
+				stepTwo.nextStep = stepThree;
+				workflow = getWorkflow( 1, 'Workflow', {
+					initial_step: stepOne,
+				} ) as IdentifiedWorkflow;
+				initialState = {
+					[ 1 ]: workflow,
+				};
+			} );
+
+			test( 'does not alter state if the workflow is not found', () => {
+				const action = setAttribute( -1, 1, 'key', 'value' );
+
+				const newState = workflows( initialState, action );
+
+				expect( newState ).toEqual( initialState );
+			} );
+
+			test( 'does not alter state if the step is not found', () => {
+				const action = setAttribute( 1, -1, 'key', 'value' );
+
+				const newState = workflows( initialState, action );
+
+				expect( newState ).toEqual( initialState );
+			} );
+
+			test( 'sets the attributes on the initial step', () => {
+				const newAttributeValue = 'newValue';
+
+				const action = setAttribute(
+					workflow.id,
+					stepOne.id,
+					'stepOneChangedKey',
+					newAttributeValue
+				);
+				const newState = workflows( initialState, action );
+
+				expect( newState[ workflow.id ].initial_step.attributes ).toEqual( {
+					...stepOneInitialAttributes,
+					stepOneChangedKey: newAttributeValue,
+				} );
+				expect( newState[ workflow.id ].initial_step?.nextStep?.attributes ).toEqual(
+					stepTwoInitialAttributes
+				);
+				expect( newState[ workflow.id ].initial_step?.nextStep?.nextStep?.attributes ).toEqual(
+					stepThreeInitialAttributes
+				);
+			} );
+
+			test( 'sets the attributes on a middle step', () => {
+				const newAttributeValue = 'newValue';
+
+				const action = setAttribute(
+					workflow.id,
+					stepTwo.id,
+					'stepTwoChangedKey',
+					newAttributeValue
+				);
+				const newState = workflows( initialState, action );
+
+				expect( newState[ workflow.id ].initial_step.attributes ).toEqual(
+					stepOneInitialAttributes
+				);
+				expect( newState[ workflow.id ].initial_step?.nextStep?.attributes ).toEqual( {
+					...stepTwoInitialAttributes,
+					stepTwoChangedKey: newAttributeValue,
+				} );
+				expect( newState[ workflow.id ].initial_step?.nextStep?.nextStep?.attributes ).toEqual(
+					stepThreeInitialAttributes
+				);
+			} );
+
+			test( 'sets the attributes on a final step', () => {
+				const newAttributeValue = 'newValue';
+
+				const action = setAttribute(
+					workflow.id,
+					stepThree.id,
+					'stepThreeChangedKey',
+					newAttributeValue
+				);
+				const newState = workflows( initialState, action );
+
+				expect( newState[ workflow.id ].initial_step.attributes ).toEqual(
+					stepOneInitialAttributes
+				);
+				expect( newState[ workflow.id ].initial_step?.nextStep?.attributes ).toEqual(
+					stepTwoInitialAttributes
+				);
+				expect( newState[ workflow.id ].initial_step?.nextStep?.nextStep?.attributes ).toEqual( {
+					...stepThreeInitialAttributes,
+					stepThreeChangedKey: newAttributeValue,
 				} );
 			} );
 		} );

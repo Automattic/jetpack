@@ -1,4 +1,4 @@
-import { getIdentifiedWorkflow } from './util';
+import { findStep, getIdentifiedWorkflow } from './util';
 import type { AutomationsAction } from 'crm/state/automations-admin/actions';
 import type { IdentifiedWorkflow } from 'crm/state/automations-admin/types';
 
@@ -30,6 +30,30 @@ export const workflows = (
 				return state;
 			}
 			return { ...state, ...{ [ action.id ]: { ...state[ action.id ], active: false } } };
+		case 'SET_ATTRIBUTE': {
+			const { workflowId, stepId, attribute } = action;
+			if ( ! workflowId || ! stepId || ! attribute ) {
+				return state;
+			}
+
+			if ( ! state[ workflowId ] ) {
+				return state;
+			}
+
+			const { step, previousStep, nextStep } = findStep( state[ workflowId ], stepId );
+			if ( step ) {
+				const newAttributes = {
+					...step.attributes,
+					...{ [ attribute.key ]: attribute.value },
+				};
+				const newStep = { ...step, attributes: newAttributes, nextStep };
+				previousStep
+					? ( previousStep.nextStep = newStep )
+					: ( state[ workflowId ].initial_step = newStep );
+			}
+
+			return state;
+		}
 		default:
 			return state;
 	}

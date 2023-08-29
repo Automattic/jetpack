@@ -5,7 +5,7 @@ import {
 	Workflow,
 } from 'crm/state/automations-admin/types';
 
-let stepId = 1;
+let stepIdCounter = 1;
 
 export const getIdentifiedStep = ( ( step?: Step ) => {
 	if ( ! step ) {
@@ -14,7 +14,7 @@ export const getIdentifiedStep = ( ( step?: Step ) => {
 
 	return {
 		...step,
-		...{ id: stepId++, nextStep: getIdentifiedStep( step.nextStep ) },
+		...{ id: stepIdCounter++, nextStep: getIdentifiedStep( step.nextStep ) },
 	} as IdentifiedStep;
 } ) as ( step?: Step ) => IdentifiedStep | undefined;
 
@@ -45,3 +45,26 @@ export const getDeidentifiedWorkflow = ( ( identifiedWorkflow: IdentifiedWorkflo
 		initial_step: getDeidentifiedStep( identifiedWorkflow.initial_step ),
 	};
 } ) as ( identifiedWorkflow: IdentifiedWorkflow ) => Workflow;
+
+export const findStep = ( workflow: IdentifiedWorkflow, stepId: number ) => {
+	let step: IdentifiedStep | undefined = workflow.initial_step;
+	let nextStep: IdentifiedStep | undefined = step.nextStep;
+	let previousStep: IdentifiedStep | undefined;
+
+	while ( step && step.id !== stepId ) {
+		previousStep = step;
+		step = step.nextStep;
+		nextStep = step?.nextStep;
+	}
+
+	if ( ! step ) {
+		previousStep = undefined;
+		nextStep = undefined;
+	}
+
+	return {
+		step,
+		nextStep,
+		previousStep,
+	};
+};

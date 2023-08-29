@@ -20,10 +20,14 @@ const getTrigger = ( name: string ) => {
 	};
 };
 
-export function getStep( name: string ): Step {
+type PartialStep = {
+	[ K in keyof Step ]?: Step[ K ];
+};
+
+export function getStep( name: string, props?: PartialStep ): Step {
 	const nameSlug = convertToNameSlug( name );
 
-	return {
+	const defaultProps = {
 		attributes: { [ `${ nameSlug }_attribute_one_key` ]: `${ nameSlug }_attribute_one_value` },
 		slug: `${ nameSlug }_slug`,
 		title: `${ name } Title`,
@@ -31,11 +35,16 @@ export function getStep( name: string ): Step {
 		type: 'contacts',
 		category: `${ nameSlug }_category`,
 		allowedTriggers: [ triggerOne ],
+	} as Step;
+
+	return {
+		...defaultProps,
+		...props,
 	};
 }
 
-export function getIdentifiedStep( name: string, id: number ): IdentifiedStep {
-	const step = getStep( name ) as IdentifiedStep;
+export function getIdentifiedStep( name: string, id: number, props?: PartialStep ): IdentifiedStep {
+	const step = getStep( name, props ) as IdentifiedStep;
 
 	step.id = id;
 

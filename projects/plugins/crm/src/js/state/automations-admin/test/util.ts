@@ -1,11 +1,17 @@
-import { IdentifiedStep } from 'crm/state/automations-admin/types';
+import { IdentifiedStep, IdentifiedWorkflow } from 'crm/state/automations-admin/types';
 import {
 	getIdentifiedStep,
 	getDeidentifiedStep,
 	getIdentifiedWorkflow,
 	getDeidentifiedWorkflow,
+	findStep,
 } from '../util';
-import { getStep, getIdentifiedStep as getIdentifiedStepUtil, workflowOne } from './util/data';
+import {
+	getStep,
+	getIdentifiedStep as getIdentifiedStepUtil,
+	workflowOne,
+	getWorkflow,
+} from './util/data';
 
 describe( 'getIdentifiedStep', () => {
 	test( 'returns undefined if the step is undefined', () => {
@@ -110,5 +116,48 @@ describe( 'getDeidentifiedWorkflow', () => {
 		const deidentifiedWorkflow = getDeidentifiedWorkflow( identifiedWorkflow );
 
 		expect( deidentifiedWorkflow.initial_step ).not.toHaveProperty( 'id' );
+	} );
+} );
+
+describe( 'findStep', () => {
+	const stepOne = getIdentifiedStepUtil( 'Step One', 1 );
+	const stepTwo = getIdentifiedStepUtil( 'Step Two', 2 );
+	const stepThree = getIdentifiedStepUtil( 'Step Three', 3 );
+	stepOne.nextStep = stepTwo;
+	stepTwo.nextStep = stepThree;
+	const workflow = getWorkflow( 1, 'Workflow', {
+		initial_step: stepOne,
+	} ) as IdentifiedWorkflow;
+
+	test( 'returns undefined if the step cannot be found', () => {
+		const steps = findStep( workflow, -1 );
+
+		expect( steps.previousStep ).toBeUndefined();
+		expect( steps.step ).toBeUndefined();
+		expect( steps.nextStep ).toBeUndefined();
+	} );
+
+	test( 'returns the correct values for a beginning step', () => {
+		const steps = findStep( workflow, 1 );
+
+		expect( steps.previousStep ).toBeUndefined();
+		expect( steps.step ).toEqual( stepOne );
+		expect( steps.nextStep ).toEqual( stepTwo );
+	} );
+
+	test( 'returns the correct values for a middle step', () => {
+		const steps = findStep( workflow, 2 );
+
+		expect( steps.previousStep ).toEqual( stepOne );
+		expect( steps.step ).toEqual( stepTwo );
+		expect( steps.nextStep ).toEqual( stepThree );
+	} );
+
+	test( 'returns the correct values for an end step', () => {
+		const steps = findStep( workflow, 3 );
+
+		expect( steps.previousStep ).toEqual( stepTwo );
+		expect( steps.step ).toEqual( stepThree );
+		expect( steps.nextStep ).toBeUndefined();
 	} );
 } );
