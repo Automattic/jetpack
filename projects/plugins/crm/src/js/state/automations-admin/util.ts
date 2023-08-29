@@ -6,6 +6,9 @@ import {
 } from 'crm/state/automations-admin/types';
 
 let stepIdCounter = 1;
+const getUniqueStepId = () => {
+	return stepIdCounter++;
+};
 
 /**
  * Identifies a Step object by adding a unique ID property to it.
@@ -21,7 +24,7 @@ export const getIdentifiedStep = ( ( step?: Step ) => {
 
 	return {
 		...step,
-		...{ id: stepIdCounter++, nextStep: getIdentifiedStep( step.nextStep ) },
+		...{ id: getUniqueStepId(), nextStep: getIdentifiedStep( step.nextStep ) },
 	} as IdentifiedStep;
 } ) as ( step?: Step ) => IdentifiedStep | undefined;
 
