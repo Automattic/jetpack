@@ -360,6 +360,17 @@ const buildExecCmd = argv => {
 			'--configuration=/var/www/html/wp-content/plugins/jetpack/tests/php.multisite.xml',
 			...unitArgs
 		);
+	} else if ( cmd === 'phpunit-crm' ) {
+		// @todo: Make this scale.
+		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack CRM plugin.' ) );
+		const unitArgs = argv._.slice( 2 );
+
+		opts.splice( 1, 0, '-w', '/var/www/html/wp-content/plugins/crm' ); // Need to add this option to `exec` before the container name.
+		opts.push(
+			'vendor/bin/phpunit',
+			'--configuration=/var/www/html/wp-content/plugins/crm/phpunit.xml.dist',
+			...unitArgs
+		);
 	} else if ( cmd === 'wp' ) {
 		const wpArgs = argv._.slice( 2 );
 		// Ugly solution to allow interactive shell work in dev context
@@ -636,6 +647,13 @@ export function dockerDefine( yargs ) {
 					command: 'phpunit-multisite',
 					alias: 'phpunit:multisite',
 					description: 'Run multisite PHPUnit tests inside container ',
+					builder: yargExec => defaultOpts( yargExec ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'phpunit-crm',
+					alias: 'phpunit:crm',
+					description: 'Run Jetpack CRM PHPUnit inside container',
 					builder: yargExec => defaultOpts( yargExec ),
 					handler: argv => execDockerCmdHandler( argv ),
 				} )

@@ -1,24 +1,32 @@
-@import '@automattic/jetpack-base-styles/style';
+.jetpack-ai-assistant__bar {
+    width: 100%;
 
-.jetpack-ai-assistant__bar .jetpack-ai-status-indicator__icon-wrapper {
-	color: var( --jp-green-60 );
-	&.is-init {
-		color: var( --jp-green-60 );
-	}
+    &:not(.is-fixed) {
+        position: relative;
+        z-index: 30;
 
-	&.is-requesting {
-		color: var( --jp-green-40 );
-	}
+        margin-top: 10px;
+        background-color: white;
+    }
 
-	&.is-suggesting {
-		color: var( --jp-green-20 );
-	}
+    &.is-fixed {
+		border-bottom: 1px solid #e0e0e0;
 
-	&.is-done {
-		color: var( --jp-green-40 );
-	}
+		.jetpack-components-ai-control__container {
+			border-radius: 0;
+			box-shadow: none;
+		}
 
-	&.is-error {
-		color: var( --jp-orange-20 );
+		.jetpack-components-ai-control__wrapper {
+			padding: 7px 14px;
+		}
 	}
+}
+
+.jetpack-ai-assistant-bar__slot {
+	border: none;
+	border-radius: 0;
+	display: block;
+	position: sticky;
+	z-index: 31;
 }

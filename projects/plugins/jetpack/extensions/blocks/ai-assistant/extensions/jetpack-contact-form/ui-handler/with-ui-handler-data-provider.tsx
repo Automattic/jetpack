@@ -1,41 +1,40 @@
 /**
  * External dependencies
  */
-import { useAiContext } from '@automattic/jetpack-ai-client';
+import { ERROR_QUOTA_EXCEEDED, useAiContext } from '@automattic/jetpack-ai-client';
+import { createBlock } from '@wordpress/blocks';
 import { parse } from '@wordpress/blocks';
 import { KeyboardShortcuts } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
-import { AiAssistantUiContextProps, AiAssistantUiContextProvider } from './context';
+import { AiAssistantUiContextProvider } from './context';
 /**
  * Types
  */
 import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 
 // An identifier to use on the extension error notices,
-const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
+export const AI_ASSISTANT_JETPACK_FORM_NOTICE_ID = 'ai-assistant';
 
 /**
- * Add the `jetpack-ai-assistant-bar-is-fixed` class to the body
- * when the toolbar is fixed and the AI Assistant is visible.
+ * Select the Jetpack Form block,
+ * based on the block client ID.
+ * Then, run the function passed as parameter (optional).
  *
- * @param {boolean} isFixed - Is the toolbar fixed?
- * @param {boolean} isVisible - Is the AI Assistant visible?
+ * @param {string} clientId - The block client ID.
+ * @param {Function} fn     - The function to run after selecting the block.
  * @returns {void}
  */
-export function handleAiExtensionsBarBodyClass( isFixed: boolean, isVisible: boolean ) {
-	if ( isFixed && isVisible ) {
-		return document.body.classList.add( 'jetpack-ai-assistant-bar-is-fixed' );
-	}
-
-	document.body.classList.remove( 'jetpack-ai-assistant-bar-is-fixed' );
+export function selectFormBlock( clientId: string, fn: () => void ): void {
+	dispatch( 'core/block-editor' ).selectBlock( clientId ).then( fn );
 }
 
 const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => {
@@ -51,25 +50,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		// AI Assistant component is-fixed state
 		const [ isFixed, setAssistantFixed ] = useState( false );
 
-		// AI Assistant width
-		const [ width, setWidth ] = useState< number | string >( 400 );
-
-		// AI Assistant popover props
-		const [ popoverProps ] = useState< AiAssistantUiContextProps[ 'popoverProps' ] >( {
-			anchor: null,
-			placement: 'bottom-start',
-			offset: 12,
-		} );
-
-		const rootBlock = useSelect(
-			select => select( 'core/block-editor' ).getBlock( clientId ),
-			[ clientId ]
-		);
+		const [ assistantAnchor, setAssistantAnchor ] = useState< HTMLElement | null >( null );
 
 		// Keep track of the current list of valid blocks between renders.
-		const currentListOfValidBlocks = useRef( rootBlock?.innerBlocks ?? [] );
-		const startedSuggestions = useRef( false );
-		const lastValidBlocksSize = useRef( 0 );
+		const currentListOfValidBlocks = useRef( [] );
 
 		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as {
@@ -105,13 +89,13 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		}, [ isVisible ] );
 
 		/**
-		 * Select the Jetpack Form block
+		 * Set the AI Assistant anchor
 		 *
-		 * @returns {void}
+		 * @param {HTMLElement} anchor
 		 */
-		const selectFormBlock = useCallback( () => {
-			dispatch( 'core/block-editor' ).selectBlock( props.clientId );
-		}, [ props.clientId ] );
+		const setAnchor = useCallback( ( anchor: HTMLElement | null ) => {
+			setAssistantAnchor( anchor );
+		}, [] );
 
 		const { createNotice } = useDispatch( noticesStore );
 
@@ -122,50 +106,16 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 * @returns {void}
 		 */
 		const showSuggestionError = useCallback(
-			( { severity, message }: RequestingErrorProps ) => {
-				createNotice( severity, message, {
-					isDismissible: true,
-					id: AI_ASSISTANT_JETPACK_FORM_NOTICE_ID,
-				} );
+			( { severity, message, code }: RequestingErrorProps ) => {
+				if ( code !== ERROR_QUOTA_EXCEEDED ) {
+					createNotice( severity, message, {
+						isDismissible: true,
+						id: AI_ASSISTANT_JETPACK_FORM_NOTICE_ID,
+					} );
+				}
 			},
 			[ createNotice ]
 		);
-
-		/*
-		 * Set the anchor element for the popover.
-		 * For now, let's use the block representation in the canvas,
-		 * but we can change it in the future.
-		 */
-		useEffect( () => {
-			if ( ! clientId ) {
-				return;
-			}
-
-			handleAiExtensionsBarBodyClass( isFixed, isVisible );
-
-			// Do not anchor the popover if the toolbar is fixed.
-			if ( isFixed ) {
-				return setWidth( '100%' ); // ensure to use the full width.
-			}
-
-			const idAttribute = `block-${ clientId }`;
-
-			/*
-			 * Get the DOM element of the block,
-			 * keeping in mind that the block element may be rendered into the `editor-canvas`
-			 * iframe if it is present.
-			 */
-			const iFrame: HTMLIFrameElement = document.querySelector( 'iframe[name="editor-canvas"]' );
-			const iframeDocument = iFrame && iFrame.contentWindow.document;
-
-			const blockDomElement = ( iframeDocument ?? document ).getElementById( idAttribute );
-
-			if ( ! blockDomElement ) {
-				return;
-			}
-
-			setWidth( blockDomElement?.getBoundingClientRect?.()?.width );
-		}, [ clientId, isFixed, isVisible ] );
 
 		// Show/hide the assistant based on the block selection.
 		useEffect( () => {
@@ -174,28 +124,6 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			}
 			hide();
 		}, [ isSelected, hide ] );
-
-		// Update width when the anchor resize change.
-		useEffect( () => {
-			if ( ! popoverProps.anchor ) {
-				return;
-			}
-
-			// Do not observe the anchor resize if the toolbar is fixed.
-			if ( isFixed ) {
-				return;
-			}
-
-			const resizeObserver = new ResizeObserver( () => {
-				setWidth( popoverProps.anchor?.getBoundingClientRect?.()?.width );
-			} );
-
-			resizeObserver.observe( popoverProps.anchor );
-
-			return () => {
-				resizeObserver.disconnect();
-			};
-		}, [ popoverProps.anchor, isFixed ] );
 
 		// Build the context value to pass to the provider.
 		const contextValue = useMemo(
@@ -212,28 +140,17 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 				// Assistant bar position and size.
 				isFixed,
-				popoverProps,
-				width,
 				setAssistantFixed,
+
+				// Assistant bar anchor.
+				assistantAnchor,
+				setAnchor,
 			} ),
-			[
-				inputValue,
-				setInputValue,
-				isVisible,
-				show,
-				hide,
-				toggle,
-				isFixed,
-				popoverProps,
-				width,
-				setAssistantFixed,
-			]
+			[ inputValue, isVisible, show, hide, toggle, isFixed, assistantAnchor, setAnchor ]
 		);
 
 		const setContent = useCallback(
-			( newContent: string ) => {
-				startedSuggestions.current = true;
-
+			( newContent: string, isRequestDone = false ) => {
 				// Remove the Jetpack Form block from the content.
 				const processedContent = newContent.replace(
 					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
@@ -247,65 +164,72 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 				// Check if the generated blocks are valid.
 				const validBlocks = newContentBlocks.filter( block => {
-					return block.isValid && block.name !== 'core/freeform';
+					return block.isValid && block.name !== 'core/freeform' && block.name !== 'core/missing';
 				} );
 
-				// Avoid to replace the blocks if there are no new valid blocks.
-				if ( ! ( validBlocks?.length > lastValidBlocksSize.current ) ) {
-					return;
+				// Only update the blocks when the valid list changed, meaning a new block arrived.
+				if ( validBlocks.length !== currentListOfValidBlocks.current.length ) {
+					// Only update the valid blocks
+					replaceInnerBlocks( clientId, validBlocks );
+
+					// Update the list of current valid blocks
+					currentListOfValidBlocks.current = validBlocks;
 				}
 
-				lastValidBlocksSize.current = validBlocks.length;
+				// Final form adjustments (only when the request is done)
+				if ( isRequestDone ) {
+					/*
+					 * Inspect generated blocks list,
+					 * checking if the jetpack/button block:
+					 * - if it exists twice or more, remove the first one.
+					 * - if it does not exist, create one.
+					 */
+					const allButtonBlocks = validBlocks.filter( block => block.name === 'jetpack/button' );
+					currentListOfValidBlocks.current = currentListOfValidBlocks.current || [];
+					if ( allButtonBlocks.length > 1 ) {
+						// Remove all button blocks, less the last one.
+						let buttonCounter = 0;
+						currentListOfValidBlocks.current = currentListOfValidBlocks.current.filter( block => {
+							if ( block.name !== 'jetpack/button' ) {
+								return true;
+							}
 
-				// Find the index of the last valid block.
-				const lastBlockIndex = validBlocks.reduceRight( ( acc, block ) => {
-					const blockIndex = currentListOfValidBlocks.current.findLastIndex( validBlock => {
-						return validBlock.name === block.name;
-					} );
+							buttonCounter++;
+							if ( buttonCounter === allButtonBlocks.length ) {
+								return true;
+							}
+							return false;
+						} );
 
-					// If block is found and it is the first one.
-					if ( blockIndex !== -1 && acc === -1 ) {
-						return blockIndex;
+						replaceInnerBlocks( clientId, currentListOfValidBlocks.current );
+					} else if ( allButtonBlocks.length === 0 ) {
+						// One button block is required.
+						replaceInnerBlocks( clientId, [
+							...currentListOfValidBlocks.current,
+							createBlock( 'jetpack/button', {
+								label: __( 'Submit', 'jetpack' ),
+								element: 'button',
+								text: __( 'Submit', 'jetpack' ),
+								borderRadius: 8,
+								lock: {
+									remove: true,
+								},
+							} ),
+						] );
 					}
-
-					return acc;
-				}, -1 );
-
-				let blocks = [ ...currentListOfValidBlocks.current ];
-
-				if ( lastBlockIndex === -1 ) {
-					blocks = [ ...validBlocks, ...currentListOfValidBlocks.current ];
-				} else {
-					blocks = [
-						...validBlocks,
-						...currentListOfValidBlocks.current.slice( lastBlockIndex + 1 ),
-					];
 				}
-
-				// Update the blocks.
-				replaceInnerBlocks( clientId, blocks );
-
-				// Update the list of current valid blocks
-				currentListOfValidBlocks.current = blocks;
 			},
 			[ clientId, replaceInnerBlocks ]
 		);
 
-		// Update the list of current valid blocks when the block is updated.
-		useEffect( () => {
-			if ( ! startedSuggestions.current ) {
-				currentListOfValidBlocks.current = rootBlock?.innerBlocks ?? [];
-			}
-		}, [ clientId, rootBlock?.innerBlocks ] );
-
 		useAiContext( {
 			askQuestionOptions: { postId },
+			onDone: finalContent => {
+				setContent( finalContent, true );
+				setInputValue( '' );
+			},
 			onSuggestion: setContent,
 			onError: showSuggestionError,
-			onDone: () => {
-				lastValidBlocksSize.current = 0;
-				startedSuggestions.current = false;
-			},
 		} );
 
 		/*
@@ -313,7 +237,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 * and the AI Assistant component (popover)
 		 * only if is't possible to extend the block.
 		 */
-		if ( ! isPossibleToExtendJetpackFormBlock( props.name ) ) {
+		if ( ! isPossibleToExtendJetpackFormBlock( props.name, { clientId: props.clientId } ) ) {
 			return <BlockListBlock { ...props } />;
 		}
 
@@ -321,10 +245,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			<AiAssistantUiContextProvider value={ contextValue }>
 				<KeyboardShortcuts
 					shortcuts={ {
-						'mod+/': () => {
-							toggle();
-							selectFormBlock();
-						},
+						'mod+/': () => selectFormBlock( clientId, show ),
 					} }
 				>
 					<BlockListBlock { ...props } />

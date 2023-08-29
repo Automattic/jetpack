@@ -96,6 +96,9 @@ class WPCOM_REST_API_V2_Theme_Fields_Is_Block_Theme extends WPCOM_REST_API_V2_Fi
 	}
 }
 
-// TODO: If this field is also added to Core, add a conditional to load only when using an older version of WordPress.
+// `is_block_theme` was added to the v2/themes endpoint in WordPress 6.3.
 // See https://core.trac.wordpress.org/ticket/58123
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Theme_Fields_Is_Block_Theme' );
+global $wp_version;
+if ( version_compare( $wp_version, '6.3', '<' ) ) { // @todo Remove when WordPress 6.3 is the minimum.
+	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Theme_Fields_Is_Block_Theme' );
+}

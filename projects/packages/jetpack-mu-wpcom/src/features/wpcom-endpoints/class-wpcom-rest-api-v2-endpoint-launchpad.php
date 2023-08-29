@@ -48,18 +48,18 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'callback'            => array( $this, 'update_site_options' ),
 					'permission_callback' => array( $this, 'can_access' ),
 					'args'                => array(
-						'checklist_statuses'     => array(
+						'checklist_statuses'        => array(
 							'description'          => 'Launchpad statuses',
 							'type'                 => 'object',
 							'properties'           => $this->get_checklist_statuses_properties(),
 							'additionalProperties' => false,
 						),
-						'launchpad_screen'       => array(
+						'launchpad_screen'          => array(
 							'description' => 'Launchpad screen',
 							'type'        => 'string',
-							'enum'        => array( 'off', 'minimized', 'full' ),
+							'enum'        => array( 'off', 'minimized', 'full', 'skipped' ),
 						),
-						'is_checklist_dismissed' => array(
+						'is_checklist_dismissed'    => array(
 							'description'          => 'Marks a checklist as dismissed by the user',
 							'type'                 => 'object',
 							'properties'           => array(
@@ -73,6 +73,10 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 								),
 							),
 							'additionalProperties' => false,
+						),
+						'hide_fse_next_steps_modal' => array(
+							'description' => 'Controls whether we show or hide the next steps modal in the full site editor',
+							'type'        => 'boolean',
 						),
 					),
 				),
@@ -155,19 +159,8 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 		foreach ( $input as $key => $value ) {
 			switch ( $key ) {
 				case 'checklist_statuses':
-					$launchpad_checklist_tasks_statuses_option = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
-					$launchpad_checklist_tasks_statuses_option = array_merge( $launchpad_checklist_tasks_statuses_option, $value );
+					$updated[ $key ] = wpcom_launchpad_update_task_status( $value );
 
-					foreach ( $value as $task => $task_value ) {
-						if ( $task_value ) {
-							// If we're marking a task as complete, the value should be truthy, so fire the Tracks event.
-							wpcom_launchpad_track_completed_task( $task );
-						}
-					}
-
-					if ( update_option( 'launchpad_checklist_tasks_statuses', $launchpad_checklist_tasks_statuses_option ) ) {
-						$updated[ $key ] = $value;
-					}
 					// This will check if we have completed all the tasks and disable Launchpad if so.
 					wpcom_launchpad_checklists()->maybe_disable_fullscreen_launchpad();
 					break;
@@ -178,6 +171,14 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 
 					wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed );
 					break;
+
+				case 'hide_fse_next_steps_modal':
+					$value = (bool) $value;
+					if ( wpcom_launchpad_set_fse_next_steps_modal_hidden( $value ) ) {
+						$updated[ $key ] = $value;
+					}
+					break;
+
 				default:
 					if ( update_option( $key, $value ) ) {
 						$updated[ $key ] = $value;

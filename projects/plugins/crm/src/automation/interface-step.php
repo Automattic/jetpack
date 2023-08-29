@@ -20,9 +20,10 @@ interface Step {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $data Data passed from the trigger.
+	 * @param mixed  $data Data passed from the trigger.
+	 * @param ?mixed $previous_data (Optional) The data before being changed.
 	 */
-	public function execute( array $data );
+	public function execute( $data, $previous_data = null );
 
 	/**
 	 * Get the next step.
@@ -41,6 +42,24 @@ interface Step {
 	 * @param array $step_data The next linked step.
 	 */
 	public function set_next_step( array $step_data );
+
+	/**
+	 * Get the step attribute definitions.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return Step_Attribute[] The attribute definitions of the step.
+	 */
+	public function get_attribute_definitions(): ?array;
+
+	/**
+	 * Set the step attribute definitions.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Step_Attribute[] $attribute_definitions Set the attribute definitions.
+	 */
+	public function set_attribute_definitions( array $attribute_definitions );
 
 	/**
 	 * Get the attributes of the step.
@@ -88,13 +107,13 @@ interface Step {
 	public static function get_description(): ?string;
 
 	/**
-	 * Get the type of the step.
+	 * Get the data type.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return string|null The type of the step.
 	 */
-	public static function get_type(): ?string;
+	public static function get_data_type(): string;
 
 	/**
 	 * Get the category of the step.

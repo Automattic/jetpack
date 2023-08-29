@@ -9,6 +9,9 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React, { Component } from 'react';
+import './style.scss';
+import AutoConversionSection from './features/auto-conversion-section';
+import SocialImageGeneratorSection from './features/social-image-generator-section';
 
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -28,6 +31,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'publicize' ),
 				hasSocialBasicFeatures = this.props.hasSocialBasicFeatures,
 				hasSocialAdvancedFeatures = this.props.hasSocialAdvancedFeatures,
+				hasSocialImageGenerator = this.props.hasSocialImageGenerator,
+				hasAutoConversion = this.props.hasAutoConversion,
 				isAtomicSite = this.props.isAtomicSite,
 				activeFeatures = this.props.activeFeatures,
 				userCanManageModules = this.props.userCanManageModules;
@@ -38,6 +43,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				activeFeatures.length > 0 &&
 				isActive &&
 				! hasSocialAdvancedFeatures;
+
+			const shouldShowChildElements = isActive && ! this.props.isSavingAnyOption( 'publicize' );
 
 			// We need to strip off the trailing slash for the pricing modal to open correctly.
 			const redirectUrl = encodeURIComponent( siteAdminUrl.replace( /\/$/, '' ) );
@@ -75,6 +82,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				>
 					{ userCanManageModules && (
 						<SettingsGroup
+							hasChild
 							disableInOfflineMode
 							disableInSiteConnectionMode
 							module={ { module: 'publicize' } }
@@ -146,6 +154,10 @@ export const Publicize = withModuleSettingsFormHelpers(
 							>
 								{ __( 'Automatically share your posts to social networks', 'jetpack' ) }
 							</ModuleToggle>
+							{ shouldShowChildElements && hasAutoConversion && <AutoConversionSection /> }
+							{ shouldShowChildElements && hasSocialImageGenerator && (
+								<SocialImageGeneratorSection />
+							) }
 						</SettingsGroup>
 					) }
 

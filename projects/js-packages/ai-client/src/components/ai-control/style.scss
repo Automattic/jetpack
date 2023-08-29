@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/root-variables';
+
 // AI CONTROL
 
 .jetpack-components-ai-control__container {
@@ -13,8 +15,9 @@
 	padding: 12px 14px;
 	gap: 8px;
 	align-items: center;
+	box-sizing: border-box;
 
-	&.is-opaque {
+	&.is-transparent {
 		opacity: 0.4;
 	}
 }
@@ -26,6 +29,7 @@
 	width: 100%;
 
 	textarea.jetpack-components-ai-control__input {
+		background-color: var( --jp-white );
 		width: 100%;
 		min-height: 20px;
 		border-radius: 2px;
