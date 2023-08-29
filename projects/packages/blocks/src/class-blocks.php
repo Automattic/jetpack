@@ -128,7 +128,7 @@ class Blocks {
 	public static function get_block_metadata_from_file( $filename ) {
 		$metadata = array();
 		$needle   = '/block.json';
-		$filename = $needle === substr( $filename, -strlen( $needle ) ) ? $filename : $filename . $needle;
+		$filename = $needle === substr( $filename, -strlen( $needle ) ) ? $filename : realpath( $filename . $needle );
 
 		if ( file_exists( $filename ) ) {
 			try {

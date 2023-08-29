@@ -330,4 +330,83 @@ class Test_Blocks extends TestCase {
 			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
 		}
 	}
+
+	/**
+	 * Test reading metadata from a block.json file by specifying its path.
+	 *
+	 * @since 1.4.23
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
+	 */
+	public function test_get_block_metadata_from_file() {
+		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/block.json' );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+	}
+
+	/**
+	 * Test reading metadata from a block.json file by specifying its folder.
+	 *
+	 * @since 1.4.23
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
+	 */
+	public function test_get_block_metadata_from_folder() {
+		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/' );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+	}
+
+	/**
+	 * Test reading metadata from a file that doesn't exist.
+	 *
+	 * @since 1.4.23
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
+	 */
+	public function test_get_block_metadata_from_wrong_file() {
+		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/ghost-folder/block.json' );
+
+		$this->assertIsArray( $result );
+		$this->assertEmpty( $result );
+	}
+
+	/**
+	 * Test reading the name of a block from its metadata.
+	 *
+	 * @since 1.4.23
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_metadata
+	 */
+	public function test_get_block_name_from_metadata() {
+		$name   = 'jetpack/test-block';
+		$result = Blocks::get_block_name_from_metadata( array() );
+
+		$this->assertSame( '', $result );
+
+		$result = Blocks::get_block_name_from_metadata( array( 'name' => $name ) );
+
+		$this->assertEquals( $result, $name );
+	}
+
+	/**
+	 * Test reading the feature name of a block from its metadata.
+	 *
+	 * @since 1.4.23
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_name_from_metadata
+	 */
+	public function test_get_block_feature_from_metadata() {
+		$feature = 'test-block';
+		$name    = 'jetpack/' . $feature;
+		$result  = Blocks::get_block_feature_from_metadata( array() );
+
+		$this->assertSame( '', $result );
+
+		$result = Blocks::get_block_feature_from_metadata( array( 'name' => $name ) );
+
+		$this->assertEquals( $result, $feature );
+	}
 }
