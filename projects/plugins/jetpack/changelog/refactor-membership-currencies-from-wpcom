@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Pull membership currency settings from WPCOM memberships library instead of local files
