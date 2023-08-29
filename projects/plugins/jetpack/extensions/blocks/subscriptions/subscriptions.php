@@ -234,6 +234,43 @@ function get_subscriber_count( $include_social_followers ) {
 }
 
 /**
+ * Returns the newsletter categories from the .com API or the Jetpack XML-RPC API.
+ *
+ * @return array containing [ 'enabled' => true|false, 'newsletter_categories' => array ]
+ */
+function fetch_newsletter_categories() {
+	$categories = array();
+
+	if ( is_wpcom() ) {
+		$categories = \wpcom_fetch_newsletter_categories();
+	} else {
+		$xml = new \Jetpack_IXR_Client();
+		$xml->query( 'jetpack.fetchNewsletterCategories' );
+
+		if ( ! $xml->isError() ) {
+			$categories = $xml->getResponse();
+		}
+	}
+
+	return $categories;
+}
+
+/**
+ * Returns the newsletter categories if the feature is enabled, otherwise returns an empty array.
+ *
+ * @return array
+ */
+function get_newsletter_categories() {
+	$response = fetch_newsletter_categories();
+
+	if ( isset( $response['enabled'] ) && $response['enabled'] ) {
+		return $response['newsletter_categories'];
+	}
+
+	return array();
+}
+
+/**
  * Returns true if the block attributes contain a value for the given key.
  *
  * @param array  $attributes Array containing the block attributes.
@@ -556,6 +593,7 @@ function render_block( $attributes ) {
 			( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' )
 		),
 		'source'                 => 'subscribe-block',
+		'newsletter_categories'  => get_newsletter_categories(),
 	);
 
 	if ( ! jetpack_is_frontend() ) {
@@ -607,6 +645,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 
 	$post_access_level = get_post_access_level_for_current_post();
 
+	$newsletter_categories = $data['newsletter_categories'];
+
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container">
@@ -618,6 +658,16 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
+				<?php if ( count( $newsletter_categories ) ) : ?>
+					<div className="wp-block-jetpack-subscriptions__newsletter-categories">
+						<?php foreach ( $newsletter_categories as $category ) : ?>
+							<div class="wp-block-jetpack-subscriptions__newsletter-category">
+								<?php echo esc_html( $category['name'] ); ?>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
+
 				<?php
 				$email_field_id  = 'subscribe-field';
 				$email_field_id .= Jetpack_Subscriptions_Widget::$instance_count > 1
@@ -727,6 +777,8 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
 	$post_access_level = get_post_access_level_for_current_post();
 
+	$newsletter_categories = $data['newsletter_categories'];
+
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="jetpack_subscription_widget">
@@ -739,6 +791,16 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
+					<?php if ( count( $newsletter_categories ) ) : ?>
+						<div className="wp-block-jetpack-subscriptions__newsletter-categories">
+							<?php foreach ( $newsletter_categories as $category ) : ?>
+								<div class="wp-block-jetpack-subscriptions__newsletter-category">
+									<?php echo esc_html( $category['name'] ); ?>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+
 					<p id="subscribe-email">
 						<label id="jetpack-subscribe-label"
 							class="screen-reader-text"
@@ -782,12 +844,12 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 							<?php endif; ?>
 							name="jetpack_subscriptions_widget"
 						>
-							<?php
+						<?php
 							echo wp_kses(
 								html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 								Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
 							);
-							?>
+						?>
 						</button>
 					</p>
 				</form>
