@@ -332,6 +332,19 @@ class Test_Blocks extends TestCase {
 	}
 
 	/**
+	 * Test registering a block by specifying the path to its metadata file.
+	 *
+	 * @since 1.4.23
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
+	 */
+	public function test_jetpack_register_block_from_metadata_file() {
+		$result = Blocks::jetpack_register_block( __DIR__ . '/fixtures/block.json' );
+
+		$this->assertInstanceOf( 'WP_Block_Type', $result );
+	}
+
+	/**
 	 * Test reading metadata from a block.json file by specifying its path.
 	 *
 	 * @since 1.4.23
