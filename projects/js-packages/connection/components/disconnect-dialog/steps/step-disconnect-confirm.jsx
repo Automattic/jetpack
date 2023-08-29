@@ -17,7 +17,7 @@ const StepDisconnectConfirm = props => {
 	const { onExit, canProvideFeedback, onProvideFeedback } = props;
 
 	return (
-		<div className="jp-connection__disconnect-dialog__content">
+		<div className="jp-connection__disconnect-dialog__content jp-connection__disconnect-dialog__content__confirmation">
 			<DecorativeCard icon="unlink" imageUrl={ disconnectImage } />
 
 			<div className="jp-connection__disconnect-dialog__step-copy jp-connection__disconnect-dialog__step-copy--narrow">
