@@ -100,6 +100,7 @@ jobs:
           BUILD_DIR: ./build-output
           PROJECT_PATH: ${{ matrix.path }}
         run: |
+          source .github/files/gh-funcs.sh
           find . -type f > /tmp/before.txt
           echo "::group::Build plugin(s)"
           cd $PROJECT_PATH
@@ -111,7 +112,6 @@ jobs:
             touch 'no-paths-built-but-we-need-to-cache-something.txt'
             PATHS='no-paths-built-but-we-need-to-cache-something.txt'
           fi
-          source .github/files/gh-funcs.sh
           gh_set_output paths "$PATHS"
           echo "::group::Changed paths"
           echo "$PATHS"
