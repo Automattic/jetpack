@@ -58,6 +58,7 @@ const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispat
 	dispatch( setSiteSlug( response.site_slug ) );
 	dispatch( setProducts( response.products ) );
 	dispatch( setConnectedAccountDefaultCurrency( response.connected_account_default_currency ) );
+	dispatch( setConnectedAccountMinimumCurrency( response.connected_account_minimum_currency ) );
 	dispatch(
 		setApiState( response.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED )
 	);

@@ -1,4 +1,6 @@
 import { CURRENCIES, getCurrencyDefaults } from '@automattic/format-currency';
+import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../store/membership-products/constants';
+import { useSelect } from '@wordpress/data';
 
 // Removes all dots (`.`) from the end of a string.
 function removeTrailingDots( string ) {
@@ -10,28 +12,11 @@ function removeTrailingDots( string ) {
  *
  * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
  *
- * List has to be in with `Jetpack_Memberships::SUPPORTED_CURRENCIES` in modules/memberships/class-jetpack-memberships.php and
- * `Memberships_Product::SUPPORTED_CURRENCIES` in the WP.com memberships library.
+ * This is pulled from `Memberships_Product::SUPPORTED_CURRENCIES` in the WP.com memberships library.
  */
-export const SUPPORTED_CURRENCIES = {
-	USD: 0.5,
-	AUD: 0.5,
-	BRL: 0.5,
-	CAD: 0.5,
-	CHF: 0.5,
-	DKK: 2.5,
-	EUR: 0.5,
-	GBP: 0.3,
-	HKD: 4.0,
-	INR: 0.5,
-	JPY: 50,
-	MXN: 10,
-	NOK: 3.0,
-	NZD: 0.5,
-	PLN: 2.0,
-	SEK: 3.0,
-	SGD: 0.5,
-};
+export const stripeMinimumCurrency = useSelect( select =>
+	select( MEMBERSHIPS_PRODUCTS_STORE ).getConnectedAccountMinimumCurrency()
+);
 
 /**
  * Compute a list of currency value and display labels.
@@ -43,7 +28,7 @@ export const SUPPORTED_CURRENCIES = {
  *
  * @type { CurrencyDetails }
  */
-export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( value => {
+export const CURRENCY_OPTIONS = Object.keys( stripeMinimumCurrency ).map( value => {
 	const { symbol } = getCurrencyDefaults( value );
 	const label = symbol === value ? value : `${ value } ${ removeTrailingDots( symbol ) }`;
 	return { value, label };
@@ -57,7 +42,7 @@ export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( value =
  * @returns {number} Minimum charge amount for the given currency_code
  */
 export function minimumTransactionAmountForCurrency( currency_code ) {
-	return SUPPORTED_CURRENCIES[ currency_code ];
+	return stripeMinimumCurrency( currency_code );
 }
 
 /**
