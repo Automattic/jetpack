@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .is-style-compact {
 	.wp-block-jetpack-subscriptions__button,
 	.wp-block-button__link {
@@ -111,8 +113,8 @@
 		font-size: 14px;
 		font-weight: 500;
 		line-height: 20px;
-		color: var(--studio-gray-50);;
-		border: 1px solid var(--studio-gray-5);
+		color: $gray-600;
+		border: 1px solid #dcdcde;
 		border-radius: var(--border-radius);
 	}
 }
