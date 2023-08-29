@@ -46,9 +46,7 @@ export type SetAttributeAction = {
 	type: 'SET_ATTRIBUTE';
 	workflowId: number;
 	stepId: number;
-	key: string;
-	value: string | number | boolean;
-	attribute: { key: string; value: string };
+	attribute: { key: string; value: string | number | boolean };
 };
 
 export const setAttribute = (
