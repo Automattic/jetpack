@@ -663,8 +663,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				$info = array(
 					'cart_page_contains_cart_block'     => str_contains( $cart_template->content, '<!-- wp:woocommerce/cart' ),
 					'cart_page_contains_cart_shortcode' => str_contains( $cart_template->content, '[woocommerce_cart]' ),
-					'checkout_page_contains_cart_block' => str_contains( $checkout_template->content, '<!-- wp:woocommerce/checkout' ),
-					'checkout_page_contains_cart_shortcode' => str_contains( $checkout_template->content, '[woocommerce_checkout]' ),
+					'checkout_page_contains_checkout_block' => str_contains( $checkout_template->content, '<!-- wp:woocommerce/checkout' ),
+					'checkout_page_contains_checkout_shortcode' => str_contains( $checkout_template->content, '[woocommerce_checkout]' ),
 				);
 			}
 			set_transient( $transient_name, $info, DAY_IN_SECONDS );
