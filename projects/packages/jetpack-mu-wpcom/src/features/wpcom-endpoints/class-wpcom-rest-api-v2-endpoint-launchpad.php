@@ -104,6 +104,9 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 		$allowed_task_ids = array();
 		foreach ( $tasks as $task ) {
 			$allowed_task_ids[] = $task['id'];
+			if ( isset( $task['id_map'] ) ) {
+				$allowed_task_ids[] = $task['id_map'];
+			}
 		}
 		$allowed_task_ids = array_unique( $allowed_task_ids );
 		$properties       = array();
