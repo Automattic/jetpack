@@ -479,11 +479,11 @@ function wpcom_hacky_track_video_uploaded_task( $post_id ) {
 	if ( get_option( 'launchpad_screen' ) !== 'full' ) {
 		return;
 	}
-	if ( has_action( 'add_attachment', 'wpcom_track_video_uploaded_task' ) ) {
+	if ( has_action( 'add_attachment', 'wpcom_launchpad_track_video_uploaded_task' ) ) {
 		return;
 	}
 
-	wpcom_track_video_uploaded_task( $post_id );
+	wpcom_launchpad_track_video_uploaded_task( $post_id );
 }
 add_action( 'add_attachment', 'wpcom_hacky_track_video_uploaded_task' );
 
@@ -720,7 +720,7 @@ function wpcom_launchpad_is_free_newsletter_enabled() {
 		return false;
 	}
 
-	return ! wpcom_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_free_newsletter_enabled', false );
+	return ! wpcom_launchpad_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_free_newsletter_enabled', false );
 }
 
 /**
@@ -734,7 +734,7 @@ function wpcom_launchpad_is_paid_newsletter_enabled() {
 		return false;
 	}
 
-	return wpcom_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
+	return wpcom_launchpad_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
