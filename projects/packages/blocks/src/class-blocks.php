@@ -132,8 +132,7 @@ class Blocks {
 
 		if ( file_exists( $filename ) ) {
 			try {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-				$metadata = json_decode( file_get_contents( $filename ), true );
+				$metadata = wp_json_file_decode( $filename, true );
 			} catch ( Exception $e ) {
 				$metadata = array();
 			}
