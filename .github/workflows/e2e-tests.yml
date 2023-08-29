@@ -100,7 +100,7 @@ jobs:
   e2e-tests:
     name: "${{ matrix.project }} e2e tests"
     runs-on: ubuntu-latest
-    if: ${{ always() }} &&  github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+    if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     needs: [ create-test-matrix, build-projects ]
     timeout-minutes: 60
     strategy:
