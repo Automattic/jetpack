@@ -93,15 +93,28 @@ jobs:
         run: pnpm install
 
       - name: Build projects
+        id: build-step
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
         env:
           COMPOSER_ROOT_VERSION: "dev-trunk"
           BUILD_DIR: ./build-output
           PROJECT_PATH: ${{ matrix.path }}
         run: |
+          find . -type f > /tmp/before.txt
           echo "::group::Build plugin(s)"
           cd $PROJECT_PATH
           pnpm run build
+          echo "::endgroup::"
+          find . -type f > /tmp/after.txt
+          PATHS=$(diff /tmp/before.txt /tmp/after.txt | sed -n 's/^> //p')
+          if [[ -z "$PATHS" ]]; then
+            touch 'no-paths-built-but-we-need-to-cache-something.txt'
+            PATHS='no-paths-built-but-we-need-to-cache-something.txt'
+          fi
+          source .github/files/gh-funcs.sh
+          gh_set_output paths "$PATHS"
+          echo "::group::Changed paths"
+          echo "$PATHS"
           echo "::endgroup::"
 
       - name: Save ${{ matrix.buildGroup }} build cache
@@ -109,7 +122,7 @@ jobs:
         id: jetpack-build-cache-save
         uses: actions/cache/save@v3
         with:
-          path: .
+          path: ${{ steps.build-step.outputs.paths }}
           key: ${{ steps.jetpack-build-cache.outputs.cache-primary-key }}
 
   e2e-tests:
