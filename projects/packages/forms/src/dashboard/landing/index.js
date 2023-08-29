@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -37,6 +38,18 @@ const LandingPage = () => {
 
 		if ( post_url ) {
 			window.open( `${ post_url }${ showPatterns ? '&showJetpackFormsPatterns' : '' }` );
+		}
+	};
+
+	const onAIButtonClickHandler = () => {
+		if ( config( 'hasAI' ) ) {
+			onButtonClickHandler( false );
+		} else {
+			const plansPageUrl = getRedirectUrl( 'jetpack-plans', {
+				site: config( 'siteURL' ),
+				anchor: 'jetpack_ai_yearly',
+			} );
+			window.open( plansPageUrl );
 		}
 	};
 
@@ -85,7 +98,11 @@ const LandingPage = () => {
 									) }
 								</li>
 							</ul>
-							<button className="button button-primary" onClick={ onButtonClickHandler( false ) }>
+							<button
+								className="button button-primary"
+								//eslint-disable-next-line react/jsx-no-bind
+								onClick={ onAIButtonClickHandler }
+							>
 								{ __( 'Explore Jetpack AI', 'jetpack-forms' ) }
 							</button>
 						</div>
