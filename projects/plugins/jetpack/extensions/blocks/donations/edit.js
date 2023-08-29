@@ -2,7 +2,7 @@ import { Spinner } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
+import { useStripeCurrency } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
 import fetchDefaultProducts from './fetch-default-products';
@@ -34,7 +34,7 @@ const Edit = props => {
 
 	if ( ! currency && stripeDefaultCurrency ) {
 		const uppercasedStripeCurrency = stripeDefaultCurrency.toUpperCase();
-		const isCurrencySupported = !! SUPPORTED_CURRENCIES[ uppercasedStripeCurrency ];
+		const isCurrencySupported = !! useStripeCurrency( uppercasedStripeCurrency );
 		if ( isCurrencySupported ) {
 			// If no currency is available, default to the stripe one
 			setAttributes( { currency: uppercasedStripeCurrency } );
