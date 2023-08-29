@@ -16,6 +16,8 @@ jobs:
     name: "Determine tests matrix"
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    # Only run tests in the main repository
+    if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     outputs:
       matrix: ${{ steps.evaluate.outputs.matrix }}
     steps:
