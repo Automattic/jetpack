@@ -335,7 +335,7 @@ add_action( 'jetpack_learn_more_button_comments', 'jetpack_comments_learn_more_b
  */
 function jetpack_comments_more_info() {
 	esc_html_e(
-		'Allow visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on
+		'Allow visitors to use their WordPress.com or Facebook accounts when commenting on
 		your site. Jetpack will match your site\'s color scheme automatically (but you can adjust that).',
 		'jetpack'
 	);
