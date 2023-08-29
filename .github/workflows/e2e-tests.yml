@@ -103,8 +103,9 @@ jobs:
           source .github/files/gh-funcs.sh
           find . -type f > /tmp/before.txt
           echo "::group::Build plugin(s)"
-          cd $PROJECT_PATH
+          cd "$PROJECT_PATH"
           pnpm run build
+          cd "$GITHUB_WORKSPACE"
           echo "::endgroup::"
           find . -type f > /tmp/after.txt
           PATHS=$(diff /tmp/before.txt /tmp/after.txt | sed -n 's/^> //p')
@@ -113,9 +114,6 @@ jobs:
             PATHS='no-paths-built-but-we-need-to-cache-something.txt'
           fi
           gh_set_output paths "$PATHS"
-          echo "::group::Changed paths"
-          echo "$PATHS"
-          echo "::endgroup::"
 
       - name: Save ${{ matrix.buildGroup }} build cache
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
