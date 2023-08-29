@@ -13,13 +13,16 @@ export default function CreateWithVoiceEdit() {
 	return (
 		<Placeholder
 			icon="microphone"
-			label="Create with voice"
-			instructions={ __( 'Transform your recording to post content', 'jetpack' ) }
+			label="AI: Create with voice"
+			instructions={ __(
+				'Transform your spoken words into publish-ready blocks with AI',
+				'jetpack'
+			) }
 		>
 			<Button
 				className="jetpack-ai-create-with-voice__record-button"
 				icon={ micIcon }
-				variant="secondary"
+				variant="primary"
 				onClick={ startToRecord }
 			>
 				{ __( 'Start recording', 'jetpack' ) }

@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/create-with-voice",
 	"title": "Create with voice",
-	"description": "Speak directly into your device and watch your spoken words transform into written content effortlessly.",
+	"description": "Transform your spoken words into publish-ready blocks with AI effortlessly.",
 	"keywords": [ "AI", "GPT", "AL", "Magic", "help", "assistant" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack",

@@ -22,7 +22,7 @@ export const settings = {
 	description: (
 		<p>
 			{ __(
-				'Speak directly into your device and watch your spoken words transform into written content effortlessly.',
+				'Transform your spoken words into publish-ready blocks with AI effortlessly.',
 				'jetpack'
 			) }
 		</p>
