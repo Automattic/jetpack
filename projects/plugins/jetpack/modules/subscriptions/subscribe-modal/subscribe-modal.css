@@ -35,6 +35,16 @@
 	visibility: visible;
 }
 
+/*
+ * These text-wrap properties still have limited browser
+ * support, but based on feedback still adding them for when
+ * they are supported.
+ */
+.jetpack-subscribe-modal__modal-content p {
+	text-wrap: balance;
+	text-wrap: pretty;
+}
+
 @media screen and (max-width: 640px) {
 	.jetpack-subscribe-modal__modal-content {
 		width: 94%;
