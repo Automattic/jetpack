@@ -44,7 +44,7 @@ export const workflows = (
 			if ( step ) {
 				const newAttributes = {
 					...step.attributes,
-					...{ [ attribute.key ]: attribute.value },
+					[ attribute.key ]: attribute.value,
 				};
 				const newStep = { ...step, attributes: newAttributes, nextStep };
 				previousStep
