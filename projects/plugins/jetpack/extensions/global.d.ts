@@ -1,6 +1,12 @@
 import { JETPACK_FORM_AI_COMPOSITION_EXTENSION } from './blocks/ai-assistant/extensions/jetpack-contact-form/constants';
+import { JETPACK_CREATE_WITH_VOICE_EXTENSION } from './blocks/create-with-voice/constants';
+import { SiteAIAssistantFeatureEndpointResponseProps } from './types';
 
-export {};
+type AvailableBlockProps =
+	| {
+			available?: boolean;
+	  }
+	| undefined;
 
 declare global {
 	interface Window {
@@ -49,10 +55,8 @@ declare global {
 		};
 		Jetpack_Editor_Initial_State: {
 			available_blocks: {
-				'ai-assistant-support': boolean;
-				[ JETPACK_FORM_AI_COMPOSITION_EXTENSION ]: {
-					available?: boolean;
-				};
+				[ JETPACK_CREATE_WITH_VOICE_EXTENSION ]: AvailableBlockProps;
+				[ JETPACK_FORM_AI_COMPOSITION_EXTENSION ]: AvailableBlockProps;
 			};
 			adminUrl: string;
 			siteLocale: string;
