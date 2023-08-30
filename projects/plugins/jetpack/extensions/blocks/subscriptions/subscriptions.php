@@ -443,6 +443,8 @@ function get_element_styles_from_attributes( $attributes ) {
 	$submit_button_styles .= $style;
 	$email_field_styles   .= $style;
 
+	$categories_styles = sprintf( '--subscribe-block-border-radius: %dpx;', get_attribute( $attributes, 'borderRadius', DEFAULT_BORDER_RADIUS_VALUE ) );
+
 	if ( has_attribute( $attributes, 'customBorderColor' ) ) {
 		$style = sprintf( 'border-color: %s; border-style: solid;', get_attribute( $attributes, 'customBorderColor' ) );
 
@@ -460,6 +462,7 @@ function get_element_styles_from_attributes( $attributes ) {
 		'email_field'           => $email_field_styles,
 		'submit_button'         => $submit_button_styles,
 		'submit_button_wrapper' => $submit_button_wrapper_styles,
+		'categories'            => $categories_styles,
 	);
 }
 
@@ -655,6 +658,19 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container">
+			<?php if ( count( $newsletter_categories ) ) : ?>
+				<div
+					className="wp-block-jetpack-subscriptions__newsletter-categories"
+					style="<?php echo esc_attr( $styles['categories'] ); ?>"
+				>
+					<?php foreach ( $newsletter_categories as $category ) : ?>
+						<div class="wp-block-jetpack-subscriptions__newsletter-category">
+							<?php echo esc_html( $category['name'] ); ?>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+
 			<form
 				action="<?php echo esc_url( $url ); ?>"
 				method="post"
@@ -663,16 +679,6 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
-				<?php if ( count( $newsletter_categories ) ) : ?>
-					<div className="wp-block-jetpack-subscriptions__newsletter-categories">
-						<?php foreach ( $newsletter_categories as $category ) : ?>
-							<div class="wp-block-jetpack-subscriptions__newsletter-category">
-								<?php echo esc_html( $category['name'] ); ?>
-							</div>
-						<?php endforeach; ?>
-					</div>
-				<?php endif; ?>
-
 				<?php
 				$email_field_id  = 'subscribe-field';
 				$email_field_id .= Jetpack_Subscriptions_Widget::$instance_count > 1
@@ -788,6 +794,19 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="jetpack_subscription_widget">
 			<div class="wp-block-jetpack-subscriptions__container">
+				<?php if ( count( $newsletter_categories ) ) : ?>
+					<div
+						className="wp-block-jetpack-subscriptions__newsletter-categories"
+						style="<?php echo esc_attr( $styles['categories'] ); ?>"
+					>
+						<?php foreach ( $newsletter_categories as $category ) : ?>
+							<div class="wp-block-jetpack-subscriptions__newsletter-category">
+								<?php echo esc_html( $category['name'] ); ?>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				<?php endif; ?>
+
 				<form
 					action="#"
 					method="post"
@@ -796,16 +815,6 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
-					<?php if ( count( $newsletter_categories ) ) : ?>
-						<div className="wp-block-jetpack-subscriptions__newsletter-categories">
-							<?php foreach ( $newsletter_categories as $category ) : ?>
-								<div class="wp-block-jetpack-subscriptions__newsletter-category">
-									<?php echo esc_html( $category['name'] ); ?>
-								</div>
-							<?php endforeach; ?>
-						</div>
-					<?php endif; ?>
-
 					<p id="subscribe-email">
 						<label id="jetpack-subscribe-label"
 							class="screen-reader-text"
