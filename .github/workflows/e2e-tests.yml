@@ -148,7 +148,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Restore $${{ matrix.buildGroup }} build cache
+      - name: Restore ${{ matrix.buildGroup }} build cache
         id: jetpack-build-cache
         if: needs.build-projects.result == 'success' && ! startsWith( matrix.suite, 'atomic' )
         uses: actions/cache/restore@v3
