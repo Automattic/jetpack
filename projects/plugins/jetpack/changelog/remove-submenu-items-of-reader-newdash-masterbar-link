@@ -1,4 +1,5 @@
 Significance: minor
 Type: other
 
-Masterbar: removes submenu items of reader tab in masterbar.
+Masterbar: removes submenu items of Reader link in the masterbar. This makes the Reader link
+directly to the WordPress.com reader instead of opening a popout menu
