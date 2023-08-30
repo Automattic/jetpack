@@ -28,12 +28,10 @@ const DEFAULT_IS_CUSTOM_AMOUNT = false;
 
 export default function ProductManagementInspectorControl() {
 	const { productType, setSelectedProductId } = useProductManagementContext();
-	const { shouldUpgrade, siteSlug } = useSelect( select => {
-		const { getSiteSlug } = select( membershipProductsStore );
-		return {
-			siteSlug: getSiteSlug(),
-		};
-	} );
+
+	const shouldUpgrade = useSelect( select => select( membershipProductsStore ).getShouldUpgrade() );
+	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
+
 	const { saveProduct } = useDispatch( membershipProductsStore );
 
 	const [ apiState, setApiState ] = useState( API_STATE_NOT_REQUESTING );
