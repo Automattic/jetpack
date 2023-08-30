@@ -1,5 +1,5 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 

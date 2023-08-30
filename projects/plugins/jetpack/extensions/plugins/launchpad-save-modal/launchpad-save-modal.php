@@ -34,6 +34,11 @@ function add_launchpad_options() {
 		'siteIntentOption'            => get_option( 'site_intent' ),
 		'hasNeverPublishedPostOption' => get_option( 'has_never_published_post' ),
 	);
+
+	if ( function_exists( 'wpcom_launchpad_is_fse_next_steps_modal_hidden' ) && wpcom_launchpad_is_fse_next_steps_modal_hidden() ) {
+		$launchpad_options['hideFSENextStepsModal'] = true;
+	}
+
 	wp_add_inline_script(
 		'jetpack-blocks-editor',
 		'var Jetpack_LaunchpadSaveModal = ' . wp_json_encode( $launchpad_options, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',

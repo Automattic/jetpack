@@ -1,12 +1,12 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { JetpackBoostPage } from '../lib/pages/index.js';
+import { JetpackBoostPage } from '../../lib/pages/index.js';
 import { prerequisitesBuilder, isModuleActive } from 'jetpack-e2e-commons/env/prerequisites.js';
 import { activateModules, deactivateModules } from 'jetpack-e2e-commons/env/index.js';
 import {
 	boostPrerequisitesBuilder,
 	activateModules as activateBoostModules,
 	deactivateModules as deactivateBoostModules,
-} from '../lib/env/prerequisites.js';
+} from '../../lib/env/prerequisites.js';
 
 test.describe( 'Jetpack compatibility', () => {
 	test.beforeAll( async () => {

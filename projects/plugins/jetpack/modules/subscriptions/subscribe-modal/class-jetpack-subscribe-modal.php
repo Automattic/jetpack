@@ -188,6 +188,11 @@ HTML;
 			return false;
 		}
 
+		// Don't show if post is for subscribers only or has paywall block
+		if ( has_block( 'jetpack/paywall' ) ) {
+			return false;
+		}
+
 		// Dont show if user is member of site.
 		if ( is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
 			return false;
