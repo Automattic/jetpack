@@ -124,7 +124,7 @@ function PaywallEdit( { className } ) {
 												<MenuItem>{ __( 'Connect to Stripe', 'jetpack' ) }</MenuItem>
 											</Link>
 										) }
-										{ ! stripeConnectUrl && ! hasNewsletterPlans && (
+										{ ! hasNewsletterPlans && (
 											<Link href={ paidLink }>
 												<MenuItem>{ __( 'Add a paid plan', 'jetpack' ) }</MenuItem>
 											</Link>
