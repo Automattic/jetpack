@@ -263,7 +263,12 @@ function fetch_newsletter_categories() {
 function get_newsletter_categories() {
 	$response = fetch_newsletter_categories();
 
-	if ( isset( $response['enabled'] ) && $response['enabled'] ) {
+	if (
+		isset( $response['enabled'] )
+		&& (bool) $response['enabled']
+		&& isset( $response['newsletter_categories'] )
+		&& is_array( $response['newsletter_categories'] )
+	) {
 		return $response['newsletter_categories'];
 	}
 
