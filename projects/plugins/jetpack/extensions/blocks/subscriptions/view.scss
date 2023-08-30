@@ -109,13 +109,13 @@
 
 	.wp-block-jetpack-subscriptions__newsletter-category {
 		padding: 6px 10px;
-		font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-		font-size: 14px;
+		font-family: $default-font;
+		font-size: $default-font-size;
 		font-weight: 500;
 		line-height: 20px;
 		color: $gray-600;
-		border: 1px solid #dcdcde;
-		border-radius: var(--border-radius);
+		border: 1px solid $gray-200;
+		border-radius: var(--subscribe-block-border-radius);
 	}
 }
 

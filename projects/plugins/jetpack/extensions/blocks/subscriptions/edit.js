@@ -184,7 +184,9 @@ export function SubscriptionEdit( props ) {
 	};
 
 	const cssVars = {
-		'--border-radius': borderRadius ? borderRadius + 'px' : DEFAULT_BORDER_RADIUS_VALUE + 'px',
+		'--subscribe-block-border-radius': borderRadius
+			? borderRadius + 'px'
+			: DEFAULT_BORDER_RADIUS_VALUE + 'px',
 	};
 
 	const emailFieldStyles = {

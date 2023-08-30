@@ -1,9 +1,9 @@
 <?php
 /**
- * REST API endpoint for the Jetpack Blogroll block.
+ * REST API endpoint for the Newsletter Categories
  *
  * @package automattic/jetpack
- * @since 12.2
+ * @since $$next-version$$
  */
 
 use Automattic\Jetpack\Status\Host;
@@ -44,7 +44,9 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Categories_List extends WP_REST_Cont
 				$this,
 				'get_newsletter_categories',
 			) : array( $this, 'proxy_request_to_wpcom_as_user' ),
-			'permission_callback' => '__return_true',
+			'permission_callback' => function () {
+				return current_user_can( 'manage_options' );
+			},
 		);
 
 		register_rest_route(
@@ -60,31 +62,27 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Categories_List extends WP_REST_Cont
 	 * @return array|WP_Error list of newsletter categories
 	 */
 	public function get_newsletter_categories() {
+		require_lib( 'newsletter-categories' );
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'require_lib' ) ) {
-			require_lib( 'newsletter-categories' );
+		$newsletter_categories = get_newsletter_categories();
 
-			$newsletter_categories = get_newsletter_categories();
-
-			// Include subscription counts for each category if the user can manage categories.
-			if ( $this->can_manage_categories() === true ) {
-				$subscription_counts_per_category = get_blog_subscription_counts_per_category();
-				array_walk(
-					$newsletter_categories,
-					function ( &$category ) use ( $subscription_counts_per_category ) {
-						$category['subscription_count'] = $subscription_counts_per_category[ $category['id'] ] ? $subscription_counts_per_category[ $category['id'] ] : 0;
-					}
-				);
-			}
-
-			return rest_ensure_response(
-				array(
-					'enabled'               => (bool) get_option( 'wpcom_newsletter_categories_enabled', false ),
-					'newsletter_categories' => $newsletter_categories,
-				)
+		// Include subscription counts for each category if the user can manage categories.
+		if ( $this->can_manage_categories() === true ) {
+			$subscription_counts_per_category = get_blog_subscription_counts_per_category();
+			array_walk(
+				$newsletter_categories,
+				function ( &$category ) use ( $subscription_counts_per_category ) {
+					$category['subscription_count'] = $subscription_counts_per_category[ $category['id'] ] ? $subscription_counts_per_category[ $category['id'] ] : 0;
+				}
 			);
-
 		}
+
+		return rest_ensure_response(
+			array(
+				'enabled'               => (bool) get_option( 'wpcom_newsletter_categories_enabled', false ),
+				'newsletter_categories' => $newsletter_categories,
+			)
+		);
 	}
 }
 
