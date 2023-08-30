@@ -304,6 +304,14 @@ class Table_Checksum {
 				'table_join_field'          => 'order_item_id',
 				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
 			),
+			'wc_orders'                  => array(
+				'table'                     => "{$wpdb->prefix}wc_orders",
+				'range_field'               => 'id',
+				'key_fields'                => array( 'id', 'parent_order_id' ),
+				'checksum_text_fields'      => array( 'type', 'billing_email', 'payment_method_title', 'transaction_id', 'ip_address', 'customer_note' ),
+				'filter_values'             => array(),
+				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
+			),
 			'users'                      => array(
 				'table'                     => $wpdb->users,
 				'range_field'               => 'ID',
