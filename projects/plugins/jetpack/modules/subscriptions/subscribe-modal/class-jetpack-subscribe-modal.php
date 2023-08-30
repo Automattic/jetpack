@@ -132,7 +132,7 @@ class Jetpack_Subscribe_Modal {
 		// translators: %s is the name of the site.
 		$discover_more_from = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
 		$continue_reading   = __( 'Continue Reading', 'jetpack' );
-		$subscribe_text     = __( 'Subscribe now to keep reading and gain access to the full archive.', 'jetpack' );
+		$subscribe_text     = __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack' );
 
 		return <<<HTML
 	<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"var:preset|spacing|70","right":"var:preset|spacing|70"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
