@@ -199,6 +199,7 @@ class Jetpack_Redux_State_Helper {
 			),
 			'themeData'                   => array(
 				'name'         => $current_theme->get( 'Name' ),
+				'stylesheet'   => $current_theme->get_stylesheet(),
 				'hasUpdate'    => (bool) get_theme_update_available( $current_theme ),
 				'isBlockTheme' => (bool) $current_theme->is_block_theme(),
 				'support'      => array(
@@ -241,6 +242,33 @@ class Jetpack_Redux_State_Helper {
 			'isBlazeDashboardEnabled'     => Blaze::is_dashboard_enabled(),
 			/** This filter is documented in plugins/jetpack/modules/subscriptions/subscribe-module/class-jetpack-subscribe-module.php */
 			'isSubscriptionModalEnabled'  => apply_filters( 'jetpack_subscriptions_modal_enabled', false ),
+			'socialInitialState'          => self::get_publicize_initial_state(),
+		);
+	}
+
+	/**
+	 * Gets the initial state for the Publicize module.
+	 *
+	 * @return array|null
+	 */
+	public static function get_publicize_initial_state() {
+		$sig_settings             = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
+		$auto_conversion_settings = new Automattic\Jetpack\Publicize\Auto_Conversion\Settings();
+
+		if ( empty( $sig_settings ) && empty( $auto_conversion_settings ) ) {
+			return null;
+		}
+
+		return array(
+			'socialImageGeneratorSettings' => array(
+				'available'       => $sig_settings->is_available(),
+				'enabled'         => $sig_settings->is_enabled(),
+				'defaultTemplate' => $sig_settings->get_default_template(),
+			),
+			'autoConversionSettings'       => array(
+				'available' => $auto_conversion_settings->is_available( 'image' ),
+				'image'     => $auto_conversion_settings->is_enabled( 'image' ),
+			),
 		);
 	}
 

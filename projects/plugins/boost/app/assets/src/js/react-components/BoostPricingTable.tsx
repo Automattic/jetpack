@@ -102,6 +102,11 @@ const concatenateContext = __(
 	'jetpack-boost'
 );
 
+const performanceHistoryContext = __(
+	'Get access to your historical performance scores and see advanced Core Web Vitals data.',
+	'jetpack-boost'
+);
+
 const isaContext = __(
 	"Scan your site for images that aren't properly sized for the device they're being viewed on.",
 	'jetpack-boost'
@@ -119,10 +124,10 @@ export const BoostPricingTable = ( {
 		pricing = { yearly: {} };
 	}
 
-	// If the first year discount ends, we want to remove the label without updating the plugin.
-	const promoLabel = pricing.yearly.isIntroductoryOffer
-		? __( 'First Year Discount', 'jetpack-boost' )
-		: '';
+	// If the first year discount ends, we want to show the default label.
+	const legend = pricing.yearly.isIntroductoryOffer
+		? __( '/month for the first year, billed yearly', 'jetpack-boost' )
+		: undefined;
 
 	const isDiscounted = pricing.yearly.priceBefore > pricing.yearly.priceAfter;
 
@@ -133,6 +138,11 @@ export const BoostPricingTable = ( {
 				{
 					name: __( 'Optimize CSS Loading', 'jetpack-boost' ),
 					tooltipInfo: cssOptimizationContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Historical performance scores', 'jetpack-boost' ),
+					tooltipInfo: performanceHistoryContext,
 					tooltipPlacement: 'bottom-start',
 				},
 				{
@@ -179,7 +189,7 @@ export const BoostPricingTable = ( {
 						offPrice={ isDiscounted ? pricing.yearly.priceAfter / 12 : null }
 						currency={ pricing.yearly.currencyCode }
 						hideDiscountLabel={ false }
-						promoLabel={ promoLabel }
+						legend={ legend }
 					/>
 					<Button
 						onClick={ onPremiumCTA }
@@ -197,6 +207,7 @@ export const BoostPricingTable = ( {
 					tooltipInfo={ automaticallyUpdatedContext }
 					tooltipClassName="wide-tooltip"
 				/>
+				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
@@ -230,6 +241,7 @@ export const BoostPricingTable = ( {
 					tooltipInfo={ manuallyUpdatedContext }
 					tooltipClassName="wide-tooltip"
 				/>
+				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />

@@ -160,18 +160,11 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'title'               => 'Free Newsletter',
 			'task_ids'            => array(
 				'verify_email',
-				'domain_claim',
-				'domain_customize',
 				'share_site',
-				'customize_welcome_message',
 				'enable_subscribers_modal',
-				'add_10_email_subscribers',
 				'manage_subscribers',
-				'write_3_posts',
-				'connect_social_media',
 				'update_about_page',
 				'add_about_page',
-				'earn_money',
 			),
 			'is_enabled_callback' => 'wpcom_launchpad_is_free_newsletter_enabled',
 		),
@@ -179,15 +172,10 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'title'               => 'Paid Newsletter',
 			'task_ids'            => array(
 				'verify_email',
-				'domain_claim',
-				'domain_customize',
 				'share_site',
-				'customize_welcome_message',
+				'set_up_payments',
 				'enable_subscribers_modal',
-				'add_10_email_subscribers',
 				'manage_subscribers',
-				'write_3_posts',
-				'connect_social_media',
 				'manage_paid_newsletter_plan',
 				'update_about_page',
 				'add_about_page',
@@ -491,11 +479,11 @@ function wpcom_hacky_track_video_uploaded_task( $post_id ) {
 	if ( get_option( 'launchpad_screen' ) !== 'full' ) {
 		return;
 	}
-	if ( has_action( 'add_attachment', 'wpcom_track_video_uploaded_task' ) ) {
+	if ( has_action( 'add_attachment', 'wpcom_launchpad_track_video_uploaded_task' ) ) {
 		return;
 	}
 
-	wpcom_track_video_uploaded_task( $post_id );
+	wpcom_launchpad_track_video_uploaded_task( $post_id );
 }
 add_action( 'add_attachment', 'wpcom_hacky_track_video_uploaded_task' );
 
@@ -630,6 +618,69 @@ function wpcom_launchpad_set_task_list_dismissed( $checklist_slug, $is_dismissed
 }
 
 /**
+ * Helper function to indicate whether the Next Steps modal in
+ * the Full Site Editor should be hidden.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_is_fse_next_steps_modal_hidden() {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config' );
+
+	if ( ! $wpcom_launchpad_config || ! is_array( $wpcom_launchpad_config ) ) {
+		return false;
+	}
+
+	if ( ! isset( $wpcom_launchpad_config['hide_fse_next_steps_modal'] ) ) {
+		return false;
+	}
+
+	return true === $wpcom_launchpad_config['hide_fse_next_steps_modal'];
+}
+
+/**
+ * Helper function to hide and show the Next Steps modal we show in the
+ * Full Site Editor.
+ *
+ * @param bool $should_hide Should the modal be hidden (true) or displayed (false).
+ * @return bool Whether the option update succeeded.
+ */
+function wpcom_launchpad_set_fse_next_steps_modal_hidden( $should_hide ) {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config' );
+
+	// If we want to show the modal, we don't need to do anything if either the main
+	// wpcom_launchpad_config option OR the hide sub-option aren't set.
+	if ( ! $should_hide ) {
+		if ( ! $wpcom_launchpad_config || ! is_array( $wpcom_launchpad_config ) ) {
+			return true;
+		}
+
+		if ( ! isset( $wpcom_launchpad_config['hide_fse_next_steps_modal'] ) ) {
+			return true;
+		}
+
+		unset( $wpcom_launchpad_config['hide_fse_next_steps_modal'] );
+	} else {
+		// Make sure we have an array for the main option.
+		if ( ! $wpcom_launchpad_config || ! is_array( $wpcom_launchpad_config ) ) {
+			$wpcom_launchpad_config = array();
+		}
+
+		// If we already have the option set, we can return early.
+		if ( isset( $wpcom_launchpad_config['hide_fse_next_steps_modal'] ) && true === $wpcom_launchpad_config['hide_fse_next_steps_modal'] ) {
+			return true;
+		}
+
+		$wpcom_launchpad_config['hide_fse_next_steps_modal'] = true;
+	}
+
+	if ( empty( $wpcom_launchpad_config ) ) {
+		return delete_option( 'wpcom_launchpad_config' );
+	}
+
+	return update_option( 'wpcom_launchpad_config', $wpcom_launchpad_config );
+}
+
+/**
  * Checks if the Keep building task list is enabled.
  *
  * @return bool True if the task list is enabled, false otherwise.
@@ -669,7 +720,7 @@ function wpcom_launchpad_is_free_newsletter_enabled() {
 		return false;
 	}
 
-	return ! wpcom_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_free_newsletter_enabled', false );
+	return ! wpcom_launchpad_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_free_newsletter_enabled', false );
 }
 
 /**
@@ -683,7 +734,7 @@ function wpcom_launchpad_is_paid_newsletter_enabled() {
 		return false;
 	}
 
-	return wpcom_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
+	return wpcom_launchpad_has_goal_paid_subscribers() && apply_filters( 'wpcom_launchpad_intent_paid_newsletter_enabled', false );
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.

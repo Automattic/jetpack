@@ -50,6 +50,7 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
+		add_filter( 'query_vars', array( '\Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Generator', 'add_generate_query_action_to_list' ) );
 
 		if ( Generator::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $this, 'display_generate_meta' ), 0 );
@@ -74,7 +75,7 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 	 */
 	public function display_generate_meta() {
 		?>
-		<meta name="jb-generate-critical-css" content="true"/>
+		<meta name="<?php echo esc_attr( Generator::GENERATE_QUERY_ACTION ); ?>" content="true"/>
 		<?php
 	}
 

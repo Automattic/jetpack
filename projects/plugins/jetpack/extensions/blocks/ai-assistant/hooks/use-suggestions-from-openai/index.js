@@ -40,6 +40,7 @@ const useSuggestionsFromOpenAI = ( {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+	const [ requestingState, setRequestingState ] = useState( 'init' );
 	const source = useRef();
 
 	// Let's grab post data so that we can do something smart.
@@ -130,6 +131,7 @@ const useSuggestionsFromOpenAI = ( {
 		 * let's set the error and return an `undefined` event source.
 		 */
 		if ( requireUpgrade ) {
+			setRequestingState( 'error' );
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( false );
@@ -216,12 +218,16 @@ const useSuggestionsFromOpenAI = ( {
 				debugPrompt( '(%s/%s) %o\n%s', i + 1, prompt.length, `[${ role }]`, promptContent )
 			);
 
+			setRequestingState( 'requesting' );
+
 			source.current = await askQuestion( prompt, {
 				postId,
 				requireUpgrade,
-				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : undefined,
+				feature: attributes?.useGpt4 ? 'ai-assistant-experimental' : 'ai-assistant',
 				functions: options?.functions,
 			} );
+
+			setRequestingState( 'suggesting' );
 		} catch ( err ) {
 			if ( err.message ) {
 				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
@@ -293,6 +299,8 @@ const useSuggestionsFromOpenAI = ( {
 		const onDone = e => {
 			const { detail } = e;
 
+			setRequestingState( 'done' );
+
 			// Remove the delimiter from the suggestion.
 			const assistantResponse = detail.replaceAll( delimiter, '' );
 
@@ -339,6 +347,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorUnclearPrompt = () => {
+			setRequestingState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -351,6 +360,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorNetwork = ( { detail: error } ) => {
+			setRequestingState( 'error' );
 			const { name: errorName, message: errorMessage } = error;
 			if ( errorName === 'TypeError' && errorMessage === 'Failed to fetch' ) {
 				/*
@@ -396,6 +406,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorServiceUnavailable = () => {
+			setRequestingState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -411,6 +422,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorQuotaExceeded = () => {
+			setRequestingState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -423,6 +435,7 @@ const useSuggestionsFromOpenAI = ( {
 		};
 
 		const onErrorModeration = () => {
+			setRequestingState( 'error' );
 			source?.current?.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -483,6 +496,9 @@ const useSuggestionsFromOpenAI = ( {
 		setIsLoadingCompletion( false );
 		setWasCompletionJustRequested( false );
 		onSuggestionDone?.();
+
+		// Set requesting state to done since the suggestion stopped.
+		setRequestingState( 'done' );
 	}
 
 	return {
@@ -495,6 +511,7 @@ const useSuggestionsFromOpenAI = ( {
 		postTitle: currentPostTitle,
 		contentBefore: getPartialContentToBlock( clientId ),
 		wholeContent: getContentFromBlocks(),
+		requestingState,
 
 		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
 		stopSuggestion,

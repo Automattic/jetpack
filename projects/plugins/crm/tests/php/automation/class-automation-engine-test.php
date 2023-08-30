@@ -2,11 +2,11 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
-use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Empty_Slug_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Automation\Triggers\Contact_Created;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '/tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
-class Automation_Engine_Test extends BaseTestCase {
+class Automation_Engine_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 
@@ -44,17 +44,17 @@ class Automation_Engine_Test extends BaseTestCase {
 	public function test_automation_register_trigger() {
 		$automation = new Automation_Engine();
 
-		$automation->register_trigger( Contact_Created_Trigger::class );
+		$automation->register_trigger( Contact_Created::class );
 
 		// Get the map of registered trigger_slug => trigger_classname
 		$triggers = $automation->get_registered_triggers();
 
 		$this->assertCount( 1, $triggers );
-		$this->assertEquals( Contact_Created_Trigger::class, $triggers['jpcrm/contact_created'] );
+		$this->assertEquals( Contact_Created::class, $triggers['jpcrm/contact_created'] );
 
 		$expected_class = $automation->get_trigger_class( 'jpcrm/contact_created' );
 
-		$this->assertEquals( Contact_Created_Trigger::class, $expected_class );
+		$this->assertEquals( Contact_Created::class, $expected_class );
 	}
 
 	/**
@@ -78,8 +78,8 @@ class Automation_Engine_Test extends BaseTestCase {
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::TRIGGER_SLUG_EXISTS );
 
-		$automation->register_trigger( Contact_Created_Trigger::class );
-		$automation->register_trigger( Contact_Created_Trigger::class );
+		$automation->register_trigger( Contact_Created::class );
+		$automation->register_trigger( Contact_Created::class );
 	}
 
 	/**

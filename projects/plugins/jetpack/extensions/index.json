@@ -50,22 +50,20 @@
 		"payment-buttons",
 		"site-editor-snackbars",
 		"videopress/video",
-		"ai-assistant-support"
+		"ai-assistant-support",
+		"ai-assistant-form-support",
+		"paywall"
 	],
 	"beta": [
 		"ai-chat",
 		"amazon",
-		"author-recommendation",
-		"conversation",
-		"dialogue",
+		"blogroll",
 		"google-docs-embed",
 		"launchpad-save-modal",
-		"post-publish-promote-post-panel",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"paywall",
-		"ai-assistant-form-support"
+		"create-with-voice"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

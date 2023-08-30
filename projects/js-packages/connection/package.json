@@ -1,7 +1,16 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.29.7",
+	"version": "0.29.8",
 	"description": "Jetpack Connection Component",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Connection"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/connection"
+	},
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
