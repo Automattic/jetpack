@@ -26,7 +26,7 @@ class Tweetstorm_Requests_Transport_Override implements Requests_Transport {
 
 		$filename = __DIR__ . '/fixtures/' . str_replace( array( ':', '/' ), '-', $url ) . '.html';
 
-		$response = new Requests_Response();
+		$response = new \WpOrg\Requests\Response();
 
 		$response->url     = $url;
 		$response->history = array();

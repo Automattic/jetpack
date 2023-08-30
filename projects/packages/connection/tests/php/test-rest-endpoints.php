@@ -11,11 +11,11 @@ use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
-use Requests_Utility_CaseInsensitiveDictionary;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
 use WP_REST_Server;
+use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
 /**
  * Unit tests for the REST API endpoints.
@@ -949,7 +949,7 @@ class Test_REST_Endpoints extends TestCase {
 	 */
 	private static function get_register_request_mock_response( $allow_inplace_authorization = false, $alternate_authorization_url = '' ) {
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode(
 				array(
 					'jetpack_id'                  => '12345',
@@ -1031,7 +1031,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( array( 'dummy_error' => true ) ),
 			'response' => array(
 				'code'    => 500,
@@ -1074,7 +1074,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( $body ),
 			'response' => array(
 				'code'    => 200,
@@ -1098,7 +1098,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( array( 'jetpack_secret' => self::BLOG_TOKEN ) ),
 			'response' => array(
 				'code'    => 200,
@@ -1122,7 +1122,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode( array( 'jetpack_secret_missing' => true ) ), // Meaningless body.
 			'response' => array(
 				'code'    => 200,
@@ -1146,7 +1146,7 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode(
 				array(
 					'access_token' => 'mock.token',
