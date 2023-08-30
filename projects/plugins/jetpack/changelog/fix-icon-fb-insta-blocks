@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Blocks: use custom Facebook and Instagram icons in Jetpack's Facebook and Instagram blocks to avoid issues in accessibility inspector.
