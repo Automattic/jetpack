@@ -285,6 +285,24 @@ class Automation_Faker {
 			'lastcontacted'  => '',
 			'lastlog'        => '',
 			'lastcontactlog' => '',
+			'tags'           => array(
+				array(
+					'id'          => 1,
+					'objtype'     => 1,
+					'name'        => 'Name 1',
+					'slug'        => 'name-1',
+					'created'     => 1692663411,
+					'lastupdated' => 1692663411,
+				),
+				array(
+					'id'          => 2,
+					'objtype'     => 1,
+					'name'        => 'Name 2',
+					'slug'        => 'name-2',
+					'created'     => 1692663412,
+					'lastupdated' => 1692663412,
+				),
+			),
 		);
 
 		if ( $get_as_data_type ) {
