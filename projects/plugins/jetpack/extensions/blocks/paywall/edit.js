@@ -1,19 +1,19 @@
 import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { arrowDown, Icon } from '@wordpress/icons';
+import { arrowDown, Icon, update, check } from '@wordpress/icons';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
-import { PaywallBlockSettings } from '../../shared/memberships/settings';
+import { Link, PaywallBlockSettings } from '../../shared/memberships/settings';
 
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
@@ -27,7 +27,6 @@ function PaywallEdit( { className } ) {
 			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
 		};
 	} );
-	const isStripeConnected = stripeConnectUrl === null;
 
 	useEffect( () => {
 		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
@@ -60,6 +59,15 @@ function PaywallEdit( { className } ) {
 		}
 	};
 
+	const getLabel = key => {
+		switch ( key ) {
+			case accessOptions.paid_subscribers.key:
+				return accessOptions.paid_subscribers.label;
+			default:
+				return accessOptions.subscribers.label;
+		}
+	};
+
 	const text = getText( accessLevel );
 
 	const style = {
@@ -74,24 +82,49 @@ function PaywallEdit( { className } ) {
 					<Icon icon={ arrowDown } size={ 16 } />
 				</span>
 			</div>
-			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarButton
-						className="components-tab-button"
-						isPressed={ accessLevel === accessOptions.subscribers.key }
-						onClick={ switchToAnyoneSubscribed }
-					>
-						{ __( 'Anyone subscribed', 'jetpack' ) }
-					</ToolbarButton>
-					<ToolbarButton
-						className="components-tab-button"
-						isPressed={ accessLevel === accessOptions.paid_subscribers.key }
-						onClick={ switchToPaidSubscribers }
-						disabled={ ! isStripeConnected || ! hasNewsletterPlans }
-					>
-						{ __( 'Paid subscribers', 'jetpack' ) }
-					</ToolbarButton>
-				</ToolbarGroup>
+			<BlockControls __experimentalShareWithChildBlocks group="block">
+				<ToolbarDropdownMenu
+					className="product-management-control-toolbar__dropdown-button"
+					icon={ update }
+					text={ getLabel( accessLevel ) }
+				>
+					{ ( { onClose: closeDropdown } ) => (
+						<>
+							<MenuGroup>
+								<MenuItem
+									onClick={ () => {
+										switchToAnyoneSubscribed();
+										closeDropdown();
+									} }
+									isSelected={ accessLevel === accessOptions.subscribers.key }
+									icon={ accessLevel === accessOptions.subscribers.key && check }
+									iconPosition="right"
+								>
+									{ getLabel( accessOptions.subscribers.key ) }
+								</MenuItem>
+								<MenuItem
+									onClick={ () => {
+										switchToPaidSubscribers();
+									} }
+									isSelected={ accessLevel === accessOptions.paid_subscribers.key }
+									icon={ accessLevel === accessOptions.paid_subscribers.key && check }
+									iconPosition="right"
+								>
+									{ getLabel( accessOptions.paid_subscribers.key ) }
+								</MenuItem>
+							</MenuGroup>
+							{ accessLevel === accessOptions.paid_subscribers.key && (
+								<MenuGroup>
+									<Link href={ stripeConnectUrl }>
+										<MenuItem info={ __( 'Enable paid subscribers', 'jetpack' ) }>
+											{ __( 'Connect to Stripe', 'jetpack' ) }
+										</MenuItem>
+									</Link>
+								</MenuGroup>
+							) }
+						</>
+					) }
+				</ToolbarDropdownMenu>
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody
