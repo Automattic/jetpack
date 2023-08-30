@@ -390,7 +390,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		/**
 		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
 		 */
-			add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
+		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
 	}
 
 	/**
