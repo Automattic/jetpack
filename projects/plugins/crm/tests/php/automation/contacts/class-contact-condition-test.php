@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed;
+use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Tag;
 use Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status;
 use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
@@ -14,6 +15,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Field_Changed
  * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Transitional_Status
+ * @covers Automattic\Jetpack\CRM\Automation\Conditions\Contact_Tag
  */
 class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 
@@ -49,6 +51,18 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		);
 
 		return new Contact_Transitional_Status( $condition_data );
+	}
+
+	private function get_contact_tag_condition( $operator, $tag ) {
+		$condition_data = array(
+			'slug'       => 'jpcrm/condition/contact_tag',
+			'attributes' => array(
+				'operator' => $operator,
+				'tag'      => $tag,
+			),
+		);
+
+		return new Contact_Tag( $condition_data );
 	}
 
 	/**
@@ -148,4 +162,112 @@ class Contact_Condition_Test extends JPCRM_Base_Test_Case {
 		$this->assertFalse( $contact_transitional_status_condition->condition_met() );
 	}
 
+	/**
+	 * @testdox Test contact tag added condition.
+	 */
+	public function test_contact_tag_added() {
+		$contact_tag_condition = $this->get_contact_tag_condition( 'tag_added', 'Tag Added' );
+		$contact_data_type     = $this->automation_faker->contact_data( true );
+		$contact_data          = $contact_data_type->get_entity();
+
+		// Create a previous state of a contact.
+		$previous_contact = $contact_data;
+
+		// Testing when the condition has been not been met because the contact does not have said tag.
+		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$this->assertFalse( $contact_tag_condition->condition_met() );
+
+		// Testing when the condition has been met.
+		$contact_data['tags'][] = array(
+			'id'          => 3,
+			'objtype'     => 1,
+			'name'        => 'Tag Added',
+			'slug'        => 'tag-added',
+			'created'     => 1692663412,
+			'lastupdated' => 1692663412,
+		);
+		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$this->assertTrue( $contact_tag_condition->condition_met() );
+
+		// Testing when the condition has been not been met because the previous contact already had said tag.
+		$previous_contact['tags'][] = array(
+			'id'          => 3,
+			'objtype'     => 1,
+			'name'        => 'Tag Added',
+			'slug'        => 'tag-added',
+			'created'     => 1692663412,
+			'lastupdated' => 1692663412,
+		);
+
+		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$this->assertFalse( $contact_tag_condition->condition_met() );
+	}
+
+	/**
+	 * @testdox Test contact tag removed condition.
+	 */
+	public function test_contact_tag_removed() {
+		$contact_tag_condition = $this->get_contact_tag_condition( 'tag_removed', 'Tag to be removed' );
+		$contact_data_type     = $this->automation_faker->contact_data( true );
+		$contact_data          = $contact_data_type->get_entity();
+
+		// Create a previous state of a contact.
+		$previous_contact = $contact_data;
+
+		// Testing when the condition has been not been met because the previous contact does not have said tag.
+		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$this->assertFalse( $contact_tag_condition->condition_met() );
+
+		// Testing when the condition has been met.
+		$previous_contact['tags'][] = array(
+			'id'          => 4,
+			'objtype'     => 1,
+			'name'        => 'Tag to be removed',
+			'slug'        => 'tag-to-be-removed',
+			'created'     => 1692663412,
+			'lastupdated' => 1692663412,
+		);
+		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$this->assertTrue( $contact_tag_condition->condition_met() );
+
+		// Testing when the condition has been not been met because the current contact still has said tag.
+		$contact_data['tags'][] = array(
+			'id'          => 4,
+			'objtype'     => 1,
+			'name'        => 'Tag to be removed',
+			'slug'        => 'tag-to-be-removed',
+			'created'     => 1692663412,
+			'lastupdated' => 1692663412,
+		);
+		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$this->assertFalse( $contact_tag_condition->condition_met() );
+	}
+
+	/**
+	 * @testdox Test contact has tag condition.
+	 */
+	public function test_contact_has_tag() {
+		$contact_tag_condition = $this->get_contact_tag_condition( 'has_tag', 'Some Tag' );
+		$contact_data_type     = $this->automation_faker->contact_data( true );
+		$contact_data          = $contact_data_type->get_entity();
+
+		// Create a previous state of a contact.
+		$previous_contact = $contact_data;
+
+		// Testing when the condition has been not been met because the contact does not have said tag.
+		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$this->assertFalse( $contact_tag_condition->condition_met() );
+
+		// Testing when the condition has been met.
+		$contact_data['tags'][] = array(
+			'id'          => 5,
+			'objtype'     => 1,
+			'name'        => 'Some Tag',
+			'slug'        => 'some-tag',
+			'created'     => 1692663412,
+			'lastupdated' => 1692663412,
+		);
+		$contact_tag_condition->execute( $contact_data, $previous_contact );
+		$this->assertTrue( $contact_tag_condition->condition_met() );
+	}
 }
