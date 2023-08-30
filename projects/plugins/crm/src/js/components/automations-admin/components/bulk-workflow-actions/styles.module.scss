@@ -5,6 +5,7 @@
     border: 1px solid var(--jp-gray-10);
     border-radius: 2px;
     margin: 0 10px;
+	 position: relative;
 }
 
 .icon {
@@ -32,8 +33,7 @@
 
 :global(.components-dropdown__content) {
     width: 100%;
-    margin-left: 20px;
-    padding-right: 20px;
+	 z-index: 4;
 }
 
 :global(.components-popover__content) {
