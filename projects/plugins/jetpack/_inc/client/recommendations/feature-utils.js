@@ -615,8 +615,8 @@ export const getStepContent = ( state, stepSlug ) => {
 					__( 'Add the subscribe block by typing /subscribe', 'jetpack' ),
 					__( 'Publish and start promoting your site.', 'jetpack' ),
 				],
-				ctaText: __( 'Create Newsletter Sign Up Page', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'post-new.php?post_type=page',
+				ctaText: __( 'Read the Guide', 'jetpack' ),
+				ctaLink: 'https://jetpack.com/support/newsletter/',
 				illustration: 'assistant-newsletter',
 			};
 		case 'paid-newsletter':
