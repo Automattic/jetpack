@@ -2,7 +2,7 @@
 /**
  * "Create with voice" Block.
  *
- * @since 12.2
+ * @since 12.5
  *
  * @package automattic/jetpack
  */
