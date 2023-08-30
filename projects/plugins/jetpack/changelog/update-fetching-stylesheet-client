@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Dashboard: update the way we fetch the current theme's stylesheet to build site editor link.

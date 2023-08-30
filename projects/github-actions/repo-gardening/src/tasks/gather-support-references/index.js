@@ -398,7 +398,7 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
  * @returns {Promise<void>}
  */
 async function addHappinessLabel( octokit, ownerLogin, repo, number ) {
-	const happinessLabel = '[Type] Happiness Request';
+	const happinessLabel = 'Customer Report';
 
 	const labels = await getLabels( octokit, ownerLogin, repo, number );
 	if ( labels.includes( happinessLabel ) ) {
