@@ -1,3 +1,9 @@
+import type {
+	ACTIVATE_WORKFLOW,
+	DEACTIVATE_WORKFLOW,
+	HYDRATE_WORKFLOWS,
+	SET_ATTRIBUTE,
+} from 'crm/state/action-types';
 import type { Workflow } from 'crm/state/automations-admin/types';
 
 export type AutomationsAction =
@@ -7,7 +13,7 @@ export type AutomationsAction =
 	| SetAttributeAction;
 
 export type HydrateWorkflowsAction = {
-	type: 'HYDRATE_WORKFLOWS';
+	type: HYDRATE_WORKFLOWS;
 	workflows: Workflow[];
 };
 
@@ -19,7 +25,7 @@ export const hydrateWorkflows = ( workflows: Workflow[] ) => {
 };
 
 export type ActivateWorkflowAction = {
-	type: 'ACTIVATE_WORKFLOW';
+	type: ACTIVATE_WORKFLOW;
 	id: number;
 };
 
@@ -31,7 +37,7 @@ export const activateWorkflow = ( id: number ) => {
 };
 
 export type DeactivateWorkflowAction = {
-	type: 'DEACTIVATE_WORKFLOW';
+	type: DEACTIVATE_WORKFLOW;
 	id: number;
 };
 
@@ -43,7 +49,7 @@ export const deactivateWorkflow = ( id: number ) => {
 };
 
 export type SetAttributeAction = {
-	type: 'SET_ATTRIBUTE';
+	type: SET_ATTRIBUTE;
 	workflowId: number;
 	stepId: number;
 	attribute: { key: string; value: string | number | boolean };
