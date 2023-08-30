@@ -86,7 +86,7 @@ function getColor( score: number, opacity = 'FF' ) {
  * UplotLineChart component.
  *
  * @param {object} props - The props object for the UplotLineChart component.
- * @param {uPlot.AlignedData} props.data - The data for the uPlot chart.
+ * @param {uPlot.AlignedData} props.data - Formatted data for the uPlot chart. In the format [ [...timestamps], [...desktopScores], [...mobileScores] ].
  * @param {{ startDate: number, endDate: number }} props.range - The date range of the chart.
  * @param {Period[]} props.periods - The periods to display in the chart.
  * @returns {React.Element} The JSX element representing the UplotLineChart component.
@@ -95,8 +95,13 @@ export default function UplotLineChart( { data, range, periods }: UplotChartProp
 	const uplot = useRef< uPlot | null >( null );
 	const uplotContainer = useRef( null );
 
-	const lastDesktopScore = typeof data[ 1 ] !== 'undefined' ? data[ 1 ][ data[ 1 ].length - 1 ] : 0;
-	const lastMobileScore = typeof data[ 2 ] !== 'undefined' ? data[ 2 ][ data[ 2 ].length - 1 ] : 0;
+	let lastDesktopScore = 0;
+	let lastMobileScore = 0;
+	// data can be an empty array if there is no data-points in the graph
+	if ( data.length === 3 ) {
+		lastDesktopScore = data[ 1 ][ data[ 1 ].length - 1 ] || 0;
+		lastMobileScore = data[ 2 ][ data[ 2 ].length - 1 ];
+	}
 
 	const options: uPlot.Options = useMemo( () => {
 		const defaultOptions: uPlot.Options = {
