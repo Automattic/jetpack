@@ -544,7 +544,7 @@ class Masterbar {
 				'title'  => esc_html__( 'Reader', 'jetpack' ),
 				'href'   => 'https://wordpress.com/read',
 				'meta'   => array(
-					'class' => 'mb-trackable abc',
+					'class' => 'mb-trackable',
 				),
 			)
 		);
