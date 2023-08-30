@@ -14,7 +14,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { arrowDown, Icon, update, check } from '@wordpress/icons';
+import { arrowDown, Icon, people, check } from '@wordpress/icons';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
@@ -84,6 +84,7 @@ function PaywallEdit( { className } ) {
 
 	const style = {
 		width: `${ text.length + 1.2 }em`,
+		userSelect: 'none',
 	};
 
 	return (
@@ -97,7 +98,7 @@ function PaywallEdit( { className } ) {
 			<BlockControls __experimentalShareWithChildBlocks group="block">
 				<ToolbarDropdownMenu
 					className="product-management-control-toolbar__dropdown-button"
-					icon={ update }
+					icon={ people }
 					text={ getLabel( accessLevel ) }
 				>
 					{ ( { onClose: closeDropdown } ) => (
@@ -146,9 +147,9 @@ function PaywallEdit( { className } ) {
 				} }
 			>
 				<h2>{ __( 'Enable payments', 'jetpack' ) }</h2>
-				<p>
+				<p style={ { maxWidth: 340 } }>
 					{ __(
-						'To choose this option, you’ll need first to create a payment offer, setting up how much your subscribers should pay to access your paid content, and then connect your Stripe account, which is our payments’ processor.',
+						'To choose this option, you need to create a payment plan, setting up how much your subscribers should pay to access your paid content, and then connect your Stripe account, which is our payments processor.',
 						'jetpack'
 					) }
 				</p>
