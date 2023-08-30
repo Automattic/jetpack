@@ -1,5 +1,4 @@
-import { JETPACK_FORM_BLOCK_AI_COMPOSITION } from './extensions/jetpack-contact-form/constants';
-import { SiteAIAssistantFeatureEndpointResponseProps } from './hooks/use-ai-feature';
+import { JETPACK_FORM_AI_COMPOSITION_EXTENSION } from './blocks/ai-assistant/extensions/jetpack-contact-form/constants';
 
 export {};
 
@@ -51,7 +50,7 @@ declare global {
 		Jetpack_Editor_Initial_State: {
 			available_blocks: {
 				'ai-assistant-support': boolean;
-				[ JETPACK_FORM_BLOCK_AI_COMPOSITION ]: {
+				[ JETPACK_FORM_AI_COMPOSITION_EXTENSION ]: {
 					available?: boolean;
 				};
 			};
