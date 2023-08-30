@@ -348,6 +348,60 @@ class Initializer {
 			return;
 		}
 
+		// check current theme
+		$is_block_theme = wp_get_theme()->is_block_theme();
+
+		// for non block themes, we defer the enqueuing to the frontend, so we're able to tell if we need the assets
+		// TODO: this is draft code, shall we go this path I'll clean up and split code to its own method
+		if ( ! $is_block_theme ) {
+			add_action(
+				'wp_enqueue_scripts',
+				function () use ( $videopress_video_metadata_file ) {
+					$blocks               = parse_blocks( get_the_content() );
+					$has_videopress_block = false;
+					foreach ( $blocks as $block ) {
+						if ( $block['blockName'] === 'videopress/video' ) {
+							$has_videopress_block = true;
+							break;
+						}
+					}
+					if ( ! $has_videopress_block ) {
+						return;
+					}
+					// Register script used by the VideoPress video block in the editor.
+					Assets::register_script(
+						self::JETPACK_VIDEOPRESS_VIDEO_HANDLER,
+						'../build/block-editor/blocks/video/index.js',
+						__FILE__,
+						array(
+							'in_footer'  => false,
+							'textdomain' => 'jetpack-videopress-pkg',
+						)
+					);
+
+					// Register script used by the VideoPress video block in the front-end.
+					Assets::register_script(
+						self::JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER,
+						'../build/block-editor/blocks/video/view.js',
+						__FILE__,
+						array(
+							'in_footer'  => true,
+							'textdomain' => 'jetpack-videopress-pkg',
+						)
+					);
+
+					// Register VideoPress video block.
+					register_block_type(
+						$videopress_video_metadata_file,
+						array(
+							'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
+						)
+					);
+				}
+			);
+			return;
+		}
+
 		// Register script used by the VideoPress video block in the editor.
 		Assets::register_script(
 			self::JETPACK_VIDEOPRESS_VIDEO_HANDLER,
