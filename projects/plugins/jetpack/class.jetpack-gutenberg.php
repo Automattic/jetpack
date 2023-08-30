@@ -608,12 +608,7 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function enqueue_block_editor_assets() {
-		/**
-		 * The is_admin condition is needed so that the editor assets are only loaded in the Site Editor.
-		 *
-		 * This was added because we are now using enqueue_block_assets hook instead of the enqueue_block_editor_assets.
-		 */
-		if ( ! self::should_load() || ! is_admin() ) {
+		if ( ! self::should_load() ) {
 			return;
 		}
 

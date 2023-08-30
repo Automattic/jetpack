@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Launchpad save modal: persist the user option when they opt to hide the modal
