@@ -1,9 +1,9 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { DashboardPage, PluginsPage, Sidebar } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
-import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
+import { boostPrerequisitesBuilder } from '../../lib/env/prerequisites.js';
 import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
-import { JetpackBoostPage } from '../lib/pages/index.js';
+import { JetpackBoostPage } from '../../lib/pages/index.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 
 test.afterAll( async ( { browser } ) => {
