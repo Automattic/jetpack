@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
-use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Event;
 
 /**
  * Adds the Event_Created class.
@@ -59,7 +58,7 @@ class Event_Created extends Base_Trigger {
 	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): string {
-		return Data_Type_Event::get_slug();
+		return __( 'Event', 'zero-bs-crm' );
 	}
 
 	/**
