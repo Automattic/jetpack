@@ -177,7 +177,7 @@ function render_newsletter_access_rows( $column_id, $post_id ) {
 /**
  * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers & paid_subscribers
  *
- * @return array containing ['value' => ['email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0]]
+ * @return array containing ['value' => ['email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0, 'paid_newsletter_subscribers' => 0]]
  */
 function fetch_subscriber_counts() {
 	$subs_count = 0;
@@ -198,9 +198,10 @@ function fetch_subscriber_counts() {
 					'code'    => $xml->getErrorCode(),
 					'message' => $xml->getErrorMessage(),
 					'value'   => ( isset( $subs_count['value'] ) ) ? $subs_count['value'] : array(
-						'email_subscribers' => 0,
-						'social_followers'  => 0,
-						'paid_subscribers'  => 0,
+						'email_subscribers'           => 0,
+						'social_followers'            => 0,
+						'paid_subscribers'            => 0,
+						'paid_newsletter_subscribers' => 0,
 					),
 				);
 			} else {
