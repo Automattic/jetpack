@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.1] - 2023-08-28
+### Changed
+- Updated package dependencies. [#32605]
+
 ## [0.20.0] - 2023-08-21
 ### Added
 - Add block.json file to Contact Form block [#32583]
@@ -312,6 +316,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.20.1]: https://github.com/automattic/jetpack-forms/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/automattic/jetpack-forms/compare/v0.19.11...v0.20.0
 [0.19.11]: https://github.com/automattic/jetpack-forms/compare/v0.19.10...v0.19.11
 [0.19.10]: https://github.com/automattic/jetpack-forms/compare/v0.19.9...v0.19.10
