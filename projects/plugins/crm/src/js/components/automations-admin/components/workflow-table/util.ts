@@ -1,4 +1,4 @@
-import { Workflow } from '../../types';
+import { Workflow } from 'crm/state/automations-admin/types';
 import { SortableWorkflowTableColumn, SortDirection } from './types';
 
 const getSortValueFunctions: Record<
