@@ -1,4 +1,4 @@
-import * as WPElement from '@wordpress/element';
+import { render } from '@wordpress/element';
 import { _x } from '@wordpress/i18n';
 import accessibleFocus from 'lib/accessible-focus';
 import { assign } from 'lodash';
@@ -20,19 +20,18 @@ if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 	} );
 }
 
-render();
+renderApp();
 
 /**
- *
+ * Initial render function.
  */
-function render() {
+function renderApp() {
 	const container = document.getElementById( 'jp-plugin-container' );
 
 	if ( container === null ) {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
 	const component = (
 		<div>
 			<Provider store={ store }>
@@ -100,11 +99,7 @@ function render() {
 			</Provider>
 		</div>
 	);
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( component );
-	} else {
-		WPElement.render( component, container );
-	}
+	render( component, container );
 }
 
 /**

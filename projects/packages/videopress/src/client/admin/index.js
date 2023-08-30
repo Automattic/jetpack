@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
-import * as WPElement from '@wordpress/element';
+import { render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
 import { HashRouter, Switch, Route, useLocation } from 'react-router-dom';
@@ -66,19 +66,14 @@ const VideoPress = () => {
 /**
  * Initial render function.
  */
-function render() {
+function renderVideopress() {
 	const container = document.getElementById( 'jetpack-videopress-root' );
 
 	if ( null === container ) {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( <VideoPress /> );
-	} else {
-		WPElement.render( <VideoPress />, container );
-	}
+	render( <VideoPress />, container );
 }
 
-render();
+renderVideopress();

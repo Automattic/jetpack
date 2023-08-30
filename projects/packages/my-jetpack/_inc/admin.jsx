@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
-import * as WPElement from '@wordpress/element';
+import { render } from '@wordpress/element';
 import React, { useEffect } from 'react';
 import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 /**
@@ -74,18 +74,13 @@ const MyJetpack = () => (
 /**
  * The initial renderer function.
  */
-function render() {
+function renderMyJetpack() {
 	const container = document.getElementById( 'my-jetpack-container' );
 	if ( null === container ) {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( <MyJetpack /> );
-	} else {
-		WPElement.render( <MyJetpack />, container );
-	}
+	render( <MyJetpack />, container );
 }
 
-render();
+renderMyJetpack();

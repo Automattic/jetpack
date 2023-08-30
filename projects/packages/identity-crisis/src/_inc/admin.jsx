@@ -1,5 +1,5 @@
 import { IDCScreen } from '@automattic/jetpack-idc';
-import * as WPElement from '@wordpress/element';
+import { render } from '@wordpress/element';
 import React from 'react';
 
 import './admin-bar.scss';
@@ -8,7 +8,7 @@ import './style.scss';
 /**
  * The initial renderer function.
  */
-function render() {
+function renderIdc() {
 	if ( ! window.hasOwnProperty( 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ) {
 		return;
 	}
@@ -36,7 +36,6 @@ function render() {
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
 	if ( ! isSafeModeConfirmed ) {
-		// @todo: Remove fallback when we drop support for WP 6.1
 		const component = (
 			<IDCScreen
 				wpcomHomeUrl={ wpcomHomeUrl }
@@ -54,13 +53,8 @@ function render() {
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 			/>
 		);
-
-		if ( WPElement.createRoot ) {
-			WPElement.createRoot( container ).render( component );
-		} else {
-			WPElement.render( component, container );
-		}
+		render( component, container );
 	}
 }
 
-window.addEventListener( 'load', () => render() );
+window.addEventListener( 'load', () => renderIdc() );

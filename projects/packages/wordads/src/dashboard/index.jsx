@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { createReduxStore, register } from '@wordpress/data';
-import * as WPElement from '@wordpress/element';
+import { render } from '@wordpress/element';
 import React from 'react';
 import WordAdsDashboard from './components/dashboard';
 import { STORE_ID, storeConfig } from './store';
@@ -18,17 +18,12 @@ function init() {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
-	const component = (
+	render(
 		<ThemeProvider>
 			<WordAdsDashboard />
-		</ThemeProvider>
+		</ThemeProvider>,
+		container
 	);
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( component );
-	} else {
-		WPElement.render( component, container );
-	}
 }
 
 // Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.

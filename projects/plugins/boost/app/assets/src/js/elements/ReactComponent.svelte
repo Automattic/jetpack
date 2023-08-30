@@ -7,16 +7,11 @@
 	let root;
 	afterUpdate( () => {
 		const { this: component, children, ...props } = $$props;
-		// @todo: Remove fallback when we drop support for WP 6.1
-		if ( WPElement.createRoot ) {
-			root = WPElement.createRoot( container );
-		} else {
-			const theContainer = container;
-			root = {
-				render: theComponent => WPElement.render( theComponent, theContainer ),
-				unmount: () => WPElement.unmountComponentAtNode( theContainer ),
-			};
-		}
+		const theContainer = container;
+		root = {
+			render: theComponent => WPElement.render( theComponent, theContainer ),
+			unmount: () => WPElement.unmountComponentAtNode( theContainer ),
+		};
 		root.render( React.createElement( component, props, children ) );
 	} );
 	onDestroy( () => {

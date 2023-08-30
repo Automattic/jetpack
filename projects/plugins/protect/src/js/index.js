@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import * as WPElement from '@wordpress/element';
+import { render } from '@wordpress/element';
 import React, { useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import FirewallPage from './components/firewall-page';
@@ -26,14 +26,13 @@ function ScrollToTop() {
 /**
  * Initial render function.
  */
-function render() {
+function renderProtectApp() {
 	const container = document.getElementById( 'jetpack-protect-root' );
 
 	if ( null === container ) {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
 	const component = (
 		<ThemeProvider>
 			<HashRouter>
@@ -46,11 +45,7 @@ function render() {
 			<Modal />
 		</ThemeProvider>
 	);
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( component );
-	} else {
-		WPElement.render( component, container );
-	}
+	render( component, container );
 }
 
-render();
+renderProtectApp();
