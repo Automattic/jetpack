@@ -42,11 +42,6 @@ case "$WP_BRANCH" in
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
 		TAG=6.2
 		;;
-	special)
-		# This is a special case for testing WP 6.1 as well as 6.2 in the interim between Jetpack 12.4 and WC US on 25th of August, 2023.
-		# TODO: Remove this after Jetpack 12.5 is released, more here: pdWQjU-r3-p2
-		TAG=6.1
-		;;
 	*)
 		echo "Unrecognized value for WP_BRANCH: $WP_BRANCH" >&2
 		exit 1
