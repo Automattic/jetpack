@@ -48,19 +48,10 @@ class WPCOM_REST_API_V2_Endpoint_Following_Recommendations extends WP_REST_Contr
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_response' ),
-					'permission_callback' => array( $this, 'permission_check' ),
+					'permission_callback' => 'is_user_logged_in',
 				),
 			)
 		);
-	}
-
-	/**
-	 * Check if user has edit post permission.
-	 *
-	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
-	 */
-	public function permission_check() {
-		return current_user_can( 'edit_posts' );
 	}
 
 	/**
