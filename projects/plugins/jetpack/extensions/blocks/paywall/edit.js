@@ -14,6 +14,7 @@ import {
 } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { Link, PaywallBlockSettings } from '../../shared/memberships/settings';
+import { getPaidPlanLink } from '../../shared/memberships/utils';
 
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
@@ -27,6 +28,7 @@ function PaywallEdit( { className } ) {
 			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
 		};
 	} );
+	const paidLink = getPaidPlanLink( hasNewsletterPlans );
 
 	useEffect( () => {
 		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
@@ -113,15 +115,22 @@ function PaywallEdit( { className } ) {
 									{ getLabel( accessOptions.paid_subscribers.key ) }
 								</MenuItem>
 							</MenuGroup>
-							{ accessLevel === accessOptions.paid_subscribers.key && (
-								<MenuGroup>
-									<Link href={ stripeConnectUrl }>
-										<MenuItem info={ __( 'Enable paid subscribers', 'jetpack' ) }>
-											{ __( 'Connect to Stripe', 'jetpack' ) }
-										</MenuItem>
-									</Link>
-								</MenuGroup>
-							) }
+							{ accessLevel === accessOptions.paid_subscribers.key &&
+								( stripeConnectUrl || ! hasNewsletterPlans ) && (
+									<MenuGroup>
+										<MenuItem info={ __( 'Enable paid subscribers', 'jetpack' ) }></MenuItem>
+										{ stripeConnectUrl && (
+											<Link href={ stripeConnectUrl }>
+												<MenuItem>{ __( 'Connect to Stripe', 'jetpack' ) }</MenuItem>
+											</Link>
+										) }
+										{ ! stripeConnectUrl && ! hasNewsletterPlans && (
+											<Link href={ paidLink }>
+												<MenuItem>{ __( 'Add a paid plan', 'jetpack' ) }</MenuItem>
+											</Link>
+										) }
+									</MenuGroup>
+								) }
 						</>
 					) }
 				</ToolbarDropdownMenu>
