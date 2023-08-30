@@ -199,6 +199,7 @@ class Jetpack_Redux_State_Helper {
 			),
 			'themeData'                   => array(
 				'name'         => $current_theme->get( 'Name' ),
+				'stylesheet'   => $current_theme->get_stylesheet(),
 				'hasUpdate'    => (bool) get_theme_update_available( $current_theme ),
 				'isBlockTheme' => (bool) $current_theme->is_block_theme(),
 				'support'      => array(
