@@ -1525,11 +1525,11 @@ abstract class SAL_Site {
 	public function is_commercial() {
 		// Override if blog has the commercial stickers.
 		if ( function_exists( 'has_blog_sticker' ) ) {
-			$has_not_commercial_sticker = has_blog_sticker( 'jetpack-site-is-not-commercial', $this->blog_id );
+			$has_not_commercial_sticker = has_blog_sticker( 'jetpack-site-is-not-commercial-override', $this->blog_id );
 			if ( $has_not_commercial_sticker ) {
 				return false;
 			}
-			$has_commercial_sticker = has_blog_sticker( 'jetpack-site-is-commercial', $this->blog_id );
+			$has_commercial_sticker = has_blog_sticker( 'jetpack-site-is-commercial-override', $this->blog_id );
 			if ( $has_commercial_sticker ) {
 				return true;
 			}
