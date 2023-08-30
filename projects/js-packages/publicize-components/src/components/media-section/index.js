@@ -2,7 +2,7 @@ import { ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
 import { Disabled, ExternalLink, Notice, BaseControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { Fragment } from 'react';
+import { Fragment } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useMediaDetails from '../../hooks/use-media-details';
 import MediaPicker from '../media-picker';
@@ -16,7 +16,7 @@ const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
  * @param {object} props - The properties passed to the component.
  * @param {boolean} [props.disabled=false] - Indicates whether the MediaSection is disabled or not.
  * @param {string} [props.disabledNoticeMessage=''] - An optional notice that's displayed when the section is disabled.
- * @param {React.FC} [props.CustomNotice=null] - An optional custom notice that's displayed.
+ * @param {import('react').ReactNode} [props.CustomNotice=null] - An optional custom notice that's displayed.
  * @returns {object} The media section.
  */
 export default function MediaSection( {
