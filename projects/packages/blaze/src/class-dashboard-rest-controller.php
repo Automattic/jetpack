@@ -170,6 +170,15 @@ class Dashboard_REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/dsp/api/v1/subscriptions(?P<sub_path>[a-zA-Z0-9-_\/]*)', $site_id ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'edit_dsp_subscriptions' ),
+				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
+			)
+		);
 
 		// WordAds DSP API Smart routes
 		register_rest_route(
@@ -337,7 +346,6 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function get_dsp_experiments( $req ) {
-
 		return $this->get_dsp_generic( 'v1/experiments', $req );
 	}
 
@@ -488,6 +496,16 @@ class Dashboard_REST_Controller {
 	 */
 	public function edit_dsp_campaigns( $req ) {
 		return $this->edit_dsp_generic( 'v1/campaigns', $req, array( 'timeout' => 20 ) );
+	}
+
+	/**
+	 * Redirect POST/PUT/PATCH requests to WordAds DSP Subscriptions endpoint for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function edit_dsp_subscriptions( $req ) {
+		return $this->edit_dsp_generic( 'v1/subscriptions', $req, array( 'timeout' => 20 ) );
 	}
 
 	/**
