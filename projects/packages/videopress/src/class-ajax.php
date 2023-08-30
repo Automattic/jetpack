@@ -127,6 +127,7 @@ class AJAX {
 		$restriction_details = array(
 			'version'              => '1',
 			'provider'             => 'auth',
+			'title'                => __( 'Unauthorized', 'jetpack-videopress-pkg' ),
 			'unauthorized_message' => __( 'Unauthorized', 'jetpack-videopress-pkg' ),
 			'can_access'           => $default_can_access,
 		);
@@ -155,6 +156,7 @@ class AJAX {
 	private function get_subscriber_only_restriction_details( $default_can_access = false ) {
 		return array(
 			'provider'             => 'jetpack_memberships',
+			'title'                => __( 'This video is subscriber-only', 'jetpack-videopress-pkg' ),
 			'unauthorized_message' => __( 'You need to be subscribed to view this video', 'jetpack-videopress-pkg' ),
 			'can_access'           => $default_can_access,
 		);
@@ -320,12 +322,13 @@ class AJAX {
 		$default_details = array(
 			'version'              => '1',
 			'provider'             => 'auth',
+			'title'                => 'Unauthorized',
 			'unauthorized_message' => 'Unauthorized',
 		);
 
 		$body = array_merge( $default_details, $details );
 
-		$endpoint = "sites/{$video_blog_id}/media/videopress-restriction-details/{$guid}";
+		$endpoint = "sites/{$video_blog_id}/media/videopress-privacy-details/{$guid}";
 		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, wp_json_encode( $body ), 'wpcom' );
 		if ( is_wp_error( $result ) ) {
 			return $result;
