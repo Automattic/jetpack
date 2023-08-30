@@ -29,7 +29,6 @@ const DEFAULT_IS_CUSTOM_AMOUNT = false;
 export default function ProductManagementInspectorControl() {
 	const { productType, setSelectedProductId } = useProductManagementContext();
 
-	const shouldUpgrade = useSelect( select => select( membershipProductsStore ).getShouldUpgrade() );
 	const siteSlug = useSelect( select => select( membershipProductsStore ).getSiteSlug() );
 
 	const { saveProduct } = useDispatch( membershipProductsStore );
@@ -96,76 +95,74 @@ export default function ProductManagementInspectorControl() {
 					</ExternalLink>
 				</PanelBody>
 			) }
-			{ ! shouldUpgrade && (
-				<PanelBody
-					title={ getMessageByProductType( 'add a new product', productType ) }
-					initialOpen={ true }
-					className={ 'product-management-control-inspector__add-plan' }
-				>
-					{ apiState === API_STATE_REQUESTING && (
-						<Placeholder
-							icon={ lock }
-							label={ getMessageByProductType( 'saving product', productType ) }
-						>
-							<Spinner />
-						</Placeholder>
-					) }
-					{ apiState === API_STATE_NOT_REQUESTING && (
-						<>
-							<PanelRow className="product-management-control-inspector__product-title">
-								<TextControl
-									id="new-product-title"
-									label={ __( 'Name', 'jetpack' ) }
-									onChange={ value => {
-										setTitle( value );
-										setIsCustomTitle( true );
-									} }
-									value={ title }
-								/>
-							</PanelRow>
-							<PanelRow className="product-management-control-inspector__product-price">
-								<SelectControl
-									label={ __( 'Currency', 'jetpack' ) }
-									onChange={ value => setCurrency( value ) }
-									options={ CURRENCY_OPTIONS }
-									value={ currency }
-								/>
-								<TextControl
-									label={ __( 'Price', 'jetpack' ) }
-									onChange={ value => setPrice( value ) }
-									type="number"
-									value={ price }
-								/>
-							</PanelRow>
-							<PanelRow className="plan-interval">
-								<SelectControl
-									label={ __( 'Interval', 'jetpack' ) }
-									onChange={ value => setInterval( value ) }
-									options={ intervalOptions }
-									value={ interval }
-								/>
-							</PanelRow>
-							<PanelRow className="custom-amount">
-								<ToggleControl
-									label={ __( 'Enable customers to pick their own amount', 'jetpack' ) }
-									onChange={ value => setIsCustomAmount( value ) }
-									checked={ isCustomAmount }
-								/>
-							</PanelRow>
-							<PanelRow>
-								<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
-									{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
-								</ExternalLink>
-							</PanelRow>
-							<PanelRow>
-								<Button onClick={ handleSubmit } variant="secondary">
-									{ getMessageByProductType( 'add product', productType ) }
-								</Button>
-							</PanelRow>
-						</>
-					) }
-				</PanelBody>
-			) }
+			<PanelBody
+				title={ getMessageByProductType( 'add a new product', productType ) }
+				initialOpen={ true }
+				className={ 'product-management-control-inspector__add-plan' }
+			>
+				{ apiState === API_STATE_REQUESTING && (
+					<Placeholder
+						icon={ lock }
+						label={ getMessageByProductType( 'saving product', productType ) }
+					>
+						<Spinner />
+					</Placeholder>
+				) }
+				{ apiState === API_STATE_NOT_REQUESTING && (
+					<>
+						<PanelRow className="product-management-control-inspector__product-title">
+							<TextControl
+								id="new-product-title"
+								label={ __( 'Name', 'jetpack' ) }
+								onChange={ value => {
+									setTitle( value );
+									setIsCustomTitle( true );
+								} }
+								value={ title }
+							/>
+						</PanelRow>
+						<PanelRow className="product-management-control-inspector__product-price">
+							<SelectControl
+								label={ __( 'Currency', 'jetpack' ) }
+								onChange={ value => setCurrency( value ) }
+								options={ CURRENCY_OPTIONS }
+								value={ currency }
+							/>
+							<TextControl
+								label={ __( 'Price', 'jetpack' ) }
+								onChange={ value => setPrice( value ) }
+								type="number"
+								value={ price }
+							/>
+						</PanelRow>
+						<PanelRow className="plan-interval">
+							<SelectControl
+								label={ __( 'Interval', 'jetpack' ) }
+								onChange={ value => setInterval( value ) }
+								options={ intervalOptions }
+								value={ interval }
+							/>
+						</PanelRow>
+						<PanelRow className="custom-amount">
+							<ToggleControl
+								label={ __( 'Enable customers to pick their own amount', 'jetpack' ) }
+								onChange={ value => setIsCustomAmount( value ) }
+								checked={ isCustomAmount }
+							/>
+						</PanelRow>
+						<PanelRow>
+							<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
+								{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
+							</ExternalLink>
+						</PanelRow>
+						<PanelRow>
+							<Button onClick={ handleSubmit } variant="secondary">
+								{ getMessageByProductType( 'add product', productType ) }
+							</Button>
+						</PanelRow>
+					</>
+				) }
+			</PanelBody>
 		</InspectorControls>
 	);
 }
