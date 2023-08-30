@@ -1,11 +1,18 @@
 import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
-import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
+import {
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalConfirmDialog as ConfirmDialog,
+	MenuGroup,
+	MenuItem,
+	PanelBody,
+	ToolbarDropdownMenu,
+} from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon, update, check } from '@wordpress/icons';
 import {
@@ -13,7 +20,7 @@ import {
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
-import { Link, PaywallBlockSettings } from '../../shared/memberships/settings';
+import { PaywallBlockSettings } from '../../shared/memberships/settings';
 import { getPaidPlanLink } from '../../shared/memberships/utils';
 
 function PaywallEdit( { className } ) {
@@ -29,6 +36,9 @@ function PaywallEdit( { className } ) {
 		};
 	} );
 	const paidLink = getPaidPlanLink( hasNewsletterPlans );
+	const [ showModal, setShowModal ] = useState( false );
+	const closeModal = () => setShowModal( false );
+	const { savePost } = useDispatch( 'core/editor' );
 
 	useEffect( () => {
 		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
@@ -106,7 +116,12 @@ function PaywallEdit( { className } ) {
 								</MenuItem>
 								<MenuItem
 									onClick={ () => {
-										switchToPaidSubscribers();
+										if ( ! stripeConnectUrl && hasNewsletterPlans ) {
+											switchToPaidSubscribers();
+										} else {
+											setShowModal( true );
+											closeDropdown();
+										}
 									} }
 									isSelected={ accessLevel === accessOptions.paid_subscribers.key }
 									icon={ accessLevel === accessOptions.paid_subscribers.key && check }
@@ -115,26 +130,42 @@ function PaywallEdit( { className } ) {
 									{ getLabel( accessOptions.paid_subscribers.key ) }
 								</MenuItem>
 							</MenuGroup>
-							{ accessLevel === accessOptions.paid_subscribers.key &&
-								( stripeConnectUrl || ! hasNewsletterPlans ) && (
-									<MenuGroup>
-										<MenuItem info={ __( 'Enable paid subscribers', 'jetpack' ) }></MenuItem>
-										{ stripeConnectUrl && (
-											<Link href={ stripeConnectUrl }>
-												<MenuItem>{ __( 'Connect to Stripe', 'jetpack' ) }</MenuItem>
-											</Link>
-										) }
-										{ ! hasNewsletterPlans && (
-											<Link href={ paidLink }>
-												<MenuItem>{ __( 'Add a paid plan', 'jetpack' ) }</MenuItem>
-											</Link>
-										) }
-									</MenuGroup>
-								) }
 						</>
 					) }
 				</ToolbarDropdownMenu>
 			</BlockControls>
+			<ConfirmDialog
+				onRequestClose={ closeModal }
+				cancelButtonText={ __( 'I am not ready', 'jetpack' ) }
+				confirmButtonText={ __( 'Get started', 'jetpack' ) }
+				isOpen={ showModal }
+				onCancel={ closeModal }
+				onConfirm={ () => {
+					savePost();
+					window.location.href = paidLink;
+				} }
+			>
+				<h2>{ __( 'Enable payment collection', 'jetpack' ) }</h2>
+				<p>{ __( "You'll need to take the following steps:", 'jetpack' ) }</p>
+				<ul>
+					{ ! hasNewsletterPlans && (
+						<li>
+							{ __(
+								'Add a paid plan – Set up how much your user will have to pay in order to access your paid content.',
+								'jetpack'
+							) }
+						</li>
+					) }
+					{ stripeConnectUrl && (
+						<li>
+							{ __(
+								'Connect to Stripe – Set up a Stripe account to securely handle payments.',
+								'jetpack'
+							) }
+						</li>
+					) }
+				</ul>
+			</ConfirmDialog>
 			<InspectorControls>
 				<PanelBody
 					className="jetpack-subscribe-newsletters-panel"
