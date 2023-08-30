@@ -107,7 +107,6 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 			.getUserMedia( constraints )
 			.then( stream => {
 				mediaRecordRef.current = new MediaRecorder( stream );
-				// Listen to the start event
 
 				mediaRecordRef.current.addEventListener( 'start', onStartListener );
 				mediaRecordRef.current.addEventListener( 'stop', onStopListener );
