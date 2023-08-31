@@ -1,18 +1,18 @@
 <?php
 /**
- * Jetpack AI Assistant Block.
+ * "Create with voice" Block.
  *
- * @since 12.2
+ * @since 12.5
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\AIAssistant;
+namespace Automattic\Jetpack\Extensions\Create_With_Voice;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'ai-assistant';
+const FEATURE_NAME = 'create-with-voice';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
@@ -29,10 +29,10 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Jetpack AI Assistant block registration/dependency declaration.
+ * "Create with voice" block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Jetpack AI Assistant block attributes.
- * @param string $content String containing the Jetpack AI Assistant block content.
+ * @param array  $attr    Array containing the "Create with voice" block attributes.
+ * @param string $content String containing the "Create with voice" block content.
  *
  * @return string
  */
@@ -48,23 +48,3 @@ function load_assets( $attr, $content ) {
 		$content
 	);
 }
-
-/**
- * Register the `ai-assistant-support` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
-	}
-);
-
-/**
- * Register the `ai-assistant-form-support` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-form-support' );
-	}
-);
