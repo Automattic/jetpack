@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+General: remove backwards-compatibility function checks now that the package supports WP 6.2.

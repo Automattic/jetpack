@@ -66,7 +66,7 @@ class Jetpack_Widget_Conditions {
 		// the customizer controls in the sidebar should not (so they can be edited).
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$customizer_not_previewer = is_customize_preview() && ! isset( $_GET['customize_changeset_uuid'] );
-		$using_classic_experience = ( ! function_exists( 'wp_use_widgets_block_editor' ) || ! wp_use_widgets_block_editor() );
+		$using_classic_experience = ! wp_use_widgets_block_editor();
 		if ( $using_classic_experience &&
 			( $customizer_not_previewer || 'widgets.php' === $pagenow ||
 				// phpcs:ignore WordPress.Security.NonceVerification.Missing

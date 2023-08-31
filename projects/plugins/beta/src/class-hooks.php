@@ -440,9 +440,7 @@ class Hooks {
 		}
 		wp_clear_scheduled_hook( 'jetpack_beta_autoupdate_hourly_cron' );
 
-		if ( function_exists( 'wp_unschedule_hook' ) ) { // New in WP `4.9`.
-			wp_unschedule_hook( 'jetpack_beta_autoupdate_hourly_cron' );
-		}
+		wp_unschedule_hook( 'jetpack_beta_autoupdate_hourly_cron' );
 	}
 
 	/**

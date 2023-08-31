@@ -182,11 +182,8 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		// We expect a different image markup in WP 5.5 when Lazy Load is enabled.
-		if (
-			function_exists( 'wp_lazy_loading_enabled' )
-			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
-		) {
+		// We expect a different image markup when Lazy Load is enabled.
+		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
 			// WP 6.3 changes the order of the attributes.
 			if ( function_exists( 'wp_img_tag_add_loading_optimization_attrs' ) ) {
 				$expect = 'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" loading="lazy" />';
@@ -209,11 +206,8 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		// We expect a different image markup in WP 5.5 when Lazy Load is enabled.
-		if (
-			function_exists( 'wp_lazy_loading_enabled' )
-			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
-		) {
+		// We expect a different image markup when Lazy Load is enabled.
+		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
 			$this->assertStringContainsString(
 				'<img class="jetpack-recipe-image u-photo photo" itemprop="image" loading="lazy" src="https://example.com" />',
 				$shortcode_content
@@ -273,11 +267,8 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		// We expect a different image markup in WP 5.5 when Lazy Load is enabled.
-		if (
-			function_exists( 'wp_lazy_loading_enabled' )
-			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
-		) {
+		// We expect a different image markup when Lazy Load is enabled.
+		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
 			$this->assertStringContainsString( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" loading="lazy" src="https://example.com" />', $shortcode_content );
 		} else {
 			$this->assertStringContainsString( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />', $shortcode_content );
@@ -295,11 +286,8 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		// We expect a different image markup in WP 5.5 when Lazy Load is enabled.
-		if (
-			function_exists( 'wp_lazy_loading_enabled' )
-			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
-		) {
+		// We expect a different image markup when Lazy Load is enabled.
+		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
 			$this->assertStringContainsString( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" loading="lazy" src="https://example.com" />', $shortcode_content );
 		} else {
 			$this->assertStringContainsString( '<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="https://example.com" />', $shortcode_content );

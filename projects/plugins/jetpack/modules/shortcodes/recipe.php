@@ -635,10 +635,7 @@ class Jetpack_Recipes {
 			'itemprop' => 'image',
 		);
 
-		if (
-			function_exists( 'wp_lazy_loading_enabled' )
-			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
-		) {
+		if ( wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' ) ) {
 			$image_attrs['loading'] = 'lazy';
 		}
 
