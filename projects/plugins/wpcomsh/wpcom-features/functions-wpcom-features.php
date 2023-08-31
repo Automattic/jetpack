@@ -69,6 +69,13 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	}
 
 	/*
+	 * A8C override for internal P2s
+	 */
+	if ( $feature === WPCOM_Features::AI_ASSISTANT && wpcom_is_automattic_p2_site( $blog_id ) ) {
+		return true;
+	}
+
+	/*
 	 * A8C override for wp.org sites to enable JP search
 	 */
 	if ( $feature === WPCOM_Features::CLASSIC_SEARCH && wpcom_is_wporg_jp_index( $blog_id ) ) {
