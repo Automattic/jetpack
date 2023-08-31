@@ -57,9 +57,6 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_domain_upsell_completed',
 			'badge_text_callback'  => 'wpcom_launchpad_get_domain_upsell_badge_text',
 			'is_visible_callback'  => 'wpcom_launchpad_is_domain_upsell_task_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/domains/add/' . $data['site_slug_encoded'];
-			},
 		),
 		'first_post_published'            => array(
 			'get_title'             => function () {
