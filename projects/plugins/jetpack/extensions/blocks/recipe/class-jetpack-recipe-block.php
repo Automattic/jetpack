@@ -27,7 +27,7 @@ class Jetpack_Recipe_Block {
 	 * @return string
 	 */
 	public static function render( $attr, $content ) {
-		Jetpack_Gutenberg::load_assets_as_required( 'recipe' );
+		Jetpack_Gutenberg::load_assets_as_required( Blocks::get_path_to_block_metadata( __DIR__ ) );
 
 		$find    = array(
 			'/(class="wp-block-jetpack-recipe(\s|"))/',
