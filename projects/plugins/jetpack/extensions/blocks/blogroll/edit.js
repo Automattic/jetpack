@@ -1,6 +1,7 @@
 import { InspectorControls, useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+
 import './editor.scss';
 
 export function BlogRollEdit( { className, attributes, setAttributes } ) {
@@ -11,7 +12,6 @@ export function BlogRollEdit( { className, attributes, setAttributes } ) {
 		open_links_new_window,
 		ignore_user_blogs,
 	} = attributes;
-
 	const DEFAULT_TEMPLATE = [
 		[ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ],
 		[ 'jetpack/blogroll-item', {} ],
