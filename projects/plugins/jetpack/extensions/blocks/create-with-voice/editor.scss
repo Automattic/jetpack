@@ -1,0 +1,9 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jetpack-ai-create-with-voice__record-button {
+	&.components-button.has-icon {
+		> SVG {
+			fill: none;
+		}
+	}
+}

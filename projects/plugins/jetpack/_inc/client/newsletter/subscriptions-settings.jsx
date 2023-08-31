@@ -1,6 +1,5 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import Card from 'components/card';
@@ -17,6 +16,7 @@ import { isCurrentUserLinked, isUnavailableInOfflineMode, isOfflineMode } from '
 import {
 	isSubscriptionModalEnabled,
 	currentThemeIsBlockTheme,
+	currentThemeStylesheet,
 	getSiteAdminUrl,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
@@ -48,16 +48,14 @@ function SubscriptionsSettings( props ) {
 		updateFormStateModuleOption,
 		isBlockTheme,
 		siteAdminUrl,
+		themeStylesheet,
 	} = props;
 
-	const theme = useSelect( select => select( 'core' ).getCurrentTheme() );
-	const themeSlug = theme?.stylesheet;
-
 	const subscribeModalEditorUrl =
-		siteAdminUrl && themeSlug
+		siteAdminUrl && themeStylesheet
 			? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
 					postType: 'wp_template_part',
-					postId: `${ themeSlug }//jetpack-subscribe-modal`,
+					postId: `${ themeStylesheet }//jetpack-subscribe-modal`,
 					canvas: 'edit',
 			  } )
 			: null;
@@ -211,6 +209,7 @@ export default withModuleSettingsFormHelpers(
 			isSmEnabled: ownProps.getOptionValue( 'sm_enabled' ),
 			isBlockTheme: currentThemeIsBlockTheme( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
+			themeStylesheet: currentThemeStylesheet( state ),
 		};
 	} )( SubscriptionsSettings )
 );
