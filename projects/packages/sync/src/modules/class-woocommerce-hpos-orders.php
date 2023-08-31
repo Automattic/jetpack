@@ -67,6 +67,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	public function init_listeners( $callable ) {
 		add_action( 'woocommerce_after_order_object_save', $callable );
 		add_action( 'woocommerce_delete_order', $callable );
+		add_action( 'woocommerce_trash_order', $callable );
 	}
 
 	/**
@@ -76,6 +77,8 @@ class WooCommerce_HPOS_Orders extends Module {
 	 */
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_after_order_object_save', array( $this, 'expand_order_object' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_delete_order', array( $this, 'expand_order_object' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_trash_order', array( $this, 'expand_order_object' ) );
 		add_filter( 'jetpack_sync_before_enqueue_full_sync_orders', array( $this, 'expand_order_objects' ) );
 	}
 
@@ -178,6 +181,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	 */
 	public function expand_order_object( $args ) {
 		$order_object = $args[0];
+
+		if ( is_int( $order_object ) ) {
+			$order_object = wc_get_order( $order_object );
+		}
+
 		if ( ! $order_object instanceof \WC_Abstract_Order ) {
 			return false;
 		}
@@ -197,6 +205,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	private function filter_order_data( $order_data ) {
 		// Filter with allowlist.
 		$allowed_data_keys   = WooCommerce::$wc_post_meta_whitelist;
+		$allowed_data_keys[] = 'id';
 		$filtered_order_data = array();
 		foreach ( $allowed_data_keys as $key ) {
 			$key       = trim( $key, '_' );
