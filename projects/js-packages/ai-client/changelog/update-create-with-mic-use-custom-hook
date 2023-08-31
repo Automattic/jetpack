@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Client: minor change in useMediaRecording() hook example
