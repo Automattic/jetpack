@@ -30,7 +30,7 @@ const MediaRecorderComponent = () => {
 		<div>
 			<h1>Media Recorder</h1>
 			<p>Current State: { state }</p>
-			<button onClick={ start } disabled={ state === 'recording' }>
+			<button onClick={ start } disabled={ state !== 'inactive' }>
 				Start
 			</button>
 			<button onClick={ pause } disabled={ state !== 'recording' }>
@@ -39,7 +39,7 @@ const MediaRecorderComponent = () => {
 			<button onClick={ resume } disabled={ state !== 'paused' }>
 				Resume
 			</button>
-			<button onClick={ stop } disabled={ state === 'inactive' }>
+			<button onClick={ stop } disabled={ state === 'recording' }>
 				Stop
 			</button>
 		</div>
