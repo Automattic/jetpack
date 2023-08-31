@@ -2,27 +2,30 @@
 	import { __ } from '@wordpress/i18n';
 	import NumberSlider from '../../../elements/NumberSlider.svelte';
 	import Tooltip from '../../../elements/Tooltip.svelte';
+	import config from '../../../stores/config';
 	import { imageCdnQuality } from '../../../stores/image-cdn';
 </script>
 
-<div class="jb-image-cdn-quality">
-	<div class="jb-image-cdn-quality__label">
-		{__( 'Image Quality', 'jetpack-boost' )}
-		<Tooltip>
-			<div slot="title">
-				{__( 'Image Quality', 'jetpack-boost' )}
-				<span class="jb-badge">Upgraed</span>
-			</div>
-			{__(
-				'Select the quality for images served by the CDN. Choosing a lower quality will compress your images and load them faster.',
-				'jetpack-boost'
-			)}
-		</Tooltip>
+{#if $config.isPremium}
+	<div class="jb-image-cdn-quality">
+		<div class="jb-image-cdn-quality__label">
+			{__( 'Image Quality', 'jetpack-boost' )}
+			<Tooltip>
+				<div slot="title">
+					{__( 'Image Quality', 'jetpack-boost' )}
+					<span class="jb-badge">{__( 'Upgraded', 'jetpack-boost' )}</span>
+				</div>
+				{__(
+					'Select the quality for images served by the CDN. Choosing a lower quality will compress your images and load them faster.',
+					'jetpack-boost'
+				)}
+			</Tooltip>
+		</div>
+		<div class="jb-image-cdn-quality__slider">
+			<NumberSlider valueStore={imageCdnQuality} minValue={1} maxValue={100} />
+		</div>
 	</div>
-	<div class="jb-image-cdn-quality__slider">
-		<NumberSlider valueStore={imageCdnQuality} minValue={1} maxValue={100} />
-	</div>
-</div>
+{/if}
 
 <style lang="scss">
 	.jb-image-cdn-quality {
