@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { micIcon, playerStopIcon, useMediaRecording } from '@automattic/jetpack-ai-client';
+import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -26,23 +27,28 @@ export default function CreateWithVoiceEdit() {
 		buttoneLabel = __( 'Resume recording', 'jetpack' );
 	}
 
+	const blockProps = useBlockProps();
+
 	return (
-		<Placeholder
-			icon="microphone"
-			label="AI: Create with voice"
-			instructions={ __(
-				'Transform your spoken words into publish-ready blocks with AI',
-				'jetpack'
-			) }
-		>
-			<Button
-				className="jetpack-ai-create-with-voice__record-button"
-				icon={ state === 'recording' ? playerStopIcon : micIcon }
-				variant="primary"
-				onClick={ recordingHandler }
+		<div { ...blockProps }>
+			<Placeholder
+				icon="microphone"
+				label="AI: Create with voice"
+				instructions={ __(
+					'Transform your spoken words into publish-ready blocks with AI',
+					'jetpack'
+				) }
 			>
-				{ buttoneLabel }
-			</Button>
-		</Placeholder>
+				<Button
+					className="jetpack-ai-create-with-voice__record-button"
+					icon={ state === 'recording' ? playerStopIcon : micIcon }
+					variant="primary"
+					onClick={ recordingHandler }
+				>
+					{ buttoneLabel }
+				</Button>
+			</Placeholder>
+		</div>
+
 	);
 }
