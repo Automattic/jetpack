@@ -8,7 +8,7 @@
 /**
  * Helper class for loading fixtures when testing Tweetstorm external requests.
  */
-class Tweetstorm_Requests_Transport_Override implements Requests_Transport {
+class Tweetstorm_Requests_Transport_Override implements \WpOrg\Requests\Transport {
 	/**
 	 * Perform a request.
 	 *
@@ -57,9 +57,9 @@ class Tweetstorm_Requests_Transport_Override implements Requests_Transport {
 	/**
 	 * Send multiple requests simultaneously.
 	 *
-	 * @param array $requests Request data (array of 'url', 'headers', 'data', 'options') as per {@see Requests_Transport::request}.
+	 * @param array $requests Request data (array of 'url', 'headers', 'data', 'options') as per {@see \WpOrg\Requests\Transport::request}.
 	 * @param array $options Global options, see {@see Requests::response()} for documentation.
-	 * @return array Array of Requests_Response objects (may contain Requests_Exception or string responses as well).
+	 * @return array Array of \WpOrg\Requests\Response objects (may contain \WpOrg\Requests\Exception or string responses as well).
 	 */
 	public function request_multiple( $requests, $options ) {  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis
 		$responses = array();
