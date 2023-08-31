@@ -67,6 +67,14 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	if ( $feature === WPCOM_Features::ADVANCED_SEO && in_array( $blog_id, WPCOM_FEATURES::A8C_SITES_WITH_ADDITIONAL_SEO_FEATURES, true ) ) {
 		return true;
 	}
+
+	/*
+	 * A8C override for wp.org sites to enable JP search
+	 */
+	if ( $feature === WPCOM_Features::CLASSIC_SEARCH && wpcom_is_wporg_jp_index( $blog_id ) ) {
+		return true;
+	}
+
 	return WPCOM_Features::has_feature( $feature, $purchases, $site_type );
 }
 
