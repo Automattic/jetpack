@@ -323,7 +323,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$user_can_customize = current_user_can( 'customize' );
 
-		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+		if ( wp_is_block_theme() ) {
 			add_filter( 'safecss_is_freetrial', '__return_false', PHP_INT_MAX );
 			if ( class_exists( 'Jetpack_Custom_CSS' ) && empty( Jetpack_Custom_CSS::get_css() ) ) {
 				$user_can_customize = false;

@@ -132,7 +132,7 @@ class Jetpack_Admin {
 		 * Custom CSS for the Customizer is deprecated for block themes as of WP 6.1, so we only expose it with a menu
 		 * if the site already has existing CSS code.
 		 */
-		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+		if ( wp_is_block_theme() ) {
 			$styles = wp_get_custom_css();
 			if ( ! $styles ) {
 				return;

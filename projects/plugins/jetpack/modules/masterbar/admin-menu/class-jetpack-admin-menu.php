@@ -209,7 +209,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), 'switch_themes', $themes_url, null, 'dashicons-admin-appearance', 60 );
 		add_submenu_page( $themes_url, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain );
 
-		if ( ! has_action( 'customize_register' ) && function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() ) {
+		if ( ! has_action( 'customize_register' ) && wp_is_block_theme() ) {
 			return $customize_url;
 		}
 
