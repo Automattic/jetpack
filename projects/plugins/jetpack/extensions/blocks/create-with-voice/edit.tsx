@@ -1,14 +1,30 @@
 /**
  * External dependencies
  */
-import { micIcon } from '@automattic/jetpack-ai-client';
+import { micIcon, playerStopIcon, useMediaRecording } from '@automattic/jetpack-ai-client';
 import { Placeholder, Button } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 export default function CreateWithVoiceEdit() {
-	const startToRecord = () => {
-		console.log( 'recording...' ); // eslint-disable-line no-console
-	};
+	const { state, start, pause, resume } = useMediaRecording();
+
+	const recordingHandler = useCallback( () => {
+		if ( state === 'inactive' ) {
+			start();
+		} else if ( state === 'recording' ) {
+			pause();
+		} else if ( state === 'paused' ) {
+			resume();
+		}
+	}, [ state, start, pause, resume ] );
+
+	let buttoneLabel = __( 'Start recording', 'jetpack' );
+	if ( state === 'recording' ) {
+		buttoneLabel = __( 'Pause recording', 'jetpack' );
+	} else if ( state === 'paused' ) {
+		buttoneLabel = __( 'Resume recording', 'jetpack' );
+	}
 
 	return (
 		<Placeholder
@@ -21,11 +37,11 @@ export default function CreateWithVoiceEdit() {
 		>
 			<Button
 				className="jetpack-ai-create-with-voice__record-button"
-				icon={ micIcon }
+				icon={ state === 'recording' ? playerStopIcon : micIcon }
 				variant="primary"
-				onClick={ startToRecord }
+				onClick={ recordingHandler }
 			>
-				{ __( 'Start recording', 'jetpack' ) }
+				{ buttoneLabel }
 			</Button>
 		</Placeholder>
 	);
