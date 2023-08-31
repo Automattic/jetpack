@@ -136,7 +136,7 @@ function PaywallEdit( { className } ) {
 			</BlockControls>
 			<ConfirmDialog
 				onRequestClose={ closeModal }
-				cancelButtonText={ __( 'I am not ready', 'jetpack' ) }
+				cancelButtonText={ __( 'Not now', 'jetpack' ) }
 				confirmButtonText={ __( 'Get started', 'jetpack' ) }
 				isOpen={ showModal }
 				onCancel={ closeModal }
@@ -145,26 +145,13 @@ function PaywallEdit( { className } ) {
 					window.location.href = paidLink;
 				} }
 			>
-				<h2>{ __( 'Enable payment collection', 'jetpack' ) }</h2>
-				<p>{ __( "You'll need to take the following steps:", 'jetpack' ) }</p>
-				<ul>
-					{ ! hasNewsletterPlans && (
-						<li>
-							{ __(
-								'Add a paid plan – Set up how much your user will have to pay in order to access your paid content.',
-								'jetpack'
-							) }
-						</li>
+				<h2>{ __( 'Enable payments', 'jetpack' ) }</h2>
+				<p>
+					{ __(
+						'To choose this option, you’ll need first to create a payment offer, setting up how much your subscribers should pay to access your paid content, and then connect your Stripe account, which is our payments’ processor.',
+						'jetpack'
 					) }
-					{ stripeConnectUrl && (
-						<li>
-							{ __(
-								'Connect to Stripe – Set up a Stripe account to securely handle payments.',
-								'jetpack'
-							) }
-						</li>
-					) }
-				</ul>
+				</p>
 			</ConfirmDialog>
 			<InspectorControls>
 				<PanelBody
