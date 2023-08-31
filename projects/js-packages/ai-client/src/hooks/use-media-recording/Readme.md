@@ -10,7 +10,7 @@ Based on [MediaRecorder](https://developer.mozilla.org/en-US/docs/Web/API/MediaR
 
 The hook returns an object with the following properties and methods:
 
-- `start: () => void`: Start the media recording
+- `start: ( timeslice ) => void`: Start the media recording
 - `pause: () => void`: Pause the current media recording
 - `resume: () => void`: Resume a paused recording
 - `stop: () => void`: Stop the current recording
@@ -39,7 +39,7 @@ const MediaRecorderComponent = () => {
 			<button onClick={ resume } disabled={ state !== 'paused' }>
 				Resume
 			</button>
-			<button onClick={ stop } disabled={ state === 'recording' }>
+			<button onClick={ stop } disabled={ state === 'inactive' }>
 				Stop
 			</button>
 		</div>

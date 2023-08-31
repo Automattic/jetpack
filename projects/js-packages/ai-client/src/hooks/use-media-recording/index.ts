@@ -7,11 +7,15 @@ import { useRef, useState, useEffect, useCallback } from '@wordpress/element';
  * Types
  */
 type RecordingStateProp = 'inactive' | 'recording' | 'paused';
+type UseMediaRecordingProps = {
+	onDone?: ( blob: Blob ) => void;
+};
+
 type UseMediaRecordingReturn = {
 	/**
 	 * `start` recording handler
 	 */
-	start: () => void;
+	start: ( timeslice?: number ) => void;
 
 	/**
 	 * `pause` recording handler
@@ -34,21 +38,42 @@ type UseMediaRecordingReturn = {
 	state: RecordingStateProp;
 };
 
+type MediaRecorderEvent = {
+	data: Blob;
+};
+
 /**
  * react custom hook to handle media recording.
  *
+ * @param {UseMediaRecordingProps} props - The props
  * @returns {UseMediaRecordingReturn} The media recorder instance
  */
-export default function useMediaRecording(): UseMediaRecordingReturn {
+export default function useMediaRecording( {
+	onDone,
+}: UseMediaRecordingProps = {} ): UseMediaRecordingReturn {
 	// Reference to the media recorder instance
 	const mediaRecordRef = useRef( null );
 
 	// Recording state: `inactive`, `recording`, `paused`
 	const [ state, setState ] = useState< RecordingStateProp >( 'inactive' );
 
+	// Store the recorded chunks
+	const recordedChunks = useRef< Array< Blob > >( [] ).current;
+
+	/**
+	 * Get the recorded blob.
+	 *
+	 * @returns {Blob} The recorded blob
+	 */
+	function getBlob() {
+		return new Blob( recordedChunks, {
+			type: 'audio/webm',
+		} );
+	}
+
 	// `start` recording handler
-	const start = useCallback( () => {
-		mediaRecordRef?.current?.start();
+	const start = useCallback( ( timeslice: number ) => {
+		mediaRecordRef?.current?.start( timeslice );
 	}, [] );
 
 	// `pause` recording handler
@@ -75,9 +100,15 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 
 	/**
 	 * `stop` event listener for the media recorder instance.
+	 *
+	 * @returns {void}
 	 */
-	function onStopListener() {
+	function onStopListener(): void {
 		setState( 'inactive' );
+		onDone?.( getBlob() );
+
+		// Clear the recorded chunks
+		recordedChunks.length = 0;
 	}
 
 	/**
@@ -92,6 +123,22 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 	 */
 	function onResumeListener() {
 		setState( 'recording' );
+	}
+
+	/**
+	 * `dataavailable` event listener for the media recorder instance.
+	 *
+	 * @param {MediaRecorderEvent} event - The event object
+	 * @returns {void}
+	 */
+	function onDataAvailableListener( event: MediaRecorderEvent ): void {
+		const { data } = event;
+		if ( ! data?.size ) {
+			return;
+		}
+
+		// Store the recorded chunks
+		recordedChunks.push( data );
 	}
 
 	// Create media recorder instance
@@ -112,6 +159,7 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 				mediaRecordRef.current.addEventListener( 'stop', onStopListener );
 				mediaRecordRef.current.addEventListener( 'pause', onPauseListener );
 				mediaRecordRef.current.addEventListener( 'resume', onResumeListener );
+				mediaRecordRef.current.addEventListener( 'dataavailable', onDataAvailableListener );
 			} )
 			.catch( err => {
 				// @todo: handle error
@@ -122,6 +170,7 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 			mediaRecordRef.current.removeEventListener( 'stop', onStopListener );
 			mediaRecordRef.current.removeEventListener( 'pause', onPauseListener );
 			mediaRecordRef.current.removeEventListener( 'resume', onResumeListener );
+			mediaRecordRef.current.removeEventListener( 'dataavailable', onDataAvailableListener );
 		};
 	}, [] );
 
