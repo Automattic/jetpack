@@ -352,4 +352,20 @@ class Blocks {
 		 */
 		return apply_filters( 'jetpack_is_standalone_block', $is_standalone_block );
 	}
+
+	/**
+	 * Returns the path to the directory (in the build folder) containing the block.json metadata
+	 * file of a block.
+	 *
+	 * @since 1.4.23
+	 *
+	 * @param string $block_src_dir The path to the folder containing the block source code.
+	 *
+	 * @return string
+	 */
+	public static function get_path_to_block_metadata( $block_src_dir ) {
+		$dir = basename( $block_src_dir );
+
+		return dirname( JETPACK__PLUGIN_FILE ) . "/_inc/blocks/$dir";
+	}
 }
