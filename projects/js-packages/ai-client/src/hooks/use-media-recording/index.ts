@@ -11,7 +11,7 @@ type UseMediaRecordingReturn = {
 	/**
 	 * `start` recording handler
 	 */
-	start: () => void;
+	start: ( timeslice?: number ) => void;
 
 	/**
 	 * `pause` recording handler
@@ -47,8 +47,8 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 	const [ state, setState ] = useState< RecordingStateProp >( 'inactive' );
 
 	// `start` recording handler
-	const start = useCallback( () => {
-		mediaRecordRef?.current?.start();
+	const start = useCallback( ( timeslice: number ) => {
+		mediaRecordRef?.current?.start( timeslice );
 	}, [] );
 
 	// `pause` recording handler
