@@ -167,7 +167,7 @@ function NewsletterPrePublishSettingsPanel( {
 }
 
 function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
-	const { emailSubscribers, paidSubscribers } = useSelect( select =>
+	const { emailSubscribers, paidNewsletterSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
 
@@ -191,7 +191,7 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 	const reachCount = getReachForAccessLevelKey(
 		accessLevel,
 		emailSubscribers,
-		paidSubscribers
+		paidNewsletterSubscribers
 	).toLocaleString();
 
 	let subscriberType = __( 'subscribers', 'jetpack' );

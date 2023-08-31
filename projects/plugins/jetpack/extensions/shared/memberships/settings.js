@@ -95,7 +95,7 @@ export function NewsletterAccessRadioButtons( {
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons );
-	const { emailSubscribers, paidSubscribers } = useSelect( select =>
+	const { emailSubscribers, paidNewsletterSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
 
@@ -109,7 +109,11 @@ export function NewsletterAccessRadioButtons( {
 				const accessLabel = accessOptions[ key ].label;
 				const reach =
 					key !== accessOptions.everybody.key
-						? ` (${ getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers ) })`
+						? ` (${ getReachForAccessLevelKey(
+								key,
+								emailSubscribers,
+								paidNewsletterSubscribers
+						  ) })`
 						: '';
 				return (
 					<div className="editor-post-visibility__choice" key={ key }>
