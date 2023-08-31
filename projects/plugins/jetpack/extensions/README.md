@@ -56,7 +56,7 @@ If your block depends on another block, place them all in one folder:
 	└── block-name/
 		└── sub-blockname/
 ```
-To ensure that the child blog is properly registered include it's php block registration file in the parent php file. 
+To ensure that the child blog is properly registered, include its php block registration file in the parent php file. 
 Also, you would need to adjust the front-end block registration in the parent as follows:
 ```js
 import registerJetpackBlock from '../../shared/register-jetpack-block';
