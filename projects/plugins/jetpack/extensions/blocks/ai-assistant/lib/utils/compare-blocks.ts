@@ -1,4 +1,4 @@
-type Block = {
+export type Block = {
 	attributes?: object;
 	clientId?: string;
 	innerBlocks?: Block[];
