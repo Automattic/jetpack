@@ -99,9 +99,6 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'isLaunchTask'          => true,
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
-			'get_calypso_path'      => function ( $task, $default, $data ) {
-				return '/settings/general/' . $data['site_slug_encoded'] . '#site-privacy-settings';
-			},
 		),
 		'verify_email'                    => array(
 			'get_title'           => function () {
