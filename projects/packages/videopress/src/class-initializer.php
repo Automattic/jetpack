@@ -353,7 +353,7 @@ class Initializer {
 
 		// for non block themes, we defer the enqueuing to the frontend, so we're able to tell if we need the assets
 		// TODO: this is draft code, shall we go this path I'll clean up and split code to its own method
-		if ( ! $is_block_theme ) {
+		if ( ! $is_block_theme && ! is_admin() ) {
 			add_action(
 				'wp_enqueue_scripts',
 				function () use ( $videopress_video_metadata_file ) {
