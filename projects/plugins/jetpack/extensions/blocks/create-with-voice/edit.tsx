@@ -20,11 +20,11 @@ export default function CreateWithVoiceEdit() {
 		}
 	}, [ state, start, pause, resume ] );
 
-	let buttoneLabel = __( 'Start recording', 'jetpack' );
+	let buttonLabel = __( 'Start recording', 'jetpack' );
 	if ( state === 'recording' ) {
-		buttoneLabel = __( 'Pause recording', 'jetpack' );
+		buttonLabel = __( 'Pause recording', 'jetpack' );
 	} else if ( state === 'paused' ) {
-		buttoneLabel = __( 'Resume recording', 'jetpack' );
+		buttonLabel = __( 'Resume recording', 'jetpack' );
 	}
 
 	const blockProps = useBlockProps();
@@ -45,10 +45,9 @@ export default function CreateWithVoiceEdit() {
 					variant="primary"
 					onClick={ recordingHandler }
 				>
-					{ buttoneLabel }
+					{ buttonLabel }
 				</Button>
 			</Placeholder>
 		</div>
-
 	);
 }
