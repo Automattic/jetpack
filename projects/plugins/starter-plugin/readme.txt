@@ -1,7 +1,7 @@
 === Jetpack Starter Plugin ===
 Contributors: automattic,
 Tags: jetpack, stuff
-Requires at least: 6.1
+Requires at least: 6.2
 Requires PHP: 5.6
 Tested up to: 6.3
 Stable tag: 0.1.0-alpha

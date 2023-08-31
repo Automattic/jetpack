@@ -216,8 +216,8 @@ export default function AiAssistantBar( {
 				onSend={ onSend }
 				onStop={ stopSuggestion }
 				state={ requestingState }
-				isOpaque={ siteRequireUpgrade }
-				showButtonsLabel={ ! isMobileMode }
+				isTransparent={ siteRequireUpgrade }
+				showButtonLabels={ ! isMobileMode }
 			/>
 		</div>
 	);

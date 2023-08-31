@@ -505,7 +505,7 @@ class Jetpack_Memberships {
 		}
 
 		$cache_key = sprintf( '%d_%d', $user_id, $post_id );
-		if ( isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
+		if ( $user_id !== 0 && isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
 			return self::$user_can_view_post_cache[ $cache_key ];
 		}
 
@@ -513,6 +513,14 @@ class Jetpack_Memberships {
 		if ( Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $post_access_level ) {
 			self::$user_can_view_post_cache[ $cache_key ] = true;
 			return true;
+		}
+
+		if ( $user_id === 0 ) {
+			if ( defined( 'WPCOM_SENDING_POST_TO_SUBSCRIBERS' ) && WPCOM_SENDING_POST_TO_SUBSCRIBERS ) {
+				if ( Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS === $post_access_level ) {
+					return true;
+				}
+			}
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
@@ -616,6 +624,27 @@ class Jetpack_Memberships {
 		}
 
 		self::$has_registered_block = true;
+	}
+
+	/**
+	 * Transforms a number into it's short human-readable version.
+	 *
+	 * @param int $subscribers_total The extrapolated excerpt string.
+	 *
+	 * @return string Human-readable version of the number. ie. 1.9 M.
+	 */
+	public static function get_join_others_text( $subscribers_total ) {
+		if ( $subscribers_total >= 1000000 ) {
+			/* translators: %s: number of folks following the blog, millions(M) with one decimal. i.e. 1.1 */
+			return sprintf( __( 'Join %sM other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000000, 1 ) );
+		}
+		if ( $subscribers_total >= 10000 ) {
+			/* translators: %s: number of folks following the blog, thousands(K) with one decimal. i.e. 1.1 */
+			return sprintf( __( 'Join %sK other subscribers', 'jetpack' ), number_format_i18n( $subscribers_total / 1000, 1 ) );
+		}
+
+		/* translators: %s: number of folks following the blog */
+		return sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) );
 	}
 }
 Jetpack_Memberships::get_instance();

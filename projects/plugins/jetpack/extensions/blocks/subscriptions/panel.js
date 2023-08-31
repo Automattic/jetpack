@@ -188,7 +188,11 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 
 	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 
-	const reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
+	const reachCount = getReachForAccessLevelKey(
+		accessLevel,
+		emailSubscribers,
+		paidSubscribers
+	).toLocaleString();
 
 	let subscriberType = __( 'subscribers', 'jetpack' );
 	if ( accessLevel === accessOptions.paid_subscribers.key ) {
