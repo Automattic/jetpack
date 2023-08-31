@@ -13,22 +13,13 @@ use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 /**
- * Returns the path to the directory containing the block.json file.
- *
- * @return string
- */
-function get_block_path() {
-	return dirname( JETPACK__PLUGIN_FILE ) . '/_inc/blocks/business-hours';
-}
-
-/**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
  * registration if we need to.
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		get_block_path(),
+		Blocks::get_path_to_block_metadata( __DIR__ ),
 		array(
 			'render_callback' => __NAMESPACE__ . '\render',
 		)
@@ -164,7 +155,7 @@ function render( $attributes ) {
 
 	$content .= '</dl>';
 
-	Jetpack_Gutenberg::load_assets_as_required( get_block_path() );
+	Jetpack_Gutenberg::load_assets_as_required( Blocks::get_path_to_block_metadata( __DIR__ ) );
 
 	/**
 	 * Allows folks to filter the HTML content for the Business Hours block
