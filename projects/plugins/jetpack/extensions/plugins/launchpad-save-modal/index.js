@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import apiFetch from '@wordpress/api-fetch';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -9,6 +10,32 @@ import { __ } from '@wordpress/i18n';
 import './editor.scss';
 
 export const name = 'launchpad-save-modal';
+
+const updateHideFSENextStepsModal = async hideFSENextStepsModal => {
+	return apiFetch( {
+		path: '/wpcom/v2/launchpad',
+		method: 'POST',
+		data: { hide_fse_next_steps_modal: !! hideFSENextStepsModal },
+	} );
+};
+
+const LAUNCHPAD_SAVE_MODAL_EDITABLE_PROPS = [ 'hideFSENextStepsModal' ];
+
+const updateLaunchpadSaveModalBrowserConfig = config => {
+	if ( ! config || typeof config !== 'object' ) {
+		return;
+	}
+
+	if ( ! window.Jetpack_LaunchpadSaveModal ) {
+		window.Jetpack_LaunchpadSaveModal = {};
+	}
+
+	for ( const editableProp of LAUNCHPAD_SAVE_MODAL_EDITABLE_PROPS ) {
+		if ( config.hasOwnProperty( editableProp ) ) {
+			window.Jetpack_LaunchpadSaveModal[ editableProp ] = config[ editableProp ];
+		}
+	}
+};
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
@@ -35,15 +62,23 @@ export const settings = {
 		// We use this state as a flag to manually handle the modal close on first post publish
 		const [ isInitialPostPublish, setIsInitialPostPublish ] = useState( false );
 
-		const [ isModalOpen, setIsModalOpen ] = useState( false );
-		const [ dontShowAgain, setDontShowAgain ] = useState( false );
-		const [ isChecked, setIsChecked ] = useState( false );
+		const {
+			launchpadScreenOption,
+			hasNeverPublishedPostOption,
+			hideFSENextStepsModal,
+			siteIntentOption,
+		} = window?.Jetpack_LaunchpadSaveModal || {};
 
-		const { launchpadScreenOption, hasNeverPublishedPostOption, siteIntentOption } =
-			window?.Jetpack_LaunchpadSaveModal || {};
+		const hideFSENextStepsModalBool = !! hideFSENextStepsModal;
+
+		const [ isModalOpen, setIsModalOpen ] = useState( false );
+		const [ dontShowAgain, setDontShowAgain ] = useState( hideFSENextStepsModalBool );
+		const [ isChecked, setIsChecked ] = useState( hideFSENextStepsModalBool );
+
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
 		const prevHasNeverPublishedPostOption = useRef( hasNeverPublishedPostOption );
+		const initialHideFSENextStepsModal = useRef( hideFSENextStepsModalBool );
 
 		const siteFragment = getSiteFragment();
 		const launchPadUrl = getRedirectUrl( 'wpcom-launchpad-setup', {
@@ -142,19 +177,27 @@ export const settings = {
 			! dontShowAgain &&
 			isModalOpen;
 
+		const handleDontShowAgainSetting = shouldHide => {
+			setDontShowAgain( shouldHide );
+			updateLaunchpadSaveModalBrowserConfig( { hideFSENextStepsModal: shouldHide } );
+			if ( shouldHide !== initialHideFSENextStepsModal.current ) {
+				updateHideFSENextStepsModal( shouldHide );
+			}
+		};
+
 		return (
 			showModal && (
 				<Modal
 					isDismissible={ true }
 					className="launchpad__save-modal"
 					onRequestClose={ () => {
+						handleDontShowAgainSetting( isChecked );
 						// bypass the onRequestClose function the first time it's called when you publish a post because it closes the modal immediately
 						if ( isInitialPostPublish ) {
 							setIsInitialPostPublish( false );
 							return;
 						}
 						setIsModalOpen( false );
-						setDontShowAgain( isChecked );
 						recordTracksEvent( 'jetpack_launchpad_save_modal_close' );
 					} }
 				>
@@ -173,7 +216,7 @@ export const settings = {
 								<Button
 									variant="secondary"
 									onClick={ () => {
-										setDontShowAgain( isChecked );
+										handleDontShowAgainSetting( isChecked );
 										setIsModalOpen( false );
 										recordTracksEvent( 'jetpack_launchpad_save_modal_back_to_edit' );
 									} }
@@ -183,8 +226,11 @@ export const settings = {
 								<Button
 									variant="primary"
 									href={ actionButtonHref }
-									onClick={ () => recordTracksEvent( actionButtonTracksEvent ) }
 									target="_top"
+									onClick={ () => {
+										handleDontShowAgainSetting( isChecked );
+										recordTracksEvent( actionButtonTracksEvent );
+									} }
 								>
 									{ actionButtonText }
 								</Button>
