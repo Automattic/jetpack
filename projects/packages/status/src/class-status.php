@@ -232,7 +232,7 @@ class Status {
 				'#\.kinsta\.cloud$#i',                              // Kinsta.com.
 				'#\.stage\.site$#i',                                // DreamPress.
 				'#\.newspackstaging\.com$#i',                       // Newspack.
-				'#\^(?!live-)([a-zA-Z0-9-]+)\.pantheonsite\.io$#i', // Pantheon.
+				'#^(?!live-)([a-zA-Z0-9-]+)\.pantheonsite\.io$#i', // Pantheon.
 				'#\.flywheelsites\.com$#i',                         // Flywheel.
 				'#\.flywheelstaging\.com$#i',                       // Flywheel.
 				'#\.cloudwaysapps\.com$#i',                         // Cloudways.
