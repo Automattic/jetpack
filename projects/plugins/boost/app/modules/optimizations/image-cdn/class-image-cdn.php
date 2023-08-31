@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN;
 
 use Automattic\Jetpack\Image_CDN\Image_CDN_Setup;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
 class Image_CDN implements Pluggable {
 
@@ -29,7 +30,10 @@ class Image_CDN implements Pluggable {
 	 * @return mixed
 	 */
 	public function add_quality_args( $args ) {
-		$args['quality'] = jetpack_boost_ds_get( 'image_cdn_quality' );
+		if ( Premium_Features::has_any() ) {
+			$args['quality'] = jetpack_boost_ds_get( 'image_cdn_quality' );
+		}
+
 		return $args;
 	}
 }
