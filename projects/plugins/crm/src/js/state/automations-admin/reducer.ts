@@ -24,12 +24,12 @@ export const workflows = (
 			if ( ! action.id || ! state[ action.id ] ) {
 				return state;
 			}
-			return { ...state, ...{ [ action.id ]: { ...state[ action.id ], active: true } } };
+			return { ...state, [ action.id ]: { ...state[ action.id ], active: true } };
 		case 'DEACTIVATE_WORKFLOW':
 			if ( ! action.id || ! state[ action.id ] ) {
 				return state;
 			}
-			return { ...state, ...{ [ action.id ]: { ...state[ action.id ], active: false } } };
+			return { ...state, [ action.id ]: { ...state[ action.id ], active: false } };
 		case 'SET_ATTRIBUTE': {
 			const { workflowId, stepId, attribute } = action;
 			if ( ! workflowId || ! stepId || ! attribute ) {
