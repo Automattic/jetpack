@@ -2,11 +2,11 @@
 	import { __ } from '@wordpress/i18n';
 	import NumberSlider from '../../../elements/NumberSlider.svelte';
 	import Tooltip from '../../../elements/Tooltip.svelte';
-	import config from '../../../stores/config';
 	import { imageCdnQuality } from '../../../stores/image-cdn';
+	import { premiumFeatures } from '../../../stores/premium-features';
 </script>
 
-{#if $config.isPremium}
+{#if $premiumFeatures.includes( 'image-cdn-quality' )}
 	<div class="jb-image-cdn-quality">
 		<div class="jb-image-cdn-quality__label">
 			{__( 'Image Quality', 'jetpack-boost' )}

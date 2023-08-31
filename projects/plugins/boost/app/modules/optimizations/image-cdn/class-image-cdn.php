@@ -30,7 +30,7 @@ class Image_CDN implements Pluggable {
 	 * @return mixed
 	 */
 	public function add_quality_args( $args ) {
-		if ( Premium_Features::has_any() ) {
+		if ( Premium_Features::has_feature( Premium_Features::IMAGE_CDN_QUALITY ) ) {
 			$args['quality'] = jetpack_boost_ds_get( 'image_cdn_quality' );
 		}
 
