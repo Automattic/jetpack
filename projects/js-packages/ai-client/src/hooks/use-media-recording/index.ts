@@ -7,6 +7,10 @@ import { useRef, useState, useEffect, useCallback } from '@wordpress/element';
  * Types
  */
 type RecordingStateProp = 'inactive' | 'recording' | 'paused';
+type UseMediaRecordingProps = {
+	onDone?: ( blob: Blob ) => void;
+};
+
 type UseMediaRecordingReturn = {
 	/**
 	 * `start` recording handler
@@ -41,9 +45,12 @@ type MediaRecorderEvent = {
 /**
  * react custom hook to handle media recording.
  *
+ * @param {UseMediaRecordingProps} props - The props
  * @returns {UseMediaRecordingReturn} The media recorder instance
  */
-export default function useMediaRecording(): UseMediaRecordingReturn {
+export default function useMediaRecording( {
+	onDone,
+}: UseMediaRecordingProps = {} ): UseMediaRecordingReturn {
 	// Reference to the media recorder instance
 	const mediaRecordRef = useRef( null );
 
@@ -51,7 +58,18 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 	const [ state, setState ] = useState< RecordingStateProp >( 'inactive' );
 
 	// Store the recorded chunks
-	const [ , setRecordedChunks ] = useState< Array< Blob > | null >( [] );
+	const recordedChunks = useRef< Array< Blob > >( [] ).current;
+
+	/**
+	 * Get the recorded blob.
+	 *
+	 * @returns {Blob} The recorded blob
+	 */
+	function getBlob() {
+		return new Blob( recordedChunks, {
+			type: 'audio/webm',
+		} );
+	}
 
 	// `start` recording handler
 	const start = useCallback( ( timeslice: number ) => {
@@ -82,9 +100,15 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 
 	/**
 	 * `stop` event listener for the media recorder instance.
+	 *
+	 * @returns {void}
 	 */
-	function onStopListener() {
+	function onStopListener(): void {
 		setState( 'inactive' );
+		onDone?.( getBlob() );
+
+		// Clear the recorded chunks
+		recordedChunks.length = 0;
 	}
 
 	/**
@@ -113,7 +137,8 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 			return;
 		}
 
-		setRecordedChunks( prevChunks => [ ...prevChunks, data ] );
+		// Store the recorded chunks
+		recordedChunks.push( data );
 	}
 
 	// Create media recorder instance
