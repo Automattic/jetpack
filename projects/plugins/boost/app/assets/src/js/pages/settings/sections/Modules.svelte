@@ -5,7 +5,6 @@
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
-	import NumberSlider from '../../../elements/NumberSlider.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import RecommendationsMeta from '../../../modules/image-size-analysis/RecommendationsMeta.svelte';
@@ -16,13 +15,13 @@
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
-	import { imageCdnQuality } from '../../../stores/image-cdn';
 	import { minifyJsExcludesStore, minifyCssExcludesStore } from '../../../stores/minify';
 	import { modulesState } from '../../../stores/modules';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
+	import ImageCdnQualityControl from '../elements/ImageCdnQualityControl.svelte';
 	import MinifyMeta from '../elements/MinifyMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
@@ -228,7 +227,7 @@
 		</p>
 
 		<div slot="meta">
-			<NumberSlider minValue={1} maxValue={100} valueStore={imageCdnQuality} />
+			<ImageCdnQualityControl />
 		</div>
 	</Module>
 
