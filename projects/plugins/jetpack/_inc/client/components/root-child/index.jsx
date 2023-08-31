@@ -19,11 +19,7 @@ export default class RootChild extends React.Component {
 	componentDidMount() {
 		this.container = document.createElement( 'div' );
 		document.body.appendChild( this.container );
-		const theContainer = this.container;
-		this.containerRoot = {
-			render: component => WPElement.render( component, theContainer ),
-			unmount: () => WPElement.unmountComponentAtNode( theContainer ),
-		};
+		this.containerRoot = WPElement.createRoot( this.container );
 		this.renderChildren();
 	}
 

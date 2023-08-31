@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { render } from '@wordpress/element';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
 import AdminPage from './components/admin-page';
 
@@ -13,12 +13,12 @@ function renderApp() {
 		return;
 	}
 
-	render(
+	const component = (
 		<ThemeProvider>
 			<AdminPage />
-		</ThemeProvider>,
-		container
+		</ThemeProvider>
 	);
+	WPElement.createRoot( container ).render( component );
 }
 
 renderApp();

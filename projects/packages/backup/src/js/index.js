@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { createReduxStore, register } from '@wordpress/data';
-import { render } from '@wordpress/element';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
 import Admin from './components/Admin';
 import { STORE_ID, storeConfig } from './store';
@@ -11,19 +11,19 @@ register( store );
 /**
  * Initial render function.
  */
-function renderDash() {
+function render() {
 	const container = document.getElementById( 'jetpack-backup-root' );
 
 	if ( null === container ) {
 		return;
 	}
 
-	render(
+	const component = (
 		<ThemeProvider>
 			<Admin />
-		</ThemeProvider>,
-		container
+		</ThemeProvider>
 	);
+	WPElement.createRoot( container ).render( component );
 }
 
-renderDash();
+render();

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { render } from '@wordpress/element';
+import * as WPElement from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
 import { HashRouter, Switch, Route, useLocation } from 'react-router-dom';
@@ -66,14 +66,14 @@ const VideoPress = () => {
 /**
  * Initial render function.
  */
-function renderVideopress() {
+function render() {
 	const container = document.getElementById( 'jetpack-videopress-root' );
 
 	if ( null === container ) {
 		return;
 	}
 
-	render( <VideoPress />, container );
+	WPElement.createRoot( container ).render( <VideoPress /> );
 }
 
-renderVideopress();
+render();

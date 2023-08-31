@@ -1,5 +1,5 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { render } from '@wordpress/element';
+import * as WPElement from '@wordpress/element';
 import React, { useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import FirewallPage from './components/firewall-page';
@@ -26,7 +26,7 @@ function ScrollToTop() {
 /**
  * Initial render function.
  */
-function renderProtectApp() {
+function render() {
 	const container = document.getElementById( 'jetpack-protect-root' );
 
 	if ( null === container ) {
@@ -45,7 +45,7 @@ function renderProtectApp() {
 			<Modal />
 		</ThemeProvider>
 	);
-	render( component, container );
+	WPElement.createRoot( container ).render( component );
 }
 
-renderProtectApp();
+render();

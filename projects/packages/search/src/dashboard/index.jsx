@@ -1,5 +1,5 @@
 import { createReduxStore, register } from '@wordpress/data';
-import { render } from '@wordpress/element';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
 import SearchDashboard from './components/dashboard/wrapped-dashboard';
 import { STORE_ID, storeConfig } from './store';
@@ -17,7 +17,7 @@ function init() {
 		return;
 	}
 
-	render( <SearchDashboard />, container );
+	WPElement.createRoot( container ).render( <SearchDashboard /> );
 }
 
 // Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.

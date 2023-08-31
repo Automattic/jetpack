@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { createReduxStore, register } from '@wordpress/data';
-import { render } from '@wordpress/element';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
 import WordAdsDashboard from './components/dashboard';
 import { STORE_ID, storeConfig } from './store';
@@ -18,12 +18,12 @@ function init() {
 		return;
 	}
 
-	render(
+	const component = (
 		<ThemeProvider>
 			<WordAdsDashboard />
-		</ThemeProvider>,
-		container
+		</ThemeProvider>
 	);
+	WPElement.createRoot( container ).render( component );
 }
 
 // Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.

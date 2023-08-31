@@ -1,24 +1,24 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { render } from '@wordpress/element';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
 import AdminPage from './components/admin-page';
 
 /**
  * Initial render function.
  */
-function renderMigrationApp() {
+function render() {
 	const container = document.getElementById( 'wpcom-migration-root' );
 
 	if ( null === container ) {
 		return;
 	}
 
-	render(
+	const component = (
 		<ThemeProvider>
 			<AdminPage />
-		</ThemeProvider>,
-		container
+		</ThemeProvider>
 	);
+	WPElement.createRoot( container ).render( component );
 }
 
-renderMigrationApp();
+render();

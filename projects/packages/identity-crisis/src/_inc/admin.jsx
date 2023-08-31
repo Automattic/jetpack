@@ -1,5 +1,5 @@
 import { IDCScreen } from '@automattic/jetpack-idc';
-import { render } from '@wordpress/element';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
 
 import './admin-bar.scss';
@@ -8,7 +8,7 @@ import './style.scss';
 /**
  * The initial renderer function.
  */
-function renderIdc() {
+function render() {
 	if ( ! window.hasOwnProperty( 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ) {
 		return;
 	}
@@ -53,8 +53,8 @@ function renderIdc() {
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 			/>
 		);
-		render( component, container );
+		WPElement.createRoot( container ).render( component );
 	}
 }
 
-window.addEventListener( 'load', () => renderIdc() );
+window.addEventListener( 'load', () => render() );

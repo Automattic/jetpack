@@ -1,4 +1,4 @@
-import { render } from '@wordpress/element';
+import * as WPElement from '@wordpress/element';
 import { _x } from '@wordpress/i18n';
 import accessibleFocus from 'lib/accessible-focus';
 import { assign } from 'lodash';
@@ -20,12 +20,12 @@ if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 	} );
 }
 
-renderApp();
+render();
 
 /**
  * Initial render function.
  */
-function renderApp() {
+function render() {
 	const container = document.getElementById( 'jp-plugin-container' );
 
 	if ( container === null ) {
@@ -99,7 +99,7 @@ function renderApp() {
 			</Provider>
 		</div>
 	);
-	render( component, container );
+	WPElement.createRoot( container ).render( component );
 }
 
 /**

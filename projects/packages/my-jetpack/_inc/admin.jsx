@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { render } from '@wordpress/element';
+import * as WPElement from '@wordpress/element';
 import React, { useEffect } from 'react';
 import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 /**
@@ -74,13 +74,13 @@ const MyJetpack = () => (
 /**
  * The initial renderer function.
  */
-function renderMyJetpack() {
+function render() {
 	const container = document.getElementById( 'my-jetpack-container' );
 	if ( null === container ) {
 		return;
 	}
 
-	render( <MyJetpack />, container );
+	WPElement.createRoot( container ).render( <MyJetpack /> );
 }
 
-renderMyJetpack();
+render();
