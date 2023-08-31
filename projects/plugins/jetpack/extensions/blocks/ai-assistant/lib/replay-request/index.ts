@@ -8,13 +8,15 @@ const debug = debugFactory( 'jetpack-ai-client:suggestions-event-source' );
 class Emitter extends EventTarget {
 	chunks: Array< string >;
 	lineNumber: number;
-	line: string;
+	line: string | null;
+	enabled: boolean;
 
 	constructor() {
 		super();
 		this.chunks = require( './chunks' );
 		this.lineNumber = 0;
 		this.line = null;
+		this.enabled = true;
 	}
 
 	readNextLine() {
@@ -35,13 +37,19 @@ class Emitter extends EventTarget {
 	}
 
 	start() {
+		this.enabled = true;
+
 		setTimeout( async () => {
 			let hasMore = true;
 
-			while ( hasMore ) {
+			while ( hasMore && this.enabled ) {
 				hasMore = await this.readNextLine();
 			}
 		}, 500 );
+	}
+
+	close() {
+		this.enabled = false;
 	}
 }
 
