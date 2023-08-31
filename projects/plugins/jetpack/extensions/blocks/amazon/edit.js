@@ -12,9 +12,12 @@ import {
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import tinycolor from 'tinycolor2';
+import getBlockIconFromMetadata from '../../shared/get-block-icon-from-metadata';
+import metadata from './block.json';
 import data from './dummy-data';
-import icon from './icon';
 import './editor.scss';
+
+const icon = getBlockIconFromMetadata( metadata );
 
 function AmazonEdit( {
 	attributes: {
