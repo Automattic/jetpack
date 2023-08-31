@@ -5,6 +5,7 @@
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
+	import NumberSlider from '../../../elements/NumberSlider.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import RecommendationsMeta from '../../../modules/image-size-analysis/RecommendationsMeta.svelte';
@@ -15,6 +16,7 @@
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
+	import { imageCdnQuality } from '../../../stores/image-cdn';
 	import { minifyJsExcludesStore, minifyCssExcludesStore } from '../../../stores/minify';
 	import { modulesState } from '../../../stores/modules';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
@@ -224,6 +226,10 @@
 				'jetpack-boost'
 			)}
 		</p>
+
+		<div slot="meta">
+			<NumberSlider minValue={1} maxValue={100} valueStore={imageCdnQuality} />
+		</div>
 	</Module>
 
 	<div class="settings">
