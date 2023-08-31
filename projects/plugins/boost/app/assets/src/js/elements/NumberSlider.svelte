@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PricingSlider } from '@automattic/jetpack-components';
+	import { NumberSlider } from '@automattic/jetpack-components';
 	import ReactComponent from './ReactComponent.svelte';
 
 	export let valueStore;
@@ -8,7 +8,7 @@
 </script>
 
 <ReactComponent
-	this={PricingSlider}
+	this={NumberSlider}
 	value={$valueStore}
 	{minValue}
 	{maxValue}

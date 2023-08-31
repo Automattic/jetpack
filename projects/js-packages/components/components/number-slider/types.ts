@@ -4,9 +4,9 @@ interface HTMLPropsWithRefCallback< T > extends HTMLProps< T > {
 	ref: RefCallback< T >;
 }
 
-export type PricingSliderProps = {
+export type NumberSliderProps = {
 	/**
-	 * The wrapper class name of this PricingSlider component.
+	 * The wrapper class name of this NumberSlider component.
 	 */
 	className?: string;
 
