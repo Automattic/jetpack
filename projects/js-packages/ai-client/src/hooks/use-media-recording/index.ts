@@ -34,6 +34,10 @@ type UseMediaRecordingReturn = {
 	state: RecordingStateProp;
 };
 
+type MediaRecorderEvent = {
+	data: Blob;
+};
+
 /**
  * react custom hook to handle media recording.
  *
@@ -45,6 +49,9 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 
 	// Recording state: `inactive`, `recording`, `paused`
 	const [ state, setState ] = useState< RecordingStateProp >( 'inactive' );
+
+	// Store the recorded chunks
+	const [ , setRecordedChunks ] = useState< Array< Blob > | null >( [] );
 
 	// `start` recording handler
 	const start = useCallback( ( timeslice: number ) => {
@@ -94,6 +101,21 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 		setState( 'recording' );
 	}
 
+	/**
+	 * `dataavailable` event listener for the media recorder instance.
+	 *
+	 * @param {MediaRecorderEvent} event - The event object
+	 * @returns {void}
+	 */
+	function onDataAvailableListener( event: MediaRecorderEvent ): void {
+		const { data } = event;
+		if ( ! data?.size ) {
+			return;
+		}
+
+		setRecordedChunks( prevChunks => [ ...prevChunks, data ] );
+	}
+
 	// Create media recorder instance
 	useEffect( () => {
 		// Check if the getUserMedia API is supported
@@ -112,6 +134,7 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 				mediaRecordRef.current.addEventListener( 'stop', onStopListener );
 				mediaRecordRef.current.addEventListener( 'pause', onPauseListener );
 				mediaRecordRef.current.addEventListener( 'resume', onResumeListener );
+				mediaRecordRef.current.addEventListener( 'dataavailable', onDataAvailableListener );
 			} )
 			.catch( err => {
 				// @todo: handle error
@@ -122,6 +145,7 @@ export default function useMediaRecording(): UseMediaRecordingReturn {
 			mediaRecordRef.current.removeEventListener( 'stop', onStopListener );
 			mediaRecordRef.current.removeEventListener( 'pause', onPauseListener );
 			mediaRecordRef.current.removeEventListener( 'resume', onResumeListener );
+			mediaRecordRef.current.removeEventListener( 'dataavailable', onDataAvailableListener );
 		};
 	}, [] );
 
