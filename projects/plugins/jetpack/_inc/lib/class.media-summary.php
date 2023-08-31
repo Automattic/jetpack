@@ -456,6 +456,13 @@ class Jetpack_Media_Summary {
 	 * @return false|int Number of links.
 	 */
 	public static function get_link_count( $post_content ) {
-		return preg_match_all( '/\<a[\> ]/', $post_content, $matches );
+		$processor = new \WP_HTML_Tag_Processor( $post_content );
+
+		$link_count = 0;
+		while ( $processor->next_tag( 'a' ) ) {
+			$link_count += 1;
+		}
+
+		return $link_count;
 	}
 }
