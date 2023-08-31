@@ -1,9 +1,19 @@
 @import '@automattic/jetpack-base-styles/style';
 
-.jetpack-ai-create-with-voice__record-button {
-	&.components-button.has-icon {
-		> SVG {
-			fill: none;
+.jetpack-ai-create-with-voice__recorder {
+	display: flex;
+	flex-direction:row;
+	gap: 1px;
+
+	.components-button {
+		margin-right: 0;
+
+		&.jetpack-ai-create-with-voice__record-button {
+			border-radius: 4px 0 0 4px;
+		}
+
+		&.jetpack-ai-create-with-voice__done-button {
+			border-radius: 0 4px 4px 0;
 		}
 	}
 }
