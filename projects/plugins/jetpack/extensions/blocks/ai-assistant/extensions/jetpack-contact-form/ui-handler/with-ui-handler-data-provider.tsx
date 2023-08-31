@@ -156,7 +156,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			( newContent: string, isRequestDone = false ) => {
 				// Remove the Jetpack Form block from the content.
 				const processedContent = newContent.replace(
-					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
+					/<!-- (\/)*wp:jetpack\/(contact-)*form ({[^}]*} )*(\/)*-->/g,
 					''
 				);
 
