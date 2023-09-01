@@ -11,7 +11,9 @@ class Image_CDN implements Pluggable {
 	public function setup() {
 		Image_CDN_Setup::load();
 
-		add_filter( 'jetpack_photon_pre_args', array( $this, 'add_quality_args' ), 10, 2 );
+		if ( Premium_Features::has_feature( Premium_Features::IMAGE_CDN_QUALITY ) ) {
+			add_filter( 'jetpack_photon_pre_args', array( $this, 'add_quality_args' ), 10, 2 );
+		}
 	}
 
 	public static function get_slug() {
@@ -31,7 +33,8 @@ class Image_CDN implements Pluggable {
 	 */
 	public function add_quality_args( $args, $image_url ) {
 		$quality = $this->get_quality_for_image( $image_url );
-		if ( Premium_Features::has_feature( Premium_Features::IMAGE_CDN_QUALITY ) && $quality !== null ) {
+
+		if ( $quality !== null ) {
 			$args['quality'] = $quality;
 		}
 
