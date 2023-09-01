@@ -18,12 +18,18 @@ export interface Period {
 	};
 }
 export interface BoostScoreGraphProps {
-	periods: Period[];
-	startDate: number;
-	endDate: number;
+	periods?: Period[];
+	startDate?: number;
+	endDate?: number;
 	title?: string;
 	isPlaceholder?: boolean;
 }
+
+export type ScoreGraphAlignedData = [
+	number[], // timestamps
+	number[], // desktop_overall_score
+	number[] // mobile_overall_score
+];
 
 /**
  * BoostScoreGraph component composed by the chart and the legend.
@@ -35,9 +41,9 @@ export interface BoostScoreGraphProps {
  * @returns {React.ReactElement} The JSX element representing the BoostScoreGraph component, or null if loading.
  */
 export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
-	periods,
-	startDate,
-	endDate,
+	periods = [],
+	startDate = 0,
+	endDate = 0,
 	title,
 	isPlaceholder = false,
 } ) => {
