@@ -3918,8 +3918,8 @@ importers:
         specifier: 5.62.0
         version: 5.62.0(eslint@8.44.0)(typescript@5.0.4)
       '@wordpress/eslint-plugin':
-        specifier: 15.1.0
-        version: 15.1.0(@babel/core@7.22.9)(@typescript-eslint/eslint-plugin@5.62.0)(eslint-plugin-import@2.27.5)(eslint-plugin-jest@27.2.2)(eslint-plugin-jsdoc@39.9.1)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-prettier@4.2.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.32.2)(eslint@8.44.0)(typescript@5.0.4)(wp-prettier@2.8.5)
+        specifier: 14.11.0
+        version: 14.11.0(@babel/core@7.22.9)(@typescript-eslint/eslint-plugin@5.62.0)(eslint-plugin-import@2.27.5)(eslint-plugin-jest@27.2.2)(eslint-plugin-jsdoc@39.9.1)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-prettier@4.2.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.32.2)(eslint@8.44.0)(typescript@5.0.4)(wp-prettier@2.8.5)
       '@wordpress/jest-console':
         specifier: 7.12.0
         version: 7.12.0(jest@29.4.3)
@@ -10820,16 +10820,16 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.6
 
-  /@wordpress/eslint-plugin@15.1.0(@babel/core@7.22.9)(@typescript-eslint/eslint-plugin@5.62.0)(eslint-plugin-import@2.27.5)(eslint-plugin-jest@27.2.2)(eslint-plugin-jsdoc@39.9.1)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-prettier@4.2.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.32.2)(eslint@8.44.0)(typescript@5.0.4)(wp-prettier@2.8.5):
-    resolution: {integrity: sha512-iKc8YnakbOWUh7b5A79XhZ9nIJfkHmKAkluxd56kwmKhhn1dfreRaCXpjjBk9E170axKmkHPqFar4xEMy9kO7A==}
+  /@wordpress/eslint-plugin@14.11.0(@babel/core@7.22.9)(@typescript-eslint/eslint-plugin@5.62.0)(eslint-plugin-import@2.27.5)(eslint-plugin-jest@27.2.2)(eslint-plugin-jsdoc@39.9.1)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-prettier@4.2.1)(eslint-plugin-react-hooks@4.6.0)(eslint-plugin-react@7.32.2)(eslint@8.44.0)(typescript@5.0.4)(wp-prettier@2.8.5):
+    resolution: {integrity: sha512-N4lWFR1s6gY+f+x2gzhdyNkDub4wrNy5trmxluyR2a1McloFiMNbhfAzoTLSBbUvQWWdSfYQeFThA5Q2C2m5wA==}
     engines: {node: '>=14', npm: '>=6.14.4'}
     peerDependencies:
       '@babel/core': '>=7'
-      '@typescript-eslint/eslint-plugin': '>=5.62.0'
+      '@typescript-eslint/eslint-plugin': '>=5.3.0'
       eslint: '>=8'
       eslint-plugin-import: '>=2.25.2'
       eslint-plugin-jest: '>=27.2.1'
-      eslint-plugin-jsdoc: '>=46.4.6'
+      eslint-plugin-jsdoc: '>=39.6.9'
       eslint-plugin-jsx-a11y: '>=6.5.1'
       eslint-plugin-prettier: '>=3.3.0'
       eslint-plugin-react: '>=7.27.0'
