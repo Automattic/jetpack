@@ -100,7 +100,7 @@ export default function UplotLineChart( { data, range, periods }: UplotChartProp
 	// data can be an empty array if there is no data-points in the graph
 	if ( data.length === 3 ) {
 		lastDesktopScore = data[ 1 ][ data[ 1 ].length - 1 ] || 0;
-		lastMobileScore = data[ 2 ][ data[ 2 ].length - 1 ];
+		lastMobileScore = data[ 2 ][ data[ 2 ].length - 1 ] || 0;
 	}
 
 	const options: uPlot.Options = useMemo( () => {
