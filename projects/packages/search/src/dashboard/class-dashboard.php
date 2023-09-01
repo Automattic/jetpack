@@ -217,5 +217,4 @@ class Dashboard {
 			$this->module_control->deactivate();
 		}
 	}
-
 }

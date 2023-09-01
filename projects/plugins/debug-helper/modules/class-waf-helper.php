@@ -242,7 +242,6 @@ class Waf_Helper {
 
 		<?php
 	}
-
 }
 
 add_action(

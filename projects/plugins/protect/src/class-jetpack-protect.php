@@ -453,5 +453,4 @@ class Jetpack_Protect {
 			'automaticRulesLastUpdated' => Waf_Stats::get_automatic_rules_last_updated(),
 		);
 	}
-
 }

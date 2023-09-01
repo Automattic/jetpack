@@ -43,5 +43,4 @@ class Jetpack_JSON_API_Core_Endpoint extends Jetpack_JSON_API_Endpoint {
 			'log'        => $this->log,
 		);
 	}
-
 }

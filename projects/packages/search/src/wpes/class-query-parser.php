@@ -698,5 +698,4 @@ class Query_Parser extends Query_Builder {
 		}
 		return $string;
 	}
-
 }

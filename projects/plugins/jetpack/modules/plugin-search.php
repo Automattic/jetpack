@@ -602,7 +602,6 @@ class Jetpack_Plugin_Search {
 
 		return $links;
 	}
-
 }
 
 /**

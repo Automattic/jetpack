@@ -214,5 +214,4 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 
 		return array_map( array( $this, 'format_theme' ), $themes );
 	}
-
 }

@@ -77,5 +77,4 @@ class Application extends SymfonyApplication {
 			return -1;
 		}
 	}
-
 }

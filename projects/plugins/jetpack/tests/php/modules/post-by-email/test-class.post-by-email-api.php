@@ -330,5 +330,4 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 
 		return $this->server->dispatch( $this->request );
 	}
-
 }

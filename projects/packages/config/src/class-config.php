@@ -453,5 +453,4 @@ class Config {
 	protected function get_feature_options( $feature ) {
 		return empty( $this->feature_options[ $feature ] ) ? array() : $this->feature_options[ $feature ];
 	}
-
 }

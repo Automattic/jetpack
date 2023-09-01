@@ -1871,5 +1871,4 @@ class Search extends Module {
 	public static function get_all_taxonomies() {
 		return self::$taxonomies_to_sync;
 	}
-
 }

@@ -370,5 +370,4 @@ class KeepAChangelogParser extends Parser {
 
 		return $ret;
 	}
-
 }

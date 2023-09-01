@@ -214,7 +214,6 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 		}
 		return $instance;
 	}
-
 }
 
 /**

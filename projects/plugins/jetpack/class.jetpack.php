@@ -6864,5 +6864,4 @@ endif;
 
 		return true;
 	}
-
 }

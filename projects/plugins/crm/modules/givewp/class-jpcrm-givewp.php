@@ -312,5 +312,4 @@ class JPCRM_GiveWP {
 			'val'     => $givewp_donation_id,
 		));
 	}
-
 }

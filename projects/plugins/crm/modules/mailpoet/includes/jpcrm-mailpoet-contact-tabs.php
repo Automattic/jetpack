@@ -210,6 +210,4 @@ class MailPoet_Contact_Tabs {
 
         return $html;
     }
-
-
 }

@@ -199,5 +199,4 @@ final class Data_Sync {
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $schema );
 		$this->registry->register( $key, $entry_adapter );
 	}
-
 }

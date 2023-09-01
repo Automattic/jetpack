@@ -345,5 +345,4 @@ class Initializer {
 	public static function get_idc_container_id() {
 		return static::IDC_CONTAINER_ID;
 	}
-
 }

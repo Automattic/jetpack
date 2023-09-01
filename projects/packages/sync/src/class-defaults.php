@@ -1311,5 +1311,4 @@ class Defaults {
 	 * @var int Bool-ish. Default 0.
 	 */
 	public static $default_custom_queue_table_enabled = 0;
-
 }

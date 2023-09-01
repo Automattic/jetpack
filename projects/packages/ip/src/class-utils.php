@@ -242,5 +242,4 @@ class Utils {
 
 		return true;
 	}
-
 }

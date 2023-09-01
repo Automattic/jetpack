@@ -154,5 +154,4 @@ class CRM_Modules {
 	public function get_safe_function_string( $module_name ) {
 		return str_replace( '-', '_', $module_name );
 	}
-
 }

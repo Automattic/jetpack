@@ -125,5 +125,4 @@ class Deactivation_Handler {
 		</div>
 		<?php
 	}
-
 }

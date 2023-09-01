@@ -167,5 +167,4 @@ class Test_Backup_Product extends TestCase {
 		activate_plugins( Backup::get_installed_plugin_filename() );
 		$this->assertSame( '', Backup::get_post_activation_url() );
 	}
-
 }

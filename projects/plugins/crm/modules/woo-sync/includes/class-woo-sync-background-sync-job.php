@@ -2573,5 +2573,4 @@ class Woo_Sync_Background_Sync_Job {
 		}
 
 	}
-
 }

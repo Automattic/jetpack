@@ -124,7 +124,6 @@ class Transaction_Condition_Test extends JPCRM_Base_Test_Case {
 
 		$transaction_field_changed_condition->execute( $transaction_data->get_entity() );
 	}
-
 }
 
 

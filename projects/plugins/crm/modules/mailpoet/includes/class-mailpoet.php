@@ -1285,5 +1285,4 @@ class Mailpoet {
 	    return $positions;
 
 	}
-
 }

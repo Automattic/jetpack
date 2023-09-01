@@ -606,5 +606,4 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	public function sync_modules_filter() {
 		return $this->sync_enabled_modules;
 	}
-
 }

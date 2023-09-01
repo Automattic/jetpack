@@ -198,5 +198,4 @@ class UI {
 
 		return 'self-hosted';
 	}
-
 }
