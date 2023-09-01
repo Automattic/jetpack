@@ -249,17 +249,19 @@ export default function PublicizeForm( {
 									is_healthy,
 									connection_id,
 								} = conn;
+								const currentId = connection_id ? connection_id : id;
 								return (
 									<PublicizeConnection
 										disabled={
 											! isPublicizeEnabled ||
 											( ! enabled && toggleable && outOfConnections ) ||
 											false === is_healthy ||
-											validationErrors[ connection_id ? connection_id : id ] !== undefined
+											( validationErrors[ currentId ] !== undefined && ! shouldAutoConvert ) ||
+											validationErrors[ currentId ] === NO_MEDIA_ERROR
 										}
 										enabled={ isConnectionEnabled( conn ) }
-										key={ connection_id ? connection_id : id }
-										id={ connection_id ? connection_id : id }
+										key={ currentId }
+										id={ currentId }
 										label={ display_name }
 										name={ service_name }
 										toggleConnection={ toggleById }

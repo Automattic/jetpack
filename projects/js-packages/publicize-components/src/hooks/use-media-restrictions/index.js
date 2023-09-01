@@ -168,8 +168,7 @@ const useMediaRestrictions = (
 		}
 		return {
 			validationErrors: errors.current,
-			isConvertible:
-				isMediaConvertible( media.metaData ) && ! ( FILE_TYPE_ERROR in errors.current ), // Currently we cannot convert file-types.
+			isConvertible: isMediaConvertible( media.metaData ),
 		};
 	}, [
 		isSocialImageGeneratorEnabledForPost,
