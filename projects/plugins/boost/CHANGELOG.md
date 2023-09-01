@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0-beta] - 2023-09-01
+### Added
+- Image CDN: Added quality settings for premium users. [#32780]
+- Performance History: New section to display historical performance. [#32759]
+
+### Changed
+- Image Size Analyzer: Removed get parameters from image URLs on ISA report details page. [#32476]
+- UI: Improve discount elements for pricing section. [#32545]
+- UI: Update Image Size Analyzer error feedback. [#32685]
+
+### Fixed
+- UI: Add the footer back on the getting started page. [#32549]
+- Critical CSS: Improved the regenerate button to eliminate the possibility of accidental parallel regeneration. [#32011]
+- Image Guide: Fix oversize ratio in some cases. [#32548]
+- Image Guide: Fixed grammar issue in the feature description on the Boost dashboard. [#32072]
+
 ## [2.0.2] - 2023-08-29
 ### Changed
 - Critical CSS: Updated critical CSS url parameter to avoid redirect caching [#32727]
@@ -310,6 +326,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[2.1.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/2.0.2...2.1.0-beta
 [2.0.2]: https://github.com/Automattic/jetpack-boost-production/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/Automattic/jetpack-boost-production/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/Automattic/jetpack-boost-production/compare/1.9.4...2.0.0
