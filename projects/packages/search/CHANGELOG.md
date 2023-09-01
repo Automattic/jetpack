@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.38.5] - 2023-08-28
+### Changed
+- Updated package dependencies. [#32605]
+
 ## [0.38.4] - 2023-08-21
 ### Changed
 - Use the new method to render Connection initial state. [#32499]
@@ -786,6 +790,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.38.5]: https://github.com/Automattic/jetpack-search/compare/v0.38.4...v0.38.5
 [0.38.4]: https://github.com/Automattic/jetpack-search/compare/v0.38.3...v0.38.4
 [0.38.3]: https://github.com/Automattic/jetpack-search/compare/v0.38.2...v0.38.3
 [0.38.2]: https://github.com/Automattic/jetpack-search/compare/v0.38.1...v0.38.2

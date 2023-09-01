@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Remove use of Jetpack_Membership::get_connected_account_id()

@@ -186,17 +186,16 @@ class Admin_Menu extends Base_Admin_Menu {
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit.php' ) ) {
 			$submenus_to_update['edit.php']     = 'https://wordpress.com/posts/' . $this->domain;
 			$submenus_to_update['post-new.php'] = 'https://wordpress.com/post/' . $this->domain;
+			$this->update_submenus( 'edit.php', $submenus_to_update );
 		}
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=category' ) ) {
-			$submenus_to_update['edit-tags.php?taxonomy=category'] = 'https://wordpress.com/settings/taxonomies/category/' . $this->domain;
+			$this->update_submenus( 'edit.php', array( 'edit-tags.php?taxonomy=category' => 'https://wordpress.com/settings/taxonomies/category/' . $this->domain ) );
 		}
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=post_tag' ) ) {
-			$submenus_to_update['edit-tags.php?taxonomy=post_tag'] = 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain;
+			$this->update_submenus( 'edit.php', array( 'edit-tags.php?taxonomy=post_tag' => 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain ) );
 		}
-
-		$this->update_submenus( 'edit.php', $submenus_to_update );
 	}
 
 	/**

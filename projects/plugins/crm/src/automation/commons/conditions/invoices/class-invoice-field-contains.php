@@ -162,7 +162,7 @@ class Invoice_Field_Contains extends Base_Condition {
 	 * @return string The category 'invoice'.
 	 */
 	public static function get_category(): string {
-		return __( 'invoice', 'zero-bs-crm' );
+		return __( 'Invoice', 'zero-bs-crm' );
 	}
 
 	/**

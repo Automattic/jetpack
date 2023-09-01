@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix showing default error message and code when parsing cloud response.

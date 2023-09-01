@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update the unused get_task_url prop on the task definition to the get_calypso_path

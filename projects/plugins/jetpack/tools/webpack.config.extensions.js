@@ -199,6 +199,48 @@ module.exports = [
 						to: '[path][name][ext]',
 						context: path.join( __dirname, '../extensions/blocks' ),
 						noErrorOnMissing: true,
+						// Automatically link scripts and styles
+						transform( content, absoluteFrom ) {
+							let metadata = {};
+
+							try {
+								metadata = JSON.parse( content.toString() );
+							} catch ( e ) {}
+
+							const name = metadata.name.replace( 'jetpack/', '' );
+
+							if ( ! name ) {
+								return metadata;
+							}
+
+							const metadataDir = path.dirname( absoluteFrom );
+							let scriptName = 'editor';
+
+							if ( presetIndex.beta.includes( name ) ) {
+								scriptName += '-beta';
+							} else if ( presetIndex.experimental.includes( name ) ) {
+								scriptName += '-experimental';
+							}
+
+							const result = {
+								...metadata,
+								editorScript: `file:../${ scriptName }.js`,
+								editorStyle: `file:../${ scriptName }.css`,
+							};
+
+							if ( fs.existsSync( path.join( metadataDir, 'view.js' ) ) ) {
+								result.viewScript = 'file:./view.js';
+							}
+
+							if (
+								fs.existsSync( path.join( metadataDir, 'style.scss' ) ) ||
+								fs.existsSync( path.join( metadataDir, 'view.scss' ) )
+							) {
+								result.style = 'file:./view.css';
+							}
+
+							return JSON.stringify( result, null, 4 );
+						},
 					},
 				],
 			} ),

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Comments: remove mention of Twitter as a log in option since it is no longer available.

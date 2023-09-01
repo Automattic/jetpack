@@ -1,6 +1,6 @@
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 
 /**
  * @typedef {object} NoticeTypes
