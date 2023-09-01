@@ -12,7 +12,11 @@ export function BlogRollEdit( { className, attributes, setAttributes } ) {
 		ignore_user_blogs,
 	} = attributes;
 
-	const DEFAULT_TEMPLATE = [ [ 'jetpack/blogroll-item', {} ] ];
+	const DEFAULT_TEMPLATE = [
+		[ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ],
+		[ 'jetpack/blogroll-item', {} ],
+	];
+
 	const ALLOWED_BLOCKS = [ 'jetpack/blogroll-item' ];
 
 	return (
