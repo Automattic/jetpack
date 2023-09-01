@@ -2,7 +2,6 @@ import React, { type FunctionComponent } from 'react';
 import Text from '../text';
 import Background from './background';
 import UplotLineChart from './uplot-line-chart';
-import { useBoostScoreTransform } from './use-boost-score-transform';
 import './style.scss';
 
 export interface Period {
@@ -25,12 +24,6 @@ export interface BoostScoreGraphProps {
 	title?: string;
 	isPlaceholder?: boolean;
 }
-
-export type ScoreGraphAlignedData = [
-	number[], // timestamps
-	number[], // desktop_overall_score
-	number[] // mobile_overall_score
-];
 
 /**
  * BoostScoreGraph component composed by the chart and the legend.
@@ -60,8 +53,6 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 		startDate = dayBeforeEndDate;
 	}
 
-	const data = useBoostScoreTransform( periods );
-
 	return (
 		<div className="jb-score-graph">
 			{ title && <Text variant="title-medium">{ title }</Text> }
@@ -70,7 +61,7 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 					<Background />
 				</div>
 			) : (
-				<UplotLineChart data={ data } periods={ periods } range={ { startDate, endDate } } />
+				<UplotLineChart periods={ periods } range={ { startDate, endDate } } />
 			) }
 		</div>
 	);
