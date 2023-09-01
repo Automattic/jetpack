@@ -9,7 +9,7 @@ import getDateFormat from './get-date-format';
 import { tooltipsPlugin } from './tooltips-plugin';
 import { useBoostScoreTransform } from './use-boost-score-transform';
 import useResize from './use-resize';
-import { Period, ScoreGraphAlignedData } from '.';
+import { Period } from '.';
 
 import './style-uplot.scss';
 

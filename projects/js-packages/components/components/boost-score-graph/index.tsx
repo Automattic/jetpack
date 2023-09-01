@@ -66,6 +66,7 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 				<div className="jb-score-graph__placeholder">
 					<Background />
 				</div>
+			) : (
 				<UplotLineChart periods={ periods } range={ { startDate, endDate } } />
 			) }
 		</div>
