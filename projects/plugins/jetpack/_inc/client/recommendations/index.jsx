@@ -304,9 +304,6 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/newsletter-activated">
 						<ResourcePrompt stepSlug="newsletter-activated" />
 					</Route>
-					<Route path="/recommendations/paid-newsletter">
-						<ResourcePrompt stepSlug="paid-newsletter" isNew={ isNew( 'paid-newsletter' ) } />
-					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />
 					</Route>
