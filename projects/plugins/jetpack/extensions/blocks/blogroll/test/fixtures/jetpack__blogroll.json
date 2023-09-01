@@ -1,13 +1,17 @@
 [
-	{
-		"clientId": "_clientId_0",
-		"name": "jetpack/blogroll",
-		"isValid": true,
-		"attributes": {
-			"recommendations": [],
-			"ignore_user_blogs": false
-		},
-		"innerBlocks": [],
-		"originalContent": ""
-	}
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/blogroll",
+        "isValid": true,
+        "attributes": {
+            "recommendations": [],
+            "show_avatar": true,
+            "show_description": true,
+            "show_subscribe_button": true,
+            "open_links_new_window": true,
+            "ignore_user_blogs": true
+        },
+        "innerBlocks": [],
+        "originalContent": ""
+    }
 ]
