@@ -45,6 +45,9 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_block() {
 	if ( doing_filter( 'get_the_excerpt' ) ) {
+		if ( \Jetpack_Memberships::user_can_view_post() ) {
+			return '';
+		}
 		return THE_EXCERPT_BLOCK;
 	}
 	return '';
