@@ -178,8 +178,8 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 		case 'newsletter-activated':
 			return {
 				displayName: __( 'Newsletter', 'jetpack' ),
-				ctaLabel: __( 'Customize', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'post-new.php?post_type=page',
+				ctaLabel: __( 'Read the Guide', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-support-subscriptions' ),
 			};
 	}
 };
@@ -616,7 +616,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					__( 'Start promoting your site.', 'jetpack' ),
 				],
 				ctaText: __( 'Read the Guide', 'jetpack' ),
-				ctaLink: 'https://jetpack.com/support/newsletter/',
+				ctaLink: getRedirectUrl( 'jetpack-support-subscriptions' ),
 				illustration: 'assistant-newsletter',
 			};
 		case 'server-credentials':
