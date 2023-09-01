@@ -172,19 +172,19 @@ jetpack_boost_register_option(
 			'jpg'  => Schema::as_assoc_array(
 				array(
 					'quality'  => Schema::as_number(),
-					'lossless' => Schema::as_boolean()->fallback( false ),
+					'lossless' => Schema::as_boolean(),
 				)
 			),
 			'png'  => Schema::as_assoc_array(
 				array(
 					'quality'  => Schema::as_number(),
-					'lossless' => Schema::as_boolean()->fallback( false ),
+					'lossless' => Schema::as_boolean(),
 				)
 			),
 			'webp' => Schema::as_assoc_array(
 				array(
 					'quality'  => Schema::as_number(),
-					'lossless' => Schema::as_boolean()->fallback( false ),
+					'lossless' => Schema::as_boolean(),
 				)
 			),
 		)
