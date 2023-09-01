@@ -13,6 +13,16 @@ type UseMediaRecordingProps = {
 
 type UseMediaRecordingReturn = {
 	/**
+	 * The current recording state
+	 */
+	state: RecordingStateProp;
+
+	/**
+	 * The recorded blob
+	 */
+	blob: Blob | null;
+
+	/**
 	 * `start` recording handler
 	 */
 	start: ( timeslice?: number ) => void;
@@ -31,11 +41,6 @@ type UseMediaRecordingReturn = {
 	 * `stop` recording handler
 	 */
 	stop: () => void;
-
-	/**
-	 * The current recording state
-	 */
-	state: RecordingStateProp;
 };
 
 type MediaRecorderEvent = {
@@ -57,6 +62,9 @@ export default function useMediaRecording( {
 	// Recording state: `inactive`, `recording`, `paused`
 	const [ state, setState ] = useState< RecordingStateProp >( 'inactive' );
 
+	// The recorded blob
+	const [ blob, setBlob ] = useState< Blob | null >( null );
+
 	// Store the recorded chunks
 	const recordedChunks = useRef< Array< Blob > >( [] ).current;
 
@@ -73,6 +81,9 @@ export default function useMediaRecording( {
 
 	// `start` recording handler
 	const start = useCallback( ( timeslice: number ) => {
+		if ( ! timeslice || timeslice < 100 ) {
+			timeslice = 100; // set minimum timeslice to 100ms
+		}
 		mediaRecordRef?.current?.start( timeslice );
 	}, [] );
 
@@ -139,6 +150,9 @@ export default function useMediaRecording( {
 
 		// Store the recorded chunks
 		recordedChunks.push( data );
+
+		// Create and store the Blob for the recorded chunks
+		setBlob( getBlob() );
 	}
 
 	// Create media recorder instance
@@ -175,10 +189,12 @@ export default function useMediaRecording( {
 	}, [] );
 
 	return {
+		state,
+		blob,
+
 		start,
 		pause,
 		resume,
 		stop,
-		state,
 	};
 }
