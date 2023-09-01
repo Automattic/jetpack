@@ -99,4 +99,3 @@ class Test_Products extends TestCase {
 		Products::get_products_classes();
 	}
 }
-

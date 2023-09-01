@@ -109,4 +109,3 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie_Locator {
 		return ! $enclosures ? false : $enclosures->length > 0;
 	}
 }
-

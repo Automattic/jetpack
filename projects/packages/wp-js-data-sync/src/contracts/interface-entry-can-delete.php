@@ -6,4 +6,3 @@ interface Entry_Can_Delete {
 
 	public function delete();
 }
-

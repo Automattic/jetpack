@@ -301,4 +301,3 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_metadata( $type, $object_id, $meta_key, true ), 'Synced option doesn\'t match local option.' );
 	}
 }
-
