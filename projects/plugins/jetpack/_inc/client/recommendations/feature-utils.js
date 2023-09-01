@@ -52,7 +52,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Newsletter', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
-				configLink: '#/recommendations/newsletter-activated',
+				configLink: '#/newsletter',
 			};
 		case 'related-posts':
 			return {
