@@ -24,7 +24,6 @@ import { getMessageByProductType, getTitleByProps } from './utils';
 const DEFAULT_CURRENCY = 'USD';
 const DEFAULT_PRICE = 5;
 const DEFAULT_INTERVAL = '1 month';
-const DEFAULT_IS_MARKED_AS_DONATION = false;
 const DEFAULT_IS_CUSTOM_AMOUNT = false;
 
 export default function ProductManagementInspectorControl() {
@@ -45,7 +44,6 @@ export default function ProductManagementInspectorControl() {
 	const [ currency, setCurrency ] = useState( DEFAULT_CURRENCY );
 	const [ price, setPrice ] = useState( DEFAULT_PRICE );
 	const [ interval, setInterval ] = useState( DEFAULT_INTERVAL );
-	const [ isMarkedAsDonation, setIsMarkedAsDonation ] = useState( DEFAULT_IS_MARKED_AS_DONATION );
 	const [ isCustomAmount, setIsCustomAmount ] = useState( DEFAULT_IS_CUSTOM_AMOUNT );
 
 	const intervalOptions = [
@@ -63,7 +61,7 @@ export default function ProductManagementInspectorControl() {
 				currency,
 				price,
 				interval,
-				type: isMarkedAsDonation ? 'donation' : null,
+				type: null,
 				buyer_can_change_amount: isCustomAmount,
 				is_editable: true,
 			},
@@ -75,7 +73,6 @@ export default function ProductManagementInspectorControl() {
 					setPrice( DEFAULT_PRICE );
 					setIsCustomTitle( false );
 					setInterval( DEFAULT_INTERVAL );
-					setIsMarkedAsDonation( DEFAULT_IS_MARKED_AS_DONATION );
 					setIsCustomAmount( DEFAULT_IS_CUSTOM_AMOUNT );
 					setCurrency( DEFAULT_CURRENCY );
 				}
@@ -88,9 +85,9 @@ export default function ProductManagementInspectorControl() {
 		if ( isCustomTitle ) {
 			return;
 		}
-		setTitle( getTitleByProps( isMarkedAsDonation, interval ) );
+		setTitle( getTitleByProps( interval ) );
 		setIsCustomTitle( false );
-	}, [ interval, isMarkedAsDonation, isCustomTitle ] );
+	}, [ interval, isCustomTitle ] );
 
 	return (
 		<InspectorControls>
@@ -148,16 +145,6 @@ export default function ProductManagementInspectorControl() {
 									onChange={ value => setInterval( value ) }
 									options={ intervalOptions }
 									value={ interval }
-								/>
-							</PanelRow>
-							<PanelRow className="donation-subscription">
-								<ToggleControl
-									label={ getMessageByProductType(
-										'mark this product as a donation',
-										productType
-									) }
-									onChange={ value => setIsMarkedAsDonation( value ) }
-									checked={ isMarkedAsDonation }
 								/>
 							</PanelRow>
 							<PanelRow className="custom-amount">
