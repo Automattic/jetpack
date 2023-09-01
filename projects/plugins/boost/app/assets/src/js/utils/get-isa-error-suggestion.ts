@@ -4,7 +4,7 @@ export default function getIsaErrorSuggestion( code ) {
 	let suggestion = '';
 
 	if ( 429 === code ) {
-		suggestion = __( 'Minimum time between requests is 1 hour.', 'jetpack-boost' );
+		suggestion = __( 'You have sent too many requests, please try later.', 'jetpack-boost' );
 	}
 
 	return suggestion;
