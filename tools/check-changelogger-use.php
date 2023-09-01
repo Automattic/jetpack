@@ -169,7 +169,7 @@ fclose( $pipes[0] );
 
 $ok_projects      = array();
 $touched_projects = array();
-// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 while ( ( $line = fgets( $pipes[1] ) ) ) {
 	$line  = trim( $line );
 	$parts = explode( '/', $line, 5 );
@@ -229,7 +229,7 @@ if ( ! $p ) {
 fclose( $pipes[0] );
 
 $unmerged_projects = array();
-// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 while ( ( $line = fgets( $pipes[1] ) ) ) {
 	$line  = trim( $line );
 	$file  = substr( $line, 3 );
