@@ -607,13 +607,13 @@ export const getStepContent = ( state, stepSlug ) => {
 			return {
 				question: __( 'Jetpack Newsletter Activated', 'jetpack' ),
 				description: __(
-					'Jetpack Newsletter is now active. You are one step closer to growing your subscribers. Start by adding a subscribe form.',
+					'Jetpack Newsletter is now active. You are one step closer to growing your subscribers. Start by adding a subscribe form to your site.',
 					'jetpack'
 				),
 				descriptionList: [
 					__( 'Create a new post or page.', 'jetpack' ),
 					__( 'Add the subscribe block by typing /subscribe', 'jetpack' ),
-					__( 'Publish and start promoting your site.', 'jetpack' ),
+					__( 'Start promoting your site.', 'jetpack' ),
 				],
 				ctaText: __( 'Read the Guide', 'jetpack' ),
 				ctaLink: 'https://jetpack.com/support/newsletter/',
