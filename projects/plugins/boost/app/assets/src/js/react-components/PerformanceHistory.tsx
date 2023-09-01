@@ -12,7 +12,7 @@ const DummyWithPopover = ( { children } ) => {
 		</div>
 	);
 };
-
+  
 export const PerformanceHistory = ( {
 	periods,
 	onToggle,
