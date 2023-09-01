@@ -1,12 +1,11 @@
 <?php
-
-use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-
 /**
  * Automated testing of the post-by-email REST API.
  *
  * @package automattic/jetpack
  */
+
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 
 if ( defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/post-by-email.php';

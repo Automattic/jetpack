@@ -11,9 +11,7 @@
 
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 
-/**
- * Disable direct access/execution to/of the widget code.
- */
+// Disable direct access/execution to/of the widget code.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
