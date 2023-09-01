@@ -6,7 +6,7 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.PHP.DiscouragedPHPFunctions, WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.GlobalVariablesOverride
+// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.PHP.DiscouragedPHPFunctions, WordPress.Security.EscapeOutput, WordPress.WP.GlobalVariablesOverride
 
 chdir( __DIR__ . '/../' );
 
