@@ -55,7 +55,7 @@ const LandingPage = () => {
 		const siteHasAI = config( 'hasAI' );
 
 		if ( siteHasAI ) {
-			onButtonClickHandler( false );
+			onButtonClickHandler( false )();
 		} else {
 			const plansPageUrl = getRedirectUrl( 'jetpack-plans', {
 				site: config( 'siteURL' ),
@@ -109,7 +109,7 @@ const LandingPage = () => {
 								</li>
 								<li>
 									{ __(
-										'Need a RSVP form for your event site? Simply ask AI Assistant to prepare a form that includes options for meal preferences, attendance status, or plus-ones.',
+										'Need an RSVP form for your event site? Simply ask AI Assistant to prepare a form that includes options for meal preferences, attendance status, or plus-ones.',
 										'jetpack-forms'
 									) }
 								</li>
