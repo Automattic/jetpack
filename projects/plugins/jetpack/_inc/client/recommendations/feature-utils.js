@@ -86,7 +86,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		case 'videopress':
 			return {
-				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				configureButtonLabel: __( 'How To', 'jetpack' ),
 				displayName: __( 'VideoPress', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: getRedirectUrl( 'jetpack-support-videopress-block-editor' ),
