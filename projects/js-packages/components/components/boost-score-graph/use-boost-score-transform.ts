@@ -1,32 +1,30 @@
 import { useMemo } from 'react';
 import { Period, ScoreGraphAlignedData } from './index';
 
+// Extract the value of a dimension from an array of periods
+const getPeriodDimension = function ( key: string, periods: Period[] ) {
+	return periods.map( ( { dimensions } ) => {
+		return dimensions[ key ];
+	} );
+};
+
 /**
  * Transforms an array of periods into an array of arrays, where the first array is the timestamps, and the rest are the values for each key
  *
  * @param {Period[]} periods - Array of periods to transform
- * @param {string[]} [keysToExtract = [ 'desktop_overall_score', 'mobile_overall_score' ]] - Array of keys to extract from each period
  * @returns {ScoreGraphAlignedData | []} - Array of arrays, where the first array is the timestamps, and the rest are the values for each key
  */
-export function useBoostScoreTransform(
-	periods,
-	keysToExtract = [ 'desktop_overall_score', 'mobile_overall_score' ]
-): ScoreGraphAlignedData | [] {
+export function useBoostScoreTransform( periods: Period[] ): ScoreGraphAlignedData | [] {
 	return useMemo( () => {
 		if ( ! periods?.length || ! periods[ 0 ].dimensions ) {
 			return [];
 		}
 		const timestamps = periods.map( ( { timestamp } ) => timestamp / 1000 );
 
-		const valueArray = [];
-		for ( const key of keysToExtract ) {
-			valueArray.push(
-				periods.map( ( { dimensions } ) => {
-					return dimensions[ key ];
-				} )
-			);
-		}
-
-		return [ timestamps, valueArray[ 0 ], valueArray[ 1 ] ];
-	}, [ keysToExtract, periods ] );
+		return [
+			timestamps,
+			getPeriodDimension( 'desktop_overall_score', periods ),
+			getPeriodDimension( 'mobile_overall_score', periods ),
+		];
+	}, [ periods ] );
 }
