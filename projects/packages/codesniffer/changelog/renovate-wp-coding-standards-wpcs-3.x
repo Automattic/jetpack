@@ -1,4 +1,4 @@
-Significance: patch
+Significance: major
 Type: changed
 
-Updated package dependencies.
+Update to WordPress-Coding-Standards 3.0.
