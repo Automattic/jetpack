@@ -135,6 +135,16 @@ function fixDeps( pkg ) {
 		pkg.dependencies[ 'simple-update-notifier' ] = '^2.0.0';
 	}
 
+	// Typo in package.json caused a missing peer dep.
+	// Already fixed by https://github.com/yjs/y-webrtc/pull/48, not yet released.
+	// Already fixed by https://github.com/yjs/y-protocols/pull/12, not yet released.
+	if (
+		( pkg.name === 'y-webrtc' && pkg.version === '10.2.5' ) ||
+		( pkg.name === 'y-protocols' && pkg.version === '1.0.5' )
+	) {
+		pkg.peerDependencies.yjs = '^13.5.6';
+	}
+
 	return pkg;
 }
 

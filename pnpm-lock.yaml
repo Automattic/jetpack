@@ -11488,7 +11488,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.6
       y-indexeddb: 9.0.11(yjs@13.6.7)
-      y-webrtc: 10.2.5
+      y-webrtc: 10.2.5(yjs@13.6.7)
       yjs: 13.6.7
     transitivePeerDependencies:
       - bufferutil
@@ -23003,19 +23003,25 @@ packages:
       lib0: 0.2.83
       yjs: 13.6.7
 
-  /y-protocols@1.0.5:
+  /y-protocols@1.0.5(yjs@13.6.7):
     resolution: {integrity: sha512-Wil92b7cGk712lRHDqS4T90IczF6RkcvCwAD0A2OPg+adKmOe+nOiT/N2hvpQIWS3zfjmtL4CPaH5sIW1Hkm/A==}
+    peerDependencies:
+      yjs: ^13.5.6
     dependencies:
       lib0: 0.2.83
+      yjs: 13.6.7
 
-  /y-webrtc@10.2.5:
+  /y-webrtc@10.2.5(yjs@13.6.7):
     resolution: {integrity: sha512-ZyBNvTI5L28sQ2PQI0T/JvyWgvuTq05L21vGkIlcvNLNSJqAaLCBJRe3FHEqXoaogqWmRcEAKGfII4ErNXMnNw==}
     engines: {node: '>=12'}
     hasBin: true
+    peerDependencies:
+      yjs: ^13.5.6
     dependencies:
       lib0: 0.2.83
       simple-peer: 9.11.1
-      y-protocols: 1.0.5
+      y-protocols: 1.0.5(yjs@13.6.7)
+      yjs: 13.6.7
     optionalDependencies:
       ws: 7.5.9
     transitivePeerDependencies:
