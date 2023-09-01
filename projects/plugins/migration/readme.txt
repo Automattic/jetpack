@@ -1,7 +1,7 @@
 === Move to WordPress.com ===
 Contributors: automattic
 Tags: migrate, migration, backup, restore, transfer, move, copy, wordpress.com, automattic, import, importer, hosting
-Requires at least: 6.1
+Requires at least: 6.2
 Requires PHP: 5.6
 Tested up to: 6.3
 Stable tag: 0.1.0

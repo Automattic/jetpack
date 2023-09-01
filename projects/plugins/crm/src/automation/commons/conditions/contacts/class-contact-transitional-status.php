@@ -145,7 +145,7 @@ class Contact_Transitional_Status extends Base_Condition {
 	 * @return string The category 'contact'.
 	 */
 	public static function get_category(): string {
-		return 'contact';
+		return __( 'Contact', 'zero-bs-crm' );
 	}
 
 	/**

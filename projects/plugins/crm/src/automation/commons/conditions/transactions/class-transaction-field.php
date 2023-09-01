@@ -178,7 +178,7 @@ class Transaction_Field extends Base_Condition {
 	 * @return string The category 'transaction'.
 	 */
 	public static function get_category(): string {
-		return __( 'transaction', 'zero-bs-crm' );
+		return __( 'Transaction', 'zero-bs-crm' );
 	}
 
 	/**

@@ -28,7 +28,7 @@ export { default as Gridicon } from './components/gridicon';
 export { default as IconTooltip } from './components/icon-tooltip';
 export { default as ActionButton } from './components/action-button';
 export { default as PricingCard } from './components/pricing-card';
-export { default as PricingSlider } from './components/pricing-slider';
+export { default as NumberSlider } from './components/number-slider';
 export { default as AdminSection } from './components/admin-section/basic';
 export { default as AdminSectionHero } from './components/admin-section/hero';
 export { default as AdminPage } from './components/admin-page';

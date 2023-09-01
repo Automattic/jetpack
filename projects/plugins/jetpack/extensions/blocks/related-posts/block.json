@@ -8,7 +8,7 @@
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "embed",
-	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><g stroke='currentColor' strokeWidth='2' strokeLinecap='square'><path d='M4,4 L4,19 M4,4 L19,4 M4,9 L19,9 M4,14 L19,14 M4,19 L19,19 M9,4 L9,19 M19,4 L19,19' /></g></svg>",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='m19.5,3.5H3.5v4.94s.01,6,.01,6v4s-.01,0-.01,0v1h15.97v-.06h.05l-.02-15.88Zm-11,1v3.94s-3.99,0-3.99,0v-3.94s3.99,0,3.99,0Zm.01,4.94v4h-4v-4h4Zm-3.99,9v-4s3.99,0,3.99,0v4s-3.99,0-3.99,0Zm13.98-13.94v3.94s-8.99,0-8.99,0v-3.94s8.99,0,8.99,0Zm.01,4.94v4h-9v-4h9Zm-8.99,9v-4s8.99,0,8.99,0v4s-8.99,0-8.99,0Z'/></svg>",
 	"supports": {
 		"html": false,
 		"multiple": false,
