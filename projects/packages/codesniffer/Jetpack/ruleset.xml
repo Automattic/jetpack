@@ -23,7 +23,6 @@
 	<rule ref="MediaWiki.Usage.ReferenceThis" />
 	<rule ref="MediaWiki.WhiteSpace.EmptyLinesBetweenUse" />
 	<rule ref="MediaWiki.WhiteSpace.MultipleEmptyLines" />
-	<rule ref="MediaWiki.WhiteSpace.SpaceAfterClosure" />
 	<rule ref="MediaWiki.Usage.IsNull" />
 	<!-- Maybe in the future
 	<rule ref="MediaWiki.AlternativeSyntax.UnicodeEscape" /> // syntax it checks requires PHP 7.0+
