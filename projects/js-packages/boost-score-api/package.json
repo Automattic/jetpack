@@ -20,7 +20,7 @@
 		"test": "jest tests"
 	},
 	"dependencies": {
-		"@wordpress/i18n": "4.38.0",
+		"@wordpress/i18n": "4.41.0",
 		"zod": "3.20.2"
 	},
 	"devDependencies": {

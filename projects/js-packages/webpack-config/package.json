@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "1.5.8",
+	"version": "1.5.9-alpha",
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/webpack-config/#readme",
 	"bugs": {
@@ -29,8 +29,8 @@
 		"@babel/preset-react": "7.22.5",
 		"@babel/preset-typescript": "7.22.5",
 		"@cerner/duplicate-package-checker-webpack-plugin": "2.3.0",
-		"@wordpress/browserslist-config": "5.21.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "4.21.0",
+		"@wordpress/browserslist-config": "5.24.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "4.24.0",
 		"babel-loader": "9.1.2",
 		"browserslist": "4.21.9",
 		"css-loader": "6.5.1",
