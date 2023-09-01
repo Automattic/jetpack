@@ -44,7 +44,6 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	ANTISPAM_ACTIVATED: 'antispam-activated',
 	VIDEOPRESS_ACTIVATED: 'videopress-activated',
 	SEARCH_ACTIVATED: 'search-activated',
-	NEWSLETTER_ACTIVATED: 'newsletter-activated',
 	SERVER_CREDENTIALS: 'server-credentials',
 	BOOST: 'boost',
 	SUMMARY: 'summary',
@@ -123,10 +122,6 @@ export const SUMMARY_SECTION_BY_ONBOARDING_NAME = {
 	[ ONBOARDING_JETPACK_SEARCH ]: {
 		name: 'Search',
 		slugs: [ 'search-activated' ],
-	},
-	[ ONBOARDING_JETPACK_NEWSLETTER ]: {
-		name: 'Newsletter',
-		slugs: [ 'newsletter-activated' ],
 	},
 	[ ONBOARDING_JETPACK_SCAN ]: {
 		name: 'Scan',
