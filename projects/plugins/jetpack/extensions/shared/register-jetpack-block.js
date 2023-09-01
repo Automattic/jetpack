@@ -2,7 +2,7 @@ import {
 	getJetpackExtensionAvailability,
 	withHasWarningIsInteractiveClassNames,
 	requiresPaidPlan,
-	getBlockIconComponent,
+	getBlockIconProp,
 } from '@automattic/jetpack-shared-extension-utils';
 import { registerBlockType } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
@@ -69,13 +69,20 @@ export default function registerJetpackBlock( name, settings, childBlocks = [], 
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export function registerJetpackBlockFromMetadata( metadata, settings, childBlocks, prefix ) {
-	return registerJetpackBlock(
-		metadata.name,
-		{
-			...settings,
-			icon: getBlockIconComponent( metadata ),
-		},
-		childBlocks,
-		prefix
-	);
+	const clientSettings = {
+		...settings,
+		icon: getBlockIconProp( metadata ),
+	};
+	const { variations } = metadata;
+
+	if ( Array.isArray( variations ) && variations.length > 0 ) {
+		clientSettings.variations = variations.map( variation => {
+			return {
+				...variation,
+				icon: getBlockIconProp( variation ),
+			};
+		} );
+	}
+
+	return registerJetpackBlock( metadata.name, clientSettings, childBlocks, prefix );
 }

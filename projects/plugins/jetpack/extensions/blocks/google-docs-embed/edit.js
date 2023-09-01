@@ -2,8 +2,34 @@ import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, SelectControl } from '@wordpress/components';
 import { Fragment, useEffect } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { getClientBlockIconProp } from '../../shared/get-block-icon-from-metadata';
+import metadata from './block.json';
 import Embed from './embed';
-import { GOOGLE_DOCUMENT, GOOGLE_SPREADSHEET, GOOGLE_SLIDE } from '.';
+
+const docsVariation = metadata.variations?.find( v => v.name === 'jetpack/google-docs' );
+const sheetsVariation = metadata.variations?.find( v => v.name === 'jetpack/google-sheets' );
+const slidesVariation = metadata.variations?.find( v => v.name === 'jetpack/google-slides' );
+
+const GOOGLE_DOCUMENT = {
+	type: 'document',
+	title: docsVariation?.title,
+	icon: getClientBlockIconProp( docsVariation?.icon ),
+	patterns: [ /^(http|https):\/\/(docs\.google.com)\/document\/d\/([A-Za-z0-9_-]+).*?$/i ],
+};
+
+const GOOGLE_SPREADSHEET = {
+	type: 'spreadsheets',
+	title: sheetsVariation?.title,
+	icon: getClientBlockIconProp( sheetsVariation?.icon ),
+	patterns: [ /^(http|https):\/\/(docs\.google.com)\/spreadsheets\/d\/([A-Za-z0-9_-]+).*?$/i ],
+};
+
+const GOOGLE_SLIDE = {
+	type: 'presentation',
+	title: slidesVariation?.title,
+	icon: getClientBlockIconProp( slidesVariation?.icon ),
+	patterns: [ /^(http|https):\/\/(docs\.google.com)\/presentation\/d\/([A-Za-z0-9_-]+).*?$/i ],
+};
 
 /**
  * Edit component.
