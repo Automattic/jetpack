@@ -1,7 +1,7 @@
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getIconColor } from '../../../shared/block-icons';
-import icon from '../icon';
+import { getClientBlockIconProp } from '../../../shared/get-block-icon-from-metadata';
+import metadata from '../block.json';
 import edit from './edit';
 import save from './save';
 
@@ -15,10 +15,7 @@ export const settings = {
 		</Fragment>
 	),
 	keywords: [],
-	icon: {
-		src: icon,
-		foreground: getIconColor(),
-	},
+	icon: getClientBlockIconProp( metadata ),
 	category: 'widgets',
 	edit,
 	save,
