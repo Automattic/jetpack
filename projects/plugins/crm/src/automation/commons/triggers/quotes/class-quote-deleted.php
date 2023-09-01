@@ -59,7 +59,7 @@ class Quote_Deleted extends Base_Trigger {
 	 * @return string|null The category of the trigger.
 	 */
 	public static function get_category(): ?string {
-		return __( 'quote', 'zero-bs-crm' );
+		return __( 'Quote', 'zero-bs-crm' );
 	}
 
 	/**

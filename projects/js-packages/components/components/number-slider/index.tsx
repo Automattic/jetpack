@@ -1,17 +1,17 @@
 import classNames from 'classnames';
 import React from 'react';
 import ReactSlider from 'react-slider';
-import { PricingSliderProps } from './types';
+import { NumberSliderProps } from './types';
 import './style.scss';
 
 /**
- * Generate Pricing Slider
+ * Generate Number Slider
  * More support from the original ReactSlider component: https://zillow.github.io/react-slider/
  *
- * @param {PricingSliderProps} props - Props
+ * @param {NumberSliderProps} props - Props
  * @returns {React.ReactElement} - JSX element
  */
-const PricingSlider: React.FC< PricingSliderProps > = ( {
+const NumberSlider: React.FC< NumberSliderProps > = ( {
 	className,
 	maxValue = 100,
 	minValue = 0,
@@ -24,8 +24,8 @@ const PricingSlider: React.FC< PricingSliderProps > = ( {
 } ) => {
 	const [ isThumbHolding, setIsThumbHolding ] = React.useState( false );
 
-	const componentClassName = classNames( 'jp-components-pricing-slider', className, {
-		'jp-components-pricing-slider--is-holding': isThumbHolding,
+	const componentClassName = classNames( 'jp-components-number-slider', className, {
+		'jp-components-number-slider--is-holding': isThumbHolding,
 	} );
 
 	const onBeforeChangeCallback = beforeValue => {
@@ -51,12 +51,12 @@ const PricingSlider: React.FC< PricingSliderProps > = ( {
 		  };
 
 	return (
-		<div className={ componentClassName } data-testid="pricing-slider">
+		<div className={ componentClassName } data-testid="number-slider">
 			<ReactSlider
-				className="jp-components-pricing-slider__control"
-				thumbClassName="jp-components-pricing-slider__thumb"
-				thumbActiveClassName="jp-components-pricing-slider__thumb--is-active"
-				trackClassName="jp-components-pricing-slider__track"
+				className="jp-components-number-slider__control"
+				thumbClassName="jp-components-number-slider__thumb"
+				thumbActiveClassName="jp-components-number-slider__thumb--is-active"
+				trackClassName="jp-components-number-slider__track"
 				value={ value }
 				max={ maxValue }
 				min={ minValue }
@@ -70,4 +70,4 @@ const PricingSlider: React.FC< PricingSliderProps > = ( {
 	);
 };
 
-export default PricingSlider;
+export default NumberSlider;

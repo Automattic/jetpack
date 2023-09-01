@@ -9,33 +9,33 @@ $track-height: 8px;
 }
 
 // On holding thumb styling
-.jp-components-pricing-slider--is-holding {
-	.jp-components-pricing-slider__thumb {
+.jp-components-number-slider--is-holding {
+	.jp-components-number-slider__thumb {
 		box-shadow: 0 6px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 3px rgba(6, 158, 8, 0.25);
 	}
 }
 
 // Base styles
-.jp-components-pricing-slider__control {
+.jp-components-number-slider__control {
 	width: 100%;
 	height: $thumb-height;
 }
 
-.jp-components-pricing-slider__track {
+.jp-components-number-slider__track {
 	@include adjust-track-rail-styles;
 	top: calc(($thumb-height / 2) - ($track-height / 2));
 	background: var(--jp-gray);
 
-	&.jp-components-pricing-slider__track-0 {
+	&.jp-components-number-slider__track-0 {
 		background: var(--jp-green-40);
 	}
 
-	&.jp-components-pricing-slider__track-1 {
+	&.jp-components-number-slider__track-1 {
 		background: var(--jp-gray);
 	}
 }
 
-.jp-components-pricing-slider__thumb {
+.jp-components-number-slider__thumb {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -56,7 +56,7 @@ $track-height: 8px;
 	cursor: pointer;
 
 	// On focus thumb styling
-	&.jp-components-pricing-slider__thumb--is-active {
+	&.jp-components-number-slider__thumb--is-active {
 		outline: none;
 	}
 

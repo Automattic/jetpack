@@ -1,8 +1,8 @@
 import React, { type FunctionComponent } from 'react';
-import uPlot from 'uplot';
 import Text from '../text';
+import Background from './background';
 import UplotLineChart from './uplot-line-chart';
-import { useBoostScoreTransform } from './use-boost-score-transform';
+import './style.scss';
 
 export interface Period {
 	timestamp: number;
@@ -22,15 +22,15 @@ export interface BoostScoreGraphProps {
 	startDate: number;
 	endDate: number;
 	title?: string;
-	isLoading?: boolean;
+	isPlaceholder?: boolean;
 }
 
 /**
  * BoostScoreGraph component composed by the chart and the legend.
  *
  * @param {BoostScoreGraphProps} props - The props object for the BoostScoreGraph component.
- * @param {uPlot.AlignedData} props.data - The data used to render the uPlotLineChart.
  * @param {string} props.title - Title for the chart.
+ * @param {Period[]} props.periods - The periods to display in the chart.
  * @param {boolean} [props.isLoading=false] - Whether the component is in a loading state.
  * @returns {React.ReactElement} The JSX element representing the BoostScoreGraph component, or null if loading.
  */
@@ -39,7 +39,7 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	startDate,
 	endDate,
 	title,
-	isLoading = false,
+	isPlaceholder = false,
 } ) => {
 	// Sort periods by timestamp
 	periods.sort( ( a, b ) => a.timestamp - b.timestamp );
@@ -53,14 +53,16 @@ export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 		startDate = dayBeforeEndDate;
 	}
 
-	const data = useBoostScoreTransform( periods );
-	if ( isLoading || ! data?.length ) {
-		return null;
-	}
 	return (
 		<div className="jb-score-graph">
 			{ title && <Text variant="title-medium">{ title }</Text> }
-			<UplotLineChart data={ data } periods={ periods } range={ { startDate, endDate } } />
+			{ isPlaceholder ? (
+				<div className="jb-score-graph__placeholder">
+					<Background />
+				</div>
+			) : (
+				<UplotLineChart periods={ periods } range={ { startDate, endDate } } />
+			) }
 		</div>
 	);
 };
