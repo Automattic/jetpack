@@ -70,7 +70,7 @@ class Add_Remove_Contact_Tag extends Base_Action {
 	 * @return string|null The category of the step.
 	 */
 	public static function get_category(): ?string {
-		return 'actions';
+		return __( 'Contact', 'zero-bs-crm' );
 	}
 
 	/**

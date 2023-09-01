@@ -388,6 +388,22 @@ class Test_Status extends TestCase {
 				'http://staging.wpengine.com.example.com/',
 				false,
 			),
+			'pantheon_dev'          => array(
+				'http://dev-site-name.pantheonsite.io',
+				true,
+			),
+			'pantheon_test'         => array(
+				'http://test-site-name.pantheonsite.io',
+				true,
+			),
+			'pantheon_multi'        => array(
+				'http://multidev-env-site-name.pantheonsite.io',
+				true,
+			),
+			'pantheon_live'         => array(
+				'http://live-site-name.pantheonsite.io',
+				false,
+			),
 		);
 	}
 

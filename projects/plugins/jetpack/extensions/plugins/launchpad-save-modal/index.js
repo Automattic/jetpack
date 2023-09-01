@@ -69,13 +69,16 @@ export const settings = {
 			siteIntentOption,
 		} = window?.Jetpack_LaunchpadSaveModal || {};
 
+		const hideFSENextStepsModalBool = !! hideFSENextStepsModal;
+
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
-		const [ dontShowAgain, setDontShowAgain ] = useState( !! hideFSENextStepsModal );
-		const [ isChecked, setIsChecked ] = useState( !! hideFSENextStepsModal );
+		const [ dontShowAgain, setDontShowAgain ] = useState( hideFSENextStepsModalBool );
+		const [ isChecked, setIsChecked ] = useState( hideFSENextStepsModalBool );
 
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
 		const prevHasNeverPublishedPostOption = useRef( hasNeverPublishedPostOption );
+		const initialHideFSENextStepsModal = useRef( hideFSENextStepsModalBool );
 
 		const siteFragment = getSiteFragment();
 		const launchPadUrl = getRedirectUrl( 'wpcom-launchpad-setup', {
@@ -177,7 +180,9 @@ export const settings = {
 		const handleDontShowAgainSetting = shouldHide => {
 			setDontShowAgain( shouldHide );
 			updateLaunchpadSaveModalBrowserConfig( { hideFSENextStepsModal: shouldHide } );
-			updateHideFSENextStepsModal( shouldHide );
+			if ( shouldHide !== initialHideFSENextStepsModal.current ) {
+				updateHideFSENextStepsModal( shouldHide );
+			}
 		};
 
 		return (

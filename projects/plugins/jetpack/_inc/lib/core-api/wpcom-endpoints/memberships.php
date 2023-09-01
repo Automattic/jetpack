@@ -114,7 +114,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_products' ),
-					'permission_callback' => array( $this, 'get_status_permission_check' ),
+					'permission_callback' => array( $this, 'can_modify_products_permission_check' ),
 				),
 				array(
 					'methods'             => WP_REST_Server::READABLE,
@@ -130,7 +130,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_product' ),
-					'permission_callback' => array( $this, 'get_status_permission_check' ),
+					'permission_callback' => array( $this, 'can_modify_products_permission_check' ),
 					'args'                => array(
 						'title'                   => array(
 							'type'     => 'string',
@@ -160,19 +160,28 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'delete_product' ),
-					'permission_callback' => array( $this, 'get_status_permission_check' ),
+					'permission_callback' => array( $this, 'can_modify_products_permission_check' ),
 				),
 			)
 		);
 	}
 
 	/**
-	 * Ensure the user has proper permissions
+	 * Ensure the user has proper permissions for getting status and listing products
 	 *
 	 * @return boolean
 	 */
 	public function get_status_permission_check() {
 		return current_user_can( 'edit_posts' );
+	}
+
+	/**
+	 * Ensure the user has proper permissions to modify products
+	 *
+	 * @return boolean
+	 */
+	public function can_modify_products_permission_check() {
+		return current_user_can( 'manage_options' );
 	}
 
 	/**

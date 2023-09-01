@@ -1,7 +1,7 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
-Requires at least: 6.1
+Requires at least: 6.2
 Requires PHP: 5.6
 Tested up to: 6.3
 Stable tag: 1.10.0

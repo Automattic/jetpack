@@ -48,13 +48,30 @@ Extensions in the `extensions/` folder loosely follow this structure:
 		└── ...
 ```
 
-If your block depends on another block, place them all in extensions folder:
+If your block depends on another block, place them all in one folder:
 
 ```txt
 .
 └── blocks/
-	├── block-name/
-	└── sub-blockname/
+	└── block-name/
+		└── sub-blockname/
+```
+To ensure that the child blog is properly registered, include its php block registration file in the parent php file. 
+Also, you would need to adjust the front-end block registration in the parent as follows:
+```js
+import registerJetpackBlock from '../../shared/register-jetpack-block';
+import {
+	name as childBlockName,
+	settings as childBlockSettings,
+} from './sub-blockname';
+import { name, settings } from '.';
+
+registerJetpackBlock( name, settings, [
+	{
+		name: childBlockName,
+		settings: childBlockSettings,
+	},
+] );
 ```
 
 ## Developing block editor extensions in Jetpack
@@ -65,7 +82,7 @@ If your block depends on another block, place them all in extensions folder:
 1. Start a new branch.
 1. Use Jetpack-CLI command to scaffold a new block (see below). That block will be created in the `extensions/blocks` folder, and will be set as a Beta block by default.
 1. Or modify existing extensions in the same folder.
-1. Run `jetpack build plugins/jtepack` to compile your changes.
+1. Run `jetpack build plugins/jetpack` to compile your changes.
 1. Now test your changes in your Docker environment's wp-admin.
 1. Open a PR
 1. Test your changes in all 3 environments available to you: your local development site, a WordPress.com Simple site, and a WoA site.

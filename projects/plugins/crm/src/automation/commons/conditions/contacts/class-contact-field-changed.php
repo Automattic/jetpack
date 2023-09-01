@@ -154,7 +154,7 @@ class Contact_Field_Changed extends Base_Condition {
 	 * @return string The category 'jpcrm/contact_condition'.
 	 */
 	public static function get_category(): string {
-		return __( 'contact', 'zero-bs-crm' );
+		return __( 'Contact', 'zero-bs-crm' );
 	}
 
 	/**

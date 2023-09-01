@@ -70,7 +70,7 @@ class Add_Contact_Log extends Base_Action {
 	 * @return string The category of the step.
 	 */
 	public static function get_category(): ?string {
-		return 'actions';
+		return __( 'Contact', 'zero-bs-crm' );
 	}
 
 	/**
