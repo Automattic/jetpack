@@ -1548,7 +1548,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
                     }
 
                     echo '<hr /><div class="zbs-customerportal-activeuser-actions">';
-							echo sprintf( '<a target="_blank" href="%s" class="ui mini button white">%s</a>', esc_url( zeroBS_portal_link() ), esc_html( __( 'Preview Portal', 'zero-bs-crm' ) ) );
+							printf( '<a target="_blank" href="%s" class="ui mini button white">%s</a>', esc_url( zeroBS_portal_link() ), esc_html( __( 'Preview Portal', 'zero-bs-crm' ) ) );
                     echo '</div>';
                 } else {
 
