@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import uPlot from 'uplot';
 import { Period, ScoreGraphAlignedData } from './index';
 
 /**
@@ -7,7 +6,7 @@ import { Period, ScoreGraphAlignedData } from './index';
  *
  * @param {Period[]} periods - Array of periods to transform
  * @param {string[]} [keysToExtract = [ 'desktop_overall_score', 'mobile_overall_score' ]] - Array of keys to extract from each period
- * @returns {uPlot.AlignedData} - Array of arrays, where the first array is the timestamps, and the rest are the values for each key
+ * @returns {ScoreGraphAlignedData | []} - Array of arrays, where the first array is the timestamps, and the rest are the values for each key
  */
 export function useBoostScoreTransform(
 	periods,
@@ -28,6 +27,6 @@ export function useBoostScoreTransform(
 			);
 		}
 
-		return [ timestamps, ...valueArray ] as ScoreGraphAlignedData;
+		return [ timestamps, valueArray[ 0 ], valueArray[ 1 ] ];
 	}, [ keysToExtract, periods ] );
 }
