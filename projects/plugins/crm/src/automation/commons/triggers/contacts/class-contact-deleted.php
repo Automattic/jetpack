@@ -68,7 +68,7 @@ class Contact_Deleted extends Base_Trigger {
 	 * @return string|null
 	 */
 	public static function get_category(): ?string {
-		return __( 'contact', 'zero-bs-crm' );
+		return __( 'Contact', 'zero-bs-crm' );
 	}
 
 	/**
