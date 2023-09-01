@@ -62,7 +62,9 @@
 {/if}
 
 <style lang="scss">
-	.jb-image-cdn-quality__section-title {
-		font-weight: bold;
+	.jb-image-cdn-quality {
+		&__section-title {
+			font-weight: bold;
+		}
 	}
 </style>

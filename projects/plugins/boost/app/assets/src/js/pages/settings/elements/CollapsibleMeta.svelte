@@ -36,8 +36,15 @@
 	@use '../../../../css/main/variables.scss' as *;
 
 	.jb-collapsible-meta {
+		margin-top: 2em;
+
+		&__header {
+			margin-bottom: 1em;
+		}
+
 		&__edit-button {
 			float: right;
+			padding: 4px;
 		}
 
 		.summary {
