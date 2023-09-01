@@ -28,56 +28,56 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
 		case 'boost':
 			return {
-				configureButtonLabel: __( 'Get Started', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Jetpack Boost', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
 				configLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-boost',
 			};
 		case 'creative-mail':
 			return {
-				configureButtonLabel: __( 'Get Started', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Creative Mail', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
 				configLink: getSiteAdminUrl( state ) + 'admin.php?page=creativemail',
 			};
 		case 'monitor':
 			return {
-				configureButtonLabel: __( 'Get Started', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Downtime Monitoring', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=monitor',
 			};
 		case 'newsletter':
 			return {
-				configureButtonLabel: __( 'Get Started', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Newsletter', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
-				configLink: '#/recommendations/newsletter-activated',
+				configLink: '#/newsletter',
 			};
 		case 'related-posts':
 			return {
-				configureButtonLabel: __( 'Get Started', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Related Posts', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=related%20posts',
 			};
 		case 'protect':
 			return {
-				configureButtonLabel: __( 'Get Started', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Jetpack Protect', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
 				configLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-protect',
 			};
 		case 'site-accelerator':
 			return {
-				configureButtonLabel: __( 'Get Started', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Site Accelerator', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=cdn',
 			};
 		case 'publicize':
 			return {
-				configureButtonLabel: __( 'Get Started', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: getRedirectUrl( 'calypso-marketing-connections', {
@@ -86,14 +86,14 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		case 'videopress':
 			return {
-				configureButtonLabel: __( 'Get Started', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'VideoPress', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: getRedirectUrl( 'jetpack-support-videopress-block-editor' ),
 			};
 		case 'woocommerce':
 			return {
-				configureButtonLabel: __( 'Get Started', 'jetpack' ),
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'WooCommerce', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
 				configLink: getSiteAdminUrl( state ) + 'admin.php?page=wc-admin&path=%2Fsetup-wizard',
