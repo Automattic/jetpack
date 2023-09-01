@@ -85,6 +85,12 @@ class Marketplace_Webhook_Response extends WP_REST_Controller {
 	public function create_item( $request ) {
 		$params = $request->get_json_params();
 
+		// Check if the plugin is active before running license provisioning filter.
+		$plugin_slug = $this->get_plugin_slug( $params['product_slug'] );
+		if ( ! is_plugin_active( $plugin_slug ) ) {
+			return new WP_Error( 'plugin_not_active', 'The plugin is not active on the site.', array( 'status' => 500 ) );
+		}
+
 		/**
 		 * Fires when the site receives a response from a marketplace product webhook request.
 		 *
@@ -95,5 +101,16 @@ class Marketplace_Webhook_Response extends WP_REST_Controller {
 		$result = apply_filters( 'wpcom_marketplace_webhook_response_' . $params['product_slug'], true, $params['payload'], $params['event_type'] );
 
 		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Format plugin slug from plugin slug. This is needed to check if the plugin is active on the site.
+	 *
+	 * @param string $slug The plugin slug.
+	 *
+	 * @return string
+	 */
+	protected function get_plugin_slug( $slug ) {
+		return sprintf( '%s/%s.php', $slug, $slug );
 	}
 }
