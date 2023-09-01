@@ -175,12 +175,6 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 				ctaLabel: __( 'Customize', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 			};
-		case 'newsletter-activated':
-			return {
-				displayName: __( 'Newsletter', 'jetpack' ),
-				ctaLabel: __( 'Customize', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'post-new.php?post_type=page',
-			};
 	}
 };
 
@@ -602,22 +596,6 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 				illustration: 'assistant-search',
 				skipText: __( 'Next', 'jetpack' ),
-			};
-		case 'newsletter-activated':
-			return {
-				question: __( 'Jetpack Newsletter Activated', 'jetpack' ),
-				description: __(
-					'Jetpack Newsletter is now active. You are one step closer to growing your subscribers. Start by adding a subscribe form.',
-					'jetpack'
-				),
-				descriptionList: [
-					__( 'Create a new post or page.', 'jetpack' ),
-					__( 'Add the subscribe block by typing /subscribe', 'jetpack' ),
-					__( 'Publish and start promoting your site.', 'jetpack' ),
-				],
-				ctaText: __( 'Read the Guide', 'jetpack' ),
-				ctaLink: 'https://jetpack.com/support/newsletter/',
-				illustration: 'assistant-newsletter',
 			};
 		case 'paid-newsletter':
 			return {
