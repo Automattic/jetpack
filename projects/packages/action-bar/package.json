@@ -27,7 +27,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.22.9",
+		"@babel/core": "7.22.11",
 		"@wordpress/browserslist-config": "5.24.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "4.24.0",
 		"core-js": "3.23.5",
