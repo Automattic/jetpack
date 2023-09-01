@@ -984,9 +984,9 @@ function get_paywall_blocks( $newsletter_access_level ) {
  * @return string
  */
 function get_paywall_blocks_subscribe_pending() {
-	$access_heading = esc_html__( 'Validate email to continue reading', 'jetpack' );
+	$access_heading = esc_html__( 'Verify your email and continue reading', 'jetpack' );
 
-	$subscribe_text = esc_html__( 'Thank you! You can now check your email to confirm your subscription.', 'jetpack' );
+	$subscribe_text = esc_html__( 'Please check your inbox to confirm your subscription.', 'jetpack' );
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
