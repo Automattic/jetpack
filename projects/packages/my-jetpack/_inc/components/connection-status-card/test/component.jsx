@@ -34,9 +34,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.queryByRole( 'button', { name: 'Manage' } ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'renders the "You’re not connected" error list item', () => {
+		it( 'renders the "User account not connected" error list item', () => {
 			setup();
-			expect( screen.getByText( 'You’re not connected.' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'User account not connected.' ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the "Connect your user account" button', () => {
@@ -67,9 +67,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.queryByRole( 'button', { name: 'Manage' } ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'Render the "You’re not connected" error list item', () => {
+		it( 'Render the "User account not connected" error list item', () => {
 			setup();
-			expect( screen.getByText( 'You’re not connected.' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'User account not connected.' ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the "Connect" button', () => {

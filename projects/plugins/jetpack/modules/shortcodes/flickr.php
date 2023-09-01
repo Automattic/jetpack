@@ -217,6 +217,11 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 
 		$embed_page = wp_remote_get( $embed_url );
 
+		// Bail if the request returns an error.
+		if ( ! is_array( $embed_page ) ) {
+			return '';
+		}
+
 		// Get the video url from embed html markup.
 
 		preg_match( '/video.+src=\"([^\"]+)\"/', $embed_page['body'], $matches );

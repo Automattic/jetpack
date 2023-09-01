@@ -20,6 +20,43 @@ type SpeedScoresSet = {
 	isStale: boolean;
 };
 
+interface ScoreValue {
+	score: number;
+	value: number;
+}
+
+interface SpeedHistoryDimension {
+	mobile_overall_score: number;
+	desktop_overall_score: number;
+	mobile_lcp: ScoreValue;
+	desktop_lcp: ScoreValue;
+	mobile_tbt: ScoreValue;
+	desktop_tbt: ScoreValue;
+	mobile_cls: ScoreValue;
+	desktop_cls: ScoreValue;
+	mobile_si: ScoreValue;
+	desktop_si: ScoreValue;
+	mobile_tti: ScoreValue;
+	desktop_tti: ScoreValue;
+	mobile_fcp: ScoreValue;
+	desktop_fcp: ScoreValue;
+}
+
+interface SpeedHistoryPeriod {
+	timestamp: number;
+	dimensions: SpeedHistoryDimension[];
+}
+
+interface SpeedHistoryResponse {
+	data: {
+		_meta: {
+			start: number;
+			end: number;
+		};
+		periods: SpeedHistoryPeriod[];
+	};
+}
+
 type ParsedApiResponse = {
 	status: string;
 	scores?: SpeedScoresSet;
@@ -58,6 +95,32 @@ export async function requestSpeedScores(
 
 	// Poll for metrics.
 	return await pollRequest( rootUrl, siteUrl, nonce );
+}
+
+/**
+ * Get SpeedScores gistory to render the Graph.  Will automatically
+ * poll for a response until the task is done, returning a SpeedHistory object.
+ *
+ * @param {string} rootUrl - Root URL for the HTTP request.
+ * @param {string} siteUrl - URL of the site.
+ * @param {string} nonce - Nonce to use for authentication.
+ * @returns {SpeedHistoryResponse} Speed score history returned by the server.
+ */
+export async function requestSpeedScoresHistory(
+	rootUrl: string,
+	siteUrl: string,
+	nonce: string
+): Promise< SpeedHistoryResponse > {
+	const end = new Date().getTime();
+	const start = end - 1000 * 60 * 60 * 24 * 30; // 30 days ago
+	// Request metrics
+	const response = await api.post< SpeedHistoryResponse >(
+		rootUrl,
+		'/speed-scores-history',
+		{ start, end },
+		nonce
+	);
+	return response;
 }
 
 /**

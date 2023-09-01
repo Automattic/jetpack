@@ -296,6 +296,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '" };', 'before' );
 
 		// Adds Connection package initial state.
-		wp_add_inline_script( 'react-plugin', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'react-plugin' );
 	}
 }

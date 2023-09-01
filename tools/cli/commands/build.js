@@ -923,7 +923,8 @@ async function buildProject( t ) {
 
 	// If npmjs-autopublish is active, default to ignoring .github and composer.json (and not ignoring anything else) in the publish.
 	if ( composerJson.extra?.[ 'npmjs-autopublish' ] ) {
-		let ignore = '# Automatically generated ignore rules.\n/.github/\n/composer.json\n';
+		let ignore =
+			'# Automatically generated ignore rules.\n/.gitattributes\n/.github/\n/composer.json\n';
 		if ( await fsExists( `${ buildDir }/.npmignore` ) ) {
 			ignore +=
 				'\n# Package ignore file.\n' +

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-AI Client: Start supporting request options on requestSuggestion callback.

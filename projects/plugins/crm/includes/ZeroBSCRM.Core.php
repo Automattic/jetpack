@@ -492,15 +492,6 @@ final class ZeroBSCRM {
 	}
 
 	/**
-	 * Cloning is forbidden.
-	 *
-	 * @since 2.1
-	 */
-	public function __clone() {
-		zerobscrm_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'zero-bs-crm' ), '2.1' );
-	}
-
-	/**
 	 * Unserializing instances of this class is forbidden.
 	 *
 	 * @since 2.1
@@ -535,9 +526,6 @@ final class ZeroBSCRM {
 
 		// define constants & globals
 		$this->define_constants();
-
-		// DB MODE check (influences includes etc. - ultimately assists catching those who need to migrate data from 1.2 db)
-		$this->DBModeCheck();
 
 		// Verify we have minimum requirements (e.g. DAL3.0 and extension versions up to date)
 		if ( $this->verify_minimum_requirements() ) {
@@ -768,35 +756,6 @@ final class ZeroBSCRM {
 			ini_set('display_startup_errors', 1);
 			error_reporting(E_ALL);
 			*/
-		}
-	}
-
-	/**
-	 * DB MODE check (influences includes etc. - ultimately assists catching those who need to migrate data from 1.2 db)
-	 *  This checks if certain migrations have been completed + maintains flags to include the right DAL legacy support
-	 */
-	private function DBModeCheck() {
-
-		// THIS one sets to DAL2 if not DAL2
-		$migration299Fini = get_option( 'zbs_db_migration_300', false );
-		if ( ! is_array( $migration299Fini ) ) {
-
-			// un-migrated DAL2 (2.53) database
-			$this->db_version              = '2.53';
-			$this->dal_version             = '2.53';
-			$this->db2CompatabilitySupport = false;
-
-		}
-
-		// .. which then cascades here, if not DAL2 + DAL3, then DAL1:
-		$migration253Fini = get_option( 'zbs_db_migration_253', false );
-		if ( ! is_array( $migration253Fini ) ) {
-
-			// un-migrated <2.53 database
-			$this->db_version              = '1.2';
-			$this->dal_version             = '1.0';
-			$this->db1CompatabilitySupport = false;
-
 		}
 	}
 

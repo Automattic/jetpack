@@ -441,6 +441,7 @@ class Actions {
 			'buffer_id'      => $buffer_id,
 			// TODO this will be extended in the future. Might be good to extract in a separate method to support future entries too.
 			'sync_flow_type' => Settings::is_dedicated_sync_enabled() ? 'dedicated' : 'default',
+			'storage_type'   => Settings::is_custom_queue_table_enabled() ? 'custom' : 'options',
 		);
 
 		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 20;

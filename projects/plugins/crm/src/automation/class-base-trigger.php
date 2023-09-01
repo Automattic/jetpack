@@ -44,7 +44,7 @@ abstract class Base_Trigger implements Trigger {
 	 *
 	 * @throws Automation_Exception Exception when the workflow is executed.
 	 */
-	public function execute_workflow( array $data = null ) {
+	public function execute_workflow( $data = null ) {
 		if ( $this->workflow ) {
 			$this->workflow->execute( $this, $data );
 		}

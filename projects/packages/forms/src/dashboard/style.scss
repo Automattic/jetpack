@@ -11,6 +11,8 @@
 	--jp-forms-color-darker-10: var( --jp-black-80, #2c3338 );
 	--jp-forms-color-darker-20: var( --jp-black-80, #2c3338 );
 
+	--jp-forms-focus-shadow: 0 0 0 1px var( --jp-forms-white ), 0 0 0 3px var( --jp-forms-color-darker-10 );// jetpack color would be nicer: #0b9e08;
+
 	// finally, re-write
 	--wp-admin-theme-color: var( --jp-forms-black );
 	--wp-admin-theme-color--rgb: 0, 0, 0;

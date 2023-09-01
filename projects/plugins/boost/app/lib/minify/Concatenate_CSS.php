@@ -194,6 +194,10 @@ class Concatenate_CSS extends WP_Styles {
 
 				$style_tag = apply_filters( 'page_optimize_style_loader_tag', $style_tag, $handles, $href, $media );
 
+				// Allow manipulation of the stylesheet tag.
+				// For example - making it deferred when using with Critical CSS.
+				$style_tag = apply_filters( 'style_loader_tag', $style_tag, implode( ',', $handles ), $href, $media );
+
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $style_tag . "\n";
 

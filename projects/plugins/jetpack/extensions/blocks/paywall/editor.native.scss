@@ -1,0 +1,47 @@
+.paywall {
+	background-color: $light-ultra-dim;
+	border-radius: 10px;
+	padding: $block-edge-to-content;
+}
+
+.paywall__dark {
+	background-color: $dark-dim;
+}
+
+.paywall--horizontalRule {
+	margin-bottom: 4px;
+}
+
+.paywall--line {
+	background-color: $light-quaternary;
+	height: 1;
+}
+
+.paywall--line__dark {
+	background-color: $dark-quaternary;
+}
+
+.paywall--text {
+	color: $light-primary;
+	font-size: 13px;
+	line-height: 18px;
+	letter-spacing: -0.078px;
+	text-decoration-style: solid;
+	text-transform: uppercase;
+}
+
+.paywall--text__dark {
+	color: $dark-primary;
+}
+
+.paywall--subtext {
+	color: $light-secondary;
+	font-size: 13px;
+	line-height: 18px;
+	letter-spacing: -0.078px;
+	text-align: center;
+}
+
+.paywall--subtext__dark {
+	color: $dark-secondary;
+}

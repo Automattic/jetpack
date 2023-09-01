@@ -467,7 +467,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		update_post_meta( $this->plan_id, 'jetpack_memberships_site_subscriber', true );
 
 		// Connect the site to Stripe
-		update_option( Jetpack_Memberships::$connected_account_id_option_name, 123 );
+		update_option( Jetpack_Memberships::$has_connected_account_option_name, true );
 
 		// Create a post
 		return $this->factory->post->create();

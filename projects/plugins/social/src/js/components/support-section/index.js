@@ -4,18 +4,18 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, lifesaver } from '@wordpress/icons';
 import classNames from 'classnames';
-import { STORE_ID } from '../../store';
 import IconText from '../icon-text';
 import styles from './styles.module.scss';
 
 const SupportSection = () => {
 	const [ isAtLeastMedium ] = useBreakpointMatch( 'md', '>=' );
-	const hasPaidPlan = useSelect( select => select( STORE_ID ).hasPaidPlan() );
+	const hasPaidPlan = useSelect( select => select( SOCIAL_STORE_ID ).hasPaidPlan() );
 
 	if ( ! hasPaidPlan ) {
 		return null;

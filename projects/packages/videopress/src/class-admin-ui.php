@@ -149,7 +149,7 @@ class Admin_UI {
 		}
 
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
 		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, self::render_initial_state(), 'before' );
 	}
 

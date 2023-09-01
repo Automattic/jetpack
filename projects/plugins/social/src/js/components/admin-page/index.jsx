@@ -6,11 +6,12 @@ import {
 	Col,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
+import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import React from 'react';
-import { STORE_ID } from '../../store';
 import AdvancedUpsellNotice from '../advanced-upsell-notice';
+import AutoConversionToggle from '../auto-conversion-toggle';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
@@ -37,9 +38,10 @@ const Admin = () => {
 		isShareLimitEnabled,
 		pluginVersion,
 		isSocialImageGeneratorAvailable,
+		isAutoConversionAvailable,
 		shouldShowAdvancedPlanNudge,
 	} = useSelect( select => {
-		const store = select( STORE_ID );
+		const store = select( SOCIAL_STORE_ID );
 		return {
 			isModuleEnabled: store.isModuleEnabled(),
 			showPricingPage: store.showPricingPage(),
@@ -47,6 +49,7 @@ const Admin = () => {
 			isShareLimitEnabled: store.isShareLimitEnabled(),
 			pluginVersion: store.getPluginVersion(),
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
+			isAutoConversionAvailable: store.isAutoConversionAvailable(),
 			shouldShowAdvancedPlanNudge: store.shouldShowAdvancedPlanNudge(),
 		};
 	} );
@@ -84,6 +87,7 @@ const Admin = () => {
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
+						{ isModuleEnabled && isAutoConversionAvailable && <AutoConversionToggle /> }
 						{ isModuleEnabled && isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
 					</AdminSection>
 					<AdminSectionHero>

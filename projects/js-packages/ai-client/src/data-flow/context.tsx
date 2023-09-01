@@ -34,6 +34,11 @@ export type AiDataContextProps = {
 	requestSuggestion: ( prompt: PromptProp, options?: AskQuestionOptionsArgProps ) => void;
 
 	/*
+	 * Stop suggestion function
+	 */
+	stopSuggestion: () => void;
+
+	/*
 	 * The Suggestions Event Source instance
 	 */
 	eventSource: SuggestionsEventSource | null;

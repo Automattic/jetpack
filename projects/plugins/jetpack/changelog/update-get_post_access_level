@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Adding an optional parameter to get_post_access_level() does not seem very significant.
-
-

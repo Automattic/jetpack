@@ -15,7 +15,11 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
@@ -125,6 +129,9 @@ class Jetpack_Subscriptions {
 		// Hide subscription messaging in Publish panel for posts that were published in the past
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
 		add_action( 'transition_post_status', array( $this, 'maybe_set_first_published_status' ), 10, 3 );
+
+		// Add Subscribers menu to Jetpack navigation.
+		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
 	}
 
 	/**
@@ -1065,6 +1072,50 @@ class Jetpack_Subscriptions {
 		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
 	}
 
+	/**
+	 * Create a Subscribers menu displayed on self-hosted sites.
+	 *
+	 * - It is not displayed on WordPress.com sites.
+	 * - It directs you to Calypso to the existing Subscribers page.
+	 *
+	 * @return void
+	 */
+	public function add_subscribers_menu() {
+		/*
+		 * Do not display any menu on WoA and WordPress.com Simple sites.
+		 * They already get a menu item under Users via nav-unification.
+		 */
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return;
+		}
+
+		$status = new Status();
+
+		/*
+		 * Do not display if we're in Offline mode,
+		 * or if the user is not connected.
+		 */
+		if (
+			$status->is_offline_mode()
+			|| ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()
+		) {
+			return;
+		}
+
+		$link = Redirect::get_url(
+			'jetpack-menu-calypso-subscribers',
+			array( 'site' => $status->get_site_suffix() )
+		);
+
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Subscribers', 'jetpack' ),
+			__( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+			'manage_options',
+			esc_url( $link ),
+			null
+		);
+	}
 }
 
 Jetpack_Subscriptions::init();

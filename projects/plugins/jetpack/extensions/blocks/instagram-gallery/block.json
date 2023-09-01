@@ -1,0 +1,44 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/instagram-gallery",
+	"title": "Latest Instagram Posts",
+	"description": "Display an automatically updating list of the latest posts from your Instagram feed.",
+	"keywords": [ "images", "photos", "pictures" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "embed",
+	"icon": "instagram",
+	"supports": { "align": true, "html": false },
+	"attributes": {
+		"accessToken": {
+			"type": "string"
+		},
+		"instagramUser": {
+			"type": "string"
+		},
+		"columns": {
+			"type": "number",
+			"default": 3,
+			"min": 1,
+			"max": 6
+		},
+		"count": {
+			"type": "number",
+			"default": 9,
+			"min": 1,
+			"max": 30
+		},
+		"spacing": {
+			"type": "number",
+			"default": 10,
+			"min": 0,
+			"max": 50
+		},
+		"isStackedOnMobile": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

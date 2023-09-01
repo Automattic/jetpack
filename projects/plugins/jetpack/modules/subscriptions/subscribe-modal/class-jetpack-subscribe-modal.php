@@ -50,7 +50,6 @@ class Jetpack_Subscribe_Modal {
 			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
 		}
 		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
-		add_filter( 'get_block_templates', array( $this, 'get_block_templates_filter' ), 10, 3 );
 	}
 
 	/**
@@ -101,31 +100,6 @@ class Jetpack_Subscribe_Modal {
 	}
 
 	/**
-	 * Makes get_block_templates return the WP_Block_Template within the results.
-	 *
-	 * @param WP_Block_Template $query_result The filter result.
-	 * @param string            $query The query string.
-	 * @param string            $template_type Template type: `'wp_template'` or '`wp_template_part'`.
-	 *
-	 * @return array WP_Block_Template
-	 */
-	public function get_block_templates_filter( $query_result, $query, $template_type ) {
-		if ( empty( $query ) && $template_type === 'wp_template_part' ) {
-			if ( is_array( $query_result ) ) {
-				// find the custom template and return early if we have a custom version in the results.
-				foreach ( $query_result as $template ) {
-					if ( $template->id === self::get_block_template_part_id() ) {
-						return $query_result;
-					}
-				}
-			}
-			$query_result[] = $this->get_template();
-		}
-
-		return $query_result;
-	}
-
-	/**
 	 * Returns a custom template for the Subscribe Modal.
 	 *
 	 * @return WP_Block_Template
@@ -158,14 +132,14 @@ class Jetpack_Subscribe_Modal {
 		// translators: %s is the name of the site.
 		$discover_more_from = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
 		$continue_reading   = __( 'Continue Reading', 'jetpack' );
-		$subscribe_text     = __( 'Subscribe to the newsletter to keep reading and get access to the full archive.', 'jetpack' );
+		$subscribe_text     = __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack' );
 
 		return <<<HTML
 	<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"var:preset|spacing|70","right":"var:preset|spacing|70"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
 	<div class="wp-block-group has-border-color" style="border-color:#dddddd;border-width:1px;margin-top:0;margin-bottom:0;padding-top:var(--wp--preset--spacing--70);padding-right:var(--wp--preset--spacing--70);padding-bottom:var(--wp--preset--spacing--70);padding-left:var(--wp--preset--spacing--70)">
 
 	<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"26px"},"layout":{"selfStretch":"fit","flexSize":null},"spacing":{"margin":{"top":"4px","bottom":"4px"}}}} -->
-		<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:4px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from</h2>
+		<h2 class="wp-block-heading has-text-align-center" style="margin-top:4px;margin-bottom:10px;font-size:26px;font-style:normal;font-weight:600">$discover_more_from</h2>
 		<!-- /wp:heading -->
 
 		<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"15px"},"spacing":{"margin":{"top":"4px","bottom":"0px"}}}} -->
@@ -175,7 +149,7 @@ class Jetpack_Subscribe_Modal {
 		<!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
 
 		<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"}},"className":"jetpack-subscribe-modal__close"} -->
-		<p class="has-text-align-center jetpack-subscribe-modal__close" style="font-size:14px"><a href="#">$continue_reading</a></p>
+		<p class="has-text-align-center jetpack-subscribe-modal__close" style="margin-top:20px;font-size:14px"><a href="#">$continue_reading</a></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
@@ -184,8 +158,6 @@ HTML;
 
 	/**
 	 * Returns true if we should load Newsletter content.
-	 * This is currently limited to lettre theme or newsletter sites.
-	 * We could open it to all themes or site intents.
 	 *
 	 * @return bool
 	 */
@@ -193,16 +165,7 @@ HTML;
 		// Adding extra check/flag to load only on WP.com
 		// When ready for Jetpack release, remove this.
 		$is_wpcom = ( new Host() )->is_wpcom_platform();
-		if ( ! $is_wpcom ) {
-			return false;
-		}
-		if ( 'lettre' !== get_option( 'stylesheet' ) && 'newsletter' !== get_option( 'site_intent' ) ) {
-			return false;
-		}
-		if ( ! wp_is_block_theme() ) {
-			return false;
-		}
-		return true;
+		return $is_wpcom;
 	}
 
 	/**
@@ -217,10 +180,16 @@ HTML;
 			return false;
 		}
 
-		// Don't show if subscribe query param is set.
-		// It is set when user submits the subscribe form.
+		// Don't show if one of subscribe query params is set.
+		// They are set when user submits the subscribe form.
+		// The nonce is checked elsewhere before redirect back to this page with query params.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['subscribe'] ) ) {
+		if ( isset( $_GET['subscribe'] ) || isset( $_GET['blogsub'] ) ) {
+			return false;
+		}
+
+		// Don't show if post is for subscribers only or has paywall block
+		if ( has_block( 'jetpack/paywall' ) ) {
 			return false;
 		}
 
@@ -275,3 +244,22 @@ add_filter(
 if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
 	Jetpack_Subscribe_Modal::init();
 }
+
+add_action(
+	'rest_api_switched_to_blog',
+	function () {
+		/**
+		 * Filter for enabling or disabling the Jetpack Subscribe Modal
+		 * feature. We use this filter here and in several other places
+		 * to conditionally load options and functionality related to
+		 * this feature.
+		 *
+		 * @since 12.4
+		 *
+		 * @param bool Defaults to false.
+		 */
+		if ( apply_filters( 'jetpack_subscriptions_modal_enabled', false ) ) {
+			Jetpack_Subscribe_Modal::init();
+		}
+	}
+);

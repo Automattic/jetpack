@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import { aiAssistantIcon, useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { AiStatusIndicator, useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { serialize } from '@wordpress/blocks';
-import { Modal, Button, Spinner } from '@wordpress/components';
+import { Modal, Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, close } from '@wordpress/icons';
+import { close } from '@wordpress/icons';
 import TurndownService from 'turndown';
 /**
  * Internal dependencies
@@ -28,11 +28,11 @@ const usePostContent = () => {
 	return blocks?.length ? turndownService.turndown( serialize( blocks ) ) : '';
 };
 
-const ModalHeader = ( { loading, onClose } ) => {
+const ModalHeader = ( { requestingState, onClose } ) => {
 	return (
 		<div className="ai-assistant-post-feedback__modal-header">
 			<div className="ai-assistant-post-feedback__modal-title-wrapper">
-				{ loading ? <Spinner /> : <Icon icon={ aiAssistantIcon } /> }
+				<AiStatusIndicator state={ requestingState } />
 				<h1 className="ai-assistant-post-feedback__modal-title">
 					{ __( 'AI Assistant', 'jetpack' ) }
 				</h1>
@@ -120,10 +120,7 @@ export default function Proofread( {
 			{ isProofreadModalVisible && (
 				<Modal __experimentalHideHeader>
 					<div className="ai-assistant-post-feedback__modal-content">
-						<ModalHeader
-							loading={ requestingState === 'suggesting' || requestingState === 'requesting' }
-							onClose={ toggleProofreadModal }
-						/>
+						<ModalHeader requestingState={ requestingState } onClose={ toggleProofreadModal } />
 						<hr className="ai-assistant-post-feedback__modal-divider" />
 						<div className="ai-assistant-post-feedback__suggestion">{ suggestion }</div>
 					</div>

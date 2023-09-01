@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Refactors is_launchpad_enabled method  to make it clear they are related to the fullscreen launchpad

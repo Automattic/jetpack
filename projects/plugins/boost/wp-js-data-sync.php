@@ -3,8 +3,10 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Premium_Features_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
@@ -71,10 +73,7 @@ add_action( 'admin_init', 'jetpack_boost_initialize_datasync' );
 
 $critical_css_state_schema = Schema::as_assoc_array(
 	array(
-		'callback_passthrough' => Schema::any_json_data()->nullable(),
-		'generation_nonce'     => Schema::as_string()->nullable(),
-		'proxy_nonce'          => Schema::as_string()->nullable(),
-		'providers'            => Schema::as_array(
+		'providers'    => Schema::as_array(
 			Schema::as_assoc_array(
 				array(
 					'key'           => Schema::as_string(),
@@ -96,10 +95,24 @@ $critical_css_state_schema = Schema::as_assoc_array(
 				)
 			)
 		)->nullable(),
-		'status'               => Schema::enum( array( 'not_generated', 'generated', 'pending', 'error' ) )->fallback( 'not_generated' ),
-		'updated'              => Schema::as_float()->nullable(),
-		'status_error'         => Schema::as_string()->nullable(),
-		'created'              => Schema::as_float()->nullable(),
+		'status'       => Schema::enum( array( 'not_generated', 'generated', 'pending', 'error' ) )->fallback( 'not_generated' ),
+		'created'      => Schema::as_float()->nullable(),
+		'updated'      => Schema::as_float()->nullable(),
+		'status_error' => Schema::as_string()->nullable(),
+	)
+)->fallback(
+	array(
+		'providers' => array(),
+		'status'    => 'not_generated',
+		'created'   => null,
+		'updated'   => null,
+	)
+);
+
+$critical_css_meta_schema = Schema::as_assoc_array(
+	array(
+		'callback_passthrough' => Schema::any_json_data()->nullable(),
+		'proxy_nonce'          => Schema::as_string()->nullable(),
 		'viewports'            => Schema::as_array(
 			Schema::as_assoc_array(
 				array(
@@ -109,17 +122,6 @@ $critical_css_state_schema = Schema::as_assoc_array(
 				)
 			)
 		)->fallback( array() ),
-	)
-)->fallback(
-	array(
-		'status'               => 'not_generated',
-		'providers'            => array(),
-		'callback_passthrough' => null,
-		'generation_nonce'     => null,
-		'proxy_nonce'          => null,
-		'viewports'            => array(),
-		'created'              => null,
-		'updated'              => null,
 	)
 );
 
@@ -133,10 +135,13 @@ $critical_css_suggest_regenerate_schema = Schema::enum(
 	)
 )->nullable();
 
+$premium_features_schema = Schema::as_array( Schema::as_string() )->fallback( array() );
+
 /**
  * Register Data Sync Stores
  */
 jetpack_boost_register_option( 'critical_css_state', $critical_css_state_schema );
+jetpack_boost_register_option( 'critical_css_meta', $critical_css_meta_schema, new Critical_CSS_Meta_Entry() );
 jetpack_boost_register_option( 'critical_css_suggest_regenerate', $critical_css_suggest_regenerate_schema );
 
 $modules_state_schema = Schema::as_array(
@@ -160,3 +165,47 @@ $js_excludes_entry  = new Minify_Excludes_State_Entry( 'minify_js_excludes' );
 $css_excludes_entry = new Minify_Excludes_State_Entry( 'minify_css_excludes' );
 jetpack_boost_register_option( 'minify_js_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_JS::$default_excludes ), $js_excludes_entry );
 jetpack_boost_register_option( 'minify_css_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_CSS::$default_excludes ), $css_excludes_entry );
+jetpack_boost_register_option(
+	'image_cdn_quality',
+	Schema::as_assoc_array(
+		array(
+			'jpg'  => Schema::as_assoc_array(
+				array(
+					'quality'  => Schema::as_number(),
+					'lossless' => Schema::as_boolean(),
+				)
+			),
+			'png'  => Schema::as_assoc_array(
+				array(
+					'quality'  => Schema::as_number(),
+					'lossless' => Schema::as_boolean(),
+				)
+			),
+			'webp' => Schema::as_assoc_array(
+				array(
+					'quality'  => Schema::as_number(),
+					'lossless' => Schema::as_boolean(),
+				)
+			),
+		)
+	)->fallback(
+		array(
+			'jpg'  => array(
+				'quality'  => 89,
+				'lossless' => false,
+			),
+			'png'  => array(
+				'quality'  => 80,
+				'lossless' => false,
+			),
+			'webp' => array(
+				'quality'  => 80,
+				'lossless' => false,
+			),
+		)
+	)
+);
+
+jetpack_boost_register_option( 'premium_features', $premium_features_schema, new Premium_Features_Entry() );
+
+jetpack_boost_register_option( 'performance_history_toggle', Schema::as_boolean()->fallback( false ) );

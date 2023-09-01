@@ -43,6 +43,7 @@ import {
 	isReconnectingSite,
 	getConnectUrl,
 	getConnectingUserFeatureLabel,
+	getConnectingUserFrom,
 	getConnectionStatus,
 	hasConnectedOwner,
 	getHasSeenWCConnectionModal,
@@ -120,6 +121,7 @@ const settingsRoutes = [
 	'/sharing',
 	'/discussion',
 	'/earn',
+	'/newsletter',
 	'/traffic',
 	'/privacy',
 ];
@@ -301,6 +303,7 @@ class Main extends React.Component {
 			case '/sharing':
 			case '/discussion':
 			case '/earn':
+			case '/newsletter':
 			case '/traffic':
 			case '/privacy':
 				return (
@@ -421,7 +424,7 @@ class Main extends React.Component {
 					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
-					from={ searchParams && searchParams.get( 'from' ) }
+					from={ ( searchParams && searchParams.get( 'from' ) ) || this.props.connectingUserFrom }
 				>
 					<ul>
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
@@ -544,6 +547,7 @@ class Main extends React.Component {
 			case '/sharing':
 			case '/discussion':
 			case '/earn':
+			case '/newsletter':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (
@@ -890,6 +894,7 @@ export default connect(
 			pluginBaseUrl: getPluginBaseUrl( state ),
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
+			connectingUserFrom: getConnectingUserFrom( state ),
 			isAtomicSite: isAtomicSite( state ),
 			isWoaSite: isWoASite( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),

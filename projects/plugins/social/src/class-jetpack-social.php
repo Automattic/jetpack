@@ -175,7 +175,7 @@ class Jetpack_Social {
 
 		Assets::enqueue_script( 'jetpack-social' );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-social', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-social' );
 		wp_add_inline_script( 'jetpack-social', $this->render_initial_state(), 'before' );
 	}
 
@@ -230,7 +230,8 @@ class Jetpack_Social {
 		);
 
 		if ( $this->is_connected() ) {
-			$sig_settings = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
+			$sig_settings             = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
+			$auto_conversion_settings = new Automattic\Jetpack\Publicize\Auto_Conversion\Settings();
 
 			$state = array_merge(
 				$state,
@@ -253,6 +254,10 @@ class Jetpack_Social {
 						'available'       => $sig_settings->is_available(),
 						'enabled'         => $sig_settings->is_enabled(),
 						'defaultTemplate' => $sig_settings->get_default_template(),
+					),
+					'autoConversionSettings'       => array(
+						'available' => $auto_conversion_settings->is_available( 'image' ),
+						'image'     => $auto_conversion_settings->is_enabled( 'image' ),
 					),
 				)
 			);
@@ -302,7 +307,6 @@ class Jetpack_Social {
 	 */
 	public function enqueue_block_editor_scripts() {
 		global $publicize;
-
 		if (
 			class_exists( 'Jetpack' ) ||
 			! $this->should_enqueue_block_editor_scripts()
@@ -322,7 +326,8 @@ class Jetpack_Social {
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
 
-		$sig_settings = ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() );
+		$sig_settings             = ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() );
+		$auto_conversion_settings = ( new Automattic\Jetpack\Publicize\Auto_Conversion\Settings() );
 
 		wp_localize_script(
 			'jetpack-social-editor',
@@ -341,6 +346,8 @@ class Jetpack_Social {
 					'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 					'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
 					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
+					'isAutoConversionAvailable'       => $auto_conversion_settings->is_available( 'image' ),
+					'isAutoConversionEnabled'         => $auto_conversion_settings->is_enabled( 'image' ),
 					'dismissedNotices'                => $publicize->get_dismissed_notices(),
 					'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 					'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
@@ -349,7 +356,7 @@ class Jetpack_Social {
 		);
 
 		// Connection initial state is expected when the connection JS package is in the bundle
-		wp_add_inline_script( 'jetpack-social-editor', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-social-editor' );
 		// Conditionally load analytics scripts
 		// The only component using analytics in the editor at the moment is the review request
 		if ( ! in_array( get_post_status(), array( 'publish', 'private', 'trash' ), true ) && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {

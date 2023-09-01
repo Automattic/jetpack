@@ -8,18 +8,19 @@ Instead of having to manually add labels for each feature that is touched in a g
 
 ## Usage
 
-- Set the `task: addLabels` task as part of the workflow. 
-- Optionally pass custom values `[{"path/": "label"}]` to add labels to certain changed paths.  
+- Set the `task: addLabels` task as part of the workflow.
+- Optionally pass custom path to label mappings as a JSON array of `{"path": "...", "label": "..." }` objects. Paths are matched as prefixes, no wild cards or regular expressions are supported.
 
-Example: 
+Example:
 ```
   ...
   with:
     # Required
     tasks: 'addLabels'
     # Optional
-    add_labels: '[
-        {"path": "projects/your-project/", "label": "[Project] Your Project"},
-        {"path": "somepath/", "label": "Some label"}
-      ]'
+    add_labels: |
+      [
+        { "path": "projects/your-project/", "label": "[Project] Your Project" },
+        { "path": "somepath/", "label": "Some label" }
+      ]
 ```

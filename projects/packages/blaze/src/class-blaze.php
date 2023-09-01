@@ -300,7 +300,7 @@ class Blaze {
 		}
 
 		$blaze_url = self::get_campaign_management_url( $post_id );
-		$text      = _x( 'Blaze', 'Verb', 'jetpack-blaze' );
+		$text      = __( 'Promote with Blaze', 'jetpack-blaze' );
 		$title     = get_the_title( $post );
 		$label     = sprintf(
 			/* translators: post title */
@@ -357,7 +357,7 @@ class Blaze {
 		);
 
 		// Adds Connection package initial state.
-		wp_add_inline_script( self::SCRIPT_HANDLE, Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
 
 		// Pass additional data to our script.
 		wp_localize_script(

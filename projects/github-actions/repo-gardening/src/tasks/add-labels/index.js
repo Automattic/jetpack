@@ -139,7 +139,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			}
 		}
 
-		// Custom [{ "path": "label" }] values passed from a workflow.
+		// Custom [{ "path": "...", "label": "..." }] values passed from a workflow.
 		const addLabelsString = getInput( 'add_labels' );
 		if ( addLabelsString ) {
 			debug( `GOT addLabelsString: ${ addLabelsString }` );
@@ -226,6 +226,15 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		const crmApi = file.match( /^projects\/plugins\/crm\/api\// );
 		if ( crmApi !== null ) {
 			keywords.add( '[CRM] API' );
+		}
+
+		// mu wpcom features.
+		const muWpcomFeatures = file.match(
+			/^projects\/packages\/jetpack-mu-wpcom\/src\/features\/(?<muWpcomFeature>[^/]*)\//
+		);
+		const muWpcomFeatureName = muWpcomFeatures && muWpcomFeatures.groups.muWpcomFeature;
+		if ( muWpcomFeatureName ) {
+			keywords.add( `[mu wpcom Feature] ${ cleanName( muWpcomFeatureName ) }` );
 		}
 
 		// Boost Critical CSS.

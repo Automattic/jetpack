@@ -8,7 +8,7 @@ use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Created;
 use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Deleted;
 use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Status_Updated;
 use Automattic\Jetpack\CRM\Automation\Triggers\Quote_Updated;
-use WorDBless\BaseTestCase;
+use Automattic\Jetpack\CRM\Tests\JPCRM_Base_Test_Case;
 
 require_once __DIR__ . '../../tools/class-automation-faker.php';
 
@@ -17,7 +17,7 @@ require_once __DIR__ . '../../tools/class-automation-faker.php';
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
-class Quote_Trigger_Test extends BaseTestCase {
+class Quote_Trigger_Test extends JPCRM_Base_Test_Case {
 
 	private $automation_faker;
 

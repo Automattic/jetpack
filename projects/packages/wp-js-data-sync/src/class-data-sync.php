@@ -69,7 +69,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 
 final class Data_Sync {
 
-	const PACKAGE_VERSION = '0.2.1';
+	const PACKAGE_VERSION = '0.2.2-alpha';
 
 	/**
 	 * @var Registry

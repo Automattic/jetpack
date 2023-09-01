@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Invoice;
 
 /**
  * Adds the Invoice_Created class.
@@ -58,7 +59,16 @@ class Invoice_Created extends Base_Trigger {
 	 * @return string|null The category of the trigger.
 	 */
 	public static function get_category(): ?string {
-		return __( 'invoice', 'zero-bs-crm' );
+		return __( 'Invoice', 'zero-bs-crm' );
+	}
+
+	/**
+	 * Get the date type.
+	 *
+	 * @return string The type of the step
+	 */
+	public static function get_data_type(): string {
+		return Data_Type_Invoice::get_slug();
 	}
 
 	/**
@@ -68,7 +78,7 @@ class Invoice_Created extends Base_Trigger {
 	 */
 	protected function listen_to_event() {
 		add_action(
-			'jpcrm_automation_invoice_created',
+			'jpcrm_invoice_created',
 			array( $this, 'execute_workflow' )
 		);
 	}

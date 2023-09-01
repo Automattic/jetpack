@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { AIControl } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, useInnerBlocksProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler, createBlock, parse } from '@wordpress/blocks';
@@ -15,7 +16,7 @@ import {
 	TextareaControl,
 	Button,
 } from '@wordpress/components';
-import { useKeyboardShortcut } from '@wordpress/compose';
+import { useKeyboardShortcut, useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -25,11 +26,14 @@ import { useEffect, useRef } from 'react';
 /**
  * Internal dependencies
  */
-import AIControl from './components/ai-control';
+import ConnectPrompt from './components/connect-prompt';
 import ImageWithSelect from './components/image-with-select';
+import ToolbarControls from './components/toolbar-controls';
+import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
 import useAIFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
+import { isUserConnected } from './lib/connection';
 import { getImagesFromOpenAI } from './lib/image';
 import { getInitialSystemPrompt } from './lib/prompt';
 import './editor.scss';
@@ -84,7 +88,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}, 100 );
 	};
 
-	const { requireUpgrade, refresh: refreshFeatureData } = useAIFeature();
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
+
+	const { requireUpgrade: requireUpgradeOnStart, refresh: refreshFeatureData } = useAIFeature();
+
+	const requireUpgrade = requireUpgradeOnStart || errorData?.code === 'error_quota_exceeded';
 
 	const {
 		isLoadingCategories,
@@ -97,6 +105,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		postTitle,
 		retryRequest,
 		wholeContent,
+		requestingState,
 	} = useSuggestionsFromOpenAI( {
 		onSuggestionDone: focusOnPrompt,
 		onUnclearPrompt: focusOnPrompt,
@@ -110,6 +119,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		refreshFeatureData,
 		requireUpgrade,
 	} );
+
+	const connected = isUserConnected();
 
 	/*
 	 * Auto request the prompt if we detect
@@ -252,11 +263,40 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		return lastEditableElement;
 	};
 
+	const isGeneratingTitle = attributes.promptType === 'generateTitle';
+
+	const acceptContentLabel = __( 'Accept', 'jetpack' );
+	const acceptTitleLabel = __( 'Accept title', 'jetpack' );
+	const acceptLabel = isGeneratingTitle ? acceptTitleLabel : acceptContentLabel;
+
 	const moveCaretToEnd = element => {
 		const selection = window.getSelection();
 		selection.selectAllChildren( element );
 		selection.collapseToEnd();
 		element.focus();
+	};
+
+	const handleGetSuggestion = ( ...args ) => {
+		getSuggestionFromOpenAI( ...args );
+		focusOnBlock();
+		return;
+	};
+
+	const handleChange = value => {
+		setErrorDismissed( true );
+		setUserPrompt( value );
+	};
+
+	const handleSend = () => {
+		handleGetSuggestion( 'userPrompt' );
+	};
+
+	const handleAccept = () => {
+		if ( isGeneratingTitle ) {
+			handleAcceptTitle();
+		} else {
+			handleAcceptContent();
+		}
 	};
 
 	const handleAcceptContent = async () => {
@@ -308,12 +348,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			promptType: undefined,
 			messages: attributes?.originalMessages,
 		} );
-	};
-
-	const handleGetSuggestion = ( ...args ) => {
-		getSuggestionFromOpenAI( ...args );
-		focusOnBlock();
-		return;
 	};
 
 	const handleStopSuggestion = () => {
@@ -445,31 +479,60 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				</InspectorControls>
 			) }
 
+			{ requireUpgrade && <UpgradePrompt /> }
+			{ ! connected && <ConnectPrompt /> }
+			{ ! isWaitingState && connected && ! requireUpgrade && (
+				<ToolbarControls
+					isWaitingState={ isWaitingState }
+					contentIsLoaded={ contentIsLoaded }
+					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+					retryRequest={ retryRequest }
+					handleAcceptContent={ handleAcceptContent }
+					handleAcceptTitle={ handleAcceptTitle }
+					handleGetSuggestion={ handleGetSuggestion }
+					handleImageRequest={ handleImageRequest }
+					handleTryAgain={ handleTryAgain }
+					showRetry={ showRetry }
+					contentBefore={ contentBefore }
+					hasPostTitle={ !! postTitle?.length }
+					wholeContent={ wholeContent }
+					promptType={ attributes.promptType }
+					setUserPrompt={ prompt => {
+						if ( ! aiControlRef?.current ) {
+							return;
+						}
+
+						const userPromptInput = aiControlRef.current;
+
+						// Focus the text area
+						userPromptInput.focus();
+
+						// Add a typing effect in the text area
+						for ( let i = 0; i < prompt.length; i++ ) {
+							setTimeout( () => {
+								setUserPrompt( prompt.slice( 0, i + 1 ) );
+							}, 25 * i );
+						}
+					} }
+					recordEvent={ tracks.recordEvent }
+					isGeneratingTitle={ isGeneratingTitle }
+				/>
+			) }
 			<AIControl
 				ref={ aiControlRef }
-				content={ attributes.content }
-				contentIsLoaded={ contentIsLoaded }
-				getSuggestionFromOpenAI={ handleGetSuggestion }
-				retryRequest={ retryRequest }
-				handleAcceptContent={ handleAcceptContent }
-				handleAcceptTitle={ handleAcceptTitle }
-				handleGetSuggestion={ handleGetSuggestion }
-				handleStopSuggestion={ handleStopSuggestion }
-				handleImageRequest={ handleImageRequest }
-				handleTryAgain={ handleTryAgain }
-				isWaitingState={ isWaitingState }
-				loadingImages={ loadingImages }
-				showRetry={ showRetry }
-				setUserPrompt={ setUserPrompt }
-				contentBefore={ contentBefore }
-				postTitle={ postTitle }
-				userPrompt={ userPrompt }
-				wholeContent={ wholeContent }
-				promptType={ attributes.promptType }
-				onChange={ () => setErrorDismissed( true ) }
-				requireUpgrade={ errorData?.code === 'error_quota_exceeded' || requireUpgrade }
-				recordEvent={ tracks.recordEvent }
-				isGeneratingTitle={ attributes.promptType === 'generateTitle' }
+				disabled={ requireUpgrade }
+				value={ userPrompt }
+				placeholder={ __( 'Ask Jetpack AI', 'jetpack' ) }
+				onChange={ handleChange }
+				onSend={ handleSend }
+				onStop={ handleStopSuggestion }
+				onAccept={ handleAccept }
+				state={ requestingState }
+				isTransparent={ requireUpgrade }
+				showButtonLabels={ ! isMobileViewport }
+				showAccept={ contentIsLoaded && ! isWaitingState }
+				acceptLabel={ acceptLabel }
+				showClearButton={ ! isWaitingState }
 			/>
 
 			{ ! loadingImages && resultImages.length > 0 && (

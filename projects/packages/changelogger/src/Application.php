@@ -18,7 +18,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
  */
 class Application extends SymfonyApplication {
 
-	const VERSION = '3.3.7';
+	const VERSION = '3.3.8';
 
 	/**
 	 * Constructor.

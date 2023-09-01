@@ -1,0 +1,22 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/ai-chat",
+	"title": "AI Chat (Beta)",
+	"description": "Provides summarized chat across a site’s content, powered by AI magic.",
+	"keywords": [ "AI", "GPT", "Chat", "Search" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "text",
+	"icon": "superhero",
+	"supports": {
+		"align": true,
+		"alignWide": true,
+		"customClassName": true,
+		"className": true,
+		"html": false,
+		"multiple": false,
+		"reusable": false
+	},
+	"editorScript": "file:../editor-beta.js"
+}

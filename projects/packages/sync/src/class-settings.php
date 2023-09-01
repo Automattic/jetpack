@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Queue\Queue_Storage_Table;
 
 /**
  * Class to manage the sync settings.
@@ -200,6 +201,84 @@ class Settings {
 		$validated_settings = array_intersect_key( $new_settings, self::$valid_settings );
 		foreach ( $validated_settings as $setting => $value ) {
 
+			/**
+			 * Custom table migration logic.
+			 *
+			 * This needs to happen before the option is updated, to avoid race conditions where we update the option,
+			 * but haven't yet created the table or can't create it.
+			 *
+			 * On high-traffic sites this can lead to Sync trying to write in a non-existent table.
+			 *
+			 * So to avoid this, we're going to first try to initialize everything and then update the option.
+			 */
+			if ( 'custom_queue_table_enabled' === $setting ) {
+				// Need to check the current value in the database to make sure we're not doing anything weird.
+				$old_value = get_option( self::SETTINGS_OPTION_PREFIX . $setting, null );
+
+				if ( ! $old_value && $value ) {
+					/**
+					 * The custom table has been enabled.
+					 *
+					 * - Initialize the custom table
+					 * - Migrate the data
+					 *
+					 * If something fails, migrate back to the options table and clean up everything about the custom table.
+					 */
+					$init_result = Queue_Storage_Table::initialize_custom_sync_table();
+
+					/**
+					 * Check if there was a problem when initializing the table.
+					 */
+					if ( is_wp_error( $init_result ) ) {
+						/**
+						 * Unable to initialize the table properly. Set the value to `false` as we can't enable it.
+						 */
+						$value = false;
+
+						/**
+						 * Send error to WPCOM, so we can track and take an appropriate action.
+						 */
+						$data = array(
+							'timestamp'     => microtime( true ),
+							'error_code'    => $init_result->get_error_code(),
+							'response_body' => $init_result->get_error_message(),
+						);
+
+						$sender = Sender::get_instance();
+						$sender->send_action( 'jetpack_sync_storage_error_custom_init', $data );
+
+					} elseif ( ! Queue_Storage_Table::migrate_from_options_table_to_custom_table() ) {
+						/**
+						 * If the migration fails, do a reverse migration and set the value to `false` as we can't
+						 * safely enable the table.
+						 */
+						Queue_Storage_Table::migrate_from_custom_table_to_options_table();
+
+						// Set $value to `false` as we couldn't do the migration, and we can't continue enabling the table.
+						$value = false;
+
+						/**
+						 * Send error to WPCOM, so we can track and take an appropriate action.
+						 */
+						$data = array(
+							'timestamp' => microtime( true ),
+							// TODO: Maybe add more details here for the migration, i.e. how many items where in the queue?
+						);
+
+						$sender = Sender::get_instance();
+						$sender->send_action( 'jetpack_sync_storage_error_custom_migrate', $data );
+					}
+				} elseif ( $old_value && ! $value ) {
+					/**
+					 * The custom table has been disabled, migrate what we can from the custom table to the options table.
+					 */
+					Queue_Storage_Table::migrate_from_custom_table_to_options_table();
+				}
+			}
+
+			/**
+			 * Regular option update and handling
+			 */
 			if ( self::is_network_setting( $setting ) ) {
 				if ( is_multisite() && is_main_site() ) {
 					$updated = update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );

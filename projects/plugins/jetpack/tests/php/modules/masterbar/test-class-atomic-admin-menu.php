@@ -355,27 +355,16 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests the filter for adding the Site Logs menu
+	 * Tests add_tools_menu
 	 *
 	 * @covers ::add_tools_menu
 	 */
-	public function test_site_logs_menu_filter() {
+	public function test_add_site_monitoring_menu() {
 		global $submenu;
 
-		add_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_false', 99 );
 		static::$admin_menu->add_tools_menu();
-		remove_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_false', 99 );
+		$menu_position = 7;
 
-		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
-
-		$this->assertNotContains( 'https://wordpress.com/site-logs/' . static::$domain, $links );
-
-		add_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_true', 99 );
-		static::$admin_menu->add_tools_menu();
-		remove_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_true', 99 );
-
-		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
-
-		$this->assertContains( 'https://wordpress.com/site-logs/' . static::$domain, $links );
+		$this->assertSame( 'https://wordpress.com/site-monitoring/' . static::$domain, $submenu['tools.php'][ $menu_position ][2] );
 	}
 }

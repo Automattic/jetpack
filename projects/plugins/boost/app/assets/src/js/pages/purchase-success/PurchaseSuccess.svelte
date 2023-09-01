@@ -45,6 +45,9 @@
 					<li>{__( 'Automatic critical CSS regeneration', 'jetpack-boost' )}</li>
 					<li>{__( 'Performance scores are recalculated after each change', 'jetpack-boost' )}</li>
 					<li>{__( 'Automatically scan your site for image size issues', 'jetpack-boost' )}</li>
+					<li>
+						{__( 'Historical performance scores with Core Web Vitals data', 'jetpack-boost' )}
+					</li>
 
 					<li>
 						<!-- svelte-ignore missing-declaration Jetpack_Boost -->

@@ -28,7 +28,11 @@ declare -A PROJECT_PREFIXES=(
 	['js-packages']='JS Package'
 )
 
-PACKAGES=$(jq -nc 'reduce inputs as $in ({}; .[ $in.name ] |= true)' "$BASE"/projects/packages/*/composer.json)
+PACKAGES=$(jq -nc 'reduce inputs as $in ({}; .[ $in.name ] |= ( $in.extra["mirror-repo"] | type == "string" ) )' "$BASE"/projects/packages/*/composer.json)
+JSPACKAGES='{}'
+for PROJECT in "$BASE"/projects/js-packages/*/.; do
+	JSPACKAGES=$(jq -c --slurpfile c "$PROJECT/composer.json" --slurpfile p "$PROJECT/package.json" '.[ $p[0].name ] |= ( $c[0].extra["mirror-repo"] | type == "string" ) and $c[0].extra["npmjs-autopublish"]' <<<"$JSPACKAGES")
+done
 
 # Check that `@dev`, `dev-foo`, and `1.2.x-dev` style deps are used appropraitely.
 #
@@ -47,7 +51,7 @@ function check_composer_no_dev_deps {
 		WHAT="a release version"
 	fi
 	local PKG VER
-	local TMP="$(jq -r --arg which "$WHICH" --arg re "$RE" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( $packages[.key] | not ) | select( .value | test( $re ) ) | [ .key, .value ] | @tsv' "$FILE")"
+	local TMP="$(jq -r --arg which "$WHICH" --arg re "$RE" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in($packages) | not ) | select( .value | test( $re ) ) | [ .key, .value ] | @tsv' "$FILE")"
 	[[ -n "$TMP" ]] || return 0
 	while IFS=$'\t' read -r PKG VER; do
 		local LINE=$(jq --stream --arg which "$WHICH" --arg pkg "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$which,$pkg] then input_line_number else empty end' "$FILE" | head -n 1)
@@ -287,6 +291,7 @@ for PROJECT in projects/*/*; do
 	fi
 
 	# - If it's being published to npmjs, it should have certain metadata fields.
+	# - If it's being published to npmjs, its non-dev deps should also be published.
 	if jq -e '.extra["npmjs-autopublish"]' "$PROJECT/composer.json" >/dev/null; then
 		if ! jq -e '.repository' "$PROJECT/package.json" >/dev/null; then
 			EXIT=1
@@ -309,6 +314,46 @@ for PROJECT in projects/*/*; do
 			echo "::error file=$PROJECT/package.json::Package $SLUG is published to npmjs but does not specify \`.bugs.url\`.%0A\`\`\`%0A\"bugs\": ${JSON//$'\n'/%0A},%0A\`\`\`"
 			echo "---"
 		fi
+
+		for WHICH in dependencies peerDependencies; do
+			TMP=$(jq -r --arg which "$WHICH" --argjson packages "$JSPACKAGES" '.[$which] // {} | to_entries[] | select( .key | in( $packages ) ) | select( $packages[.key] | not ) | [ .key ] | @tsv' "$PROJECT/package.json")
+			if [[ -n "$TMP" ]]; then
+				EXIT=1
+				while IFS=$'\t' read -r PKG; do
+					LINE=$(jq --stream --arg which "$WHICH" --arg pkg "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$which,$pkg] then input_line_number else empty end' "$PROJECT/package.json" | head -n 1)
+					echo "::error file=$PROJECT/package.json,line=$LINE::$SLUG is published and depends on \`$PKG\`, but \`$PKG\` is not being published."
+				done <<<"$TMP"
+			fi
+		done
+
+	fi
+
+	# - If a package is published (i.e. it has a mirror-repo), all its non-dev deps should also be published.
+	if [[ "$TYPE" == "packages" ]] && jq -e '.extra["mirror-repo"]' "$PROJECT/composer.json" >/dev/null; then
+		for WHICH in require; do
+			TMP=$(jq -r --arg which "$WHICH" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in( $packages ) ) | select( $packages[.key] | not ) | [ .key ] | @tsv' "$PROJECT/composer.json")
+			if [[ -n "$TMP" ]]; then
+				EXIT=1
+				while IFS=$'\t' read -r PKG; do
+					LINE=$(jq --stream --arg which "$WHICH" --arg pkg "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$which,$pkg] then input_line_number else empty end' "$PROJECT/composer.json" | head -n 1)
+					echo "::error file=$PROJECT/composer.json,line=$LINE::$SLUG is published (i.e. it has a mirror repo set) and depends on \`$PKG\`, but \`$PKG\` is not being published."
+				done <<<"$TMP"
+			fi
+		done
+	fi
+
+	# - Plugins can only depend on published packages.
+	if [[ "$TYPE" == "plugins" ]]; then
+		for WHICH in require; do
+			TMP=$(jq -r --arg which "$WHICH" --argjson packages "$PACKAGES" '.[$which] // {} | to_entries[] | select( .key | in( $packages ) ) | select( $packages[.key] | not ) | [ .key ] | @tsv' "$PROJECT/composer.json")
+			if [[ -n "$TMP" ]]; then
+				EXIT=1
+				while IFS=$'\t' read -r PKG; do
+					LINE=$(jq --stream --arg which "$WHICH" --arg pkg "$PKG" 'if length == 1 then .[0][:-1] else .[0] end | if . == [$which,$pkg] then input_line_number else empty end' "$PROJECT/composer.json" | head -n 1)
+					echo "::error file=$PROJECT/composer.json,line=$LINE::$SLUG depends on \`$PKG\`, but \`$PKG\` is not being published."
+				done <<<"$TMP"
+			fi
+		done
 	fi
 
 	# - Only plugins can use non-semver versioning.

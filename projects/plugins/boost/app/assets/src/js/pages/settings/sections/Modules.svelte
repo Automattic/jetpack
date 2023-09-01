@@ -11,7 +11,7 @@
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
 	import {
 		criticalCssState,
-		regenerateLocalCriticalCss,
+		continueGeneratingLocalCriticalCss,
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
@@ -21,6 +21,7 @@
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
+	import ImageCdnQualitySettings from '../elements/ImageCdnQualitySettings.svelte';
 	import MinifyMeta from '../elements/MinifyMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
@@ -46,7 +47,7 @@
 		if ( ! $criticalCssState || $criticalCssState.status === 'not_generated' ) {
 			return regenerateCriticalCss();
 		}
-		await regenerateLocalCriticalCss( $criticalCssState );
+		await continueGeneratingLocalCriticalCss( $criticalCssState );
 	}
 </script>
 
@@ -224,6 +225,10 @@
 				'jetpack-boost'
 			)}
 		</p>
+
+		<div slot="meta">
+			<ImageCdnQualitySettings />
+		</div>
 	</Module>
 
 	<div class="settings">

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Automation:  Added a condition to detect changes in status from a specified initial value to a designated target one

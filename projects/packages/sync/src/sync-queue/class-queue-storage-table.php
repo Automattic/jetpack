@@ -67,10 +67,9 @@ class Queue_Storage_Table {
 	 *
 	 * @return void
 	 */
-	private function create_table() {
+	protected function create_table() {
 		global $wpdb;
 
-		// TODO if we run this only in the context of an upgrade, we should not include this here.
 		require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 
 		$charset_collate = $wpdb->get_charset_collate();
@@ -100,7 +99,7 @@ class Queue_Storage_Table {
 	 *
 	 * @return bool
 	 */
-	private function custom_table_exists() {
+	protected function custom_table_exists() {
 		global $wpdb;
 
 		// Check if the table exists
@@ -121,7 +120,7 @@ class Queue_Storage_Table {
 	 *
 	 * @return true|\WP_Error If the custom table is available, and we can read and write from/to it.
 	 */
-	private function is_custom_table_healthy() {
+	protected function is_custom_table_healthy() {
 		global $wpdb;
 
 		if ( ! $this->custom_table_exists() ) {
@@ -152,16 +151,16 @@ class Queue_Storage_Table {
 		}
 
 		// See if we can read the item back
-		$items = $this->fetch_items_by_ids( 'test' );
+		$items = $this->fetch_items_by_ids( array( 'test' ) );
 		if ( empty( $items ) || ! is_object( $items[0] ) || $items[0]->value !== 'test' ) {
 			return new \WP_Error( 'custom_table_unable_to_writeread', 'Jetpack Sync Custom table: Unable to read item after writing' );
 		}
 
 		// Try to insert an item, read it back and then delete it.
-		$this->delete_items_by_ids( 'test' );
+		$this->delete_items_by_ids( array( 'test' ) );
 
 		// Try to fetch the item back. It should not exist.
-		$items = $this->fetch_items_by_ids( 'test' );
+		$items = $this->fetch_items_by_ids( array( 'test' ) );
 		if ( ! empty( $items ) ) {
 			return new \WP_Error( 'custom_table_unable_to_writeread', 'Jetpack Sync Custom table: Unable to delete from table' );
 		}
@@ -494,19 +493,13 @@ class Queue_Storage_Table {
 			$custom_table_instance->create_table();
 		}
 
-		if ( is_wp_error( $custom_table_instance->is_custom_table_healthy() ) ) {
-			// TODO: send error to WPCOM
-			// TODO: clean up the table.
-			return false;
-		}
-
-		return true;
+		return $custom_table_instance->is_custom_table_healthy();
 	}
 
 	/**
 	 * Migrates the existing Sync events from the options table to the Custom table
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	public static function migrate_from_options_table_to_custom_table() {
 		global $wpdb;
@@ -597,6 +590,8 @@ class Queue_Storage_Table {
 				'jpsq_%-%'
 			)
 		);
+
+		return true;
 	}
 
 	/**

@@ -1026,12 +1026,20 @@ function jpcrm_database_server_has_ability( $ability_name ) {
    Uninstall Funcs
    ====================================================== */
 
-// dangerous, brutal, savage.
-// This one removes all data except settings & migrations
-// see zeroBSCRM_database_nuke for the full show
-function zeroBSCRM_database_reset(){
+/**
+ * dangerous, brutal, savage.
+ *
+ * This one removes all data except settings & migrations
+ * see zeroBSCRM_database_nuke for the full show.
+ *
+ * @param bool $check_permissions (default true) whether to check current user can manage_options.
+ * @return void
+ */
+function zeroBSCRM_database_reset( $check_permissions = true ) {
 
-  if (current_user_can('manage_options')){
+	if ( $check_permissions && ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
 
       #} Brutal Reset of DB settings & removal of tables
       global $wpdb, $ZBSCRM_t;
@@ -1057,18 +1065,23 @@ function zeroBSCRM_database_reset(){
         );
       foreach ($options as $option)  $wpdb->query($wpdb->prepare("DELETE FROM $wpdb->options WHERE `option_name` = %s",array($option)));
 
-      #} DAL 3.0 tables
-      $ZBSCRM_t['totaltrans'] = $wpdb->prefix . "zbs_global_total_trans";
-      foreach ($ZBSCRM_t as $k => $v){
-        
-        //do not truncate the settings
-        if($k != 'settings'){  
-          $wpdb->query("TRUNCATE TABLE " . $v);
-        }
+	// phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect,Generic.WhiteSpace.ScopeIndent.IncorrectExact,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	// DAL 3.0 tables.
+	$ZBSCRM_t['totaltrans'] = $wpdb->prefix . 'zbs_global_total_trans'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-      }
+	foreach ( $ZBSCRM_t as $k => $v ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-  }
+		// Do not truncate the settings.
+		if ( $k !== 'settings' ) {
+			// Copy how maybe_create_table() looks for existing tables.
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $v ) ) ) !== $v ) {
+				continue;
+			}
+
+			$wpdb->query( 'TRUNCATE TABLE ' . $v ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		}
+	}
+	// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect,Generic.WhiteSpace.ScopeIndent.IncorrectExact,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 }
 

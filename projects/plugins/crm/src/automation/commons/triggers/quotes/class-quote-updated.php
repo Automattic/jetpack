@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\CRM\Automation\Triggers;
 
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
+use Automattic\Jetpack\CRM\Automation\Data_Types\Data_Type_Quote;
 
 /**
  * Adds the Quote_Updated class.
@@ -58,7 +59,16 @@ class Quote_Updated extends Base_Trigger {
 	 * @return string|null The category of the trigger.
 	 */
 	public static function get_category(): ?string {
-		return __( 'quote', 'zero-bs-crm' );
+		return __( 'Quote', 'zero-bs-crm' );
+	}
+
+	/**
+	 * Get the date type.
+	 *
+	 * @return string The type of the step
+	 */
+	public static function get_data_type(): string {
+		return Data_Type_Quote::get_slug();
 	}
 
 	/**

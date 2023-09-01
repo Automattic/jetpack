@@ -1,6 +1,12 @@
 .jp-forms__actions-search {
 	display: flex;
 	flex-direction: row;
+	border-radius: 4px;
+
+	// visual aid for focus
+	&:focus-within {
+		box-shadow: var( --jp-forms-focus-shadow );
+	}
 
 	@media (max-width: 600px) {
 		flex: 1;
@@ -28,7 +34,8 @@
 		}
 
 		&:focus-within {
-			box-shadow: 0 0 0 1px var( --jp-black ) inset;
+			// visual aid for focus in the wrapper element, remove border when focused
+			border-color: transparent;
 		}
 
 		&.disabled {

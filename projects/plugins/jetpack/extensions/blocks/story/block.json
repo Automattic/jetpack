@@ -1,0 +1,39 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/story",
+	"title": "Story",
+	"description": "Add an interactive story.",
+	"keywords": [ "story", "image", "video", "gallery" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "media",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><g><path d='M17 5a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2h9z' /><path d='M13 4H5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z' /><path d='M7 16h8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z' /></g></svg>",
+	"supports": {
+		"html": false
+	},
+	"attributes": {
+		"settings": {
+			"type": "object"
+		},
+		"mediaFiles": {
+			"type": "array",
+			"default": []
+		}
+	},
+	"example": {
+		"attributes": {
+			"mediaFiles": [
+				{
+					"alt": "",
+					"caption": "",
+					"mime": "image/jpg",
+					"type": "image",
+					"id": 22,
+					"url": "./storyExample1.png"
+				}
+			]
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

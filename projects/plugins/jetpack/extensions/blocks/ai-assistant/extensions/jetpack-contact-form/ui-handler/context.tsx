@@ -10,27 +10,8 @@ export type AiAssistantUiContextProps = {
 
 	isFixed: boolean;
 
-	width?: number | string;
-
-	popoverProps?: {
-		anchor?: HTMLElement | null;
-		offset?: number;
-		variant?: 'toolbar' | 'unstyled';
-		placement?:
-			| 'top'
-			| 'top-start'
-			| 'top-end'
-			| 'right'
-			| 'right-start'
-			| 'right-end'
-			| 'bottom'
-			| 'bottom-start'
-			| 'bottom-end'
-			| 'left'
-			| 'left-start'
-			| 'left-end'
-			| 'overlay';
-	};
+	assistantAnchor: HTMLElement | null;
+	setAnchor: ( anchor: HTMLElement | null ) => void;
 
 	setInputValue: ( value: string ) => void;
 
@@ -39,12 +20,6 @@ export type AiAssistantUiContextProps = {
 	toggle: () => void;
 
 	setAssistantFixed: ( isFixed: boolean ) => void;
-
-	setPopoverProps: (
-		props:
-			| AiAssistantUiContextProps[ 'popoverProps' ]
-			| ( ( prev: AiAssistantUiContextProps[ 'popoverProps' ] ) => void )
-	) => void;
 };
 
 type AiAssistantUiContextProviderProps = {

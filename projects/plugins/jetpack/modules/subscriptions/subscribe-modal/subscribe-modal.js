@@ -25,10 +25,13 @@ domReady( function () {
 		}, 300 );
 	};
 
-	close.onclick = function () {
-		modal.classList.toggle( 'open' );
-		setModalDismissedCookie();
-	};
+	// User can edit modal, and could remove close link.
+	if ( close ) {
+		close.onclick = function () {
+			modal.classList.toggle( 'open' );
+			setModalDismissedCookie();
+		};
+	}
 
 	window.onclick = function ( event ) {
 		if ( event.target === modal ) {

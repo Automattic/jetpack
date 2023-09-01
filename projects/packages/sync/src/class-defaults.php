@@ -64,6 +64,7 @@ class Defaults {
 		'infinite_scroll',
 		'infinite_scroll_google_analytics',
 		'jetpack-memberships-connected-account-id',
+		'jetpack-memberships-has-connected-account',
 		'jetpack-twitter-cards-site-tag',
 		'jetpack_activated',
 		'jetpack_allowed_xsite_search_ids',
@@ -87,6 +88,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
+		'jetpack_social_settings',
 		'jetpack_sso_match_by_email',
 		'jetpack_sso_require_two_step',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
@@ -175,6 +177,7 @@ class Defaults {
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
 		'wpcom_featured_image_in_email',
+		'wpcom_newsletter_categories_enabled',
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',

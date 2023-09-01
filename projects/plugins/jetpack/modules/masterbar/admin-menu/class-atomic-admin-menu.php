@@ -388,18 +388,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		parent::add_tools_menu();
 
 		/**
-		 * Whether to show the WordPress.com Site Logs submenu under the main Tools menu.
-		 *
-		 * @use add_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_true' );
-		 * @module masterbar
-		 *
-		 * @since 12.0
-		 *
-		 * @param bool $show_wpcom_site_logs_menu Load the WordPress.com Site Logs submenu item. Default to false.
+		 * Adds the WordPress.com Site Monitoring submenu under the main Tools menu.
 		 */
-		if ( apply_filters( 'jetpack_show_wpcom_site_logs_menu', false ) ) {
-			add_submenu_page( 'tools.php', esc_attr__( 'Site Logs', 'jetpack' ), __( 'Site Logs', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-logs/' . $this->domain, null, 7 );
-		}
+		add_submenu_page( 'tools.php', esc_attr__( 'Site Monitoring', 'jetpack' ), __( 'Site Monitoring', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-monitoring/' . $this->domain, null, 7 );
 	}
 
 	/**

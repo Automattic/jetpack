@@ -2,6 +2,233 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.6-a.1 - 2023-08-28
+
+### Enhancements
+
+- Added the new auto-conversion toggle for social. [#32597]
+- Add number formatting for subscriber count in newsletter module. [#32646]
+- AI Assistant: proof-of-concept for server-side prompts, starting with form generation prompts. [#32495]
+- AI Extension: use new AIControl component from AI package and remove local implementation. [#32682]
+- Connection UI: use Redux state to pass the "from" property. [#32600]
+- Gravatar profile widget: add srcset. [#32662]
+- Newsletters: improve flows around access and paywall. [#32615]
+- Nicer subscribers number. [#32651]
+- Paywall Block: add toolbar options. [#32659]
+- Paywall block: disable Paid subscribers button if plans are not set up. [#32663]
+- Paywall block: redesign visuals for the mobile editor. [#32672]
+- Paywall block: release to WP.com and Jetpack. [#32625]
+- Subscribe modal: bump modal Z-index up. [#32621]
+- Subscriptions: remove newsletter flow+theme and FSE theme check for the subscribe modal. Leave WP.com check. [#32607]
+- Tiled gallery module: add srcset to images. [#32598]
+
+### Improved compatibility
+
+- Shortcodes: exclude images with broken URL from galleries. [#32556]
+- Theme fields: only add is_block_theme to theme response when WordPress version is < 6.3 [#31660]
+
+### Bug fixes
+
+- Adding test for default whitelist option. [#32632]
+- Email subscribers now receive full posts. [#32647]
+- Fix default plan being selected in payment block. [#32640]
+- Fixed a Global Styles UI performance issue in the Site Editor. [#32641]
+- Load the Jetpack block assets in the iframe directly in WP-Admin and keep the existing behavior on the front-end, for compatibility reasons. [#32706]
+- Paywall block: avoid undefined variable warning. [#32578]
+- Remove use of Jetpack_Membership::get_connected_account_id(). [#32620]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+
+- Add META_NAME_FOR_POST_TIER_ID_SETTINGS const for later developments. [#32677]
+- Cleans up the memberships class to make it more DRY. [#32571]
+- Register Paywall block for native mobile editor behind the dev flag. [#32553]
+- Remove fill properties from Paywall block SVG icon. [#32638]
+- Rename Author Recommendations to Blogroll. [#32624]
+- Site endpoint: added is_commercial to site options. [#32595]
+- Updated package dependencies. [#32605]
+
+## 12.5 - 2023-08-23
+
+### Enhancements
+
+- AI Assistant: various backend improvements.
+- AI Extension: various improvements AI Assistant, update styles, and bug fixes.
+- AI Extension: launch Jetpack AI support for Form blocks.
+- Dashboard: add Social Image Generator options to Jetpack Social settings. [#32475]
+- Mailchimp block: allow transforming to subscribe block. [#32482]
+- Paywall Block: add a notice explaining what the Paywall block does in relationship to newsletters. [#32320]
+- Paywall Block: improve paywall rendering on emails. [#32340]
+- Paywall block: various improvements to UX and styles.
+- Social: update social connection toggles to be button switches. [#32305]
+- Subscribe Modal: make subscribe modal editable. [#32522]
+
+### Improved compatibility
+
+- Blocks: add block.json metadata.
+
+### Bug fixes
+
+- Blocks: ensure the Markdown and Repeat Visitor blocks use clear contrasting colors when using a dark theme. [#32464]
+- Publicize: prevent metadata updates for published posts [#32301]
+- Shortcode embeds: avoid errors when a request to Flickr fails. [#32531]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+
+- Add Woocommerce product post type to sitemaps if WooCommerce is present [#32570]
+- AI Assistant: Specify input background color [#32527]
+- AI Assistant: Update example copyright [#32491]
+- AI Extension: Add extension toolbar click event [#32489]
+- AI Extension: be able to show AI Assistant from children Jetpack Form blocks [#32540]
+- AI Extension: Change event parameter name [#32493]
+- AI Extension: check missing blocks when parsing Jetpack Form blocks in the AI generation process [#32576]
+- AI Extension: clean the AI Assistant bar input once the suggestion is done [#32547]
+- AI Extension: consolidate Block Toolbar button style [#32584]
+- AI Extension: do not extend Jetpack Form when it's inside of a query loop [#32555]
+- AI Extension: do not send request when AI assistant input is empty [#32590]
+- AI Extension: fix bug when focusing on the input element when component mount [#32575]
+- AI Extension: handle Jetpack Form button instances when composing via AI assistant [#32581]
+- AI Extension: Move extension to production. [#32403]
+- AI Extension: Start sending ai-assistant as the default feature name for the AI Assistant on the completion request [#32592]
+- Blocks: add "Beta" suffix to Beta blocks' descriptions in block.json file. [#32536]
+- Cookie Consent Block: avoid PHP notice [#32488]
+- Created V2 edit and delete endpoints for memberships products. [#32412]
+- Remove jetpack option jetpack-memberships-connected-account-id. [#32125]
+- Subscribe modal: don't use template parts [#32480]
+- Settings menu in WP.com: add newsletter and podcasting sections. [#32146]
+- Subscribe modal: update toggle copy. [#32512]
+- Supports Jetpack AI Yearly offering. [#32130]
+- Update icons of Jetpack blocks. [#32568]
+- Use the new method to render Connection initial state. [#32499]
+
+## 12.5-a.11 - 2023-08-15
+
+### Enhancements
+
+- Subscriptions: add a Subscribers menu to the Jetpack dashboard navigation. [#31718]
+
+### Improved compatibility
+
+- Infinite Scroll: avoid PHP notices when using the latest version of WordPress, 6.3. [#32454]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+
+- Remove unused blocks from block index [#32426]
+- Copy block.json files in Jetpack extensions build [#32431]
+
+## 12.5-a.9 - 2023-08-14
+
+### Enhancements
+
+- AI Assistant: various stylistic and back-end enhancements to the Jetpack AI Assistant.
+- AI Assistant: tweaks assistant bar in narrow spaces [#32416]
+- AI Extension: allow AI response generation to be stopped. [#32382]
+- Dashboard: make My Jetpack the default WP-Admin page for Jetpack. [#32385]
+- Newsletter: move Newsletter settings to their own section. [#32302]
+- Subscriptions: a membership product can be created without a prior connected account [#31749]
+
+### Bug fixes
+
+- AI Extension: fix visual issue of AI toolbar when editor sidebar is opened [#32395]
+- Subscriptions: adds more accurate check for when to show the subscribe modal [#32356]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+
+- AI Extension: check the AI quota exceeded from the AI context [#32430]
+- AI Extension: clean up unusable remnant code [#32402]
+- AI Extension: consolidate assistant bar implementation [#32425]
+- AI Extension: fcus on input after suggestions [#32400]
+- AI Extension: improve show/hide assistant bar when fixed [#32414]
+- AI Extension: move from popover to portal [#32419]
+- AI Extension: move isFixed logic to AI Assistant bar component [#32444]
+- AI Extension: move out of popover in large screens [#32376]
+- AI Extension: remove unneeded AI component styles [#32396]
+- AI Extension: set role and aria-label for the assistant bar [#32457]
+- AI Extension: tweak styles in AI Assistant Anchor [#32421]
+- AI Extension: tweak the AI assistant message text styles [#32434]
+- AI Extension: update proofread with the AI Status Indicator component [#32397]
+- AI Form Extension: remove error notice on new request [#32405]
+- API: add backup undo feature [#32442]
+- Dashboard: update link to Subscribers to always point to WordPress.com. [#32393]
+- Internet Defense League Widget: remove campaign management and load images locally. [#32196]
+- Make the AI Assistant input to receive focus on first render for forms variations [#32447]
+- Remove extensions/blocks/contact-form directory, it is now handled by packages/forms [#32440]
+- Update testing instructions [#32460]
+
+## 12.5-a.7 - 2023-08-09
+
+### Enhancements
+
+- AI Extension: fix AI Assistant bar position in the Top toolbar mode. [#32374]
+- AI Extension: update view of AI assistant bar on mobile. [#32377]
+- SSO: enable "Match by Email" by default. [#32370]
+
+## 12.5-a.5 - 2023-08-09
+
+### Enhancements
+
+- AI Assistant: change tracked event to English instead of translated value and track language and tone change [#32291]
+- AI Assistant: fix grammar and typos on Proofread feature [#32321]
+- AI Extension: fix visual issue in Assistant bar when switching viewport size. [#32344] [#32330]
+- AI Extension: Introduce AI Assistant bar. [#32359]
+- Paywall block: add transforms for "more" and "nextpage" core blocks. [#32338]
+
+### Bug fixes
+
+- Add subscribe button on premium content block on self-hosted [#32318]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+
+- Blocks: avoid hardcoding the version number when creating a new block via the CLI command [#32110]
+- AI Control: clean up props [#32360]
+- AI Extension: add UpgradePrompt if upgrade is required. [#32326]
+- AI Plugin: Add upgrade path. [#32327]
+- Move out of api.js [#32273]
+- Updated package dependencies. [#32307]
+
+## 12.5-a.3 - 2023-08-07
+
+### Enhancements
+
+- Added SIG modal ui [#31665]
+- Add Inspector Panel with Newsletter visibility options to Paywall Block [#32263]
+- AI Assistant: Add requirement for one button in forms [#32234]
+- AI Assistant: Auto open AI control in form assistant [#32271]
+- AI Assistant: Fix form popover after changing viewport [#32247]
+- AI Assistant: Fix incomplete HTML tags and allow columns on forms [#32276]
+- AI Assistant: Render response from the AI [#32209]
+- AI Extension: Connect AI Control component on popover placement. [#32210]
+- AI Extension: Connect AI Data context with components [#32197]
+- AI Extension: handle AI assistant component in mobile [#32242]
+- AI Extension: Improve undo action behavior by controlling the way received valid blocks are rendered. [#32277]
+- AI Extension: increase the page height when AI Assistant bar is visible [#32252]
+- AI Extension: relocate the Assistant component for the Jetpack From block [#32194]
+- AI Extension: select Form when selecting child block [#32212]
+- AI Extension: Send custom feature name for requesting form completions so they can be handled differently on the backend. [#32303]
+- AI Extension: show AiStatusIndicator into the assistant bar [#32272]
+- AI Extension: show a Notice when AI needs to provide feedback [#32222]
+- AI Extension: stop suggestion when form block is deleted [#32241]
+- AI Extension: Update placeholder copyright [#32300]
+- AI Extension: use assistant to edit Jetpack Format content [#32217]
+- AI Plugin: Add track for get feedback feature [#32319]
+- Better Paywall Block styles [#32308]
+- Fix small regression on Newsletter panels [#32270]
+- Jetpack editor extensions: use shared component for the logo. [#32257]
+- Make 'My Jetpack' the first sub-menu item, above 'Dashboard'. [#32240]
+- Memberships: Ensure endpoint handles source param [#32071]
+- Newsletters: update the appearance of "subscribers only" and "paid subscribers only" content wall [#31880]
+- paywall dynamic copy [#32201]
+- Subscription modal: adjust modal template markup and styles for easier modification and mobile friendliness. [#32230]
+
+### Bug fixes
+
+- AI Extension: Stop handling popover close event to prevent the AI Control from hiding when it loses focus. [#32246]
+- Social: Fix race condition in mobile app's post request [#32287]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+
+- minor copy change [#32261]
+- Refactored subscriber count data to come from store instead of props. [#32095]
+
 ## 12.5-a.1 - 2023-08-01
 
 ### Enhancements
@@ -9446,6 +9673,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[12.5]: https://wp.me/p1moTy-Vab
 [12.4]: https://wp.me/p1moTy-UQY
 [12.3]: https://wp.me/p1moTy-Uk3
 [12.2]: https://wp.me/p1moTy-Tzw

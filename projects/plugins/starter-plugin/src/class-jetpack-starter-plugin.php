@@ -88,7 +88,7 @@ class Jetpack_Starter_Plugin {
 		);
 		Assets::enqueue_script( 'jetpack-starter-plugin' );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-starter-plugin', Connection_Initial_State::render(), 'before' );
+		Connection_Initial_State::render_script( 'jetpack-starter-plugin' );
 		wp_add_inline_script( 'jetpack-starter-plugin', $this->render_initial_state(), 'before' );
 	}
 

@@ -3,7 +3,7 @@
  * Jetpack plugin implementation.
  */
 
-import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
+import { PanelBody, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
@@ -57,23 +57,20 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 			{ ! hidePublicizeFeature && (
 				<Fragment>
 					{ ! isPostPublished && (
-						<PanelRow>
-							<ToggleControl
-								className="jetpack-publicize-toggle"
-								label={
-									isPublicizeEnabled
-										? __( 'Share when publishing', 'jetpack' )
-										: __(
-												'Sharing is disabled',
-												'jetpack',
-												/* dummy arg to avoid bad minification */ 0
-										  )
-								}
-								onChange={ togglePublicizeFeature }
-								checked={ isPublicizeEnabled }
-								disabled={ ! hasConnections }
-							/>
-						</PanelRow>
+						<ToggleControl
+							label={
+								isPublicizeEnabled
+									? __( 'Share when publishing', 'jetpack' )
+									: __(
+											'Sharing is disabled',
+											'jetpack',
+											/* dummy arg to avoid bad minification */ 0
+									  )
+							}
+							onChange={ togglePublicizeFeature }
+							checked={ isPublicizeEnabled }
+							disabled={ ! hasConnections }
+						/>
 					) }
 
 					<PublicizeConnectionVerify />

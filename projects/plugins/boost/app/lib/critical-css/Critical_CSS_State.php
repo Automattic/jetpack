@@ -160,7 +160,11 @@ class Critical_CSS_State {
 		return $this;
 	}
 
+	/**
+	 * Get fresh state
+	 */
 	public function get() {
+		$this->state = jetpack_boost_ds_get( 'critical_css_state' );
 		return $this->state;
 	}
 

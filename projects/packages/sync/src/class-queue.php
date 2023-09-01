@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Sync\Queue\Queue_Storage_Options;
+use Automattic\Jetpack\Sync\Queue\Queue_Storage_Table;
 use WP_Error;
 
 /**
@@ -41,9 +42,9 @@ class Queue {
 	/**
 	 * Queue Storage instance where we'll store the queue items.
 	 *
-	 * For now it's only the Options table. To be updated to include the Custom table in future updates.
+	 * For now, it's only the Options table. To be updated to include the Custom table in future updates.
 	 *
-	 * @var Queue_Storage_Options|null
+	 * @var Queue_Storage_Options|Queue_Storage_Table|null
 	 */
 	public $queue_storage = null;
 
@@ -57,8 +58,15 @@ class Queue {
 		$this->row_iterator = 0;
 		$this->random_int   = wp_rand( 1, 1000000 );
 
-		// Initialize the storage with the Options table backend. To be changed in subsequent updates to include the logic to switch to Custom Table.
-		$this->queue_storage = new Queue_Storage_Options( $this->id );
+		/**
+		 * If the Custom queue table is enabled - let's use it as a backend. Otherwise, fall back to the Options table.
+		 */
+		if ( Settings::is_custom_queue_table_enabled() ) {
+			$this->queue_storage = new Queue_Storage_Table( $this->id );
+		} else {
+			// Initialize the storage with the Options table backend. To be changed in subsequent updates to include the logic to switch to Custom Table.
+			$this->queue_storage = new Queue_Storage_Options( $this->id );
+		}
 	}
 
 	/**

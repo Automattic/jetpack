@@ -58,6 +58,15 @@ class Event_Created extends Base_Trigger {
 	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): string {
+		return __( 'Event', 'zero-bs-crm' );
+	}
+
+	/**
+	 * Get the date type.
+	 *
+	 * @return string The type of the step
+	 */
+	public static function get_data_type(): string {
 		return 'event';
 	}
 

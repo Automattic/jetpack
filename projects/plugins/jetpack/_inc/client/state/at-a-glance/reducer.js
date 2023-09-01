@@ -11,6 +11,9 @@ import {
 	AKISMET_KEY_CHECK_FETCH,
 	AKISMET_KEY_CHECK_FETCH_FAIL,
 	AKISMET_KEY_CHECK_FETCH_SUCCESS,
+	BACKUP_UNDO_EVENT_FETCH,
+	BACKUP_UNDO_EVENT_FETCH_FAILURE,
+	BACKUP_UNDO_EVENT_FETCH_SUCCESS,
 	VAULTPRESS_SITE_DATA_FETCH,
 	VAULTPRESS_SITE_DATA_FETCH_FAIL,
 	VAULTPRESS_SITE_DATA_FETCH_SUCCESS,
@@ -144,6 +147,48 @@ const pluginUpdates = ( state = 'N/A', action ) => {
 	}
 };
 
+const backupUndoEvent = (
+	state = { isFetching: false, loaded: false, event: {} },
+	{ type, payload }
+) => {
+	switch ( type ) {
+		case BACKUP_UNDO_EVENT_FETCH: {
+			return {
+				...state,
+				isFetching: true,
+				loaded: false,
+			};
+		}
+
+		case BACKUP_UNDO_EVENT_FETCH_SUCCESS: {
+			const activity = payload.last_rewindable_event;
+			return {
+				...state,
+				isFetching: false,
+				loaded: true,
+				actorAvatarUrl: activity.actor?.icon?.url ?? '',
+				actorName: activity.actor?.name ?? '',
+				actorRole: activity.actor?.role ?? '',
+				actorType: activity.actor?.type ?? '',
+				activityDate: activity.published ?? '',
+				activityId: activity.activity_id,
+				activityName: activity.name,
+				activityTitle: activity.summary,
+				activityDescription: activity.content?.text ?? '',
+				undoBackupId: payload.undo_backup_id,
+			};
+		}
+		case BACKUP_UNDO_EVENT_FETCH_FAILURE: {
+			return {
+				...state,
+				isFetching: false,
+			};
+		}
+		default:
+			return state;
+	}
+};
+
 export const dashboard = combineReducers( {
 	requests,
 	activeStatsTab,
@@ -153,6 +198,7 @@ export const dashboard = combineReducers( {
 	akismetData,
 	akismet,
 	pluginUpdates,
+	backupUndoEvent,
 } );
 
 /**
@@ -327,4 +373,34 @@ export function isFetchingPluginsData( state ) {
  */
 export function getPluginItems( state ) {
 	return state.jetpack.pluginsData.items || {};
+}
+
+/**
+ * Returns the last backup undo even from the Activity Log.
+ *
+ * @param  {object}  state - Global state tree
+ * @returns {object} The last backup undo event
+ */
+export function getBackupUndoEvent( state ) {
+	return state.jetpack.dashboard.backupUndoEvent;
+}
+
+/**
+ * Returns true if currently requesting backup undo event.
+ *
+ * @param  {object}  state - Global state tree
+ * @returns {boolean} Whether backup undo event is being requested
+ */
+export function isFetchingBackupUndoEvent( state ) {
+	return state.jetpack.dashboard.backupUndoEvent.isFetching;
+}
+
+/**
+ * Returns true if backup undo event has been loaded.
+ *
+ * @param  {object}  state - Global state tree
+ * @returns {boolean} Whether backup undo event has been loaded
+ */
+export function hasLoadedBackupUndoEvent( state ) {
+	return state.jetpack.dashboard.backupUndoEvent.loaded;
 }
