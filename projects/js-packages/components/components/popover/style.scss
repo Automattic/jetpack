@@ -1,12 +1,16 @@
 .jp-popover {
 	width: 600px;
-	max-width: 100%;
+	max-width: calc( 100% - 32px );
 	padding: 16px;
 	background-color: #fff;
 	box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.06), 0px 4px 8px 0px rgba(0, 0, 0, 0.03);
 	border: 1px solid rgba(220, 220, 222, 1);
 	border-radius: 4px;
 	text-align: center;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 
 	> * {
 		margin: 16px;

@@ -26,20 +26,21 @@ const noop = () => {};
 /**
  * AI Control component.
  *
- * @param {object} props - component props
- * @param {boolean} props.disabled - is disabled
- * @param {string} props.value - input value
- * @param {string} props.placeholder - input placeholder
- * @param {boolean} props.showAccept - show accept button
- * @param {string} props.acceptLabel - accept button label
- * @param {boolean} props.showButtonsLabel - show buttons label
- * @param {boolean} props.isOpaque - is opaque
- * @param {string} props.state - requesting state
- * @param {Function} props.onChange - input change handler
- * @param {Function} props.onSend - send request handler
- * @param {Function} props.onStop - stop request handler
- * @param {Function} props.onAccept - accept handler
- * @param {object} ref - Auto injected ref from react
+ * @param {object} props                   - Component props
+ * @param {boolean} props.disabled         - Input disabled state
+ * @param {string} props.value             - The input value
+ * @param {string} props.placeholder       - The input placeholder
+ * @param {boolean} props.showAccept       - Whether to show the accept button
+ * @param {string} props.acceptLabel       - The accept button label
+ * @param {boolean} props.showButtonLabels - Whether to show the button labels
+ * @param {boolean} props.isTransparent    - Whether the component has low opacity
+ * @param {string} props.state             - The request state
+ * @param {boolean} props.showClearButton  - Whether to show the clear button when the input has a value
+ * @param {Function} props.onChange        - Input change handler
+ * @param {Function} props.onSend          - Request send handler
+ * @param {Function} props.onStop          - Request stop handler
+ * @param {Function} props.onAccept        - Response accept handler
+ * @param {object} ref                     - Auto injected ref from react
  * @returns {object} - AI Control component
  */
 export function AIControl(
@@ -49,9 +50,10 @@ export function AIControl(
 		placeholder = '',
 		showAccept = false,
 		acceptLabel = __( 'Accept', 'jetpack-ai-client' ),
-		showButtonsLabel = true,
-		isOpaque = false,
+		showButtonLabels = true,
+		isTransparent = false,
 		state = 'init',
+		showClearButton = true,
 		onChange = noop,
 		onSend = noop,
 		onStop = noop,
@@ -62,9 +64,10 @@ export function AIControl(
 		placeholder?: string;
 		showAccept?: boolean;
 		acceptLabel?: string;
-		showButtonsLabel?: boolean;
-		isOpaque?: boolean;
+		showButtonLabels?: boolean;
+		isTransparent?: boolean;
 		state?: RequestingStateProp;
+		showClearButton?: boolean;
 		onChange?: ( newValue: string ) => void;
 		onSend?: ( currentValue: string ) => void;
 		onStop?: () => void;
@@ -74,7 +77,7 @@ export function AIControl(
 ) {
 	const promptUserInputRef = useRef( null );
 	const loading = state === 'requesting' || state === 'suggesting';
-	const showGuideLine = ! ( loading || disabled || value?.length || isOpaque );
+	const showGuideLine = ! ( loading || disabled || value?.length || isTransparent );
 
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
@@ -103,14 +106,14 @@ export function AIControl(
 	);
 
 	const actionButtonClasses = classNames( 'jetpack-components-ai-control__controls-prompt_button', {
-		'has-label': showButtonsLabel,
+		'has-label': showButtonLabels,
 	} );
 
 	return (
 		<div className="jetpack-components-ai-control__container">
 			<div
 				className={ classNames( 'jetpack-components-ai-control__wrapper', {
-					'is-opaque': isOpaque,
+					'is-transparent': isTransparent,
 				} ) }
 			>
 				<AiStatusIndicator state={ state } />
@@ -126,7 +129,7 @@ export function AIControl(
 					/>
 				</div>
 
-				{ value?.length > 0 && (
+				{ value?.length > 0 && showClearButton && (
 					<Button
 						icon={ closeSmall }
 						className="jetpack-components-ai-control__clear"
@@ -144,7 +147,7 @@ export function AIControl(
 							label={ __( 'Send request', 'jetpack-ai-client' ) }
 						>
 							<Icon icon={ arrowUp } />
-							{ showButtonsLabel && __( 'Send', 'jetpack-ai-client' ) }
+							{ showButtonLabels && __( 'Send', 'jetpack-ai-client' ) }
 						</Button>
 					) : (
 						<Button
@@ -154,7 +157,7 @@ export function AIControl(
 							label={ __( 'Stop request', 'jetpack-ai-client' ) }
 						>
 							<Icon icon={ closeSmall } />
-							{ showButtonsLabel && __( 'Stop', 'jetpack-ai-client' ) }
+							{ showButtonLabels && __( 'Stop', 'jetpack-ai-client' ) }
 						</Button>
 					) }
 				</div>
@@ -168,7 +171,7 @@ export function AIControl(
 							label={ acceptLabel }
 						>
 							<Icon icon={ check } />
-							{ showButtonsLabel && acceptLabel }
+							{ showButtonLabels && acceptLabel }
 						</Button>
 					</div>
 				) }

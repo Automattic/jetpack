@@ -1,5 +1,4 @@
 import React, { type FunctionComponent } from 'react';
-import uPlot from 'uplot';
 import Text from '../text';
 import Background from './background';
 import UplotLineChart from './uplot-line-chart';
@@ -27,12 +26,18 @@ export interface BoostScoreGraphProps {
 	isPlaceholder?: boolean;
 }
 
+export type ScoreGraphAlignedData = [
+	number[], // timestamps
+	number[], // desktop_overall_score
+	number[] // mobile_overall_score
+];
+
 /**
  * BoostScoreGraph component composed by the chart and the legend.
  *
  * @param {BoostScoreGraphProps} props - The props object for the BoostScoreGraph component.
- * @param {uPlot.AlignedData} props.data - The data used to render the uPlotLineChart.
  * @param {string} props.title - Title for the chart.
+ * @param {Period[]} props.periods - The periods to display in the chart.
  * @param {boolean} [props.isLoading=false] - Whether the component is in a loading state.
  * @returns {React.ReactElement} The JSX element representing the BoostScoreGraph component, or null if loading.
  */

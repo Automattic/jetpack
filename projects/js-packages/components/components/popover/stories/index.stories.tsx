@@ -12,7 +12,7 @@ const meta: Meta< typeof Popover > = {
 	},
 	decorators: [
 		Story => (
-			<div style={ { width: '600px', margin: '200px auto', fontSize: '16px' } }>
+			<div style={ { width: '600px', maxWidth: '90%', height: '600px', fontSize: '16px' } }>
 				<Story />
 			</div>
 		),
