@@ -2,17 +2,15 @@
 	import { NumberSlider } from '@automattic/jetpack-components';
 	import ReactComponent from './ReactComponent.svelte';
 
-	export let valueStore;
+	export let currentValue;
 	export let minValue;
 	export let maxValue;
 </script>
 
 <ReactComponent
 	this={NumberSlider}
-	value={$valueStore}
+	value={currentValue}
 	{minValue}
 	{maxValue}
-	onAfterChange={newVal => {
-		$valueStore = newVal;
-	}}
+	onAfterChange={newValue => ( currentValue = newValue )}
 />

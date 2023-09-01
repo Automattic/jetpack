@@ -7,7 +7,6 @@ use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Premium_Features_Entry;
-use Automattic\Jetpack_Boost\Data_Sync\Types\Type_Constrained_Number;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
@@ -166,7 +165,46 @@ $js_excludes_entry  = new Minify_Excludes_State_Entry( 'minify_js_excludes' );
 $css_excludes_entry = new Minify_Excludes_State_Entry( 'minify_css_excludes' );
 jetpack_boost_register_option( 'minify_js_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_JS::$default_excludes ), $js_excludes_entry );
 jetpack_boost_register_option( 'minify_css_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_CSS::$default_excludes ), $css_excludes_entry );
-jetpack_boost_register_option( 'image_cdn_quality', ( new Schema( new Type_Constrained_Number( 1, 100 ) ) )->fallback( 100 ) );
+jetpack_boost_register_option(
+	'image_cdn_quality',
+	Schema::as_assoc_array(
+		array(
+			'jpg'  => Schema::as_assoc_array(
+				array(
+					'quality'  => Schema::as_number(),
+					'lossless' => Schema::as_boolean()->fallback( false ),
+				)
+			),
+			'png'  => Schema::as_assoc_array(
+				array(
+					'quality'  => Schema::as_number(),
+					'lossless' => Schema::as_boolean()->fallback( false ),
+				)
+			),
+			'webp' => Schema::as_assoc_array(
+				array(
+					'quality'  => Schema::as_number(),
+					'lossless' => Schema::as_boolean()->fallback( false ),
+				)
+			),
+		)
+	)->fallback(
+		array(
+			'jpg'  => array(
+				'quality'  => 89,
+				'lossless' => false,
+			),
+			'png'  => array(
+				'quality'  => 80,
+				'lossless' => false,
+			),
+			'webp' => array(
+				'quality'  => 80,
+				'lossless' => false,
+			),
+		)
+	)
+);
 
 jetpack_boost_register_option( 'premium_features', $premium_features_schema, new Premium_Features_Entry() );
 
