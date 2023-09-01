@@ -162,7 +162,7 @@ const meta: Meta< typeof BoostScoreGraph > = {
 		startDate: { control: 'date' },
 		endDate: { control: 'date' },
 		title: { control: 'string', defaultValue: 'Title' },
-		isLoading: { control: 'boolean', defaultValue: false },
+		isPlaceholder: { control: 'boolean', defaultValue: false },
 	},
 	decorators: [
 		Story => (
@@ -177,7 +177,7 @@ const defaultValues = {
 	startDate: exampleRawResponse.data._meta.start,
 	endDate: exampleRawResponse.data._meta.end,
 	periods: exampleRawResponse.data.periods,
-	isLoading: false,
+	isPlaceholder: false,
 };
 
 export default meta;

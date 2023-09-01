@@ -7,6 +7,7 @@ import numberFormat from '../number-format';
 import { dayHighlightPlugin } from './day-highlight-plugin';
 import getDateFormat from './get-date-format';
 import { tooltipsPlugin } from './tooltips-plugin';
+import { useBoostScoreTransform } from './use-boost-score-transform';
 import useResize from './use-resize';
 import { Period } from '.';
 
@@ -18,7 +19,6 @@ const DEFAULT_DIMENSIONS = {
 };
 
 interface UplotChartProps {
-	data: uPlot.AlignedData;
 	periods: Period[];
 	options?: Partial< uPlot.Options >;
 	legendContainer?: React.RefObject< HTMLDivElement >;
@@ -86,17 +86,23 @@ function getColor( score: number, opacity = 'FF' ) {
  * UplotLineChart component.
  *
  * @param {object} props - The props object for the UplotLineChart component.
- * @param {uPlot.AlignedData} props.data - The data for the uPlot chart.
  * @param {{ startDate: number, endDate: number }} props.range - The date range of the chart.
  * @param {Period[]} props.periods - The periods to display in the chart.
  * @returns {React.Element} The JSX element representing the UplotLineChart component.
  */
-export default function UplotLineChart( { data, range, periods }: UplotChartProps ) {
+export default function UplotLineChart( { range, periods }: UplotChartProps ) {
 	const uplot = useRef< uPlot | null >( null );
 	const uplotContainer = useRef( null );
 
-	const lastDesktopScore = data[ 1 ][ data[ 1 ].length - 1 ];
-	const lastMobileScore = data[ 2 ][ data[ 2 ].length - 1 ];
+	let lastDesktopScore = 0;
+	let lastMobileScore = 0;
+
+	if ( periods.length > 0 ) {
+		lastDesktopScore = periods[ periods.length - 1 ].dimensions.desktop_overall_score;
+		lastMobileScore = periods[ periods.length - 1 ].dimensions.mobile_overall_score;
+	}
+
+	const data = useBoostScoreTransform( periods );
 
 	const options: uPlot.Options = useMemo( () => {
 		const defaultOptions: uPlot.Options = {

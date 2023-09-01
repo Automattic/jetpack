@@ -1,5 +1,6 @@
 import { PerformanceHistory } from '../PerformanceHistory';
 import type { Meta } from '@storybook/react';
+import '../../../css/components/performance-history.scss';
 
 const exampleRawResponse = {
 	data: {
@@ -164,10 +165,11 @@ const meta: Meta< typeof PerformanceHistory > = {
 		periods: { control: 'object' },
 		onToggle: { action: 'toggled' },
 		isOpen: { control: 'boolean' },
+		needsUpgrade: { control: 'boolean' },
 	},
 	decorators: [
 		Story => (
-			<div style={ { width: '80%', maxWidth: '1320px', margin: '200px auto', fontSize: '16px' } }>
+			<div style={ { maxWidth: '1320px', margin: '200px auto', fontSize: '16px' } }>
 				<Story />
 			</div>
 		),
@@ -179,6 +181,7 @@ const defaultValues = {
 	endDate: exampleRawResponse.data._meta.end,
 	periods: exampleRawResponse.data.periods,
 	isOpen: true,
+	needsUpgrade: false,
 };
 
 export default meta;

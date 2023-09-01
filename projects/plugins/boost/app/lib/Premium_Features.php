@@ -9,6 +9,7 @@ class Premium_Features {
 
 	const CLOUD_CSS           = 'cloud-critical-css';
 	const IMAGE_SIZE_ANALYSIS = 'image-size-analysis';
+	const PERFORMANCE_HISTORY = 'performance-history';
 	const IMAGE_CDN_QUALITY   = 'image-cdn-quality';
 	const PRIORITY_SUPPORT    = 'support';
 
