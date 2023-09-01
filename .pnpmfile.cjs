@@ -32,27 +32,6 @@ function fixDeps( pkg ) {
 		pkg.dependencies[ 'prop-types' ] = '*';
 	}
 
-	// Missing dep or peer dep on @wordpress/element.
-	// https://github.com/WordPress/gutenberg/issues/41341
-	// https://github.com/WordPress/gutenberg/issues/41346
-	if (
-		( pkg.name === '@wordpress/preferences' || pkg.name === '@wordpress/viewport' ) &&
-		! pkg.dependencies?.[ '@wordpress/element' ] &&
-		! pkg.peerDependencies?.[ '@wordpress/element' ]
-	) {
-		pkg.peerDependencies[ '@wordpress/element' ] = '*';
-	}
-
-	// Missing dep or peer dep on @babel/runtime
-	// https://github.com/WordPress/gutenberg/issues/41343
-	if (
-		pkg.name === '@wordpress/reusable-blocks' &&
-		! pkg.dependencies?.[ '@babel/runtime' ] &&
-		! pkg.peerDependencies?.[ '@babel/runtime' ]
-	) {
-		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
-	}
-
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
@@ -62,16 +41,6 @@ function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
-	}
-
-	// Missing dep on @emotion/react.
-	// https://github.com/WordPress/gutenberg/issues/52474
-	if (
-		pkg.name === '@wordpress/block-editor' &&
-		pkg.dependencies?.[ '@emotion/styled' ] &&
-		! pkg.dependencies?.[ '@emotion/react' ]
-	) {
-		pkg.dependencies[ '@emotion/react' ] = '^11.7.1';
 	}
 
 	// Avoid annoying flip-flopping of sub-dep peer deps.
