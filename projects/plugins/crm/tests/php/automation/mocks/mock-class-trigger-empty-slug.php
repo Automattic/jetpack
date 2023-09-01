@@ -33,7 +33,7 @@ class Empty_Slug_Trigger extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_category(): ?string {
-		return __( 'contact', 'zero-bs-crm' );
+		return 'contact';
 	}
 
 	/**

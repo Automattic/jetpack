@@ -59,7 +59,7 @@ class Invoice_Created extends Base_Trigger {
 	 * @return string|null The category of the trigger.
 	 */
 	public static function get_category(): ?string {
-		return __( 'invoice', 'zero-bs-crm' );
+		return __( 'Invoice', 'zero-bs-crm' );
 	}
 
 	/**

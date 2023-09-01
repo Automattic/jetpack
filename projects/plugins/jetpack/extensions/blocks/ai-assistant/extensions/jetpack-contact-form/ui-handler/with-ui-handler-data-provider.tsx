@@ -14,6 +14,7 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
+import { compareBlocks } from '../../../lib/utils/compare-blocks';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
 import { AiAssistantUiContextProvider } from './context';
 /**
@@ -167,8 +168,28 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 					return block.isValid && block.name !== 'core/freeform' && block.name !== 'core/missing';
 				} );
 
-				// Only update the blocks when the valid list changed, meaning a new block arrived.
-				if ( validBlocks.length !== currentListOfValidBlocks.current.length ) {
+				let lastBlockUpdated = false;
+
+				// While streaming, the last block can go from valid to invalid and back as new children are added token by token.
+				if ( validBlocks.length < currentListOfValidBlocks.current.length ) {
+					// The last block is temporarily invalid, so we use the last valid state.
+					validBlocks.push(
+						currentListOfValidBlocks.current[ currentListOfValidBlocks.current.length - 1 ]
+					);
+				} else if (
+					validBlocks.length === currentListOfValidBlocks.current.length &&
+					validBlocks.length > 0
+				) {
+					// Update the last valid block with the new content if it is different.
+					const lastBlock = validBlocks[ validBlocks.length - 1 ];
+					const lastBlockFromCurrentList =
+						currentListOfValidBlocks.current[ validBlocks.length - 1 ];
+
+					lastBlockUpdated = ! compareBlocks( lastBlock, lastBlockFromCurrentList );
+				}
+
+				// Only update the blocks when the valid list changed, meaning a new block arrived or the last block was updated.
+				if ( validBlocks.length !== currentListOfValidBlocks.current.length || lastBlockUpdated ) {
 					// Only update the valid blocks
 					replaceInnerBlocks( clientId, validBlocks );
 

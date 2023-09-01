@@ -59,7 +59,7 @@ class Company_Created extends Base_Trigger {
 	 * @return string|null The category of the trigger.
 	 */
 	public static function get_category(): ?string {
-		return __( 'company', 'zero-bs-crm' );
+		return __( 'Company', 'zero-bs-crm' );
 	}
 
 	/**

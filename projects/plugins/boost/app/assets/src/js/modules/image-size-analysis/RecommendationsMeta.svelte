@@ -8,6 +8,7 @@
 	import RefreshIcon from '../../svg/refresh.svg';
 	import WarningIcon from '../../svg/warning-outline.svg';
 	import { recordBoostEvent, recordBoostEventAndRedirect } from '../../utils/analytics';
+	import getIsaErrorSuggestion from '../../utils/get-isa-error-suggestion';
 	import MultiProgress from './MultiProgress.svelte';
 	import { resetIsaQuery } from './store/isa-data';
 	import {
@@ -24,6 +25,7 @@
 
 	let submitError: undefined | string;
 	let requestingReport = false;
+	let errorCode: undefined | number;
 
 	/**
 	 * Calculate total number of issues.
@@ -45,6 +47,11 @@
 			) );
 
 	/**
+	 * Update suggestion based on error code.
+	 */
+	$: errorSuggestion = getIsaErrorSuggestion( errorCode );
+
+	/**
 	 * Work out whether we have a 'give us a minute' notice to show.
 	 */
 	$: waitNotice =
@@ -58,11 +65,13 @@
 	 */
 	async function startAnalysis() {
 		try {
+			errorCode = undefined;
 			errorMessage = undefined;
 			requestingReport = true;
 			await requestImageAnalysis();
 			resetIsaQuery();
 		} catch ( err ) {
+			errorCode = err.body?.code;
 			errorMessage = err.message;
 		} finally {
 			requestingReport = false;
@@ -94,7 +103,10 @@
 	<!-- Show error messages or "please wait" messages. -->
 	{#if errorMessage}
 		<div class="error-area">
-			<ErrorNotice title={__( 'Something has gone wrong.', 'jetpack-boost' )}>
+			<ErrorNotice
+				title={__( 'Something has gone wrong.', 'jetpack-boost' )}
+				suggestion={errorSuggestion}
+			>
 				{errorMessage}
 			</ErrorNotice>
 		</div>
@@ -241,6 +253,7 @@
 
 	.error-area {
 		margin-top: 16px;
+		margin-bottom: 16px;
 	}
 
 	.button-area {
