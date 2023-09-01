@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Extensions\Recipe;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 /**
