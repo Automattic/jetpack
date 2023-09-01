@@ -24,37 +24,50 @@ export const PerformanceHistory = ( {
 		/* noop */
 	},
 } ) => {
-	const upgradePopover = (
-		<Popover
-			icon={ <Gridicon icon="lock" /> }
-			action={
-				<Button onClick={ handleUpgrade }>{ __( 'Okay, got it!', 'jetpack-boost' ) }</Button>
-			}
-		>
-			<p>
-				{ __( 'Upgrade and learn more about your site performance over time', 'jetpack-boost' ) }
-			</p>
-		</Popover>
-	);
-
 	const [ showFreshStartPopover, setFreshStartPopover ] = useState( periods.length === 0 );
 
-	const freshStartPopover = (
-		<Popover
-			icon={ <Gridicon icon="checkmark" /> }
-			action={
-				<Button onClick={ () => setFreshStartPopover( false ) }>
-					{ __( 'Okay, got it!', 'jetpack-boost' ) }
-				</Button>
-			}
-		>
-			<p>
-				{ __( 'Hello there! Jetpack Boost premium has been activated.', 'jetpack-boost' ) }
-				<br />
-				{ __( 'Your scores will be recorded from now on.', 'jetpack-boost' ) }
-			</p>
-		</Popover>
+	let graphComponent = (
+		<BoostScoreGraph periods={ periods } startDate={ startDate } endDate={ endDate } />
 	);
+
+	if ( needsUpgrade ) {
+		graphComponent = (
+			<DummyWithPopover>
+				<Popover
+					icon={ <Gridicon icon="lock" /> }
+					action={
+						<Button onClick={ handleUpgrade }>{ __( 'Okay, got it!', 'jetpack-boost' ) }</Button>
+					}
+				>
+					<p>
+						{ __(
+							'Upgrade and learn more about your site performance over time',
+							'jetpack-boost'
+						) }
+					</p>
+				</Popover>
+			</DummyWithPopover>
+		);
+	} else if ( showFreshStartPopover ) {
+		graphComponent = (
+			<DummyWithPopover>
+				<Popover
+					icon={ <Gridicon icon="checkmark" /> }
+					action={
+						<Button onClick={ () => setFreshStartPopover( false ) }>
+							{ __( 'Okay, got it!', 'jetpack-boost' ) }
+						</Button>
+					}
+				>
+					<p>
+						{ __( 'Hello there! Jetpack Boost premium has been activated.', 'jetpack-boost' ) }
+						<br />
+						{ __( 'Your scores will be recorded from now on.', 'jetpack-boost' ) }
+					</p>
+				</Popover>
+			</DummyWithPopover>
+		);
+	}
 
 	return (
 		<Panel>
@@ -65,24 +78,7 @@ export const PerformanceHistory = ( {
 				className="jb-performance-history__panel"
 			>
 				<PanelRow>
-					<div style={ { flexGrow: 1, minHeight: '300px' } }>
-						{ needsUpgrade ? (
-							<DummyWithPopover>{ upgradePopover }</DummyWithPopover>
-						) : (
-							<>
-								{ showFreshStartPopover && (
-									<DummyWithPopover>{ freshStartPopover }</DummyWithPopover>
-								) }
-								{ ! showFreshStartPopover && (
-									<BoostScoreGraph
-										periods={ periods }
-										startDate={ startDate }
-										endDate={ endDate }
-									/>
-								) }
-							</>
-						) }
-					</div>
+					<div style={ { flexGrow: 1, minHeight: '300px' } }>{ graphComponent }</div>
 				</PanelRow>
 			</PanelBody>
 		</Panel>
