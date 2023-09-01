@@ -18,4 +18,12 @@
 		justify-content: center;
 		width: 100%;
 	}
+
+	.wp-block-jetpack-amazon-button,
+	.components-placeholder__label {
+		svg {
+			display: block;
+			margin-inline-end: 0.75rem;
+		}
+	}
 }
