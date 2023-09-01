@@ -12,8 +12,6 @@ namespace Automattic\Jetpack\Extensions\GoogleDocsEmbed;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'google-docs-embed';
-
 /**
  * Registers the blocks for use in Gutenberg
  * This is done via an action so that we can disable
@@ -22,7 +20,7 @@ const FEATURE_NAME = 'google-docs-embed';
 function register_blocks() {
 
 	Blocks::jetpack_register_block(
-		'jetpack/' . FEATURE_NAME,
+		Blocks::get_path_to_block_metadata( __DIR__ ),
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_callback',
 		)
@@ -38,9 +36,9 @@ add_action( 'init', __NAMESPACE__ . '\register_blocks' );
  */
 function render_callback( $attributes ) {
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( Blocks::get_path_to_block_metadata( __DIR__ ) );
 	wp_localize_script(
-		'jetpack-block-' . sanitize_title_with_dashes( FEATURE_NAME ),
+		'jetpack-block-' . sanitize_title_with_dashes( basename( __DIR__ ) ),
 		'Jetpack_Google_Docs',
 		array(
 			'error_msg' => __( 'This document is private. To view the document, login to a Google account that the document has been shared with and then refresh this page.', 'jetpack' ),
@@ -106,7 +104,7 @@ function render_callback( $attributes ) {
 		}
 	}
 
-	$block_classes = Blocks::classes( FEATURE_NAME, $attributes, array( $aspect_ratio ) );
+	$block_classes = Blocks::classes( basename( __DIR__ ), $attributes, array( $aspect_ratio ) );
 
 	$html =
 		'<figure class="' . esc_attr( $block_classes ) . '">' .
