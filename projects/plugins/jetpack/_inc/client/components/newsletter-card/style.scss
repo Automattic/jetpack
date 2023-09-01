@@ -1,0 +1,99 @@
+.jp-newsletter-card {
+	margin-top: rem( 16px );
+	margin-bottom: 0;
+}
+
+.jp-newsletter-card__dismiss {
+	width: 20px;
+	margin-left: 21px;
+	flex-grow: 0;
+	flex-shrink: 0;
+}
+
+.jp-newsletter-card__description,
+.jp-newsletter-card__link-button {
+	font-size: $font-body-small;
+	line-height: 1.65;
+
+	&:first-of-type {
+		margin-top: 4px;
+	}
+
+	&:last-of-type {
+		margin-bottom: 0;
+	}
+
+	.dops-button {
+		margin: 0 16px 0 0;
+
+		@include breakpoint( "<960px" ) {
+			margin: 0 16px 8px 0;
+		}
+	}
+}
+
+.jp-newsletter-card__wrapper {
+	margin-bottom: 0;
+	display: flex;
+	flex-flow: row nowrap;
+	background: rgb(249, 249, 246);
+
+	@include dashboard-card-shadow;
+
+	@include breakpoint( '<782px' ) {
+		.jp-newsletter-card__description:first-of-type {
+			margin-bottom: rem( 16px );
+		}
+	}
+}
+
+.jp-newsletter-card__header {
+	font-weight: 500;
+	font-size: $font-title-small;
+	line-height: 30px;
+	color: $black;
+	margin: 0;
+
+	@include breakpoint( "<660px" ) {
+		margin: 1.5rem 0 0 0;
+	}
+}
+
+.jp-newsletter-card__description {
+	font-size: $font-body-small;
+	line-height: 24px;
+	letter-spacing: -0.02em;
+}
+
+.jp-newsletter-card__link-button {
+	flex-grow: 0;
+
+	.dops-button {
+		margin-right: 0;
+
+		.svg {
+			margin-left: 10px;
+		}
+	}
+	a:visited{
+		color:white !important; //to override the other styles
+	}
+}
+
+.jp-newsletter-card-text {
+	flex-grow: 1;
+}
+
+.jp-newsletter-card__contact {
+	flex-shrink: 1;
+	flex-grow: 1;
+	display: flex;
+	align-items: center;
+
+	.jp-newsletter-card__content {
+		display: flex;
+		flex-grow: 1;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+}

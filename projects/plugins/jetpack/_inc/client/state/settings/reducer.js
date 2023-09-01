@@ -212,3 +212,13 @@ export function backupGettingStartedDismissed( state ) {
 export function agenciesLearnMoreDismissed( state ) {
 	return get( state.jetpack.settings.items, 'dismiss_dash_agencies_learn_more', false );
 }
+
+/**
+ * Returns true if Newsletter Learn More card has been dismissed.
+ *
+ * @param {object} state - Global state tree
+ * @returns {boolean} Whether the card has been dismissed
+ */
+export function newsletterLearnMoreDismissed( state ) {
+	return get( state.jetpack.settings.items, 'dismiss_dash_newsletter_learn_more', false );
+}

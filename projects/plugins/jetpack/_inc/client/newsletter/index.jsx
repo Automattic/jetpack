@@ -4,6 +4,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
+import NewsletterCard from '../components/newsletter-card';
 import SubscriptionsSettings from './subscriptions-settings';
 
 /**
@@ -28,6 +29,7 @@ function Subscriptions( props ) {
 	return (
 		<div>
 			<QuerySite />
+			<NewsletterCard />
 			<h1 className="screen-reader-text">{ __( 'Jetpack Newsletter Settings', 'jetpack' ) }</h1>
 			<h2 className="jp-settings__section-title">
 				{ searchTerm
@@ -38,6 +40,7 @@ function Subscriptions( props ) {
 							/* dummy arg to avoid bad minification */ 0
 					  ) }
 			</h2>
+
 			{ foundSubscriptions && <SubscriptionsSettings siteRawUrl={ siteRawUrl } /> }
 		</div>
 	);

@@ -2906,6 +2906,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
+			// Newsletter Learn More card on settings.
+			'dismiss_dash_newsletter_learn_more'   => array(
+				'description'       => '',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
+
 			'lang_id'                              => array(
 				'description' => esc_html__( 'Primary language for the site.', 'jetpack' ),
 				'type'        => 'string',
