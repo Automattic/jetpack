@@ -10717,7 +10717,7 @@ packages:
       '@wordpress/keycodes': 3.41.0
       '@wordpress/media-utils': 4.32.0
       '@wordpress/notices': 4.9.0(react@18.2.0)
-      '@wordpress/patterns': 1.2.0(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/patterns': 1.2.0(@babel/runtime@7.22.6)(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/preferences': 3.18.0(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/private-apis': 0.23.0
       '@wordpress/reusable-blocks': 4.18.0(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
@@ -10773,7 +10773,7 @@ packages:
       '@wordpress/keycodes': 3.41.0
       '@wordpress/media-utils': 4.32.0
       '@wordpress/notices': 4.9.0(react@18.2.0)
-      '@wordpress/patterns': 1.2.0(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/patterns': 1.2.0(@babel/runtime@7.22.6)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/preferences': 3.18.0(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/private-apis': 0.23.0
       '@wordpress/reusable-blocks': 4.18.0(react-dom@18.2.0)(react@18.2.0)
@@ -11067,13 +11067,15 @@ packages:
       '@wordpress/data': 9.11.0(react@18.2.0)
       react: 18.2.0
 
-  /@wordpress/patterns@1.2.0(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0):
+  /@wordpress/patterns@1.2.0(@babel/runtime@7.22.6)(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-FHZ1FM+NjqvBbpXQfP2+XzoV3U7ED/VIRnZ5i6MvdqGJDQb8HIJeHxO7iLal8k8vpAVXe+S3FKbi2DQrc+uDnA==}
     engines: {node: '>=16.0.0', npm: '>=8 <9'}
     peerDependencies:
+      '@babel/runtime': ^7
       react: ^18.0.0
       react-dom: ^18.0.0
     dependencies:
+      '@babel/runtime': 7.22.6
       '@wordpress/block-editor': 12.9.0(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/blocks': 12.18.0(react@18.2.0)
       '@wordpress/components': 25.7.0(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
@@ -11099,13 +11101,15 @@ packages:
       - utf-8-validate
       - vite
 
-  /@wordpress/patterns@1.2.0(react-dom@18.2.0)(react@18.2.0):
+  /@wordpress/patterns@1.2.0(@babel/runtime@7.22.6)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-FHZ1FM+NjqvBbpXQfP2+XzoV3U7ED/VIRnZ5i6MvdqGJDQb8HIJeHxO7iLal8k8vpAVXe+S3FKbi2DQrc+uDnA==}
     engines: {node: '>=16.0.0', npm: '>=8 <9'}
     peerDependencies:
+      '@babel/runtime': ^7
       react: ^18.0.0
       react-dom: ^18.0.0
     dependencies:
+      '@babel/runtime': 7.22.6
       '@wordpress/block-editor': 12.9.0(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/blocks': 12.18.0(react@18.2.0)
       '@wordpress/components': 25.7.0(react-dom@18.2.0)(react@18.2.0)

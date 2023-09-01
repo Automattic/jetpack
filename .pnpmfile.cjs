@@ -32,6 +32,16 @@ function fixDeps( pkg ) {
 		pkg.dependencies[ 'prop-types' ] = '*';
 	}
 
+	// Missing dep or peer dep on @babel/runtime
+	// https://github.com/WordPress/gutenberg/issues/54115
+	if (
+		pkg.name === '@wordpress/patterns' &&
+		! pkg.dependencies?.[ '@babel/runtime' ] &&
+		! pkg.peerDependencies?.[ '@babel/runtime' ]
+	) {
+		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
+	}
+
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
