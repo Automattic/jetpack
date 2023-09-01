@@ -8,7 +8,7 @@ import { dayHighlightPlugin } from './day-highlight-plugin';
 import getDateFormat from './get-date-format';
 import { tooltipsPlugin } from './tooltips-plugin';
 import useResize from './use-resize';
-import { Period } from '.';
+import { Period, ScoreGraphAlignedData } from '.';
 
 import './style-uplot.scss';
 
@@ -18,7 +18,7 @@ const DEFAULT_DIMENSIONS = {
 };
 
 interface UplotChartProps {
-	data: uPlot.AlignedData;
+	data: ScoreGraphAlignedData | [];
 	periods: Period[];
 	options?: Partial< uPlot.Options >;
 	legendContainer?: React.RefObject< HTMLDivElement >;
@@ -86,7 +86,7 @@ function getColor( score: number, opacity = 'FF' ) {
  * UplotLineChart component.
  *
  * @param {object} props - The props object for the UplotLineChart component.
- * @param {uPlot.AlignedData} props.data - Formatted data for the uPlot chart. In the format [ [...timestamps], [...desktopScores], [...mobileScores] ].
+ * @param {ScoreGraphAlignedData | []} props.data - Formatted data for the uPlot chart. In the format [ [...timestamps], [...desktopScores], [...mobileScores] ].
  * @param {{ startDate: number, endDate: number }} props.range - The date range of the chart.
  * @param {Period[]} props.periods - The periods to display in the chart.
  * @returns {React.Element} The JSX element representing the UplotLineChart component.
