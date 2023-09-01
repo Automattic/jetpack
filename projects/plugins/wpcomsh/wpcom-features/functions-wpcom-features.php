@@ -78,7 +78,7 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	/*
 	 * A8C override for wp.org sites to enable JP search
 	 */
-	if ( $feature === WPCOM_Features::CLASSIC_SEARCH && wpcom_is_wporg_jp_index( $blog_id ) ) {
+	if ( $feature === WPCOM_Features::CLASSIC_SEARCH && ( function_exists( 'wpcom_is_wporg_jp_index' ) && wpcom_is_wporg_jp_index( $blog_id ) ) ) {
 		return true;
 	}
 
