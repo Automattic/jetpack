@@ -6,7 +6,7 @@ export type Trigger = {
 };
 
 export type Step = {
-	attributes: string[];
+	attributes: { [ key: string ]: string | number | boolean };
 	nextStep?: Step;
 	slug: string;
 	title: string;
@@ -16,9 +16,7 @@ export type Step = {
 	allowedTriggers: Trigger[];
 };
 
-export type Action = Step;
-
-export type Condition = Step;
+export type IdentifiedStep = Step & { id: number; nextStep?: IdentifiedStep };
 
 export type Workflow = {
 	id: number;
@@ -26,10 +24,14 @@ export type Workflow = {
 	description: string;
 	category: Category;
 	triggers: Trigger[];
-	initial_step: Step[];
+	initial_step: Step;
 	active: boolean;
 	version: number;
 	added: string;
+};
+
+export type IdentifiedWorkflow = Workflow & {
+	initial_step: IdentifiedStep;
 };
 
 export type Type = 'contacts';

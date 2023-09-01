@@ -18,7 +18,7 @@ class Settings {
 	 *
 	 * @var string
 	 */
-	const OPTION_NAME = 'jetpack_social_auto_conversion_settings';
+	const OPTION_NAME = 'jetpack_social_settings';
 
 	/**
 	 * Array with auto conversion settings.

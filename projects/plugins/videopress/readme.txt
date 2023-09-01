@@ -2,7 +2,7 @@
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani
 Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, mobile-video, jetpack
 
-Requires at least: 6.1
+Requires at least: 6.2
 Tested up to: 6.3
 Stable tag: 1.5
 Requires PHP: 5.6
@@ -39,7 +39,7 @@ With the [Jetpack VideoPress Block](https://jetpack.com/support/jetpack-videopre
 * Optimized for mobile – Switch between mobile and desktop without missing a beat.
 * Picture-in-picture – Pop out the video from the web browser for easier viewing.
 * Unlimited Logins – Work with a team? We don’t charge per seat, so everyone that works on your site can have their own login.
-* High-Resolution Videos Up to 4K – Watch crisp images on any display and screen size. We’ve added video display for 1440p, 60 FPS, and full 4K resolution. 
+* High-Resolution Videos Up to 4K – Watch crisp images on any display and screen size. We’ve added video display for 1440p, 60 FPS, and full 4K resolution.
 * Ad-free video - Keep the spotlight on your content, not on ads you can’t control.
 
 = Your one-stop solution for video management =

@@ -873,12 +873,8 @@ function add_paywall( $the_content ) {
 	}
 
 	$post_access_level = Jetpack_Memberships::get_post_access_level();
-	if ( jetpack_is_frontend() ) {
-		$paywalled_content = get_paywall_blocks( $post_access_level );
-	} else {
-		// emails
-		$paywalled_content = get_paywall_simple();
-	}
+
+	$paywalled_content = get_paywall_content( $post_access_level, isset( $_GET['subscribe'] ) && 'success' === $_GET['subscribe'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	// Partially free content with paywall
 	if ( has_block( $block_name ) ) {
@@ -927,6 +923,23 @@ function maybe_gate_existing_comments( $comment ) {
 /**
  * Returns paywall content blocks
  *
+ * @param string $post_access_level The newsletter access level.
+ * @param string $email_confirmation_pending True if the current user needs to validate their email.
+ * @return string
+ */
+function get_paywall_content( $post_access_level, $email_confirmation_pending = false ) {
+	if ( $email_confirmation_pending ) {
+		return get_paywall_blocks_subscribe_pending();
+	}
+	if ( ! jetpack_is_frontend() ) { // emails
+		return get_paywall_simple();
+	}
+	return get_paywall_blocks( $post_access_level );
+}
+
+/**
+ * Returns paywall content blocks if user is not authenticated
+ *
  * @param string $newsletter_access_level The newsletter access level.
  * @return string
  */
@@ -961,6 +974,37 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <!-- /wp:paragraph -->
 
 <!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /--></div>
+<!-- /wp:group -->
+';
+}
+
+/**
+ * Returns paywall content blocks when email confirmation is pending
+ *
+ * @return string
+ */
+function get_paywall_blocks_subscribe_pending() {
+	$access_heading = esc_html__( 'Validate email to continue reading', 'jetpack' );
+
+	$subscribe_text = esc_html__( 'Thank you! You can now check your email to confirm your subscription.', 'jetpack' );
+
+	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
+
+	return '
+<!-- wp:group {"style":{"border":{"width":"1px","radius":"4px"},"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"32px","right":"32px"}}},"borderColor":"primary","className":"jetpack-subscribe-paywall","layout":{"type":"constrained","contentSize":"400px"}} -->
+<div class="wp-block-group jetpack-subscribe-paywall has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--70);padding-right:32px;padding-bottom:var(--wp--preset--spacing--70);padding-left:32px">
+<!-- wp:image {"align":"center","width":24,"height":24,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image aligncenter size-large is-resized"><img src="' . $lock_svg . '" alt="" width="24" height="24"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"24px"},"layout":{"selfStretch":"fit"}}} -->
+<h2 class="wp-block-heading has-text-align-center" style="font-size:24px;font-style:normal;font-weight:600">' . $access_heading . '</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"},"spacing":{"margin":{"top":"10px","bottom":"10px"}}}} -->
+<p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
+<!-- /wp:paragraph -->
+
 <!-- /wp:group -->
 ';
 }

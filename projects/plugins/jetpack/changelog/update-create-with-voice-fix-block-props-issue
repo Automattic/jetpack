@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Create with voice: set block properties by using useBlockProps() custom hook
