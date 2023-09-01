@@ -81,7 +81,11 @@ export default function useMediaRecording( {
 
 	// `start` recording handler
 	const start = useCallback( ( timeslice: number ) => {
-		if ( ! timeslice || timeslice < 100 ) {
+		if ( ! timeslice ) {
+			return mediaRecordRef?.current?.start();
+		}
+
+		if ( timeslice < 100 ) {
 			timeslice = 100; // set minimum timeslice to 100ms
 		}
 		mediaRecordRef?.current?.start( timeslice );
