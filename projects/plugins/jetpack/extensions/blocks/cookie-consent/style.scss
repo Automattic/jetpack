@@ -4,6 +4,8 @@
 	transition: opacity 0.2s ease-in-out;
 	animation: cookie-consent-slide-in 0.2s ease-in-out;
 	position: fixed;
+	bottom: 50px;
+	z-index: 50001;
 
 	span {
 		display: none;
