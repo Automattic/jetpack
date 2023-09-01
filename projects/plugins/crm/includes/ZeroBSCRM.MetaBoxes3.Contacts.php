@@ -1509,7 +1509,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
                 if ( zeroBSCRM_isWPAdmin() ){
                     
                     $url = admin_url('user-edit.php?user_id='.$wp_user_id);
-							echo '<br /><a style="font-size: 12px;color:black;font-weight:600;" href="' . esc_url( $url ) . '" target="_blank"><i class="wordpress simple icon"></i> ' . esc_html__( 'View WordPress Profile', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+							echo '<br /><a style="font-size: 12px;color:black;font-weight:600;" href="' . esc_url( $url ) . '" target="_blank"><i class="wordpress simple icon"></i> ' . esc_html__( 'View WordPress Profile', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 
                 }
 
