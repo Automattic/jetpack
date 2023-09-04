@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added user generated link tracking in emails. This is implemented by an iframe that points to the actual logic in .com codebase.
