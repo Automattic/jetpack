@@ -187,7 +187,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 2.1.0-beta - 2023-09-01
+### 2.1.0-beta-2 - 2023-09-04
 #### Added
 - Image CDN: Added quality settings for premium users.
 - Performance History: New section to display historical performance.
@@ -198,10 +198,10 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - UI: Update Image Size Analyzer error feedback.
 
 #### Fixed
-- UI: Add the footer back on the getting started page.
 - Critical CSS: Improved the regenerate button to eliminate the possibility of accidental parallel regeneration.
-- Image Guide: Fix oversize ratio in some cases.
 - Image Guide: Fixed grammar issue in the feature description on the Boost dashboard.
+- Image Guide: Fix oversize ratio in some cases.
+- UI: Add the footer back on the getting started page.
 
 --------
 
