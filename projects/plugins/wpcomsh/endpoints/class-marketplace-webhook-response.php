@@ -86,9 +86,9 @@ class Marketplace_Webhook_Response extends WP_REST_Controller {
 		$params = $request->get_json_params();
 
 		// Check if the plugin is active before running license provisioning filter.
-		$plugin_slug = $this->get_plugin_slug( $params['product_slug'] );
-		if ( ! is_plugin_active( $plugin_slug ) ) {
-			return new WP_Error( 'plugin_not_active', 'The plugin is not active on the site.', array( 'status' => 500 ) );
+		$plugin = $this->get_plugin_path( $params );
+		if ( $plugin && is_plugin_inactive( $plugin ) ) {
+			return new WP_Error( 'plugin_not_active', 'The plugin is not active on the site.', array( 'status' => 400 ) );
 		}
 
 		/**
@@ -104,13 +104,19 @@ class Marketplace_Webhook_Response extends WP_REST_Controller {
 	}
 
 	/**
-	 * Format plugin slug from plugin slug. This is needed to check if the plugin is active on the site.
+	 * Format plugin path from plugin software slug. This is needed to check if the plugin is active on the site.
 	 *
-	 * @param string $slug The plugin slug.
+	 * @param array $params The request params.
 	 *
-	 * @return string
+	 * @return string|false
 	 */
-	protected function get_plugin_slug( $slug ) {
-		return sprintf( '%s/%s.php', $slug, $slug );
+	protected function get_plugin_path( array $params ) {
+		$software_slug = $params['software_slug'] ?? null;
+
+		if ( ! $software_slug ) {
+			return false;
+		}
+
+		return sprintf( '%s/%s.php', $software_slug, $software_slug );
 	}
 }
