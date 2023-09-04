@@ -26,6 +26,7 @@ class Premium_Features {
 			self::CLOUD_CSS,
 			self::IMAGE_SIZE_ANALYSIS,
 			self::IMAGE_CDN_QUALITY,
+			self::PERFORMANCE_HISTORY,
 			self::PRIORITY_SUPPORT,
 		);
 
