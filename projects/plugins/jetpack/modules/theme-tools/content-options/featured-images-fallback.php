@@ -94,7 +94,7 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 
 			$default_attr = array(
 				'srcset'   => $image_srcset,
-				'loading'  => 'lazy',
+				'loading'  => is_singular() ? 'eager' : 'lazy',
 				'decoding' => 'async',
 				'title'    => wp_strip_all_tags( get_the_title() ),
 				'alt'      => '',
