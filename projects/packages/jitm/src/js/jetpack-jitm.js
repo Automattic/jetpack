@@ -20,6 +20,8 @@ jQuery( document ).ready( function ( $ ) {
 					</g>
 				</svg>`;
 
+				console.log( envelope );
+
 			var html =
 				'<div class="jitm-card jitm-banner ' +
 				( envelope.CTA.message ? 'has-call-to-action' : '' ) +
