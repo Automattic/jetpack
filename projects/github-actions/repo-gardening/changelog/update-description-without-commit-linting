@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Status checks: remove commit verification status check.
