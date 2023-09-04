@@ -1004,7 +1004,7 @@ function get_paywall_blocks_subscribe_pending() {
 <!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"},"spacing":{"margin":{"top":"10px","bottom":"10px"}}}} -->
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
-
+</div>
 <!-- /wp:group -->
 ';
 }
