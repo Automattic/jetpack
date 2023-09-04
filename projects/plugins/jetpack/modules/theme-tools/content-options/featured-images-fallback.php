@@ -61,6 +61,8 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 			// Force `crop` to be a simple boolean, to avoid dealing with WP crop positions.
 			$image['crop'] = boolval( $image['crop'] );
 
+			$image_sizes = '';
+
 			if ( $image['src_width'] && $image['src_height'] && $image['width'] && $image['height'] ) {
 				$width      = intval( $image['width'] );
 				$height     = intval( $image['height'] );
@@ -82,7 +84,8 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 				}
 
 				$image_src    = Jetpack_PostImages::fit_image_url( $image['src'], $width, $height );
-				$image_srcset = Jetpack_PostImages::generate_cropped_srcset( $image, $width, $height );
+				$image_srcset = Jetpack_PostImages::generate_cropped_srcset( $image, $width, $height, true );
+				$image_sizes  = 'min(' . $width . 'px, 100vw)';
 			} else {
 				// If we're not aware of the source dimensions, leave the size calculations to the CDN, and
 				// fall back to a simpler `<img>` tag without `width`/`height` or `srcset`.
@@ -94,7 +97,7 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 
 			$default_attr = array(
 				'srcset'   => $image_srcset,
-				'sizes'    => '',
+				'sizes'    => $image_sizes,
 				'loading'  => is_singular() ? 'eager' : 'lazy',
 				'decoding' => 'async',
 				'title'    => wp_strip_all_tags( get_the_title() ),
