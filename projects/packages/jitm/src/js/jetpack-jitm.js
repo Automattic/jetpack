@@ -218,7 +218,7 @@ jQuery( document ).ready( function ( $ ) {
 				// Redirect to module settings page if a redirect is set.
 				if ( $activate_button.data( 'redirect' ) ) {
 					console.log( "Redirecting to " + $activate_button.data( 'redirect' ) );
-					window.location.href = $activate_button.data( 'redirect' );
+					window.location.href = window.jitm_config.jetpack_admin_url + $activate_button.data( 'redirect' );
 				}
 
 				// Hide the JITM after 2 seconds.
