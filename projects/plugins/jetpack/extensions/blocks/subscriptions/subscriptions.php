@@ -865,7 +865,6 @@ function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
  * @return string
  */
 function add_paywall( $the_content ) {
-	$block_name = 'jetpack/paywall';
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 	if ( Jetpack_Memberships::user_can_view_post() ) {
@@ -876,9 +875,15 @@ function add_paywall( $the_content ) {
 
 	$paywalled_content = get_paywall_content( $post_access_level, isset( $_GET['subscribe'] ) && 'success' === $_GET['subscribe'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-	// Partially free content with paywall
-	if ( has_block( $block_name ) ) {
-		return strstr( $the_content, '<!-- wp:' . $block_name . ' /-->', true ) . $paywalled_content;
+	if ( has_block( \Automattic\Jetpack\Extensions\Paywall\BLOCK_NAME ) ) {
+		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML ) ) {
+			return strstr( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML, true ) . $paywalled_content;
+		}
+		// WordPress generates excerpts by either rendering or stripping blocks before invoking the `the_content` filter.
+		// In the context of generating an excerpt, the Paywall block specifically renders THE_EXCERPT_BLOCK.
+		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\THE_EXCERPT_BLOCK ) ) {
+			return strstr( $the_content, \Automattic\Jetpack\Extensions\Paywall\THE_EXCERPT_BLOCK, true );
+		}
 	}
 
 	return $paywalled_content;
@@ -933,6 +938,9 @@ function get_paywall_content( $post_access_level, $email_confirmation_pending = 
 	}
 	if ( ! jetpack_is_frontend() ) { // emails
 		return get_paywall_simple();
+	}
+	if ( doing_filter( 'get_the_excerpt' ) ) {
+		return '';
 	}
 	return get_paywall_blocks( $post_access_level );
 }
