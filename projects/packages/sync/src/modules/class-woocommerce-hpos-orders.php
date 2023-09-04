@@ -58,6 +58,28 @@ class WooCommerce_HPOS_Orders extends Module {
 	}
 
 	/**
+	 * Get order types that we want to sync. Adding a new type here is not enough, we would also need to add its prop in filter_order_data method.
+	 *
+	 * @access private
+	 *
+	 * @param bool $prefixed Whether to return prefixed types with shop_ or not.
+	 *
+	 * @return array Order types to sync.
+	 */
+	private function get_order_types_to_sync( $prefixed = false ) {
+		$types = array( 'order', 'order_refund' );
+		if ( $prefixed ) {
+			$types = array_map(
+				function ( $type ) {
+					return "shop_{$type}";
+				},
+				$types
+			);
+		}
+		return $types;
+	}
+
+	/**
 	 * Hooks sync listners on order modify events.
 	 *
 	 * @access public
@@ -65,7 +87,9 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @param callable $callable Action handler callable.
 	 */
 	public function init_listeners( $callable ) {
-		add_action( 'woocommerce_after_order_object_save', $callable );
+		foreach ( $this->get_order_types_to_sync() as $type ) {
+			add_action( "woocommerce_after_{$type}_object_save", $callable );
+		}
 		add_action( 'woocommerce_delete_order', $callable );
 		add_action( 'woocommerce_trash_order', $callable );
 	}
@@ -76,7 +100,9 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_after_order_object_save', array( $this, 'expand_order_object' ) );
+		foreach ( $this->get_order_types_to_sync() as $type ) {
+			add_filter( "jetpack_sync_before_enqueue_woocommerce_after_{$type}_object_save", array( $this, 'expand_order_object' ) );
+		}
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_delete_order', array( $this, 'expand_order_object' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_trash_order', array( $this, 'expand_order_object' ) );
 		add_filter( 'jetpack_sync_before_enqueue_full_sync_orders', array( $this, 'expand_order_objects' ) );
@@ -147,10 +173,15 @@ class WooCommerce_HPOS_Orders extends Module {
 		if ( 'order' !== $object_type ) {
 			return $ids;
 		}
-		$orders      = wc_get_orders( array( 'include' => $ids ) );
+		$orders      = wc_get_orders(
+			array(
+				'include' => $ids,
+				'type'    => $this->get_order_types_to_sync( true ),
+			)
+		);
 		$orders_data = array();
 		foreach ( $orders as $order ) {
-			$orders_data[ $order->get_id() ] = $this->filter_order_data( $order->get_data() );
+			$orders_data[ $order->get_id() ] = $this->filter_order_data( $order );
 		}
 		return $orders_data;
 	}
@@ -190,7 +221,7 @@ class WooCommerce_HPOS_Orders extends Module {
 			return false;
 		}
 
-		return $this->filter_order_data( $order_object->get_data() );
+		return $this->filter_order_data( $order_object );
 	}
 
 	/**
@@ -198,11 +229,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	 *
 	 * @access private
 	 *
-	 * @param array $order_data Unfiltered order data.
+	 * @param \WC_Abstract_Order $order_object Order object.
 	 *
 	 * @return array Filtered order data.
 	 */
-	private function filter_order_data( $order_data ) {
+	private function filter_order_data( $order_object ) {
 		// Filter with allowlist.
 		$allowed_data_keys   = WooCommerce::$wc_post_meta_whitelist;
 		$core_table_keys     = array(
@@ -211,15 +242,15 @@ class WooCommerce_HPOS_Orders extends Module {
 			'date_created',
 			'date_modified',
 			'parent_id',
-			'type',
 		);
 		$allowed_data_keys   = array_merge( $allowed_data_keys, $core_table_keys );
-		$filtered_order_data = array();
+		$filtered_order_data = array( 'type' => $order_object->get_type() );
+		$order_data          = $order_object->get_data();
 		foreach ( $allowed_data_keys as $key ) {
 			$key       = trim( $key, '_' );
 			$key_parts = explode( '_', $key );
 
-			if ( 'order' === $key_parts[0] ) {
+			if ( in_array( $key_parts[0], array( 'order', 'refund' ), true ) ) {
 				if ( isset( $order_data[ $key_parts[1] ] ) && ! is_array( $order_data[ $key_parts[1] ] ) ) {
 					$filtered_order_data[ $key ] = $order_data[ $key_parts[1] ];
 					continue;
@@ -292,7 +323,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- We return all order count for full sync, so confit is not required.
 		global $wpdb;
 
-		$query = "SELECT count(*) FROM {$this->table_name()}";
+		$query = "SELECT count(*) FROM {$this->table_name()} WHERE {$this->get_where_sql( $config ) }";
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Hardcoded query, no user variable
 		$count = $wpdb->get_var( $query );
 
@@ -311,5 +342,24 @@ class WooCommerce_HPOS_Orders extends Module {
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		return $this->enqueue_all_ids_as_action( 'full_sync_orders', $this->table_name(), 'id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
+	}
+
+	/**
+	 * Get where SQL for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 *
+	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
+	 */
+	public function get_where_sql( $config ) {
+		global $wpdb;
+		$parent_where           = parent::get_where_sql( $config );
+		$order_types            = $this->get_order_types_to_sync( true );
+		$order_type_placeholder = implode( ', ', array_fill( 0, count( $order_types ), '%s' ) );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Query is prepared.
+		$where_sql = $wpdb->prepare( "type IN ( $order_type_placeholder )", $order_types );
+		return "{$parent_where} AND {$where_sql}";
 	}
 }
