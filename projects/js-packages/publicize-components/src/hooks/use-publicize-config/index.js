@@ -3,6 +3,8 @@ import {
 	isUpgradable,
 	getJetpackData,
 	getSiteFragment,
+	isAtomicSite,
+	isSimpleSite,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -30,6 +32,7 @@ export default function usePublicizeConfig() {
 	const connectionsRootUrl =
 		getJetpackData()?.social?.publicizeConnectionsUrl ??
 		'https://wordpress.com/marketing/connections/';
+	const isPureJetpackSite = ! isAtomicSite() && ! isSimpleSite();
 
 	/*
 	 * isPublicizeEnabledMeta:
@@ -100,6 +103,9 @@ export default function usePublicizeConfig() {
 	 */
 	const isAutoConversionEnabled = !! getJetpackData()?.social?.isAutoConversionEnabled;
 
+	const shouldShowAdvancedPlanNudge =
+		sharesData.show_advanced_plan_upgrade_nudge && isPureJetpackSite;
+
 	return {
 		isPublicizeEnabledMeta,
 		isPublicizeEnabled,
@@ -111,7 +117,7 @@ export default function usePublicizeConfig() {
 		isShareLimitEnabled,
 		isPostAlreadyShared,
 		numberOfSharesRemaining: sharesData.shares_remaining,
-		shouldShowAdvancedPlanNudge: sharesData.show_advanced_plan_upgrade_nudge,
+		shouldShowAdvancedPlanNudge,
 		hasPaidPlan,
 		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
