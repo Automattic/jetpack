@@ -205,7 +205,15 @@ class WooCommerce_HPOS_Orders extends Module {
 	private function filter_order_data( $order_data ) {
 		// Filter with allowlist.
 		$allowed_data_keys   = WooCommerce::$wc_post_meta_whitelist;
-		$allowed_data_keys[] = 'id';
+		$core_table_keys     = array(
+			'id',
+			'status',
+			'date_created',
+			'date_modified',
+			'parent_id',
+			'type',
+		);
+		$allowed_data_keys   = array_merge( $allowed_data_keys, $core_table_keys );
 		$filtered_order_data = array();
 		foreach ( $allowed_data_keys as $key ) {
 			$key       = trim( $key, '_' );
@@ -250,6 +258,9 @@ class WooCommerce_HPOS_Orders extends Module {
 					$filtered_order_data[ $key ] = isset( $order_data['total'] ) ? $order_data['total'] : '';
 					break;
 			}
+		}
+		if ( '' === $filtered_order_data['status'] ) {
+			$filtered_order_data['status'] = 'pending';
 		}
 
 		return $filtered_order_data;
