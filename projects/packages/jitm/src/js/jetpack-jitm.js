@@ -74,7 +74,7 @@ jQuery( document ).ready( function ( $ ) {
 				html +=
 					'<a href="#" data-module="' +
 					envelope.activate_module +
-					'" data-redirect="' + envelope.redirect_to_settings +
+					'" data-redirect="' + envelope.settings_redirect +
 					'" type="button" class="jitm-button is-compact is-primary jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
 					'-activate_module" data-jitm-path="' +
