@@ -36,7 +36,8 @@
 	margin-bottom: 0;
 	display: flex;
 	flex-flow: row nowrap;
-	background: white;
+	background: rgb(249, 249, 246);
+	background: linear-gradient(133deg, rgb(206, 217, 242) 0%, rgb(249, 249, 246) 10%, rgb(249, 249, 246) 80%, rgb(245, 230, 179) 100%);
 
 	@include dashboard-card-shadow;
 
