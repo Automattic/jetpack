@@ -1,14 +1,19 @@
 /**
  * External dependencies
  */
-import { micIcon, playerPauseIcon, useMediaRecording } from '@automattic/jetpack-ai-client';
+import {
+	AudioDurationDisplay,
+	micIcon,
+	playerPauseIcon,
+	useMediaRecording,
+} from '@automattic/jetpack-ai-client';
 import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 export default function CreateWithVoiceEdit() {
-	const { state, start, pause, stop, resume } = useMediaRecording( {
+	const { state, start, pause, stop, resume, url } = useMediaRecording( {
 		onDone: blob => {
 			console.log( 'Blob created: ', blob ); // eslint-disable-line no-console
 		},
@@ -42,7 +47,14 @@ export default function CreateWithVoiceEdit() {
 					'Transform your spoken words into publish-ready blocks with AI',
 					'jetpack'
 				) }
+				className="jetpack-ai-create-with-voice"
 			>
+				<div className="jetpack-ai-create-with-voice__player">
+					<strong>
+						<AudioDurationDisplay url={ url } />
+					</strong>
+				</div>
+
 				<div className="jetpack-ai-create-with-voice__recorder">
 					<Button
 						className="jetpack-ai-create-with-voice__record-button"
@@ -53,7 +65,6 @@ export default function CreateWithVoiceEdit() {
 					>
 						{ buttonLabel }
 					</Button>
-
 					<Button
 						className="jetpack-ai-create-with-voice__done-button"
 						variant="primary"
