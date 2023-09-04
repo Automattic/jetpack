@@ -12,6 +12,14 @@ import { Placeholder, Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
+function AudioPlayer( { src } ) {
+	if ( ! src ) {
+		return null;
+	}
+
+	return <audio controls src={ src } />; // eslint-disable-line jsx-a11y/media-has-caption
+}
+
 export default function CreateWithVoiceEdit() {
 	const { state, start, pause, stop, resume, url } = useMediaRecording( {
 		onDone: blob => {
@@ -53,6 +61,7 @@ export default function CreateWithVoiceEdit() {
 					<strong>
 						<AudioDurationDisplay url={ url } />
 					</strong>
+					<AudioPlayer src={ url } />
 				</div>
 
 				<div className="jetpack-ai-create-with-voice__recorder">
