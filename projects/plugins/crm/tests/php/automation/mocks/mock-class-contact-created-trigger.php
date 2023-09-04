@@ -33,7 +33,7 @@ class Contact_Created_Trigger extends Base_Trigger {
 	 * @return string
 	 */
 	public static function get_category(): ?string {
-		return __( 'contact', 'zero-bs-crm' );
+		return 'contact';
 	}
 
 	public static function get_data_type(): string {
