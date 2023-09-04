@@ -194,7 +194,7 @@ jQuery( document ).ready( function ( $ ) {
 				return false;
 			}
 
-			// Make request to activate module. Redirect to module settings page if successful.
+			// Make request to activate module.
 			$.ajax( {
 				url:
 					window.jitm_config.api_root +
@@ -213,7 +213,7 @@ jQuery( document ).ready( function ( $ ) {
 				$( '#jitm-banner__activate a' ).text( window.jitm_config.activated_module_text );
 				$( '#jitm-banner__activate a' ).attr( 'disabled', true );
 
-				// Redirect to module settings page if a redirect is set.
+				// Redirect to module settings page if a redirect is set in the JITM envelope.
 				if ( $activate_button.data( 'redirect' ) ) {
 					window.location.href = window.jitm_config.jetpack_admin_url + $activate_button.data( 'redirect' );
 				}
