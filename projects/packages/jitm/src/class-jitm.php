@@ -157,7 +157,7 @@ class JITM {
 				'activated_module_text'  => esc_html__( 'Activated', 'jetpack-jitm' ),
 				'activating_module_text' => esc_html__( 'Activating', 'jetpack-jitm' ),
 				'nonce'                  => wp_create_nonce( 'wp_rest' ),
-				'jetpack_admin_url'      => admin_url( '?page=jetpack#/' ),
+				'jetpack_admin_url'      => admin_url( '?page=' ),
 			)
 		);
 	}
