@@ -12,8 +12,12 @@ import { Placeholder, Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-function AudioPlayer( { src } ) {
+function AudioPlayer( { src, state } ) {
 	if ( ! src ) {
+		return null;
+	}
+
+	if ( state !== 'inactive' ) {
 		return null;
 	}
 
@@ -61,7 +65,7 @@ export default function CreateWithVoiceEdit() {
 					<strong>
 						<AudioDurationDisplay url={ url } />
 					</strong>
-					<AudioPlayer src={ url } />
+					<AudioPlayer state={ state } src={ url } />
 				</div>
 
 				<div className="jetpack-ai-create-with-voice__recorder">
