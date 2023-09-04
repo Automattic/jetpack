@@ -21,7 +21,7 @@ export default function CreateWithVoiceEdit() {
 
 	const recordingHandler = useCallback( () => {
 		if ( state === 'inactive' ) {
-			start();
+			start( 1000 ); // stream audio every second
 		} else if ( state === 'recording' ) {
 			pause();
 		} else if ( state === 'paused' ) {
