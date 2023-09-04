@@ -68,7 +68,7 @@ describe( 'useMediaRestrictions hook', () => {
 	test( 'should not get any errors for image that accepted by all platforms', () => {
 		VALID_MEDIA_ALL.forEach( media => {
 			const { result } = renderHook( () => useMediaRestrictions( ...getHookProps( { media } ) ) );
-			expect( result.current ).toEqual( {} );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
 	} );
 
@@ -77,7 +77,7 @@ describe( 'useMediaRestrictions hook', () => {
 			const { result } = renderHook( () =>
 				useMediaRestrictions( ...getHookProps( { media, connections: [] } ) )
 			);
-			expect( result.current ).toEqual( {} );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
 	} );
 
@@ -90,7 +90,7 @@ describe( 'useMediaRestrictions hook', () => {
 					...getHookProps( { media, isSocialImageGeneratorEnabledForPost: true } )
 				)
 			);
-			expect( result.current ).toEqual( {} );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
 	} );
 
@@ -105,7 +105,7 @@ describe( 'useMediaRestrictions hook', () => {
 					} )
 				)
 			);
-			expect( result.current ).toEqual( {} );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
 	} );
 
@@ -118,7 +118,7 @@ describe( 'useMediaRestrictions hook', () => {
 					...getHookProps( { media, connections: DUMMY_CONNECTIONS.splice( 0, -1 ) } ) // Instagram checks even if not uploaded
 				)
 			);
-			expect( result.current ).toEqual( {} );
+			expect( result.current.validationErrors ).toEqual( {} );
 		} );
 	} );
 
@@ -131,12 +131,12 @@ describe( 'useMediaRestrictions hook', () => {
 					...getHookProps( { media } ) // Instagram checks even if not uploaded
 				)
 			);
-			expect( Object.values( result.current ) ).toHaveLength(
+			expect( Object.values( result.current.validationErrors ) ).toHaveLength(
 				Object.keys( DUMMY_CONNECTIONS ).length
 			);
-			expect( Object.values( result.current ).every( error => error === FILE_TYPE_ERROR ) ).toBe(
-				true
-			);
+			expect(
+				Object.values( result.current.validationErrors ).every( error => error === FILE_TYPE_ERROR )
+			).toBe( true );
 		} );
 	} );
 
@@ -151,8 +151,8 @@ describe( 'useMediaRestrictions hook', () => {
 					...getHookProps( { media: testData.media, connections: [ DUMMY_CONNECTIONS[ 4 ] ] } )
 				)
 			);
-			expect( result.current ).toHaveProperty( 'instagram-business' );
-			expect( result.current[ 'instagram-business' ] ).toEqual( testData.error );
+			expect( result.current.validationErrors ).toHaveProperty( 'instagram-business' );
+			expect( result.current.validationErrors[ 'instagram-business' ] ).toEqual( testData.error );
 		} );
 	} );
 
@@ -175,7 +175,7 @@ describe( 'useMediaRestrictions hook', () => {
 					} ) // Instagram not support videos
 				)
 			);
-			expect( result.current.linkedin ).toEqual( testData.error );
+			expect( result.current.validationErrors.linkedin ).toEqual( testData.error );
 		} );
 	} );
 } );

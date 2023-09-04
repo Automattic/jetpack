@@ -59,7 +59,7 @@ class Event_Deleted extends Base_Trigger {
 	 * @return string The category of the trigger.
 	 */
 	public static function get_category(): string {
-		return 'event';
+		return __( 'Event', 'zero-bs-crm' );
 	}
 
 	/**

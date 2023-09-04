@@ -10,15 +10,18 @@ import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import React from 'react';
 /**
  * Internal dependencies
  */
 import { isPossibleToExtendJetpackFormBlock } from '..';
+import { compareBlocks } from '../../../lib/utils/compare-blocks';
 import { fixIncompleteHTML } from '../../../lib/utils/fix-incomplete-html';
 import { AiAssistantUiContextProvider } from './context';
 /**
  * Types
  */
+import type { Block } from '../../../lib/utils/compare-blocks';
 import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 
 // An identifier to use on the extension error notices,
@@ -53,7 +56,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const [ assistantAnchor, setAssistantAnchor ] = useState< HTMLElement | null >( null );
 
 		// Keep track of the current list of valid blocks between renders.
-		const currentListOfValidBlocks = useRef( [] );
+		const currentListOfValidBlocks = useRef< Array< Block > >( [] );
 
 		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as {
@@ -153,7 +156,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			( newContent: string, isRequestDone = false ) => {
 				// Remove the Jetpack Form block from the content.
 				const processedContent = newContent.replace(
-					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
+					/<!-- (\/)*wp:jetpack\/(contact-)*form ({[^}]*} )*(\/)*-->/g,
 					''
 				);
 
@@ -164,11 +167,34 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 				// Check if the generated blocks are valid.
 				const validBlocks = newContentBlocks.filter( block => {
-					return block.isValid && block.name !== 'core/freeform' && block.name !== 'core/missing';
+					return (
+						block.isValid &&
+						! [ 'core/freeform', 'core/missing', 'core/html' ].includes( block.name )
+					);
 				} );
 
-				// Only update the blocks when the valid list changed, meaning a new block arrived.
-				if ( validBlocks.length !== currentListOfValidBlocks.current.length ) {
+				let lastBlockUpdated = false;
+
+				// While streaming, the last block can go from valid to invalid and back as new children are added token by token.
+				if ( validBlocks.length < currentListOfValidBlocks.current.length ) {
+					// The last block is temporarily invalid, so we use the last valid state.
+					validBlocks.push(
+						currentListOfValidBlocks.current[ currentListOfValidBlocks.current.length - 1 ]
+					);
+				} else if (
+					validBlocks.length === currentListOfValidBlocks.current.length &&
+					validBlocks.length > 0
+				) {
+					// Update the last valid block with the new content if it is different.
+					const lastBlock = validBlocks[ validBlocks.length - 1 ];
+					const lastBlockFromCurrentList =
+						currentListOfValidBlocks.current[ validBlocks.length - 1 ];
+
+					lastBlockUpdated = ! compareBlocks( lastBlock, lastBlockFromCurrentList );
+				}
+
+				// Only update the blocks when the valid list changed, meaning a new block arrived or the last block was updated.
+				if ( validBlocks.length !== currentListOfValidBlocks.current.length || lastBlockUpdated ) {
 					// Only update the valid blocks
 					replaceInnerBlocks( clientId, validBlocks );
 
