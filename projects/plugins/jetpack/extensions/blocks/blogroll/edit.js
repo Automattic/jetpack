@@ -4,8 +4,10 @@ import { PanelBody, ToggleControl, FlexBlock, Spinner } from '@wordpress/compone
 import { dispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import './editor.scss';
+import BlogrollAppender from './components/blogroll-appender';
 import useRecommendations from './use-recommendations';
+import useSubscriptions from './use-subscriptions';
+import './editor.scss';
 
 export function BlogRollEdit( { className, attributes, setAttributes, clientId } ) {
 	const {
@@ -18,6 +20,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 	} = attributes;
 
 	const { isLoading, recommendations } = useRecommendations();
+	const { subscriptions } = useSubscriptions( { ignore_user_blogs } );
 
 	const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
 
@@ -46,6 +49,9 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 			<InnerBlocks
 				template={ [ [ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ] ] }
 				allowedBlocks={ [ 'jetpack/blogroll-item' ] }
+				renderAppender={ () => (
+					<BlogrollAppender clientId={ clientId } subscriptions={ subscriptions } />
+				) }
 			/>
 
 			{ load_placeholders && isLoading && (
