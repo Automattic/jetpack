@@ -427,6 +427,20 @@ export function buildPromptForBlock( {
 	useGutenbergSyntax,
 	customSystemPrompt,
 }: BuildPromptProps ): Array< PromptItemProps > {
+	// Short-circuit the original prompt builder to use backend prompts.
+	return buildMessagesForBackendPrompt( {
+		generatedContent,
+		allPostContent,
+		postContentAbove,
+		currentPostTitle,
+		options,
+		type,
+		userPrompt,
+		isGeneratingTitle,
+		useGutenbergSyntax,
+		customSystemPrompt,
+	} );
+
 	const isContentGenerated = options?.contentType === 'generated';
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
 
@@ -533,4 +547,179 @@ Writing rules:
 		default:
 			throw new Error( `Unknown prompt type: ${ type }` );
 	}
+}
+
+/**
+ * Builds backend prompt message list
+ * based on the type of prompt.
+ *
+ * @param {BuildPromptProps} options - The prompt options.
+ * @returns {Array< PromptItemProps >} The prompt.
+ */
+function buildMessagesForBackendPrompt( {
+	generatedContent,
+	allPostContent,
+	postContentAbove,
+	currentPostTitle,
+	options,
+	type,
+	userPrompt,
+	isGeneratingTitle,
+}: BuildPromptProps ): Array< PromptItemProps > {
+	const isContentGenerated = options?.contentType === 'generated';
+
+	// Determine the subject of the action
+	let subject = 'last-answer';
+	if ( isGeneratingTitle ) {
+		subject = 'title';
+	} else if ( ! isContentGenerated ) {
+		subject = 'content';
+	}
+
+	/*
+	 * Each type of prompt has a different context.
+	 * The context is used to identify the prompt type in the backend,
+	 * as well as provide relevant pieces for the prompt building.
+	 */
+
+	if ( type === PROMPT_TYPE_SUMMARY_BY_TITLE ) {
+		return [
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'ai-assistant-summary-by-title',
+					content: currentPostTitle,
+				},
+			},
+		];
+	}
+
+	if ( type === PROMPT_TYPE_CONTINUE ) {
+		return [
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'ai-assistant-continue-writing',
+					content: postContentAbove,
+				},
+			},
+		];
+	}
+
+	if ( type === PROMPT_TYPE_SIMPLIFY ) {
+		return [
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'ai-assistant-simplify',
+					content: postContentAbove,
+					subject,
+				},
+			},
+		];
+	}
+
+	if ( type === PROMPT_TYPE_CORRECT_SPELLING ) {
+		return [
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'ai-assistant-correct-spelling',
+					content: postContentAbove,
+					subject,
+				},
+			},
+		];
+	}
+
+	if ( type === PROMPT_TYPE_GENERATE_TITLE ) {
+		return [
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'ai-assistant-generate-title',
+					content: allPostContent,
+				},
+			},
+		];
+	}
+
+	if ( type === PROMPT_TYPE_MAKE_LONGER ) {
+		return [
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'ai-assistant-make-longer',
+					content: generatedContent,
+					subject,
+				},
+			},
+		];
+	}
+
+	if ( type === PROMPT_TYPE_MAKE_SHORTER ) {
+		return [
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'ai-assistant-make-shorter',
+					content: generatedContent,
+					subject,
+				},
+			},
+		];
+	}
+
+	if ( type === PROMPT_TYPE_CHANGE_TONE ) {
+		return [
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'ai-assistant-change-tone',
+					content: isContentGenerated ? generatedContent : allPostContent,
+					tone: options?.tone,
+					subject,
+				},
+			},
+		];
+	}
+
+	if ( type === PROMPT_TYPE_SUMMARIZE ) {
+		return [
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'ai-assistant-summarize',
+					content: isContentGenerated ? generatedContent : allPostContent,
+					subject,
+				},
+			},
+		];
+	}
+
+	if ( type === PROMPT_TYPE_CHANGE_LANGUAGE ) {
+		return [
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'ai-assistant-change-language',
+					content: isContentGenerated ? generatedContent : allPostContent,
+					language: options?.language,
+					subject,
+				},
+			},
+		];
+	}
+
+	// default to the user prompt
+	return [
+		{
+			role: 'jetpack-ai',
+			context: {
+				type: 'ai-assistant-user-prompt',
+				request: userPrompt,
+				content: generatedContent || allPostContent,
+			},
+		},
+	];
 }
