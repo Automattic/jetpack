@@ -64,7 +64,8 @@
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"create-with-voice"
+		"create-with-voice",
+		"ai-content-lens"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
