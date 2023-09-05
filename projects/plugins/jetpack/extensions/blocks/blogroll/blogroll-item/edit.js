@@ -1,26 +1,68 @@
-import { BlockIcon } from '@wordpress/block-editor';
-import { Placeholder } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { InnerBlocks } from '@wordpress/block-editor';
 import './editor.scss';
-import icon from './icon';
 
-function BlogrollItemEdit( { className, noticeUI } ) {
-	/**
-	 * Write the block editor UI.
-	 *
-	 * @returns {object} The UI displayed when user edits this block.
-	 */
+function BlogrollItemEdit( { className, attributes } ) {
+	const iconSize = 48;
+	const { name, icon, url, description } = attributes;
+
+	const DEFAULT_TEMPLATE = [
+		[
+			'core/columns',
+			{},
+			[
+				[
+					'core/column',
+					{
+						verticalAlignment: 'center',
+						width: `${ iconSize }px`,
+					},
+					[
+						[
+							'core/image',
+							{
+								url: icon,
+								width: iconSize,
+								height: iconSize,
+								style: { border: { radius: '50%' } },
+							},
+						],
+					],
+				],
+				[
+					'core/column',
+					{},
+					[
+						[
+							'core/paragraph',
+							{
+								style: {
+									typography: { fontSize: '16px', fontStyle: 'normal', fontWeight: '500' },
+									elements: { link: { color: { text: '#101517' } } },
+								},
+								content: `<a href="${ url }" target="_blank" rel="noopener noreferrer">${
+									name || ''
+								}</a>`,
+							},
+						],
+						[
+							'core/paragraph',
+							{
+								style: {
+									spacing: { margin: { top: '2px' } },
+									color: { text: '#646970' },
+								},
+								content: description,
+							},
+						],
+					],
+				],
+			],
+		],
+	];
 
 	return (
 		<div className={ className }>
-			<Placeholder
-				label={ __( 'Blogroll Item', 'jetpack' ) }
-				instructions={ __( 'Instructions go here.', 'jetpack' ) }
-				icon={ <BlockIcon icon={ icon } /> }
-				notices={ noticeUI }
-			>
-				{ __( 'User input goes here?', 'jetpack' ) }
-			</Placeholder>
+			<InnerBlocks template={ DEFAULT_TEMPLATE } />
 		</div>
 	);
 }
