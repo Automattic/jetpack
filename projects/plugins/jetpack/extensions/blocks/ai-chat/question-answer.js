@@ -97,6 +97,7 @@ export default function QuestionAnswer() {
 	};
 
 	const showCopyButton = animationDone && ! isLoading;
+	const showFeedback = animationDone && ! isLoading;
 	return (
 		<>
 			<KeyboardShortcuts
@@ -149,6 +150,33 @@ export default function QuestionAnswer() {
 					</Button>
 				) }
 				{ hasCopied && __( 'Copied!', 'jetpack' ) }
+				{ showFeedback && (
+					<div className="jetpack-ai-chat-answer-feedback">
+						<div className="jetpack-ai-chat-answer-feedback-buttons">
+							{ __( 'Was this helpful?', 'jetpack' ) }
+							<Button
+								className="thumbs-up"
+								label={ __( 'Thumbs up', 'jetpack' ) }
+								onClick={ () => {
+									/* eslint-disable-next-line no-console */
+									console.log( 'Thumbs up!' );
+								} }
+							>
+								<Icon icon="thumbs-up" />
+							</Button>
+							<Button
+								className="thumbs-down"
+								label={ __( 'Thumbs down', 'jetpack' ) }
+								onClick={ () => {
+									/* eslint-disable-next-line no-console */
+									console.log( 'Thumbs down!' );
+								} }
+							>
+								<Icon icon="thumbs-down" />
+							</Button>
+						</div>
+					</div>
+				) }
 				{ references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
 						<div>
