@@ -4,7 +4,17 @@
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { title, postContent, postExcerpt, termDescription, post, pencil } from '@wordpress/icons';
-import React from 'react';
+/*
+ * Internal dependencies
+ */
+import {
+	PROMPT_TYPE_SUMMARY_BY_TITLE,
+	PROMPT_TYPE_CONTINUE,
+	PROMPT_TYPE_SIMPLIFY,
+	PROMPT_TYPE_CORRECT_SPELLING,
+	PROMPT_TYPE_GENERATE_TITLE,
+	PROMPT_TYPE_SUMMARIZE,
+} from '../../lib/prompt';
 
 type PromptTemplatesControlProps = {
 	hasContentBefore: boolean;
@@ -121,21 +131,21 @@ export default function PromptTemplatesControl( {
 								<MenuItem
 									icon={ postContent }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'continue' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_CONTINUE ) }
 								>
 									{ __( 'Continue writing', 'jetpack' ) }
 								</MenuItem>
 								<MenuItem
 									icon={ termDescription }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'correctSpelling' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_CORRECT_SPELLING ) }
 								>
 									{ __( 'Correct spelling and grammar', 'jetpack' ) }
 								</MenuItem>
 								<MenuItem
 									icon={ post }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'simplify' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_SIMPLIFY ) }
 								>
 									{ __( 'Simplify', 'jetpack' ) }
 								</MenuItem>
@@ -147,7 +157,7 @@ export default function PromptTemplatesControl( {
 									<MenuItem
 										icon={ postExcerpt }
 										iconPosition="left"
-										onClick={ () => onSuggestionSelect( 'summarize' ) }
+										onClick={ () => onSuggestionSelect( PROMPT_TYPE_SUMMARIZE ) }
 									>
 										{ __( 'Summarize', 'jetpack' ) }
 									</MenuItem>
@@ -156,7 +166,7 @@ export default function PromptTemplatesControl( {
 									<MenuItem
 										icon={ title }
 										iconPosition="left"
-										onClick={ () => onSuggestionSelect( 'generateTitle' ) }
+										onClick={ () => onSuggestionSelect( PROMPT_TYPE_GENERATE_TITLE ) }
 									>
 										{ __( 'Generate a post title', 'jetpack' ) }
 									</MenuItem>
@@ -168,7 +178,7 @@ export default function PromptTemplatesControl( {
 								<MenuItem
 									icon={ pencil }
 									iconPosition="left"
-									onClick={ () => onSuggestionSelect( 'titleSummary' ) }
+									onClick={ () => onSuggestionSelect( PROMPT_TYPE_SUMMARY_BY_TITLE ) }
 								>
 									{ __( 'Summary based on title', 'jetpack' ) }
 								</MenuItem>
