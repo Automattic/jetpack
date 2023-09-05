@@ -686,14 +686,10 @@ function wpcom_launchpad_set_fse_next_steps_modal_hidden( $should_hide ) {
  * @return bool True if the task list is enabled, false otherwise.
  */
 function wpcom_launchpad_is_keep_building_enabled() {
-	$intent                  = get_option( 'site_intent', false );
-	$launchpad_task_statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
+	$intent  = get_option( 'site_intent', false );
+	$blog_id = get_current_blog_id();
 
-	// We don't care about the other *_launched tasks, since this is specific to the Build flow.
-	$launched = isset( $launchpad_task_statuses['site_launched'] ) && $launchpad_task_statuses['site_launched'];
-	$blog_id  = get_current_blog_id();
-
-	if ( 'build' === $intent && $blog_id > 220443356 && $launched ) {
+	if ( 'build' === $intent && $blog_id > 220443356 ) {
 		return true;
 	}
 

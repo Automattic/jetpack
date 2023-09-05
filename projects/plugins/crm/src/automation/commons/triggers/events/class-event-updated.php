@@ -58,7 +58,7 @@ class Event_Updated extends Base_Trigger {
 	 * @return string The category.
 	 */
 	public static function get_category(): string {
-		return __( 'event', 'zero-bs-crm' );
+		return __( 'Event', 'zero-bs-crm' );
 	}
 
 	/**

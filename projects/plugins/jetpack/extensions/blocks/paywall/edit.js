@@ -1,19 +1,29 @@
 import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import {
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalConfirmDialog as ConfirmDialog,
+	MenuGroup,
+	MenuItem,
+	PanelBody,
+	RadioControl,
+	ToolbarDropdownMenu,
+} from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { arrowDown, Icon } from '@wordpress/icons';
+import { arrowDown, Icon, people, check } from '@wordpress/icons';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
-import { PaywallBlockSettings } from '../../shared/memberships/settings';
+import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
+import { getPaidPlanLink } from '../../shared/memberships/utils';
+import { store as membershipProductsStore } from '../../store/membership-products';
 
 function PaywallEdit( { className } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
@@ -27,7 +37,10 @@ function PaywallEdit( { className } ) {
 			hasNewsletterPlans: getNewsletterProducts()?.length !== 0,
 		};
 	} );
-	const isStripeConnected = stripeConnectUrl === null;
+	const paidLink = getPaidPlanLink( hasNewsletterPlans );
+	const [ showDialog, setShowDialog ] = useState( false );
+	const closeDialog = () => setShowDialog( false );
+	const { savePost } = useDispatch( 'core/editor' );
 
 	useEffect( () => {
 		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
@@ -37,15 +50,16 @@ function PaywallEdit( { className } ) {
 		}
 	}, [ accessLevel, setPostMeta ] );
 
-	function switchToAnyoneSubscribed() {
+	function selectAccess( value ) {
+		if (
+			accessOptions.paid_subscribers.key === value &&
+			( stripeConnectUrl || ! hasNewsletterPlans )
+		) {
+			setShowDialog( true );
+			return;
+		}
 		setPostMeta( {
-			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.subscribers.key,
-		} );
-	}
-
-	function switchToPaidSubscribers() {
-		setPostMeta( {
-			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: accessOptions.paid_subscribers.key,
+			[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ]: value,
 		} );
 	}
 
@@ -60,11 +74,29 @@ function PaywallEdit( { className } ) {
 		}
 	};
 
+	const getLabel = key => {
+		switch ( key ) {
+			case accessOptions.paid_subscribers.key:
+				return accessOptions.paid_subscribers.label;
+			default:
+				return accessOptions.subscribers.label;
+		}
+	};
+
 	const text = getText( accessLevel );
 
 	const style = {
 		width: `${ text.length + 1.2 }em`,
+		userSelect: 'none',
 	};
+
+	const { emailSubscribers, paidSubscribers } = useSelect( select =>
+		select( membershipProductsStore ).getSubscriberCounts()
+	);
+	let _accessLevel = accessLevel ?? accessOptions.subscribers.key;
+	if ( _accessLevel === accessOptions.everybody.key ) {
+		_accessLevel = accessOptions.subscribers.key;
+	}
 
 	return (
 		<>
@@ -74,25 +106,61 @@ function PaywallEdit( { className } ) {
 					<Icon icon={ arrowDown } size={ 16 } />
 				</span>
 			</div>
-			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarButton
-						className="components-tab-button"
-						isPressed={ accessLevel === accessOptions.subscribers.key }
-						onClick={ switchToAnyoneSubscribed }
-					>
-						{ __( 'Anyone subscribed', 'jetpack' ) }
-					</ToolbarButton>
-					<ToolbarButton
-						className="components-tab-button"
-						isPressed={ accessLevel === accessOptions.paid_subscribers.key }
-						onClick={ switchToPaidSubscribers }
-						disabled={ ! isStripeConnected || ! hasNewsletterPlans }
-					>
-						{ __( 'Paid subscribers', 'jetpack' ) }
-					</ToolbarButton>
-				</ToolbarGroup>
+			<BlockControls __experimentalShareWithChildBlocks group="block">
+				<ToolbarDropdownMenu
+					className="product-management-control-toolbar__dropdown-button"
+					icon={ people }
+					text={ getLabel( accessLevel ) }
+				>
+					{ ( { onClose: closeDropdown } ) => (
+						<>
+							<MenuGroup>
+								<MenuItem
+									onClick={ () => {
+										selectAccess( accessOptions.subscribers.key );
+										closeDropdown();
+									} }
+									isSelected={ accessLevel === accessOptions.subscribers.key }
+									icon={ accessLevel === accessOptions.subscribers.key && check }
+									iconPosition="right"
+								>
+									{ getLabel( accessOptions.subscribers.key ) }
+								</MenuItem>
+								<MenuItem
+									onClick={ () => {
+										selectAccess( accessOptions.paid_subscribers.key );
+										closeDropdown();
+									} }
+									isSelected={ accessLevel === accessOptions.paid_subscribers.key }
+									icon={ accessLevel === accessOptions.paid_subscribers.key && check }
+									iconPosition="right"
+								>
+									{ getLabel( accessOptions.paid_subscribers.key ) }
+								</MenuItem>
+							</MenuGroup>
+						</>
+					) }
+				</ToolbarDropdownMenu>
 			</BlockControls>
+			<ConfirmDialog
+				onRequestClose={ closeDialog }
+				cancelButtonText={ __( 'Not now', 'jetpack' ) }
+				confirmButtonText={ __( 'Get started', 'jetpack' ) }
+				isOpen={ showDialog }
+				onCancel={ closeDialog }
+				onConfirm={ () => {
+					savePost();
+					window.location.href = paidLink;
+				} }
+			>
+				<h2>{ __( 'Enable payments', 'jetpack' ) }</h2>
+				<p style={ { maxWidth: 340 } }>
+					{ __(
+						'To choose this option, you need to create a payment plan, setting up how much your subscribers should pay to access your paid content, and then connect your Stripe account, which is our payments processor.',
+						'jetpack'
+					) }
+				</p>
+			</ConfirmDialog>
 			<InspectorControls>
 				<PanelBody
 					className="jetpack-subscribe-newsletters-panel"
@@ -100,17 +168,31 @@ function PaywallEdit( { className } ) {
 					icon={ <JetpackEditorPanelLogo /> }
 					initialOpen={ true }
 				>
-					<p>
-						{ __(
+					<RadioControl
+						onChange={ selectAccess }
+						options={ [
+							{
+								label: `${ accessOptions.subscribers.label } (${ getReachForAccessLevelKey(
+									accessOptions.subscribers.key,
+									emailSubscribers,
+									paidSubscribers
+								) })`,
+								value: accessOptions.subscribers.key,
+							},
+							{
+								label: `${ accessOptions.paid_subscribers.label } (${ getReachForAccessLevelKey(
+									accessOptions.paid_subscribers.key,
+									emailSubscribers,
+									paidSubscribers
+								) })`,
+								value: accessOptions.paid_subscribers.key,
+							},
+						] }
+						selected={ _accessLevel }
+						help={ __(
 							'Choose who will be able to read the content below the paywall block.',
 							'jetpack'
 						) }
-					</p>
-					<PaywallBlockSettings
-						accessLevel={ accessLevel }
-						setPostMeta={ setPostMeta }
-						stripeConnectUrl={ stripeConnectUrl }
-						hasNewsletterPlans={ hasNewsletterPlans }
 					/>
 				</PanelBody>
 			</InspectorControls>

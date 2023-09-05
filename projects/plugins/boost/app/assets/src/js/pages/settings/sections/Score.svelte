@@ -181,8 +181,9 @@
 			noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
 		/>
 	</div>
-
-	<History />
+	{#if siteIsOnline}
+		<History />
+	{/if}
 </div>
 
 {#if modalData}
