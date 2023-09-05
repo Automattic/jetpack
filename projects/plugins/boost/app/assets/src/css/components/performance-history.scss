@@ -3,9 +3,12 @@
 
     .components-panel {
         border-radius: 8px;
-
         &__body {
             border-color: transparent;
         }
+    }
+
+    &__dummy {
+        position: relative;
     }
 }

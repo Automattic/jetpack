@@ -7,7 +7,6 @@ describe( 'Stripe nudge component', () => {
 		const selectSpy = jest.spyOn( data, 'select' );
 		const ANY_VALID_CONNECT_URL = 'anyValidConnectUrl';
 		const ANY_INVALID_CONNECT_URL = null;
-		const USER_SHOULD_NOT_UPGRADE_PLAN = false;
 		const ANY_BLOCK_NAME = 'anyBlockName';
 		const NUDGE_RENDERED_TEXT = 'Connect to Stripe to use this block on your site';
 
@@ -27,7 +26,6 @@ describe( 'Stripe nudge component', () => {
 		test( 'When we do not have a connect URL to connect to we will not show the Stripe connect nudge', async () => {
 			// Given
 			selectSpy.mockImplementation( () => ( {
-				getShouldUpgrade: () => USER_SHOULD_NOT_UPGRADE_PLAN,
 				getConnectUrl: () => ANY_INVALID_CONNECT_URL,
 			} ) );
 
