@@ -10,8 +10,7 @@ function removeTrailingDots( string ) {
  *
  * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
  *
- * List has to be in with `Jetpack_Memberships::SUPPORTED_CURRENCIES` in modules/memberships/class-jetpack-memberships.php and
- * `Memberships_Product::SUPPORTED_CURRENCIES` in the WP.com memberships library.
+ * List has to be in with `Jetpack_Memberships::SUPPORTED_CURRENCIES` in modules/memberships/class-jetpack-memberships.php.
  */
 export const SUPPORTED_CURRENCIES = {
 	USD: 0.5,

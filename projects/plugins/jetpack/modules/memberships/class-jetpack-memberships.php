@@ -101,8 +101,7 @@ class Jetpack_Memberships {
 	 *
 	 * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
 	 *
-	 * List has to be in with `SUPPORTED_CURRENCIES` in extensions/shared/currencies.js and
-	 * `Memberships_Product::SUPPORTED_CURRENCIES` in the WP.com memberships library.
+	 * List has to be in with `SUPPORTED_CURRENCIES` in extensions/shared/currencies.js.
 	 */
 	const SUPPORTED_CURRENCIES = array(
 		'USD' => 0.5,
