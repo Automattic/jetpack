@@ -213,6 +213,83 @@ class Jetpack_AI_Helper {
 	}
 
 	/**
+	 * Get file audio transcription
+	 *
+	 * @param string $file - The audio file to be transcribed.
+	 * @param array  $options - The options to be used for the transcription.
+	 * @return mixed
+	 */
+	public static function get_open_ai_audio_transcription( $file, $options ) {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return new WP_Error(
+				'dev_mode',
+				__( 'Jetpack AI is not available in offline mode.', 'jetpack' )
+			);
+		}
+
+		if ( ! $file ) {
+			return new WP_Error( 'no_file', 'No file provided' );
+		}
+
+		$site_id = Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return $site_id;
+		}
+
+		$post_id = $options['post_id'];
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( ! class_exists( 'OpenAI' ) ) {
+				\require_lib( 'openai' );
+			}
+
+			$result = ( new OpenAI( 'openai', array( 'post_id' => $post_id ) ) )->request_audio_transcriptions( $file, $options );
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			return $result;
+		}
+
+		/*
+		 * Pass the File object to the request body,
+		 * encode the file content to base64.
+		 */
+		$tmp_file_content = file_get_contents( $file['tmp_name'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$tmp_file         = base64_encode( $tmp_file_content ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+
+		// Set the request body.
+		$request_body = array_merge(
+			$options,
+			array(
+				'tmp_file' => $tmp_file,
+			)
+		);
+
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/jetpack-ai/transcriptions', $site_id ),
+			2,
+			array(
+				'method' => 'post',
+			),
+			$request_body,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ) );
+		if ( wp_remote_retrieve_response_code( $response ) >= 400 ) {
+			return new WP_Error( $data->code, $data->message, $data->data );
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Get an array of image objects back from WordPress.com based off a prompt.
 	 *
 	 * @param  string $prompt The prompt to generate images for.
