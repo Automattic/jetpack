@@ -9,17 +9,17 @@ import { ToneProp } from '../../components/tone-dropdown-control';
 /**
  * Types & consts
  */
-export const PROMPT_TYPE_SUMMARY_BY_TITLE = 'titleSummary' as const;
-export const PROMPT_TYPE_CONTINUE = 'continue' as const;
-export const PROMPT_TYPE_SIMPLIFY = 'simplify' as const;
-export const PROMPT_TYPE_CORRECT_SPELLING = 'correctSpelling' as const;
-export const PROMPT_TYPE_GENERATE_TITLE = 'generateTitle' as const;
-export const PROMPT_TYPE_MAKE_LONGER = 'makeLonger' as const;
-export const PROMPT_TYPE_MAKE_SHORTER = 'makeShorter' as const;
-export const PROMPT_TYPE_CHANGE_TONE = 'changeTone' as const;
-export const PROMPT_TYPE_SUMMARIZE = 'summarize' as const;
-export const PROMPT_TYPE_CHANGE_LANGUAGE = 'changeLanguage' as const;
-export const PROMPT_TYPE_USER_PROMPT = 'userPrompt' as const;
+export const PROMPT_TYPE_SUMMARY_BY_TITLE = 'ai-assistant-summary-by-title' as const;
+export const PROMPT_TYPE_CONTINUE = 'ai-assistant-continue-writing' as const;
+export const PROMPT_TYPE_SIMPLIFY = 'ai-assistant-simplify' as const;
+export const PROMPT_TYPE_CORRECT_SPELLING = 'ai-assistant-correct-spelling' as const;
+export const PROMPT_TYPE_GENERATE_TITLE = 'ai-assistant-generate-title' as const;
+export const PROMPT_TYPE_MAKE_LONGER = 'ai-assistant-make-longer' as const;
+export const PROMPT_TYPE_MAKE_SHORTER = 'ai-assistant-make-shorter' as const;
+export const PROMPT_TYPE_CHANGE_TONE = 'ai-assistant-change-tone' as const;
+export const PROMPT_TYPE_SUMMARIZE = 'ai-assistant-summarize' as const;
+export const PROMPT_TYPE_CHANGE_LANGUAGE = 'ai-assistant-change-language' as const;
+export const PROMPT_TYPE_USER_PROMPT = 'ai-assistant-user-prompt' as const;
 export const PROMPT_TYPE_JETPACK_FORM_CUSTOM_PROMPT = 'jetpackFormCustomPrompt' as const;
 
 export const PROMPT_TYPE_LIST = [
