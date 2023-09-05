@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { TextareaControl, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -46,7 +47,11 @@ function AiPostExcerpt() {
 }
 
 export const PluginDocumentSettingPanelAiExcerpt = () => (
-	<PluginDocumentSettingPanel name="ai-driven-excerpt" title={ __( 'Excerpt', 'jetpack' ) }>
+	<PluginDocumentSettingPanel
+		name="ai-driven-excerpt"
+		title={ __( 'Excerpt', 'jetpack' ) }
+		icon={ aiAssistantIcon }
+	>
 		<AiPostExcerpt />
 	</PluginDocumentSettingPanel>
 );
