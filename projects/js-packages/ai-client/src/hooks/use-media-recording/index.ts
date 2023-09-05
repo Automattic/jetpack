@@ -8,6 +8,10 @@ import { useRef, useState, useEffect, useCallback } from '@wordpress/element';
  */
 type RecordingStateProp = 'inactive' | 'recording' | 'paused';
 type UseMediaRecordingProps = {
+	/**
+	 * The audio type
+	 */
+	audioType?: 'audio/ogg' | 'audio/webm' | 'audio/wav' | 'audio/mp3' | 'audio/mpeg';
 	onDone?: ( blob: Blob ) => void;
 };
 
@@ -59,6 +63,7 @@ type MediaRecorderEvent = {
  * @returns {UseMediaRecordingReturn} The media recorder instance
  */
 export default function useMediaRecording( {
+	audioType = 'audio/ogg',
 	onDone,
 }: UseMediaRecordingProps = {} ): UseMediaRecordingReturn {
 	// Reference to the media recorder instance
@@ -80,7 +85,7 @@ export default function useMediaRecording( {
 	 */
 	function getBlob() {
 		return new Blob( recordedChunks, {
-			type: 'audio/webm',
+			type: audioType,
 		} );
 	}
 
