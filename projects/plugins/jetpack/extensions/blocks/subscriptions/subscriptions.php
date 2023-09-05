@@ -962,7 +962,7 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		: __( 'Already a subscriber?', 'jetpack' );
 
 	$sign_in = '';
-	if ( ( new Host() )->is_wpcom_simple() ) {
+	if ( ! is_user_logged_in() && ( new Host() )->is_wpcom_simple() ) {
 		$sign_in_link = add_query_arg( 'redirect_to', rawurlencode( get_post_permalink() ), 'https://wordpress.com/log-in' );
 		$sign_in      = '<!-- wp:paragraph {"align":"center"} -->
 <p class="has-text-align-center">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '" class="jetpack-subscriber-paywall-login">' . esc_html__( 'Sign in', 'jetpack' ) . '</a></p>
