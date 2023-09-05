@@ -62,7 +62,7 @@ export function AiAssistantExcerptControl( {
 	return (
 		<>
 			<RangeControl
-				label={ __( 'Excerpt Length (in words)', 'jetpack' ) }
+				label={ __( 'Length (in words)', 'jetpack' ) }
 				value={ words }
 				onChange={ onWordsNumberChange }
 				min={ minWords }
