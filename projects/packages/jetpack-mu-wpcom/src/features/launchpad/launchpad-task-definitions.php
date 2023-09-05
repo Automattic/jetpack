@@ -61,7 +61,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'badge_text_callback'  => 'wpcom_launchpad_get_domain_upsell_badge_text',
 			'is_visible_callback'  => 'wpcom_launchpad_is_domain_upsell_task_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( $task['completed'] ) {
+				if ( wpcom_launchpad_checklists()->is_task_complete( $task ) ) {
 						return '/domains/manage/' . $data['site_slug_encoded'];
 				}
 
