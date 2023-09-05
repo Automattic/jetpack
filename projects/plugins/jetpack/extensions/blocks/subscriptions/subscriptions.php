@@ -1070,18 +1070,3 @@ function get_paywall_simple() {
 <!-- /wp:columns -->
 ';
 }
-
-/**
- * Determine if the newsletter categories are enabled for the site.
- *
- * This function checks whether the blog has the 'newsletter_categories' sticker enabled.
- * If the sticker is enabled, the function will return true.
- * If not, it applies the 'jetpack_newsletter_categories' filter and returns the result (default is false).
- */
-function newsletter_categories_enabled_for_site() {
-	if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'newsletter_categories' ) ) {
-		return true;
-	}
-
-	return apply_filters( 'jetpack_newsletter_categories', false );
-}

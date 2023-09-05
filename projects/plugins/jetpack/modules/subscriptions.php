@@ -132,6 +132,10 @@ class Jetpack_Subscriptions {
 
 		// Add Subscribers menu to Jetpack navigation.
 		add_action( 'jetpack_admin_menu', array( $this, 'add_subscribers_menu' ) );
+
+		// Enable/disable newsletter categories
+		add_filter( 'jetpack_newsletter_categories_enabled', array( $this, 'newsletter_categories_check_site_option', 8 ) );
+		add_filter( 'jetpack_newsletter_categories_enabled', array( $this, 'newsletter_categories_check_blog_sticker', 7 ) );
 	}
 
 	/**
@@ -311,6 +315,51 @@ class Jetpack_Subscriptions {
 		return $flags;
 	}
 
+	/**
+	 * Determines if Jetpack's Newsletter Categories feature is enabled.
+	 *
+	 * Uses a filter to allow external control over the enabled state. By default, this feature is disabled.
+	 *
+	 * @return bool True if the feature is enabled, false otherwise.
+	 */
+	public function newsletter_categories_enabled() {
+		/**
+		 * Force enable or disable Jetpack's Newsletter Categories feature.
+		 *
+		 * @module subscriptions
+		 * @since $$next-version$$
+		 *
+		 * @param bool $jetpack_newsletter_categories Should Jetpack's Newsletter Categories be enabled. Default to false.
+		 */
+		return apply_filters( 'jetpack_newsletter_categories_enabled', false );
+	}
+
+	/**
+	 * Checks the site option to determine if Jetpack's Newsletter Categories feature is enabled.
+	 *
+	 * If a value is already provided, it returns that value. Otherwise, it fetches the option from the database.
+	 *
+	 * @param mixed $value The current value.
+	 * @return bool True if the feature is enabled based on site option, the provided value otherwise.
+	 */
+	public function newsletter_categories_check_site_option( $value ) {
+		return $value ? $value : get_option( 'wpcom_newsletter_categories_enabled', false );
+	}
+
+	/**
+	 * Checks the blog sticker to determine if Jetpack's Newsletter Categories feature is enabled.
+	 *
+	 * If a value is provided and is true, or if the blog has the specific sticker, it returns true. Otherwise, it returns false.
+	 *
+	 * @param bool $value The current value.
+	 * @return bool True if the feature is enabled based on blog sticker or provided value, false otherwise.
+	 */
+	public function newsletter_categories_check_blog_sticker( $value ) {
+		if ( $value || ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'newsletter_categories' ) ) ) {
+			return true;
+		}
+		return false;
+	}
 	/**
 	 * Jetpack_Subscriptions::configure()
 	 *
