@@ -23,6 +23,11 @@ type UseMediaRecordingReturn = {
 	blob: Blob | null;
 
 	/**
+	 * The recorded blob url
+	 */
+	url: string | null;
+
+	/**
 	 * `start` recording handler
 	 */
 	start: ( timeslice?: number ) => void;
@@ -195,6 +200,7 @@ export default function useMediaRecording( {
 	return {
 		state,
 		blob,
+		url: blob ? URL.createObjectURL( blob ) : null,
 
 		start,
 		pause,

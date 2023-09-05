@@ -38,6 +38,9 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => '__return_true',
 			'is_disabled_callback' => 'wpcom_launchpad_is_design_step_enabled',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/setup/update-design/designSetup?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 		'domain_claim'                    => array(
 			'get_title'            => function () {
@@ -82,6 +85,9 @@ function wpcom_launchpad_get_task_definitions() {
 			'subtitle'             => 'wpcom_launchpad_get_plan_selected_subtitle',
 			'is_complete_callback' => '__return_true',
 			'badge_text_callback'  => 'wpcom_launchpad_get_plan_selected_badge_text',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/plans/' . $data['site_slug_encoded'];
+			},
 		),
 		'setup_general'                   => array(
 			'get_title'            => function () {
