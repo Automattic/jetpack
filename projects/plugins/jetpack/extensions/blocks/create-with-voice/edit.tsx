@@ -7,6 +7,7 @@ import {
 	playerPauseIcon,
 	useMediaRecording,
 } from '@automattic/jetpack-ai-client';
+import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
@@ -27,7 +28,17 @@ function AudioPlayer( { src, state } ) {
 export default function CreateWithVoiceEdit() {
 	const { state, start, pause, stop, resume, url } = useMediaRecording( {
 		onDone: blob => {
-			console.log( 'Blob created: ', blob ); // eslint-disable-line no-console
+			// Upload the blob to the server
+			const formData = new FormData();
+			formData.append( 'tmp_file', blob );
+
+			apiFetch( {
+				path: '/wpcom/v2/jetpack-ai/transcriptions',
+				method: 'POST',
+				body: formData,
+			} ).then( data => {
+				console.log( 'data: ', data ); // eslint-disable-line no-console
+			} );
 		},
 	} );
 
