@@ -964,8 +964,8 @@ function get_paywall_blocks( $newsletter_access_level ) {
 	$sign_in = '';
 	if ( ! is_user_logged_in() && ( new Host() )->is_wpcom_simple() ) {
 		$sign_in_link = add_query_arg( 'redirect_to', rawurlencode( get_post_permalink() ), 'https://wordpress.com/log-in' );
-		$sign_in      = '<!-- wp:paragraph {"align":"center"} -->
-<p class="has-text-align-center">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '" class="jetpack-subscriber-paywall-login">' . esc_html__( 'Sign in', 'jetpack' ) . '</a></p>
+		$sign_in      = '<!-- wp:paragraph {"align":"center", "typography":{"fontSize":"14px","fontWeight":"400";"color":"#646970"}} -->
+<p class="has-text-align-center" style="font-size:14px;font-weight:400;color:#646970">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '" class="jetpack-subscriber-paywall-login" style="font-size:14px;font-weight:400;color:#646970">' . esc_html__( 'Log in', 'jetpack' ) . '</a></p>
 <!-- /wp:paragraph -->';
 	}
 
