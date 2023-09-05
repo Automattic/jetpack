@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Launchpad modal: reduce API calls for modal dismiss flag

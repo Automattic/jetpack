@@ -865,7 +865,6 @@ function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
  * @return string
  */
 function add_paywall( $the_content ) {
-	$block_name = 'jetpack/paywall';
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 	if ( Jetpack_Memberships::user_can_view_post() ) {
@@ -876,9 +875,15 @@ function add_paywall( $the_content ) {
 
 	$paywalled_content = get_paywall_content( $post_access_level, isset( $_GET['subscribe'] ) && 'success' === $_GET['subscribe'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-	// Partially free content with paywall
-	if ( has_block( $block_name ) ) {
-		return strstr( $the_content, '<!-- wp:' . $block_name . ' /-->', true ) . $paywalled_content;
+	if ( has_block( \Automattic\Jetpack\Extensions\Paywall\BLOCK_NAME ) ) {
+		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML ) ) {
+			return strstr( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML, true ) . $paywalled_content;
+		}
+		// WordPress generates excerpts by either rendering or stripping blocks before invoking the `the_content` filter.
+		// In the context of generating an excerpt, the Paywall block specifically renders THE_EXCERPT_BLOCK.
+		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\THE_EXCERPT_BLOCK ) ) {
+			return strstr( $the_content, \Automattic\Jetpack\Extensions\Paywall\THE_EXCERPT_BLOCK, true );
+		}
 	}
 
 	return $paywalled_content;
@@ -934,6 +939,9 @@ function get_paywall_content( $post_access_level, $email_confirmation_pending = 
 	if ( ! jetpack_is_frontend() ) { // emails
 		return get_paywall_simple();
 	}
+	if ( doing_filter( 'get_the_excerpt' ) ) {
+		return '';
+	}
 	return get_paywall_blocks( $post_access_level );
 }
 
@@ -984,9 +992,9 @@ function get_paywall_blocks( $newsletter_access_level ) {
  * @return string
  */
 function get_paywall_blocks_subscribe_pending() {
-	$access_heading = esc_html__( 'Validate email to continue reading', 'jetpack' );
+	$access_heading = esc_html__( 'Verify your email and continue reading', 'jetpack' );
 
-	$subscribe_text = esc_html__( 'Thank you! You can now check your email to confirm your subscription.', 'jetpack' );
+	$subscribe_text = esc_html__( 'Please check your inbox to confirm your subscription.', 'jetpack' );
 
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
@@ -997,8 +1005,8 @@ function get_paywall_blocks_subscribe_pending() {
 <figure class="wp-block-image aligncenter size-large is-resized"><img src="' . $lock_svg . '" alt="" width="24" height="24"/></figure>
 <!-- /wp:image -->
 
-<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"24px"},"layout":{"selfStretch":"fit"}}} -->
-<h2 class="wp-block-heading has-text-align-center" style="font-size:24px;font-style:normal;font-weight:600">' . $access_heading . '</h2>
+<!-- wp:heading {"textAlign":"center","style":{"typography":{"fontStyle":"normal","fontWeight":"600","fontSize":"24px", "maxWidth":"initial"},"layout":{"selfStretch":"fit"}}} -->
+<h2 class="wp-block-heading has-text-align-center" style="font-size:24px;font-style:normal;font-weight:600;max-width:initial">' . $access_heading . '</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"},"spacing":{"margin":{"top":"10px","bottom":"10px"}}}} -->
