@@ -7,7 +7,9 @@ import {
 	Spinner,
 	KeyboardShortcuts,
 	ExternalLink,
+	Icon,
 } from '@wordpress/components';
+import { useCopyToClipboard } from '@wordpress/compose';
 import { RawHTML, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -74,6 +76,14 @@ export default function QuestionAnswer() {
 
 	const [ animationDone, setAnimationDone ] = useState( false );
 	const [ showReferences, setShowReferences ] = useState( false );
+	const [ hasCopied, setHasCopied ] = useState( false );
+	const copyRef = useCopyToClipboard( answer, () => {
+		setHasCopied( true );
+
+		setTimeout( () => {
+			setHasCopied( false );
+		}, 3000 );
+	} );
 
 	const handleSubmitQuestion = () => {
 		setAnimationDone( false );
@@ -85,6 +95,8 @@ export default function QuestionAnswer() {
 		setAnimationDone( true );
 		setShowReferences( true );
 	};
+
+	const showCopyButton = animationDone && ! isLoading;
 	return (
 		<>
 			<KeyboardShortcuts
@@ -126,6 +138,17 @@ export default function QuestionAnswer() {
 						/>
 					) }
 				</div>
+				{ showCopyButton && (
+					<Button
+						className="copy-button"
+						disabled={ hasCopied }
+						label={ __( 'Copy Response', 'jetpack' ) }
+						ref={ copyRef }
+					>
+						<Icon icon="clipboard" />
+					</Button>
+				) }
+				{ hasCopied && __( 'Copied!', 'jetpack' ) }
 				{ references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
 						<div>
