@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import './style.scss';
+import { AiAssistantExcerptControl } from '../../components/ai-excerpt-control';
 
 function AiPostExcerpt() {
 	const excerpt = useSelect(
@@ -25,6 +26,10 @@ function AiPostExcerpt() {
 		removeEditorPanel( 'post-excerpt' );
 	}, [ removeEditorPanel ] );
 
+	function updatePostExcerpt() {
+		console.log( 'updatePostExcerpt' ); // eslint-disable-line no-console
+	}
+
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
@@ -33,6 +38,8 @@ function AiPostExcerpt() {
 				onChange={ value => editPost( { excerpt: value } ) }
 				value={ excerpt }
 			/>
+
+			<AiAssistantExcerptControl onGenerate={ updatePostExcerpt } />
 
 			<ExternalLink
 				href={ __(
