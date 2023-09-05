@@ -1,14 +1,17 @@
 /**
  * External dependencies
  */
-import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { TextareaControl, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import './style.scss';
 
-function PostExcerpt() {
+function AiPostExcerpt() {
 	const excerpt = useSelect(
 		select => select( 'core/editor' ).getEditedPostAttribute( 'excerpt' ),
 		[]
@@ -22,11 +25,10 @@ function PostExcerpt() {
 	}, [ removeEditorPanel ] );
 
 	return (
-		<div className="editor-post-excerpt">
+		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
 				__nextHasNoMarginBottom
 				label={ __( 'Write an excerpt (optional)', 'jetpack' ) }
-				className="editor-post-excerpt__textarea"
 				onChange={ value => editPost( { excerpt: value } ) }
 				value={ excerpt }
 			/>
@@ -44,11 +46,7 @@ function PostExcerpt() {
 }
 
 export const PluginDocumentSettingPanelAiExcerpt = () => (
-	<PluginDocumentSettingPanel
-		name="ai-driven-excerpt"
-		title={ __( 'AI Excerpt', 'jetpack' ) }
-		icon={ aiAssistantIcon }
-	>
-		<PostExcerpt />
+	<PluginDocumentSettingPanel name="ai-driven-excerpt" title={ __( 'Excerpt', 'jetpack' ) }>
+		<AiPostExcerpt />
 	</PluginDocumentSettingPanel>
 );
