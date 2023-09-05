@@ -40,7 +40,7 @@ function extendAiContentLensFeatures( settings, name ) {
 }
 
 // Filter only if the extension is enabled.
-if ( isAiAssistantSupportExtensionEnabled.available ) {
+if ( isAiAssistantSupportExtensionEnabled?.available ) {
 	addFilter(
 		'blocks.registerBlockType',
 		'jetpack/ai-content-lens-features',
