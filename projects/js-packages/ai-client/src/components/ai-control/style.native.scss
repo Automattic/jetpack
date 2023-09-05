@@ -1,0 +1,56 @@
+// AI CONTROL
+
+.ai-control__container {
+	// color: var( --jp-gray-80 );
+	// font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	background-color: #ffffff;
+	width: 100%;
+	border-width: 1px;
+	border-color: #abb8c3;
+	padding: 12px;
+}
+
+.ai-control__wrapper {
+	gap: 8px;
+
+	&.is-transparent {
+		opacity: 0.4;
+	}
+}
+
+.ai-control__input-container {
+	margin-bottom: 8px;
+	justify-content: center;
+}
+
+.ai-control__input-wrapper {
+	flex-grow: 1;
+	margin-right: 40px;
+}
+
+.ai-control__input-close-button {
+	position: absolute;
+	right: 0px;
+	border-width: 1px;
+	border-color: rgba($color: #000000, $alpha: 0.2);
+	border-radius: 32px;
+}
+
+.ai-control__controls-prompt_button_container {
+	align-items: flex-start;
+}
+
+.ai-control__controls-prompt_button {
+	border-width: 1px;
+	border-color: rgba($color: #000000, $alpha: 0.2);
+	border-radius: 12px;
+	padding: 8px 16px;
+}
+
+.ai-control__controls-prompt_button-text {
+	text-transform: uppercase;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 16px;
+	margin-left: 4px;
+}
