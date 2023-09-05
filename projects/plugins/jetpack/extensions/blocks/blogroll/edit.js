@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import BlogrollAppender from './components/blogroll-appender';
 import useRecommendations from './use-recommendations';
 import useSubscriptions from './use-subscriptions';
+import { createBlockFromRecommendation } from './utils';
 import './editor.scss';
 
 export function BlogRollEdit( { className, attributes, setAttributes, clientId } ) {
@@ -30,15 +31,7 @@ export function BlogRollEdit( { className, attributes, setAttributes, clientId }
 
 			const blocks = [
 				createBlock( 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ),
-				...recommendations.map( attrs => {
-					if ( ! attrs.icon ) {
-						const emptySvg =
-							'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"></svg>';
-						attrs.icon = 'data:image/svg+xml;base64,' + btoa( emptySvg );
-					}
-
-					return createBlock( 'jetpack/blogroll-item', attrs );
-				} ),
+				...recommendations.map( createBlockFromRecommendation ),
 			];
 			replaceInnerBlocks( clientId, blocks );
 		}
