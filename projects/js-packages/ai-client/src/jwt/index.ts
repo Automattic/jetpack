@@ -3,6 +3,7 @@
  */
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
+import { Platform } from '@wordpress/element';
 import debugFactory from 'debug';
 /*
  * Types & constants
@@ -42,11 +43,15 @@ export default async function requestJwt( {
 	expirationTime,
 }: RequestTokenOptions = {} ): Promise< TokenDataProps > {
 	// Default values
-	apiNonce = apiNonce || window.JP_CONNECTION_INITIAL_STATE.apiNonce;
-	siteId = siteId || window.JP_CONNECTION_INITIAL_STATE.siteSuffix;
+	apiNonce = apiNonce || window.JP_CONNECTION_INITIAL_STATE?.apiNonce;
+	siteId = siteId || window.JP_CONNECTION_INITIAL_STATE?.siteSuffix;
 	expirationTime = expirationTime || JWT_TOKEN_EXPIRATION_TIME;
 
-	const isSimple = isSimpleSite();
+	const isSimple = Platform.select( {
+		web: isSimpleSite(),
+		// In native mobile, for now the AI client is only supported Simple sites.
+		native: true,
+	} );
 
 	// Trying to pick the token from localStorage
 	const token = localStorage.getItem( JWT_TOKEN_ID );
@@ -82,8 +87,13 @@ export default async function requestJwt( {
 			method: 'POST',
 		} );
 	} else {
+		const path = Platform.select( {
+			web: '/wpcom/v2/sites/' + siteId + '/jetpack-openai-query/jwt',
+			// In native mobile, the site is automatically injected in the request.
+			native: '/wpcom/v2/jetpack-openai-query/jwt',
+		} );
 		data = await apiFetch( {
-			path: '/wpcom/v2/sites/' + siteId + '/jetpack-openai-query/jwt',
+			path,
 			method: 'POST',
 		} );
 	}
