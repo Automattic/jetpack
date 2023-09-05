@@ -15,6 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import useSubmitQuestion from './use-submit-question';
 
+// TODO: Configurable strings.
 const waitStrings = [
 	__( 'Good question, give me a moment to think about that 🤔', 'jetpack' ),
 	__( 'Let me work out the answer to that, back soon!', 'jetpack' ),
@@ -55,6 +56,18 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 		</div>
 	);
 }
+
+/**
+ * Primary question-answer.
+ *
+ * TODOs:
+ * - Configurable strings.
+ * - Copy response button.
+ * - Submit feedback.
+ * - Handle errors.
+ *
+ * @returns {QuestionAnswer} component.
+ */
 export default function QuestionAnswer() {
 	const { question, setQuestion, answer, isLoading, submitQuestion, references } =
 		useSubmitQuestion();
@@ -82,6 +95,7 @@ export default function QuestionAnswer() {
 				<div className="jetpack-ai-chat-question-wrapper">
 					<TextControl
 						className="jetpack-ai-chat-question-input"
+						// TODO: Configurable placeholder.
 						placeholder={ __( "Enter a question about this blog's content", 'jetpack' ) }
 						size={ 50 }
 						value={ question }
@@ -89,7 +103,10 @@ export default function QuestionAnswer() {
 					/>
 
 					<Button variant="primary" disabled={ isLoading } onClick={ handleSubmitQuestion }>
-						{ __( 'Ask', 'jetpack' ) }
+						{
+							// TODO: Configurable button text.
+							__( 'Ask', 'jetpack' )
+						}
 					</Button>
 				</div>
 			</KeyboardShortcuts>
@@ -111,7 +128,12 @@ export default function QuestionAnswer() {
 				</div>
 				{ references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
-						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
+						<div>
+							{
+								// TODO: Configurable text.
+								__( 'Additional resources:', 'jetpack' )
+							}
+						</div>
 
 						<ul>
 							{ references.map( ( reference, index ) => (
