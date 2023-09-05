@@ -354,7 +354,8 @@ class Test_Blocks extends TestCase {
 	public function test_get_block_metadata_from_file() {
 		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/block.json' );
 
-		$this->assertIsArray( $result );
+		// phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertIsArray -- assertIsArray not supported by all PHP versions we support.
+		$this->assertTrue( is_array( $result ) );
 		$this->assertNotEmpty( $result );
 	}
 
@@ -368,7 +369,8 @@ class Test_Blocks extends TestCase {
 	public function test_get_block_metadata_from_folder() {
 		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/' );
 
-		$this->assertIsArray( $result );
+		// phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertIsArray -- assertIsArray not supported by all PHP versions we support.
+		$this->assertTrue( is_array( $result ) );
 		$this->assertNotEmpty( $result );
 	}
 
@@ -382,7 +384,8 @@ class Test_Blocks extends TestCase {
 	public function test_get_block_metadata_from_wrong_file() {
 		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/ghost-folder/block.json' );
 
-		$this->assertIsArray( $result );
+		// phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertIsArray -- assertIsArray not supported by all PHP versions we support.
+		$this->assertTrue( is_array( $result ) );
 		$this->assertEmpty( $result );
 	}
 
