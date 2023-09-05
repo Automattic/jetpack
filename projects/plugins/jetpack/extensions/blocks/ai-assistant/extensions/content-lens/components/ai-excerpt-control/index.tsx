@@ -19,19 +19,19 @@ export type AiAssistantExcerptControlProps = {
 	disabled?: boolean;
 
 	/*
-	 * The length of the generated excerpt.
+	 * The number of words in the generated excerpt.
 	 */
-	length?: number;
+	words?: number;
 
 	/*
-	 * The minimum length of the generated excerpt.
+	 * The minimum number of words in the generated excerpt.
 	 */
-	minLength?: number;
+	minWords?: number;
 
 	/*
-	 * The maximum length of the generated excerpt.
+	 * The maximum number of words in the generated excerpt.
 	 */
-	maxLength?: number;
+	maxWords?: number;
 
 	/*
 	 * Whether the component is busy.
@@ -44,29 +44,29 @@ export type AiAssistantExcerptControlProps = {
 	onGenerate?: () => void;
 
 	/*
-	 * Callback to change the length of the generated excerpt.
+	 * Callback to change the number of words in the generated excerpt.
 	 */
-	onLengthChange?: ( length: number ) => void;
+	onWordsNumberChange?: ( words: number ) => void;
 };
 
 export function AiAssistantExcerptControl( {
-	minLength = 10,
-	maxLength = 100,
+	minWords = 10,
+	maxWords = 100,
 	disabled,
-	length,
+	words,
 
 	isBusy,
 	onGenerate,
-	onLengthChange,
+	onWordsNumberChange,
 }: AiAssistantExcerptControlProps ) {
 	return (
 		<>
 			<RangeControl
 				label={ __( 'Excerpt Length (in words)', 'jetpack' ) }
-				value={ length }
-				onChange={ onLengthChange }
-				min={ minLength }
-				max={ maxLength }
+				value={ words }
+				onChange={ onWordsNumberChange }
+				min={ minWords }
+				max={ maxWords }
 				help={ __(
 					'Sets the limit for words in auto-generated excerpts. The final count may vary slightly due to sentence structure.',
 					'jetpack'

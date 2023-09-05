@@ -5,7 +5,7 @@ import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { TextareaControl, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -19,6 +19,9 @@ function AiPostExcerpt() {
 		[]
 	);
 	const { editPost } = useDispatch( 'core/editor' );
+
+	// Post excerpt words number
+	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
 
 	// Remove core excerpt panel
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
@@ -39,7 +42,11 @@ function AiPostExcerpt() {
 				value={ excerpt }
 			/>
 
-			<AiAssistantExcerptControl onGenerate={ updatePostExcerpt } />
+			<AiAssistantExcerptControl
+				words={ excerptWordsNumber }
+				onWordsNumberChange={ setExcerptWordsNumber }
+				onGenerate={ updatePostExcerpt }
+			/>
 
 			<ExternalLink
 				href={ __(
