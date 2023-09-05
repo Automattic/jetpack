@@ -194,7 +194,7 @@ HTML;
 		global $post;
 		$access_level              = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 		$is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level;
-		if ( has_block( 'jetpack/paywall' ) || ! $is_accessible_by_everyone ) {
+		if ( ! $is_accessible_by_everyone ) {
 			return false;
 		}
 
