@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\Extensions\Blogroll;
 
+require_once __DIR__ . '/blogroll-item/blogroll-item.php';
+
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 

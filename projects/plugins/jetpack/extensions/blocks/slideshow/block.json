@@ -8,7 +8,7 @@
 	"version": "12.5.0",
 	"textdomain": "jetpack",
 	"category": "media",
-	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='M21 8V19C21 20.1046 20.1057 21 19.0011 21C15.8975 21 9.87435 21 6 21' fill='none' stroke='currentColor' strokeWidth='1.5'/><rect x='3.75' y='3.75' width='13.5' height='13.5' rx='0.875' fill='none' stroke='currentColor' strokeWidth='1.5'/><path d='M9 14L12 11L9 8' fill='none' stroke='currentColor' strokeWidth='1.5' /></svg>",
+	"icon": "<svg  viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path d='m19,21.5H6v-1h13c.83,0,1.5-.67,1.5-1.5v-11h1v11c0,1.38-1.12,2.5-2.5,2.5Z'/><path d='m16.38,3.25H4.62c-.75,0-1.37.62-1.37,1.37v11.76c0,.75.62,1.37,1.37,1.37h11.76c.75,0,1.37-.62,1.37-1.37V4.62c0-.75-.62-1.37-1.37-1.37Zm.37,13.13c0,.2-.17.37-.37.37H4.62c-.2,0-.37-.17-.37-.37V4.62c0-.2.17-.37.37-.37h11.76c.2,0,.37.17.37.37v11.76Z'/><path d='M9.39 7.51 12.73 11.04 9.31 14.32 8.61 13.6 11.34 10.99 8.67 8.2 9.39 7.51z'/></svg>",
 	"supports": {
 		"html": false,
 		"align": [ "center", "wide", "full" ]

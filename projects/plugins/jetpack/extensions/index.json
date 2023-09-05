@@ -58,11 +58,14 @@
 		"ai-chat",
 		"amazon",
 		"blogroll",
+		"blogroll-item",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"recipe",
 		"v6-video-frame-poster",
-		"videopress/video-chapters"
+		"videopress/video-chapters",
+		"create-with-voice",
+		"ai-content-lens"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

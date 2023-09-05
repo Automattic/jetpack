@@ -5,7 +5,7 @@ Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 6.3
 Requires PHP: 7.0
-Stable tag: 2.0.1
+Stable tag: 2.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -187,10 +187,21 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 2.0.1 - 2023-08-18
+### 2.1.0-beta - 2023-09-01
+#### Added
+- Image CDN: Added quality settings for premium users.
+- Performance History: New section to display historical performance.
+
+#### Changed
+- Image Size Analyzer: Removed get parameters from image URLs on ISA report details page.
+- UI: Improve discount elements for pricing section.
+- UI: Update Image Size Analyzer error feedback.
+
 #### Fixed
-- Critical CSS: Fixed manual critical CSS generation failure
-- Concatenate CSS: Fixed concatenated CSS being render-blocking when used with Critical CSS.
+- UI: Add the footer back on the getting started page.
+- Critical CSS: Improved the regenerate button to eliminate the possibility of accidental parallel regeneration.
+- Image Guide: Fix oversize ratio in some cases.
+- Image Guide: Fixed grammar issue in the feature description on the Boost dashboard.
 
 --------
 
