@@ -19,7 +19,7 @@ import transforms from './transforms';
 import './supports';
 import './extensions/ai-assistant';
 import './extensions/jetpack-contact-form';
-import './extensions/ai-driven-content-analysis';
+import './extensions/content-lens';
 
 /**
  * Style dependencies
