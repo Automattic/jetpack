@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Revert change where newsletter plans could not be used on Premium content
