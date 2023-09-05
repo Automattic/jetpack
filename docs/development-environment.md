@@ -2,31 +2,29 @@
 
 ## Table of contents
 
-* [Setting up your environment](#setting-up-your-environment)
-   * [Overview](#overview)
-   * [Running Jetpack locally](#running-jetpack-locally)
-      * [Docker (Recommended)](#docker-supported-recommended)
-      * [VVV](#vvv)
-      * [Local web and database servers](#local-web-and-database-servers)
-      * [Developing and contributing code to Jetpack from a Windows machine](#developing-and-contributing-code-to-jetpack-from-a-windows-machine)
-   * [Get started with development](#get-started-with-development)
-      * [Clone the repository](#clone-the-repository)
-      * [Install development tools](#install-development-tools)
-        * [NodeJS](#nodejs)
-        * [Pnpm package manager](#pnpm)
-        * [PHP](#php)
-        * [Composer](#composer)
-        * [jetpack CLI](#jetpack-cli)
-      * [Check if your environment is ready for Jetpack development](#check-if-your-environment-is-ready-for-jetpack-development)
-* [Start development](#development-workflow)
-   * [Run a development build](#development-build)
-* [Unit Testing](#unit-testing)
-   * [PHP unit testing](#php-unit-tests)
-   * [JavaScript unit testing](#javascript-unit-tests)
-* [Good code - linting, standards, compatibility, etc.](#good-code---linting-standards-compatibility-etc)
-	* [Coding standards](#coding-standards)
-	* [Linting](#linting)
-* [Standard development & debugging tools](#standard-development--debugging-tools)
+- [Development Environment](#development-environment)
+	- [Table of contents](#table-of-contents)
+- [Setting up your environment](#setting-up-your-environment)
+	- [Overview](#overview)
+	- [Running Jetpack locally](#running-jetpack-locally)
+	- [Get started with development](#get-started-with-development)
+		- [Clone the repository](#clone-the-repository)
+		- [Install development tools](#install-development-tools)
+		- [Check if your environment is ready for Jetpack development](#check-if-your-environment-is-ready-for-jetpack-development)
+- [Development workflow](#development-workflow)
+	- [Building your project](#building-your-project)
+			- [Installing Unison](#installing-unison)
+			- [Configuring Unison](#configuring-unison)
+			- [Running Unison](#running-unison)
+			- [Advanced Configuration](#advanced-configuration)
+	- [Note: You will need to adjust the above command depending on the name(s) of your Unison configuration files.](#note-you-will-need-to-adjust-the-above-command-depending-on-the-names-of-your-unison-configuration-files)
+- [Unit-testing](#unit-testing)
+	- [PHP unit tests](#php-unit-tests)
+	- [JavaScript unit tests](#javascript-unit-tests)
+- [Good code - linting, standards, compatibility, etc.](#good-code---linting-standards-compatibility-etc)
+	- [Coding standards](#coding-standards)
+	- [Linting](#linting)
+- [Standard development \& debugging tools](#standard-development--debugging-tools)
 
 # Setting up your environment
 
@@ -192,6 +190,50 @@ There are different types of builds:
 
 	Are pre-commit and pre-push hooks slowing down a major refactor or draft PR? Run `jetpack draft enable` to make them less aggressive (they will still run, but won't block for warnings), and `jetpack draft disable` when you're ready for them again.
 
+* ### Syncing local changes with Unison
+  
+  In some cases, you may need to test Jetpack (jetpack-mu-wpcom, in particular) changes by syncing your changes to another machine (rather than using Docker). This outlines a strategy for syncing changes in real-time using the [Unison](https://github.com/bcpierce00/unison) file sync tool combines with the [unison-fsmonitor](https://github.com/benesch/unison-fsmonitor).
+
+  This approach may be especially useful for Automatticians who are testing changes on their WPCOM sandbox. Using Unison can be more efficient than rsync (or `jetpack rsync`).
+
+  #### Installing Unison
+
+  Please see the respective Unison and usion-fsmonitor repositories for full installation instructions. 
+
+  On OSX, you can use [Homebrew](https://brew.sh/) to quickly install both tools:
+
+  - `brew install unison`
+  - `brew install autozimu/formulas/unison-fsmonitor`
+
+  #### Configuring Unison
+
+  Once Unison is installed, you'll want to create a preferences file. On OSX/Linux, that preferences file would be placed in `~/.unison` and could be called something like `jetpack-plugin-sync.prf`. See the Unison documentation for instructions for other platforms.
+  
+  Here is a [sample preferences file](unison-sample.prf). Please note that this example preferences file is set to _always_ prefer local changes over remote changes. You'll need to adjust the file if you require a two-way sync instead. See the Unison documentation for full configuration details.
+
+  #### Running Unison
+
+  Once your preference file is configured, you can simply run something like the following in a terminal:
+
+  ```
+  unison -ui text -repeat watch jetpack-plugin-sync
+  ```
+
+  Unison will watch for any local changes to the Jetpack files and sync them to your remote host.
+  
+  #### Advanced Configuration
+
+  Jetpack currently uses a `sun`/`moon` strategy where the current production files are in one folder and the "staging/test" version are in the other folder.
+
+  If you don't want to keep track of which folder is in use during development, you may want to create _two_ Unison preference files, one file which syncs to the `sun` location and one file which syncs to the `moon` location. Then you would run two separate instances of `unison watch` (as described above).
+
+  For even more advanced usage, you can use the following command to launch tmux with each unison command running in a separate window.
+
+  ```
+  tmux new-session -d 'unison -ui text -repeat watch jetpack-plugin-moon' \; split-window -d 'unison -ui text -repeat watch jetpack-plugin-sun' \; attach
+  ```
+
+  Note: You will need to adjust the above command depending on the name(s) of your Unison configuration files.
 ---
 
 # Unit-testing
