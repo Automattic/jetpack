@@ -10,11 +10,13 @@ Based on [MediaRecorder](https://developer.mozilla.org/en-US/docs/Web/API/MediaR
 
 The hook returns an object with the following properties and methods:
 
-- `start: ( timeslice ) => void`: Start the media recording
-- `pause: () => void`: Pause the current media recording
-- `resume: () => void`: Resume a paused recording
-- `stop: () => void`: Stop the current recording
-- `state: 'inactive' | 'recording' | 'paused'`: Current recording state
+- `state: 'inactive' | 'recording' | 'paused'` - Current recording state
+- `blob`: `blob` - The recorded blob
+- `url`: `string` - The recorded blob url
+- `start: ( timeslice ) => void` - Start the media recording
+- `pause: () => void` - Pause the current media recording
+- `resume: () => void` - Resume a paused recording
+- `stop: () => void` - Stop the current recording
 
 ## Example
 
