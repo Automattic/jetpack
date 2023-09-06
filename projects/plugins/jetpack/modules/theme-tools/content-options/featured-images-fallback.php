@@ -126,6 +126,7 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 	return trim( $html );
 }
 add_filter( 'post_thumbnail_html', 'jetpack_featured_images_fallback_get_image', 10, 5 );
+add_filter( 'jetpack_postimages_ignore_minimum_dimensions', '__return_true' );
 
 /**
  * Get URL of one image from a specified post in the following order:
