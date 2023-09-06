@@ -1,14 +1,14 @@
 /* eslint-disable jsdoc/no-undefined-types */
-import { getIconColor } from './block-icons';
+import { getIconColor } from './get-icon-color';
 
 /**
- * Generate the icon as a React component from the SVG markup defined in block.json. This avoids
- * duplication of the SVG markup.
+ * Generate an icon as a React component from the SVG markup defined in a block.json metadata file.
+ * This prevents us from duplicating the markup in various places.
  *
  * @param {object} metadata - Block.json content
  * @returns {React.Component} Icon component
  */
-export default function getBlockIconFromMetadata( metadata ) {
+export function getBlockIconComponent( metadata ) {
 	// Note: using an `img` tag and passing the SVG markup as a data URI doesn't allow
 	// us to dynamically set the icon color later on.
 	/* eslint-disable-next-line react/no-danger */
@@ -24,9 +24,9 @@ export default function getBlockIconFromMetadata( metadata ) {
  * @param {object} metadata - Block.json content
  * @returns {object} Icon property for client registration
  */
-export function getClientBlockIconProp( metadata ) {
+export function getBlockIconProp( metadata ) {
 	return {
-		src: getBlockIconFromMetadata( metadata ),
+		src: getBlockIconComponent( metadata ),
 		foreground: getIconColor(),
 	};
 }
