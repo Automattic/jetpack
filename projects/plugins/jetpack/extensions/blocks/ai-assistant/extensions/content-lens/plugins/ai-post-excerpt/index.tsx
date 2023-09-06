@@ -83,6 +83,11 @@ function AiPostExcerpt() {
 		reset();
 	}
 
+	function discardExpert() {
+		editPost( { excerpt: excerpt } );
+		reset();
+	}
+
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
@@ -101,6 +106,15 @@ function AiPostExcerpt() {
 			/>
 
 			<div className="jetpack-generated-excerpt__generate-buttons-container">
+				<Button
+					onClick={ discardExpert }
+					variant="secondary"
+					isDestructive
+					disabled={ requestingState !== 'done' }
+				>
+					{ __( 'Discard', 'jetpack' ) }
+				</Button>
+
 				<Button onClick={ setExpert } variant="secondary" disabled={ requestingState !== 'done' }>
 					{ __( 'Accept', 'jetpack' ) }
 				</Button>
