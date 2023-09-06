@@ -35,7 +35,11 @@ import useAIFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
 import { isUserConnected } from './lib/connection';
 import { getImagesFromOpenAI } from './lib/image';
-import { getInitialSystemPrompt } from './lib/prompt';
+import {
+	getInitialSystemPrompt,
+	PROMPT_TYPE_GENERATE_TITLE,
+	PROMPT_TYPE_USER_PROMPT,
+} from './lib/prompt';
 import './editor.scss';
 
 const markdownConverter = new MarkdownIt( {
@@ -263,7 +267,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		return lastEditableElement;
 	};
 
-	const isGeneratingTitle = attributes.promptType === 'generateTitle';
+	const isGeneratingTitle = attributes.promptType === PROMPT_TYPE_GENERATE_TITLE;
 
 	const acceptContentLabel = __( 'Accept', 'jetpack' );
 	const acceptTitleLabel = __( 'Accept title', 'jetpack' );
@@ -288,7 +292,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleSend = () => {
-		handleGetSuggestion( 'userPrompt' );
+		handleGetSuggestion( PROMPT_TYPE_USER_PROMPT );
 	};
 
 	const handleAccept = () => {
