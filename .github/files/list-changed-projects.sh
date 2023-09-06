@@ -34,7 +34,7 @@ elif [[ "${GITHUB_EVENT_NAME:?}" == "push" ]]; then
 			done <<<"$TMP"
 			DEPENDENTS=false
 			if [[ "$EXTRA" == "test" ]]; then
-				debug "Also considering depndencies of those as changed for running tests"
+				debug "Also considering dependencies of those as changed for running tests"
 				DEPENDENCIES=true
 			fi
 		else
@@ -49,7 +49,7 @@ elif [[ "${GITHUB_EVENT_NAME:?}" == "push" ]]; then
 				ARGS+=( "$LINE" )
 			done <<<"$TMP"
 			if [[ "$EXTRA" == "test" ]]; then
-				debug "Also considering depndencies of those as changed for running tests"
+				debug "Also considering dependencies of those as changed for running tests"
 				DEPENDENCIES=true
 			fi
 		else
