@@ -7,10 +7,22 @@
 	margin-bottom: 12px;
 }
 
+
 .jetpack-generated-excerpt__generate-buttons-container {
 	display: flex;
 	justify-content: end;
 	margin-bottom: 10px;
 	gap: 12px;
 	justify-content:space-around;
+}
+
+// Upgrade banner
+.jetpack-ai-post-excerpt .jetpack-upgrade-plan-banner__wrapper {
+	flex-direction: column;
+	margin: 20px 0 10px;
+	padding: 0 10px;
+
+	.jetpack-ai-upgrade-banner__description {
+		margin: 10px 0 0;
+	}
 }
