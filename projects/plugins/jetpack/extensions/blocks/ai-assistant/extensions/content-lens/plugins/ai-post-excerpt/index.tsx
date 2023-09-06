@@ -6,7 +6,8 @@ import { TextareaControl, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf, _n } from '@wordpress/i18n';
+import { count } from '@wordpress/wordcount';
 /**
  * Internal dependencies
  */
@@ -35,6 +36,14 @@ function AiPostExcerpt() {
 		console.log( 'request excerpt suggestion' ); // eslint-disable-line no-console
 	}
 
+	// Show custom prompt number of words
+	const numberOfWords = count( excerpt, 'words' );
+	const helpNumberOfWords = sprintf(
+		// Translators: %1$s is the number of words in the excerpt.
+		_n( '%1$s word', '%1$s words', numberOfWords, 'jetpack' ),
+		numberOfWords
+	);
+
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
@@ -42,6 +51,7 @@ function AiPostExcerpt() {
 				label={ __( 'Write an excerpt (optional)', 'jetpack' ) }
 				onChange={ value => editPost( { excerpt: value } ) }
 				value={ excerpt }
+				help={ numberOfWords ? helpNumberOfWords : null }
 			/>
 
 			<AiExcerptControl
