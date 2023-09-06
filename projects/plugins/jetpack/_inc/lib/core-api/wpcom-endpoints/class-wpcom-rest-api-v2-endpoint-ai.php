@@ -143,6 +143,35 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/jetpack-search/ai/rank',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'rank_response' ),
+					'permission_callback' => '__return_true',
+				),
+				'args' => array(
+					'cache_key' => array(
+						'description'       => 'Cache key of your response',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'comment'   => array(
+						'description'       => 'Optional feedback',
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'rank'      => array(
+						'description'       => 'How do you rank this response',
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -161,6 +190,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 			array(
 				'method'  => 'GET',
 				'headers' => array( 'content-type' => 'application/json' ),
+				'timeout' => 30,
 			),
 			array(
 				'query'         => $question,
@@ -173,6 +203,42 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				 * @since $$next-version$$
 				 */
 				'answer_prompt' => apply_filters( 'jetpack_ai_chat_answer_prompt', false ),
+			),
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ) );
+
+		return $data;
+	}
+
+	/**
+	 * Rank a response from chatting with the site.
+	 *
+	 * @param  WP_REST_Request $request The request.
+	 * @return mixed
+	 */
+	public function rank_response( $request ) {
+		$rank      = $request->get_param( 'rank' );
+		$comment   = $request->get_param( 'comment' );
+		$cache_key = $request->get_param( 'cache_key' );
+		$blog_id   = \Jetpack_Options::get_option( 'id' );
+		$response  = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/jetpack-search/ai/rank', $blog_id ) . '?force=wpcom',
+			2,
+			array(
+				'method'  => 'GET',
+				'headers' => array( 'content-type' => 'application/json' ),
+				'timeout' => 30,
+			),
+			array(
+				'rank'      => $rank,
+				'comment'   => $comment,
+				'cache_key' => $cache_key,
 			),
 			'wpcom'
 		);

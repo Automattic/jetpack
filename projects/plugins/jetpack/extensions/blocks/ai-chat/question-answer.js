@@ -15,6 +15,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import useSubmitFeedback from './use-submit-feedback';
 import useSubmitQuestion from './use-submit-question';
 
 // TODO: Configurable strings.
@@ -71,8 +72,11 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
  * @returns {QuestionAnswer} component.
  */
 export default function QuestionAnswer() {
-	const { question, setQuestion, answer, isLoading, submitQuestion, references } =
+	const { question, setQuestion, answer, isLoading, submitQuestion, references, cacheKey } =
 		useSubmitQuestion();
+
+	const { isSubmittingFeedback, submitFeedback } = useSubmitFeedback();
+	const [ feedback, setFeedback ] = useState( { rank: null, comment: null } );
 
 	const [ animationDone, setAnimationDone ] = useState( false );
 	const [ showReferences, setShowReferences ] = useState( false );
@@ -94,6 +98,12 @@ export default function QuestionAnswer() {
 	const handleSetAnimationDone = () => {
 		setAnimationDone( true );
 		setShowReferences( true );
+	};
+
+	const handleRankSubmit = rankValue => {
+		const updatedFeedback = { ...feedback, rank: rankValue };
+		setFeedback( updatedFeedback );
+		submitFeedback( updatedFeedback, cacheKey );
 	};
 
 	const showCopyButton = animationDone && ! isLoading;
@@ -156,21 +166,17 @@ export default function QuestionAnswer() {
 							{ __( 'Was this helpful?', 'jetpack' ) }
 							<Button
 								className="thumbs-up"
+								disabled={ isSubmittingFeedback }
 								label={ __( 'Thumbs up', 'jetpack' ) }
-								onClick={ () => {
-									/* eslint-disable-next-line no-console */
-									console.log( 'Thumbs up!' );
-								} }
+								onClick={ () => handleRankSubmit( 'thumbs-up' ) }
 							>
 								<Icon icon="thumbs-up" />
 							</Button>
 							<Button
 								className="thumbs-down"
+								disabled={ isSubmittingFeedback }
 								label={ __( 'Thumbs down', 'jetpack' ) }
-								onClick={ () => {
-									/* eslint-disable-next-line no-console */
-									console.log( 'Thumbs down!' );
-								} }
+								onClick={ () => handleRankSubmit( 'thumbs-down' ) }
 							>
 								<Icon icon="thumbs-down" />
 							</Button>
