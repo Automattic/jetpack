@@ -17,33 +17,6 @@
   / Breaking Checks
    ====================================================== */
 
-
-
-# http://stackoverflow.com/questions/23698827/custom-permalink-structure-custom-post-type-custom-taxonomy-post-name
-
-/* ======================================================
-  Quote Builder -> Expose
-   ====================================================== */
-
-
-        /* FOR HASHING: ADD A QUERY VAR to avoid users brute force finding quote data */
-
-        # http://www.rlmseo.com/blog/passing-get-query-string-parameters-in-wordpress-url/
-        /* WH switched out 9/7/18 
-        function zeroBSCRM_addQuoteQueryVars($aVars) {
-          $aVars[] = "quotehash";
-          return $aVars;
-        } add_filter('query_vars', 'zeroBSCRM_addQuoteQueryVars');
-        */
-        
-        function zeroBSCRM_addInVoiceID($aVars) {
-          $aVars[] = "invoiceid";
-          return $aVars;
-        } add_filter('query_vars', 'zeroBSCRM_addInVoiceID');
-
-
-
-   # for now we ALWAYS add this rule, (should it be only onquotebuilder?)
 /**
  * Tell WordPress how to interpret our URL structure
  *
@@ -78,9 +51,3 @@ function zeroBSCRM_rewrite_flushIfSet(){
     }
 
 }
-
-
-
-/* ======================================================
-  / Quote Builder -> Expose
-   ====================================================== */
