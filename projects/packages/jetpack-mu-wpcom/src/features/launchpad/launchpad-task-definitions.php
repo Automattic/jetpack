@@ -139,7 +139,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_visible_callback' => 'wpcom_launchpad_has_goal_paid_subscribers',
 			'get_calypso_path'    => function ( $task, $default, $data ) {
-				return 'earn/payments-plans/' . $data['site_slug_encoded'] . '#add-newsletter-payment-plan';
+				return '/earn/payments-plans/' . $data['site_slug_encoded'] . '#add-newsletter-payment-plan';
 			},
 		),
 		'setup_newsletter'                => array(
