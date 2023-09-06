@@ -22,7 +22,7 @@ class Marketplace_Products_Updater {
 	 * @return void
 	 */
 	public static function init() {
-		add_filter( 'pre_set_site_transient_update_plugins', array( __CLASS__, 'transient_update_plugins' ) );
+		add_filter( 'pre_set_site_transient_update_plugins', array( __CLASS__, 'transient_update_plugins' ), 100 );
 	}
 
 	/**
