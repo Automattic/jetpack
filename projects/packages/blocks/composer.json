@@ -3,11 +3,13 @@
 	"description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-constants": "^1.6@dev"
+	},
 	"require-dev": {
 		"automattic/wordbless": "dev-master",
 		"brain/monkey": "2.6.1",
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"suggest": {
