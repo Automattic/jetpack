@@ -425,4 +425,28 @@ class Test_Blocks extends TestCase {
 
 		$this->assertEquals( $result, $feature );
 	}
+
+	/**
+	 * Test getting the path to a block's metadata file.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @covers Automattic\Jetpack\Blocks::get_path_to_block_metadata
+	 */
+	public function test_get_path_to_block_metadata() {
+		Constants::set_constant( 'JETPACK__PLUGIN_FILE', '/a/b/c/index.php' );
+
+		$block_src_dir = '/extensions/blocks/test-block';
+
+		$result = Blocks::get_path_to_block_metadata( $block_src_dir );
+		$this->assertEquals( '/a/b/c/_inc/blocks/test-block', $result );
+
+		$result = Blocks::get_path_to_block_metadata( $block_src_dir, '/dist' );
+		$this->assertEquals( '/dist/test-block', $result );
+
+		$result = Blocks::get_path_to_block_metadata( $block_src_dir, '/dist/' );
+		$this->assertEquals( '/dist/test-block', $result );
+
+		Constants::clear_constants();
+	}
 }
