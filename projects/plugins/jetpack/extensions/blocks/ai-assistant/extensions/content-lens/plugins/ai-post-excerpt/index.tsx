@@ -45,7 +45,8 @@ function AiPostExcerpt() {
 	}, [ removeEditorPanel ] );
 
 	// Show custom prompt number of words
-	const numberOfWords = count( excerpt, 'words' );
+	const currentExcerpt = suggestion || excerpt;
+	const numberOfWords = count( currentExcerpt, 'words' );
 	const helpNumberOfWords = sprintf(
 		// Translators: %1$s is the number of words in the excerpt.
 		_n( '%1$s word', '%1$s words', numberOfWords, 'jetpack' ),
@@ -83,7 +84,7 @@ function AiPostExcerpt() {
 				label={ __( 'Write an excerpt (optional)', 'jetpack' ) }
 				onChange={ value => editPost( { excerpt: value } ) }
 				help={ numberOfWords ? helpNumberOfWords : null }
-				value={ excerpt || suggestion }
+				value={ currentExcerpt }
 			/>
 
 			<AiExcerptControl
