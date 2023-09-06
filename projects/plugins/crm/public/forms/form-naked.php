@@ -40,7 +40,7 @@ if (isset($_GET['fid'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name='robots' content='noindex,nofollow' />
 
-    <title>ZBSCRM Form</title>
+		<title><?php esc_html_e( 'Jetpack CRM Form', 'zero-bs-crm' ); ?></title>
 
     <?php 
 
