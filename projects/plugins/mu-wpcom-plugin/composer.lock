@@ -13,6 +13,7 @@
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
                 "reference": "64834487d36221c54451490aea577b6da57dc83a"
+                "reference": "c4203608e592e2bb82a1398b744eec9db95c893b"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
