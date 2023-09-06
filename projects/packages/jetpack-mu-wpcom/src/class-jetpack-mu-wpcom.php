@@ -36,6 +36,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_media' ) );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
@@ -80,6 +81,13 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_launchpad() {
 		require_once __DIR__ . '/features/launchpad/launchpad.php';
+	}
+
+	/**
+	 * Load media features.
+	 */
+	public static function load_media() {
+		require_once __DIR__ . '/features/media/heif-support.php';
 	}
 
 	/**
