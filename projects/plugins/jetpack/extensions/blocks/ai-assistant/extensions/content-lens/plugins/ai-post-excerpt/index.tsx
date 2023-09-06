@@ -38,7 +38,7 @@ function AiPostExcerpt() {
 	// Remove core excerpt panel
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
 
-	const { request, suggestion, requestingState } = useAiSuggestions();
+	const { request, reset, suggestion, requestingState } = useAiSuggestions();
 
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
@@ -78,6 +78,11 @@ function AiPostExcerpt() {
 		request( prompt, { feature: 'jetpack-ai-content-lens' } );
 	}
 
+	function setExpert() {
+		editPost( { excerpt: suggestion } );
+		reset();
+	}
+
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
@@ -96,6 +101,10 @@ function AiPostExcerpt() {
 			/>
 
 			<div className="jetpack-generated-excerpt__generate-buttons-container">
+				<Button onClick={ setExpert } variant="secondary" disabled={ requestingState !== 'done' }>
+					{ __( 'Use', 'jetpack' ) }
+				</Button>
+
 				<Button
 					onClick={ () => requestExcerpt() }
 					variant="secondary"
