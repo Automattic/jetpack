@@ -6,7 +6,6 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { registerBlockType } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
-import { getClientBlockIconProp } from './get-block-icon-from-metadata';
 
 const JETPACK_PREFIX = 'jetpack/';
 
