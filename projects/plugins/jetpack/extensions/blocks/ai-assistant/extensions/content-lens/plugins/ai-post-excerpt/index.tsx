@@ -61,7 +61,7 @@ function AiPostExcerpt() {
 				role: 'jetpack-ai',
 				context: {
 					type: 'ai-content-lens',
-					content: '',
+					request: 'excerpt',
 					words: excerptWordsNumber,
 					postId,
 				},
