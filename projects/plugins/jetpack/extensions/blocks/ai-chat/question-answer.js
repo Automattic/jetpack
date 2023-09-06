@@ -76,7 +76,8 @@ export default function QuestionAnswer() {
 		useSubmitQuestion();
 
 	const { isSubmittingFeedback, submitFeedback } = useSubmitFeedback();
-	const [ feedback, setFeedback ] = useState( { rank: null, comment: null } );
+	const [ feedback, setFeedback ] = useState( { rank: '', comment: '' } );
+	const [ showFeedbackForm, setShowFeedbackForm ] = useState( false );
 
 	const [ animationDone, setAnimationDone ] = useState( false );
 	const [ showReferences, setShowReferences ] = useState( false );
@@ -103,7 +104,16 @@ export default function QuestionAnswer() {
 	const handleRankSubmit = rankValue => {
 		const updatedFeedback = { ...feedback, rank: rankValue };
 		setFeedback( updatedFeedback );
-		submitFeedback( updatedFeedback, cacheKey );
+		setShowFeedbackForm( true );
+	};
+
+	const setFeedbackComment = feedbackComment => {
+		const updatedFeedback = { ...feedback, comment: feedbackComment };
+		setFeedback( updatedFeedback );
+	};
+
+	const handleFeedbackSubmit = () => {
+		submitFeedback( feedback, cacheKey );
 	};
 
 	const showCopyButton = animationDone && ! isLoading;
@@ -166,7 +176,7 @@ export default function QuestionAnswer() {
 							{ __( 'Was this helpful?', 'jetpack' ) }
 							<Button
 								className="thumbs-up"
-								disabled={ isSubmittingFeedback }
+								disabled={ isSubmittingFeedback || feedback.rank === 'thumbs-up' }
 								label={ __( 'Thumbs up', 'jetpack' ) }
 								onClick={ () => handleRankSubmit( 'thumbs-up' ) }
 							>
@@ -174,13 +184,33 @@ export default function QuestionAnswer() {
 							</Button>
 							<Button
 								className="thumbs-down"
-								disabled={ isSubmittingFeedback }
+								disabled={ isSubmittingFeedback || feedback.rank === 'thumbs-down' }
 								label={ __( 'Thumbs down', 'jetpack' ) }
 								onClick={ () => handleRankSubmit( 'thumbs-down' ) }
 							>
 								<Icon icon="thumbs-down" />
 							</Button>
 						</div>
+					</div>
+				) }
+				{ showFeedback && showFeedbackForm && (
+					<div className="jetpack-ai-chat-feedback-form">
+						<TextControl
+							className="jetpack-ai-chat-feedback-input"
+							placeholder={
+								( feedback.rank === 'thumbs-up' &&
+									__( 'What did you like about it?', 'jetpack' ) ) ||
+								( feedback.rank === 'thumbs-down' &&
+									__( "What didn't you like about it? How could it be improved?", 'jetpack' ) )
+							}
+							size={ 50 }
+							value={ feedback.comment }
+							onChange={ newFeedbackComment => setFeedbackComment( newFeedbackComment ) }
+						/>
+
+						<Button variant="primary" onClick={ handleFeedbackSubmit }>
+							{ __( 'Submit', 'jetpack' ) }
+						</Button>
 					</div>
 				) }
 				{ references && references.length > 0 && showReferences && (
