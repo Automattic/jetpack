@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import './style.scss';
-import { AiAssistantExcerptControl } from '../../components/ai-excerpt-control';
+import { AiExcerptControl } from '../../components/ai-excerpt-control';
 
 function AiPostExcerpt() {
 	const excerpt = useSelect(
@@ -40,7 +40,7 @@ function AiPostExcerpt() {
 				role: 'jetpack-ai',
 				context: {
 					type: 'ai-content-lens',
-					content: '',
+					request: 'excerpt',
 					words: excerptWordsNumber,
 					postId,
 				},
@@ -59,7 +59,7 @@ function AiPostExcerpt() {
 				value={ excerpt || suggestion }
 			/>
 
-			<AiAssistantExcerptControl
+			<AiExcerptControl
 				words={ excerptWordsNumber }
 				onWordsNumberChange={ setExcerptWordsNumber }
 				onGenerate={ updatePostExcerpt }

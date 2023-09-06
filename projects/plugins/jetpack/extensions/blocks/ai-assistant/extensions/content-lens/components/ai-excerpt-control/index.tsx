@@ -12,7 +12,7 @@ import './style.scss';
  * Types and constants
  */
 
-export type AiAssistantExcerptControlProps = {
+export type AiExcerptControlProps = {
 	/*
 	 * Whether the component is disabled.
 	 */
@@ -49,7 +49,7 @@ export type AiAssistantExcerptControlProps = {
 	onWordsNumberChange?: ( words: number ) => void;
 };
 
-export function AiAssistantExcerptControl( {
+export function AiExcerptControl( {
 	minWords = 10,
 	maxWords = 100,
 	disabled,
@@ -58,7 +58,7 @@ export function AiAssistantExcerptControl( {
 	isBusy,
 	onGenerate,
 	onWordsNumberChange,
-}: AiAssistantExcerptControlProps ) {
+}: AiExcerptControlProps ) {
 	return (
 		<>
 			<RangeControl
