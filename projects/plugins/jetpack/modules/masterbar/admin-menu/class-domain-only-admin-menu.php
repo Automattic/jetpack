@@ -64,5 +64,29 @@ class Domain_Only_Admin_Menu extends Base_Admin_Menu {
 
 		add_menu_page( esc_attr__( 'Manage Purchases', 'jetpack' ), __( 'Manage Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 'dashicons-cart' );
 		add_menu_page( esc_attr__( 'Inbox', 'jetpack' ), __( 'Inbox', 'jetpack' ), 'manage_options', 'https://wordpress.com/inbox/' . $this->domain, null, 'dashicons-email' );
+
+		$this->add_users_menu();
+	}
+
+	/**
+	 * Add users menu
+	 */
+	public function add_users_menu() {
+		add_menu_page( esc_attr__( 'Users', 'jetpack' ), __( 'Users', 'jetpack' ), 'list_users', 'https://wordpress.com/people/team/' . $this->domain, null, 'dashicons-admin-users' );
+
+		$submenus_to_update = array(
+			'profile.php' => 'https://wordpress.com/me',
+		);
+
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'users.php' ) ) {
+			$submenus_to_update['users.php']    = 'https://wordpress.com/people/team/' . $this->domain;
+			$submenus_to_update['user-new.php'] = 'https://wordpress.com/people/new/' . $this->domain;
+		}
+
+		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
+		$this->update_submenus( $slug, $submenus_to_update );
+
+		add_submenu_page( 'users.php', esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
+		add_submenu_page( 'users.php', esc_attr__( 'Users', 'jetpack' ), __( 'Users', 'jetpack' ), 'list_users', 'https://wordpress.com/people/team' . $this->domain, null, 3 );
 	}
 }
