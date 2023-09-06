@@ -1377,35 +1377,21 @@ function zeroBSCRM_extension_uninstall_cal() {
 }
 
 function zeroBSCRM_extension_install_quotebuilder() {
-
-	$result = jpcrm_install_core_extension( 'quotebuilder' );
-
-	// } Set this so as wp flushes permalinks on next Load
-	zeroBSCRM_rewrite_setToFlush();
-
+	$result = jpcrm_install_core_extension( 'quotebuilder', true );
 	return $result;
 }
 
 function zeroBSCRM_extension_uninstall_quotebuilder() {
-
-	$result = jpcrm_uninstall_core_extension( 'quotebuilder' );
-
-	// Set this so as wp flushes permalinks on next Load
-	zeroBSCRM_rewrite_setToFlush();
-
+	$result = jpcrm_uninstall_core_extension( 'quotebuilder', true );
 	return $result;
 }
 
 function zeroBSCRM_extension_install_invbuilder() {
-	// Set this so as wp flushes permalinks on next Load
-	zeroBSCRM_rewrite_setToFlush();
-	return jpcrm_install_core_extension( 'invbuilder' );
+	return jpcrm_install_core_extension( 'invbuilder', true );
 }
 
 function zeroBSCRM_extension_uninstall_invbuilder() {
-	// Set this so as wp flushes permalinks on next Load
-	zeroBSCRM_rewrite_setToFlush();
-	return jpcrm_uninstall_core_extension( 'invbuilder' );
+	return jpcrm_uninstall_core_extension( 'invbuilder', true );
 }
 
 function zeroBSCRM_extension_install_csvimporterlite() {
