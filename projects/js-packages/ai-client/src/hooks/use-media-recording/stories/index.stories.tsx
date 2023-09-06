@@ -10,10 +10,11 @@ import useMediaRecording from '../';
 /**
  * Types
  */
+import AudioDurationDisplay from '../../../components/audio-duration-display';
 import type { Meta } from '@storybook/react';
 
 const RecorderComponent = ( { timeslice } ) => {
-	const { start, pause, resume, stop, state, blob } = useMediaRecording();
+	const { start, pause, resume, stop, state, blob, url } = useMediaRecording();
 
 	return (
 		<div>
@@ -33,6 +34,13 @@ const RecorderComponent = ( { timeslice } ) => {
 					<span>
 						Blob: <strong>{ blob ? `${ blob.size } - type: ${ blob.type }` : 'No blob' }</strong>
 					</span>
+				</div>
+
+				<div>
+					<span>Duration: </span>
+					<strong>
+						<AudioDurationDisplay url={ url } />
+					</strong>
 				</div>
 			</div>
 			<br />

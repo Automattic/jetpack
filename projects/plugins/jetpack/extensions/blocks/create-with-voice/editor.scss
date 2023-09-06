@@ -1,5 +1,22 @@
 @import '@automattic/jetpack-base-styles/style';
 
+.jetpack-ai-create-with-voice .components-placeholder__fieldset {
+	display: flex;
+	flex-direction: column;
+}
+
+.jetpack-ai-create-with-voice__player {
+	margin-bottom: 12px;
+	display: flex;
+	height: 40px;
+	align-items: center;
+	gap: 16px;
+
+	audio {
+		height: 100%;
+	}
+}
+
 .jetpack-ai-create-with-voice__recorder {
 	display: flex;
 	flex-direction:row;

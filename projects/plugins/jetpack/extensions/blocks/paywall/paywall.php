@@ -11,8 +11,10 @@ namespace Automattic\Jetpack\Extensions\Paywall;
 
 use Automattic\Jetpack\Blocks;
 
-const FEATURE_NAME = 'paywall';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+const FEATURE_NAME      = 'paywall';
+const BLOCK_NAME        = 'jetpack/' . FEATURE_NAME;
+const BLOCK_HTML        = '<!-- wp:' . BLOCK_NAME . ' /-->';
+const THE_EXCERPT_BLOCK = '[[[[[' . BLOCK_NAME . ']]]]]';
 
 /**
  * Registers the block for use in Gutenberg
@@ -28,7 +30,37 @@ function register_block() {
 	}
 
 	Blocks::jetpack_register_block(
-		BLOCK_NAME
+		BLOCK_NAME,
+		array(
+			'render_callback' => __NAMESPACE__ . '\render_block',
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
+
+/**
+ * Paywall block render callback.
+ *
+ * @return string
+ */
+function render_block() {
+	if ( doing_filter( 'get_the_excerpt' ) ) {
+		if ( \Jetpack_Memberships::user_can_view_post() ) {
+			return '';
+		}
+		return THE_EXCERPT_BLOCK;
+	}
+	return '';
+}
+
+/**
+ * Adds the Paywall block to excerpt allowed blocks.
+ *
+ * @param array $allowed_blocks The allowed blocks.
+ *
+ * @return array The allowed blocks.
+ */
+function excerpt_allowed_blocks( $allowed_blocks ) {
+	return array_merge( $allowed_blocks, array( BLOCK_NAME ) );
+}
+add_filter( 'excerpt_allowed_blocks', __NAMESPACE__ . '\excerpt_allowed_blocks' );
