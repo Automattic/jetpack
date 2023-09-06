@@ -119,6 +119,8 @@ ${ postContent }
 		reset();
 	}
 
+	const isQuotaExceeded = error?.code === ERROR_QUOTA_EXCEEDED;
+
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
@@ -149,12 +151,12 @@ ${ postContent }
 				</Notice>
 			) }
 
-			{ error?.code === ERROR_QUOTA_EXCEEDED && <UpgradePrompt /> }
+			{ isQuotaExceeded && <UpgradePrompt /> }
 
 			<AiExcerptControl
 				words={ excerptWordsNumber }
 				onWordsNumberChange={ setExcerptWordsNumber }
-				disabled={ isBusy }
+				disabled={ isBusy || isQuotaExceeded }
 			/>
 
 			<div className="jetpack-generated-excerpt__generate-buttons-container">
@@ -162,12 +164,16 @@ ${ postContent }
 					onClick={ discardExpert }
 					variant="secondary"
 					isDestructive
-					disabled={ requestingState !== 'done' }
+					disabled={ requestingState !== 'done' || isQuotaExceeded }
 				>
 					{ __( 'Discard', 'jetpack' ) }
 				</Button>
 
-				<Button onClick={ setExpert } variant="secondary" disabled={ requestingState !== 'done' }>
+				<Button
+					onClick={ setExpert }
+					variant="secondary"
+					disabled={ requestingState !== 'done' || isQuotaExceeded }
+				>
 					{ __( 'Accept', 'jetpack' ) }
 				</Button>
 
@@ -175,7 +181,7 @@ ${ postContent }
 					onClick={ () => requestExcerpt() }
 					variant="secondary"
 					isBusy={ isBusy }
-					disabled={ isGenerateButtonDisabled }
+					disabled={ isGenerateButtonDisabled || isQuotaExceeded }
 				>
 					{ __( 'Generate', 'jetpack' ) }
 				</Button>
