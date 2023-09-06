@@ -12,18 +12,6 @@ if ( ! function_exists( 'wp_cache_is_enabled' ) ) {
 	function wp_cache_is_enabled() {}
 }
 
-if ( ! function_exists( 'gutenberg_is_fse_theme' ) ) {
-	/**
-	 * Assume all themes are an FSE theme.
-	 *
-	 * This function shouldn't be used anymore. wp_is_block_theme() should be used instead.
-	 * Leaving this mock here for now to avoid breaking tests.
-	 */
-	function gutenberg_is_fse_theme() {
-		return true;
-	}
-}
-
 if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 	/**
 	 * Mock feature support.

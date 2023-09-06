@@ -25,9 +25,12 @@ export default {
 	ignore_user_blogs: {
 		type: 'boolean',
 		default: true,
+<<<<<<< HEAD
 	},
 	load_placeholders: {
 		type: 'boolean',
 		default: true,
+=======
+>>>>>>> trunk
 	},
 };

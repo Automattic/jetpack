@@ -1,58 +1,27 @@
 import { InspectorControls, useBlockProps, InnerBlocks } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
-import { PanelBody, ToggleControl, FlexBlock, Spinner } from '@wordpress/components';
-import { dispatch } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { PanelBody, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
-import useRecommendations from './use-recommendations';
 
-export function BlogRollEdit( { className, attributes, setAttributes, clientId } ) {
+export function BlogRollEdit( { className, attributes, setAttributes } ) {
 	const {
 		show_avatar,
 		show_description,
 		show_subscribe_button,
 		open_links_new_window,
 		ignore_user_blogs,
-		load_placeholders,
 	} = attributes;
 
-	const { isLoading, recommendations } = useRecommendations();
+	const DEFAULT_TEMPLATE = [
+		[ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ],
+		[ 'jetpack/blogroll-item', {} ],
+	];
 
-	const { replaceInnerBlocks } = dispatch( 'core/block-editor' );
-
-	useEffect( () => {
-		if ( load_placeholders && recommendations.length ) {
-			setAttributes( { load_placeholders: false } );
-
-			const blocks = [
-				createBlock( 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ),
-				...recommendations.map( attrs => {
-					if ( ! attrs.icon ) {
-						const emptySvg =
-							'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"></svg>';
-						attrs.icon = 'data:image/svg+xml;base64,' + btoa( emptySvg );
-					}
-
-					return createBlock( 'jetpack/blogroll-item', attrs );
-				} ),
-			];
-			replaceInnerBlocks( clientId, blocks );
-		}
-	}, [ recommendations, load_placeholders, setAttributes, clientId, replaceInnerBlocks ] );
+	const ALLOWED_BLOCKS = [ 'jetpack/blogroll-item' ];
 
 	return (
 		<div { ...useBlockProps() } className={ className }>
-			<InnerBlocks
-				template={ [ [ 'core/heading', { content: __( 'Blogroll', 'jetpack' ), level: 3 } ] ] }
-				allowedBlocks={ [ 'jetpack/blogroll-item' ] }
-			/>
-
-			{ load_placeholders && isLoading && (
-				<FlexBlock style={ { padding: '30px', textAlign: 'center' } }>
-					<Spinner />
-				</FlexBlock>
-			) }
+			<InnerBlocks template={ DEFAULT_TEMPLATE } allowedBlocks={ ALLOWED_BLOCKS } />
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>

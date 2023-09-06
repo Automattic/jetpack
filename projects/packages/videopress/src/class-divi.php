@@ -60,7 +60,16 @@ class Divi {
 
 		$this->running = true;
 		add_action( 'divi_extensions_init', array( $this, 'initialize_extension' ) );
+		add_action( 'et_fb_framework_loaded', array( $this, 'on_fb_framework_loaded' ) );
+
 		return $this;
+	}
+
+	/**
+	 * Fires when the Frontend Builder is loaded.
+	 */
+	public function on_fb_framework_loaded() {
+		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 	}
 
 	/**
