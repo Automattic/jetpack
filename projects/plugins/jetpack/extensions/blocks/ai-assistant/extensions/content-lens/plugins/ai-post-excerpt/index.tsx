@@ -29,12 +29,23 @@ function AiPostExcerpt() {
 	// Remove core excerpt panel
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
 
-	const { request } = useAiSuggestions();
+	const { request, suggestion } = useAiSuggestions();
 
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
 	}, [ removeEditorPanel ] );
 
+	// Show custom prompt number of words
+	const numberOfWords = count( excerpt, 'words' );
+	const helpNumberOfWords = sprintf(
+		// Translators: %1$s is the number of words in the excerpt.
+		_n( '%1$s word', '%1$s words', numberOfWords, 'jetpack' ),
+		numberOfWords
+	);
+
+	/**
+	 * Request AI for a new excerpt.
+	 */
 	function updatePostExcerpt() {
 		const prompt = [
 			{
@@ -51,22 +62,14 @@ function AiPostExcerpt() {
 		request( prompt );
 	}
 
-	// Show custom prompt number of words
-	const numberOfWords = count( excerpt, 'words' );
-	const helpNumberOfWords = sprintf(
-		// Translators: %1$s is the number of words in the excerpt.
-		_n( '%1$s word', '%1$s words', numberOfWords, 'jetpack' ),
-		numberOfWords
-	);
-
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
 				__nextHasNoMarginBottom
 				label={ __( 'Write an excerpt (optional)', 'jetpack' ) }
 				onChange={ value => editPost( { excerpt: value } ) }
-				value={ excerpt }
 				help={ numberOfWords ? helpNumberOfWords : null }
+				value={ excerpt || suggestion }
 			/>
 
 			<AiExcerptControl
