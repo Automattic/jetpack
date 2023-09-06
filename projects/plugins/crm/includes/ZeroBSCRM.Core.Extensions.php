@@ -1417,11 +1417,11 @@ function zeroBSCRM_extension_uninstall_csvimporterlite() {
 }
 
 function zeroBSCRM_extension_install_api() {
-	return jpcrm_install_core_extension( 'api' );
+	return jpcrm_install_core_extension( 'api', true );
 }
 
 function zeroBSCRM_extension_uninstall_api() {
-	return jpcrm_uninstall_core_extension( 'api' );
+	return jpcrm_uninstall_core_extension( 'api', true );
 }
 
 // } Free extensions init
@@ -1442,7 +1442,7 @@ function zeroBSCRM_freeExtensionsInit() {
  * @param $ext_name Extension name
  * @return bool
  */
-function jpcrm_install_core_extension( $ext_name ) {
+function jpcrm_install_core_extension( $ext_name, $flag_for_flush_rewrite = false ) {
 
 	global $zbs, $zeroBSCRM_extensionsInstalledList, $jpcrm_core_extension_setting_map;
 
@@ -1456,6 +1456,10 @@ function jpcrm_install_core_extension( $ext_name ) {
 	if ( ! $is_installed ) {
 		$zeroBSCRM_extensionsInstalledList[] = $ext_name;
 
+		// flush rewrite rules as needed
+		if ( $flag_for_flush_rewrite ) {
+			jpcrm_flag_for_flush_rewrite();
+		}
 		return true;
 	}
 	return false;
@@ -1465,7 +1469,7 @@ function jpcrm_install_core_extension( $ext_name ) {
  * @param $ext_name Extension name
  * @return bool
  */
-function jpcrm_uninstall_core_extension( $ext_name ) {
+function jpcrm_uninstall_core_extension( $ext_name, $flag_for_flush_rewrite = false ) {
 	global $zbs, $zeroBSCRM_extensionsInstalledList, $jpcrm_core_extension_setting_map;
 
 	$ext_setting = $jpcrm_core_extension_setting_map[ $ext_name ];
@@ -1477,6 +1481,11 @@ function jpcrm_uninstall_core_extension( $ext_name ) {
 
 	if ( $idx !== false ) {
 		array_splice( $zeroBSCRM_extensionsInstalledList, $idx, 1 );
+
+		// flush rewrite rules as needed
+		if ( $flag_for_flush_rewrite ) {
+			jpcrm_flag_for_flush_rewrite();
+		}
 
 		return true;
 	}
