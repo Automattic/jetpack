@@ -11,6 +11,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Jetpack_Gutenberg;
 
 /**
@@ -46,7 +47,7 @@ class Blocks {
 			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 9.0.0' );
 			$slug = 'jetpack/' . $slug;
 		}
-	
+
 		$block_type = $slug;
 
 		// If the path to block.json is passed, find the slug in the file then create a block type
@@ -354,18 +355,24 @@ class Blocks {
 	}
 
 	/**
-	 * Returns the path to the directory (in the build folder) containing the block.json metadata
-	 * file of a block.
+	 * Returns the path to the directory containing the block.json metadata file of a block, given its
+	 * source code directory and, optionally, the directory that holds the blocks built files of
+	 * the package.
 	 *
-	 * @since 1.4.23
+	 * @since $$next-version$$
 	 *
-	 * @param string $block_src_dir The path to the folder containing the block source code.
+	 * @param string $block_src_dir    The path to the folder containing the block source code.
+	 *                                 Typically this is done by passing __DIR__ as the argument.
+	 * @param string $package_dist_dir Optional. A full path to the directory containing the blocks
+	 *                                 built files of the package. Default empty.
 	 *
-	 * @return string
+	 * @return string The path to the directory.
 	 */
-	public static function get_path_to_block_metadata( $block_src_dir ) {
-		$dir = basename( $block_src_dir );
+	public static function get_path_to_block_metadata( $block_src_dir, $package_dist_dir = '' ) {
+		$dir       = basename( $block_src_dir );
+		$dist_path = empty( $package_dist_dir ) ? dirname( Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ) . '/_inc/blocks/' : $package_dist_dir;
+		$dist_path = substr( $dist_path, -1, 1 ) === '/' ? $dist_path : $dist_path . '/';
 
-		return dirname( JETPACK__PLUGIN_FILE ) . "/_inc/blocks/$dir";
+		return $dist_path . $dir;
 	}
 }
