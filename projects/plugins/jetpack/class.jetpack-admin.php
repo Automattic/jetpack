@@ -77,7 +77,7 @@ class Jetpack_Admin {
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
 
 		if ( class_exists( 'Akismet_Admin' ) ) {
-			// If the site has Jetpack Anti-Spam, change the Akismet menu label and logo accordingly.
+			// If the site has Jetpack Anti-spam, change the Akismet menu label and logo accordingly.
 			$site_products         = array_column( Jetpack_Plan::get_products(), 'product_slug' );
 			$has_anti_spam_product = count( array_intersect( array( 'jetpack_anti_spam', 'jetpack_anti_spam_monthly' ), $site_products ) ) > 0;
 
@@ -95,7 +95,7 @@ class Jetpack_Admin {
 				add_action(
 					'jetpack_admin_menu',
 					function () {
-						add_submenu_page( 'jetpack', __( 'Anti-Spam', 'jetpack' ), __( 'Anti-Spam', 'jetpack' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
+						add_submenu_page( 'jetpack', __( 'Akismet Anti-spam', 'jetpack' ), __( 'Akismet Anti-spam', 'jetpack' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 					}
 				);
 				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
@@ -112,7 +112,7 @@ class Jetpack_Admin {
 	}
 
 	/**
-	 * Generate styles to replace Akismet logo for the Jetpack Akismet Anti-Spam logo.
+	 * Generate styles to replace Akismet logo for the Jetpack Akismet Anti-spam logo.
 		Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
 	 */
 	public function akismet_logo_replacement_styles() {
