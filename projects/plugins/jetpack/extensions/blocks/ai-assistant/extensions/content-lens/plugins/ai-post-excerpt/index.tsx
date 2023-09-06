@@ -20,10 +20,7 @@ function AiPostExcerpt() {
 		[]
 	);
 
-<<<<<<< HEAD
-=======
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
->>>>>>> a5796b31ff ([not verified] start to request suggestion)
 	const { editPost } = useDispatch( 'core/editor' );
 
 	// Post excerpt words number
@@ -32,29 +29,12 @@ function AiPostExcerpt() {
 	// Remove core excerpt panel
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
 
-<<<<<<< HEAD
-=======
-	const { request, suggestion } = useAiSuggestions();
+	const { request } = useAiSuggestions();
 
->>>>>>> a5796b31ff ([not verified] start to request suggestion)
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
 	}, [ removeEditorPanel ] );
 
-	function updatePostExcerpt() {
-		console.log( 'request excerpt suggestion' ); // eslint-disable-line no-console
-	}
-
-	// Show custom prompt number of words
-	const numberOfWords = count( excerpt, 'words' );
-	const helpNumberOfWords = sprintf(
-		// Translators: %1$s is the number of words in the excerpt.
-		_n( '%1$s word', '%1$s words', numberOfWords, 'jetpack' ),
-		numberOfWords
-	);
-
-<<<<<<< HEAD
-=======
 	function updatePostExcerpt() {
 		const prompt = [
 			{
@@ -71,14 +51,21 @@ function AiPostExcerpt() {
 		request( prompt );
 	}
 
->>>>>>> a5796b31ff ([not verified] start to request suggestion)
+	// Show custom prompt number of words
+	const numberOfWords = count( excerpt, 'words' );
+	const helpNumberOfWords = sprintf(
+		// Translators: %1$s is the number of words in the excerpt.
+		_n( '%1$s word', '%1$s words', numberOfWords, 'jetpack' ),
+		numberOfWords
+	);
+
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
 				__nextHasNoMarginBottom
 				label={ __( 'Write an excerpt (optional)', 'jetpack' ) }
 				onChange={ value => editPost( { excerpt: value } ) }
-				value={ excerpt || suggestion }
+				value={ excerpt }
 				help={ numberOfWords ? helpNumberOfWords : null }
 			/>
 
