@@ -125,6 +125,15 @@ ${ postContent }
 				disabled={ isTextAreaDisabled }
 			/>
 
+			<ExternalLink
+				href={ __(
+					'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt',
+					'jetpack'
+				) }
+			>
+				{ __( 'Learn more about manual excerpts', 'jetpack' ) }
+			</ExternalLink>
+
 			{ error?.code && error.code !== 'error_quota_exceeded' && (
 				<Notice
 					status={ error.severity }
