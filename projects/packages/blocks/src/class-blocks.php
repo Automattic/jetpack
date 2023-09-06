@@ -47,7 +47,7 @@ class Blocks {
 			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 9.0.0' );
 			$slug = 'jetpack/' . $slug;
 		}
-	
+
 		$block_type = $slug;
 
 		// If a path is passed, find the slug in the file then create a block type object to register
