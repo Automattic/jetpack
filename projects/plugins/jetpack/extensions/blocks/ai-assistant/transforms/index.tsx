@@ -39,16 +39,7 @@ export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs
 	const aiAssistantBlockcontent = turndownService.turndown( htmlContent );
 
 	// Create a pair of user/assistant messages.
-	const messages: Array< PromptItemProps > = [
-		{
-			role: 'user',
-			content: 'Tell me some content for this block, please.',
-		},
-		{
-			role: 'assistant',
-			content: aiAssistantBlockcontent,
-		},
-	];
+	const messages: Array< PromptItemProps > = [];
 
 	return createBlock( blockName, {
 		...restAttrs,
