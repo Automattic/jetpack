@@ -356,16 +356,16 @@ class Initializer {
 			add_action(
 				'wp_enqueue_scripts',
 				function () use ( $videopress_video_metadata_file ) {
-					if ( ! has_block( 'videopress/video', get_the_content() ) ) {
+					$post_content = get_the_content();
+					// TODO: we need to also parse the site content for FSE cases (block/shortcode could be on footer, header, etc)
+					if ( ! has_block( 'videopress/video', $post_content ) && ! has_shortcode( $post_content, 'videopress' ) ) {
 						return;
 					}
-
 					self::enqueue_block_assets( $videopress_video_metadata_file );
 				}
 			);
 			return;
 		}
-
 		self::enqueue_block_assets( $videopress_video_metadata_file );
 	}
 
