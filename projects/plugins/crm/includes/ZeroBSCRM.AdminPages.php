@@ -91,6 +91,10 @@ function zeroBSCRM_pages_emailbox() {
 	jpcrm_render_emailbox();
 }
 
+function jpcrm_pages_newemails() {
+	jpcrm_load_admin_page('newemails/main');
+}
+
 // Single send page (subpage of Emailbox?)
 function zeroBSCRM_pages_emailsend() {
 	// load

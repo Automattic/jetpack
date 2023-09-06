@@ -1027,6 +1027,7 @@ final class ZeroBSCRM {
 		$this->slugs['sendmail'] = 'zerobscrm-send-email';
 
 		$this->slugs['emails'] = 'zerobscrm-emails';
+		$this->slugs['newemails'] = 'jpcrm-emails';
 
 		$this->slugs['notifications'] = 'zerobscrm-notifications';
 
@@ -2590,6 +2591,12 @@ final class ZeroBSCRM {
 					break;
 
 				case 'zerobscrm-emails':
+					// default
+					$pageTitle = __( 'Email Manager | Jetpack CRM', 'zero-bs-crm' );
+
+					break;
+
+				case 'jpcrm-emails':
 					// default
 					$pageTitle = __( 'Email Manager | Jetpack CRM', 'zero-bs-crm' );
 

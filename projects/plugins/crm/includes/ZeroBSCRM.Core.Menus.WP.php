@@ -132,6 +132,17 @@ function zeroBSCRM_menu_buildMenu() {
 			);
 		}
 
+		if ( apply_filters( 'jetpack_crm_feature_flag_email', false ) ) {
+			$menu['hidden']['subitems']['newemails'] = array(
+				'title'      => __( 'Emails', 'zero-bs-crm' ),
+				'url'        => $zbs->slugs['newemails'],
+				'perms'      => 'admin_zerobs_manage_options',
+				'order'      => 2,
+				'wpposition' => 2,
+				'callback'   => 'jpcrm_pages_newemails',
+			);
+		}
+
 		// Contacts (sub)
 		$menu['jpcrm']['subitems']['contacts'] = array(
 			'title'      => __( 'Contacts', 'zero-bs-crm' ),
@@ -912,6 +923,18 @@ function zeroBSCRM_menu_buildMenu() {
 		'callback'   => 'zeroBSCRM_pages_emailbox',
 		'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_email_styles' ),
 	);
+
+	// New Emails (hidden)
+	if ( apply_filters( 'jetpack_crm_feature_flag_email', false ) ) { 
+		$menu['hidden']['subitems']['newemails'] = array(
+			'title'      => __( 'Emails', 'zero-bs-crm' ),
+			'url'        => $zbs->slugs['newemails'],
+			'perms'      => 'admin_zerobs_manage_options',
+			'order'      => 2,
+			'wpposition' => 2,
+			'callback'   => 'jpcrm_pages_newemails',
+		);
+	}
 
 	// Email Templates (hidden)
 	$menu['hidden']['subitems']['emailtemplates'] = array(
