@@ -25,7 +25,22 @@ if [[ "${GITHUB_EVENT_NAME:?}" == "pull_request" ]]; then
 	debug "GITHUB_EVENT_NAME is pull_request, checking diff from $DIFF"
 	ARGS+=( --verbose "--git-changed=$DIFF" )
 elif [[ "${GITHUB_EVENT_NAME:?}" == "push" ]]; then
-	if [[ "${GITHUB_REF:?}" == refs/heads/*/branch-* ]]; then
+	if [[ "${GITHUB_REF:?}" == refs/heads/prerelease ]]; then
+		TMP="$(jq -r 'if .extra["release-branch-prefix"] then empty else input_filename | match( "^projects/([^/]+/[^/]+)/composer.json$" ).captures[0].string end' projects/*/*/composer.json)"
+		if [[ -n "$TMP" ]]; then
+			debug "GITHUB_EVENT_NAME is push and branch is prerelease, considering only projects without a release-branch-prefix as changed."
+			while IFS= read -r LINE; do
+				ARGS+=( "$LINE" )
+			done <<<"$TMP"
+			DEPENDENTS=false
+			if [[ "$EXTRA" == "test" ]]; then
+				debug "Also considering depndencies of those as changed for running tests"
+				DEPENDENCIES=true
+			fi
+		else
+			debug "GITHUB_EVENT_NAME is push and branch is prerelease, but somehow no projects lack a release-branch-prefix? Considering all projects changed."
+		fi
+	elif [[ "${GITHUB_REF:?}" == refs/heads/*/branch-* ]]; then
 		REF=${GITHUB_REF#refs/heads/}
 		TMP="$(jq -r --arg P "${REF%%/branch-*}" '.extra["release-branch-prefix"] | if type == "array" then . else [ . ] end | if index( $P ) then input_filename | match( "^projects/([^/]+/[^/]+)/composer.json$" ).captures[0].string else empty end' projects/*/*/composer.json)"
 		if [[ -n "$TMP" ]]; then
@@ -55,6 +70,9 @@ if [[ -n "$EXTRA" ]]; then
 fi
 
 {
+	if ! $DEPENDENTS && ! $DEPENDENCIES; then
+		pnpm jetpack dependencies list "${ARGS[@]}"
+	fi
 	if $DEPENDENTS; then
 		pnpm jetpack dependencies list --add-dependents "${ARGS[@]}"
 	fi
