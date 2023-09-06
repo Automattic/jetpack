@@ -17,6 +17,7 @@
 		"test": "jest"
 	},
 	"dependencies": {
+		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
@@ -38,11 +39,11 @@
 		"react-dom": "18.2.0",
 		"jetpack-js-tools": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@wordpress/babel-plugin-import-jsx-pragma": "4.24.0",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "13.4.0",
 		"@testing-library/user-event": "14.4.3",
-		"@babel/plugin-transform-react-jsx": "7.22.15"
+		"@babel/plugin-transform-react-jsx": "7.22.15",
+		"@wordpress/babel-plugin-import-jsx-pragma": "4.24.0"
 	},
 	"engines": {
 		"node": "^18.13.0",
