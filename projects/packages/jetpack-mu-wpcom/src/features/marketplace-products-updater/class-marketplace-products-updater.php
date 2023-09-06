@@ -121,7 +121,7 @@ class Marketplace_Products_Updater {
 			return array();
 		}
 
-		$cache_key = '_wpcom_marketplace_product_updates';
+		$cache_key = sprintf( '_wpcom_marketplace_%s_updates', $type );
 		$updates   = get_transient( $cache_key );
 
 		if ( false !== $updates ) {
