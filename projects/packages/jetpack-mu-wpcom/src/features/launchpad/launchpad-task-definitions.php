@@ -149,7 +149,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => '__return_true',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/newsletter/' . $data['site_slug_encoded'];
+				return '/settings/general/' . $data['site_slug_encoded'];
 			},
 		),
 		'set_up_payments'                 => array(
