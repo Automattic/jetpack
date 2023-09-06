@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use WP_REST_Request;
+
 /**
  * Initialized the VideoPress package
  */
@@ -188,6 +190,21 @@ class Initializer {
 	 * @return string                    Block markup.
 	 */
 	public static function render_videopress_video_block( $block_attributes, $content ) {
+		if ( ! jetpack_is_frontend() ) {
+			return self::render_for_email( $block_attributes );
+		}
+
+		return self::render_for_frontend( $block_attributes, $content );
+	}
+
+	/**
+	 * VideoPress video block render method for frontend
+	 *
+	 * @param array  $block_attributes - Block attributes.
+	 * @param string $content          - Current block markup.
+	 * @return string                    Block markup.
+	 */
+	private static function render_for_frontend( $block_attributes, $content ) {
 		global $wp_embed;
 
 		// CSS classes
@@ -313,6 +330,26 @@ class Initializer {
 			$video_wrapper,
 			$figcaption
 		);
+	}
+
+	/**
+	 * VideoPress video block render method for emails
+	 *
+	 * @param array $block_attributes - Block attributes.
+	 * @return string                    Block markup.
+	 */
+	private static function render_for_email( $block_attributes ) {
+		$request  = new WP_REST_Request( 'GET', '/wpcom/v2/videopress/' . $block_attributes['guid'] . '/poster' );
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
+			return '';
+		}
+
+		$data   = $response->get_data()['data'];
+		$poster = $data['poster'];
+
+		return sprintf( '<figure><img src="%s" alt="%s"/></figure>', $poster, $block_attributes['caption'] );
 	}
 
 	/**
