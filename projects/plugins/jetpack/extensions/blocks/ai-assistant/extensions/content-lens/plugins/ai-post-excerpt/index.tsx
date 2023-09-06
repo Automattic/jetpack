@@ -29,7 +29,7 @@ function AiPostExcerpt() {
 	// Remove core excerpt panel
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
 
-	const { request, suggestion } = useAiSuggestions();
+	const { request, suggestion, requestingState } = useAiSuggestions();
 
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
@@ -42,6 +42,9 @@ function AiPostExcerpt() {
 		_n( '%1$s word', '%1$s words', numberOfWords, 'jetpack' ),
 		numberOfWords
 	);
+
+	const isGenerateButtonDisabled = requestingState === 'requesting';
+	const isBusy = requestingState === 'requesting' || requestingState === 'suggesting';
 
 	/**
 	 * Request AI for a new excerpt.
@@ -76,6 +79,8 @@ function AiPostExcerpt() {
 				words={ excerptWordsNumber }
 				onWordsNumberChange={ setExcerptWordsNumber }
 				onGenerate={ updatePostExcerpt }
+				disabled={ isGenerateButtonDisabled }
+				isBusy={ isBusy }
 			/>
 
 			<ExternalLink
