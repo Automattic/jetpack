@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { aiAssistantIcon, useAiSuggestions } from '@automattic/jetpack-ai-client';
-import { TextareaControl, ExternalLink } from '@wordpress/components';
+import { TextareaControl, ExternalLink, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useEffect, useState } from '@wordpress/element';
@@ -75,7 +75,7 @@ function AiPostExcerpt() {
 			},
 		];
 
-		request( prompt );
+		request( prompt, { feature: 'jetpack-ai-content-lens' } );
 	}
 
 	return (
@@ -92,10 +92,19 @@ function AiPostExcerpt() {
 			<AiExcerptControl
 				words={ excerptWordsNumber }
 				onWordsNumberChange={ setExcerptWordsNumber }
-				onGenerate={ requestExcerpt }
-				disabled={ isGenerateButtonDisabled }
-				isBusy={ isBusy }
+				disabled={ isBusy }
 			/>
+
+			<div className="jetpack-generated-excerpt__generate-buttons-container">
+				<Button
+					onClick={ () => requestExcerpt() }
+					variant="secondary"
+					isBusy={ isBusy }
+					disabled={ isGenerateButtonDisabled }
+				>
+					{ __( 'Generate', 'jetpack' ) }
+				</Button>
+			</div>
 
 			<ExternalLink
 				href={ __(
