@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
 
@@ -434,7 +435,7 @@ class Test_Blocks extends TestCase {
 	 * @covers Automattic\Jetpack\Blocks::get_path_to_block_metadata
 	 */
 	public function test_get_path_to_block_metadata() {
-		Constants::set_constant( 'JETPACK__PLUGIN_FILE', '/a/b/c/index.php' );
+		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', '/a/b/c/index.php' );
 
 		$block_src_dir = '/extensions/blocks/test-block';
 
@@ -447,6 +448,6 @@ class Test_Blocks extends TestCase {
 		$result = Blocks::get_path_to_block_metadata( $block_src_dir, '/dist/' );
 		$this->assertEquals( '/dist/test-block', $result );
 
-		Constants::clear_constants();
+		Jetpack_Constants::clear_constants();
 	}
 }
