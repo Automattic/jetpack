@@ -618,6 +618,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 	);
 
 	$post_access_level = get_post_access_level_for_current_post();
+	$post_id           = get_the_ID();
+	$tier_id           = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
 
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
@@ -684,6 +686,12 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 					<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 					<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
 					<?php wp_nonce_field( 'blogsub_subscribe_' . $current_blog->blog_id, '_wpnonce', false ); ?>
+					<?php if ( ! empty( $post_id ) ) {
+						echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
+					}?>
+					<?php if ( ! empty( $tier_id ) ) {
+						echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
+					}?>
 					<button type="submit"
 						<?php if ( ! empty( $classes['submit_button'] ) ) : ?>
 							class="<?php echo esc_attr( $classes['submit_button'] ); ?>"
@@ -728,6 +736,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	$form_id            = sprintf( 'subscribe-blog-%s', $data['widget_id'] );
 	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $data['widget_id'] );
+
 	ob_start();
 
 	Jetpack_Subscriptions_Widget::render_widget_status_messages(
@@ -738,6 +747,8 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
 	$post_access_level = get_post_access_level_for_current_post();
+	$post_id           = get_the_ID();
+	$tier_id           = get_post_meta( $post_id, META_NAME_FOR_POST_TIER_ID_SETTINGS, true );
 
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
@@ -780,6 +791,12 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
+						<?php if ( ! empty( $post_id ) ) {
+							echo '<input type="hidden" name="post_id" value="' . esc_attr( $post_id ) . '"/>';
+						}?>
+						<?php if ( ! empty( $tier_id ) ) {
+							echo '<input type="hidden" name="tier_id" value="' . esc_attr( $tier_id ) . '"/>';
+						}?>
 						<?php
 						if ( is_user_logged_in() ) {
 							wp_nonce_field( 'blogsub_subscribe_' . get_current_blog_id(), '_wpnonce', false );
