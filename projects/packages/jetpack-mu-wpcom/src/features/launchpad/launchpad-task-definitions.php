@@ -214,6 +214,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/setup/link-in-bio-post-setup/linkInBioPostSetup?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Videopress tasks.
