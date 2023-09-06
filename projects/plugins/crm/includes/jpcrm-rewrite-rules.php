@@ -1,21 +1,14 @@
-<?php 
-/*!
- * Jetpack CRM
- * https://jetpackcrm.com
- * V1.2+
+<?php
+/**
+ * Handle rewrite rules for Jetpack CRM
  *
- * Copyright 2020 Automattic
- *
- * Date: 29/12/2016
+ * @package automattic/jetpack-crm
  */
 
-/* ======================================================
-  Breaking Checks ( stops direct access )
-   ====================================================== */
-    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
-/* ======================================================
-  / Breaking Checks
-   ====================================================== */
+// prevent direct access
+if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
+	exit;
+}
 
 /**
  * Flush rewrite rules if flagged to do so
