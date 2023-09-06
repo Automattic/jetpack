@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { aiAssistantIcon, useAiSuggestions } from '@automattic/jetpack-ai-client';
+import {
+	ERROR_QUOTA_EXCEEDED,
+	aiAssistantIcon,
+	useAiSuggestions,
+} from '@automattic/jetpack-ai-client';
 import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -13,6 +17,7 @@ import TurndownService from 'turndown';
  * Internal dependencies
  */
 import './style.scss';
+import UpgradePrompt from '../../../../components/upgrade-prompt';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
  * Types and constants
@@ -143,6 +148,8 @@ ${ postContent }
 					{ error.message }
 				</Notice>
 			) }
+
+			{ error?.code === ERROR_QUOTA_EXCEEDED && <UpgradePrompt /> }
 
 			<AiExcerptControl
 				words={ excerptWordsNumber }
