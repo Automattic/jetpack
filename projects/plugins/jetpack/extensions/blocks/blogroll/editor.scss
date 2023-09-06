@@ -2,8 +2,5 @@
  * Editor styles for Blogroll
  */
 
-.wp-block-jetpack-blogroll {
-    img.icon {
-        border-radius: 50%;
-    }
- }
+@import './common';
+
