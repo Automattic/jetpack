@@ -10,16 +10,19 @@ root = ssh://username@remote-host.com//path/to/jetpack/on/remote
 
 batch = true
 
-# Ignore common IDE files
+# Ignore common files
 ignore = Path .idea
 ignore = Path .nbproject
 ignore = Path .sublime-project
 ignore = Path .sublime-workspace
 ignore = Path .vscode
+ignore = Path *.ts
+ignore = Path *.tsx
+ignore = Path *.jsx
 ignore = Path changelog
 ignore = Path tests
 
-# Ignore common osx os temp files
+# Ignore common temp files
 ignore = Name node_modules
 ignore = Name *.tmp
 ignore = Name .svn
