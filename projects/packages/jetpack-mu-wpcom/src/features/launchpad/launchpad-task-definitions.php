@@ -805,6 +805,13 @@ function wpcom_launchpad_track_publish_first_post_task() {
 	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published' );
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
+
+	$site_intent      = get_option( 'site_intent', false );
+	$launchpad_screen = get_option( 'launchpad_screen', false );
+	if ( 'newsletter' === $site_intent && 'skipped' === $launchpad_screen ) {
+		// First publishing a post should make the pre-launch disappear in case it's a Newsletter.
+		update_option( 'launchpad_screen', 'full' );
+	}
 }
 
 /**
