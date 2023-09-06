@@ -3,7 +3,8 @@
 	margin-bottom: 10px;
 }
 
-.jetpack-ai-post-excerpt .components-base-control__help {
+// Learn more link
+.jetpack-ai-post-excerpt .components-external-link {
 	margin-bottom: 12px;
 }
 
@@ -19,7 +20,7 @@
 // Upgrade banner
 .jetpack-ai-post-excerpt .jetpack-upgrade-plan-banner__wrapper {
 	flex-direction: column;
-	margin: 20px 0 10px;
+	margin: 20px 0 0;
 	padding: 0 10px;
 
 	.jetpack-ai-upgrade-banner__description {
