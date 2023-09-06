@@ -81,6 +81,13 @@ class Marketplace_Products_Updater {
 			return array();
 		}
 
+		$cache_key = '_wpcom_marketplace_product_updates';
+		$updates   = get_transient( $cache_key );
+
+		if ( false !== $updates ) {
+			return $updates;
+		}
+
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/marketplace/%s/updates', $type ),
 			'2',
@@ -98,6 +105,8 @@ class Marketplace_Products_Updater {
 		if ( ! is_array( $updates ) || ! array_key_exists( 'updates', $updates ) ) {
 			return array();
 		}
+
+		set_transient( $cache_key, $updates['updates'], 12 * HOUR_IN_SECONDS );
 
 		return $updates['updates'];
 	}
