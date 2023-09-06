@@ -5,10 +5,6 @@ import { RangeControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /**
- * Internal dependencies
- */
-import './style.scss';
-/**
  * Types and constants
  */
 
