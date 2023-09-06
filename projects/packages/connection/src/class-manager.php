@@ -2139,7 +2139,6 @@ class Manager {
 			'wordpress.com',
 			'localhost',
 			'localhost.localdomain',
-			'127.0.0.1',
 			'local.wordpress.test',         // VVV pattern.
 			'local.wordpress-trunk.test',   // VVV pattern.
 			'src.wordpress-develop.test',   // VVV pattern.
@@ -2193,6 +2192,24 @@ class Manager {
 		if ( ! function_exists( 'filter_var' ) ) {
 			// Just pass back true for now, and let wpcom sort it out.
 			return true;
+		}
+
+		$domain = preg_replace( '#^https?://#', '', untrailingslashit( $domain ) );
+
+		if ( filter_var( $domain, FILTER_VALIDATE_IP )
+			&& ! filter_var( $domain, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE )
+		) {
+			return new \WP_Error(
+				'fail_ip_forbidden',
+				sprintf(
+					/* translators: %1$s is a domain name. */
+					__(
+						'IP address `%1$s` just failed is_usable_domain check as it is in the private network.',
+						'jetpack-connection'
+					),
+					$domain
+				)
+			);
 		}
 
 		return true;

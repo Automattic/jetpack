@@ -36,6 +36,7 @@ const ConnectScreenVisual = props => {
 			case 'fail_ip_forbidden':
 			case 'fail_domain_tld':
 			case 'fail_subdomain_wpcom':
+			case 'siteurl_private_ip':
 				return __(
 					'Your site host is on a private network. Jetpack can only connect to public sites.',
 					'jetpack'
