@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
+import { aiAssistantIcon, useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { TextareaControl, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -20,6 +20,10 @@ function AiPostExcerpt() {
 		[]
 	);
 
+<<<<<<< HEAD
+=======
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
+>>>>>>> a5796b31ff ([not verified] start to request suggestion)
 	const { editPost } = useDispatch( 'core/editor' );
 
 	// Post excerpt words number
@@ -28,6 +32,11 @@ function AiPostExcerpt() {
 	// Remove core excerpt panel
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
 
+<<<<<<< HEAD
+=======
+	const { request, suggestion } = useAiSuggestions();
+
+>>>>>>> a5796b31ff ([not verified] start to request suggestion)
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
 	}, [ removeEditorPanel ] );
@@ -44,13 +53,32 @@ function AiPostExcerpt() {
 		numberOfWords
 	);
 
+<<<<<<< HEAD
+=======
+	function updatePostExcerpt() {
+		const prompt = [
+			{
+				role: 'jetpack-ai',
+				context: {
+					type: 'ai-content-lens',
+					content: '',
+					words: excerptWordsNumber,
+					postId,
+				},
+			},
+		];
+
+		request( prompt );
+	}
+
+>>>>>>> a5796b31ff ([not verified] start to request suggestion)
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
 				__nextHasNoMarginBottom
 				label={ __( 'Write an excerpt (optional)', 'jetpack' ) }
 				onChange={ value => editPost( { excerpt: value } ) }
-				value={ excerpt }
+				value={ excerpt || suggestion }
 				help={ numberOfWords ? helpNumberOfWords : null }
 			/>
 
