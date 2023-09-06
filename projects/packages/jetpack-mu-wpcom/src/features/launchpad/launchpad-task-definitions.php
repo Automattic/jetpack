@@ -60,6 +60,13 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_domain_upsell_completed',
 			'badge_text_callback'  => 'wpcom_launchpad_get_domain_upsell_badge_text',
 			'is_visible_callback'  => 'wpcom_launchpad_is_domain_upsell_task_visible',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				if ( wpcom_launchpad_checklists()->is_task_complete( $task ) ) {
+						return '/domains/manage/' . $data['site_slug_encoded'];
+				}
+
+				return '/setup/domain-upsell/domains?siteSlug=' . $data['site_slug_encoded'];
+			},
 		),
 		'first_post_published'            => array(
 			'get_title'             => function () {
@@ -244,6 +251,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Personalize your site', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => '__return_true',
+			'get_calypso_path'     => function ( $task, $default, $data ) {
+				return '/settings/general/' . $data['site_slug_encoded'];
+			},
 		),
 
 		// Write tasks.

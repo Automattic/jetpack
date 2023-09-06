@@ -11,6 +11,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
@@ -865,7 +866,6 @@ function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
  * @return string
  */
 function add_paywall( $the_content ) {
-	$block_name = 'jetpack/paywall';
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 	if ( Jetpack_Memberships::user_can_view_post() ) {
@@ -876,9 +876,15 @@ function add_paywall( $the_content ) {
 
 	$paywalled_content = get_paywall_content( $post_access_level, isset( $_GET['subscribe'] ) && 'success' === $_GET['subscribe'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-	// Partially free content with paywall
-	if ( has_block( $block_name ) ) {
-		return strstr( $the_content, '<!-- wp:' . $block_name . ' /-->', true ) . $paywalled_content;
+	if ( has_block( \Automattic\Jetpack\Extensions\Paywall\BLOCK_NAME ) ) {
+		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML ) ) {
+			return strstr( $the_content, \Automattic\Jetpack\Extensions\Paywall\BLOCK_HTML, true ) . $paywalled_content;
+		}
+		// WordPress generates excerpts by either rendering or stripping blocks before invoking the `the_content` filter.
+		// In the context of generating an excerpt, the Paywall block specifically renders THE_EXCERPT_BLOCK.
+		if ( strpos( $the_content, \Automattic\Jetpack\Extensions\Paywall\THE_EXCERPT_BLOCK ) ) {
+			return strstr( $the_content, \Automattic\Jetpack\Extensions\Paywall\THE_EXCERPT_BLOCK, true );
+		}
 	}
 
 	return $paywalled_content;
@@ -934,6 +940,9 @@ function get_paywall_content( $post_access_level, $email_confirmation_pending = 
 	if ( ! jetpack_is_frontend() ) { // emails
 		return get_paywall_simple();
 	}
+	if ( doing_filter( 'get_the_excerpt' ) ) {
+		return '';
+	}
 	return get_paywall_blocks( $post_access_level );
 }
 
@@ -956,6 +965,18 @@ function get_paywall_blocks( $newsletter_access_level ) {
 		// translators: %s is the name of the site.
 		: esc_html__( 'Subscribe to get access to the rest of this post and other subscriber-only content.', 'jetpack' );
 
+	$access_question = $is_paid_post
+		? __( 'Already a paid subscriber?', 'jetpack' )
+		: __( 'Already a subscriber?', 'jetpack' );
+
+	$sign_in = '';
+	if ( ! is_user_logged_in() && ( new Host() )->is_wpcom_simple() ) {
+		$sign_in_link = add_query_arg( 'redirect_to', rawurlencode( get_post_permalink() ), 'https://wordpress.com/log-in' );
+		$sign_in      = '<!-- wp:paragraph {"align":"center", "typography":{"fontSize":"14px","fontWeight":"400";"color":"#646970"}} -->
+<p class="has-text-align-center" style="font-size:14px;font-weight:400;color:#646970">' . esc_html( $access_question ) . ' <a href="' . $sign_in_link . '" class="jetpack-subscriber-paywall-login" style="font-size:14px;font-weight:400;color:#646970">' . esc_html__( 'Log in', 'jetpack' ) . '</a></p>
+<!-- /wp:paragraph -->';
+	}
+
 	$lock_svg = plugins_url( 'images/lock-paywall.svg', JETPACK__PLUGIN_FILE );
 
 	return '
@@ -973,7 +994,9 @@ function get_paywall_blocks( $newsletter_access_level ) {
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /--></div>
+<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
+' . $sign_in . '
+</div>
 <!-- /wp:group -->
 ';
 }
@@ -1004,7 +1027,7 @@ function get_paywall_blocks_subscribe_pending() {
 <!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"14px"},"spacing":{"margin":{"top":"10px","bottom":"10px"}}}} -->
 <p class="has-text-align-center" style="margin-top:10px;margin-bottom:10px;font-size:14px">' . $subscribe_text . '</p>
 <!-- /wp:paragraph -->
-
+</div>
 <!-- /wp:group -->
 ';
 }

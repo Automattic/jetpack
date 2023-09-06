@@ -17,12 +17,7 @@ function init() {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( <SearchDashboard /> );
-	} else {
-		WPElement.render( <SearchDashboard />, container );
-	}
+	WPElement.createRoot( container ).render( <SearchDashboard /> );
 }
 
 // Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.

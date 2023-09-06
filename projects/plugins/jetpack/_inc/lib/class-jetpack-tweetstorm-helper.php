@@ -1651,25 +1651,17 @@ class Jetpack_Tweetstorm_Helper {
 
 		$requests = array_filter( $requests );
 
-		// Remove this check once WordPress 6.2 is the minimum supported version.
-		if ( ! class_exists( '\WpOrg\Requests\Hooks' ) ) {
-			$hooks = new Requests_Hooks();
-		} else {
-			$hooks = new \WpOrg\Requests\Hooks();
-		}
+		$hooks = new \WpOrg\Requests\Hooks();
 
 		$hooks->register(
 			'requests.before_redirect',
 			array( self::class, 'validate_redirect_url' )
 		);
 
-		// Remove this check once WordPress 6.2 is the minimum supported version.
-		$results = class_exists( '\WpOrg\Requests\Requests' )
-			? \WpOrg\Requests\Requests::request_multiple( $requests, array( 'hooks' => $hooks ) )
-			: Requests::request_multiple( $requests, array( 'hooks' => $hooks ) );
+		$results = \WpOrg\Requests\Requests::request_multiple( $requests, array( 'hooks' => $hooks ) );
 
 		foreach ( $results as $result ) {
-			if ( $result instanceof Requests_Exception || $result instanceof \WpOrg\Requests\Exception ) {
+			if ( $result instanceof \WpOrg\Requests\Exception ) {
 				return new WP_Error(
 					'invalid_url',
 					__( 'Sorry, something is wrong with the requested URL.', 'jetpack' ),
@@ -1738,16 +1730,11 @@ class Jetpack_Tweetstorm_Helper {
 	 * Filters the redirect URLs that can appear when requesting passed URLs.
 	 *
 	 * @param String $redirect_url the URL to which a redirect is requested.
-	 * @throws Requests_Exception        In case the URL is not validated, if WP version is less than 6.2.
-	 * @throws \WpOrg\Requests\Exception In case the URL is not validated, if WP version is 6.2 or greater.
+	 * @throws \WpOrg\Requests\Exception In case the URL is not validated.
 	 * @return void
 	 */
 	public static function validate_redirect_url( $redirect_url ) {
 		if ( ! wp_http_validate_url( $redirect_url ) ) {
-			// Remove this check once WordPress 6.2 is the minimum supported version.
-			if ( ! class_exists( '\WpOrg\Requests\Exception' ) ) {
-				throw new Requests_Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
-			}
 			throw new \WpOrg\Requests\Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
 		}
 	}

@@ -113,7 +113,7 @@ function jetpack_add_google_fonts_provider() {
 
 		// New WP Fonts API format since Gutenberg 14.9 requires keyed array
 		// See https://github.com/Automattic/jetpack/issues/28063
-		// Remove conditional once WP 6.2 is the minimum version (must confirm this made it into 6.2)
+		// Remove conditional once this experimental API makes it to WP Core, and after another core release.
 		if ( class_exists( 'WP_Fonts' ) ) {
 			$fonts = array(
 				$font_family => array( $font_normal, $font_italic ),
@@ -124,7 +124,7 @@ function jetpack_add_google_fonts_provider() {
 
 		// New fonts register function since Gutenberg 15.0 or 15.1
 		// See https://github.com/Automattic/jetpack/issues/28063#issuecomment-1387090575
-		// Remove conditional once WP 6.2 is the minimum version (must confirm this made it into 6.2)
+		// Remove conditional once this experimental API makes it to WP Core, and after another core release.
 		if ( function_exists( 'wp_register_fonts' ) ) {
 			wp_register_fonts( $fonts );
 		} else {
