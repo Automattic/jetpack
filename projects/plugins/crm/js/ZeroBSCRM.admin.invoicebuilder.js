@@ -216,7 +216,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 	html += '<div id="zbs_invoice_actions">';
 
 	html += '<div class="zbs-invoice-status">';
-	html += '<span class="' + res.invoiceObj.status + ' statty">' + res.invoiceObj.status + '</span>';
+	html += '<span class="' + jpcrm.esc_attr(res.invoiceObj.status) + ' statty">' + jpcrm.esc_html(res.invoiceObj.status_label) + '</span>';
 	html += '</div>';
 
 	//now the preview, download pdf, and send buttons controlled by the data output (not via complex PHP ifs on page)

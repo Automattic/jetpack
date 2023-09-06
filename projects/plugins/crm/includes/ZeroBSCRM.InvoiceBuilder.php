@@ -775,7 +775,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	if ( ! isset( $invoice['status'] ) ) {
 		$zbs_stat = __( 'Draft', 'zero-bs-crm' );
 	} else {
-		$zbs_stat = $invoice['status'];
+		$zbs_stat = $invoice['status_label'];
 	}
 
 	// status html:
