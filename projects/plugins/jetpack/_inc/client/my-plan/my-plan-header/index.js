@@ -52,6 +52,7 @@ class MyPlanHeader extends React.Component {
 		}
 
 		const purchase = find( purchases, purchaseObj => purchaseObj.product_slug === productSlug );
+
 		let expiration;
 		let activation;
 		if ( purchase ) {
@@ -306,7 +307,7 @@ class MyPlanHeader extends React.Component {
 						'Automatic scanning and one-click fixes keep your site one step ahead of security threats.',
 						'jetpack'
 					),
-					title: createInterpolateElement( __( 'Jetpack Scan <em>Daily</em>', 'jetpack' ), {
+					title: createInterpolateElement( __( 'Jetpack Scan Daily', 'jetpack' ), {
 						em: <em />,
 					} ),
 				};
