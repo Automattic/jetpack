@@ -17,6 +17,7 @@
 		"test": "jest"
 	},
 	"dependencies": {
+		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
@@ -29,20 +30,20 @@
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
-		"@babel/core": "7.22.11",
-		"@babel/preset-react": "7.22.5",
-		"babel-jest": "29.3.1",
-		"jest": "29.3.1",
-		"jest-environment-jsdom": "29.3.1",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
-		"jetpack-js-tools": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@wordpress/babel-plugin-import-jsx-pragma": "4.24.0",
+		"@babel/core": "7.22.11",
+		"@babel/plugin-transform-react-jsx": "7.22.5",
+		"@babel/preset-react": "7.22.5",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "13.4.0",
 		"@testing-library/user-event": "14.4.3",
-		"@babel/plugin-transform-react-jsx": "7.22.5"
+		"@wordpress/babel-plugin-import-jsx-pragma": "4.24.0",
+		"babel-jest": "29.3.1",
+		"jest": "29.3.1",
+		"jest-environment-jsdom": "29.3.1",
+		"jetpack-js-tools": "workspace:*",
+		"react": "18.2.0",
+		"react-dom": "18.2.0"
 	},
 	"engines": {
 		"node": "^18.13.0",
