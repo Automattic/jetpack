@@ -55,6 +55,7 @@ function AiPostExcerpt() {
 
 	const isGenerateButtonDisabled = requestingState === 'requesting';
 	const isBusy = requestingState === 'requesting' || requestingState === 'suggesting';
+	const isTextAreaDisabled = isBusy || requestingState === 'done';
 
 	/**
 	 * Request AI for a new excerpt.
@@ -85,6 +86,7 @@ function AiPostExcerpt() {
 				onChange={ value => editPost( { excerpt: value } ) }
 				help={ numberOfWords ? helpNumberOfWords : null }
 				value={ currentExcerpt }
+				disabled={ isTextAreaDisabled }
 			/>
 
 			<AiExcerptControl
