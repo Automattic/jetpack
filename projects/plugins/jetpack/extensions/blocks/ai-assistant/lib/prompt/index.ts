@@ -566,6 +566,40 @@ function buildMessagesForBackendPrompt( {
 	userPrompt,
 	isGeneratingTitle,
 }: BuildPromptProps ): Array< PromptItemProps > {
+	return [
+		{
+			role: 'jetpack-ai',
+			context: buildMessageContextForBackendPrompt( {
+				generatedContent,
+				allPostContent,
+				postContentAbove,
+				currentPostTitle,
+				options,
+				type,
+				userPrompt,
+				isGeneratingTitle,
+			} ),
+		},
+	];
+}
+
+/**
+ * Builds backend message context based on the type
+ * and the options of the prompt.
+ *
+ * @param {BuildPromptProps} options - The prompt options.
+ * @returns {object} The context.
+ */
+function buildMessageContextForBackendPrompt( {
+	generatedContent,
+	allPostContent,
+	postContentAbove,
+	currentPostTitle,
+	options,
+	type,
+	userPrompt,
+	isGeneratingTitle,
+}: BuildPromptProps ): object {
 	const isContentGenerated = options?.contentType === 'generated';
 
 	// Determine the subject of the action
@@ -583,143 +617,88 @@ function buildMessagesForBackendPrompt( {
 	 */
 
 	if ( type === PROMPT_TYPE_SUMMARY_BY_TITLE ) {
-		return [
-			{
-				role: 'jetpack-ai',
-				context: {
-					type: 'ai-assistant-summary-by-title',
-					content: currentPostTitle,
-				},
-			},
-		];
+		return {
+			type,
+			content: currentPostTitle,
+		};
 	}
 
 	if ( type === PROMPT_TYPE_CONTINUE ) {
-		return [
-			{
-				role: 'jetpack-ai',
-				context: {
-					type: 'ai-assistant-continue-writing',
-					content: postContentAbove,
-				},
-			},
-		];
+		return {
+			type,
+			content: postContentAbove,
+		};
 	}
 
 	if ( type === PROMPT_TYPE_SIMPLIFY ) {
-		return [
-			{
-				role: 'jetpack-ai',
-				context: {
-					type: 'ai-assistant-simplify',
-					content: postContentAbove,
-					subject,
-				},
-			},
-		];
+		return {
+			type,
+			content: postContentAbove,
+			subject,
+		};
 	}
 
 	if ( type === PROMPT_TYPE_CORRECT_SPELLING ) {
-		return [
-			{
-				role: 'jetpack-ai',
-				context: {
-					type: 'ai-assistant-correct-spelling',
-					content: postContentAbove,
-					subject,
-				},
-			},
-		];
+		return {
+			type,
+			content: postContentAbove,
+			subject,
+		};
 	}
 
 	if ( type === PROMPT_TYPE_GENERATE_TITLE ) {
-		return [
-			{
-				role: 'jetpack-ai',
-				context: {
-					type: 'ai-assistant-generate-title',
-					content: allPostContent,
-				},
-			},
-		];
+		return {
+			type,
+			content: allPostContent,
+		};
 	}
 
 	if ( type === PROMPT_TYPE_MAKE_LONGER ) {
-		return [
-			{
-				role: 'jetpack-ai',
-				context: {
-					type: 'ai-assistant-make-longer',
-					content: generatedContent,
-					subject,
-				},
-			},
-		];
+		return {
+			type,
+			content: generatedContent,
+			subject,
+		};
 	}
 
 	if ( type === PROMPT_TYPE_MAKE_SHORTER ) {
-		return [
-			{
-				role: 'jetpack-ai',
-				context: {
-					type: 'ai-assistant-make-shorter',
-					content: generatedContent,
-					subject,
-				},
-			},
-		];
+		return {
+			type,
+			content: generatedContent,
+			subject,
+		};
 	}
 
 	if ( type === PROMPT_TYPE_CHANGE_TONE ) {
-		return [
-			{
-				role: 'jetpack-ai',
-				context: {
-					type: 'ai-assistant-change-tone',
-					content: isContentGenerated ? generatedContent : allPostContent,
-					tone: options?.tone,
-					subject,
-				},
-			},
-		];
+		return {
+			type,
+			content: isContentGenerated ? generatedContent : allPostContent,
+			tone: options?.tone,
+			subject,
+		};
 	}
 
 	if ( type === PROMPT_TYPE_SUMMARIZE ) {
-		return [
-			{
-				role: 'jetpack-ai',
-				context: {
-					type: 'ai-assistant-summarize',
-					content: isContentGenerated ? generatedContent : allPostContent,
-					subject,
-				},
-			},
-		];
+		return {
+			type,
+			content: isContentGenerated ? generatedContent : allPostContent,
+			subject,
+		};
 	}
 
 	if ( type === PROMPT_TYPE_CHANGE_LANGUAGE ) {
-		return [
-			{
-				role: 'jetpack-ai',
-				context: {
-					type: 'ai-assistant-change-language',
-					content: isContentGenerated ? generatedContent : allPostContent,
-					language: options?.language,
-					subject,
-				},
-			},
-		];
+		return {
+			type,
+			content: isContentGenerated ? generatedContent : allPostContent,
+			language: options?.language,
+			subject,
+		};
 	}
 
 	// default to the user prompt
-	return [
-		{
-			role: 'jetpack-ai',
-			context: {
-				type: 'ai-assistant-user-prompt',
-				request: userPrompt,
-				content: generatedContent || allPostContent,
-			},
-		},
-	];
+	return {
+		type: PROMPT_TYPE_USER_PROMPT,
+		request: userPrompt,
+		content: generatedContent || allPostContent,
+	};
 }
