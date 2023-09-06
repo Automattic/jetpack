@@ -356,7 +356,7 @@ class Initializer {
 			add_action(
 				'wp_enqueue_scripts',
 				function () use ( $videopress_video_metadata_file ) {
-					if ( ! has_block( 'videopress/video', get_the_content() ) && ! has_block( 'jetpack-videopress/video', get_the_content() ) ) {
+					if ( ! has_block( 'videopress/video', get_the_content() ) ) {
 						return;
 					}
 
