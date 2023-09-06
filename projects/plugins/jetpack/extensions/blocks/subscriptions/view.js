@@ -19,6 +19,12 @@ domReady( function () {
 		form.payments_attached = true;
 		form.addEventListener( 'submit', function ( event ) {
 			const email = form.querySelector( 'input[type=email]' ).value;
+			const email_clause = email ? `&email=${ encodeURIComponent( email ) }` : '';
+			const post_id = form.querySelector( 'input[name=post_id]' )?.value;
+			const post_id_clause = post_id ? `&post_id=${ post_id }` : '';
+			const tier_id = form.querySelector( 'input[name=tier_id]' )?.value;
+			const tier_id_clause = tier_id ? `&tier_id=${ tier_id }` : '';
+
 			if ( form.resubmitted || ! email ) {
 				return;
 			}
@@ -33,6 +39,8 @@ domReady( function () {
 				.filter( checkbox => ! checkbox.checked )
 				.map( checkbox => checkbox.value );
 
+			const excluded_newsletter_categories_clause = excluded_newsletter_categories.length ? `&excluded_newsletter_categories=${excluded_newsletter_categories.join( ',' )}` : '';
+
 			const url =
 				'https://subscribe.wordpress.com/memberships/?' +
 				'blog=' +
@@ -42,11 +50,10 @@ domReady( function () {
 				'&post_access_level=' +
 				form.dataset.post_access_level +
 				'&display=alternate' +
-				'&email=' +
-				encodeURIComponent( email ) +
-				'&excluded_newsletter_categories=' +
-				excluded_newsletter_categories.join( ',' );
-
+				post_id_clause +
+				tier_id_clause +
+				email_clause +
+				excluded_newsletter_categories_clause;
 			window.scrollTo( 0, 0 );
 			tb_show( null, url + '&TB_iframe=true', null );
 
