@@ -641,7 +641,7 @@ function buildMessageContextForBackendPrompt( {
 	if ( type === PROMPT_TYPE_CORRECT_SPELLING ) {
 		return {
 			type: 'ai-assistant-correct-spelling',
-			content: postContentAbove,
+			content: subject === 'last-answer' ? generatedContent : postContentAbove,
 			subject,
 		};
 	}
