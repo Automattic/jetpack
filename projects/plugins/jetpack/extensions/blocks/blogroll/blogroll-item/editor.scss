@@ -1,5 +1,12 @@
-/**
- * Editor styles for Blogroll Item
- */
+.wp-block-jetpack-blogroll-item {
 
-.wp-block-jetpack-blogroll-item { }
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+
+	.wp-block-columns {
+		padding: 20px 8px;
+		margin: 0;
+	}
+
+}

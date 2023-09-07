@@ -9,7 +9,8 @@
             "show_description": true,
             "show_subscribe_button": true,
             "open_links_new_window": true,
-            "ignore_user_blogs": true
+            "ignore_user_blogs": true,
+            "load_placeholders": true
         },
         "innerBlocks": [],
         "originalContent": ""
