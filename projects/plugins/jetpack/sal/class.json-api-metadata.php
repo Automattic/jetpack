@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
-
 /**
  * Base class for WPCOM_JSON_API_Metadata
  */
@@ -60,7 +58,7 @@ class WPCOM_JSON_API_Metadata {
 		// display the correct newsletter access in Calypso.
 		$whitelist = array(
 			'_jetpack_newsletter_access',
-			META_NAME_FOR_POST_TIER_ID_SETTINGS,
+			'_jetpack_newsletter_tier_id',
 		);
 
 		if ( in_array( $key, $whitelist, true ) ) {
