@@ -93,7 +93,7 @@ function AiPostExcerpt() {
 	 * @param {React.MouseEvent} ev - The click event.
 	 * @returns {void}
 	 */
-	async function requestExcerpt( ev ) {
+	async function requestExcerpt( ev: React.MouseEvent ): Promise< void > {
 		await autosave( ev );
 
 		const messageContext: ContentLensMessageContextProps = {
