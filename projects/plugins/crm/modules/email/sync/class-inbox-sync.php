@@ -61,6 +61,17 @@ class Inbox_Sync {
 				'received',
 				''
 			);
+			zeroBS_addUpdateContactLog(
+				$email->get_sender_contact_id(),
+				-1,
+				-1,
+				array(
+					'type'           => 'Email',
+					'shortdesc'      => __( 'Email Received', 'zero-bs-crm' ),
+					'longdesc'       => __( 'Email received with the subject: ', 'zero-bs-crm' ) . wp_kses( $email->get_subject(), 'post' ),
+					'meta_assoc_src' => 'singlemail',
+				)
+			);
 		}
 	}
 }
