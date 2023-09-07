@@ -23,7 +23,7 @@ if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 render();
 
 /**
- *
+ * Initial render function.
  */
 function render() {
 	const container = document.getElementById( 'jp-plugin-container' );
@@ -32,7 +32,6 @@ function render() {
 		return;
 	}
 
-	// @todo: Remove fallback when we drop support for WP 6.1
 	const component = (
 		<div>
 			<Provider store={ store }>
@@ -100,11 +99,7 @@ function render() {
 			</Provider>
 		</div>
 	);
-	if ( WPElement.createRoot ) {
-		WPElement.createRoot( container ).render( component );
-	} else {
-		WPElement.render( component, container );
-	}
+	WPElement.createRoot( container ).render( component );
 }
 
 /**

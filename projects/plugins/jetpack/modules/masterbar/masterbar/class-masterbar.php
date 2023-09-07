@@ -393,9 +393,7 @@ class Masterbar {
 		$this->add_write_button( $wp_admin_bar );
 
 		// Recovery mode exit.
-		if ( function_exists( 'wp_admin_bar_recovery_mode_menu' ) ) {
-			wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
-		}
+		wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
 
 		if ( class_exists( 'Automattic\Jetpack\Scan\Admin_Bar_Notice' ) ) {
 			$scan_admin_bar_notice = Admin_Bar_Notice::instance();
