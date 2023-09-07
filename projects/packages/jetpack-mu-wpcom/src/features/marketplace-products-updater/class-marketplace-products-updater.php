@@ -23,6 +23,7 @@ class Marketplace_Products_Updater {
 	 */
 	public static function init() {
 		add_filter( 'pre_set_site_transient_update_plugins', array( __CLASS__, 'transient_update_plugins' ), 100 );
+		add_filter( 'pre_set_site_transient_update_themes', array( __CLASS__, 'transient_update_themes' ), 100 );
 	}
 
 	/**
@@ -70,6 +71,45 @@ class Marketplace_Products_Updater {
 	}
 
 	/**
+	 * Fetch and process themes updates.
+	 *
+	 * @param object $transient The update_themes transient object.
+	 *
+	 * @return object.
+	 */
+	public static function transient_update_themes( $transient ) {
+		$updates = self::fetch_updates( 'themes' );
+
+		foreach ( $updates as $remote_theme_info ) {
+			$slug = $remote_theme_info['slug'];
+
+			$local_theme_info = wp_get_theme( $slug );
+
+			// Do not attempt to add update if theme info is not found. Maybe theme does not exists on the site.
+			if ( ! $local_theme_info->exists() ) {
+				continue;
+			}
+
+			$update = array(
+				'theme'       => $slug,
+				'package'     => $remote_theme_info['download_link'],
+				'new_version' => $remote_theme_info['version'],
+			);
+
+			if ( version_compare( $local_theme_info->get( 'Version' ), $update['new_version'], '<' ) ) {
+				$transient->response[ $slug ] = $update;
+			} else {
+				// Clear package since we don't want to store download link under current version.
+				$update['package'] = '';
+
+				$transient->no_update[ $slug ] = $update;
+			}
+		}
+
+		return $transient;
+	}
+
+	/**
 	 * Getch Updates
 	 *
 	 * @param string $type The update type, mainly plugins or themes.
@@ -81,7 +121,7 @@ class Marketplace_Products_Updater {
 			return array();
 		}
 
-		$cache_key = '_wpcom_marketplace_product_updates';
+		$cache_key = sprintf( '_wpcom_marketplace_%s_updates', $type );
 		$updates   = get_transient( $cache_key );
 
 		if ( false !== $updates ) {
