@@ -1,6 +1,6 @@
+import { getBlockIconProp } from '@automattic/jetpack-shared-extension-utils';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getClientBlockIconProp } from '../../../shared/get-block-icon-from-metadata';
 import metadata from '../block.json';
 import attributes from './attributes';
 import edit from './edit';
@@ -21,7 +21,7 @@ export const settings = {
 	supports: {
 		align: [ 'left', 'right', 'center' ],
 	},
-	icon: getClientBlockIconProp( metadata ),
+	icon: getBlockIconProp( metadata ),
 	category: 'widgets',
 	attributes,
 	edit,
