@@ -49,23 +49,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Returns the Calypso origin.
-	 *
-	 * @return string
-	 */
-	private function get_calypso_origin() {
-		$origin  = ! empty( $_GET['calypso_origin'] ) ? wp_unslash( $_GET['calypso_origin'] ) : 'https://wordpress.com'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$allowed = array(
-			'http://calypso.localhost:3000',
-			'http://127.0.0.1:41050', // Desktop App.
-			'https://wpcalypso.wordpress.com',
-			'https://horizon.wordpress.com',
-			'https://wordpress.com',
-		);
-		return in_array( $origin, $allowed, true ) ? $origin : 'https://wordpress.com';
-	}
-
-	/**
 	 * Get the preferred view for the given screen.
 	 *
 	 * @param string $screen Screen identifier.
@@ -101,7 +84,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return array           Updated Editor settings.
 	 */
 	public function site_editor_dashboard_link( $settings ) {
-		$settings['__experimentalDashboardLink'] = $this->get_calypso_origin() . '/home/' . $this->domain;
+		$settings['__experimentalDashboardLink'] = 'https://wordpress.com/home/' . $this->domain;
 		return $settings;
 	}
 
@@ -118,7 +101,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 */
 	public function site_editor_theme_preview_back_link( $settings ) {
 		if ( ! empty( $_GET['wp_theme_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$settings['__experimentalThemePreviewBackLink'] = $this->get_calypso_origin() . '/themes/' . $this->domain;
+			$settings['__experimentalThemePreviewBackLink'] = 'https://wordpress.com/themes/' . $this->domain;
 		}
 		return $settings;
 	}
