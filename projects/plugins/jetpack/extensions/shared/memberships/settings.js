@@ -112,7 +112,7 @@ function TierSelector( { onChange } ) {
 	}
 
 	return (
-		<div className="editor-post-tiers">
+		<div className="jetpack-editor-post-tiers">
 			{ products.map( product => (
 				<div key={ product.id }>
 					<input
