@@ -12,11 +12,13 @@ import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
+import React from 'react';
 import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
 import './style.scss';
+import useAutosaveAndRedirect from '../../../../../../shared/use-autosave-and-redirect';
 import UpgradePrompt from '../../../../components/upgrade-prompt';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
@@ -38,6 +40,9 @@ function AiPostExcerpt() {
 		select => select( 'core/editor' ).getEditedPostAttribute( 'excerpt' ),
 		[]
 	);
+
+	// Use the hook only to get the autosave function. It won't be used for redirect.
+	const { autosave } = useAutosaveAndRedirect();
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 	const { editPost } = useDispatch( 'core/editor' );
@@ -84,10 +89,12 @@ function AiPostExcerpt() {
 
 	/**
 	 * Request AI for a new excerpt.
+	 *
+	 * @param {React.MouseEvent} ev - The click event.
+	 * @returns {void}
 	 */
-	function requestExcerpt() {
-		// Reset suggestion state
-		reset();
+	async function requestExcerpt( ev ) {
+		await autosave( ev );
 
 		const messageContext: ContentLensMessageContextProps = {
 			type: 'ai-content-lens',
@@ -132,6 +139,18 @@ ${ postContent }
 				disabled={ isTextAreaDisabled }
 			/>
 
+			{ isQuotaExceeded && <UpgradePrompt /> }
+
+			{ error?.code && error.code !== 'error_quota_exceeded' && (
+				<Notice
+					status={ error.severity }
+					isDismissible={ false }
+					className="jetpack-ai-assistant__error"
+				>
+					{ error.message }
+				</Notice>
+			) }
+
 			<ExternalLink
 				href={ __(
 					'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt',
@@ -142,18 +161,6 @@ ${ postContent }
 			</ExternalLink>
 
 			<div className="jetpack-generated-excerpt__ai-container">
-				{ error?.code && error.code !== 'error_quota_exceeded' && (
-					<Notice
-						status={ error.severity }
-						isDismissible={ false }
-						className="jetpack-ai-assistant__error"
-					>
-						{ error.message }
-					</Notice>
-				) }
-
-				{ isQuotaExceeded && <UpgradePrompt /> }
-
 				<AiExcerptControl
 					words={ excerptWordsNumber }
 					onWordsNumberChange={ setExcerptWordsNumber }
@@ -179,7 +186,7 @@ ${ postContent }
 					</Button>
 
 					<Button
-						onClick={ () => requestExcerpt() }
+						onClick={ requestExcerpt }
 						variant="secondary"
 						isBusy={ isBusy }
 						disabled={ isGenerateButtonDisabled || isQuotaExceeded }
