@@ -53,7 +53,10 @@ function AiPostExcerpt() {
 		numberOfWords
 	);
 
-	const isGenerateButtonDisabled = requestingState === 'requesting';
+	const isGenerateButtonDisabled =
+		requestingState === 'requesting' ||
+		requestingState === 'suggesting' ||
+		requestingState === 'done';
 	const isBusy = requestingState === 'requesting' || requestingState === 'suggesting';
 	const isTextAreaDisabled = isBusy || requestingState === 'done';
 
@@ -136,7 +139,7 @@ function AiPostExcerpt() {
 					onClick={ () => requestExcerpt() }
 					variant="secondary"
 					isBusy={ isBusy }
-					disabled={ isGenerateButtonDisabled || requestingState !== 'init' }
+					disabled={ isGenerateButtonDisabled }
 				>
 					{ __( 'Generate', 'jetpack' ) }
 				</Button>
