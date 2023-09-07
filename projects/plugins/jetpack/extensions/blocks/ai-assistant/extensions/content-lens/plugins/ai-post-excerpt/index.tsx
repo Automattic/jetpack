@@ -102,7 +102,7 @@ function AiPostExcerpt() {
 
 			<div className="jetpack-generated-excerpt__generate-buttons-container">
 				<Button onClick={ setExpert } variant="secondary" disabled={ requestingState !== 'done' }>
-					{ __( 'Use', 'jetpack' ) }
+					{ __( 'Accept', 'jetpack' ) }
 				</Button>
 
 				<Button
