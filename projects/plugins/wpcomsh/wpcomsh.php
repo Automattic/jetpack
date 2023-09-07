@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.13.12
+ * Version: 3.13.13
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.13.12' );
+define( 'WPCOMSH_VERSION', '3.13.13' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -627,7 +627,8 @@ if (
 add_filter( 'calypso_use_modernized_reading_settings', '__return_true' );
 
 /**
- * Temporary feature flag for the new Newsletter Settings page,
+ * Temporary feature flags for the new Newsletter and podcasting Settings pages,
  * its removal should be preceded by a removal of the filter's usage in Jetpack: https://github.com/Automattic/jetpack/pull/32146
  */
 add_filter( 'calypso_use_newsletter_settings', '__return_true' );
+add_filter( 'calypso_use_podcasting_settings', '__return_true' );
