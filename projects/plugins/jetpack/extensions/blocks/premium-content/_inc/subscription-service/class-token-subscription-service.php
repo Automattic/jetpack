@@ -219,7 +219,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				)
 			);
 
-			if ( empty( $subscription_post_id ) === 0 ) {
+			if ( empty( $subscription_post_id ) ) {
 				// No post linked to this plan
 				continue;
 			}
