@@ -7,7 +7,6 @@ import React from 'react';
 /**
  * Types and constants
  */
-
 export type AiExcerptControlProps = {
 	/*
 	 * Whether the component is disabled.
