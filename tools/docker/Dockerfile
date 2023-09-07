@@ -13,15 +13,15 @@ ENV LC_ALL en_US.UTF-8
 WORKDIR /tmp
 
 # Install basic packages, including Apache.
-RUN \
+RUN --mount=type=cache,target=/var/lib/apt/lists/ \
 	export DEBIAN_FRONTEND=noninteractive \
 	&& apt-get update \
-	&& apt-get install -y language-pack-en-base software-properties-common \
+	&& apt-get install -y curl gpg language-pack-en-base software-properties-common \
 	&& add-apt-repository ppa:ondrej/php \
+	&& curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
 	&& apt-get update \
 	&& apt-get install -y \
 		apache2 \
-		curl \
 		git \
 		jq \
 		less \
@@ -34,17 +34,16 @@ RUN \
 		unzip \
 		vim \
 		zip \
-	&& apt-get remove --purge --auto-remove -y software-properties-common \
-	&& rm -rf /var/lib/apt/lists/* ~/.launchpadlib
+	&& apt-get remove --purge --auto-remove -y gpg software-properties-common \
+	&& find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Enable mod_rewrite in Apache.
 RUN a2enmod rewrite
 
 # Install requested version of PHP.
-RUN \
+RUN --mount=type=cache,target=/var/lib/apt/lists/ \
 	: "${PHP_VERSION:?Build argument PHP_VERSION needs to be set and non-empty.}" \
 	&& export DEBIAN_FRONTEND=noninteractive \
-	&& apt-get update \
 	&& apt-get install -y \
 		libapache2-mod-php${PHP_VERSION} \
 		php${PHP_VERSION} \
@@ -67,29 +66,32 @@ RUN \
 		php${PHP_VERSION}-apcu \
 		php${PHP_VERSION}-gd \
 		php${PHP_VERSION}-imagick \
-	&& rm -rf /var/lib/apt/lists/*
+	&& find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Install requested version of Composer.
 RUN \
 	: "${COMPOSER_VERSION:?Build argument COMPOSER_VERSION needs to be set and non-empty.}" \
 	&& php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 	&& php composer-setup.php --install-dir=/usr/local/bin --filename=composer --version=$COMPOSER_VERSION \
-	&& php -r "unlink('composer-setup.php');"
+	&& php -r "unlink('composer-setup.php');" \
+	&& rm -rf ~/.composer
 
 # Install requested version of Node.
-# We add the PPA for ease of updating, while we download the specific node version manually if possible for installation.
-RUN \
+RUN --mount=type=cache,target=/var/lib/apt/lists/ \
 	: "${NODE_VERSION:?Build argument NODE_VERSION needs to be set and non-empty.}" \
+	&& export DEBIAN_FRONTEND=noninteractive \
 	&& N=${NODE_VERSION%%.*} \
-	&& curl -fSL https://deb.nodesource.com/setup_${N}.x | bash - \
-	&& DEB="$(curl -fSL https://deb.nodesource.com/node_${N}.x/pool/main/n/nodejs/ | perl -nwe 'BEGIN { $v = shift; $arch = shift; $re = qr/nodejs_\Q$v\E-.*_\Q$arch.deb\E/; $out=""; } $out=$1 if /href="($re)"/; END { print "$out"; }' "${NODE_VERSION}" "$(dpkg --print-architecture)")" \
-	&& if [ -n "$DEB" ]; then curl -fSL "https://deb.nodesource.com/node_${N}.x/pool/main/n/nodejs/$DEB" --output /tmp/nodejs.deb && dpkg -i /tmp/nodejs.deb; else DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs; fi \
-	&& rm -rf /var/lib/apt/lists/* /tmp/nodejs.deb
+	&& echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$N.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
+	&& apt-get -q update \
+	&& VER="$(apt-cache show nodejs | sed -n "/^Version: ${NODE_VERSION}-/ { s/^Version: /=/p; q }" )" \
+	&& apt-get install -y nodejs$VER \
+	&& find /var/ -name '*-old' -delete && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
 # Install requested version of pnpm.
 RUN \
 	: "${PNPM_VERSION:?Build argument PNPM_VERSION needs to be set and non-empty.}" \
 	&& npm install --global pnpm@$PNPM_VERSION \
+	&& SHELL=/bin/bash pnpm setup \
 	&& rm -rf ~/.npm
 
 # Install wp-cli.
@@ -102,14 +104,14 @@ RUN mkdir /usr/local/src/psysh \
 	&& composer require psy/psysh:@stable \
 	&& mkdir ~/.wp-cli \
 	&& echo "require: /usr/local/src/psysh/vendor/autoload.php" > ~/.wp-cli/config.yml \
-	&& rm -rf ~/.cache ~/.composer ~/.config ~/.local ~/.subversion
+	&& rm -rf ~/.composer ~/.subversion
 
 # Copy a default config file for an apache host.
 COPY ./config/apache_default /etc/apache2/sites-available/000-default.conf
 
 # Copy a default set of settings for PHP (php.ini).
-COPY ./config/php.ini /etc/php/${PHP_VERSION}/apache2/conf.d/20-jetpack-wordpress.ini
-COPY ./config/php.ini /etc/php/${PHP_VERSION}/cli/conf.d/20-jetpack-wordpress.ini
+COPY ./config/php.ini /etc/php/${PHP_VERSION}/mods-available/jetpack-wordpress.ini
+RUN phpenmod jetpack-wordpress
 
 # Copy single site htaccess to /var/lib/jetpack-config. run.sh will move it to the site's base dir if there's none present.
 COPY ./config/htaccess /var/lib/jetpack-config/htaccess
