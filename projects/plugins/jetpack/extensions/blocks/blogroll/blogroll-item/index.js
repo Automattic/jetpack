@@ -43,6 +43,8 @@ export const settings = {
 		multiple: true,
 		// When false, the block won't be available to be converted into a reusable block.
 		reusable: true,
+		// hide a block from all parts of the user interface so that it can only be inserted programmatically
+		inserter: false,
 	},
 	edit,
 	save: () => <InnerBlocks.Content />,

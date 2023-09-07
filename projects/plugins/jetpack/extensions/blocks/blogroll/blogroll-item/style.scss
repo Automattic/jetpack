@@ -1,5 +1,9 @@
 .wp-block-jetpack-blogroll-item {
 
+	+ .wp-block-jetpack-blogroll-item {
+		border-top: 1px solid var(--gray-gray-5, #DCDCDE);
+	}
+
 	font-size: 14px;
 	font-style: normal;
 	font-weight: 400;
@@ -8,9 +12,4 @@
 		padding: 20px 8px;
 		margin: 0;
 	}
-
-	+ .wp-block-jetpack-blogroll-item {
-		border-top: 1px solid var(--gray-gray-5, #DCDCDE);
-	}
-
 }
