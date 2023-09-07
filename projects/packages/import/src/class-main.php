@@ -20,7 +20,7 @@ class Main {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.7.2';
+	const PACKAGE_VERSION = '0.7.3-alpha';
 
 	/**
 	 * A list of all the routes.

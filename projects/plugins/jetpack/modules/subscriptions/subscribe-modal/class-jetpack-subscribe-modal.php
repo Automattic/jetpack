@@ -6,7 +6,9 @@
  * @since 12.4
  */
 
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 /**
  * Jetpack_Subscribe_Modal class.
@@ -189,7 +191,10 @@ HTML;
 		}
 
 		// Don't show if post is for subscribers only or has paywall block
-		if ( has_block( 'jetpack/paywall' ) ) {
+		global $post;
+		$access_level              = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+		$is_accessible_by_everyone = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $access_level;
+		if ( ! $is_accessible_by_everyone ) {
 			return false;
 		}
 
