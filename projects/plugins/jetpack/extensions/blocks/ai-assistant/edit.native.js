@@ -19,6 +19,7 @@ import { Text, View } from 'react-native';
 /**
  * Internal dependencies
  */
+import ToolbarControls from './components/toolbar-controls';
 import style from './editor.native.scss';
 import useAIFeature from './hooks/use-ai-feature';
 import useSuggestionsFromOpenAI from './hooks/use-suggestions-from-openai';
@@ -147,7 +148,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const { requireUpgrade: requireUpgradeOnStart, refresh: refreshFeatureData } = useAIFeature();
 	const requireUpgrade = requireUpgradeOnStart || errorData?.code === 'error_quota_exceeded';
-	const connected = isUserConnected();
+	// const connected = isUserConnected();
+	const connected = true;
 
 	const {
 		isLoadingCategories,
@@ -155,10 +157,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		// wasCompletionJustRequested,
 		getSuggestionFromOpenAI,
 		stopSuggestion,
-		// showRetry,
+		showRetry,
 		contentBefore,
-		// postTitle,
-		// retryRequest,
+		postTitle,
+		retryRequest,
 		wholeContent,
 		requestingState,
 	} = useSuggestionsFromOpenAI( {
@@ -227,6 +229,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		}
 	};
 
+	const handleTryAgain = () => {
+		setAttributes( {
+			content: attributes?.originalContent,
+			promptType: undefined,
+			messages: attributes?.originalMessages,
+		} );
+	};
+
 	const handleAcceptContent = async () => {
 		let newGeneratedBlocks = [];
 		if ( ! useGutenbergSyntax ) {
@@ -274,10 +284,28 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		// }
 	};
 
+	const handleImageRequest = () => {
+		// setResultImages( [] );
+		// setError( {} );
+		// getImagesFromOpenAI(
+		// 	userPrompt.trim() === '' ? __( 'What would you like to see?', 'jetpack' ) : userPrompt,
+		// 	setAttributes,
+		// 	setLoadingImages,
+		// 	setResultImages,
+		// 	setError,
+		// 	postId
+		// );
+		// tracks.recordEvent( 'jetpack_ai_dalle_generation', {
+		// 	post_id: postId,
+		// } );
+	};
+
 	const blockProps = useBlockProps( {
 		ref: blockRef,
 		// className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
 	} );
+
+	console.log( { isWaitingState, connected, requireUpgrade } );
 
 	return (
 		<View { ...blockProps }>
@@ -291,7 +319,43 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 					/>
 				</View>
 			) }
+			{ ! isWaitingState && connected && ! requireUpgrade && (
+				<ToolbarControls
+					isWaitingState={ isWaitingState }
+					contentIsLoaded={ contentIsLoaded }
+					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+					retryRequest={ retryRequest }
+					handleAcceptContent={ handleAcceptContent }
+					handleAcceptTitle={ handleAcceptTitle }
+					handleGetSuggestion={ handleGetSuggestion }
+					handleImageRequest={ handleImageRequest }
+					handleTryAgain={ handleTryAgain }
+					showRetry={ showRetry }
+					contentBefore={ contentBefore }
+					hasPostTitle={ !! postTitle?.length }
+					wholeContent={ wholeContent }
+					promptType={ attributes.promptType }
+					setUserPrompt={ prompt => {
+						if ( ! aiControlRef?.current ) {
+							return;
+						}
 
+						const userPromptInput = aiControlRef.current;
+
+						// Focus the text area
+						userPromptInput.focus();
+
+						// Add a typing effect in the text area
+						for ( let i = 0; i < prompt.length; i++ ) {
+							setTimeout( () => {
+								setUserPrompt( prompt.slice( 0, i + 1 ) );
+							}, 25 * i );
+						}
+					} }
+					recordEvent={ tracks.recordEvent }
+					isGeneratingTitle={ isGeneratingTitle }
+				/>
+			) }
 			<AIControl
 				ref={ aiControlRef }
 				disabled={ requireUpgrade }
