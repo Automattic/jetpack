@@ -19,7 +19,7 @@ use Jetpack_Gutenberg;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		Blocks::get_path_to_block_metadata( __DIR__ ),
+		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 	);
 }
@@ -34,6 +34,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr, $content ) {
-	Jetpack_Gutenberg::load_assets_as_required( Blocks::get_path_to_block_metadata( __DIR__ ) );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	return $content;
 }

@@ -19,7 +19,7 @@ use Jetpack_Gutenberg;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		Blocks::get_path_to_block_metadata( __DIR__ ),
+		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 	);
 }
@@ -37,7 +37,7 @@ function load_assets( $attr, $content ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
-	Jetpack_Gutenberg::load_assets_as_required( Blocks::get_path_to_block_metadata( __DIR__ ) );
+	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
