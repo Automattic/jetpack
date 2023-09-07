@@ -212,6 +212,25 @@ wp> get_bloginfo( 'name' );
 
 Note that each `wp shell` session counts as a single request, causing unexpected situations with WP cache. You might want to run [`wp_cache_flush()`](https://developer.wordpress.org/reference/functions/wp_cache_flush/) between requests you expect to get cached by WordPress.
 
+### Changing PHP versions
+
+You can select different versions of PHP. For example, to use PHP 8.0 inside the container:
+
+```sh
+jetpack docker select-php 8.0
+```
+
+If you're already inside the container after using `jetpack docker sh`, you can use `select-php 8.0` there too.
+
+Note some caveats:
+
+* Running `jetpack docker down` or otherwise recreating the containers will reset to the default PHP version.
+* If you're wanting the new version of PHP to be used to serve web requests, you'll need to `jetpack docker stop && jetpack docker up -d` or the like.
+* You may need to update Composer packages from inside the container before you can successfully run `phpunit` or the like, in order to install a version compatible with the new version of PHP.
+  * For example, `jetpack docker exec -- composer -d /usr/local/src/jetpack-monorepo/projects/plugins/jetpack update`
+  * Be careful not to commit any resulting changes to `composer.lock` files!
+  * On Linux systems, doing this may result in odd ownership of files in relevant `vendor/` and `jetpack_vendor/` directories. Removing them (probaby using `sudo`) is a valid fix.
+
 ## MySQL database
 
 You can see your database files via local file system at `./tools/docker/data/mysql`

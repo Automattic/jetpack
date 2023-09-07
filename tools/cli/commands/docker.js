@@ -328,6 +328,8 @@ const buildExecCmd = argv => {
 		opts.push( 'bash' );
 	} else if ( cmd === 'db' ) {
 		opts.push( 'mysql', '--defaults-group-suffix=docker' );
+	} else if ( cmd === 'select-php' ) {
+		opts.push( 'select-php', argv.version );
 	} else if ( cmd === 'phpunit' ) {
 		// @todo: Make this scale.
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
@@ -622,6 +624,18 @@ export function dockerDefine( yargs ) {
 					command: 'sh',
 					description: 'Access shell on WordPress container',
 					builder: yargExec => defaultOpts( yargExec ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'select-php <version>',
+					description:
+						'Select the version of PHP for use inside the container. See documentation for important notes!',
+					builder: yargCmd => {
+						yargCmd.positional( 'version', {
+							describe: 'The version to select, or "default".',
+							type: 'string',
+						} );
+					},
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				.command( {
