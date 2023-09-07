@@ -136,7 +136,7 @@ function AiPostExcerpt() {
 					onClick={ () => requestExcerpt() }
 					variant="secondary"
 					isBusy={ isBusy }
-					disabled={ isGenerateButtonDisabled }
+					disabled={ isGenerateButtonDisabled || requestingState !== 'init' }
 				>
 					{ __( 'Generate', 'jetpack' ) }
 				</Button>
