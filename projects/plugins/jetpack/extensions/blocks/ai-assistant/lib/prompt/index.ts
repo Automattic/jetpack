@@ -633,7 +633,7 @@ function buildMessageContextForBackendPrompt( {
 	if ( type === PROMPT_TYPE_SIMPLIFY ) {
 		return {
 			type: 'ai-assistant-simplify',
-			content: subject === 'last-answer' ? generatedContent : postContentAbove,
+			content: isContentGenerated ? generatedContent : postContentAbove,
 			subject,
 		};
 	}
@@ -641,7 +641,7 @@ function buildMessageContextForBackendPrompt( {
 	if ( type === PROMPT_TYPE_CORRECT_SPELLING ) {
 		return {
 			type: 'ai-assistant-correct-spelling',
-			content: subject === 'last-answer' ? generatedContent : postContentAbove,
+			content: isContentGenerated ? generatedContent : postContentAbove,
 			subject,
 		};
 	}
