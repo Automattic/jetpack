@@ -17,12 +17,14 @@ const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
  * @param {boolean} [props.disabled=false] - Indicates whether the MediaSection is disabled or not.
  * @param {string} [props.disabledNoticeMessage=''] - An optional notice that's displayed when the section is disabled.
  * @param {import('react').ReactNode} [props.CustomNotice=null] - An optional custom notice that's displayed.
+ * @param {boolean} props.socialPostDisabled - Indicates whether the social post checkbox is disabled or not.
  * @returns {object} The media section.
  */
 export default function MediaSection( {
 	disabled = false,
 	disabledNoticeMessage = '',
 	CustomNotice = null,
+	socialPostDisabled = false,
 } ) {
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 
@@ -78,7 +80,7 @@ export default function MediaSection( {
 					</ExternalLink>
 				</MediaWrapper>
 			</BaseControl>
-			<SocialPostControl />
+			<SocialPostControl disabled={ socialPostDisabled } />
 		</ThemeProvider>
 	);
 }

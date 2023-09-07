@@ -390,6 +390,7 @@ export default function PublicizeForm( {
 					{ isEnhancedPublishingEnabled && (
 						<MediaSection
 							disabled={ shouldDisableMediaPicker }
+							socialPostDisabled={ ! mediaId && ! isSocialImageGeneratorEnabledForPost }
 							connections={ connections }
 							disabledNoticeMessage={
 								shouldDisableMediaPicker
