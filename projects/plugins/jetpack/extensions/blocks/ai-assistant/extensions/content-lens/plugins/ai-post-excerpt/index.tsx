@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
+import { aiAssistantIcon, useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { TextareaControl, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -13,6 +13,15 @@ import { count } from '@wordpress/wordcount';
  */
 import './style.scss';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
+/**
+ * Types and constants
+ */
+type ContentLensMessageContextProps = {
+	type: 'ai-content-lens';
+	contentType: 'post-excerpt';
+	postId: number;
+	words?: number;
+};
 
 function AiPostExcerpt() {
 	const excerpt = useSelect(
@@ -20,6 +29,7 @@ function AiPostExcerpt() {
 		[]
 	);
 
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 	const { editPost } = useDispatch( 'core/editor' );
 
 	// Post excerpt words number
@@ -28,13 +38,11 @@ function AiPostExcerpt() {
 	// Remove core excerpt panel
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
 
+	const { request, suggestion, requestingState } = useAiSuggestions();
+
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
 	}, [ removeEditorPanel ] );
-
-	function updatePostExcerpt() {
-		console.log( 'request excerpt suggestion' ); // eslint-disable-line no-console
-	}
 
 	// Show custom prompt number of words
 	const numberOfWords = count( excerpt, 'words' );
@@ -44,20 +52,46 @@ function AiPostExcerpt() {
 		numberOfWords
 	);
 
+	const isGenerateButtonDisabled = requestingState === 'requesting';
+	const isBusy = requestingState === 'requesting' || requestingState === 'suggesting';
+
+	/**
+	 * Request AI for a new excerpt.
+	 */
+	function requestExcerpt() {
+		const messageContext: ContentLensMessageContextProps = {
+			type: 'ai-content-lens',
+			contentType: 'post-excerpt',
+			words: excerptWordsNumber,
+			postId,
+		};
+
+		const prompt = [
+			{
+				role: 'jetpack-ai',
+				context: messageContext,
+			},
+		];
+
+		request( prompt );
+	}
+
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
 				__nextHasNoMarginBottom
 				label={ __( 'Write an excerpt (optional)', 'jetpack' ) }
 				onChange={ value => editPost( { excerpt: value } ) }
-				value={ excerpt }
 				help={ numberOfWords ? helpNumberOfWords : null }
+				value={ excerpt || suggestion }
 			/>
 
 			<AiExcerptControl
 				words={ excerptWordsNumber }
 				onWordsNumberChange={ setExcerptWordsNumber }
-				onGenerate={ updatePostExcerpt }
+				onGenerate={ requestExcerpt }
+				disabled={ isGenerateButtonDisabled }
+				isBusy={ isBusy }
 			/>
 
 			<ExternalLink
