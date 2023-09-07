@@ -13,6 +13,15 @@ import { count } from '@wordpress/wordcount';
  */
 import './style.scss';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
+/**
+ * Types and constants
+ */
+type ContentLensMessageContextProps = {
+	type: 'ai-content-lens';
+	contentType: 'post-excerpt';
+	postId: number;
+	words?: number;
+};
 
 function AiPostExcerpt() {
 	const excerpt = useSelect(
@@ -49,16 +58,18 @@ function AiPostExcerpt() {
 	/**
 	 * Request AI for a new excerpt.
 	 */
-	function updatePostExcerpt() {
+	function requestExcerpt() {
+		const messageContext: ContentLensMessageContextProps = {
+			type: 'ai-content-lens',
+			contentType: 'post-excerpt',
+			words: excerptWordsNumber,
+			postId,
+		};
+
 		const prompt = [
 			{
 				role: 'jetpack-ai',
-				context: {
-					type: 'ai-content-lens',
-					request: 'excerpt',
-					words: excerptWordsNumber,
-					postId,
-				},
+				context: messageContext,
 			},
 		];
 
@@ -78,7 +89,7 @@ function AiPostExcerpt() {
 			<AiExcerptControl
 				words={ excerptWordsNumber }
 				onWordsNumberChange={ setExcerptWordsNumber }
-				onGenerate={ updatePostExcerpt }
+				onGenerate={ requestExcerpt }
 				disabled={ isGenerateButtonDisabled }
 				isBusy={ isBusy }
 			/>
