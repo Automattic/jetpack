@@ -3,11 +3,13 @@
 	margin-bottom: 10px;
 }
 
-// Learn more link
-.jetpack-ai-post-excerpt .components-external-link {
-	margin-bottom: 12px;
-}
+.jetpack-generated-excerpt__ai-container {
+	margin-top: 12px;
 
+	.jetpack-ai-assistant__error {
+		margin: 0 0 12px;
+	}
+}
 
 .jetpack-generated-excerpt__generate-buttons-container {
 	display: flex;
@@ -20,7 +22,7 @@
 // Upgrade banner
 .jetpack-ai-post-excerpt .jetpack-upgrade-plan-banner__wrapper {
 	flex-direction: column;
-	margin: 20px 0 0;
+	margin: 0 0 12px;
 	padding: 0 10px;
 
 	.jetpack-ai-upgrade-banner__description {
