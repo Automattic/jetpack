@@ -91,7 +91,7 @@ export const RESTRICTIONS = {
 	facebook: {
 		allowedMediaTypes: facebookImageTypes.concat( [ VIDEOPRESS, ...facebookVideoTypes ] ),
 		image: {
-			maxSize: 4,
+			maxSize: 8,
 		},
 		video: {
 			maxSize: 10000,

@@ -1,5 +1,4 @@
 [
-	"projects/plugins/jetpack/_inc/client/admin.js",
 	"projects/plugins/jetpack/_inc/client/components/count/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/global-notices/state/notices/actions.js",
 	"projects/plugins/jetpack/_inc/client/components/global-notices/state/notices/reducer.js",

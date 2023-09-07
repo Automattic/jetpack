@@ -18,7 +18,6 @@ const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plug
 const editorSetup = path.join( __dirname, '../extensions', 'editor' );
 const viewSetup = path.join( __dirname, '../extensions', 'view' );
 const blockEditorDirectories = [ 'plugins', 'blocks' ];
-const noop = function () {};
 
 /**
  * Filters block editor scripts
@@ -281,38 +280,9 @@ module.exports = [
 			),
 			new StaticSiteGeneratorPlugin( {
 				// The following mocks are required to make `@wordpress/` npm imports work with server-side rendering.
-				// Hopefully, most of them can be dropped once https://github.com/WordPress/gutenberg/pull/16227 lands.
 				globals: {
-					Mousetrap: {
-						init: noop,
-						prototype: {},
-					},
 					document: new jsdom.JSDOM().window.document,
-					navigator: {},
-					window: {
-						addEventListener: noop,
-						console: {
-							error: noop,
-							warn: noop,
-						},
-						// See https://github.com/WordPress/gutenberg/blob/f3b6379327ce3fb48a97cb52ffb7bf9e00e10130/packages/jest-preset-default/scripts/setup-globals.js
-						matchMedia: () => ( {
-							addListener: () => {},
-						} ),
-						navigator: { platform: '', userAgent: '' },
-						Node: {
-							TEXT_NODE: '',
-							ELEMENT_NODE: '',
-							DOCUMENT_POSITION_PRECEDING: '',
-							DOCUMENT_POSITION_FOLLOWING: '',
-						},
-						removeEventListener: noop,
-						URL: {},
-					},
-					CSS: {
-						supports: () => false,
-					},
-					MessageChannel: null, // React <17.1 is broken on Node 16 if this is set. https://github.com/facebook/react/issues/20756#issuecomment-780927519
+					window: {},
 				},
 			} ),
 			new RemoveAssetWebpackPlugin( {
