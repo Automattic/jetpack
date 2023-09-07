@@ -13,7 +13,7 @@ ENV LC_ALL en_US.UTF-8
 WORKDIR /tmp
 
 # Install basic packages, including Apache.
-RUN --mount=type=cache,target=/var/lib/apt/lists/ \
+RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 	export DEBIAN_FRONTEND=noninteractive \
 	&& apt-get update \
 	&& apt-get install -y curl gpg language-pack-en-base software-properties-common \
@@ -41,7 +41,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/ \
 RUN a2enmod rewrite
 
 # Install requested version of PHP.
-RUN --mount=type=cache,target=/var/lib/apt/lists/ \
+RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 	: "${PHP_VERSION:?Build argument PHP_VERSION needs to be set and non-empty.}" \
 	&& export DEBIAN_FRONTEND=noninteractive \
 	&& apt-get install -y \
@@ -77,7 +77,7 @@ RUN \
 	&& rm -rf ~/.composer
 
 # Install requested version of Node.
-RUN --mount=type=cache,target=/var/lib/apt/lists/ \
+RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 	: "${NODE_VERSION:?Build argument NODE_VERSION needs to be set and non-empty.}" \
 	&& export DEBIAN_FRONTEND=noninteractive \
 	&& N=${NODE_VERSION%%.*} \
