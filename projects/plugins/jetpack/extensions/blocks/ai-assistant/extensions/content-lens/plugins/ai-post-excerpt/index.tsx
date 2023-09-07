@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { aiAssistantIcon, useAiSuggestions } from '@automattic/jetpack-ai-client';
+import {
+	ERROR_QUOTA_EXCEEDED,
+	aiAssistantIcon,
+	useAiSuggestions,
+} from '@automattic/jetpack-ai-client';
 import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -13,6 +17,7 @@ import TurndownService from 'turndown';
  * Internal dependencies
  */
 import './style.scss';
+import UpgradePrompt from '../../../../components/upgrade-prompt';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
 /**
  * Types and constants
@@ -114,6 +119,8 @@ ${ postContent }
 		reset();
 	}
 
+	const isQuotaExceeded = error?.code === ERROR_QUOTA_EXCEEDED;
+
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
@@ -125,46 +132,6 @@ ${ postContent }
 				disabled={ isTextAreaDisabled }
 			/>
 
-			{ error?.code && error.code !== 'error_quota_exceeded' && (
-				<Notice
-					status={ error.severity }
-					isDismissible={ false }
-					className="jetpack-ai-assistant__error"
-				>
-					{ error.message }
-				</Notice>
-			) }
-
-			<AiExcerptControl
-				words={ excerptWordsNumber }
-				onWordsNumberChange={ setExcerptWordsNumber }
-				disabled={ isBusy }
-			/>
-
-			<div className="jetpack-generated-excerpt__generate-buttons-container">
-				<Button
-					onClick={ discardExpert }
-					variant="secondary"
-					isDestructive
-					disabled={ requestingState !== 'done' }
-				>
-					{ __( 'Discard', 'jetpack' ) }
-				</Button>
-
-				<Button onClick={ setExpert } variant="secondary" disabled={ requestingState !== 'done' }>
-					{ __( 'Accept', 'jetpack' ) }
-				</Button>
-
-				<Button
-					onClick={ () => requestExcerpt() }
-					variant="secondary"
-					isBusy={ isBusy }
-					disabled={ isGenerateButtonDisabled }
-				>
-					{ __( 'Generate', 'jetpack' ) }
-				</Button>
-			</div>
-
 			<ExternalLink
 				href={ __(
 					'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt',
@@ -173,6 +140,54 @@ ${ postContent }
 			>
 				{ __( 'Learn more about manual excerpts', 'jetpack' ) }
 			</ExternalLink>
+
+			<div className="jetpack-generated-excerpt__ai-container">
+				{ error?.code && error.code !== 'error_quota_exceeded' && (
+					<Notice
+						status={ error.severity }
+						isDismissible={ false }
+						className="jetpack-ai-assistant__error"
+					>
+						{ error.message }
+					</Notice>
+				) }
+
+				{ isQuotaExceeded && <UpgradePrompt /> }
+
+				<AiExcerptControl
+					words={ excerptWordsNumber }
+					onWordsNumberChange={ setExcerptWordsNumber }
+					disabled={ isBusy || isQuotaExceeded }
+				/>
+
+				<div className="jetpack-generated-excerpt__generate-buttons-container">
+					<Button
+						onClick={ discardExpert }
+						variant="secondary"
+						isDestructive
+						disabled={ requestingState !== 'done' || isQuotaExceeded }
+					>
+						{ __( 'Discard', 'jetpack' ) }
+					</Button>
+
+					<Button
+						onClick={ setExpert }
+						variant="secondary"
+						disabled={ requestingState !== 'done' || isQuotaExceeded }
+					>
+						{ __( 'Accept', 'jetpack' ) }
+					</Button>
+
+					<Button
+						onClick={ () => requestExcerpt() }
+						variant="secondary"
+						isBusy={ isBusy }
+						disabled={ isGenerateButtonDisabled || isQuotaExceeded }
+					>
+						{ __( 'Generate', 'jetpack' ) }
+					</Button>
+				</div>
+			</div>
 		</div>
 	);
 }
