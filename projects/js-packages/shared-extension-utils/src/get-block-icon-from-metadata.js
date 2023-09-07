@@ -1,5 +1,5 @@
 /* eslint-disable jsdoc/no-undefined-types */
-import { getIconColor } from './get-icon-color';
+import getIconColor from './get-icon-color';
 
 /**
  * Generate an icon as a React component from the SVG markup defined in a block.json metadata file.
