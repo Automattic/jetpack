@@ -86,11 +86,17 @@ function jpcrm_render_emailbox() {
 				</div>
 			</a>
 
+			<?php
+			if ( apply_filters( 'jetpack_crm_feature_flag_email', false ) ) :
+				?>
 			<a class="item zbs-inbox-link">
 				<div class="nav-men">
 					<i class="ui icon inbox"></i> <?php esc_html_e( 'Received', 'zero-bs-crm' ); ?>
 				</div>
 			</a>
+				<?php
+			endif;
+			?>
 
 			<?php do_action( 'zbs_emails_scheduled_nav' ); ?>
 
@@ -165,6 +171,9 @@ function jpcrm_render_emailbox() {
 	  
 		</div>
 
+		<?php
+		if ( apply_filters( 'jetpack_crm_feature_flag_email', false ) ) :
+			?>
 		<div class='zbs-email-list inbox-email-list app-content'>
 			<?php
 			$email_hist = zeroBSCRM_get_email_history( 0, 50, -1, 'received', -1, false );
@@ -205,6 +214,9 @@ function jpcrm_render_emailbox() {
 			?>
 	  
 		</div>
+			<?php
+			endif;
+		?>
 
 		<div class='zbs-email-list sent-email-list app-content'>
 			<?php
