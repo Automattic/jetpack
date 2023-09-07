@@ -208,16 +208,16 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v4.7.0",
+            "version": "v4.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "0bee28f7c50e1dca8225a715270944d0ce94cbb2"
+                "reference": "4715eeb34c3fa9de63b8725644f021f2251f9ed0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/0bee28f7c50e1dca8225a715270944d0ce94cbb2",
-                "reference": "0bee28f7c50e1dca8225a715270944d0ce94cbb2",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/4715eeb34c3fa9de63b8725644f021f2251f9ed0",
+                "reference": "4715eeb34c3fa9de63b8725644f021f2251f9ed0",
                 "shasum": ""
             },
             "require-dev": {
@@ -236,7 +236,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "4.7.x-dev"
+                    "dev-trunk": "4.8.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -254,9 +254,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v4.7.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v4.8.0"
             },
-            "time": "2023-09-06T15:25:12+00:00"
+            "time": "2023-09-07T12:38:03+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
