@@ -17,6 +17,13 @@ import {
 } from './index';
 
 /**
+ * Constants
+ */
+const SUBJECT_TITLE = 'title';
+const SUBJECT_CONTENT = 'content';
+const SUBJECT_LAST_ANSWER = 'last-answer';
+
+/**
  * Builds backend prompt message list
  * based on the type of prompt.
  *
@@ -51,6 +58,23 @@ export function buildMessagesForBackendPrompt( {
 }
 
 /**
+ * Gets the subject of the prompt.
+ *
+ * @param {boolean} isGeneratingTitle - Whether the action is to generate a title.
+ * @param {boolean} isContentGenerated - Whether the current content was generated.
+ * @returns {string} The subject.
+ */
+function getSubject( isGeneratingTitle: boolean, isContentGenerated: boolean ): string {
+	if ( isGeneratingTitle ) {
+		return SUBJECT_TITLE;
+	}
+	if ( isContentGenerated ) {
+		return SUBJECT_CONTENT;
+	}
+	return SUBJECT_LAST_ANSWER;
+}
+
+/**
  * Builds backend message context based on the type
  * and the options of the prompt.
  *
@@ -70,12 +94,7 @@ function buildMessageContextForBackendPrompt( {
 	const isContentGenerated = options?.contentType === 'generated';
 
 	// Determine the subject of the action
-	let subject = 'last-answer';
-	if ( isGeneratingTitle ) {
-		subject = 'title';
-	} else if ( ! isContentGenerated ) {
-		subject = 'content';
-	}
+	const subject = getSubject( isGeneratingTitle, isContentGenerated );
 
 	/*
 	 * Each type of prompt has a different context.
