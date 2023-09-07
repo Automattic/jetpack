@@ -110,7 +110,7 @@ class Marketplace_Products_Updater {
 	}
 
 	/**
-	 * Getch Updates
+	 * Fetch the product updates from WPCOM servers.
 	 *
 	 * @param string $type The update type, mainly plugins or themes.
 	 *
