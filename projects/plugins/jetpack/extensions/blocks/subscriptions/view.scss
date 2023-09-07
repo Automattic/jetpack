@@ -25,7 +25,7 @@
 	}
 
 	.wp-block-jetpack-subscriptions__form,
-	form {
+	form .wp-block-jetpack-subscriptions__hbox {
 		display: flex;
 		align-items: flex-start;
 
@@ -108,18 +108,35 @@
 	gap: 8px;
 
 	.wp-block-jetpack-subscriptions__newsletter-category {
-		padding: 6px 10px;
-		font-family: $default-font;
-		font-size: $default-font-size;
-		font-weight: 500;
-		line-height: 20px;
-		color: $gray-600;
-		border: 1px solid $gray-200;
-		border-radius: var(--subscribe-block-border-radius);
+		display: inline-flex;
+		align-items: center;
+		cursor: pointer;
+
+		input[type="checkbox"] {
+			display: none;
+		}
+
+		span {
+			padding: 6px 10px;
+			font-family: $default-font;
+			font-size: $default-font-size;
+			font-weight: 500;
+			line-height: 20px;
+			color: $gray-600;
+			border: 1px solid $gray-200;
+			border-radius: var(--subscribe-block-border-radius);
+			background: $white;
+			transition: background 0.3s;
+			user-select: none;
+		}
+
+		input[type="checkbox"]:checked + span {
+			background: var(--wp--preset--color--primary);
+			color: var(--wp--preset--color--contrast);
+		}
 	}
 }
 
-// make the form less wide when there are categories
 .wp-block-jetpack-subscriptions__newsletter-categories-enabled {
 	.wp-block-jetpack-subscriptions__form {
 		width: 80%;
