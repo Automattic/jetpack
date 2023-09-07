@@ -128,11 +128,13 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_T0_MONTHLY                   = 'jetpack_backup_t0_monthly'; // 2121
 	private const JETPACK_SEARCH_FREE                         = 'jetpack_search_free'; // 2130
 	private const JETPACK_BACKUP_ONE_TIME                     = 'jetpack_backup_one_time'; // 2201
-	private const JETPACK_STATS_YEARLY                        = 'jetpack_stats_yearly'; // 2219
-	private const JETPACK_STATS_BI_YEARLY                     = 'jetpack_stats_bi_yearly'; // 2223
 	private const JETPACK_STATS_FREE                          = 'jetpack_stats_free_yearly'; // 2221
 	private const JETPACK_STATS_PWYW                          = 'jetpack_stats_pwyw_yearly'; // 2222
 	private const JETPACK_STATS_MONTHLY                       = 'jetpack_stats_monthly'; // 2220
+	private const JETPACK_STATS_YEARLY                        = 'jetpack_stats_yearly'; // 2219
+	private const JETPACK_STATS_BI_YEARLY                     = 'jetpack_stats_bi_yearly'; // 2223
+	private const JETPACK_MONITOR_MONTHLY                     = 'jetpack_monitor_monthly'; // 2241
+	private const JETPACK_MONITOR_YEARLY                      = 'jetpack_monitor_yearly'; // 2242
 	private const AKISMET_FREE                                = 'ak_free_yearly'; // 2300
 	private const AKISMET_PERSONAL_MONTHLY                    = 'ak_personal_monthly'; // 2309
 	private const AKISMET_PERSONAL_YEARLY                     = 'ak_personal_yearly'; // 2310
@@ -270,127 +272,135 @@ class WPCOM_Features {
 	/*
 	 * Public const for every mapped feature, sorted alphabetically.
 	 */
-	public const AI_ASSISTANT                     = 'ai-assistant';
-	public const AD_CREDIT_VOUCHERS               = 'ad-credit';
-	public const ADVANCED_SEO                     = 'advanced-seo';
-	public const AKISMET                          = 'akismet';
-	public const ANTISPAM                         = 'antispam';
-	public const ARTIFICIAL_50GB_STORAGE_LIMIT    = 'artificial-50gb-storage-limit';
-	public const ATOMIC                           = 'atomic';
-	public const BACKUPS                          = 'backups';
-	public const BACKUPS_DAILY                    = 'backups-daily';
-	public const BACKUPS_RESTORE                  = 'restore';
-	public const BACKUP_ONE_TIME                  = 'backup-one-time';
-	public const BLOG_DOMAIN_ONLY                 = 'blog-domain-only';
-	public const CALENDLY                         = 'calendly';
-	public const CDN                              = 'cdn';
-	public const CLASSIC_SEARCH                   = 'search';
-	public const CLOUD_CRITICAL_CSS               = 'cloud-critical-css';
-	public const CLOUDFLARE_ANALYTICS             = 'cloudflare-analytics';
-	public const CLOUDFLARE_CDN                   = 'cloudflare-cdn';
-	public const CONCIERGE                        = 'concierge';
-	public const CONCIERGE_BUSINESS               = 'concierge-business';
-	public const COPY_SITE                        = 'copy-site';
-	public const CORE_AUDIO                       = 'core/audio';
-	public const CORE_COVER                       = 'core/cover';
-	public const CORE_VIDEO                       = 'core/video';
-	public const CREDIT_VOUCHERS                  = 'credit-vouchers';
-	public const CUSTOM_DESIGN                    = 'custom-design';
-	public const CUSTOM_DOMAIN                    = 'custom-domain';
-	public const DOMAIN_MAPPING                   = 'domain-mapping';
-	public const DONATIONS                        = 'donations';
-	public const ECOMMERCE_MANAGED_PLUGINS        = 'ecommerce-managed-plugins';
-	public const ECOMMERCE_MANAGED_PLUGINS_SMALL  = 'ecommerce-managed-plugins-small';
-	public const ECOMMERCE_MANAGED_PLUGINS_MEDIUM = 'ecommerce-managed-plugins-medium';
-	public const ECOMMERCE_MANAGED_PLUGINS_TRIAL  = 'ecommerce-managed-plugins-trial';
-	public const EDIT_PLUGINS                     = 'edit-plugins';
-	public const EDIT_THEMES                      = 'edit-themes';
-	public const EMAIL_PROFESSIONAL               = 'email-professional';
-	public const EMAIL_SUBSCRIPTION               = 'email-subscription';
-	public const EMAIL_UNLIMITED_FORWARDS         = 'email-unlimited-forwards';
-	public const FREE_BLOG                        = 'free-blog';
-	public const FULL_ACTIVITY_LOG                = 'full-activity-log';
-	public const GLOBAL_STYLES                    = 'global-styles';
-	public const GOOGLE_ANALYTICS                 = 'google-analytics';
-	public const GOOGLE_MY_BUSINESS               = 'google-my-business';
-	public const IMAGE_SIZE_ANALYSIS              = 'image-size-analysis';
-	public const INSTALL_PLUGINS                  = 'install-plugins';
-	public const INSTALL_PURCHASED_PLUGINS        = 'install-purchased-plugins';
-	public const INSTALL_THEMES                   = 'install-themes';
-	public const INSTALL_WOO_ONBOARDING_PLUGINS   = 'install-woo-onboarding-plugins';
-	public const INSTANT_SEARCH                   = 'instant-search';
-	public const JETPACK_DASHBOARD                = 'jetpack-dashboard';
-	public const LIST_INSTALLED_PLUGINS           = 'list-installed-plugins';
-	public const LIVE_SUPPORT                     = 'live_support';
-	public const MAILPOET_BUSINESS                = 'mailpoet-business';
-	public const MANAGE_PLUGINS                   = 'manage-plugins';
-	public const NO_ADVERTS_NO_ADVERTS_PHP        = 'no-adverts/no-adverts.php';
-	public const NO_WPCOM_BRANDING                = 'no-wpcom-branding';
-	public const OPENTABLE                        = 'opentable';
-	public const OPTIONS_PERMALINK                = 'options-permalink';
-	public const PAYMENTS                         = 'payments';
-	public const POLLDADDY                        = 'polldaddy';
-	public const PREMIUM_CONTENT_CONTAINER        = 'premium-content/container';
-	public const PREMIUM_THEMES                   = 'premium-themes';
-	public const PRIORITY_SUPPORT                 = 'priority_support';
-	public const PRIVATE_WHOIS                    = 'private_whois';
-	public const REAL_TIME_BACKUPS                = 'real-time-backups';
-	public const RECURRING_PAYMENTS               = 'recurring-payments';
-	public const REDUCED_ATOMIC_EMAIL_PRIORITY    = 'reduced-email-priority';
-	public const REPUBLICIZE                      = 'republicize';
-	public const SCAN                             = 'scan';
-	public const SCAN_MANAGED                     = 'scan-managed';
-	public const SECURITY_SETTINGS                = 'security-settings';
-	public const SEO_PREVIEW_TOOLS                = 'seo-preview-tools';
-	public const SEND_A_MESSAGE                   = 'send-a-message';
-	public const SET_PRIMARY_CUSTOM_DOMAIN        = 'set-primary-custom-domain';
-	public const SFTP                             = 'sftp';
-	public const SIMPLE_PAYMENTS                  = 'simple-payments';
-	public const SITE_PREVIEW_LINKS               = 'site-preview-links';
-	public const SOCIAL_IMAGE_GENERATOR           = 'social-image-generator';
-	public const SOCIAL_PREVIEWS                  = 'social-previews';
-	public const SOCIAL_SHARES_1000               = 'social-shares-1000';
-	public const SOCIAL_ENHANCED_PUBLISHING       = 'social-enhanced-publishing';
-	public const SOCIAL_MASTODON_CONNECTION       = 'social-mastodon-connection';
-	public const SOCIAL_INSTAGRAM_CONNECTION      = 'social-instagram-connection';
-	public const SOCIAL_IMAGE_AUTO_CONVERT        = 'social-image-auto-convert';
-	public const SOCIAL_MULTI_CONNECTIONS         = 'social-multi-connections';
-	public const SPACE                            = 'space';
-	public const SPACE_UPGRADED_STORAGE           = 'space-upgraded-storage';
-	public const SSH                              = 'ssh';
-	public const STAGING_SITES                    = 'staging-sites';
-	public const STATS_FREE                       = 'stats-free';
-	public const STATS_PAID                       = 'stats-paid';
-	public const SUBSCRIBER_UNLIMITED_IMPORTS     = 'subscriber-unlimited-imports';
-	public const SUBSCRIPTION_GIFTING             = 'subscription-gifting';
-	public const SUPPORT                          = 'support';
-	public const UPGRADED_UPLOAD_FILETYPES        = 'upgraded_upload_filetypes';
-	public const UPLOAD_AUDIO_FILES               = 'upload-audio-files';
-	public const UPLOAD_PLUGINS                   = 'upload-plugins';
-	public const UPLOAD_SPACE_1GB                 = 'upload-space-1gb-addon';
-	public const UPLOAD_SPACE_3GB                 = 'upload-space-3gb';
-	public const UPLOAD_SPACE_10GB                = 'upload-space-10gb';
-	public const UPLOAD_SPACE_25GB                = 'upload-space-25gb';
-	public const UPLOAD_SPACE_50GB                = 'upload-space-50gb';
-	public const UPLOAD_SPACE_100GB               = 'upload-space-100gb';
-	public const UPLOAD_SPACE_200GB               = 'upload-space-200gb';
-	public const UPLOAD_SPACE_UNLIMITED           = 'upload-space-unlimited';
-	public const UPLOAD_THEMES                    = 'upload-themes';
-	public const UPLOAD_VIDEO_FILES               = 'upload-video-files';
-	public const VAULTPRESS_AUTOMATED_RESTORES    = 'vaultpress-automated-restores';
-	public const VAULTPRESS_BACKUP_ARCHIVE        = 'vaultpress-backup-archive';
-	public const VAULTPRESS_BACKUPS               = 'vaultpress-backups';
-	public const VAULTPRESS_SECURITY_SCANNING     = 'vaultpress-security-scanning';
-	public const VAULTPRESS_STORAGE_SPACE         = 'vaultpress-storage-space';
-	public const VIDEO_HOSTING                    = 'video-hosting';
-	public const VIDEOPRESS                       = 'videopress';
-	public const VIDEOPRESS_1TB_STORAGE           = 'videopress-1tb-storage';
-	public const VIDEOPRESS_VIDEO                 = 'videopress/video';
-	public const VIDEOPRESS_UNLIMITED_STORAGE     = 'videopress-unlimited-storage';
-	public const WHATSAPP_BUTTON                  = 'whatsapp-button';
-	public const WOOP                             = 'woop';
-	public const WORDADS                          = 'wordads';
-	public const WORDADS_JETPACK                  = 'wordads-jetpack';
+	public const AI_ASSISTANT                      = 'ai-assistant';
+	public const AD_CREDIT_VOUCHERS                = 'ad-credit';
+	public const ADVANCED_SEO                      = 'advanced-seo';
+	public const AKISMET                           = 'akismet';
+	public const ANTISPAM                          = 'antispam';
+	public const ARCHIVE_CONTENT                   = 'archive-content';
+	public const ARTIFICIAL_50GB_STORAGE_LIMIT     = 'artificial-50gb-storage-limit';
+	public const ATOMIC                            = 'atomic';
+	public const BACKUPS                           = 'backups';
+	public const BACKUPS_DAILY                     = 'backups-daily';
+	public const BACKUPS_RESTORE                   = 'restore';
+	public const BACKUP_ONE_TIME                   = 'backup-one-time';
+	public const BLOG_DOMAIN_ONLY                  = 'blog-domain-only';
+	public const CALENDLY                          = 'calendly';
+	public const CDN                               = 'cdn';
+	public const CLASSIC_SEARCH                    = 'search';
+	public const CLOUD_CRITICAL_CSS                = 'cloud-critical-css';
+	public const CLOUDFLARE_ANALYTICS              = 'cloudflare-analytics';
+	public const CLOUDFLARE_CDN                    = 'cloudflare-cdn';
+	public const CONCIERGE                         = 'concierge';
+	public const CONCIERGE_BUSINESS                = 'concierge-business';
+	public const COPY_SITE                         = 'copy-site';
+	public const CORE_AUDIO                        = 'core/audio';
+	public const CORE_COVER                        = 'core/cover';
+	public const CORE_VIDEO                        = 'core/video';
+	public const CREDIT_VOUCHERS                   = 'credit-vouchers';
+	public const CUSTOM_DESIGN                     = 'custom-design';
+	public const CUSTOM_DOMAIN                     = 'custom-domain';
+	public const DOMAIN_MAPPING                    = 'domain-mapping';
+	public const DONATIONS                         = 'donations';
+	public const ECOMMERCE_MANAGED_PLUGINS         = 'ecommerce-managed-plugins';
+	public const ECOMMERCE_MANAGED_PLUGINS_SMALL   = 'ecommerce-managed-plugins-small';
+	public const ECOMMERCE_MANAGED_PLUGINS_MEDIUM  = 'ecommerce-managed-plugins-medium';
+	public const ECOMMERCE_MANAGED_PLUGINS_TRIAL   = 'ecommerce-managed-plugins-trial';
+	public const EDIT_PLUGINS                      = 'edit-plugins';
+	public const EDIT_THEMES                       = 'edit-themes';
+	public const EMAIL_PROFESSIONAL                = 'email-professional';
+	public const EMAIL_SUBSCRIPTION                = 'email-subscription';
+	public const EMAIL_UNLIMITED_FORWARDS          = 'email-unlimited-forwards';
+	public const FREE_BLOG                         = 'free-blog';
+	public const FULL_ACTIVITY_LOG                 = 'full-activity-log';
+	public const GLOBAL_STYLES                     = 'global-styles';
+	public const GOOGLE_ANALYTICS                  = 'google-analytics';
+	public const GOOGLE_MY_BUSINESS                = 'google-my-business';
+	public const IMAGE_CDN_QUALITY                 = 'image-cdn-quality';
+	public const IMAGE_SIZE_ANALYSIS               = 'image-size-analysis';
+	public const INSTALL_PLUGINS                   = 'install-plugins';
+	public const INSTALL_PURCHASED_PLUGINS         = 'install-purchased-plugins';
+	public const INSTALL_THEMES                    = 'install-themes';
+	public const INSTALL_WOO_ONBOARDING_PLUGINS    = 'install-woo-onboarding-plugins';
+	public const INSTANT_SEARCH                    = 'instant-search';
+	public const JETPACK_DASHBOARD                 = 'jetpack-dashboard';
+	public const LEGACY_CONTACT                    = 'legacy-contact';
+	public const LIST_INSTALLED_PLUGINS            = 'list-installed-plugins';
+	public const LIVE_SUPPORT                      = 'live_support';
+	public const LOCKED_MODE                       = 'locked-mode';
+	public const MAILPOET_BUSINESS                 = 'mailpoet-business';
+	public const MANAGE_PLUGINS                    = 'manage-plugins';
+	public const MONITOR_1_MINUTE_CHECK_INTERVAL   = 'monitor-1-minute-check-interval';
+	public const MONITOR_MULTIPLE_EMAIL_RECIPIENTS = 'monitor-multiple-email-recipients';
+	public const MONITOR_SMS_NOTIFICATIONS         = 'monitor-sms-notifications';
+	public const NO_ADVERTS_NO_ADVERTS_PHP         = 'no-adverts/no-adverts.php';
+	public const NO_WPCOM_BRANDING                 = 'no-wpcom-branding';
+	public const OPENTABLE                         = 'opentable';
+	public const OPTIONS_PERMALINK                 = 'options-permalink';
+	public const PAYMENTS                          = 'payments';
+	public const PERFORMANCE_HISTORY               = 'performance-history';
+	public const POLLDADDY                         = 'polldaddy';
+	public const PREMIUM_CONTENT_CONTAINER         = 'premium-content/container';
+	public const PREMIUM_THEMES                    = 'premium-themes';
+	public const PRIORITY_SUPPORT                  = 'priority_support';
+	public const PRIVATE_WHOIS                     = 'private_whois';
+	public const REAL_TIME_BACKUPS                 = 'real-time-backups';
+	public const RECURRING_PAYMENTS                = 'recurring-payments';
+	public const REDUCED_ATOMIC_EMAIL_PRIORITY     = 'reduced-email-priority';
+	public const REPUBLICIZE                       = 'republicize';
+	public const SCAN                              = 'scan';
+	public const SCAN_MANAGED                      = 'scan-managed';
+	public const SECURITY_SETTINGS                 = 'security-settings';
+	public const SEO_PREVIEW_TOOLS                 = 'seo-preview-tools';
+	public const SEND_A_MESSAGE                    = 'send-a-message';
+	public const SET_PRIMARY_CUSTOM_DOMAIN         = 'set-primary-custom-domain';
+	public const SFTP                              = 'sftp';
+	public const SIMPLE_PAYMENTS                   = 'simple-payments';
+	public const SITE_PREVIEW_LINKS                = 'site-preview-links';
+	public const SOCIAL_IMAGE_GENERATOR            = 'social-image-generator';
+	public const SOCIAL_PREVIEWS                   = 'social-previews';
+	public const SOCIAL_SHARES_1000                = 'social-shares-1000';
+	public const SOCIAL_ENHANCED_PUBLISHING        = 'social-enhanced-publishing';
+	public const SOCIAL_MASTODON_CONNECTION        = 'social-mastodon-connection';
+	public const SOCIAL_INSTAGRAM_CONNECTION       = 'social-instagram-connection';
+	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
+	public const SOCIAL_MULTI_CONNECTIONS          = 'social-multi-connections';
+	public const SPACE                             = 'space';
+	public const SPACE_UPGRADED_STORAGE            = 'space-upgraded-storage';
+	public const SSH                               = 'ssh';
+	public const STAGING_SITES                     = 'staging-sites';
+	public const STATS_FREE                        = 'stats-free';
+	public const STATS_PAID                        = 'stats-paid';
+	public const SUBSCRIBER_UNLIMITED_IMPORTS      = 'subscriber-unlimited-imports';
+	public const SUBSCRIPTION_GIFTING              = 'subscription-gifting';
+	public const SUPPORT                           = 'support';
+	public const UPGRADED_UPLOAD_FILETYPES         = 'upgraded_upload_filetypes';
+	public const UPLOAD_AUDIO_FILES                = 'upload-audio-files';
+	public const UPLOAD_PLUGINS                    = 'upload-plugins';
+	public const UPLOAD_SPACE_1GB                  = 'upload-space-1gb-addon';
+	public const UPLOAD_SPACE_3GB                  = 'upload-space-3gb';
+	public const UPLOAD_SPACE_10GB                 = 'upload-space-10gb';
+	public const UPLOAD_SPACE_25GB                 = 'upload-space-25gb';
+	public const UPLOAD_SPACE_50GB                 = 'upload-space-50gb';
+	public const UPLOAD_SPACE_100GB                = 'upload-space-100gb';
+	public const UPLOAD_SPACE_200GB                = 'upload-space-200gb';
+	public const UPLOAD_SPACE_UNLIMITED            = 'upload-space-unlimited';
+	public const UPLOAD_THEMES                     = 'upload-themes';
+	public const UPLOAD_VIDEO_FILES                = 'upload-video-files';
+	public const VAULTPRESS_AUTOMATED_RESTORES     = 'vaultpress-automated-restores';
+	public const VAULTPRESS_BACKUP_ARCHIVE         = 'vaultpress-backup-archive';
+	public const VAULTPRESS_BACKUPS                = 'vaultpress-backups';
+	public const VAULTPRESS_SECURITY_SCANNING      = 'vaultpress-security-scanning';
+	public const VAULTPRESS_STORAGE_SPACE          = 'vaultpress-storage-space';
+	public const VIDEO_HOSTING                     = 'video-hosting';
+	public const VIDEOPRESS                        = 'videopress';
+	public const VIDEOPRESS_1TB_STORAGE            = 'videopress-1tb-storage';
+	public const VIDEOPRESS_VIDEO                  = 'videopress/video';
+	public const VIDEOPRESS_UNLIMITED_STORAGE      = 'videopress-unlimited-storage';
+	public const WHATSAPP_BUTTON                   = 'whatsapp-button';
+	public const WOOP                              = 'woop';
+	public const WORDADS                           = 'wordads';
+	public const WORDADS_JETPACK                   = 'wordads-jetpack';
 
 	/*
 	 * Private const array of features with sub-array of purchases that include that feature. Sorted alphabetically.
@@ -430,6 +440,11 @@ class WPCOM_Features {
 			self::JETPACK_PERSONAL_AND_HIGHER,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+
+		// Automatically syncs content to the Internet Archive on publish and update.
+		self::ARCHIVE_CONTENT                   => array(
+			self::WPCOM_HUNDRED_YEAR_BUNDLE,
 		),
 
 		/*
@@ -645,6 +660,10 @@ class WPCOM_Features {
 			self::JETPACK_SECURITY_T1_PLANS,
 			self::JETPACK_SECURITY_T2_PLANS,
 		),
+		self::IMAGE_CDN_QUALITY                => array(
+			self::JETPACK_BOOST_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+		),
 		self::IMAGE_SIZE_ANALYSIS              => array(
 			self::JETPACK_BOOST_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
@@ -686,6 +705,11 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
 		),
+
+		// Allows sites to designate a contact person to look after their site after they pass away.
+		self::LEGACY_CONTACT                    => array(
+			self::WPCOM_HUNDRED_YEAR_BUNDLE,
+		),
 		self::LIST_INSTALLED_PLUGINS           => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
@@ -713,6 +737,11 @@ class WPCOM_Features {
 			self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY,
 			self::WPCOM_WOOEXPRESS_SMALL_BUNDLE_YEARLY,
 		),
+
+		// Enables a setting to lock the site content to prevent changes (incl. disabling comments site-wide).
+		self::LOCKED_MODE                       => array(
+			self::WPCOM_HUNDRED_YEAR_BUNDLE,
+		),
 		self::MAILPOET_BUSINESS                => array(
 			self::WPCOM_ECOMMERCE_PLANS,
 			self::WPCOM_WOOEXPRESS_PLANS,
@@ -725,6 +754,23 @@ class WPCOM_Features {
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
 		),
+
+		// MONITOR_1_MINUTE_CHECK_INTERVAL - Jetpack Monitor checks site uptime once per minute
+		self::MONITOR_1_MINUTE_CHECK_INTERVAL   => array(
+			self::JETPACK_MONITOR_MONTHLY,
+			self::JETPACK_MONITOR_YEARLY,
+		),
+		// MONITOR_MULTIPLE_EMAIL_RECIPIENTS - Jetpack Monitor can email more than one recipient when a site goes down
+		self::MONITOR_MULTIPLE_EMAIL_RECIPIENTS => array(
+			self::JETPACK_MONITOR_MONTHLY,
+			self::JETPACK_MONITOR_YEARLY,
+		),
+		// MONITOR_SMS_NOTIFICATIONS - Jetpack Monitor can send notifications via SMS when a site goes down
+		self::MONITOR_SMS_NOTIFICATIONS         => array(
+			self::JETPACK_MONITOR_MONTHLY,
+			self::JETPACK_MONITOR_YEARLY,
+		),
+
 		self::NO_ADVERTS_NO_ADVERTS_PHP        => array(
 			self::NO_ADS,
 			// Deliberately leaves out the Starter plan.
@@ -749,6 +795,10 @@ class WPCOM_Features {
 		),
 		self::PAYMENTS                         => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+		),
+		self::PERFORMANCE_HISTORY              => array(
+			self::JETPACK_BOOST_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::POLLDADDY                        => array(
 			self::JETPACK_BUSINESS_PLANS,
@@ -941,7 +991,7 @@ class WPCOM_Features {
 				self::JETPACK_ALL_SITES,
 			),
 		),
-		self::SOCIAL_IMAGE_AUTO_CONVERT        => array(
+		self::SOCIAL_INSTAGRAM_CONNECTION      => array(
 			array(
 				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
 				'before' => '1900-01-01',
@@ -949,7 +999,7 @@ class WPCOM_Features {
 				self::JETPACK_ALL_SITES,
 			),
 		),
-		self::SOCIAL_MULTI_CONNECTIONS         => array(
+		self::SOCIAL_IMAGE_AUTO_CONVERT        => array(
 			array(
 				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
 				'before' => '1900-01-01',
