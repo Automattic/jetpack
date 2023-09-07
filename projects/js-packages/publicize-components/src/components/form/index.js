@@ -447,6 +447,7 @@ export default function PublicizeForm( {
 												{ __( 'Got it', 'jetpack' ) }
 											</Button>,
 											<Button
+												className={ styles[ 'change-settings-button' ] }
 												key="change-settings"
 												href={ adminUrl || jetpackSharingSettingsUrl }
 												target="_blank"
