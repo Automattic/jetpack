@@ -69,9 +69,11 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
  * - Submit feedback.
  * - Handle errors.
  *
+ * @param {object} props - Component props.
+ * @param {string} props.askButtonLabel - Ask button label.
  * @returns {QuestionAnswer} component.
  */
-export default function QuestionAnswer() {
+export default function QuestionAnswer( { askButtonLabel } ) {
 	const { question, setQuestion, answer, isLoading, submitQuestion, references, cacheKey } =
 		useSubmitQuestion();
 
@@ -136,10 +138,7 @@ export default function QuestionAnswer() {
 					/>
 
 					<Button variant="primary" disabled={ isLoading } onClick={ handleSubmitQuestion }>
-						{
-							// TODO: Configurable button text.
-							__( 'Ask', 'jetpack' )
-						}
+						{ askButtonLabel }
 					</Button>
 				</div>
 			</KeyboardShortcuts>
