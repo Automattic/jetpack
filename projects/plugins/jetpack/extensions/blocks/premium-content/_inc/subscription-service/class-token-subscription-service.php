@@ -162,10 +162,15 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 
 		// We now need the tier price and currency, and the same for the annual price (if available)
 		$tier_meta         = get_post_meta( $tier_id );
-		$tier_price        = $tier_meta['jetpack_memberships_price'][0];
-		$tier_currency     = $tier_meta['jetpack_memberships_currency'][0];
-		$tier_product_id   = $tier_meta['jetpack_memberships_product_id'][0];
+		$tier_price        = isset( $tier_meta['jetpack_memberships_price'] ) ? $tier_meta['jetpack_memberships_price'][0] : null;
+		$tier_currency     = isset( $tier_meta['jetpack_memberships_currency'] ) ? $tier_meta['jetpack_memberships_currency'][0] : null;
+		$tier_product_id   = isset( $tier_meta['jetpack_memberships_product_id'] ) ? $tier_meta['jetpack_memberships_product_id'][0] : null;
 		$annual_tier_price = $tier_price * 12;
+
+		if ( $tier_price === null || $tier_currency === null || $tier_product_id === null ) {
+			// There is an issue with the meta
+			return false;
+		}
 
 		// At this point we know the post is
 		$linked_post_tier = get_posts(
@@ -217,9 +222,14 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			}
 
 			$metas                 = get_post_meta( $subscription_post_id );
-			$subscription_price    = $metas['jetpack_memberships_price'][0];
-			$subscription_currency = $metas['jetpack_memberships_currency'][0];
-			$subscription_interval = $metas['jetpack_memberships_interval'][0];
+			$subscription_price    = isset( $metas['jetpack_memberships_price'] ) ? $metas['jetpack_memberships_price'][0] : null;
+			$subscription_currency = isset( $metas['jetpack_memberships_currency'] ) ? $metas['jetpack_memberships_currency'][0] : null;
+			$subscription_interval = isset( $metas['jetpack_memberships_interval'] ) ? $metas['jetpack_memberships_interval'][0] : null;
+
+			if ( $subscription_price === null || $subscription_currency === null || $subscription_interval === null ) {
+				// There is an issue with the meta
+				continue;
+			}
 
 			if ( $tier_currency !== $subscription_currency ) {
 				// For now, we don't count if there are different currency (not sure how to convert price in a pure JP env)
