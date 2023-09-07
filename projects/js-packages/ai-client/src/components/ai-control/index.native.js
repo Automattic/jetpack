@@ -11,9 +11,9 @@ import { Text, View } from 'react-native';
 /**
  * Internal dependencies
  */
+import { GuidelineMessage } from './message';
 import styles from './style.native.scss';
 // import AiStatusIndicator from '../ai-status-indicator';
-// import { GuidelineMessage } from './message';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -125,7 +125,7 @@ export function AIControl(
 					</View>
 				) }
 			</View>
-			{ /* { showGuideLine && <GuidelineMessage /> } */ }
+			{ showGuideLine && <GuidelineMessage /> }
 		</View>
 	);
 }
