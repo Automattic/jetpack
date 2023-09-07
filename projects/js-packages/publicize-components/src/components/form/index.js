@@ -132,10 +132,6 @@ export default function PublicizeForm( {
 	);
 
 	const shouldAutoRefresh = useRef( false );
-	const enableAutoRefresh = useCallback( () => {
-		shouldAutoRefresh.current = true;
-	}, [ shouldAutoRefresh ] );
-
 	const pageHasFocus = usePageVisibility();
 	const refreshOptions = useDispatch( SOCIAL_STORE_ID ).refreshAutoConversionSettings;
 
@@ -146,6 +142,7 @@ export default function PublicizeForm( {
 
 	if ( pageHasFocus && shouldAutoRefresh.current ) {
 		refreshOptions();
+		shouldAutoRefresh.current = false;
 	}
 
 	const renderNotices = () => (
@@ -233,6 +230,16 @@ export default function PublicizeForm( {
 			validationErrors[ connection_id ] !== NO_MEDIA_ERROR,
 		[ isPublicizeDisabledBySitePlan, validationErrors, shouldAutoConvert ]
 	);
+
+	if (
+		shouldAutoConvert &&
+		showValidationNotice &&
+		mediaId &&
+		shouldShowNotice( NOTICES.autoConversion ) &&
+		! pageHasFocus
+	) {
+		shouldAutoRefresh.current = true;
+	}
 
 	const renderInstagramNotice = () => {
 		return isEnhancedPublishingEnabled ? (
@@ -440,7 +447,6 @@ export default function PublicizeForm( {
 												{ __( 'Got it', 'jetpack' ) }
 											</Button>,
 											<Button
-												onClick={ enableAutoRefresh }
 												key="change-settings"
 												href={ adminUrl || jetpackSharingSettingsUrl }
 												target="_blank"
