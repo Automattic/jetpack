@@ -1,4 +1,12 @@
-import { Flex, FlexBlock, PanelRow, VisuallyHidden, Spinner, Button, RadioControl } from '@wordpress/components';
+import {
+	Flex,
+	FlexBlock,
+	PanelRow,
+	VisuallyHidden,
+	Spinner,
+	Button,
+	RadioControl,
+} from '@wordpress/components';
 import { useInstanceId, useViewportMatch } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
