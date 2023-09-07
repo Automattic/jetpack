@@ -32,7 +32,7 @@ function load_module() {
 
 	require_once JPCRM_EMAIL_MODULE_PATH . '/admin/admin-page-init.php';
 	initialize_email_page();
-	require_once JPCRM_EMAIL_MODULE_PATH . '/sync/class-jpcrm-inbox-sync.php';
+	require_once JPCRM_EMAIL_MODULE_PATH . '/sync/class-inbox-sync.php';
 	new Inbox_Sync();
 }
 
