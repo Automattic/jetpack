@@ -25,7 +25,6 @@ import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
-import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { SOCIAL_STORE_ID } from '../../social-store';
@@ -77,8 +76,6 @@ export default function PublicizeForm( {
 	const { isInstagramConnectionSupported } = useSelect( select => ( {
 		isInstagramConnectionSupported: select( PUBLICIZE_STORE_ID ).isInstagramConnectionSupported(),
 	} ) );
-
-	const { isAutoConversionEnabled: isAutoConversionEnabledInit } = usePublicizeConfig();
 
 	const hasInstagramConnection = connections.some(
 		connection => connection.service_name === 'instagram-business'
@@ -221,10 +218,7 @@ export default function PublicizeForm( {
 			shouldUploadAttachedMedia,
 		}
 	);
-	const shouldAutoConvert =
-		( isAutoConversionEnabled === undefined
-			? isAutoConversionEnabledInit
-			: isAutoConversionEnabled ) && isConvertible;
+	const shouldAutoConvert = isAutoConversionEnabled && isConvertible;
 
 	const invalidIds = useMemo( () => Object.keys( validationErrors ), [ validationErrors ] );
 
