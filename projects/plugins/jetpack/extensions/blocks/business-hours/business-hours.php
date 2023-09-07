@@ -19,7 +19,7 @@ use Jetpack_Gutenberg;
  */
 function register_block() {
 	Blocks::jetpack_register_block(
-		Blocks::get_path_to_block_metadata( __DIR__ ),
+		__DIR__,
 		array(
 			'render_callback' => __NAMESPACE__ . '\render',
 		)
