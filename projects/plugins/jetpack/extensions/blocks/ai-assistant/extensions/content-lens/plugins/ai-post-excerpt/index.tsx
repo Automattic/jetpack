@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { aiAssistantIcon, useAiSuggestions } from '@automattic/jetpack-ai-client';
-import { TextareaControl, ExternalLink } from '@wordpress/components';
+import { TextareaControl, ExternalLink, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useEffect, useState } from '@wordpress/element';
@@ -38,14 +38,15 @@ function AiPostExcerpt() {
 	// Remove core excerpt panel
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
 
-	const { request, suggestion, requestingState } = useAiSuggestions();
+	const { request, reset, suggestion, requestingState } = useAiSuggestions();
 
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
 	}, [ removeEditorPanel ] );
 
 	// Show custom prompt number of words
-	const numberOfWords = count( excerpt, 'words' );
+	const currentExcerpt = suggestion || excerpt;
+	const numberOfWords = count( currentExcerpt, 'words' );
 	const helpNumberOfWords = sprintf(
 		// Translators: %1$s is the number of words in the excerpt.
 		_n( '%1$s word', '%1$s words', numberOfWords, 'jetpack' ),
@@ -54,6 +55,7 @@ function AiPostExcerpt() {
 
 	const isGenerateButtonDisabled = requestingState === 'requesting';
 	const isBusy = requestingState === 'requesting' || requestingState === 'suggesting';
+	const isTextAreaDisabled = isBusy || requestingState === 'done';
 
 	/**
 	 * Request AI for a new excerpt.
@@ -73,7 +75,12 @@ function AiPostExcerpt() {
 			},
 		];
 
-		request( prompt );
+		request( prompt, { feature: 'jetpack-ai-content-lens' } );
+	}
+
+	function setExpert() {
+		editPost( { excerpt: suggestion } );
+		reset();
 	}
 
 	return (
@@ -83,16 +90,30 @@ function AiPostExcerpt() {
 				label={ __( 'Write an excerpt (optional)', 'jetpack' ) }
 				onChange={ value => editPost( { excerpt: value } ) }
 				help={ numberOfWords ? helpNumberOfWords : null }
-				value={ excerpt || suggestion }
+				value={ currentExcerpt }
+				disabled={ isTextAreaDisabled }
 			/>
 
 			<AiExcerptControl
 				words={ excerptWordsNumber }
 				onWordsNumberChange={ setExcerptWordsNumber }
-				onGenerate={ requestExcerpt }
-				disabled={ isGenerateButtonDisabled }
-				isBusy={ isBusy }
+				disabled={ isBusy }
 			/>
+
+			<div className="jetpack-generated-excerpt__generate-buttons-container">
+				<Button onClick={ setExpert } variant="secondary" disabled={ requestingState !== 'done' }>
+					{ __( 'Accept', 'jetpack' ) }
+				</Button>
+
+				<Button
+					onClick={ () => requestExcerpt() }
+					variant="secondary"
+					isBusy={ isBusy }
+					disabled={ isGenerateButtonDisabled }
+				>
+					{ __( 'Generate', 'jetpack' ) }
+				</Button>
+			</div>
 
 			<ExternalLink
 				href={ __(
