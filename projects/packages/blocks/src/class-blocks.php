@@ -28,7 +28,7 @@ class Blocks {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param string $slug Slug of the block or absolute path to the directory containing the block.json file.
+	 * @param string $slug Slug of the block or absolute path to the block source code directory.
 	 * @param array  $args {
 	 *     Arguments that are passed into register_block_type.
 	 *     See register_block_type for full list of arguments.
@@ -50,13 +50,16 @@ class Blocks {
 
 		$block_type = $slug;
 
-		// If the path to block.json is passed, find the slug in the file then create a block type
-		// object to register the block.
+		// If a path is passed, find the slug in the file then create a block type object to register
+		// the block.
 		// Note: passing the path directly to register_block_type seems to loose the interactivity of
 		// the block once in the editor once it's out of focus.
 		if ( '/' === substr( $slug, 0, 1 ) ) {
-			$metadata = self::get_block_metadata_from_file( $slug );
-			$name     = self::get_block_name_from_metadata( $metadata );
+			// Test if build directory exists. Fall back to reading block.json from source directory.
+			$build_dir = realpath( self::get_path_to_block_metadata( $slug ) );
+			$path      = false === $build_dir ? $slug : $build_dir;
+			$metadata  = self::get_block_metadata_from_file( $path );
+			$name      = self::get_block_name_from_metadata( $metadata );
 
 			if ( ! empty( $name ) ) {
 				$slug       = $name;
