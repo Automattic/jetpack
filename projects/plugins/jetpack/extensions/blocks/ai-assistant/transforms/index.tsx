@@ -38,7 +38,7 @@ export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs
 	// Convert the content to markdown.
 	const aiAssistantBlockcontent = turndownService.turndown( htmlContent );
 
-	// Create a pair of user/assistant messages.
+	// An empty list of messages to start with.
 	const messages: Array< PromptItemProps > = [];
 
 	return createBlock( blockName, {
