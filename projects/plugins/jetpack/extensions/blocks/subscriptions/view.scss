@@ -126,13 +126,13 @@
 			border: 1px solid $gray-200;
 			border-radius: var(--subscribe-block-border-radius);
 			background: $white;
-			transition: background 0.3s;
+			transition: background 0.1s;
 			user-select: none;
 		}
 
 		input[type="checkbox"]:checked + span {
-			background: var(--wp--preset--color--primary);
-			color: var(--wp--preset--color--contrast);
+			background: var( --wp--preset--color--primary );
+			color: var( --wp--preset--color--contrast, --wp--preset--color--white );
 		}
 	}
 }
