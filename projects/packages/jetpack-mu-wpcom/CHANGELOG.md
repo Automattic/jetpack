@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.8.0] - 2023-09-07
+### Added
+- Add HEIC/HEIF image upload support [#32900]
+- Add updater for WPCOM Marketplace plugins [#32872]
+
+### Changed
+- Update version numbers [#32902]
+
+## [4.7.0] - 2023-09-06
+### Added
+- Added Calypso paths for setup_free and domain_upsell tasks [#32851]
+- Launchpad: added Calypso paths for newsletter tasks [#32882]
+
+## [4.6.0] - 2023-09-04
+### Added
+- Added sub-option to show/hide launchpad modal in editor [#32730]
+- Use the task id to validate the task update request [#32591]
+
+### Changed
+- Adapt the pre launch tasks to work on the Customer Home [#32796]
+- Update function prefixes for task list definitions [#32563]
+- Update the unused get_task_url prop on the task definition to the get_calypso_path [#32790]
+
+### Removed
+- Remove the is launched check for the build intent [#32810]
+
 ## [4.5.1] - 2023-08-28
 ### Changed
 - Updated package dependencies. [#32605]
@@ -318,6 +344,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[4.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.7.0...v4.8.0
+[4.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.6.0...v4.7.0
+[4.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.5.1...v4.6.0
 [4.5.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.5.0...v4.5.1
 [4.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.4.1...v4.5.0
 [4.4.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v4.4.0...v4.4.1

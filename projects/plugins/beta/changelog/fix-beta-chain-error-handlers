@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+If another PHP error handler was set, chain to it insead of calling PHP's default handler.

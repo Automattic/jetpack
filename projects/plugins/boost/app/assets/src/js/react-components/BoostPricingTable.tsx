@@ -211,7 +211,11 @@ export const BoostPricingTable = ( {
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem
+					isIncluded={ true }
+					label={ <strong>{ __( 'Included + quality settings', 'jetpack-boost' ) }</strong> }
+					tooltipInfo={ __( 'Fine-tune image quality settings to your liking.', 'jetpack-boost' ) }
+				/>
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />

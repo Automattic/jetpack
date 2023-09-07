@@ -1,3 +1,4 @@
+import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
 import attributes from './attributes';
@@ -44,9 +45,9 @@ export const settings = {
 		reusable: true,
 	},
 	edit,
-	/* @TODO Write the block editor output */
-	save: () => null,
+	save: () => <InnerBlocks.Content />,
 	attributes,
+	usesContext: [ 'showAvatar', 'showDescription', 'showSubscribeButton', 'openLinksNewWindow' ],
 	example: {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.
