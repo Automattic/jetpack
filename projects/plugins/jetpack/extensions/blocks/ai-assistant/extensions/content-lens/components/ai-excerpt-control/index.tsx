@@ -43,7 +43,6 @@ export function AiExcerptControl( {
 }: AiExcerptControlProps ) {
 	return (
 		<RangeControl
-			className="jetpack-generated-excerpt__words-number"
 			label={ __( 'Generate', 'jetpack' ) }
 			value={ words }
 			onChange={ onWordsNumberChange }
