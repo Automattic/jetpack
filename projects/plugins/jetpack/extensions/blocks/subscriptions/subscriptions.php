@@ -629,6 +629,41 @@ function get_post_access_level_for_current_post() {
 }
 
 /**
+ * Renders the newsletter categories in checkbox form.
+ *
+ * This function outputs a div containing labels and checkboxes for each newsletter category.
+ * Each checkbox represents a category, allowing users to select multiple newsletter categories.
+ *
+ * @param array $newsletter_categories An array of newsletter categories where each category is an associative array
+ *                                     with keys 'id' and 'name' representing the category's ID and display name, respectively.
+ * @param array $styles                An associative array of style settings. Default is an empty array.
+ *
+ * @return void Outputs HTML directly.
+ */
+function render_newsletter_categories( $newsletter_categories, $styles = array() ) {
+	if ( count( $newsletter_categories ) ) :
+		?>
+		<div
+			class="wp-block-jetpack-subscriptions__newsletter-categories"
+			style="<?php echo esc_attr( $styles['categories'] ); ?>"
+		>
+			<?php foreach ( $newsletter_categories as $category ) : ?>
+				<label class="wp-block-jetpack-subscriptions__newsletter-category">
+					<input type="checkbox" value="<?php echo esc_html( $category['id'] ); ?>" />
+					<div>
+						<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path fill-rule="evenodd" clip-rule="evenodd" d="M14.9406 6.6485L8.94211 14.7159L5.1785 11.9174L5.92436 10.9143L8.68487 12.9669L13.9375 5.90264L14.9406 6.6485Z" fill="#1D39EB"/>
+						</svg>
+						<?php echo esc_html( $category['name'] ); ?>
+					</div>
+				</label>
+			<?php endforeach; ?>
+		</div>
+		<?php
+	endif;
+}
+
+/**
  * Renders the WP.com version of the subscriptions block.
  *
  * @param array $data    Array containing block view data.
@@ -666,19 +701,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
-				<?php if ( count( $newsletter_categories ) ) : ?>
-					<div
-						class="wp-block-jetpack-subscriptions__newsletter-categories"
-						style="<?php echo esc_attr( $styles['categories'] ); ?>"
-					>
-						<?php foreach ( $newsletter_categories as $category ) : ?>
-							<label class="wp-block-jetpack-subscriptions__newsletter-category">
-								<input type="checkbox" value="<?php echo esc_html( $category['id'] ); ?>" />
-								<span><?php echo esc_html( $category['name'] ); ?></span>
-							</label>
-						<?php endforeach; ?>
-					</div>
-				<?php endif; ?>
+				<?php render_newsletter_categories( $newsletter_categories, $styles ); ?>
+
 				<div class="wp-block-jetpack-subscriptions__hbox">
 					<?php
 					$email_field_id  = 'subscribe-field';
@@ -805,19 +829,8 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 					id="<?php echo esc_attr( $form_id ); ?>"
 				>
-					<?php if ( count( $newsletter_categories ) ) : ?>
-						<div
-							class="wp-block-jetpack-subscriptions__newsletter-categories"
-							style="<?php echo esc_attr( $styles['categories'] ); ?>"
-						>
-							<?php foreach ( $newsletter_categories as $category ) : ?>
-								<label class="wp-block-jetpack-subscriptions__newsletter-category">
-									<input type="checkbox" value="<?php echo esc_html( $category['id'] ); ?>" />
-									<span><?php echo esc_html( $category['name'] ); ?></span>
-								</label>
-							<?php endforeach; ?>
-						</div>
-					<?php endif; ?>
+					<?php render_newsletter_categories( $newsletter_categories, $styles ); ?>
+
 					<div class="wp-block-jetpack-subscriptions__hbox">
 						<p id="subscribe-email">
 							<label id="jetpack-subscribe-label"

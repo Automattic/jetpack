@@ -116,23 +116,37 @@
 			display: none;
 		}
 
-		span {
+		div {
+			display: flex;
 			padding: 6px 10px;
 			font-family: $default-font;
 			font-size: $default-font-size;
 			font-weight: 500;
 			line-height: 20px;
-			color: $gray-600;
+			color: #3c434a; // $studio-gray-70
 			border: 1px solid $gray-200;
 			border-radius: var(--subscribe-block-border-radius);
 			background: $white;
 			transition: background 0.1s;
 			user-select: none;
+
+			svg {
+				display: none;
+			}
 		}
 
-		input[type="checkbox"]:checked + span {
-			background: var( --wp--preset--color--primary );
-			color: var( --wp--preset--color--contrast, --wp--preset--color--white );
+		input[type="checkbox"]:checked + div {
+			background: color-mix(in srgb, var(--wp--preset--color--primary) 5%, white);
+			border-color: var(--wp--preset--color--primary);
+			color: var(--wp--preset--color--primary);
+
+			svg {
+				display: block;
+
+				path {
+					fill: var( --wp--preset--color--primary );
+				}
+			}
 		}
 	}
 }
