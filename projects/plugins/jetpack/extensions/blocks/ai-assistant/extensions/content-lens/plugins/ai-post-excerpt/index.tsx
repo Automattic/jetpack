@@ -2,11 +2,7 @@
  * External dependencies
  */
 import { aiAssistantIcon, useAiSuggestions } from '@automattic/jetpack-ai-client';
-<<<<<<< HEAD
-import { TextareaControl, ExternalLink, Button } from '@wordpress/components';
-=======
-import { TextareaControl, ExternalLink, Notice } from '@wordpress/components';
->>>>>>> ed57a596a8 (show notive when request fails)
+import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useEffect, useState } from '@wordpress/element';
@@ -42,15 +38,7 @@ function AiPostExcerpt() {
 	// Remove core excerpt panel
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	const { request, reset, suggestion, requestingState } = useAiSuggestions();
-=======
-	const { request, suggestion, requestingState, error } = useAiSuggestions();
->>>>>>> ed57a596a8 (show notive when request fails)
-=======
 	const { request, suggestion, requestingState, error, reset } = useAiSuggestions();
->>>>>>> 53c4920da2 (reset suggestion when requesting)
 
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
