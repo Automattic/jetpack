@@ -4,7 +4,7 @@ import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { icon as paywallIcon, blockName as paywallBlockName } from '../../blocks/paywall';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -128,7 +128,10 @@ function TierSelector( { onChange } ) {
 						id={ `editor-post-tier-${ product.id }` }
 					/>
 					<label htmlFor={ `editor-post-tier-${ product.id }` }>
-						{ product.title } subscribers
+						{
+							/* Translators: Tier title (example: "Gold tier"). */
+							sprintf( __( '%s subscribers', 'jetpack' ), product.title )
+						}
 					</label>
 				</div>
 			) ) }
