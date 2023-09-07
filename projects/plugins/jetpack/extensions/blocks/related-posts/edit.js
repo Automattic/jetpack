@@ -1,3 +1,4 @@
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
@@ -5,6 +6,9 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
+import { InactiveRelatedPostsModulePlaceholder } from './inactive-module-placeholder';
+import { RelatedPostsSkeletonLoader } from './skeleton-loader';
+import { name } from './';
 
 export const MAX_POSTS_TO_SHOW = 6;
 
@@ -154,6 +158,9 @@ function RelatedPostsPreviewRows( props ) {
 }
 
 export default function RelatedPostsEdit( props ) {
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( name );
+
 	const { posts, isInSiteEditor } = useSelect( select => {
 		const currentPost = select( editorStore ).getCurrentPost();
 		return {
@@ -163,6 +170,20 @@ export default function RelatedPostsEdit( props ) {
 	} );
 
 	const { instanceId } = useInstanceId( RelatedPostsEdit );
+
+	if ( isLoadingModules ) {
+		return <RelatedPostsSkeletonLoader />;
+	}
+
+	if ( ! isModuleActive ) {
+		return (
+			<InactiveRelatedPostsModulePlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
+		);
+	}
 
 	const { attributes, className, setAttributes } = props;
 	const {
