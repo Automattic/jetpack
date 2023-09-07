@@ -8,6 +8,7 @@ import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
+import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
@@ -20,8 +21,12 @@ type ContentLensMessageContextProps = {
 	type: 'ai-content-lens';
 	contentType: 'post-excerpt';
 	postId: number;
+	content?: string;
 	words?: number;
 };
+
+// Turndown instance
+const turndownService = new TurndownService();
 
 function AiPostExcerpt() {
 	const excerpt = useSelect(
@@ -43,6 +48,18 @@ function AiPostExcerpt() {
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
 	}, [ removeEditorPanel ] );
+
+	const postContent = useSelect(
+		select => {
+			const content = select( 'core/editor' ).getEditedPostContent();
+			if ( ! content ) {
+				return '';
+			}
+
+			return turndownService.turndown( content );
+		},
+		[ postId ]
+	);
 
 	// Show custom prompt number of words
 	const currentExcerpt = suggestion || excerpt;
@@ -70,8 +87,11 @@ function AiPostExcerpt() {
 		const messageContext: ContentLensMessageContextProps = {
 			type: 'ai-content-lens',
 			contentType: 'post-excerpt',
-			words: excerptWordsNumber,
 			postId,
+			words: excerptWordsNumber,
+			content: `Post content:
+${ postContent }
+`,
 		};
 
 		const prompt = [
