@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { aiAssistantIcon, useAiSuggestions } from '@automattic/jetpack-ai-client';
-import { TextareaControl, ExternalLink, Button } from '@wordpress/components';
+import { TextareaControl, ExternalLink, Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useEffect, useState } from '@wordpress/element';
@@ -38,7 +38,7 @@ function AiPostExcerpt() {
 	// Remove core excerpt panel
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
 
-	const { request, reset, suggestion, requestingState } = useAiSuggestions();
+	const { request, suggestion, requestingState, error, reset } = useAiSuggestions();
 
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
@@ -61,6 +61,9 @@ function AiPostExcerpt() {
 	 * Request AI for a new excerpt.
 	 */
 	function requestExcerpt() {
+		// Reset suggestion state
+		reset();
+
 		const messageContext: ContentLensMessageContextProps = {
 			type: 'ai-content-lens',
 			contentType: 'post-excerpt',
@@ -93,6 +96,16 @@ function AiPostExcerpt() {
 				value={ currentExcerpt }
 				disabled={ isTextAreaDisabled }
 			/>
+
+			{ error?.code && error.code !== 'error_quota_exceeded' && (
+				<Notice
+					status={ error.severity }
+					isDismissible={ false }
+					className="jetpack-ai-assistant__error"
+				>
+					{ error.message }
+				</Notice>
+			) }
 
 			<AiExcerptControl
 				words={ excerptWordsNumber }
