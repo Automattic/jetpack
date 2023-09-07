@@ -166,6 +166,8 @@ function zeroBSCRM_emails_customer_panel() {
 		$email_ret[ $e ]['in_or_out']          = $em->zbsmail_status;
 		if ( $em->zbsmail_status === 'inbox' ) {
 			$email_ret[ $e ]['avatar'] = zeroBS_customerAvatarHTML( $em->zbsmail_target_objid );
+		} elseif ( $em->zbsmail_status === 'received' ) {
+			$email_ret[ $e ]['avatar'] = '';
 		} else {
 			$email_ret[ $e ]['avatar'] = jpcrm_get_avatar( $em->zbsmail_sender_wpid, 35 );
 		}

@@ -318,6 +318,14 @@ jQuery( function ( $ ) {
 		$( '.starred-email-list, .zbs-email-content' ).fadeIn( 1000 );
 	} );
 
+	$( '.zbs-inbox-link' ).on( 'click', function ( e ) {
+		$( '.app-content' ).hide();
+		$( '.click-email-to-load' ).show();
+		$( '.spinner-gif' ).hide();
+
+		$( '.inbox-email-list, .zbs-email-content' ).fadeIn( 1000 );
+	} );
+
 	//sending the threaded email
 	$( '.zbs-send-email-thread-button' ).on( 'click', function ( e ) {
 		the_thread_id = window.zbs_star_id;

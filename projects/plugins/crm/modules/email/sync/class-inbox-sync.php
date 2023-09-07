@@ -46,16 +46,20 @@ class Inbox_Sync {
 		}
 
 		foreach ( $emails as $email ) {
-			zeroBS_addUpdateLog(
+			// TODO: Just hacking (i.e. misusing) the database so it logs as a received email.
+			zeroBSCRM_mailTracking_logEmail(
+				-999,
 				$email->get_sender_contact_id(),
+				0,
+				zeroBS_customerEmail( $email->get_sender_contact_id() ),
+				-999,
+				$email->get_subject(),
+				true,
+				$email->get_content(),
 				-1,
-				-1,
-				array(
-					'type'      => __( 'Email Received', 'zero-bs-crm' ),
-					'shortdesc' => $email->get_subject(),
-					'longdesc'  => $email->get_content(),
-				),
-				'zerobs_customer'
+				'',
+				'received',
+				''
 			);
 		}
 	}

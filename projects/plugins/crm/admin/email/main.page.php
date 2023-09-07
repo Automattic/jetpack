@@ -86,6 +86,12 @@ function jpcrm_render_emailbox() {
 				</div>
 			</a>
 
+			<a class="item zbs-inbox-link">
+				<div class="nav-men">
+					<i class="ui icon inbox"></i> <?php esc_html_e( 'Received', 'zero-bs-crm' ); ?>
+				</div>
+			</a>
+
 			<?php do_action( 'zbs_emails_scheduled_nav' ); ?>
 
 			<div class='push-down'>
@@ -143,6 +149,47 @@ function jpcrm_render_emailbox() {
 						echo '<div class="the_content">' . esc_html( wp_html_excerpt( $email->zbsmail_content, 200 ) ) . '</div>';
 
 				if ( $email->zbsmail_starred == 1 ) {
+					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "'></i>";
+				} else {
+					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "' style='display:none;'></i>";
+				}
+
+					echo '</div>';
+				echo '</div>';
+				++$i;
+			}
+
+			echo '</div>';
+
+			?>
+	  
+		</div>
+
+		<div class='zbs-email-list inbox-email-list app-content'>
+			<?php
+			$email_hist = zeroBSCRM_get_email_history( 0, 50, -1, 'received', -1, false );
+
+			echo '<div class="ui celled list" style="background:white;">';
+			$i = 0;
+			if ( count( $email_hist ) === 0 ) {
+				echo "<div class='no-emails'><i class='ui icon exclamation'></i><br/>" . esc_html__( 'No emails of this typexxx', 'zero-bs-crm' ) . '</div>';
+			}
+			foreach ( $email_hist as $email ) {
+					$contact_meta = zeroBS_getCustomerMeta( $email->zbsmail_target_objid );
+					// skip if contact doesn't exist (e.g. was deleted)
+				if ( ! $contact_meta ) {
+					continue;
+				}
+					echo '<div class="item zbs-email-list-item zbs-email-list-' . esc_attr( $email->zbsmail_sender_thread ) . '" data-cid="' . esc_attr( $email->zbsmail_target_objid ) . '" data-emid="' . esc_attr( $email->zbsmail_sender_thread ) . '" data-fav="' . esc_attr( $email->zbsmail_starred ) . '">';
+						echo "<div class='zbs-contact'>";
+							echo zeroBS_customerAvatarHTML( $email->zbsmail_target_objid ); // phpcs:ignore
+							echo "<div class='zbs-who'>" . esc_html( $contact_meta['fname'] ) . ' ' . esc_html( $contact_meta['lname'] ) . '</div>';
+						echo '</div>';
+					echo '<div class="content">';
+					echo '<div class="header">' . esc_html( $email->zbsmail_subject ) . '</div>';
+						echo '<div class="the_content">' . esc_html( wp_html_excerpt( $email->zbsmail_content, 200 ) ) . '</div>';
+
+				if ( $email->zbsmail_starred === 1 ) {
 					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "'></i>";
 				} else {
 					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "' style='display:none;'></i>";
