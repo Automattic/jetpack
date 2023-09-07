@@ -526,13 +526,16 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "aa5b7af0bd7d9ae4b54ed9c4664ddc6927ce0c7d"
+                "reference": "3bffdec35d950eedb81aeeb2ed85fe9027b1e302"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "dev-master",
                 "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
