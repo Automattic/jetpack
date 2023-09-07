@@ -43,10 +43,14 @@ function AiPostExcerpt() {
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	const { request, reset, suggestion, requestingState } = useAiSuggestions();
 =======
 	const { request, suggestion, requestingState, error } = useAiSuggestions();
 >>>>>>> ed57a596a8 (show notive when request fails)
+=======
+	const { request, suggestion, requestingState, error, reset } = useAiSuggestions();
+>>>>>>> 53c4920da2 (reset suggestion when requesting)
 
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
@@ -69,6 +73,9 @@ function AiPostExcerpt() {
 	 * Request AI for a new excerpt.
 	 */
 	function requestExcerpt() {
+		// Reset suggestion state
+		reset();
+
 		const messageContext: ContentLensMessageContextProps = {
 			type: 'ai-content-lens',
 			contentType: 'post-excerpt',
