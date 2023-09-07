@@ -633,7 +633,7 @@ function buildMessageContextForBackendPrompt( {
 	if ( type === PROMPT_TYPE_SIMPLIFY ) {
 		return {
 			type: 'ai-assistant-simplify',
-			content: postContentAbove,
+			content: subject === 'last-answer' ? generatedContent : postContentAbove,
 			subject,
 		};
 	}
