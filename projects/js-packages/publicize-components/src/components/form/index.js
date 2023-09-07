@@ -10,21 +10,15 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import {
-	Fragment,
-	createInterpolateElement,
-	useMemo,
-	useCallback,
-	useRef,
-} from '@wordpress/element';
+import { Fragment, createInterpolateElement, useMemo, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
-import { usePageVisibility } from 'react-page-visibility';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useDismissNotice from '../../hooks/use-dismiss-notice';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
+import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conversion-settings';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { SOCIAL_STORE_ID } from '../../social-store';
@@ -131,19 +125,10 @@ export default function PublicizeForm( {
 		[ dismissNotice, NOTICES ]
 	);
 
-	const shouldAutoRefresh = useRef( false );
-	const pageHasFocus = usePageVisibility();
-	const refreshOptions = useDispatch( SOCIAL_STORE_ID ).refreshAutoConversionSettings;
-
 	const isAutoConversionEnabled = useSelect(
 		select => select( SOCIAL_STORE_ID ).isAutoConversionEnabled(),
 		[]
 	);
-
-	if ( pageHasFocus && shouldAutoRefresh.current ) {
-		refreshOptions();
-		shouldAutoRefresh.current = false;
-	}
 
 	const renderNotices = () => (
 		<>
@@ -231,14 +216,15 @@ export default function PublicizeForm( {
 		[ isPublicizeDisabledBySitePlan, validationErrors, shouldAutoConvert ]
 	);
 
+	const { refreshAutoConversionSettings } = useRefreshAutoConversionSettings();
+
 	if (
 		shouldAutoConvert &&
 		showValidationNotice &&
 		mediaId &&
-		shouldShowNotice( NOTICES.autoConversion ) &&
-		! pageHasFocus
+		shouldShowNotice( NOTICES.autoConversion )
 	) {
-		shouldAutoRefresh.current = true;
+		refreshAutoConversionSettings();
 	}
 
 	const renderInstagramNotice = () => {
