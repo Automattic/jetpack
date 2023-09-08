@@ -1,11 +1,9 @@
-import colorStudio from '@automattic/color-studio';
 import { isAtomicSite, isSimpleSite } from './site-type-utils';
 
 /**
  * Constants
  */
-const PALETTE = colorStudio.colors;
-const COLOR_JETPACK = PALETTE[ 'Jetpack Green 40' ];
+const JETPACK_GREEN_40 = '#069e08';
 
 /**
  * Returns the icon color for Jetpack blocks.
@@ -21,5 +19,5 @@ export default function getIconColor() {
 	}
 
 	// Jetpack Green
-	return COLOR_JETPACK;
+	return JETPACK_GREEN_40;
 }
