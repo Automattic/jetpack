@@ -168,9 +168,6 @@ const useSuggestionsFromOpenAI = ( {
 
 		let lastUserPrompt = {};
 
-		// Determine if the prompt is an initial one and set a flag on the options.
-		options.isInitialPrompt = lastPrompt?.length === 0;
-
 		if ( ! options.retryRequest ) {
 			const allPostContent = ! attributes?.isLayoutBuldingModeEnable
 				? getContentFromBlocks()
