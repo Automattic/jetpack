@@ -82,10 +82,6 @@ function getSubject( isGeneratingTitle: boolean, isContentGenerated: boolean ): 
  * @returns {object} The context.
  */
 function buildMessageContextForUserPrompt( {
-	generatedContent,
-	allPostContent,
-	postContentAbove,
-	currentPostTitle,
 	options,
 	type,
 	userPrompt,
