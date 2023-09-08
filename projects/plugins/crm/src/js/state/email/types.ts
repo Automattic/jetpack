@@ -1,7 +1,7 @@
 export type EmailState = { [ id: number ]: Contact };
 
 export type Contact = {
-	contact_id: number;
+	id: number;
 	name: string;
 	status: string;
 	prefix: string;
