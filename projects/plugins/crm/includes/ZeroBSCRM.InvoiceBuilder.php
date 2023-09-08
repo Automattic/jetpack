@@ -609,7 +609,7 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 
 				// 2 ways here - if marked 'paid', then assume balance
 				// ... if not, then trans allocation check
-				if ( isset( $invoice['status'] ) && $invoice['status'] === __( 'Paid', 'zero-bs-crm' ) ) {
+				if ( isset( $invoice['status'] ) && $invoice['status'] === 'Paid' ) {
 
 					// assume fully paid
 					$balance  = 0.00;
@@ -771,11 +771,12 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	// Custom fields
 	$invoice_custom_fields_html = jpcrm_invoicing_generate_invoice_custom_fields_lines( $invoice, $template );
 
-	// status
+	// default status and status label
 	if ( ! isset( $invoice['status'] ) ) {
-		$zbs_stat = __( 'Draft', 'zero-bs-crm' );
-	} else {
-		$zbs_stat = $invoice['status_label'];
+		$invoice['status'] = 'Draft';
+	}
+	if ( ! isset( $invoice['status_label'] ) ) {
+		$invoice['status_label'] = __( 'Draft', 'zero-bs-crm' );
 	}
 
 	// status html:
@@ -783,7 +784,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 
 		// portal version: Includes status label and amount (shown at top of portal invoice)
 		$top_status  = '<div class="zbs-portal-label">';
-		$top_status .= esc_html( $zbs_stat );
+		$top_status .= esc_html( $invoice['status_label'] );
 		$top_status .= '</div>';
 		// WH added quickly to get around fact this is sometimes empty, please tidy when you address currency formatting :)
 		$inv_g_total = '';
@@ -791,38 +792,28 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 			$inv_g_total = zeroBSCRM_formatCurrency( $invoice['total'] );
 		}
 		$top_status .= '<h1 class="zbs-portal-value">' . esc_html( $inv_g_total ) . '</h1>';
-		if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
-			$top_status .= '<div class="zbs-invoice-paid"><i class="fa fa-check"></i>' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>';
+		if ( $invoice['status'] === 'Paid' ) {
+			$top_status .= '<div class="zbs-invoice-paid"><i class="fa fa-check"></i>' . esc_html( $invoice['status_label'] ) . '</div>';
 		}
 	} elseif ( $template === 'pdf' ) {
 
 		// pdf status
-		if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
+		if ( $invoice['status'] === 'Paid' ) {
 
-			$top_status = '<div class="jpcrm-invoice-status jpcrm-invoice-paid">' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>';
+			$top_status = '<div class="jpcrm-invoice-status jpcrm-invoice-paid">' . esc_html( $invoice['status_label'] ) . '</div>';
 
 		} else {
 
-			$top_status = '<div class="jpcrm-invoice-status">' . esc_html( $zbs_stat ) . '</div>';
+			$top_status = '<div class="jpcrm-invoice-status">' . esc_html( $invoice['status_label'] ) . '</div>';
 
 		}
 	} elseif ( $template === 'notification' ) {
 		// sent to contact via email
-		$top_status = esc_html( $zbs_stat );
+		$top_status = esc_html( $invoice['status_label'] );
 	}
 
 	// inv lines
 	$invlines = $invoice['lineitems'];
-
-	// SET all new invoices to unpaid
-	if (
-		// Not set, but inv exists
-		( isset( $invoice ) && is_array( $invoice ) && ( ! isset( $invoice['status'] ) || empty( $invoice['status'] ) ) ) ||
-		// No inv exists
-		( ! isset( $invoice ) || ! is_array( $invoice ) )
-	) {
-		$invoice['status'] = __( 'Draft', 'zero-bs-crm' ); //moved to draft. Unpaid will be set once the invoice has been sent.
-	}
 
 	// switch for Company if set...
 	if ( $zbs_company_id > 0 ) {
@@ -1128,11 +1119,11 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	$partials_table .= '</table>';
 
 	// generate a templated paybutton (depends on template :))
-	$potential_pay_button = zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id, $zbs_stat, $template );
+	$potential_pay_button = zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id, $invoice['status_label'], $template );
 
 	// == Payment terms, thanks etc. will only replace when present in template, so safe to generically check
 	$pay_thanks = '';
-	if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
+	if ( $invoice['status'] === 'Paid' ) {
 		$pay_thanks  = '<div class="deets"><h3>' . esc_html__( 'Thank You', 'zero-bs-crm' ) . '</h3>';
 		$pay_thanks .= '<div>' . nl2br( esc_html( zeroBSCRM_getSetting( 'paythanks' ) ) ) . '</div>';
 		$pay_thanks .= '</div>';
