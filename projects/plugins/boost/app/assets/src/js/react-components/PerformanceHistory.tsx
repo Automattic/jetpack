@@ -43,12 +43,12 @@ const GraphComponent = ( {
 				<Popover
 					icon={ <Gridicon icon="lock" /> }
 					action={
-						<Button onClick={ handleUpgrade }>{ __( 'Okay, got it!', 'jetpack-boost' ) }</Button>
+						<Button onClick={ handleUpgrade }>{ __( 'Upgrade now!', 'jetpack-boost' ) }</Button>
 					}
 				>
 					<p>
 						{ __(
-							'Upgrade and learn more about your site performance over time',
+							'Upgrade and learn more about your site performance over time.',
 							'jetpack-boost'
 						) }
 					</p>
