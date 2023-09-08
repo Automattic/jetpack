@@ -8,5 +8,9 @@ export const MessageContent: React.FC = () => {
 	const { data } = useMessagesQuery();
 	const { messages } = data ?? {};
 
-	return <div>{ selectedMessageId && messages?.[ selectedMessageId ]?.content }</div>;
+	const content = selectedMessageId ? messages?.[ selectedMessageId ]?.content ?? '' : '';
+
+	return (
+		<div>{ selectedMessageId && <div dangerouslySetInnerHTML={ { __html: content } } /> }</div>
+	);
 };
