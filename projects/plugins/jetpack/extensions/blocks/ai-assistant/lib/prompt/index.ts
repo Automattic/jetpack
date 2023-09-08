@@ -277,10 +277,12 @@ export const buildPromptTemplate = ( {
 	request = null,
 	relevantContent = null,
 	customSystemPrompt = null,
+	type,
 }: {
 	request?: string;
 	relevantContent?: string;
 	customSystemPrompt?: string;
+	type: PromptTypeProp;
 } ): Array< PromptItemProps > => {
 	if ( ! request && ! relevantContent ) {
 		throw new Error( 'You must provide either a request or content' );
@@ -289,7 +291,7 @@ export const buildPromptTemplate = ( {
 	const messages: Array< PromptItemProps > = [];
 
 	const initialMessage = buildInitialMessageForBackendPrompt(
-		'userPrompt',
+		type,
 		relevantContent,
 		customSystemPrompt
 	);
@@ -445,6 +447,7 @@ export function buildPromptForBlock( {
 			...promptText,
 			relevantContent,
 			customSystemPrompt,
+			type,
 		} );
 	}
 
@@ -452,6 +455,7 @@ export function buildPromptForBlock( {
 		request: userPrompt,
 		relevantContent: generatedContent || allPostContent,
 		customSystemPrompt,
+		type,
 	} );
 }
 
