@@ -61,7 +61,10 @@ add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
  */
 function render_block( $attributes, $content ) {
 	// If the Related Posts module is not active, don't render the block.
-	if ( ! ( new Modules() )->is_active( FEATURE_NAME ) ) {
+	if (
+		! ( new Host() )->is_wpcom_simple()
+		&& ! ( new Modules() )->is_active( FEATURE_NAME )
+	) {
 		return '';
 	}
 
