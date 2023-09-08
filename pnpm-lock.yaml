@@ -929,9 +929,6 @@ importers:
 
   projects/js-packages/shared-extension-utils:
     dependencies:
-      '@automattic/color-studio':
-        specifier: 2.5.0
-        version: 2.5.0
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../analytics
