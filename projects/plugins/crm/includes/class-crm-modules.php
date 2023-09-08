@@ -11,6 +11,8 @@ namespace Automattic\JetpackCRM;
 // block direct access
 defined( 'ZEROBSCRM_PATH' ) || exit;
 
+// Prevent PHP 8.2 deprecation notices, as we currently add each module as a dynamic property
+#[\AllowDynamicProperties]
 class CRM_Modules {
 
 	/**
