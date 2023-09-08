@@ -1,5 +1,6 @@
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen } from '@testing-library/react';
-import { RelatedPostsEdit } from '../edit';
+import RelatedPostsEdit from '../edit';
 
 const posts = [
 	{
@@ -54,29 +55,59 @@ const posts = [
 	},
 ];
 
-describe( 'RelatedPostsEdit', () => {
-	const defaultAttributes = {
-		displayContext: false,
-		displayDate: false,
-		displayThumbnails: false,
-		postLayout: 'grid',
-		postsToShow: '2',
-	};
-
-	const setAttributes = jest.fn();
-	const defaultProps = {
-		attributes: defaultAttributes,
-		setAttributes,
-		clientId: 1,
-		posts: posts,
-		className: 'className',
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	__esModule: true,
+	...jest.requireActual( '@automattic/jetpack-shared-extension-utils' ),
+	useModuleStatus: jest.fn().mockReturnValue( {
+		isModuleActive: true,
+		isLoadingModules: false,
+		isChangingStatus: false,
+		changeStatus: jest.fn(),
+	} ),
+} ) );
+jest.mock( '@wordpress/element', () => ( {
+	...jest.requireActual( '@wordpress/element' ),
+	useSelect: () => ( {
+		posts,
+		isInSiteEditor: false,
+	} ),
+} ) );
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useInstanceId: () => ( {
 		instanceId: 2,
-	};
+	} ),
+} ) );
 
-	beforeEach( () => {
-		setAttributes.mockClear();
+const setAttributes = jest.fn();
+const defaultAttributes = {
+	displayContext: false,
+	displayDate: false,
+	displayThumbnails: false,
+	postLayout: 'grid',
+	postsToShow: '2',
+};
+
+const defaultProps = {
+	attributes: defaultAttributes,
+	setAttributes,
+	clientId: 1,
+	posts,
+	isInSiteEditor: false,
+	className: 'className',
+	instanceId: 2,
+};
+
+beforeEach( () => {
+	setAttributes.mockClear();
+
+	useModuleStatus.mockReturnValue( {
+		isModuleActive: true,
+		changeStatus: jest.fn(),
 	} );
+} );
 
+describe( 'RelatedPostsEdit', () => {
 	/**
 	 * Render related posts.
 	 *
