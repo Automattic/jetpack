@@ -43,7 +43,7 @@ export function buildMessagesForBackendPrompt( {
 	return [
 		{
 			role: 'jetpack-ai',
-			context: buildMessageContextForBackendPrompt( {
+			context: buildMessageContextForUserPrompt( {
 				generatedContent,
 				allPostContent,
 				postContentAbove,
@@ -81,7 +81,7 @@ function getSubject( isGeneratingTitle: boolean, isContentGenerated: boolean ): 
  * @param {BuildPromptProps} options - The prompt options.
  * @returns {object} The context.
  */
-function buildMessageContextForBackendPrompt( {
+function buildMessageContextForUserPrompt( {
 	generatedContent,
 	allPostContent,
 	postContentAbove,
@@ -105,21 +105,18 @@ function buildMessageContextForBackendPrompt( {
 	if ( type === PROMPT_TYPE_SUMMARY_BY_TITLE ) {
 		return {
 			type: 'ai-assistant-summary-by-title',
-			content: currentPostTitle,
 		};
 	}
 
 	if ( type === PROMPT_TYPE_CONTINUE ) {
 		return {
 			type: 'ai-assistant-continue',
-			content: postContentAbove,
 		};
 	}
 
 	if ( type === PROMPT_TYPE_SIMPLIFY ) {
 		return {
 			type: 'ai-assistant-simplify',
-			content: isContentGenerated ? generatedContent : postContentAbove,
 			subject,
 		};
 	}
@@ -127,7 +124,6 @@ function buildMessageContextForBackendPrompt( {
 	if ( type === PROMPT_TYPE_CORRECT_SPELLING ) {
 		return {
 			type: 'ai-assistant-correct-spelling',
-			content: isContentGenerated ? generatedContent : postContentAbove,
 			subject,
 		};
 	}
@@ -135,14 +131,12 @@ function buildMessageContextForBackendPrompt( {
 	if ( type === PROMPT_TYPE_GENERATE_TITLE ) {
 		return {
 			type: 'ai-assistant-generate-title',
-			content: allPostContent,
 		};
 	}
 
 	if ( type === PROMPT_TYPE_MAKE_LONGER ) {
 		return {
 			type: 'ai-assistant-make-longer',
-			content: generatedContent,
 			subject,
 		};
 	}
@@ -150,7 +144,6 @@ function buildMessageContextForBackendPrompt( {
 	if ( type === PROMPT_TYPE_MAKE_SHORTER ) {
 		return {
 			type: 'ai-assistant-make-shorter',
-			content: generatedContent,
 			subject,
 		};
 	}
@@ -158,7 +151,6 @@ function buildMessageContextForBackendPrompt( {
 	if ( type === PROMPT_TYPE_CHANGE_TONE ) {
 		return {
 			type: 'ai-assistant-change-tone',
-			content: isContentGenerated ? generatedContent : allPostContent,
 			tone: options?.tone,
 			subject,
 		};
@@ -167,7 +159,6 @@ function buildMessageContextForBackendPrompt( {
 	if ( type === PROMPT_TYPE_SUMMARIZE ) {
 		return {
 			type: 'ai-assistant-summarize',
-			content: isContentGenerated ? generatedContent : allPostContent,
 			subject,
 		};
 	}
@@ -175,7 +166,6 @@ function buildMessageContextForBackendPrompt( {
 	if ( type === PROMPT_TYPE_CHANGE_LANGUAGE ) {
 		return {
 			type: 'ai-assistant-change-language',
-			content: isContentGenerated ? generatedContent : allPostContent,
 			language: options?.language,
 			subject,
 		};
@@ -185,6 +175,5 @@ function buildMessageContextForBackendPrompt( {
 	return {
 		type: 'ai-assistant-user-prompt',
 		request: userPrompt,
-		content: generatedContent || allPostContent,
 	};
 }
