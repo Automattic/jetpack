@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
 import AdminPage from '../admin-page';
 import { Inbox } from './components/inbox';
-export const EmailsAdmin: React.FC = () => {
+export const InboxAdmin: React.FC = () => {
 	const { data } = useMessagesQuery();
 
 	// TODO: implement a loading screen

@@ -1,4 +1,4 @@
-export type EmailState = { [ id: number ]: Contact };
+export type InboxState = { [ id: number ]: Contact };
 
 export type Contact = {
 	id: number;
