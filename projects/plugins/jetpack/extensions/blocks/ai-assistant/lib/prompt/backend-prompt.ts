@@ -126,79 +126,12 @@ function buildMessageContextForUserPrompt( {
 	 * as well as provide relevant pieces for the prompt building.
 	 */
 
-	if ( type === PROMPT_TYPE_SUMMARY_BY_TITLE ) {
-		return {
-			type: 'ai-assistant-summary-by-title',
-		};
-	}
-
-	if ( type === PROMPT_TYPE_CONTINUE ) {
-		return {
-			type: 'ai-assistant-continue',
-		};
-	}
-
-	if ( type === PROMPT_TYPE_SIMPLIFY ) {
-		return {
-			type: 'ai-assistant-simplify',
-			subject,
-		};
-	}
-
-	if ( type === PROMPT_TYPE_CORRECT_SPELLING ) {
-		return {
-			type: 'ai-assistant-correct-spelling',
-			subject,
-		};
-	}
-
-	if ( type === PROMPT_TYPE_GENERATE_TITLE ) {
-		return {
-			type: 'ai-assistant-generate-title',
-		};
-	}
-
-	if ( type === PROMPT_TYPE_MAKE_LONGER ) {
-		return {
-			type: 'ai-assistant-make-longer',
-			subject,
-		};
-	}
-
-	if ( type === PROMPT_TYPE_MAKE_SHORTER ) {
-		return {
-			type: 'ai-assistant-make-shorter',
-			subject,
-		};
-	}
-
-	if ( type === PROMPT_TYPE_CHANGE_TONE ) {
-		return {
-			type: 'ai-assistant-change-tone',
-			tone: options?.tone,
-			subject,
-		};
-	}
-
-	if ( type === PROMPT_TYPE_SUMMARIZE ) {
-		return {
-			type: 'ai-assistant-summarize',
-			subject,
-		};
-	}
-
-	if ( type === PROMPT_TYPE_CHANGE_LANGUAGE ) {
-		return {
-			type: 'ai-assistant-change-language',
-			language: options?.language,
-			subject,
-		};
-	}
-
-	// default to the user prompt
 	return {
-		type: 'ai-assistant-user-prompt',
-		request: userPrompt,
+		type: mapInternalPromptTypeToBackendPromptType( type ),
+		subject,
+		...( options?.tone ? { tone: options.tone } : {} ),
+		...( options?.language ? { language: options.language } : {} ),
+		...( userPrompt ? { request: userPrompt } : {} ),
 	};
 }
 
