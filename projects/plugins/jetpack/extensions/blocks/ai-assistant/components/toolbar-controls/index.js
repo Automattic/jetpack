@@ -73,7 +73,7 @@ const ToolbarControls = ( {
 				</BlockControls>
 			) }
 
-			{ /* <BlockControls>
+			<BlockControls>
 				{ ! showRetry && ! contentIsLoaded && (
 					<PromptTemplatesControl
 						hasContentBefore={ !! contentBefore?.length }
@@ -148,7 +148,7 @@ const ToolbarControls = ( {
 						</ToolbarButton>
 					</ToolbarGroup>
 				) }
-			</BlockControls> */ }
+			</BlockControls>
 		</>
 	);
 };
