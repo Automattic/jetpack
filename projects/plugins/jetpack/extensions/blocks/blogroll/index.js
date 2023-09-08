@@ -63,12 +63,6 @@ export const settings = {
 	edit,
 	save: () => <InnerBlocks.Content />,
 	attributes,
-	providesContext: {
-		showAvatar: 'show_avatar',
-		showDescription: 'show_description',
-		showSubscribeButton: 'show_subscribe_button',
-		openLinksNewWindow: 'open_links_new_window',
-	},
 	example: {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.
