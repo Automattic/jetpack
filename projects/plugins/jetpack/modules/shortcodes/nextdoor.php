@@ -4,7 +4,6 @@
  *
  * @package automattic/jetpack
  */
-die('testing');
 if ( ! shortcode_exists( 'nextdoor' ) ) {
 	add_shortcode( 'nextdoor', 'jetpack_nextdoor_shortcode' );
 }
@@ -76,8 +75,6 @@ function jetpack_nextdoor_shortcode( $atts = array(), $content = '' ) {
  * @return string
  */
 function jetpack_nextdoor_embed_ids( $content ) {
-	error_log('HELP ME');
-
 	return '<iframe src="' . esc_url( $embed_url ) . '" style="display:block; margin:0 auto; width:' . esc_attr( $atts['width'] ) . 'px; height:' . esc_attr( $atts['height'] ) . 'px;" frameborder="0" allowtransparency="true" loading="lazy"></iframe>';
 	$textarr = wp_html_split( $content );
 
@@ -108,8 +105,6 @@ add_filter( 'the_content', 'jetpack_nextdoor_embed_ids', 7 );
  * @return string
  */
 function jetpack_nextdoor_embed_ids_callback( $matches ) {
-	error_log('HELP ME');
-
 	return "\n" . jetpack_nextdoor_shortcode( array(), $matches[1] ) .
 	 "\n";
 }
