@@ -10,7 +10,5 @@ export const MessageContent: React.FC = () => {
 
 	const content = selectedMessageId ? messages?.[ selectedMessageId ]?.content ?? '' : '';
 
-	return (
-		<div>{ selectedMessageId && <div dangerouslySetInnerHTML={ { __html: content } } /> }</div>
-	);
+	return <div dangerouslySetInnerHTML={ { __html: content } } />;
 };
