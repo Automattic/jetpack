@@ -136,7 +136,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const aiControlRef = useRef( null );
 	const blockRef = useRef( null );
 
-	const getBlock = useSelect( select => () => select( blockEditorStore ).getBlock( clientId ), [
+	const block = useSelect( select => select( blockEditorStore ).getBlock( clientId ), [
 		clientId,
 	] );
 	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( 'core/block-editor' );
@@ -257,7 +257,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			 * - Blocks are already created
 			 * - blocks are children of the current block
 			 */
-			newGeneratedBlocks = getBlock();
+			newGeneratedBlocks = block;
 			newGeneratedBlocks = newGeneratedBlocks?.innerBlocks || [];
 		}
 
