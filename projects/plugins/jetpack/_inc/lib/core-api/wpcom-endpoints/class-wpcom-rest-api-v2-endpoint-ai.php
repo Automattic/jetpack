@@ -200,7 +200,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 			array(
 				'method'  => 'GET',
 				'headers' => array( 'content-type' => 'application/json' ),
-				'timeout' => 30,
+				'timeout' => MINUTE_IN_SECONDS,
 			),
 			array(
 				'query'         => $question,
