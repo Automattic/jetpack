@@ -67,7 +67,7 @@ class Initializer {
 			'edit_posts',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
-			0
+			-1
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
