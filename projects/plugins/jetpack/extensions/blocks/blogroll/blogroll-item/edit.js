@@ -1,11 +1,9 @@
 import { InnerBlocks } from '@wordpress/block-editor';
 import './editor.scss';
-
 function BlogrollItemEdit( { className, attributes } ) {
 	const iconSize = 48;
 	const { name, icon, url, description } = attributes;
-
-	const DEFAULT_TEMPLATE = [
+	const innerBlocks = [
 		[
 			'core/columns',
 			{},
@@ -21,8 +19,8 @@ function BlogrollItemEdit( { className, attributes } ) {
 							'core/image',
 							{
 								url: icon,
-								width: iconSize,
-								height: iconSize,
+								width: `${ iconSize }px`,
+								height: `${ iconSize }px`,
 								style: { border: { radius: '50%' } },
 							},
 						],
@@ -62,7 +60,7 @@ function BlogrollItemEdit( { className, attributes } ) {
 
 	return (
 		<div className={ className }>
-			<InnerBlocks template={ DEFAULT_TEMPLATE } templateLock="all" />
+			<InnerBlocks template={ innerBlocks } />
 		</div>
 	);
 }
