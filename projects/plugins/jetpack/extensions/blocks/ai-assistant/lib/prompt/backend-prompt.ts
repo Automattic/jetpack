@@ -12,6 +12,7 @@ import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
+	PROMPT_TYPE_USER_PROMPT,
 	PromptTypeProp,
 	PromptItemProps,
 	BuildPromptProps,
@@ -43,7 +44,7 @@ export function buildInitialMessageForBackendPrompt(
 		role: 'jetpack-ai' as const,
 		context: {
 			type: 'ai-assistant-initial-prompt',
-			for: 'ai-assistant-user-prompt',
+			for: mapInternalPromptTypeToBackendPromptType( promptType ),
 			content: relevantContent?.length ? relevantContent : null,
 			custom_system_prompt: customSystemPrompt?.length ? customSystemPrompt : null,
 		},
@@ -199,4 +200,28 @@ function buildMessageContextForUserPrompt( {
 		type: 'ai-assistant-user-prompt',
 		request: userPrompt,
 	};
+}
+
+/**
+ * Maps the internal prompt type to the backend prompt type.
+ *
+ * @param {PromptTypeProp} promptType - The internal type of the prompt.
+ * @returns {string} The backend type of the prompt.
+ */
+function mapInternalPromptTypeToBackendPromptType( promptType: PromptTypeProp ): string {
+	const map = {
+		[ PROMPT_TYPE_SUMMARY_BY_TITLE ]: 'ai-assistant-summary-by-title',
+		[ PROMPT_TYPE_CONTINUE ]: 'ai-assistant-continue-writing',
+		[ PROMPT_TYPE_SIMPLIFY ]: 'ai-assistant-simplify',
+		[ PROMPT_TYPE_CORRECT_SPELLING ]: 'ai-assistant-correct-spelling',
+		[ PROMPT_TYPE_GENERATE_TITLE ]: 'ai-assistant-generate-title',
+		[ PROMPT_TYPE_MAKE_LONGER ]: 'ai-assistant-make-longer',
+		[ PROMPT_TYPE_MAKE_SHORTER ]: 'ai-assistant-make-shorter',
+		[ PROMPT_TYPE_CHANGE_TONE ]: 'ai-assistant-change-tone',
+		[ PROMPT_TYPE_SUMMARIZE ]: 'ai-assistant-summarize',
+		[ PROMPT_TYPE_CHANGE_LANGUAGE ]: 'ai-assistant-change-language',
+		[ PROMPT_TYPE_USER_PROMPT ]: 'ai-assistant-user-prompt',
+	};
+
+	return map[ promptType ];
 }
