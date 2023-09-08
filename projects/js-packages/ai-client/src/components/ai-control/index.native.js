@@ -11,9 +11,9 @@ import { Text, View } from 'react-native';
 /**
  * Internal dependencies
  */
+import AiStatusIndicator from '../ai-status-indicator';
 import { GuidelineMessage } from './message';
 import styles from './style.native.scss';
-// import AiStatusIndicator from '../ai-status-indicator';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
@@ -61,8 +61,8 @@ export function AIControl(
 	return (
 		<View style={ [ styles[ 'ai-control__container' ], shadowStyle ] }>
 			<View style={ styles[ 'ai-control__wrapper' ] }>
-				{ /* <AiStatusIndicator state={ state } /> */ }
 				<View style={ styles[ 'ai-control__input-container' ] }>
+					<AiStatusIndicator state={ state } />
 					<View style={ styles[ 'ai-control__input-wrapper' ] }>
 						<PlainText
 							value={ value }

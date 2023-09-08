@@ -1,0 +1,25 @@
+.ai-status-indicator__icon--is-init {
+    // color: var( --jp-green-60 );
+    color: #007117;
+}
+
+.ai-status-indicator__icon--is-requesting {
+    // color: var( --jp-green-40 );
+    color: #069e08
+}
+
+.ai-status-indicator__icon--is-suggesting {
+    // color: var( --jp-green-30 );
+    color: #2fb41f;
+    
+}
+
+.ai-status-indicator__icon--is-done {
+    // color: var( --jp-green-40 );
+    color: #069e08
+}
+
+.ai-status-indicator__icon--is-error {
+    // color: var( --jp-yellow-30 );
+    color: #2fb41f;
+}
