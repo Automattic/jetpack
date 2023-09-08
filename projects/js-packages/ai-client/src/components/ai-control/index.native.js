@@ -44,6 +44,7 @@ export function AIControl(
 		onSend = noop,
 		onStop = noop,
 		onAccept = noop,
+		onFocus = noop,
 	},
 	ref
 ) {
@@ -70,6 +71,7 @@ export function AIControl(
 							disabled={ loading || disabled }
 							ref={ promptUserInputRef }
 							multiline={ true }
+							onFocus={ onFocus }
 						/>
 					</View>
 					{ value?.length > 0 && showClearButton && (

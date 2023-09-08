@@ -132,7 +132,7 @@ const CONTENT_STYLE = `
 }
 `;
 
-export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
+export default function AIAssistantEdit( { attributes, setAttributes, clientId, onFocus } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ errorData, setError ] = useState( {} );
 	const [ errorDismissed, setErrorDismissed ] = useState( null );
@@ -151,6 +151,17 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	// const connected = isUserConnected();
 	const connected = true;
 
+	const focusOnPrompt = () => {
+		// Small delay to avoid focus crash
+		setTimeout( () => {
+			aiControlRef.current?.focus?.();
+		}, 100 );
+	};
+
+	const focusOnBlock = () => {
+		onFocus();
+	};
+
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -164,9 +175,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		wholeContent,
 		requestingState,
 	} = useSuggestionsFromOpenAI( {
-		// onSuggestionDone: focusOnPrompt,
-		// onUnclearPrompt: focusOnPrompt,
-		// onModeration: focusOnPrompt,
+		onSuggestionDone: focusOnPrompt,
+		onUnclearPrompt: focusOnPrompt,
+		onModeration: focusOnPrompt,
 		attributes,
 		clientId,
 		content: attributes.content,
@@ -192,14 +203,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			setErrorDismissed( false );
 		}
 	}, [ errorData ] );
-
-	const focusOnBlock = () => {
-		// Small delay to avoid focus crash
-		// TODO: do we need this?
-		// setTimeout( () => {
-		// 	blockRef.current?.focus?.();
-		// }, 100 );
-	};
 
 	// Handlers
 	const handleGetSuggestion = ( ...args ) => {
@@ -371,6 +374,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				showAccept={ contentIsLoaded && ! isWaitingState }
 				acceptLabel={ acceptLabel }
 				showClearButton={ ! isWaitingState }
+				onFocus={ onFocus }
 			/>
 		</View>
 	);
