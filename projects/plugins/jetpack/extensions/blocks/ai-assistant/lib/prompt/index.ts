@@ -414,7 +414,7 @@ export function buildPromptForBlock( {
 	isGeneratingTitle,
 	customSystemPrompt,
 }: BuildPromptProps ): Array< PromptItemProps > {
-	const isContentGenerated = options?.contentType === 'generated';
+	const isContentGenerated = !! generatedContent?.length;
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
 
 	if ( type !== PROMPT_TYPE_USER_PROMPT ) {
@@ -425,9 +425,11 @@ export function buildPromptForBlock( {
 				relevantContent = currentPostTitle;
 				break;
 			case PROMPT_TYPE_CONTINUE:
+				relevantContent = postContentAbove;
+				break;
 			case PROMPT_TYPE_SIMPLIFY:
 			case PROMPT_TYPE_CORRECT_SPELLING:
-				relevantContent = postContentAbove;
+				relevantContent = isContentGenerated ? generatedContent : postContentAbove;
 				break;
 			case PROMPT_TYPE_GENERATE_TITLE:
 				relevantContent = allPostContent;
