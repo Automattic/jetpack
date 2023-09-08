@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Sync\Actions as Sync_Actions;
+use Automattic\Jetpack\Sync\Queue\Queue_Storage_Table;
 
 /**
  * Jetpack Sync main class.
