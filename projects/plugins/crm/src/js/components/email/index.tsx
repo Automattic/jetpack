@@ -1,11 +1,25 @@
-import { AdminSection } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { useMessagesQuery } from 'crm/state/email/hooks';
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
 import AdminPage from '../admin-page';
+import { Inbox } from './components/inbox';
 
-export const EmailsAdmin = () => {
+export const EmailsAdmin: React.FC = () => {
+	const { data } = useMessagesQuery();
+
+	// TODO: implement a loading screen
+	// if ( isLoading ) {
+	// 	return 'loading...';
+	// }
+
+	// if ( error ) {
+	// 	return error;
+	// }
+
+	const { contacts, messages } = data ?? { contacts: [], messages: [] };
+
 	return (
 		<Routes>
 			<Route
@@ -15,9 +29,10 @@ export const EmailsAdmin = () => {
 						headline={ __( 'Emails', 'zero-bs-crm' ) }
 						subHeadline={ __( 'Send emails with Jetpack CRM', 'zero-bs-crm' ) }
 					>
-						<AdminSection>
-							<div>This is the emails page</div>
-						</AdminSection>
+						{ /* TODO: fix this marginLeft thing */ }
+						<div style={ { marginLeft: '30px' } }>
+							<Inbox contacts={ contacts } messages={ messages } />
+						</div>
 					</AdminPage>
 				}
 			/>

@@ -1,0 +1,5 @@
+.card {
+    &.selected {
+        background: var( --jp-gray-30 );
+    }
+}

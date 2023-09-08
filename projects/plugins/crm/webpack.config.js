@@ -120,6 +120,9 @@ const crmWebpackConfig = {
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
+		alias: {
+			"crm": path.resolve(__dirname, "src/js/")	
+		}
 	},
 	node: false,
 	plugins: [
