@@ -135,6 +135,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const aiControlRef = useRef( null );
 	const blockRef = useRef( null );
+	const webviewRef = useRef( null );
 
 	const block = useSelect( select => select( blockEditorStore ).getBlock( clientId ), [
 		clientId,
@@ -198,6 +199,16 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 			setErrorDismissed( false );
 		}
 	}, [ errorData ] );
+
+	useEffect( () => {
+		if ( attributes.content ) {
+			webviewRef.current?.injectJavaScript(
+				`if(document.getElementById('ai-content')) document.getElementById('ai-content').innerHTML = \`${ markdownConverter.render(
+					attributes.content
+				) }\`;`
+			);
+		}
+	}, [ webviewRef, attributes.content ] );
 
 	// Handlers
 	const handleGetSuggestion = ( ...args ) => {
@@ -303,9 +314,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 				<View style={ style[ 'ai-assistant__content' ] }>
 					<SandBox
 						styles={ [ CONTENT_STYLE ] }
-						html={ `<div class="jetpack-ai-content">${ markdownConverter.render(
-							attributes.content
-						) }</div>` }
+						html={
+							'<html><body><div id="ai-content" class="jetpack-ai-content"></div></body></html>'
+						}
+						ref={ webviewRef }
 					/>
 				</View>
 			) }
