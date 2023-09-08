@@ -1227,7 +1227,7 @@ final class ZeroBSCRM {
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Permissions.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ScreenOptions.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Inventory.php';
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ReWriteRules.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-rewrite-rules.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-mail-templating.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-templating.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-templating-placeholders.php';
