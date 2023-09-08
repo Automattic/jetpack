@@ -7,6 +7,7 @@ export default {
 	},
 	icon: {
 		type: 'string',
+		default: 'https://s0.wp.com/i/webclip.png',
 	},
 	url: {
 		type: 'string',
