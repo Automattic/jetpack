@@ -50,10 +50,13 @@ function AiPostExcerpt() {
 	// Post excerpt words number
 	const [ excerptWordsNumber, setExcerptWordsNumber ] = useState( 50 );
 
+	// Re enable the AI Excerpt component
+	const [ reenable, setReenable ] = useState( false );
+
 	// Remove core excerpt panel
 	const { removeEditorPanel } = useDispatch( 'core/edit-post' );
 
-	const { request, suggestion, requestingState, error, reset } = useAiSuggestions();
+	const { request, suggestion, requestingState, error, reset } = useAiSuggestions( {} );
 
 	useEffect( () => {
 		removeEditorPanel( 'post-excerpt' );
@@ -83,7 +86,8 @@ function AiPostExcerpt() {
 	const isGenerateButtonDisabled =
 		requestingState === 'requesting' ||
 		requestingState === 'suggesting' ||
-		requestingState === 'done';
+		( requestingState === 'done' && ! reenable );
+
 	const isBusy = requestingState === 'requesting' || requestingState === 'suggesting';
 	const isTextAreaDisabled = isBusy || requestingState === 'done';
 
@@ -95,6 +99,12 @@ function AiPostExcerpt() {
 	 */
 	async function requestExcerpt( ev: React.MouseEvent ): Promise< void > {
 		await autosave( ev );
+
+		// Enable Generate button
+		setReenable( false );
+
+		// Reset suggestion state
+		reset();
 
 		const messageContext: ContentLensMessageContextProps = {
 			type: 'ai-content-lens',
@@ -163,7 +173,10 @@ ${ postContent }
 
 				<AiExcerptControl
 					words={ excerptWordsNumber }
-					onWordsNumberChange={ setExcerptWordsNumber }
+					onWordsNumberChange={ wordsNumber => {
+						setExcerptWordsNumber( wordsNumber );
+						setReenable( true );
+					} }
 					disabled={ isBusy || isQuotaExceeded }
 				/>
 
