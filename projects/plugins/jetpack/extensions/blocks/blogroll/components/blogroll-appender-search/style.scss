@@ -1,0 +1,16 @@
+.jetpack-blogroll__appender-search {
+	padding: 16px;
+	display: flex;
+
+	> div {
+		flex-grow: 1;
+		padding: 1px;
+		position: relative;
+	}
+
+	button {
+		min-width: 32px !important;
+		height: 32px;
+		width: 32px;
+	}
+}

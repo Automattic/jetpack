@@ -2,6 +2,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
+import save from './save';
 
 /**
  * Style dependencies
@@ -49,7 +50,7 @@ export const settings = {
 		reusable: false,
 	},
 	edit,
-	save: () => {},
+	save,
 	attributes,
 	example: {},
 };

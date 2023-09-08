@@ -3,15 +3,16 @@ import { render } from '@wordpress/element';
 import QuestionAnswer from './question-answer';
 import './view.scss';
 
-const AskWP = () => {
+const AiChat = ( { askButtonLabel } ) => {
 	return (
 		<div>
-			<QuestionAnswer />
+			<QuestionAnswer askButtonLabel={ askButtonLabel } />
 		</div>
 	);
 };
 
 domReady( function () {
 	const container = document.querySelector( '#jetpack-ai-chat' );
-	render( <AskWP />, container );
+	const askButtonLabel = container.getAttribute( 'data-ask-button-label' );
+	render( <AiChat askButtonLabel={ askButtonLabel } />, container );
 } );

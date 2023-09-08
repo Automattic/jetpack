@@ -44,7 +44,10 @@ trait WPCOM_REST_API_Proxy_Request_Trait {
 			'method'  => $request->get_method(),
 		);
 
-		$response = Client::wpcom_json_api_request_as_user( $api_url, $this->version, $request_options, $request->get_body(), $this->base_api_path );
+		// If no body is present, passing it as $request->get_body() will cause an error.
+		$body = $request->get_body() ? $request->get_body() : null;
+
+		$response = Client::wpcom_json_api_request_as_user( $api_url, $this->version, $request_options, $body, $this->base_api_path );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
