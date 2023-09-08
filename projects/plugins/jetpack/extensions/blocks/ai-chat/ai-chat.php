@@ -41,8 +41,11 @@ function load_assets( $attr ) {
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
+	$ask_button_label = isset( $attr['askButtonLabel'] ) ? $attr['askButtonLabel'] : __( 'Ask', 'jetpack' );
+
 	return sprintf(
-		'<div class="%1$s" id="jetpack-ai-chat"></div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) )
+		'<div class="%1$s" data-ask-button-label="%2$s" id="jetpack-ai-chat"></div>',
+		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( $ask_button_label )
 	);
 }
