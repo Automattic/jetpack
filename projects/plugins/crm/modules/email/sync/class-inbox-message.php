@@ -195,7 +195,7 @@ class Inbox_Message implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public function jsonSerialize(): mixed {
+	public function jsonSerialize() {
 		return array(
 			'sender_contact_id' => $this->get_sender_contact_id(),
 			'subject'           => $this->get_subject(),
