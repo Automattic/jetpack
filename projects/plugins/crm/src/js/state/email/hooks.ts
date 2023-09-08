@@ -2,6 +2,10 @@ import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
 import { Contact, Message } from 'crm/state/email/types';
 
+// TODO: this can be better
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare let jpcrmEmailInitialState: any;
+
 // TODO: messages should have real IDs
 const getMessageId = ( message: Message ) => {
 	const str = JSON.stringify( message );
@@ -34,7 +38,7 @@ export function useMessagesQuery(): UseQueryResult<
 				contacts: contacts.reduce(
 					( accumulator, contact ) => ( {
 						...accumulator,
-						[ contact.contact_id ]: contact,
+						[ contact.id ]: contact,
 					} ),
 					{}
 				),
@@ -49,7 +53,7 @@ export function useMessagesQuery(): UseQueryResult<
 		},
 		queryFn: () =>
 			axios.get< { contacts: Contact[]; messages: Message[] } >(
-				'http://jetpack-crm.local/wp-json/jetpack-crm/v4/inbox/messages'
+				`${ jpcrmEmailInitialState.apiRoot }jetpack-crm/v4/inbox/messages`
 			),
 	} );
 }
