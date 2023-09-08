@@ -140,6 +140,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		clientId,
 	] );
 	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( 'core/block-editor' );
+	const { editPost } = useDispatch( 'core/editor' );
 
 	const { requireUpgrade: requireUpgradeOnStart, refresh: refreshFeatureData } = useAIFeature();
 	const requireUpgrade = requireUpgradeOnStart || errorData?.code === 'error_quota_exceeded';
@@ -271,14 +272,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		// }
 	};
 
-	// TODO: should generate title be included in MVP?
 	const handleAcceptTitle = () => {
-		// if ( isInBlockEditor ) {
-		// 	editPost( { title: attributes.content.trim() } );
-		// 	removeBlock( clientId );
-		// } else {
-		// 	handleAcceptContent();
-		// }
+		editPost( { title: attributes.content.trim() } );
+		removeBlock( clientId );
 	};
 
 	const handleImageRequest = () => {
