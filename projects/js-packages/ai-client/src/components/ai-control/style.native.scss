@@ -19,12 +19,13 @@
 }
 
 .ai-control__input-container {
-	margin-bottom: 8px;
-	justify-content: center;
+	margin-bottom: 16px;
+	justify-content: flex-start;
 }
 
 .ai-control__input-wrapper {
 	flex-grow: 1;
+	margin-left: 32px;
 	margin-right: 40px;
 }
 
@@ -37,14 +38,22 @@
 }
 
 .ai-control__controls-prompt_button_container {
-	align-items: flex-start;
+	flex-direction: row;
+	align-items: center;
 }
 
 .ai-control__controls-prompt_button {
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
 	border-width: 1px;
 	border-color: rgba($color: #000000, $alpha: 0.2);
 	border-radius: 12px;
 	padding: 8px 16px;
+}
+
+.ai-control__controls-prompt_button-accept {
+	margin-left: auto;
 }
 
 .ai-control__controls-prompt_button-text {
@@ -85,4 +94,8 @@
 .ai-assistant__message-external-link {
 	// color: var( --jp-gray-50 );
 	color: #646970;
+}
+
+.ai-control__input-loading {
+	margin-left: 12px;
 }

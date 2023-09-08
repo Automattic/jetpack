@@ -3,11 +3,10 @@
  */
 import { PlainText } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
-import { useKeyboardShortcut } from '@wordpress/compose';
 import { forwardRef, useImperativeHandle, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall, check, arrowUp } from '@wordpress/icons';
-import { Text, View } from 'react-native';
+import { ActivityIndicator, TouchableOpacity, Text, View } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -28,6 +27,28 @@ const shadowStyle = {
 	shadowRadius: 3.84,
 
 	elevation: 5,
+};
+
+const ControlButton = ( { label, hint, disabled, onPress, icon, text, style } ) => {
+	return (
+		<TouchableOpacity
+			accessibilityLabel={ label }
+			style={ [
+				styles[ 'ai-control__controls-prompt_button' ],
+				style,
+				{ opacity: disabled ? 0.3 : 1 },
+			] }
+			accessibilityRole={ 'button' }
+			accessibilityHint={ hint }
+			onPress={ onPress }
+			disabled={ disabled }
+		>
+			<>
+				<Icon size={ 16 } icon={ icon } />
+				<Text style={ styles[ 'ai-control__controls-prompt_button-text' ] }>{ text }</Text>
+			</>
+		</TouchableOpacity>
+	);
 };
 
 export function AIControl(
@@ -55,9 +76,6 @@ export function AIControl(
 	// Pass the ref to forwardRef.
 	useImperativeHandle( ref, () => promptUserInputRef.current );
 
-	// Set up keyboard shortcuts using `useKeyboardShortcut`
-	// TODO: do we need this in the mobile version?
-
 	return (
 		<View style={ [ styles[ 'ai-control__container' ], shadowStyle ] }>
 			<View style={ styles[ 'ai-control__wrapper' ] }>
@@ -68,7 +86,7 @@ export function AIControl(
 							value={ value }
 							onChange={ onChange }
 							placeholder={ placeholder }
-							disabled={ loading || disabled }
+							editable={ ! loading && ! disabled }
 							ref={ promptUserInputRef }
 							multiline={ true }
 							onFocus={ onFocus }
@@ -85,47 +103,39 @@ export function AIControl(
 				</View>
 				<View style={ styles[ 'ai-control__controls-prompt_button_container' ] }>
 					{ ! loading ? (
-						<Button
-							onClick={ () => onSend( value ) }
-							disabled={ ! value?.length || disabled }
-							label={ __( 'Send request', 'jetpack-ai-client' ) }
-							fixedRatio={ false }
-							customContainerStyles={ styles[ 'ai-control__controls-prompt_button' ] }
-						>
-							<Icon size={ 16 } icon={ arrowUp } />
-							<Text style={ styles[ 'ai-control__controls-prompt_button-text' ] }>
-								{ __( 'Send', 'jetpack-ai-client' ) }
-							</Text>
-						</Button>
+						<>
+							<ControlButton
+								label={ __( 'Send request', 'jetpack-ai-client' ) }
+								hint={ __( 'Double tap to send request', 'jetpack-ai-client' ) }
+								onPress={ () => onSend( value ) }
+								disabled={ ! value?.length || disabled }
+								icon={ arrowUp }
+								text={ __( 'Send', 'jetpack-ai-client' ) }
+							/>
+						</>
 					) : (
-						<Button
-							onClick={ onStop }
-							label={ __( 'Stop request', 'jetpack-ai-client' ) }
-							fixedRatio={ false }
-							customContainerStyles={ styles[ 'ai-control__controls-prompt_button' ] }
-						>
-							<Icon size={ 16 } icon={ closeSmall } />
-							<Text style={ styles[ 'ai-control__controls-prompt_button-text' ] }>
-								{ __( 'Stop', 'jetpack-ai-client' ) }
-							</Text>
-						</Button>
+						<>
+							<ControlButton
+								label={ __( 'Stop request', 'jetpack-ai-client' ) }
+								onPress={ onStop }
+								icon={ closeSmall }
+								text={ __( 'Stop', 'jetpack-ai-client' ) }
+							/>
+							<View style={ styles[ 'ai-control__input-loading' ] }>
+								<ActivityIndicator />
+							</View>
+						</>
+					) }
+					{ showAccept && (
+						<ControlButton
+							label={ acceptLabel }
+							onPress={ onAccept }
+							icon={ check }
+							text={ acceptLabel }
+							style={ styles[ 'ai-control__controls-prompt_button-accept' ] }
+						/>
 					) }
 				</View>
-				{ showAccept && (
-					<View style={ styles[ 'ai-control__controls-prompt_button_container' ] }>
-						<Button
-							onClick={ onAccept }
-							label={ acceptLabel }
-							customContainerStyles={ styles[ 'ai-control__controls-prompt_button' ] }
-							fixedRatio={ false }
-						>
-							<Icon size={ 16 } icon={ check } />
-							<Text style={ styles[ 'ai-control__controls-prompt_button-text' ] }>
-								{ acceptLabel }
-							</Text>
-						</Button>
-					</View>
-				) }
 			</View>
 			{ showGuideLine && <GuidelineMessage /> }
 		</View>
