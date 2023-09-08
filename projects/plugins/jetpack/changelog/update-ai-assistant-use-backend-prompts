@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-AI Assistant: start using backend prompts.
+AI Assistant: start using backend to generate the system prompt.
