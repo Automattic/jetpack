@@ -1,4 +1,12 @@
-import { Flex, FlexBlock, PanelRow, VisuallyHidden, Spinner, Button } from '@wordpress/components';
+import {
+	Flex,
+	FlexBlock,
+	PanelRow,
+	VisuallyHidden,
+	Spinner,
+	Button,
+	RadioControl,
+} from '@wordpress/components';
 import { useInstanceId, useViewportMatch } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -113,28 +121,22 @@ function TierSelector( { onChange } ) {
 
 	return (
 		<div className="jetpack-editor-post-tiers">
-			{ products.map( product => (
-				<div key={ product.id }>
-					<input
-						type="radio"
-						name="tier"
-						checked={ Number( tierId ) === product.id }
-						value={ product.id }
-						onChange={ event => {
-							const obj = {};
-							obj[ META_NAME_FOR_POST_TIER_ID_SETTINGS ] = event?.target?.value;
-							return onChange && onChange( obj );
-						} }
-						id={ `editor-post-tier-${ product.id }` }
-					/>
-					<label htmlFor={ `editor-post-tier-${ product.id }` }>
-						{
-							/* Translators: Tier title (example: "Gold tier"). */
-							sprintf( __( '%s subscribers', 'jetpack' ), product.title )
-						}
-					</label>
-				</div>
-			) ) }
+			<RadioControl
+				label={ __( 'Choose Newsletter Tier', 'jetpack' ) }
+				hideLabelFromVision={ true }
+				selected={ Number( tierId ) }
+				options={ products.map( product => {
+					/* Translators: %s is the tier label created by site user */
+					const label = sprintf( __( '%s subscribers', 'jetpack' ), product.title );
+					const value = Number( product.id );
+					return { label, value };
+				} ) }
+				onChange={ newValue => {
+					const obj = {};
+					obj[ META_NAME_FOR_POST_TIER_ID_SETTINGS ] = newValue;
+					return onChange && onChange( obj );
+				} }
+			/>
 		</div>
 	);
 }
