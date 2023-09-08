@@ -8,6 +8,8 @@
 
 namespace Automattic\Jetpack_CRM\Modules\Email;
 
+use JsonSerializable;
+
 /**
  * Inbox Message.
  *
@@ -15,7 +17,7 @@ namespace Automattic\Jetpack_CRM\Modules\Email;
  *
  * @since $$next-version$$
  */
-class Inbox_Message {
+class Inbox_Message implements JsonSerializable {
 
 	/**
 	 * The id that identifies the contact which sent the message.
@@ -186,4 +188,20 @@ class Inbox_Message {
 		$this->sent_date = $sent_date;
 	}
 
+	/**
+	 * Implement jsonSerialize
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array
+	 */
+	public function jsonSerialize() {
+		return array(
+			'sender_contact_id' => $this->get_sender_contact_id(),
+			'subject'           => $this->get_subject(),
+			'content'           => $this->get_content(),
+			'type'              => $this->get_type(),
+			'sent_date'         => $this->get_sent_date(),
+		);
+	}
 }
