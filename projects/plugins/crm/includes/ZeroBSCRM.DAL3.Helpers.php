@@ -5270,11 +5270,11 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 			// got balance?
 			if ($outstandingBalance <= 0 && $outstandingBalance !== false){
 
-				// simple status update
-				$statusStr = __('Paid','zero-bs-crm');
-				$invUpdate = $zbs->DAL->invoices->setInvoiceStatus($invoice_id,$statusStr);
+				// mark invoice as paid
+				$status_str     = 'Paid';
+				$invoice_update = $zbs->DAL->invoices->setInvoiceStatus( $invoice_id, $status_str ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-			    return $statusStr;
+				return $invoice_update;
 
 			}
 
@@ -5296,7 +5296,7 @@ function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 	}
 	$count_deleted = 0;
 	foreach ( $all_invoices as $invoice ) {
-		if ( $invoice['status'] === __( 'Deleted', 'zero-bs-crm' ) ) {
+		if ( $invoice['status'] === 'Deleted' ) {
 			++$count_deleted;
 		}
 	}
