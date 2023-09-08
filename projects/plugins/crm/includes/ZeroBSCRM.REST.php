@@ -112,6 +112,20 @@ add_action( 'rest_api_init', function () {
 		$automation_controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Automation_Controller();
 		$automation_controller->register_routes();
 	}
+
+	/**
+	 * Feature flag to conditionally load in the inbox API.
+	 *
+	 * @ignore
+	 * @since $$next-version$$
+	 *
+	 * @param bool Determine if we should initialize the inbox REST APIs.
+	 */
+	if ( apply_filters( 'jetpack_crm_feature_flag_email', false ) ) {
+		require_once plugin_dir_path( __FILE__ ) . '../modules/email/rest-api/class-rest-inbox-controller.php';
+		$inbox_controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Inbox_Controller();
+		$inbox_controller->register_routes();
+	}
 });
 
 //the callbacks (for the above URLS - restricted by the permission_callback above).
