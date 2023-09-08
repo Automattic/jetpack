@@ -12,6 +12,7 @@ import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_SUMMARIZE,
 	PROMPT_TYPE_CHANGE_LANGUAGE,
+	PromptTypeProp,
 	PromptItemProps,
 	BuildPromptProps,
 } from './index';
@@ -22,6 +23,32 @@ import {
 const SUBJECT_TITLE = 'title';
 const SUBJECT_CONTENT = 'content';
 const SUBJECT_LAST_ANSWER = 'last-answer';
+
+/**
+ * Builds the initial message, that will be transformed on the
+ * system prompt and relevent content message, if applicable.
+ *
+ * @param {PromptTypeProp} promptType - The internal type of the prompt.
+ * @param {string} relevantContent - The relevant content, if available.
+ * @param {string} customSystemPrompt - The custom system prompt, if available.
+ * @returns {PromptItemProps} The initial message.
+ */
+export function buildInitialMessageForBackendPrompt(
+	promptType: PromptTypeProp,
+	relevantContent: string,
+	customSystemPrompt: string
+): PromptItemProps {
+	// The basic temaplate for the message.
+	return {
+		role: 'jetpack-ai' as const,
+		context: {
+			type: 'ai-assistant-initial-prompt',
+			for: 'ai-assistant-user-prompt',
+			content: relevantContent?.length ? relevantContent : null,
+			custom_system_prompt: customSystemPrompt?.length ? customSystemPrompt : null,
+		},
+	};
+}
 
 /**
  * Builds backend prompt message list
