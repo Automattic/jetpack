@@ -16,7 +16,7 @@ truncate -s 0 /var/www/html/wp-content/debug.log
 # Ensure wp-config.php doesn't have multi-site settings
 echo
 echo "Clearing out possible multi-site related settings from wp-config.php"
-wp --allow-root config delete WP_ALLOW_McccULTISITE 2>&1 | grep -v "not defined" || true
+wp --allow-root config delete WP_ALLOW_MULTISITE 2>&1 | grep -v "not defined" || true
 wp --allow-root config delete MULTISITE 2>&1 | grep -v "not defined" || true
 wp --allow-root config delete SUBDOMAIN_INSTALL 2>&1 | grep -v "not defined" || true
 wp --allow-root config delete base 2>&1 | grep -v "not defined" || true
