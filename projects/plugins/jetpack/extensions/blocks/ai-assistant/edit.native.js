@@ -3,19 +3,14 @@
  */
 import { AIControl } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import {
-	useBlockProps,
-	useInnerBlocksProps,
-	InspectorControls,
-	store as blockEditorStore,
-} from '@wordpress/block-editor';
-import { rawHandler, createBlock, parse } from '@wordpress/blocks';
+import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
+import { rawHandler } from '@wordpress/blocks';
 import { SandBox } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -165,7 +160,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
-		// wasCompletionJustRequested,
 		getSuggestionFromOpenAI,
 		stopSuggestion,
 		showRetry,
@@ -305,10 +299,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const blockProps = useBlockProps( {
 		ref: blockRef,
-		// className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
 	} );
-
-	console.log( { isWaitingState, connected, requireUpgrade } );
 
 	return (
 		<View { ...blockProps }>
