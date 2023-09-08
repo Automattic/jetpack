@@ -765,9 +765,10 @@ class Jetpack_PostImages {
 	 * @param  array $image Array containing details of the image.
 	 * @param  int   $base_width Base image width (i.e., the width at 1x).
 	 * @param  int   $base_height Base image height (i.e., the height at 1x).
+	 * @param  bool  $use_widths Whether to generate the srcset with widths instead of multipliers.
 	 * @return string The srcset for the image.
 	 */
-	public static function generate_cropped_srcset( $image, $base_width, $base_height ) {
+	public static function generate_cropped_srcset( $image, $base_width, $base_height, $use_widths = false ) {
 		$srcset = '';
 
 		if ( ! is_array( $image ) || empty( $image['src'] ) || empty( $image['src_width'] ) ) {
@@ -783,12 +784,17 @@ class Jetpack_PostImages {
 				break;
 			}
 
-			$srcset_url      = self::fit_image_url(
+			$srcset_url = self::fit_image_url(
 				$image['src'],
 				$srcset_width,
 				$srcset_height
 			);
-			$srcset_values[] = "{$srcset_url} {$multiplier}x";
+
+			if ( $use_widths ) {
+				$srcset_values[] = "{$srcset_url} {$srcset_width}w";
+			} else {
+				$srcset_values[] = "{$srcset_url} {$multiplier}x";
+			}
 		}
 
 		if ( count( $srcset_values ) > 1 ) {

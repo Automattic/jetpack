@@ -68,7 +68,7 @@ class Contact_Created extends Base_Trigger {
 	 * @return string|null The category of the trigger.
 	 */
 	public static function get_category(): ?string {
-		return __( 'contact', 'zero-bs-crm' );
+		return __( 'Contact', 'zero-bs-crm' );
 	}
 
 	/**

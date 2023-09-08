@@ -70,11 +70,12 @@ add_action(
 );
 
 /**
- * Register the `create-with-voice` extension.
+ * Register the `ai-content-lens` extension.
  */
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_extension_available( 'create-with-voice' );
+		\Jetpack_Gutenberg::set_extension_available( 'ai-content-lens' );
 	}
 );
+

@@ -10,6 +10,7 @@ import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useState, useMemo, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import React from 'react';
 /**
  * Internal dependencies
  */
@@ -20,6 +21,7 @@ import { AiAssistantUiContextProvider } from './context';
 /**
  * Types
  */
+import type { Block } from '../../../lib/utils/compare-blocks';
 import type { RequestingErrorProps } from '@automattic/jetpack-ai-client';
 
 // An identifier to use on the extension error notices,
@@ -54,7 +56,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		const [ assistantAnchor, setAssistantAnchor ] = useState< HTMLElement | null >( null );
 
 		// Keep track of the current list of valid blocks between renders.
-		const currentListOfValidBlocks = useRef( [] );
+		const currentListOfValidBlocks = useRef< Array< Block > >( [] );
 
 		const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 		const coreEditorSelect = useSelect( select => select( 'core/editor' ), [] ) as {
@@ -154,7 +156,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 			( newContent: string, isRequestDone = false ) => {
 				// Remove the Jetpack Form block from the content.
 				const processedContent = newContent.replace(
-					/<!-- (\/)*wp:jetpack\/(contact-)*form ({.*} )*(\/)*-->/g,
+					/<!-- (\/)*wp:jetpack\/(contact-)*form ({[^}]*} )*(\/)*-->/g,
 					''
 				);
 
@@ -165,7 +167,10 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 
 				// Check if the generated blocks are valid.
 				const validBlocks = newContentBlocks.filter( block => {
-					return block.isValid && block.name !== 'core/freeform' && block.name !== 'core/missing';
+					return (
+						block.isValid &&
+						! [ 'core/freeform', 'core/missing', 'core/html' ].includes( block.name )
+					);
 				} );
 
 				let lastBlockUpdated = false;
