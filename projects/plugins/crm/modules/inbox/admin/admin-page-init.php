@@ -3,12 +3,12 @@
  * Jetpack CRM
  * https://jetpackcrm.com
  *
- * Email admin page initialization
+ * Inbox admin page initialization
  *
  * @package automattic/jetpack-crm
  */
 
-namespace Automattic\Jetpack_CRM\Modules\Email;
+namespace Automattic\Jetpack_CRM\Modules\Inbox;
 
 use Automattic\Jetpack\Assets;
 
@@ -19,8 +19,8 @@ use Automattic\Jetpack\Assets;
  *
  * @return void
  */
-function initialize_email_page() {
-	add_action( 'load-admin_page_jpcrm-emails', __NAMESPACE__ . '\admin_init' );
+function initialize_inbox_page() {
+	add_action( 'load-admin_page_jpcrm-inbox', __NAMESPACE__ . '\admin_init' );
 }
 
 /**
@@ -43,17 +43,17 @@ function admin_init() {
  */
 function enqueue_admin_scripts() {
 	Assets::register_script(
-		'jetpack-crm-email',
-		'build/email/index.js',
+		'jetpack-crm-inbox',
+		'build/inbox/index.js',
 		ZBS_ROOTFILE,
 		array(
 			'in_footer'  => true,
 			'textdomain' => 'zero-bs-crm',
 		)
 	);
-	Assets::enqueue_script( 'jetpack-crm-email' );
+	Assets::enqueue_script( 'jetpack-crm-inbox' );
 
-	wp_add_inline_script( 'jetpack-crm-email', render_initial_state(), 'before' );
+	wp_add_inline_script( 'jetpack-crm-inbox', render_initial_state(), 'before' );
 }
 
 /**
@@ -65,7 +65,7 @@ function enqueue_admin_scripts() {
  */
 function render_initial_state() {
 	/**
-	 * Allow external plugins to modify Email UI hydration data.
+	 * Allow external plugins to modify Inbox UI hydration data.
 	 *
 	 * @since 6.1.0
 	 *
@@ -77,12 +77,12 @@ function render_initial_state() {
 	 * }
 	 */
 	$initial_state = apply_filters(
-		'jetpack_crm_email_initial_state',
+		'jetpack_crm_inbox_initial_state',
 		array(
 			'apiRoot'  => esc_url_raw( rest_url() ),
 			'apiNonce' => wp_create_nonce( 'wp_rest' ),
 		)
 	);
 
-	return 'var jpcrmEmailInitialState=JSON.parse(decodeURIComponent( "' . rawurlencode( wp_json_encode( $initial_state ) ) . '" ) );';
+	return 'var jpcrmInboxInitialState=JSON.parse(decodeURIComponent( "' . rawurlencode( wp_json_encode( $initial_state ) ) . '" ) );';
 }

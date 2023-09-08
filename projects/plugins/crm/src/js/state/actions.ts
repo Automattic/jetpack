@@ -1,5 +1,5 @@
-import * as emailActions from './email/actions';
+import * as inboxActions from './inbox/actions';
 
 export const actions = {
-	...emailActions,
+	...inboxActions,
 };

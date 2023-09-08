@@ -1,6 +1,6 @@
 import { SET_SELECTED_CONTACT_ID, SET_SELECTED_MESSAGE_ID } from 'crm/state/action-types';
 
-export type EmailAction = SetSelectedContactIdAction | SetSelectedMessageIdAction;
+export type InboxAction = SetSelectedContactIdAction | SetSelectedMessageIdAction;
 
 export type SetSelectedContactIdAction = {
 	type: SET_SELECTED_CONTACT_ID;

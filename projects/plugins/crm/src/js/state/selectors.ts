@@ -1,5 +1,5 @@
-import * as emailSelectors from 'crm/state/email/selectors';
+import * as inboxSelectors from 'crm/state/inbox/selectors';
 
 export const selectors = {
-	...emailSelectors,
+	...inboxSelectors,
 };

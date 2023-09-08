@@ -1,5 +1,5 @@
 import { useSelect } from '@wordpress/data';
-import { useMessagesQuery } from 'crm/state/email/hooks';
+import { useMessagesQuery } from 'crm/state/inbox/hooks';
 import { store } from 'crm/state/store';
 
 export const ContactDetails = () => {

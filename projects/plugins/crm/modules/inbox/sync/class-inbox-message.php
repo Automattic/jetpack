@@ -6,7 +6,7 @@
  * @since $$next-version$$
  */
 
-namespace Automattic\Jetpack_CRM\Modules\Email;
+namespace Automattic\Jetpack_CRM\Modules\Inbox;
 
 use JsonSerializable;
 

@@ -99,4 +99,4 @@ require_once __DIR__ . '/class-jpcrm-base-integration-test-case.php';
  */
 add_filter( 'jetpack_crm_feature_flag_api_v4', '__return_true' );
 add_filter( 'jetpack_crm_feature_flag_automations', '__return_true' );
-add_filter( 'jetpack_crm_feature_flag_email', '__return_true' );
+add_filter( 'jetpack_crm_feature_flag_inbox', '__return_true' );

@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\CRM\REST_API\V4;
 
-use Automattic\Jetpack_CRM\Modules\Email\Inbox_Message;
+use Automattic\Jetpack_CRM\Modules\Inbox\Inbox_Message;
 use Exception;
 use WP_Error;
 use WP_REST_Request;

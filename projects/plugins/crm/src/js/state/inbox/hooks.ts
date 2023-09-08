@@ -1,10 +1,10 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
-import { Contact, Message } from 'crm/state/email/types';
+import { Contact, Message } from 'crm/state/inbox/types';
 
 // TODO: this can be better
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare let jpcrmEmailInitialState: any;
+declare let jpcrmInboxInitialState: any;
 
 // TODO: messages should have real IDs
 const getMessageId = ( message: Message ) => {
@@ -24,7 +24,7 @@ export function useMessagesQuery(): UseQueryResult<
 	unknown
 > {
 	return useQuery( {
-		queryKey: [ 'email', 'messages' ],
+		queryKey: [ 'inbox', 'messages' ],
 		select: axiosResponse => {
 			const { contacts, messages }: { contacts: Contact[]; messages: Message[] } =
 				axiosResponse.data;
@@ -53,7 +53,7 @@ export function useMessagesQuery(): UseQueryResult<
 		},
 		queryFn: () =>
 			axios.get< { contacts: Contact[]; messages: Message[] } >(
-				`${ jpcrmEmailInitialState.apiRoot }jetpack-crm/v4/inbox/messages`
+				`${ jpcrmInboxInitialState.apiRoot }jetpack-crm/v4/inbox/messages`
 			),
 	} );
 }

@@ -1027,7 +1027,7 @@ final class ZeroBSCRM {
 		$this->slugs['sendmail'] = 'zerobscrm-send-email';
 
 		$this->slugs['emails'] = 'zerobscrm-emails';
-		$this->slugs['newemails'] = 'jpcrm-emails';
+		$this->slugs['inbox']  = 'jpcrm-inbox';
 
 		$this->slugs['notifications'] = 'zerobscrm-notifications';
 
@@ -2596,9 +2596,9 @@ final class ZeroBSCRM {
 
 					break;
 
-				case 'jpcrm-emails':
+				case 'jpcrm-inbox':
 					// default
-					$pageTitle = __( 'Email Manager | Jetpack CRM', 'zero-bs-crm' );
+					$pageTitle = __( 'Inbox | Jetpack CRM', 'zero-bs-crm' ); // phpcs:ignore
 
 					break;
 

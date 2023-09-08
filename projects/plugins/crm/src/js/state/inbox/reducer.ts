@@ -1,13 +1,13 @@
-import type { EmailAction } from './actions';
+import type { InboxAction } from './actions';
 
-export type EmailState = {
+export type InboxState = {
 	selectedContactId: number | undefined;
 	selectedMessageId: number | undefined;
 };
 
-const defaultEmailState = { selectedContactId: undefined, selectedMessageId: undefined };
+const defaultInboxState = { selectedContactId: undefined, selectedMessageId: undefined };
 
-export const email = ( ( state: EmailState = defaultEmailState, action: EmailAction ) => {
+export const inbox = ( ( state: InboxState = defaultInboxState, action: InboxAction ) => {
 	switch ( action.type ) {
 		case 'SET_SELECTED_CONTACT_ID':
 			return {
@@ -21,4 +21,4 @@ export const email = ( ( state: EmailState = defaultEmailState, action: EmailAct
 		default:
 			return state;
 	}
-} ) as ( state: EmailState, action: EmailAction ) => EmailState;
+} ) as ( state: InboxState, action: InboxAction ) => InboxState;

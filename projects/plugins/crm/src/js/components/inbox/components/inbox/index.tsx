@@ -3,7 +3,7 @@ import { ContactSelector } from '../contact-selector';
 import { MessageContent } from '../message-content';
 import { MessageSelector } from '../message-selector';
 import styles from './styles.module.scss';
-import type { Contact, Message } from 'crm/state/email/types';
+import type { Contact, Message } from 'crm/state/inbox/types';
 
 type InboxProps = {
 	contacts: Contact[];

@@ -87,7 +87,7 @@ function jpcrm_render_emailbox() {
 			</a>
 
 			<?php
-			if ( apply_filters( 'jetpack_crm_feature_flag_email', false ) ) :
+			if ( apply_filters( 'jetpack_crm_feature_flag_inbox', false ) ) :
 				?>
 			<a class="item zbs-inbox-link">
 				<div class="nav-men">
@@ -172,7 +172,7 @@ function jpcrm_render_emailbox() {
 		</div>
 
 		<?php
-		if ( apply_filters( 'jetpack_crm_feature_flag_email', false ) ) :
+		if ( apply_filters( 'jetpack_crm_feature_flag_inbox', false ) ) :
 			?>
 		<div class='zbs-email-list inbox-email-list app-content'>
 			<?php

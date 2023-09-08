@@ -8,7 +8,7 @@
  * @package automattic/jetpack-crm
  */
 
-namespace Automattic\Jetpack_CRM\Modules\Email;
+namespace Automattic\Jetpack_CRM\Modules\Inbox;
 
 // block direct access
 defined( 'ZEROBSCRM_PATH' ) || exit;

@@ -132,14 +132,14 @@ function zeroBSCRM_menu_buildMenu() {
 			);
 		}
 
-		if ( apply_filters( 'jetpack_crm_feature_flag_email', false ) ) {
-			$menu['hidden']['subitems']['newemails'] = array(
-				'title'      => __( 'Emails', 'zero-bs-crm' ),
-				'url'        => $zbs->slugs['newemails'],
+		if ( apply_filters( 'jetpack_crm_feature_flag_inbox', false ) ) {
+			$menu['hidden']['subitems']['inbox'] = array(
+				'title'      => __( 'Inbox', 'zero-bs-crm' ),
+				'url'        => $zbs->slugs['inbox'],
 				'perms'      => 'admin_zerobs_manage_options',
 				'order'      => 2,
 				'wpposition' => 2,
-				'callback'   => 'jpcrm_pages_newemails',
+				'callback'   => 'jpcrm_pages_inbox',
 			);
 		}
 
@@ -924,15 +924,15 @@ function zeroBSCRM_menu_buildMenu() {
 		'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_email_styles' ),
 	);
 
-	// New Emails (hidden)
-	if ( apply_filters( 'jetpack_crm_feature_flag_email', false ) ) { 
-		$menu['hidden']['subitems']['newemails'] = array(
-			'title'      => __( 'Emails', 'zero-bs-crm' ),
-			'url'        => $zbs->slugs['newemails'],
+	// Inbox (hidden)
+	if ( apply_filters( 'jetpack_crm_feature_flag_inbox', false ) ) {
+		$menu['hidden']['subitems']['inbox'] = array(
+			'title'      => __( 'Inbox', 'zero-bs-crm' ),
+			'url'        => $zbs->slugs['inbox'],
 			'perms'      => 'admin_zerobs_manage_options',
 			'order'      => 2,
 			'wpposition' => 2,
-			'callback'   => 'jpcrm_pages_newemails',
+			'callback'   => 'jpcrm_pages_inbox',
 		);
 	}
 
