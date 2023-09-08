@@ -7994,15 +7994,14 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 
 		// retrieves statuses from object :)
 		function zeroBSCRM_getInvoicesStatuses(){
-		    
-		    // for DAL3+ these are hard typed, probably need to sit in the obj:
-		    return array(
-		    	__( 'Draft', 'zero-bs-crm' ),
-		    	__( 'Unpaid', 'zero-bs-crm' ),
-		    	__( 'Paid', 'zero-bs-crm' ),
-		    	__( 'Overdue', 'zero-bs-crm' ),
-		    	__( 'Deleted', 'zero-bs-crm' )
-		    );
+			// for DAL3+ these are hard typed, probably need to sit in the obj:
+			return array(
+				'Draft',
+				'Unpaid',
+				'Paid',
+				'Overdue',
+				'Deleted',
+			);
 		}
 
 
