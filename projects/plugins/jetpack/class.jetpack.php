@@ -6769,7 +6769,7 @@ endif;
 		);
 
 		$products['akismet'] = array(
-			'title'             => __( 'Akismet Anti-Spam', 'jetpack' ),
+			'title'             => __( 'Akismet Anti-spam', 'jetpack' ),
 			'slug'              => 'jetpack_anti_spam',
 			'description'       => __( 'Save time and get better responses by automatically blocking spam from your comments and forms.', 'jetpack' ),
 			'show_promotion'    => true,

@@ -1,0 +1,23 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/create-with-voice",
+	"title": "Create with voice",
+	"description": "Transform your spoken words into publish-ready blocks with AI effortlessly.",
+	"keywords": [ "AI", "GPT", "AL", "Magic", "help", "assistant" ],
+	"version": "12.5.0",
+	"textdomain": "jetpack",
+	"category": "media",
+	"icon": "microphopne",
+	"supports": {
+		"html": false,
+		"multiple": true,
+		"reusable": false
+	},
+	"attributes": {
+		"content": {
+			"type": "string"
+		}
+	},
+	"editorScript": "file:../editor.js"
+}

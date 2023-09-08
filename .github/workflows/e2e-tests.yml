@@ -195,9 +195,6 @@ jobs:
               echo "::error::Build job ran but result is not being used!"
               exit 1
             fi
-            echo "::group::Prepare build artefacts"
-            tar --xz -xf "$BUILD_DIR/jetpack-build/build.tar.xz" -C "$BUILD_DIR"
-            echo "::endgroup::"
 
             echo "::group::Update volume mapping"
             .github/files/e2e-tests/map-plugins-for-e2e-env.sh

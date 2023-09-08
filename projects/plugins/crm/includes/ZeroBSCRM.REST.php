@@ -108,6 +108,9 @@ add_action( 'rest_api_init', function () {
 	if ( apply_filters( 'jetpack_crm_feature_flag_api_v4', false ) ) {
 		$controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller();
 		$controller->register_routes();
+
+		$automation_controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Automation_Controller();
+		$automation_controller->register_routes();
 	}
 });
 
