@@ -17,7 +17,6 @@
 		"test": "jest"
 	},
 	"dependencies": {
-		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
