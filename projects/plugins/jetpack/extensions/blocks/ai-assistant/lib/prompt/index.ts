@@ -6,7 +6,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import { ToneProp } from '../../components/tone-dropdown-control';
-import { buildMessagesForBackendPrompt } from './backend-prompt';
+import { buildInitialMessageForBackendPrompt } from './backend-prompt';
 /**
  * Types & consts
  */
@@ -274,48 +274,32 @@ function getJetpackFormCustomPrompt( {
  * @return {Array<PromptItemProps>}
  */
 export const buildPromptTemplate = ( {
-	rules = [],
 	request = null,
 	relevantContent = null,
-	isContentGenerated = false,
-	isGeneratingTitle = false,
-	useGutenbergSyntax = false,
 	customSystemPrompt = null,
 }: {
-	rules?: Array< string >;
 	request?: string;
 	relevantContent?: string;
-	isContentGenerated?: boolean;
-	isGeneratingTitle?: boolean;
-	useGutenbergSyntax?: boolean;
 	customSystemPrompt?: string;
 } ): Array< PromptItemProps > => {
 	if ( ! request && ! relevantContent ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
-	// Add initial system prompt.
-	const messages = [ getInitialSystemPrompt( { rules, useGutenbergSyntax, customSystemPrompt } ) ];
+	const messages: Array< PromptItemProps > = [];
 
-	if ( relevantContent != null && relevantContent?.length ) {
-		const sanitizedContent = relevantContent.replaceAll( delimiter, '' );
+	const initialMessage = buildInitialMessageForBackendPrompt(
+		'userPrompt',
+		relevantContent,
+		customSystemPrompt
+	);
 
-		if ( ! isContentGenerated ) {
-			messages.push( {
-				role: 'user',
-				content: `The specific relevant content for this request, if necessary, delimited with ${ delimiter } characters: ${ delimiter }${ sanitizedContent }${ delimiter }`,
-			} );
-		}
-	}
+	messages.push( initialMessage );
 
 	const lastUserRequest: PromptItemProps = {
 		role: 'user',
 		content: request,
 	};
-
-	if ( isGeneratingTitle ) {
-		lastUserRequest.content += ' Only output a title, do not generate body content.';
-	}
 
 	messages.push( lastUserRequest );
 
@@ -426,23 +410,8 @@ export function buildPromptForBlock( {
 	type,
 	userPrompt,
 	isGeneratingTitle,
-	useGutenbergSyntax,
 	customSystemPrompt,
 }: BuildPromptProps ): Array< PromptItemProps > {
-	// Short-circuit the original prompt builder to use backend prompts.
-	return buildMessagesForBackendPrompt( {
-		generatedContent,
-		allPostContent,
-		postContentAbove,
-		currentPostTitle,
-		options,
-		type,
-		userPrompt,
-		isGeneratingTitle,
-		useGutenbergSyntax,
-		customSystemPrompt,
-	} );
-
 	const isContentGenerated = options?.contentType === 'generated';
 	const promptText = promptTextFor( type, isGeneratingTitle, options );
 
@@ -475,9 +444,6 @@ export function buildPromptForBlock( {
 		return buildPromptTemplate( {
 			...promptText,
 			relevantContent,
-			isContentGenerated,
-			isGeneratingTitle,
-			useGutenbergSyntax,
 			customSystemPrompt,
 		} );
 	}
@@ -485,9 +451,6 @@ export function buildPromptForBlock( {
 	return buildPromptTemplate( {
 		request: userPrompt,
 		relevantContent: generatedContent || allPostContent,
-		isContentGenerated: !! generatedContent?.length,
-		isGeneratingTitle,
-		useGutenbergSyntax,
 		customSystemPrompt,
 	} );
 }
