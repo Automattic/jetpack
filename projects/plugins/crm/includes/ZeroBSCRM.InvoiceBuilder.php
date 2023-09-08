@@ -1119,7 +1119,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 	$partials_table .= '</table>';
 
 	// generate a templated paybutton (depends on template :))
-	$potential_pay_button = zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id, $invoice['status_label'], $template );
+	$potential_pay_button = zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id, $invoice['status'], $template );
 
 	// == Payment terms, thanks etc. will only replace when present in template, so safe to generically check
 	$pay_thanks = '';
@@ -1600,59 +1600,49 @@ function zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines = array(), $te
 	return $line_item_html;
 }
 // Used to generate specific part of invoice pdf: (pay button)
-function zeroBSCRM_invoicing_generateInvPart_payButton($invoiceID=-1,$zbs_stat='',$template='pdf'){
+function zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id = -1, $status = '', $template = 'pdf' ) { // phpcs:ignore Squiz.Commenting.FunctionComment.WrongStyle
 
-    $potentialPayButton = '';
+	$potential_pay_button = '';
 
-        switch ($template){
+	switch ( $template ) {
 
-            case 'pdf':
-    
-               $potentialPayButton = '';
+		case 'pdf':
+			$potential_pay_button = '';
+			break;
 
-            break;
+		case 'portal':
+			if ( $status !== 'Paid' ) {
 
-            case 'portal':
-                
-                if ($zbs_stat != __('Paid','zero-bs-crm')) {
+				// need to add somethere here which stops the below if WooCommerce meta set
+				// so the action below will fire in WooSync, and remove the three filters below
+				// https://codex.wordpress.org/Function_Reference/remove_filter
+				// and then filter itself in. EDIT the remove filter does not seem to remove them below
+				// think they already need to be applied (i.e. this below). The below works but should
+				// think how best to do this for further extension later?
 
-                    // need to add somethere here which stops the below if WooCommerce meta set
-                    // so the action below will fire in WooSync, and remove the three filters below
-                    // https://codex.wordpress.org/Function_Reference/remove_filter
-                    // and then filter itself in. EDIT the remove filter does not seem to remove them below
-                    // think they already need to be applied (i.e. this below). The below works but should
-                    // think how best to do this for further extension later?
+				// WH: This'll be the ID if woo doesn't return a button (e.g. it's a woo inv so don't show pay buttons)
+				$potential_woo_pay_button_or_inv_id = apply_filters( 'zbs_woo_pay_invoice', $invoice_id );
 
+				if ( $potential_woo_pay_button_or_inv_id == $invoice_id ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					$potential_pay_button = apply_filters( 'invpro_pay_online', $invoice_id );
+				} else {
+					$potential_pay_button = $potential_woo_pay_button_or_inv_id;
+				}
 
-                    // WH: This'll be the ID if woo doesn't return a button (e.g. it's a woo inv so don't show pay buttons)
-                    $potentialWooPayButtonOrInvID = apply_filters('zbs_woo_pay_invoice', $invoiceID);
-                    
-                    if ($potentialWooPayButtonOrInvID == $invoiceID){
+				if ( $potential_pay_button == $invoice_id ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					$potential_pay_button = '';
+				}
+			}
 
-                        $potentialPayButton = apply_filters('invpro_pay_online', $invoiceID);
+			break;
 
-                    } else {
+		case 'notification':
+			$potential_pay_button = '';
+			break;
 
-                        $potentialPayButton = $potentialWooPayButtonOrInvID;
+	}
 
-                    }
-
-                    if ($potentialPayButton == $invoiceID) $potentialPayButton = '';
-
-
-                }
-
-            break;
-
-            case 'notification':
-    
-               $potentialPayButton = '';
-
-            break;
-
-        }
-
-    return $potentialPayButton;
+	return $potential_pay_button;
 }
 // Used to generate specific part of invoice pdf: (table headers)
 // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
