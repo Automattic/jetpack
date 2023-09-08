@@ -1,4 +1,3 @@
-import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
 import edit from './edit';
@@ -6,16 +5,16 @@ import icon from './icon';
 import './editor.scss';
 
 export const name = 'blogroll-item';
-export const title = __( 'Blogroll Item', 'jetpack' );
+export const title = __('Blogroll Item', 'jetpack');
 export const settings = {
 	title,
-	description: __( 'Blogroll Item', 'jetpack' ),
+	description: __('Blogroll Item', 'jetpack'),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
 	},
 	category: 'grow',
-	parent: [ 'jetpack/blogroll' ],
+	parent: ['jetpack/blogroll'],
 	keywords: [],
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
