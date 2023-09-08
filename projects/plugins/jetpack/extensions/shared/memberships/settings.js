@@ -126,8 +126,11 @@ function TierSelector( { onChange } ) {
 				hideLabelFromVision={ true }
 				selected={ Number( tierId ) }
 				options={ products.map( product => {
-					/* Translators: %s is the tier label created by site user */
-					const label = sprintf( __( '%s subscribers', 'jetpack' ), product.title );
+					const label = sprintf(
+						/* Translators: %s is the tier label created by site user */
+						__( '%s subscribers', 'jetpack' ),
+						product.title
+					);
 					const value = Number( product.id );
 					return { label, value };
 				} ) }
