@@ -1,9 +1,15 @@
-import { BoostScoreGraph, Button, Gridicon, Popover } from '@automattic/jetpack-components';
+import {
+	BoostScoreGraph,
+	Button,
+	Gridicon,
+	Popover,
+	Spinner,
+} from '@automattic/jetpack-components';
 import { useState } from 'react';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-const DummyWithPopover = ( { children } ) => {
+const DummyGraph = ( { children } ) => {
 	return (
 		<div className="jb-performance-history__dummy">
 			{ children }
@@ -12,27 +18,28 @@ const DummyWithPopover = ( { children } ) => {
 		</div>
 	);
 };
-  
-export const PerformanceHistory = ( {
+
+const GraphComponent = ( {
 	periods,
-	onToggle,
-	isOpen,
 	startDate,
 	endDate,
-	needsUpgrade = false,
-	handleUpgrade = () => {
-		/* noop */
-	},
+	needsUpgrade,
+	handleUpgrade,
+	isLoading,
 } ) => {
+	if ( isLoading ) {
+		return (
+			<div className="jb-performance-history__dummy">
+				<Spinner color="#000000" />
+			</div>
+		);
+	}
+
 	const [ showFreshStartPopover, setFreshStartPopover ] = useState( periods.length === 0 );
 
-	let graphComponent = (
-		<BoostScoreGraph periods={ periods } startDate={ startDate } endDate={ endDate } />
-	);
-
 	if ( needsUpgrade ) {
-		graphComponent = (
-			<DummyWithPopover>
+		return (
+			<DummyGraph>
 				<Popover
 					icon={ <Gridicon icon="lock" /> }
 					action={
@@ -46,11 +53,13 @@ export const PerformanceHistory = ( {
 						) }
 					</p>
 				</Popover>
-			</DummyWithPopover>
+			</DummyGraph>
 		);
-	} else if ( showFreshStartPopover ) {
-		graphComponent = (
-			<DummyWithPopover>
+	}
+
+	if ( showFreshStartPopover ) {
+		return (
+			<DummyGraph>
 				<Popover
 					icon={ <Gridicon icon="checkmark" /> }
 					action={
@@ -65,10 +74,25 @@ export const PerformanceHistory = ( {
 						{ __( 'Your scores will be recorded from now on.', 'jetpack-boost' ) }
 					</p>
 				</Popover>
-			</DummyWithPopover>
+			</DummyGraph>
 		);
 	}
 
+	return <BoostScoreGraph periods={ periods } startDate={ startDate } endDate={ endDate } />;
+};
+
+export const PerformanceHistory = ( {
+	periods,
+	onToggle,
+	isOpen,
+	startDate,
+	endDate,
+	isLoading,
+	needsUpgrade = false,
+	handleUpgrade = () => {
+		/* noop */
+	},
+} ) => {
 	return (
 		<Panel>
 			<PanelBody
@@ -78,7 +102,16 @@ export const PerformanceHistory = ( {
 				className="jb-performance-history__panel"
 			>
 				<PanelRow>
-					<div style={ { flexGrow: 1, minHeight: '300px' } }>{ graphComponent }</div>
+					<div style={ { flexGrow: 1, minHeight: '300px' } }>
+						<GraphComponent
+							periods={ periods }
+							startDate={ startDate }
+							endDate={ endDate }
+							needsUpgrade={ needsUpgrade }
+							handleUpgrade={ handleUpgrade }
+							isLoading={ isLoading }
+						/>
+					</div>
 				</PanelRow>
 			</PanelBody>
 		</Panel>
