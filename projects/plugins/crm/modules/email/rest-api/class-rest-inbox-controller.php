@@ -82,7 +82,7 @@ final class REST_Inbox_Controller extends REST_Base_Objects_Controller {
 			foreach ( array_keys( $contact_ids ) as $contact_id ) {
 				$contact                       = array();
 				$full_contact                  = zeroBS_getCustomer( $contact_id, true, true, true );
-				$contact['id']                 = $full_contact['id'];
+				$contact['contact_id']         = $full_contact['id'];
 				$contact['name']               = trim( $full_contact['fname'] . ' ' . $full_contact['lname'] );
 				$contact['status']             = $full_contact['status'];
 				$contact['prefix']             = $full_contact['prefix'];
