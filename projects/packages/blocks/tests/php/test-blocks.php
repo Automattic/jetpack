@@ -340,7 +340,7 @@ class Test_Blocks extends TestCase {
 	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_jetpack_register_block_from_metadata_file() {
-		$result = Blocks::jetpack_register_block( __DIR__ . '/fixtures/block.json' );
+		$result = Blocks::jetpack_register_block( __DIR__ . '/fixtures/test-block/block.json' );
 
 		$this->assertInstanceOf( 'WP_Block_Type', $result );
 	}
@@ -353,7 +353,7 @@ class Test_Blocks extends TestCase {
 	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_get_block_metadata_from_file() {
-		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/block.json' );
+		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/test-block/block.json' );
 
 		// phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertIsArray -- assertIsArray not supported by all PHP versions we support.
 		$this->assertTrue( is_array( $result ) );
@@ -368,7 +368,7 @@ class Test_Blocks extends TestCase {
 	 * @covers Automattic\Jetpack\Blocks::get_block_metadata_from_file
 	 */
 	public function test_get_block_metadata_from_folder() {
-		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/' );
+		$result = Blocks::get_block_metadata_from_file( __DIR__ . '/fixtures/test-block' );
 
 		// phpcs:ignore MediaWiki.PHPUnit.SpecificAssertions.assertIsArray -- assertIsArray not supported by all PHP versions we support.
 		$this->assertTrue( is_array( $result ) );
@@ -435,18 +435,31 @@ class Test_Blocks extends TestCase {
 	 * @covers Automattic\Jetpack\Blocks::get_path_to_block_metadata
 	 */
 	public function test_get_path_to_block_metadata() {
-		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', '/a/b/c/index.php' );
+		$base_dir  = __DIR__ . '/fixtures';
+		$block_dir = $base_dir . '/test-block';
 
-		$block_src_dir = '/extensions/blocks/test-block';
+		// Existing build folder
 
-		$result = Blocks::get_path_to_block_metadata( $block_src_dir );
-		$this->assertEquals( '/a/b/c/_inc/blocks/test-block', $result );
+		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', $base_dir . '/jetpack.php' );
 
-		$result = Blocks::get_path_to_block_metadata( $block_src_dir, '/dist' );
-		$this->assertEquals( '/dist/test-block', $result );
+		$result = Blocks::get_path_to_block_metadata( $block_dir );
+		$this->assertEquals( $base_dir . '/_inc/blocks/test-block', $result );
 
-		$result = Blocks::get_path_to_block_metadata( $block_src_dir, '/dist/' );
-		$this->assertEquals( '/dist/test-block', $result );
+		$result = Blocks::get_path_to_block_metadata( $block_dir, $base_dir . '/_inc/blocks/' );
+		$this->assertEquals( $base_dir . '/_inc/blocks/test-block', $result );
+
+		$result = Blocks::get_path_to_block_metadata( $block_dir, $base_dir . '/_inc/blocks' );
+		$this->assertEquals( $base_dir . '/_inc/blocks/test-block', $result );
+
+		// Invalid build folder
+
+		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', '/a/b/c/jetpack.php' );
+
+		$result = Blocks::get_path_to_block_metadata( $block_dir );
+		$this->assertEquals( $block_dir, $result );
+
+		$result = Blocks::get_path_to_block_metadata( $block_dir, '/dist' );
+		$this->assertEquals( $block_dir, $result );
 
 		Jetpack_Constants::clear_constants();
 	}

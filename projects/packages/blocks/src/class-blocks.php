@@ -55,11 +55,8 @@ class Blocks {
 		// Note: passing the path directly to register_block_type seems to loose the interactivity of
 		// the block once in the editor once it's out of focus.
 		if ( '/' === substr( $slug, 0, 1 ) ) {
-			// Test if build directory exists. Fall back to reading block.json from source directory.
-			$build_dir = realpath( self::get_path_to_block_metadata( $slug ) );
-			$path      = false === $build_dir ? $slug : $build_dir;
-			$metadata  = self::get_block_metadata_from_file( $path );
-			$name      = self::get_block_name_from_metadata( $metadata );
+			$metadata = self::get_block_metadata_from_file( self::get_path_to_block_metadata( $slug ) );
+			$name     = self::get_block_name_from_metadata( $metadata );
 
 			if ( ! empty( $name ) ) {
 				$slug       = $name;
@@ -360,7 +357,7 @@ class Blocks {
 	/**
 	 * Returns the path to the directory containing the block.json metadata file of a block, given its
 	 * source code directory and, optionally, the directory that holds the blocks built files of
-	 * the package.
+	 * the package. If the directory doesn't exist, falls back to the source directory.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -373,9 +370,9 @@ class Blocks {
 	 */
 	public static function get_path_to_block_metadata( $block_src_dir, $package_dist_dir = '' ) {
 		$dir       = basename( $block_src_dir );
-		$dist_path = empty( $package_dist_dir ) ? dirname( Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ) . '/_inc/blocks/' : $package_dist_dir;
-		$dist_path = substr( $dist_path, -1, 1 ) === '/' ? $dist_path : $dist_path . '/';
+		$dist_path = empty( $package_dist_dir ) ? dirname( Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ) . '/_inc/blocks' : $package_dist_dir;
+		$result    = realpath( "$dist_path/$dir" );
 
-		return $dist_path . $dir;
+		return false === $result ? $block_src_dir : $result;
 	}
 }
