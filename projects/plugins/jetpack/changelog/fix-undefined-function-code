@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+SAL: prevent a potential undefined function error
