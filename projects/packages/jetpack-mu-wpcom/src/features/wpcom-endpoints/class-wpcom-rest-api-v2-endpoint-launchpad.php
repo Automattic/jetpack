@@ -82,6 +82,31 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 				),
 			)
 		);
+
+		// Register rest route for getting a list of available checklists and the currently active checklist.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/navigator',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_navigator_data' ),
+					'permission_callback' => array( $this, 'can_access' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Returns a list of available checklists and the currently active checklist.
+	 *
+	 * @return array Array with two keys: `checklists` and `active_checklist`.
+	 */
+	public function get_navigator_data() {
+		return array(
+			'checklists'       => array(),
+			'active_checklist' => 'build-intent',
+		);
 	}
 
 	/**
