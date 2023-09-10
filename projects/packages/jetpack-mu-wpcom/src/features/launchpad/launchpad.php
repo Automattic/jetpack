@@ -684,7 +684,6 @@ function wpcom_launchpad_set_fse_next_steps_modal_hidden( $should_hide ) {
  * Helper function to indicate what's the current active checklist
  * in the context of the navigator.
  * It will try to read the key 'active_checklist_slug' from the 'wpcom_launchpad_config' option.
- * If it's not set, it will fallback to the 'site_intent' option.
  *
  * @return string|null The active checklist slug, null if none is set.
  */
