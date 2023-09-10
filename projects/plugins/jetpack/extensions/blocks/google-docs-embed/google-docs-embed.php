@@ -104,7 +104,7 @@ function render_callback( $attributes ) {
 		}
 	}
 
-	$block_classes = Blocks::classes( basename( __DIR__ ), $attributes, array( $aspect_ratio ) );
+	$block_classes = Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attributes, array( $aspect_ratio ) );
 
 	$html =
 		'<figure class="' . esc_attr( $block_classes ) . '">' .
