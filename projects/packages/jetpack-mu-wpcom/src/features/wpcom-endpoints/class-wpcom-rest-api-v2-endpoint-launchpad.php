@@ -104,7 +104,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 */
 	public function get_navigator_data() {
 		return array(
-			'checklists'       => array(),
+			'checklists'       => wpcom_launchpad_checklists()->get_all_task_lists(),
 			'active_checklist' => 'build-intent',
 		);
 	}
