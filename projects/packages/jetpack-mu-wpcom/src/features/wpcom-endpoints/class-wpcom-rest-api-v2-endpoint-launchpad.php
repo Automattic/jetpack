@@ -103,8 +103,17 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 * @return array Array with two keys: `checklists` and `active_checklist`.
 	 */
 	public function get_navigator_data() {
+		$raw_checklists = wpcom_launchpad_checklists()->get_all_task_lists();
+		$checklists     = array();
+		foreach ( $raw_checklists as $slug => $checklist ) {
+			$checklists[] = array(
+				'slug'  => $slug,
+				'title' => $checklist['title'],
+			);
+		}
+
 		return array(
-			'checklists'       => wpcom_launchpad_checklists()->get_all_task_lists(),
+			'checklists'       => $checklists,
 			'active_checklist' => 'build-intent',
 		);
 	}
