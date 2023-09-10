@@ -58,7 +58,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller 
 
 		return array(
 			'available_checklists' => $checklists,
-			'current_checklist'    => 'intent-build',
+			'current_checklist'    => wpcom_launchpad_get_active_checklist(),
 		);
 	}
 

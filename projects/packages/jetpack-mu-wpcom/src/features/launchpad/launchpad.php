@@ -681,6 +681,28 @@ function wpcom_launchpad_set_fse_next_steps_modal_hidden( $should_hide ) {
 }
 
 /**
+ * Helper function to indicate what's the current active checklist
+ * in the context of the navigator.
+ * It will try to read the key 'active_checklist_slug' from the 'wpcom_launchpad_config' option.
+ * If it's not set, it will fallback to the 'site_intent' option.
+ *
+ * @return string The active checklist slug.
+ */
+function wpcom_launchpad_get_active_checklist() {
+	$wpcom_launchpad_config = get_option( 'wpcom_launchpad_config' );
+
+	if ( ! $wpcom_launchpad_config || ! is_array( $wpcom_launchpad_config ) ) {
+		return false;
+	}
+
+	if ( ! isset( $wpcom_launchpad_config['active_checklist_slug'] ) ) {
+		return get_option( 'site_intent' );
+	}
+
+	return true === $wpcom_launchpad_config['active_checklist_slug'];
+}
+
+/**
  * Checks if the Keep building task list is enabled.
  *
  * @return bool True if the task list is enabled, false otherwise.
