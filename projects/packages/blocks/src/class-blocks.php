@@ -156,6 +156,31 @@ class Blocks {
 	}
 
 	/**
+	 * Get the block feature name (i.e. the name without the `jetpack` prefix).
+	 *
+	 * @param string|array $arg Path to block.json or its parent folder, or its content as an array.
+	 *
+	 * @return string The block feature name.
+	 */
+	public static function get_block_feature( $arg ) {
+		$metadata = is_array( $arg ) ? $arg : null;
+
+		if ( ! isset( $metadata ) ) {
+			$path = is_string( $arg ) ? $arg : null;
+
+			if ( isset( $path ) && ! empty( $path ) ) {
+				$metadata = self::get_block_metadata_from_file( self::get_path_to_block_metadata( $path ) );
+			}
+		}
+
+		if ( ! empty( $metadata ) ) {
+			return self::get_block_feature_from_metadata( $metadata );
+		}
+
+		return '';
+	}
+
+	/**
 	 * Get the block feature name (i.e. the name without the `jetpack` prefix) from its metadata.
 	 *
 	 * @param array $metadata The block metadata.

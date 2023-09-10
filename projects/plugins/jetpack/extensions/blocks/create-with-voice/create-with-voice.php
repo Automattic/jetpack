@@ -41,7 +41,7 @@ function load_assets( $attr, $content ) {
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( basename( __DIR__ ), $attr ) ),
+		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 		$content
 	);
 }
