@@ -9,7 +9,7 @@
 /**
  * Fetches Launchpad Navigator-related data for the site.
  *
- * @since 1.1.0
+ * @since 4.9.0
  */
 class WPCOM_REST_API_V2_Endpoint_Launchpad_Navigator extends WP_REST_Controller {
 
