@@ -20,6 +20,8 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	WOOCOMMERCE: 'woocommerce',
 	MONITOR: 'monitor',
 	NEWSLETTER: 'newsletter',
+	PAID_NEWSLETTER: 'paid-newsletter',
+	PAID_NEWSLETTER_SUCCESS: 'paid-newsletter-success',
 	RELATED_POSTS: 'related-posts',
 	CREATIVE_MAIL: 'creative-mail',
 	SITE_ACCELERATOR: 'site-accelerator',

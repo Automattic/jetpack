@@ -85,6 +85,12 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.NEWSLETTER:
 			redirectPath = '/newsletter';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.PAID_NEWSLETTER:
+			redirectPath = '/paid-newsletter';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.PAID_NEWSLETTER_SUCCESS:
+			redirectPath = '/paid-newsletter-success';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.RELATED_POSTS:
 			redirectPath = '/related-posts';
 			break;

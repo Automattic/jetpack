@@ -348,6 +348,7 @@ const stepToNextStepByPath = {
 		'backup-plan': 'summary',
 		boost: 'summary',
 		summary: 'summary',
+		'paid-newsletter': 'summary',
 	},
 	onboarding: {
 		[ ONBOARDING_JETPACK_COMPLETE ]: {
@@ -420,6 +421,7 @@ export const stepToRoute = {
 	woocommerce: '#/recommendations/woocommerce',
 	monitor: '#/recommendations/monitor',
 	newsletter: '#/recommendations/newsletter',
+	'paid-newsletter': '#/recommendations/paid-newsletter',
 	'related-posts': '#/recommendations/related-posts',
 	'creative-mail': '#/recommendations/creative-mail',
 	'site-accelerator': '#/recommendations/site-accelerator',

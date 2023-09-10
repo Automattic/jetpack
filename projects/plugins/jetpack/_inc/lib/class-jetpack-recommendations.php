@@ -22,12 +22,13 @@ use Automattic\Jetpack\Status\Host;
  * Jetpack_Recommendations class
  */
 class Jetpack_Recommendations {
-	const PUBLICIZE_RECOMMENDATION   = 'publicize';
-	const PROTECT_RECOMMENDATION     = 'protect';
-	const ANTI_SPAM_RECOMMENDATION   = 'anti-spam';
-	const VIDEOPRESS_RECOMMENDATION  = 'videopress';
-	const BACKUP_PLAN_RECOMMENDATION = 'backup-plan';
-	const BOOST_RECOMMENDATION       = 'boost';
+	const PUBLICIZE_RECOMMENDATION       = 'publicize';
+	const PROTECT_RECOMMENDATION         = 'protect';
+	const ANTI_SPAM_RECOMMENDATION       = 'anti-spam';
+	const VIDEOPRESS_RECOMMENDATION      = 'videopress';
+	const BACKUP_PLAN_RECOMMENDATION     = 'backup-plan';
+	const BOOST_RECOMMENDATION           = 'boost';
+	const PAID_NEWSLETTER_RECOMMENDATION = 'paid-newsletter';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
@@ -37,6 +38,7 @@ class Jetpack_Recommendations {
 		self::VIDEOPRESS_RECOMMENDATION,
 		self::BACKUP_PLAN_RECOMMENDATION,
 		self::BOOST_RECOMMENDATION,
+		self::PAID_NEWSLETTER_RECOMMENDATION,
 	);
 
 	const VIDEOPRESS_TIMED_ACTION = 'jetpack_recommend_videopress';
@@ -145,6 +147,33 @@ class Jetpack_Recommendations {
 
 		// Monitor for changes in plugins that have auto-updates enabled
 		add_action( 'update_site_option_auto_update_plugins', array( static::class, 'plugin_auto_update_settings_changed' ), 10, 3 );
+
+		// Monitor for changes to a sites subscriber count - notify when a site passes 100 subscribers - but has less than 100k.
+		add_action( 'jetpack_subscriber_count_updated', array( static::class, 'subscriber_count_updated' ), 10, 2 );
+	}
+
+	/**
+	 * Checks a sites subscriber count and triggers the recommendation if it is over 100 or under 100k.
+	 */
+	public static function subscriber_count_updated() {
+		// return if the recommendation is already enabled.
+		if ( self::is_conditional_recommendation_enabled( self::PAID_NEWSLETTER_RECOMMENDATION ) ) {
+			return;
+		}
+
+		// return if the subscriptions module is not active
+		if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+			return;
+		}
+
+		// get the follower count from the class WPCOM_Stats get_followers method.
+		// if the follower count is greater than 100 and less than 100k, enable the recommendation.
+		$site_subscribers  = WPCOM_Stats::get_followers( get_current_blog_id() );
+		$total_subscribers = intval( $site_subscribers['total'] );
+
+		if ( $total_subscribers > 100 && $total_subscribers < 100000 ) {
+			self::enable_conditional_recommendation( self::PAID_NEWSLETTER_RECOMMENDATION );
+		}
 	}
 
 	/**
