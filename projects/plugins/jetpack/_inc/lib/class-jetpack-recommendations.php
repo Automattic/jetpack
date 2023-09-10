@@ -149,7 +149,7 @@ class Jetpack_Recommendations {
 		add_action( 'update_site_option_auto_update_plugins', array( static::class, 'plugin_auto_update_settings_changed' ), 10, 3 );
 
 		// Monitor for changes to a sites subscriber count - notify when a site passes 100 subscribers - but has less than 100k.
-		add_action( 'jetpack_subscriber_count_updated', array( static::class, 'subscriber_count_updated' ), 10, 2 );
+		add_action( 'need_to_hook_into_an_action_to_check', array( static::class, 'subscriber_count_updated' ), 10, 2 );
 	}
 
 	/**
