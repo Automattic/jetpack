@@ -3,7 +3,7 @@
  * Launchpad API endpoint
  *
  * @package automattic/jetpack-mu-wpcom
- * @since 1.1.0
+ * @since 4.9.0
  */
 
 /**
