@@ -52,7 +52,8 @@
 		"videopress/video",
 		"ai-assistant-support",
 		"ai-assistant-form-support",
-		"paywall"
+		"paywall",
+		"ai-content-lens"
 	],
 	"beta": [
 		"ai-chat",
